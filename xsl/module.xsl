@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.52 2002/05/09 09:53:01 robbod Exp $
+$Id: module.xsl,v 1.53 2002/05/17 05:25:16 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -200,7 +200,7 @@ $Id: module.xsl,v 1.52 2002/05/09 09:53:01 robbod Exp $
     <xsl:otherwise>
       <xsl:call-template name="error_message">
         <xsl:with-param name="message">
-          No contact provided for project leader.
+          Error 1: No contact provided for project leader.
         </xsl:with-param>
       </xsl:call-template>
     </xsl:otherwise>
@@ -219,7 +219,7 @@ $Id: module.xsl,v 1.52 2002/05/09 09:53:01 robbod Exp $
     <xsl:otherwise>
       <xsl:call-template name="error_message">
         <xsl:with-param name="message">
-          No contact provided for project editor.
+          Error 2: No contact provided for project editor.
         </xsl:with-param>
       </xsl:call-template>
     </xsl:otherwise>
@@ -818,7 +818,7 @@ $Id: module.xsl,v 1.52 2002/05/09 09:53:01 robbod Exp $
       <xsl:call-template name="error_message">
         <xsl:with-param 
           name="message" 
-          select="concat('No description provided for UoF ',@name)"/>
+          select="concat('Error 3: No description provided for UoF ',@name)"/>
       </xsl:call-template>
     </xsl:otherwise>
   </xsl:choose>
@@ -882,7 +882,7 @@ $Id: module.xsl,v 1.52 2002/05/09 09:53:01 robbod Exp $
           <xsl:otherwise>
             <xsl:call-template name="error_message">
               <xsl:with-param name="message">
-                <xsl:value-of select="concat('The UoF ',$uof,' cannot be
+                <xsl:value-of select="concat(' The UoF ',$uof,' cannot be
 found in module ',$module )"/>
               </xsl:with-param>
             </xsl:call-template>
@@ -893,7 +893,7 @@ found in module ',$module )"/>
     <xsl:otherwise>
       <xsl:call-template name="error_message">
         <xsl:with-param name="message">
-          <xsl:value-of select="$module_ok"/>
+          <xsl:value-of select="concat('Error 5: ', $module_ok)"/>
         </xsl:with-param>
       </xsl:call-template>
 
@@ -929,7 +929,7 @@ found in module ',$module )"/>
     <xsl:otherwise>
       <xsl:call-template name="error_message">
         <xsl:with-param name="message">
-          <xsl:value-of select="concat('uof.ae error: The application object ',$ae,' cannot be
+          <xsl:value-of select="concat('Error 6: uof.ae error: The application object ',$ae,' cannot be
                                 found in module ',/module/@name )"/>
         </xsl:with-param>
       </xsl:call-template>
@@ -1510,7 +1510,7 @@ found in module ',$module )"/>
               <xsl:otherwise>
                 <xsl:call-template name="error_message">
                   <xsl:with-param name="message">
-                    <xsl:value-of select="concat($normref, 'not found')"/>
+                    <xsl:value-of select="concat('Error 7: ', $normref, 'not found')"/>
                   </xsl:with-param>
                 </xsl:call-template>
               </xsl:otherwise>
@@ -1681,7 +1681,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
   <p>
     <xsl:call-template name="error_message">
       <xsl:with-param name="message">
-        <xsl:value-of select="concat('XSL not implemented - MIM uses schema', 
+        <xsl:value-of select="concat('Error 8: MIM uses schema', 
                               $resource_schema, 
                               'Need to include Integrated resource that
 defines it. Use: normref.inc')"/>
@@ -1730,7 +1730,7 @@ defines it. Use: normref.inc')"/>
 
     <xsl:if test="@published='n'">
       <sup>1</sup>
-    </xsl:if>
+    </xsl:if>,&#x20;
     <i>
       <xsl:value-of select="$stdtitle"/>
       <xsl:value-of select="$subtitle"/>
@@ -1744,7 +1744,7 @@ defines it. Use: normref.inc')"/>
     <xsl:value-of select="concat(stdref/orgname,' ',stdref/stdnumber)"/>
     <xsl:if test="stdref[@published='n']">
       <sup>1</sup>
-    </xsl:if>
+    </xsl:if>,&#x20;
     <i>
       <xsl:value-of select="stdref/stdtitle"/>
       <xsl:value-of select="stdref/subtitle"/>
@@ -1801,7 +1801,7 @@ defines it. Use: normref.inc')"/>
     <xsl:otherwise>
       <xsl:call-template name="error_message">
         <xsl:with-param name="message">
-          <xsl:value-of select="concat('abbreviation.inc ',$ref, 'not found: ')"/>
+          <xsl:value-of select="concat('Error 9: abbreviation.inc ',$ref, 'not found: ')"/>
         </xsl:with-param>
       </xsl:call-template>
     </xsl:otherwise>
@@ -1837,7 +1837,7 @@ defines it. Use: normref.inc')"/>
     <xsl:otherwise>
       <xsl:call-template name="error_message">
         <xsl:with-param name="message">
-          <xsl:value-of select="concat('term.ref ',$termref, 'not found: ')"/>
+          <xsl:value-of select="concat('Error 10: term.ref ',$termref, 'not found: ')"/>
         </xsl:with-param>
       </xsl:call-template>
     </xsl:otherwise>
@@ -2210,7 +2210,7 @@ defines it. Use: normref.inc')"/>
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message"
-              select="concat('Can not find term referenced by: ',$ref)"/>
+              select="concat('Error 11: Can not find term referenced by: ',$ref)"/>
           </xsl:call-template>
         </li>
       </xsl:otherwise>
@@ -2239,7 +2239,7 @@ defines it. Use: normref.inc')"/>
         <li><xsl:call-template name="error_message">
             <xsl:with-param 
               name="message"
-              select="concat('Can not find term referenced by: ',$ref)"/>
+              select="concat('Error 12: Can not find term referenced by: ',$ref)"/>
           </xsl:call-template>
         </li>
       </xsl:otherwise>
@@ -2402,7 +2402,7 @@ defines it. Use: normref.inc')"/>
       <xsl:call-template name="error_message">
         <xsl:with-param 
           name="message"
-          select="concat('Can not find bibitem referenced by: ',$ref,
+          select="concat('Error 13: Can not find bibitem referenced by: ',$ref,
                   'in ../data/basic/bibliography.xml')"/>
       </xsl:call-template>
     </xsl:otherwise>

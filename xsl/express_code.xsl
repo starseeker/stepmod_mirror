@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.14 2002/04/26 13:44:16 robbod Exp $
+     $Id: express_code.xsl,v 1.15 2002/05/02 14:02:23 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -74,7 +74,7 @@
       <xsl:call-template name="error_message">
         <xsl:with-param 
           name="message" 
-          select="concat('Interface in schema ', 
+          select="concat('Error ec1: Interface in schema ', 
                   $schema_name, 
                   ' is incorrectly specified')"/>
       </xsl:call-template>

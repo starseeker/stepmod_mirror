@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.5 2001/11/21 17:15:01 robbod Exp $
+     $Id: express_link.xsl,v 1.6 2002/03/04 07:54:07 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -698,7 +698,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
             test="document('../repository_index.xml')/repository_index/modules/module[@name=$module_name]"/>
           <xsl:otherwise>
             <xsl:value-of 
-              select="concat('ERROR: ', $module_name, 
+              select="concat('ERROR el1: ', $module_name, 
                       ' does not exist as a module or resource')"/>
           </xsl:otherwise>
         </xsl:choose>     
@@ -711,7 +711,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
           <xsl:when test="document('../repository_index.xml')/repository_index/modules/module[@name=$module_name]"/>
           <xsl:otherwise>
             <xsl:value-of 
-              select="concat('ERROR: ', $module_name, 
+              select="concat('ERROR el2: ', $module_name, 
                       ' does not exist as a module or resource')"/>
           </xsl:otherwise>
         </xsl:choose>
@@ -725,7 +725,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
             test="document('../repository_index.xml')/repository_index/resources/resource[@name=$schema_name_tmp]"/>
           <xsl:otherwise>
             <xsl:value-of 
-              select="concat('ERROR: ', $module_name, 
+              select="concat('ERROR el3: ', $module_name, 
                       ' does not exist as a module or resource')"/>
           </xsl:otherwise>
         </xsl:choose>        

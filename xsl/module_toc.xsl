@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.10 2002/05/13 16:54:08 robbod Exp $
+$Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -12,6 +12,12 @@ $Id: module_toc.xsl,v 1.10 2002/05/13 16:54:08 robbod Exp $
                 version="1.0">
 
 
+  <!-- 
+       PLCS specific menu bar - this should not used in the ISO documents
+       If this line in uncommented, then it has been checked in error
+       so comment out and check back in
+  <xsl:import href="../../plcsmod/xsl/module_menu.xsl"/>
+       -->
 
 
 <!--
@@ -21,7 +27,22 @@ $Id: module_toc.xsl,v 1.10 2002/05/13 16:54:08 robbod Exp $
 <xsl:template match="module" mode="TOCmultiplePage">
   <!-- the entry that has been selected -->
   <xsl:param name="selected"/>
-  <xsl:apply-templates select="." mode="TOCbannertitle"/>  
+  <xsl:param name="fldr_icon" select="'../../../../images/folder.gif'"/>
+
+  <xsl:apply-templates select="." mode="TOCbannertitle">
+    <xsl:with-param name="fldr_icon" select="$fldr_icon"/>
+  </xsl:apply-templates>
+
+  <!-- 
+       PLCS specific menu bar - this should not used in the ISO documents
+       If this line in uncommented, then it has been checked in error
+       so comment out and check back in
+  <xsl:call-template name="PLCSmenubar">
+    <xsl:with-param name="plcs_dir" select="'../../../../../'"/>
+    <xsl:with-param name="module_name" select="@name"/>
+  </xsl:call-template>
+       -->
+
   <xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
   <xsl:variable name="mim_schema_name" select="concat(@name,'_mim')"/>
   <TABLE border="1" cellspacing="1" width="100%">

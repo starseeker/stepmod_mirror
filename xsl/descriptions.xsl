@@ -23,10 +23,10 @@
       <xsl:variable name="doc_sect">
         <xsl:choose>
           <xsl:when test="@schema_file='arm.xml'">
-            <xsl:value-of select="'sys/4_info_reqs.xml#types'"/>
+            <xsl:value-of select="concat('sys/4_info_reqs',$FILE_EXT,'#types')"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="'sys/5_mim.xml#types'"/>
+            <xsl:value-of select="concat('sys/5_mim',$FILE_EXT,'#types')"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
@@ -71,7 +71,7 @@
             select="'../../../images/warning.gif'"/>
           <xsl:with-param 
             name="message" 
-            select="concat('ext_description reference=', 
+            select="concat('Error d1: ext_description reference=', 
                     @linkend, 
                     ' is incorrectly specified')"/>
         </xsl:call-template>
@@ -117,7 +117,7 @@
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('express_ref linkend', 
+            select="concat('Error d2: express_ref linkend', 
                     @linkend, 
                     ' is incorrectly specified')"/>
         </xsl:call-template>

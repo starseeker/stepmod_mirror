@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.36 2002/05/15 09:06:10 robbod Exp $
+$Id: common.xsl,v 1.37 2002/05/16 07:32:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -128,7 +128,6 @@ $Id: common.xsl,v 1.36 2002/05/15 09:06:10 robbod Exp $
         select="translate(document($module_file)/module/@rcs.revision,'$','')"/>
       <tr>
         <td>
-
           <a href="..">
             <img alt="module folder" 
               border="0"
@@ -626,7 +625,7 @@ $Id: common.xsl,v 1.36 2002/05/15 09:06:10 robbod Exp $
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of
-              select="concat('ERROR:  the module ', $module_name,
+              select="concat('ERROR c1:  the module ', $module_name,
                       ' is not identified as a module in repository_index.xml')"/>
           </xsl:otherwise>
         </xsl:choose>
@@ -801,7 +800,7 @@ $Id: common.xsl,v 1.36 2002/05/15 09:06:10 robbod Exp $
         <xsl:call-template name="error_message">
           <xsl:with-param
             name="message"
-            select="concat('express_ref linkend ',
+            select="concat('ERROR c2: express_ref linkend ',
                     @linkend,
                     ' is incorrectly specified')"/>
         </xsl:call-template>
@@ -1290,7 +1289,7 @@ $Id: common.xsl,v 1.36 2002/05/15 09:06:10 robbod Exp $
         <xsl:call-template name="error_message">
           <xsl:with-param
             name="message"
-            select="concat('module_ref linkend ',
+            select="concat('ERROR c3: module_ref linkend ',
                     $nlinkend,
                     ' is incorrectly specified')"/>
         </xsl:call-template>

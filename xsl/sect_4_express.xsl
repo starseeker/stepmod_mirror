@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.33 2002/05/08 06:35:55 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.34 2002/05/13 06:55:45 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -165,7 +165,7 @@
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
-              select="concat('Interface in schema ', 
+              select="concat('Error e1: Interface in schema ', 
                       $schema_name, 
                       ' is incorrectly specified')"/>
           </xsl:call-template>
@@ -291,7 +291,7 @@
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
-              select="concat('No description provided for ',$aname)"/>
+              select="concat('Error e2: No description provided for ',$aname)"/>
           </xsl:call-template>
         </xsl:if>
       </xsl:otherwise>
@@ -413,7 +413,7 @@
             <xsl:call-template name="error_message">
               <xsl:with-param 
                 name="message" 
-                select="concat('No description provided for ',$aname)"/>
+                select="concat('Error e3: No description provided for ',$aname)"/>
             </xsl:call-template>
           </xsl:if>
         </xsl:if>
@@ -578,7 +578,7 @@
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
-              select="concat('No description provided for ',@name)"/>
+              select="concat('Error e4: No description provided for ',@name)"/>
           </xsl:call-template>
         </xsl:if>
       </xsl:otherwise>
@@ -815,7 +815,7 @@ SELF\<xsl:call-template name="link_object">
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('No description provided for ',$aname)"/>
+            select="concat('Error e4: No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:otherwise>
@@ -868,7 +868,7 @@ SELF\<xsl:call-template name="link_object">
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
-              select="concat('No description provided for ',$aname)"/>
+              select="concat('Error e6: No description provided for ',$aname)"/>
           </xsl:call-template>
         </xsl:if>
       </xsl:otherwise>
@@ -920,7 +920,7 @@ SELF\<xsl:call-template name="link_object">
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
-              select="concat('No description provided for ',$aname)"/>
+              select="concat('Error e7: No description provided for ',$aname)"/>
           </xsl:call-template>
         </xsl:if>
       </xsl:otherwise>
@@ -974,7 +974,7 @@ SELF\<xsl:call-template name="link_object">
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
-              select="concat('No description provided for ',$aname)"/>
+              select="concat('Error e8: No description provided for ',$aname)"/>
           </xsl:call-template>
         </xsl:if>
       </xsl:otherwise>
@@ -1040,7 +1040,7 @@ SELF\<xsl:call-template name="link_object">
           <xsl:call-template name="error_message">
             <xsl:with-param 
               name="message" 
-              select="concat('No description provided for ',$aname)"/>
+              select="concat('Error e9: No description provided for ',$aname)"/>
           </xsl:call-template>
         </xsl:if>
       </xsl:otherwise>
@@ -1123,7 +1123,7 @@ SELF\<xsl:call-template name="link_object">
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('No description provided for ',$aname)"/>
+            select="concat('Error e10: No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:otherwise>
@@ -1222,7 +1222,7 @@ SELF\<xsl:call-template name="link_object">
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('No description provided for ',$aname)"/>
+            select="concat('Error e11: No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:otherwise>
@@ -1311,7 +1311,7 @@ SELF\<xsl:call-template name="link_object">
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('No description provided for ',$aname)"/>
+            select="concat('Error e12: No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:otherwise>
@@ -1402,7 +1402,7 @@ SELF\<xsl:call-template name="link_object">
         <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('No description provided for ',$aname)"/>
+            select="concat('Error e13: No description provided for ',$aname)"/>
         </xsl:call-template>
       </xsl:if>
     </xsl:otherwise>

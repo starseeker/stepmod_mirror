@@ -1,0 +1,71 @@
+<?xml version="1.0" standalone="yes"?>
+<!--
+ $Id: getExpressIr.wsf,v 1.2 2003/02/11 09:30:53 robbod Exp $ 
+  Author: Rob Bodington, Eurostep Limited
+  Owner:  Developed by Eurostep and supplied to NIST under contract.
+  Purpose: A  script to copy all the express files from the repository to
+           a directory. 
+-->
+
+<job>
+  <!-- a VB script to pop up a text input -->
+  <script language="VBScript">
+    <![CDATA[
+      Function ShowInputBox(str, title, default)
+          ShowInputBox = InputBox(str, title, default)
+      End Function
+
+      Function YesNoBox(prompt, title)
+	  Dim y_n
+	  y_n = MsgBox(prompt, 4, title)	  
+	  YesNoBox = (y_n = 6)
+      End Function
+      ]]>
+  </script>
+
+  <!-- the main JScript that creates the module -->
+  <script language="JScript" src="getModuleExpressMain.js">
+
+    function getArmMimFile(armFile) {
+	var ret_val = armFile;
+	var fso = new ActiveXObject("Scripting.FileSystemObject");
+	if (fso.FileExists(armFile)) {
+	    ErrorMessage("File exists:\n "+armFile);
+	    var y_n = YesNoBox("Delete file:\n  " + armFile,"Delete file?");
+	    if (y_n) {
+		fso.DeleteFile(armFile);
+		if (fso.FileExists(armFile)) {
+		    ErrorMessage("File still exists:\n "+armFile);
+		    retVal = -1;
+		} 
+	    } else {
+		retVal = -1;
+	    }
+	}
+    }
+
+   // Disable the output of user messages
+   outputUsermessage = 0;
+   var initVal = "ap239_product_definition_information";
+
+   var module = ShowInputBox("Enter module name","Module name",initVal);
+   var armOrMim = ShowInputBox("Enter arm or mim","ARM or MIM","arm");
+   if (module) {
+       var modList = ShowInputBox("Enter module dependencies","Module name","..\\data\\modules\\"+module+"\\dvlp\\express\\"+armOrMim+"_modlist.txt");
+       if (modList) {
+	   if (armOrMim == "arm") {
+	       var armFile = getModuleExpFilename(module,armOrMim);	
+	       if (getArmMimFile(armFile) != -1) {
+		   GetExpressModule(module,armOrMim,modList);
+	       }
+	   } else if (armOrMim == "mim") {
+ 	       var armFile = getExpFilename(module,armOrMim);
+	       var irList = ShowInputBox("Enter module IR dependencies","Module name","..\\data\\modules\\"+module+"\\dvlp\\express\\irlist.txt");	
+	       if (getArmMimFile(armFile) != -1) {
+		   GetExpressModule(module,armOrMim,modList,irList);
+	       }
+	   }
+       }
+   }
+  </script>
+</job>

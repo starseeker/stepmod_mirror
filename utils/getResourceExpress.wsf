@@ -1,0 +1,60 @@
+<?xml version="1.0" standalone="yes"?>
+<!--
+ $Id: getExpressIr.wsf,v 1.2 2003/02/11 09:30:53 robbod Exp $ 
+  Author: Rob Bodington, Eurostep Limited
+  Owner:  Developed by Eurostep and supplied to NIST under contract.
+  Purpose: A  script to copy all the express files from the repository to
+           a directory. 
+-->
+
+<job>
+  <!-- a VB script to pop up a text input -->
+  <script language="VBScript">
+    <![CDATA[
+      Function ShowInputBox(str, title, default)
+          ShowInputBox = InputBox(str, title, default)
+      End Function
+
+      Function YesNoBox(prompt, title)
+	  Dim y_n
+	  y_n = MsgBox(prompt, 4, title)	  
+	  YesNoBox = (y_n = 6)
+      End Function
+      ]]>
+  </script>
+
+  <!-- the main JScript that creates the module -->
+  <script language="JScript" src="getModuleExpressMain.js">
+
+    function getArmMimFile(armFile) {
+	var ret_val = armFile;
+	var fso = new ActiveXObject("Scripting.FileSystemObject");
+	if (fso.FileExists(armFile)) {
+	    ErrorMessage("File exists:\n "+armFile);
+	    var y_n = YesNoBox("Delete file:\n  " + armFile,"Delete file?");
+	    if (y_n) {
+		fso.DeleteFile(armFile);
+		if (fso.FileExists(armFile)) {
+		    ErrorMessage("File still exists:\n "+armFile);
+		    retVal = -1;
+		} 
+	    } else {
+		retVal = -1;
+	    }
+	}
+    }
+
+   // Disable the output of user messages
+   outputUsermessage = 0;
+   var initVal = "fundamentals_of_product_description_and_support";
+
+   var resource = ShowInputBox("Enter resource name","Resource name",initVal);
+   if (resource) {
+       var resFile = getResourceExpFilename(resource);
+       var irList = ShowInputBox("Enter resource IR dependencies","Resource name","..\\data\\resource_docs\\"+resource+"\\dvlp\\express\\irlist.txt");	
+       if (getArmMimFile(resFile) != -1) {
+	   GetExpressResource(resource,irList);
+       }
+   }
+  </script>
+</job>

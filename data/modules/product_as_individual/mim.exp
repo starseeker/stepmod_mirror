@@ -1,0 +1,52 @@
+(*
+  $Id: $
+*)
+{ iso standard 10303 part (11) version (4) }
+SCHEMA Product_as_individual_mim;
+
+USE FROM classification_schema
+(classification,
+ classified_select);
+
+USE FROM Identification_assignment_mim;
+
+USE FROM product_definition_schema
+(product_definition_formation,
+ product_definition_formation_relationship);
+
+TYPE product_as_individual_classified_item = SELECT BASED_ON classified_select WITH
+  (product_as_individual,
+   product_design_to_individual,
+   product_planned_to_realized);
+END_TYPE;
+
+TYPE product_as_individual_identification_item = SELECT BASED_ON identification_item WITH
+  (product_as_individual);
+END_TYPE;
+
+ENTITY product_as_individual
+ABSTRACT SUPERTYPE OF (ONEOF(product_as_planned, product_as_realized))
+SUBTYPE OF (product_definition_formation);
+END_ENTITY;
+
+ENTITY product_as_planned
+SUBTYPE OF (product_as_individual);
+END_ENTITY;
+
+ENTITY product_as_realized
+SUBTYPE OF (product_as_individual);
+END_ENTITY;
+
+ENTITY product_design_to_individual
+SUBTYPE OF (product_definition_formation_relationship);
+  SELF\product_definition_formation_relationship.related_product_definition_formation RENAMED individual_product : product_as_individual;
+  SELF\product_definition_formation_relationship.relating_product_definition_formation RENAMED product_version : product_definition_formation;
+END_ENTITY;
+
+ENTITY product_planned_to_realized
+SUBTYPE OF (product_definition_formation_relationship);
+  SELF\product_definition_formation_relationship.relating_product_definition_formation RENAMED planned_product : product_as_planned;
+  SELF\product_definition_formation_relationship.related_product_definition_formation RENAMED realized_product : product_as_realized;
+END_ENTITY;
+
+END_SCHEMA;

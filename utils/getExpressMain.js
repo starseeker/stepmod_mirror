@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.12 2003/03/12 00:09:26 robbod Exp $
+//$Id: getExpressMain.js,v 1.13 2003/03/12 14:33:25 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -641,6 +641,17 @@ function getAbstractFileName(moduleName) {
     }
 }
 
+function getResdocAbstractFileName(resdocName) {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var resdocXmlFile = "../data/resource_docs/"+resdocName+"/resource.xml";
+    var fileName ="";
+    if (!fso.FileExists(resdocXmlFile)) {
+	ErrorMessage("The "+resdocXmlFile+" does not exist");
+    } else {
+	return(resdocName+"_abstract.htm");
+    }
+}
+
 function getExpressFileName(moduleName, arm_or_mim) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var moduleXmlFile = "../data/modules/"+moduleName+"/module.xml";
@@ -796,10 +807,48 @@ function MainWindowBallotExpress(ballotName) {
 	    } else {
 		ErrorMessage("File does not exist: "+abstractFile);
 	    }
+
 	}
+
+
+
+// TEH added case of resource doc ballot
+	var expr = "//resource";
+	var resourceNodes = xml.selectNodes(expr);
+	var members = resourceNodes.length;
+	for (var i = 0; i < members; i++) {	
+	    var node = resourceNodes(i);
+	    var resdocName = node.attributes.getNamedItem("name").nodeValue;
+	    var fileName, src, dst;
+
+//express
+	    var expFile = "../ballots/isohtml/"+ballotName+"/*.exp";
+
+            dst = ballotExpressFldr;
+//fso is a dummy object for CopyFile method
+            fso.CopyFile(expFile, dst)
+	    
+
+//abstract
+	    var abstractFile ="../ballots/isohtml/"+ballotName+"/data/resource_docs/"+resdocName+"/sys/abstract.htm";
+	    if (fso.FileExists(abstractFile)) {
+		fileName = getResdocAbstractFileName(resdocName, "abstract");
+		if (fileName != "") {
+		    dst = ballotAbstractFldr+"/"+fileName;
+		    src = fso.GetFile(abstractFile);
+		    //UserMessage(src+" -> "+dst);
+		    src.Copy(dst);
+		}
+	    } else {
+		ErrorMessage("File does not exist: "+abstractFile);
+	    }
+	}
+     }
+//end TEH added ... somewhere around  here \-)
 	UserMessage("Copied EXPRESS to:\n  "+ballotExpressFldr);
+
     }
-}
+
 
 
 //MainWindow("..\\express", "..\\modlist.txt");

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.4 2002/06/28 10:19:56 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.5 2002/06/28 14:52:25 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -41,21 +41,31 @@ $Id: sect_5_mapping_check.xsl,v 1.4 2002/06/28 10:19:56 robbod Exp $
     <xsl:otherwise>
       <!-- check that all the attributes have been mapped -->      
       <xsl:for-each select="./explicit">
-        <xsl:variable name="arm_attr" select="@name"/>
-        <xsl:if test="not($aa_nodes[@attribute=$arm_attr])">
-          <xsl:call-template name="error_message">
-            <xsl:with-param 
-              name="message" 
-              select="concat('Error mc6: the attribute ',
-                      $entity,'.',$arm_attr,
-                      ' has not been mapped.')"/>
-          </xsl:call-template> 
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="./redeclaration">
+            <!-- Not yet implemented redeclaration check 
+                 so only check if not redeclared -->            
+          </xsl:when>
+
+          <xsl:otherwise>
+            <xsl:variable name="arm_attr" select="@name"/>
+            <xsl:if test="not($aa_nodes[@attribute=$arm_attr])">
+              <xsl:call-template name="error_message">
+                <xsl:with-param 
+                  name="message" 
+                  select="concat('Error mc6: the attribute ',
+                          $entity,'.',$arm_attr,
+                          ' has not been mapped.')"/>
+              </xsl:call-template> 
+            </xsl:if>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:for-each>
     </xsl:otherwise>
   </xsl:choose>
   </xsl:for-each>
 </xsl:template>
+
 
 
 <xsl:template name="check_entity_exists">
@@ -73,12 +83,68 @@ $Id: sect_5_mapping_check.xsl,v 1.4 2002/06/28 10:19:56 robbod Exp $
   </xsl:if>
 </xsl:template>
 
+<!-- 
+     check if the attribute on the entity is valid (ARM level)     
+-->
+<xsl:template match="aa" mode="check_valid_attribute">
+  <xsl:if test="$check_mapping='yes'">
+    <xsl:variable name="arm_entity" select="../@entity"/>
+    <xsl:variable name="arm_attr" select="@attribute"/>
+    <xsl:variable name="module_dir">
+      <xsl:call-template name="module_directory">
+        <xsl:with-param name="module" select="../../../../module/@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
 
-<xsl:template name="check_valid_attribute">
-  <xsl:param name="entity"/>
-  <xsl:param name="attribute"/>
-  <!-- not yet implemented -->
+    <xsl:choose>
+      <xsl:when test="contains(@attribute,'(as')">
+        <!-- users frequently try to write the assertion explicitly e.g.
+             Part_version to Part (as of_product)
+             instead of using assertion_to -->
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('Error m2: ', @attribute, ' should
+                                  be the name of an ARM entity. Use 
+                                  &lt;aa attribute=&#034;&#034; assertion_to=&#034;&#034;&gt; ')"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:when>
+
+      <xsl:when test="contains($arm_attr,'SELF')">
+        <!-- must be a redeclared attribute -->
+        <xsl:variable name="redec_attr">
+          <!-- the attribute may be redeclared i.e. SELF\product.of_product -->
+          <xsl:call-template name="get_last_section">
+            <xsl:with-param name="path" select="@attribute"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:if 
+          test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity]/explicit[@name=$redec_attr])">
+          <!--  check that the attribute exists in the arm -->
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message"
+              select="concat('Error m4: The attribute ', ../@entity,'.',@attribute, 
+                      ' does not exist in the arm as a redeclared attribute')"/>
+          </xsl:call-template>
+          <!-- need to check whether the declaration is OK -->
+          <!-- not yet implemented  -->
+        </xsl:if>
+      </xsl:when>
+
+      <xsl:when
+        test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity]/explicit[@name=$arm_attr])">
+        <!--  check that the attribute exists in the arm -->
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message"
+            select="concat('Error m5: The attribute ', ../@entity,'.',@attribute, 
+                    ' does not exist in the arm as an explicit attribute')"/>
+        </xsl:call-template>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:if>
 </xsl:template>
+
 
 
 <xsl:template match="refpath|aimelt" mode="check_ref_path_old">

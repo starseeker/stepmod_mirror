@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.32 2002/06/28 14:52:24 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.33 2002/06/28 15:02:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -418,11 +418,18 @@ $Id: sect_5_mapping.xsl,v 1.32 2002/06/28 14:52:24 robbod Exp $
     name="schema_name" 
     select="concat(../../../../module/@name,'_arm')"/>
 
+  <xsl:variable name="attr">
+    <!-- the attribute may be redeclared i.e. SELF\product.of_product -->
+    <xsl:call-template name="get_last_section">
+      <xsl:with-param name="path" select="@attribute"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
   <xsl:variable name="aa_aname">
     <xsl:call-template name="express_a_name">
       <xsl:with-param name="section1" select="$schema_name"/>
       <xsl:with-param name="section2" select="../@entity"/>
-      <xsl:with-param name="section3" select="@attribute"/>
+      <xsl:with-param name="section3" select="$attr"/>
     </xsl:call-template>
   </xsl:variable>
 
@@ -439,21 +446,6 @@ $Id: sect_5_mapping.xsl,v 1.32 2002/06/28 14:52:24 robbod Exp $
   <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
 
   <xsl:variable name="sect_no" select="concat($sect,'.',position())"/>
-  <!-- users frequently try to write the assertion explicitly e.g.
-       Part_version to Part (as of_product)
-       instead of using assertion_to -->
-  <xsl:choose>
-    <xsl:when test="contains(@attribute,'(as')">
-      
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message">
-          <xsl:value-of select="concat('Error m2: ', @attribute, ' should
-                                be the name of an ARM entity. Use 
-                                &lt;aa attribute=&#034;&#034; assertion_to=&#034;&#034;&gt; ')"/>
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:when>
-  </xsl:choose>
 
   <xsl:variable name="arm_entity" select="string(../@entity)"/>
   <xsl:variable name="arm_attr" select="string(@attribute)"/>
@@ -497,16 +489,7 @@ $Id: sect_5_mapping.xsl,v 1.32 2002/06/28 14:52:24 robbod Exp $
   <xsl:apply-templates select="$entity_node" mode="expressg_icon"/>
   </h3>
 
-  <!--  check that the attribut exists in the arm -->
-  <xsl:if
-    test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity]/explicit[@name=$arm_attr])">
-    <xsl:call-template name="error_message">
-      <xsl:with-param name="message"
-        select="concat('Error m1: The attribute ', ../@entity,'.',@attribute, 
-                ' does not exist in the arm as an expilcit attribute')"/>
-    </xsl:call-template>
-  </xsl:if>
-
+  <xsl:apply-templates select="." mode="check_valid_attribute"/>
 
   <xsl:apply-templates select="./alt" mode="specification"/>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.12 2002/08/18 23:16:20 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.13 2002/09/27 07:51:32 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -63,11 +63,17 @@ $Id: sect_a_short_names.xsl,v 1.12 2002/08/18 23:16:20 robbod Exp $
 
     <xsl:otherwise>
       <p>
+        <!--
+             Entity names in this part of ISO 10303 have been defined in other
+             parts of ISO 10303. Requirements on the use of the short names are
+             found in the implementation methods included in ISO 10303.  
+             -->
         Entity names in this part of ISO 10303 have been defined in other
-        parts of ISO 10303. Requirements on the use of the short names are
-        found in the implementation methods included in ISO 10303.  
+        ISO standards identified in clause 2. Requirements on the use 
+        of the short names are found in the implementation methods included in ISO
+        10303.
       </p>
-      <!--
+        <!--
       <p class="note">
         <small>
           NOTE&#160;&#160;The EXPRESS entity names are available from
@@ -97,11 +103,24 @@ $Id: sect_a_short_names.xsl,v 1.12 2002/08/18 23:16:20 robbod Exp $
 </xsl:template>
 
 <xsl:template match="shortnames">
-  <p>
+
+    <!--
     Table A.1 provides the short names for entities defined in the MIM of
     this part of ISO 10303. Requirements on the use of the short names are
     found in the implementation methods included in ISO 10303. 
-  </p>
+         -->
+    <p>
+      Table A.1 provides the short names for entities defined in the MIM of
+      this part of ISO 10303.
+    </p>
+    <p>
+      Entity names in this part of ISO 10303 have been defined in clause 5.2 and
+      in other ISO standards identified in clause 2.
+    </p>
+    <p>
+      Requirements on the use of the short names are found in the
+      implementation methods included in ISO 10303. 
+    </p>
   <p class="note">
     <small>
       NOTE&#160;&#160;The EXPRESS entity names are available from

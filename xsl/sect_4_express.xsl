@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.70 2002/09/27 07:51:32 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.71 2002/10/01 17:02:41 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1545,8 +1545,8 @@
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
           This subclause specifies the application subtype constraints for
-          this module.  Each subtype constraint places constraints on the
-          possible super-type / subtype instantiation.
+          this module. Each subtype constraint places constraints on the
+          possible super-type / subtype instantiations.
           The application subtype constraints and their definitions are
           specified below. 
         </xsl:when>
@@ -2104,8 +2104,7 @@
       <xsl:with-param name="object_used_in_schema_name" 
         select="../../@name"/>
       <xsl:with-param name="clause" select="'section'"/>
-    </xsl:call-template>
-  </p>
+    </xsl:call-template>.</p>
 </xsl:template>
 
 

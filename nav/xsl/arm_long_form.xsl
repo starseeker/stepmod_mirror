@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: arm_long_form.xsl,v 1.2 2002/11/04 13:07:28 nigelshaw Exp $
+$Id: arm_long_form.xsl,v 1.3 2002/11/25 16:40:49 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -270,7 +270,7 @@ $Id: arm_long_form.xsl,v 1.2 2002/11/04 13:07:28 nigelshaw Exp $
 		<xsl:if test="$this-schema" >
 
 			<xsl:if test="not(contains($done,$this-schema))" >
-				<xsl:variable name="mod" 
+				<xsl:variable name="modname" 
 				select="substring-before(translate($this-schema,$UPPER,$LOWER),'_arm')" />
 <!-- notes:
 msxml needs addresses relative to the original xml file
@@ -297,7 +297,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 			select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')" />
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat($dir,'data/modules/',$mod,'/arm.xml ')" />
+							<xsl:value-of select="concat($dir,'data/modules/',$modname,'/arm.xml ')" />
 						</xsl:otherwise>
 					</xsl:choose>
 				</x>

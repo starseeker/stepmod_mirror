@@ -1,8 +1,7 @@
 (*
-   $Id: arm.exp,v 1.8 2002/12/24 21:08:10 magnevs Exp $
+   $Id: arm.exp,v 1.9 2003/01/13 20:56:57 magnevs Exp $
    N1436 - ISO/CD-TS - 10303-1256 State_observed - EXPRESS ARM
 *)
-
 
 SCHEMA State_observed_arm;
 
@@ -28,7 +27,7 @@ TYPE state_date_and_time = SELECT BASED_ON date_or_date_time_item WITH
 (Applied_state_assignment);
 END_TYPE;
 
-TYPE state_of_item = EXTENSIBLE SELECT ;
+TYPE state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE;
 
 ENTITY Applied_state_assignment;
@@ -38,8 +37,8 @@ END_ENTITY;
 
 ENTITY Composition_of_state
 SUBTYPE OF (State_relationship);
-part : State;
-whole : State;
+SELF\State_relationship.relating RENAMED whole : State;
+SELF\State_relationship.related RENAMED part : SET [2 : ?] OF State;
 END_ENTITY;
 
 ENTITY Defined_state_relationship;
@@ -49,8 +48,8 @@ END_ENTITY;
 
 ENTITY Sequence_of_state
 SUBTYPE OF (State_relationship);
-predecessor : State;
-successor : State;
+SELF\State_relationship.relating RENAMED successor : State;
+SELF\State_relationship.related RENAMED predecessor : State;
 END_ENTITY;
 
 ENTITY State
@@ -73,8 +72,8 @@ END_ENTITY;
 
 ENTITY State_cause_effect
 SUBTYPE OF (State_relationship);
-cause : State;
-effect : State;
+SELF\State_relationship.relating RENAMED effect : SET [1 : ?] OF State;
+SELF\State_relationship.related RENAMED cause : SET [1 : ?] OF State;
 END_ENTITY;
 
 ENTITY State_observed
@@ -88,14 +87,14 @@ END_ENTITY;
 ENTITY State_relationship;
 name : STRING;
 description : STRING;
-relating : State;
-related : State;
+relating : SET [1 : ?] OF State;
+related : SET [1 : ?] OF State;
 END_ENTITY;
 
 ENTITY State_transition
 SUBTYPE OF (State_relationship);
-end_state : State;
-start_state : State;
+SELF\State_relationship.relating RENAMED end_state : State;
+SELF\State_relationship.related RENAMED start_state : State;
 END_ENTITY;
 
 END_SCHEMA;

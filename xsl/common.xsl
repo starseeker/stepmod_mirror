@@ -258,20 +258,26 @@ $Id: common.xsl,v 1.9 2001/11/21 08:11:54 robbod Exp $
 
 
 <xsl:template match="description">
-    <xsl:apply-templates/>
+  <xsl:apply-templates/>
 </xsl:template>
 
 
 <xsl:template match="note" >
+  <xsl:variable name="number">
+    <xsl:number/>
+  </xsl:variable>
   <blockquote>
-    <xsl:value-of select="concat('NOTE ',position(),' ')"/>&#160;&#160;
+    <xsl:value-of select="concat('NOTE ',$number,' ')"/>&#160;&#160;
     <xsl:apply-templates/>
   </blockquote>
 </xsl:template>
 
 <xsl:template match="example" >
+  <xsl:variable name="number">
+    <xsl:number/>
+  </xsl:variable>
   <blockquote>
-    <xsl:value-of select="concat('EXAMPLE ',position(),' ')"/>&#160;&#160;
+    <xsl:value-of select="concat('EXAMPLE ',$number,' ')"/>&#160;&#160;
     <xsl:apply-templates/>
   </blockquote>
 </xsl:template>
@@ -317,10 +323,24 @@ $Id: common.xsl,v 1.9 2001/11/21 08:11:54 robbod Exp $
   </li>
 </xsl:template>
 
+
+<!-- 
+     A paragraph
+     -->
 <xsl:template match="p" >
-  <p>
-    <xsl:apply-templates />
-  </p>
+  <!-- if a paragraph is specified immediately after NOTE of EXAMPLE, then
+       ignore it
+       -->
+  <xsl:choose>
+    <xsl:when test="position()=1 and (name(..)='note' or name(..)='example')" >
+      <xsl:apply-templates/>
+    </xsl:when>
+    <xsl:otherwise>
+      <p>
+        <xsl:apply-templates/>
+      </p>
+    </xsl:otherwise>
+  </xsl:choose>  
 </xsl:template>
 
 

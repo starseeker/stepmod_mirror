@@ -1,4 +1,4 @@
-//$Id: mkballot_main.js,v 1.13 2003/05/11 04:07:15 thendrix Exp $
+//$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:  JScript to generate a ballot package
@@ -46,12 +46,37 @@ function mkBallotXsl(ballot,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkballot_main.js,v 1.13 2003/05/11 04:07:15 thendrix Exp $");
+    ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: A grouping of modules into ballot packages");
     ts.WriteLine("-->");
     ts.WriteLine("<ballot directory=\""+ballot+"\"/>");
+    ts.Close();
+}
+
+// Make the various XML files that simply apply stylesheets 
+// to ballot_index.xml
+function mkBallotIssueTableXsl(ballot,xsl,xml,content) {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var ballotXml = stepmodHome+"/ballots/ballots/"+ballot+"/"+xml;
+    fso.CreateTextFile(ballotXml, true);
+    var f = fso.GetFile(ballotXml);
+
+    var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+    ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    ts.WriteLine("<!DOCTYPE ballot SYSTEM \"../../dtd/ballot_xsl_appl.dtd\">");
+    ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../xsl/"+xsl+"\" ?>");
+
+    ts.WriteLine("<!-- ");
+    ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
+    ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
+    ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
+    ts.WriteLine("  Purpose: A grouping of modules into ballot packages");
+    ts.WriteLine("-->");
+    ts.WriteLine("<ballot directory=\""+ballot+"\" content=\""+content+"\"/>");
     ts.Close();
 }
 
@@ -75,7 +100,7 @@ function mkBallotPackage(ballot, depend) {
 	ts.WriteLine("<!DOCTYPE ballot_index SYSTEM \"../../dtd/ballot_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.13 2003/05/11 04:07:15 thendrix Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A grouping of modules into ballot packages");
@@ -135,6 +160,8 @@ function mkBallotPackage(ballot, depend) {
 	mkBallotXsl(ballot,"ballot_summary.xsl","ballot_summary.xml");
 	mkBallotXsl(ballot,"ballot_start.xsl","start.xml");
 	mkBallotXsl(ballot,"ballot_issues.xsl","ballot_issues.xml");
+	mkBallotIssueTableXsl(ballot,"ballot_issues_table.xsl","ballot_issues_form_all.xml","all");
+	mkBallotIssueTableXsl(ballot,"ballot_issues_table.xsl","ballot_issues_form_open.xml","open");
 	mkBallotXsl(ballot,"ballot_cvs_tags.xsl","ballot_cvs_tags.xml");
 
 	// Make the menu bar
@@ -146,7 +173,7 @@ function mkBallotPackage(ballot, depend) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.13 2003/05/11 04:07:15 thendrix Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar for packages");
@@ -194,7 +221,7 @@ function mkBallotPackage(ballot, depend) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.13 2003/05/11 04:07:15 thendrix Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -218,7 +245,7 @@ function mkBallotPackage(ballot, depend) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.13 2003/05/11 04:07:15 thendrix Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");

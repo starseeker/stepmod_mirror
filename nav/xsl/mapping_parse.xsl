@@ -10,16 +10,16 @@
   version="1.0"
   >
 
-  <xsl:variable name="rep_index"
-    select="document('../../../repository_index.xml')"/> 
-
+<!--  <xsl:variable name="rep_index"
+    select="document('../../repository_index.xml')"/> 
+-->
   <xsl:variable name="apos"><xsl:text>'</xsl:text></xsl:variable>
   <xsl:variable name="aposlong"><xsl:text>''''''</xsl:text></xsl:variable>
 
 
 <xsl:output method="xml" indent="yes" />
 
-<xsl:template match="/" >
+<!-- <xsl:template match="/" >
 
 	<xsl:text disable-output-escaping="yes">&#60;&#63;xml-stylesheet type="text/xsl" href="map_test_display.xsl" &#63;&#62;</xsl:text>
 
@@ -34,7 +34,7 @@
 
 </xsl:template>
 
-
+-->
 
 
 <xsl:template match="module" mode="mapping-full">

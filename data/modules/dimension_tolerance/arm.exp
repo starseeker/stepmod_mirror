@@ -1,0 +1,98 @@
+
+SCHEMA Dimension_tolerance_arm;
+
+USE FROM Construction_geometry_arm;
+
+USE FROM Derived_shape_element_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+USE FROM Extended_measure_representation_arm;
+
+USE FROM Measure_representation_arm;
+
+USE FROM Shape_property_assignment_arm;
+
+TYPE dimension_value = SELECT 
+  (Numerical_item_with_unit,
+   Value_limit,
+   Value_range);
+END_TYPE;
+
+TYPE element_with_dimension_select = EXTENSIBLE SELECT 
+  (Shape_element);
+END_TYPE;
+
+TYPE origin_enumeration = ENUMERATION OF 
+  (unchanged,
+   mirror,
+   positive_normal,
+   negative_normal);
+END_TYPE;
+
+TYPE placed_element_select = EXTENSIBLE SELECT 
+  (element_with_dimension_select);
+END_TYPE;
+
+ENTITY Angular_location_dimension
+SUBTYPE OF (Location_dimension);
+  major_angle : BOOLEAN;
+  mirror_target : BOOLEAN;
+  origin_determination : origin_enumeration;
+END_ENTITY;
+
+ENTITY Angular_size_dimension
+SUBTYPE OF (Size_dimension);
+  full : BOOLEAN;
+  major_angle : BOOLEAN;
+END_ENTITY;
+
+ENTITY Curved_distance_dimension
+SUBTYPE OF (Location_dimension);
+  used_path : Measurement_path;
+  with_curve_direction : BOOLEAN;
+END_ENTITY;
+
+ENTITY General_size_dimension
+SUBTYPE OF (Size_dimension);
+  dimension_type : STRING;
+  used_path : OPTIONAL Measurement_path;
+END_ENTITY;
+
+ENTITY Geometric_dimension
+ABSTRACT SUPERTYPE OF (ONEOF(Location_dimension, Size_dimension));
+  characteristic : dimension_value;
+  id : STRING;
+END_ENTITY;
+
+ENTITY Linear_distance_dimension
+SUBTYPE OF (Location_dimension);
+  directed : BOOLEAN;
+  orientation : OPTIONAL Axis_placement;
+END_ENTITY;
+
+ENTITY Location_dimension
+ABSTRACT SUPERTYPE OF (ONEOF(Angular_location_dimension, Curved_distance_dimension, Linear_distance_dimension))
+SUBTYPE OF (Geometric_dimension);
+  description : STRING;
+  origin : placed_element_select;
+  target : placed_element_select;
+END_ENTITY;
+
+ENTITY Measurement_path;
+  defined_as : Curve;
+  defined_in : Geometric_coordinate_space;
+END_ENTITY;
+
+ENTITY Size_dimension
+ABSTRACT SUPERTYPE OF (ONEOF(Angular_size_dimension, General_size_dimension, Thickness_dimension))
+SUBTYPE OF (Geometric_dimension);
+  applied_to : element_with_dimension_select;
+END_ENTITY;
+
+ENTITY Thickness_dimension
+SUBTYPE OF (Size_dimension);
+  used_path : Measurement_path;
+END_ENTITY;
+
+END_SCHEMA;

@@ -2,6 +2,38 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layered 3d shape - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Layered_3d_shape_arm;
+
+USE FROM Layered_2d_shape_arm;
+
+  TYPE three_dimensional_shape = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE;
+
+  ENTITY Axis_placement_3d
+    SUBTYPE OF (Axis_placement);
+  END_ENTITY; -- axis_placement_3d
+
+  ENTITY Shape_definition_3d_intersection
+    SUBTYPE OF (Geometric_model_relationship);
+      orientation_intersection_plane : axis_placement_3d;
+      planar_shape_origin            : axis_placement_2d;
+    DERIVE
+      surface_intersection_result : planar_shape := SELF\Geometric_model_relationship.rep_1;
+      projected_volume            : geometric_model := SELF\Geometric_model_relationship.rep_2;
+    WHERE
+      WR1 : NOT ('AP210_ARM.PLANAR_SHAPE' IN TYPEOF(projected_volume));
+  END_ENTITY; -- shape_definition_3d_intersection
+
+  ENTITY Shape_definition_3d_plane_projection
+    SUBTYPE OF (Geometric_model_relationship);
+      viewing_plane       : axis_placement_3d;
+      planar_shape_origin : axis_placement_2d;
+    DERIVE
+      surface_projection_result : planar_shape := SELF\Geometric_model_relationship.rep_1;
+      projected_volume          : geometric_model := SELF\Geometric_model_relationship.rep_2;
+    WHERE
+      WR1 : NOT ('AP210_ARM.PLANAR_SHAPE' IN TYPEOF(projected_volume));
+  END_ENTITY; -- shape_definition_3d_plane_projection
+
 END_SCHEMA;

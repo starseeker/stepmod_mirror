@@ -2,6 +2,46 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Area 2d - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Area_2d_arm;
+
+USE FROM Basic_geometry_arm;
+
+USE FROM Layered_2d_shape_arm;
+	
+USE FROM Value_with_unit_extension_arm;
+
+  ENTITY Circular_area
+    SUBTYPE OF (primitive_2d);
+      centre : cartesian_point;
+      radius : length_data_element;
+  END_ENTITY; -- circular_area
+
+  ENTITY Elliptic_area
+    SUBTYPE OF (primitive_2d);
+      position    : axis_placement_2d;
+      semi_axis_1 : length_data_element;
+      semi_axis_2 : length_data_element;
+  END_ENTITY; -- elliptic_area
+
+  ENTITY Polygonal_area
+    SUBTYPE OF (primitive_2d);
+      bounds : LIST[3:?] OF UNIQUE cartesian_point;
+  END_ENTITY; -- polygonal_area
+
+  ENTITY Primitive_2d
+    ABSTRACT SUPERTYPE OF (ONEOF (circular_area,
+ elliptic_area,
+ rectangular_area,
+ polygonal_area))
+    SUBTYPE OF (Detailed_geometric_model_element);
+  END_ENTITY; -- primitive_2d
+
+  ENTITY Rectangular_area
+    SUBTYPE OF (primitive_2d);
+      position : axis_placement_2d;
+      x        : length_data_element;
+      y        : length_data_element;
+  END_ENTITY; -- rectangular_area
+
 END_SCHEMA;

@@ -2,6 +2,55 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Planned characteristic - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Planned_characteristic_arm;
-END_SCHEMA;
+
+USE FROM Characteristic_arm;
+
+USE FROM Product_rule_arm;
+
+USE FROM Product_view_definition_arm;
+ 
+  TYPE evaluation_result_value = ENUMERATION OF
+    (pass,
+     fail,
+     undefined);
+  END_TYPE; -- evaluation_result_value
+
+  TYPE evaluation_type = ENUMERATION OF
+    (not_evaluatable,
+     invalid,
+     valid,
+     to_be_evaluated);
+  END_TYPE; -- evaluation_type
+
+ 	TYPE requirement_allocation_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  ENTITY Evaluated_characteristic
+    SUPERTYPE OF (rule_based_evaluated_characteristic);
+      planned_product_data          : planned_characteristic;
+      product_data_status           : evaluation_type;
+      product_characterization_data : OPTIONAL SET[1:?] OF coordinated_characteristic;
+      evaluation_result             : evaluation_result_value;
+  END_ENTITY; -- evaluated_characteristic
+
+  ENTITY Planned_characteristic;
+      reference_requirement              : requirement_allocation_select;
+      planned_coordinated_characteristic : coordinated_characteristic;
+  END_ENTITY; -- planned_characteristic
+
+  ENTITY Rule_based_evaluated_characteristic
+    SUBTYPE OF (Evaluated_characteristic);
+      evaluating_rule : rule_definition;
+  END_ENTITY; -- rule_based_evaluated_characteristic
+
+  ENTITY Evaluation_ee_product_definition
+    SUBTYPE OF (product_view_definition);
+      evaluated_product_definition : product_view_definition;
+      evaluation_data              : SET[1:?] OF evaluated_characteristic;
+    WHERE
+      WR1 : TYPEOF(SELF) <> TYPEOF(evaluated_product_definition);
+  END_ENTITY; -- evaluation_ee_product_definition
+
+END_SCHEMA; -- Planned_characteristic_arm

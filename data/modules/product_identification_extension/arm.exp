@@ -2,6 +2,27 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Product identification extension - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
-SCHEMA Product_identification_extension_arm;
-END_SCHEMA;
+
+ SCHEMA Product_identification_extension_arm;
+
+USE FROM Product_view_definition_arm;
+
+USE FROM External_item_identification_assignment_arm;
+ 
+ 	TYPE pie_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Externally_defined_ee_product_definition);
+	END_TYPE;
+
+  ENTITY Externally_defined_ee_product_definition
+    SUBTYPE OF (Product_view_definition);
+    INVERSE
+      source : External_source_identification FOR item;
+  END_ENTITY; -- externally_defined_ee_product_definition
+
+  ENTITY Library_ee_product_definition
+    SUBTYPE OF (Externally_defined_ee_product_definition);
+    DERIVE
+      library : STRING := SELF\externally_defined_ee_product_definition.source;
+  END_ENTITY; -- library_ee_product_definition
+
+ END_SCHEMA; -- Product_identification_extension_arm

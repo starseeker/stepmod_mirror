@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: application_protocol.xsl,v 1.4 2002/09/18 09:50:07 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -666,6 +666,7 @@
 		<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
 		<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
 		<xsl:variable name="aim_schema" select="translate(concat(@name,'_mim'),$LOWER, $UPPER)"/>
+		<xsl:variable name="ap" select="translate(@name, $UPPER, $LOWER)"/>
 		<xsl:variable name="names_url" select="'http://www.tc184-sc4.org/Short_Names/'"/>
 		<xsl:variable name="parts_url" select="'http://www.tc184-sc4.org/EXPRESS/'"/>
 		<p>
@@ -735,6 +736,8 @@
 						<xsl:call-template name="output_express_links">
 							<xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
 							<xsl:with-param name="file" select="'arm.exp'"/>
+							<xsl:with-param name="file_name" select="'arm.exp'"/>
+							<xsl:with-param name="ap" select="$ap"/>
 						</xsl:call-template>
 					</tr>
 					<tr>
@@ -760,7 +763,9 @@
 					</td>
 					<xsl:call-template name="output_express_links">
 						<xsl:with-param name="wgnumber" select="./@wg.number.mim"/>
-						<xsl:with-param name="file" select="'aim.exp'"/>
+						<xsl:with-param name="file" select="'mim.exp'"/>
+						<xsl:with-param name="file_name" select="'aim.exp'"/>
+						<xsl:with-param name="ap" select="$ap"/>
 					</xsl:call-template>
 				</tr>
 				<tr>
@@ -782,13 +787,14 @@
 	</xsl:template>
 
 
-<xsl:template name="output_express_links">
-  <xsl:param name="wgnumber"/>
-  <xsl:param name="file"/>
-
-  <td>
-    <a href="../{$file}"><xsl:value-of select="$file"/></a>
-  </td>
+	<xsl:template name="output_express_links">
+		<xsl:param name="wgnumber"/>
+		<xsl:param name="file"/>
+		<xsl:param name="file_name"/>
+		<xsl:param name="ap"/>
+		<td>
+			<a href="../../../modules/{$ap}/{$file}"><xsl:value-of select="$file_name"/></a>
+  		</td>
   <td>
     <xsl:variable name="test_wg_number">
       <xsl:call-template name="test_wg_number">

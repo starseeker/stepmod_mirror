@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: $
+     $Id: application_protocol_toc.xsl,v 1.7 2002/09/18 09:50:07 mikeward Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -403,7 +403,7 @@
 							<xsl:with-param name="module_root" select="$application_protocol_root"/>
 						</xsl:call-template>
 						<br/>
-						<a href="{$application_protocol_root}/sys/g_exp_aim{$FILE_EXT}">
+						<a href="{$application_protocol_root}/sys/g_exp{$FILE_EXT}">
 							G Computer interpretable listing
 						</a>
 						<br/>

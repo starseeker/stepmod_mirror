@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.37 2002/07/15 00:13:36 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.38 2002/07/17 11:40:56 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -554,12 +554,18 @@ $Id: sect_5_mapping.xsl,v 1.37 2002/07/15 00:13:36 robbod Exp $
           select="concat('../../',../@original_module,'/sys/4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>
 
       </xsl:when>
+      <!-- inherited_from_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="@inherited_from_module">
+        <xsl:value-of 
+          select="concat('../../',@inherited_from_module,'/sys/4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>
+
+      </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="concat('./4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>        
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-
 
   <xsl:variable name="module_dir">
     <xsl:choose>
@@ -568,6 +574,13 @@ $Id: sect_5_mapping.xsl,v 1.37 2002/07/15 00:13:36 robbod Exp $
       <xsl:when test="../@original_module">
         <xsl:call-template name="module_directory">
           <xsl:with-param name="module" select="../@original_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <!-- inherited_from_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="@inherited_from_module">
+        <xsl:call-template name="module_directory">
+          <xsl:with-param name="module" select="@inherited_from_module"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -592,6 +605,13 @@ $Id: sect_5_mapping.xsl,v 1.37 2002/07/15 00:13:36 robbod Exp $
       <xsl:when test="../@original_module">
         <xsl:call-template name="check_module_exists">
           <xsl:with-param name="module" select="../@original_module"/>
+        </xsl:call-template>
+      </xsl:when>
+      <!-- inherited_from_module specified then the ARM object is declared in
+           another module -->
+      <xsl:when test="@inherited_from_module">
+        <xsl:call-template name="check_module_exists">
+          <xsl:with-param name="module" select="@inherited_from_module"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
@@ -620,6 +640,12 @@ $Id: sect_5_mapping.xsl,v 1.37 2002/07/15 00:13:36 robbod Exp $
             <xsl:when test="../@original_module">
               <xsl:value-of 
                 select="concat('../../',../@original_module,'/sys/4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
+            </xsl:when>
+            <!-- inherited_from_module specified then the ARM object is 
+                 declared in another module -->
+            <xsl:when test="@inherited_from_module">
+              <xsl:value-of 
+                select="concat('../../',@inherited_from_module,'/sys/4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of 

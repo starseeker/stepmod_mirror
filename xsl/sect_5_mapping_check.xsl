@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.6 2002/07/05 08:56:54 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.7 2002/07/13 22:52:12 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -88,7 +88,19 @@ $Id: sect_5_mapping_check.xsl,v 1.6 2002/07/05 08:56:54 robbod Exp $
 -->
 <xsl:template match="aa" mode="check_valid_attribute">
   <xsl:if test="$check_mapping='yes'">
-    <xsl:variable name="arm_entity" select="../@entity"/>
+    <xsl:variable name="arm_entity">
+      <xsl:choose>
+        <!-- inherited_from_module specified then the ARM object is declared in
+             another module -->
+        <xsl:when test="@inherited_from_module">
+          <xsl:value-of select="@inherited_from_entity"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="../@entity"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <xsl:variable name="arm_attr" select="@attribute"/>
     <xsl:variable name="module_dir">
       <xsl:choose>
@@ -97,6 +109,13 @@ $Id: sect_5_mapping_check.xsl,v 1.6 2002/07/05 08:56:54 robbod Exp $
         <xsl:when test="../@original_module">
           <xsl:call-template name="module_directory">
             <xsl:with-param name="module" select="../@original_module"/>
+          </xsl:call-template>
+        </xsl:when>
+        <!-- inherited_from_module specified then the ARM object is declared in
+             another module -->
+        <xsl:when test="@inherited_from_module">
+          <xsl:call-template name="module_directory">
+            <xsl:with-param name="module" select="@inherited_from_module"/>
           </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
@@ -144,14 +163,26 @@ $Id: sect_5_mapping_check.xsl,v 1.6 2002/07/05 08:56:54 robbod Exp $
         </xsl:if>
       </xsl:when>
 
+      <!--  check that the attribute exists in the arm -->
       <xsl:when
         test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity]/explicit[@name=$arm_attr])">
-        <!--  check that the attribute exists in the arm -->
-        <xsl:call-template name="error_message">
-          <xsl:with-param name="message"
-            select="concat('Error m5: The attribute ', ../@entity,'.',@attribute, 
-                    ' does not exist in the arm (',$arm_xml,') as an explicit attribute')"/>
-        </xsl:call-template>
+
+        <xsl:choose>
+          <xsl:when test="@inherited_from_module">
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message"
+                select="concat('Error m5: The attribute ', @inherited_from_module,'.',@attribute, 
+                        ' specified as @inherited_from_module does not exist in the arm (',$arm_xml,') as an  attribute')"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message"
+                select="concat('Error m6: The attribute ', ../@entity,'.',@attribute, 
+                        ' does not exist in the arm (',$arm_xml,') as an explicit attribute')"/>
+            </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
     </xsl:choose>
   </xsl:if>

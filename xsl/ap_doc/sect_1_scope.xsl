@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_1_scope.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
+$Id: sect_1_scope.xsl,v 1.12 2003/06/01 13:56:35 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -48,7 +48,7 @@ $Id: sect_1_scope.xsl,v 1.11 2003/05/23 15:52:56 robbod Exp $
         &#160;&#160;
         The scope of this part of ISO 10303 is further refined in the
         application activity model in 
-        Annex <a href="./annex_aam{$FILE_EXT}">E</a>.
+        Annex <a href="./annex_aam{$FILE_EXT}">F</a>.
       </small>
     </p>
 

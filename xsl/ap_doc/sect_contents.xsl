@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.24 2003/07/23 16:34:49 robbod Exp $
+$Id: sect_contents.xsl,v 1.25 2003/07/23 16:44:17 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -235,22 +235,70 @@ $Id: sect_contents.xsl,v 1.24 2003/07/23 16:34:49 robbod Exp $
     <xsl:variable name="table_count_cc">
       <xsl:apply-templates select="." mode="table_count_cc"/>
     </xsl:variable>
-    <xsl:variable name="ccs_path"
-      select="concat('../../data/application_protocols/', @name, '/ccs.xml')"/>
-    <xsl:variable name="ccs_xml" select="document(string($ccs_path))"/>
-    <xsl:apply-templates select="$ccs_xml/conformance/arms_in_ccs" mode="toc">
-      <xsl:with-param name="target" select="$target"/>
-      <xsl:with-param name="table_number" select="$table_count_cc+1"/>
-    </xsl:apply-templates>
-    <xsl:apply-templates select="$ccs_xml/conformance/mims_in_ccs" mode="toc">
-      <xsl:with-param name="target" select="$target"/>
-      <xsl:with-param name="table_number" select="$table_count_cc+2"/>
-    </xsl:apply-templates>
+    
+    <a href="./6_ccs{$FILE_EXT}#cc_arm_table" target="{$target}">
+      Table 
+      <xsl:value-of select="$table_count_cc+1"/>
+      &#8212; Conformance class ARM elements
+    </a>
+    <br/>
+
+    <a href="./6_ccs{$FILE_EXT}#cc_mim_table" target="{$target}">
+      Table 
+      <xsl:value-of select="$table_count_cc+2"/> 
+      &#8212; Conformance class MIM elements
+    </a>
+    <br/>
 
     <a href="./annex_shortnames{$FILE_EXT}#table_b1" target="{$target}">
       Table B.1 &#8212; ARM to MIM EXPRESS short and long form listing.
     </a>
     <br/>
+
+
+    <xsl:variable name="annex_list">
+      <xsl:apply-templates select="." mode="annex_list"/>
+    </xsl:variable>
+    <xsl:variable name="annex_no">
+      <xsl:call-template name="annex_letter" >
+        <xsl:with-param name="annex_name" select="'computerinterpretablelisting'"/>
+        <xsl:with-param name="annex_list" select="$annex_list"/>
+      </xsl:call-template>
+    </xsl:variable>
+  <xsl:variable name="module" select="@module_name"/>
+  <xsl:variable name="module_ok">
+    <xsl:call-template name="check_module_exists">
+      <xsl:with-param name="module" select="$module"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:if test="$module_ok!='true'">
+    <xsl:call-template name="error_message">
+      <xsl:with-param name="message">
+        <xsl:value-of select="concat('Error AP1: The module ',$module,' does not exist.',
+                              '  Correct application_protocol module_name in application_protocol.xml')"/>
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:if>
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="ap_module_directory">
+      <xsl:with-param name="application_protocol" select="$module"/>
+    </xsl:call-template>
+  </xsl:variable>  
+  <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
+
+    <xsl:choose>
+      <xsl:when test="module_xml/module/mim_lf or module_xml/module/arm_lf">
+        <a href="./annex_comp_int{$FILE_EXT}#table_e1" target="{$target}">
+          Table <xsl:value-of select="$annex_no"/>.1 &#8212; ARM and MIM EXPRESS short and long form listings
+        </a>
+      </xsl:when>
+      <xsl:otherwise>
+        <a href="./annex_comp_int{$FILE_EXT}#table_e1" target="{$target}">
+          Table <xsl:value-of select="$annex_no"/>.1 &#8212; ARM and MIM EXPRESS listings
+        </a>
+      </xsl:otherwise>
+    </xsl:choose>
+
 
     <xsl:apply-templates select="//usage_guide//table" mode="toc">
       <xsl:with-param name="target" select="$target"/>
@@ -265,7 +313,7 @@ $Id: sect_contents.xsl,v 1.24 2003/07/23 16:34:49 robbod Exp $
     </xsl:apply-templates>
 
 
-    <xsl:if test="count(//figure)!=0">
+    <xsl:if test="count(//figure|//data_plan)!=0">
       <h2>Figures</h2>
       <xsl:apply-templates select="//changes/change_summary//figure" mode="toc">
         <xsl:with-param name="target" select="$target"/>

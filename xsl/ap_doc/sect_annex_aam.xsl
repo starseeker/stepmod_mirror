@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_aam.xsl,v 1.3 2003/06/03 13:38:40 robbod Exp $
+$Id: sect_annex_aam.xsl,v 1.4 2003/06/11 08:26:54 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -52,8 +52,14 @@ $Id: sect_annex_aam.xsl,v 1.3 2003/06/03 13:38:40 robbod Exp $
 			<xsl:value-of select="concat('../../data/application_protocols/', $ap_dir, '/aam.xml')"/>
 		</xsl:variable>
 		<xsl:variable name="no_of_diagrams" select="count(imgfile)"/>
-		The AAM is presented in Figures F.1 to F.<xsl:value-of select="$no_of_diagrams"/>. Activities and data flows which are out of scope are marked with asterisks.
-		<xsl:for-each select="imgfile">
+                <p>
+                  The application activity model diagrams are given in
+                  Figures F.1 through F.<xsl:value-of select="$no_of_diagrams"/>. 
+                  The graphical form of the application activity model is
+                  presented in the IDEF0 activity modelling format.
+                  Activities and data flows that are out of scope are marked with asterisks.
+                </p>
+                <xsl:for-each select="imgfile">
 			<xsl:variable name="aam_href">
                           <xsl:call-template name="set_file_ext">
                             <xsl:with-param name="filename" select="concat('../',./@file)"/>

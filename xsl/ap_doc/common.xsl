@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.23 2003/06/16 16:41:27 robbod Exp $
+$Id: common.xsl,v 1.24 2003/06/29 13:03:19 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -702,6 +702,75 @@ $Id: common.xsl,v 1.23 2003/06/16 16:41:27 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
     <xsl:value-of select="concat($stdnumber,' ',$protocol_name)"/>                
+  </xsl:template>
+
+
+  <!--
+       purpose - Clause "Introduction"       
+       scope - Clause "1 Scope"
+       inforeqt - Clause "4"
+       aam - Clause "
+       imp_meths
+       usage_guide
+       tech_disc
+       express_arm_lf - A EXPRESS expanded listings 
+       express_mim_lf - A EXPRESS expanded listings 
+       mim_short_names - Annex B MIM short names 
+       object_registration - Annex E Information object registration
+       -->
+
+  <xsl:template match="clause_ref">
+    <xsl:variable name="annex_list">
+      <xsl:apply-templates select="." mode="annex_list"/>
+    </xsl:variable>
+
+    <xsl:choose>
+      <xsl:when test="@linkend='purpose'">
+        <a href="introduction{$FILE_EXT}">Introduction</a>
+      </xsl:when>
+      <xsl:when test="@linkend='scope'">
+        Clause<a href="1_scope{$FILE_EXT}">1</a>
+      </xsl:when>
+      <xsl:when test="@linkend='inforeqt'">
+        Clause<a href="4_info_reqs{$FILE_EXT}">4</a>
+      </xsl:when>
+      <xsl:when test="@linkend='aam'">
+        Annex <a href="annex_aam{$FILE_EXT}">F</a>
+      </xsl:when>
+      <xsl:when test="@linkend='imp_meths'">
+        Annex <a href="annex_imp_meth{$FILE_EXT}">C</a>  
+      </xsl:when>
+      <xsl:when test="@linkend='usage_guide'">
+        <xsl:variable name="annex">
+          <xsl:call-template name="annex_letter" >
+            <xsl:with-param name="annex_name" select="'usageguide'"/>
+            <xsl:with-param name="annex_list" select="$annex_list"/>
+          </xsl:call-template>
+        </xsl:variable>
+        Annex <a href="{$FILE_EXT}"><xsl:value-of select="$annex"/></a> 
+      </xsl:when>
+      <xsl:when test="@linkend='tech_disc'">
+        <xsl:variable name="annex">
+          <xsl:call-template name="annex_letter" >
+            <xsl:with-param name="annex_name" select="'techdisc'"/>
+            <xsl:with-param name="annex_list" select="$annex_list"/>
+          </xsl:call-template>
+        </xsl:variable>
+        Annex <a href="{$FILE_EXT}"><xsl:value-of select="$annex"/></a> 
+      </xsl:when>
+      <xsl:when test="@linkend='express_arm_lf'">
+        Annex <a href="annex_exp_lf{$FILE_EXT}">A.1</a>
+      </xsl:when>
+      <xsl:when test="@linkend='express_mim_lf'">
+        Annex <a href="annex_exp_lf{$FILE_EXT}">A.2</a>
+      </xsl:when>
+      <xsl:when test="@linkend='mim_short_names'">
+        Annex <a href="annex_shortnames{$FILE_EXT}">B</a>
+      </xsl:when>
+      <xsl:when test="@linkend='object_registration'">
+        Annex <a href="annex_obj_reg{$FILE_EXT}">E</a>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
 
 

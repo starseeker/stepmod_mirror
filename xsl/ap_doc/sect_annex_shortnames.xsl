@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.7 2003/07/21 15:31:47 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.8 2003/07/28 07:31:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -286,7 +286,7 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
               select="'http://www.tc184-sc4.org/Short_Names/'"/>      
             <p align="center">
               &lt;
-              <a href="{$names_url}">
+              <a href="{$names_url}" target="_blank">
                 <xsl:value-of select="$names_url"/>
               </a>
               &gt;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.3 2003/05/29 17:47:49 robbod Exp $
+$Id: sect_annex_comp_int.xsl,v 1.4 2003/06/11 08:26:54 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -128,12 +128,12 @@ $Id: sect_annex_comp_int.xsl,v 1.3 2003/05/29 17:47:49 robbod Exp $
     <tr>
       <td>&#160;&#160;</td>
       <td>Short names:</td>
-      <td>&lt;<a href="{$names_url}"><xsl:value-of select="$names_url"/></a>&gt;</td>
+      <td>&lt;<a href="{$names_url}" target="_blank"><xsl:value-of select="$names_url"/></a>&gt;</td>
   </tr>
   <tr>
     <td>&#160;&#160;</td>
     <td>EXPRESS:</td>
-     <td>&lt;<a href="{$parts_url}"><xsl:value-of select="$parts_url"/></a>&gt;</td>
+     <td>&lt;<a href="{$parts_url}" target="_blank"><xsl:value-of select="$parts_url"/></a>&gt;</td>
    </tr>
   </table>
   <p/>

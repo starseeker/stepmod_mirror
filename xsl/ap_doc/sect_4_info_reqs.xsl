@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.15 2003/06/09 10:57:19 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.16 2003/06/26 12:54:54 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -110,7 +110,7 @@ $Id: sect_4_info_reqs.xsl,v 1.15 2003/06/09 10:57:19 robbod Exp $
      </p>
 
      <h2><a name="421">4.2.1&#160;Model overview</a></h2>
-     The following sub clauses contain a business overview of the
+     The following subclauses contain a business overview of the
      requirements contained in the AP module 
      (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>)
      as represented in the following list of modules.

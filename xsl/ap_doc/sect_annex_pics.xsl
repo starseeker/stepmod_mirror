@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_pics.xsl,v 1.2 2003/06/06 16:45:28 robbod Exp $
+$Id: sect_annex_pics.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -100,10 +100,10 @@ $Id: sect_annex_pics.xsl,v 1.2 2003/06/06 16:45:28 robbod Exp $
 				<th>Preprocessor</th>
 				<th>Postprocessor</th>
 			</tr>
-			<xsl:for-each select="document(concat('../../data/application_protocols/', $ap_name, '/ccs.xml'))/conformance_classes/cc">
+			<xsl:for-each select="document(concat('../../data/application_protocols/', $ap_name, '/ccs.xml'))/conformance/cc">
 				<tr>
 					<td align="left">
-						<xsl:value-of select="concat(@name, ' (CC', @identifier, ')')"/>
+						<xsl:value-of select="concat(@name, ' (', @id, ')')"/>
 					</td>
 					<td>
 							&#160;			

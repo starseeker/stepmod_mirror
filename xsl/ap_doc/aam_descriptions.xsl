@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: aam_descriptions.xsl,v 1.9 2003/06/11 08:26:53 robbod Exp $
+$Id: aam_descriptions.xsl,v 1.10 2003/07/28 07:35:04 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -58,19 +58,13 @@ $Id: aam_descriptions.xsl,v 1.9 2003/06/11 08:26:53 robbod Exp $
     </p>
     <xsl:for-each select="./*/*">
       <xsl:sort select="normalize-space(./name)"/>
-      <xsl:variable name="asterisk">
-        <xsl:if test="@inscope='no'">
-          *
-        </xsl:if>
-      </xsl:variable>
+      <xsl:variable name="asterisk"><xsl:if test="@inscope='no'">*</xsl:if></xsl:variable>
       <xsl:variable name="aname" select="@identifier"/>
       <h2>
         <a name="{$aname}">
           F.1.<xsl:value-of select="position()"/>
         </a>
-        <xsl:value-of select="concat(' ', ./name)"/>
-        <xsl:value-of select="$asterisk"/>
-      
+        <xsl:value-of select="concat(' ', normalize-space(./name),$asterisk)"/>
         <xsl:if test="name(.)='activity'">
           <xsl:if test="$apdoc_ok='true'">
             <!-- this could be more efficient --> 
@@ -84,13 +78,14 @@ $Id: aam_descriptions.xsl,v 1.9 2003/06/11 08:26:53 robbod Exp $
                 <xsl:with-param name="filename" select="$imgfile"/>
               </xsl:call-template>
             </xsl:variable>
-            <a href="../{$href}">
+            &#160;<a href="../{$href}">
               <img align="middle" border="0" alt="AAM{$href}" 
                 src="../../../../images/ap_doc/aam.gif"/>
             </a>
           </xsl:if>
         </xsl:if>
       </h2>
+      <xsl:apply-templates select="./description" mode="check_phrase"/> 
       <p><xsl:value-of select="./description"/></p>
       <xsl:apply-templates select="note"/>
       <xsl:apply-templates select="example"/>      

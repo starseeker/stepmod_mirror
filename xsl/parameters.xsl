@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.14 2003/06/16 16:43:57 robbod Exp $
+     $Id: parameters.xsl,v 1.15 2003/08/06 06:40:35 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -91,4 +91,9 @@
        ballot package generation as the ballots html is stored in
        stepmod/ballots/isohtml/<ballot>/data/ap_docs-->
   <xsl:param name="STEPMOD_DATA_APS" select="'../../../../../stepmod/data/application_protocol/'"/>
+  <!--  Ballot build process sets to YES to provide navigation to SC4  cover-->
+
+  <xsl:param name="BALLOT" select="'NO'"/>
+  <!--  Publication  build process sets to YES to provide navigation to ISO  cover-->  <xsl:param name="PUBLICATION" select="'NO'"/>
+
 </xsl:stylesheet>

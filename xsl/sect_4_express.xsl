@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.32 2002/05/02 14:02:22 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.33 2002/05/08 06:35:55 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -277,7 +277,7 @@
   <!-- output description from express -->
   <p>
     <xsl:choose>
-      <xsl:when test="./description">
+      <xsl:when test="string-length(./description)>0">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
@@ -394,7 +394,7 @@
 
   <p>
     <xsl:choose>
-      <xsl:when test="./description">
+      <xsl:when test="string-length(./description)>0">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
@@ -564,7 +564,7 @@
   <!-- output description from express -->
   <p>
     <xsl:choose>
-      <xsl:when test="./description">
+      <xsl:when test="string-length(./description)>0">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
@@ -800,7 +800,7 @@ SELF\<xsl:call-template name="link_object">
   
   <!-- output description from express -->
   <xsl:choose>
-    <xsl:when test="./description">
+    <xsl:when test="string-length(./description)>0">
       <xsl:apply-templates select="./description"/>
     </xsl:when>
     <xsl:otherwise>      
@@ -853,7 +853,7 @@ SELF\<xsl:call-template name="link_object">
   </xsl:call-template>
   <!-- output description from express -->
     <xsl:choose>
-      <xsl:when test="./description">
+      <xsl:when test="string-length(./description)>0">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
@@ -905,7 +905,7 @@ SELF\<xsl:call-template name="link_object">
   </xsl:call-template>
   <!-- output description from express -->
     <xsl:choose>
-      <xsl:when test="./description">
+      <xsl:when test="string-length(./description)>0">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
@@ -959,7 +959,7 @@ SELF\<xsl:call-template name="link_object">
     <!-- output description from express -->
     
     <xsl:choose>
-      <xsl:when test="./description">
+      <xsl:when test="string-length(./description)>0">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
@@ -1025,7 +1025,7 @@ SELF\<xsl:call-template name="link_object">
   <!-- output description from express -->
 
     <xsl:choose>
-      <xsl:when test="./description">
+      <xsl:when test="string-length(./description)>0">
         <xsl:apply-templates select="./description"/>
       </xsl:when>
       <xsl:otherwise>
@@ -1109,7 +1109,7 @@ SELF\<xsl:call-template name="link_object">
   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>
-    <xsl:when test="./description">
+    <xsl:when test="string-length(./description)>0">
       <xsl:apply-templates select="./description"/>
     </xsl:when>
     <xsl:otherwise>
@@ -1208,7 +1208,7 @@ SELF\<xsl:call-template name="link_object">
   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>
-    <xsl:when test="./description">
+    <xsl:when test="string-length(./description)>0">
       <xsl:apply-templates select="./description"/>
     </xsl:when>
     <xsl:otherwise>
@@ -1296,7 +1296,7 @@ SELF\<xsl:call-template name="link_object">
   
   <!-- output description from express -->
   <xsl:choose>
-    <xsl:when test="./description">
+    <xsl:when test="string-length(./description)>0">
       <xsl:apply-templates select="./description"/>
     </xsl:when>
     <xsl:otherwise>
@@ -1388,7 +1388,7 @@ SELF\<xsl:call-template name="link_object">
   </xsl:call-template>
   <!-- output description from express -->
   <xsl:choose>
-    <xsl:when test="./description">
+    <xsl:when test="string-length(./description)>0">
       <xsl:apply-templates select="./description"/>
     </xsl:when>
     <xsl:otherwise>
@@ -2360,7 +2360,6 @@ SELF\<xsl:call-template name="link_object">
       
     </xsl:choose>    
   </xsl:if>
-
 </xsl:template>
 
 

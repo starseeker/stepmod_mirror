@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.8 2002/12/04 15:55:00 nigelshaw Exp $
+$Id: resource.xsl,v 1.9 2002/12/06 11:43:36 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1240,6 +1240,25 @@ defined in annex D of ISO 10303-11.
      All resources referenced by a USE FROM in any schema
 -->
 <xsl:template name="normrefs_list">
+  <!-- get all default normrefs listed in ../../data/basic/normrefs_resdoc_default.xml -->
+  <xsl:variable name="normref_list1">
+    <xsl:call-template name="get_normref">
+      <xsl:with-param 
+        name="normref_nodes" 
+        select="document('../../data/basic/normrefs_resdoc_default.xml')/normrefs/normref.inc"/>
+      <xsl:with-param 
+        name="normref_list" 
+        select="''"/>
+    </xsl:call-template>    
+  </xsl:variable>
+
+
+  <xsl:message>
+    l1:<xsl:value-of select="$normref_list1"/>:l1
+  </xsl:message>
+
+
+
   <!-- get all normrefs explicitly included in the resource by normref.inc -->
   <xsl:variable name="normref_list2">
     <xsl:call-template name="get_normref">
@@ -1248,15 +1267,13 @@ defined in annex D of ISO 10303-11.
         select="/resource/normrefs/normref.inc"/>
       <xsl:with-param 
         name="normref_list" 
-        select="''"/>
+        select="$normref_list1"/>
     </xsl:call-template>    
   </xsl:variable>
 
   <xsl:message>
     l2:<xsl:value-of select="$normref_list2"/>:l2
   </xsl:message>
-
-
   <!-- get all normrefs that define terms for which abbreviations are
        provided.
        Get the abbreviation.inc from abbreviations_default.xml, 
@@ -1267,7 +1284,7 @@ defined in annex D of ISO 10303-11.
     <xsl:call-template name="get_normrefs_from_abbr">
       <xsl:with-param 
         name="abbrvinc_nodes" 
-        select="document('../../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>
+        select="document('../../data/basic/abbreviations_resdoc_default.xml')/abbreviations/abbreviation.inc"/>
       <xsl:with-param 
         name="normref_list" 
         select="$normref_list2"/>
@@ -1278,15 +1295,19 @@ defined in annex D of ISO 10303-11.
     l3:<xsl:value-of select="$normref_list3"/>:l3
   </xsl:message>
 
-  <!-- get all resources referenced by a USE FROM - dont wnat  -->
-  <!--
+  <!-- get all resources referenced by a USE FROM 
+   - need to get this working -->
   <xsl:variable name="resource_dir">
     <xsl:call-template name="resource_directory">
       <xsl:with-param name="resource" select="/resource/@name"/>
     </xsl:call-template>
   </xsl:variable>
 
+  <xsl:variable name="schema_xml" 
+    select="concat($resource_dir,'/resource.xml')"/>
+  <!-- for now hard code as normref_list3
   <xsl:variable name="normref_list4">
+   
     <xsl:call-template name="get_normrefs_from_schema">
       <xsl:with-param 
         name="interface_nodes" 
@@ -1296,13 +1317,15 @@ defined in annex D of ISO 10303-11.
         select="$normref_list3"/>
     </xsl:call-template>
   </xsl:variable>
+-->
 
+    <xsl:variable name="normref_list4" 
+      select="$normref_list3"/>
 
   <xsl:message>
     l4:<xsl:value-of select="$normref_list4"/>:l4
   </xsl:message>
-  -->
-    <xsl:value-of select="$normref_list3"/>
+    <xsl:value-of select="$normref_list4"/>
 </xsl:template>
 
 <!-- given a list of normref nodes, add the ids of the normrefs to the
@@ -1550,13 +1573,10 @@ defined in annex D of ISO 10303-11.
             <xsl:variable name="resource_xml" 
               select="concat($resource_dir,'/resource.xml')"/>
 
-            <xsl:variable name="schema_xml" 
-              select="concat($resource_dir,'/resource.xml')"/>
             
             <!-- output the normative reference derived from the resource -->
             <xsl:variable name="normref">
-
-<xsl:if test="$resource_ok='true'">
+              <xsl:if test="$resource_ok='true'">
                 <xsl:apply-templates 
                   select="document($resource_xml)/resource"
                   mode="prune_normrefs_list"/>
@@ -1654,7 +1674,6 @@ defined in annex D of ISO 10303-11.
   registers of currently valid International Standards. 
 
   <!-- output any issues -->
-
   <xsl:apply-templates select="." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'normrefs'"/>
   </xsl:apply-templates>  
@@ -1684,12 +1703,9 @@ defined in annex D of ISO 10303-11.
     <xsl:call-template name="normrefs_list"/>
   </xsl:variable>
 
-<!-- debugging TEH
-  <xsl:value-of select="$normrefs" />
   <xsl:message>
     normrefs:<xsl:value-of select="$normrefs"/>:normrefs
   </xsl:message> 
--->
 
 
   <xsl:variable name="pruned_normrefs">
@@ -1699,9 +1715,6 @@ defined in annex D of ISO 10303-11.
   </xsl:variable>
 
 
-  <!-- debugging TEH 
-  <xsl:value-of select="$pruned_normrefs" />
--->
   <xsl:message>
     pruned_normrefs:<xsl:value-of select="$pruned_normrefs"/>:pruned_normrefs
   </xsl:message>

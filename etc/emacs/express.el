@@ -250,7 +250,7 @@
 
 (setq express-flkw-3
       (list
-       '("\\<END_\\(ENTITY\\|FUNCTION\\|PROCEDURE\\|RULE\\|TYPE\\)\\>"
+       '("\\<END_\\(ENTITY\\|FUNCTION\\|PROCEDURE\\|RULE\\|TYPE\\|SCHEMA\\|CONSTANT\\)\\>"
 	 . font-lock-keyword-face)
        '("\\<\\(IN\\|QUERY\\|SUBTYPE\\|OF\\|FROM\\|USE\\|REFERENCE\\)\\>"
 	 . font-lock-keyword-face)

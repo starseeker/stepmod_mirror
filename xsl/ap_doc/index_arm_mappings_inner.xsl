@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.5 2003/06/04 18:30:45 nigelshaw Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.6 2003/06/05 16:40:14 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -167,9 +167,20 @@ $Id: index_arm_mappings_inner.xsl,v 1.5 2003/06/04 18:30:45 nigelshaw Exp $
 			<xsl:value-of select="@name"/>
 		</A>
 		<br/>
-		<xsl:apply-templates select="explicit" mode="module-index" >
-			<xsl:with-param name="called-schemas" select="$called-schemas" />
-		</xsl:apply-templates> 
+		<xsl:if test="explicit" >
+			<TABLE>
+			<TR>
+			<TD><small>&#160;&#160;</small></TD>
+			<TD ALIGN="LEFT" >
+			<small>
+			<xsl:apply-templates select="explicit" mode="module-index" >
+				<xsl:with-param name="called-schemas" select="$called-schemas" />
+			</xsl:apply-templates> 
+			</small>
+			</TD>
+			</TR>
+			</TABLE>
+		</xsl:if>
 
 		
 		
@@ -178,6 +189,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.5 2003/06/04 18:30:45 nigelshaw Exp $
 <xsl:template match="explicit" mode="module-index" >
 	<xsl:param name="called-schemas" />
 
+<!--	<small> -->
 		<xsl:variable name="current-schema" select="../../@name" />
 
 		<xsl:variable name="mod-name" select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
@@ -201,10 +213,11 @@ $Id: index_arm_mappings_inner.xsl,v 1.5 2003/06/04 18:30:45 nigelshaw Exp $
 		<xsl:when test="$found-type" >
 		
 			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
-			<br/>
 			
-			<blockquote>
-				
+		<TABLE>
+			<TR>
+			<TD><small>&#160;&#160;</small></TD>
+			<TD ALIGN="LEFT" >
 			<xsl:variable name="extensions" >
 				<xsl:text> </xsl:text>
 				<xsl:value-of select="$found-type/@name" />
@@ -223,6 +236,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.5 2003/06/04 18:30:45 nigelshaw Exp $
 				<br/>
 			</xsl:for-each>
 -->
+			<small>
 			EXTENDED to:
 			<br/>
 			<xsl:variable name="lc-attr" select="@name"/>
@@ -245,12 +259,23 @@ $Id: index_arm_mappings_inner.xsl,v 1.5 2003/06/04 18:30:45 nigelshaw Exp $
 
 				
 			</xsl:for-each>
-
-			</blockquote>
+			</small>
+			</TD>
+			</TR>
+		</TABLE>
 			
 		</xsl:when>
+		<xsl:when test="./typename">
+			<xsl:variable name="lc-typename" select="translate(./typename/@name,$UPPER,$LOWER)" />
+		
+			<A 
+			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}assertion_to{$lc-typename}" 
+			TARGET="content">
+			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
+			</A>
+			<br/>
+		</xsl:when>
 		<xsl:otherwise>
-			&#160;&#160;
 			<A HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattribute{@name}" TARGET="content">
 			<xsl:value-of select="concat(' ',../@name,'.',@name)"/>
 			</A>
@@ -258,7 +283,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.5 2003/06/04 18:30:45 nigelshaw Exp $
 		</xsl:otherwise>
 		
 	</xsl:choose>
-
+<!--	</small> -->
 </xsl:template>
 
 <xsl:template name="assertion-links-for-select" >

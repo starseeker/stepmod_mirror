@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules_inner.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
+$Id: index_arm_modules_inner.xsl,v 1.12 2004/09/28 22:13:47 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -95,7 +95,7 @@ $Id: index_arm_modules_inner.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
 			<xsl:for-each select="$schemas-node-set//x" >
 				<xsl:sort /> <!-- added sort here which is not in the saxon version below -->
 				<xsl:copy-of select="document(.)" />
-			</xsl:for-each> -->
+			</xsl:for-each> 
 		</xsl:variable>
 
 		<xsl:variable name="dep-schemas" 
@@ -110,6 +110,25 @@ $Id: index_arm_modules_inner.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
 	</xsl:when>
 
 
+	<xsl:when test="function-available('exslt:node-set')">
+          <xsl:variable name="schemas-node-set" select="exslt:node-set($arm_schemas)"/>
+          <xsl:variable name="dep-schemas3">
+            <xsl:for-each select="$schemas-node-set//x" >
+              <xsl:sort/> 
+              <xsl:copy-of select="document(.)"/>
+            </xsl:for-each> 
+          </xsl:variable>
+
+          <xsl:variable name="dep-schemas" select="exslt:node-set($dep-schemas3)"/>
+
+          <xsl:call-template name="modules_index" >
+            <xsl:with-param name="this-schema" select="$top_module_node"/>
+            <xsl:with-param name="called-schemas" select="$dep-schemas"/>
+          </xsl:call-template>
+        </xsl:when>
+
+        <!-- RBN - I do not understand why the EXSLT apporach is different
+             to the MSXML approach ??? -->
 	<xsl:when test="function-available('exslt:node-set')">
 
 		  <xsl:variable name="schemas-node-set2">
@@ -131,7 +150,7 @@ $Id: index_arm_modules_inner.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
 
 
 
-			</xsl:when>
+			</xsl:when> -->
 
 			</xsl:choose>
   </small>

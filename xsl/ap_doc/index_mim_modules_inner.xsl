@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_modules_inner.xsl,v 1.10 2004/02/05 17:51:07 robbod Exp $
+$Id: index_mim_modules_inner.xsl,v 1.11 2004/09/28 22:13:46 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -83,30 +83,44 @@ $Id: index_mim_modules_inner.xsl,v 1.10 2004/02/05 17:51:07 robbod Exp $
 
 
       <xsl:choose>
-	<xsl:when test="function-available('msxsl:node-set')">
+        <xsl:when test="function-available('msxsl:node-set')">
+          <xsl:variable name="schemas-node-set" select="msxsl:node-set($mim_schemas)"/>
+          <xsl:variable name="dep-schemas3">
+            <xsl:for-each select="$schemas-node-set//x">
+              <xsl:sort/> 
+              <xsl:copy-of select="document(.)"/>
+            </xsl:for-each>
+          </xsl:variable>
 
+          <xsl:variable name="dep-schemas" select="msxsl:node-set($dep-schemas3)"/>
 
-		<xsl:variable name="schemas-node-set" select="msxsl:node-set($mim_schemas)" />
+          <xsl:call-template name="modules_index">
+            <xsl:with-param name="this-schema" select="$top_module_node"/>
+            <xsl:with-param name="called-schemas" select="$dep-schemas"/>
+          </xsl:call-template>
+        </xsl:when>
 
-		<xsl:variable name="dep-schemas3">
-			<xsl:for-each select="$schemas-node-set//x" >
-				<xsl:sort /> 
-				<xsl:copy-of select="document(.)" />
-			</xsl:for-each>
-		</xsl:variable>
+        <xsl:when test="function-available('exslt:node-set')">
+          <xsl:variable name="schemas-node-set" select="exslt:node-set($mim_schemas)"/>
+          <xsl:variable name="dep-schemas3">
+            <xsl:for-each select="$schemas-node-set//x">
+              <xsl:sort/> 
+              <xsl:copy-of select="document(.)"/>
+            </xsl:for-each>
+          </xsl:variable>
 
-		<xsl:variable name="dep-schemas" 
-		  	select="msxsl:node-set($dep-schemas3)" />
-				
+          <xsl:variable name="dep-schemas" select="exslt:node-set($dep-schemas3)"/>
 
-			<xsl:call-template name="modules_index" >
-				<xsl:with-param name="this-schema" select="$top_module_node" />
-				<xsl:with-param name="called-schemas" select="$dep-schemas" />
-			</xsl:call-template>
+          <xsl:call-template name="modules_index">
+            <xsl:with-param name="this-schema" select="$top_module_node"/>
+            <xsl:with-param name="called-schemas" select="$dep-schemas"/>
+          </xsl:call-template>
+        </xsl:when>
 
-	</xsl:when>
-
-
+        <!-- RBN - I do not understand why the EXSLT apporach is different
+             to the MSXML approach ???  Th elist needs to be sorted, so I
+             have made them the same -->
+        <!--
 	<xsl:when test="function-available('exslt:node-set')">
 
 		  <xsl:variable name="schemas-node-set2">
@@ -128,7 +142,7 @@ $Id: index_mim_modules_inner.xsl,v 1.10 2004/02/05 17:51:07 robbod Exp $
 
 
 
-			</xsl:when>
+			</xsl:when> -->
 
 			</xsl:choose>
     </small>

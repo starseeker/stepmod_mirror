@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.32 2003/10/09 04:08:06 thendrix Exp $
+$Id: resource.xsl,v 1.33 2003/11/11 18:02:49 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1360,6 +1360,9 @@ defined in annex D of ISO 10303-11.
   <!-- output all the EXPRESS specifications -->
   <!-- display the EXPRESS for the interfaces in the ARM.
        The template is in sect4_express.xsl -->
+  <xsl:if test="$express_xml/express/schema/interface">
+    <a name="#interfaces"/>
+  </xsl:if>
   <xsl:apply-templates 
     select="$express_xml/express/schema/interface"/>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_schema.xsl,v 1.2 2002/10/23 06:46:56 thendrix Exp $
+$Id: sect_schema.xsl,v 1.3 2003/08/24 22:10:35 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output section 4 Information model as a web page
@@ -12,13 +12,12 @@ $Id: sect_schema.xsl,v 1.2 2002/10/23 06:46:56 thendrix Exp $
                 version="1.0">
 
   <xsl:import href="resource.xsl"/>
-  <xsl:import href="expressg_icon.xsl"/> 
-
   <!-- 
        the stylesheet that allows different stylesheets to be applied 
        -->
-  <xsl:import href="resource_clause.xsl"/>
 
+  <xsl:import href="resource_clause.xsl"/>
+  <xsl:import href="expressg_icon.xsl"/> 
 
   <xsl:output method="html"/>
 

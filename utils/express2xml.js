@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.18 2002/07/14 16:55:57 robbod Exp $
+//$Id: express2xml.js,v 1.19 2002/07/30 10:30:30 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -341,7 +341,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.18 2002/07/14 16:55:57 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.19 2002/07/30 10:30:30 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -351,7 +351,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.18 $";
+    var appCVSRevision = "$Revision: 1.19 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -816,6 +816,13 @@ function xmlSelect(statement,outTs) {
     if (statement.match(reg)) {
 	xmlAttr("extensible","YES",outTs);
     }
+
+    var reg = /\bGENERIC_ENTITY\b/;
+    if (statement.match(reg)) {
+	xmlAttr("genericentity","YES",outTs);
+    }
+
+
     var based_on = getExtensibleBasedOn(statement);
     if (based_on != -1) {
 	xmlAttr("basedon",based_on,outTs);

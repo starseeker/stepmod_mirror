@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: impl.xsl,v 1.3 2004/02/10 14:57:21 mikeward Exp $
+$Id: impl.xsl,v 1.4 2004/02/10 16:50:04 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose:
@@ -66,7 +66,7 @@ $Id: impl.xsl,v 1.3 2004/02/10 14:57:21 mikeward Exp $
             <a href="sys/p28xsd{$FILE_EXT}">Generate arm_lf_p28xsd.xsd</a>
           </li>
           <li>
-            <a href="p28.xsd">arm_lf_p28xsd.xsd</a>
+            <a href="arm_lf_p28xsd.xsd">arm_lf_p28xsd.xsd</a>
           </li>
         </ul>
       </xsl:when>

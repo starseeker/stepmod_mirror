@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.141 2003/05/06 21:26:15 thendrix Exp $
+$Id: module.xsl,v 1.142 2003/05/07 06:23:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2918,7 +2918,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
     
     <xsl:variable name="stdtitle"
       select="concat('Industrial automation systems and integration ',
-              '- Product data representation and exchange ')"/>
+              '&#8212; Product data representation and exchange ')"/>
 
     <xsl:variable name="module_name">
       <xsl:call-template name="module_display_name">
@@ -2927,7 +2927,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
     </xsl:variable>
 
     <xsl:variable name="subtitle"
-      select="concat('- Part ',$part,': Application module: ', $module_name,'.')"/>
+      select="concat('&#8212; Part ',$part,': Application module: ', $module_name,'.')"/>
     
 
     <xsl:value-of select="$stdnumber"/>

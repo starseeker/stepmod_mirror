@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.42 2002/08/05 09:41:09 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.43 2002/08/09 08:03:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -634,7 +634,7 @@ $Id: sect_5_mapping.xsl,v 1.42 2002/08/05 09:41:09 robbod Exp $
   </xsl:variable> <!-- module_aok -->
 
   <h3>
-    <a name="{$aa_aname}">
+    <a name="{$aa_aname}"/>
     <xsl:choose>
       <xsl:when test="@assertion_to">
         
@@ -658,7 +658,7 @@ $Id: sect_5_mapping.xsl,v 1.42 2002/08/05 09:41:09 robbod Exp $
             </xsl:otherwise>
           </xsl:choose>
         </xsl:variable>
-
+        
         <xsl:value-of select="concat($sect_no,' ')"/>
         <a href="{$ae_xref}">
           <xsl:value-of select="../@entity"/>
@@ -677,16 +677,15 @@ $Id: sect_5_mapping.xsl,v 1.42 2002/08/05 09:41:09 robbod Exp $
         </a>
       </xsl:otherwise>
     </xsl:choose>
-  </a>
 
-  <xsl:if test="$module_aok='true'">
-    <xsl:variable name="ae" select="../@entity"/>
-    <xsl:variable name="entity_node"
-      select="document($arm_xml)/express/schema/entity[@name=$ae]"/>      
-    <xsl:apply-templates select="$entity_node" mode="expressg_icon">
-      <xsl:with-param name="original_schema" select="$schema_name"/>
-    </xsl:apply-templates>
-  </xsl:if>
+    <xsl:if test="$module_aok='true'">
+      <xsl:variable name="ae" select="../@entity"/>
+      <xsl:variable name="entity_node"
+        select="document($arm_xml)/express/schema/entity[@name=$ae]"/>      
+      <xsl:apply-templates select="$entity_node" mode="expressg_icon">
+        <xsl:with-param name="original_schema" select="$schema_name"/>
+      </xsl:apply-templates>
+    </xsl:if>
   </h3>
 
   <xsl:if test="$module_aok='true'">

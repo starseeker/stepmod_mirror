@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.180 2005/03/02 10:45:42 robbod Exp $
+$Id: module.xsl,v 1.181 2005/03/02 12:44:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -911,11 +911,12 @@ o=isocs; s=central<br/>
   <p>
     A complete list of parts of ISO 10303 is available from the following URL: 
   </p>
+<div align="center">
   <blockquote>
     <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.htm" target="_blank">
       http://www.tc184-sc4.org/titles/STEP_Titles.htm</A>.
   </blockquote>
-
+</div>
   <p>
     <a name="10303-1">
       <sup>1)</sup>A future edition of ISO 10303-1 will describe the application

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.34 2002/04/19 09:54:02 goset1 Exp $
+$Id: common.xsl,v 1.35 2002/05/03 08:04:30 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -127,6 +127,14 @@ $Id: common.xsl,v 1.34 2002/04/19 09:54:02 goset1 Exp $
         select="translate(document($module_file)/module/@rcs.revision,'$','')"/>
       <tr>
         <td>
+          <a href="..">
+            <img alt="module folder" 
+              border="0"
+              align="middle"
+              src="../../../../images/folder.gif"/>
+          </a>&#160;&#160;
+        </td>
+        <td>
           <font size="-2">
             <xsl:value-of select="'module.xml'"/>
           </font>
@@ -198,7 +206,7 @@ $Id: common.xsl,v 1.34 2002/04/19 09:54:02 goset1 Exp $
   <xsl:call-template name="rcs_output">
     <xsl:with-param name="module" select="@name"/>
   </xsl:call-template>
-
+  
   <TABLE cellspacing="0" border="0" width="100%">
     <TR>
       <TD valign="MIDDLE">

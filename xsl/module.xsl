@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.160 2004/02/05 14:41:37 robbod Exp $
+$Id: module.xsl,v 1.161 2004/02/06 17:52:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2988,8 +2988,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
       </xsl:when>
     </xsl:choose>,&#160;
     <i>
-      <xsl:value-of select="$stdtitle"/>
-      <xsl:value-of select="$subtitle"/>
+      <xsl:value-of select="$stdtitle"/><xsl:value-of select="$subtitle"/>
     </i>
   </p>
 </xsl:template>
@@ -3027,14 +3026,17 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
       </xsl:when>
     </xsl:choose>,&#160;
     <i>
-      <xsl:value-of select="normalize-space(stdref/stdtitle)"/>&#160;
+      <xsl:value-of select="normalize-space(stdref/stdtitle)"/>
       <!-- make sure that the title ends with a . -->
       <xsl:variable 
         name="subtitle"
         select="normalize-space(stdref/subtitle)"/>
       <xsl:choose>
-        <xsl:when test="substring($subtitle, string-length($subtitle)) != '.'">
-          <xsl:value-of select="concat($subtitle,'.')"/>
+        <xsl:when test="substring($subtitle, string-length($subtitle)) != '.' and string-length($subtitle) &gt; 4">
+          <xsl:value-of select="concat('&#160;',$subtitle,'.')"/>
+        </xsl:when>
+        <xsl:when test="substring($subtitle, string-length($subtitle)) != '.' and string-length($subtitle) &lt;= 4">
+          <xsl:value-of select="'.'"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$subtitle"/>

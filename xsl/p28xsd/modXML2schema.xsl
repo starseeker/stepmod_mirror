@@ -19,7 +19,7 @@
 
 	<xsl:variable name="stepmod_namespace_file" select="document(concat($directory_path, '/stepmod_namespace.xml'))"/>
 	<xsl:variable name="schema_name" select="$stepmod_namespace_file//dummy/@schema_name"/>
-	<xsl:variable name="namespace_prefix" select="concat($stepmodamespace_file//dummy/@ns_prefix_name, ':')"/>
+	<xsl:variable name="namespace_prefix" select="concat($stepmod_namespace_file//dummy/@ns_prefix_name, ':')"/>
 	
 	
 	<xsl:template match="/">

@@ -14,8 +14,8 @@ TYPE security_classification_item = EXTENSIBLE SELECT
 END_TYPE;
 
    
-TYPE security_classification_organisation_or_person_in_organisation_item = SELECT
-  BASED_ON organisation_or_person_in_organisation_item WITH
+TYPE security_classification_organization_or_person_in_organization_item = SELECT
+  BASED_ON organization_or_person_in_organization_item WITH
   (Security_classification);
 END_TYPE;
 
@@ -32,22 +32,10 @@ TYPE security_classification_approval_item = SELECT
 END_TYPE;
 
    
-TYPE security_classification_alias_identification_item = EXTENSIBLE SELECT
-  BASED_ON alias_identification_item WITH
-  (Security_classification);
-END_TYPE;
-
-   
 ENTITY Security_classification;
   classification  : STRING;
   description     : OPTIONAL STRING;
-INVERSE
-  classifier            : SET [0:1] OF Organisation_or_person_in_organisation_assignment FOR items;
-  classification_dates  : SET [0:2] OF Date_or_date_time_assignment FOR items;
-  idalias               : SET [0:1] OF Alias_identification FOR items; 
 WHERE
-  WR1: (SELF.classification IN ['unclassified', 'confidential',
-        'secret', 'top secret', 'proprietary'] OR EXISTS(SELF.description));
   WR2: NOT (SELF.classification = 'classified' AND (NOT EXISTS(SELF.description)));
   WR3: SELF.classifier.role = 'classification officer'; 
   WR4: SELF.classification_dates.role IN ['classification date','declassification date']; 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.5 2002/03/21 09:28:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -43,11 +43,15 @@ $Id: sect_a_short_names.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
       select="'abcdefghijklmnopqrstuvwxyz'"/>
     <xsl:variable name="mim_schema"
       select="translate(concat(@name,'_mim'),$LOWER, $UPPER)"/>
-    
+     <!--
+       It has been decided to point to the index instead
     <xsl:variable name="names_url"
       select="concat('http://www.steptools.com/cgi-bin/getnames.cgi?schema=',
               $mim_schema)"/>
-    
+    -->
+    <xsl:variable name="names_url"
+      select="'http://www.steptools.com/short_names/index.html'"/>
+
     <a href="{$names_url}">
       <xsl:value-of select="$names_url"/>
     </a>

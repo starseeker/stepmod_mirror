@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
+$Id: index_mim_modules_inner.xsl,v 1.10 2004/02/05 17:51:07 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -289,7 +289,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-a"  ><B>A</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='A']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name" data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' B')" >
@@ -297,7 +297,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-b"  ><B>B</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='B']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' C')" >
@@ -305,7 +305,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-c"  ><B>C</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='C']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' D')" >
@@ -313,7 +313,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-d"  ><B>D</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='D']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' E')" >
@@ -321,7 +321,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-e"  ><B>E</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='E']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' F')" >
@@ -329,7 +329,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-f"  ><B>F</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='F']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' G')" >
@@ -337,7 +337,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-g"  ><B>G</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='G']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' H')" >
@@ -345,7 +345,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-h"  ><B>H</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='H']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' I')" >
@@ -353,7 +353,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-i"  ><B>I</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='I']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' J')" >
@@ -361,7 +361,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-j"  ><B>J</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='J']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' K')" >
@@ -369,7 +369,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-k"  ><B>K</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='K']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' L')" >
@@ -377,7 +377,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-l"  ><B>L</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='L']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' M')" >
@@ -385,7 +385,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-m"  ><B>M</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='M']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' N')" >
@@ -393,7 +393,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-n"  ><B>N</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='N']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' O')" >
@@ -401,7 +401,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-o"  ><B>O</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='O']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' P')" >
@@ -409,7 +409,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-p"  ><B>P</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='P']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' Q')" >
@@ -417,7 +417,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-q"  ><B>Q</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Q']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' R')" >
@@ -425,7 +425,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-r"  ><B>R</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='R']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' S')" >
@@ -433,7 +433,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-s"  ><B>S</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='S']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' T')" >
@@ -441,7 +441,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-t"  ><B>T</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='T']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' U')" >
@@ -449,7 +449,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-u"  ><B>U</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='U']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' V')" >
@@ -458,7 +458,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-v"  ><B>V</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='V']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' W')" >
@@ -466,7 +466,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-w"  ><B>W</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='W']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' X')" >
@@ -474,7 +474,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-x"  ><B>X</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='X']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' Y')" >
@@ -482,7 +482,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-y"  ><B>Y</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Y']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 			<xsl:if test="contains($name-list,' Z')" >
@@ -490,7 +490,7 @@ $Id: index_mim_modules_inner.xsl,v 1.9 2003/11/25 17:24:53 robbod Exp $
 				<A NAME="{$internal-link-root}-z"  ><B>Z</B></A>
 				<br/>
 				<xsl:apply-templates select="$items[translate(substring(@name,1,1),$LOWER,$UPPER)='Z']" mode="module-index" >
-					<xsl:sort select="@name" />
+					<xsl:sort select="@name"  data-type="number" />
 				</xsl:apply-templates>
 			</xsl:if>
 </xsl:template>

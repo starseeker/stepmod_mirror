@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: impl.xsl,v 1.4 2004/02/10 16:50:04 mikeward Exp $
+$Id: impl.xsl,v 1.5 2004/02/11 10:14:08 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose:
@@ -68,6 +68,10 @@ $Id: impl.xsl,v 1.4 2004/02/10 16:50:04 mikeward Exp $
           <li>
             <a href="arm_lf_p28xsd.xsd">arm_lf_p28xsd.xsd</a>
           </li>
+           <li>
+            <a href="../../../dtd/part28/ex.xsd">Part 28 base schema ex.xsd</a>
+          </li>
+
         </ul>
       </xsl:when>
       <xsl:otherwise>

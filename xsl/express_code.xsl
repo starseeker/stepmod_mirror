@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.28 2002/07/16 07:43:19 goset1 Exp $
+     $Id: express_code.xsl,v 1.29 2002/07/22 07:20:32 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -362,8 +362,12 @@
     </xsl:choose>
     <br/>
     &#160;&#160; 
-    <xsl:value-of 
-      select="concat('(',translate(normalize-space(@items),' ', ','),')')"/>
+    <xsl:variable name="enum"
+      select="concat('(',translate(normalize-space(@items),' ',','),')')"/>
+    <xsl:call-template name="output_line_breaks">
+      <xsl:with-param name="str" select="$enum"/>
+      <xsl:with-param name="break_char" select="','"/>
+    </xsl:call-template>
   </xsl:if>
 </xsl:template>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.56 2002/07/13 22:57:25 robbod Exp $
+$Id: common.xsl,v 1.57 2002/07/15 08:56:44 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2187,7 +2187,58 @@ $Id: common.xsl,v 1.56 2002/07/13 22:57:25 robbod Exp $
 
   </xsl:template>
 
-    
+  <!-- given a string, output the string with line breaks after the specified
+       character (break_char) that occurs immediately before a specified
+       number of characters (length)
+       -->
+  <xsl:template name="output_line_breaks">
+    <xsl:param name="str"/>
+    <xsl:param name="break_char"/>
+    <xsl:param name="indent" select="''"/>
+    <xsl:choose>
+      <xsl:when test="contains($str,$break_char)">
+        <xsl:variable name="substr" 
+          select="substring-before($str,$break_char)"/>
+        <xsl:value-of select="concat($indent,$substr,$break_char)"/><br/>
+        <xsl:call-template name="output_line_breaks">
+          <xsl:with-param name="str" select="substring-after($str,$break_char)"/>
+          <xsl:with-param name="break_char" select="$break_char"/>
+          <xsl:with-param name="indent" select="'&#160;&#160;&#160;&#160;'"/>
+        </xsl:call-template> 
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat($indent,$str)"/>
+      </xsl:otherwise>        
+    </xsl:choose>
+  </xsl:template>
+
+
+  <!--
+       Given a string, return the substring immediately before the last 
+       specified character (char) )
+       e.g.       
+       get_string_before("1,2,3,4,5",",") returns 1,2,3,4
+       -->
+  <xsl:template name="get_string_before">
+    <xsl:param name="str"/>
+    <xsl:param name="char"/>
+    <xsl:param name="previous_str" select="''"/>
+    <xsl:choose>
+      <xsl:when test="contains($str,$char)">
+        <xsl:variable name="prev" 
+          select="concat($previous_str,substring-before($str,$char))"/>
+        <xsl:call-template name="get_string_before">
+          <xsl:with-param name="str" select="substring-after($str,$char)"/>
+          <xsl:with-param name="char" select="$char"/>
+          <xsl:with-param name="previous_str" select="$prev"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat($previous_str,$str)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
 </xsl:stylesheet>
 
 

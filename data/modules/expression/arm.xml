@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by Ricardo Olavo (UNINOVA) -->
-<!-- $Id: arm.xml,v 1.18 2003/07/18 08:56:39 rocc Exp $ -->
+<!-- $Id: arm.xml,v 1.19 2003/07/31 11:49:39 rocc Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: 2003/07/18 08:56:39 $" rcs.revision="$Revision: 1.18 $">
+<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: 2003/07/31 11:49:39 $" rcs.revision="$Revision: 1.19 $">
 	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.30" source="../data/modules/expression/arm.exp"/>
 	<schema name="Expression_arm">
 		<interface kind="use" schema="Numeric_function_arm"/>
@@ -184,128 +184,6 @@
 		<entity name="Defined_function" abstract.supertype="YES" super.expression="((ONEOF (Numeric_defined_function,				String_defined_function,				Boolean_defined_function)				)				ANDOR Sql_mappable_defined_function)"/>
 		<entity name="String_defined_function" abstract.supertype="YES" supertypes="Defined_function String_expression"/>
 		<entity name="Boolean_defined_function" abstract.supertype="YES" supertypes="Defined_function Boolean_expression"/>
-		<function name="Is_int_expr">
-			<parameter name="arg">
-				<typename name="Numeric_expression"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
-
-LOCAL
-	i: INTEGER;
-END_LOCAL;
-
-IF 'EXPRESSION_ARM.INT_LITERAL' IN TYPEOF(arg) 
-THEN 
-	RETURN (TRUE); 
-END_IF;
-IF 'EXPRESSION_ARM.REAL_LITERAL' IN TYPEOF(arg) 
-THEN 
-	RETURN (FALSE); 
-END_IF;
-IF 'EXPRESSION_ARM.INT_NUMERIC_VARIABLE' IN TYPEOF(arg) 
-THEN 
-	RETURN (TRUE); 
-END_IF;
-IF 'EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' IN TYPEOF(arg) 
-THEN 
-	RETURN (FALSE); 
-END_IF;
-IF 'EXPRESSION_ARM.ABS_FUNCTION' IN TYPEOF(arg) 
-THEN 
-	RETURN (Is_int_expr(arg\Unary_numeric_expression.operand));
-END_IF;
-IF 'EXPRESSION_ARM.MINUS_FUNCTION' IN TYPEOF(arg) 
-THEN 
-	RETURN (Is_int_expr(arg\Unary_numeric_expression.operand)); 
-END_IF;
-IF ('EXPRESSION_ARM.SIN_FUNCTION' IN TYPEOF(arg)) 
-		OR ('EXPRESSION_ARM.COS_FUNCTION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.TAN_FUNCTION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.ASIN_FUNCTION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.ACOS_FUNCTION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.ATAN_FUNCTION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.EXP_FUNCTION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.LOG_FUNCTION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.LOG2_FUNCTION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.LOG10_FUNCTION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.SQUARE_ROOT_FUNCTION' 
-								IN TYPEOF(arg))
-THEN 
-	RETURN (FALSE);
-END_IF;
-IF 	('EXPRESSION_ARM.PLUS_EXPRESSION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.MULT_EXPRESSION' 
-								IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.MAXIMUM_FUNCTION'
-								IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.MAXIMUM_FUNCTION'
-								IN TYPEOF(arg)) 
-THEN 
-	REPEAT i :=1 TO SIZEOF (
-			arg\Multiple_arity_numeric_expression.operands);
-	IF NOT 
-		Is_int_expr(arg\Multiple_arity_numeric_expression.operands[i]) 
-	THEN 
-		RETURN (FALSE);
-	END_IF;
-	END_REPEAT;
-	RETURN (TRUE);
-END_IF;
-IF 	('EXPRESSION_ARM.MINUS_EXPRESSION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.POWER_EXPRESSION' 
-								IN TYPEOF(arg))
-THEN 
-	RETURN (Is_int_expr(arg\Binary_numeric_expression.operands[1])
-		AND Is_int_expr(arg\Binary_numeric_expression.operands[2]));
-END_IF;
-IF	('EXPRESSION_ARM.DIV_EXPRESSION' IN TYPEOF(arg))
-		OR ('EXPRESSION_ARM.MOD_EXPRESSION' IN TYPEOF(arg))
-THEN 
-	RETURN(TRUE);	
-END_IF;
-IF 'EXPRESSION_ARM.SLASH_EXPRESSION' IN TYPEOF(arg) 
-THEN 
-	RETURN (FALSE); 	
-END_IF;
-IF 'EXPRESSION_ARM.LENGTH_FUNCTION' IN TYPEOF(arg) 
-THEN 
-	RETURN (TRUE); 
-END_IF;
-IF 'EXPRESSION_ARM.VALUE_FUNCTION' IN TYPEOF(arg) 
-THEN 
-	IF 'EXPRESSION_ARM.INT_VALUE_FUNCTION' 
-								IN TYPEOF(arg) 
-	THEN 
-		RETURN (TRUE); 
-	ELSE 
-		RETURN (FALSE); 
-	END_IF;
-END_IF;
-IF 'EXPRESSION_ARM.INTEGER_DEFINED_FUNCTION' 
-								IN TYPEOF(arg)
-THEN 
-	RETURN(TRUE) ;
-END_IF;
-IF'EXPRESSION_ARM.REAL_DEFINED_FUNCTION' IN TYPEOF(arg) 
-THEN 
-	RETURN(FALSE) ;
-END_IF ;
-IF 'EXPRESSION_ARM.BOOLEAN_DEFINED_FUNCTION' 
-								IN TYPEOF(arg)
-THEN 
-	RETURN(FALSE) ;
-END_IF ;
-IF 'EXPRESSION_ARM.STRING_DEFINED_FUNCTION' 
-								IN TYPEOF(arg)
-THEN 
-	RETURN (FALSE) ;
-END_IF ;
-
-RETURN (FALSE);
-
-                          </algorithm>
-		</function>
 		<function name="Is_sql_mappable">
 			<parameter name="arg">
 				<typename name="expression"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.9 2003/02/05 14:30:36 nigelshaw Exp $
+$Id: select_view.xsl,v 1.10 2003/02/05 17:30:26 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -348,9 +348,9 @@ $Id: select_view.xsl,v 1.9 2003/02/05 14:30:36 nigelshaw Exp $
 				        	    name="message" 
 				        	    select="concat('Error Sel8: Mapping not defined in this module for ',
 					    		../@name,'.',@name,
-							    ' for SELECT extensions: ',$not-found-assertions)"/>
+							    ' for SELECT items: ',$not-found-assertions)"/>
 				        	</xsl:call-template>    
-<!--	
+	
 				<br/>
 				Template for required mapping:
 				<br/>
@@ -364,12 +364,14 @@ $Id: select_view.xsl,v 1.9 2003/02/05 14:30:36 nigelshaw Exp $
 					<xsl:with-param name="select-items" select="$not-found-assertions" />
 					<xsl:with-param name="this-attribute" select="@name" />
 					<xsl:with-param name="this-entity" select="../@name" />
-					<xsl:with-param name="this-module" select="$this-mod" />
+					<xsl:with-param name="this-module" select="//stylesheet_application[1]/@directory" />
+					<xsl:with-param name="extended-select" select="$this-type-name" />
+					<xsl:with-param name="extensible" select="$this-type/@basedon" />
 				</xsl:call-template>
 				<br/>
 				&lt;/ae&gt;
 				<br/>
--->				
+				
 					</xsl:if>
 
 
@@ -490,6 +492,8 @@ $Id: select_view.xsl,v 1.9 2003/02/05 14:30:36 nigelshaw Exp $
 		<xsl:with-param name="this-attribute" select="@name" />
 		<xsl:with-param name="this-entity" select="../@name" />
 		<xsl:with-param name="this-module" select="$this-mod" />
+		<xsl:with-param name="extended-select"  />
+		<xsl:with-param name="extensible" select="$this-select/select/@basedon" />
 	</xsl:call-template>
 	<br/>
 	&lt;/ae&gt;
@@ -504,6 +508,8 @@ $Id: select_view.xsl,v 1.9 2003/02/05 14:30:36 nigelshaw Exp $
 	<xsl:param name="this-attribute" />
 	<xsl:param name="this-entity" />
 	<xsl:param name="this-module" />
+	<xsl:param name="extended-select" select="XXX" />
+	<xsl:param name="extensible" />
 
 
 	<xsl:variable name="this-item" select="substring-before(concat(normalize-space($select-items),' '),' ')" />
@@ -518,13 +524,19 @@ $Id: select_view.xsl,v 1.9 2003/02/05 14:30:36 nigelshaw Exp $
 	  <br/>
 	      &lt;source&gt; &lt;/source&gt;
 	  <br/>
-	      &lt;refpath&gt;
-	  <br/>
+	      &lt;refpath&gt; <br/>
 	      &lt;/refpath&gt;
 	  <br/>
+	  <xsl:if test="$extensible" >
+		  &lt;!-- Consider using &lt;refpath_extend 
+		  extended_select="<xsl:value-of select="$extended-select"/> 
+		  &gt; <br/>
+		  &lt;/refpath_extend&gt;<br/>
+		  --&gt;<br/>
+	  </xsl:if>
 	    &lt;/aa&gt;
-<!--	  <br/>
-	  &lt;/ae&gt;
+	  <br/>
+<!--	  &lt;/ae&gt;
 -->	  
 	  </blockquote>
 
@@ -533,6 +545,8 @@ $Id: select_view.xsl,v 1.9 2003/02/05 14:30:36 nigelshaw Exp $
 			<xsl:with-param name="this-attribute" select="$this-attribute" />
 			<xsl:with-param name="this-entity" select="$this-entity" />
 			<xsl:with-param name="this-module" select="$this-module" />
+			<xsl:with-param name="extended-select" select="$extended-select" />
+			<xsl:with-param name="extensible" select="$extensible" />
 		</xsl:call-template>
 
 
@@ -888,6 +902,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 					<xsl:with-param name="this-attribute" select="@name" />
 					<xsl:with-param name="this-entity" select="../@name" />
 					<xsl:with-param name="this-module" select="$this-mod" />
+					<xsl:with-param name="extended-select" select="$this-type" />
 				</xsl:call-template>
 				<br/>
 				&lt;/ae&gt;

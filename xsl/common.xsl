@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.71 2002/08/16 14:02:41 robbod Exp $
+$Id: common.xsl,v 1.72 2002/08/18 17:36:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -124,7 +124,6 @@ $Id: common.xsl,v 1.71 2002/08/16 14:02:41 robbod Exp $
 
     <xsl:variable name="fldr_gif" select="concat($icon_path,'folder.gif')"/>
     <xsl:variable name="proj_gif" select="concat($icon_path,'project.gif')"/>
-    <xsl:variable name="issue_gif" select="concat($icon_path,'issues.gif')"/>
 
     <table cellspacing="0" border="0">
       <xsl:variable
@@ -160,15 +159,30 @@ $Id: common.xsl,v 1.71 2002/08/16 14:02:41 robbod Exp $
             <xsl:variable name="issues_file" 
               select="concat($mod_dir,'/',@development.folder,'/issues.xml')"/>
  
-           <xsl:variable name="no_issues"
+            <xsl:variable name="open_issues"
+              select="count(document($issues_file)/issues/issue[@status!='closed'])"/>
+
+            <xsl:variable name="total_issues"
               select="count(document($issues_file)/issues/issue)"/>
 
-           <xsl:if test="$no_issues > 0">
+            <xsl:variable name="issue_gif">
+              <xsl:choose>
+                <xsl:when test="$open_issues>0">
+                  <xsl:value-of select="concat($icon_path,'issues.gif')"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="concat($icon_path,'closed.gif')"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:variable>
+
+           <xsl:if test="$total_issues > 0">
              <a href="{$issue_href}">
                <img alt="issues" 
                  border="0"
                  align="middle"
-                 src="{$issue_gif}"/><small>[<xsl:value-of select="$no_issues"/>]</small>
+                 src="{$issue_gif}"/>
+               <small>[<xsl:value-of select="$open_issues"/>/<xsl:value-of select="$total_issues"/>]</small>
              </a>&#160;
            </xsl:if>
           </xsl:if>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     $Id: issues_file.xsl,v 1.1 2002/08/14 12:44:36 robbod Exp $
+     $Id: issues_file.xsl,v 1.2 2002/08/18 17:37:33 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -71,13 +71,28 @@
               concat(string(@id), string(@by)),
               '&#xA;', '' ) "/>
     
-    <xsl:variable name="status" select="@status"/>    
-    <p class="{$status}">
-    <hr size="3" />      
+    <xsl:variable name="status" select="@status"/>  
+    <!-- put in place to use CSS -->
+    <p class="{$status}">      
+    <hr size="3" />
+      <!-- replace with CSS -->
+      <xsl:choose>
+        <xsl:when test="not($status='closed')">
+          <img alt="Open issue" 
+            border="0"
+            align="middle"
+            src="../../../../images/issues.gif"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <img alt="closed issue" 
+            border="0"
+            align="middle"
+            src="../../../../images/closed.gif"/>          
+        </xsl:otherwise>
+      </xsl:choose>
       <i>
         <b>
-          
-          issue:
+          Issue:
           <A NAME="{$issue_target}"> 
           <xsl:value-of select="concat(
                                 string(@id), 
@@ -270,9 +285,9 @@
     <xsl:apply-templates />
   </xsl:template>
 
-  <xsl:template match="status">
+  <xsl:template match="comment">
   <blockquote>
-    <b>Status: </b>
+    <b>Comment: </b>
     <i><xsl:value-of select="string(@status)" /></i>
     (<xsl:value-of select="concat(string(@by),' ', string(@date))" />
     <b>)</b><br/>

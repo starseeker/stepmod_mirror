@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.152 2005/02/02 17:20:15 thendrix Exp $
+$Id: common.xsl,v 1.153 2005/03/02 10:45:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2606,10 +2606,15 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     </xsl:variable>
 
     <xsl:variable name="orgname" select="'ISO'"/>
-    <xsl:value-of 
-      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
-			
-</xsl:template>
+    <xsl:choose>
+      <xsl:when test="$status='IS'">
+        <xsl:value-of select="concat($orgname,' 10303-',$part,':',$pub_year)"/>        
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>        
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
 
 <xsl:template name="get_protocol_stdnumber">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol.xsl,v 1.31 2004/12/23 22:13:11 thendrix Exp $
+$Id: application_protocol.xsl,v 1.32 2005/01/28 23:45:51 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -123,16 +123,50 @@ $Id: application_protocol.xsl,v 1.31 2004/12/23 22:13:11 thendrix Exp $
   <xsl:value-of select="substring('GHIJK',$pos,1)"/> 
 </xsl:template>
 
+
+
+
   <xsl:template match="application_protocol" mode="abstract">
+
+    <xsl:variable name="std_number">
+      <xsl:call-template name="get_protocol_dated_stdnumber">
+        <xsl:with-param name="application_protocol" select="."/>
+      </xsl:call-template>      
+    </xsl:variable>
+
+    
     <xsl:choose>
       <xsl:when test="./abstract">
-        <xsl:apply-templates select="./abstract/*"/>
+        <xsl:choose>
+          <xsl:when  test="./abstract/li">
+            <xsl:choose>
+              <xsl:when  test="count(./abstract/li)=1">
+                <P>
+                  The following is within the scope of 
+                  <xsl:value-of select="$std_number"/>
+                </P>
+              </xsl:when>
+              <xsl:otherwise>
+                <P>
+                  The following are within the scope of 
+                  <xsl:value-of select="$std_number"/>
+                </P>
+              </xsl:otherwise>
+            </xsl:choose>
+            <ul>
+              <xsl:apply-templates select="./abstract/*"/>
+            </ul>          
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates select="./abstract/*"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
+
       <xsl:otherwise>
         <p>
-          <xsl:call-template name="get_protocol_dated_stdnumber">
-            <xsl:with-param name="application_protocol" select="."/>
-          </xsl:call-template> specifies the application protocol for
+          <xsl:value-of select="$std_number"/>       
+          specifies the application protocol for
           <xsl:call-template name="protocol_display_name">
             <xsl:with-param name="application_protocol" select="@name"/>
           </xsl:call-template>. 

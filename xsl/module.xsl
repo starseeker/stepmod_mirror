@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.111 2002/12/11 14:20:36 robbod Exp $
+$Id: module.xsl,v 1.112 2002/12/11 14:57:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -684,7 +684,10 @@ o=isocs; s=central<br/>
   <p>
     This International Standard is organized as a series of parts, each
     published separately. The structure of this International Standard is
-    described in ISO 10303-1.
+    described in ISO 10303-1
+    <sup>
+      <a href="#10303-1">1</a>)
+    </sup>.
   </p>
   <p>
     Each part of this International Standard is a
@@ -718,6 +721,14 @@ o=isocs; s=central<br/>
     </xsl:choose>
     are for information only.  
   </p> 
+  <p>
+    <!-- <hr width="100" size="2" align="left"/> -->
+    <a name="10303-1">
+      1) A future edition of ISO 10303-1 will describe the application
+      modules series.
+    </a>
+  </p>
+
 </xsl:template>
 
 <!-- foreword as in n1112 
@@ -2738,14 +2749,14 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
               ( string(./@status)='CD' or string(./@status)='CD-TS')">
         <sup>
           <a href="#derogation">
-            2
+            2)
           </a>
         </sup>
       </xsl:when>
       <xsl:when test="@published='n'">
         <sup>
           <a href="#tobepub">
-            1
+            1)
           </a>
         </sup>
       </xsl:when>
@@ -2785,14 +2796,14 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
               ( string(./@status)='CD' or string(./@status)='CD-TS')">
         <sup>
           <a href="#derogation">
-            2
+            2)
           </a>
         </sup>
       </xsl:when>
       <xsl:when test="stdref[@published='n']">
         <sup>
           <a href="#tobepub">
-            1
+            1)
           </a>
         </sup>
       </xsl:when>

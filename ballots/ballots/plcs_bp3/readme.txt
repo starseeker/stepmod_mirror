@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.2 2003/01/23 08:45:43 robbod Exp $
+$Id: readme.txt,v 1.3 2003/01/23 16:31:31 robbod Exp $
 ------------------------------------------------------------
 
 This directory contains files used to generate an package
@@ -18,6 +18,10 @@ for distribution to SC4 for balloting.
    This will create a directory:
      stepmod/ballots/isohtml/plcs_bp3
    
+3) Run ant on plcs_bp3_dependencies then copy
+
+    cp -rf ../../isohtml/plcs_bp3_dependencies/data/modules/* ../../isohtml/plcs_bp3/data/modules/
+    cp -rf ../../isohtml/plcs_bp3_dependencies/data/resources/* ../../isohtml/plcs_bp3/data/resources/
 
 4) Add the EXPRESS files into a separate directory for the ballot process:
    Run stepmod/utils/getBallotExpress.wsf

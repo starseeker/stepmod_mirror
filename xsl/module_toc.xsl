@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.30 2003/03/11 14:48:11 robbod Exp $
+$Id: module_toc.xsl,v 1.31 2003/03/11 23:56:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -488,13 +488,13 @@ $Id: module_toc.xsl,v 1.30 2003/03/11 14:48:11 robbod Exp $
               <xsl:when test="count($mim_schema_xml/entity)>1">
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#entities">
                 <xsl:value-of select="concat($entity_mim_clause,
-                                      ' MIM entity definition')"/>
+                                      ' MIM entity definitions')"/>
               </A><BR/>
               </xsl:when>
               <xsl:otherwise>
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#entities">
                 <xsl:value-of select="concat($entity_mim_clause,
-                                      ' MIM entity definitions')"/>
+                                      ' MIM entity definition')"/>
               </A><BR/>
               </xsl:otherwise>
             </xsl:choose>

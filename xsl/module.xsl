@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.131 2003/03/11 14:48:08 robbod Exp $
+$Id: module.xsl,v 1.132 2003/03/11 23:56:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1348,11 +1348,11 @@ o=isocs; s=central<br/>
       <xsl:when test="$arm_node/express/schema/interface">
         The following EXPRESS specification begins the 
         <b><xsl:value-of select="$arm_node/express/schema/@name"/></b>
-        and identifies the necessary external references.
+        schema and identifies the necessary external references.
       </xsl:when>
       <xsl:otherwise>
         The following EXPRESS specification begins the 
-        <b><xsl:value-of select="$current_module"/></b>.
+        <b><xsl:value-of select="$current_module"/></b> schema.
       </xsl:otherwise>
     </xsl:choose>
   </p>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.13 2002/04/05 10:31:48 robbod Exp $
+     $Id: express_code.xsl,v 1.14 2002/04/26 13:44:16 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -187,7 +187,10 @@
       </xsl:call-template>  
   </xsl:if>
   <xsl:if test="@selectitems and (string-length(@selectitems)!=0)">
-    WITH (<xsl:call-template name="link_list">
+    <xsl:if test="@basedon">
+      WITH 
+    </xsl:if>
+    (<xsl:call-template name="link_list">
     <xsl:with-param name="suffix" select="', '"/>
     <xsl:with-param name="list" select="@selectitems"/>
     <xsl:with-param name="object_used_in_schema_name"

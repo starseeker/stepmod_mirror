@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.1 2002/03/11 10:15:40 robbod Exp $
+//$Id: getExpressMain.js,v 1.2 2002/05/28 05:42:17 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -42,9 +42,22 @@ function ErrorMessage(msg){
 }
 
 // Copy across the Integrated Resource express
+// and concatenate them.
 function GetIrExpress(expDir) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var ForAppending = 8;
+    var ForReading = 1;
     var irFldr = fso.GetFolder(expDir+"/resources");
+
+    var resourceFile = expDir+"/resources/resource.exp";    
+    // make sure that the resource.exp file does not exist
+    if (fso.FileExists(resourceFile)) {
+	ErrorMessage("The "+resourceFile+" already exists. Delete to proceed\n"+resourceFile);
+	return(0);
+    }
+
+    var resourceStr = fso.CreateTextFile(resourceFile, true);    
+
     var index = "../repository_index.xml";
     var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
     xml.async = false;
@@ -63,9 +76,30 @@ function GetIrExpress(expDir) {
 	//UserMessage(resourceFileName+"->"+newResourceFileName);
 
 	if (fso.FileExists(resourceFileName)) {
+	    //copy across resource file
 	    src = fso.GetFile(resourceFileName);
 	    dst = newResourceFileName;
 	    src.Copy(dst);
+	    
+	    // append into resources.exp
+	    var srcStr = fso.OpenTextFile(src,ForReading);	
+	    resourceStr.WriteLine("");
+	    resourceStr.WriteLine("");
+	    resourceStr.WriteLine("(*");
+	    resourceStr.WriteLine("   ------------------------------------------------------------");
+	    resourceStr.WriteLine(src);
+	    resourceStr.WriteLine("   ------------------------------------------------------------");
+	    resourceStr.WriteLine("*)");
+	    resourceStr.WriteLine("");
+	    while (!srcStr.AtEndOfStream) {
+		var l =  srcStr.ReadLine();
+		// ignore 
+		// {iso standard 10303 part (11) version (4)} 
+		var reg = /{.*iso\b/;
+		if (!l.match(reg))
+		    resourceStr.WriteLine(l);
+	    }
+	    srcStr.Close();    
 	} else {
 	    UserMessage("File does not exist:\n"+resourceFileName);
 	}
@@ -358,4 +392,4 @@ function MainWindow(expDir, modList) {
 }
 
 
-//MainWindow("..\\express", "..\\modlist");
+//MainWindow("..\\express", "..\\modlist.txt");

@@ -2,14 +2,14 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-16T15:55:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-11-19T09:57:21" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_module_design_arm schema_instance"/>
    <schema name="Assembly_module_design_arm">
       <interface kind="use" schema="Assembly_module_usage_view_arm"/>
       <interface kind="use" schema="Altered_package_arm"/>
       <interface kind="use" schema="Bare_die_arm"/>
       <interface kind="use" schema="Component_grouping_arm"/>
-      <interface kind="use" schema="Connection_zone_in_design_view_arm"/>
+      <interface kind="use" schema="Physical_unit_design_view_arm"/>
       <interface kind="use" schema="Package_arm"/>
       <interface kind="use" schema="Packaged_part_black_box_model_arm"/>
       <interface kind="use" schema="Part_feature_function_arm"/>
@@ -20,6 +20,46 @@
       <type name="assembly_module_or_assembly_group_component">
          <select extensible="YES" genericentity="YES" selectitems="Assembly_module"/>
       </type>
+      <entity name="Assembly_module_join_terminal" supertypes="Assembly_module_terminal">
+         <inverse name="defining_terminal" entity="Component_feature_to_physical_usage_view_assignment" attribute="defined_part_feature"/>
+         <where label="WR3" expression=" NOT ( SIZEOF ( USEDIN ( SELF , '' ) ) = 0 ) OR ( SIZEOF ( QUERY ( ct &lt;* USEDIN ( SELF , '' ) | NOT ( 'AP210_ARM.ASSEMBLY_MODULE_MACRO_COMPONENT_JOIN_TERMINAL' IN TYPEOF ( ct ) ) ) ) = 0 ) "/>
+         <where label="WR2" expression=" 'AP210_ARM.' + 'COMPONENT_TERMINAL_TO_ASSEMBLY_MODULE_JOIN_TERMINAL_ASSIGNMENT' IN TYPEOF ( defining_terminal ) "/>
+         <where label="WR1" expression=" 'AP210_ARM.INTERCONNECT_MODULE_JOIN_TERMINAL' IN TYPEOF ( defining_terminal . assigned_terminal ) "/>
+      </entity>
+      <entity name="Routed_interconnect_component" supertypes="Physical_component">
+         <explicit name="routed_centreline_shape">
+            <typename name="Curve"/>
+         </explicit>
+      </entity>
+      <entity name="Component_feature_external_reference">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="associated_component">
+            <typename name="Component_external_reference"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Component_feature_external_reference" attribute="associated_component"/>
+            <unique.attribute entity-ref="Component_feature_external_reference" attribute="name"/>
+         </unique>
+      </entity>
+      <entity name="Component_external_reference">
+         <explicit name="reference_designation">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="product_definition_id">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="revision_code">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="part_number">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="design_owner">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
       <entity name="Bare_die_component" supertypes="Physical_component">
          <explicit name="derived_from">
             <typename name="Bare_die"/>
@@ -27,9 +67,6 @@
          </explicit>
       </entity>
       <entity name="Packaged_component" supertypes="Physical_component">
-         <inverse name="access_mechanism" entity="Packaged_component_join_terminal" attribute="associated_component">
-            <inverse.aggregate type="SET" lower="1"/>
-         </inverse>
          <explicit name="selected_package_alternate" optional="YES">
             <typename name="Altered_package"/>
          </explicit>
@@ -37,6 +74,9 @@
             <typename name="Packaged_part"/>
             <redeclaration entity-ref="Definition_based_product_occurrence" old_name="derived_from"/>
          </explicit>
+         <inverse name="access_mechanism" entity="Packaged_component_join_terminal" attribute="associated_component">
+            <inverse.aggregate type="SET" lower="1"/>
+         </inverse>
       </entity>
       <entity name="Bare_die_component_terminal" supertypes="Physical_component_terminal">
          <explicit name="associated_component">

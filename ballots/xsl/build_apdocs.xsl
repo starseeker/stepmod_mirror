@@ -874,11 +874,12 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     <xsl:element name="property">
       <xsl:attribute name="name">GIFS</xsl:attribute>
       <xsl:attribute name="value">
+        <!-- not sure why copying EXPRESS
         <xsl:apply-templates select="ballot_package/module">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
           <xsl:with-param name="suffix" select="'/*.exp'"/>
           <xsl:with-param name="terminate" select="'NO'"/>
-        </xsl:apply-templates>
+        </xsl:apply-templates> -->
         <xsl:apply-templates select="ballot_package/module">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
           <xsl:with-param name="suffix" select="'/*.gif'"/>
@@ -7283,7 +7284,69 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
           </xsl:attribute>
         </xsl:element>
-             </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_MODULES_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="concat('${',$menu,'}')"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:choose>
+          <xsl:when test="./@background.image.modules">
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'background_image'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:element>
 
       <xsl:element name="style">
         <xsl:attribute name="includes">

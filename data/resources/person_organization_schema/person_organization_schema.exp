@@ -121,6 +121,25 @@ WHERE
   WR1: EXISTS(last_name) OR EXISTS(first_name);
 END_ENTITY;
 
+ENTITY person_and_organization;
+  the_person : person;
+  the_organization : organization;
+DERIVE
+  name : label := get_name_value (SELF);
+  description : text := get_description_value (SELF);
+WHERE
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1;
+  WR2: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
+END_ENTITY;
+
+ENTITY person_and_organization_role;
+  name : label;
+DERIVE
+  description : text := get_description_value (SELF);
+WHERE
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
+END_ENTITY;
+
 ENTITY person_type;
   id : STRING;
   name : STRING;
@@ -149,25 +168,6 @@ ENTITY person_type_definition_relationship;
   relating_person_type_definition : person_type_definition;
 END_ENTITY;
 
-ENTITY person_and_organization;
-  the_person : person;
-  the_organization : organization;
-DERIVE
-  name : label := get_name_value (SELF);
-  description : text := get_description_value (SELF);
-WHERE
-  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1;
-  WR2: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
-END_ENTITY;
-
-ENTITY person_and_organization_role;
-  name : label;
-DERIVE
-  description : text := get_description_value (SELF);
-WHERE
-  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1;
-END_ENTITY;
-
 ENTITY person_role;
   name : label;
 DERIVE
@@ -182,19 +182,19 @@ ENTITY personal_address
   description : OPTIONAL text;
 END_ENTITY;
 
+ENTITY position_in_organization;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+END_ENTITY;
+
 ENTITY position_in_organization_type;
   id : STRING;
   name : STRING;
   description : OPTIONAL STRING;
 END_ENTITY;
 
-ENTITY position_in_organization;
-  id : STRING;
-  name : STRING;
-  description : OPTIONAL STRING;
-END_ENTITY;
-
-ENTITY position_in_organization;
+ENTITY position_in_organization_relationship;
   id : STRING;
   name : OPTIONAL STRING;
   description : OPTIONAL STRING;
@@ -253,4 +253,3 @@ FUNCTION acyclic_organizational_project_relationship
       END_FUNCTION; 
 
 END_SCHEMA;  -- person_organization_schema
-

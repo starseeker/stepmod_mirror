@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.47 2002/04/26 09:11:42 goset1 Exp $
+$Id: module.xsl,v 1.48 2002/04/26 16:44:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -517,12 +517,21 @@ $Id: module.xsl,v 1.47 2002/04/26 09:11:42 goset1 Exp $
   <xsl:variable name="mim_schema"
     select="translate(concat(@name,'_mim'),$LOWER, $UPPER)"/>
     
+  <!--
+       It has been decided to point to the index instead
   <xsl:variable name="names_url"
       select="concat('http://www.steptools.com/cgi-bin/getnames.cgi?schema=',
               $mim_schema)"/>
   
   <xsl:variable name="parts_url"
   select="concat('http://www.steptools.com/sc4/archive/~checkout~/modules/10303-',@part,'-arm.exp?rev=1.1&amp;content-type=text/plain')"/>
+  -->
+  <xsl:variable name="names_url"
+    select="'http://www.steptools.com/short_names/index.html'"/>
+  
+  
+  <xsl:variable name="parts_url"
+    select="'http://www.steptools.com/sc4/archive/'"/>
 
   <p>
     This annex references a listing of the EXPRESS entity names and

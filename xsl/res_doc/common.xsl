@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.15 2004/09/27 04:43:07 thendrix Exp $
+$Id: common.xsl,v 1.16 2004/09/27 19:22:25 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -420,48 +420,171 @@ $Id: common.xsl,v 1.15 2004/09/27 04:43:07 thendrix Exp $
 </xsl:template>
 
 
-<xsl:template match="note" >
-  <xsl:variable name="aname">
-    <xsl:choose>
-      <xsl:when test="@id">
-        <xsl:value-of select="concat('note_',@id)"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat('note_',@number)"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  <p class="note">
-    <small>
-      <a name="{$aname}">
-        <xsl:value-of select="concat('NOTE&#160;',./@number)"/></a>&#160;&#160;
-        <xsl:apply-templates/>
-    </small>
-  </p>
+<xsl:template match="note">
+  <xsl:variable name="text_str" select="normalize-space(text())"/>
+  <xsl:choose>
+    <!-- expect the note to start with <p> If not flag an error -->
+    <xsl:when test="string-length($text_str) != 0 and ./child::*[name()='p' or name()='screen' or name()='ul' or name()='note' or name='example']">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error NOTE1: Notes containing block elements
+                  such as &lt;',
+                  name(./child::*[name()='p' or name()='screen' or name()='ul' or name()='note' or name()='example']),
+                  '&gt; should start with &lt;p&gt; not text#Currently starts with:#',$text_str)"/>
+      </xsl:call-template>
+      NOTE
+    </xsl:when>
+    <xsl:when test="string-length($text_str) != 0">
+      <xsl:variable name="aname">
+        <xsl:choose>
+          <xsl:when test="@id">
+            <xsl:value-of select="concat('note_',@id)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat('note_',@number)"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <p class="note">
+        <small>
+          <a name="{$aname}">
+            <xsl:value-of select="concat('NOTE&#160;',@number)"/></a>&#160;&#160;
+            <xsl:apply-templates/>
+          </small>
+        </p>  
+    </xsl:when>
+    <!-- check that the first element is p -->
+    <xsl:when test="string(name(child::*[1])) != 'p'">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error NOTE2: Notes start with p element not ', name(./child::*[1]))"/>
+      </xsl:call-template>
+      EXAMPLE
+    </xsl:when>
+
+    <xsl:otherwise>
+      <xsl:apply-templates select="./p[1]" mode="first_paragraph_note">
+        <xsl:with-param name="id" select="@id"/>
+        <xsl:with-param name="number" select="@number"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="./child::*[position() &gt; 1]"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
-<xsl:template match="example" >
+<!-- called from <note> to deal with first paragraph -->
+<xsl:template match="p" mode="first_paragraph_note">
+  <xsl:param name="id"/>
+  <xsl:param name="number"/>
   <xsl:variable name="aname">
     <xsl:choose>
-      <xsl:when test="@id">
-        <xsl:value-of select="concat('example_',@id)"/>
+      <xsl:when test="$id">
+        <xsl:value-of select="concat('note_',$id)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat('example_',@number)"/>
+        <xsl:value-of select="concat('note_',$number)"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
+  <xsl:apply-templates select="." mode="check_html"/>
+  <xsl:choose>
+    <xsl:when test="name(../..)='example'">
+      <!-- already small -->
+      <p class="note">
+        <a name="{$aname}">
+          <xsl:value-of select="concat('NOTE&#160;',$number)"/></a>&#160;&#160;
+          <xsl:apply-templates/>
+      </p>
+    </xsl:when>
+    <xsl:otherwise>
+      <p class="note">
+        <small>
+          <a name="{$aname}">
+            <xsl:value-of select="concat('NOTE&#160;',$number)"/></a>&#160;&#160;
+            <xsl:apply-templates/>
+          </small>
+        </p>  
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
+<xsl:template match="example">
+  <xsl:variable name="text_str" select="normalize-space(text())"/>
+  <xsl:choose>
+    <!-- expect the example to be plain text, or if starts with <p> not to
+         contain any block elements.start with <p>. If not flag an error -->
+    <xsl:when test="string-length($text_str) != 0 and ./child::*[name()='p'
+or name()='screen' or name()='ul' or name()='example' or name()='note' or name()='figure']">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error EX1: Examples containing block elements such as ', name(./child::*[name()='p' or name()='screen' or name()='ul' or name()='note' or name()='example']), ' should start with p not text#Currently starts with:#',$text_str)"/>
+      </xsl:call-template>
+      EXAMPLE
+    </xsl:when>
+    <xsl:when test="string-length($text_str) != 0">
+      <xsl:variable name="aname">
+        <xsl:choose>
+          <xsl:when test="@id">
+            <xsl:value-of select="concat('example_',@id)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat('example_',@number)"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <p class="example">
+        <small>
+          <a name="{$aname}">
+            <xsl:value-of select="concat('EXAMPLE&#160;',@number)"/></a>&#160;&#160;
+            <xsl:apply-templates/>
+          </small>
+        </p>  
+    </xsl:when>
+    <!-- check that the first element is p or ul-->
+    <xsl:when test="name(child::*[1]) != 'p'">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error EX2: Examples should start with p or ul element not ', name(./child::*[1]))"/>
+      </xsl:call-template>
+      EXAMPLE
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates select="./p[1]" mode="first_paragraph_example">
+        <xsl:with-param name="id" select="@id"/>
+        <xsl:with-param name="number" select="@number"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="./child::*[position() &gt; 1]"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<!-- called from <example> to deal with first paragraph -->
+<xsl:template match="p" mode="first_paragraph_example">
+  <xsl:param name="id"/>
+  <xsl:param name="number"/>
+  <xsl:variable name="aname">
+    <xsl:choose>
+      <xsl:when test="$id">
+        <xsl:value-of select="concat('example_',$id)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat('example_',$number)"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:apply-templates select="." mode="check_html"/>
   <p class="example">
     <small>
       <a name="{$aname}">
-        <xsl:value-of 
-          select="concat('EXAMPLE&#160;',@number)"/></a>&#160;&#160;
-        <xsl:apply-templates/>
-      </small>
-    </p>
+        <xsl:value-of select="concat('EXAMPLE&#160;',$number)"/></a>&#160;&#160;
+      <xsl:apply-templates/>
+    </small>
+  </p>  
 </xsl:template>
-
 
 <xsl:template match="figure">
   <xsl:variable name="number">
@@ -579,15 +702,11 @@ $Id: common.xsl,v 1.15 2004/09/27 04:43:07 thendrix Exp $
   <AREA shape="{$shape}" coords="{$coords}" href="{$href}" alt="{$href}"/>
 </xsl:template>
 
+
 <!--
      An unordered list
      -->
-<xsl:template match="ul" >
-  <ul>
-    <xsl:apply-templates/>
-  </ul>
-</xsl:template>
-<xsl:template match="UL" >
+<xsl:template match="ul|UL">
   <ul>
     <xsl:apply-templates/>
   </ul>
@@ -632,18 +751,108 @@ $Id: common.xsl,v 1.15 2004/09/27 04:43:07 thendrix Exp $
 </xsl:template>
 
 <!--
-     A list item
+     A list item - called from scope statements where there are clear rules
+     for the punctuation of a list
      -->
-<xsl:template match="li" >
-  <li>
-    <xsl:apply-templates/>
-  </li>
+<xsl:template match="li|LI">
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+
+  <!-- make sure that the LI is in a UL OL or INSCOPE -->
+  <xsl:variable name="parent" select="translate(name(..),$UPPER,$LOWER)"/>
+
+  <xsl:choose>
+    <xsl:when test="not($parent='ul' or $parent='ol' or $parent='ul' or $parent='inscope' or $parent='outscope' or $parent='abstract')">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error LI1: The parent element of &lt;li&gt;, must be a &lt;ul&gt;,&lt;ol&gt;, &lt;inscope&gt;, &lt;outscope&gt; not ',$parent)"/>
+            </xsl:call-template>
+    </xsl:when>
+  </xsl:choose>
+
+  <xsl:choose>
+    <xsl:when test="$ERROR_CHECK_LIST_ITEMS = 'NO'">
+      <li>
+        <xsl:choose>
+          <xsl:when test="./ancestor::*[name()='example' or name()='note']">
+            <small>
+              <xsl:apply-templates/>
+            </small>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </li>
+    </xsl:when>
+    <xsl:otherwise>
+      <!-- get the text or the text of the last paragraph. Ignore examples and
+           notes -->
+      <xsl:variable name="item1">
+        <xsl:apply-templates select="." mode="flatten"/>
+      </xsl:variable>
+      <xsl:variable name="item" select="normalize-space($item1)"/>
+      <xsl:variable name="position">
+        <!-- use number rather than position as SAXON gives wrong results -->
+        <xsl:number/>
+      </xsl:variable>
+      <!-- use count rather than last as SAXON gives wrong results -->
+      <xsl:variable name="last" select="count(../li)"/>
+      <xsl:variable name="terminator">
+        <xsl:choose>
+          <xsl:when test="$position=$last">
+            <xsl:value-of select="'.'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="';'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>  
+      <li>
+        <xsl:choose>
+          <xsl:when test="contains($item,'**')">
+            <!-- the list item contains a sub list, so allow other terminators -->
+          </xsl:when>
+          <xsl:when test="substring($item,string-length($item))!=$terminator">
+            <!-- need to check for colon and if not found comma is okay.
+                 sentence, then puctuated with colo
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Error b1: Item in list should end with',$terminator)"/>
+            </xsl:call-template> -->
+          </xsl:when>
+        </xsl:choose>
+        <xsl:choose>
+          <xsl:when test="./ancestor::*[name()='example' or name()='note']">
+            <small>
+              <xsl:apply-templates/>
+            </small>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </li>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
-<xsl:template match="LI" >
-  <li>
-    <xsl:apply-templates/>
-  </li>
+
+
+
+
+<xsl:template match="example|note|b|i|sup|sub" mode="flatten"/>
+<xsl:template match="ul" mode="flatten">
+ **
 </xsl:template>
+
+<xsl:template match="p" mode="flatten">
+  <xsl:value-of select="."/>
+</xsl:template>
+
+
+
 
 <!--
      A definition list
@@ -686,18 +895,18 @@ $Id: common.xsl,v 1.15 2004/09/27 04:43:07 thendrix Exp $
   </xsl:if>
 </xsl:template>
 
-
-
 <!--
      A paragraph
      -->
-<xsl:template match="p">
-  <!-- if a paragraph is specified immediately after NOTE of EXAMPLE, then
-       ignore it
-       -->
+<xsl:template match="p|P">
+  <xsl:apply-templates select="." mode="check_html"/>
   <xsl:choose>
-    <xsl:when test="position()=1 and (name(..)='note' or name(..)='example')" >
-      <xsl:apply-templates/>
+    <xsl:when test="./ancestor::*[name()='example' or name()='note']">
+      <p>
+        <small>
+          <xsl:apply-templates/>
+        </small>
+      </p>      
     </xsl:when>
     <xsl:otherwise>
       <p>
@@ -706,21 +915,21 @@ $Id: common.xsl,v 1.15 2004/09/27 04:43:07 thendrix Exp $
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
-<xsl:template match="P">
-  <!-- if a paragraph is specified immediately after NOTE of EXAMPLE, then
-       ignore it
-       -->
-  <xsl:choose>
-    <xsl:when test="position()=1 and (name(..)='note' or name(..)='example')" >
-      <xsl:apply-templates/>
-    </xsl:when>
-    <xsl:otherwise>
-      <p>
-        <xsl:apply-templates/>
-      </p>
-    </xsl:otherwise>
-  </xsl:choose>
+
+<!-- 
+     flag an error if a paragraph contains another <p> or <ul> or <screen>
+     as these will lead to invalid HTML 
+-->
+<xsl:template match="p|P" mode="check_html">
+  <xsl:if test="./child::*[name()='p' or name()='ul' or name='screen']">
+    <xsl:call-template name="error_message">
+      <xsl:with-param 
+        name="message" 
+        select="'Error HTM1: A paragraph should not enclose a &lt;p&gt; or &lt;ul&gt; or &lt;screen&gt;. Close the &lt;p&gt; first'"/>
+    </xsl:call-template>
+  </xsl:if>
 </xsl:template>
+
 
 <xsl:template match="b|B">
   <b>

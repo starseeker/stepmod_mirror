@@ -1,313 +1,407 @@
 (*
 
-	WG12 N525 								2000-05-30
+	WG12 N??? 								2003
 
-	EXPRESS Declarations for ISO 10303-41: 2nd Edition
+	EXPRESS Declarations for ISO 10303-41: 3rd Edition
 *)
 
-SCHEMA management_resources_schema;
-REFERENCE FROM action_schema;                      -- ISO 10303-41
-REFERENCE FROM application_context_schema          -- ISO 10303-41
-  (library_context);
-REFERENCE FROM approval_schema;                    -- ISO 10303-41
-REFERENCE FROM basic_attribute_schema              -- ISO 10303-41
+SCHEMA management_resources_schema; 
+
+REFERENCE FROM action_schema;    -- ISO 10303-41
+
+REFERENCE FROM application_context_schema   -- ISO 10303-41
+  (library_context); 
+
+REFERENCE FROM approval_schema;    -- ISO 10303-41
+
+REFERENCE FROM basic_attribute_schema   -- ISO 10303-41
   (get_role,
-  object_role,
-  role_association);
-REFERENCE FROM certification_schema;               -- ISO 10303-41
-REFERENCE FROM contract_schema;                    -- ISO 10303-41
-REFERENCE FROM date_time_schema;                   -- ISO 10303-41
-REFERENCE FROM document_schema;                    -- ISO 10303-41
-REFERENCE FROM effectivity_schema;                 -- ISO 10303-41
-REFERENCE FROM external_reference_schema           -- ISO 10303-41
-  (external_source);
-REFERENCE FROM group_schema;                       -- ISO 10303-41
-REFERENCE FROM person_organization_schema;         -- ISO 10303-41
-REFERENCE FROM security_classification_schema;     -- ISO 10303-41
-REFERENCE FROM support_resource_schema;            -- ISO 10303-41
+   object_role,
+   role_association); 
+
+REFERENCE FROM certification_schema;    -- ISO 10303-41
+
+REFERENCE FROM contract_schema;    -- ISO 10303-41
+
+REFERENCE FROM date_time_schema;    -- ISO 10303-41
+
+REFERENCE FROM document_schema;    -- ISO 10303-41
+
+REFERENCE FROM effectivity_schema;    -- ISO 10303-41
+
+REFERENCE FROM external_reference_schema   -- ISO 10303-41
+  (external_source); 
+
+REFERENCE FROM group_schema;    -- ISO 10303-41
+
+REFERENCE FROM person_organization_schema;    -- ISO 10303-41ed3
+
+REFERENCE FROM security_classification_schema;    -- ISO 10303-41
+
+REFERENCE FROM support_resource_schema;    -- ISO 10303-41
+
+REFERENCE FROM experience_schema   -- ISO 10303-41ed3
+  (experience,
+   experience_type); 
+
+REFERENCE FROM location_schema   -- ISO 10303-41ed3
+  (location); 
+
+REFERENCE FROM qualifications_schema   -- ISO 10303-41ed3
+  (qualification_type); 
+
 
 TYPE attribute_type = SELECT
-  (label,
-   text);
-END_TYPE; -- attribute_type
+   (label, 
+    text);
+END_TYPE; 
 
 ENTITY action_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_action : action;
 DERIVE
-  role            : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; -- action_assignment
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+END_ENTITY;
 
 ENTITY action_method_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_action_method : action_method;
-  role                   : action_method_role;
-END_ENTITY; -- action_method_assignment
+  role : action_method_role;
+END_ENTITY;
 
 ENTITY action_method_role;
-  name        : label;
+  name : label;
   description : OPTIONAL text;
-END_ENTITY; -- action_method_role
+END_ENTITY;
 
 ENTITY action_request_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_action_request : versioned_action_request;
 DERIVE
-  role                    : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; -- action_request_assignment
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+END_ENTITY;
 
 ENTITY approval_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_approval : approval;
 DERIVE
-  role              : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; -- approval_assignment
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+END_ENTITY;
 
 ENTITY attribute_classification_assignment
-  ABSTRACT SUPERTYPE;
-  assigned_class          : group;
-  attribute_name          : label;
-  role                    : classification_role;
-END_ENTITY; -- attribute_classification_assignment
+  ABSTRACT SUPERTYPE ;
+  assigned_class : group;
+  attribute_name : label;
+  role : classification_role;
+END_ENTITY;
 
 ENTITY attribute_value_assignment
-  ABSTRACT SUPERTYPE;
-  attribute_name  : label;
+  ABSTRACT SUPERTYPE ;
+  attribute_name : label;
   attribute_value : attribute_type;
-  role            : attribute_value_role;
-END_ENTITY; -- attribute_value_assignment
+  role : attribute_value_role;
+END_ENTITY;
 
 ENTITY attribute_value_role;
-  name        : label;
+  name : label;
   description : OPTIONAL text;
-END_ENTITY; -- attribute_value_role
+END_ENTITY;
 
 ENTITY certification_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_certification : certification;
 DERIVE
-  role                   : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; -- certification_assignment
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+END_ENTITY;
 
 ENTITY classification_assignment
-  ABSTRACT SUPERTYPE;
-  assigned_class          : group;
-  role                    : classification_role;
-END_ENTITY; -- classification_assignment
+  ABSTRACT SUPERTYPE ;
+  assigned_class : group;
+  role : classification_role;
+END_ENTITY;
 
 ENTITY classification_role;
-  name        : label;
+  name : label;
   description : OPTIONAL text;
-END_ENTITY; -- classification_role
+END_ENTITY;
 
 ENTITY contract_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_contract : contract;
 DERIVE
-  role              : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; --  contract_assignment
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+END_ENTITY;
 
 ENTITY date_and_time_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_date_and_time : date_and_time;
-  role                   : date_time_role;
-END_ENTITY; -- date_and_time_assignment
+  role : date_time_role;
+END_ENTITY;
 
 ENTITY date_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_date : date;
-  role          : date_role;
-END_ENTITY; -- date_assignment
+  role : date_role;
+END_ENTITY;
 
 ENTITY document_reference
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_document : document;
-  source            : label;
+  source : label;
 DERIVE
-  role              : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; -- document_reference
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+END_ENTITY;
 
 ENTITY document_usage_constraint_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_document_usage : document_usage_constraint;
-  role                    : document_usage_role;
-END_ENTITY; -- document_usage_constraint_assignment
+  role : document_usage_role;
+END_ENTITY;
 
 ENTITY document_usage_role;
-  name        : label;
+  name : label;
   description : OPTIONAL text;
-END_ENTITY; -- document_usage_role
+END_ENTITY;
 
 ENTITY effectivity_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_effectivity : effectivity;
 DERIVE
-  role                 : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; -- effectivity_assignment
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+END_ENTITY;
 
 ENTITY effectivity_context_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_effectivity_assignment : effectivity_assignment;
-  role                            : effectivity_context_role;
-END_ENTITY; -- effectivity_context_assignment
+  role : effectivity_context_role;
+END_ENTITY;
 
 ENTITY effectivity_context_role;
-  name        : label;
+  name : label;
   description : OPTIONAL text;
-END_ENTITY; -- effectivity_context_role
+END_ENTITY;
 
 ENTITY event_occurrence_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_event_occurrence : event_occurrence;
-  role                      : event_occurrence_role;
-END_ENTITY; -- event_occurrence_assignment
+  role : event_occurrence_role;
+END_ENTITY;
 
 ENTITY event_occurrence_context_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_event_occurrence_assignment : event_occurrence_assignment;
-  role                                 : event_occurrence_context_role;
-END_ENTITY; -- event_occurrence_context_assignment
+  role : event_occurrence_context_role;
+END_ENTITY;
 
 ENTITY external_identification_assignment
-  ABSTRACT SUPERTYPE
+  ABSTRACT SUPERTYPE 
   SUBTYPE OF (identification_assignment);
   source : external_source;
-END_ENTITY; -- external_identification_assignment
+END_ENTITY;
 
 ENTITY external_referent_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_name : label;
 DERIVE
-  role          : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 UNIQUE
-  UR1 : assigned_name;
-WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; -- external_referent_assignment
+  UR1: assigned_name;
+END_ENTITY;
 
 ENTITY group_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_group : group;
 DERIVE
-  role           : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; -- group_assignment
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+END_ENTITY;
 
 ENTITY identification_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_id : identifier;
-  role        : identification_role;
-END_ENTITY; -- identification_assignment
+  role : identification_role;
+END_ENTITY;
 
 ENTITY identification_assignment_relationship;
-  name                               : label;
-  description                        : OPTIONAL text;
+  name : label;
+  description : OPTIONAL text;
   relating_identification_assignment : identification_assignment;
-  related_identification_assignment  : identification_assignment;
-END_ENTITY; -- identification_assignment_relationship
+  related_identification_assignment : identification_assignment;
+END_ENTITY;
 
 ENTITY identification_role;
-  name        : label;
+  name : label;
   description : OPTIONAL text;
-END_ENTITY; -- identification_role
+END_ENTITY;
 
 ENTITY library_assignment
-  ABSTRACT SUPERTYPE
+  ABSTRACT SUPERTYPE 
   SUBTYPE OF (external_referent_assignment);
   frame_of_reference : library_context;
 UNIQUE
   UR1: frame_of_reference;
-END_ENTITY; -- library_assignment
+END_ENTITY;
 
 ENTITY name_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_name : label;
 DERIVE
-  role          : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; -- name_assignment
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+END_ENTITY;
 
 ENTITY organization_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_organization : organization;
-  role                  : organization_role;
-END_ENTITY; -- organization_assignment
+  role : organization_role;
+END_ENTITY;
 
 ENTITY organizational_project_assignment
-ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_organizational_project : organizational_project;
-  role                            : organizational_project_role;
-END_ENTITY; -- organizational_project_assignment
+  role : organizational_project_role;
+END_ENTITY;
 
 ENTITY organizational_project_role;
-  name        : label;
+  name : label;
   description : OPTIONAL text;
-END_ENTITY; -- organizational_project_role
+END_ENTITY;
 
 ENTITY person_and_organization_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_person_and_organization : person_and_organization;
-  role                             : person_and_organization_role;
-END_ENTITY; -- person_and_organization_assignment
+  role : person_and_organization_role;
+END_ENTITY;
 
 ENTITY person_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_person : person;
-  role            : person_role;
-END_ENTITY; -- person_assignment
+  role : person_role;
+END_ENTITY;
 
 ENTITY security_classification_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_security_classification : security_classification;
 DERIVE
-  role                             : object_role := get_role (SELF);
+  role : object_role := get_role (SELF);
 WHERE
-  WR1 : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +
-                       'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
-END_ENTITY; -- security_classification_assignment
+  WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+END_ENTITY;
 
 ENTITY time_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_time : local_time;
-  role          : time_role;
-END_ENTITY; -- time_assignment
+  role : time_role;
+END_ENTITY;
 
 ENTITY time_interval_assignment
-  ABSTRACT SUPERTYPE;
+  ABSTRACT SUPERTYPE ;
   assigned_time_interval : time_interval;
-  role                   : time_interval_role;
-END_ENTITY; -- time_interval_assignment
+  role : time_interval_role;
+END_ENTITY;
+
+ENTITY experience_assignment
+  ABSTRACT SUPERTYPE ;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  role : OPTIONAL STRING;
+  assigned_experience : experience;
+END_ENTITY;
+
+ENTITY experience_type_assignment
+  ABSTRACT SUPERTYPE ;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  role : OPTIONAL STRING;
+  assigned_experience_type : experience_type;
+END_ENTITY;
+
+ENTITY location_assignment
+  ABSTRACT SUPERTYPE ;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  role : OPTIONAL STRING;
+  assigned_location : location;
+END_ENTITY;
+
+ENTITY organization_type_assignment
+  ABSTRACT SUPERTYPE ;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  role : OPTIONAL STRING;
+  assigned_organization_type : organization_type;
+END_ENTITY;
+
+ENTITY person_type_assignment
+  ABSTRACT SUPERTYPE ;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  role : OPTIONAL STRING;
+  assigned_person_type : person_type;
+END_ENTITY;
+
+ENTITY position_in_organization;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY position_in_organization_assignment
+  ABSTRACT SUPERTYPE ;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  role : OPTIONAL STRING;
+  assigned_position_in_organization : position_in_organization;
+END_ENTITY;
+
+ENTITY position_in_organization_type;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY position_in_organization_type_assignment
+  ABSTRACT SUPERTYPE ;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  role : OPTIONAL STRING;
+  assigned_position_in_organization_type : position_in_organization_type;
+END_ENTITY;
+
+ENTITY qualification_type_assignment
+  ABSTRACT SUPERTYPE ;
+  id : STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+  role : OPTIONAL STRING;
+  assigned_qualification_type : qualification_type;
+END_ENTITY;
 
 FUNCTION acyclic_identification_assignment_relationship
-  (relation          : identification_assignment_relationship;
-   relatives         : SET [1:?] OF identification_assignment;
-   specific_relation : STRING) : BOOLEAN;
+ (relation : identification_assignment_relationship; relatives : SET[1:?] OF identification_assignment; specific_relation : STRING) : BOOLEAN; 
   LOCAL
     x                : SET OF identification_assignment_relationship;
   END_LOCAL;
@@ -329,6 +423,6 @@ FUNCTION acyclic_identification_assignment_relationship
     END_IF;
   END_REPEAT;
   RETURN(TRUE);
-END_FUNCTION; -- acyclic_identification_assignment_relationship
+      END_FUNCTION; 
 
-END_SCHEMA; -- management_resources_schema
+END_SCHEMA;  -- management_resources_schema

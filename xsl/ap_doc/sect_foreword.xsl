@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.17 2005/03/02 12:45:02 robbod Exp $
+$Id: sect_foreword.xsl,v 1.18 2005/03/02 13:40:37 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -500,7 +500,7 @@ $Id: sect_foreword.xsl,v 1.17 2005/03/02 12:45:02 robbod Exp $
     separately. The structure of ISO 10303 is described in ISO 10303-1.
     <sup>
       <a href="#10303-1">1</a>)
-    </sup>.
+    </sup>
   </p>
   <p>
     Each part of ISO 10303 is a member of one of the following series:

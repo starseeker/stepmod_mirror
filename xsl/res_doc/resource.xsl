@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.29 2003/06/02 09:59:53 mikeward Exp $
+$Id: resource.xsl,v 1.30 2003/06/10 12:05:18 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2039,7 +2039,7 @@ defined in annex D of ISO 10303-11.
   <xsl:if test="$footnote='y'">
     <p>
       <a name="tobepub">
-        1) To be published.
+       <sup>1)</sup> To be published.
       </a>      
     </p>
   </xsl:if>
@@ -2348,11 +2348,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
         </sup>
       </xsl:when>
       <xsl:when test="@published='n'">
-        <sup>
-          <a href="#tobepub">
-            1
-          </a>
-        </sup>
+        &#160;<sup><a href="#tobepub">1</a>)</sup>
       </xsl:when>
     </xsl:choose>,&#160;
     <i>
@@ -2373,7 +2369,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of 
-          select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':-')"/>
+          select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':&#8212;&#160;')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -2395,11 +2391,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
         </sup>
       </xsl:when>
       <xsl:when test="stdref[@published='n']">
-        <sup>
-          <a href="#tobepub">
-            1
-          </a>
-        </sup>
+       <sup><a href="#tobepub">1</a>)</sup>
       </xsl:when>
     </xsl:choose>,&#160;
     <i>

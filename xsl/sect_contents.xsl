@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.4 2002/08/05 06:23:41 robbod Exp $
+$Id: sect_contents.xsl,v 1.5 2002/08/07 06:37:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -328,7 +328,7 @@ $Id: sect_contents.xsl,v 1.4 2002/08/05 06:23:41 robbod Exp $
   <!-- Output clause 5 index -->
   <!-- use #mim to link direct -->
   <p class="content">
-    <A HREF="./5_mim{$FILE_EXT}">5 Module interpreted model</A>
+    <A HREF="./5_main{$FILE_EXT}">5 Module interpreted model</A>
   </p>
   <p class="content">
     &#160; &#160;

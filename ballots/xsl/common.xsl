@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_list.xsl,v 1.4 2002/08/07 12:11:10 robbod Exp $
+$Id: common.xsl,v 1.1 2002/08/16 16:34:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -13,7 +13,7 @@ $Id: ballot_list.xsl,v 1.4 2002/08/07 12:11:10 robbod Exp $
   <xsl:template name="ballot_header">
           <table>
         <tr>
-          <td><h2>Ballot package:</h2></td>
+          <td><h2>Ballot cycle:</h2></td>
           <td><h2><xsl:value-of select="@name"/></h2></td>
         </tr>
         <tr>

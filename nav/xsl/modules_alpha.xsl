@@ -1,125 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.1 2002/09/03 14:25:21 robbod Exp $
+$Id: modules_alpha.xsl,v 1.1 2002/09/06 21:21:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display an alphabetical list of modules.
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                version="1.0">
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  xmlns:saxon="http://icl.com/saxon"
+  extension-element-prefixes="msxsl saxon"
+  version="1.0">
 
   <xsl:import href="modules_list.xsl"/>
 
   <xsl:output method="html"/>
 
+
+  <xsl:variable name="lower" select="'abcdefghijklmnopqrstuvwxyz'"/>
+  <xsl:variable name="upper" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+
 <xsl:template match="modules">
 
-      <!-- There must be a better way of doing this -->
-      <xsl:apply-templates select="./module[substring(@name,1,1)='a' or substring(@name,1,1)='A']" mode="alpha">
+  <xsl:variable name="module_nodes">
+    <xsl:element name="modules">
+      <xsl:apply-templates select="./module" mode="copy">
         <xsl:sort select="@name"/>
       </xsl:apply-templates>
+    </xsl:element>
+  </xsl:variable>
 
-      <xsl:apply-templates select="./module[substring(@name,1,1)='b' or substring(@name,1,1)='B']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
+  <xsl:choose>
+    <xsl:when test="function-available('msxsl:node-set')">
+      <xsl:variable 
+        name="modules-node-set" 
+        select="msxsl:node-set($module_nodes)"/>
+      <xsl:for-each select="$modules-node-set/modules/module">
+        <xsl:variable name="letter" 
+          select="translate(substring(@name,1,1), $lower, $upper)"/>
+        
+        <xsl:if test="not($letter = 
+                      translate(substring(preceding-sibling::module[1]/@name,1,1),
+                      $lower, $upper))">
+          <p class="alpha">
+            <A NAME="{$letter}">
+              <xsl:value-of select="$letter"/>
+            </A>
+          </p>
+        </xsl:if>
+        <xsl:apply-templates select="."/>
+      </xsl:for-each>
+    </xsl:when>
 
-      <xsl:apply-templates select="./module[substring(@name,1,1)='c' or substring(@name,1,1)='C']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='d' or substring(@name,1,1)='D']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='e' or substring(@name,1,1)='E']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='f' or substring(@name,1,1)='F']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='g' or substring(@name,1,1)='G']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='h' or substring(@name,1,1)='H']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='i' or substring(@name,1,1)='I']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='j' or substring(@name,1,1)='J']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='k' or substring(@name,1,1)='K']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='l' or substring(@name,1,1)='L']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
+    <xsl:when test="function-available('saxon:node-set')">
+        <xsl:variable name="letter" 
+          select="translate(substring(@name,1,1), $lower, $upper)"/>
+        
+        <xsl:if test="not($letter = 
+                      translate(substring(preceding-sibling::module[1]/@name,1,1),
+                      $lower, $upper))">
+          <p class="alpha">
+            <A NAME="{$letter}">
+              <xsl:value-of select="$letter"/>
+            </A>
+          </p>
+        </xsl:if>
+        <xsl:apply-templates select="."/>
+    </xsl:when>
+    <xsl:otherwise>
+      XSL require node-set function.
+      Currently checks for SAXON MSXML3
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
 
-      <xsl:apply-templates select="./module[substring(@name,1,1)='m' or substring(@name,1,1)='M']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='n' or substring(@name,1,1)='N']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='o' or substring(@name,1,1)='O']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='p' or substring(@name,1,1)='P']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='q' or substring(@name,1,1)='Q']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='r' or substring(@name,1,1)='R']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='s' or substring(@name,1,1)='S']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='t' or substring(@name,1,1)='T']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='u' or substring(@name,1,1)='U']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='v' or substring(@name,1,1)='V']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='w' or substring(@name,1,1)='W']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='x' or substring(@name,1,1)='X']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='y' or substring(@name,1,1)='Y']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="./module[substring(@name,1,1)='z' or substring(@name,1,1)='Z']" mode="alpha">
-        <xsl:sort select="@name"/>
-      </xsl:apply-templates>
+<xsl:template match="module" mode="copy">
+  <xsl:element name="module">
+    <xsl:attribute name="name">
+      <xsl:value-of select="@name"/>
+    </xsl:attribute>
+  </xsl:element>
 </xsl:template>
 
 <xsl:template match="module" mode="alpha">

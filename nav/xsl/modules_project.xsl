@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_project.xsl,v 1.2 2002/09/09 08:25:45 robbod Exp $
+$Id: modules_project.xsl,v 1.3 2002/09/09 12:51:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display an alphabetical list of modules.
@@ -46,16 +46,20 @@ $Id: modules_project.xsl,v 1.2 2002/09/09 08:25:45 robbod Exp $
     </xsl:when>
 
     <xsl:when test="function-available('saxon:node-set')">
+      <xsl:variable name="modules-node-set" select="saxon:node-set($modules)"/>
+
       <!-- now sort the modules -->
       <xsl:variable name="sorted">
         <xsl:element name="modules">
-          <xsl:apply-templates select="$modules/modules/module" mode="copy">
+          <xsl:apply-templates select="$modules-node-set/modules/module" mode="copy">
             <xsl:sort select="@projlead"/>
           </xsl:apply-templates>
         </xsl:element>
       </xsl:variable>
       
-      <xsl:apply-templates select="$sorted/modules/module" mode="projlead"/>
+      <xsl:variable name="sorted-node-set" select="saxon:node-set($sorted)"/>
+      <xsl:apply-templates select="$sorted-node-set/modules/module" mode="projlead"/>
+
     </xsl:when>
     <xsl:otherwise>
       XSL require node-set function.

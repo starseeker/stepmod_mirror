@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-$Id: express_index.xsl,v 1.1 2002/09/03 14:21:17 robbod Exp $
+$Id: express_index.xsl,v 1.2 2002/09/09 12:51:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -51,9 +51,11 @@ $Id: express_index.xsl,v 1.1 2002/09/03 14:21:17 robbod Exp $
       </xsl:apply-templates>
     </xsl:when>
     <xsl:when test="function-available('saxon:node-set')">
+      <xsl:variable name="objects-node-set" 
+        select="saxon:node-set($objects)"/>
       <xsl:apply-templates select="." mode="node_set">
         <xsl:with-param name="arm_mim" select="$arm_mim"/>
-        <xsl:with-param name="objects-node-set" select="$objects"/>
+        <xsl:with-param name="objects-node-set" select="$objects-node-set"/>
       </xsl:apply-templates>      
     </xsl:when>
     <xsl:otherwise>

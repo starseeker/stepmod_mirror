@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_numbers.xsl,v 1.2 2002/09/09 12:51:28 robbod Exp $
+$Id: modules_numbers.xsl,v 1.3 2002/09/09 13:05:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display an index of modules ordered by part number
@@ -33,8 +33,8 @@ $Id: modules_numbers.xsl,v 1.2 2002/09/09 12:51:28 robbod Exp $
       </xsl:apply-templates>
     </xsl:when>
     <xsl:when test="function-available('saxon:node-set')">
-      <!-- <xsl:copy-of select="saxon:node-set($schemas)"/> -->
-      <xsl:apply-templates select="$modules/modules/module">
+      <xsl:variable name="modules-node-set" select="saxon:node-set($modules)"/>
+      <xsl:apply-templates select="$modules-node-set/modules/module">
         <xsl:with-param name="part_no" select="'yes'"/>
         <xsl:sort select="@part"/>
       </xsl:apply-templates>

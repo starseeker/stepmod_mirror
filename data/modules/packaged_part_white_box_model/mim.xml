@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-01T15:19:02" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-03-03T12:24:15" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="packaged_part_white_box_model_mim schema_instance"/>
    <schema name="Packaged_part_white_box_model_mim">
       <interface kind="use" schema="Bare_die_mim"/>
@@ -17,56 +17,13 @@
          </unique>
          <where label="WR1" expression="'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +&#10;       'PACKAGED_PART_TERMINAL'&#10;       IN TYPEOF (SELF.relating_shape_aspect)"/>
       </entity>
+      <rule name="analytical_model_port_assignment_unique_constraint" appliesto="property_definition_representation">
+         <where label="WR1" expression="TRUE"/>
+      </rule>
       <rule name="device_terminal_map_relationship_constraint" appliesto="shape_aspect_relationship">
          <where label="WR1" expression="SIZEOF (QUERY (sar &lt;* shape_aspect_relationship |&#10;               (sar\shape_aspect_relationship.name = 'device terminal map relationship')&#10;               AND&#10;      (NOT('PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +&#10;      'DEVICE_TERMINAL_MAP' IN TYPEOF (sar.relating_shape_aspect)))&#10;               )) = 0"/>
          <where label="WR2" expression="SIZEOF (QUERY (sar &lt;* shape_aspect_relationship |&#10;               (sar\shape_aspect_relationship.name = 'device terminal map relationship')&#10;               AND&#10;    (NOT('PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +&#10;       'DEVICE_TERMINAL_MAP' IN TYPEOF (sar.related_shape_aspect)))&#10;               )) = 0"/>
       </rule>
-<!--      
-      <rule name="part_device_terminal_model_port_assignment_unique_constraint" appliesto="property_definition_representation">
-         <algorithm>LOCAL
-  amp_bag : BAG OF analytical_model_port := [];
-  pdr_bag : BAG OF property_definition_representation;
-  pass : BOOLEAN := TRUE;
-  sa_bag : BAG OF shape_aspect;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(property_definition_representation) by 1;
-  IF EXISTS( property_definition_representation[i].used_representation )
-                                                            THEN
-    IF( 'PACKAGED_PART_WHITE_BOX_MODEL_MIM.' +
-'ANALYTICAL_MODEL_PORT' IN TYPEOF(
-property_definition_representation[i].used_representation) ) THEN
-      IF( NOT( property_definition_representation[i].used_representation IN 
-                                              amp_bag ) )
-                                                               THEN
-        amp_bag := amp_bag + 
-              property_definition_representation[i].used_representation;
-      END_IF;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(amp_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  sa_bag := [];
-  pdr_bag := QUERY( pdr &lt;* property_definition_representation | 
-                            (pdr.used_representation :=: amp_bag[i]) );
-  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
-    IF EXISTS( pdr_bag[j].definition.definition ) THEN
-      IF ( pdr_bag[j].definition.definition IN sa_bag ) THEN
-        pass := FALSE;
-        ESCAPE;
-      ELSE
-        sa_bag := sa_bag + pdr_bag[j].definition.definition;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
-      </rule>
--->
-
       <rule name="part_device_terminal_unique_constraint" appliesto="shape_aspect">
          <algorithm>LOCAL
   pdr_bag : BAG OF product_definition_relationship := [];

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules.xsl,v 1.2 2003/05/22 09:35:26 nigelshaw Exp $
+$Id: index_arm_express.xsl,v 1.2 2003/05/22 13:26:35 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -152,13 +152,32 @@ $Id: index_arm_modules.xsl,v 1.2 2003/05/22 09:35:26 nigelshaw Exp $
 		</xsl:if>
 	</xsl:for-each>
 -->
+
+		<xsl:variable name="const-names">
+			<xsl:for-each select="$called-schemas//constant" >
+				<xsl:value-of select="concat(' ',@name,' ')" />
+			</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:if test="string-length($const-names) > 1" >
+			<A HREF="index_arm_express_inner.xml#constants" TARGET="index" ><B>Constants:</B></A>
+			<xsl:text> </xsl:text>
+			<xsl:call-template name="alph-index">
+				<xsl:with-param name="names" select="$const-names" />
+				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="internal-link-root" select="'constant-letter'" />
+			</xsl:call-template>
+			<br/>
+		</xsl:if>
+
+
 		<xsl:variable name="type-names">
 			<xsl:for-each select="$called-schemas//type" >
 				<xsl:value-of select="concat(' ',@name,' ')" />
 			</xsl:for-each>
 		</xsl:variable>
 
-		<xsl:if test="$type-names" >
+		<xsl:if test="string-length($type-names) > 1" >
 			<A HREF="index_arm_express_inner.xml#types" TARGET="index" ><B>Types:</B></A>
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
@@ -174,7 +193,8 @@ $Id: index_arm_modules.xsl,v 1.2 2003/05/22 09:35:26 nigelshaw Exp $
 				<xsl:value-of select="concat(' ',@name,' ')" />
 			</xsl:for-each>
 		</xsl:variable>
-		<xsl:if test="$ent-names" >
+
+		<xsl:if test="string-length($ent-names) > 1" >
 			<A HREF="index_arm_express_inner.xml#entities" TARGET="index" ><B>Entities:</B></A>
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
@@ -184,7 +204,43 @@ $Id: index_arm_modules.xsl,v 1.2 2003/05/22 09:35:26 nigelshaw Exp $
 			</xsl:call-template>
 			<br/>
 		</xsl:if>
-			</TD>
+
+		<xsl:variable name="fun-names">
+			<xsl:for-each select="$called-schemas//function" >
+				<xsl:value-of select="concat(' ',@name,' ')" />
+			</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:if test="string-length($fun-names) > 1" >
+			<A HREF="index_arm_express_inner.xml#functions" TARGET="index" ><B>Functions:</B></A>
+			<xsl:text> </xsl:text>
+			<xsl:call-template name="alph-index">
+				<xsl:with-param name="names" select="$fun-names" />
+				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="internal-link-root" select="'function-letter'" />
+			</xsl:call-template>
+			<br/>
+		</xsl:if>
+
+		<xsl:variable name="proc-names">
+			<xsl:for-each select="$called-schemas//procedure" >
+				<xsl:value-of select="concat(' ',@name,' ')" />
+			</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:if test="string-length($proc-names) > 1" >
+			<A HREF="index_arm_express_inner.xml#procedures" TARGET="index" ><B>Procedures:</B></A>
+			<xsl:text> </xsl:text>
+			<xsl:call-template name="alph-index">
+				<xsl:with-param name="names" select="$proc-names" />
+				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="internal-link-root" select="'procedures-letter'" />
+			</xsl:call-template>
+			<br/>
+		</xsl:if>
+
+
+		</TD>
 			
 		</TR>
 	</TABLE>

@@ -1,1 +1,163 @@
-<?xml version="1.0"?><!-- $Id: arm.xml,v 1.6 2002/02/21 17:29:52 robbod Exp $ --><?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?><!DOCTYPE express SYSTEM "../../../dtd/express.dtd"><express language_version="2" rcs.date="$Date: 2002/02/21 17:29:52 $" rcs.revision="$Revision: 1.6 $">	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.6" source="../data/modules/time_interval/arm.exp"/>	<schema name="Time_interval_arm">		<interface kind="use" schema="Person_organization_assignment_arm"/>		<interface kind="use" schema="Event_arm"/>		<type name="time_interval_item">			<description>				This select is a place holder for assignments of time interval to elements of product data			</description>			<select extensible="YES"/>		</type>		<type name="time_interval_organization_or_person_in_organization_item">			<description>				This select extends the assignments of an organization or a person in an organization to Time_interval.			</description>			<select basedon="organization_or_person_in_organization_item" selectitems="Time_interval"/>		</type>		<entity name="Time_interval">			<description>				A <b>Time_interval</b> represents a span of time.			</description>			<explicit name="id">				<description>					the identification of the interval assigned by the organization.				</description>				<builtintype type="STRING"/>			</explicit>			<explicit name="name">				<description>					words by which the interval is known.				</description>				<builtintype type="STRING"/>			</explicit>			<explicit name="description" optional="YES">				<description>					text which describes the interval.				</description>				<builtintype type="STRING"/>			</explicit>			<explicit name="duration" optional="YES">				<description>					the optional length of the time interval.				</description>				<builtintype type="STRING"/>			</explicit>			<explicit name="start">				<description>					the start date or date and time for the time interval.				</description>				<typename name="date_or_date_time_select"/>			</explicit>			<explicit name="end" optional="YES">				<description>					the optional end date or date and time for the time interval.				</description>				<typename name="date_or_date_time_select"/>			</explicit>			<inverse name="identifier" entity="Organization_or_person_in_organization_assignment" attribute="items">				<description>					the organization (or person in an organization) that assigned and owns the interval id.				</description>				<inverse.aggregate type="SET" lower="0" upper="1"/>			</inverse>			<where label="WR1" expression="NOT (EXISTS (duration) AND EXISTS (end_date))">				<description>					the <b>duration</b> and <b>end_date</b> may not both exist.				</description>			</where>		</entity>		<entity name="Time_interval_assignment">			<description>				A <b>Time_interval_assignment</b> assigns a Time_interval to product data.			</description>			<explicit name="assigned_interval">				<description>					the <b>Time_interval</b> to be assigned to product data.				</description>				<typename name="Time_interval"/>			</explicit>			<explicit name="role">				<description>					the purpose of the assignment.				</description>				<builtintype type="STRING"/>			</explicit>			<explicit name="items">				<description>					the product data to which the <b>Time_interval</b> is assigned.				</description>				<aggregate type="SET" lower="1" upper="?"/>				<typename name="time_interval_item"/>			</explicit>		</entity>	</schema></express>
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.9 2002/02/25 12:10:19 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $"
+  description.file="arm_descriptions.xml">>
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.9"
+    source="../data/modules/time_interval/arm.exp"/>
+
+  <schema name="Time_interval_arm">
+    <interface
+      kind="use"
+      schema="Event_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Date_time_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Value_with_unit_arm">
+    </interface>
+
+    <type name="time_interval_item">
+      <select
+        extensible="YES"
+        selectitems="">
+      </select>
+
+    </type>
+    <type name="date_or_event">
+      <select
+        selectitems="Calendar_date Date_time Event">
+      </select>
+
+    </type>
+    <entity
+      name="Time_interval">
+      <explicit
+        name="id">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+
+    <entity
+      name="Time_interval_assignment">
+      <explicit
+        name="assigned_time_interval">
+        <typename
+          name="Time_interval"/>
+      </explicit>
+      <explicit
+        name="role">
+        <typename
+          name="Time_interval_role"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="time_interval_item"/>
+      </explicit>
+    </entity>
+
+
+    <entity
+      name="Time_interval_relationship">
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="relating_time_interval">
+        <typename
+          name="Time_interval"/>
+      </explicit>
+      <explicit
+        name="related_time_interval">
+        <typename
+          name="Time_interval"/>
+      </explicit>
+    </entity>
+    <entity
+      name="Time_interval_role">
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+     <entity
+      name="Time_interval_with_bounds"
+      supertypes="Time_interval">
+      <explicit
+        name="primary_bound"
+        optional="YES">
+        <typename
+          name="date_or_event"/>
+      </explicit>
+      <explicit
+        name="secondary_bound"
+        optional="YES">
+        <typename
+          name="date_or_event"/>
+      </explicit>
+      <explicit
+        name="duration"
+        optional="YES">
+        <typename
+          name="Time_measure_value"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="NOT (EXISTS (secondary_bound) AND EXISTS (duration))">
+      </where>
+      <where
+        label="WR2"
+        expression="EXISTS (primary_bound) OR EXISTS (secondary_bound)">
+      </where>
+    </entity>
+
+  </schema>
+
+</express>

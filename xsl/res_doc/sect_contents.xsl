@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.22 2004/05/01 09:05:57 robbod Exp $
+$Id: sect_contents.xsl,v 1.23 2004/11/04 22:42:36 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -102,6 +102,8 @@ $Id: sect_contents.xsl,v 1.22 2004/05/01 09:05:57 robbod Exp $
      <A HREF="./b_obj_reg{$FILE_EXT}">B Information requirements object
      registration</A>
      <br/>
+     &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b1">B.1 Document identification</A><br/>
+     &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b2">B.2 Schema identification</A><br/>
 
    <!-- use #annexc to link direct -->
      <A HREF="./c_exp{$FILE_EXT}">C Computer interpretable listings</A>

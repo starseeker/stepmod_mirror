@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.3 2003/03/16 01:26:38 thendrix Exp $
+$Id: sect_b_obj_reg.xsl,v 1.4 2003/03/19 00:36:23 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -43,18 +43,29 @@ $Id: sect_b_obj_reg.xsl,v 1.3 2003/03/16 01:26:38 thendrix Exp $
   <xsl:variable
     name="object_reg" 
     select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
-  <h2>B.1 Document Identification </h2>
+  <h2>
+    <a name="b1">
+      B.1 Document Identification 
+    </a>
+    </h2>
+    <p>
   To provide for unambiguous identification of an information object in an
   open system, the object identifier
-  <p align="center">
-    <xsl:value-of 
+    </p>
+    <p align="center">
+      <xsl:value-of 
       select="concat($object_reg,' }' )"/>
-  </p>
-  is assigned to this part of ISO 10303. The meaning of this value is defined
+    </p>
+    <p>
+      is assigned to this part of ISO 10303. The meaning of this value is defined
   in ISO/IEC 8824-1, and is described in ISO 10303-1.  
-
-  <h2>B.2 Schema identification</h2>
-
+    </p>
+    <h2>
+    <a name="b2">
+      B.2 Schema identification
+    </a>
+  </h2>
+  
 
   <!-- there is are potentially several  schemas in an integrated resource -->
   <!-- for now I will just get the names from the resource.xml rather than go to the schemas --> 

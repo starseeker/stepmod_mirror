@@ -3,7 +3,7 @@ ISO TC184/SC4/WG12 N1551 - ISO/CD-TS 10303-1051 Geometric tolerance - EXPRESS MI
 *) 
 
 
-SCHEMA Geometric_tolerance_mim; 
+SCHEMA Geometric_tolerance_mim;
 
 USE FROM aic_geometric_tolerances;    -- ISO 10303-519
 
@@ -82,12 +82,21 @@ END_FUNCTION;
 FUNCTION valid_datum_target_parameters
  (pdf : placed_datum_target_feature) : BOOLEAN; 
 LOCAL
+
+rep_set : SET OF representation := [] ;
+
 parameter_representations: SET OF representation;
 END_LOCAL;
 
-parameter_representations := QUERY(pdr <* pdf.representation_associations |
+
+REPEAT i := 1 TO HIINDEX(pdf.representation_associations);
+rep_set := rep_set + pdf.representation_associations[i].used_representation;
+END_REPEAT;
+ 
+parameter_representations := QUERY(rep <* rep_set |
 ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN
-TYPEOF(pdr.used_representation)));
+TYPEOF(rep)));
+
 
 IF (SIZEOF( QUERY( srwp <* parameter_representations |
           (SIZEOF( QUERY( i <* srwp.items |

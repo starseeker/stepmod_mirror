@@ -1,9 +1,16 @@
-$Id: readme.txt,v 1.2 2001/09/17 14:09:58 joshualubell Exp $
+$Id: readme.txt,v 1.3 2001/09/24 19:38:47 joshualubell Exp $
 
 The module repository is organized as follows:
 
 dtd/
 Contains the repository DTD files
+
+etc/
+Contains extra files which may be useful for repository developers
+Typically these are files for specific development tools.
+
+etc/emacs
+Emacs customization files that provide usefule menus 
  
 xsl/
 Contains everything pertaining to transforming the XML to HTML

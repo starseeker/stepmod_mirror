@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: $
+     $Id: projmg.xsl,v 1.4 2002/10/08 10:19:07 mikeward Exp $
 -->
 
 <xsl:stylesheet 
@@ -11,7 +11,6 @@
 >
 
   <!-- need both for module TOC -->
-<xsl:import href="../../projmg/projmg.xsl" />
 <xsl:import href="../sect_4_express.xsl"/>
  <xsl:import href="../module_toc.xsl"/>
 

@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     $Id: $
+     $Id: issues_file.xsl,v 1.8 2002/10/08 10:20:06 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
   <!-- need both for module TOC -->
-<xsl:import href="../../projmg/issues_file.xsl" />
-
   <xsl:import href="../sect_4_express.xsl"/>
   <xsl:import href="../module_toc.xsl"/>
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: $
+	$Id: sect_a_exp_aim_lf.xsl,v 1.3 2002/10/08 10:18:09 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../sect_e_exp_mim_lf.xsl"/>
 	<xsl:import href="application_protocol.xsl"/>
-	<xsl:import href="express_code.xsl"/>
+	<xsl:import href="ae_index.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
 	<xsl:output method="html"/>
 	
@@ -50,7 +50,7 @@
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="aim_lf_xml" select="concat($ap_module_dir,'/mim_lf.xml')"/>
-		<xsl:apply-templates select="document($aim_lf_xml)/express/schema" mode="code"/>
+		<xsl:apply-templates select="document($aim_lf_xml)/express/schema" mode="index"/>
 	</xsl:template>
 	  
 </xsl:stylesheet>

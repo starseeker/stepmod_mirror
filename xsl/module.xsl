@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.88 2002/08/05 12:39:13 robbod Exp $
+$Id: module.xsl,v 1.89 2002/08/05 15:02:26 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3063,11 +3063,10 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
               <!-- check to see if the terms for the module have been output
                    as part of normative references -->
               <xsl:if test="not(contains($normref_ids,$normrefid))">
-                <xsl:variable name="stdnumber">
-                  <xsl:call-template name="get_module_stdnumber">
-                    <xsl:with-param name="module" select="document($module_xml)/module"/>
-                  </xsl:call-template>
-                </xsl:variable>
+                <xsl:variable name="module_node" select="document($module_xml)/module"/>
+                <xsl:variable name="stdnumber"
+                  select="concat('ISO/',$module_node/@status,'&#160;10303-',$module_node/@part)"/>
+
                 
                 <!-- output the section header for the normative reference
                      that is defining terms -->              

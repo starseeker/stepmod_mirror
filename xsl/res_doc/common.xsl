@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.11 2003/09/06 00:16:08 thendrix Exp $
+$Id: common.xsl,v 1.12 2004/01/29 23:55:26 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -920,7 +920,7 @@ $Id: common.xsl,v 1.11 2003/09/06 00:16:08 thendrix Exp $
         <br/>
         <IMG
           SRC="{$warning_gif}" ALT="[warning:]"
-          align="absbottom" border="0"
+          align="bottom" border="0"
           width="20" height="20"/>
         <font color="#FF0000" size="-1">
           <i>
@@ -2291,15 +2291,15 @@ is case sensitive.')"/>
     <xsl:param name="resdoc_name"/>
     <small>
       <xsl:choose>
-      <xsl:when test="$view='repository'" >
+      <xsl:when test="$view!='repository'" >
         <xsl:apply-templates select="menuitem|menubreak|menuspace">
-          <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
+          <xsl:with-param name="resdoc_root" select="''"/>
           <xsl:with-param name="resdoc_name" select="$resdoc_name"/>
         </xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates select="menuitem|menubreak|menuspace">
-          <xsl:with-param name="resdoc_root" select="''"/>
+          <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
           <xsl:with-param name="resdoc_name" select="$resdoc_name"/>
         </xsl:apply-templates>
       </xsl:otherwise>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.5 2003/03/16 01:26:38 thendrix Exp $
+$Id: sect_introduction.xsl,v 1.6 2004/01/27 22:26:30 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -53,6 +53,7 @@ $Id: sect_introduction.xsl,v 1.5 2003/03/16 01:26:38 thendrix Exp $
     <xsl:when test="count(../schema)>1">
       <p>This part of ISO 10303 is a member of the integrated resources series. 
       Major subdivisions of this part of ISO 10303 are: 
+    </p>
       <ul>
         <xsl:for-each select="../schema"> 
         <li>
@@ -68,8 +69,6 @@ $Id: sect_introduction.xsl,v 1.5 2003/03/16 01:26:38 thendrix Exp $
     </xsl:for-each>
 
   </ul>
- </p>
-
 </xsl:when>
 
 <xsl:otherwise>
@@ -87,7 +86,6 @@ $Id: sect_introduction.xsl,v 1.5 2003/03/16 01:26:38 thendrix Exp $
   
   <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of this International Standard are illustrated in Figure 1  using the EXPRESS-G notation. EXPRESS-G is defined in annex D of ISO 10303-11. 
   </p>
-  <p>
 	<xsl:variable name="used" >
 		<xsl:apply-templates select="../schema_diag" mode="use_reference_list" />
 	</xsl:variable>
@@ -111,7 +109,6 @@ $Id: sect_introduction.xsl,v 1.5 2003/03/16 01:26:38 thendrix Exp $
 
 	</xsl:choose>
 
-  </p>
   <p>The schemas illustrated in Figure 1 are components of the integrated resources.</p>
 </xsl:template>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.33 2003/08/25 23:28:53 thendrix Exp $
+$Id: express_description.xsl,v 1.2 2003/09/06 00:16:08 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -21,11 +21,24 @@ $Id: express_description.xsl,v 1.33 2003/08/25 23:28:53 thendrix Exp $
 
 <!-- Output the description for an Express object, but first check that it
      is valid -->
-<xsl:template match="description" mode="exp_description">
-  <xsl:apply-templates select="." mode="validate_external_description"/>
-  <xsl:apply-templates/>
-</xsl:template>
 
+<xsl:template match="description" mode="exp_description">
+  <xsl:param name="inline_aname"/>
+  <xsl:param name="inline_name"/>
+  <xsl:apply-templates select="." mode="validate_external_description"/>
+  <xsl:choose>
+    <!-- the name is to be included in the first line of the definition -->
+    <xsl:when test="string-length($inline_name)>0">
+      <xsl:apply-templates select="." mode="output_inline_descr">
+        <xsl:with-param name="inline_aname" select="$inline_aname"/>
+        <xsl:with-param name="inline_name" select="$inline_name"/>
+      </xsl:apply-templates>        
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
 <!-- check that the description is valid. If not, output a warning -->
 <xsl:template match="description|ext_description" mode="validate_external_description">
@@ -74,6 +87,11 @@ $Id: express_description.xsl,v 1.33 2003/08/25 23:28:53 thendrix Exp $
        Optional exclusive parameter -->
   <xsl:param name="attribute" select="''"/>
   
+  <!-- if an entity, the name of an attribute 
+       Optional parameter -->
+  <xsl:param name="optional" select="''"/>
+
+
   <!-- if an entity, the name of a where rule 
        Optional exclusive parameter -->
   <xsl:param name="where" select="''"/>
@@ -85,7 +103,14 @@ $Id: express_description.xsl,v 1.33 2003/08/25 23:28:53 thendrix Exp $
   <!-- if an entity, the node
        Optional exclusive parameter -->
 
-      <xsl:param name="supertypes" select="''"/>
+  <xsl:param name="supertypes" select="''"/>
+
+  <!-- if outputting a definition that should include the name of the thing
+       being defined on one line, such as an attribute or where rule,
+       (explicit derived inverse where)
+       then include these attributes -->
+  <xsl:param name="inline_name" select="''"/>
+  <xsl:param name="inline_aname" select="''"/>
 
 
   <xsl:variable name="description_file"
@@ -133,8 +158,11 @@ $Id: express_description.xsl,v 1.33 2003/08/25 23:28:53 thendrix Exp $
       select="document($description_file)/ext_descriptions"/>    
 
     <xsl:variable name="description"
-
       select="$descriptions/ext_description[@linkend=$xref]"/>
+
+    <xsl:variable name="flat_description">
+      <xsl:apply-templates select="$description" mode="flatten_description"/>
+    </xsl:variable>
 
     <xsl:if test="string-length($object/description)>0 and /express/@description.file">
       <xsl:variable name="arm_mim_file" select="concat(substring-before($description_file,'_'),'.xml')"/>
@@ -229,24 +257,178 @@ and
         </xsl:choose>
       </xsl:for-each>
       
-
-
-      <xsl:variable name="ent_start_char"
-        select="substring(normalize-space($entity),1,1)"/>
-      <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
       
 <!-- if an attribute, should start with a or an, not is -->
 
     <xsl:if test="string-length($type)=0 and contains(substring-after($description/@linkend,'.'),'.') and not(contains($schema,$description/@linkend)) and not(contains($description/@linkend,'.wr:'))">
 
-<xsl:if test="contains(substring-before(normalize-space($description/text()[position()=1]),' '),'is')">
-      <xsl:call-template name="error_message">
+
+
+      <xsl:if test="$ERROR_CHECK_ATTRIBUTES='YES'">
+        <xsl:variable name="phrase" select="normalize-space($description/text())"/>
+        <xsl:variable name="first_word"
+          select="substring-before($phrase,' ')"/>
+        <xsl:variable name="second_word"
+          select="substring-before(substring-after($phrase,' '),' ')"/>
+        
+        <xsl:if test="string-length($attribute)>0">
+          <xsl:choose>
+            <!-- check for description: the description -->
+            <xsl:when test="$attribute=$second_word">
+              <xsl:call-template name="error_message">
+                <xsl:with-param 
+                  name="message" 
+                  select="concat('Warning Attr1 ', $description/@linkend,
+                          '. Circular definition. 
+                          The attribute description should not start with the name of the attribute#
+                          Phrase:',$phrase)"/>
+              </xsl:call-template>
+            </xsl:when>
+            
+            <xsl:when test="$attribute='id'">
+              <xsl:if test="not(contains($phrase,'identifier'))">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Warning Attr2 ' ,
+                            $description/@linkend,
+                            '. Id attribute description should be a phrase.#
+                            is:',$phrase,'#
+                            Usually will start with &quot;the identifier for xxx&quot;.')"/>
+                </xsl:call-template>
+              </xsl:if>
+            </xsl:when>
+
+            <xsl:when test="$attribute='name'">
+              <xsl:if test="not(contains($phrase,'label'))">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Warning Attr3 ' ,
+                            $description/@linkend,
+                            '. Name attribute description should be a phrase.#
+                            is: &quot;',$phrase,'&quot;#
+                            Usually will start with &quot;the label by which the xxx is known&quot;.')"/>
+                </xsl:call-template>
+              </xsl:if>
+            </xsl:when>
+            <xsl:when test="$attribute='description'">
+              <xsl:if test="not(contains($phrase,'the text that characterizes the'))">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Warning Attr4 ' ,
+                            $description/@linkend,
+                            '. Description attribute description should be a phrase.#
+                            is: &quot;',$phrase,'&quot;#
+                            Usually will start with &quot;the text that characterizes the&quot;.')"/>
+                </xsl:call-template>
+              </xsl:if>              
+            </xsl:when>
+            <xsl:when test="$attribute='purpose'">
+              <xsl:if test="not(contains($phrase,'the text that'))">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Warning Attr5 ' ,
+                            $description/@linkend,
+                            '. Purpose attribute description should be a phrase.#
+                            is: &quot;',$phrase,'&quot;#
+                            Usually will start with &quot;the text that&quot;.')"/>
+                </xsl:call-template>
+              </xsl:if>              
+            </xsl:when>
+
+            <xsl:when test="$attribute='restriction'">
+              <xsl:if test="not(contains($phrase,'the text that'))">
+                <xsl:call-template name="error_message">
+                  <xsl:with-param 
+                    name="message" 
+                    select="concat('Warning Attr6 ' ,
+                            $description/@linkend,
+                            '. Name attribute description should be a phrase.#
+                            is: &quot;',$phrase,'&quot;#
+                            Usually will start with &quot;the text that&quot;.')"/>
+                </xsl:call-template>
+              </xsl:if>              
+            </xsl:when>
+          </xsl:choose>
+        </xsl:if>
+
+
+        <xsl:if test="not(contains('the a an one specifies', $first_word))">
+          <xsl:call-template name="error_message">
+            <xsl:with-param 
+              name="message" 
+              select="concat('Warning Ent9 ' , $description/@linkend, '. Attribute description should be a phrase. Usually will start with &quot;the&quot;, &quot;a&quot;, &quot;an&quot;, or &quot;one&quot;, but not &quot;is&quot; or &quot;this&quot;.')"/>
+          </xsl:call-template>     
+        </xsl:if>
+
+
+        <!-- if the attribute is a relating or related attribute check that
+             the phrase contains an instance -->             
+        <xsl:if test="string-length($attribute)>0 and
+          (contains($attribute,'relating') or contains($attribute,'related'))">
+          <xsl:if test="not(contains($flat_description,'instance'))">
+            <xsl:call-template name="error_message">
+              <xsl:with-param 
+                name="message" 
+                select="concat('Warning Ent99 ' , $description/@linkend, 
+                        '. The attribute is a relating or related so it should contain the
+                        phrase &quot;instance&quot;.')"/>
+            </xsl:call-template>            
+          </xsl:if>
+        </xsl:if>
+
+        <!-- If the attribute is OPTIONAL, then it must have the phrase.
+             The value of the attribute need not be specified.
+             -->
+        
+        <xsl:variable name="optional_text1" select="'The value of the attribute need not be specified.'"/>
+        <xsl:variable name="optional_text2" select="'The value of this attribute need not be specified.'"/>
+        <xsl:choose>
+          <xsl:when test="$optional='YES'">
+            <xsl:if
+              test="not(contains(normalize-space($flat_description),$optional_text1)) and
+                    not(contains(normalize-space($flat_description),$optional_text2))">
+              <xsl:call-template name="error_message">
+                <xsl:with-param 
+                  name="message" 
+                  select="concat('Warning Ent10 ' , $description/@linkend, 
+                          '. The attribute is optional. It should contain the
+                          phrase &quot;The value of this attribute need not be specified.&quot;.')"/>
+              </xsl:call-template>
+            </xsl:if>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:if
+              test="(contains(normalize-space($flat_description),$optional_text1)) or
+                    (contains(normalize-space($flat_description),$optional_text2))">
+              <xsl:call-template name="error_message">
+                <xsl:with-param 
+                  name="message" 
+                  select="concat('Warning Ent10:' , $description/@linkend, 
+                          '. The attribute is NOT optional. It should NOT contain the
+                          phrase &quot;The value of this attribute need not be specified.&quot;.')"/>
+              </xsl:call-template>
+            </xsl:if>          
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:if>
+      
+
+      <xsl:if test="contains(substring-before(normalize-space($description/text()[position()=1]),' '),'is')">
+        <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
             select="concat('Warning Ent9:' , $description/@linkend, '. Attribute description should be a phrase. Usually will start with &quot;the&quot;, &quot;a&quot;, &quot;an&quot;, or &quot;one&quot;, but not &quot;is&quot; or &quot;this&quot;.')"/>
         </xsl:call-template>        
       </xsl:if>
+
+
+
     </xsl:if>
+
 
 <!-- if an entity , that is 
 if 
@@ -332,31 +514,36 @@ and  string is more than the schema name ( hence not the  schema )
         </xsl:call-template>        
         
       </xsl:if>
-
-
-
-
-
     </xsl:if>
 
     <xsl:variable name="d" select="$description" />
-      <xsl:variable name="p" select="$d//text()"/>
-      <xsl:variable name="q" select="$d//b/text()" />
-        <xsl:variable name="q1" select="$d//express_ref/text()" />
-          <xsl:variable name="q2" select="$q | $q1" />
+    <xsl:variable name="p" select="$d//text()"/>
+    <xsl:variable name="q" select="$d//b/text()" />
+    <xsl:variable name="q1" select="$d//express_ref/text()" />
+    <xsl:variable name="q2" select="$q | $q1" />
             
-            <xsl:variable name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]" />
-              <!-- <xsl:call-template name="chktxt">
-                   <xsl:with-param name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]" />      
-                   </xsl:call-template>
-                   -->
-               
-                   <xsl:apply-templates select="$tnodes" mode="chktxt" />
+    <xsl:variable name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]" />
+      <!-- <xsl:call-template name="chktxt">
+           <xsl:with-param name="tnodes" select="$p [count( . | $q2) != count( $q2 ) ]" />      
+           </xsl:call-template>
+           -->           
+     <xsl:apply-templates select="$tnodes" mode="chktxt" />
                  
-                 <xsl:apply-templates select="$description" />
-                   
-                 </xsl:if>  
-               </xsl:template>
+     
+    <xsl:choose>
+      <!-- the name is to be included in the first line of the definition -->
+      <xsl:when test="string-length($inline_name)>0">
+        <xsl:apply-templates select="$description" mode="output_inline_descr">
+          <xsl:with-param name="inline_aname" select="$inline_aname"/>
+          <xsl:with-param name="inline_name" select="$inline_name"/>
+        </xsl:apply-templates>        
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="$description"/>
+      </xsl:otherwise>
+    </xsl:choose>
+</xsl:if>  
+     </xsl:template>
 
 
 <xsl:template match="text()" mode="chktxt" >
@@ -541,5 +728,86 @@ and  string is more than the schema name ( hence not the  schema )
 
   </xsl:if>
 </xsl:template>
+
+
+<xsl:template match="ext_description|description" mode="output_inline_descr">
+  <xsl:param name="inline_aname"/>
+  <xsl:param name="inline_name"/>
+
+  <xsl:variable name="text_str" select="normalize-space(text())"/>
+  <xsl:choose>
+    <!-- expect the attribute to be plain text, or if starts with <p> not
+         contain any block elements. If not flag an error -->
+    <xsl:when test="string-length($text_str) != 0 and ./child::*[name()='p' or name()='screen' or name()='ul' or name()='example' or name()='note']">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error ATTR1: attribute descriptions (',$inline_aname,') containing block elements such as ', name(./child::*[name()='p' or name()='screen' or name()='ul' or name()='note' or name()='example']), ' should start with p not text#Currently starts with:#',$text_str)"/>
+      </xsl:call-template>
+      <p class="expressdescription">
+        <b>
+          <a name="{$inline_aname}">
+            <xsl:value-of select="$inline_name"/>:
+          </a>
+        </b>
+        <xsl:apply-templates/>
+      </p>
+    </xsl:when>
+
+    <!-- plain text -->
+    <xsl:when test="string-length($text_str) != 0">
+      <p class="expressdescription">
+        <b>
+          <a name="{$inline_aname}">
+            <xsl:value-of select="$inline_name"/>:
+          </a>
+        </b>
+        <xsl:apply-templates/>
+      </p>
+    </xsl:when>
+
+    <!-- check that the first element is p -->
+    <xsl:when test="name(child::*[1]) != 'p'">
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error ATTR2: attribute descriptions (',$inline_aname,') must start with a p element, not ', name(./child::*[1]))"/>
+      </xsl:call-template>
+      <p class="expressdescription">
+        <b>
+          <a name="{$inline_aname}">
+            <xsl:value-of select="$inline_name"/>:
+          </a>
+        </b>
+        <xsl:apply-templates/>
+      </p>
+    </xsl:when>
+
+    <xsl:otherwise>
+      <xsl:apply-templates select="./p[1]" mode="first_paragraph_attribute">
+        <xsl:with-param name="inline_aname" select="$inline_aname"/>
+        <xsl:with-param name="inline_name" select="$inline_name"/>
+      </xsl:apply-templates>
+      <xsl:apply-templates select="./child::*[position() &gt; 1]"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
+
+<xsl:template match="p" mode="first_paragraph_attribute">
+  <xsl:param name="inline_aname"/>
+  <xsl:param name="inline_name"/>
+  <xsl:apply-templates select="." mode="check_html"/>
+  <p class="expressdescription">
+    <b>
+      <a name="{$inline_aname}">
+        <xsl:value-of select="$inline_name"/>:
+      </a>
+    </b>
+    <xsl:apply-templates/>
+  </p>  
+</xsl:template>
+
 
 </xsl:stylesheet>

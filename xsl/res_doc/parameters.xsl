@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.2 2003/04/11 23:34:37 thendrix Exp $
+     $Id: parameters.xsl,v 1.3 2004/01/29 23:55:26 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -20,6 +20,7 @@
        This may be customized by the user, hence a separate file
        -->
   <xsl:import href="menubar_params.xsl"/>
+  <xsl:import href="../error_params.xsl"/>
 
 
 

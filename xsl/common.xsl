@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.38 2002/05/19 07:55:13 robbod Exp $
+$Id: common.xsl,v 1.39 2002/05/21 12:20:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -580,6 +580,38 @@ $Id: common.xsl,v 1.38 2002/05/19 07:55:13 robbod Exp $
   <pre>
     <xsl:apply-templates />
   </pre>
+</xsl:template>
+
+
+<xsl:template match="table">
+  <p align="center">
+    <b>
+      Table 
+      <xsl:value-of select="@number"/> &#8212; <xsl:value-of select="@caption"/>
+    </b>
+  </p>
+  <center>
+    <table border="1" cellpadding="2" cellspacing="0">
+      <xsl:apply-templates/>
+    </table>
+  </center>
+</xsl:template>
+
+<xsl:template match="tr|td">
+  <xsl:variable name="node" select="string(name(.))"/>
+  <xsl:element name="{$node}">
+    <!-- copy across the attributes -->
+    <xsl:copy-of select="@*"/>    
+      <xsl:apply-templates/>
+  </xsl:element>
+</xsl:template>
+
+<xsl:template match="th">
+  <xsl:element name="th">
+    <!-- copy across the attributes -->
+    <xsl:copy-of select="@*"/>    
+    <p align="centre"><b><xsl:apply-templates/></b></p>
+  </xsl:element>
 </xsl:template>
 
 

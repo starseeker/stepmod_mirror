@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $
+//$Id: express2xml.js,v 1.23 2002/09/24 16:42:56 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -311,30 +311,30 @@ function readToken(line) {
 		 token = line.match(reg);	
     }
     if (token) {
-			 token = token[0].replace(/\s/g,"");
-			 token = token.toString();
-			 switch (token) {
-			 case "USE" :
+		token = token[0].replace(/\s/g,"");
+		token = token.toString();
+		switch (token) {
+		case "USE" :
 	     		var reg = /^\s*USE FROM\b/i;
 	    		token = line.match(reg);
 	    		if (token) {
-						 token = token[0].replace(/\s/g,"");
-						 token = token.toString();
+					token = token[0].replace(/\s/g,"");
+					token = token.toString();
 	    		} else {
-						token = -1;	
+					token = -1;	
 	    			}
-	    			break;
-				case "REFERENCE" :
+	    		break;
+		case "REFERENCE" :
 	    		var reg = /^\s*REFERENCE FROM\b/i;
 	    		token = line.match(reg);
 	    		if (token) {
-						 token = token[0].replace(/\s/g,"");
-						 token = token.toString();
+					token = token[0].replace(/\s/g,"");
+					token = token.toString();
 	    		} else {
-						token = -1;
+					token = -1;
 	    			}
 	    			break;
-				default :
+		default :
 	    			break;
 				}
     } else {
@@ -346,7 +346,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.22 2002/08/14 06:43:41 goset1 Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.23 2002/09/24 16:42:56 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -356,7 +356,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.22 $";
+    var appCVSRevision = "$Revision: 1.23 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -397,6 +397,7 @@ function xmlConstant(statement,expTs,outTs) {
     var l = statement.trim();
     var reg = /^CONSTANT/i;
     var token = l.match(reg);
+
     if (token) {
 	name = getWord(2,l);
     } else {
@@ -412,10 +413,12 @@ function xmlConstant(statement,expTs,outTs) {
 
     l = expTs.ReadLine();
     lNumber = expTs.Line;
-    statement = readStatement(l,expTs);
     var token = readToken(l);
+    statement = readStatement(l,expTs);
+
     switch( token ) {
     case "END_CONSTANT" :
+
 	break;	
     default :			
 	// multiple constants may be defined in one CONSTANT statement
@@ -715,35 +718,35 @@ function xmlconstraint_structure(outTs,expTs,mode) {
     switch(token) {
     case "-1" :
 	// must have read an empty line
-		 		xmlconstraint_structure(outTs,expTs,mode);
-				break;
+	xmlconstraint_structure(outTs,expTs,mode);
+	break;
 
     case "ABSTRACT SUPERTYPE" :	
-				xmlAbstract(outTs);
+	xmlAbstract(outTs);
 		// next statement
-				xmlconstraint_structure(outTs,expTs,mode);
-				break;
+	xmlconstraint_structure(outTs,expTs,mode);
+	break;
 
     case "TOTAL_OVER":
-				var statement = readStatement(l,expTs);
-			  var to_list=getList(statement);
-				xmlAttr("totalover",to_list,outTs);
+	var statement = readStatement(l,expTs);
+	var to_list=getList(statement);
+	xmlAttr("totalover",to_list,outTs);
 								
-				xmlconstraint_structure(outTs,expTs,mode);
+	xmlconstraint_structure(outTs,expTs,mode);
         break;
 
     case "END_SUBTYPE_CONSTRAINT" :
-				outTs.WriteLine(">");
-    		xmlCloseElement("</subtype.constraint>",outTs);
-    		outTs.WriteLine("");
-				break;
+	outTs.WriteLine(">");
+    	xmlCloseElement("</subtype.constraint>",outTs);
+    	outTs.WriteLine("");
+	break;
 
     default:
-				var statement = readStatement(l,expTs);
-		    xmlSuperExpression_cst(statement,outTs);
+	var statement = readStatement(l,expTs);
+	xmlSuperExpression_cst(statement,outTs);
 								// next statement
-				xmlconstraint_structure(outTs,expTs,mode);
- 				break;	
+	xmlconstraint_structure(outTs,expTs,mode);
+ 	break;	
     }
 }
 
@@ -1023,6 +1026,7 @@ function xmlTypeStructureOld(xmlTs,expTs) {
 	// assumes WHERE is on new line
 	xmlTypeStructure(xmlTs,expTs);
 	break;
+
     default :
 	// only called when in a where definition
 	var statement = readStatement(l,expTs);

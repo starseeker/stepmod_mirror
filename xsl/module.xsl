@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.171 2004/11/03 11:14:57 robbod Exp $
+$Id: module.xsl,v 1.172 2004/11/04 17:02:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -595,13 +595,17 @@ o=isocs; s=central<br/>
     </xsl:when>
     <xsl:otherwise>
       <P>
-        This part of ISO 10303 specifies the application module
-        <xsl:value-of select="$module_name"/>.
+        <xsl:call-template name="get_module_stdnumber">
+          <xsl:with-param name="module" select="."/>
+        </xsl:call-template> specifies the application module
+        <xsl:value-of select="$module_name"/>.       
       </P>
       <P>
-        The following are within the scope of this part of ISO 10303:
+        The following are within the scope of 
+        <xsl:call-template name="get_module_stdnumber">
+          <xsl:with-param name="module" select="."/>
+        </xsl:call-template>:
       </P>
-
       <UL>
         <xsl:apply-templates select="./inscope/li"/>
       </UL>

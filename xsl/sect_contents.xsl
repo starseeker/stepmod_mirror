@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.30 2004/08/03 12:06:06 robbod Exp $
+$Id: sect_contents.xsl,v 1.31 2004/11/01 13:36:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -775,9 +775,26 @@ $Id: sect_contents.xsl,v 1.30 2004/08/03 12:06:06 robbod Exp $
       Annex A AM MIM short names</A>
   <br/>
   <!-- use #annexb to link direct -->
-    <A HREF="./b_obj_reg{$FILE_EXT}">Annex B Information object registration</A>
-  <br/>
-  
+    <A HREF="./b_obj_reg{$FILE_EXT}">Annex B Information object registration</A><br/>
+    &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b21">B.2 Schema identification</A><br/>
+    &#160;&#160;&#160;&#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b21">B.2.1 <xsl:value-of select="$arm_schema_xml/@name"/> schema identification</A><br/>
+    
+    &#160;&#160;&#160;&#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b22">B.2.2 <xsl:value-of select="$mim_schema_xml/@name"/> schema identification</A><br/>
+    <xsl:if test="./arm_lf">
+      <xsl:variable name="arm_lf_xml"
+        select="concat($module_dir,'/arm_lf.xml')"/>
+      <xsl:variable name="arm_schema_lf" 
+        select="document($arm_lf_xml)/express/schema/@name"/>
+      &#160;&#160;&#160;&#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b22">B.2.3 <xsl:value-of select="$arm_schema_lf"/> schema identification</A><br/>     
+    </xsl:if>
+    <xsl:if test="./mim_lf">
+      <xsl:variable name="mim_lf_xml"
+        select="concat($module_dir,'/mim_lf.xml')"/>
+      <xsl:variable name="mim_schema_lf" 
+      select="document($mim_lf_xml)/express/schema/@name"/>
+      &#160;&#160;&#160;&#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b22">B.2.4 <xsl:value-of select="$mim_schema_lf"/> schema identification</A><br/>       
+    </xsl:if>
+
   <!-- use #annexc to link direct -->
     <A HREF="./c_arm_expg{$FILE_EXT}">Annex C ARM EXPRESS-G</A>
     <br/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
+$Id: sect_b_obj_reg.xsl,v 1.9 2003/08/18 10:53:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -64,7 +64,11 @@ $Id: sect_b_obj_reg.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
   is assigned to this part of ISO 10303. The meaning of this value is defined
   in ISO/IEC 8824-1, and is described in ISO 10303-1.  
 
-  <h2>B.2 Schema identification</h2>
+  <h2>
+    <a name="b2">
+      B.2 Schema identification
+    </a>
+  </h2>
   <!-- get the name of the ARM schema from the express -->
   <xsl:variable name="arm_schema" 
     select="document($arm_xml)/express/schema/@name"/>
@@ -72,7 +76,11 @@ $Id: sect_b_obj_reg.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
     select="translate($arm_schema,$UPPER, $LOWER)"/>
 
 
-  <h2>B.2.1 <xsl:value-of select="$arm_schema"/> schema identification</h2>
+  <h2>
+    <a name="b21">
+      B.2.1 <xsl:value-of select="$arm_schema"/> schema identification
+    </a>
+  </h2>
 
   <p>
     To provide for unambiguous identification of the schema specifications
@@ -95,7 +103,11 @@ $Id: sect_b_obj_reg.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
   <xsl:variable name="mim_schema_reg" 
     select="translate($mim_schema,$UPPER, $LOWER)"/>
 
-  <h2>B.2.2 <xsl:value-of select="$mim_schema"/> schema identification</h2>
+  <h2>
+    <a name="b22">
+      B.2.2 <xsl:value-of select="$mim_schema"/> schema identification
+    </a>
+  </h2>
 
   <p>
     To provide for unambiguous identification of the schema specifications
@@ -124,7 +136,11 @@ $Id: sect_b_obj_reg.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
       select="translate($arm_schema_lf,$UPPER, $LOWER)"/>
     
 
-    <h2>B.2.3 <xsl:value-of select="$arm_schema_lf"/> schema identification</h2>
+    <h2>
+      <a name="b23">
+        B.2.3 <xsl:value-of select="$arm_schema_lf"/> schema identification
+      </a>
+    </h2>
 
     <p>
       To provide for unambiguous identification of the schema specifications
@@ -151,7 +167,11 @@ $Id: sect_b_obj_reg.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
     <xsl:variable name="mim_schema_lf_reg" 
       select="translate($mim_schema_lf,$UPPER, $LOWER)"/>
     
-    <h2>B.2.2 <xsl:value-of select="$mim_schema_lf"/> schema identification</h2>
+    <h2>
+      <a name="b24">
+       B.2.4 <xsl:value-of select="$mim_schema_lf"/> schema identification
+     </a>
+    </h2>
 
     <p>
       To provide for unambiguous identification of the schema specifications

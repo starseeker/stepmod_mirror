@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.5 2003/10/09 09:38:24 robbod Exp $
+//$Id: checkModuleMain.js,v 1.6 2003/10/09 09:38:45 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -409,6 +409,7 @@ function checkExpressFile(moduleName,armmim) {
 	var moduleNode = moduleNodes(0);
 	var part = moduleNode.attributes.getNamedItem("part").nodeValue;
 	var name = moduleNode.attributes.getNamedItem("name").nodeValue;
+	var status = moduleNode.attributes.getNamedItem("status").nodeValue;
 	name = isoNameModule(name);
 	var sc4wg = moduleNode.attributes.getNamedItem("sc4.working_group");
 	if (sc4wg) {
@@ -424,7 +425,7 @@ function checkExpressFile(moduleName,armmim) {
 	} else {
 	    wgn = "";
 	}
-	var header = "ISO TC184/SC4/WG"+sc4wg+" N"+wgn+" - ISO/CD-TS 10303-"+part+" "+name+" - EXPRESS "+armmim.toUpperCase();
+	var header = "ISO TC184/SC4/WG"+sc4wg+" N"+wgn+" - ISO/"+status+" 10303-"+part+" "+name+" - EXPRESS "+armmim.toUpperCase();
 	var line1 = normalizeSpace(header);
 	var supersedes = "";
 
@@ -437,7 +438,7 @@ function checkExpressFile(moduleName,armmim) {
 	var line2 = normalizeSpace(getExpId(moduleName,armmim));
 	
 	if (line1 != line2) {
-	    var id = "$Id: checkModuleMain.js,v 1.5 2003/10/09 09:38:24 robbod Exp $";
+	    var id = "$Id: checkModuleMain.js,v 1.6 2003/10/09 09:38:45 robbod Exp $";
 	    var msg = "Error - Header of "+armmim+".exp is incorrect. It should be\n(*";
 	    if (wgn_supersedes) {
 		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";
@@ -445,6 +446,8 @@ function checkExpressFile(moduleName,armmim) {
 		msg = msg+"\n "+id+"\n "+header+"\n*)\n";
 	    }
 	    errorMessage(msg);
+	    userMessage(line1);
+	    userMessage(line2);
 	}
 
 	var schema = getExpSchema(moduleName,armmim);
@@ -532,7 +535,7 @@ function Main() {
 //testModule("ap239_product_definition_information");
 //checkExpressFile("condition", "arm");
 //checkExpressFile("ap239_product_definition_information", "arm");
-
+//checkExpressFile("ap239_document_management","arm");
 //testRepository();
 
 

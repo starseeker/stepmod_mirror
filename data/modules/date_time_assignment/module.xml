@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: module.xml,v 1.10 2002/06/20 06:21:05 goset1 Exp $ -->
+<!-- $Id: module.xml,v 1.11 2002/06/24 06:56:52 goset1 Exp $ -->
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
 
 <module
@@ -17,8 +17,8 @@
    language="E"
    publication.year="2002"
    published="y"
-   rcs.date="$Date: 2002/06/20 06:21:05 $"
-   rcs.revision="$Revision: 1.10 $">
+   rcs.date="$Date: 2002/06/24 06:56:52 $"
+   rcs.revision="$Revision: 1.11 $">
 
  <keywords>
     module, date, time assignment
@@ -33,8 +33,8 @@
  to assign a date or a date and a time with a role to activity or product data.</purpose>
 
  <inscope>
-<li>the assignment of a date with a role to activity or product data;</li>
-<li>the assignment of a date and time with a role to activity or product data.</li> 
+<li>assignment of a date with a role to activity or product data;</li>
+<li>assignment of a date and time with a role to activity or product data.</li> 
  </inscope>
 
  <normrefs>
@@ -57,61 +57,79 @@
  <mapping_table>
 
    <ae entity="Date_or_date_time_assignment">
-		 <alt>
-		   #1 : for assigned dates that are instances of Calendar_date
-		   #2 : for assigned dates that are instances of Date_time
-		 </alt>
-     <aimelt>
-		   #1: (date_assignment)
-		   #2: (date_and_time_assignment)
-		 </aimelt>
-     <source>41</source>
+		 <alt_map id="1">
+		   <description>if the assigned_date is a Calendar_date</description>
+			 <aimelt>(date_assignment)</aimelt>
+			 <source>ISO 10303-41</source>
+		 </alt_map>
+		 <alt_map id="2">
+		   <description>if the assigned_date is a Date_time</description>
+			 <aimelt>(date_and_time_assignment)</aimelt>
+			 <source>ISO 10303-41</source>
+		 </alt_map>
+
      <aa attribute="assigned_date" assertion_to="date_or_date_time_select">
+     <alt_map alt_map.inc="1">
        <aimelt>PATH</aimelt>
        <refpath>
-			   #1: (date_assignment
+			   (date_assignment
 				 date_assignment.assigned_date -&gt; date 
 				 {date =&gt; calendar_date})
-				 #2: (date_and_time_assignment
+			 </refpath>
+		 </alt_map>
+		 
+     <alt_map alt_map.inc="2">
+		    <refpath>
+				 (date_and_time_assignment
 				 date_and_time_assignment.assigned_date_and_time -&gt; date_and_time
 				 {date_and_time.date_component -&gt; date =&gt; calendar_date}
 				 {date_and_time.time_component -&gt;local_time}) 
 			 </refpath>
+		 </alt_map>
      </aa>
+		 
      <aa attribute="role">
-		   <alt>
-		   #1 : if assigned dates are instances of Calendar_date
-		   #2 : if assigned dates are instances of Date_time
-		   </alt>
+			 <alt_map alt_map.inc="1">
        <aimelt>
-			   #1: (date_role)
-				 #2: (date_time_role)
+			   (date_role.name)
 			 </aimelt>
-       <source>41</source>
+       <source>ISO 10303-41</source>
        <refpath>
-					 #1: (date_assignment
+					 (date_assignment
 					date_assignment.role -&gt; date_role
 					date_role.name)
-			   #2: (date_and_time_assignment
+			 </refpath>
+			 </alt_map>
+			 <alt_map alt_map.inc="2">
+       <aimelt>
+			   (date_time_role.name)
+			 </aimelt>
+       <source>ISO 10303-41</source>
+       <refpath>
+(date_and_time_assignment
 			 		date_and_time_assignment.role -&gt; date_time_role
 					date_time_role.name)
 			 </refpath>
+			 </alt_map>
      </aa>
+		 
      <aa attribute="items" assertion_to="date_or_date_time_item">
-       <alt>
-		   #1 : if the assigned dates are instances of Calendar_date
-		   #2 : if the assigned dates are instances of Date_time
-		   </alt>
+     <alt_map alt_map.inc="1">
 		 <aimelt>PATH</aimelt>
        <refpath>
-					#1: (date_assignment=&gt;
+					(date_assignment=&gt;
 					 applied_date_assignment
 					 applied_date_assignment.items[i] -&gt; date_item)
-
-			    #2: (date_and_time_assignment=&gt;
+				</refpath>
+			 </alt_map>
+     <alt_map alt_map.inc="2">				
+		 <aimelt>PATH</aimelt>
+       <refpath>
+(date_and_time_assignment=&gt;
 			 		 applied_date_and_time_assignment
 					 applied_date_and_time_assignment.items[i] -&gt; date_and_time_item)
 				</refpath>
+			 </alt_map>
      </aa>
    </ae>   
  </mapping_table>

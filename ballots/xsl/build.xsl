@@ -111,8 +111,8 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:attribute name="name">ARCHIVE</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:choose>
-              <xsl:when test="string-length(@wg.number.ballot_package) > 3">
-            <xsl:value-of select="concat(@wg.number.ballot_package ,'-',@name,'-${DSTAMP}')"/>                
+              <xsl:when test="string-length(./@wg.number.ballot_package) > 3">
+            <xsl:value-of select="concat(translate(normalize-space(translate(./@wg.number.ballot_package,$UPPER,$LOWER)),' ',''),'-',@name,'-${DSTAMP}')"/>
               </xsl:when>
               <xsl:otherwise>
             <xsl:value-of select="concat('wgxxnxxxx' ,'-',@name,'-${DSTAMP}')"/>                

@@ -23,11 +23,6 @@ USE FROM Part_feature_location_arm;
 		(package_terminal);
 	END_TYPE;
 
-  TYPE lead_form_type = SELECT
-    (predefined_lead_form,
-     external_item_identification);
-  END_TYPE; -- lead_form_type
-
   TYPE mounting_technology_type = ENUMERATION OF
     (surface_mount,
      through_hole);
@@ -81,7 +76,7 @@ USE FROM Part_feature_location_arm;
     SUBTYPE OF (part_usage_view);
       mounting_technology                        : mounting_technology_type;
       maximum_seating_plane_installation_offset  : OPTIONAL length_data_element;
-      surface_mount_lead_form                    : OPTIONAL lead_form_type;
+      surface_mount_lead_form                    : OPTIONAL predefined_lead_form;
       nominal_mounting_lead_pitch                : OPTIONAL length_data_element;
       nominal_mounting_lead_span                 : OPTIONAL length_data_element;
       maximum_body_height_above_seating_plane    : length_data_element;
@@ -102,6 +97,7 @@ USE FROM Part_feature_location_arm;
  maximum_seating_plane_installation_offset);
     INVERSE
       body                                  : SET[0:1] OF package_body FOR associated_definition;
+	  external_surface_mount_lead_form 		: SET[0:1] OF External_source_identification FOR item;            
       package_seating_plane                 : non_feature_shape_element FOR scope;
       interface_plane                       : SET[0:?] OF non_feature_shape_element FOR scope;
       package_accesses                      : SET[0:?] OF package_terminal FOR associated_definition;
@@ -127,6 +123,7 @@ USE FROM Part_feature_location_arm;
  'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'package'))) > 0;
 --      WR14 : NOT (SIZEOF(of_datum_reference_frame) > 0) OR (SIZEOF(QUERY(odrf <* of_datum_reference_frame | NOT ('AP210_ARM.DATUM_REFERENCE_FRAME' IN TYPEOF(odrf)))) = 0);
       WR15 : SIZEOF(QUERY(pa <* package_accesses | 'AP210_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1;
+	  WR16: (EXISTS (surface_mount_lead_form)) OR ((SIZEOF(external_surface_mount_lead_form)) = 1);      
   END_ENTITY; -- package
 
   ENTITY Package_body

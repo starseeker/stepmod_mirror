@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2004/11/30 11:41:32 budreckytej Exp $
+   $Id: arm.exp,v 1.5 2004/12/01 11:27:12 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Altered package - EXPRESS ARM
 *)
 
@@ -13,11 +13,6 @@ USE FROM External_item_identification_assignment_arm;
 
 USE FROM Specification_document_arm;
 
-  TYPE geometric_status = SELECT
-    (predefined_geometric_status,
-     external_item_identification);
-  END_TYPE; -- geometric_status
-
   TYPE predefined_geometric_status = ENUMERATION OF
     (undefined,
      standard_datum_condition,
@@ -26,10 +21,14 @@ USE FROM Specification_document_arm;
   END_TYPE; -- predefined_geometric_status
 
   ENTITY Altered_package
-    SUBTYPE OF (package);
-      of_geometric_status          : geometric_status;
-      modified_terminal_separation : OPTIONAL length_data_element;
-      package_to_be_altered        : package;
+    SUBTYPE OF (Package);
+      of_geometric_status          : OPTIONAL predefined_geometric_status;
+      modified_terminal_separation : OPTIONAL Length_data_element;
+      package_to_be_altered        : Package;
+    INVERSE
+	  of_external_geometric_status : SET [0:1] OF External_source_identification FOR item;      
+	WHERE
+	  WR1: (EXISTS (geometric_status)) XOR ((SIZEOF(of_external_geometric_status)) = 1);
   END_ENTITY; -- altered_package
 
   ENTITY Altered_package_terminal

@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.31 2002/02/13 11:56:57 robbod Exp $
+$Id: module.xsl,v 1.32 2002/02/13 17:37:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -789,8 +789,18 @@ $Id: module.xsl,v 1.31 2002/02/13 11:56:57 robbod Exp $
     </a>
   </h3>
   <!-- The <xsl:value-of select="@name"/> UoF specifies -->
-  <xsl:apply-templates select="description"/>
-
+  <xsl:choose>
+    <xsl:when test="description">
+      <xsl:apply-templates select="description"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('No description provided for UoF ',@name)"/>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
   <p>
     The following application objects are defined in the
     <xsl:value-of select="@name"/> UoF: 
@@ -831,23 +841,80 @@ $Id: module.xsl,v 1.31 2002/02/13 11:56:57 robbod Exp $
       <xsl:with-param name="module" select="$module"/>
     </xsl:call-template>
   </xsl:variable>
-  <ul>
-    <xsl:apply-templates
-      select="document(concat($module_dir,'/module.xml'))/module/arm/uof[@name=$uof]/uof.ae"/>
-  </ul>
+
+  <xsl:variable name="module_ok">
+    <xsl:call-template name="check_module_exists">
+      <xsl:with-param name="module" select="$module"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="$module_ok='true'">
+        <!-- check that the UoF is named correctly -->
+        <xsl:choose>
+          <xsl:when test="document(concat($module_dir,'/module.xml'))/module/arm/uof[@name=$uof]">
+            <ul>
+              <xsl:apply-templates
+                select="document(concat($module_dir,'/module.xml'))/module/arm/uof[@name=$uof]/uof.ae"/>
+            </ul>            
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message">
+                <xsl:value-of select="concat('The UoF ',$uof,' cannot be
+found in module ',$module )"/>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
+
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          <xsl:value-of select="$module_ok"/>
+        </xsl:with-param>
+      </xsl:call-template>
+
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
+
 <xsl:template match="uof.ae">
-  <li>
-    <xsl:choose>
-      <xsl:when test="position()!=last()">
-        <xsl:value-of select="concat(@entity,';')"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat(@entity,'.')"/>        
-      </xsl:otherwise>
-    </xsl:choose>
-  </li>
+  <!-- check that the entity/type referenced exists -->
+  <xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="/module/@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="arm" 
+    select="concat($module_dir,'/arm.xml')"/>
+  <xsl:variable name="ae" select="@entity"/>
+  <xsl:choose>
+    <xsl:when test="document($arm)/express/schema[entity/@name=$ae or type/@name=$ae]">
+      <li>
+        <xsl:choose>
+          <xsl:when test="position()!=last()">
+            <xsl:value-of select="concat(@entity,';')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat(@entity,'.')"/>        
+          </xsl:otherwise>
+        </xsl:choose>
+      </li>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          <xsl:value-of select="concat('uof.ae error: The application object ',$ae,' cannot be
+                                found in module ',/module/@name )"/>
+        </xsl:with-param>
+      </xsl:call-template>
+
+    </xsl:otherwise>
+  </xsl:choose>  
 </xsl:template>
 
 
@@ -862,7 +929,15 @@ $Id: module.xsl,v 1.31 2002/02/13 11:56:57 robbod Exp $
   <h3>
     <a name="mapping">5.1 Mapping specification</a>
   </h3>
-  <xsl:apply-templates select="../mapping_table" mode="toc"/>
+  <xsl:choose>
+    <xsl:when test="../mapping_table">
+      <xsl:apply-templates select="../mapping_table" mode="toc"/>
+    </xsl:when>
+    <xsl:otherwise>
+      No mappings are specified in this application module.
+    </xsl:otherwise>
+  </xsl:choose>
+
 
   <h3>
     <a name="mim_express">5.2 MIM EXPRESS short listing</a>
@@ -1725,7 +1800,7 @@ defines it. Use: normref.inc')"/>
     select="document('../data/basic/normrefs.xml')/normref.list/normref/term[@id=$termref]"/>
   <xsl:choose>
     <xsl:when test="$term">
-      <xsl:value-of select="$term"/>
+      <xsl:value-of select="normalize-space($term)"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:call-template name="error_message">
@@ -1738,11 +1813,11 @@ defines it. Use: normref.inc')"/>
 </xsl:template>
 
 <xsl:template match="term" mode="abbreviation">
-  <xsl:value-of select="."/>
+  <xsl:value-of select="normalize-space(.)"/>
 </xsl:template>
 
 <xsl:template match="term">
-  <xsl:value-of select="."/>
+  <xsl:value-of select="normalize-space(.)"/>
 </xsl:template>
 
 <!-- output the normative references, terms, definitions and abbreviations -->

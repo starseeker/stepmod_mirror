@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.22 2002/02/07 16:14:40 robbod Exp $
+$Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -548,6 +548,37 @@ $Id: common.xsl,v 1.22 2002/02/07 16:14:40 robbod Exp $
     </xsl:choose>
   </xsl:template>
 
+  <!-- given the name of a module, check to see whether it has been
+       included in the repository_index.xml file
+       Return true or if not found, an error message.
+       -->
+  <xsl:template name="check_module_exists">
+    <xsl:param name="module"/>
+    
+    <xsl:variable name="module_name">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$module"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="ret_val">
+        <xsl:choose>
+          <xsl:when
+            test="document('../repository_index.xml')/repository_index/modules/module[@name=$module_name]">
+            <xsl:value-of select="'true'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of 
+              select="concat('ERROR:  the module', $module_name, 
+                      ' is not identified as a module in repository_index.xml')"/>
+          </xsl:otherwise>
+        </xsl:choose>     
+      </xsl:variable>
+      <xsl:value-of select="$ret_val"/>
+  </xsl:template>
+
+
+
   <!-- output a warning message. If $inline is yes then the error message
        will be included  in the HTML output.
        -->
@@ -608,7 +639,9 @@ $Id: common.xsl,v 1.22 2002/02/07 16:14:40 robbod Exp $
     <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
     <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
     <xsl:variable name="module_lcase"
-      select="translate($module,$UPPER, $LOWER)"/>
+      select="translate(
+              normalize-space(translate($module,$UPPER, $LOWER)),
+              '&#x20;','_')"/>
     <xsl:variable name="mod_name">
       <xsl:choose>
         <xsl:when test="contains($module_lcase,'_arm')">

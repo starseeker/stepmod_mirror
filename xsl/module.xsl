@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.51 2002/05/08 06:46:13 robbod Exp $
+$Id: module.xsl,v 1.52 2002/05/09 09:53:01 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -228,7 +228,7 @@ $Id: module.xsl,v 1.51 2002/05/08 06:46:13 robbod Exp $
 
 <xsl:template match="contact">
   <xsl:apply-templates select="firstname"/>
-  &#x20;
+  &#160;
   <xsl:apply-templates select="lastname"/>
   <br/>
   <xsl:apply-templates select="." mode="address"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.78 2002/09/28 06:50:11 robbod Exp $
+$Id: common.xsl,v 1.79 2002/10/22 10:02:50 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1836,6 +1836,57 @@ $Id: common.xsl,v 1.78 2002/09/28 06:50:11 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+
+  <!-- remove any whitespace characters from the end of a string -->
+  <xsl:template name="remove_end_whitespace">
+    <xsl:param name="string"/>
+    <xsl:choose>
+      <xsl:when test="substring($string, string-length($string))='&#xA;'">
+        <xsl:call-template name="remove_end_whitespace">
+          <xsl:with-param name="string" 
+            select="substring($string,1,string-length($string)-1)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="substring($string, string-length($string))='&#xD;'">
+        <xsl:call-template name="remove_end_whitespace">
+          <xsl:with-param name="string" 
+            select="substring($string,1,string-length($string)-1)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="substring($string, string-length($string))='&#x20;'">
+        <xsl:call-template name="remove_end_whitespace">
+          <xsl:with-param name="string" 
+            select="substring($string,1,string-length($string)-1)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="substring($string, string-length($string))='&#x9;'">
+        <xsl:call-template name="remove_end_whitespace">
+          <xsl:with-param name="string" 
+            select="substring($string,1,string-length($string)-1)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$string"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+
+  <!-- remove any whitespace characters from the start and end of a string -->
+  <xsl:template name="remove_start_end_whitespace">
+    <xsl:param name="string"/>
+    <xsl:variable name="string1">
+      <xsl:call-template name="remove_end_whitespace">
+        <xsl:with-param name="string" select="$string"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:call-template name="remove_trailing_whitespace">
+      <xsl:with-param name="string" select="$string1"/>
+    </xsl:call-template>
+  </xsl:template>
+
+
 
   <!-- Output a string, replacing all the carriage returns with
        HTML br

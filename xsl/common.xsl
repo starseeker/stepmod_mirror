@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.68 2002/08/09 20:37:25 robbod Exp $
+$Id: common.xsl,v 1.69 2002/08/12 11:57:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -394,13 +394,12 @@ $Id: common.xsl,v 1.68 2002/08/09 20:37:25 robbod Exp $
       <xsl:value-of select="concat('Figure ',$number,
                             '&#160;&#8212;&#160;&#160;',./title)"/>
     </xsl:variable>
-
-    <a name="{$aname}">
+    <br/><br/>
+    <a name="{$aname}"/>
       <xsl:apply-templates select="./img">
         <xsl:with-param name="alt" select="$title"/>
       </xsl:apply-templates>
-    </a>
-    <br/><br/>
+    <br/>
     <div align="center">
       <b>
         <xsl:value-of select="$title"/>

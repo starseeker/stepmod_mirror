@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.3 2001/11/21 17:13:49 robbod Exp $
+//$Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $
 // JScript to convert an Express file to an XML file
 // cscript express2xml.js <express.exp>
 // cscript express2xml.js <module> arm
@@ -72,8 +72,6 @@ function readStatement(line, ts) {
 	pos = line.search(";");
 	if (pos == -1) {
 	    var nextLine = readStatement(ts.ReadLine(), ts);	    
-
-	    debug("["+nextLine.charAt(0)+"]"+nextLine);
 	    var reg = /^[A-Za-z]/;
 	    var ch = nextLine.match(reg);
 	    if (ch) {
@@ -310,7 +308,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.3 2001/11/21 17:13:49 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -320,7 +318,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.3 $";
+    var appCVSRevision = "$Revision: 1.4 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -352,6 +350,42 @@ function xmlCloseSchema(outTs) {
     xmlCloseElement("</schema>",outTs);
     outTs.WriteLine("");
 }
+
+
+function xmlConstant(statement,expTs,outTs) {
+    var name, expr;
+    // First time called line will start with CONSTANT
+    // so remove    
+    var l = statement.trim();
+    var reg = /^CONSTANT/i;
+    var token = l.match(reg);
+    if (token) {
+	name = getWord(2,l);
+    } else {
+	name = getWord(1,l);
+    }
+    expr = getAfterColon(l);    
+
+    
+    xmlOpenElement("<constant name=\""+name+"\"", outTs);	
+    xmlAttr("expression", expr, outTs);
+    outTs.WriteLine(">");
+    xmlCloseElement("</constant>",outTs);
+
+    l = expTs.ReadLine();
+    lNumber = expTs.Line;
+    statement = readStatement(l,expTs);
+    var token = readToken(l);
+    switch( token ) {
+    case "END_CONSTANT" :
+	break;	
+    default :			
+	// multiple constants may be defined in one CONSTANT statement
+	xmlConstant(statement,expTs,outTs);
+	break;
+    }
+}
+
 
 function getAbstractSuper(statement) {
     statement = normaliseStatement(statement);
@@ -856,7 +890,7 @@ FunctionObj.prototype.loadAlgorithm = function(algoStr,expTs,outTs)
 {
     var l = expTs.ReadLine();
     lNumber = expTs.Line;
-    var reg = /\bEND_FUNCTION/;
+    var reg = /\bEND_FUNCTION|END_PROCEDURE/;
     if (l.match(reg)) {
 	this.algorithm = algoStr+"\n";
     } else {
@@ -886,6 +920,21 @@ function xmlFunction(line,expTs,outTs) {
     xmlCloseElement("</function>",outTs);
     outTs.WriteLine("");
 }
+
+function xmlProcedure(line,expTs,outTs) {
+    var name = getWord(2,line);
+    var fnObj = new FunctionObj(name);
+    fnObj.loadParamList(line,expTs,outTs);
+    xmlOpenElement("<procedure",outTs);
+    xmlAttr("name",fnObj.name,outTs);
+    outTs.WriteLine(">");
+    fnObj.xmlRtnStr(outTs);
+    fnObj.xmlParamList(outTs);
+    fnObj.xmlAlgorithm(outTs);
+    xmlCloseElement("</procedure>",outTs);
+    outTs.WriteLine("");
+}
+
 
 function loadRuleBody(body,expTs)
 {
@@ -989,6 +1038,10 @@ function Output2xml(expFile, xmlFile) {
 		var statement = readStatement(l,expTs);
 		xmlCloseSchema(xmlTs);
 		break;
+	    case "CONSTANT" :	
+		var statement = readStatement(l,expTs);
+		xmlConstant(statement,expTs,xmlTs);
+		break;
 	    case "ENTITY" :
 		var statement = readStatement(l,expTs);
 		xmlOpenEntity(statement,xmlTs,expTs);
@@ -1023,6 +1076,9 @@ function Output2xml(expFile, xmlFile) {
 		break;
 	    case "FUNCTION" :	
 		xmlFunction(l,expTs,xmlTs);
+		break;
+	    case "PROCEDURE" :	
+		xmlProcedure(l,expTs,xmlTs);
 		break;
 	    case "RULE" :	
 		xmlRule(l,expTs,xmlTs);

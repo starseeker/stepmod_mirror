@@ -44,9 +44,11 @@
 	<arm>
 		<!-- Note ARM short form EXPRESS is in arm.xml -->
 		<!-- Units of functionality -->
-		<uof name="-">
-			<description/>
-			<uof.ae entity="-"/>
+		<uof name="Requirement_Assignment">
+			<description>
+				The Requirement_Assignment UoF specifies the data type needed to represent the data that identify the assignment of requirement definitions to other items.
+			</description>
+			<uof.ae entity="Requirement_assignment"/>
 		</uof>
 		<!-- Short form EXPRESS-G -->
 		<express-g>
@@ -58,6 +60,53 @@
 	<mapping_table>
 		<ae entity="Requirement_assignment">
 			<aimelt>requirement_assignment</aimelt>
+			<source>ISO 10303-1233</source>
+			<refpath>
+				requirement_source &lt;=
+				[group]
+				[characterized_object]
+			</refpath>
+			<aa attribute="id">
+				<aimelt>group.id</aimelt>
+				<source>ISO 10303-41</source>
+				<refpath>
+					requirement_assignment &lt;=
+					group
+					group.id
+				</refpath>
+			</aa>
+			<aa attribute="description">
+				<aimelt>group.description</aimelt>
+				<source>ISO 10303-41</source>
+				<refpath>
+					requirement_assignment &lt;=
+					group
+					group.description
+				</refpath>
+			</aa>
+			<aa attribute="assigned_requirement" assertion_to="Requirement_view_definition">
+				<aimelt>PATH</aimelt>
+				<refpath>
+					requirement_assignment &lt;-
+					assigned_requirement.assigned_group
+					assigned_requirement
+					assigned_requirement.items -&gt;
+					product_definition
+				</refpath>
+			</aa>
+			<aa attribute="assigned_to" assertion_to="requirement_assignment_item">
+				<aimelt>PATH</aimelt>
+				<refpath>
+					requirement_assignment &lt;-
+					requirement_assigned_object.assigned_group
+					requirement_assigned_object
+					requirement_assigned_object.items -&gt;
+					requirement_assigned_item
+				</refpath>
+			</aa>
+		</ae>
+		<ae entity="Requirement_source">
+			<aimelt>requirement_source</aimelt>
 			<source>ISO 10303-1233</source>
 			<refpath>
 				requirement_source &lt;=
@@ -81,7 +130,17 @@
 					group.description
 				</refpath>
 			</aa>
-			<aa attribute="assigned_requirement" assertion_to="Requirement_view_definition">
+			<aa attribute="source" assertion_to="requirement_source_item">
+				<aimelt>PATH</aimelt>
+				<refpath>
+					requirement_source &lt;-
+					source_for_requirement.assigned_group
+					source_for_requirement
+					source_for_requirement.items -&gt;
+					requirement_source_item
+				</refpath>
+			</aa>
+			<aa attribute="sourced_requirements" assertion_to="Requirement_view_definition">
 				<aimelt>PATH</aimelt>
 				<refpath>
 					requirement_source &lt;-
@@ -91,18 +150,22 @@
 					product_definition
 				</refpath>
 			</aa>
-			<aa attribute="assigned_to" assertion_to="requirement_assignment_item">
+		</ae>
+		<ae entity="Assigned_property" original_module="Property_assignment_arm">
+			<aa attribute="described_element" assertion_to="Requirement_assignment">
 				<aimelt>PATH</aimelt>
 				<refpath>
-					requirement_source
+					property_definition 
+ 					property_definition.definition -&gt;
+					characterized_definition
+					characterized_definition =
+					characterized_object
+					characterized_object &lt;=				
+					requirement_assignment
 				</refpath>
 			</aa>
 		</ae>
-		<ae entity="Requirement_source">
-			<aimelt>requirement_source</aimelt>
-			<source>ISO 10303-1233</source>
-		</ae>
-			</mapping_table>
+	</mapping_table>
 	<!-- Clause 5.2 MIM -->
 	<mim>
 		<!--  Note MIM short form express is in mim.xml -->

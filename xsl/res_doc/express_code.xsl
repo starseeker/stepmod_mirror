@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.6 2004/01/28 23:36:55 thendrix Exp $
+     $Id: express_code.xsl,v 1.7 2004/11/10 00:52:58 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -254,7 +254,7 @@
       </xsl:choose>
     END_TYPE; 
   <br/>
-  <code>
+</code>
 </xsl:template>
 
 <!-- empty template to prevent the description element being output along

@@ -1,6 +1,38 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: arm.exp,v 1.2 2004/11/19 08:57:17 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Cable - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Cable_arm;
+
+USE FROM Physical_unit_usage_view_arm;
+
+USE FROM Part_terminal_arm;
+
+USE FROM Physical_unit_design_view_arm;
+
+USE FROM Item_definition_structure_arm (assembly_definition);
+
+USE FROM Assembly_module_with_packaged_connector_component_arm (packaged_connector_component_interface_terminal);
+
+USE FROM Component_feature_arm;
+
+USE FROM Part_occurrence_arm (definition_based_product_occurrence);
+
+  ENTITY Cable_usage_view
+    SUBTYPE OF (Part_usage_view, Assembly_definition);
+    INVERSE
+      access_mechanisms : SET[1:?] OF cable_terminal FOR associated_definition;
+  END_ENTITY; -- cable_usage_view
+
+  ENTITY Cable_terminal
+    SUBTYPE OF (part_terminal);
+      SELF\part_feature.associated_definition : cable_usage_view;
+      mapped_terminal                         : packaged_connector_component_interface_terminal;
+      terminal_connection_zone                : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
+    WHERE
+      WR1 : SIZEOF(mapped_terminal\component_feature.associated_component\definition_based_product_occurrence.occurrence_contexts) <> 0;
+      WR2 : SELF\shape_element.containing_shape :=: mapped_terminal\component_feature.associated_component\definition_based_product_occurrence.occurrence_contexts[1].related_view;
+  END_ENTITY; -- cable_terminal
+
 END_SCHEMA;

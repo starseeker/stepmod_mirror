@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.22 2004/12/03 14:00:39 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.23 2004/12/04 11:00:16 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -410,8 +410,18 @@ $Id: index_arm_mappings_inner.xsl,v 1.22 2004/12/03 14:00:39 robbod Exp $
 				<br/>
 				<xsl:if test="not($called-schemas//type[@name=$attr-type-name]
 								[enumeration or typename or builtintype])" >
-					WARNING: Missing assertion_to="<xsl:value-of select="$attr-type-name" />" in mapping
-				</xsl:if>
+<!--			Mapping NOT found -->
+			<xsl:call-template name="error_message">
+			  <xsl:with-param name="inline" select="'yes'"/>
+			  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+		          <xsl:with-param 
+		            name="message" 
+		            select="concat('WARNING: Missing assertion_to=&#x22;',
+			    $attr-type-name,'&#x22; in mapping')" />
+			</xsl:call-template>    	
+
+		</xsl:if>
+		
 			</xsl:when>
 			<xsl:when 
 			  test="$called-modules//module[@name=$mod-name]//ae[@entity=$ent-name]//aa

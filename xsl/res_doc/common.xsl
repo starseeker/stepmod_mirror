@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.2 2002/10/20 06:45:17 thendrix Exp $
+$Id: common.xsl,v 1.3 2002/10/24 06:14:09 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2587,7 +2587,7 @@ is case sensitive.')"/>
         <xsl:when test="substring($schema,string-length($schema)-6)='_schema'">
           <xsl:choose>
             <xsl:when test="./graphic.element/@page">
-              <!--              <xsl:value-of select="concat('../../',$resource_name,'/armexpg',./graphic.element/@page,$FILE_EXT)"/>    --> TEH Fix              
+               <xsl:value-of select="concat('../../../resources/',$schema,'/',$schema,'expg',./graphic.element/@page,$FILE_EXT)"/>   
             </xsl:when>
             <xsl:otherwise>
 ZZZZZZZZZ should not get here.

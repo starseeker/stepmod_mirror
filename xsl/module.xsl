@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.59 2002/05/31 08:44:21 robbod Exp $
+$Id: module.xsl,v 1.60 2002/06/02 07:12:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -187,33 +187,35 @@ $Id: module.xsl,v 1.59 2002/05/31 08:44:21 robbod Exp $
 
           <xsl:when test="$status='CD-TS'">
             <p>
-              This ISO document is a Draft Technical Specification and is
-              copyright protected by ISO. While the reproduction of draft 
-              technical specifications in any form for use by Participants in
-              the ISO standards development process is permitted without prior
-              permission from ISO, neither this document nor any extract from
-              it may be reproduced, stored or transmitted in any form for any
-              other purpose without prior written permission from ISO. 
+              This ISO document is a Committee Draft Technical
+              Specification and is copyright protected by ISO. While the
+              reproduction of working drafts or Committee Drafts in any
+              form for use by Participants in the ISO standards development
+              process is permitted without prior written permission from
+              ISO, neither this document nor any extract from it may be 
+              reproduced, stored or transmitted in any form for any other
+              purpose without prior written permission from ISO. 
             </p>
             <p>
               Requests for permission to reproduce this document for the
-              purposes of selling it should be addressed as shown below (via
-              the ISO TC 184/SC4 Secretariat's member body) or to ISO's member
-              body in the country of the requester.  
+              purposes of selling it should be addressed as shown below
+              (via the ISO TC 184/SC4 Secretariat's member body) or to the
+              ISO's member body in the country of the requestor 
             </p>
             <p>
               <center>
-              Copyright Manager,ISO Central Secretariat<br/>
-              1 rue de Varembe<br/>
-              CH-1211 Geneva 20 Switzerland<br/>
-              telephone: +41 22 749 0111<br/>
-              telefacsimile: +41 22 734 0179<br/>
-              Internet: central@isocs.iso.ch, X.400: c=ch; a=400net; p=iso; o=isocs; s=central<br/>
+                Copyright Manager<br/>
+                ANSI<br/>
+                11 West 42nd Street<br/>
+                New York, New York 10036<br/>
+                USA<br/>
+                phone: +1-212-642-4900<br/>
+                fax: +1-212-398-0023<br/>
               </center>
             </p>
             <p>
-              Reproduction for sales purposes may be subject to
-              royalty payments or a licensing agreement.
+              Reproduction for sales purposes may be subject to royalty
+              payments or a licensing agreement. 
             </p>
             <p>
               Violators may be prosecuted.
@@ -238,12 +240,22 @@ $Id: module.xsl,v 1.59 2002/05/31 08:44:21 robbod Exp $
             </p>
             <p>
             <center>
+              <!--
               Copyright Manager, ISO Central Secretariat<br/>
               1 rue de Varembe<br/>
               CH-1211 Geneva 20 Switzerland<br/>
               telephone: +41 22 749 0111<br/>
               telefacsimile: +41 22 734 0179<br/>
-              Internet: central@isocs.iso.ch, X.400: c=ch; a=400net; p=iso; o=isocs; s=central<br/>
+              Internet: central@isocs.iso.ch, X.400: c=ch; a=400net; p=iso;
+o=isocs; s=central<br/>
+-->
+              ISO copyright office<br/>
+              Case postale 56, CH-1211 Geneva 20<br/>
+              Tel. +41 22 749 01 11<br/>
+              Fax +41-22-734-10 79<br/>
+              E-mail copyright@iso.ch<br/>
+ 
+
             </center>
           </p>
             <p>

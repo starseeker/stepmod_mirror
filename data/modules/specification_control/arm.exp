@@ -1,4 +1,4 @@
-(* $Id: arm.exp,v 1.10 2003/02/08 22:43:07 goset1 Exp $
+(* $Id: arm.exp,v 1.11 2003/09/21 10:24:23 rocc Exp $
 ISO/TC184/SC4 WG12N1769	ISO/CD-TS 10303-1112	Specification control - Express ARM *)
 
 
@@ -24,10 +24,6 @@ USE FROM Specification_based_configuration_arm;
 
 USE FROM Specified_product_arm;
 
-TYPE sc_configured_element = EXTENSIBLE SELECT BASED_ON configured_item_select WITH (
-      Alternative_solution);
-END_TYPE;
-
 TYPE breakdown_element_select = SELECT (
 	Functional_element_definition,
 	Physical_element_definition);
@@ -45,11 +41,38 @@ TYPE instance_usage_context_select = EXTENSIBLE GENERIC_ENTITY SELECT (
 	Solution_element);
 END_TYPE;
 
+TYPE sc_configured_element = EXTENSIBLE SELECT BASED_ON configured_item_select WITH (
+      Alternative_solution);
+END_TYPE;
+
+ENTITY Breakdown_node_relationship;
+  description: OPTIONAL STRING;
+  relating: complex_product_select;
+  related: breakdown_element_select;
+  relation_type: STRING;  
+WHERE
+WR1: (NOT (relation_type IN ['functionality', 'realization'])) OR
+	(TYPEOF(related) <> TYPEOF(relating));
+WR2: (NOT (relation_type IN ['decomposition', 'specialization', 'occurrence'])) OR
+	(aggregate1_in_aggregate2(TYPEOF(related),TYPEOF(relating)) OR aggregate1_in_aggregate2(TYPEOF(relating),TYPEOF(related)) ) ;
+WR3: (NOT (relation_type IN ['occurrence'])) OR 
+	('SPECIFICATION_CONTROL_ARM.PHYSICAL_ELEMENT_DEFINITION' IN TYPEOF(relating));
+END_ENTITY;
+
 ENTITY Class_breakdown_association;
+  description: OPTIONAL STRING;
   considered_class: Product_class;
   breakdown_element: breakdown_element_select;
   relation_type: STRING;
+END_ENTITY;
+
+ENTITY Complex_node_relationship;
   description: OPTIONAL STRING;
+  relating: complex_product_select;
+  related: complex_product_select;
+  relation_type: STRING;  
+WHERE
+WR1: (aggregate1_in_aggregate2(TYPEOF(related),TYPEOF(relating)) OR aggregate1_in_aggregate2(TYPEOF(relating),TYPEOF(related)) ) ;
 END_ENTITY;
 
 ENTITY Design_constraint_context_association;
@@ -57,15 +80,15 @@ ENTITY Design_constraint_context_association;
   constraint_context: constraint_context_select;
 END_ENTITY;
 
-ENTITY Design_constraint_definition
-SUBTYPE OF (Product_view_definition);
-  SELF\Product_view_definition.defined_version : Requirement_version;
-END_ENTITY;
-
 ENTITY Design_constraint_association;
   name: OPTIONAL STRING;	
   constrained_object: complex_product_select;
   constraint_definition: Design_constraint_definition;  
+END_ENTITY;
+
+ENTITY Design_constraint_definition
+SUBTYPE OF (Product_view_definition);
+  SELF\Product_view_definition.defined_version : Requirement_version;
 END_ENTITY;
 
 ENTITY Design_constraint_relationship
@@ -93,35 +116,12 @@ DERIVE
   SELF\View_definition_relationship.relation_type : STRING := 'usage replacement';
 END_ENTITY;
 
-ENTITY Breakdown_node_relationship;
-  relating: complex_product_select;
-  description: OPTIONAL STRING;
-  related: breakdown_element_select;
-  relation_type: STRING;  
-WHERE
-WR1: (NOT (relation_type IN ['functionality', 'realization'])) OR
-	(TYPEOF(related) <> TYPEOF(relating));
-WR2: (NOT (relation_type IN ['decomposition', 'specialization', 'occurrence'])) OR
-	(agg1_in_agg2(TYPEOF(related),TYPEOF(relating)) OR agg1_in_agg2(TYPEOF(relating),TYPEOF(related)) ) ;
-WR3: (NOT (relation_type IN ['occurrence'])) OR 
-	('SPECIFICATION_CONTROL_ARM.PHYSICAL_ELEMENT_DEFINITION' IN TYPEOF(relating));
-END_ENTITY;
-
-ENTITY Complex_node_relationship;
-  relating: complex_product_select;
-  description: OPTIONAL STRING;
-  related: complex_product_select;
-  relation_type: STRING;  
-WHERE
-WR1: (agg1_in_agg2(TYPEOF(related),TYPEOF(relating)) OR agg1_in_agg2(TYPEOF(relating),TYPEOF(related)) ) ;
-END_ENTITY;
-
 ENTITY Specification_category_breakdown_influence;
   influencing_category: Class_category_association;
   influenced_breakdown_node: breakdown_element_select;
 END_ENTITY;
 
-FUNCTION agg1_in_agg2 (agg1, agg2: AGGREGATE OF GENERIC): LOGICAL;
+FUNCTION aggregate1_in_aggregate2 (agg1, agg2: AGGREGATE OF GENERIC): LOGICAL;
 RETURN(SIZEOF(QUERY (ele <* agg1 | VALUE_IN(agg2, ele)))= SIZEOF(agg1));
 END_FUNCTION;
 

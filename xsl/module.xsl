@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.140 2003/05/06 14:50:15 robbod Exp $
+$Id: module.xsl,v 1.141 2003/05/06 21:26:15 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1273,7 +1273,15 @@ o=isocs; s=central<br/>
     <td>ARM long form EXPRESS</td>
     <td>
       <a href="{$arm_lf}">
-        <xsl:value-of select="concat('arm_lf',$FILE_EXT)"/>
+        <!-- <xsl:value-of select="concat('arm_lf',$FILE_EXT)"/> -->
+        <xsl:choose>
+          <xsl:when test="$FILE_EXT='.xml'">
+            XML
+          </xsl:when>
+          <xsl:otherwise>
+            HTML
+          </xsl:otherwise>
+        </xsl:choose>
       </a>
     </td>
     <xsl:call-template name="output_express_links">
@@ -1299,7 +1307,15 @@ o=isocs; s=central<br/>
     <td>MIM long form EXPRESS</td>
     <td>
       <a href="{$mim_lf}">
-        <xsl:value-of select="concat('mim_lf',$FILE_EXT)"/>
+        <!-- <xsl:value-of select="concat('mim_lf',$FILE_EXT)"/> -->
+        <xsl:choose>
+          <xsl:when test="$FILE_EXT='.xml'">
+            XML
+          </xsl:when>
+          <xsl:otherwise>
+            HTML
+          </xsl:otherwise>
+        </xsl:choose>
       </a>
     </td>
     <xsl:call-template name="output_express_links">

@@ -155,7 +155,7 @@ and  string is more than the schema name ( hence not the  schema )
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent2:' , $description/@linkend, '. Should be at least one bold text or express ref in the description of entity ')"/>
+            select="concat('Warning Ent2:' , $description/@linkend, '. Should be at least one bold text or express ref in the description of entity. It should contains the entity name ')"/>
         </xsl:call-template>        
       </xsl:if>
 
@@ -169,7 +169,7 @@ and  string is more than the schema name ( hence not the  schema )
         </xsl:call-template>        
       </xsl:if>
 
-      <xsl:if test="not(contains($description/@linkend,$description/b/text()))and not(contains($description/@linkend,$description/express_ref/@linkend))">
+      <xsl:if test="not(contains($description/@linkend,$description/b/text())) and not(contains($description/@linkend,$description/express_ref/@linkend))">
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
@@ -183,15 +183,28 @@ and  string is more than the schema name ( hence not the  schema )
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 
-            select="concat('Warning Ent5: check for is a type of ', $supertypes)"/>
+            select="concat('Warning Ent5: ',$description/@linkend, ' check for is a type of ', $supertypes,'.')"/>
         </xsl:call-template>        
 
-</xsl:if>
+      </xsl:if>
     </xsl:if>
-
-
-    <xsl:apply-templates select="$description"/>      
+    <!-- this and everything else I tried does not work - need more complicated set operations for node sets. 
+    <xsl:apply-templates select="$description//*[not(../b)/text() | *not(../express_ref)]/text()" mode="chktxt"/>      
+-->
+    <xsl:apply-templates select="$description" />
+     
   </xsl:if>
+</xsl:template>
+
+<!-- not used at the moment -->
+<xsl:template match="text()" mode="chktxt" >
+  <xsl:if test="contains(.,'_')">
+      <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Warning Ent6: ',' check for express identifier not bold ')"/>
+        </xsl:call-template>
+      </xsl:if>
 </xsl:template>
 
 <!-- return false if the description does not exist in an external file -->

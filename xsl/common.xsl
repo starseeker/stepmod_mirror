@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.134 2004/10/22 14:44:30 robbod Exp $
+$Id: common.xsl,v 1.135 2004/10/30 07:11:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1266,7 +1266,6 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         <xsl:with-param name="module" select="$module"/>
       </xsl:call-template>
     </xsl:variable>
-    <xsl:message><xsl:value-of select="$module"/></xsl:message>
     <!-- Note the use of Latin characters -->
     <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ&#192;&#193;&#194;&#195;&#196;&#197;&#198;&#199;&#200;&#201;&#202;&#203;&#204;&#205;&#206;&#207;&#208;&#209;&#210;&#211;&#212;&#213;&#214;&#216;&#217;&#218;&#219;&#220;&#221;&#376;&#222;</xsl:variable>
 <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz&#224;&#225;&#226;&#227;&#228;&#229;&#230;&#231;&#232;&#233;&#234;&#235;&#236;&#237;&#238;&#239;&#240;&#241;&#242;&#243;&#244;&#245;&#246;&#248;&#249;&#250;&#251;&#252;&#253;&#255;&#254;</xsl:variable>

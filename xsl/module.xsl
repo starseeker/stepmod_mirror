@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.159 2003/08/15 07:14:24 robbod Exp $
+$Id: module.xsl,v 1.160 2004/02/05 14:41:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3027,7 +3027,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
       </xsl:when>
     </xsl:choose>,&#160;
     <i>
-      <xsl:value-of select="stdref/stdtitle"/>
+      <xsl:value-of select="normalize-space(stdref/stdtitle)"/>&#160;
       <!-- make sure that the title ends with a . -->
       <xsl:variable 
         name="subtitle"
@@ -3969,7 +3969,7 @@ $module_ok,' Check the normatives references')"/>
 
 <xsl:template match="stdtitle">
 <i>
-<xsl:value-of select="."/>
+<xsl:value-of select="normalize-space(.)"/>
 </i>
 </xsl:template>
 

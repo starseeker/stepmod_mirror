@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
+$Id: ballot_issues_summary.xsl,v 1.1 2004/09/17 12:45:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -8,11 +8,66 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                version="1.0">
+  xmlns:ms="urn:anything"
+  version="1.0">
 
   <xsl:import href="./common.xsl"/>
   <xsl:import href="../../xsl/common.xsl"/>
 
+
+  <!-- DECIDED NOT TO USE THIS JSCRIPT STUFF - LEFT IN FOR REFERENCE -->
+  <msxsl:script xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+    language="JScript"
+    implements-prefix="ms">
+    
+    var Issues=0;
+    function incIssues(inc) {
+      Issues = Issues + inc;
+      return(Issues);
+    }
+
+    var MajorIssues=0;
+    function incMajorIssues(inc) {
+      MajorIssues = MajorIssues + inc;
+      return(MajorIssues);
+    }
+
+    var PartIssueSummary='';
+    function addPartIssueSummary(part,issueCount) {
+       PartIssueSummary = PartIssueSummary+' '+part+':'+issueCount+' ';
+    }
+
+    function getPartIssueSummary(part) {
+	var p = " "+part+":"
+	var re = new RegExp(p,"i");  
+	var r = PartIssueSummary.search(re);
+	if (r != -1) { 
+	    var ss = PartIssueSummary.substring(r+p.length);
+	    ss = ss.substring(0,ss.indexOf(" "));
+	    return(ss);
+	} else {
+	    return(r);
+	}
+    }
+
+    var PartMajorIssueSummary='';
+    function addPartMajorIssueSummary(part,issueCount) {
+       PartMajorIssueSummary = PartMajorIssueSummary+' '+part+':'+issueCount+' ';
+    }
+
+    function getPartMajorIssueSummary(part) {
+	var p = " "+part+":"
+	var re = new RegExp(p,"i");  
+	var r = PartMajorIssueSummary.search(re);
+	if (r != -1) { 
+	    var ss = PartMajorIssueSummary.substring(r+p.length);
+	    ss = ss.substring(0,ss.indexOf(" "));
+	    return(ss);
+	} else {
+	    return(r);
+	}
+    }  
+  </msxsl:script>
 
   <xsl:output 
     method="html"
@@ -31,6 +86,10 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
 
   <xsl:variable name="ballot_date" 
     select="number(translate(substring-after($ballot_index/@ballot.start.date,'-'),'-',''))"/>
+
+  <xsl:variable name="repo_index"
+    select="document('../../repository_index.xml')"/>
+
 
   <!-- force the application of the stylesheet to the file specified in the
        file attribute -->
@@ -196,7 +255,6 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
         </tr>
       </table>
       <hr/>
-
       <table class="MsoNormalTable" border="1" cellspacing="0" cellpadding="0"
         style="'border-collapse:collapse;border:none">
         <tr>
@@ -211,6 +269,12 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
           </th>
           <th width="91" valign="top" align="center">
             Part name
+          </th>
+          <th width="91" valign="top" align="center">
+            Project Leader
+          </th>
+          <th width="91" valign="top" align="center">
+            Editor
           </th>
           <th width="83" valign="top" align="center">
             Category
@@ -242,6 +306,17 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
           <th width="170" valign="top" align="center">
             Comments
           </th>
+          <th width="83" valign="top" align="center">
+            Project Category
+          </th>
+          <th width="83" valign="top" align="center">
+            Project Owner
+          </th>
+          <th width="83" valign="top" align="center">
+            Project Priority
+          </th>
+
+
         </tr>
 
         <xsl:apply-templates select="./*/ap_doc">
@@ -311,6 +386,20 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
       <xsl:variable name="module"
         select="document(concat('../../data/modules/',@name,'/module.xml'))/module"/>
       
+      <xsl:variable name="editor">
+        <xsl:apply-templates select="$module/contacts/editor" mode="name"/>
+      </xsl:variable>
+
+      <xsl:variable name="projlead">
+        <xsl:apply-templates select="$module/contacts/projlead" mode="name"/>
+      </xsl:variable>
+      
+      <xsl:variable name="project">
+        <xsl:call-template name="get_project">
+          <xsl:with-param name="part" select="$module/@name"/>
+        </xsl:call-template>
+      </xsl:variable>
+
       <xsl:choose>
         <xsl:when test="$module/@development.folder">
           
@@ -321,6 +410,9 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
           <xsl:apply-templates select="$issues/issues/issue" mode="filter">
             <xsl:with-param name="number" select="$module/@part"/>
             <xsl:with-param name="module" select="@name"/>
+            <xsl:with-param name="editor" select="$editor"/>
+            <xsl:with-param name="projlead" select="$projlead"/>
+            <xsl:with-param name="project" select="$project"/>
             <xsl:with-param name="content" select="$content"/>
             <xsl:with-param name="id_mode" select="$id_mode"/>
             <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
@@ -329,7 +421,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
             <xsl:with-param name="filter_seds" select="$filter_seds"/>
             <xsl:with-param name="filter_category" select="$filter_category"/>
             <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
-          </xsl:apply-templates>              
+          </xsl:apply-templates>            
 
         </xsl:when>
         <xsl:otherwise>
@@ -377,9 +469,26 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   <xsl:variable name="resource"
         select="document(concat('../../data/resource_docs/',@name,'/resource.xml'))/resource"/>
 
+  <xsl:variable name="editor">
+    <xsl:apply-templates select="$resource/contacts/editor" mode="name"/>
+  </xsl:variable>
+  
+  <xsl:variable name="projlead">
+    <xsl:apply-templates select="$resource/contacts/projlead" mode="name"/>
+  </xsl:variable>
+  
+  <xsl:variable name="project">
+    <xsl:call-template name="get_project">
+      <xsl:with-param name="part" select="$resource/@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <xsl:apply-templates select="$issues/issues/issue" mode="filter">
     <xsl:with-param name="number" select="$resource/@part"/>
     <xsl:with-param name="module" select="@name"/>
+    <xsl:with-param name="editor" select="$editor"/>
+    <xsl:with-param name="projlead" select="$projlead"/>
+    <xsl:with-param name="project" select="$project"/>
     <xsl:with-param name="content" select="$content"/>
     <xsl:with-param name="id_mode" select="$id_mode"/>
     <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
@@ -402,7 +511,6 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_category"/>
   <xsl:param name="filter_resolution"/>
-
       
   <xsl:variable name="issues_file" 
     select="concat('../../data/application_protocols/',@name,'/dvlp/issues.xml')"/>
@@ -411,9 +519,26 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   <xsl:variable name="ap_doc"
         select="document(concat('../../data/application_protocols/',@name,'/application_protocol.xml'))/application_protocol"/>
 
+  <xsl:variable name="editor">
+    <xsl:apply-templates select="$ap_doc/contacts/editor" mode="name"/>
+  </xsl:variable>
+  
+  <xsl:variable name="projlead">
+    <xsl:apply-templates select="$ap_doc/contacts/projlead" mode="name"/>
+  </xsl:variable>
+  
+  <xsl:variable name="project">
+    <xsl:call-template name="get_project">
+      <xsl:with-param name="part" select="$ap_doc/@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <xsl:apply-templates select="$issues/issues/issue" mode="filter">
     <xsl:with-param name="number" select="$ap_doc/@part"/>
     <xsl:with-param name="module" select="@name"/>
+    <xsl:with-param name="editor" select="$editor"/>
+    <xsl:with-param name="projlead" select="$projlead"/>
+    <xsl:with-param name="project" select="$project"/>
     <xsl:with-param name="content" select="$content"/>
     <xsl:with-param name="id_mode" select="$id_mode"/>
     <xsl:with-param name="filter_member_body" select="$filter_member_body"/>
@@ -422,7 +547,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
     <xsl:with-param name="filter_seds" select="$filter_seds"/>
     <xsl:with-param name="filter_category" select="$filter_category"/>
     <xsl:with-param name="filter_resolution" select="$filter_resolution"/>
-  </xsl:apply-templates>              
+  </xsl:apply-templates>            
       
 </xsl:template>
 
@@ -430,6 +555,9 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
 <xsl:template match="issue" mode="filter">
   <xsl:param name="number"/>
   <xsl:param name="module"/>
+  <xsl:param name="editor"/>
+  <xsl:param name="projlead"/>
+  <xsl:param name="project"/>
   <xsl:param name="content"/>
   <xsl:param name="id_mode"/>
   <xsl:param name="filter_member_body"/>
@@ -438,6 +566,13 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
   <xsl:param name="filter_seds"/>
   <xsl:param name="filter_category"/>
   <xsl:param name="filter_resolution"/>
+
+  <!-- update global summary info 
+       Just set the variable, but do not use it,
+       This will update the JScript global variables
+       <xsl:variable name="major_issue" select="ms:incMajorIssues(1)"/>
+       -->
+
 
   <xsl:variable name="issue_date" select="number(translate(substring-after(@date,'-'),'-',''))"/>
 
@@ -480,7 +615,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
       <xsl:otherwise>
         <xsl:value-of select="'no'"/>
       </xsl:otherwise>
-    </xsl:choose>    
+    </xsl:choose>  
   </xsl:variable>
 
   <xsl:variable name="status">
@@ -508,7 +643,7 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
       <xsl:otherwise>
         <xsl:value-of select="'open'"/>
       </xsl:otherwise>
-    </xsl:choose>    
+    </xsl:choose>  
   </xsl:variable>
 
   <xsl:variable name="filter_status1">
@@ -595,6 +730,15 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
       <!-- Part name-->
       <td valign="top" align="left">
         <xsl:value-of select="$module"/>
+      </td>
+
+      <!--  Project leader -->
+      <td valign="top" align="left">
+        <xsl:value-of select="$projlead"/>
+      </td>
+      <!--  Editor -->
+      <td valign="top" align="left">
+        <xsl:value-of select="$editor"/>
       </td>
 
       <!-- Category -->
@@ -696,6 +840,42 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
           </xsl:otherwise>
         </xsl:choose>
       </td>
+
+      <!-- Project Category -->
+      <td valign="top" align="left">
+        <xsl:choose>
+          <xsl:when test="string-length(./issue_management/@category)=0">
+            &#160;
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="./issue_management/@category"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </td>
+
+      <!-- Project Owner -->
+      <td valign="top" align="left">
+        <xsl:choose>
+          <xsl:when test="string-length(./issue_management/@project)=0">
+            &#160;
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="./issue_management/@project"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </td>
+
+      <!-- Project Priority -->
+      <td valign="top" align="left">
+        <xsl:choose>
+          <xsl:when test="string-length(./issue_management/@priority)=0">
+            &#160;
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="./issue_management/@priority"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </td>
     </tr>
   </xsl:if>
 </xsl:template>
@@ -720,9 +900,27 @@ $Id: ballot_issues_table.xsl,v 1.4 2004/09/06 16:15:24 robbod Exp $
 <xsl:template match="p">
   <xsl:apply-templates/>
 </xsl:template>
-<!--
-<xsl:template match="comment">
-  
+
+<xsl:template name="get_project">
+  <xsl:param name="part"/>
+  <xsl:variable name="part_index" select="$repo_index/repository_index/*/*[@name=$part]"/>
+  <xsl:value-of select="$part_index/@project"/>
 </xsl:template>
--->
+
+
+<!-- DECIDED NOT TO USE THIS
+<xsl:template name="summary">
+  <hr/>
+  <h3>Summary</h3>
+  <table>
+    <tr>
+      <td>Major issues:</td> 
+      <td>
+        <xsl:value-of select="ms:incMajorIssues(0)"/>
+      </td>
+    </tr>
+  </table>
+  <hr/>
+</xsl:template> -->
+
 </xsl:stylesheet>

@@ -1,5 +1,5 @@
 (*
-$Id: logical_expressions_schema.exp, shiangyulee Exp $
+$Id: logical_expressions_schema.exp,v 1.6 2003/02/19 23:19:04 shiangyulee Exp $
   WG12N1826 - ISO 10303-57 logical_expressions_schema
 *)
 
@@ -22,8 +22,8 @@ REFERENCE FROM iso13584_iec61360_dictionary_schema   -- ISO 13584-42
 
 
 ENTITY binary_logical_expression
-  SUPERTYPE OF (ONEOF (logical_xor,
-                       instance_equal))
+  SUPERTYPE OF (ONEOF (instance_equal,
+                       logical_xor))
   SUBTYPE OF (binary_generic_expression, logical_expression);
 END_ENTITY;
 
@@ -36,25 +36,36 @@ ENTITY default_boolean_variable
   SUBTYPE OF (logical_variable);
 END_ENTITY;
 
+ENTITY defined_logical_comparison
+  SUBTYPE OF (logical_comparison);
+  declaration : STRING;
+  description : STRING;
+  encoding : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY instance_equal
+  SUBTYPE OF (binary_logical_expression);
+END_ENTITY;
+
 ENTITY logical_and
   SUBTYPE OF (multiple_arity_logical_expression);
 END_ENTITY;
 
 ENTITY logical_comparison
-  SUPERTYPE OF (ONEOF (logical_comparison_equal,
+  SUPERTYPE OF (ONEOF (defined_logical_comparison,
+                       logical_equal,
                        logical_greater,
                        logical_greater_equal,
                        logical_less,
                        logical_less_equal,
                        logical_like,
-                       logical_not_equal,
-                       user_defined_logical_comparison))
+                       logical_not_equal))
   SUBTYPE OF (logical_expression);
   specified_value : generic_literal;
   the_parameter : generic_variable;
 END_ENTITY;
 
-ENTITY logical_comparison_equal
+ENTITY logical_equal
   SUBTYPE OF (logical_comparison);
 END_ENTITY;
 
@@ -124,17 +135,6 @@ END_ENTITY;
 
 ENTITY unary_logical_expression
   SUBTYPE OF (logical_expression, unary_generic_expression);
-END_ENTITY;
-
-ENTITY user_defined_logical_comparison
-  SUBTYPE OF (logical_comparison);
-  declaration : STRING;
-  description : STRING;
-  language : OPTIONAL STRING;
-END_ENTITY;
-
-ENTITY instance_equal
-  SUBTYPE OF (binary_logical_expression);
 END_ENTITY;
 
 END_SCHEMA;  -- logical_expressions_schema

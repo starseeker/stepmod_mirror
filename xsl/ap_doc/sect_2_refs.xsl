@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.8 2003/05/29 21:29:06 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.9 2003/06/02 07:14:38 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -643,8 +643,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
           1
         </a>
       </sup>
-    </xsl:if>
-    ,&#160;
+    </xsl:if>,&#160;
     <i>
       <xsl:value-of select="stdref/stdtitle"/>
       <xsl:variable name="subtitle" select="normalize-space(stdref/subtitle)"/>

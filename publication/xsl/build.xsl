@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.14 2004/11/15 15:31:52 robbod Exp $
+<!--  $Id: build.xsl,v 1.15 2004/11/22 20:31:31 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -1285,7 +1285,7 @@
     </xsl:element>
 
     <xsl:element name="property">
-      <xsl:attribute name="name">RESDOCRESOURCESSCHEMADIAGGIF</xsl:attribute>
+      <xsl:attribute name="name">RESDOCRESOURCESSCHEMADIAGGIFS</xsl:attribute>
       <xsl:attribute name="value">
       <xsl:apply-templates select="$resdoc_xml//schema" mode="list">
         <xsl:with-param name="prefix" select="'data/resources/'"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.45 2002/06/05 14:31:30 robbod Exp $
+$Id: common.xsl,v 1.46 2002/06/06 09:22:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -15,6 +15,7 @@ $Id: common.xsl,v 1.45 2002/06/05 14:31:30 robbod Exp $
        Sets variable global FILE_EXT
        -->
   <xsl:import href="file_ext.xsl"/>
+
 
   <!-- parameters that control the output -->
   <xsl:import href="parameters.xsl"/>
@@ -248,10 +249,16 @@ $Id: common.xsl,v 1.45 2002/06/05 14:31:30 robbod Exp $
     <tr>
       <td>
         <!-- RBN - this xref is here to aid navigation, it may need to be
-             removed for the ISO process -->
+             removed for the ISO process 
         <A HREF="{$module_root}/../../../repository_index{$FILE_EXT}">
           Module repository
         </A><BR/>
+        -->
+        <xsl:call-template name="output_menubar">
+          <xsl:with-param name="module_root" select="$module_root"/>
+          <xsl:with-param name="module_name" select="@name"/>
+
+        </xsl:call-template>
       </td>
     </tr>
     <TR>
@@ -1629,6 +1636,151 @@ $Id: common.xsl,v 1.45 2002/06/05 14:31:30 robbod Exp $
   
 
 </xsl:template>
+
+
+  <!-- 
+       Output a menubar at the top of the page.
+       The menu bar is defined in a menubar file specified by the parameter 
+       menubar_file defined in parameters.xsl
+       -->
+  <xsl:template name="output_menubar">
+    <xsl:param name="module_root"/>
+    <xsl:param name="module_name"/>
+    <xsl:variable name="rel_menubar_file" 
+      select="concat('../',$menubar_file)"/>
+    <xsl:apply-templates
+      select="document($rel_menubar_file)/menubar">
+      <xsl:with-param name="module_root" select="$module_root"/>
+      <xsl:with-param name="module_name" select="$module_name"/>
+    </xsl:apply-templates>
+  </xsl:template>
+
+  <xsl:template match="menubar">
+    <xsl:param name="module_root"/>
+    <xsl:param name="module_name"/>
+    <small>
+      <xsl:apply-templates select="menuitem">
+        <xsl:with-param name="module_root" select="$module_root"/>
+        <xsl:with-param name="module_name" select="$module_name"/>
+    </xsl:apply-templates>
+    </small>
+  </xsl:template>
+
+  <xsl:template match="menuitem">
+    <xsl:param name="module_root"/>
+    <xsl:param name="module_name"/>
+    <xsl:variable name="url">
+      <xsl:choose>
+        <xsl:when test="@relative.url">
+          <xsl:variable name="relurl">
+            <xsl:choose>
+              <xsl:when test="starts-with(@relative.url,'..')">
+                <xsl:value-of select="concat('/',@relative.url)"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="@relative.url"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable> <!-- relurl -->
+
+          <xsl:choose>
+            <xsl:when test="contains($relurl,'.xml')">
+              <xsl:value-of 
+                select="concat($module_root,
+                        substring-before($relurl,'.xml'),
+                        $FILE_EXT,
+                        substring-after($relurl,'.xml'))"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of 
+                select="concat($module_root,$relurl)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+
+        <xsl:when test="@module.url">
+          <xsl:variable name="relurl1">
+            <xsl:choose>
+              <xsl:when test="starts-with(@module.url,'..')">
+                <xsl:value-of select="concat('/',@module.url)"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="@module.url"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable> <!-- relurl -->
+
+          <xsl:variable name="relurl2">
+            <xsl:choose>
+              <xsl:when test="contains($relurl1,'.xml')">
+                <xsl:value-of 
+                  select="concat($module_root,
+                          substring-before($relurl1,'.xml'),
+                          $FILE_EXT,
+                          substring-after($relurl1,'.xml'))"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of 
+                  select="concat($module_root,$relurl1)"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable> <!-- relurl2 -->
+
+          <xsl:value-of select="concat(
+                                substring-before($relurl2, '{' ),
+                                $module_name,
+                                substring-after($relurl2, '}' ) )"/>
+        </xsl:when>
+
+        <xsl:when test="@absolute.url">
+          <xsl:value-of select="@absolute.url"/>
+        </xsl:when>
+        <xsl:otherwise>
+          ERROR
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable> <!-- url -->
+
+
+    <xsl:choose>
+      <xsl:when test="contains($url,'ERROR')">
+        <xsl:call-template name="error_message">
+          <xsl:with-param
+            name="message"
+            select="concat('ERROR mb1: The menubar ',
+                    $menubar_file ,' must contain a path')"/>
+        </xsl:call-template>
+      </xsl:when>
+      
+      <xsl:when test="@img">
+        <xsl:variable name="item" select="@item"/>
+        <xsl:variable name="img">
+          <xsl:choose>
+            <xsl:when test="starts-with(@img,'..')">
+              <xsl:value-of select="concat($module_root,'/',@img)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat($module_root,@img)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <a href="{$url}">
+          <img alt="{$item}" border="0" align="middle" src="{$img}"/>
+        </a>
+      </xsl:when>
+
+      <xsl:otherwise>
+        <a href="{$url}">
+          <xsl:value-of select="@item"/>
+        </a>
+      </xsl:otherwise>
+    </xsl:choose>
+
+    <xsl:if test="position() != last()">
+      &#160;&#124;&#160;
+    </xsl:if>        
+  </xsl:template>
+
 
   
 </xsl:stylesheet>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.5 2002/03/04 07:54:16 robbod Exp $
+     $Id: parameters.xsl,v 1.6 2002/05/10 13:47:23 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -45,5 +45,18 @@
        module directory -->
   <xsl:param name="output_issues" select="'YES'"/>
 
+
+
+  <!-- Every module can display a menubar at the top of the module.
+       The default menubar is menubar_default.xml -->
+  <xsl:param name="menubar_file" select="'menubar_default.xml'"/>
+
+  <!--
+  <xsl:param name="menubar_file" select="'../plcsmod/menubar.xml'"/>
+  -->
+  
+  <!--
+  <xsl:param name="menubar_file" select="'menubar_pdm_ballot.xml'"/>
+  -->
 
 </xsl:stylesheet>

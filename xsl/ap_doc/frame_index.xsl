@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_index.xsl,v 1.1 2003/05/21 13:18:32 robbod Exp $
+$Id: frame_index.xsl,v 1.2 2003/05/22 22:30:38 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -35,6 +35,7 @@ $Id: frame_index.xsl,v 1.1 2003/05/21 13:18:32 robbod Exp $
         <a href="index_arm_express{$FILE_EXT}">ARM EXPRESS</a><br/>
         <a href="index_mim_express{$FILE_EXT}">MIM EXPRESS</a><br/>
         <a href="index_arm_mappings{$FILE_EXT}">ARM Entity Mappings</a><br/>
+        <a href="index_arm_express_nav{$FILE_EXT}">ARM EXPRESS Navigation</a><br/>
       </body>
     </html>
   </xsl:template>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.21 2003/06/11 08:26:54 robbod Exp $
+$Id: sect_contents.xsl,v 1.22 2003/06/11 14:28:05 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -320,6 +320,7 @@ $Id: sect_contents.xsl,v 1.21 2003/06/11 08:26:54 robbod Exp $
     <a href="index_arm_express{$FILE_EXT}">ARM EXPRESS</a><br/>
     <a href="index_mim_express{$FILE_EXT}">MIM EXPRESS</a><br/>
     <a href="index_arm_mappings{$FILE_EXT}">ARM Entity Mappings</a><br/>
+    <a href="index_arm_express_nav{$FILE_EXT}">ARM EXPRESS Navigation</a><br/>
 
   </xsl:template>
 	

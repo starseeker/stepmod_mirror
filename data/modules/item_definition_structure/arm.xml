@@ -18,6 +18,11 @@
   <schema name="Item_definition_structure_arm">
     <interface
       kind="use"
+      schema="Effectivity_application_arm">
+    </interface>
+
+    <interface
+      kind="use"
       schema="Product_occurrence_arm">
     </interface>
 
@@ -33,6 +38,13 @@
         name="types_of_product"/>
     </interface>
 
+    <type name="effectivity_for_replacement">
+      <select
+        basedon="effectivity_item"
+        selectitems="Part_definition_relationship">
+      </select>
+
+    </type>
     <entity
       name="Assembled_part_association"
       supertypes="Part_occurrence_definition_relationship Assembly_component_relationship">
@@ -90,14 +102,32 @@
           </entity>
 
           <rule
-            name="Mandatory_part_occurrence_definition_relationship"
-            appliesto="Assembly_component_relationship">
+            name="Definition_replacement_requires_effectivity_assignment"
+            appliesto="Part_definition_relationship">
             <algorithm>
             </algorithm>
 
             <where
               label="WR1"
-              expression="SIZEOF(QUERY(ar &lt;* Assembly_component_relationship | 	NOT ('ITEM_DEFINITION_STRUCTURE_ARM.ASSEMBLED_PART_ASSOCIATION' IN TYPEOF(ar)) ))= 0">
+              expression="SIZEOF( QUERY( pdr &lt;* Part_definition_relationship | 	(pdr\View_definition_relationship.relation_type = 'definition replacement') AND 	(SIZEOF( USEDIN(pdr,'ITEM_DEFINITION_STRUCTURE_ARM.EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))	 = 0">
+            </where>
+
+          </rule>
+
+          <rule
+            name="Mandatory_part_occurrence_definition_relationship"
+            appliesto="Assembly_component_relationship">
+            <algorithm>
+LOCAL
+  assemblies_of_parts: SET OF Assembly_component_relationship := [];
+END_LOCAL;
+  assemblies_of_parts := QUERY(acr &lt;* Assembly_component_relationship |
+	'ITEM_DEFINITION_STRUCTURE_MIM.PART_VIEW_DEFINITION' IN TYPEOF(SELF\View_definition_relationship.relating_view));
+            </algorithm>
+
+            <where
+              label="WR1"
+              expression="SIZEOF(QUERY(ar &lt;* assemblies_of_parts | 	NOT ('ITEM_DEFINITION_STRUCTURE_ARM.ASSEMBLED_PART_ASSOCIATION' IN TYPEOF(ar)) ))= 0">
             </where>
 
           </rule>

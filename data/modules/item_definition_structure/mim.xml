@@ -18,6 +18,11 @@
   <schema name="Item_definition_structure_mim">
     <interface
       kind="use"
+      schema="Effectivity_application_mim">
+    </interface>
+
+    <interface
+      kind="use"
       schema="Product_occurrence_mim">
     </interface>
 
@@ -26,6 +31,13 @@
       schema="Product_structure_mim">
     </interface>
 
+    <type name="effectivity_for_replacement">
+      <select
+        basedon="effectivity_item"
+        selectitems="product_definition_relationship">
+      </select>
+
+    </type>
     <rule
       name="restrict_assembly_category"
       appliesto="product_definition">
@@ -54,6 +66,19 @@ END_LOCAL;
       <where
         label="WR1"
         expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |     ( pdr.name IN [ 'geometrical relationship' , 'definition replacement' ] ) AND 	( ( pdr.relating_product_definition.frame_of_reference.name &lt;&gt;'part definition' ) OR 	( pdr.related_product_definition.frame_of_reference.name &lt;&gt;'part definition' ) ) ) ) =0">
+      </where>
+
+    </rule>
+
+    <rule
+      name="product_definition_replacement_requires_effectivity_assignment"
+      appliesto="product_definition_relationship">
+      <algorithm>
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF( QUERY( pdr &lt;* product_definition_relationship | 	(pdr.name = 'definition replacement') AND 	(SIZEOF( USEDIN(pdr,'ITEM_DEFINITION_STRUCTURE_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))	 = 0">
       </where>
 
     </rule>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.20 2003/06/03 18:20:00 robbod Exp $
+$Id: common.xsl,v 1.21 2003/06/06 10:28:22 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -430,12 +430,12 @@ $Id: common.xsl,v 1.20 2003/06/03 18:20:00 robbod Exp $
           <xsl:when test="$number=1">
             <xsl:value-of 
               select="concat('Figure A.',$number, 
-                      ' - AIM Schema level EXPRESS-G diagram ',$number)"/>
+                      ' - MIM Schema level EXPRESS-G diagram ',$number)"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure A.',$number, 
-                      ' - AIM Entity level EXPRESS-G diagram ',($number - 1))"/>
+                      ' - MIM Entity level EXPRESS-G diagram ',($number - 1))"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_toc.xsl,v 1.22 2003/06/06 09:07:12 robbod Exp $
+$Id: application_protocol_toc.xsl,v 1.23 2003/06/11 08:26:53 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -94,7 +94,7 @@ $Id: application_protocol_toc.xsl,v 1.22 2003/06/06 09:07:12 robbod Exp $
               </a>
               <br/>
               <a href="{$application_protocol_root}/sys/annex_shortnames{$FILE_EXT}">
-                B AIM short names
+                B MIM short names
               </a>
               <br/>
               <a href="{$application_protocol_root}/sys/annex_imp_meth{$FILE_EXT}">
@@ -227,7 +227,7 @@ $Id: application_protocol_toc.xsl,v 1.22 2003/06/06 09:07:12 robbod Exp $
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#arm">4 Information requirements</a><br/>
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#aim">5 Application interpreted model</a><br/>
 	 <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#ccs">6 Conformance classes</a><br/>
-        <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexa">A AIM EXPRESS expanded listing</a><br/>
+        <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexa">A MIM EXPRESS expanded listing</a><br/>
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexb">B Implementation method specific requirements</a><br/>
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexc">C Protocol Implementation Conformance Statement (PICS) form.</a><br/>
         <a href="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexd">D Information object registration</a>

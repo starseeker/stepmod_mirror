@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.12 2002/11/26 10:41:38 mikeward Exp $
+     $Id: application_protocol.xsl,v 1.13 2003/02/06 22:35:11 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -383,9 +383,7 @@
     </xsl:variable>
 
 		<h3>
-			<a name="foreword">
-				Foreword
-			</a>
+			<a name="foreword">Foreword</a>
 		</h3>
 		<p>
 		    ISO (the International Organization for Standardization) is a worldwide
@@ -454,13 +452,8 @@
 				</xsl:otherwise>
 			</xsl:choose>
 			was prepared by Technical Committee ISO/TC 184, 
-			<i>
-				Industrial automation systems and integration,
-			</i>
-			Subcommittee SC4, 
-			<i>
-				Industrial data.
-			</i>
+			<i>Industrial automation systems and integration,</i>
+			Subcommittee SC4, <i>Industrial data.</i>
 		</p>
 		
 		<xsl:if test="string-length(@previous.revision.year)>0">
@@ -706,8 +699,7 @@
 			</xsl:variable>
 			<p>
 				This part of ISO 10303 specifies the application protocol for 
-				<xsl:value-of select="$application_protocol_name"/>
-				. 
+				<xsl:value-of select="$application_protocol_name"/>. 
 				<a name="inscope"/> 
 				The following are within scope of this part of ISO 10303: 
 			</p>
@@ -736,10 +728,10 @@
 		<xsl:variable name="arm">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="'g_exp_arm.xml'"/>
+					<xsl:value-of select="concat('../../../modules/', @name, '/arm.xml')"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="'g_exp_arm.htm'"/>
+					<xsl:value-of select="concat('../../../modules/', @name, '/arm.htm')"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
@@ -747,10 +739,10 @@
 		<xsl:variable name="arm_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="'g_exp_arm_lf.xml'"/>
+					<xsl:value-of select="concat('../../../modules/', @name, '/arm_lf.xml')"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="'g_exp_arm_lf.htm'"/>
+					<xsl:value-of select="concat('../../../modules/', @name, '/arm_lf.htm')"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
@@ -758,24 +750,14 @@
 		<xsl:variable name="aim">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="'g_exp_aim.xml'"/>
+					<xsl:value-of select="concat('../../../modules/', @name, '/mim.xml')"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="'g_exp_aim.htm'"/>
+					<xsl:value-of select="concat('../../../modules/', @name, '/mim.htm')"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
 		
-		<xsl:variable name="aim_lf">
-			<xsl:choose>
-				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="'g_exp_aim_lf.xml'"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="'g_exp_aim_lf.htm'"/>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
 		
 		<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
 		<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -822,41 +804,22 @@
 			<table border="1" cellspacing="1">
 				<tr>
 					<td>
-						<b>
-							Description
-						</b>
+						<b>Description</b>
 					</td>
 					<td>
-						<b>
-							File
-						</b>
+						<b>File</b>
 					</td>
 					<td>
-						<b>
-							File
-						</b>
+						<b>File</b>
 					</td>
 					<td>
-						<b>
-							Identifier
-						</b>
+						<b>Identifier</b>
 					</td>
 				</tr>
 				<tr>
-					<xsl:choose>
-						<xsl:when test="$FILE_EXT='.xml'">
 							<td>ARM short form EXPRESS</td>
-						</xsl:when>
-						<xsl:otherwise>
-							<td>
-								ARM short form EXPRESS
-							</td>
-						</xsl:otherwise>
-					</xsl:choose>
 					<td>
-						<a href="{$arm}">
-							<xsl:value-of select="concat('arm',$FILE_EXT)"/>
-						</a>
+						<a href="{$arm}"><xsl:value-of select="concat('arm',$FILE_EXT)"/></a>
 					</td>
 					<xsl:call-template name="output_express_links">
 						<xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
@@ -869,22 +832,11 @@
 					<xsl:apply-templates select="arm_lf" mode="annexg"/>
 				</tr>
 				<tr>
-					<xsl:choose>
-						<xsl:when test="$FILE_EXT='.xml'">
 							<td>
 								AIM short form EXPRESS
 							</td>
-						</xsl:when>
-						<xsl:otherwise>
-							<td>
-								AIM short form EXPRESS
-							</td>
-						</xsl:otherwise>
-					</xsl:choose>
 					<td>
-						<a href="{$aim}">
-							<xsl:value-of select="concat('aim',$FILE_EXT)"/>
-						</a>
+						<a href="{$aim}"><xsl:value-of select="concat('aim',$FILE_EXT)"/></a>
 					</td>
 					<xsl:call-template name="output_express_links">
 						<xsl:with-param name="wgnumber" select="./@wg.number.mim"/>
@@ -906,7 +858,8 @@
 		</p>
 		<p class="note">
 			<small>
-				NOTE&#160;&#160;The information provided in computer-interpretable form at the above URLs is informative. The information that is contained in the body of this part of ISO 10303 is normative.
+				NOTE&#160;&#160;The information provided in computer-interpretable form at the above URLs is informative. 
+				The information that is contained in the body of this part of ISO 10303 is normative.
 			</small>
 		</p>
 	</xsl:template>
@@ -953,13 +906,13 @@
 	
 	<xsl:template match="arm_lf" mode="annexg">
 		<xsl:variable name="module_name" select="../@name"/>
-		<xsl:variable name="arm_lf">
+	  <xsl:variable name="arm_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="'g_exp_arm_lf.xml'"/>
+					<xsl:value-of select="concat('../../../modules/', $module_name, '/arm_lf.xml')"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="'g_exp_arm_lf.htm'"/>
+					<xsl:value-of select="concat('../../../modules/', $module_name, '/arm_lf.htm')"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
@@ -971,14 +924,10 @@
 				ARM long form EXPRESS
 			</td>
 			<td>
-				<a href="{$arm_lf}">
-					<xsl:value-of select="concat('arm_lf',$FILE_EXT)"/>
-				</a>
+				<a href="{$arm_lf}"><xsl:value-of select="concat('arm_lf',$FILE_EXT)"/></a>
 			</td>
 			<td>
-				<a href="{$arm_lf_exp}">
-					arm_lf.exp
-				</a>
+				<a href="{$arm_lf_exp}">arm_lf.exp</a>
 			</td>
 			<td align="center">
 				&#8212;
@@ -988,22 +937,24 @@
 	
 	<xsl:template match="mim_lf" mode="annexg">
 		<xsl:variable name="module_name" select="../@name"/>
-		<xsl:variable name="aim_lf">
+		
+	  <xsl:variable name="aim_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
-					<xsl:value-of select="'g_exp_aim_lf.xml'"/>
+					<xsl:value-of select="concat('../../../modules/', $module_name, '/mim_lf.xml')"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="'g_exp_aim_lf.htm'"/>
+					<xsl:value-of select="concat('../../../modules/', $module_name, '/mim_lf.htm')"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
+
 		<xsl:variable name="aim_lf_exp">
 			<xsl:value-of select="concat('../../../modules/', $module_name, '/mim_lf.exp')"/>
 		</xsl:variable>
 		<tr>
 			<td>
-				ARM long form EXPRESS
+				AIM long form EXPRESS
 			</td>
 			<td>
 				<a href="{$aim_lf}">
@@ -1011,9 +962,7 @@
 				</a>
 			</td>
 			<td>
-				<a href="{$aim_lf_exp}">
-					aim_lf.exp
-				</a>
+				<a href="{$aim_lf_exp}">aim_lf.exp</a>
 			</td>
 			<td align="center">
 				&#8212;
@@ -1022,9 +971,6 @@
 	</xsl:template>
 	
 	
-	
-	
-
 	<xsl:template match="arm">
 		<xsl:call-template name="clause_header">
 			<xsl:with-param name="heading" select="'4 Information requirements'"/>

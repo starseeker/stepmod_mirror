@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-
 <!--
 $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
   Author:  Tom Hendrix, Boeing
@@ -28,15 +27,18 @@ $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
     <!-- global variable - Used by templates in expressg_icon.xsl to
          resolve href for expressg icon -->
 
-    <xsl:variable name="schema_expressg">
+<xsl:variable name="schema_expressg">
       <xsl:call-template name="make_schema_expressg_node_set"/>
-    </xsl:variable>    
+</xsl:variable>    
+
 
   <xsl:output method="html"/>
+
 
 <!-- overwrites the template declared in resource.xsl -->
 <!-- output an index of terms, schema objects -->
 <xsl:template match="resource">
+
   <xsl:variable name="resource_dir">
     <xsl:call-template name="resource_directory">
       <xsl:with-param name="resource" select="@name"/>
@@ -52,14 +54,17 @@ $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
       <xsl:with-param name="definition_section" select="$definition_section"/>
     </xsl:apply-templates>
     <xsl:for-each select="./schema">
+
       <xsl:variable name="schema_xml"
-        select="document(concat('../../','data/resources/',@name,'/',@name,'.xml'))"/>      
-      <xsl:apply-templates select="$schema_xml/express/schema/*" mode="get_schema_interface_object">
+        select="document(concat('../../data/resources/',@name,'/',@name,'.xml'))"/>
+
+    <xsl:apply-templates select="$schema_xml/express/schema/*" mode="get_schema_interface_object">
         <xsl:with-param name="pos" select="position()"/>
-        </xsl:apply-templates>
-        <xsl:apply-templates select="$schema_xml/express/schema/*" mode="get_schema_object">
-          <xsl:with-param name="pos" select="position()"/>
-          </xsl:apply-templates>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="$schema_xml/express/schema/*" mode="get_schema_object">
+        <xsl:with-param name="pos" select="position()"/>
+      </xsl:apply-templates>
     </xsl:for-each>
   </xsl:variable>
 
@@ -136,88 +141,12 @@ $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
   </schema_interface_object>
 </xsl:template>
 
-<!--
-<xsl:template
-  match="entity|subtype.constraint"
-  mode="get_expref_object">
-  <schema_entity>
-    <xsl:variable name="aname">
-      <xsl:call-template name="express_a_name">
-        <xsl:with-param name="section1" select="../@name"/>
-        <xsl:with-param name="section2" select="@name"/>
-      </xsl:call-template>
-    </xsl:variable>
-    
-    <xsl:variable name="name" select="@name"/>
-
-    <xsl:attribute name="name">
-      <xsl:value-of select="$name"/>
-    </xsl:attribute>
-
-    <xsl:attribute name="object_href">
-      <xsl:value-of select="concat('4_info_reqs',$FILE_EXT,'#',$aname)"/>
-    </xsl:attribute>
-
-    <xsl:attribute name="clause_no">
-      <xsl:apply-templates select="." mode="clause_no"/>
-    </xsl:attribute>
-
-    <xsl:variable name="lentity"
-      select="translate(normalize-space(@name),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/> 
-
-    <xsl:attribute name="expg_href">
-      <xsl:call-template name="get_schema_expressg_href">
-        <xsl:with-param name="object" select="$lentity"/>
-      </xsl:call-template>
-    </xsl:attribute>
-
-    <xsl:variable name="expg_file1">
-      <xsl:call-template name="get_schema_expressg_file">
-        <xsl:with-param name="object" select="$lentity"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:variable name="expg_file" select="concat(substring-before($expg_file1,'.'),'.xml')"/>
-
-    <xsl:variable name="resdoc_dir">
-      <xsl:call-template name="resdoc_directory">
-        <xsl:with-param name="resource" select="/express/schema/@name"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="expg_fig_no">
-      <xsl:apply-templates select="$resdoc_xml/resource/schema/express-g/imgfile"
-        mode="expg_figure_no">
-        <xsl:with-param name="file" select="$expg_file"/>
-      </xsl:apply-templates>
-    </xsl:variable>
-
-    <xsl:attribute name="expg_figure">
-
-      <xsl:value-of select="concat('C','.',$expg_fig_no)"/>
-    </xsl:attribute>
-
-    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
-    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-    <xsl:variable name="map_aname">
-      <xsl:choose>
-        <xsl:when test="name()='entity'">
-          <xsl:value-of select="translate(concat('aeentity',@name),$UPPER,$LOWER)"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="translate(concat('scconstraint',@name),$UPPER,$LOWER)"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-
-  </schema_entity>
-</xsl:template>
--->
 
 <xsl:template
   match="constant|entity|type|rule|function|procedure|subtype.constraint"
   mode="get_schema_object">
   <xsl:param name="pos" />
+
   <schema_object>
     <xsl:variable name="aname">
       <xsl:call-template name="express_a_name">
@@ -231,11 +160,11 @@ $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
     </xsl:attribute>
 
     <xsl:attribute name="object_href">
-      <xsl:value-of select="concat($pos+3,'_schema',$FILE_EXT,'#',$aname)"/>
+      <xsl:value-of select="concat($pos + 3,'_schema',$FILE_EXT,'#',$aname)"/>
     </xsl:attribute>
 
     <xsl:attribute name="clause_no">
-      <xsl:value-of select="$pos+3"/><xsl:apply-templates select="." mode="clause_no"/>
+      <xsl:value-of select="$pos + 3"/><xsl:apply-templates select="." mode="clause_no"/>
     </xsl:attribute>
 
     <xsl:variable name="lentity"
@@ -252,6 +181,7 @@ $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
         <xsl:with-param name="object" select="$lentity"/>
       </xsl:call-template>
     </xsl:variable>
+
 
     <xsl:variable name="expg_file" select="concat(substring-before($expg_file1,'.'),'.xml')"/>
 
@@ -267,67 +197,30 @@ $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
         <xsl:with-param name="expg_file" select="$expg_file1"/>
       </xsl:call-template>
     </xsl:variable>
-
+    <!--
     <xsl:variable name="resdoc_name" select="document($resource_expg_file)/imgfile.content/@module"/>
-
+-->
     <xsl:variable name="resdoc_dir">
       <xsl:call-template name="resdoc_directory">
         <xsl:with-param name="resdoc" select="$resdoc_name"/>
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:message>
-      expg_file:<xsl:value-of select="$expg_file"/>:expg_file
-    </xsl:message>
-
-    <xsl:message>
-      resdoc_name:<xsl:value-of select="$resdoc_name"/>:resdoc_name
-    </xsl:message>
-
-
-    <xsl:message>
-      name:<xsl:value-of select="../@name"/>:name
-    </xsl:message>
-
-    <xsl:message>
-      resource_expg_file:<xsl:value-of select="$resource_expg_file"/>:resource_expg_file
-    </xsl:message>
-
-    <xsl:message>
-      resource_dir:<xsl:value-of select="$resource_dir"/>:resource_dir
-    </xsl:message>
-
-
-    <xsl:message>
-      resdoc_dir:<xsl:value-of select="$resdoc_dir"/>:resdoc_dir
-    </xsl:message>
-
-
     <xsl:variable name="resource_xml" select="concat($resdoc_dir,'/resource.xml')"/>
 
-    <xsl:message>
-      resource_xml:<xsl:value-of select="$resource_xml"/>:resource_xml
-    </xsl:message>
-
     <xsl:variable name="resdoc_xml" select="document($resource_xml)"/>
-
-    <xsl:message>
-      resdoc_xml:<xsl:value-of select="resdoc_xml"/>:resdoc_xml
-    </xsl:message>
-
     <xsl:variable name="expg_fig_no">
-      <xsl:apply-templates select="$resdoc_xml/resource/schema/express-g/imgfile"
+      <xsl:apply-templates select="$resdoc_xml/resource//schema//imgfile"
         mode="expg_figure_no">
         <xsl:with-param name="file" select="$expg_file"/>
       </xsl:apply-templates>
     </xsl:variable>
 
     <xsl:attribute name="expg_figure">
-      <xsl:value-of select="concat('D','.',$expg_fig_no)"/>
+      <xsl:value-of select="concat('D','.',$expg_fig_no - 1)"/>
     </xsl:attribute>
   </schema_object>
 </xsl:template>
-
 
 <xsl:template match="defn_object" mode="output_index">
   <xsl:variable name="object_href" select="@object_href"/>
@@ -357,7 +250,6 @@ $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
     </a>
   </div>
 </xsl:template>
-
 
 <xsl:template match="schema_object" mode="output_index">
   <div>
@@ -417,10 +309,9 @@ $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
 <xsl:template match="imgfile" mode="expg_figure_no">
   <xsl:param name="file"/>
   <xsl:if test="$file=@file">
-    <xsl:number/>
+    <xsl:number level="any"/>
   </xsl:if>
 </xsl:template>
-
 <xsl:template match="resource" mode="get_definition_section">
   <!-- get a list of normative references that have terms defined -->
   <xsl:variable name="normrefs">
@@ -435,6 +326,5 @@ $Id: sect_resindex.xsl,v 1.5 2003/08/04 07:50:15 robbod Exp $
   </xsl:variable>
   <xsl:value-of select="concat('3.',$def_section+1)"/>
 </xsl:template>
-
 
 </xsl:stylesheet>

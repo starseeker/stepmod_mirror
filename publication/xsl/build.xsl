@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.9 2004/11/05 05:36:19 thendrix Exp $
+<!--  $Id: build.xsl,v 1.10 2004/11/06 00:45:57 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -4765,17 +4765,6 @@
       </xsl:element>
     </xsl:element>
 
-    <!-- copy the application protocols -->
-    <xsl:element name="copy">
-      <xsl:attribute name="todir">
-        <xsl:value-of select="concat($resdoc_dir,'data/resource_docs/',@name)"/>
-      </xsl:attribute>
-      <xsl:element name="fileset">
-        <xsl:attribute name="dir">
-          <xsl:value-of select="concat('${TMPDIR}/data/resource_docs/',@name)"/>
-        </xsl:attribute>
-      </xsl:element>
-    </xsl:element>
 
     <!-- copy the resource_docs  abstracts -->
     <!-- RBN - changed to move as per request from ISO 
@@ -4790,6 +4779,19 @@
       </xsl:attribute>
     </xsl:element>
 
+
+
+    <!-- copy the resource docs -->
+    <xsl:element name="copy">
+      <xsl:attribute name="todir">
+        <xsl:value-of select="concat($resdoc_dir,'data/resource_docs/',@name)"/>
+      </xsl:attribute>
+      <xsl:element name="fileset">
+        <xsl:attribute name="dir">
+          <xsl:value-of select="concat('${TMPDIR}/data/resource_docs/',@name)"/>
+        </xsl:attribute>
+      </xsl:element>
+    </xsl:element>
 
     <xsl:apply-templates select="." mode="copy_express"/>
 

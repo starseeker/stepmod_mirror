@@ -1,4 +1,4 @@
-;;; $Id: mod_repo.el,v 1.16 2003/08/22 17:25:38 robbod Exp $
+;;; $Id: mod_repo.el,v 1.17 2004/08/05 07:08:47 robbod Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
@@ -280,13 +280,32 @@
   (modrep-issue-comment)
 )
 
-
+(defun modrep-issue-management ()
+  "Insert a modrep issue comment"
+  (interactive)
+  (let (pos)
+    (search-forward "</issue>")
+    (search-backward "<issue")
+    (search-forward "<description>")
+    (search-backward "<description>")
+    (insert "\n")
+    (beginning-of-line)
+    (setq pos (point))
+    (insert "  <issue_management\n")
+    (insert "    owner=\"")
+    (insert modrep-user)
+    (insert "\"\n")
+    (insert "    priority=\"low\"\n")
+    (insert "    category=\"\"/>\n")
+    (goto-char pos)
+    )
+  )
 
 (defun modrep-insert-file-header-details ()
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: mod_repo.el,v 1.16 2003/08/22 17:25:38 robbod Exp $\n")
+  (insert "$Id: mod_repo.el,v 1.17 2004/08/05 07:08:47 robbod Exp $\n")
   (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-org)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")
@@ -553,6 +572,7 @@
      ["Insert <comment> issue" (modrep-issue-comment) t]
      ["Close issue" (modrep-issue-close) t]
      ["Close and <comment> issue" (modrep-issue-close-and-comment) t]
+     ["Insert <issue_management" (modrep-issue-management) t]
      )
    ["Insert development folder" 
     (modrep-insert-development-folder) t]

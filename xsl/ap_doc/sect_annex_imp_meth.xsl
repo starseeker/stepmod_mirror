@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_imp_meth.xsl,v 1.2 2003/06/11 08:26:54 robbod Exp $
+$Id: sect_annex_imp_meth.xsl,v 1.3 2003/06/22 15:32:57 thendrix Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -24,7 +24,7 @@ $Id: sect_annex_imp_meth.xsl,v 1.2 2003/06/11 08:26:54 robbod Exp $
       <xsl:value-of select="@name"/>
     </xsl:variable>
     <xsl:variable name="imp_meths_phrase">
-      <xsl:for-each select="imp_meths/imp_meth">
+      <xsl:for-each select="imp_meths/imp_meth[string-length(@part) != 0]">
         <xsl:variable name="part_no" select="./@part"/>
         <xsl:choose>
           <xsl:when test="position()=1">
@@ -42,7 +42,7 @@ $Id: sect_annex_imp_meth.xsl,v 1.2 2003/06/11 08:26:54 robbod Exp $
 
     The implementation method defines what types of exchange behaviour are
     required with respect to this part of ISO 10303. Conformance to this
-    part of ISO 10303 shall be realized in an exchange structure.  The file
+    part of ISO 10303 shall be realized in an exchange structure. The file
     format may be encoded according to either the syntax and EXPRESS
     language mapping defined in 
     <xsl:value-of select="$imp_meths_phrase"/>

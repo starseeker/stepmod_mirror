@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.4 2003/06/11 08:26:54 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.5 2003/06/11 15:13:27 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -248,12 +248,12 @@ $Id: sect_annex_shortnames.xsl,v 1.4 2003/06/11 08:26:54 robbod Exp $
 <xsl:template match="shortname" mode="output_shortnames">
   <xsl:variable name="module" select="@module_name"/>
   <tr>
+    <td align="left"><xsl:value-of select="@entity"/></td>
     <td align="left">
       <!--  <a
 href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
       <xsl:value-of select="@name"/>
     </td>
-    <td align="left"><xsl:value-of select="@entity"/></td>
     <td align="left"><xsl:value-of select="@module_part_no"/></td>
   </tr>
 </xsl:template>
@@ -304,10 +304,10 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
           <table border="1" cellspacing="0" cellpadding="7" width="90%">
             <tr>
               <td>
-                <b>Short name</b>
+                <b>Entity data types name</b>
               </td>
               <td>
-                <b>Entity data types name</b>
+                <b>Short name</b>
               </td>
               <td>
                 <b>Module/Resource</b>

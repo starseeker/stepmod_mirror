@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.8 2003/06/01 13:56:35 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.9 2003/06/03 08:16:40 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -23,7 +23,7 @@
         <xsl:apply-templates select="./bibliography"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:apply-templates select="document('../../data/basic/bibliography_default.xml')/bibliography/bibitem.inc"/>
+        <xsl:apply-templates select="document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -86,8 +86,7 @@
     <xsl:apply-templates select="orgname"/>   -->
     <xsl:apply-templates select="stdnumber"/>
     <xsl:apply-templates select="stdtitle"/>
-    <xsl:apply-templates select="subtitle"/>
-    <xsl:apply-templates select="pubdate"/>
+    <xsl:apply-templates select="subtitle"/><xsl:apply-templates select="pubdate"/>
     <xsl:apply-templates select="ulink"/>
   </p>
 </xsl:template>
@@ -118,6 +117,38 @@
     </xsl:otherwise>
   </xsl:choose>
   <xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="orgname">
+<xsl:value-of select="."/>,
+</xsl:template>
+
+<xsl:template match="stdnumber">
+<xsl:value-of select="."/>
+<xsl:text>, </xsl:text>
+</xsl:template>
+
+<xsl:template match="stdtitle">
+<i>
+<xsl:value-of select="."/>
+</i>
+</xsl:template>
+
+<xsl:template match="subtitle">
+<xsl:text>, </xsl:text>
+<xsl:value-of select="."/>
+</xsl:template>
+
+<xsl:template match="pubdate">
+<xsl:text>, </xsl:text>
+<xsl:value-of select="."/>
+<xsl:text>.</xsl:text>
+</xsl:template>
+
+<xsl:template match="ulink">
+<xsl:text>Available from the World Wide Web: </xsl:text>
+  <xsl:variable name="href" select="."/>
+  <br/><a href="{$href}"><xsl:value-of select="$href"/></a>
 </xsl:template>
 
 </xsl:stylesheet>

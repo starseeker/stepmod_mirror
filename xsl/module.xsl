@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.20 2002/01/12 08:45:39 robbod Exp $
+$Id: module.xsl,v 1.21 2002/01/14 13:28:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -56,9 +56,250 @@ $Id: module.xsl,v 1.20 2002/01/12 08:45:39 robbod Exp $
 
 <!-- Outputs the cover page -->
 <xsl:template match="module" mode="coverpage">
-  COVER PAGE
+  <xsl:variable name="n_number"
+    select="concat('ISO TC184/SC4/WG12 ',./@version)"/>
+  <xsl:variable name="date"
+    select="translate(
+            substring-before(substring-after(@rcs.date,'$Date: '),' '),
+            '/','-')"/>
+
+  <table width="624">
+    <tr>
+      <td><h2><xsl:value-of select="$n_number"/></h2></td>
+      <td>&#x20;</td>
+      <td valign="top"><b>Date:&#x20;</b><xsl:value-of select="$date"/></td>
+    </tr>
+  </table>
+
+    
+  <xsl:variable name="stdnumber">
+    <xsl:call-template name="get_module_stdnumber">
+      <xsl:with-param name="module" select="."/>
+    </xsl:call-template>
+  </xsl:variable>
+  <h4>
+    <xsl:value-of select="$stdnumber"/><br/>
+    Product data representation and exchange: Application module: 
+    <xsl:value-of select="@name"/>
+  </h4>
+  
+  <xsl:variable name="status_words">
+    <xsl:choose>
+      <xsl:when test="@status='CD'">
+        working draft or Committee Draft
+      </xsl:when>
+      <xsl:when test="@status='FDIS'">
+        Final Draft International Standard
+      </xsl:when>
+      <xsl:when test="@status='DIS'">
+        Draft International Standard
+      </xsl:when>
+      <xsl:when test="@status='IS'">
+        International Standard
+      </xsl:when>
+      <xsl:when test="@status='CD-TS'">
+        draft technical specification 
+      </xsl:when>
+      <xsl:when test="@status='TS'">
+        technical specification 
+      </xsl:when>
+      <xsl:when test="@status='WD'">
+        working draft 
+      </xsl:when>
+      <xsl:otherwise>
+        module status not set.
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <table border="1" cellspacing="1" cellpadding="8" width="624">
+    <tr>
+      <td valign="TOP" colspan="2" height="26">
+        <h3>COPYRIGHT NOTICE:</h3>
+        <p>
+          This ISO document is a 
+          <xsl:value-of select="$status_words"/>          
+          and is copyright protected by ISO. While the reproduction of draft
+          technical specifications in any form for use by Participants in
+          the ISO standards development process is permitted without prior
+          permission from ISO, neither this document nor any extract from
+          it may be reproduced, stored or transmitted in any form for any
+          other purpose without prior written permission from ISO. 
+        </p>
+        <p>
+          Requests for permission to reproduce this document for the
+          purposes of selling it should be addressed as shown below (via
+          the ISO TC 184/SC4 Secretariat's member body) or to ISO's member
+          body in the country of the requester.  
+        </p>
+        <center>
+          Copyright Manager<br/>
+          ANSI<br/>
+          11 West 42nd Street<br/>
+          New York, New York 10036<br/>
+          USA<br/>
+          phone: +1-212-642-4900<br/>
+          fax: +1-212-398-0023<br/>
+        </center>
+        <p>
+          Reproduction for sales purposes may be subject to
+          royalty payments or a licensing agreement.
+        </p>
+        <p>
+          Violators may be prosecuted.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <xsl:variable name="module_name">
+        <xsl:call-template name="module_display_name">
+          <xsl:with-param name="module" select="./@name"/>
+        </xsl:call-template>           
+      </xsl:variable>
+
+    <td valign="TOP" colspan="2" height="88">
+      <h3>ABSTRACT:</h3>
+      This document is the
+      <xsl:value-of select="$status_words"/>
+      of the application module for 
+      <xsl:value-of select="$module_name"/>.
+
+      <h3>KEYWORDS:</h3>
+      <xsl:apply-templates select="./keywords"/>
+      
+      <h3>COMMENTS TO READER:</h3>
+      This document has been reviewed using the internal review checklist (see
+      WG12 N681), the project leader checklist (see WG12 N682) and the convener
+      checklist (see WG12 N683), and has been determined to be ready for this
+      ballot cycle.
+    </td>
+  </tr>
+ 
+  <tr>
+    <td width="50%" valign="TOP" height="88">
+      <xsl:apply-templates select="./contacts/projlead"/>
+    </td>
+    <td width="50%" valign="TOP" height="88">
+      <xsl:apply-templates select="./contacts/editor"/>
+    </td>
+  </tr>
+  </table>
+
 </xsl:template>
 
+<xsl:template match="keywords">
+  <xsl:value-of select="."/>
+</xsl:template>
+
+<xsl:template match="projlead">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="projlead"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <b>Project leader: </b>
+  <xsl:choose>
+    <xsl:when test="$projlead">
+      <xsl:apply-templates select="$projlead"/>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          No contact provided for project leader.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="editor">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="editor"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <b>Project editor: </b>
+  <xsl:choose>
+    <xsl:when test="$editor">
+      <xsl:apply-templates select="$editor"/>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          No contact provided for project editor.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="contact">
+  <xsl:apply-templates select="firstname"/>
+  &#x20;
+  <xsl:apply-templates select="lastname"/>
+  <br/>
+  <xsl:apply-templates select="." mode="address"/>
+  <br/>
+  <xsl:apply-templates select="phone"/>
+  <xsl:apply-templates select="fax"/>
+  <xsl:apply-templates select="email"/>
+</xsl:template>
+
+<xsl:template match="firstname | lastname">
+  <xsl:value-of select="."/>
+</xsl:template>
+
+<xsl:template match="contact" mode="address">
+  <b>Address: </b>
+  <xsl:apply-templates select="./affiliation"/>
+  <xsl:apply-templates select="./street"/>
+  <xsl:apply-templates select="./city"/>
+  <xsl:apply-templates select="./state"/>
+  <xsl:apply-templates select="./postcode"/>
+  <xsl:apply-templates select="./country"/>
+</xsl:template>
+
+
+<xsl:template match="affiliation">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="street">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="city">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="state">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="postcode">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="country">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="phone">
+  <b>Telephone: </b>
+  <xsl:value-of select="."/>
+  <br/>
+</xsl:template>
+
+<xsl:template match="fax">
+  <b>Telefacsimile: </b>
+  <xsl:value-of select="."/>
+  <br/>
+</xsl:template>
+
+<xsl:template match="email">
+  <xsl:variable name="mailto" select="concat('mailto:',.)"/>
+  <b>Electronic mail: </b>
+  <a href="{$mailto}">
+    <xsl:value-of select="."/>
+  </a>
+  <br/>
+</xsl:template>
 
 <!-- Outputs the foreword -->
 <xsl:template match="module" mode="foreword">

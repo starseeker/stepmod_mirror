@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.18 2002/01/14 13:28:57 robbod Exp $
+$Id: common.xsl,v 1.19 2002/01/14 17:35:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -564,6 +564,30 @@ $Id: common.xsl,v 1.18 2002/01/14 13:28:57 robbod Exp $
     </xsl:message>
   </xsl:template>
 
+  <!-- given the name of a module, or module arm or mim schema
+       return the name of the module as it is to be displayed
+       i.e First character uppercase, then whitespace
+       -->
+  <xsl:template name="module_display_name">
+    <xsl:param name="module"/>
+    
+    <xsl:variable name="mod_dir">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$module"/>
+      </xsl:call-template>           
+    </xsl:variable>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    
+    <xsl:variable name="first_char"
+      select="substring(translate($module,$LOWER,$UPPER),1,1)"/>
+
+    <xsl:variable name="module_name"
+      select="concat($first_char, 
+              translate(substring($module,2),'_',' '))"/>
+    <xsl:value-of select="$module_name"/>
+    
+  </xsl:template>
 
   <!-- given the name of a module, or module arm or mim schema
        return the name of the module

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.27 2005/02/17 19:23:26 liutkus Exp $
+   $Id: arm.exp,v 1.28 2005/03/02 13:13:28 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3288 - ISO/CD-TS 10303-1603 Analytical model - EXPRESS ARM
 *)
 
@@ -12,8 +12,7 @@ SCHEMA Analytical_model_arm;
 	USE FROM Value_with_unit_extension_arm;	-- ISO/TS 10303-1753
 
 REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017 
-        types_of_product 
-); 
+        types_of_product); 
 
 	USE FROM Software_arm;	-- ISO/TS 10303-1746
 
@@ -80,14 +79,6 @@ REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017
     UNIQUE
       UR1 : analytical_model_application_name;
   END_ENTITY;
-(*
-This AO is redundant once the proposed change to analytical_model_port_assignment is implemented
-
-  ENTITY Analytical_model_application_assignment; --- was analytical_model_definition_assignment;
-	assigned_analytical_model: Analytical_model_application;
-	assigned_item: analytical_model_application_assignment_select;
-  END_ENTITY;
-*)
 
   ENTITY Analytical_model_definition
     SUBTYPE OF (Software_definition);
@@ -136,22 +127,10 @@ This AO is redundant once the proposed change to analytical_model_port_assignmen
 	associated_analytical_model_application :Analytical_model_application;
    UNIQUE
     UR1 : assigned_analytical_model_port,assigned_item,associated_analytical_model_application;
-(* where rule
-   we can now write a sensible where rule that states that the
-   associated_analytical_model_port.accessed_analytical_model =
-   associated_analytical_model_application.model_representation
-   *)
    WHERE
     WR1 : assigned_analytical_model_port.accessed_analytical_model =
    associated_analytical_model_application.model_representation;
   END_ENTITY;
-(*mapping of analytical_model_port_assignment::
-   complex subtype of prop_def_rep,representation_relationship
-   prop_def_rep.used_rep->self
-   prop_def_rep.definition -> same as now
-   Representation_relationship.rep_1 ->associated_ama
-   Representation_relationship.rep_2 ->assigned_analytical_model_port
-*)
    
   ENTITY Analytical_model_port_make_from_relationship;
       associated_make_from : Analytical_model_make_from_relationship;
@@ -164,10 +143,6 @@ This AO is redundant once the proposed change to analytical_model_port_assignmen
       WR1 : reusable_feature :<>: resultant_feature;
       WR2 : reusable_feature.accessed_analytical_model :<>: resultant_feature.accessed_analytical_model;
   END_ENTITY;
-
-(* see issues.xml for mapping proposal sketch for
-amsp, amvp. 
-*)
 
   ENTITY Analytical_model_scalar_port
     SUBTYPE OF (Analytical_model_vector_port);

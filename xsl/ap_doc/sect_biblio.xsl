@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.7 2003/05/27 08:08:48 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.8 2003/06/01 13:56:35 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
   <xsl:import href="application_protocol_clause.xsl"/>
-  <xsl:import href="projmg/issues.xsl"/>
   
   <xsl:output method="html"/>
   

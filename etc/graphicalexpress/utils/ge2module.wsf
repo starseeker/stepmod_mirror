@@ -1,0 +1,57 @@
+<?xml version="1.0" standalone="yes"?>
+<job>
+  <script language="VBScript">
+    <![CDATA[
+      Function ShowInputBox(str, title, default)
+          ShowInputBox = InputBox(str, title, default)
+      End Function
+      ]]>
+  </script>
+
+   <script language="jscript" src="ge2moduleMain.js">
+        function getGeDir(initVal) {
+	    var retVal = 0;
+	    var sMsg;
+	    sMsg = "Enter directory where GraphicalExpress has published XML:";
+	    var geDir = ShowInputBox(sMsg, "GraphicalExpress directory",initVal);
+	    if (typeof(geDir) != 'undefined') {
+		if (checkGeDir(geDir) != 0) {
+		    // Invalid
+		    retVal = getGeDir(geDir);
+		} else {
+		    retVal = geDir;
+		}
+	    } else {
+		retVal = -1;
+	    }
+	    return(retVal);
+	}
+
+    
+        // Disable the output of user messages
+        outputUsermessage = 0;    
+        var initVal = "E:\\rbn\\1export";
+        var geDir = getGeDir(initVal);
+        if (geDir != -1) {
+	    sMsg="Enter schema to extract from model.xml:";
+	    var schemaName = ShowInputBox(sMsg, "Schema name","");
+	    if (typeof(schemaName) != 'undefined') {
+		if (checkSchema(geDir, schemaName) == 0) {
+		    convertSchema(geDir, schemaName);
+		    var modPath = getModulePath(schemaName);
+		    var yes_no = yesOrNo("Extracted module XML for schema: "+
+				     schemaName+"\nto: "+geDir+"\\module\n\nDo you want the XML copied to the module directory?\n"+modPath);
+		    if (yes_no == "yes") { 
+			copyToModuleDir(geDir, schemaName);
+		     } else {
+		        popupInform("Extracted module XML for schema: "+
+				     schemaName+"\nto: "+geDir+"\\module"
+				     +"\nCopy these to the module.");
+		     }
+		}
+	    }
+	}
+   </script>
+
+
+</job>

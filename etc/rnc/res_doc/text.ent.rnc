@@ -1,11 +1,17 @@
-# $Id: text.ent.rnc,v 1.1 2004/01/27 00:00:58 thendrix Exp $
+# $Id: text.ent,v 1.24 2003/10/03 13:41:00 robbod Exp $
 
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 
-fontstyle = i | b
-text-elts = text | express_ref | module_ref | fontstyle
+fontstyle = i | b | sub | sup
+special = a
+inline = text | fontstyle
+# a Uniform Resource Identifier
+URI = string
+text-elts =
+  text | express_ref | express_extref | module_ref | fontstyle | special
 block-elts = p | ul | ol | dl | screen
-single-block-elts = note | example | figure | table
+figure-table-elts = figure | table
+single-block-elts = note | example | figure-table-elts
 description.content = text-elts | block-elts | single-block-elts
 # Table
 # caption - table caption
@@ -14,6 +20,7 @@ description.content = text-elts | block-elts | single-block-elts
 table = element table { table-attlist, tr+ }
 table-attlist &=
   attribute caption { text },
+  attribute id { text }?,
   attribute number { text },
   attribute width { text }?
 tr = element tr { tr-attlist, (th | td)+ }
@@ -29,11 +36,17 @@ td-attlist &=
   attribute align { text }?,
   attribute rowspan { text }?,
   attribute colspan { text }?
-note = element note { note-attlist, (text-elts | block-elts)* }
+note =
+  element note {
+    note-attlist, (text-elts | block-elts | figure-table-elts)*
+  }
 note-attlist &=
   attribute id { xsd:ID }?,
   attribute number { text }?
-example = element example { example-attlist, (text-elts | block-elts)* }
+example =
+  element example {
+    example-attlist, (text-elts | block-elts | figure-table-elts)*
+  }
 example-attlist &=
   attribute id { xsd:ID }?,
   attribute number { text }?
@@ -79,6 +92,8 @@ sub = element sub { sub-attlist, text-elts* }
 sub-attlist &= empty
 sup = element sup { sup-attlist, text-elts* }
 sup-attlist &= empty
+a = element a { a-attlist, inline* }
+a-attlist &= attribute href { URI }
 # unordered list
 ul = element ul { ul-attlist, li+ }
 ul-attlist &= empty
@@ -104,16 +119,27 @@ dt =
   }
 dt-attlist &= empty
 # Defnition description
-dd = element dd { dd-attlist, text-elts* }
+dd =
+  element dd {
+    dd-attlist, (text-elts | block-elts | single-block-elts)*
+  }
 dd-attlist &= empty
 # text from computer display
-screen = element screen { screen-attlist, text }
+screen = element screen { screen-attlist, text-elts* }
 screen-attlist &=
   [ a:defaultValue = "preserve" ]
   attribute xml-space { "default" | "preserve" }?
 # reference to EXPRESS name
 express_ref = element express_ref { express_ref-attlist, text }
 express_ref-attlist &= attribute linkend { text }
+# reference to EXPRESS name defined in a standard outside STEPMOD     
+# linkend is the EXPRESS entity
+# standard is the standard number
+express_extref =
+  element express_extref { express_extref-attlist, empty }
+express_extref-attlist &=
+  attribute linkend { text },
+  attribute standard { text }
 # module reference
 module_ref = element module_ref { module_ref-attlist, text }
 module_ref-attlist &= attribute linkend { text }

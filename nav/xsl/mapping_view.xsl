@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.9 2002/11/26 22:31:52 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.10 2002/11/29 12:35:41 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -1002,6 +1002,12 @@ $Id: mapping_view.xsl,v 1.9 2002/11/26 22:31:52 nigelshaw Exp $
 	</xsl:if>
 	
 	<xsl:choose>
+		<xsl:when test="string-length(.) != string-length(translate(.,$UPPER,'')) and 
+		( name(preceding-sibling::*[2]) ='subtype-template' or  
+		name(preceding-sibling::*[2]) ='supertype-template') " >
+			<!-- is a subtype or supertype template so ignore -->
+			<!-- could check it is found in ARMs ??? -->
+		</xsl:when>
 
 		<xsl:when test="string-length(.) = 1 and not (contains($NUMBERS,.))" >
 			<xsl:choose>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: issues_file.xsl,v 1.14 2003/05/14 17:44:50 thendrix Exp $
+     $Id: issues_file.xsl,v 1.15 2003/10/20 09:09:30 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -356,10 +356,22 @@
     </xsl:if>
     <xsl:if test="@ballot_comment='yes'">
       <i>
-        Registered as a Ballot comment by:
+        Registered as a ballot comment by: 
         <xsl:value-of select="@member_body"/>
       </i>
       <br/>
+      <i>
+        Resolution:
+        <xsl:choose>
+          <xsl:when test="@ballot_resolution='reject'">
+            Reject
+          </xsl:when>
+          <xsl:otherwise>
+            Accept
+          </xsl:otherwise>
+        </xsl:choose>
+      </i>
+      <br/>           
     </xsl:if>
 
     </p>

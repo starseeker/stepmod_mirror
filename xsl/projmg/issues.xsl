@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.11 2003/10/20 09:09:30 robbod Exp $
+     $Id: issues.xsl,v 1.12 2003/10/22 07:14:55 robbod Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -212,6 +212,17 @@
           <xsl:value-of select="@member_body"/>
         </i>
         <br/>
+        <i>
+          Resolution:
+          <xsl:choose>
+            <xsl:when test="@ballot_resolution='reject'">
+              Reject
+            </xsl:when>
+            <xsl:otherwise>
+              Accept
+            </xsl:otherwise>
+          </xsl:choose>
+        </i>
       </xsl:if>
       
       <xsl:apply-templates/>

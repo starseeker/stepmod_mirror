@@ -1,23 +1,75 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: arm.exp,v 1.7 2005/01/06 14:11:45 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Shield - EXPRESS ARM
 *)
 
-SCHEMA Shield_arm;
+SCHEMA Shield_arm; 
 
-USE FROM Component_feature_arm;
+USE FROM Assembly_component_placement_requirements_arm;
 
-USE FROM Physical_connectivity_definition_arm;
+USE FROM Assembly_module_design_arm;
 
-	TYPE shieldable_item = SELECT
-    (Assembly_component,
-   	Component_feature,
-   	Physical_connectivity_definition);
-	END_TYPE;
+USE FROM Component_feature_arm; 
 
-  ENTITY Shield
-    SUBTYPE OF (Assembly_component);
-      shielded_item : SET[1:?] OF shieldable_item;
-  END_ENTITY;
+USE FROM Layered_interconnect_module_with_printed_component_design_arm;
 
-END_SCHEMA;
+
+ TYPE physical_shieldable_item = SELECT 
+    (shieldable_item, 
+    Placement_group); 
+ END_TYPE; 
+
+ TYPE shieldable_item = SELECT 
+    (Assembly_component, 
+    Component_feature, 
+    Generic_physical_network,
+    Physical_connectivity_definition); 
+ END_TYPE; 
+
+ TYPE laminate_shieldable_item = SELECT 
+    (Component_external_reference, 
+    Component_feature, 
+   	Component_group_external_reference, 
+   	Generic_physical_network,
+  	Physical_connectivity_definition, 
+  	Physical_connectivity_definition_external_reference, 
+  	Stratum_feature_template_component); 
+ END_TYPE; 
+ 
+ TYPE shield = SELECT
+ 	(Routed_shield,
+	Integral_shield,
+	Physical_shield);
+  END_TYPE; 
+  
+ ENTITY component_group_external_reference; 
+	name					: STRING;
+	associated_definition	: STRING;
+	UNIQUE
+		ur1: name, associated_definition; 
+ END_ENTITY; 
+ 
+ ENTITY physical_connectivity_definition_external_reference; 
+	  name					: STRING;
+	  associated_definition	: STRING;
+	UNIQUE
+	  ur1: name, associated_definition;
+ END_ENTITY; 
+ 
+  ENTITY Routed_shield 
+    SUBTYPE OF (Routed_printed_component); 
+      shielded_item : SET[1:?] OF laminate_shieldable_item; 
+  END_ENTITY; 
+  
+  ENTITY Integral_shield 
+    SUBTYPE OF (Laminate_component); 
+      shielded_item : SET[1:?] OF laminate_shieldable_item; 
+  END_ENTITY; 
+  
+  ENTITY Physical_shield 
+    SUBTYPE OF (Physical_component); 
+      shielded_item : SET[1:?] OF physical_shieldable_item; 
+  END_ENTITY; 
+
+END_SCHEMA; 
+

@@ -2,16 +2,16 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-02T14:45:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-02-11T13:31:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_layout_template_arm schema_instance"/>
    <schema name="Physical_layout_template_arm">
       <interface kind="use" schema="Analytical_model_arm"/>
       <interface kind="use" schema="Characteristic_arm"/>
-      <interface kind="use" schema="Part_view_definition_arm"/>
-      <interface kind="use" schema="Part_and_version_identification_arm"/>
-      <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="use" schema="Feature_and_connection_zone_arm"/>
       <interface kind="use" schema="Functional_decomposition_to_design_arm"/>
+      <interface kind="use" schema="Part_and_version_identification_arm"/>
+      <interface kind="use" schema="Part_view_definition_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="reference" schema="Product_identification_arm">
          <interfaced.item name="types_of_product"/>
       </interface>
@@ -19,32 +19,20 @@
          <select selectitems="coordinated_characteristic characteristic"/>
       </type>
       <type name="plt_physical_unit_or_part_template_or_fp_or_pd">
-         <select extensible="YES" genericentity="YES" basedon="physical_unit_or_part_template_or_fp_or_pd" selectitems="Layout_template_definition"/>
+         <select extensible="YES" genericentity="YES" basedon="physical_unit_or_part_template_or_fp_or_pd" selectitems="Template_definition"/>
       </type>
       <entity name="Connection_zone_in_layout_template" supertypes="Connection_zone">
          <explicit name="containing_shape">
-            <typename name="Layout_template_definition"/>
+            <typename name="Template_definition"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
-      </entity>
-      <entity name="Layout_template_definition" supertypes="Template_definition Shape_element">
-         <explicit name="physical_characteristic" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="correlated_or_independent"/>
-         </explicit>
-         <derived name="containing_shape" expression="SELF">
-            <typename name="Layout_template_definition"/>
-            <redeclaration entity-ref="Shape_element"/>
-         </derived>
-         <where label="WR1" expression="SIZEOF(QUERY(prpc &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product,&#10; 'PHYSICAL_LAYOUT_TEMPLATE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'template model'))) &gt; 0"/>
-         <where label="WR2" expression="SELF\Shape_element.element_name = 'NULL'"/>
       </entity>
       <entity name="Reference_functional_unit_assignment_to_template">
          <explicit name="functional_design_definition_path">
             <typename name="Reference_composition_path"/>
          </explicit>
          <explicit name="implementation">
-            <typename name="Layout_template_definition"/>
+            <typename name="Template_definition"/>
          </explicit>
          <explicit name="of_property" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -63,7 +51,7 @@
       </entity>
       <entity name="Reference_part_template_for_analytical_model">
          <explicit name="template">
-            <typename name="Layout_template_definition"/>
+            <typename name="Template_definition"/>
          </explicit>
          <explicit name="analytical_representation">
             <typename name="Analytical_model_definition"/>
@@ -80,10 +68,15 @@
             <typename name="Template_version"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </explicit>
+         <explicit name="physical_characteristic" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="correlated_or_independent"/>
+         </explicit>
          <derived name="described_element" expression="SELF">
             <typename name="Template_definition"/>
             <redeclaration entity-ref="Item_shape"/>
          </derived>
+         <where label="WR1" expression="SIZEOF(QUERY(prpc &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product,&#10; 'PHYSICAL_LAYOUT_TEMPLATE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'template model'))) &gt; 0"/>
       </entity>
       <entity name="Template_version" supertypes="Product_version">
          <explicit name="of_product">

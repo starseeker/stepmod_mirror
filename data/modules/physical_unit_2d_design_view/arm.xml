@@ -2,12 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-02T14:45:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-02-11T13:31:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_arm schema_instance"/>
    <schema name="Physical_unit_2d_design_view_arm">
       <interface kind="use" schema="Assembly_module_with_interconnect_component_arm"/>
-      <interface kind="use" schema="Physical_unit_design_view_arm"/>
       <interface kind="use" schema="Layered_2d_shape_arm"/>
+      <interface kind="use" schema="Physical_unit_design_view_arm"/>
       <type name="conductive_interconnect_terminal_or_interconnect_component_join_terminal">
          <select selectitems="Interconnect_component_interface_terminal Interconnect_component_join_terminal Movable_packaged_component_join_terminal"/>
       </type>
@@ -18,27 +18,33 @@
          </explicit>
          <where label="WR1" expression="(SIZEOF(USEDIN(SELF,&#10; 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0)"/>
       </entity>
-      <entity name="Component_2d_location">
+      <entity name="Component_2d_location" supertypes="Product_definition_usage_based_contextual_shape_representation_relationship Geometric_model_relationship Definitional_representation_relationship">
          <explicit name="placement_fixed">
             <builtintype type="BOOLEAN"/>
          </explicit>
          <explicit name="transformation">
             <typename name="Cartesian_transformation_2d"/>
          </explicit>
-         <explicit name="component_model">
-            <typename name="Assembly_component_2d_shape"/>
-         </explicit>
          <explicit name="assembly_model">
             <typename name="Physical_unit_planar_shape"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
          </explicit>
-         <explicit name="component">
+         <explicit name="component_model">
+            <typename name="Assembly_component_2d_shape"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
+         </explicit>
+         <derived name="component" expression="SELF\Product_definition_usage_based_contextual_shape_representation_relationship.contextual_shape">
             <typename name="Next_assembly_usage"/>
-         </explicit>
+         </derived>
          <derived name="substrate_location" expression="substrate_in_assembly(SELF)">
             <builtintype type="BOOLEAN"/>
          </derived>
          <derived name="the_context" expression="assembly_model\geometric_model\Representation.context_of_items">
             <typename name="Geometric_coordinate_space"/>
+         </derived>
+         <derived name="representing_relationship" expression="SELF">
+            <typename name="Geometric_model_relationship"/>
+            <redeclaration entity-ref="Contextual_shape_representation_relationship"/>
          </derived>
          <where label="WR1" expression="NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.LAMINATE_COMPONENT' IN TYPEOF(component.relating_view)) OR (transformation.mirror = FALSE)"/>
          <where label="WR2" expression="NOT(substrate_location) OR (transformation.mirror = FALSE)"/>
@@ -54,15 +60,17 @@
             <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
          </explicit>
       </entity>
-      <entity name="Design_view_terminal_component_shape_relationship">
+      <entity name="Design_view_terminal_component_shape_relationship" supertypes="Geometric_model_relationship Definitional_representation_relationship">
          <explicit name="associating_component_shape">
             <typename name="Feature_shape_definition"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
          </explicit>
          <explicit name="associated_usage">
             <typename name="conductive_interconnect_terminal_or_interconnect_component_join_terminal"/>
          </explicit>
          <explicit name="associated_terminal_shape_definition">
             <typename name="Feature_shape_definition"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
          </explicit>
          <explicit name="associated_usage_placement">
             <typename name="Axis_placement"/>

@@ -2,15 +2,15 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-02T15:43:07" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-02-11T13:32:39" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_module_design_mim schema_instance"/>
    <schema name="Assembly_module_design_mim">
-      <interface kind="use" schema="Assembly_module_usage_view_mim"/>
       <interface kind="use" schema="Altered_package_mim"/>
+      <interface kind="use" schema="Assembly_module_usage_view_mim"/>
       <interface kind="use" schema="Bare_die_mim"/>
-      <interface kind="use" schema="Physical_component_feature_mim"/>
       <interface kind="use" schema="Packaged_part_black_box_model_mim"/>
       <interface kind="use" schema="Part_feature_function_mim"/>
+      <interface kind="use" schema="Physical_component_feature_mim"/>
       <interface kind="use" schema="Physical_unit_design_view_mim"/>
       <entity name="component_mounting_feature" supertypes="shape_aspect">
          <where label="WR1" expression="'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'COMPONENT_DEFINITION' IN&#10;       TYPEOF (SELF.of_shape.definition)"/>
@@ -20,7 +20,7 @@
          <where label="WR5" expression="(NOT (SELF\shape_aspect.description IN ['component feature'])) OR&#10;       (SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'design usage')) &lt;= 1)"/>
          <where label="WR6" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'instantiated feature')) &lt;= 1"/>
       </entity>
-      <entity name="packaged_component" supertypes="component_definition">
+      <entity name="packaged_component" supertypes="assembly_component">
          <where label="WR1" expression="SIZEOF (QUERY (ip &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'instantiated part') |&#10;       (SIZEOF (['ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PACKAGED_PART',&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'EXTERNALLY_DEFINED_PACKAGED_PART',&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'LIBRARY_DEFINED_PACKAGED_PART'] *&#10;       TYPEOF (ip.relating_product_definition)) = 1) AND&#10;       (ip.relating_product_definition.frame_of_reference.name =&#10;       'physical design usage'))) = 1"/>
          <where label="WR2" expression="SIZEOF (QUERY (pa &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'package alternate') |&#10;       (SIZEOF (['ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PACKAGE',&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'EXTERNALLY_DEFINED_PACKAGE',&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'LIBRARY_DEFINED_PACKAGE'] *&#10;       TYPEOF (pa.relating_product_definition)) = 1) AND&#10;       (pa.relating_product_definition\product_definition.description =&#10;       'altered package'))) &lt;= 1"/>
          <where label="WR3" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (sa &lt;* USEDIN (pd,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT.OF_SHAPE') |&#10;       ('ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'COMPONENT_TERMINAL' IN&#10;       TYPEOF (sa)) AND&#10;       (sa\shape_aspect.description = 'packaged component join terminal'))) &gt;= 1))) = 0"/>
@@ -28,7 +28,7 @@
          <where label="WR5" expression="(NOT (SELF\product_definition.description = 'packaged connector component')) OR&#10;       (SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (sa &lt;* USEDIN (pd,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT.OF_SHAPE') |&#10;       ('ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'COMPONENT_TERMINAL' IN&#10;       TYPEOF (sa)) AND&#10;       (sa\shape_aspect.description = 'packaged component join terminal'))) &#10;        &gt;= 1))) = 0)"/>
          <where label="WR6" expression="(NOT (SELF\product_definition.description = 'routed packaged component')) OR&#10;       (SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (sa &lt;* USEDIN (pd,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT.OF_SHAPE') |&#10;       SIZEOF (QUERY (pd &lt;* USEDIN (sa,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       SIZEOF (USEDIN (pd, &#10;        'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) &#10;       = 1)) = 1)) = 1))) = 0)"/>
       </entity>
-      <entity name="routed_physical_component" supertypes="component_definition">
+      <entity name="routed_physical_component" supertypes="assembly_component">
          <where label="WR1" expression="SIZEOF (QUERY (ip &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'instantiated part') |&#10;       (SIZEOF (['ASSEMBLY_MODULE_DESIGN_MIM.' +&#10;       'PHYSICAL_UNIT'] *&#10;       TYPEOF (ip.relating_product_definition)) = 1) AND&#10;       (ip.relating_product_definition.frame_of_reference.name =&#10;       'physical design usage'))) = 1"/>
          <where label="WR2" expression="SELF\product_definition.description :&lt;&gt;: 'laminate component'"/>
       </entity>

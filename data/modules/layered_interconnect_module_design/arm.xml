@@ -2,24 +2,24 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-02T14:45:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-02-11T13:31:53" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
+      <interface kind="use" schema="Basic_curve_arm"/>
+      <interface kind="use" schema="Component_feature_arm"/>
+      <interface kind="use" schema="Component_grouping_arm"/>
+      <interface kind="use" schema="Extended_elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
+      <interface kind="use" schema="Fabrication_technology_arm"/>
+      <interface kind="use" schema="Form_features_arm"/>
+      <interface kind="use" schema="Interconnect_module_usage_view_arm"/>
+      <interface kind="use" schema="Interconnect_physical_requirement_allocation_arm"/>
+      <interface kind="use" schema="Part_template_2d_shape_arm"/>
+      <interface kind="use" schema="Part_template_extension_arm"/>
+      <interface kind="use" schema="Physical_connectivity_definition_arm"/>
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
       <interface kind="use" schema="Printed_physical_layout_template_arm"/>
-      <interface kind="use" schema="Component_feature_arm"/>
       <interface kind="use" schema="Requirement_assignment_arm"/>
-      <interface kind="use" schema="Part_template_extension_arm"/>
-      <interface kind="use" schema="Component_grouping_arm"/>
-      <interface kind="use" schema="Interconnect_module_usage_view_arm"/>
-      <interface kind="use" schema="Fabrication_technology_arm"/>
-      <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
-      <interface kind="use" schema="Form_features_arm"/>
-      <interface kind="use" schema="Part_template_2d_shape_arm"/>
-      <interface kind="use" schema="Physical_connectivity_definition_arm"/>
-      <interface kind="use" schema="Interconnect_physical_requirement_allocation_arm"/>
-      <interface kind="use" schema="Extended_elemental_geometric_shape_arm"/>
-      <interface kind="use" schema="Basic_curve_arm"/>
       <type name="bare_die_component_or_packaged_component">
          <select extensible="YES" genericentity="YES"/>
       </type>
@@ -33,7 +33,7 @@
          <enumeration items="right centre left"/>
       </type>
       <type name="limd_ee_product_definition_with_annotation_elements">
-         <select extensible="YES" genericentity="YES" basedon="ee_product_definition_with_annotation_elements" selectitems="Layout_template_definition Part_usage_view Part_design_view Stratum"/>
+         <select extensible="YES" genericentity="YES" basedon="ee_product_definition_with_annotation_elements" selectitems="Template_definition Part_usage_view Part_design_view Stratum"/>
       </type>
       <type name="limd_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Laminate_layer Stratum Laminate_component"/>
@@ -42,7 +42,7 @@
          <select extensible="YES" genericentity="YES" basedon="part_feature_or_template_feature" selectitems="Printed_part_template_terminal Land_template_terminal Component_termination_passage_template_terminal Via_template_terminal Part_terminal_external_reference"/>
       </type>
       <type name="limd_physical_feature_or_part_template">
-         <select extensible="YES" genericentity="YES" basedon="physical_feature_or_part_template" selectitems="Part_feature Physical_component_feature Physical_laminate_component Layout_template_definition Stratum_feature"/>
+         <select extensible="YES" genericentity="YES" basedon="physical_feature_or_part_template" selectitems="Part_feature Physical_component_feature Physical_laminate_component Template_definition Stratum_feature"/>
       </type>
       <type name="limd_requirement_assignment_item">
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Stratum_concept_relationship"/>
@@ -63,7 +63,7 @@
          <select selectitems="Stratum_feature Stratum_feature_template_component"/>
       </type>
       <type name="stratum_surface_designation">
-         <enumeration items="primary_surface secondary_surface"/>
+         <enumeration items="average_surface primary_surface secondary_surface"/>
       </type>
       <type name="vertical_justification">
          <enumeration items="centre top bottom"/>
@@ -310,7 +310,9 @@
          <derived name="minimum_as_finished_passage_extent" expression="SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent">
             <typename name="Length_data_element"/>
          </derived>
-         <inverse name="deposition_material" entity="Material_identification" attribute="items"/>
+         <inverse name="deposition_material" entity="Material_identification" attribute="items">
+            <redeclaration entity-ref="Passage_technology"/>
+         </inverse>
          <where label="WR1" expression="EXISTS(minimum_as_finished_deposition_thickness)"/>
          <where label="WR2" expression="EXISTS(minimum_as_finished_passage_extent)"/>
          <where label="WR3" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material)"/>
@@ -364,7 +366,9 @@
          <derived name="minimum_as_finished_passage_extent" expression="SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent">
             <typename name="Length_data_element"/>
          </derived>
-         <inverse name="deposition_material" entity="Material_identification" attribute="items"/>
+         <inverse name="deposition_material" entity="Material_identification" attribute="items">
+            <redeclaration entity-ref="Passage_technology"/>
+         </inverse>
          <where label="WR1" expression="EXISTS(minimum_as_finished_deposition_thickness)"/>
          <where label="WR2" expression="EXISTS(minimum_as_finished_passage_extent)"/>
          <where label="WR3" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material)"/>
@@ -490,7 +494,7 @@
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
       </entity>
-      <entity name="Inter_stratum_feature_template" supertypes="Layout_template_definition">
+      <entity name="Inter_stratum_feature_template" supertypes="Template_definition">
          <explicit name="of_passage_technology">
             <typename name="Passage_technology"/>
          </explicit>
@@ -603,7 +607,7 @@
       </entity>
       <entity name="Laminate_component" supertypes="Assembly_component" super.expression="ONEOF (Conductive_interconnect_element, Material_removal_laminate_component, Stratum_feature_template_component, Probe_access_area, Inter_stratum_feature, Special_symbol_laminate_component, Laminate_text_component, Laminate_text_string_component) ANDOR Fiducial">
          <explicit name="derived_from" optional="YES">
-            <typename name="Layout_template_definition"/>
+            <typename name="Template_definition"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <inverse name="padstack_occurrence_assembly" entity="Padstack_occurrence_sub_assembly_relationship" attribute="related_view">
@@ -869,7 +873,7 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Probe_access_area"/>
          </explicit>
-         <derived name="complete" expression="EXISTS(unrouted_connectivity_requirement_element)">
+         <derived name="complete" expression="NOT EXISTS(unrouted_connectivity_requirement_element)">
             <builtintype type="BOOLEAN"/>
          </derived>
          <where label="WR1" expression="SIZEOF(QUERY(cre &lt;* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_AND_CONTACT_SIZE_DEPENDENT_LAND',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.VIA_AND_CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0"/>
@@ -888,12 +892,10 @@
          <explicit name="of_technology">
             <typename name="Stratum_technology"/>
          </explicit>
-         <derived name="name" expression="SELF\Product_view_definition.product_definition_id">
-            <builtintype type="STRING"/>
+         <derived name="of_average_surface" expression="USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE.OF_STRATUM')">
+            <aggregate type="SET" lower="0" upper="1"/>
+            <typename name="Stratum_average_surface"/>
          </derived>
-         <inverse name="of_average_surface" entity="Stratum_average_surface" attribute="of_stratum">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
          <inverse name="of_surface" entity="Stratum_surface" attribute="of_stratum">
             <inverse.aggregate type="SET" lower="1" upper="2"/>
          </inverse>
@@ -903,8 +905,11 @@
          <inverse name="stratum_usage" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
+         <where label="WR1" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 0"/>
       </entity>
-      <entity name="Stratum_average_surface" supertypes="Stratum_surface"/>
+      <entity name="Stratum_average_surface" supertypes="Stratum_surface">
+         <where label="WR1" expression="SELF\Stratum_surface.name = stratum_surface_designation.average_surface"/>
+      </entity>
       <entity name="Stratum_concept_relationship" abstract.supertype="YES">
          <explicit name="resulting_shape" optional="YES">
             <typename name="Feature_shape_definition"/>
@@ -1067,7 +1072,7 @@
       <subtype.constraint name="default_land_physical_template_subtypes" entity="Default_land_physical_template" super.expression="ONEOF (Default_passage_based_land_physical_template, Default_attachment_size_based_land_physical_template)"/>
       <subtype.constraint name="Default_attachment_size_based_land_physical_template_subtypes" entity="Default_attachment_size_based_land_physical_template" super.expression="ONEOF (Default_attachment_size_and_component_termination_passage_based_land_physical_template, Default_attachment_size_and_via_based_land_physical_template)"/>
       <subtype.constraint name="interconnect_module_terminal_subtypes" entity="Interconnect_module_terminal" super.expression="ONEOF (Interconnect_module_interface_terminal, Interconnect_module_join_terminal)"/>
-      <subtype.constraint name="layout_template_definition_subtypes" entity="Layout_template_definition" super.expression="(ONEOF (Inter_stratum_feature_template, Material_removal_feature_template, Non_conductive_cross_section_template, Printed_part_cross_section_template, Printed_part_template, Special_symbol_part_template, Stratum_feature_template, Trace_template) ANDOR Part_text_template)"/>
+      <subtype.constraint name="template_definition_subtypes" entity="Template_definition" super.expression="(ONEOF (Footprint_definition, Padstack_definition, Inter_stratum_feature_template, Material_removal_feature_template, Non_conductive_cross_section_template, Printed_part_cross_section_template, Printed_part_template, Special_symbol_part_template, Stratum_feature_template, Trace_template) ANDOR Part_text_template)"/>
       <function name="correlated_terminals">
          <parameter name="input1">
             <aggregate type="SET" lower="0" upper="?"/>

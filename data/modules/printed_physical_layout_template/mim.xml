@@ -2,13 +2,13 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-02T15:43:11" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-02-11T13:32:48" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="printed_physical_layout_template_mim schema_instance"/>
    <schema name="Printed_physical_layout_template_mim">
       <interface kind="use" schema="Analytical_model_mim"/>
       <interface kind="use" schema="Extended_geometric_tolerance_mim"/>
-      <interface kind="use" schema="Feature_and_connection_zone_mim"/>
       <interface kind="use" schema="Fabrication_technology_mim"/>
+      <interface kind="use" schema="Feature_and_connection_zone_mim"/>
       <interface kind="use" schema="Network_functional_usage_view_mim"/>
       <interface kind="use" schema="Non_feature_shape_element_mim"/>
       <interface kind="use" schema="Physical_layout_template_mim"/>
@@ -28,7 +28,6 @@
          <where label="WR4" expression="SELF\shape_aspect_relationship.relating_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.related_shape_aspect"/>
       </entity>
       <entity name="printed_part_cross_section_template_terminal" supertypes="printed_part_template_terminal">
-         <where label="WR1" expression="SIZEOF (QUERY (am &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'cross section definition') |&#10;       ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION' IN&#10;       TYPEOF (am.relating_shape_aspect)) AND&#10;       (am.relating_shape_aspect\shape_aspect.description = &#10;       'printed part cross section template'))) = 1"/>
          <where label="WR2" expression="SIZEOF (QUERY (ga &lt;* USEDIN (SELF,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'APPLIED_GROUP_ASSIGNMENT.ITEMS') |&#10;       (('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PRINTED_PART_TEMPLATE_TERMINAL_CONNECTION_ZONE_CATEGORY' IN&#10;       TYPEOF (ga.assigned_group)) AND &#10;       (ga.assigned_group.name IN  &#10;                       ['area edge segment', 'curve edge segment']))&#10;        )) = 1"/>
          <where label="WR3" expression="SIZEOF (QUERY (am &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'material to left of terminal') |&#10;       ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PRINTED_PART_TEMPLATE_MATERIAL_LINK' IN&#10;       TYPEOF (am.relating_shape_aspect))&#10;       )) &lt;= 1"/>
          <where label="WR4" expression="SIZEOF (QUERY (am &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'material to right of terminal') |&#10;       ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PRINTED_PART_TEMPLATE_MATERIAL_LINK' IN&#10;       TYPEOF (am.relating_shape_aspect))&#10;       )) &lt;= 1"/>
@@ -47,15 +46,15 @@
          </unique>
          <where label="WR1" expression="SIZEOF (QUERY (mct &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'member connected terminal') |&#10;       ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PRINTED_PART_TEMPLATE_TERMINAL' IN&#10;       TYPEOF (mct.related_shape_aspect)) AND&#10;       (mct.related_shape_aspect\shape_aspect.description IN &#10;       ['interface terminal', 'join terminal']))) &gt;= 2"/>
       </entity>
-      <entity name="printed_part_template_link" supertypes="stratum_technology_link shape_aspect_relationship">
-         <where label="WR1" expression="SELF\shape_aspect_relationship.related_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.relating_shape_aspect"/>
-         <where label="WR2" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\property_definition_relationship ||&#10;       SELF\printed_part_template_link || SELF\property_definition ||&#10;       SELF\stratum_technology_link || SELF\shape_aspect_relationship)) = 0"/>
-         <where label="WR3" expression="'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION' IN &#10;    TYPEOF(SELF\shape_aspect_relationship.related_shape_aspect)"/>
-         <where label="WR4" expression="'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION' IN &#10;    TYPEOF(SELF\shape_aspect_relationship.relating_shape_aspect)"/>
-         <where label="WR5" expression="SELF\shape_aspect_relationship.name = ''"/>
-         <where label="WR6" expression="SELF\shape_aspect_relationship.description = ''"/>
-         <where label="WR7" expression="SELF\shape_aspect_relationship.related_shape_aspect.description =&#10;       'printed part template'"/>
-         <where label="WR8" expression="SELF\shape_aspect_relationship.relating_shape_aspect.description =&#10;       'printed part template'"/>
+      <entity name="printed_part_template_link" supertypes="stratum_technology_link product_definition_relationship">
+         <where label="WR1" expression="SELF\product_definition_relationship.related_product_definition :&lt;&gt;:&#10;       SELF\product_definition_relationship.relating_product_definition"/>
+         <where label="WR2" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\property_definition_relationship ||&#10;       SELF\printed_part_template_link || SELF\property_definition ||&#10;       SELF\stratum_technology_link || SELF\product_definition_relationship)) = 0"/>
+         <where label="WR3" expression="'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION' IN &#10;    TYPEOF(SELF\product_definition_relationship.related_product_definition)"/>
+         <where label="WR4" expression="'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION' IN &#10;    TYPEOF(SELF\product_definition_relationship.relating_product_definition)"/>
+         <where label="WR5" expression="SELF\product_definition_relationship.name = ''"/>
+         <where label="WR6" expression="SELF\product_definition_relationship.description = ''"/>
+         <where label="WR7" expression="SELF\product_definition_relationship.related_product_definition.description =&#10;       'printed part template'"/>
+         <where label="WR8" expression="SELF\product_definition_relationship.relating_product_definition.description =&#10;       'printed part template'"/>
       </entity>
       <entity name="printed_part_template_material" supertypes="product_definition">
          <where label="WR1" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       SIZEOF (QUERY (tu &lt;* QUERY (pdr &lt;* USEDIN (pd,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name = 'technology usage') |&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'STRATUM_TECHNOLOGY' IN &#10;       TYPEOF (tu.relating_property_definition.definition))) = 1)) = 1"/>
@@ -86,7 +85,7 @@
          <where label="WR2" expression="SIZEOF (QUERY (ga &lt;* USEDIN (SELF, &#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'APPLIED_GROUP_ASSIGNMENT.ITEMS') |&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PRINTED_PART_TEMPLATE_TERMINAL_CONNECTION_ZONE_CATEGORY' IN&#10;       TYPEOF (ga.assigned_group))) = 1"/>
          <where label="WR3" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar.related_shape_aspect\shape_aspect.description = &#10;       'connection zone')) &gt;= 1"/>
          <where label="WR4" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'SHAPE_REPRESENTATION' IN&#10;       TYPEOF (pdr.used_representation))) &gt;= 1))) = 0"/>
-         <where label="WR5" expression="SIZEOF (QUERY (ad &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'associated definition') |&#10;       ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION' IN&#10;       TYPEOF (ad.relating_shape_aspect)) AND&#10;       ((ad.relating_shape_aspect\shape_aspect.description = 'printed part template')&#10;       OR&#10;       (ad.relating_shape_aspect\shape_aspect.description = 'printed connector template'))&#10;       )) = 1"/>
+         <where label="WR5" expression="SIZEOF ((SELF\shape_aspect.of_shape.definition\product_definition.description = 'printed part template')&#10;       OR&#10;       (SELF\shape_aspect.of_shape.definition\product_definition.description = 'printed connector template'))&#10;        = 1"/>
          <where label="WR6" expression="SIZEOF (QUERY (mct &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'member connected terminal') |&#10;       'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +&#10;       'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION' IN&#10;       TYPEOF (mct.relating_shape_aspect))) &lt;= 1"/>
       </entity>
       <entity name="printed_part_template_terminal_connection_zone_category" supertypes="group">
@@ -148,140 +147,9 @@ REPEAT i := 1 to SIZEOF(futd_bag) by 1;
 END_REPEAT;</algorithm>
          <where label="WR1" expression="pass"/>
       </rule>
-      <rule name="printed_connector_template_terminal_relationship_unique_constraint" appliesto="printed_connector_template_terminal_relationship">
-         <algorithm>LOCAL
-  ptd_bag : BAG OF part_template_definition := [];
-  pcttr_bag : BAG OF printed_connector_template_terminal_relationship;
-  sar_bag : BAG OF shape_aspect_relationship;
-  pass1 : BOOLEAN := TRUE;
-  jt_bag : BAG OF printed_part_template_terminal;
-  pass2 : BOOLEAN := TRUE;
-  it_bag : BAG OF printed_part_template_terminal;
-END_LOCAL;
-
-REPEAT i := 1 to 
-        SIZEOF(printed_connector_template_terminal_relationship) by 1;
-  sar_bag := QUERY( sar &lt;* 
-          USEDIN( printed_connector_template_terminal_relationship[i],
-'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | 
-  ((sar\shape_aspect_relationship.name = 'connector') AND
-('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-'PART_TEMPLATE_DEFINITION' IN TYPEOF(sar.relating_shape_aspect)) AND
-(sar.relating_shape_aspect\shape_aspect.description = 'printed connector template')) );
-  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
-    IF EXISTS( sar_bag[j].relating_shape_aspect ) THEN
-      IF ( NOT ( sar_bag[j].relating_shape_aspect IN ptd_bag )) THEN
-        ptd_bag := ptd_bag + sar_bag[j].relating_shape_aspect;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(ptd_bag) by 1;
-  IF ( NOT (pass1 OR pass2) ) THEN ESCAPE;
-  END_IF;
-  it_bag := [];
-  jt_bag := [];
-  sar_bag := QUERY( sar &lt;* USEDIN( ptd_bag[i],
-'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT' ) | 
-  (sar\shape_aspect_relationship.name = 'connector') );
-  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
-    IF ( NOT (pass1 OR pass2) ) THEN ESCAPE;
-    END_IF;
-    pcttr_bag := 
-   QUERY( pcttr &lt;* printed_connector_template_terminal_relationship |
-(pcttr :=: sar_bag[j].related_shape_aspect) );
-    REPEAT k := 1 to SIZEOF(pcttr_bag) by 1;
-      IF ( NOT (pass1 OR pass2) ) THEN ESCAPE;
-      END_IF;
-      IF ( pass1 AND (
-'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' +
-'PRINTED_PART_TEMPLATE_TERMINAL' IN 
-TYPEOF(pcttr_bag[k].relating_shape_aspect))
-AND (pcttr_bag[k].relating_shape_aspect\shape_aspect.description = 'join terminal') )
-                                                    THEN
-        IF EXISTS( pcttr_bag[k].relating_shape_aspect ) THEN
-          IF ( pcttr_bag[k].relating_shape_aspect IN jt_bag ) THEN
-            pass1 := FALSE;
-            ESCAPE;
-          ELSE
-            jt_bag := jt_bag + pcttr_bag[k].relating_shape_aspect;
-          END_IF;
-        END_IF;
-      END_IF;
-      IF ( pass2 AND (
-'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.' + 
-'PRINTED_PART_TEMPLATE_TERMINAL' IN 
-TYPEOF(pcttr_bag[k].related_shape_aspect))
-AND (pcttr_bag[k].related_shape_aspect\shape_aspect.description = 'interface terminal') )
-                                                      THEN
-        IF EXISTS( pcttr_bag[k].related_shape_aspect ) THEN
-          IF ( pcttr_bag[k].related_shape_aspect IN it_bag ) THEN
-            pass2 := FALSE;
-            ESCAPE;
-          ELSE
-            it_bag := it_bag + pcttr_bag[k].related_shape_aspect;
-          END_IF;
-        END_IF;
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass1"/>
-         <where label="WR2" expression="pass2"/>
-      </rule>
       <rule name="printed_part_template_terminal_relationship_constraint" appliesto="shape_aspect_relationship">
          <where label="WR1" expression="SIZEOF(QUERY(sar &lt;* shape_aspect_relationship |&#10;       (sar\shape_aspect_relationship.name = 'printed part template terminal relationship')&#10;       AND NOT('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.'&#10;       + 'PRINTED_PART_TEMPLATE_TERMINAL' IN &#10;        TYPEOF(sar.related_shape_aspect)&#10;       ))) = 0"/>
          <where label="WR2" expression="SIZEOF(QUERY(sar &lt;* shape_aspect_relationship |&#10;       (sar\shape_aspect_relationship.name = 'printed part template terminal relationship')&#10;       AND NOT('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.'&#10;       + 'PRINTED_PART_TEMPLATE_TERMINAL' IN &#10;       TYPEOF(sar.relating_shape_aspect)&#10;       ))) = 0"/>
-      </rule>
-      <rule name="printed_part_template_terminal_unique_constraint" appliesto="printed_part_template_terminal">
-         <algorithm>LOCAL
-  pptt : BAG OF printed_part_template_terminal := 
-                QUERY( r &lt;* printed_part_template_terminal |
-(r\shape_aspect.description IN ['interface terminal','join terminal']) );
-  name_bag : BAG OF STRING := [];
-  sar_bag : BAG OF shape_aspect_relationship;
-  sa_bag : BAG OF shape_aspect;
-  pass : BOOLEAN := TRUE;
-  ptd_bag : BAG OF part_template_definition;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(pptt) by 1;
-  IF EXISTS( pptt[i]\shape_aspect.name ) THEN
-    IF ( NOT ( pptt[i]\shape_aspect.name IN name_bag )) THEN
-      name_bag := name_bag + pptt[i]\shape_aspect.name;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(name_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  ptd_bag := [];
-  sa_bag := QUERY( sa &lt;* pptt | (sa\shape_aspect.name = name_bag[i]) );
-  REPEAT j := 1 to SIZEOF(sa_bag) by 1;
-    IF ( NOT pass ) THEN ESCAPE;
-    END_IF;
-    sar_bag := QUERY( sar &lt;* USEDIN( sa_bag[j],
-'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_MIM.'
-+ 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') | 
-((sar\shape_aspect_relationship.name = 'associated definition')
-AND (sar.relating_shape_aspect\shape_aspect.description = 'printed part template')) );
-    REPEAT k := 1 to SIZEOF(sar_bag) by 1;
-      IF EXISTS( sar_bag[k].relating_shape_aspect ) THEN
-        IF ( sar_bag[k].relating_shape_aspect IN ptd_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          ptd_bag := ptd_bag + sar_bag[k].relating_shape_aspect;
-        END_IF;
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
       </rule>
       <function name="printed_part_template_access_mechanisms">
          <parameter name="input">

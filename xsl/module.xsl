@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.21 2002/01/14 13:28:57 robbod Exp $
+$Id: module.xsl,v 1.22 2002/01/15 09:07:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -249,6 +249,7 @@ $Id: module.xsl,v 1.21 2002/01/14 13:28:57 robbod Exp $
   <b>Address: </b>
   <xsl:apply-templates select="./affiliation"/>
   <xsl:apply-templates select="./street"/>
+  <xsl:apply-templates select="./pobox"/>
   <xsl:apply-templates select="./city"/>
   <xsl:apply-templates select="./state"/>
   <xsl:apply-templates select="./postcode"/>
@@ -261,6 +262,10 @@ $Id: module.xsl,v 1.21 2002/01/14 13:28:57 robbod Exp $
 </xsl:template>
 
 <xsl:template match="street">
+  <xsl:value-of select="."/> <br/>
+</xsl:template>
+
+<xsl:template match="pobox">
   <xsl:value-of select="."/> <br/>
 </xsl:template>
 
@@ -1460,12 +1465,21 @@ defines it. Use: normref.inc')"/>
      -->
 <xsl:template name="output_abbreviations">
   <xsl:param name="section"/>
-  <xsl:if test="/module/abbreviations">
-    <h3>
-      <xsl:value-of select="concat('3.',$section)"/> Abbreviations
-    </h3>
-    <xsl:apply-templates select="/module/abbreviations" mode="output"/>
-  </xsl:if>
+  <h3>
+    <xsl:value-of select="concat('3.',$section)"/> Abbreviations
+  </h3>
+  <p>
+    For the purposes of this part of ISO 10303, the following abbreviations
+    apply:
+  </p>
+  <table width="80%">
+    <!-- get the default abbreviations out of the abbreviations_default.xml
+         database -->
+    <xsl:apply-templates 
+      select="document('../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>
+    
+    <xsl:apply-templates select="/module/abbreviations" mode="output"/>    
+  </table>
 </xsl:template>
 
   
@@ -1474,23 +1488,11 @@ defines it. Use: normref.inc')"/>
      the module
      -->
 <xsl:template match="abbreviations" mode="output">
-  <p>
-    For the purposes of this part of ISO 10303, the following abbreviations
-    apply:
-  </p>
-  <table width="80%">
-  <!-- get the default abbreviations out of the abbreviations_default.xml
-       database -->
-  <xsl:apply-templates 
-    select="document('../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>
-
   <!-- output any abbreviations defined in the module-->
   <xsl:apply-templates select="/module/abbreviations/abbreviation"/>
 
   <!-- output any abbreviations defined in the module-->
   <xsl:apply-templates select="/module/abbreviations/abbreviation.inc"/>
-
-  </table>
 </xsl:template>
 
 <!-- get the abbreviations out of the abbreviations.xml database -->

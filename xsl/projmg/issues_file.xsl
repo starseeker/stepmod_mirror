@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: issues_file.xsl,v 1.12 2003/04/16 09:58:53 robbod Exp $
+     $Id: issues_file.xsl,v 1.13 2003/04/23 14:51:28 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -12,6 +12,18 @@
   <xsl:output method="html"/>
 
   <xsl:template match="issues">
+        <xsl:variable name="module_name" select="@module"/>
+        <xsl:variable name="open_issues"
+          select="count(//issue[@status!='closed'])"/>
+        <xsl:if test="$open_issues>0">
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Warning Issues1: ','Module ', $module_name, ' has ',$open_issues , ' open issues' )"/>
+            </xsl:with-param>
+            <xsl:with-param name="inline" select="'no'"/>
+          </xsl:call-template>
+          
+              </xsl:if>
     <html>
       <title>
         <xsl:value-of select="concat(/issues/@module,' - issues')"/>
@@ -20,7 +32,6 @@
       <body>
 
         <!-- Output a Table of contents -->
-        <xsl:variable name="module_name" select="@module"/>
         <xsl:variable name="module_file"
           select="concat('../../data/modules/',@module,'/module.xml')"/>
         <xsl:variable name="in_repo"

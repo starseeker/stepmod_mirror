@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: resdoc_index.xsl,v 1.5 2002/10/17 22:59:53 thendrix Exp $
+     $Id: resdoc_index.xsl,v 1.6 2003/02/03 13:53:32 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -92,7 +92,7 @@
   </p>
   <font size="-1">
   <b>
-    This page has been deprecated. 
+    The use of this page is deprecated. 
     <br/>
     It has been replaced by a significantly improved navigation facility available at: 
     <br/>

@@ -5,9 +5,13 @@
 
 SCHEMA Interface_component_arm;
 
-USE FROM Physical_unit_design_view_arm (physical_component);
-
+USE FROM Physical_unit_design_view_arm;
 USE FROM Physical_component_feature_arm;
+
+	SUBTYPE_CONSTRAINT physical_component_feature_subtypes FOR physical_component_feature;
+		(ONEOF (physical_component_terminal,
+	 	component_interface_terminal));
+	END_SUBTYPE_CONSTRAINT;
 
   ENTITY Component_interface_terminal
     ABSTRACT SUPERTYPE 
@@ -16,10 +20,9 @@ USE FROM Physical_component_feature_arm;
   END_ENTITY; -- component_interface_terminal
  
   ENTITY Interface_component
---    SUPERTYPE OF (packaged_connector_component)
     SUBTYPE OF (physical_component);
     INVERSE
       access_mechanism : SET[1:?] OF component_interface_terminal FOR associated_component;
-  END_ENTITY; -- interface_component
+  END_ENTITY;
 
 END_SCHEMA; -- Interface_component_arm

@@ -65,10 +65,31 @@ USE FROM Basic_curve_arm;
 		 laminate_component_join_terminal);
 	END_SUBTYPE_CONSTRAINT;
 
-	SUBTYPE_CONSTRAINT component_2d_location_subtypes FOR component_2d_location;         
-	    ONEOF (component_2d_edge_location,
-	 component_2d_stacked_location,
-	 component_2d_surface_location);    
+	SUBTYPE_CONSTRAINT default_land_physical_template_subtypes FOR default_land_physical_template;     
+		(ONEOF (default_passage_based_land_physical_template,
+		 default_attachment_size_based_land_physical_template));
+	END_SUBTYPE_CONSTRAINT;
+
+	SUBTYPE_CONSTRAINT Default_attachment_size_based_land_physical_template_subtypes FOR Default_attachment_size_based_land_physical_template;     
+	    (ONEOF (default_attachment_size_and_component_termination_passage_based_land_physical_template,
+	 	default_attachment_size_and_via_based_land_physical_template));
+	END_SUBTYPE_CONSTRAINT;
+
+	SUBTYPE_CONSTRAINT interconnect_module_terminal_subtypes FOR interconnect_module_terminal;     
+		(ONEOF (interconnect_module_interface_terminal,
+		 interconnect_module_join_terminal));
+	END_SUBTYPE_CONSTRAINT; 
+
+	SUBTYPE_CONSTRAINT layout_template_definition_subtypes FOR Layout_template_definition; 
+	    (ONEOF (inter_stratum_feature_template,
+		 material_removal_feature_template,
+		 non_conductive_cross_section_template,
+		 printed_part_cross_section_template,
+		 printed_part_template,
+		 special_symbol_part_template,
+		 stratum_feature_template,
+		 trace_template) ANDOR
+		 part_text_template);
 	END_SUBTYPE_CONSTRAINT;
 
  	TYPE bare_die_component_or_packaged_component = EXTENSIBLE GENERIC_ENTITY SELECT;
@@ -551,8 +572,9 @@ USE FROM Basic_curve_arm;
   END_ENTITY; -- interconnect_connection_zone_position_relationship
 
   ENTITY Interconnect_module
+  	SUPERTYPE OF (ONEOF (pcb,
+ 		reference_packaged_part_interconnect_implementation))
     SUBTYPE OF (part_design_view);
---      assembly_design_requirement : OPTIONAL SET[1:?] OF assembly_module;
     INVERSE
       of_fabrication_thickness_requirement : SET[0:?] OF requirement_assignment FOR assigned_to;
     WHERE
@@ -619,7 +641,10 @@ USE FROM Basic_curve_arm;
   END_ENTITY; -- intra_stratum_join_relationship
 
   ENTITY Join_relationship
-    ABSTRACT SUPERTYPE; 
+    ABSTRACT SUPERTYPE OF (ONEOF (inter_stratum_join_relationship,
+		intra_stratum_join_relationship,
+	 	stratum_embedded_component_join_relationship,
+	 	unrouted_join_relationship));
       associated_layout : interconnect_module;
     INVERSE
       network_topology : Routed_physical_network FOR routed_connectivity_requirement_element;
@@ -806,7 +831,10 @@ USE FROM Basic_curve_arm;
 (** It should be mapped like stratum, since it is on the same level.
 It is a summary of all vertical elements of particular kind, similar like stratum is a summay of all horizontal elements. *)
 
-	ENTITY Passage_technology;
+	ENTITY Passage_technology
+		SUPERTYPE OF (ONEOF (default_via_definition,
+ 			default_component_termination_passage_definition,
+ 			default_unsupported_passage_definition));
 	  of_technology						: Passage_technology_parameters;
       associated_definition				: Interconnect_module;
       as_finished_inter_stratum_extent	: Inter_stratum_extent;      

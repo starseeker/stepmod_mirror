@@ -262,62 +262,19 @@ SUBTYPE_CONSTRAINT component_interface_terminal_subtypes FOR component_interface
  interconnect_component_interface_terminal));
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT connection_zone_subtypes FOR connection_zone;     
- ONEOF (connection_zone_in_usage_view,
- connection_zone_in_design_view,
- connection_zone_in_layout_template);
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT default_land_physical_template_subtypes FOR default_land_physical_template;     
-(ONEOF (default_passage_based_land_physical_template,
- default_attachment_size_based_land_physical_template));
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT Default_attachment_size_based_land_physical_template_subtypes FOR Default_attachment_size_based_land_physical_template;     
-    (ONEOF (default_attachment_size_and_component_termination_passage_based_land_physical_template,
- default_attachment_size_and_via_based_land_physical_template));
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT functional_unit_definition_subtypes FOR functional_unit_definition;     
- (ONEOF (functional_unit_network_definition,
- functional_unit_usage_view));
-END_SUBTYPE_CONSTRAINT; 
-    
+(** Subtypes are totally mixed and appear in various schemas - most likely this constraint will remain in some CC *)
 SUBTYPE_CONSTRAINT geometric_representation_relationship_subtypes FOR Geometric_model_relationship;     
-(ONEOF (non_feature_shape_composition_relationship,
- reference_geometric_representation_relationship,
- component_part_2d_geometric_representation_relationship,
- component_part_2d_non_planar_geometric_representation_relationship,
- component_part_3d_geometric_representation_relationship,
- shape_definition_3d_intersection,
- shape_definition_3d_plane_projection));    
-END_SUBTYPE_CONSTRAINT;
-    
-SUBTYPE_CONSTRAINT interconnect_module_terminal_subtypes FOR interconnect_module_terminal;     
-(ONEOF (interconnect_module_interface_terminal,
- interconnect_module_join_terminal));
-END_SUBTYPE_CONSTRAINT; 
-
-SUBTYPE_CONSTRAINT interconnect_module_subtypes FOR interconnect_module;         
-	(ONEOF (pcb,
- 	reference_packaged_part_interconnect_implementation));
+(ONEOF (non_feature_shape_composition_relationship, -- Non_feature_shape_element_arm
+ reference_geometric_representation_relationship, -- layered_2d_shape
+ component_part_2d_geometric_representation_relationship, -- Physical_unit_2d_design_view_arm
+ component_part_2d_non_planar_geometric_representation_relationship, -- Interconnect_non_planar_shape_arm
+ component_part_3d_geometric_representation_relationship, -- Physical_unit_3d_design_view_arm
+ shape_definition_3d_intersection, -- layered_3d_shape
+ shape_definition_3d_plane_projection -- layered_3d_shape
+ ));    
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT inter_stratum_feature_template_subtypes FOR inter_stratum_feature_template;         
-    (ONEOF (component_termination_passage_template,
- via_template,
- unsupported_passage_template,
- inter_stratum_feature_edge_segment_template,
- inter_stratum_feature_edge_template));
-END_SUBTYPE_CONSTRAINT;        
-
-SUBTYPE_CONSTRAINT join_relationship_subtypes FOR join_relationship;         
- (ONEOF (inter_stratum_join_relationship,
- intra_stratum_join_relationship,
- stratum_embedded_component_join_relationship,
- unrouted_join_relationship));
-END_SUBTYPE_CONSTRAINT;         
- 
+(** Most likely it is in CC Interconnect_module *)    
 SUBTYPE_CONSTRAINT laminate_component_interface_terminal_subtypes FOR laminate_component_interface_terminal; 
  (ONEOF (non_functional_land_interface_terminal,
  printed_connector_component_interface_terminal,
@@ -325,6 +282,7 @@ SUBTYPE_CONSTRAINT laminate_component_interface_terminal_subtypes FOR laminate_c
  land_interface_terminal));
 END_SUBTYPE_CONSTRAINT;
 
+(** Most likely it is in CC Interconnect_module *)    
 SUBTYPE_CONSTRAINT laminate_component_join_terminal_subtypes FOR laminate_component_join_terminal; 
  (ONEOF (component_termination_passage_join_terminal,
  land_join_terminal,
@@ -333,134 +291,35 @@ SUBTYPE_CONSTRAINT laminate_component_join_terminal_subtypes FOR laminate_compon
  printed_component_join_terminal));
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT layer_connection_point_subtypes FOR layer_connection_point; 
-(ONEOF (explicitly_located_layer_connection_point,
- dependently_located_layer_connection_point));
-END_SUBTYPE_CONSTRAINT; 
-
-SUBTYPE_CONSTRAINT material_addition_feature_template_subtypes FOR material_addition_feature_template; 
-(ONEOF (snowball_template,
- teardrop_by_angle_template,
- teardrop_by_length_template));
-END_SUBTYPE_CONSTRAINT; 
-
-SUBTYPE_CONSTRAINT material_removal_feature_template_subtypes FOR material_removal_feature_template; 
-    (ONEOF (electrical_isolation_removal_template,
- thermal_isolation_removal_template));
-END_SUBTYPE_CONSTRAINT;
-    
-SUBTYPE_CONSTRAINT model_parameter_subtypes FOR model_parameter; 
-  ONEOF (datum_difference_based_model_parameter,
- schema_based_model_parameter) ANDOR
- ONEOF (analytical_model_parameter,
- category_model_parameter,
- rule_function_domain_parameter,
- rule_function_range_parameter);
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT non_feature_shape_element_subtypes FOR non_feature_shape_element; 
-    (ONEOF (
- derived_shape_element,
- directed_axis,
- positional_boundary,
- positional_boundary_member,
- tolerance_zone_boundary,
- tolerance_zone_boundary_member,
- viewing_plane,
- seating_plane,
- template_material_cross_section_boundary,
- interconnect_module_constraint_region,
- reference_graphic_registration_mark,
- mounting_restriction_area,
- mounting_restriction_volume) ANDOR
- datum);
-END_SUBTYPE_CONSTRAINT;
-
+(** most likely some Assembly_module CC *)
 SUBTYPE_CONSTRAINT packaged_part_subtypes FOR packaged_part; 
-    (ONEOF (minimally_defined_connector,
- packaged_connector) ANDOR
- altered_packaged_part);
+    (ONEOF (minimally_defined_connector, -- Assembly_functional_interface_requirement_arm
+ packaged_connector) ANDOR -- Packaged_connector_model_arm
+ altered_packaged_part); -- Altered_part_arm
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT packaged_part_terminal_subtypes FOR packaged_part_terminal; 
-     (ONEOF (packaged_part_interface_terminal,
- packaged_part_join_terminal));
-END_SUBTYPE_CONSTRAINT;
-
+(** Since this includes both pca and pca - I guess it will be it top most schema *)
 SUBTYPE_CONSTRAINT part_terminal_subtypes FOR part_terminal; 
-ONEOF (minimally_defined_bare_die_terminal,
- assembly_module_terminal,
- cable_terminal,
- interconnect_module_terminal,
- packaged_part_terminal);
+ONEOF (minimally_defined_bare_die_terminal, -- *pca*
+ assembly_module_terminal, -- *pca*
+ cable_terminal, -- *pca*
+ interconnect_module_terminal, -- *PCB*
+ packaged_part_terminal); -- *pca*
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT part_feature_subtypes FOR part_feature; 
-((((((((((((part_group_feature ANDOR
- ONEOF (primary_orientation_feature,
- secondary_orientation_feature,
- tertiary_orientation_feature,
- package_body)) ANDOR
- part_tooling_feature) ANDOR
- thermal_feature) ANDOR
- part_interface_access_feature) ANDOR
- part_mating_feature) ANDOR
- part_mounting_feature) ANDOR
- part_terminal) ANDOR
- interconnect_module_surface_feature) ANDOR
- package_terminal) ANDOR
- package_body_surface) ANDOR
- polarity_indication_feature) ANDOR
- functional_orientation_feature);
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT part_template_subtypes FOR Layout_template_definition; 
-    (ONEOF (inter_stratum_feature_template,
- material_removal_feature_template,
- non_conductive_cross_section_template,
- printed_part_cross_section_template,
- printed_part_template,
- special_symbol_part_template,
- stratum_feature_template,
- trace_template) ANDOR
- part_text_template);
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT passage_technology_subtypes FOR passage_technology; 
-    (ONEOF (default_via_definition,
- default_component_termination_passage_definition,
- default_unsupported_passage_definition));
-END_SUBTYPE_CONSTRAINT; 
-
-
-SUBTYPE_CONSTRAINT physical_component_terminal_subtypes FOR physical_component_terminal; 
-(ONEOF (assembly_module_component_terminal,
- bare_die_component_terminal,
- interconnect_component_join_terminal,
- interconnect_module_component_terminal,
- minimally_defined_component_terminal,
- packaged_component_join_terminal));
- END_SUBTYPE_CONSTRAINT;
- 
+(** It most likely should be in Assembly_module CC *)
 SUBTYPE_CONSTRAINT physical_component_subtypes FOR physical_component;  
-(ONEOF (cable_component,
- packaged_component,
- interconnect_module_component,
- assembly_module_component,
- bare_die_component,
- routed_physical_component,
- routed_interconnect_component) ANDOR
- interface_component);
+(ONEOF (Assembly_module_component, --Assembly_module_with_subassembly_arm
+Bare_die_component, -- Assembly_module_design_arm
+Cable_component, -- Assembly_module_with_cable_component_arm
+Interconnect_module_component, -- Assembly_module_with_interconnect_component_arm
+Packaged_component, -- Assembly_module_design_arm
+Routed_interconnect_component, -- Assembly_module_design_arm
+Routed_physical_component)); -- Assembly_module_design_arm 
 END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT physical_component_feature_subtypes FOR physical_component_feature;
-    (component_mounting_feature ANDOR
- interconnect_module_component_surface_feature ANDOR
- (ONEOF (physical_component_terminal,
- component_interface_terminal)));
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT physical_unit_usage_view_subtypes FOR part_usage_view;  
+(** It most likely should be in Assembly_module CC *)
+SUBTYPE_CONSTRAINT part_usage_view_subtypes FOR part_usage_view;  
     ONEOF (package,
  bare_die,
  cable_usage_view,
@@ -469,11 +328,13 @@ SUBTYPE_CONSTRAINT physical_unit_usage_view_subtypes FOR part_usage_view;
  interconnect_module_usage_view);
 END_SUBTYPE_CONSTRAINT;
 
+(** It most likely should be in TOP AP210 schema *)
 SUBTYPE_CONSTRAINT part_design_view_subtypes FOR part_design_view;  
     ONEOF (assembly_module,
  interconnect_module);
 END_SUBTYPE_CONSTRAINT;
 
+(** It most likely should be in Interconnect_module CC *)
 SUBTYPE_CONSTRAINT planar_projected_shape_subtypes FOR planar_projected_shape;  
 (ONEOF ((assembly_component_2d_shape ANDOR
  (ONEOF (part_template_planar_shape,
@@ -485,61 +346,14 @@ SUBTYPE_CONSTRAINT planar_projected_shape_subtypes FOR planar_projected_shape;
  stratum_planar_shape));
 END_SUBTYPE_CONSTRAINT; 
 
-SUBTYPE_CONSTRAINT planar_shape_subtypes FOR planar_shape;  
-(* (ONEOF 
- (-- geometrically_bounded_2d_wireframe,
- --shell_based_2d_wireframe,
--- edge_based_2d_wireframe
--- ,csg_2d_shape
- ) ANDOR*)
- (ONEOF (planar_projected_shape,
- physical_unit_planar_keepout_shape));
- END_SUBTYPE_CONSTRAINT; 
-
-SUBTYPE_CONSTRAINT plated_inter_stratum_feature_subtypes FOR plated_inter_stratum_feature;  
- (ONEOF (plated_cutout,
- plated_interconnect_module_edge,
- plated_cutout_edge_segment,
- plated_interconnect_module_edge_segment,
- plated_passage) ANDOR
- physical_network_supporting_inter_stratum_feature ANDOR
- indirect_stratum_component_join_implementation);
-END_SUBTYPE_CONSTRAINT; 
-
-SUBTYPE_CONSTRAINT printed_part_template_subtypes FOR printed_part_template;  
- (ONEOF (layout_macro_floor_plan_template,
- printed_connector_template));
- END_SUBTYPE_CONSTRAINT;
- 
-SUBTYPE_CONSTRAINT process_specification_subtypes FOR process_specification;   
-     (ONEOF (assembly_technology_specification,
- fabrication_technology_specification));
-END_SUBTYPE_CONSTRAINT; 
- 
- 	SUBTYPE_CONSTRAINT Requirement_definition_property_subtypes FOR Requirement_definition_property;     
-	 (ONEOF (layout_spacing_requirement_occurrence,
-	 item_restricted_requirement_occurrence));
-	END_SUBTYPE_CONSTRAINT;
- 
+(** Pre_defined_datum_symbol_arm and Layered_interconnect_module_3d_shape_arm are not linked in any way.
+Most likely it should be defined in Interconnect_module CC *)
  SUBTYPE_CONSTRAINT shape_definition_3d_intersection_subtypes FOR shape_definition_3d_intersection;  
  (ONEOF (edge_segment_cross_section,
  pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship,
  pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship,
  pre_defined_parallel_datum_axis_symbol_3d_2d_relationship));
  END_SUBTYPE_CONSTRAINT;  
- 
- SUBTYPE_CONSTRAINT stratum_feature_template_component_subtypes FOR stratum_feature_template_component;   
- (ONEOF (connected_area_component,
- non_functional_land,
- land));
- END_SUBTYPE_CONSTRAINT;
- 
-SUBTYPE_CONSTRAINT view_level_non_feature_shape_definition_subtypes FOR view_level_non_feature_shape_definition;  
-    (ONEOF (physical_unit_3d_keepout_shape,
- physical_unit_planar_keepout_shape,
- part_template_3d_keepout_shape,
- part_template_planar_keepout_shape));
-END_SUBTYPE_CONSTRAINT; 
  
 TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON managed_design_object WITH 
 (adjacent_stratum_surface_definition,
@@ -566,9 +380,6 @@ TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON man
  representation_item,
  component_2d_location,
  component_3d_location,
--- component_assembly_2d_position,
--- component_assembly_3d_position,
--- component_assembly_non_planar_position,
  component_external_reference,
  component_feature,
  component_feature_external_reference,
@@ -595,9 +406,7 @@ TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON man
  connection_zone_bare_die_interface_plane_relationship,
  connection_zone_package_interface_plane_relationship,
  connection_zone_map_identification,
--- connection_zone_model_port_assignment,
  coordinated_characteristic,
--- csg_item_3d,
  curve_style,
  curve_style_font,
  curve_style_font_and_scaling,
@@ -609,14 +418,10 @@ TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON man
  datum_based_direction_vector,
  datum_based_length_measure,
  datum_based_vector_orientation,
--- datum_difference_analytical_model_port_assignment,
  datum_difference_functional_unit_usage_view_terminal_assignment,
--- datum_feature_material_condition_property,
-single_datum, -- datum_feature_usage_in_datum_system_relationship,
-datum, -- datum_precedence_assignment,
--- datum_system_defining_conditions,
+ single_datum, 
+ datum, 
  datum_target_usage_in_datum_target_set_relationship,
--- datum_usage_in_datum_system_relationship,
  design_composition_path,
  design_functional_unit_allocation_to_assembly_component,
  design_functional_unit_allocation_to_assembly_joint,
@@ -634,7 +439,7 @@ datum, -- datum_precedence_assignment,
  device_3d_position,
  device_terminal_map,
  device_terminal_map_relationship,
- geometric_dimension, --dimensional_characteristic,
+ geometric_dimension, 
  dimensional_characteristic_representation,
  dimension_qualifier,
  dimension_set,
@@ -643,7 +448,6 @@ datum, -- datum_precedence_assignment,
  direction_element,
  approval,
  document_definition,
--- ee_document_identifier,
  material_identification,
  product,
  product_category,
@@ -707,12 +511,11 @@ datum, -- datum_precedence_assignment,
  linear_array_placement_group_component_link,
  located_interconnect_module_thickness_requirement,
  marking,
--- material_composition_relationship,
  mating_connector_component,
  mating_connector_placement_relationship,
  mating_connector_termination,
  model_parameter,
- independent_property_relationship, --model_parameter_relationship,
+ independent_property_relationship, 
  next_higher_assembly_interface_requirement,
  operational_requirement_occurrence_relationship,
  organization,
@@ -722,12 +525,9 @@ datum, -- datum_precedence_assignment,
  packaged_connector_terminal_relationship,
  parameter_assignment,
  parameter_assignment_override,
--- participant_date_and_time_assignment,
  part_connected_terminals_definition,
  part_device,
  part_device_terminal,
- -- part_device_terminal_model_port_assignment,
- --part_feature_model_port_assignment,
  part_terminal_external_reference,
  part_template_or_physical_unit_2d_shape_representation_relationship,
  part_template_or_physical_unit_3d_shape_representation_relationship,
@@ -803,7 +603,6 @@ datum, -- datum_precedence_assignment,
  stratum_feature_styled_area_representation,
  stratum_interconnect_module_3d_position,
  stratum_interconnect_module_planar_position,
- --stratum_make_from_relationship,
  stratum_average_surface,
  stratum_surface,
  stratum_surface_in_stratum_3d_position,

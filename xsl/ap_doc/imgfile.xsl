@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: imgfile.xsl,v 1.10 2003/05/27 08:08:48 robbod Exp $
+$Id: imgfile.xsl,v 1.11 2003/05/29 07:10:52 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -50,11 +50,11 @@ $Id: imgfile.xsl,v 1.10 2003/05/27 08:08:48 robbod Exp $
           <xsl:apply-templates select="$application_doc_xml/application_protocol" mode="meta_data"/>
         </xsl:if>        
         <TITLE>
-          <xsl:value-of select="concat(@application_protocol,' : ',@title)"/>
+          <xsl:apply-templates 
+            select="$application_doc_xml/application_protocol" mode="title"/>
         </TITLE>
       </HEAD>
       <body bgcolor="#eeeeee">
-        <xsl:value-of select="$fig_title"/>
         <xsl:variable name="self" select="."/>
         <xsl:choose>
           <xsl:when test="@application_protocol">
@@ -132,16 +132,16 @@ $Id: imgfile.xsl,v 1.10 2003/05/27 08:08:48 robbod Exp $
   </xsl:template>
   
   <xsl:template match="fundamentals" mode="imgfiletitle">
-    <xsl:param name="number"/>
+    <xsl:param name="number" select="0"/>
     <xsl:variable name="figure_count">
       <xsl:call-template name="count_figures_from_fundamentals"/>
     </xsl:variable>
-    <xsl:value-of select="concat('Figure ', $figure_count+$number, ' Data planning model')"/>
+    <xsl:value-of select="concat('Figure ', $figure_count+$number, ' &#8212; Data planning model')"/>
   </xsl:template>
   
   <xsl:template match="purpose" mode="imgfiletitle">
-    <xsl:param name="number"/>
-    <xsl:value-of select="concat('Figure ', $number, ' Data planning model')"/>
+    <xsl:param name="number" select="0"/>
+    <xsl:value-of select="concat('Figure ', $number, ' &#8212; Data planning model')"/>
   </xsl:template>
 
 
@@ -169,7 +169,7 @@ $Id: imgfile.xsl,v 1.10 2003/05/27 08:08:48 robbod Exp $
     <xsl:variable name="node" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@node"/>
     <xsl:variable name="fig_title"
       select="document(string($aam_path))/idef0/page[position() = $fig_no]/@title"/>    
-    <xsl:value-of select="concat('Figure E.', $fig_no, ' - ', $node, ' ', $fig_title)"/>
+    <xsl:value-of select="concat('Figure F.', $fig_no, ' &#8212; ', $node, ' ', $fig_title)"/>
   </xsl:template>
 	
   <xsl:template match="imgfile" mode="nav_arrows">
@@ -179,7 +179,7 @@ $Id: imgfile.xsl,v 1.10 2003/05/27 08:08:48 robbod Exp $
         <xsl:choose>
           <xsl:when test="name(../..)='aam'">
             <xsl:call-template name="set_file_ext">
-              <xsl:with-param name="filename" select="'./sys/f_aam.xml'"/>
+              <xsl:with-param name="filename" select="'./sys/annex_aam.xml'"/>
             </xsl:call-template>
           </xsl:when>
           <xsl:when test="name(../..)='purpose'">
@@ -245,6 +245,33 @@ $Id: imgfile.xsl,v 1.10 2003/05/27 08:08:48 robbod Exp $
         </a>
       </xsl:if>
     </xsl:if>
+  </xsl:template>
+
+
+  <xsl:template match="application_protocol" mode="title">
+    <xsl:variable name="lpart">
+      <xsl:choose>
+        <xsl:when test="string-length(@part)>0">
+          <xsl:value-of select="@part"/>
+        </xsl:when>
+        <xsl:otherwise>
+          XXXX
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="stdnumber">
+      <xsl:call-template name="get_protocol_stdnumber">
+        <xsl:with-param name="application_protocol" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <xsl:variable name="protocol_name">
+      <xsl:call-template name="protocol_display_name">
+        <xsl:with-param name="application_protocol" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="concat($stdnumber,' ',$protocol_name)"/>                
   </xsl:template>
 	
 </xsl:stylesheet>

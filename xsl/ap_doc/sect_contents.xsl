@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.15 2003/05/30 14:28:24 robbod Exp $
+$Id: sect_contents.xsl,v 1.16 2003/06/02 14:12:49 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -257,7 +257,15 @@ $Id: sect_contents.xsl,v 1.15 2003/05/30 14:28:24 robbod Exp $
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
 
+      <xsl:apply-templates select="//purpose" mode="data_plan_figure">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
       <xsl:apply-templates select="//purpose//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//fundamentals" mode="data_plan_figure">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
 
@@ -270,6 +278,11 @@ $Id: sect_contents.xsl,v 1.15 2003/05/30 14:28:24 robbod Exp $
       </xsl:apply-templates>
 
       <xsl:apply-templates select="//inforeqt//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+
+      <xsl:apply-templates select="//aam/idef0/imgfile" mode="aam_figure">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
 
@@ -456,6 +469,73 @@ $Id: sect_contents.xsl,v 1.15 2003/05/30 14:28:24 robbod Exp $
       <br/>
     </xsl:otherwise>
   </xsl:choose>
+</xsl:template>
+
+
+<xsl:template match="purpose" mode="data_plan_figure">
+  <xsl:param name="target" select="'_self'"/>
+  <xsl:apply-templates select="./data_plan/imgfile" mode="data_plan_figure">
+    <xsl:with-param name="target" select="$target"/>
+  </xsl:apply-templates>
+</xsl:template>
+
+
+<xsl:template match="fundamentals" mode="data_plan_figure">
+  <xsl:param name="target" select="'_self'"/>
+  <xsl:variable name="figure_count">
+    <xsl:call-template name="count_figures_from_fundamentals"/>
+  </xsl:variable>  
+  <xsl:apply-templates select="./data_plan/imgfile" mode="data_plan_figure">
+    <xsl:with-param name="target" select="$target"/>
+    <xsl:with-param name="number" select="$figure_count"/>
+  </xsl:apply-templates> 
+</xsl:template>
+
+
+<xsl:template match="imgfile" mode="data_plan_figure">
+  <xsl:param name="number" select="0"/>
+  <xsl:param name="target" select="'_self'"/>
+  <xsl:variable name="fig_count" select="position()"/>
+  <xsl:variable name="fig_title" 
+    select="concat('Figure ', $number+$fig_count, ' &#8212; Data planning model')"/>
+  <xsl:variable name="file_href">
+    <xsl:call-template name="set_file_ext">
+      <xsl:with-param name="filename" select="concat('../',@file)"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <a href="{$file_href}" target="{$target}">
+    <xsl:value-of select="$fig_title"/>
+  </a>
+  <br/>
+</xsl:template>
+
+
+<xsl:template match="imgfile" mode="aam_figure">
+  <xsl:param name="target" select="'_self'"/>
+  <xsl:variable name="ap_dir">
+    <xsl:value-of select="/application_protocol/@name"/>
+  </xsl:variable>
+
+  <xsl:variable name="aam_href">
+    <xsl:call-template name="set_file_ext">
+      <xsl:with-param name="filename" select="concat('../',./@file)"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="aam_path">
+    <xsl:value-of select="concat('../../data/application_protocols/', $ap_dir, '/aam.xml')"/>
+  </xsl:variable>
+
+  <xsl:variable name="fig_no" select="position()"/>
+  <xsl:variable name="aam_xml" select="document(string($aam_path))"/>
+  <xsl:variable name="fig_title" select="$aam_xml/idef0/page[position() = $fig_no]/@title"/>
+  <xsl:variable name="node" select="$aam_xml/idef0/page[position() = $fig_no]/@node"/>
+
+  <p>
+    <a href="{$aam_href}" target="{$target}">
+      Figure F.<xsl:value-of select="$fig_no"/> &#8212; <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
+  </a>
+</p>
 </xsl:template>
 
 </xsl:stylesheet>

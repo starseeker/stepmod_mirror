@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_aam.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
+$Id: sect_annex_aam.xsl,v 1.2 2003/06/01 13:56:35 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -46,7 +46,7 @@ $Id: sect_annex_aam.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
 			<xsl:value-of select="concat('../../data/application_protocols/', $ap_dir, '/aam.xml')"/>
 		</xsl:variable>
 		<xsl:variable name="no_of_diagrams" select="count(imgfile)"/>
-		The AAM is presented in Figures E.1 to E.<xsl:value-of select="$no_of_diagrams"/>. Activities and data flows which are out of scope are marked with asterisks.
+		The AAM is presented in Figures F.1 to F.<xsl:value-of select="$no_of_diagrams"/>. Activities and data flows which are out of scope are marked with asterisks.
 		<xsl:for-each select="imgfile">
 			<xsl:variable name="aam_href">
                           <xsl:call-template name="set_file_ext">
@@ -58,7 +58,7 @@ $Id: sect_annex_aam.xsl,v 1.1 2003/05/28 14:34:04 robbod Exp $
 			<xsl:variable name="fig_title" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@title"/>
 			<p>
 				<a href="{$aam_href}">
-					Figure E.<xsl:value-of select="$fig_no"/> - <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
+					Figure F.<xsl:value-of select="$fig_no"/> - <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
 				</a>
 			</p>
 		</xsl:for-each>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.10 2004/11/06 00:45:57 thendrix Exp $
+<!--  $Id: build.xsl,v 1.11 2004/11/08 19:03:11 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -810,12 +810,22 @@
     
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCCOVERXML</xsl:attribute>
-      <xsl:attribute name="value">${APDIR}/sys/isocover.xml</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/cover.xml</xsl:attribute>
     </xsl:element>
 
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCCOVERHTM</xsl:attribute>
       <xsl:attribute name="value">${APDIR}/sys/cover.htm</xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCISOCOVERXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/isocover.xml</xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCISOCOVERHTM</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/isocover.htm</xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">
@@ -1665,7 +1675,7 @@
       <xsl:attribute name="value">
         <xsl:apply-templates select="$mim_modules_node_set/module" mode="list">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
-          <xsl:with-param name="suffix" select="'/sys/isocover.xml'"/>
+          <xsl:with-param name="suffix" select="'/sys/cover.xml'"/>
         </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
@@ -1676,6 +1686,26 @@
         <xsl:apply-templates select="$mim_modules_node_set/module" mode="list">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
           <xsl:with-param name="suffix" select="'/sys/cover.htm'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODISOCOVERXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module" mode="list">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/isocover.xml'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODISOCOVERHTM</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module" mode="list">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/isocover.htm'"/>
         </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
@@ -2677,6 +2707,7 @@
       </xsl:element>
 
       <!-- move the cover page to SC4 cover page  -->
+      <!-- RBN Commented out as per request from ISO
       <xsl:element name="move">
         <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
         <xsl:element name="fileset">
@@ -2684,21 +2715,30 @@
           <xsl:attribute name="includes">${DMODCOVERHTM}</xsl:attribute>
         </xsl:element>
         <mapper type="glob" from="*.htm" to="*_sc4.htm"/>
-      </xsl:element>     
+      </xsl:element> -->   
 
       <!-- generate the ISO cover page  -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODCOVERXML}'"/>
+          <xsl:value-of select="'${DMODISOCOVERXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_isocover.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_isocover.xsl'"/>
         </xsl:attribute>        
         <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
           <xsl:with-param name="menu" select="$menu"/>
         </xsl:apply-templates>
       </xsl:element>
-      
+
+      <!-- move the ISO cover page to cover page -->
+      <xsl:element name="move">
+        <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">${TMPDIR}</xsl:attribute>
+          <xsl:attribute name="includes">${DMODISOCOVERHTM}</xsl:attribute>
+        </xsl:element>
+        <mapper type="glob" from="*isocover.htm" to="*cover.htm"/>
+      </xsl:element> 
 
       <xsl:element name="style">
         <xsl:attribute name="includes">
@@ -3599,6 +3639,7 @@
       </xsl:element>
 
       <!-- move the cover page to SC4 cover page  -->
+      <!-- RBN commented out per request for ISO - not to have sc4 cover page
       <xsl:element name="move">
         <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
         <xsl:element name="fileset">
@@ -3606,21 +3647,31 @@
           <xsl:attribute name="includes">${APDOCCOVERHTM}</xsl:attribute>
         </xsl:element>
         <mapper type="glob" from="*.htm" to="*_sc4.htm"/>
-      </xsl:element>     
+      </xsl:element>  
+      -->
 
       <!-- generate the ISO cover page  -->
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${APDOCCOVERXML}'"/>
+          <xsl:value-of select="'${APDOCISOCOVERXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_isocover.xsl'"/>
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_isocover.xsl'"/>
         </xsl:attribute>        
         <xsl:apply-templates select="." mode="modules_target_style_attributes">
           <xsl:with-param name="menu" select="$menu"/>
         </xsl:apply-templates>
       </xsl:element>
 
+      <!-- move the ISO cover page to cover page -->
+      <xsl:element name="move">
+        <xsl:attribute name="todir">${TMPDIR}</xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">${TMPDIR}</xsl:attribute>
+          <xsl:attribute name="includes">${APDOCISOCOVERHTM}</xsl:attribute>
+        </xsl:element>
+        <mapper type="glob" from="*isocover.htm" to="*cover.htm"/>
+      </xsl:element> 
 
       <xsl:element name="style">
         <xsl:attribute name="includes">

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.31 2003/07/23 07:49:55 robbod Exp $
+$Id: express_description.xsl,v 1.32 2003/08/18 22:43:55 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -235,7 +235,18 @@ and
         select="substring(normalize-space($entity),1,1)"/>
       <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
       
-<!-- -->
+<!-- if an attribute, should start with a or an, not is -->
+
+    <xsl:if test="string-length($type)=0 and contains(substring-after($description/@linkend,'.'),'.') and not(contains($schema,$description/@linkend)) and not(contains($description/@linkend,'.wr:'))">
+
+<xsl:if test="contains(substring-before(normalize-space($description/text()[position()=1]),' '),'is')">
+      <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Warning Ent9:' , $description/@linkend, '. Attribute description should be a phrase. Usually will start with &quot;the&quot;, &quot;a&quot;, &quot;an&quot;, or &quot;one&quot;, but not &quot;is&quot; or &quot;this&quot;.')"/>
+        </xsl:call-template>        
+      </xsl:if>
+    </xsl:if>
 
 <!-- if an entity , that is 
 if 
@@ -314,7 +325,7 @@ and  string is more than the schema name ( hence not the  schema )
         
         <xsl:call-template name="error_message">
           <xsl:with-param  name="message" >
-            <xsl:value-of select="concat('Warning Ent5: ',$description/@linkend, ' check for')" />
+            <xsl:value-of select="concat('Warning Ent6: ',$description/@linkend, ' check for')" />
 
 &quot;              <xsl:value-of select="concat(' is a type of ', $supertypes,'.')" /> 
       &quot; . Supertype(s) should be tagged as express_ref    </xsl:with-param>
@@ -352,7 +363,7 @@ and  string is more than the schema name ( hence not the  schema )
   <xsl:if test="contains(.,'_')">
     <xsl:call-template name="error_message">
       <xsl:with-param name="message" >       
-      <xsl:value-of     select="concat('Warning Ent6: ',' check for express identifier not bold nor linked ')"/>
+      <xsl:value-of     select="concat('Warning Ent7: ',' check for express identifier not bold nor linked ')"/>
       </xsl:with-param>
     </xsl:call-template>
   </xsl:if>

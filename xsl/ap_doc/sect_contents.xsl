@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.5 2002/10/29 18:43:10 mikeward Exp $
+$Id: sect_contents.xsl,v 1.6 2003/02/08 21:33:08 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../sect_contents.xsl"/>
@@ -436,6 +436,9 @@ $Id: sect_contents.xsl,v 1.5 2002/10/29 18:43:10 mikeward Exp $
 				<a href="./j_tech_disc{$FILE_EXT}">J Technical discussions</a>
 			</p>
 		</xsl:if>
+		<p class="content">
+			<a href="./k_ae_index{$FILE_EXT}#k_ae_index">K Application object index</a>
+		</p>			
 		<a href="./biblio{$FILE_EXT}#biblio">Bibliography</a>
 	</xsl:template>
 	

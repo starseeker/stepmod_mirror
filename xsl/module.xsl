@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.83 2002/08/02 16:54:38 robbod Exp $
+$Id: module.xsl,v 1.84 2002/08/04 07:33:47 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1633,7 +1633,7 @@ o=isocs; s=central<br/>
     <li>
       Use of a supertype entity does not make applicable any of its
       specializations, unless the specialization is also imported in the
-      MIM schema.
+      MIM schema;
     </li> 
     <li>
       Use of a SELECT type does not make applicable any of its listed types

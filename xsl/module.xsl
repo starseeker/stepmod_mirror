@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.38 2002/03/21 09:28:13 robbod Exp $
+$Id: module.xsl,v 1.39 2002/03/25 14:31:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -624,6 +624,7 @@ $Id: module.xsl,v 1.38 2002/03/21 09:28:13 robbod Exp $
     defined using the terminology of the subject area of this application
     module. 
   </p>
+	<p>This clause constitutes the Application Reference Model of the application module.</p>
   <p>
   <small>
     NOTE 1 A graphical representation of the information requirements is
@@ -635,8 +636,8 @@ $Id: module.xsl,v 1.38 2002/03/21 09:28:13 robbod Exp $
   <small>
     NOTE 2 The mapping specification is specified in 
     <a href="{$sect51}#mapping">5.1</a> which shows how
-    the information requirements are met using the integrated resources of ISO
-    10303. The use of the integrated resources introduces additional
+    the information requirements are met using the common resources of ISO
+    10303 and of ISO 13584. The use of the integrated resources introduces additional
     requirements which are common to application modules and application
     protocols. 
   </small>

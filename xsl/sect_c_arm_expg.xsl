@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_arm_expg.xsl,v 1.2 2001/12/28 10:17:58 robbod Exp $
+$Id: sect_c_arm_expg.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -30,9 +30,9 @@ $Id: sect_c_arm_expg.xsl,v 1.2 2001/12/28 10:17:58 robbod Exp $
     <xsl:with-param name="aname" select="'annexc'"/>
   </xsl:call-template>
 
-The following diagrams correspond to the ARM EXPRESS given in clause 4. The
-diagrams use the EXPRESS-G graphical notation for the EXPRESS
-language. EXPRESS-G is defined in annex D of ISO 10303-11.  
+The following diagrams provide a graphical representation of the EXPRESS structure and constructs specified in clause 4.
+The diagrams are presented in EXPRESS-G. 
+<p>The EXPRESS-G  graphical notation is defined in annex D of ISO 10303-11.</p> 
 
   <xsl:apply-templates select="arm/express-g"/>
 </xsl:template>

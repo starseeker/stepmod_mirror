@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_d_mim_expg.xsl,v 1.3 2002/01/04 18:58:51 robbod Exp $
+$Id: sect_d_mim_expg.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -33,10 +33,10 @@ $Id: sect_d_mim_expg.xsl,v 1.3 2002/01/04 18:58:51 robbod Exp $
   <xsl:variable name="href"
     select="concat('./5_mim',$FILE_EXT,'#mim_express')"/>
        
-  The following diagrams correspond to the 
-  <a href="{$href}">MIM EXPRESS short listing</a> given in
-  Clause 5.2. The diagrams use the EXPRESS-G graphical notation for the
-  EXPRESS language. EXPRESS-G is defined in annex D of ISO 10303-11.  
+  The following diagrams provide a graphical representation of the 
+  <a href="{$href}">MIM EXPRESS short listing</a> defined in
+  Clause 5.2. The diagrams are presented in EXPRESS-G. 
+	<p>The EXPRESS-G graphical notation is defined in annex D of ISO 10303-11.</p>
 
 
   <xsl:apply-templates select="mim/express-g"/>

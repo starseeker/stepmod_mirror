@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.7 2002/08/09 08:03:35 robbod Exp $
+$Id: sect_contents.xsl,v 1.8 2002/08/09 08:55:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -726,7 +726,9 @@ $Id: sect_contents.xsl,v 1.7 2002/08/09 08:03:35 robbod Exp $
 
   <h3>Figures</h3>
   <!-- collect up the figures from the Module -->
-  <xsl:apply-templates select="//figure" mode="toc"/>
+  <xsl:apply-templates select="./purpose//figure" mode="toc"/>
+  <xsl:apply-templates select="./inscope//figure" mode="toc"/>
+  <xsl:apply-templates select="./outscope//figure" mode="toc"/>
   <xsl:choose>
     <xsl:when test="$arm_desc_xml">
       <xsl:apply-templates select="document($arm_desc_xml)//figure" mode="toc"/>
@@ -743,18 +745,28 @@ $Id: sect_contents.xsl,v 1.7 2002/08/09 08:03:35 robbod Exp $
       <xsl:apply-templates select="document($mim_xml)//figure" mode="toc"/>
     </xsl:otherwise>
   </xsl:choose>
-
   <!-- collect up the EXpressG figures from the ARM -->
   <xsl:apply-templates 
     select="./arm/express-g/imgfile" mode="expressg_figure"/>
   <!-- collect up the EXpressG figures from the MIM -->
   <xsl:apply-templates 
     select="./mim/express-g/imgfile" mode="expressg_figure"/>
-
+  <xsl:apply-templates select="./usage_guide//figure" mode="toc"/>
 </xsl:template>
 
 
 <xsl:template match="table|figure" mode="toc">
+  <xsl:variable name="number">
+    <xsl:choose>
+      <xsl:when test="@number">
+        <xsl:value-of select="@number"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:number/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:variable name="href">
     <xsl:call-template name="table_href">
       <xsl:with-param name="table" select="."/>
@@ -772,7 +784,7 @@ $Id: sect_contents.xsl,v 1.7 2002/08/09 08:03:35 robbod Exp $
   <p class="content">
     <a href="{$href}">      
     <xsl:value-of 
-      select="concat($table_or_fig,' ',@number, ' &#8212; ', ./title)"/>
+      select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title)"/>
     </a>
   </p>
 

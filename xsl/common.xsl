@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.67 2002/08/09 14:52:09 robbod Exp $
+$Id: common.xsl,v 1.68 2002/08/09 20:37:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -371,9 +371,16 @@ $Id: common.xsl,v 1.67 2002/08/09 14:52:09 robbod Exp $
 
 
 <xsl:template match="figure">
-    <xsl:variable name="number">
-      <xsl:number/>
-    </xsl:variable>
+  <xsl:variable name="number">
+    <xsl:choose>
+      <xsl:when test="@number">
+        <xsl:value-of select="@number"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:number/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
 
     <xsl:variable name="aname">
       <xsl:call-template name="table_aname">

@@ -1,6 +1,11 @@
-//$Id: express2xml.js,v 1.19 2002/07/30 10:30:30 robbod Exp $
+//$Id: express2xml.js,v 1.20 2002/07/30 10:44:41 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
+//
+//  Other editors:
+//	T. Hendrix (Boeing) 
+//	P. Huau (GOSET) for subtype_constraint
+//
 //  Purpose:
 //    JScript to convert an Express file to an XML file
 //    cscript express2xml.js <express.exp>
@@ -297,51 +302,51 @@ function readToken(line) {
     var token = line.match(reg);
     if (!token) {
 	// Not a word, so check for comment
-	reg = /^\s*\(\*/;
-	token = line.match(reg);
-	}
+		 reg = /^\s*\(\*/;
+		 token = line.match(reg);
+		 }
     if (!token) {
 	// Not a word, so check for {} statement
-	reg = /^\{/i;
-	token = line.match(reg);	
+		 reg = /^\{/i;
+		 token = line.match(reg);	
     }
     if (token) {
-	token = token[0].replace(/\s/g,"");
-	token = token.toString();
-	switch (token) {
-	case "USE" :
-	    var reg = /^\s*USE FROM\b/i;
-	    token = line.match(reg);
-	    if (token) {
-		token = token[0].replace(/\s/g,"");
-		token = token.toString();
-	    } else {
-		token = -1;	
-	    }
-	    break;
-	case "REFERENCE" :
-	    var reg = /^\s*REFERENCE FROM\b/i;
-	    token = line.match(reg);
-	    if (token) {
-		token = token[0].replace(/\s/g,"");
-		token = token.toString();
-	    } else {
-		token = -1;
-	    }
-	    break;
-	default :
-	    break;
-	}
+			 token = token[0].replace(/\s/g,"");
+			 token = token.toString();
+			 switch (token) {
+			 case "USE" :
+	     		var reg = /^\s*USE FROM\b/i;
+	    		token = line.match(reg);
+	    		if (token) {
+						 token = token[0].replace(/\s/g,"");
+						 token = token.toString();
+	    		} else {
+						token = -1;	
+	    			}
+	    			break;
+				case "REFERENCE" :
+	    		var reg = /^\s*REFERENCE FROM\b/i;
+	    		token = line.match(reg);
+	    		if (token) {
+						 token = token[0].replace(/\s/g,"");
+						 token = token.toString();
+	    		} else {
+						token = -1;
+	    			}
+	    			break;
+				default :
+	    			break;
+				}
     } else {
 	//debug("tt:"+token+":"+line);
-	token = -1;
+				token = -1;
     }
     return(token);
 }
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.19 2002/07/30 10:30:30 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.20 2002/07/30 10:44:41 robbod Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -351,7 +356,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.19 $";
+    var appCVSRevision = "$Revision: 1.20 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -596,7 +601,6 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	    break;
 	}
     }
-    
 }
 
 
@@ -641,7 +645,6 @@ function xmlUnique(statement, outTs) {
 
 }
 
-
 function getInverseEntity(statement) {
     statement=normaliseStatement(statement);
     var entity;
@@ -665,8 +668,6 @@ function getInverseAttr(statement) {
     return(attr);
 }
 
-
-
 // Output elements for aggregate
 function xmlAggregate(statement, outTs) {
     var reg = /\bSET|BAG|LIST|ARRAY\b/;
@@ -685,6 +686,64 @@ function xmlAggregate(statement, outTs) {
 	xmlAttr("lower",lower,outTs);
 	xmlAttr("upper",upper,outTs);
 	xmlCloseAttr(outTs);
+    }
+}
+
+function xmlSuperExpression_cst(statement, outTs) {
+    var superExpr = statement;
+
+	reg = /;/;
+	superExpr = superExpr.replace(reg,"");
+	xmlAttr("super.expression", superExpr, outTs);
+}
+
+function xmlSubtype_constraint(statement,outTs,expTs) {
+    var constName = getWord(2,statement);
+    var entity_ref = getWord(4,statement);
+
+    xmlOpenElement("<subtype.constraint name=\""+constName+"\"",outTs);
+    xmlAttr("entity",entity_ref,outTs);
+    xmlconstraint_structure(outTs, expTs, "supertype_expression");
+}
+
+function xmlconstraint_structure(outTs,expTs,mode) {
+    var l = expTs.ReadLine();
+    lNumber = expTs.Line;
+						debug(l);
+    var token = readToken(l)+"";
+				debug(token);
+    switch(token) {
+    case "-1" :
+	// must have read an empty line
+		 		xmlconstraint_structure(outTs,expTs,mode);
+				break;
+
+    case "ABSTRACT SUPERTYPE" :	
+				xmlAbstract(outTs);
+		// next statement
+				xmlconstraint_structure(outTs,expTs,mode);
+				break;
+
+    case "TOTAL_OVER":
+				var statement = readStatement(l,expTs);
+			  var to_list=getList(statement);
+				xmlAttr("totalover",to_list,outTs);
+								
+				xmlconstraint_structure(outTs,expTs,mode);
+        break;
+
+    case "END_SUBTYPE_CONSTRAINT" :
+				outTs.WriteLine(">");
+    		xmlCloseElement("</subtype.constraint>",outTs);
+    		outTs.WriteLine("");
+				break;
+
+    default:
+				var statement = readStatement(l,expTs);
+		    xmlSuperExpression_cst(statement,outTs);
+								// next statement
+				xmlconstraint_structure(outTs,expTs,mode);
+ 				break;	
     }
 }
 
@@ -1264,7 +1323,6 @@ function Output2xml(expFile, xmlFile, partnumber) {
 	xmlAttr("description.file","mim_descriptions.xml",xmlTs);	
     }
 
-
     var rcsdate = "$"+"Date: $";
     xmlAttr("rcs.date",rcsdate,xmlTs);
     var rcsrevision = "$"+"Revision: $";
@@ -1319,6 +1377,13 @@ function Output2xml(expFile, xmlFile, partnumber) {
 	    case "RULE" :	
 		xmlRule(l,expTs,xmlTs);
 		break;
+
+// PH
+	    case "SUBTYPE_CONSTRAINT":
+		var statement = readStatement(l,expTs);
+                xmlSubtype_constraint(statement,xmlTs,expTs);
+		break;
+
 	    case "(*" :
 		var comment = readComment(l, expTs);
 		//userMessage(comment);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: banner.xsl,v 1.17 2003/04/17 12:30:41 robbod Exp $
+$Id: banner.xsl,v 1.18 2004/05/19 15:39:27 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -42,7 +42,7 @@ $Id: banner.xsl,v 1.17 2003/04/17 12:30:41 robbod Exp $
         </head>
         <body>
           <div class="bannerbackground">
-          <table width="95%"  border="0" cellspacing="1" height="30">
+          <table width="95%"  border="0" cellspacing="1" height="10">
             <tr>
               <td align="left" valign="top" width="140">
                 <p class="bannertitle">
@@ -156,7 +156,28 @@ $Id: banner.xsl,v 1.17 2003/04/17 12:30:41 robbod Exp $
                   <a href="resource_part_alpha{$FILE_EXT}" target="index">
                     Alphabetical,
                   </a>
+<!--                 <a href="resource_parts_project{$FILE_EXT}" target="index">
+                    Project
+                  </a>
+-->
                 </p>
+                <p class="bannermenuitem">
+                  <a href="resource_parts_numbers{$FILE_EXT}" target="index">
+                    Parts,
+                  </a>
+<!--
+                  <a href="modules_project_lead{$FILE_EXT}" target="index">
+                    Leader,
+                  </a>
+                  <a href="modules_status{$FILE_EXT}" target="index">
+                    Status,
+                  </a>
+                  <a href="keywords{$FILE_EXT}" target="index">
+                    Keywords,
+                  </a>
+-->
+                </p>
+  
               </td>
 
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.43 2002/05/31 08:36:46 robbod Exp $
+$Id: common.xsl,v 1.44 2002/06/02 07:12:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -249,7 +249,7 @@ $Id: common.xsl,v 1.43 2002/05/31 08:36:46 robbod Exp $
       <td>
         <!-- RBN - this xref is here to aid navigation, it may need to be
              removed for the ISO process -->
-        <A HREF="../../../../repository_index{$FILE_EXT}">
+        <A HREF="{$module_root}/../../../repository_index{$FILE_EXT}">
           Module repository
         </A><BR/>
       </td>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_modindex.xsl,v 1.2 2003/07/23 15:38:46 robbod Exp $
+$Id: sect_modindex.xsl,v 1.3 2003/07/28 07:28:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -486,14 +486,11 @@ $Id: sect_modindex.xsl,v 1.2 2003/07/23 15:38:46 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:choose>
-    <xsl:when test="(position() = 1) and (count(following-sibling::*) > 0)">
-      <xsl:value-of select="concat($object_clause_no1,'.',position())"/>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:value-of select="$object_clause_no1"/>
-    </xsl:otherwise>
-  </xsl:choose>  
+  <xsl:variable name="position">
+    <xsl:number/>
+  </xsl:variable>
+
+  <xsl:value-of select="concat($object_clause_no1,'.',$position)"/>
 </xsl:template>
 
 <xsl:template match="ae" mode="clause_no">

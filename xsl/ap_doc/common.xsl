@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.33 2004/11/02 08:28:24 robbod Exp $
+$Id: common.xsl,v 1.34 2004/12/20 22:07:31 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -1087,6 +1087,7 @@ $Id: common.xsl,v 1.33 2004/11/02 08:28:24 robbod Exp $
       <xsl:choose>
         <xsl:when test="ancestor::*[name()='tech_disc']">techdisc</xsl:when>
         <xsl:when test="ancestor::*[name()='usage_guide']">usageguide</xsl:when>
+        <xsl:when test="ancestor::*[name()='change_detail']">changedetail</xsl:when>
         <xsl:otherwise>ERROR</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -1096,7 +1097,7 @@ $Id: common.xsl,v 1.33 2004/11/02 08:28:24 robbod Exp $
       <xsl:call-template name="error_message">
         <xsl:with-param
           name="message"
-          select="'ERROR annex_clause: You can only use annex_clause in tech_disc and usage_guide'"/>
+          select="'ERROR annex_clause: You can only use annex_clause in tech_disc and usage_guide and change_detail'"/>
       </xsl:call-template>      
     </xsl:if>
 

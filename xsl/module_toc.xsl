@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.35 2003/05/04 08:15:03 robbod Exp $
+$Id: module_toc.xsl,v 1.36 2003/07/28 07:27:20 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -48,7 +48,7 @@ $Id: module_toc.xsl,v 1.35 2003/05/04 08:15:03 robbod Exp $
       
           <A HREF="{$module_root}/sys/contents{$FILE_EXT}">Table of contents</A><BR/>
 
-          <A HREF="{$module_root}/sys/contents{$FILE_EXT}#copyright">Copyright</A><BR/>
+          <A HREF="{$module_root}/sys/cover{$FILE_EXT}#copyright">Copyright</A><BR/>
         
           <!-- use #foreword to link direct -->
           <A HREF="{$module_root}/sys/foreword{$FILE_EXT}">Foreword</A><BR/>

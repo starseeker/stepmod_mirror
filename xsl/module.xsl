@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.164 2004/02/25 14:39:23 robbod Exp $
+$Id: module.xsl,v 1.165 2004/05/01 09:05:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -257,6 +257,7 @@ $Id: module.xsl,v 1.164 2004/02/25 14:39:23 robbod Exp $
   <table border="1" cellspacing="1" cellpadding="8" width="624">
     <tr>
       <td valign="TOP" colspan="2" height="26">
+        <a name="copyright"/>
         <h3>COPYRIGHT NOTICE:</h3>
 
         <xsl:choose>

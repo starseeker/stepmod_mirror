@@ -1,66 +1,54 @@
 <!--
-     $Id: mapping.ent,v 1.9 2002/02/08 10:25:05 robbod Exp $
+     $Id: mapping.ent,v 1.10 2002/05/30 09:08:20 robbod Exp $
                                                                    -->
 
-<!--                    UoF and mapping specification markup
+<!--                    Mapping specification markup
                         declarations                               -->
 
 <!--                    Requires text.ent markup
                         declarations for representing 'description'-->
 
+<!--                    descriptive text                           -->
+<!ENTITY % desctext    SYSTEM "text.ent"                             >
+%desctext;
+
+<!-- use the %description.content defined in text.ent              -->
+<!ELEMENT description (%description.content;)*>
+
+
 
 <!--                    mapping specification row                  -->
 <!--                    express_ref must contain a rule name       -->
-<!ENTITY % mapping     "alt?, aimelt, source, express_ref*, refpath?" >
+<!ENTITY % mapping     "alt?, description?, aimelt?, source?, express_ref*, refpath?" >
 
-<!--                    application reference model                -->
-<!ELEMENT  arm          (uof+, uoflink*, express-g)       >
-
-
-<!--                    UoF link                                   -->
-<!--                    points to foreign UoF                      -->
-<!--                    module is the module in which foreign UoF defined -->
-<!--                    uof is the name of  foreign UoF -->
-<!ELEMENT  uoflink      EMPTY                                        >
-<!ATTLIST  uoflink      module CDATA                       #REQUIRED >
-<!ATTLIST  uoflink      uof CDATA                          #REQUIRED >
-
-
- <!--                    application entity link                   -->
-<!--                    points to foreign application entity       -->
-<!ELEMENT  aelink       EMPTY                                        >
-<!ATTLIST  aelink       linkend CDATA                      #REQUIRED >
-
-
-<!--                    declared UoF                               -->
-<!ELEMENT  uof          (description, uof.ae*)                       >
-<!ATTLIST  uof
-             name       NMTOKEN                            #REQUIRED >
-
-<!--                    Application Objects in UOF                 -->
-<!ELEMENT  uof.ae       EMPTY                                      >
-<!ATTLIST  uof.ae       
-             entity       NMTOKEN                            #REQUIRED >
 
 <!--                    A mapping table                            -->
 <!ELEMENT  mapping_table (ae+)                                       >
 
 <!--                    application entity                         -->
-<!ELEMENT  ae           (%mapping;, aa*)                             >
+<!ELEMENT  ae           (%mapping;, alt_map*, aa*)                             >
 <!ATTLIST  ae
              entity     NMTOKEN                            #REQUIRED >
 
 <!--                    application attribute                      -->
-<!ELEMENT  aa           (%mapping;)                                  >
+<!--description?, alt*, ) -->
+<!ELEMENT  aa           (%mapping;, alt_map*)              >
 <!ATTLIST  aa
              attribute  NMTOKEN                            #REQUIRED 
              assertion_to NMTOKEN                          #IMPLIED  >
 
-<!--                    alternative                                -->
 <!--                    contains explanatory text describing the
-                        alternative                                -->
+                        alternative                                
+                        THIS IS DEPRECATED - USE alt_map           -->
 <!ELEMENT  alt          (#PCDATA)                                    >
 
+
+<!--                    alternative mapping              -->
+<!ELEMENT  alt_map          (%mapping;)                    >
+<!ATTLIST  alt_map
+             id            CDATA                         #IMPLIED  
+             alt_map.inc   CDATA                         #IMPLIED  >
+  
 <!--                    AIM element                                -->
 <!ELEMENT  aimelt       (#PCDATA)*                     >
 <!ATTLIST  aimelt

@@ -1,62 +1,54 @@
 (*
 
-	WG12 N525 								2000-05-30
+	WG12 N525 								2003
 
-	EXPRESS Declarations for ISO 10303-41: 2nd Edition
+	EXPRESS Declarations for ISO 10303-41: 3rd Edition
 *)
 
 
-SCHEMA contract_schema;
-REFERENCE FROM support_resource_schema              -- ISO 10303-41
+SCHEMA contract_schema; 
+
+REFERENCE FROM support_resource_schema   -- ISO 10303-41
   (bag_to_set,
    identifier,
    label,
-   text);
+   text); 
+
 
 ENTITY contract;
-  name    : label;
+  name : label;
   purpose : text;
-  kind    : contract_type;
-END_ENTITY; -- contract
+  kind : contract_type;
+END_ENTITY;
 
 ENTITY contract_relationship;
-  id                : identifier;
-  name              : label;
-  description       : OPTIONAL text;
+  id : identifier;
+  name : label;
+  description : OPTIONAL text;
   relating_contract : contract;
-  related_contract  : contract;
-END_ENTITY; -- contract_relationship
+  related_contract : contract;
+END_ENTITY;
 
 ENTITY contract_type;
   description : label;
-END_ENTITY; -- contract_type
+END_ENTITY;
 
 FUNCTION acyclic_contract_relationship
-  (relation          : contract_relationship;
-   relatives         : SET [1:?] OF contract;
-   specific_relation : STRING) : BOOLEAN;
+ (relation : contract_relationship; relatives : SET[1:?] OF contract; specific_relation : STRING) : BOOLEAN; 
   LOCAL
-    x                : SET OF contract_relationship;
-  END_LOCAL;
-  IF relation.relating_contract IN relatives THEN 
-    RETURN (FALSE);
-  END_IF;
-  x := QUERY (cont <* bag_to_set 
-             (USEDIN (relation.relating_contract,
-             'CONTRACT_SCHEMA.' + 
-             'CONTRACT_RELATIONSHIP.' +
-             'RELATED_CONTRACT')) |
-              specific_relation IN TYPEOF (cont));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_contract_relationship
-      (x[i], 
-       relatives + relation.relating_contract, 
-       specific_relation) THEN
-      RETURN(FALSE);
+      x : SET OF contract_relationship;
+    END_LOCAL;
+
+    IF relation.relating_contract IN relatives THEN
+      RETURN (FALSE);
     END_IF;
-  END_REPEAT;
-  RETURN(TRUE);
-END_FUNCTION; -- acyclic_contract_relationship
+    x := QUERY(cont <* bag_to_set(USEDIN(relation.relating_contract, 'CONTRACT_SCHEMA.' + 'CONTRACT_RELATIONSHIP.' + 'RELATED_CONTRACT')) | specific_relation IN TYPEOF(cont));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_contract_relationship(x[i], relatives + relation.relating_contract, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+END_FUNCTION; 
 
-END_SCHEMA; -- contract_schema
-
+END_SCHEMA;  -- contract_schema

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.19 2003/03/11 23:56:57 robbod Exp $
+$Id: sect_contents.xsl,v 1.20 2003/03/13 19:17:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -917,7 +917,7 @@ $Id: sect_contents.xsl,v 1.19 2003/03/11 23:56:57 robbod Exp $
           <xsl:when test="$number=1">
             <xsl:value-of 
               select="concat('Figure D.',$number, 
-                      ' &#8212; MIM schema level EXPRESS-G diagram ',$number,' of ',$total)"/>
+                      ' &#8212; MIM schema level EXPRESS-G diagram ',$number,' of 1')"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 

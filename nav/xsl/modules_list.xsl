@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.11 2002/10/31 13:17:42 nigelshaw Exp $
+$Id: modules_list.xsl,v 1.12 2002/11/12 14:57:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -223,6 +223,12 @@ $Id: modules_list.xsl,v 1.11 2002/10/31 13:17:42 nigelshaw Exp $
         <xsl:variable name="mapping_view" 
           select="concat('../data/modules/',@name,'/nav/mapping_view',$FILE_EXT)"/>
         &#160;&#160;<a href="{$mapping_view}" target="content">Mapping view</a>
+      </p>
+
+      <p class="menuitem">
+        <xsl:variable name="mapping_view_test" 
+          select="concat('../data/modules/',@name,'/nav/mapping_view_with_test',$FILE_EXT)"/>
+        &#160;&#160;<a href="{$mapping_view_test}" target="content">Mapping view with tests</a>
       </p>
 
       <p class="menuitem">

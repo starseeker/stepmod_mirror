@@ -1,4 +1,4 @@
-//  $Id: express2xml2.js,v 1.4 2003/07/18 16:21:35 thendrix Exp $
+//  $Id: express2xml2.js,v 1.5 2003/07/18 20:39:17 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -337,7 +337,7 @@ function isOptional(statement) {
 
 // ------------------------------------------------------------
 // function isRedeclared()
-//	Return true if statment contains "SELF"
+//	Return true if statement contains "SELF"
 // ------------------------------------------------------------
 function isRedeclared(statement) {
     var result = false;
@@ -498,7 +498,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.4 2003/07/18 16:21:35 thendrix Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.5 2003/07/18 20:39:17 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -513,7 +513,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.4 $";
+    var appCVSRevision = "$Revision: 1.5 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -814,12 +814,13 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	    xmlAttr("name",name.replace(/^.*\./,""),outTs);
 	    xmlAttr("expression",expression,outTs);
 	    outTs.WriteLine(">");
+	    xmlUnderlyingType(typedef,outTs);
 //TEH added 
 	    if (isRedeclared(name)) {
 		xmlRedeclaredAttribute(name.replace(/^.*\\/,"").replace(/\.$/,""), outTs);
 	    }
 //end TEH added
-	    xmlUnderlyingType(typedef,outTs);
+
 	    xmlCloseElement("</derived>",outTs);
 	    
 	    // process the next attribute
@@ -889,7 +890,7 @@ function getRedeclaredAttribute(statement, outTs) {
 // 	Output a redeclared attribute by matching on SELF\
 // ------------------------------------------------------------
 function xmlRedeclaredAttribute(statement, outTs) {
-    statement = statement.replace(/^\s*SELF\\/g,"");
+    statement = statement.replace(/^\s*SELF\\/,"");
     var entity_ref = statement.replace(/\..*/g,"");
     xmlOpenElement("<redeclaration",outTs);	
     xmlAttr("entity-ref",entity_ref,outTs);
@@ -921,7 +922,7 @@ function xmlUnique(statement, outTs) {
 
 
 		var tmp = arr[i].replace(/^.*\./,"");
-    		var entity_ref = arr[i].replace(/\..*/g,"");
+    		var entity_ref = arr[i].replace(/\..*/g,"").replace(/^SELF\\/,"");
 
 	}
 //end TEH modified 
@@ -1240,7 +1241,7 @@ function tidyExpression(expr) {
     expr = expr.replace(/\"/g,"&quot;");
     
     // SPF: hack - not correct way to handle SELF\
-    expr = expr.replace(/^SELF\\/,"");
+//    expr = expr.replace(/^SELF\\/,"");
     
      // replace double space with single space
     while (expr.search(/  /) != -1) {
@@ -1797,7 +1798,7 @@ function xmlCloseElement(xmlElement, outTs) {
 function xmlAttr(name, value, outTs) {
     // SPF: delete "SELF\" ISSUE: this is not the correct way to process SELF\
     // xml will not validate with "SELF\" 
-    value = value.replace(/SELF\\/,"");
+   // value = value.replace(/SELF\\/,"");
     
     var txt = indent+name+'=\"'+value+'\"';
     outTs.WriteLine();

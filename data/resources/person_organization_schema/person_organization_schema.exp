@@ -1,9 +1,8 @@
 (*
+$Id: $
+ISO TC184/SC4/WG12 N12 - ISO/CD-TS 10303-41 Fundamentals of product description and support - EXPRESS
+*) 
 
-	WG12 N2161 								2003
-
-	EXPRESS Declarations for ISO 10303-41: 3rd Edition
-*)
 
 SCHEMA person_organization_schema; 
 
@@ -201,8 +200,9 @@ ENTITY position_in_organization_type;
   description : OPTIONAL text;
 END_ENTITY;
 
- FUNCTION acyclic_organization_relationship (relation : organization_relationship; relatives : SET [1:?] OF organization; specific_relation : STRING):BOOLEAN;
-    LOCAL
+FUNCTION acyclic_organization_relationship
+ (relation : organization_relationship; relatives : SET OF organization; specific_relation : STRING) : BOOLEAN; 
+  LOCAL
       x : SET OF organization_relationship;
     END_LOCAL;
 
@@ -216,10 +216,11 @@ END_ENTITY;
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
-  END_FUNCTION;
+END_FUNCTION; 
 
-  FUNCTION acyclic_organizational_project_relationship (relation : organizational_project_relationship; relatives : SET [1:?] OF organizational_project; specific_relation : STRING):BOOLEAN;
-    LOCAL
+FUNCTION acyclic_organizational_project_relationship
+ (relation : organizational_project_relationship; relatives : SET OF organizational_project; specific_relation : STRING) : BOOLEAN; 
+   LOCAL
       x : SET OF organizational_project_relationship;
     END_LOCAL;
 
@@ -233,6 +234,60 @@ END_ENTITY;
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
-  END_FUNCTION;
+END_FUNCTION; 
+
+FUNCTION acyclic_organization_type_relationship
+ (relation : organization_type_relationship; relatives : SET OF organization_type; specific_relation : STRING) : BOOLEAN; 
+   LOCAL
+      x : SET OF organization_type_relationship;
+    END_LOCAL;
+
+    IF relation.relating_organization_type IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(actn <* bag_to_set(USEDIN(relation.relating_organization_type, 'PERSON_ORGANIZATION_SCHEMA.' + 'ORGANIZATION_TYPE_RELATIONSHIP.' + 'RELATED_ORGANIZATION_TYPE')) | specific_relation IN TYPEOF(actn));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_organization_type_relationship(x[i], relatives + relation.relating_organization_type, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+END_FUNCTION; 
+
+FUNCTION acyclic_person_type_definition_relationship
+ (relation : person_type_definition_relationship; relatives : SET OF person_type_definition; specific_relation : STRING) : BOOLEAN; 
+   LOCAL
+      x : SET OF person_type_definition_relationship;
+    END_LOCAL;
+
+    IF relation.relating_person_type_definition IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(actn <* bag_to_set(USEDIN(relation.relating_person_type_definition, 'PERSON_ORGANIZATION_SCHEMA.' + 'PERSON_TYPE_DEFINITION_RELATIONSHIP.' + 'RELATED_PERSON_TYPE_DEFINITION')) | specific_relation IN TYPEOF(actn));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_person_type_definition_relationship(x[i], relatives + relation.relating_person_type_definition, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+END_FUNCTION; 
+
+FUNCTION acyclic_position_in_organization_relationship
+ (relation : position_in_organization_relationship; relatives : SET OF position_in_organization; specific_relation : STRING) : BOOLEAN; 
+   LOCAL
+      x : SET OF position_in_organization_relationship;
+    END_LOCAL;
+
+    IF relation.relating_position_in_organization IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(actn <* bag_to_set(USEDIN(relation.relating_position_in_organization, 'PERSON_ORGANIZATION_SCHEMA.' + 'POSITION_IN_ORGANIZATION_RELATIONSHIP.' + 'RELATED_POSITION_IN_ORGANIZATION')) | specific_relation IN TYPEOF(actn));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_position_in_organization_relationship(x[i], relatives + relation.relating_position_in_organization, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+END_FUNCTION; 
 
 END_SCHEMA;  -- person_organization_schema

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.66 2003/04/25 11:19:37 nigelshaw Exp $
+$Id: sect_5_mapping.xsl,v 1.67 2003/05/04 07:51:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -201,6 +201,17 @@ When the mapping of an application element involves more than one MIM element, e
     global rule may be followed by a reference to the sub-clause in
     which the rule is defined.
   </p> 
+  <p>
+    <b>Constraint:</b> 
+    This section contains the name of one or more subtype constraints that apply to the
+    population of the MIM entity data types listed in the MIM element section or
+    in the reference path. When no subtype constraint applies, this section is omitted.
+  </p>
+  <p>
+    A reference to a subtype constraint may be followed by a reference to the sub-clause in
+    which the subtype constraint is defined.
+  </p> 
+
   <p>
     <b>Reference path:</b> This section contains:</p>
 		<ul>

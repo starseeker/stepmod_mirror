@@ -20,4 +20,21 @@ ENTITY Product_category_assignment;
   products : SET[1:?] OF Product;
 END_ENTITY;
 
+FUNCTION types_of_product
+ (obj : Product) : SET OF STRING; 
+ LOCAL
+ 	category_assignments: BAG OF Product_category_assignment;
+ 	categories: SET OF STRING:=[];
+ 	i: INTEGER;
+ END_LOCAL;
+ 
+ category_assignments := USEDIN(obj,'PRODUCT_IDENTIFICATION_ARM.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
+    
+ REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+       categories := categories + category_assignments[i].category.name;
+ END_REPEAT;
+ 
+ RETURN(categories);
+       END_FUNCTION; 
+
 END_SCHEMA;  -- Product_identification_arm

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.18 2004/02/05 17:51:07 robbod Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.19 2004/08/13 14:07:31 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -34,6 +34,9 @@ $Id: index_arm_mappings_inner.xsl,v 1.18 2004/02/05 17:51:07 robbod Exp $
 
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+
+  <xsl:variable name="UPPER_BACKSLASH" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ\'"/>
+  <xsl:variable name="LOWER_FORWARDSLASH" select="'abcdefghijklmnopqrstuvwxyz/'"/>
 
   <xsl:variable name="ap_file" 
 	    select="concat('../../data/application_protocols/',$selected_ap,'/application_protocol.xml')"/>
@@ -417,9 +420,8 @@ $Id: index_arm_mappings_inner.xsl,v 1.18 2004/02/05 17:51:07 robbod Exp $
 
 				<xsl:variable name="redeclared-from" 
 				  select="translate(./redeclaration/@entity-ref,$UPPER,$LOWER)" />
-				
 				<A 
-			HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattributeself\{$redeclared-from}.{@name}assertion_to{$lc-typename}" 
+                                  HREF="{$mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$lc-ent}aaattributeself/{$redeclared-from}.{@name}assertion_to{$lc-typename}" 
 				target="info">
                                   <small><xsl:value-of select="concat(' ',../@name,'.',@name)"/></small>
 				</A>
@@ -541,7 +543,11 @@ $Id: index_arm_mappings_inner.xsl,v 1.18 2004/02/05 17:51:07 robbod Exp $
 					</xsl:when>
 					<xsl:when test="$called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[starts-with(@attribute,'SELF') and substring-after(@attribute,'.')=$this-attribute and @assertion_to=$this-item]" >
 						<!-- added to del with attribute names using SELF\ -->
-						<xsl:variable name="SELF-attribute" select="translate($called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[starts-with(@attribute,'SELF') and substring-after(@attribute,'.')=$this-attribute and @assertion_to=$this-item]/@attribute, $UPPER,$LOWER)" />
+						<xsl:variable name="SELF-attribute" select="translate($called-modules//module[@name=$this-module]//ae[@entity=$Uc-this-entity]//aa[starts-with(@attribute,'SELF') and substring-after(@attribute,'.')=$this-attribute and @assertion_to=$this-item]/@attribute, $UPPER_BACKSLASH,$LOWER_FORWARDSLASH)" />
+                                                  <xsl:message>RBN3:
+<xsl:value-of
+select="concat($the-mod-dir,'/sys/5_mapping',$FILE_EXT,'#aeentity',$this-entity,'aaattribute',$SELF-attribute,'assertion_to',$lc-this-item)"/></xsl:message>
+
 						<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$SELF-attribute}assertion_to{$lc-this-item}" 
 							target="info">map</A>
 						<xsl:text> </xsl:text>		

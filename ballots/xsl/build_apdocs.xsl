@@ -98,19 +98,19 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:element name="property">
           <xsl:attribute name="name">STEPMOD_DATA_MODULES</xsl:attribute>
           <xsl:attribute name="value">
-            <xsl:value-of select="concat('..\..\..\..\..\..\..\..\stepmod/ballots/isohtml/',@name,'/data/modules/')"/>
+            <xsl:value-of select="concat('..\..\..\..\..\',@name,'/data/modules/')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="property">
           <xsl:attribute name="name">STEPMOD_DATA_APS</xsl:attribute>
           <xsl:attribute name="value">
-            <xsl:value-of select="concat('..\..\..\..\..\..\..\..\stepmod/ballots/isohtml/',@name,'/data/application_protocol/')"/>
+            <xsl:value-of select="concat('..\..\..\..\..\',@name,'/data/application_protocol/')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="property">
           <xsl:attribute name="name">STEPMOD_DATA_RESOURCES</xsl:attribute>
           <xsl:attribute name="value">
-            <xsl:value-of select="concat('..\..\..\..\..\..\..\..\stepmod/ballots/isohtml/',@name,'/data/resources/')"/>
+            <xsl:value-of select="concat('..\..\..\..\..\',@name,'/data/resources/')"/>
           </xsl:attribute>
         </xsl:element>
 
@@ -514,6 +514,13 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:attribute name="value">${APDIR}/sys/annex_arm_expg.xml</xsl:attribute>
     </xsl:element>
     
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCANNEXMIMEXPGXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/annex_mim_expg.xml</xsl:attribute>
+    </xsl:element>
+    
+
+
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCANNEXCHANGESXML</xsl:attribute>
       <xsl:attribute name="value">${APDIR}/sys/annex_changes.xml</xsl:attribute>
@@ -1586,14 +1593,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
-            <xsl:value-of select="'menubar_file'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
             <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -1856,6 +1855,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
           </xsl:attribute>
         </xsl:element>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
       </xsl:element>
       
       <xsl:element name="style">
@@ -1871,6 +1878,15 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:attribute name="style">
           <xsl:value-of select="'${APXSL}/imgfile.xsl'"/>
         </xsl:attribute>
+         <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
           <xsl:attribute name="name">
@@ -2406,6 +2422,70 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${APXSL}/sect_annex_arm_expg.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCANNEXMIMEXPGXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_annex_mim_expg.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">
@@ -8713,6 +8793,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
             <xsl:value-of select="'output_issues'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
@@ -8823,6 +8911,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
           <xsl:attribute name="expression">
             <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">

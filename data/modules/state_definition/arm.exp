@@ -1,34 +1,35 @@
 (*
-   $Id: arm.exp,v 1.6 2002/11/13 18:25:56 magnevs Exp $
+   $Id: arm.exp,v 1.7 2002/12/17 16:07:57 magnevs Exp $
    N1433 - ISO/CD-TS - 10303-1255 State_definition - EXPRESS ARM
 *)
 
 SCHEMA State_definition_arm;
 
-USE FROM Classification_arm;
+USE FROM Classification_assignment_arm;
+
+USE FROM Condition_evaluation_arm;
 
 USE FROM Identification_assignment_arm;
 
 USE FROM Property_assignment_arm;
 
-TYPE state_definition_classified_select = SELECT BASED_ON classified_select WITH
-  (Applied_state_definition_assignment,
-   State_definition,
-   State_definition_relationship,
-   State_transition_definition);
+TYPE state_definition_classified_select = SELECT BASED_ON classification_item WITH
+(Applied_state_definition_assignment,
+ State_definition,
+ State_definition_relationship);
 END_TYPE;
 
 TYPE state_definition_identification_item = SELECT BASED_ON identification_item WITH
-  (State_definition,
-   State_definition_relationship);
+(State_definition,
+ State_definition_relationship);
+END_TYPE;
+
+TYPE state_definition_of_item = EXTENSIBLE SELECT ;
 END_TYPE;
 
 TYPE state_definition_property_assignment = SELECT BASED_ON property_assignment_select WITH
-  (State_definition,
-   State_definition_relationship);
-END_TYPE;
-
-TYPE state_of_select = EXTENSIBLE SELECT ;
+(State_definition,
+ State_definition_relationship);
 END_TYPE;
 
 ENTITY And_state_cause_effect_definition
@@ -36,14 +37,14 @@ SUBTYPE OF (State_cause_effect_definition);
 END_ENTITY;
 
 ENTITY Applied_state_definition_assignment;
-  assigned_to : state_of_select;
-  described_state_definition : State_definition;
+assigned_to : state_definition_of_item;
+described_state_definition : State_definition;
 END_ENTITY;
 
 ENTITY Composition_of_state_definition
 SUBTYPE OF (State_definition_relationship);
-  part : State_definition;
-  whole : State_definition;
+part : State_definition;
+SELF\State_definition_relationship.relating RENAMED whole : State_definition;
 END_ENTITY;
 
 ENTITY Or_state_cause_effect_definition
@@ -52,62 +53,69 @@ END_ENTITY;
 
 ENTITY Proper_subset
 SUBTYPE OF (State_definition_relationship);
-  proper_subset : State_definition;
-  proper_superset : State_definition;
+SELF\State_definition_relationship.related RENAMED proper_subset : State_definition;
+SELF\State_definition_relationship.relating RENAMED proper_superset : State_definition;
 END_ENTITY;
 
 ENTITY Sequence_of_state_definition
 SUBTYPE OF (State_definition_relationship);
-  predecessor : State_definition;
-  successor : State_definition;
+SELF\State_definition_relationship.related RENAMED predecessor : State_definition;
+SELF\State_definition_relationship.relating RENAMED successor : State_definition;
 END_ENTITY;
 
 ENTITY State_cause_effect_definition
 SUBTYPE OF (State_definition_relationship);
-  cause : SET [1 : ?] OF State_definition;
-  effect : SET [1 : ?] OF State_definition;
+SELF\State_definition_relationship.related RENAMED cause : SET [1 : ?] OF State_definition;
+SELF\State_definition_relationship.relating RENAMED effect : SET [1 : ?] OF State_definition;
 END_ENTITY;
 
 ENTITY State_complement
 SUBTYPE OF (State_definition_relationship);
-  set_1 : State_definition;
-  set_2 : State_definition;
-  universe : State_definition;
+SELF\State_definition_relationship.relating RENAMED set_1 : State_definition;
+SELF\State_definition_relationship.relating RENAMED set_2 : State_definition;
+SELF\State_definition_relationship.related RENAMED universe : State_definition;
 END_ENTITY;
 
 ENTITY State_definition;
-  name : STRING;
-  description : OPTIONAL STRING;
+name : STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY State_definition_condition
+SUBTYPE OF (Condition_assertion);
+condition : OPTIONAL State_definition;
 END_ENTITY;
 
 ENTITY State_definition_relationship;
-  name : STRING;
-  description : STRING;
+name : STRING;
+description : STRING;
+related : State_definition;
+relating : State_definition;
 END_ENTITY;
 
 ENTITY State_definition_relationship_relationship;
-  name : STRING;
-  description : STRING;
-  related : State_definition_relationship;
-  relating : State_definition_relationship;
+name : STRING;
+description : STRING;
+related : State_definition_relationship;
+relating : State_definition_relationship;
 END_ENTITY;
 
 ENTITY State_transition_definition
 SUBTYPE OF (State_definition_relationship);
-  end_state : State_definition;
-  start_state : State_definition;
+SELF\State_definition_relationship.relating RENAMED end_state : State_definition;
+SELF\State_definition_relationship.related RENAMED start_state : State_definition;
 END_ENTITY;
 
 ENTITY Subset
 SUBTYPE OF (State_definition_relationship);
-  subset : State_definition;
-  superset : State_definition;
+SELF\State_definition_relationship.related RENAMED subset : State_definition;
+SELF\State_definition_relationship.relating RENAMED superset : State_definition;
 END_ENTITY;
 
 ENTITY Symptom_definition
 SUBTYPE OF (State_definition_relationship);
-  symptom_cause : State_definition;
-  symptom_effect : State_definition;
+SELF\State_definition_relationship.related RENAMED symptom_cause : State_definition;
+SELF\State_definition_relationship.relating RENAMED symptom_effect : State_definition;
 END_ENTITY;
 
 ENTITY Xor_state_cause_effect_definition
@@ -115,4 +123,3 @@ SUBTYPE OF (State_cause_effect_definition);
 END_ENTITY;
 
 END_SCHEMA;
-

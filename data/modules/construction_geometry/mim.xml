@@ -8,6 +8,8 @@
 >
 <application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="mim.vsd" />
 <schema name="Construction_geometry_mim">
+<interface kind="use" schema="Elemental_geometric_shape_mim">
+</interface>
 <interface kind="use" schema="geometry_schema">
 <interfaced.item name="b_spline_curve" />
 <interfaced.item name="cartesian_point" />
@@ -37,6 +39,28 @@
 <interfaced.item name="toroidal_surface" />
 <interfaced.item name="trimmed_curve" />
 </interface>
+<entity name="constructive_geometry_representation" supertypes="representation">
+<where label="WR1" expression="('CONSTRUCTIVE_GEOMETRY_MIM.GEOMETRIC_REPRESENTATION_CONTEXT' IN&#xA;         TYPEOF(SELF.context_of_items)) AND&#xA;        ({2 &lt;= SELF.context_of_items\geometric_representation_context.&#xA;        coordinate_space_dimension &lt;= 3})">
+</where>
+<where label="WR2" expression="SIZEOF( QUERY( cgr_i &lt;* SELF.items | &#xA;                SIZEOF(['CONSTRUCTIVE_GEOMETRY_MIM.PLACEMENT',&#xA;                        'CONSTRUCTIVE_GEOMETRY_MIM.CURVE',&#xA;                        'CONSTRUCTIVE_GEOMETRY_MIM.EDGE',&#xA;                        'CONSTRUCTIVE_GEOMETRY_MIM.FACE',&#xA;                        'CONSTRUCTIVE_GEOMETRY_MIM.POINT',&#xA;                        'CONSTRUCTIVE_GEOMETRY_MIM.SURFACE',&#xA;        	          'CONSTRUCTIVE_GEOMETRY_MIM.FACE_SURFACE',&#xA;                        'CONSTRUCTIVE_GEOMETRY_MIM.VERTEX_POINT'] * TYPEOF(cgr_i)) &lt;&gt; 1&#xA;              )) = 0">
+</where>
+<where label="WR3" expression="SIZEOF( USEDIN( SELF, 'CONSTRUCTIVE_GEOMETRY_MIM.' +&#xA;                     'REPRESENTATION_RELATIONSHIP.REP_2') &#xA;              ) &gt; 0">
+</where>
+<where label="WR4" expression="SIZEOF( USEDIN( SELF, 'CONSTRUCTIVE_GEOMETRY_MIM.' +&#xA;                     'REPRESENTATION_MAP.MAPPED_REPRESENTATION')&#xA;              ) = 0">
+</where>
+<graphic.element page="2" xcoord="102" ycoord="677" />
+</entity>
+<entity name="constructive_geometry_representation_relationship" supertypes="representation_relationship">
+<where label="WR1" expression="(SELF.rep_1.context_of_items :=: SELF.rep_2.context_of_items) AND&#xA;             ('CONSTRUCTIVE_GEOMETRY_MIM.GEOMETRIC_REPRESENTATION_CONTEXT' IN&#xA;              TYPEOF(SELF.rep_1.context_of_items))">
+</where>
+<where label="WR2" expression="'CONSTRUCTIVE_GEOMETRY_MIM.CONSTRUCTIVE_GEOMETRY_REPRESENTATION' IN&#xA;         TYPEOF(SELF.rep_2)">
+</where>
+<where label="WR3" expression="SIZEOF(['CONSTRUCTIVE_GEOMETRY_MIM.SHAPE_REPRESENTATION',&#xA;              'CONSTRUCTIVE_GEOMETRY_MIM.CONSTRUCTIVE_GEOMETRY_REPRESENTATION'] *&#xA;               TYPEOF(SELF.rep_1)) = 1">
+</where>
+<where label="WR4" expression="NOT('CONSTRUCTIVE_GEOMETRY_MIM.' +&#xA;                 'REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION' IN&#xA;            TYPEOF(SELF))">
+</where>
+<graphic.element page="2" xcoord="395" ycoord="677" />
+</entity>
 <graphic.element page="1" xcoord="102" ycoord="744" />
 </schema>
 </express>

@@ -1,9 +1,10 @@
 (*
   $Id: $
-  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-ZZZZ Construction_geometry
+  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-1131 Construction_geometry
 *)
-
 SCHEMA Construction_geometry_mim;
+
+USE FROM Elemental_geometric_shape_mim;
 
 USE FROM geometry_schema
 (b_spline_curve,
@@ -33,5 +34,46 @@ USE FROM geometry_schema
  surface_replica,
  toroidal_surface,
  trimmed_curve);
+
+ENTITY constructive_geometry_representation
+SUBTYPE OF (representation);
+WHERE
+  WR1: ('CONSTRUCTIVE_GEOMETRY_MIM.GEOMETRIC_REPRESENTATION_CONTEXT' IN
+         TYPEOF(SELF.context_of_items)) AND
+        ({2 <= SELF.context_of_items\geometric_representation_context.
+        coordinate_space_dimension <= 3});
+  WR2: SIZEOF( QUERY( cgr_i <* SELF.items | 
+                SIZEOF(['CONSTRUCTIVE_GEOMETRY_MIM.PLACEMENT',
+                        'CONSTRUCTIVE_GEOMETRY_MIM.CURVE',
+                        'CONSTRUCTIVE_GEOMETRY_MIM.EDGE',
+                        'CONSTRUCTIVE_GEOMETRY_MIM.FACE',
+                        'CONSTRUCTIVE_GEOMETRY_MIM.POINT',
+                        'CONSTRUCTIVE_GEOMETRY_MIM.SURFACE',
+        	          'CONSTRUCTIVE_GEOMETRY_MIM.FACE_SURFACE',
+                        'CONSTRUCTIVE_GEOMETRY_MIM.VERTEX_POINT'] * TYPEOF(cgr_i)) <> 1
+              )) = 0;
+  WR3: SIZEOF( USEDIN( SELF, 'CONSTRUCTIVE_GEOMETRY_MIM.' +
+                     'REPRESENTATION_RELATIONSHIP.REP_2') 
+              ) > 0;
+  WR4: SIZEOF( USEDIN( SELF, 'CONSTRUCTIVE_GEOMETRY_MIM.' +
+                     'REPRESENTATION_MAP.MAPPED_REPRESENTATION')
+              ) = 0;
+END_ENTITY;
+
+ENTITY constructive_geometry_representation_relationship
+SUBTYPE OF (representation_relationship);
+WHERE
+  WR1: (SELF.rep_1.context_of_items :=: SELF.rep_2.context_of_items) AND
+             ('CONSTRUCTIVE_GEOMETRY_MIM.GEOMETRIC_REPRESENTATION_CONTEXT' IN
+              TYPEOF(SELF.rep_1.context_of_items));
+  WR2: 'CONSTRUCTIVE_GEOMETRY_MIM.CONSTRUCTIVE_GEOMETRY_REPRESENTATION' IN
+         TYPEOF(SELF.rep_2);
+  WR3: SIZEOF(['CONSTRUCTIVE_GEOMETRY_MIM.SHAPE_REPRESENTATION',
+              'CONSTRUCTIVE_GEOMETRY_MIM.CONSTRUCTIVE_GEOMETRY_REPRESENTATION'] *
+               TYPEOF(SELF.rep_1)) = 1;
+  WR4: NOT('CONSTRUCTIVE_GEOMETRY_MIM.' +
+                 'REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION' IN
+            TYPEOF(SELF));
+END_ENTITY;
 
 END_SCHEMA;

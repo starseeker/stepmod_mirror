@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-26T09:44:22" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-26T18:35:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
@@ -304,10 +304,10 @@
          <explicit name="maximum_allowed_component_terminal_extent">
             <typename name="Length_data_element"/>
          </explicit>
-         <derived name="minimum_as_finished_deposition_thickness" expression="ent := SELF\Passage_technology.of_tec">
+         <derived name="minimum_as_finished_deposition_thickness" expression="SELF\Passage_technology.of_technology">
             <typename name="Length_data_element"/>
          </derived>
-         <derived name="minimum_as_finished_passage_extent" expression="ent := SELF\Passage_technology.of_technology.minimum_as_finished_passage">
+         <derived name="minimum_as_finished_passage_extent" expression="SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent">
             <typename name="Length_data_element"/>
          </derived>
          <inverse name="deposition_material" entity="Material_identification" attribute="items"/>
@@ -358,10 +358,10 @@
          </explicit>
       </entity>
       <entity name="Default_via_definition" supertypes="Passage_technology">
-         <derived name="minimum_as_finished_deposition_thickness" expression="ent := SELF\Passage_technology.of_tec">
+         <derived name="minimum_as_finished_deposition_thickness" expression="SELF\Passage_technology.of_technology">
             <typename name="Length_data_element"/>
          </derived>
-         <derived name="minimum_as_finished_passage_extent" expression="ent := SELF\Passage_technology.of_technology.minimum_as_finished_passage">
+         <derived name="minimum_as_finished_passage_extent" expression="SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent">
             <typename name="Length_data_element"/>
          </derived>
          <inverse name="deposition_material" entity="Material_identification" attribute="items"/>
@@ -426,7 +426,7 @@
          <where label="WR1" expression="SIZEOF(USEDIN(SELF,&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT')) &lt;= 1"/>
          <where label="WR2" expression="NOT (SIZEOF(USEDIN(SELF,&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT')) = 1) OR (SIZEOF(QUERY(cmfr &lt;* USEDIN(SELF,&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(cmfr.reusable_component))) = 1)"/>
          <where label="WR3" expression="SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0"/>
-         <where label="WR4" expression=" (SIZEOF(components) = 0"/>
+         <where label="WR4" expression="(SIZEOF(components) = 0)"/>
       </entity>
       <entity name="Footprint_occurrence_sub_assembly_relationship" supertypes="Part_occurrence_definition_relationship">
          <explicit name="relating_view">
@@ -616,8 +616,8 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression="SIZEOF(padstack_occurrence_assembly) + SIZEOF(footprint_occurrence_assembly) &lt; 2"/>
-         <where label="WR2" expression="NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR &#10;            	padstack_occurrence_assembly[1] = SELF\Assembly_component.occurrence_context"/>
-         <where label="WR3" expression="NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR &#10;            	footprint_occurrence_assembly[1] = SELF\Assembly_component.occurrence_"/>
+         <where label="WR2" expression="NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR &#10;            	padstack_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1]"/>
+         <where label="WR3" expression="NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR &#10;            	footprint_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1]"/>
       </entity>
       <entity name="Laminate_component_feature" abstract.supertype="YES" supertypes="Component_feature" super.expression="ONEOF (Conductive_interconnect_element_terminal, Laminate_component_interface_terminal, Laminate_component_join_terminal, Via_terminal)"/>
       <entity name="Laminate_component_interface_terminal" abstract.supertype="YES" supertypes="Laminate_component_feature"/>
@@ -774,7 +774,7 @@
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <where label="WR1" expression="SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0"/>
-         <where label="WR2" expression=" (SIZEOF(components) = 0"/>
+         <where label="WR2" expression="(SIZEOF(components) = 0)"/>
       </entity>
       <entity name="Padstack_occurrence_sub_assembly_relationship" supertypes="Part_occurrence_definition_relationship">
          <explicit name="relating_view">
@@ -869,7 +869,7 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Probe_access_area"/>
          </explicit>
-         <derived name="complete" expression=" := EXISTS(unrouted_connectivity_requirement_elem">
+         <derived name="complete" expression="EXISTS(unrouted_connectivity_requirement_element)">
             <builtintype type="BOOLEAN"/>
          </derived>
          <where label="WR1" expression="SIZEOF(QUERY(cre &lt;* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_AND_CONTACT_SIZE_DEPENDENT_LAND',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.VIA_AND_CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0"/>

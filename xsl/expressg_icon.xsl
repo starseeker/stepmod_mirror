@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: expressg_icon.xsl,v 1.3 2003/06/01 13:58:55 robbod Exp $
+$Id: expressg_icon.xsl,v 1.4 2003/06/07 01:05:12 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: Read the are maps in an image and create a node list. This is
@@ -263,6 +263,7 @@ $Id: expressg_icon.xsl,v 1.3 2003/06/01 13:58:55 robbod Exp $
          This only happens in the mapping tables when and ARM object is
          being remapped from another module. -->
     <xsl:param name="original_schema"/>
+    <xsl:param name="module_root" select="'..'"/>
     
     <xsl:variable name="schema">
       <xsl:choose>
@@ -282,6 +283,7 @@ $Id: expressg_icon.xsl,v 1.3 2003/06/01 13:58:55 robbod Exp $
     <xsl:call-template name="expressg_icon">
       <xsl:with-param name="schema" select="$schema"/>
       <xsl:with-param name="entity" select="$entity"/>
+      <xsl:with-param name="module_root" select="$module_root"/>
     </xsl:call-template>
 
   </xsl:template>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.44 2002/04/20 08:04:57 robbod Exp $
+$Id: module.xsl,v 1.45 2002/04/20 17:09:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -522,8 +522,8 @@ $Id: module.xsl,v 1.44 2002/04/20 08:04:57 robbod Exp $
               $mim_schema)"/>
   
   <xsl:variable name="parts_url"
-    select="concat('http://www.mel.nist.gov/step/parts/part',@part,'/TS')"/>
-  
+  select="concat('http://www.steptools.com/sc4/archive/~checkout~/modules/10303-',@part,'-arm.exp?rev=1.1&amp;content-type=text/plain')"/>
+
   <p>
     This annex references a listing of the EXPRESS entity names and
     corresponding short names as specified or referenced in this part of ISO

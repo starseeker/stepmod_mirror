@@ -2,6 +2,58 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit 3d shape - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Physical_unit_3d_shape_arm;
+
+USE FROM Physical_unit_shape_with_parameters_arm;
+
+USE FROM Layered_shape_arm;
+
+USE FROM Non_feature_shape_element_arm;
+
+USE FROM Part_view_definition_arm;
+
+  TYPE predefined_3d_purpose = ENUMERATION OF
+    (analysis_input,
+     analysis_output,
+     shock_analysis_input,
+     shock_analysis_output,
+     design,
+     vibration_analysis_input,
+     vibration_analysis_output,
+     electromagnetic_compatibility_analysis_input,
+     electromagnetic_compatibility_analysis_output,
+     thermal_analysis_input,
+     thermal_analysis_output);
+  END_TYPE; -- predefined_3d_purpose
+
+  TYPE three_d_purpose = SELECT
+    (predefined_3d_purpose,
+     external_item_identification);
+  END_TYPE; -- three_d_purpose
+
+  TYPE shape_class = ENUMERATION OF
+    (extrusion,
+     manhattan_block,
+     other,
+     is_unknown);
+  END_TYPE; -- shape_class
+
+  ENTITY Physical_unit_3d_keepout_shape   
+    SUBTYPE OF (View_level_non_feature_shape_definition, Physical_unit_keepout_shape);
+(** Need a WR to constrain the cardinality
+      application_technology_constraint  : OPTIONAL Requirement_definition_property;
+*)      
+      shape_classification               : shape_class;
+  END_ENTITY; -- physical_unit_3d_keepout_shape
+
+  ENTITY Physical_unit_3d_shape
+    SUBTYPE OF (Feature_shape_definition, Physical_unit_shape);
+(** Need a WR to constrain the cardinality    
+      application_technology_constraint : OPTIONAL Requirement_definition_property;
+*)      
+      shape_purpose                     : three_d_purpose;
+      shape_classification              : shape_class;
+  END_ENTITY; -- physical_unit_3d_shape
+
 END_SCHEMA;

@@ -2,6 +2,76 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit design view - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Physical_unit_design_view_arm;
-END_SCHEMA;
+
+USE FROM Part_view_definition_arm;
+
+USE FROM Physical_unit_usage_view_arm;
+
+USE FROM Item_definition_structure_arm;
+
+USE FROM Feature_and_connection_zone_arm;
+
+-- For assembly_component
+USE FROM Part_occurrence_arm;
+
+  ENTITY Component_to_physical_usage_view_assignment
+  	SUBTYPE OF (View_definition_relationship);
+      SELF\View_definition_relationship.related_view RENAMED usage_view_component  	: assembly_component;
+      SELF\View_definition_relationship.relating_view RENAMED design_view_component : assembly_component;
+    WHERE
+      WR1 : design_view_component <> usage_view_component;
+  END_ENTITY; -- component_to_physical_usage_view_assignment
+
+  ENTITY Connection_zone_in_design_view
+  	SUBTYPE OF (Connection_zone);
+  	SELF\part_feature.associated_definition : part_design_view;
+  END_ENTITY; 
+
+  ENTITY Part_design_view
+    SUBTYPE OF (Assembly_definition, Item_shape, Part_view_definition);
+      usage_view : OPTIONAL part_usage_view;
+    DERIVE
+    	SELF\item_shape.described_element : shapeable_item := SELF;
+    WHERE
+      WR1 : ('AP210_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF)) OR EXISTS(usage_view);
+  END_ENTITY; -- part_design_view
+
+	TYPE physical_unit_or_part_template_or_fp_or_pd = 
+		EXTENSIBLE GENERIC_ENTITY SELECT (part_view_definition);
+	END_TYPE;
+
+  ENTITY Assembly_component
+   SUBTYPE OF (Definition_based_product_occurrence, item_shape);
+	SELF\definition_based_product_occurrence.derived_from : physical_unit_or_part_template_or_fp_or_pd;
+    DERIVE
+    	SELF\item_shape.described_element : shapeable_item := SELF;
+    INVERSE
+      SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF assembly_component_relationship FOR related_view;
+(** Need to encode it as Global rules TODO for Tom
+      component_2d_shape         : SET[0:1] OF assembly_component_2d_shape FOR shape_characterized_component;
+      component_3d_shape         : SET[0:1] OF assembly_component_3d_shape FOR shape_characterized_component;
+      component_non_planar_shape : SET[0:1] OF assembly_component_non_planar_shape FOR shape_characterized_component;
+*)      
+    WHERE
+      WR1 : NOT (EXISTS(SELF\definition_based_product_occurrence.derived_from)) OR ((('AP210_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND ('AP210_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR (NOT ('AP210_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('AP210_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\definition_based_product_occurrence.derived_from))) OR (('AP210_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND ('AP210_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\definition_based_product_occurrence.derived_from))) OR (NOT ('AP210_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('AP210_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\definition_based_product_occurrence.derived_from))));
+  END_ENTITY; -- assembly_component
+
+  ENTITY Component_make_from_relationship
+		SUBTYPE OF (View_definition_relationship);  
+      SELF\View_definition_relationship.relating_view RENAMED reusable_component	: assembly_component;
+      SELF\View_definition_relationship.related_view RENAMED resultant_component	: assembly_component;
+    WHERE
+      WR1 : resultant_component <> reusable_component;
+  END_ENTITY; -- component_make_from_relationship
+
+  ENTITY Physical_component
+    SUBTYPE OF (Assembly_component, Definition_based_part_occurrence);
+  END_ENTITY; -- physical_component
+
+  ENTITY Thermal_component
+    SUBTYPE OF (Assembly_component);
+  END_ENTITY; -- thermal_component
+
+END_SCHEMA; -- Physical_unit_design_view_arm

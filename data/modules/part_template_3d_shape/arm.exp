@@ -2,6 +2,31 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Part template 3d shape - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Part_template_3d_shape_arm;
+
+USE FROM Physical_layout_template_arm;
+
+USE FROM Layered_shape_arm;
+
+USE FROM Non_feature_shape_element_arm;
+
+USE FROM Part_template_shape_with_parameters_arm;
+
+  ENTITY Part_template_3d_keepout_shape
+    SUBTYPE OF (Non_feature_shape_definition,
+    	Part_template_keepout_shape);
+(** Need a WR to constrain the cardinality    
+      application_technology_constraint  : OPTIONAL Requirement_definition_property;
+*)      
+  END_ENTITY; -- part_template_3d_keepout_shape
+
+  ENTITY Part_template_3d_shape
+    SUBTYPE OF (Feature_shape_definition, Part_template_shape);
+		WHERE
+			WR1 : (SIZEOF(USEDIN(SELF,
+ 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
+  END_ENTITY; -- part_template_3d_shape
+
+
 END_SCHEMA;

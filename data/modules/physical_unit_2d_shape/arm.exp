@@ -2,6 +2,66 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit 2d shape - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Physical_unit_2d_shape_arm;
+
+USE FROM Physical_unit_shape_with_parameters_arm;
+
+-- USE FROM Layered_2d_shape_arm;
+
+USE FROM Non_feature_shape_element_arm;
+
+USE FROM Value_with_unit_extension_arm;
+
+  TYPE shape_location = ENUMERATION OF
+    (above,
+     below,
+     congruent);
+  END_TYPE; -- shape_location
+
+  TYPE planar_purpose = SELECT
+    (predefined_planar_purpose,
+     external_item_identification);
+  END_TYPE; -- planar_purpose
+
+  TYPE predefined_planar_purpose = ENUMERATION OF
+    (analysis_input,
+     analysis_output,
+     shock_analysis_input,
+     shock_analysis_output,
+     assembly_symbol,
+     design,
+     design_profile,
+     vibration_analysis_input,
+     vibration_analysis_output,
+     electromagnetic_compatibility_analysis_input,
+     electromagnetic_compatibility_analysis_output,
+     physical_extent,
+     thermal_analysis_input,
+     thermal_analysis_output);
+  END_TYPE; -- predefined_planar_purpose
+
+  ENTITY Physical_unit_planar_keepout_shape
+    SUBTYPE OF (Planar_shape,
+ 			View_level_non_feature_shape_definition,
+ 			Physical_unit_keepout_shape);
+(** Need a WR to constrain the cardinality 
+      application_technology_constraint            : OPTIONAL Requirement_definition_property;
+*)      
+      shape_distance_from_seating_plane            : OPTIONAL length_data_element;
+      shape_location_with_respect_to_seating_plane : shape_location;
+    WHERE
+      WR1 : NOT ((congruent = shape_location_with_respect_to_seating_plane) AND (EXISTS(shape_distance_from_seating_plane)));
+  END_ENTITY; -- physical_unit_planar_keepout_shape
+
+  ENTITY Physical_unit_planar_shape
+    SUBTYPE OF (Planar_projected_shape, Physical_unit_shape);
+(** Need a WR to constrain the cardinality    
+      application_technology_constraint            : OPTIONAL Requirement_definition_property;
+*)      
+      shape_distance_from_seating_plane            : OPTIONAL length_data_element;
+      shape_location_with_respect_to_seating_plane : shape_location;
+      shape_purpose                                : planar_purpose;
+  END_ENTITY; -- physical_unit_planar_shape
+
 END_SCHEMA;

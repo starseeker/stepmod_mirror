@@ -2,6 +2,124 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit usage view - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Physical_unit_usage_view_arm;
-END_SCHEMA;
+
+USE FROM Part_view_definition_arm;
+
+USE FROM Item_definition_structure_arm;
+
+USE FROM Shape_composition_arm;
+
+USE FROM Feature_and_connection_zone_arm;
+
+USE FROM Analytical_model_arm;
+
+USE FROM Part_feature_location_arm;
+
+USE FROM Shape_property_assignment_arm;
+
+
+  TYPE material_state_change_enumeration = ENUMERATION OF
+    (material_addition,
+     material_removal);
+  END_TYPE; -- material_state_change_enumeration
+
+  ENTITY Connection_zone_map_identification;
+      reference_connection_zone_shape : usage_view_connection_zone_terminal_shape_relationship;
+      mapped_connection_zone_shape    : usage_view_connection_zone_terminal_shape_relationship;
+    UNIQUE
+      ur1 : reference_connection_zone_shape,
+ mapped_connection_zone_shape;
+    WHERE
+      WR1 : reference_connection_zone_shape <> mapped_connection_zone_shape;
+      WR2 : reference_connection_zone_shape.associated_connection_zone_shape_definition <> mapped_connection_zone_shape.associated_connection_zone_shape_definition;
+  END_ENTITY; -- connection_zone_map_identification
+
+  ENTITY Usage_view_connection_zone_terminal_shape_relationship;
+      associating_terminal_shape                  : part_feature_template_shape_definition;
+      associated_usage                            : connection_zone_in_usage_view;
+      associated_connection_zone_shape_definition : feature_shape_definition;
+      associated_usage_placement                  : axis_placement;
+    WHERE
+      WR1 : associating_terminal_shape :<>: associated_connection_zone_shape_definition;
+  END_ENTITY; -- usage_view_connection_zone_terminal_shape_relationship
+
+  ENTITY Connection_zone_in_usage_view
+  	SUBTYPE OF (Connection_zone);
+  	SELF\part_feature.associated_definition : part_usage_view;
+  END_ENTITY; 
+
+  ENTITY Part_feature_template_shape_definition
+    SUBTYPE OF (Feature_shape_definition);
+      shape_characterized_template : part_feature_template_definition;
+    WHERE
+      WR1 : NOT (SIZEOF(USEDIN(SELF,
+ '')) = 0) OR (SIZEOF(QUERY(foo <* USEDIN(SELF,
+ '') | NOT ('AP210_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF(foo)))) = 0);
+  END_ENTITY; -- part_feature_template_shape_definition
+
+  ENTITY Part_feature_template_definition
+    SUBTYPE OF (product_view_definition);
+(** Need a WR to capture cardinality    
+      of_model         : OPTIONAL Analytical_model_application;
+*)      
+      bound_parameters : OPTIONAL SET[1:?] OF independent_property_relationship; --model_parameter_relationship;
+    INVERSE
+      shape : part_feature_template_shape_definition FOR shape_characterized_template;
+    WHERE
+      WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\product_view_definition.defined_version.of_product,
+ 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'template model'))) >= 0;
+  END_ENTITY; -- part_feature_template_definition
+
+(** Need to capture attributes by some assignments 
+  ENTITY Physical_unit
+    ABSTRACT SUPERTYPE OF (ONEOF (part_design_view,
+ part_usage_view))
+    SUBTYPE OF (part_view_definition);
+      analytical_physical_unit_representation    : OPTIONAL SET[1:?] OF analytical_model_application;
+      unit_technology                            : OPTIONAL technology;
+      physical_device_characteristic             : OPTIONAL SET[1:?] OF characteristic;
+      physical_device_coordinated_characteristic : OPTIONAL SET[1:?] OF coordinated_characteristic;
+    WHERE
+      WR1 : NOT (SIZEOF(USEDIN(SELF,
+ 'AP210_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW')) <> 0) OR (SIZEOF(['AP210_ARM.part_design_view',
+ 'AP210_ARM.ASSEMBLY_MODULE_USAGE_VIEW',
+ 'AP210_ARM.CABLE_USAGE_VIEW'] * TYPEOF(SELF)) = 1);
+  END_ENTITY; -- physical_unit
+*)
+  ENTITY Part_usage_view
+    SUBTYPE OF (Part_view_definition, item_shape);
+    DERIVE
+    	SELF\item_shape.described_element : shapeable_item := SELF;
+    WHERE
+      WR1 : SIZEOF(QUERY(acr <* USEDIN(SELF,
+ 'AP210_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW') | NOT ('AP210_ARM.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF(acr.related_view)))) = 0;
+  END_ENTITY; -- part_usage_view
+
+  ENTITY Part_feature_make_from_relationship
+  	SUBTYPE OF (Shape_element_relationship);
+      associated_make_from : view_definition_relationship;
+      SELF\Shape_element_relationship.relating RENAMED reusable_feature	: part_feature;
+      SELF\Shape_element_relationship.related RENAMED resultant_feature	: part_feature;
+    UNIQUE
+      ur1 : reusable_feature,
+ resultant_feature;
+    WHERE
+      wr1 : reusable_feature :<>: resultant_feature;
+      wr2 : reusable_feature.associated_definition :<>: resultant_feature.associated_definition;
+  END_ENTITY; -- part_feature_make_from_relationship
+
+  ENTITY Part_feature
+    SUBTYPE OF (Shape_element);
+      SELF\shape_element.containing_shape RENAMED associated_definition : part_usage_view;
+      material_state_change   : OPTIONAL material_state_change_enumeration;
+      precedent_feature       : OPTIONAL part_feature;
+    INVERSE
+      feature_shape                            : SET[0:?] OF usage_concept_usage_relationship FOR associated_usage;
+    UNIQUE
+      ur1 : SELF\shape_element.element_name,
+ associated_definition;
+  END_ENTITY; -- part_feature
+
+END_SCHEMA; -- Physical_unit_usage_view_arm

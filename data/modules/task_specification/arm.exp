@@ -1,7 +1,7 @@
 (*
- $Id: arm.exp,v 1.18 2004/10/29 08:57:18 seanbarker Exp $
+ $Id: arm.exp,v 1.19 2004/11/19 21:37:41 robbod Exp $
  ISO TC184/SC4/WG12 N3181 - ISO/TS 10303-1262 Task specification - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2447
+Supersedes ISO TC184/SC4/WG12 N2447
 *) 
 
 
@@ -22,7 +22,12 @@ USE FROM State_observed_arm;    -- ISO/TS 10303-1256
 
 TYPE constraint_context = EXTENSIBLE GENERIC_ENTITY SELECT
    (Task_element, 
-    Task_method);
+    Task_method_version);
+END_TYPE; 
+
+TYPE method_or_method_version = SELECT
+   (Task_method, 
+    Task_method_version);
 END_TYPE; 
 
 TYPE state_or_state_definition_select = SELECT
@@ -37,6 +42,7 @@ TYPE task_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classi
     Activity_method_relationship, 
     Applied_activity_method_assignment, 
     Task_element_state_relationship, 
+    Task_method, 
     Task_method_state_relationship, 
     Task_objective, 
     Task_objective_state_relationship);
@@ -150,30 +156,47 @@ END_ENTITY;
 
 ENTITY Task_invocation
   SUBTYPE OF (Task_element);
-  task_method : Task_method;
+  task_method : method_or_method_version;
 END_ENTITY;
 
 ENTITY Task_method
   SUBTYPE OF (Activity_method);
-  content : OPTIONAL Task_element;
   objective : SET[0:?] OF Task_objective;
 END_ENTITY;
 
 ENTITY Task_method_assignment
   SUBTYPE OF (Applied_activity_method_assignment);
-  SELF\Applied_activity_method_assignment.assigned_activity_method RENAMED assigned_task_method : Task_method;
+  SELF\Applied_activity_method_assignment.assigned_activity_method : Task_method;
   SELF\Applied_activity_method_assignment.items : SET[1:?] OF task_item;
 END_ENTITY;
 
 ENTITY Task_method_relationship
   SUBTYPE OF (Activity_method_relationship);
-  SELF\Activity_method_relationship.relating_method RENAMED relating_task_method : Task_method;
-  SELF\Activity_method_relationship.related_method RENAMED related_task_method : Task_method;
+  SELF\Activity_method_relationship.relating_method : Task_method;
+  SELF\Activity_method_relationship.related_method : Task_method;
 END_ENTITY;
 
 ENTITY Task_method_state_relationship;
   state : state_or_state_definition_select;
-  task_method : Task_method;
+  task_method : Task_method_version;
+END_ENTITY;
+
+ENTITY Task_method_version
+  SUBTYPE OF (Activity_method);
+  content : OPTIONAL Task_element;
+  of_task_method : Task_method;
+END_ENTITY;
+
+ENTITY Task_method_version_assignment
+  SUBTYPE OF (Applied_activity_method_assignment);
+  SELF\Applied_activity_method_assignment.assigned_activity_method RENAMED assigned_task_method : Task_method_version;
+  SELF\Applied_activity_method_assignment.items : SET[1:?] OF task_item;
+END_ENTITY;
+
+ENTITY Task_method_version_relationship
+  SUBTYPE OF (Activity_method_relationship);
+  SELF\Activity_method_relationship.relating_method RENAMED relating_task_method : Task_method_version;
+  SELF\Activity_method_relationship.related_method RENAMED related_task_method : Task_method_version;
 END_ENTITY;
 
 ENTITY Task_objective;
@@ -193,12 +216,14 @@ END_ENTITY;
 
 SUBTYPE_CONSTRAINT restrict_activity_method_relationship FOR Activity_method_relationship;
   ONEOF (Task_element_relationship,
-         Task_method_relationship);
+         Task_method_relationship,
+         Task_method_version_relationship);
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT restrict_activity_method_subtypes FOR Activity_method;
   ONEOF (Task_element,
-         Task_method);
+         Task_method,
+         Task_method_version);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  -- Task_specification_arm

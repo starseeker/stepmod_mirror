@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.62 2002/08/05 16:20:48 robbod Exp $
+$Id: common.xsl,v 1.63 2002/08/06 12:08:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1791,17 +1791,30 @@ $Id: common.xsl,v 1.62 2002/08/05 16:20:48 robbod Exp $
   <!-- 
        Output a menubar at the top of the page.
        The menu bar is defined in a menubar file specified by the parameter 
-       menubar_file defined in parameters.xsl
+       menubar_file defined in menubar_params.xsl
        -->
   <xsl:template name="output_menubar">
     <xsl:param name="module_root"/>
     <xsl:param name="module_name"/>
+    <!-- overwrites the menubar file defined in menubar_params.xsl -->
+    <xsl:param name="new_menubar_file"/>
     <!-- the relative path from XSL directory to stepmod -->
     <xsl:param name="xsl_path" select="'..'"/>
-    <xsl:variable name="rel_menubar_file" 
-      select="concat($xsl_path,'/',$menubar_file)"/>
+
+    <xsl:variable name="rel_menubar_file">
+      <xsl:choose>
+        <xsl:when test="string-length($new_menubar_file)>0">
+          <xsl:value-of select="concat($xsl_path,'/',$new_menubar_file)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat($xsl_path,'/',$menubar_file)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <!-- no idea why I need to force a string here -->
     <xsl:apply-templates
-      select="document($rel_menubar_file)/menubar">
+      select="document(string($rel_menubar_file))/menubar">
       <xsl:with-param name="module_root" select="$module_root"/>
       <xsl:with-param name="module_name" select="$module_name"/>
     </xsl:apply-templates>

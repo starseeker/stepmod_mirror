@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.92 2002/08/06 14:40:47 robbod Exp $
+$Id: module.xsl,v 1.93 2002/08/06 16:27:19 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3277,7 +3277,12 @@ $module_ok,' Check the normatives references')"/>
     select="concat('ISO/',$module/@status,'&#160;10303-',$module/@part)"/>
 
 
-  <h3><xsl:value-of select="concat($section,' Terms defined in ',$stdnumber)"/></h3>
+  <h3>
+    <xsl:value-of select="concat($section,' Other terms and definitions')"/>
+    <!--
+    <xsl:value-of select="concat($section,' Terms defined in',$stdnumber)"/>
+    -->
+</h3>
   </xsl:template>
 
 

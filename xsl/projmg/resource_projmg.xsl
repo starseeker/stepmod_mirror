@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: projmg.xsl,v 1.5 2002/10/08 16:05:46 mikeward Exp $
+     $Id: resource_projmg.xsl,v 1.1 2002/10/16 20:49:59 thendrix Exp $
 -->
 
 <xsl:stylesheet 
@@ -278,5 +278,45 @@
     <xsl:apply-templates />
   </xsl:template>
 
-  
+  <xsl:template match="resource" mode="annex_list" >
+<!-- returns a list of annexes with content as a string with each annex name as a single word(no spaces)
+separated by spaces -->
+        <xsl:if test="string-length(./tech_discussion) > 10">
+            Technicaldiscussion
+        </xsl:if>
+        <xsl:if test="string-length(./examples) > 10">
+            Examples 
+        </xsl:if>
+        <xsl:if test="string-length(./add_scope) > 10">
+             Additionalscope
+        </xsl:if>
+
+</xsl:template>
+
+<xsl:template name="annex_position" >
+	<xsl:param name="annex_name" />
+	<xsl:param name="annex_list" />
+<!-- returns integer count of position of named annex in list of annexes -->
+	<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+	<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+
+	<xsl:variable name="annex" select="concat(translate($annex_name,' ',''),' ')" />
+
+	<xsl:value-of select="string-length(
+					translate(
+						substring-before(
+							concat(' ',normalize-space($annex_list),' '),
+							$annex
+							     ),
+						concat($UPPER,$LOWER),
+						'')
+						)" />
+</xsl:template>
+
+<xsl:template name="annex_count" >
+  <xsl:if test="string-length(./tech_discussion) > 10">T</xsl:if>
+  <xsl:if test="string-length(./examples) > 10">E</xsl:if>
+  <xsl:if test="string-length(./add_scope) > 10">A</xsl:if>
+</xsl:template>
+
 </xsl:stylesheet>

@@ -1,514 +1,257 @@
 (*
-
-   $Id: arm.exp,v 1.15 2005/01/06 14:08:39 liutkus Exp $
-
+   $Id: arm.exp,v 1.16 2005/01/10 08:40:29 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Printed physical layout template - EXPRESS ARM
-
 *)
-
-
 
 SCHEMA Printed_physical_layout_template_arm;
 
-
-
 USE FROM Physical_layout_template_arm;
-
-
 
 USE FROM Value_with_unit_extension_arm;
 
-
-
 USE FROM Fabrication_technology_arm;
-
-
 
 USE FROM Analytical_model_arm;
 
-
-
 USE FROM Extended_geometric_tolerance_arm;
-
-
 
 USE FROM Shape_property_assignment_arm; 
 
-
-
 USE FROM Feature_and_connection_zone_arm;
-
-
 
 USE FROM Non_feature_shape_element_arm;
 
-
-
 USE FROM Network_functional_usage_view_arm;
-
-
 
 REFERENCE FROM Requirement_decomposition_arm (get_requirement_definition_property);
 
 
-
 	TYPE pplt_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
-
 		(Printed_part_template_terminal);
-
 	END_TYPE;
 
-
-
   TYPE printed_part_template_terminal_class = ENUMERATION OF
-
     (curve_edge_segment,
-
      surface_point,
-
      area_edge_segment,
-
      surface_area);
-
   END_TYPE;
 
-
-
   ENTITY Functional_usage_view_to_printed_part_template_terminal_assignment;
-
       physical_usage_view_terminal   : Printed_part_template_terminal;
-
       functional_usage_view_terminal : Scalar_terminal_definition;
-
     UNIQUE
-
       UR1 : functional_usage_view_terminal,
-
  physical_usage_view_terminal;
-
   END_ENTITY;
-
-
 
   ENTITY Non_conductive_cross_section_template
-
     SUBTYPE OF (Layout_template_definition);
-
       template_technology : OPTIONAL SET[1:?] OF Stratum_technology;
-
       nominal_width       : Length_data_element;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_connector_template
-
     SUBTYPE OF (Printed_part_template);
-
     INVERSE
-
       characterized_connector_terminal_relationship : SET[1:?] OF printed_connector_template_terminal_relationship FOR connector;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_connector_template_terminal_relationship;
-
       join_terminal      : Printed_part_template_join_terminal;
-
       interface_terminal : Printed_part_template_interface_terminal;
-
       connector          : Printed_connector_template;
-
     UNIQUE
-
       UR1 : join_terminal,
-
  connector;
-
       UR2 : interface_terminal,
-
  connector;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_cross_section_template
-
     SUBTYPE OF (Layout_template_definition);
-
       horizontal_material_link                 : OPTIONAL SET[1:?] OF Printed_part_template_material_link;
-
       vertical_material_link                   : OPTIONAL SET[1:?] OF Printed_part_template_material_link;
-
       transmission_line_model                  : Analytical_model_definition;
-
       maximum_transmission_line_characteristic : OPTIONAL SET[1:?] OF Analytical_model_application;
-
       minimum_transmission_line_characteristic : OPTIONAL SET[1:?] OF Analytical_model_application;
-
       maximum_width                            : Length_data_element;
-
       minimum_width                            : Length_data_element;
-
       start_vertex                             : Edge_segment_vertex;
-
       end_vertex                               : Edge_segment_vertex;
-
     INVERSE
-
       using_terminal : SET[1:?] OF printed_part_cross_section_template_terminal FOR cross_section_definition;
-
     WHERE
-
       WR1 : SIZEOF(QUERY(hml <* horizontal_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['right']))) = 0;
-
       WR2 : SIZEOF(QUERY(hml <* horizontal_material_link | NOT (hml.subsequent_material\Shape_element.element_name IN ['left']))) = 0;
-
       WR3 : SIZEOF(QUERY(hml <* vertical_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['bottom']))) = 0;
-
       WR4 : SIZEOF(QUERY(hml <* vertical_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['top']))) = 0;
-
       WR5 : horizontal_material_link :<>: vertical_material_link;
-
       WR6 : start_vertex :<>: end_vertex;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_cross_section_template_terminal
-
     SUBTYPE OF (Printed_part_template_terminal);
-
       cross_section_definition       : Printed_part_cross_section_template;
-
       material_to_left_of_terminal   : OPTIONAL Printed_part_template_material_link;
-
       material_to_right_of_terminal  : OPTIONAL Printed_part_template_material_link;
-
       material_to_top_of_terminal    : OPTIONAL Printed_part_template_material_link;
-
       material_to_bottom_of_terminal : OPTIONAL Printed_part_template_material_link;
-
     UNIQUE
-
       UR1 : cross_section_definition,
-
  material_to_left_of_terminal,
-
  material_to_right_of_terminal,
-
  material_to_top_of_terminal,
-
  material_to_bottom_of_terminal;
-
     WHERE
-
       WR1 : (SELF\Printed_part_template_terminal.connection_zone_category = curve_edge_segment) OR (SELF\Printed_part_template_terminal.connection_zone_category = area_edge_segment);
-
       WR2 : NOT (EXISTS(material_to_left_of_terminal) AND EXISTS(material_to_right_of_terminal)) OR (material_to_left_of_terminal :<>: material_to_right_of_terminal);
-
       WR3 : NOT (EXISTS(material_to_left_of_terminal) AND EXISTS(material_to_top_of_terminal)) OR (material_to_left_of_terminal :<>: material_to_top_of_terminal);
-
       WR4 : NOT (EXISTS(material_to_left_of_terminal) AND EXISTS(material_to_bottom_of_terminal)) OR (material_to_left_of_terminal :<>: material_to_bottom_of_terminal);
-
       WR5 : NOT (EXISTS(material_to_right_of_terminal) AND EXISTS(material_to_top_of_terminal)) OR (material_to_right_of_terminal :<>: material_to_top_of_terminal);
-
       WR6 : NOT (EXISTS(material_to_right_of_terminal) AND EXISTS(material_to_bottom_of_terminal)) OR (material_to_right_of_terminal :<>: material_to_bottom_of_terminal);
-
       WR7 : NOT (EXISTS(material_to_top_of_terminal) AND EXISTS(material_to_bottom_of_terminal)) OR (material_to_top_of_terminal :<>: material_to_bottom_of_terminal);
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_template
-
     SUBTYPE OF (Layout_template_definition);
-
       of_stratum_technology       : OPTIONAL SET[1:?] OF Stratum_technology;
-
       material_stack              : OPTIONAL SET[1:?] OF Stratum_technology_link;
-
       printed_part_template_stack : OPTIONAL SET[1:?] OF Printed_part_template_link;
-
       implemented_function        : OPTIONAL Functional_unit_usage_view;
-
     DERIVE
-
       access_mechanisms        : SET[1:?] OF printed_part_template_terminal := raw_access_mechanisms + printed_part_template_access_mechanisms(printed_part_template_stack);
-
       footprint_implementation : BOOLEAN := (SIZEOF(USEDIN(SELF,
-
  'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'FOOTPRINT_DEFINITION.REFERENCE_PACKAGE')) > 0);
-
       a                        : BOOLEAN := NOT EXISTS(of_stratum_technology);
-
       b                        : BOOLEAN := NOT EXISTS(material_stack);
-
       c                        : BOOLEAN := NOT EXISTS(printed_part_template_stack);
-
       d                        : BOOLEAN := NOT footprint_implementation;
-
     INVERSE
-
       raw_access_mechanisms : SET[0:?] OF printed_part_template_terminal FOR associated_definition;
-
     WHERE
-
       WR1 : (a AND b AND c) OR (a AND b AND d) OR (a AND c AND d) OR (b AND c AND d);
-
       WR2 : (SIZEOF(QUERY(prpc <* USEDIN(defined_version.of_product,
-
  'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'printed part'))) >= 0) OR ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE' IN TYPEOF(SELF));
-
       WR3 : SIZEOF(USEDIN(SELF,
-
  'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'FOOTPRINT_DEFINITION.REFERENCE_PACKAGE')) < 2;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_template_connected_terminals_definition;
-
       name                : STRING; --ee_name;  
-
       connected_terminals : SET[2:?] OF Printed_part_template_terminal;
-
     UNIQUE
-
       UR1 : name;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_template_interface_terminal
-
     SUBTYPE OF (Printed_part_template_terminal);
-
       SELF\Printed_part_template_terminal.associated_definition : Printed_connector_template;
-
     INVERSE
-
       external_connector_function : SET[1:?] OF printed_connector_template_terminal_relationship FOR interface_terminal;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_template_join_terminal
-
     SUBTYPE OF (Printed_part_template_terminal);
-
     INVERSE
-
       internal_connector_function : SET[0:1] OF printed_connector_template_terminal_relationship FOR join_terminal;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_template_link
-
     SUBTYPE OF (Stratum_technology_link);
-
       precedent_printed_part_template  : Printed_part_template;
-
       subsequent_printed_part_template : Printed_part_template;
-
     INVERSE
-
       associated_printed_part_template : printed_part_template FOR printed_part_template_stack;
-
     WHERE
-
       WR1 : EXISTS(precedent_printed_part_template.of_stratum_technology);
-
       WR2 : EXISTS(subsequent_printed_part_template.of_stratum_technology);
-
       WR3 : precedent_printed_part_template.of_stratum_technology[1] = SELF\Stratum_technology_link.precedent_stratum_technology;
-
       WR4 : subsequent_printed_part_template.of_stratum_technology[1] = SELF\Stratum_technology_link.subsequent_stratum_technology;
-
       WR5 : SIZEOF(precedent_printed_part_template.of_stratum_technology) = 1;
-
       WR6 : SIZEOF(subsequent_printed_part_template.of_stratum_technology) = 1;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_template_material;
-
       maximum_width     : OPTIONAL Length_data_element;
-
       minimum_width     : OPTIONAL Length_data_element;
-
       required_material : Stratum_technology;
-
     INVERSE
-
       boundary : SET[0:4] OF template_material_cross_section_boundary FOR associated_definition;
-
     WHERE
-
       WR1 : SIZEOF(QUERY(temp <* (USEDIN(SELF,
-
  'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'top')) <= 1;
-
       WR2 : SIZEOF(QUERY(temp <* (USEDIN(SELF,
-
  'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'bottom')) <= 1;
-
       WR3 : SIZEOF(QUERY(temp <* (USEDIN(SELF,
-
  'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'left')) <= 1;
-
       WR4 : SIZEOF(QUERY(temp <* (USEDIN(SELF,
-
  'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'right')) <= 1;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_template_material_link;
-
       precedent_material  : Template_material_cross_section_boundary;
-
       subsequent_material : Template_material_cross_section_boundary;
-
     UNIQUE
-
       UR1 : precedent_material,
-
  subsequent_material;
-
     WHERE
-
       WR1 : precedent_material :<>: subsequent_material;
-
       WR2 : precedent_material\Shape_element.element_name IN ['bottom',
-
  'right'];
-
       WR3 : subsequent_material\Shape_element.element_name IN ['top',
-
  'left'];
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_template_terminal
-
     ABSTRACT SUPERTYPE OF (printed_part_cross_section_template_terminal ANDOR
-
  (ONEOF (Printed_part_template_join_terminal,
-
  Printed_part_template_interface_terminal)))
-
     SUBTYPE OF (Shape_element);
-
       associated_definition    : Printed_part_template;
-
       connection_zone_category : printed_part_template_terminal_class;
-
       terminal_connection_zone : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
-
       SELF\Shape_element.element_name  : STRING; --ee_name;
-
     INVERSE
-
       connection_requirement         : SET[0:1] OF printed_part_template_connected_terminals_definition FOR connected_terminals;
-
       functional_usage_view_terminal : SET[0:1] OF functional_usage_view_to_printed_part_template_terminal_assignment FOR physical_usage_view_terminal;
-
       feature_shape                  : SET[1:?] OF usage_concept_usage_relationship FOR associated_usage;
-
     UNIQUE
-
       UR1 : SELF\Shape_element.element_name,
-
  associated_definition;
-
   END_ENTITY;
-
-
 
   ENTITY Printed_part_template_terminal_relationship;
-
       relating_printed_part_terminal : Printed_part_template_terminal;  
-
       related_printed_part_terminal  : Printed_part_template_terminal;
-
   END_ENTITY;
-
-
 
   ENTITY Template_material_cross_section_boundary
-
     SUBTYPE OF (Non_feature_shape_element);
-
       associated_definition : Printed_part_template_material;
-
     UNIQUE
-
       UR1 : associated_definition,
-
  SELF\Shape_element.element_name;
-
     WHERE
-
       WR1 : SELF\Shape_element.element_name IN ['top',
-
  'bottom',
-
  'left',
-
  'right'];
-
   END_ENTITY;
 
-
-
   FUNCTION printed_part_template_access_mechanisms(
-
     input : SET OF Printed_part_template_link
-
   ) : SET OF Printed_part_template_terminal;
 
-
-
     LOCAL
-
       pptt : SET OF printed_part_template_terminal := [];
-
     END_LOCAL;
 
-
-
     REPEAT i := 1 TO SIZEOF(input) BY 1;
-
       pptt := input[i].precedent_printed_part_template.raw_access_mechanisms + pptt;
-
       pptt := input[i].subsequent_printed_part_template.raw_access_mechanisms + pptt;
-
     END_REPEAT;
-
     RETURN(pptt);
-
   END_FUNCTION;
 
-
-
 END_SCHEMA;
-
-
-

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.71 2003/08/07 07:51:08 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.72 2003/08/11 16:48:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -123,6 +123,7 @@ $Id: sect_5_mapping.xsl,v 1.71 2003/08/07 07:51:08 robbod Exp $
   <xsl:choose>
     <xsl:when test="./mapping_table/ae or ./mapping_table/sc">
       <xsl:call-template name="mapping_syntax"/>
+      <xsl:apply-templates select="." mode="output_mapping_issue"/>
       <xsl:apply-templates select="./mapping_table" mode="check_all_arm_mapped"/>
       <xsl:apply-templates select="./mapping_table/ae" mode="specification"/>
       <xsl:apply-templates select="./mapping_table/sc" mode="specification"/>

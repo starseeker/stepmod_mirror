@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.10 2003/04/23 14:51:28 robbod Exp $
+     $Id: issues.xsl,v 1.11 2003/10/20 09:09:30 robbod Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -290,5 +290,24 @@
     </xsl:if>
   </xsl:if>
   </xsl:template>
+
+
+<xsl:template match="module"  mode="output_mapping_issue">
+  <!-- only proceed if global parameter "output_issues" is YES -->
+  <xsl:if test="$output_issues='YES'">
+    <xsl:variable name="dvlp_fldr" select="@development.folder"/>
+
+    <xsl:if test="string-length($dvlp_fldr)>0">
+      <xsl:variable name="issue_file"
+        select="concat('../../data/modules/',@name,'/dvlp/issues.xml')"/>   
+      <xsl:for-each select="document($issue_file)/issues/issue[@type='mapping_table']">
+        <xsl:if test="string-length(normalize-space(@linkend))=0">
+          <xsl:apply-templates select="." mode="inline_issue"/>
+        </xsl:if>
+      </xsl:for-each> 
+    </xsl:if>
+  </xsl:if>
+</xsl:template>
+
 
 </xsl:stylesheet>

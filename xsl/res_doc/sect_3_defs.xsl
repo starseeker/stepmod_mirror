@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_3_defs.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: sect_3_defs.xsl,v 1.2 2003/03/16 01:26:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -26,12 +26,22 @@ $Id: sect_3_defs.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
   <!-- Output the terms identified in the normative references -->
   <h2>
     <a name="defns">
+      <!--
       <xsl:choose>
         <xsl:when test="./definition/term">
           3 Terms, definitions and abbreviations
         </xsl:when>
         <xsl:otherwise>
           3 Terms and abbreviations
+        </xsl:otherwise>
+      </xsl:choose>
+-->
+      <xsl:choose>
+        <xsl:when test="./abbreviation">
+          3 Terms, definitions and abbreviations
+        </xsl:when>
+        <xsl:otherwise>
+          3 Terms and definitions
         </xsl:otherwise>
       </xsl:choose>
     </a>

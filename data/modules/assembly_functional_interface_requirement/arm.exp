@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.24 2005/01/19 08:31:24 liutkus Exp $
+   $Id: arm.exp,v 1.25 2005/01/20 11:31:35 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly functional interface requirement - EXPRESS ARM *)
 (* UNDER DEVELOPMENT *)
 
@@ -13,6 +13,7 @@ USE FROM Requirement_assignment_arm;
 
 USE FROM Requirement_decomposition_arm;
 
+REFERENCE FROM Specification_document_arm(get_document_definition);
 
 	TYPE afir_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
 	   (Protocol_physical_layer_definition);
@@ -36,42 +37,21 @@ USE FROM Requirement_decomposition_arm;
       media_connector                      : OPTIONAL Minimally_defined_connector;
       media_functional_definition          : OPTIONAL Functional_unit_usage_view;
 	DERIVE
-  		reference_document: SET[0:?] OF Document_definition :=
-		QUERY (rd <* QUERY (da <* USEDIN (SELF,
-       'DOCUMENT_ASSIGNMENT_ARM.'+
-       'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') |
-        (da.role = 'reference document'))  |
-       'DOCUMENT_DEFINITION_ARM.' +
-       'DOCUMENT_DEFINITION' IN 
-       TYPEOF (rd.assigned_document));
+		reference_document: SET[0:?] OF Document_definition :=
+  			get_document_definition(SELF, 'reference document', 
+  			'DOCUMENT_DEFINITION_ARM.DOCUMENT_DEFINITION');
+	
+		host_rcv_functional_characterization: SET[0:?] OF Functional_specification_definition :=
+  			get_document_definition(SELF, 'host rcv functional characterization', 
+  			'FUNCTIONAL_SPECIFICATION_ARM.FUNCTIONAL_SPECIFICATION_DEFINITION');
 
-  		host_rcv_functional_characterization: SET[0:?] OF Functional_specification_definition :=
-		QUERY (rd <* QUERY (da <* USEDIN (SELF,
-       'DOCUMENT_ASSIGNMENT_ARM.'+
-       'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') |
-        (da.role = 'host rcv functional characterization'))  |
-       'FUNCTIONAL_SPECIFICATION_ARM.' +
-       'FUNCTIONAL_SPECIFICATION_DEFINITION' IN 
-       TYPEOF (rd.assigned_document));
+		host_xmt_functional_characterization: SET[0:?] OF Functional_specification_definition :=
+  			get_document_definition(SELF, 'host xmt functional characterization', 
+  			'FUNCTIONAL_SPECIFICATION_ARM.FUNCTIONAL_SPECIFICATION_DEFINITION');
 
-  		host_xmt_functional_characterization: SET[0:?] OF Functional_specification_definition :=
-		QUERY (rd <* QUERY (da <* USEDIN (SELF,
-       'DOCUMENT_ASSIGNMENT_ARM.'+
-       'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') |
-        (da.role = 'host xmt functional characterization'))  |
-       'FUNCTIONAL_SPECIFICATION_ARM.' +
-       'FUNCTIONAL_SPECIFICATION_DEFINITION' IN 
-       TYPEOF (rd.assigned_document));
-
-  		media_functional_characterization: SET[0:?] OF Functional_specification_definition :=
-		QUERY (rd <* QUERY (da <* USEDIN (SELF,
-       'DOCUMENT_ASSIGNMENT_ARM.'+
-       'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') |
-        (da.role = 'media functional characterization'))  |
-       'FUNCTIONAL_SPECIFICATION_ARM.' +
-       'FUNCTIONAL_SPECIFICATION_DEFINITION' IN 
-       TYPEOF (rd.assigned_document));
-       
+		media_functional_characterization: SET[0:?] OF Functional_specification_definition :=
+  			get_document_definition(SELF, 'media functional characterization', 
+  			'FUNCTIONAL_SPECIFICATION_ARM.FUNCTIONAL_SPECIFICATION_DEFINITION');
 	WHERE
    		WR1 : EXISTS (reference_document) AND SIZEOF(reference_document) = 1;
    		WR2 : NOT EXISTS (host_rcv_functional_characterization) OR SIZEOF(host_rcv_functional_characterization) = 1;

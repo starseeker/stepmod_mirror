@@ -79,8 +79,7 @@ USE FROM Characteristic_arm;
    		WR1 : EXISTS (source) AND sizeof(source) = 1;
   END_ENTITY;
 
-  ENTITY Structured_text
-  	SUBTYPE OF (Document_definition);
+  ENTITY Structured_text;
       plain_text_content        : OPTIONAL Text_representation_item;
       precedent_structured_text : OPTIONAL Structured_text;
       structured_text_content   : OPTIONAL SET[1:?] OF Structured_text;
@@ -105,5 +104,29 @@ USE FROM Characteristic_arm;
   ENTITY Test_specification
     SUBTYPE OF (Specification_definition);
   END_ENTITY;
+
+FUNCTION get_document_definition(
+	input : documented_element_select;
+	role : STRING;
+	type_name : STRING
+) : SET OF Document_definition; 
+
+LOCAL
+	dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
+	da : SET[0:?] OF Document_assignment :=[];
+END_LOCAL;
+	da := (QUERY(dr <* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
+	'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
+
+	-- iterate over da
+	REPEAT i := 1 to SIZEOF(da) by 1;
+		IF(type_name IN TYPEOF (da[i].assigned_document))THEN
+			dd := dd + da[i].assigned_document;
+		END_IF;
+	END_REPEAT;
+
+	RETURN(dd);
+END_FUNCTION;
+
 
 END_SCHEMA;

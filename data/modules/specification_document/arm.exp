@@ -8,11 +8,8 @@ SCHEMA Specification_document_arm;
 	USE FROM Characteristic_arm;	-- ISO/TS 10303-1654
 	USE FROM Configuration_item_arm;	-- ISO/TS 10303-1056
 	USE FROM Document_assignment_arm;	-- ISO/TS 10303-1122
+	USE FROM Encoded_text_representation_arm; -- ISO/TS 10303-1366
 	USE FROM Person_organization_assignment_arm;	-- ISO/TS 10303-1013
-
- 	TYPE sd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Structured_text);
-	END_TYPE;
 
 	TYPE specification_product_object_select = EXTENSIBLE GENERIC_ENTITY SELECT(
 		Product_configuration,
@@ -74,24 +71,6 @@ SCHEMA Specification_document_arm;
                          (temp.role = 'document source') );
 	WHERE
    		WR1 : EXISTS (source) AND sizeof(source) = 1;
-  END_ENTITY;
-
-  ENTITY Structured_text;
-      plain_text_content        : OPTIONAL Text_representation_item;
-      precedent_structured_text : OPTIONAL Structured_text;
-      structured_text_content   : OPTIONAL SET[1:?] OF Structured_text;
-    INVERSE
-      content_markup						: External_source_identification FOR item;
-  END_ENTITY;
-
-  ENTITY Structured_text_id_in_document;
-      identifier : STRING; --ee_name;
-      text       : Structured_text;
-    INVERSE
-	  document : document_assignment FOR is_assigned_to;    	
-    UNIQUE
-      UR1 : identifier,
- Document;
   END_ENTITY;
 
   ENTITY Surface_finish_specification

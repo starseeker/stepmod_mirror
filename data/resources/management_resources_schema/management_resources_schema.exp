@@ -1,5 +1,5 @@
 (*
-  $Id: management_resources_schema.exp,v 1.20 2003/10/22 17:30:08 mikeward Exp $
+  $Id: management_resources_schema.exp,v 1.21 2004/11/10 12:03:45 mikeward Exp $
   ISO TC184/SC4/WG12 N2887 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *) 
 
@@ -239,13 +239,15 @@ ENTITY external_identification_assignment
 END_ENTITY;
 
 ENTITY external_referent_assignment
-  ABSTRACT SUPERTYPE ;
-  assigned_name : label;
-DERIVE
-  role : object_role := get_role (SELF);
-UNIQUE
-  UR1: assigned_name;
-END_ENTITY;
+    ABSTRACT SUPERTYPE;
+    assigned_name : label;
+  DERIVE
+    role : object_role := get_role(SELF);
+  UNIQUE
+    UR1: assigned_name;
+  WHERE
+    WR1: SIZEOF(USEDIN(SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
+  END_ENTITY;
 
 ENTITY group_assignment
   ABSTRACT SUPERTYPE ;

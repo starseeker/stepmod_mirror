@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.3 2001/09/24 19:38:47 joshualubell Exp $
+$Id: readme.txt,v 1.4 2002/08/18 17:28:52 robbod Exp $
 
 The module repository is organized as follows:
 
@@ -45,3 +45,6 @@ Contains boilerplate XML document fragments common to all modules.
 data/[module-name]/
 Contains files specific to the module [module-name] including XML
 data, express-g graphics, etc.
+
+
+

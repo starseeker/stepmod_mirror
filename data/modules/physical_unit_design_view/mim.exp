@@ -1,17 +1,17 @@
 (*
-   $Id: mim.exp,v 1.5 2004/12/13 16:13:20 budreckytej Exp $
+   $Id: mim.exp,v 1.8 2005/01/04 07:21:33 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical unit design view - EXPRESS MIM
 *)
-
 
 SCHEMA Physical_unit_design_view_mim;
 	USE FROM Feature_and_connection_zone_mim;
 	USE FROM Item_definition_structure_mim;
 	USE FROM Part_view_definition_mim;
 	USE FROM Physical_unit_usage_view_mim;
-	USE FROM Product_occurrence_mim;
+	USE FROM Part_occurrence_mim;
 	
-	USE FROM Application_context_schema;
+	USE FROM Application_context_schema(application_context_element);
+	
 ENTITY component_definition
   SUBTYPE OF (product_definition);
 WHERE
@@ -468,6 +468,58 @@ END_ENTITY;
 ENTITY thermal_component_shape_aspect
   SUBTYPE OF (component_shape_aspect);
 END_ENTITY;
+
+FUNCTION is_assembly_module_macro_occurrence ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pass : BOOLEAN := FALSE;
+END_LOCAL;
+IF NOT(EXISTS(pd\product_definition.name)) THEN RETURN(FALSE); END_IF;
+IF ((pd\product_definition.name = 'assembly module') AND
+   (pd.frame_of_reference\application_context_element.name = 'macro occurrence'))
+THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+FUNCTION is_assembly_module_occurrence ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pass : BOOLEAN := FALSE;
+END_LOCAL;
+IF NOT(EXISTS(pd\product_definition.name)) THEN RETURN(FALSE); END_IF;
+IF ((pd\product_definition.name = 'assembly module') AND
+   (pd.frame_of_reference\application_context_element.name = 'physical occurrence'))
+THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+FUNCTION is_interconnect_module_macro_occurrence ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pass : BOOLEAN := FALSE;
+END_LOCAL;
+IF NOT(EXISTS(pd\product_definition.name)) THEN RETURN(FALSE); END_IF;
+IF ((pd\product_definition.name = 'interconnect module') AND
+   (pd.frame_of_reference\application_context_element.name = 'macro occurrence'))
+THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+FUNCTION is_interconnect_module_occurrence ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pass : BOOLEAN := FALSE;
+END_LOCAL;
+IF NOT(EXISTS(pd\product_definition.name)) THEN RETURN(FALSE); END_IF;
+IF ((pd\product_definition.name = 'interconnect module') AND
+   (pd.frame_of_reference\application_context_element.name = 'physical occurrence'))
+THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
 	
 END_SCHEMA;
 

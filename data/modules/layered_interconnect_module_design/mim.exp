@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.7 2004/12/20 06:44:30 liutkus Exp $
+   $Id: mim.exp,v 1.10 2005/01/04 07:21:30 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layered interconnect module design - EXPRESS MIM
 *)
 
@@ -20,6 +20,12 @@ SCHEMA Layered_interconnect_module_design_mim;
 	USE FROM Physical_unit_design_view_mim;
 	USE FROM Printed_physical_layout_template_mim;
 	USE FROM Requirement_assignment_mim;
+
+TYPE limd_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+     (inter_stratum_feature,
+      stratum,
+      stratum_feature);
+END_TYPE; 
 
 SUBTYPE_CONSTRAINT interconnect_module_terminal_subtypes FOR interconnect_module_terminal;         
   (ONEOF (interconnect_module_interface_terminal,
@@ -105,14 +111,6 @@ END_ENTITY;
 ENTITY footprint_occurrence
   SUBTYPE OF (assembly_group_component_definition);--assembly_group_component_shape_aspect);
 END_ENTITY;
-
-ENTITY footprint_occurrence_shape_aspect_relationship
-  SUBTYPE OF (shape_aspect_relationship);
-WHERE
-  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
-       SELF\shape_aspect_relationship.relating_shape_aspect;
-  WR2: SELF\shape_aspect_relationship.name = 'footprint occurrence sub assembly relationship';
-END_ENTITY; 
 
 ENTITY footprint_occurrence_product_definition_relationship
   SUBTYPE OF (product_definition_relationship);
@@ -274,6 +272,10 @@ END_ENTITY;
 
 ENTITY interconnect_module_join_terminal
   SUBTYPE OF (interconnect_module_terminal);
+END_ENTITY;
+
+ENTITY interface_access_component_shape_aspect
+  SUBTYPE OF (component_shape_aspect);
 END_ENTITY;
 
 ENTITY interface_access_material_removal_component_shape_aspect
@@ -629,18 +631,6 @@ END_ENTITY;
 ENTITY padstack_occurrence
   SUBTYPE OF (assembly_group_component_definition);--assembly_group_component_shape_aspect);
 END_ENTITY;
-
-ENTITY padstack_occurrence_shape_aspect_relationship
-  SUBTYPE OF (property_definition, shape_aspect_relationship);
-WHERE
-  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
-       SELF\shape_aspect_relationship.relating_shape_aspect;
-  WR2: SIZEOF(TYPEOF(SELF)) - SIZEOF(TYPEOF(SELF\property_definition ||
-       SELF\shape_aspect_relationship ||
-       SELF\padstack_occurrence_shape_aspect_relationship)) = 0;
-  WR3: SELF\shape_aspect_relationship.name = 
-        'padstack occurrence sub assembly relationship';
-END_ENTITY; 
 
 ENTITY padstack_occurrence_product_definition_relationship
   SUBTYPE OF (property_definition, product_definition_relationship);
@@ -1352,6 +1342,496 @@ END_ENTITY;
 ENTITY thermal_isolation_component_shape_aspect
   SUBTYPE OF (filled_area_material_removal_component_shape_aspect);
 END_ENTITY;
+
+RULE adjacent_stratum_surface_definition_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+   WR1: SIZEOF (QUERY (sar <* shape_aspect_relationship |
+               (sar\shape_aspect_relationship.name = 'adjacent stratum surface definition') AND
+     (NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+           'STRATUM_SURFACE' IN TYPEOF (sar.related_shape_aspect)) AND
+   (sar.related_shape_aspect\shape_aspect.description IN ['secondary surface']))))) = 0;
+   WR2: SIZEOF (QUERY (sar <* shape_aspect_relationship |
+               (sar\shape_aspect_relationship.name = 'adjacent stratum surface definition') AND
+     (NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+     'STRATUM_SURFACE' IN TYPEOF (sar.relating_shape_aspect)) AND
+    (sar.relating_shape_aspect\shape_aspect.description IN ['primary surface']))))) = 0;
+END_RULE;
+
+RULE adjacent_stratum_surface_definition_unique_constraint FOR
+ ( shape_aspect_relationship );
+LOCAL
+  assd : BAG OF shape_aspect_relationship := 
+      QUERY( sar <* shape_aspect_relationship
+| (sar\shape_aspect_relationship.description = 'adjacent stratum surface definition') );
+  pass1 : BOOLEAN := TRUE;
+  name_bag : BAG OF STRING := [];
+  pss_bag : BAG OF stratum_surface := [];
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass2 : BOOLEAN := TRUE;
+  sss_bag : BAG OF stratum_surface;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(assd) by 1;
+  IF EXISTS( assd[i]\shape_aspect_relationship.name ) THEN
+    IF ( assd[i]\shape_aspect_relationship.name IN name_bag ) THEN
+      pass1 := FALSE;
+      ESCAPE;
+    ELSE
+      name_bag := name_bag + assd[i]\shape_aspect_relationship.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(assd) by 1;
+  IF EXISTS( assd[i].relating_shape_aspect ) THEN
+    IF ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'STRATUM_SURFACE' IN TYPEOF(assd[i].relating_shape_aspect) ) THEN
+      IF( NOT( assd[i].relating_shape_aspect IN pss_bag ) ) THEN
+        pss_bag := pss_bag + assd[i].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pss_bag) by 1;
+  IF ( NOT pass2 ) THEN ESCAPE;
+  END_IF;
+  sss_bag := [];
+  sar_bag := QUERY( sar <* assd | (sar.relating_shape_aspect :=: 
+              pss_bag[i]) );
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
+      IF ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'STRATUM_SURFACE' IN TYPEOF(assd[j].related_shape_aspect) ) THEN
+        IF ( sar_bag[j].related_shape_aspect IN sss_bag ) THEN
+          pass2 := FALSE;
+          ESCAPE;
+        ELSE
+          sss_bag := sss_bag + sar_bag[j].related_shape_aspect;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass1;
+  WR2: pass2;
+END_RULE;
+
+RULE component_termination_passage_template_terminal_unique_constraint FOR
+ ( shape_aspect );
+LOCAL
+  ctptt : BAG OF shape_aspect := QUERY( sa <* shape_aspect |
+((sa\shape_aspect.description = 
+'component termination passage template interface terminal') OR
+(sa\shape_aspect.description = 
+'component termination passage template join terminal')) );
+  name_bag : BAG OF STRING := [];
+  sa_bag : BAG OF shape_aspect;
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  ptd_bag : BAG OF part_template_definition;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(ctptt) by 1;
+  IF EXISTS( ctptt[i]\shape_aspect.name ) THEN
+    IF ( NOT ( ctptt[i]\shape_aspect.name IN name_bag ) ) THEN
+      name_bag := name_bag + ctptt[i]\shape_aspect.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  ptd_bag := [];
+  sa_bag := QUERY( sa <* ctptt | (sa\shape_aspect.name = name_bag[i]) );
+  REPEAT j := 1 to SIZEOF(sa_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    sar_bag := QUERY( sar <* USEDIN(sa_bag[j],
+'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') | 
+((sar\shape_aspect_relationship.name = 'access mechanism') AND
+('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'PART_TEMPLATE_DEFINITION' IN TYPEOF(sar.relating_shape_aspect)) AND
+(sar.relating_shape_aspect\shape_aspect.name = 
+       'component termination passage template')) );
+    REPEAT k := 1 to SIZEOF(sar_bag) by 1;
+      IF EXISTS( sar_bag[k].relating_shape_aspect ) THEN
+        IF ( sar_bag[k].relating_shape_aspect IN ptd_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          ptd_bag := ptd_bag + sar_bag[k].relating_shape_aspect;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE conductive_interconnect_element_terminal_unique_constraint FOR
+ ( component_terminal );
+LOCAL
+  ciet : BAG OF component_terminal := QUERY( ct <* component_terminal |
+(ct\shape_aspect.description = 'conductive interconnect element terminal') );
+  name_bag : BAG OF STRING := [];
+  ct_bag : BAG OF component_terminal;
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  csa_bag : BAG OF component_shape_aspect;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(ciet) by 1;
+  IF EXISTS( ciet[i]\shape_aspect.name ) THEN
+    IF( NOT( ciet[i]\shape_aspect.name IN name_bag ) ) THEN
+      name_bag := name_bag + ciet[i]\shape_aspect.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  ct_bag := QUERY( ct <* ciet | (ct\shape_aspect.name = name_bag[i]) );
+  csa_bag := [];
+  REPEAT j := 1 to SIZEOF(ct_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    sar_bag := QUERY( sar <* USEDIN( ct_bag[j],
+'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') | ((sar\shape_aspect_relationship.name =
+'associated component') AND (sar.relating_shape_aspect\shape_aspect.description IN
+['conductive interconnect element with pre defined transitions',
+'conductive interconnect element with user defined single transition'])
+AND ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'COMPONENT_SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))) );
+    REPEAT k := 1 to SIZEOF(sar_bag) by 1;
+      IF EXISTS( sar_bag[k].relating_shape_aspect ) THEN
+        IF( sar_bag[k].relating_shape_aspect IN csa_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          csa_bag := csa_bag + sar_bag[k].relating_shape_aspect;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE default_passage_based_land_physical_template_unique_constraint FOR
+ ( land_physical_template );
+LOCAL
+  dpblpt : BAG OF land_physical_template := 
+QUERY( lpt <* land_physical_template |
+(lpt\shape_aspect.description IN ['default via based',
+'default attachment size and via based',
+'default unsupported passage based',
+'default component termination passage based',
+'default attachment size and component termination passage based']) );
+  sar_bag : BAG OF shape_aspect_relationship;
+  pt_bag : BAG OF passage_technology := [];
+  pdr_bag : BAG OF property_definition_relationship;
+  pass : BOOLEAN := TRUE;
+  st_bag : BAG OF stratum_technology;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(dpblpt) by 1;
+  sar_bag := QUERY( sar <* USEDIN(dpblpt[i],
+'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') | ((sar\shape_aspect_relationship.name =
+'technology usage') AND 
+('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'PASSAGE_TECHNOLOGY' IN TYPEOF(sar.related_shape_aspect))) );
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
+      IF ( NOT ( sar_bag[j].related_shape_aspect IN pt_bag ) ) THEN
+        pt_bag := pt_bag + sar_bag[j].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pt_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  st_bag := [];
+  sar_bag := QUERY( sar <* USEDIN(pt_bag[i],
+'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') | ((sar\shape_aspect_relationship.name =
+'technology usage') AND (sar.relating_shape_aspect IN dpblpt)) );
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    pdr_bag := 
+    QUERY( pdr <* USEDIN(sar_bag[j].relating_shape_aspect\shape_aspect.of_shape,
+'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+((pdr\property_definition_relationship.name = 'technology usage') AND
+('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'STRATUM_TECHNOLOGY' IN 
+      TYPEOF(pdr.relating_property_definition.definition))) );
+    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
+      IF EXISTS( pdr_bag[k].relating_property_definition.definition ) THEN
+        IF 
+          ( pdr_bag[k].relating_property_definition.definition IN st_bag ) 
+                                                                      THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          st_bag := st_bag + 
+                       pdr_bag[k].relating_property_definition.definition;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE inter_stratum_extent_constraint FOR 
+( product_definition_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdr <* product_definition_relationship |
+       (pdr\product_definition_relationship.name = 'inter stratum extent') AND
+       NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.'
+       + 'STRATUM' IN TYPEOF(pdr.related_product_definition)) AND
+       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.'
+       + 'STRATUM' IN TYPEOF(pdr.relating_product_definition)) 
+       ))) = 0;
+END_RULE;
+
+RULE interconnect_module_stratum_assembly_relationship_constraint FOR
+( assembly_component_usage );
+WHERE
+  WR1: SIZEOF(QUERY(acu <* assembly_component_usage |
+       (acu\product_definition_relationship.name = 'interconnect module stratum assembly relationship')
+       AND NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.'
+       + 'PHYSICAL_UNIT' IN TYPEOF(acu.relating_product_definition))
+       )) = 0;
+  WR2: SIZEOF(QUERY(acu <* assembly_component_usage |
+       (acu\product_definition_relationship.name = 'interconnect module stratum assembly relationship')
+       AND NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.'
+       + 'STRATUM' IN TYPEOF(acu.related_product_definition))
+       )) = 0;
+END_RULE;
+
+RULE interconnect_module_stratum_assembly_relationship_unique_constraint FOR
+ ( assembly_component_usage );
+LOCAL
+  imsar : BAG OF assembly_component_usage := 
+QUERY( acu <* assembly_component_usage |
+(acu\product_definition_relationship.name = 'interconnect module stratum assembly relationship') );
+  pu_bag : BAG OF physical_unit := [];
+  acu_bag : BAG OF assembly_component_usage;
+  pass : BOOLEAN := TRUE;
+  refdes_bag : BAG OF STRING;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(imsar) by 1;
+  IF EXISTS( imsar[i].relating_product_definition ) THEN
+    IF( (imsar[i].relating_product_definition.frame_of_reference.name = 
+        'physical design')
+AND ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'PHYSICAL_UNIT' IN TYPEOF(imsar[i].relating_product_definition)) ) THEN
+      IF ( NOT ( imsar[i].relating_product_definition IN pu_bag )) THEN
+        pu_bag := pu_bag + imsar[i].relating_product_definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pu_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  refdes_bag := [];
+  acu_bag := 
+   QUERY( acu <* imsar | (acu.relating_product_definition :=: pu_bag[i]) );
+  REPEAT j := 1 to SIZEOF(acu_bag) by 1;
+    IF EXISTS( acu_bag[j].reference_designator ) THEN
+      IF ( acu_bag[j].reference_designator IN refdes_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        refdes_bag := refdes_bag + acu_bag[j].reference_designator;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE internal_stratum_access_unique_constraint FOR
+ ( shape_aspect_relationship );
+LOCAL
+  isa : BAG OF shape_aspect_relationship := 
+QUERY( r <* shape_aspect_relationship |
+(r\shape_aspect_relationship.name = 'internal stratum access'));
+  paa_bag : BAG OF probe_access_area := [];
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  pp_bag : BAG OF plated_passage;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(isa) by 1;
+  IF EXISTS( isa[i].relating_shape_aspect ) THEN
+    IF ( (isa[i].relating_shape_aspect\shape_aspect.description = 
+'internal probe access area') AND
+('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'PROBE_ACCESS_AREA' IN TYPEOF(isa[i].relating_shape_aspect)) ) THEN
+      IF ( NOT ( isa[i].relating_shape_aspect IN paa_bag ) ) THEN
+        paa_bag := paa_bag + isa[i].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(paa_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  pp_bag := [];
+  sar_bag := QUERY( sar <* isa | ((sar.relating_shape_aspect :=: 
+paa_bag[i]) AND
+('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
+'PLATED_PASSAGE' IN TYPEOF(sar.related_shape_aspect)) AND
+(sar.related_shape_aspect\shape_aspect.description IN 
+['bonded conductive base blind via',
+'buried via','interfacial connection','non conductive base blind via',
+'plated conductive base blind via'])) );
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
+      IF ( sar_bag[j].related_shape_aspect IN pp_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        pp_bag := pp_bag + sar_bag[j].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE stratum_feature_unique_constraint FOR
+ ( stratum_feature );
+LOCAL
+  sf_bag : BAG OF stratum_feature;
+  s_bag : BAG OF stratum := [];
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF STRING;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(stratum_feature) by 1;
+  IF EXISTS( stratum_feature[i].of_shape.definition ) THEN
+    IF( NOT( stratum_feature[i].of_shape.definition IN s_bag ) ) THEN
+      s_bag := s_bag + stratum_feature[i].of_shape.definition;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(s_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sf_bag := QUERY( r <* stratum_feature | 
+             (r.of_shape.definition :=: s_bag[i]) );
+  name_bag := [];
+  REPEAT j := 1 to SIZEOF(sf_bag) by 1;
+    IF EXISTS( sf_bag[j]\shape_aspect.name ) THEN
+      IF ( sf_bag[j]\shape_aspect.name IN name_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        name_bag := name_bag + sf_bag[j]\shape_aspect.name;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE stratum_surface_unique_constraint FOR
+ ( stratum_surface );
+LOCAL
+  ss_bag : BAG OF stratum_surface;
+  s_bag : BAG OF stratum := [];
+  pass : BOOLEAN := TRUE;
+  desc_bag : BAG OF STRING;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(stratum_surface) by 1;
+  IF EXISTS( stratum_surface[i].of_shape.definition ) THEN
+    IF( NOT( stratum_surface[i].of_shape.definition IN s_bag ) ) THEN
+      s_bag := s_bag + stratum_surface[i].of_shape.definition;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(s_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  ss_bag := QUERY( r <* stratum_surface | 
+               (r.of_shape.definition :=: s_bag[i]) );
+  desc_bag := [];
+  REPEAT j := 1 to SIZEOF(ss_bag) by 1;
+    IF EXISTS( ss_bag[j]\shape_aspect.description ) THEN
+      IF ( ss_bag[j]\shape_aspect.description IN desc_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        desc_bag := desc_bag + ss_bag[j]\shape_aspect.description;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE via_template_terminal_unique_constraint FOR
+ ( shape_aspect );
+LOCAL
+  vt : BAG OF shape_aspect := 
+         QUERY( r <* shape_aspect | (r\shape_aspect.description = 'via template'));
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF STRING;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(vt) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sar_bag := QUERY( sar <* USEDIN( vt[i],
+'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.'
+ + 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+((sar\shape_aspect_relationship.name = 'access mechanism') AND 
+(sar.related_shape_aspect\shape_aspect.description = 
+'via template terminal' )) );
+  name_bag := [];
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect\shape_aspect.name ) THEN
+      IF ( sar_bag[j].related_shape_aspect\shape_aspect.name IN name_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        name_bag := name_bag + sar_bag[j].related_shape_aspect\shape_aspect.name;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
 
 END_SCHEMA;
 

@@ -1,21 +1,35 @@
 (*
-   $Id: mim.exp,v 1.4 2004/12/27 08:12:06 budreckytej Exp $
+   $Id: mim.exp,v 1.7 2005/01/04 07:21:34 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Requirement decomposition - EXPRESS MIM
 *)
 
 
 SCHEMA Requirement_decomposition_mim;
-	USE FROM Analytical_model_mim;
+
 	USE FROM Characteristic_mim;
-	USE FROM Elemental_geometric_shape_mim;
-	USE FROM Functional_specification_mim;
-	USE FROM Part_and_version_identification_mim;
-	USE FROM Pdm_material_aspects_mim;
-	USE FROM Product_rule_mim;
-	USE FROM Requirement_view_definition_mim;
 	USE FROM Specification_document_mim;
-	USE FROM Requirement_assignment_mim;
+	USE FROM Elemental_geometric_shape_mim;
+	USE FROM Product_rule_mim;
+	USE FROM Part_and_version_identification_mim;
+	USE FROM Requirement_assignment_mim;	
+	USE FROM Requirement_view_definition_mim;
+	USE FROM Analytical_model_mim;
+	USE FROM Functional_specification_mim;
 	USE FROM Conductivity_material_aspects_mim;
+	
+	USE FROM Material_property_definition_schema(property_definition_relationship);	
+
+REFERENCE FROM support_resource_schema   -- ISO 10303-41
+  (bag_to_set); 
+	
+
+TYPE rd_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+     (requirements_property);
+END_TYPE; 
+
+TYPE rd_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH 
+     (requirements_property);
+END_TYPE;
 	
 ENTITY material_electrical_conductivity_category
   SUBTYPE OF (group);
@@ -186,6 +200,115 @@ WHERE
                            TYPEOF(pdr.relating_property_definition))
        )) = 0;
 END_RULE;
+
+RULE requirements_property_constraint FOR 
+           (product_definition,
+            descriptive_representation_item,
+            requirements_property);
+LOCAL
+ri : BAG OF descriptive_representation_item := 
+         QUERY (dri <* descriptive_representation_item 
+                              | dri\representation_item.name = 
+                                          'requirements name');
+pd : BAG OF product_definition:=
+         QUERY(tpd <* product_definition
+               | ('REQUIREMENT_DECOMPOSITION_MIM.' +
+                  'APPLICATION_CONTEXT_ELEMENT' IN
+                  TYPEOF(tpd.frame_of_reference)) AND
+                  (tpd.frame_of_reference.name IN ['requirement',
+                                                   'design requirement',
+                                                   'assembly requirement'])
+                  AND
+                  (tpd.name = 'requirements model'));
+
+r : BAG OF representation := [];
+pdr : BAG OF property_definition_representation := [];
+pass1 : BOOLEAN := TRUE;
+
+rp : BAG OF property_definition := [];
+pass2 : BOOLEAN := TRUE;
+
+END_LOCAL;
+  (* WR1 Test *)
+  REPEAT i := 1 to SIZEOF (ri) by 1;
+     r := [];
+     pdr := [];
+     r := (USEDIN(ri[i],
+         'REQUIREMENT_DECOMPOSITION_MIM.' +
+             'REPRESENTATION.ITEMS'));
+     pass1 := (SIZEOF(r) = 1);
+     IF (NOT pass1) THEN ESCAPE; END_IF;
+
+     pdr := (USEDIN(r[1],
+             'REQUIREMENT_DECOMPOSITION_MIM.' +
+             'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+     pass1 := (SIZEOF(pdr) = 1);
+     IF (NOT pass1) THEN ESCAPE; END_IF;
+
+     pass1 := ('REQUIREMENT_DECOMPOSITION_MIM.' +
+             'REQUIREMENTS_PROPERTY' IN TYPEOF(pdr[1].definition));
+     IF (NOT pass1) THEN ESCAPE; END_IF;
+  END_REPEAT;
+  (* WR2 Test *)
+  REPEAT i := 1 to SIZEOF (pd) by 1;
+     rp := [];
+     IF (NOT pass2) THEN ESCAPE; END_IF;
+     rp := QUERY(rp <* USEDIN(pd[i],
+             'REQUIREMENT_DECOMPOSITION_MIM.' +
+             'PROPERTY_DEFINITION.DEFINITION') |
+             'REQUIREMENT_DECOMPOSITION_MIM.' +
+             'REQUIREMENTS_PROPERTY' IN TYPEOF(rp));
+     pass2 := (SIZEOF(rp) = 1);
+  END_REPEAT;
+WHERE
+ WR1: pass1;
+ WR2: pass2;
+END_RULE;
+
+RULE requirements_property_unique_constraint FOR 
+           (descriptive_representation_item,
+            requirements_property);
+LOCAL
+desc_bag : BAG OF STRING := [];
+pass1 : BOOLEAN := TRUE;
+pdr : BAG OF property_definition_representation := [];
+rep : BAG OF representation := [];
+pd : BAG OF product_definition := [];
+
+END_LOCAL;
+  REPEAT i := 1 to SIZEOF (requirements_property) by 1;
+     IF (NOT pass1) THEN ESCAPE; END_IF;
+     IF ('REQUIREMENT_DECOMPOSITION_MIM.' +
+         'PRODUCT_DEFINITION' IN TYPEOF(requirements_property[i].definition))
+      THEN pd := pd + requirements_property[i].definition;
+     END_IF;
+  END_REPEAT;
+  IF (instance_unique(pd) = FALSE ) THEN pass1 := FALSE; END_IF;
+WHERE
+ WR1: pass1;
+END_RULE;
+
+FUNCTION instance_unique 
+
+      ( the_bag : BAG OF GENERIC : intype ) : BOOLEAN;
+
+LOCAL
+
+      the_set : SET OF GENERIC : intype := [];
+      i : INTEGER ;
+      pass : BOOLEAN := TRUE;
+END_LOCAL ;
+
+      IF SIZEOF (the_bag) > 0 THEN
+                  the_set := bag_to_set(the_bag);
+      END_IF ;
+      IF NOT(SIZEOF(the_set) = SIZEOF(the_bag)) THEN
+       pass := FALSE;
+      END_IF;
+
+      RETURN (pass);
+
+END_FUNCTION ;
 	
 END_SCHEMA;
 

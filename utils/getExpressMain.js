@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.5 2002/12/24 15:40:22 robbod Exp $
+//$Id: getExpressMain.js,v 1.6 2003/01/08 13:19:53 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -45,6 +45,16 @@ function ErrorMessage(msg){
     if (outputUsermessage == 1)
 	WScript.Echo(msg);
     objShell.Popup(msg);
+}
+
+
+// Add a function called trim as a method of the prototype 
+// object of the String constructor.
+String.prototype.trim = function()
+{
+    // Use a regular expression to replace leading and trailing 
+    // spaces with the empty string
+    return this.replace(/(^\s*)|(\s*$)/g, "");
 }
 
 
@@ -165,7 +175,7 @@ function GetArmMimExpressOld(expDir) {
 	// Copy across mim file
 	var mimFileName = "../data/modules/"+moduleName+"/mim.exp";
 	var newMimFileName = expDir+"/mim/"+moduleName+"_mim.exp";
-	//UserMessage(mimFileName+"->"+newMimFileName);
+	UserMessage(mimFileName+"->"+newMimFileName);
 
 	if (fso.FileExists(mimFileName)) {
 	    src = fso.GetFile(mimFileName);
@@ -265,31 +275,38 @@ function GetArmMimExpress(expDir, modList) {
 
     while (!modListStr.AtEndOfStream) {
 	var moduleName =  modListStr.ReadLine();
+	// strip white space - read word
+	moduleName = moduleName.trim();
 	var src, dst;
 
-	// Copy across mim file
-	var mimFileName = "../data/modules/"+moduleName+"/mim.exp";
-	var newMimFileName = expDir+"/mim/"+moduleName+"_mim.exp";
-	//UserMessage(mimFileName+"->"+newMimFileName);
-
-	if (fso.FileExists(mimFileName)) {
-	    src = fso.GetFile(mimFileName);
-	    dst = newMimFileName;
-	    src.Copy(dst);
-	} else {
-	    UserMessage("File does not exist:\n"+mimFileName);
-	}
+	// any module starting with // is assumed commented out
+	var reg=/^\w+/;
+	var word = moduleName.match(reg);
+	if (word) {
+	    // Copy across mim file
+	    var mimFileName = "../data/modules/"+moduleName+"/mim.exp";
+	    var newMimFileName = expDir+"/mim/"+moduleName+"_mim.exp";
+	    //UserMessage(mimFileName+"->"+newMimFileName);
 	    
-	// Copy across arm file
-	var armFileName = "../data/modules/"+moduleName+"/arm.exp";
-	var newArmFileName = expDir+"/arm/"+moduleName+"_arm.exp";
-	if (fso.FileExists(armFileName)) {
-	    src = fso.GetFile(armFileName);
-	    dst = newArmFileName;
-	    src.Copy(dst);
-	} else {
-	    UserMessage("File does not exist:\n"+armFileName);
-	}
+	    if (fso.FileExists(mimFileName)) {
+		src = fso.GetFile(mimFileName);
+		dst = newMimFileName;
+		src.Copy(dst);
+	    } else {
+		UserMessage("File does not exist:\n"+mimFileName);
+	    }
+	    
+	    // Copy across arm file
+	    var armFileName = "../data/modules/"+moduleName+"/arm.exp";
+	    var newArmFileName = expDir+"/arm/"+moduleName+"_arm.exp";
+	    if (fso.FileExists(armFileName)) {
+		src = fso.GetFile(armFileName);
+		dst = newArmFileName;
+		src.Copy(dst);	    
+	    } else {
+		UserMessage("File does not exist:\n"+armFileName);
+	    }
+	} 
     }
 }
 
@@ -593,6 +610,4 @@ function MainWindowIrList(expDir, modList, irList) {
 
 //outputModuleList("plcs_bp2");
 //outputModuleList("pdm_ballot_072002");
-
-
 

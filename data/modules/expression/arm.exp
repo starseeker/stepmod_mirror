@@ -1,12 +1,11 @@
 (* 
-   $Id: arm.exp,v 1.8 2003/01/10 07:37:07 rugarcia Exp $
+   $Id: arm.exp,v 1.9 2003/01/15 08:14:28 goset1 Exp $
    ISO/TC184/SC4 WG12N1796 - ISO/CD-TS 10303-1342 Expression - Express ARM 
 *)
 
 SCHEMA Expression_arm;
 
 USE FROM Generic_expression_arm;
-USE FROM Numeric_function_arm;
 
 ENTITY Expression
 	ABSTRACT SUPERTYPE OF (ONEOF (Numeric_expression,Boolean_expression,String_expression))
@@ -20,10 +19,8 @@ SUBTYPE OF (Simple_numeric_expression, Variable);
 
 
 WHERE 
-	WR1:	('EXPRESSION_ARM.INT_NUMERIC_VARIABLE' 
-			IN TYPEOF(SELF) ) OR
-			('EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' 
-			IN TYPEOF(SELF) );
+WR1:	('EXPRESSION_ARM.INT_NUMERIC_VARIABLE' IN TYPEOF(SELF) ) OR
+	('EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' IN TYPEOF(SELF) );
 END_ENTITY;
 
 ENTITY Int_numeric_variable
@@ -36,13 +33,10 @@ END_ENTITY;
 
 ENTITY Boolean_variable
 SUBTYPE OF (Simple_boolean_expression, Variable);
-
-
 END_ENTITY;
 
 ENTITY String_variable
 SUBTYPE OF (Simple_string_expression, Variable);
-
 END_ENTITY;
 
 ENTITY Numeric_expression
@@ -133,7 +127,6 @@ SUBTYPE OF (Binary_numeric_expression);
 END_ENTITY;
 
 ENTITY Binary_function_call
-ABSTRACT SUPERTYPE OF (Atan_function)
 SUBTYPE OF (Binary_numeric_expression);
 END_ENTITY;
 
@@ -170,10 +163,8 @@ DERIVE
 	operand:generic_expression:= SELF\binary_generic_expression.operands[1];
 	index:generic_expression:= SELF\binary_generic_expression.operands[2];
 WHERE
-	WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' 
-			IN TYPEOF(operand))
-		AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' 
-			IN TYPEOF(index));
+WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(operand))
+		AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(index));
 	WR2: is_int_expr (index);
 END_ENTITY;
 

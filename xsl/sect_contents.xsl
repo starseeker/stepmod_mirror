@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.13 2002/12/31 09:01:14 goset1 Exp $
+$Id: sect_contents.xsl,v 1.14 2003/01/31 04:28:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -781,10 +781,12 @@ $Id: sect_contents.xsl,v 1.13 2002/12/31 09:01:14 goset1 Exp $
       <xsl:apply-templates select="document($mim_xml)//table" mode="toc"/>
     </xsl:otherwise>
   </xsl:choose>
-  <a href="./e_exp{$FILE_EXT}#table_e1">
-    Table E.1 &#8212; ARM and MIM EXPRESS listings.
-  </a>
-
+  <xsl:apply-templates select="./mim/shortnames" mode="toc"/>
+  <p class="content">
+    <a href="./e_exp{$FILE_EXT}#table_e1">
+      Table E.1 &#8212; ARM and MIM EXPRESS listings.
+    </a>
+  </p>
   <h3>Figures</h3>
   <!-- collect up the figures from the Module -->
   <xsl:apply-templates select="./purpose//figure" mode="toc"/>
@@ -947,5 +949,14 @@ $Id: sect_contents.xsl,v 1.13 2002/12/31 09:01:14 goset1 Exp $
   </p>
 </xsl:template>
 -->
+
+
+<xsl:template match="shortnames" mode="toc">
+  <p class="content">
+    <a href="./e_exp{$FILE_EXT}#table_a1">
+      Table A.1 &#8212; MIM short names of entities
+    </a>
+  </p>
+</xsl:template>
 
 </xsl:stylesheet>

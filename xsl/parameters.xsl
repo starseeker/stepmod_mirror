@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.11 2002/06/23 07:52:10 robbod Exp $
+     $Id: parameters.xsl,v 1.12 2003/05/06 20:45:01 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -72,6 +72,9 @@
 
   <!-- file containing background image  -->
   <xsl:param name="background_image" select="'refonly.gif'"/>
+
+  <!-- when length is 0, use the rcs date. Otherwise use value of param, as when building -->
+  <xsl:param name="coverpage_date" select="''"/>
 
 
 </xsl:stylesheet>

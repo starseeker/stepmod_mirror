@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.142 2003/05/07 06:23:54 robbod Exp $
+$Id: module.xsl,v 1.143 2003/05/09 10:18:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -118,11 +118,18 @@ $Id: module.xsl,v 1.142 2003/05/07 06:23:54 robbod Exp $
 
   <xsl:variable name="n_number"
     select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
-  <xsl:variable name="date"
-    select="translate(
-            substring-before(substring-after(@rcs.date,'$Date: '),' '),
-            '/','-')"/>
-
+  <xsl:variable name="date">
+    <xsl:choose>
+      <xsl:when test="string-length($coverpage_date)>0 and $output_background='NO'">
+        <xsl:value-of select="concat(substring($coverpage_date,1,4),'-',substring($coverpage_date,5,2),'-',substring($coverpage_date,7,2) )"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="translate(
+          substring-before(substring-after(@rcs.date,'$Date: '),' '),
+          '/','-')"/>
+        </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
   <table width="624">
     <tr>
       <td><h2><xsl:value-of select="$n_number"/></h2></td>

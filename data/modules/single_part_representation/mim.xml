@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: mim.xml,v 1.7 2004/06/01 14:38:45 thendrix Exp $ -->
+<!-- $Id: mim.xml,v 1.8 2004/09/01 00:01:36 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
   description.file="mim_descriptions.xml"
-  rcs.date="$Date: 2004/06/01 14:38:45 $"
-  rcs.revision="$Revision: 1.7 $">
+  rcs.date="$Date: 2004/09/01 00:01:36 $"
+  rcs.revision="$Revision: 1.8 $">
 
   <application
     name="express2xml2.js"
@@ -75,6 +75,30 @@
         selectitems="product product_definition product_definition_formation">
       </select>
     </type>
+    <function
+      name="categories_of_product">
+      <parameter
+        name="obj">
+        <typename
+          name="product"/>
+      </parameter>
+      <aggregate
+        type="SET"/>
+      <builtintype
+        type="STRING"/>
+      <algorithm>
+LOCAL
+category_assignments: BAG OF product_category;
+categories: SET OF STRING:=[];
+i: INTEGER;
+END_LOCAL;
+category_assignments := USEDIN(obj, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+categories := categories + category_assignments[i].name;
+END_REPEAT;
+RETURN(categories);
+      </algorithm>
+    </function>
 
   </schema>
 </express>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.10 2003/05/27 07:34:15 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.11 2003/05/29 06:59:29 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -153,7 +153,7 @@ $Id: sect_4_info_reqs.xsl,v 1.10 2003/05/27 07:34:15 robbod Exp $
      </xsl:choose>
 
      <xsl:if test="terminology">
-       <p> XSL INCOMPLETE
+       <p> XSLe1: XSL INCOMPLETE
          The application module that provides the detailed information
          requirements for this AP may be shared across multiple domains and the
          terminology used therein may differ from that of the business users of this
@@ -182,6 +182,8 @@ $Id: sect_4_info_reqs.xsl,v 1.10 2003/05/27 07:34:15 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
 
+    <xsl:variable name="href" select="concat('../../../module/',$module_name,'/introduction',$FILE_EXT)"/>
+
     <xsl:choose>
       <xsl:when test="$module_ok!='true'">
         <xsl:call-template name="error_message">
@@ -193,7 +195,6 @@ $Id: sect_4_info_reqs.xsl,v 1.10 2003/05/27 07:34:15 robbod Exp $
         <h2>
           <xsl:variable name="clause_hdr"
             select="concat('4.2.',position()+1,'&#160;XXXXX:&#160;',$module_name)"/>
-          <xsl:value-of select="$clause_hdr"/>
         </h2>
       </xsl:when>
       
@@ -209,10 +210,14 @@ $Id: sect_4_info_reqs.xsl,v 1.10 2003/05/27 07:34:15 robbod Exp $
                 
         <xsl:variable name="clause_aname" select="concat('42',$module_name)"/>
         <xsl:variable name="clause_hdr"
-          select="concat('4.2.',position()+1,'&#160;',$module_partno,':&#160;',$module_name)"/>
+          select="concat('4.2.',position()+1,'&#160;',$module_partno,':&#160;')"/>
+
         <h2>
           <a name="{$clause_aname}">
             <xsl:value-of select="$clause_hdr"/>
+            <a href="{$href}">
+              <xsl:value-of select="$module_name"/>
+            </a>
           </a>
         </h2>
         This application module shall be used to address the following areas of

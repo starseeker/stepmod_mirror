@@ -4,35 +4,55 @@
   href="../../../xsl/express.xsl"
 ?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $">
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="conditionarm1.vsd" />
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="conditionarm.vsd" />
 <schema name="Condition_arm">
 <interface kind="use" schema="Class_arm">
 </interface>
 <interface kind="use" schema="Date_time_arm">
 </interface>
-<interface kind="use" schema="Document_and_version_identification_arm">
-<interfaced.item name="Document_version" alias="Information_object" />
-<interfaced.item name="Document_version" alias="Information_object" />
-</interface>
-<interface kind="use" schema="Document_assignment_arm">
+<interface kind="use" schema="Date_time_assignment_arm">
 </interface>
 <interface kind="use" schema="Event_arm">
 </interface>
 <interface kind="use" schema="Expressions_for_logic_arm">
 </interface>
+<interface kind="use" schema="Identification_assignment_arm">
+</interface>
+<interface kind="use" schema="Person_organization_assignment_arm">
+</interface>
 <interface kind="use" schema="Product_view_definition_arm">
 </interface>
 <interface kind="use" schema="State_definition_arm">
 </interface>
+<interface kind="use" schema="support_resource_schema">
+</interface>
 <interface kind="use" schema="Value_with_unit_arm">
 </interface>
-<type name="Context_select">
-<select extensible="YES" />
-<graphic.element page="2" xcoord="510" ycoord="660" />
+<interface kind="reference" schema="Expressions_for_logic_arm">
+</interface>
+<type name="condition_identification">
+<select basedon="identification_item" selectitems="Condition" />
+<graphic.element page="2" xcoord="396" ycoord="467" />
+</type>
+<type name="criterion_sepcification">
+<select selectitems="Criterion text" />
+<graphic.element page="2" xcoord="361" ycoord="666" />
 </type>
 <type name="criterion_source_select">
-<select extensible="YES" selectitems="Class Event Product_view_definition State_definition Value_with_unit" />
-<graphic.element page="8" xcoord="166" ycoord="446" />
+<select extensible="YES" selectitems="Class Event Product_view_definition State_definition" />
+<graphic.element page="7" xcoord="237" ycoord="274" />
+</type>
+<type name="dated_condition">
+<select basedon="date_or_date_time_item" selectitems="Condition" />
+<graphic.element page="2" xcoord="396" ycoord="396" />
+</type>
+<type name="organizational_responsibility">
+<select basedon="orgqanization_or_person_in_organization_item" selectitems="Condition" />
+<graphic.element page="2" xcoord="396" ycoord="325" />
+</type>
+<type name="parameter_value">
+<select extensible="YES" selectitems="AND_expression date_or_date_time_select label text Value_with_unit" />
+<graphic.element page="7" xcoord="240" ycoord="501" />
 </type>
 <entity name="Compound_criteria" abstract.supertype="YES" supertypes="Criterion Multiple_arity_logical_expression">
 <description>
@@ -40,52 +60,47 @@
       </description>
 <graphic.element page="2" xcoord="198" ycoord="503" />
 </entity>
-<entity name="Condition" supertypes="Criterion Information_object">
+<entity name="Condition">
 <description>
         A condition is a criterion and an information object which is used as the condition for evaluating the applicability of an object of interest in a context. The condition is identified through the identitiers of the parent document information object. The object of interest is identified through the document_assignment  relationship inherited from document. The context of a condition is established when an information object acquires the condition. For example, a state may use a condition to define the state.
       </description>
-<graphic.element page="2" xcoord="269" ycoord="603" />
+<explicit name="criterion">
+<typename name="criterion_sepcification" />
+</explicit>
+<graphic.element page="2" xcoord="311" ycoord="602" />
 </entity>
-<entity name="Condition_context" supertypes="Document_assignment">
-<explicit name="condition">
+<entity name="Condition_relationship">
+<explicit name="related">
 <description>
-          The condition in consideration.
+          The condition related to.
         </description>
 <typename name="Condition" />
-<redeclaration entity-ref="Document_assignment" old_name="assigned_document" />
 </explicit>
-<explicit name="contextual_target">
+<explicit name="relating">
 <description>
-          The subject to which the condition pertains to.
+          The condition in focus.
         </description>
-<typename name="Context_select" />
-<redeclaration entity-ref="Document_assignment" old_name="is_assigned_to" />
+<typename name="Condition" />
 </explicit>
-<graphic.element page="2" xcoord="345" ycoord="715" />
+<explicit name="role">
+<description>
+          The meaning or implication of the relationship.
+        </description>
+<builtintype type="STRING" />
+</explicit>
+<graphic.element page="2" xcoord="467" ycoord="602" />
 </entity>
 <entity name="Criterion" abstract.supertype="YES" supertypes="Logical_expression" super.expression="ONEOF(Class_membership_criterion, Compound_criteria,  Date_time_criterion, Descritptive_criterion, Event_based_criterion) ANDOR Condition, NOT_assertion Numeric_value_citerion)">
 <description>
-        A criterion is an expression representing the semantics and structure of the parameters encapsulated by the expression.
+        A criterion is an atomic element of a condition. The criterion is an expression representing the semantics and structure of the parameters encapsulated by the expression.
       </description>
-<graphic.element page="2" xcoord="141" ycoord="603" />
+<graphic.element page="2" xcoord="141" ycoord="602" />
 </entity>
 <entity name="Criterion_parameter">
 <explicit name="criterion">
 <typename name="Criterion" />
 </explicit>
-<explicit name="date_time_value" optional="YES">
-<description>
-          A date, date-time or time duration value used as a criterion parameter.
-        </description>
-<typename name="date_or_date_time_select" />
-</explicit>
-<explicit name="note" optional="YES">
-<description>
-          A textual annotation.
-        </description>
-<builtintype type="STRING" />
-</explicit>
-<explicit name="parameter_name">
+<explicit name="parameter_name" optional="YES">
 <description>
           A name lable of the parameter identified in the criterion. This name should be in comliance with the actual property name used by the user entity or community. The name can be retrieved through a query following the path reference of the Parameter_ source_reference.
         </description>
@@ -97,13 +112,10 @@
         </description>
 <builtintype type="STRING" />
 </explicit>
-<explicit name="parameter_value" optional="YES">
-<description>
-          The actual value of the criterion parameter. The value can be an integer, a real number, a string or a logical literal value. Date , date-time or time duration values shall not be instantiated with this attribute type.
-        </description>
-<builtintype type="GENERIC" />
+<explicit name="parameter_value">
+<typename name="parameter_value" />
 </explicit>
-<graphic.element page="8" xcoord="85" ycoord="673" />
+<graphic.element page="7" xcoord="85" ycoord="559" />
 </entity>
 <entity name="NOT_assertion" supertypes="Criterion">
 <description>
@@ -121,7 +133,7 @@
         </description>
 <typename name="criterion_source_select" />
 </explicit>
-<graphic.element page="8" xcoord="85" ycoord="588" />
+<graphic.element page="7" xcoord="85" ycoord="481" />
 </entity>
 <graphic.element page="1" xcoord="269" ycoord="623" />
 </schema>

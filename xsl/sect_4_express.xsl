@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.113 2004/07/14 23:48:41 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.114 2004/07/16 23:21:51 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1048,35 +1048,47 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   </xsl:call-template> 
   <!-- output description from express -->
 
-  <p>
+
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description" mode="exp_description"/>
+        <!-- only output <p> if description starts with text, otherwsie
+             assume that the description sarts with <p> -->
+        <xsl:choose>          
+          <xsl:when test="string-length(./description/text())=0">
+            <xsl:apply-templates select="./description" mode="exp_description"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <p>
+              <xsl:apply-templates select="./description" mode="exp_description"/>
+            </p>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
-
-        <!-- 
-             disable error checking for selects as boiler plate
-             should output text -->
-        <xsl:if test="not(./select)">
-          <xsl:variable name="external_description">
-            <xsl:call-template name="check_external_description">
-              <xsl:with-param name="schema" select="../@name"/>
-              <xsl:with-param name="entity" select="@name"/>
-              <xsl:with-param name="type" select="@name"/>
-            </xsl:call-template>        
-          </xsl:variable>
-          <xsl:if test="$external_description='false'">
-            <xsl:call-template name="error_message">
-              <xsl:with-param 
-                name="message" 
-                select="concat('Error e3: No description provided for ',$aname)"/>
-            </xsl:call-template>
+        <p>
+          <!-- 
+               disable error checking for selects as boiler plate
+               should output text -->
+          <xsl:if test="not(./select)">
+            <xsl:variable name="external_description">
+              <xsl:call-template name="check_external_description">
+                <xsl:with-param name="schema" select="../@name"/>
+                <xsl:with-param name="entity" select="@name"/>
+                <xsl:with-param name="type" select="@name"/>
+              </xsl:call-template>        
+            </xsl:variable>
+            <xsl:if test="$external_description='false'">
+              <xsl:call-template name="error_message">
+                <xsl:with-param 
+                  name="message" 
+                  select="concat('Error e3: No description provided for ',$aname)"/>
+              </xsl:call-template>
+            </xsl:if>
           </xsl:if>
-        </xsl:if>
+        </p>
       </xsl:otherwise>
     </xsl:choose>
-  </p>
+
   <!-- output any issue against type -->
   <xsl:call-template name="output_express_issue">
     <xsl:with-param name="schema" select="../@name"/>
@@ -3855,7 +3867,6 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
     </xsl:call-template>
   </xsl:variable>
 
-
   <xsl:if test="$select_description='YES'">    
     <xsl:choose>
       <xsl:when test="@basedon and @extensible='YES'">
@@ -4079,7 +4090,6 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
         </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
-
     <xsl:call-template name="deprecated_type_note">     
     <xsl:with-param name="type" select=".."/>
     </xsl:call-template>

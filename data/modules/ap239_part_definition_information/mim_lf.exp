@@ -1,24 +1,19 @@
 (*
- $Id: mim_lf.exp,v 1.3 2003/03/09 16:49:09 robbod Exp $
+ $Id: mim_lf.exp,v 1.4 2003/03/10 01:48:00 robbod Exp $
  ISO TC184/SC4/WG3 N1251 - ISO/CD-TS 10303-1293 Ap239 part definition information - EXPRESS MIM Long form
 *)
 
 SCHEMA ap239_part_definition_information_mim_lf;
 
   TYPE action_items = SELECT
-    (interface_connection,
-     interface_connector_as_planned,
-     interface_connector_as_realized,
-     interface_connector_design,
-     product_as_planned,
-     product_as_realized,
-     document_file,
-     document_relationship,
-     product,
-     product_definition,
-     product_definition_formation,
-     product_definition_relationship);
+    (ascribable_state);
   END_TYPE; -- action_items
+
+  TYPE action_method_items = SELECT
+    (action_method_relationship,
+     state_type,
+     state_type_relationship);
+  END_TYPE; -- action_method_items
 
   TYPE ahead_or_behind = ENUMERATION OF
     (ahead,
@@ -33,7 +28,10 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product_as_planned,
      product_as_realized,
      approval_status,
+     certification,
+     event_occurrence,
      organization,
+     organizational_project,
      security_classification,
      document_file,
      product,
@@ -107,34 +105,44 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- ap239_dm_classification_item
 
   TYPE ap239_dm_contract_item = SELECT
-    (structured_message);
+    (product,
+     structured_message);
   END_TYPE; -- ap239_dm_contract_item
 
   TYPE ap239_dm_date_and_time_item = SELECT
     (applied_document_reference,
-     applied_document_usage_constraint_assignment);
+     applied_document_usage_constraint_assignment,
+     applied_usage_right,
+     product);
   END_TYPE; -- ap239_dm_date_and_time_item
 
   TYPE ap239_dm_date_item = SELECT
     (applied_document_reference,
-     applied_document_usage_constraint_assignment);
+     applied_document_usage_constraint_assignment,
+     applied_usage_right,
+     product);
   END_TYPE; -- ap239_dm_date_item
 
   TYPE ap239_dm_document_reference_item = SELECT
     (applied_identification_assignment,
      certification,
      contract,
+     information_right,
+     information_usage_right,
      organization,
      person);
   END_TYPE; -- ap239_dm_document_reference_item
 
   TYPE ap239_dm_ir_usage_item = SELECT
-    (document_file,
+    (applied_certification_assignment,
+     certification,
+     document_file,
      document_relationship,
      product,
      product_definition,
      product_definition_formation,
-     product_definition_relationship);
+     product_definition_relationship,
+     structured_message);
   END_TYPE; -- ap239_dm_ir_usage_item
 
   TYPE ap239_dm_multi_language_attribute_item = SELECT
@@ -162,22 +170,38 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- ap239_dm_security_classification_item
 
   TYPE ap239_dm_state_of_item = SELECT
-    (product,
+    (applied_external_identification_assignment,
+     document_file,
+     product,
      product_definition,
      product_definition_formation);
   END_TYPE; -- ap239_dm_state_of_item
 
   TYPE ap239_dm_state_type_of_item = SELECT
-    (product,
+    (applied_external_identification_assignment,
+     document_file,
+     product,
      product_definition,
      product_definition_formation);
   END_TYPE; -- ap239_dm_state_type_of_item
 
   TYPE ap239_mri_aliasable_item = SELECT
     (approval_status,
+     certification,
+     event_occurrence,
      organization,
+     organizational_project,
      security_classification);
   END_TYPE; -- ap239_mri_aliasable_item
+
+  TYPE ap239_mri_approval_item = SELECT
+    (applied_contract_assignment,
+     applied_event_occurrence_assignment,
+     applied_identification_assignment,
+     applied_organizational_project_assignment,
+     event_occurrence,
+     organizational_project);
+  END_TYPE; -- ap239_mri_approval_item
 
   TYPE ap239_mri_attribute_classification_item = SELECT
     (approval,
@@ -189,6 +213,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
      contract_type,
      date_role,
      date_time_role,
+     event_occurrence_context_role,
+     event_occurrence_relationship,
      group,
      identification_role,
      name_attribute,
@@ -201,16 +227,22 @@ SCHEMA ap239_part_definition_information_mim_lf;
      person_and_organization_address,
      person_and_organization_role,
      security_classification_level,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     property_definition_representation,
-     representation,
-     representation_context,
-     representation_item);
+     applied_state_assignment,
+     applied_state_type_assignment,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship);
   END_TYPE; -- ap239_mri_attribute_classification_item
+
+  TYPE ap239_mri_attribute_language_item = SELECT
+    (multi_language_attribute_assignment,
+     event_occurrence);
+  END_TYPE; -- ap239_mri_attribute_language_item
+
+  TYPE ap239_mri_certification_item = SELECT
+    (organizational_project);
+  END_TYPE; -- ap239_mri_certification_item
 
   TYPE ap239_mri_classification_item = SELECT
     (address,
@@ -219,6 +251,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
      applied_contract_assignment,
      applied_date_and_time_assignment,
      applied_date_assignment,
+     applied_event_occurrence_assignment,
      applied_identification_assignment,
      applied_organization_assignment,
      applied_organizational_project_assignment,
@@ -232,6 +265,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
      certification,
      contract,
      date_and_time,
+     event_occurrence,
+     event_occurrence_relationship,
      language,
      multi_language_attribute_assignment,
      organization,
@@ -241,31 +276,62 @@ SCHEMA ap239_part_definition_information_mim_lf;
      organizational_project_relationship,
      person_and_organization,
      person_and_organization_address,
-     security_classification,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     property_definition_representation,
-     representation,
-     representation_context,
-     representation_item);
+     security_classification);
   END_TYPE; -- ap239_mri_classification_item
 
   TYPE ap239_mri_date_and_time_item = SELECT
-    (applied_identification_assignment);
+    (applied_certification_assignment,
+     applied_contract_assignment,
+     applied_identification_assignment,
+     organizational_address,
+     person_and_organization_address);
   END_TYPE; -- ap239_mri_date_and_time_item
 
   TYPE ap239_mri_date_item = SELECT
-    (applied_identification_assignment);
+    (applied_certification_assignment,
+     applied_contract_assignment,
+     applied_identification_assignment,
+     organizational_address,
+     person_and_organization_address);
   END_TYPE; -- ap239_mri_date_item
+
+  TYPE ap239_mri_event_occurrence_item = SELECT
+    (certification,
+     organizational_project);
+  END_TYPE; -- ap239_mri_event_occurrence_item
 
   TYPE ap239_mri_identification_item = SELECT
     (approval_status,
+     certification,
+     event_occurrence,
      organization,
+     organizational_project,
      security_classification);
   END_TYPE; -- ap239_mri_identification_item
+
+  TYPE ap239_mri_multi_language_attribute_item = SELECT
+    (event_occurrence);
+  END_TYPE; -- ap239_mri_multi_language_attribute_item
+
+  TYPE ap239_mri_organization_item = SELECT
+    (applied_certification_assignment,
+     applied_contract_assignment,
+     applied_event_occurrence_assignment,
+     applied_organizational_project_assignment,
+     certification,
+     event_occurrence,
+     organizational_project);
+  END_TYPE; -- ap239_mri_organization_item
+
+  TYPE ap239_mri_person_and_organization_item = SELECT
+    (applied_certification_assignment,
+     applied_contract_assignment,
+     applied_event_occurrence_assignment,
+     applied_organizational_project_assignment,
+     certification,
+     event_occurrence,
+     organizational_project);
+  END_TYPE; -- ap239_mri_person_and_organization_item
 
   TYPE ap239_padi_aliasable_item = SELECT
     (interface_connector_as_planned,
@@ -289,6 +355,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product,
      product_as_planned,
      product_as_realized,
+     product_concept,
      product_definition,
      product_definition_formation,
      product_design_to_individual,
@@ -349,38 +416,94 @@ SCHEMA ap239_part_definition_information_mim_lf;
      requirement_source);
   END_TYPE; -- ap239_padi_classification_item
 
+  TYPE ap239_padi_condition_action_method_items = SELECT
+    (action_method_relationship,
+     applied_approval_assignment,
+     applied_certification_assignment,
+     applied_classification_assignment,
+     applied_contract_assignment,
+     applied_date_and_time_assignment,
+     applied_date_assignment,
+     applied_document_reference,
+     applied_document_usage_constraint_assignment,
+     applied_identification_assignment,
+     applied_organization_assignment,
+     applied_person_and_organization_assignment,
+     calendar_date,
+     date_and_time,
+     product,
+     product_as_individual,
+     product_definition,
+     product_definition_formation,
+     product_related_product_category,
+     property_definition);
+  END_TYPE; -- ap239_padi_condition_action_method_items
+
+  TYPE ap239_padi_condition_evaluation_action_items = SELECT
+    (applied_approval_assignment,
+     applied_certification_assignment,
+     applied_classification_assignment,
+     applied_contract_assignment,
+     applied_date_and_time_assignment,
+     applied_date_assignment,
+     applied_document_reference,
+     applied_document_usage_constraint_assignment,
+     applied_identification_assignment,
+     applied_organization_assignment,
+     applied_person_and_organization_assignment,
+     calendar_date,
+     date_and_time,
+     product,
+     product_as_individual,
+     product_definition,
+     product_definition_formation,
+     product_related_product_category,
+     property_definition);
+  END_TYPE; -- ap239_padi_condition_evaluation_action_items
+
   TYPE ap239_padi_contract_item = SELECT
     (interface_connector_as_planned,
      interface_connector_as_realized,
      interface_connector_design,
      organizational_project,
+     product,
      product_as_planned,
      product_as_realized,
      product_definition_formation);
   END_TYPE; -- ap239_padi_contract_item
 
   TYPE ap239_padi_date_and_time_item = SELECT
-    (interface_connector_as_planned,
+    (applied_organizational_project_assignment,
+     interface_connector_as_planned,
      interface_connector_as_realized,
      interface_connector_design_to_planned,
      interface_connector_design_to_realized,
      interface_connector_planned_to_realized,
+     product,
      product_as_planned,
      product_as_realized,
+     product_concept,
      product_definition,
-     product_definition_formation);
+     product_definition_formation,
+     product_design_to_individual,
+     product_planned_to_realized);
   END_TYPE; -- ap239_padi_date_and_time_item
 
   TYPE ap239_padi_date_item = SELECT
-    (interface_connector_as_planned,
+    (applied_organizational_project_assignment,
+     interface_connector_as_planned,
      interface_connector_as_realized,
      interface_connector_design_to_planned,
      interface_connector_design_to_realized,
      interface_connector_planned_to_realized,
+     product,
      product_as_planned,
      product_as_realized,
+     product_concept,
      product_definition,
-     product_definition_formation);
+     product_definition_formation,
+     product_design_to_individual,
+     product_planned_to_realized);
   END_TYPE; -- ap239_padi_date_item
 
   TYPE ap239_padi_document_reference_item = SELECT
@@ -390,8 +513,11 @@ SCHEMA ap239_part_definition_information_mim_lf;
      interface_connector_design_to_planned,
      interface_connector_design_to_realized,
      interface_connector_planned_to_realized,
+     organizational_project,
+     product,
      product_as_planned,
      product_as_realized,
+     product_concept,
      product_definition,
      product_definition_formation,
      product_definition_formation_relationship,
@@ -411,7 +537,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- ap239_padi_identification_item
 
   TYPE ap239_padi_ir_usage_item = SELECT
-    (interface_connection,
+    (applied_security_classification_assignment,
+     interface_connection,
      interface_connector_as_planned,
      interface_connector_as_realized,
      interface_connector_design,
@@ -419,7 +546,10 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product_as_planned,
      product_as_realized,
      product_definition,
-     product_definition_formation);
+     product_definition_formation,
+     product_definition_formation_relationship,
+     requirement_assignment,
+     security_classification);
   END_TYPE; -- ap239_padi_ir_usage_item
 
   TYPE ap239_padi_multi_language_attribute_item = SELECT
@@ -456,14 +586,16 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- ap239_padi_project_item
 
   TYPE ap239_padi_requirement_assigned_item = SELECT
-    (product,
+    (organizational_project,
+     product,
      product_as_planned,
      product_as_realized,
      product_definition_formation);
   END_TYPE; -- ap239_padi_requirement_assigned_item
 
   TYPE ap239_padi_requirement_source_item = SELECT
-    (product_definition_formation);
+    (product_as_individual,
+     product_definition_formation);
   END_TYPE; -- ap239_padi_requirement_source_item
 
   TYPE ap239_padi_security_classification_item = SELECT
@@ -515,30 +647,15 @@ SCHEMA ap239_part_definition_information_mim_lf;
      security_classification);
   END_TYPE; -- ap239_padi_state_type_of_item
 
-  TYPE ap239_props_ap239_mri_attribute_classification_item = SELECT
-    (approval,
-     approval_relationship,
-     approval_role,
-     approval_status,
-     certification,
-     certification_type,
-     contract_type,
-     date_role,
-     date_time_role,
-     group,
-     identification_role,
-     name_attribute,
-     object_role,
-     organization_relationship,
-     organization_role,
-     organizational_address,
-     organizational_project_relationship,
-     organizational_project_role,
-     person_and_organization_address,
-     person_and_organization_role,
-     security_classification_level,
-     action_property,
-     general_property,
+  TYPE ap239_props_approval_item = SELECT
+    (general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship);
+  END_TYPE; -- ap239_props_approval_item
+
+  TYPE ap239_props_attribute_classification_item = SELECT
+    (general_property,
      general_property_relationship,
      property_definition,
      property_definition_relationship,
@@ -546,40 +663,19 @@ SCHEMA ap239_part_definition_information_mim_lf;
      representation,
      representation_context,
      representation_item);
-  END_TYPE; -- ap239_props_ap239_mri_attribute_classification_item
+  END_TYPE; -- ap239_props_attribute_classification_item
 
-  TYPE ap239_props_ap239_mri_classification_item = SELECT
-    (address,
-     applied_approval_assignment,
-     applied_certification_assignment,
-     applied_contract_assignment,
-     applied_date_and_time_assignment,
-     applied_date_assignment,
-     applied_identification_assignment,
-     applied_organization_assignment,
-     applied_organizational_project_assignment,
-     applied_person_and_organization_assignment,
-     applied_security_classification_assignment,
-     approval,
-     approval_person_organization,
-     approval_relationship,
-     approval_status,
-     calendar_date,
-     certification,
-     contract,
-     date_and_time,
-     language,
-     multi_language_attribute_assignment,
-     organization,
-     organization_relationship,
-     organizational_address,
-     organizational_project,
-     organizational_project_relationship,
-     person_and_organization,
-     person_and_organization_address,
-     security_classification,
-     action_property,
+  TYPE ap239_props_attribute_language_item = SELECT
+    (multi_language_attribute_assignment,
      general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
+     representation_item);
+  END_TYPE; -- ap239_props_attribute_language_item
+
+  TYPE ap239_props_classification_item = SELECT
+    (general_property,
      general_property_relationship,
      property_definition,
      property_definition_relationship,
@@ -587,137 +683,54 @@ SCHEMA ap239_part_definition_information_mim_lf;
      representation,
      representation_context,
      representation_item);
-  END_TYPE; -- ap239_props_ap239_mri_classification_item
+  END_TYPE; -- ap239_props_classification_item
 
-  TYPE ap239_props_mri_approval_item = SELECT
-    (certification,
-     contract,
-     action_property,
-     general_property,
+  TYPE ap239_props_date_and_time_item = SELECT
+    (general_property,
      general_property_relationship,
      property_definition,
      property_definition_relationship,
-     resource_property);
-  END_TYPE; -- ap239_props_mri_approval_item
+     representation);
+  END_TYPE; -- ap239_props_date_and_time_item
 
-  TYPE ap239_props_mri_attribute_language_item = SELECT
-    (approval,
-     approval_relationship,
-     approval_status,
-     certification,
-     certification_type,
-     contract,
-     date_role,
-     date_time_role,
-     identification_role,
-     organization_relationship,
-     organizational_project,
-     organizational_project_relationship,
-     organizational_project_role,
-     person_and_organization,
-     multi_language_attribute_assignment,
-     action_property,
-     general_property,
+  TYPE ap239_props_date_item = SELECT
+    (general_property,
      general_property_relationship,
      property_definition,
      property_definition_relationship,
-     representation_item,
-     resource_property);
-  END_TYPE; -- ap239_props_mri_attribute_language_item
+     representation);
+  END_TYPE; -- ap239_props_date_item
 
-  TYPE ap239_props_mri_date_and_time_item = SELECT
-    (applied_organization_assignment,
-     applied_person_and_organization_assignment,
-     applied_security_classification_assignment,
-     certification,
-     contract,
-     security_classification,
-     action_property,
-     general_property,
+  TYPE ap239_props_identification_item = SELECT
+    (general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship);
+  END_TYPE; -- ap239_props_identification_item
+
+  TYPE ap239_props_multi_language_attribute_item = SELECT
+    (general_property,
      general_property_relationship,
      property_definition,
      property_definition_relationship,
-     representation,
-     resource_property);
-  END_TYPE; -- ap239_props_mri_date_and_time_item
+     representation_item);
+  END_TYPE; -- ap239_props_multi_language_attribute_item
 
-  TYPE ap239_props_mri_date_item = SELECT
-    (applied_organization_assignment,
-     applied_person_and_organization_assignment,
-     applied_security_classification_assignment,
-     certification,
-     contract,
-     security_classification,
-     action_property,
-     general_property,
+  TYPE ap239_props_organization_item = SELECT
+    (general_property,
      general_property_relationship,
      property_definition,
      property_definition_relationship,
-     representation,
-     resource_property);
-  END_TYPE; -- ap239_props_mri_date_item
+     representation);
+  END_TYPE; -- ap239_props_organization_item
 
-  TYPE ap239_props_mri_identification_item = SELECT
-    (contract,
-     organization,
-     security_classification_level,
-     action_property,
-     general_property,
+  TYPE ap239_props_person_and_organization_item = SELECT
+    (general_property,
      general_property_relationship,
      property_definition,
      property_definition_relationship,
-     resource_property);
-  END_TYPE; -- ap239_props_mri_identification_item
-
-  TYPE ap239_props_mri_multi_language_attribute_item = SELECT
-    (approval,
-     approval_relationship,
-     approval_status,
-     certification,
-     certification_type,
-     contract,
-     date_role,
-     date_time_role,
-     identification_role,
-     organization_relationship,
-     organizational_project,
-     organizational_project_relationship,
-     organizational_project_role,
-     person_and_organization,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     representation_item,
-     resource_property);
-  END_TYPE; -- ap239_props_mri_multi_language_attribute_item
-
-  TYPE ap239_props_mri_organization_item = SELECT
-    (applied_identification_assignment,
-     applied_security_classification_assignment,
-     contract,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     representation,
-     resource_property);
-  END_TYPE; -- ap239_props_mri_organization_item
-
-  TYPE ap239_props_mri_person_and_organization_item = SELECT
-    (applied_identification_assignment,
-     applied_security_classification_assignment,
-     contract,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     representation,
-     resource_property);
-  END_TYPE; -- ap239_props_mri_person_and_organization_item
+     representation);
+  END_TYPE; -- ap239_props_person_and_organization_item
 
   TYPE approval_item = SELECT
     (interface_connection,
@@ -730,40 +743,35 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product,
      product_as_planned,
      product_as_realized,
+     product_concept,
      product_definition,
      product_definition_formation,
      product_design_to_individual,
      product_planned_to_realized,
      applied_document_reference,
      applied_document_usage_constraint_assignment,
+     applied_contract_assignment,
+     applied_event_occurrence_assignment,
+     applied_identification_assignment,
+     applied_organizational_project_assignment,
+     event_occurrence,
+     organizational_project,
      certification,
      contract,
      envelope,
-     structured_message);
+     structured_message,
+     general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
+     action_method,
+     applied_action_method_assignment,
+     action,
+     applied_action_assignment);
   END_TYPE; -- approval_item
 
   TYPE area_measure = REAL;
   END_TYPE; -- area_measure
-
-  TYPE associated_date = SELECT
-    (condition,
-     condition_relationship);
-  END_TYPE; -- associated_date
-
-  TYPE associated_date_time = SELECT
-    (condition,
-     condition_relationship);
-  END_TYPE; -- associated_date_time
-
-  TYPE associated_organization = SELECT
-    (condition,
-     condition_relationship);
-  END_TYPE; -- associated_organization
-
-  TYPE associated_person_organization = SELECT
-    (condition,
-     condition_relationship);
-  END_TYPE; -- associated_person_organization
 
   TYPE attribute_classification_item = SELECT
     (application_context,
@@ -785,8 +793,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
      measure_representation_item,
      message_relationship,
      product_definition_relationship,
-     representation,
-     representation_item,
      structured_message,
      usage_association,
      approval,
@@ -798,6 +804,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
      contract_type,
      date_role,
      date_time_role,
+     event_occurrence_context_role,
+     event_occurrence_relationship,
      group,
      identification_role,
      name_attribute,
@@ -809,7 +817,15 @@ SCHEMA ap239_part_definition_information_mim_lf;
      organizational_project_role,
      person_and_organization_address,
      person_and_organization_role,
-     security_classification_level);
+     security_classification_level,
+     general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
+     property_definition_representation,
+     representation,
+     representation_context,
+     representation_item);
   END_TYPE; -- attribute_classification_item
 
   TYPE attribute_language_item = SELECT
@@ -824,6 +840,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
      information_usage_right,
      message_relationship,
      structured_message,
+     event_occurrence,
      approval,
      approval_relationship,
      approval_status,
@@ -837,7 +854,12 @@ SCHEMA ap239_part_definition_information_mim_lf;
      organizational_project,
      organizational_project_relationship,
      organizational_project_role,
-     person_and_organization);
+     person_and_organization,
+     general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
+     representation_item);
   END_TYPE; -- attribute_language_item
 
   TYPE attribute_type = SELECT
@@ -854,7 +876,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product_as_planned,
      product_as_realized,
      product_definition_formation,
-     product_definition_formation_relationship);
+     product_definition_formation_relationship,
+     organizational_project);
   END_TYPE; -- certification_item
 
   TYPE characterized_action_definition = SELECT
@@ -874,11 +897,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
     (product_definition,
      product_definition_relationship);
   END_TYPE; -- characterized_product_definition
-
-  TYPE characterized_resource_definition = SELECT
-    (action_resource,
-     action_resource_relationship);
-  END_TYPE; -- characterized_resource_definition
 
   TYPE classification_item = SELECT
     (interface_connection,
@@ -916,7 +934,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product_definition,
      product_definition_formation,
      product_definition_relationship,
-     representation,
      structured_message,
      usage_association,
      address,
@@ -925,6 +942,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
      applied_contract_assignment,
      applied_date_and_time_assignment,
      applied_date_assignment,
+     applied_event_occurrence_assignment,
      applied_identification_assignment,
      applied_organization_assignment,
      applied_organizational_project_assignment,
@@ -938,6 +956,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
      certification,
      contract,
      date_and_time,
+     event_occurrence,
+     event_occurrence_relationship,
      language,
      multi_language_attribute_assignment,
      organization,
@@ -953,17 +973,154 @@ SCHEMA ap239_part_definition_information_mim_lf;
      state_type_relationship,
      applied_state_assignment,
      state_observed,
-     state_observed_relationship);
+     state_observed_relationship,
+     general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
+     property_definition_representation,
+     representation,
+     representation_context,
+     representation_item,
+     action,
+     applied_action_assignment,
+     group,
+     action_method,
+     action_method_relationship,
+     applied_action_method_assignment);
   END_TYPE; -- classification_item
 
   TYPE compound_item_definition = SELECT
     (list_representation_item);
   END_TYPE; -- compound_item_definition
 
-  TYPE condition_item = SELECT
-    (state_type,
-     state_type_relationship);
-  END_TYPE; -- condition_item
+  TYPE condition_action_method_items = SELECT
+    (action_method_relationship,
+     applied_approval_assignment,
+     applied_certification_assignment,
+     applied_classification_assignment,
+     applied_contract_assignment,
+     applied_date_and_time_assignment,
+     applied_date_assignment,
+     applied_document_reference,
+     applied_document_usage_constraint_assignment,
+     applied_identification_assignment,
+     applied_organization_assignment,
+     applied_person_and_organization_assignment,
+     calendar_date,
+     date_and_time,
+     product,
+     product_as_individual,
+     product_definition,
+     product_definition_formation,
+     product_related_product_category,
+     property_definition);
+  END_TYPE; -- condition_action_method_items
+
+  TYPE condition_approval_item = SELECT
+    (action_method,
+     applied_action_method_assignment);
+  END_TYPE; -- condition_approval_item
+
+  TYPE condition_classification_item = SELECT
+    (action_method,
+     action_method_relationship,
+     applied_action_method_assignment);
+  END_TYPE; -- condition_classification_item
+
+  TYPE condition_date_and_time_item = SELECT
+    (action_method,
+     applied_action_method_assignment);
+  END_TYPE; -- condition_date_and_time_item
+
+  TYPE condition_date_item = SELECT
+    (action_method,
+     applied_action_method_assignment);
+  END_TYPE; -- condition_date_item
+
+  TYPE condition_evaluation_action_items = SELECT
+    (applied_approval_assignment,
+     applied_certification_assignment,
+     applied_classification_assignment,
+     applied_contract_assignment,
+     applied_date_and_time_assignment,
+     applied_date_assignment,
+     applied_document_reference,
+     applied_document_usage_constraint_assignment,
+     applied_identification_assignment,
+     applied_organization_assignment,
+     applied_person_and_organization_assignment,
+     calendar_date,
+     date_and_time,
+     product,
+     product_as_individual,
+     product_definition,
+     product_definition_formation,
+     product_related_product_category,
+     property_definition);
+  END_TYPE; -- condition_evaluation_action_items
+
+  TYPE condition_evaluation_approval_item = SELECT
+    (action,
+     applied_action_assignment);
+  END_TYPE; -- condition_evaluation_approval_item
+
+  TYPE condition_evaluation_classification_item = SELECT
+    (action,
+     applied_action_assignment,
+     group);
+  END_TYPE; -- condition_evaluation_classification_item
+
+  TYPE condition_evaluation_date_and_time_item = SELECT
+    (action,
+     applied_action_assignment);
+  END_TYPE; -- condition_evaluation_date_and_time_item
+
+  TYPE condition_evaluation_date_item = SELECT
+    (action,
+     applied_action_assignment);
+  END_TYPE; -- condition_evaluation_date_item
+
+  TYPE condition_evaluation_groupable_item = SELECT
+    (applied_action_assignment,
+     applied_action_method_assignment);
+  END_TYPE; -- condition_evaluation_groupable_item
+
+  TYPE condition_evaluation_identification_item = SELECT
+    (action);
+  END_TYPE; -- condition_evaluation_identification_item
+
+  TYPE condition_evaluation_name_item = SELECT
+    (applied_action_assignment);
+  END_TYPE; -- condition_evaluation_name_item
+
+  TYPE condition_evaluation_organization_item = SELECT
+    (action,
+     applied_action_assignment);
+  END_TYPE; -- condition_evaluation_organization_item
+
+  TYPE condition_evaluation_person_and_organization_item = SELECT
+    (action,
+     applied_action_assignment);
+  END_TYPE; -- condition_evaluation_person_and_organization_item
+
+  TYPE condition_identification_item = SELECT
+    (action_method);
+  END_TYPE; -- condition_identification_item
+
+  TYPE condition_name_item = SELECT
+    (applied_action_method_assignment);
+  END_TYPE; -- condition_name_item
+
+  TYPE condition_organization_item = SELECT
+    (action_method,
+     applied_action_method_assignment);
+  END_TYPE; -- condition_organization_item
+
+  TYPE condition_person_and_organization_item = SELECT
+    (action_method,
+     applied_action_method_assignment);
+  END_TYPE; -- condition_person_and_organization_item
 
   TYPE contents_item = SELECT
     (representation);
@@ -994,18 +1151,28 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- count_measure
 
   TYPE date_and_time_item = SELECT
-    (interface_connector_as_planned,
+    (applied_organizational_project_assignment,
+     interface_connector_as_planned,
      interface_connector_as_realized,
      interface_connector_design_to_planned,
      interface_connector_design_to_realized,
      interface_connector_planned_to_realized,
      product_as_planned,
      product_as_realized,
+     product_concept,
      product_definition,
      product_definition_formation,
+     product_design_to_individual,
+     product_planned_to_realized,
      applied_document_reference,
      applied_document_usage_constraint_assignment,
+     applied_usage_right,
+     product,
+     applied_certification_assignment,
+     applied_contract_assignment,
      applied_identification_assignment,
+     organizational_address,
+     person_and_organization_address,
      approval_person_organization,
      applied_organization_assignment,
      applied_person_and_organization_assignment,
@@ -1015,10 +1182,17 @@ SCHEMA ap239_part_definition_information_mim_lf;
      security_classification,
      envelope,
      structured_message,
+     general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
+     representation,
      organizational_project,
-     condition,
-     condition_relationship,
-     event_occurrence);
+     event_occurrence,
+     action_method,
+     applied_action_method_assignment,
+     action,
+     applied_action_assignment);
   END_TYPE; -- date_and_time_item
 
   TYPE date_and_time_item_approval = SELECT
@@ -1026,18 +1200,28 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- date_and_time_item_approval
 
   TYPE date_item = SELECT
-    (interface_connector_as_planned,
+    (applied_organizational_project_assignment,
+     interface_connector_as_planned,
      interface_connector_as_realized,
      interface_connector_design_to_planned,
      interface_connector_design_to_realized,
      interface_connector_planned_to_realized,
      product_as_planned,
      product_as_realized,
+     product_concept,
      product_definition,
      product_definition_formation,
+     product_design_to_individual,
+     product_planned_to_realized,
      applied_document_reference,
      applied_document_usage_constraint_assignment,
+     applied_usage_right,
+     product,
+     applied_certification_assignment,
+     applied_contract_assignment,
      applied_identification_assignment,
+     organizational_address,
+     person_and_organization_address,
      approval_person_organization,
      applied_organization_assignment,
      applied_person_and_organization_assignment,
@@ -1047,10 +1231,17 @@ SCHEMA ap239_part_definition_information_mim_lf;
      security_classification,
      envelope,
      structured_message,
+     general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
+     representation,
      organizational_project,
-     condition,
-     condition_relationship,
-     event_occurrence);
+     event_occurrence,
+     action_method,
+     applied_action_method_assignment,
+     action,
+     applied_action_assignment);
   END_TYPE; -- date_item
 
   TYPE date_item_approval = SELECT
@@ -1075,8 +1266,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
 
   TYPE derived_property_select = SELECT
     (property_definition,
-     action_property,
-     resource_property);
+     action_property);
   END_TYPE; -- derived_property_select
 
   TYPE description_attribute_select = SELECT
@@ -1248,8 +1438,11 @@ SCHEMA ap239_part_definition_information_mim_lf;
      interface_connector_design_to_planned,
      interface_connector_design_to_realized,
      interface_connector_planned_to_realized,
+     organizational_project,
+     product,
      product_as_planned,
      product_as_realized,
+     product_concept,
      product_definition,
      product_definition_formation,
      product_definition_formation_relationship,
@@ -1258,6 +1451,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
      applied_identification_assignment,
      certification,
      contract,
+     information_right,
+     information_usage_right,
      organization,
      person);
   END_TYPE; -- document_reference_item
@@ -1293,6 +1488,11 @@ SCHEMA ap239_part_definition_information_mim_lf;
     (event_occurrence);
   END_TYPE; -- event_occurrence_date_item
 
+  TYPE event_occurrence_item = SELECT
+    (certification,
+     organizational_project);
+  END_TYPE; -- event_occurrence_item
+
   TYPE external_class_name_item = SELECT
     (external_class_library);
   END_TYPE; -- external_class_name_item
@@ -1319,9 +1519,11 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- founded_item_select
 
   TYPE groupable_item = SELECT
-    (representation);
+    (representation,
+     applied_action_assignment,
+     applied_action_method_assignment);
   WHERE
-    wr1: (NOT ('AP239_PART_DEFINITION_INFORMATION_MIM.GROUP' IN TYPEOF(
+    wr1: (NOT ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.GROUP' IN TYPEOF(
              SELF)));
   END_TYPE; -- groupable_item
 
@@ -1343,10 +1545,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
      representation);
   END_TYPE; -- id_attribute_select
 
-  TYPE identification = SELECT
-    (condition);
-  END_TYPE; -- identification
-
   TYPE identification_item = SELECT
     (interface_connector_as_planned,
      interface_connector_as_realized,
@@ -1357,6 +1555,9 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product_definition,
      product_definition_formation,
      approval_status,
+     certification,
+     event_occurrence,
+     organizational_project,
      security_classification,
      contract,
      organization,
@@ -1364,8 +1565,13 @@ SCHEMA ap239_part_definition_information_mim_lf;
      document_file,
      state_type,
      state_type_relationship,
+     general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
      product_as_individual,
-     condition);
+     action_method,
+     action);
   END_TYPE; -- identification_item
 
   TYPE identifier = STRING;
@@ -1425,18 +1631,25 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- ir_person_and_organization_item
 
   TYPE ir_usage_item = SELECT
-    (interface_connection,
+    (applied_security_classification_assignment,
+     interface_connection,
      interface_connector_as_planned,
      interface_connector_as_realized,
      interface_connector_design,
      product_as_planned,
      product_as_realized,
+     product_definition_formation_relationship,
+     requirement_assignment,
+     security_classification,
+     applied_certification_assignment,
+     certification,
      document_file,
      document_relationship,
      product,
      product_definition,
      product_definition_formation,
-     product_definition_relationship);
+     product_definition_relationship,
+     structured_message);
   END_TYPE; -- ir_usage_item
 
   TYPE label = STRING;
@@ -1444,6 +1657,11 @@ SCHEMA ap239_part_definition_information_mim_lf;
 
   TYPE length_measure = REAL;
   END_TYPE; -- length_measure
+
+  TYPE list_of_two_representation_items = list_representation_item;
+  WHERE
+    wr1: (HIINDEX(SELF) = 2);
+  END_TYPE; -- list_of_two_representation_items
 
   TYPE list_representation_item = LIST [1:?] OF representation_item;
   END_TYPE; -- list_representation_item
@@ -1525,12 +1743,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
      contract,
      applied_usage_right,
      information_usage_right,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     resource_property,
      product,
      product_definition,
      product_definition_formation,
@@ -1564,13 +1776,10 @@ SCHEMA ap239_part_definition_information_mim_lf;
      external_source,
      object_role,
      product_category,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     representation_item,
-     resource_property,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship,
      product,
      product_definition,
      product_definition_formation,
@@ -1589,13 +1798,13 @@ SCHEMA ap239_part_definition_information_mim_lf;
      security_classification,
      document_file,
      information_usage_right,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     representation,
-     resource_property,
+     applied_state_assignment,
+     applied_state_type_assignment,
+     ascribable_state,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship,
      product,
      product_definition,
      product_definition_formation,
@@ -1614,13 +1823,13 @@ SCHEMA ap239_part_definition_information_mim_lf;
      security_classification,
      document_file,
      information_usage_right,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     representation,
-     resource_property,
+     applied_state_assignment,
+     applied_state_type_assignment,
+     ascribable_state,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship,
      product,
      product_definition,
      product_definition_formation,
@@ -1637,12 +1846,10 @@ SCHEMA ap239_part_definition_information_mim_lf;
      document_file,
      information_right,
      information_usage_right,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     resource_property,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship,
      product,
      product_definition,
      product_definition_formation,
@@ -1675,13 +1882,10 @@ SCHEMA ap239_part_definition_information_mim_lf;
      external_source,
      object_role,
      product_category,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     representation_item,
-     resource_property,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship,
      product,
      product_definition,
      product_definition_formation,
@@ -1697,13 +1901,13 @@ SCHEMA ap239_part_definition_information_mim_lf;
      contract,
      document_file,
      information_usage_right,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     representation,
-     resource_property,
+     applied_state_assignment,
+     applied_state_type_assignment,
+     ascribable_state,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship,
      product,
      product_definition,
      product_definition_formation,
@@ -1719,13 +1923,13 @@ SCHEMA ap239_part_definition_information_mim_lf;
      contract,
      document_file,
      information_usage_right,
-     action_property,
-     general_property,
-     general_property_relationship,
-     property_definition,
-     property_definition_relationship,
-     representation,
-     resource_property,
+     applied_state_assignment,
+     applied_state_type_assignment,
+     ascribable_state,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship,
      product,
      product_definition,
      product_definition_formation,
@@ -1746,6 +1950,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
      information_usage_right,
      message_relationship,
      structured_message,
+     event_occurrence,
      approval,
      approval_relationship,
      approval_status,
@@ -1759,7 +1964,12 @@ SCHEMA ap239_part_definition_information_mim_lf;
      organizational_project,
      organizational_project_relationship,
      organizational_project_role,
-     person_and_organization);
+     person_and_organization,
+     general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
+     representation_item);
   END_TYPE; -- multi_language_attribute_item
 
   TYPE name_attribute_select = SELECT
@@ -1772,7 +1982,9 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- name_attribute_select
 
   TYPE name_item = SELECT
-    (external_class_library);
+    (applied_action_assignment,
+     applied_action_method_assignment,
+     external_class_library);
   END_TYPE; -- name_item
 
   TYPE numeric_measure = NUMBER;
@@ -1788,13 +2000,27 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product_definition_formation,
      applied_document_reference,
      applied_document_usage_constraint_assignment,
+     applied_certification_assignment,
+     applied_contract_assignment,
+     applied_event_occurrence_assignment,
+     applied_organizational_project_assignment,
+     certification,
+     event_occurrence,
+     organizational_project,
      applied_identification_assignment,
      applied_security_classification_assignment,
      contract,
      envelope,
      structured_message,
-     condition,
-     condition_relationship);
+     general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
+     representation,
+     action_method,
+     applied_action_method_assignment,
+     action,
+     applied_action_assignment);
   END_TYPE; -- organization_item
 
   TYPE parameter_value = REAL;
@@ -1810,13 +2036,27 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product_definition_formation,
      applied_document_reference,
      applied_document_usage_constraint_assignment,
+     applied_certification_assignment,
+     applied_contract_assignment,
+     applied_event_occurrence_assignment,
+     applied_organizational_project_assignment,
+     certification,
+     event_occurrence,
+     organizational_project,
      applied_identification_assignment,
      applied_security_classification_assignment,
      contract,
      envelope,
      structured_message,
-     condition,
-     condition_relationship);
+     general_property,
+     general_property_relationship,
+     property_definition,
+     property_definition_relationship,
+     representation,
+     action_method,
+     applied_action_method_assignment,
+     action,
+     applied_action_assignment);
   END_TYPE; -- person_and_organization_item
 
   TYPE person_organization_select = SELECT
@@ -1877,7 +2117,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- represented_definition
 
   TYPE requirement_assigned_item = SELECT
-    (product,
+    (organizational_project,
+     product,
      product_as_planned,
      product_as_realized,
      product_definition_formation);
@@ -1898,7 +2139,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_TYPE; -- requirement_identification_and_version_mri_identification_item
 
   TYPE requirement_source_item = SELECT
-    (product_definition_formation);
+    (product_as_individual,
+     product_definition_formation);
   END_TYPE; -- requirement_source_item
 
   TYPE rm_aliasable_item = SELECT
@@ -2168,11 +2410,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
      state_type_relationship);
   END_TYPE; -- state_definition_classification_item
 
-  TYPE state_definition_condition_item = SELECT
-    (state_type,
-     state_type_relationship);
-  END_TYPE; -- state_definition_condition_item
-
   TYPE state_definition_identification_item = SELECT
     (state_type,
      state_type_relationship);
@@ -2198,6 +2435,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product_as_planned,
      product_as_realized,
      security_classification,
+     applied_external_identification_assignment,
+     document_file,
      product,
      product_definition,
      product_definition_formation,
@@ -2219,10 +2458,164 @@ SCHEMA ap239_part_definition_information_mim_lf;
      product_as_realized,
      product_category,
      security_classification,
+     applied_external_identification_assignment,
+     document_file,
      product,
      product_definition,
      product_definition_formation);
   END_TYPE; -- state_type_of_item
+
+  TYPE statechar_action_items = SELECT
+    (ascribable_state);
+  END_TYPE; -- statechar_action_items
+
+  TYPE statechar_action_method_items = SELECT
+    (state_type,
+     state_type_relationship);
+  END_TYPE; -- statechar_action_method_items
+
+  TYPE statechar_ap239_mri_attribute_classification_item = SELECT
+    (approval,
+     approval_relationship,
+     approval_role,
+     approval_status,
+     certification,
+     certification_type,
+     contract_type,
+     date_role,
+     date_time_role,
+     event_occurrence_context_role,
+     event_occurrence_relationship,
+     group,
+     identification_role,
+     name_attribute,
+     object_role,
+     organization_relationship,
+     organization_role,
+     organizational_address,
+     organizational_project_relationship,
+     organizational_project_role,
+     person_and_organization_address,
+     person_and_organization_role,
+     security_classification_level,
+     applied_state_assignment,
+     applied_state_type_assignment,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship);
+  END_TYPE; -- statechar_ap239_mri_attribute_classification_item
+
+  TYPE statechar_mri_attribute_language_item = SELECT
+    (approval,
+     approval_relationship,
+     approval_status,
+     certification,
+     certification_type,
+     contract,
+     date_role,
+     date_time_role,
+     identification_role,
+     organization_relationship,
+     organizational_project,
+     organizational_project_relationship,
+     organizational_project_role,
+     person_and_organization,
+     multi_language_attribute_assignment,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship);
+  END_TYPE; -- statechar_mri_attribute_language_item
+
+  TYPE statechar_mri_date_and_time_item = SELECT
+    (applied_organization_assignment,
+     applied_person_and_organization_assignment,
+     applied_security_classification_assignment,
+     certification,
+     contract,
+     security_classification,
+     applied_state_assignment,
+     applied_state_type_assignment,
+     ascribable_state,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship);
+  END_TYPE; -- statechar_mri_date_and_time_item
+
+  TYPE statechar_mri_date_item = SELECT
+    (applied_organization_assignment,
+     applied_person_and_organization_assignment,
+     applied_security_classification_assignment,
+     certification,
+     contract,
+     security_classification,
+     applied_state_assignment,
+     applied_state_type_assignment,
+     ascribable_state,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship);
+  END_TYPE; -- statechar_mri_date_item
+
+  TYPE statechar_mri_identification_item = SELECT
+    (contract,
+     organization,
+     security_classification_level,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship);
+  END_TYPE; -- statechar_mri_identification_item
+
+  TYPE statechar_mri_multi_language_attribute_item = SELECT
+    (approval,
+     approval_relationship,
+     approval_status,
+     certification,
+     certification_type,
+     contract,
+     date_role,
+     date_time_role,
+     identification_role,
+     organization_relationship,
+     organizational_project,
+     organizational_project_relationship,
+     organizational_project_role,
+     person_and_organization,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship);
+  END_TYPE; -- statechar_mri_multi_language_attribute_item
+
+  TYPE statechar_mri_organization_item = SELECT
+    (applied_identification_assignment,
+     applied_security_classification_assignment,
+     contract,
+     applied_state_assignment,
+     applied_state_type_assignment,
+     ascribable_state,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship);
+  END_TYPE; -- statechar_mri_organization_item
+
+  TYPE statechar_mri_person_and_organization_item = SELECT
+    (applied_identification_assignment,
+     applied_security_classification_assignment,
+     contract,
+     applied_state_assignment,
+     applied_state_type_assignment,
+     ascribable_state,
+     state_observed,
+     state_observed_relationship,
+     state_type,
+     state_type_relationship);
+  END_TYPE; -- statechar_mri_person_and_organization_item
 
   TYPE supported_item = SELECT
     (action_directive,
@@ -2266,7 +2659,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       id : identifier := get_id_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1);
   END_ENTITY; -- action
 
@@ -2276,7 +2669,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       role : object_role := get_role(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1);
   END_ENTITY; -- action_assignment
 
@@ -2295,12 +2688,23 @@ SCHEMA ap239_part_definition_information_mim_lf;
       purpose     : text;
   END_ENTITY; -- action_method
 
+  ENTITY action_method_assignment
+    ABSTRACT SUPERTYPE;
+      assigned_action_method : action_method;
+      role                   : action_method_role;
+  END_ENTITY; -- action_method_assignment
+
   ENTITY action_method_relationship;
       name            : label;
       description     : OPTIONAL text;
       relating_method : action_method;
       related_method  : action_method;
   END_ENTITY; -- action_method_relationship
+
+  ENTITY action_method_role;
+      name        : label;
+      description : OPTIONAL text;
+  END_ENTITY; -- action_method_role
 
   ENTITY action_property;
       name        : label;
@@ -2329,9 +2733,9 @@ SCHEMA ap239_part_definition_information_mim_lf;
       description : text := get_description_value(SELF);
       name        : label := get_name_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
-      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1);
   END_ENTITY; -- action_request_solution
 
@@ -2390,7 +2794,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY amount_of_substance_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.AMOUNT_OF_SUBSTANCE_UNIT' 
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.AMOUNT_OF_SUBSTANCE_UNIT' 
                IN TYPEOF(SELF\measure_with_unit.unit_component));
   END_ENTITY; -- amount_of_substance_measure_with_unit
 
@@ -2407,10 +2811,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
                named_unit.dimensions.luminous_intensity_exponent = 0));
   END_ENTITY; -- amount_of_substance_unit
 
-  ENTITY and_expression
-    SUBTYPE OF (multiple_arity_boolean_expression);
-  END_ENTITY; -- and_expression
-
   ENTITY application_context;
       application : label;
     DERIVE
@@ -2420,9 +2820,9 @@ SCHEMA ap239_part_definition_information_mim_lf;
       context_elements : SET [1:?] OF application_context_element FOR 
                             frame_of_reference;
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
-      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1);
   END_ENTITY; -- application_context
 
@@ -2437,6 +2837,11 @@ SCHEMA ap239_part_definition_information_mim_lf;
     SUBTYPE OF (action_assignment);
       items : SET [1:?] OF action_items;
   END_ENTITY; -- applied_action_assignment
+
+  ENTITY applied_action_method_assignment
+    SUBTYPE OF (action_method_assignment);
+      items : SET [1:?] OF action_method_items;
+  END_ENTITY; -- applied_action_method_assignment
 
   ENTITY applied_approval_assignment
     SUBTYPE OF (approval_assignment);
@@ -2461,16 +2866,16 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_ENTITY; -- applied_classification_assignment
 
   ENTITY applied_connector_on_product_definition
-    SUBTYPE OF (applied_group_assignment);
+    SUBTYPE OF (group_assignment);
       SELF\group_assignment.assigned_group : connector_on;
-      SELF\applied_group_assignment.items  : SET [1:1] OF
+      items                                : SET [1:1] OF
                                                  product_definition;
   END_ENTITY; -- applied_connector_on_product_definition
 
   ENTITY applied_connector_on_product_definition_relationship
-    SUBTYPE OF (applied_group_assignment);
+    SUBTYPE OF (group_assignment);
       SELF\group_assignment.assigned_group : connector_on;
-      SELF\applied_group_assignment.items  : SET [1:1] OF product_definition_relationship;
+      items                                : SET [1:1] OF product_definition_relationship;
   END_ENTITY; -- applied_connector_on_product_definition_relationship
 
   ENTITY applied_contract_assignment
@@ -2497,6 +2902,11 @@ SCHEMA ap239_part_definition_information_mim_lf;
     SUBTYPE OF (document_usage_constraint_assignment);
       items : SET [1:?] OF document_reference_item;
   END_ENTITY; -- applied_document_usage_constraint_assignment
+
+  ENTITY applied_event_occurrence_assignment
+    SUBTYPE OF (event_occurrence_assignment);
+      items : SET [1:?] OF event_occurrence_item;
+  END_ENTITY; -- applied_event_occurrence_assignment
 
   ENTITY applied_external_identification_assignment
     SUBTYPE OF (external_identification_assignment);
@@ -2539,20 +2949,20 @@ SCHEMA ap239_part_definition_information_mim_lf;
   END_ENTITY; -- applied_security_classification_assignment
 
   ENTITY applied_state_assignment;
-      described_state : state_observed;
-      assigned_to     : state_of_item;
-      role            : state_role;
+      assigned_state : state_observed;
+      item_set       : SET [1:?] OF state_of_item;
+      role           : state_role;
   END_ENTITY; -- applied_state_assignment
 
   ENTITY applied_state_type_assignment;
-      described_state_type : state_type;
-      assigned_to          : state_type_of_item;
-      role                 : state_type_role;
+      assigned_state_type : state_type;
+      item_set            : SET [1:?] OF state_type_of_item;
+      role                : state_type_role;
   END_ENTITY; -- applied_state_type_assignment
 
   ENTITY applied_usage_right
-    SUBTYPE OF (applied_action_assignment);
-      SELF\applied_action_assignment.items : SET [1:?] OF ir_usage_item;
+    SUBTYPE OF (action_assignment);
+      items : SET [1:?] OF ir_usage_item;
   END_ENTITY; -- applied_usage_right
 
   ENTITY approval;
@@ -2566,7 +2976,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       role : object_role := get_role(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1);
   END_ENTITY; -- approval_assignment
 
@@ -2576,7 +2986,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       role : object_role := get_role(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1);
   END_ENTITY; -- approval_date_time
 
@@ -2598,7 +3008,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       description : text := get_description_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
   END_ENTITY; -- approval_role
 
@@ -2609,7 +3019,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY area_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.AREA_UNIT' IN TYPEOF(
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.AREA_UNIT' IN TYPEOF(
                SELF\measure_with_unit.unit_component));
   END_ENTITY; -- area_measure_with_unit
 
@@ -2625,6 +3035,20 @@ SCHEMA ap239_part_definition_information_mim_lf;
                .dimensions.amount_of_substance_exponent = 0) AND (SELF\
                named_unit.dimensions.luminous_intensity_exponent = 0));
   END_ENTITY; -- area_unit
+
+  ENTITY ascribable_state;
+      name             : STRING;
+      description      : OPTIONAL STRING;
+      pertaining_state : state_type;
+      ascribed_state   : state_observed;
+  END_ENTITY; -- ascribable_state
+
+  ENTITY ascribable_state_relationship;
+      name                      : STRING;
+      description               : OPTIONAL STRING;
+      relating_ascribable_state : ascribable_state;
+      related_ascribable_state  : ascribable_state;
+  END_ENTITY; -- ascribable_state_relationship
 
   ENTITY assigned_requirement
     SUBTYPE OF (group_assignment);
@@ -2663,58 +3087,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
       description : OPTIONAL text;
   END_ENTITY; -- attribute_value_role
 
-  ENTITY binary_boolean_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (xor_expression,equals_expression))
-    SUBTYPE OF (boolean_expression, binary_generic_expression);
-  END_ENTITY; -- binary_boolean_expression
-
-  ENTITY binary_function_call
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (binary_numeric_expression);
-  END_ENTITY; -- binary_function_call
-
-  ENTITY binary_generic_expression
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (generic_expression);
-      operands : LIST [2:2] OF generic_expression;
-  END_ENTITY; -- binary_generic_expression
-
-  ENTITY binary_logical_expression
-    SUPERTYPE OF (ONEOF (instance_equal,logical_xor))
-    SUBTYPE OF (binary_generic_expression, logical_expression);
-  END_ENTITY; -- binary_logical_expression
-
-  ENTITY binary_numeric_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (minus_expression,div_expression,
-        mod_expression,slash_expression,power_expression,
-        binary_function_call))
-    SUBTYPE OF (numeric_expression, binary_generic_expression);
-      SELF\binary_generic_expression.operands : LIST [2:2] OF
-                                                    numeric_expression;
-  END_ENTITY; -- binary_numeric_expression
-
-  ENTITY boolean_defined_function
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (defined_function, boolean_expression);
-  END_ENTITY; -- boolean_defined_function
-
-  ENTITY boolean_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (simple_boolean_expression,
-        unary_boolean_expression,binary_boolean_expression,
-        multiple_arity_boolean_expression,comparison_expression,
-        interval_expression,boolean_defined_function))
-    SUBTYPE OF (expression);
-  END_ENTITY; -- boolean_expression
-
-  ENTITY boolean_literal
-    SUBTYPE OF (simple_boolean_expression, generic_literal);
-      the_value : BOOLEAN;
-  END_ENTITY; -- boolean_literal
-
-  ENTITY boolean_variable
-    SUBTYPE OF (simple_boolean_expression, variable);
-  END_ENTITY; -- boolean_variable
-
   ENTITY calendar_date
     SUBTYPE OF (date);
       day_component   : day_in_month_number;
@@ -2726,7 +3098,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY celsius_temperature_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.THERMODYNAMIC_TEMPERATURE_UNIT' 
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.THERMODYNAMIC_TEMPERATURE_UNIT' 
                IN TYPEOF(SELF\measure_with_unit.unit_component));
   END_ENTITY; -- celsius_temperature_measure_with_unit
 
@@ -2742,7 +3114,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       role : object_role := get_role(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1);
   END_ENTITY; -- certification_assignment
 
@@ -2786,51 +3158,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
       description : OPTIONAL text;
   END_ENTITY; -- classification_role
 
-  ENTITY comparison_equal
-    SUBTYPE OF (comparison_expression);
-  END_ENTITY; -- comparison_equal
-
-  ENTITY comparison_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (comparison_equal,comparison_greater,
-        comparison_greater_equal,comparison_less,comparison_less_equal,
-        comparison_not_equal,like_expression))
-    SUBTYPE OF (boolean_expression, binary_generic_expression);
-      SELF\binary_generic_expression.operands : LIST [2:2] OF expression;
-    WHERE
-      wr1: (((('AP239_PART_DEFINITION_INFORMATION_MIM.NUMERIC_EXPRESSION' 
-               IN TYPEOF(SELF\binary_generic_expression.operands[1])) AND 
-               'AP239_PART_DEFINITION_INFORMATION_MIM.NUMERIC_EXPRESSION') 
-               IN TYPEOF(SELF\binary_generic_expression.operands[2])) OR ((
-               'AP239_PART_DEFINITION_INFORMATION_MIM.BOOLEAN_EXPRESSION' 
-               IN TYPEOF(SELF\binary_generic_expression.operands[1])) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.BOOLEAN_EXPRESSION' 
-               IN TYPEOF(SELF\binary_generic_expression.operands[2]))) OR (
-               ('AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' 
-               IN TYPEOF(SELF\binary_generic_expression.operands[1])) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' IN
-                TYPEOF(SELF\binary_generic_expression.operands[2]))));
-  END_ENTITY; -- comparison_expression
-
-  ENTITY comparison_greater
-    SUBTYPE OF (comparison_expression);
-  END_ENTITY; -- comparison_greater
-
-  ENTITY comparison_greater_equal
-    SUBTYPE OF (comparison_expression);
-  END_ENTITY; -- comparison_greater_equal
-
-  ENTITY comparison_less
-    SUBTYPE OF (comparison_expression);
-  END_ENTITY; -- comparison_less
-
-  ENTITY comparison_less_equal
-    SUBTYPE OF (comparison_expression);
-  END_ENTITY; -- comparison_less_equal
-
-  ENTITY comparison_not_equal
-    SUBTYPE OF (comparison_expression);
-  END_ENTITY; -- comparison_not_equal
-
   ENTITY complement;
       id          : identifier;
       name        : label;
@@ -2845,30 +3172,17 @@ SCHEMA ap239_part_definition_information_mim_lf;
       item_element : compound_item_definition;
   END_ENTITY; -- compound_representation_item
 
-  ENTITY concat_expression
-    SUBTYPE OF (string_expression, multiple_arity_generic_expression);
-      SELF\multiple_arity_generic_expression.operands : LIST [2:?] OF string_expression;
-  END_ENTITY; -- concat_expression
-
-  ENTITY condition
-    SUBTYPE OF (characterized_object, logical_expression);
-  END_ENTITY; -- condition
-
-  ENTITY condition_relationship
-    SUBTYPE OF (characterized_object_relationship);
-  END_ENTITY; -- condition_relationship
-
   ENTITY connector_on
     SUBTYPE OF (group);
   END_ENTITY; -- connector_on
 
   ENTITY containing_message
-    SUBTYPE OF (applied_group_assignment);
+    SUBTYPE OF (group_assignment);
       SELF\group_assignment.assigned_group : message_contents_group;
-      SELF\applied_group_assignment.items  : SET [1:1] OF
+      items                                : SET [1:1] OF
                                                  message_having_contents;
     DERIVE
-      containing_message : message_having_contents := SELF\
+      containing_message : SET [1:1] OF message_having_contents := SELF\
                               containing_message.items;
   END_ENTITY; -- containing_message
 
@@ -2889,7 +3203,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       role : object_role := get_role(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1);
   END_ENTITY; -- contract_assignment
 
@@ -2943,7 +3257,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       description : text := get_description_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
   END_ENTITY; -- date_role
 
@@ -2952,37 +3266,9 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       description : text := get_description_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
   END_ENTITY; -- date_time_role
-
-  ENTITY default_boolean_literal
-    SUBTYPE OF (logical_literal);
-      SELF\logical_literal.the_value : BOOLEAN;
-  END_ENTITY; -- default_boolean_literal
-
-  ENTITY default_boolean_variable
-    SUBTYPE OF (logical_variable);
-  END_ENTITY; -- default_boolean_variable
-
-  ENTITY defined_function
-    ABSTRACT SUPERTYPE OF (ONEOF (string_defined_function,
-        boolean_defined_function) ANDOR sql_mappable_defined_function);
-  END_ENTITY; -- defined_function
-
-  ENTITY defined_logical_comparison
-    SUBTYPE OF (logical_comparison);
-      declaration : STRING;
-      description : STRING;
-      encoding    : OPTIONAL STRING;
-  END_ENTITY; -- defined_logical_comparison
-
-  ENTITY defined_state_relationship;
-      name             : STRING;
-      description      : OPTIONAL STRING;
-      defined_state    : state_assessment;
-      definitive_state : state_assertion;
-  END_ENTITY; -- defined_state_relationship
 
   ENTITY derived_unit;
       elements : SET [1:?] OF derived_unit_element;
@@ -2991,7 +3277,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     WHERE
       wr1: ((SIZEOF(elements) > 1) OR ((SIZEOF(elements) = 1) AND (
                elements[1].exponent <> 1)));
-      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1);
   END_ENTITY; -- derived_unit
 
@@ -3025,10 +3311,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
       directive : action_directive;
   END_ENTITY; -- directed_action
 
-  ENTITY div_expression
-    SUBTYPE OF (binary_numeric_expression);
-  END_ENTITY; -- div_expression
-
   ENTITY document;
       id          : identifier;
       name        : label;
@@ -3059,31 +3341,31 @@ SCHEMA ap239_part_definition_information_mim_lf;
     SUBTYPE OF (document_product_association);
     WHERE
       wr1: (SELF\document_product_association.name = 'equivalence');
-      wr2: ((NOT ('AP239_PART_DEFINITION_INFORMATION_MIM.PRODUCT' IN 
+      wr2: ((NOT ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.PRODUCT' IN 
                TYPEOF(SELF\document_product_association.related_product))) 
                OR ((SELF\document_product_association.relating_document.
                kind.product_data_type = 'configuration controlled document') 
                AND (SIZEOF(QUERY ( prpc <* USEDIN(SELF\
                document_product_association.related_product,
-               'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+               'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | (prpc.name = 
                'document') )) = 1)));
-      wr3: ((NOT ('AP239_PART_DEFINITION_INFORMATION_MIM.PRODUCT_DEFINITION_FORMATION' 
+      wr3: ((NOT ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.PRODUCT_DEFINITION_FORMATION' 
                IN TYPEOF(SELF.related_product))) OR ((SELF\
                document_product_association.relating_document.kind.
                product_data_type = 
                'configuration controlled document version') AND (SIZEOF(
                QUERY ( prpc <* USEDIN(SELF.related_product\
-               product_definition_formation.of_product,'AP239_PART_DEFINITION_INFORMATION_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS')
+               product_definition_formation.of_product,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS')
                 | (prpc.name = 'document') )) = 1)));
       wr4: ((NOT (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.PRODUCT_DEFINITION' 
+               'AP239_PART_DEFINITION_INFORMATION_MIM_LF.PRODUCT_DEFINITION' 
                IN TYPEOF(SELF.related_product))) OR ((SELF\
                document_product_association.relating_document.kind.
                product_data_type = 
                'configuration controlled document definition') AND (SIZEOF(
                QUERY ( prpc <* USEDIN(SELF\document_product_association.
-               related_product\product_definition.formation.of_product,'AP239_PART_DEFINITION_INFORMATION_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS')
+               related_product\product_definition.formation.of_product,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS')
                 | (prpc.name = 'document') )) = 1)));
   END_ENTITY; -- document_product_equivalence
 
@@ -3094,7 +3376,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       role : object_role := get_role(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1);
   END_ENTITY; -- document_reference
 
@@ -3133,23 +3415,13 @@ SCHEMA ap239_part_definition_information_mim_lf;
 
   ENTITY double_toleranced_measure_item
     SUBTYPE OF (compound_representation_item);
-    DERIVE
-      tolerance_range          : value_range := SELF\
-                                    compound_representation_item.
-                                    item_element;
-      toleranced_measure_value : measure_representation_item := SELF\
-                                    compound_representation_item.
-                                    item_element;
-    WHERE
-      wr1: (SIZEOF(SELF\compound_representation_item.item_element) = 2);
-      wr2: ('LIST_REPRESENTATION_ITEM' IN TYPEOF(SELF\
-               compound_representation_item.item_element));
+      SELF\compound_representation_item.item_element : list_of_two_representation_items;
   END_ENTITY; -- double_toleranced_measure_item
 
   ENTITY electric_current_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.ELECTRIC_CURRENT_UNIT' 
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.ELECTRIC_CURRENT_UNIT' 
                IN TYPEOF(SELF\measure_with_unit.unit_component));
   END_ENTITY; -- electric_current_measure_with_unit
 
@@ -3174,15 +3446,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
     SUBTYPE OF (product_relationship);
   END_ENTITY; -- envelope_relationship
 
-  ENTITY environment;
-      syntactic_representation : generic_variable;
-      semantics                : variable_semantics;
-  END_ENTITY; -- environment
-
-  ENTITY equals_expression
-    SUBTYPE OF (binary_boolean_expression);
-  END_ENTITY; -- equals_expression
-
   ENTITY event_occurrence;
       id          : identifier;
       name        : label;
@@ -3194,6 +3457,11 @@ SCHEMA ap239_part_definition_information_mim_lf;
       assigned_event_occurrence : event_occurrence;
       role                      : event_occurrence_role;
   END_ENTITY; -- event_occurrence_assignment
+
+  ENTITY event_occurrence_context_role;
+      name        : label;
+      description : OPTIONAL text;
+  END_ENTITY; -- event_occurrence_context_role
 
   ENTITY event_occurrence_relationship;
       name           : label;
@@ -3211,12 +3479,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
     SUBTYPE OF (action);
   END_ENTITY; -- executed_action
 
-  ENTITY expression
-    ABSTRACT SUPERTYPE OF (ONEOF (numeric_expression,boolean_expression,
-        string_expression))
-    SUBTYPE OF (generic_expression);
-  END_ENTITY; -- expression
-
   ENTITY external_class_library
     SUBTYPE OF (external_source);
   END_ENTITY; -- external_class_library
@@ -3232,7 +3494,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       description : text := get_description_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
   END_ENTITY; -- external_source
 
@@ -3244,20 +3506,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
       item_id : source_item;
       source  : external_source;
   END_ENTITY; -- externally_defined_item
-
-  ENTITY format_function
-    SUBTYPE OF (string_expression, binary_generic_expression);
-    DERIVE
-      value_to_format : generic_expression := SELF\
-                           binary_generic_expression.operands[1];
-      format_string   : generic_expression := SELF\
-                           binary_generic_expression.operands[2];
-    WHERE
-      wr1: (('AP239_PART_DEFINITION_INFORMATION_MIM.NUMERIC_EXPRESSION' IN
-                TYPEOF(value_to_format)) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' IN
-                TYPEOF(format_string)));
-  END_ENTITY; -- format_function
 
   ENTITY general_property;
       id          : identifier;
@@ -3272,7 +3520,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       derived_definition : derived_property_select;
     WHERE
       wr1: (SIZEOF(USEDIN(derived_definition,
-               'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+               'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'GENERAL_PROPERTY_ASSOCIATION.' + 'DERIVED_DEFINITION')) = 1);
       wr2: (derived_definition.name = base_definition.name);
   END_ENTITY; -- general_property_association
@@ -3283,26 +3531,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
       relating_property : general_property;
       related_property  : general_property;
   END_ENTITY; -- general_property_relationship
-
-  ENTITY generic_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (simple_generic_expression,
-        unary_generic_expression,binary_generic_expression,
-        multiple_arity_generic_expression));
-    WHERE
-      wr1: is_acyclic(SELF);
-  END_ENTITY; -- generic_expression
-
-  ENTITY generic_literal
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (simple_generic_expression);
-  END_ENTITY; -- generic_literal
-
-  ENTITY generic_variable
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (simple_generic_expression);
-    INVERSE
-      interpretation : environment FOR syntactic_representation;
-  END_ENTITY; -- generic_variable
 
   ENTITY global_uncertainty_assigned_context
     SUBTYPE OF (representation_context);
@@ -3320,7 +3548,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       id : identifier := get_id_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1);
   END_ENTITY; -- group
 
@@ -3330,7 +3558,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       role : object_role := get_role(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1);
   END_ENTITY; -- group_assignment
 
@@ -3357,21 +3585,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
       description : OPTIONAL text;
   END_ENTITY; -- identification_role
 
-  ENTITY index_expression
-    SUBTYPE OF (string_expression, binary_generic_expression);
-    DERIVE
-      operand : generic_expression := SELF\binary_generic_expression.
-                   operands[1];
-      index   : generic_expression := SELF\binary_generic_expression.
-                   operands[2];
-    WHERE
-      wr1: (('AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' IN 
-               TYPEOF(operand)) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.NUMERIC_EXPRESSION' 
-               IN TYPEOF(index)));
-      wr2: is_int_expr(index);
-  END_ENTITY; -- index_expression
-
   ENTITY information_right
     SUBTYPE OF (action_method);
   END_ENTITY; -- information_right
@@ -3379,19 +3592,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY information_usage_right
     SUBTYPE OF (action_method);
   END_ENTITY; -- information_usage_right
-
-  ENTITY instance_equal
-    SUBTYPE OF (binary_logical_expression);
-  END_ENTITY; -- instance_equal
-
-  ENTITY int_literal
-    SUBTYPE OF (literal_number);
-      SELF\literal_number.the_value : INTEGER;
-  END_ENTITY; -- int_literal
-
-  ENTITY int_numeric_variable
-    SUBTYPE OF (numeric_variable);
-  END_ENTITY; -- int_numeric_variable
 
   ENTITY interface_connection
     SUBTYPE OF (product_definition_relationship);
@@ -3448,36 +3648,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
       resultant   : class;
   END_ENTITY; -- intersection
 
-  ENTITY interval_expression
-    SUBTYPE OF (boolean_expression, multiple_arity_generic_expression);
-    DERIVE
-      interval_low  : generic_expression := SELF\
-                         multiple_arity_generic_expression.operands[1];
-      interval_item : generic_expression := SELF\
-                         multiple_arity_generic_expression.operands[2];
-      interval_high : generic_expression := SELF\
-                         multiple_arity_generic_expression.operands[3];
-    WHERE
-      wr1: (('AP239_PART_DEFINITION_INFORMATION_MIM.EXPRESSION' IN TYPEOF(
-               interval_low)) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.EXPRESSION' IN 
-               TYPEOF(interval_item)) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.EXPRESSION' IN 
-               TYPEOF(interval_high)));
-      wr2: ((('AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' IN
-                TYPEOF(SELF.interval_low)) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' IN
-                TYPEOF(SELF.interval_high)) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' IN
-                TYPEOF(SELF.interval_item))) OR ((
-               'AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' IN
-                TYPEOF(SELF.interval_low)) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.NUMERIC_EXPRESSION' 
-               IN TYPEOF(SELF.interval_item)) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.NUMERIC_EXPRESSION' 
-               IN TYPEOF(SELF.interval_high))));
-  END_ENTITY; -- interval_expression
-
   ENTITY language
     SUBTYPE OF (group);
     WHERE
@@ -3487,7 +3657,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY length_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.LENGTH_UNIT' IN TYPEOF(
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.LENGTH_UNIT' IN TYPEOF(
                SELF\measure_with_unit.unit_component));
   END_ENTITY; -- length_measure_with_unit
 
@@ -3504,21 +3674,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
                named_unit.dimensions.luminous_intensity_exponent = 0));
   END_ENTITY; -- length_unit
 
-  ENTITY like_expression
-    SUBTYPE OF (comparison_expression);
-    WHERE
-      wr1: (('AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' IN 
-               TYPEOF(SELF\comparison_expression.operands[1])) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' IN
-                TYPEOF(SELF\comparison_expression.operands[2])));
-  END_ENTITY; -- like_expression
-
-  ENTITY literal_number
-    ABSTRACT SUPERTYPE OF (ONEOF (int_literal,real_literal))
-    SUBTYPE OF (simple_numeric_expression, generic_literal);
-      the_value : NUMBER;
-  END_ENTITY; -- literal_number
-
   ENTITY local_time;
       hour_component   : hour_in_day;
       minute_component : OPTIONAL minute_in_hour;
@@ -3528,79 +3683,10 @@ SCHEMA ap239_part_definition_information_mim_lf;
       wr1: valid_time(SELF);
   END_ENTITY; -- local_time
 
-  ENTITY logical_and
-    SUBTYPE OF (multiple_arity_logical_expression);
-  END_ENTITY; -- logical_and
-
-  ENTITY logical_comparison
-    SUPERTYPE OF (ONEOF (defined_logical_comparison,logical_equal,
-        logical_greater,logical_greater_equal,logical_less,
-        logical_less_equal,logical_like,logical_not_equal))
-    SUBTYPE OF (logical_expression);
-      specified_value : generic_literal;
-      the_parameter   : generic_variable;
-  END_ENTITY; -- logical_comparison
-
-  ENTITY logical_equal
-    SUBTYPE OF (logical_comparison);
-  END_ENTITY; -- logical_equal
-
-  ENTITY logical_expression
-    SUPERTYPE OF (ONEOF (binary_logical_expression,logical_comparison,
-        multiple_arity_logical_expression,simple_logical_expression,
-        unary_logical_expression))
-    SUBTYPE OF (expression);
-  END_ENTITY; -- logical_expression
-
-  ENTITY logical_greater
-    SUBTYPE OF (logical_comparison);
-  END_ENTITY; -- logical_greater
-
-  ENTITY logical_greater_equal
-    SUBTYPE OF (logical_comparison);
-  END_ENTITY; -- logical_greater_equal
-
-  ENTITY logical_less
-    SUBTYPE OF (logical_comparison);
-  END_ENTITY; -- logical_less
-
-  ENTITY logical_less_equal
-    SUBTYPE OF (logical_comparison);
-  END_ENTITY; -- logical_less_equal
-
-  ENTITY logical_like
-    SUBTYPE OF (logical_comparison);
-  END_ENTITY; -- logical_like
-
-  ENTITY logical_literal
-    SUBTYPE OF (generic_literal, simple_logical_expression);
-      the_value : LOGICAL;
-  END_ENTITY; -- logical_literal
-
-  ENTITY logical_not
-    SUBTYPE OF (unary_logical_expression);
-  END_ENTITY; -- logical_not
-
-  ENTITY logical_not_equal
-    SUBTYPE OF (logical_comparison);
-  END_ENTITY; -- logical_not_equal
-
-  ENTITY logical_or
-    SUBTYPE OF (multiple_arity_logical_expression);
-  END_ENTITY; -- logical_or
-
-  ENTITY logical_variable
-    SUBTYPE OF (simple_logical_expression, variable);
-  END_ENTITY; -- logical_variable
-
-  ENTITY logical_xor
-    SUBTYPE OF (binary_logical_expression);
-  END_ENTITY; -- logical_xor
-
   ENTITY luminous_intensity_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.LUMINOUS_INTENSITY_UNIT' 
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.LUMINOUS_INTENSITY_UNIT' 
                IN TYPEOF(SELF\measure_with_unit.unit_component));
   END_ENTITY; -- luminous_intensity_measure_with_unit
 
@@ -3620,7 +3706,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY mass_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.MASS_UNIT' IN TYPEOF(
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.MASS_UNIT' IN TYPEOF(
                SELF\measure_with_unit.unit_component));
   END_ENTITY; -- mass_measure_with_unit
 
@@ -3677,18 +3763,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
                             related_product;
   END_ENTITY; -- message_relationship
 
-  ENTITY minus_expression
-    SUBTYPE OF (binary_numeric_expression);
-  END_ENTITY; -- minus_expression
-
-  ENTITY mod_expression
-    SUBTYPE OF (binary_numeric_expression);
-  END_ENTITY; -- mod_expression
-
-  ENTITY mult_expression
-    SUBTYPE OF (multiple_arity_numeric_expression);
-  END_ENTITY; -- mult_expression
-
   ENTITY multi_language_attribute_assignment
     SUBTYPE OF (attribute_value_assignment);
       items : SET [1:?] OF multi_language_attribute_item;
@@ -3708,12 +3782,12 @@ SCHEMA ap239_part_definition_information_mim_lf;
                attribute_classification_assignment.role.name = 'translated')) )) 
                = 1);
       wr3: (SELF\attribute_value_assignment.attribute_name <> '');
-      wr4: (SIZEOF(QUERY ( ci <* items | (SIZEOF(QUERY ( ata <* USEDIN(ci,'AP239_PART_DEFINITION_INFORMATION_MIM.MULTI_LANGUAGE_ATTRIBUTE_ASSIGNMENT.ITEMS')
+      wr4: (SIZEOF(QUERY ( ci <* items | (SIZEOF(QUERY ( ata <* USEDIN(ci,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.MULTI_LANGUAGE_ATTRIBUTE_ASSIGNMENT.ITEMS')
                 | ((ata\attribute_value_assignment.attribute_name = SELF\
                attribute_value_assignment.attribute_name) AND (ata.
                translation_language :=: translation_language)) )) > 1) )) =
                 0);
-      wr5: (SIZEOF(QUERY ( ci <* items | (SIZEOF(QUERY ( ata <* USEDIN(ci,'AP239_PART_DEFINITION_INFORMATION_MIM.ATTRIBUTE_LANGUAGE_ASSIGNMENT.ITEMS')
+      wr5: (SIZEOF(QUERY ( ci <* items | (SIZEOF(QUERY ( ata <* USEDIN(ci,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.ATTRIBUTE_LANGUAGE_ASSIGNMENT.ITEMS')
                 | ((ata\attribute_classification_assignment.role.name = 
                'primary') AND (ata\attribute_classification_assignment.
                attribute_name = SELF\attribute_value_assignment.
@@ -3721,42 +3795,13 @@ SCHEMA ap239_part_definition_information_mim_lf;
                .assigned_class :=: translation_language)) )) > 0) )) = 0);
   END_ENTITY; -- multi_language_attribute_assignment
 
-  ENTITY multiple_arity_boolean_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (and_expression,or_expression))
-    SUBTYPE OF (boolean_expression, multiple_arity_generic_expression);
-      SELF\multiple_arity_generic_expression.operands : LIST [2:?] OF boolean_expression;
-  END_ENTITY; -- multiple_arity_boolean_expression
-
-  ENTITY multiple_arity_function_call
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (multiple_arity_numeric_expression);
-  END_ENTITY; -- multiple_arity_function_call
-
-  ENTITY multiple_arity_generic_expression
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (generic_expression);
-      operands : LIST [2:?] OF generic_expression;
-  END_ENTITY; -- multiple_arity_generic_expression
-
-  ENTITY multiple_arity_logical_expression
-    SUPERTYPE OF (ONEOF (logical_and,logical_or))
-    SUBTYPE OF (logical_expression, multiple_arity_generic_expression);
-  END_ENTITY; -- multiple_arity_logical_expression
-
-  ENTITY multiple_arity_numeric_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (plus_expression,mult_expression,
-        multiple_arity_function_call))
-    SUBTYPE OF (numeric_expression, multiple_arity_generic_expression);
-      SELF\multiple_arity_generic_expression.operands : LIST [2:?] OF numeric_expression;
-  END_ENTITY; -- multiple_arity_numeric_expression
-
   ENTITY name_assignment
     ABSTRACT SUPERTYPE;
       assigned_name : label;
     DERIVE
       role : object_role := get_role(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1);
   END_ENTITY; -- name_assignment
 
@@ -3774,38 +3819,10 @@ SCHEMA ap239_part_definition_information_mim_lf;
       dimensions : dimensional_exponents;
   END_ENTITY; -- named_unit
 
-  ENTITY not_expression
-    SUBTYPE OF (unary_boolean_expression);
-      SELF\unary_generic_expression.operand : boolean_expression;
-  END_ENTITY; -- not_expression
-
-  ENTITY numeric_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (simple_numeric_expression,
-        unary_numeric_expression,binary_numeric_expression,
-        multiple_arity_numeric_expression))
-    SUBTYPE OF (expression);
-    DERIVE
-      is_int       : BOOLEAN := is_int_expr(SELF);
-      sql_mappable : BOOLEAN := is_sql_mappable(SELF);
-  END_ENTITY; -- numeric_expression
-
-  ENTITY numeric_variable
-    SUPERTYPE OF (ONEOF (int_numeric_variable,real_numeric_variable))
-    SUBTYPE OF (simple_numeric_expression, variable);
-    WHERE
-      wr1: (('AP239_PART_DEFINITION_INFORMATION_MIM.INT_NUMERIC_VARIABLE' 
-               IN TYPEOF(SELF)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.REAL_NUMERIC_VARIABLE' 
-               IN TYPEOF(SELF)));
-  END_ENTITY; -- numeric_variable
-
   ENTITY object_role;
       name        : label;
       description : OPTIONAL text;
   END_ENTITY; -- object_role
-
-  ENTITY or_expression
-    SUBTYPE OF (multiple_arity_boolean_expression);
-  END_ENTITY; -- or_expression
 
   ENTITY organization;
       id          : OPTIONAL identifier;
@@ -3831,7 +3848,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       description : text := get_description_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
   END_ENTITY; -- organization_role
 
@@ -3848,7 +3865,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       id : identifier := get_id_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1);
   END_ENTITY; -- organizational_project
 
@@ -3888,9 +3905,9 @@ SCHEMA ap239_part_definition_information_mim_lf;
       name        : label := get_name_value(SELF);
       description : text := get_description_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1);
-      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
   END_ENTITY; -- person_and_organization
 
@@ -3900,7 +3917,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       SELF\organizational_address.organizations : SET [1:1] OF
                                                       organization;
     WHERE
-      wr1: (SIZEOF(QUERY ( pao <* USEDIN(SELF\personal_address.people[1],'AP239_PART_DEFINITION_INFORMATION_MIM.PERSON_AND_ORGANIZATION.THE_PERSON')
+      wr1: (SIZEOF(QUERY ( pao <* USEDIN(SELF\personal_address.people[1],'AP239_PART_DEFINITION_INFORMATION_MIM_LF.PERSON_AND_ORGANIZATION.THE_PERSON')
                 | (pao.the_organization :=: SELF\organizational_address.
                organizations[1]) )) = 1);
   END_ENTITY; -- person_and_organization_address
@@ -3916,7 +3933,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       description : text := get_description_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
   END_ENTITY; -- person_and_organization_role
 
@@ -3929,7 +3946,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY plane_angle_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.PLANE_ANGLE_UNIT' IN 
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.PLANE_ANGLE_UNIT' IN 
                TYPEOF(SELF\measure_with_unit.unit_component));
   END_ENTITY; -- plane_angle_measure_with_unit
 
@@ -3945,14 +3962,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
                .dimensions.amount_of_substance_exponent = 0) AND (SELF\
                named_unit.dimensions.luminous_intensity_exponent = 0));
   END_ENTITY; -- plane_angle_unit
-
-  ENTITY plus_expression
-    SUBTYPE OF (multiple_arity_numeric_expression);
-  END_ENTITY; -- plus_expression
-
-  ENTITY power_expression
-    SUBTYPE OF (binary_numeric_expression);
-  END_ENTITY; -- power_expression
 
   ENTITY power_set;
       id          : identifier;
@@ -3996,7 +4005,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       id : identifier := get_id_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1);
   END_ENTITY; -- product_category
 
@@ -4036,7 +4045,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       name : label := get_name_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1);
   END_ENTITY; -- product_definition
 
@@ -4085,7 +4094,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     UNIQUE
       ur1 : definition;
     WHERE
-      wr1: (SIZEOF(['AP239_PART_DEFINITION_INFORMATION_MIM.CHARACTERIZED_PRODUCT_DEFINITION','AP239_PART_DEFINITION_INFORMATION_MIM.CHARACTERIZED_OBJECT'] 
+      wr1: (SIZEOF(['AP239_PART_DEFINITION_INFORMATION_MIM_LF.CHARACTERIZED_PRODUCT_DEFINITION','AP239_PART_DEFINITION_INFORMATION_MIM_LF.CHARACTERIZED_OBJECT'] 
                * TYPEOF(SELF\property_definition.definition)) > 0);
   END_ENTITY; -- product_definition_shape
 
@@ -4095,7 +4104,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       ur1 : id, relating_product_definition, related_product_definition;
     WHERE
       wr1: acyclic_product_definition_relationship(SELF,[SELF\
-               product_definition_relationship.related_product_definition],'AP239_PART_DEFINITION_INFORMATION_MIM.PRODUCT_DEFINITION_USAGE');
+               product_definition_relationship.related_product_definition],'AP239_PART_DEFINITION_INFORMATION_MIM_LF.PRODUCT_DEFINITION_USAGE');
   END_ENTITY; -- product_definition_usage
 
   ENTITY product_definition_with_associated_documents
@@ -4157,7 +4166,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       id : identifier := get_id_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1);
   END_ENTITY; -- property_definition
 
@@ -4175,9 +4184,9 @@ SCHEMA ap239_part_definition_information_mim_lf;
       description : text := get_description_value(SELF);
       name        : label := get_name_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
-      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'NAME_ATTRIBUTE.NAMED_ITEM')) <= 1);
   END_ENTITY; -- property_definition_representation
 
@@ -4186,14 +4195,14 @@ SCHEMA ap239_part_definition_information_mim_lf;
       qualifiers : SET [1:?] OF value_qualifier;
     WHERE
       wr1: (SIZEOF(QUERY ( temp <* qualifiers | (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.PRECISION_QUALIFIER' 
+               'AP239_PART_DEFINITION_INFORMATION_MIM_LF.PRECISION_QUALIFIER' 
                IN TYPEOF(temp)) )) < 2);
   END_ENTITY; -- qualified_representation_item
 
   ENTITY ratio_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.RATIO_UNIT' IN TYPEOF(
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.RATIO_UNIT' IN TYPEOF(
                SELF\measure_with_unit.unit_component));
   END_ENTITY; -- ratio_measure_with_unit
 
@@ -4210,15 +4219,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
                named_unit.dimensions.luminous_intensity_exponent = 0));
   END_ENTITY; -- ratio_unit
 
-  ENTITY real_literal
-    SUBTYPE OF (literal_number);
-      SELF\literal_number.the_value : REAL;
-  END_ENTITY; -- real_literal
-
-  ENTITY real_numeric_variable
-    SUBTYPE OF (numeric_variable);
-  END_ENTITY; -- real_numeric_variable
-
   ENTITY relative_event_occurrence
     SUBTYPE OF (event_occurrence);
       base_event : event_occurrence;
@@ -4233,9 +4233,9 @@ SCHEMA ap239_part_definition_information_mim_lf;
       id          : identifier := get_id_value(SELF);
       description : text := get_description_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1);
-      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr2: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) <= 1);
   END_ENTITY; -- representation
 
@@ -4275,12 +4275,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
     SUBTYPE OF (group);
   END_ENTITY; -- requirement_source
 
-  ENTITY resource_property;
-      name        : label;
-      description : text;
-      resource    : characterized_resource_definition;
-  END_ENTITY; -- resource_property
-
   ENTITY right_to_usage_association
     SUBTYPE OF (action_method_relationship);
       SELF\action_method_relationship.related_method  : information_right;
@@ -4317,7 +4311,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       role : object_role := get_role(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1);
   END_ENTITY; -- security_classification_assignment
 
@@ -4333,7 +4327,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       id : identifier := get_id_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1);
   END_ENTITY; -- shape_aspect
 
@@ -4345,7 +4339,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     DERIVE
       id : identifier := get_id_value(SELF);
     WHERE
-      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+      wr1: (SIZEOF(USEDIN(SELF,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1);
   END_ENTITY; -- shape_aspect_relationship
 
@@ -4358,38 +4352,10 @@ SCHEMA ap239_part_definition_information_mim_lf;
                                       dimensions_for_si_unit(name);
   END_ENTITY; -- si_unit
 
-  ENTITY simple_boolean_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (boolean_literal,boolean_variable))
-    SUBTYPE OF (boolean_expression, simple_generic_expression);
-  END_ENTITY; -- simple_boolean_expression
-
-  ENTITY simple_generic_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (generic_literal,generic_variable))
-    SUBTYPE OF (generic_expression);
-  END_ENTITY; -- simple_generic_expression
-
-  ENTITY simple_logical_expression
-    SUBTYPE OF (logical_expression, simple_generic_expression);
-  END_ENTITY; -- simple_logical_expression
-
-  ENTITY simple_numeric_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (literal_number,numeric_variable))
-    SUBTYPE OF (numeric_expression, simple_generic_expression);
-  END_ENTITY; -- simple_numeric_expression
-
-  ENTITY simple_string_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (string_literal,string_variable))
-    SUBTYPE OF (string_expression, simple_generic_expression);
-  END_ENTITY; -- simple_string_expression
-
-  ENTITY slash_expression
-    SUBTYPE OF (binary_numeric_expression);
-  END_ENTITY; -- slash_expression
-
   ENTITY solid_angle_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.SOLID_ANGLE_UNIT' IN 
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.SOLID_ANGLE_UNIT' IN 
                TYPEOF(SELF\measure_with_unit.unit_component));
   END_ENTITY; -- solid_angle_measure_with_unit
 
@@ -4420,39 +4386,21 @@ SCHEMA ap239_part_definition_information_mim_lf;
                                                  product_definition;
   END_ENTITY; -- sourced_requirement
 
-  ENTITY sql_mappable_defined_function
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (defined_function);
-  END_ENTITY; -- sql_mappable_defined_function
-
-  ENTITY state_assertion;
-      asserted_state    : state_observed;
-      conformance_state : state_type;
-      assertion_result  : OPTIONAL LOGICAL;
-  END_ENTITY; -- state_assertion
-
-  ENTITY state_assessment;
-      assessed_state          : state_observed;
-      comparable_state        : state_type;
-      assessment_result       : OPTIONAL LOGICAL;
-      definitional_comparison : STRING;
-  END_ENTITY; -- state_assessment
-
   ENTITY state_characterized_object
     SUBTYPE OF (characterized_object, state_type);
   END_ENTITY; -- state_characterized_object
 
   ENTITY state_observed;
       name        : STRING;
-      description : STRING;
+      description : OPTIONAL STRING;
   END_ENTITY; -- state_observed
 
   ENTITY state_observed_relationship;
-      name        : STRING;
-      description : OPTIONAL STRING;
-      relating    : state_observed;
-      related     : state_observed;
-      role        : STRING;
+      name                    : STRING;
+      description             : OPTIONAL STRING;
+      relating_state_observed : SET [1:?] OF state_observed;
+      related_state_observed  : SET [1:?] OF state_observed;
+      role                    : STRING;
   END_ENTITY; -- state_observed_relationship
 
   ENTITY state_predicted
@@ -4465,47 +4413,26 @@ SCHEMA ap239_part_definition_information_mim_lf;
 
   ENTITY state_role;
       name        : STRING;
-      description : STRING;
+      description : OPTIONAL STRING;
   END_ENTITY; -- state_role
 
   ENTITY state_type;
       name        : STRING;
-      description : STRING;
+      description : OPTIONAL STRING;
   END_ENTITY; -- state_type
 
   ENTITY state_type_relationship;
-      name        : STRING;
-      description : OPTIONAL STRING;
-      relating    : state_type;
-      related     : state_type;
-      role        : STRING;
+      name                : STRING;
+      description         : OPTIONAL STRING;
+      relating_state_type : SET [1:?] OF state_type;
+      related_state_type  : SET [1:?] OF state_type;
+      role                : STRING;
   END_ENTITY; -- state_type_relationship
 
   ENTITY state_type_role;
       name        : STRING;
-      description : STRING;
+      description : OPTIONAL STRING;
   END_ENTITY; -- state_type_role
-
-  ENTITY string_defined_function
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (defined_function, string_expression);
-  END_ENTITY; -- string_defined_function
-
-  ENTITY string_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (simple_string_expression,
-        index_expression,substring_expression,concat_expression,
-        format_function,string_defined_function))
-    SUBTYPE OF (expression);
-  END_ENTITY; -- string_expression
-
-  ENTITY string_literal
-    SUBTYPE OF (simple_string_expression, generic_literal);
-      the_value : STRING;
-  END_ENTITY; -- string_literal
-
-  ENTITY string_variable
-    SUBTYPE OF (simple_string_expression, variable);
-  END_ENTITY; -- string_variable
 
   ENTITY structured_message
     SUBTYPE OF (product);
@@ -4519,31 +4446,10 @@ SCHEMA ap239_part_definition_information_mim_lf;
       superset    : class;
   END_ENTITY; -- subset
 
-  ENTITY substring_expression
-    SUBTYPE OF (string_expression, multiple_arity_generic_expression);
-    DERIVE
-      operand : generic_expression := SELF\
-                   multiple_arity_generic_expression.operands[1];
-      index1  : generic_expression := SELF\
-                   multiple_arity_generic_expression.operands[2];
-      index2  : generic_expression := SELF\
-                   multiple_arity_generic_expression.operands[3];
-    WHERE
-      wr1: (('AP239_PART_DEFINITION_INFORMATION_MIM.STRING_EXPRESSION' IN 
-               TYPEOF(operand)) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.NUMERIC_EXPRESSION' 
-               IN TYPEOF(index1)) AND (
-               'AP239_PART_DEFINITION_INFORMATION_MIM.NUMERIC_EXPRESSION' 
-               IN TYPEOF(index2)));
-      wr2: (SIZEOF(SELF\multiple_arity_generic_expression.operands) = 3);
-      wr3: is_int_expr(index1);
-      wr4: is_int_expr(index2);
-  END_ENTITY; -- substring_expression
-
   ENTITY thermodynamic_temperature_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.THERMODYNAMIC_TEMPERATURE_UNIT' 
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.THERMODYNAMIC_TEMPERATURE_UNIT' 
                IN TYPEOF(SELF\measure_with_unit.unit_component));
   END_ENTITY; -- thermodynamic_temperature_measure_with_unit
 
@@ -4563,7 +4469,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY time_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.TIME_UNIT' IN TYPEOF(
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.TIME_UNIT' IN TYPEOF(
                SELF\measure_with_unit.unit_component));
   END_ENTITY; -- time_measure_with_unit
 
@@ -4583,27 +4489,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY type_qualifier;
       name : label;
   END_ENTITY; -- type_qualifier
-
-  ENTITY unary_boolean_expression
-    ABSTRACT SUPERTYPE OF (ONEOF (not_expression))
-    SUBTYPE OF (boolean_expression, unary_generic_expression);
-  END_ENTITY; -- unary_boolean_expression
-
-  ENTITY unary_generic_expression
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (generic_expression);
-      operand : generic_expression;
-  END_ENTITY; -- unary_generic_expression
-
-  ENTITY unary_logical_expression
-    SUBTYPE OF (logical_expression, unary_generic_expression);
-  END_ENTITY; -- unary_logical_expression
-
-  ENTITY unary_numeric_expression
-    ABSTRACT SUPERTYPE
-    SUBTYPE OF (numeric_expression, unary_generic_expression);
-      SELF\unary_generic_expression.operand : numeric_expression;
-  END_ENTITY; -- unary_numeric_expression
 
   ENTITY uncertainty_measure_with_unit
     SUBTYPE OF (measure_with_unit);
@@ -4635,9 +4520,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY value_range
     SUBTYPE OF (compound_representation_item);
     WHERE
-      wr1: ((('AP239_PART_DEFINITION_INFORMATION_MIM.' + 
-               'SET_REPRESENTATION_ITEM') IN TYPEOF(item_element)) AND 
-               value_range_wr1(item_element));
+      wr1: ((('value_with_unit_mim.' + 'SET_REPRESENTATION_ITEM') IN 
+               TYPEOF(item_element)) AND value_range_wr1(item_element));
       wr2: value_range_wr2(item_element);
       wr3: value_range_wr3(item_element);
   END_ENTITY; -- value_range
@@ -4646,19 +4530,9 @@ SCHEMA ap239_part_definition_information_mim_lf;
     SUBTYPE OF (representation_item);
       value_component : measure_value;
     WHERE
-      wr1: (SIZEOF(QUERY ( rep <* using_representations(SELF) | (NOT ('AP239_PART_DEFINITION_INFORMATION_MIM.GLOBAL_UNIT_ASSIGNED_CONTEXT' 
+      wr1: (SIZEOF(QUERY ( rep <* using_representations(SELF) | (NOT ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.GLOBAL_UNIT_ASSIGNED_CONTEXT' 
                IN TYPEOF(rep.context_of_items))) )) = 0);
   END_ENTITY; -- value_representation_item
-
-  ENTITY variable
-    ABSTRACT SUPERTYPE OF (ONEOF (numeric_variable,boolean_variable,
-        string_variable))
-    SUBTYPE OF (generic_variable);
-  END_ENTITY; -- variable
-
-  ENTITY variable_semantics
-    ABSTRACT SUPERTYPE;
-  END_ENTITY; -- variable_semantics
 
   ENTITY versioned_action_request;
       id          : identifier;
@@ -4670,7 +4544,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
   ENTITY volume_measure_with_unit
     SUBTYPE OF (measure_with_unit);
     WHERE
-      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM.VOLUME_UNIT' IN TYPEOF(
+      wr1: ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.VOLUME_UNIT' IN TYPEOF(
                SELF\measure_with_unit.unit_component));
   END_ENTITY; -- volume_measure_with_unit
 
@@ -4687,23 +4561,19 @@ SCHEMA ap239_part_definition_information_mim_lf;
                named_unit.dimensions.luminous_intensity_exponent = 0));
   END_ENTITY; -- volume_unit
 
-  ENTITY xor_expression
-    SUBTYPE OF (binary_boolean_expression);
-      SELF\binary_generic_expression.operands : LIST [2:2] OF
-                                                    boolean_expression;
-  END_ENTITY; -- xor_expression
-
-  RULE restrict_language_assignment_per_attribute FOR (attribute_language_assignment);
+  RULE restrict_language_assignment_per_attribute FOR (
+               attribute_language_assignment);
 
   WHERE
     wr1: (SIZEOF(QUERY ( ala1 <* attribute_language_assignment | (SIZEOF(
-             QUERY ( it <* ala1.items | (SIZEOF(QUERY ( ala2 <* USEDIN(it,'AP239_PART_DEFINITION_INFORMATION_MIM.ATTRIBUTE_LANGUAGE_ASSIGNMENT.ITEMS')
+             QUERY ( it <* ala1.items | (SIZEOF(QUERY ( ala2 <* USEDIN(it,'AP239_PART_DEFINITION_INFORMATION_MIM_LF.ATTRIBUTE_LANGUAGE_ASSIGNMENT.ITEMS')
               | ((ala1\attribute_classification_assignment.attribute_name =
               ala2\attribute_classification_assignment.attribute_name) AND 
              (ala1\attribute_classification_assignment.assigned_class :=: 
              ala2\attribute_classification_assignment.assigned_class)) )) >
               1) )) > 0) )) = 0);
-  END_RULE;
+
+  END_RULE; -- restrict_language_assignment_per_attribute
 
   RULE version_assignments_are_valid FOR (
              applied_identification_assignment);
@@ -4712,45 +4582,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     wr1: (SIZEOF(QUERY ( aia <* applied_identification_assignment | (NOT 
              version_assignment_is_valid(aia)) )) = 0);
 
-  END_RULE;
-
-  FUNCTION acyclic(
-               arg1: generic_expression;
-               arg2: SET OF generic_expression
-      ): BOOLEAN;
-
-    LOCAL
-      result : BOOLEAN;
-    END_LOCAL;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.SIMPLE_GENERIC_EXPRESSION' 
-        IN TYPEOF(arg1) THEN
-      RETURN(TRUE);
-    END_IF;
-    IF arg1 IN arg2 THEN
-      RETURN(FALSE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.UNARY_GENERIC_EXPRESSION' IN
-         TYPEOF(arg1) THEN
-      RETURN(acyclic(arg1\unary_generic_expression.operand,arg2 + [arg1]));
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.BINARY_GENERIC_EXPRESSION' 
-        IN TYPEOF(arg1) THEN
-      RETURN(acyclic(arg1\binary_generic_expression.operands[1],arg2 + [
-          arg1]) AND acyclic(arg1\binary_generic_expression.operands[2],
-          arg2 + [arg1]));
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.MULTIPLE_ARITY_GENERIC_EXPRESSION' 
-        IN TYPEOF(arg1) THEN
-      result := TRUE;
-      REPEAT i := 1 TO SIZEOF(arg1\multiple_arity_generic_expression.
-          operands) BY 1;
-        result := result AND acyclic(arg1\
-            multiple_arity_generic_expression.operands[i],arg2 + [arg1]);
-      END_REPEAT;
-      RETURN(result);
-    END_IF;
-
-  END_FUNCTION;
+  END_RULE; -- version_assignments_are_valid
 
   FUNCTION acyclic_product_category_relationship(
                relation: product_category_relationship;
@@ -4767,7 +4599,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       END_IF;
     END_REPEAT;
     x := bag_to_set(USEDIN(relation.category,
-        'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+        'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
         'PRODUCT_CATEGORY_RELATIONSHIP.SUB_CATEGORY'));
     local_children := children + relation.category;
     IF SIZEOF(x) > 0 THEN
@@ -4796,7 +4628,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     END_IF;
     x := QUERY ( pd <* bag_to_set(USEDIN(relation.
         relating_product_definition,
-        'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+        'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
         'PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION'))
          | (specific_relation IN TYPEOF(pd)) );
     REPEAT i := 1 TO HIINDEX(x) BY 1;
@@ -4823,7 +4655,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     END_IF;
     RETURN(the_set);
 
-  END_FUNCTION;
+  END_FUNCTION; -- bag_to_set
 
   FUNCTION derive_dimensional_exponents(
                x: unit
@@ -4833,7 +4665,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       result : dimensional_exponents := dimensional_exponents(0,0,0,0,0,0,
                 0);
     END_LOCAL;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.DERIVED_UNIT' IN TYPEOF(x)
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.DERIVED_UNIT' IN TYPEOF(x)
          THEN
       REPEAT i := LOINDEX(x.elements) TO HIINDEX(x.elements) BY 1;
         result.length_exponent := result.length_exponent + (x.elements[i].
@@ -4861,7 +4693,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     END_IF;
     RETURN(result);
 
-  END_FUNCTION; 
+  END_FUNCTION; -- derive_dimensional_exponents
 
   FUNCTION dimensions_for_si_unit(
                n: si_unit_name
@@ -4898,7 +4730,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       OTHERWISE     :         RETURN(?);
       END_CASE;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- dimensions_for_si_unit
 
   FUNCTION get_description_value(
                obj: description_attribute_select
@@ -4906,7 +4738,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
 
     LOCAL
       description_bag : BAG OF description_attribute := USEDIN(obj,
-                         'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+                         'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                          'DESCRIPTION_ATTRIBUTE.' + 'DESCRIBED_ITEM');
     END_LOCAL;
     IF SIZEOF(description_bag) = 1 THEN
@@ -4915,7 +4747,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       RETURN(?);
     END_IF;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- get_description_value
 
   FUNCTION get_id_value(
                obj: id_attribute_select
@@ -4923,7 +4755,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
 
     LOCAL
       id_bag : BAG OF id_attribute := USEDIN(obj,
-                'AP239_PART_DEFINITION_INFORMATION_MIM.' + 'ID_ATTRIBUTE.' 
+                'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 'ID_ATTRIBUTE.' 
                 + 'IDENTIFIED_ITEM');
     END_LOCAL;
     IF SIZEOF(id_bag) = 1 THEN
@@ -4932,7 +4764,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       RETURN(?);
     END_IF;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- get_id_value
 
   FUNCTION get_name_value(
                obj: name_attribute_select
@@ -4940,7 +4772,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
 
     LOCAL
       name_bag : BAG OF name_attribute := USEDIN(obj,
-                  'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+                  'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                   'NAME_ATTRIBUTE.' + 'NAMED_ITEM');
     END_LOCAL;
     IF SIZEOF(name_bag) = 1 THEN
@@ -4949,7 +4781,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       RETURN(?);
     END_IF;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- get_name_value
 
   FUNCTION get_role(
                obj: role_select
@@ -4957,7 +4789,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
 
     LOCAL
       role_bag : BAG OF role_association := USEDIN(obj,
-                  'AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+                  'AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
                   'ROLE_ASSOCIATION.' + 'ITEM_WITH_ROLE');
     END_LOCAL;
     IF SIZEOF(role_bag) = 1 THEN
@@ -4966,277 +4798,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       RETURN(?);
     END_IF;
 
-  END_FUNCTION; 
-
-  FUNCTION is_acyclic(
-               arg: generic_expression
-      ): BOOLEAN;
-    RETURN(acyclic(arg,[]));
-
-  END_FUNCTION; -- is_acyclic
-
-  FUNCTION is_int_expr(
-               arg: numeric_expression
-      ): BOOLEAN;
-
-    LOCAL
-      i : INTEGER;
-    END_LOCAL;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.INT_LITERAL' IN TYPEOF(arg)
-         THEN
-      RETURN(TRUE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.REAL_LITERAL' IN TYPEOF(arg)
-         THEN
-      RETURN(FALSE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.INT_NUMERIC_VARIABLE' IN 
-        TYPEOF(arg) THEN
-      RETURN(TRUE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.REAL_NUMERIC_VARIABLE' IN 
-        TYPEOF(arg) THEN
-      RETURN(FALSE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.ABS_FUNCTION' IN TYPEOF(arg)
-         THEN
-      RETURN(is_int_expr(arg\unary_numeric_expression.operand));
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.MINUS_FUNCTION' IN TYPEOF(
-        arg) THEN
-      RETURN(is_int_expr(arg\unary_numeric_expression.operand));
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.SIN_FUNCTION' IN TYPEOF(arg)) 
-        OR ('AP239_PART_DEFINITION_INFORMATION_MIM.COS_FUNCTION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.TAN_FUNCTION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.ASIN_FUNCTION' IN TYPEOF(arg)) 
-        OR ('AP239_PART_DEFINITION_INFORMATION_MIM.ACOS_FUNCTION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.ATAN_FUNCTION' IN TYPEOF(arg)) 
-        OR ('AP239_PART_DEFINITION_INFORMATION_MIM.EXP_FUNCTION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.LOG_FUNCTION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.LOG2_FUNCTION' IN TYPEOF(arg)) 
-        OR ('AP239_PART_DEFINITION_INFORMATION_MIM.LOG10_FUNCTION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.SQUARE_ROOT_FUNCTION' IN 
-        TYPEOF(arg)) THEN
-      RETURN(FALSE);
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.PLUS_EXPRESSION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.MULT_EXPRESSION' 
-        IN TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.MAXIMUM_FUNCTION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.MINIMUM_FUNCTION' 
-        IN TYPEOF(arg)) THEN
-      REPEAT i := 1 TO SIZEOF(arg\multiple_arity_numeric_expression.
-          operands) BY 1;
-        IF NOT is_int_expr(arg\multiple_arity_numeric_expression.operands[
-            i]) THEN
-          RETURN(FALSE);
-        END_IF;
-      END_REPEAT;
-      RETURN(TRUE);
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.MINUS_EXPRESSION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.POWER_EXPRESSION' IN TYPEOF(
-        arg)) THEN
-      RETURN(is_int_expr(arg\binary_numeric_expression.operands[1]) AND 
-          is_int_expr(arg\binary_numeric_expression.operands[2]));
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.DIV_EXPRESSION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.MOD_EXPRESSION' IN
-         TYPEOF(arg)) THEN
-      RETURN(TRUE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.SLASH_EXPRESSION' IN TYPEOF(
-        arg) THEN
-      RETURN(FALSE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.LENGTH_FUNCTION' IN TYPEOF(
-        arg) THEN
-      RETURN(TRUE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.VALUE_FUNCTION' IN TYPEOF(
-        arg) THEN
-      IF 'AP239_PART_DEFINITION_INFORMATION_MIM.INT_VALUE_FUNCTION' IN 
-          TYPEOF(arg) THEN
-        RETURN(TRUE);
-      ELSE
-        RETURN(FALSE);
-      END_IF;
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.INTEGER_DEFINED_FUNCTION' IN
-         TYPEOF(arg) THEN
-      RETURN(TRUE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.REAL_DEFINED_FUNCTION' IN 
-        TYPEOF(arg) THEN
-      RETURN(FALSE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.BOOLEAN_DEFINED_FUNCTION' IN
-         TYPEOF(arg) THEN
-      RETURN(FALSE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.STRING_DEFINED_FUNCTION' IN 
-        TYPEOF(arg) THEN
-      RETURN(FALSE);
-    END_IF;
-    RETURN(FALSE);
-
-  END_FUNCTION; 
-
-  FUNCTION is_sql_mappable(
-               arg: expression
-      ): BOOLEAN;
-
-    LOCAL
-      i : INTEGER;
-    END_LOCAL;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.SIMPLE_NUMERIC_EXPRESSION' 
-        IN TYPEOF(arg) THEN
-      RETURN(TRUE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.SQL_MAPPABLE_DEFINED_FUNCTION' 
-        IN TYPEOF(arg) THEN
-      RETURN(TRUE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.MINUS_FUNCTION' IN TYPEOF(
-        arg) THEN
-      RETURN(is_sql_mappable(arg\unary_numeric_expression.operand));
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.ABS_FUNCTION' IN TYPEOF(arg)) 
-        OR ('AP239_PART_DEFINITION_INFORMATION_MIM.SIN_FUNCTION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.COS_FUNCTION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.TAN_FUNCTION' IN TYPEOF(arg)) 
-        OR ('AP239_PART_DEFINITION_INFORMATION_MIM.ASIN_FUNCTION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.ACOS_FUNCTION' IN TYPEOF(arg)) 
-        OR ('AP239_PART_DEFINITION_INFORMATION_MIM.ATAN_FUNCTION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.EXP_FUNCTION' IN TYPEOF(arg)) 
-        OR ('AP239_PART_DEFINITION_INFORMATION_MIM.LOG_FUNCTION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.LOG2_FUNCTION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.LOG10_FUNCTION' IN TYPEOF(
-        arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.SQUARE_ROOT_FUNCTION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.VALUE_FUNCTION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.LENGTH_FUNCTION' 
-        IN TYPEOF(arg)) THEN
-      RETURN(FALSE);
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.PLUS_EXPRESSION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.MULT_EXPRESSION' 
-        IN TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.MAXIMUM_FUNCTION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.MINIMUM_FUNCTION' 
-        IN TYPEOF(arg)) THEN
-      REPEAT i := 1 TO SIZEOF(arg\multiple_arity_numeric_expression.
-          operands) BY 1;
-        IF NOT is_sql_mappable(arg\multiple_arity_numeric_expression.
-            operands[i]) THEN
-          RETURN(FALSE);
-        END_IF;
-      END_REPEAT;
-      RETURN(TRUE);
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.MINUS_EXPRESSION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.SLASH_EXPRESSION' IN TYPEOF(
-        arg)) THEN
-      RETURN(is_sql_mappable(arg\binary_numeric_expression.operands[1]) 
-          AND is_sql_mappable(arg\binary_numeric_expression.operands[2]));
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.DIV_EXPRESSION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.MOD_EXPRESSION' IN
-         TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.POWER_EXPRESSION' IN TYPEOF(
-        arg)) THEN
-      RETURN(FALSE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.SIMPLE_BOOLEAN_EXPRESSION' 
-        IN TYPEOF(arg) THEN
-      RETURN(TRUE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.NOT_EXPRESSION' IN TYPEOF(
-        arg) THEN
-      RETURN(is_sql_mappable(arg\unary_generic_expression.operand));
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.ODD_FUNCTION' IN TYPEOF(arg)) 
-        OR ('AP239_PART_DEFINITION_INFORMATION_MIM.XOR_EXPRESSION' IN 
-        TYPEOF(arg)) THEN
-      RETURN(FALSE);
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.AND_EXPRESSION' IN TYPEOF(
-        arg)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.OR_EXPRESSION' IN 
-        TYPEOF(arg)) THEN
-      REPEAT i := 1 TO SIZEOF(arg\multiple_arity_boolean_expression.
-          operands) BY 1;
-        IF NOT is_sql_mappable(arg\multiple_arity_boolean_expression.
-            operands[i]) THEN
-          RETURN(FALSE);
-        END_IF;
-      END_REPEAT;
-      RETURN(TRUE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.EQUALS_EXPRESSION' IN 
-        TYPEOF(arg) THEN
-      RETURN(is_sql_mappable(arg\binary_generic_expression.operands[1]) 
-          AND is_sql_mappable(arg\binary_generic_expression.operands[2]));
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.COMPARISON_EQUAL' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.COMPARISON_GREATER' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.COMPARISON_GREATER_EQUAL' IN
-         TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.COMPARISON_LESS' IN TYPEOF(
-        arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.COMPARISON_LESS_EQUAL' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.COMPARISON_NOT_EQUAL' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.LIKE_EXPRESSION' IN TYPEOF(
-        arg)) THEN
-      RETURN(is_sql_mappable(arg\comparison_expression.operands[1]) AND 
-          is_sql_mappable(arg\comparison_expression.operands[2]));
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.INTERVAL_EXPRESSION' IN 
-        TYPEOF(arg) THEN
-      RETURN(is_sql_mappable(arg\interval_expression.interval_low) AND 
-          is_sql_mappable(arg\interval_expression.interval_high) AND 
-          is_sql_mappable(arg\interval_expression.interval_item));
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.NUMERIC_DEFINED_FUNCTION' 
-        IN TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.BOOLEAN_DEFINED_FUNCTION' IN
-         TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.STRING_DEFINED_FUNCTION' IN 
-        TYPEOF(arg)) THEN
-      RETURN(FALSE);
-    END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.SIMPLE_STRING_EXPRESSION' IN
-         TYPEOF(arg) THEN
-      RETURN(TRUE);
-    END_IF;
-    IF ('AP239_PART_DEFINITION_INFORMATION_MIM.INDEX_EXPRESSION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.SUBSTRING_EXPRESSION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.CONCAT_EXPRESSION' IN 
-        TYPEOF(arg)) OR (
-        'AP239_PART_DEFINITION_INFORMATION_MIM.FORMAT_FUNCTION' IN TYPEOF(
-        arg)) THEN
-      RETURN(FALSE);
-    END_IF;
-    RETURN(FALSE);
-
-  END_FUNCTION;
+  END_FUNCTION; -- get_role
 
   FUNCTION leap_year(
                year: year_number
@@ -5248,7 +4810,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       RETURN(FALSE);
     END_IF;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- leap_year
 
   FUNCTION using_items(
                item: founded_item_select;
@@ -5263,8 +4825,8 @@ SCHEMA ap239_part_definition_information_mim_lf;
     result_items := [];
     new_check_items := checked_items + item;
     next_items := QUERY ( z <* bag_to_set(USEDIN(item,'')) | ((
-        'AP239_PART_DEFINITION_INFORMATION_MIM.REPRESENTATION_ITEM' IN 
-        TYPEOF(z)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM.FOUNDED_ITEM' 
+        'AP239_PART_DEFINITION_INFORMATION_MIM_LF.REPRESENTATION_ITEM' IN 
+        TYPEOF(z)) OR ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.FOUNDED_ITEM' 
         IN TYPEOF(z))) );
     IF SIZEOF(next_items) > 0 THEN
       REPEAT i := 1 TO HIINDEX(next_items) BY 1;
@@ -5276,7 +4838,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     END_IF;
     RETURN(result_items);
 
-  END_FUNCTION; 
+  END_FUNCTION; -- using_items
 
   FUNCTION using_representations(
                item: founded_item_select
@@ -5289,7 +4851,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     END_LOCAL;
     results := [];
     result_bag := USEDIN(item,
-        'AP239_PART_DEFINITION_INFORMATION_MIM.REPRESENTATION.ITEMS');
+        'AP239_PART_DEFINITION_INFORMATION_MIM_LF.REPRESENTATION.ITEMS');
     IF SIZEOF(result_bag) > 0 THEN
       REPEAT i := 1 TO HIINDEX(result_bag) BY 1;
         results := results + result_bag[i];
@@ -5299,7 +4861,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     IF SIZEOF(intermediate_items) > 0 THEN
       REPEAT i := 1 TO HIINDEX(intermediate_items) BY 1;
         result_bag := USEDIN(intermediate_items[i],
-            'AP239_PART_DEFINITION_INFORMATION_MIM.REPRESENTATION.ITEMS');
+            'AP239_PART_DEFINITION_INFORMATION_MIM_LF.REPRESENTATION.ITEMS');
         IF SIZEOF(result_bag) > 0 THEN
           REPEAT j := 1 TO HIINDEX(result_bag) BY 1;
             results := results + result_bag[j];
@@ -5309,7 +4871,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     END_IF;
     RETURN(results);
 
-  END_FUNCTION; 
+  END_FUNCTION; -- using_representations
 
   FUNCTION valid_calendar_date(
                date: calendar_date
@@ -5347,7 +4909,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       END_CASE;
     RETURN(FALSE);
 
-  END_FUNCTION; 
+  END_FUNCTION; -- valid_calendar_date
 
   FUNCTION valid_measure_value(
                m: measure_value
@@ -5362,7 +4924,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       END_IF;
     END_IF;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- valid_measure_value
 
   FUNCTION valid_time(
                time: local_time
@@ -5373,110 +4935,110 @@ SCHEMA ap239_part_definition_information_mim_lf;
       RETURN(TRUE);
     END_IF;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- valid_time
 
   FUNCTION valid_units(
                m: measure_with_unit
       ): BOOLEAN;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.LENGTH_MEASURE' IN TYPEOF(m.
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.LENGTH_MEASURE' IN TYPEOF(m.
         value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(1,0,0,0,0,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.MASS_MEASURE' IN TYPEOF(m.
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.MASS_MEASURE' IN TYPEOF(m.
         value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,1,0,0,0,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.TIME_MEASURE' IN TYPEOF(m.
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.TIME_MEASURE' IN TYPEOF(m.
         value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,0,1,0,0,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.ELECTRIC_CURRENT_MEASURE' IN
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.ELECTRIC_CURRENT_MEASURE' IN
          TYPEOF(m.value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,0,0,1,0,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.THERMODYNAMIC_TEMPERATURE_MEASURE' 
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.THERMODYNAMIC_TEMPERATURE_MEASURE' 
         IN TYPEOF(m.value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,0,0,0,1,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.CELSIUS_TEMPERATURE_MEASURE' 
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.CELSIUS_TEMPERATURE_MEASURE' 
         IN TYPEOF(m.value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,0,0,0,1,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.AMOUNT_OF_SUBSTANCE_MEASURE' 
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.AMOUNT_OF_SUBSTANCE_MEASURE' 
         IN TYPEOF(m.value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,0,0,0,0,1,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.LUMINOUS_INTENSITY_MEASURE' 
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.LUMINOUS_INTENSITY_MEASURE' 
         IN TYPEOF(m.value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,0,0,0,0,0,1) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.PLANE_ANGLE_MEASURE' IN 
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.PLANE_ANGLE_MEASURE' IN 
         TYPEOF(m.value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,0,0,0,0,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.SOLID_ANGLE_MEASURE' IN 
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.SOLID_ANGLE_MEASURE' IN 
         TYPEOF(m.value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,0,0,0,0,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.AREA_MEASURE' IN TYPEOF(m.
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.AREA_MEASURE' IN TYPEOF(m.
         value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(2,0,0,0,0,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.VOLUME_MEASURE' IN TYPEOF(m.
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.VOLUME_MEASURE' IN TYPEOF(m.
         value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(3,0,0,0,0,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.RATIO_MEASURE' IN TYPEOF(m.
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.RATIO_MEASURE' IN TYPEOF(m.
         value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,0,0,0,0,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.POSITIVE_LENGTH_MEASURE' IN 
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.POSITIVE_LENGTH_MEASURE' IN 
         TYPEOF(m.value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(1,0,0,0,0,0,0) THEN
         RETURN(FALSE);
       END_IF;
     END_IF;
-    IF 'AP239_PART_DEFINITION_INFORMATION_MIM.POSITIVE_PLANE_ANGLE_MEASURE' 
+    IF 'AP239_PART_DEFINITION_INFORMATION_MIM_LF.POSITIVE_PLANE_ANGLE_MEASURE' 
         IN TYPEOF(m.value_component) THEN
       IF derive_dimensional_exponents(m.unit_component) <> 
           dimensional_exponents(0,0,0,0,0,0,0) THEN
@@ -5485,14 +5047,14 @@ SCHEMA ap239_part_definition_information_mim_lf;
     END_IF;
     RETURN(TRUE);
 
-  END_FUNCTION; 
+  END_FUNCTION; -- valid_units
 
   FUNCTION value_range_wr1(
                agg: AGGREGATE OF representation_item
       ): BOOLEAN;
     BEGIN
-      IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY ( i1 <* agg | ('AP239_PART_DEFINITION_INFORMATION_MIM.MEASURE_REPRESENTATION_ITEM' 
-          IN TYPEOF(i1)) )) = 2) OR (SIZEOF(QUERY ( i2 <* agg | ('AP239_PART_DEFINITION_INFORMATION_MIM.VALUE_REPRESENTATION_ITEM' 
+      IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY ( i1 <* agg | ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.MEASURE_REPRESENTATION_ITEM' 
+          IN TYPEOF(i1)) )) = 2) OR (SIZEOF(QUERY ( i2 <* agg | ('AP239_PART_DEFINITION_INFORMATION_MIM_LF.VALUE_REPRESENTATION_ITEM' 
           IN TYPEOF(i2)) )) = 2)) THEN
         RETURN(TRUE);
       ELSE
@@ -5500,7 +5062,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       END_IF;
     END;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- value_range_wr1
 
   FUNCTION value_range_wr2(
                agg: AGGREGATE OF representation_item
@@ -5514,14 +5076,14 @@ SCHEMA ap239_part_definition_information_mim_lf;
       END_IF;
     END;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- value_range_wr2
 
   FUNCTION value_range_wr3(
                agg: AGGREGATE OF representation_item
       ): BOOLEAN;
     BEGIN
-      IF SIZEOF(QUERY ( i1 <* agg | (('AP239_PART_DEFINITION_INFORMATION_MIM.MEASURE_REPRESENTATION_ITEM' 
-          IN TYPEOF(i1)) AND (SIZEOF(QUERY ( i2 <* agg | (('AP239_PART_DEFINITION_INFORMATION_MIM.MEASURE_REPRESENTATION_ITEM' 
+      IF SIZEOF(QUERY ( i1 <* agg | (('AP239_PART_DEFINITION_INFORMATION_MIM_LF.MEASURE_REPRESENTATION_ITEM' 
+          IN TYPEOF(i1)) AND (SIZEOF(QUERY ( i2 <* agg | (('AP239_PART_DEFINITION_INFORMATION_MIM_LF.MEASURE_REPRESENTATION_ITEM' 
           IN TYPEOF(i2)) AND (i1 :<>: i2) AND (i1\measure_with_unit.
           unit_component :=: i2\measure_with_unit.unit_component)) )) = 1)) )) 
           = 2 THEN
@@ -5531,7 +5093,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
       END_IF;
     END;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- value_range_wr3
 
   FUNCTION version_assignment_is_valid(
                aia: applied_identification_assignment
@@ -5545,7 +5107,7 @@ SCHEMA ap239_part_definition_information_mim_lf;
     IF role.name = 'version' THEN
       REPEAT i := LOINDEX(aia.items) TO HIINDEX(aia.items) BY 1;
         item := aia.items[i];
-        IF SIZEOF(['AP239_PART_DEFINITION_INFORMATION_MIM.' + 
+        IF SIZEOF(['AP239_PART_DEFINITION_INFORMATION_MIM_LF.' + 
             'VERSIONABLE_ITEM'] * TYPEOF(item)) = 0 THEN
           RETURN(FALSE);
         END_IF;
@@ -5555,6 +5117,6 @@ SCHEMA ap239_part_definition_information_mim_lf;
       RETURN(TRUE);
     END_IF;
 
-  END_FUNCTION; 
+  END_FUNCTION; -- version_assignment_is_valid
 
-END_SCHEMA; 
+END_SCHEMA; -- ap239_part_definition_information_mim_lf

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.11 2004/11/08 19:03:11 thendrix Exp $
+<!--  $Id: build.xsl,v 1.12 2004/11/15 13:30:52 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -1610,6 +1610,8 @@
       </xsl:attribute>
     </xsl:element>
     
+
+    <!-- RBN - ISO do not want the abstract in the module
     <xsl:element name="property">
       <xsl:attribute name="name">DMODABSTRACTXML</xsl:attribute>
       <xsl:attribute name="value">
@@ -1618,7 +1620,7 @@
           <xsl:with-param name="suffix" select="'/sys/abstract.xml'"/>
         </xsl:apply-templates>
       </xsl:attribute>
-    </xsl:element>
+    </xsl:element> -->
     
     <xsl:element name="property">
       <xsl:attribute name="name">DMODASHORTNAMESXML</xsl:attribute>
@@ -2614,6 +2616,8 @@
         </xsl:apply-templates>
       </xsl:element>
 
+
+      <!-- RBN - ISO do not want the abstract in the module
       <xsl:element name="style">
         <xsl:attribute name="includes">
           <xsl:value-of select="'${DMODABSTRACTXML}'"/>
@@ -2624,7 +2628,7 @@
         <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
           <xsl:with-param name="menu" select="$menu"/>
         </xsl:apply-templates>
-      </xsl:element>
+      </xsl:element> -->
 
       <xsl:element name="style">
         <xsl:attribute name="includes">

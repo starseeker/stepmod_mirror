@@ -18,17 +18,7 @@
   <schema name="Generic_expression_arm">
     <interface
       kind="use"
-      schema="Numeric_expression_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Boolean_expression_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="String_expression_arm">
+      schema="Expression_arm">
     </interface>
 
     <entity
@@ -57,6 +47,7 @@
     <entity
       name="Generic_variable"
       abstract.supertype="YES"
+      super.expression="(Variable)"
       supertypes="Simple_generic_expression">
       <inverse
         name="interpretation"
@@ -125,42 +116,141 @@
       </explicit>
     </entity>
 
-    <entity
-      name="Variable"
-      abstract.supertype="YES"
-      super.expression="(ONEOF (Numeric_variable,				Boolean_variable,					String_variable))"
-      supertypes="Generic_variable">
-    </entity>
+    <function
+      name="Is_Acyclic">
+      <parameter
+        name="arg">
+        <typename
+          name="Generic_expression"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+RETURN (Acyclic (arg, []));
+      </algorithm>
 
-    <entity
-      name="Numeric_variable"
-      super.expression="(ONEOF (Int_numeric_variable,			          Real_numeric_variable))"
-      supertypes="Simple_numeric_expression Variable">
-      <where
-        label="WR1"
-        expression="('ISO13584_EXPRESSIONS_SCHEMA.Int_numeric_variable' 			IN TYPEOF(SELF) ) OR			('ISO13584_EXPRESSIONS_SCHEMA.Real_numeric_variable' 			IN TYPEOF(SELF) )">
-      </where>
-    </entity>
+    </function>
 
-    <entity
-      name="Int_numeric_variable"
-      supertypes="Numeric_variable">
-    </entity>
+    <function
+      name="Acyclic">
+      <parameter
+        name="arg1">
+        <typename
+          name="Generic_expression"/>
+      </parameter>
+      <parameter
+        name="arg2">
+        <aggregate
+          type="SET"/>
+        <typename
+          name="Generic_expression"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
 
-    <entity
-      name="Real_numeric_variable"
-      supertypes="Numeric_variable">
-    </entity>
+LOCAL
+	result: BOOLEAN;
+END_LOCAL;
 
-    <entity
-      name="Boolean_variable"
-      supertypes="Simple_Boolean_expression Variable">
-    </entity>
+IF ('ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Simple_generic_expression'
+	IN TYPEOF (arg1)) 
+THEN
+	RETURN (TRUE);
+END_IF;
 
-    <entity
-      name="String_variable"
-      supertypes="Simple_string_expression Variable">
-    </entity>
+IF arg1 IN arg2 
+THEN 
+	RETURN (FALSE);
+END_IF;
+
+IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Unary_generic_expression' 
+	IN TYPEOF (arg1) 
+THEN 
+	RETURN 
+	(Acyclic(arg1\Unary_generic_expression.operand,arg2+[arg1]));
+END_IF;
+
+IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Binary_generic_expression' 
+	IN TYPEOF (arg1) 
+THEN 
+	RETURN 
+	(Acyclic(arg1\Binary_generic_expression.operands[1],arg2+[arg1])
+	AND
+	Acyclic(arg1\Binary_generic_expression.operands[2],arg2+[arg1]));
+END_IF;
+
+IF 
+'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Multiple_arity_generic_expression' 
+	IN TYPEOF (arg1) 
+THEN 
+	result := TRUE;
+	REPEAT i := 1 TO 
+			SIZEOF (arg1\Multiple_arity_generic_expression.operands);
+		result := result AND
+		Acyclic(arg1\Multiple_arity_generic_expression.operands[i], arg2+[arg1]);
+	END_REPEAT;
+
+	RETURN (result);
+END_IF;
+
+      </algorithm>
+
+    </function>
+
+    <function
+      name="Used_variables">
+      <parameter
+        name="arg">
+        <typename
+          name="Generic_expression"/>
+      </parameter>
+      <aggregate
+        type="SET"/>
+      <typename
+        name="Generic_variable"/>
+      <algorithm>
+
+LOCAL
+	result : SET OF Generic_variable := [];
+END_LOCAL;
+
+IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Generic_variable' 
+	IN TYPEOF (arg) 
+THEN 
+	RETURN ([arg]);
+END_IF;
+
+IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Unary_generic_expression' 
+	IN TYPEOF (arg)
+THEN 
+	RETURN (Used_variables (arg\Unary_generic_expression.operand));
+END_IF;
+
+IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Binary_generic_expression'
+	IN TYPEOF (arg)
+THEN 
+	RETURN(Used_variables(arg\Binary_generic_expression.operands[1])
+		+ Used_variables (arg\Binary_generic_expression.operands[2]));
+END_IF;
+
+IF
+'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Multiple_arity_generic_expression' 
+	IN TYPEOF (arg)
+THEN
+	REPEAT i := 1 TO 
+		SIZEOF(arg\Multiple_arity_generic_expression.operands);
+		result := result + Used_variables(
+			arg\Multiple_arity_generic_expression.operands[i]);
+	END_REPEAT;
+	
+	RETURN (result);
+END_IF;
+RETURN ([ ]);      -- in this case the subtype shall not contain
+			            -- any Variable (see IP1 in Generic_expression)
+      </algorithm>
+
+    </function>
 
   </schema>
 

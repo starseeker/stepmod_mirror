@@ -1,12 +1,12 @@
+(*
+   $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $
+   N - ISO/CD-TS - 10303- generic_expression - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
 SCHEMA Generic_expression_arm;
 
-USE FROM Numeric_expression_arm;
-USE FROM Boolean_expression_arm;
-USE FROM String_expression_arm;
+USE FROM Expression_arm;
 
 ENTITY Generic_expression
-
-
 ABSTRACT SUPERTYPE OF(ONEOF(Simple_generic_expression,
 			    Unary_generic_expression,
 			    Binary_generic_expression,
@@ -26,7 +26,7 @@ SUBTYPE OF (Simple_generic_expression);
 END_ENTITY; 
 
 ENTITY Generic_variable
-ABSTRACT SUPERTYPE
+ABSTRACT SUPERTYPE OF(Variable)
 SUBTYPE OF (Simple_generic_expression);
 INVERSE
 	interpretation : Environment FOR syntactic_representation;
@@ -59,41 +59,9 @@ SUBTYPE OF(Generic_expression);
 	operands: LIST [2:?] OF Generic_expression;
 END_ENTITY;
 
-ENTITY Variable
-ABSTRACT SUPERTYPE OF (ONEOF (Numeric_variable,
-				Boolean_variable,
-					String_variable))
-SUBTYPE OF(Generic_variable);
-END_ENTITY;
 
-ENTITY Numeric_variable
-SUPERTYPE OF (ONEOF (Int_numeric_variable,
-			          Real_numeric_variable))
-SUBTYPE OF (Simple_numeric_expression, Variable);
-WHERE 
-	WR1:	('ISO13584_EXPRESSIONS_SCHEMA.Int_numeric_variable' 
-			IN TYPEOF(SELF) ) OR
-			('ISO13584_EXPRESSIONS_SCHEMA.Real_numeric_variable' 
-			IN TYPEOF(SELF) );
-END_ENTITY;
 
-ENTITY Int_numeric_variable
-SUBTYPE OF (Numeric_variable);
-END_ENTITY;
 
-ENTITY Real_numeric_variable
-SUBTYPE OF (Numeric_variable);
-END_ENTITY;
-
-ENTITY Boolean_variable
-SUBTYPE OF (Simple_Boolean_expression, Variable);
-END_ENTITY;
-
-ENTITY String_variable
-SUBTYPE OF (Simple_string_expression, Variable);
-END_ENTITY;
-
-(*
 FUNCTION Is_Acyclic (arg: Generic_expression): BOOLEAN;
 RETURN (Acyclic (arg, []));
 END_FUNCTION ; -- Is_Acyclic
@@ -191,5 +159,5 @@ RETURN ([ ]);      -- in this case the subtype shall not contain
 END_FUNCTION; -- Used_variables
 
 
-*)
+
 END_SCHEMA;

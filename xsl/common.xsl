@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.31 2002/04/08 16:25:43 goset1 Exp $
+$Id: common.xsl,v 1.32 2002/04/18 13:33:37 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -503,52 +503,33 @@ $Id: common.xsl,v 1.31 2002/04/08 16:25:43 goset1 Exp $
   </xsl:choose>
 </xsl:template>
 
-<xsl:template match="b">
-  <b>
-    <xsl:apply-templates/>
-  </b>
-</xsl:template>
-<xsl:template match="B">
+<xsl:template match="b|B">
   <b>
     <xsl:apply-templates/>
   </b>
 </xsl:template>
 
-<xsl:template match="i">
-  <i>
-    <xsl:apply-templates/>
-  </i>
-</xsl:template>
-<xsl:template match="I">
+
+<xsl:template match="i|I">
   <i>
     <xsl:apply-templates/>
   </i>
 </xsl:template>
 
 <!-- subscript -->
-<xsl:template match="sub" >
+<xsl:template match="sub|SUB" >
   <sub>
     <xsl:apply-templates/>
   </sub>
 </xsl:template>
-<xsl:template match="SUB" >
-  <sub>
-    <xsl:apply-templates/>
-  </sub>
-</xsl:template>
+
 
 <!-- superscript -->
-<xsl:template match="sup" >
+<xsl:template match="sup|SUP" >
   <sup>
     <xsl:apply-templates/>
   </sup>
 </xsl:template>
-<xsl:template match="SUP" >
-  <sup>
-    <xsl:apply-templates/>
-  </sup>
-</xsl:template>
-
 
 <xsl:template match="screen" >
   <pre>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.98 2002/08/16 14:02:41 robbod Exp $
+$Id: module.xsl,v 1.99 2002/08/18 17:36:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1409,7 +1409,9 @@ o=isocs; s=central<br/>
           <xsl:when test="document(concat($module_dir,'/module.xml'))/module/arm/uof[@name=$uof]">
             <ul>
               <xsl:apply-templates
-                select="document(concat($module_dir,'/module.xml'))/module/arm/uof[@name=$uof]/uof.ae"/>
+                select="document(concat($module_dir,'/module.xml'))/module/arm/uof[@name=$uof]/uof.ae">
+                <xsl:with-param name="module" select="$module"/>
+              </xsl:apply-templates>
             </ul>            
           </xsl:when>
           <xsl:otherwise>
@@ -1436,40 +1438,67 @@ o=isocs; s=central<br/>
 
 
 <xsl:template match="uof.ae">
+  <!-- if the UoF AE is in another module i.e. called from uoflink,
+       then pass the module as parameter -->
+  <xsl:param name="module"/>
+
+  <xsl:variable name="module_name">
+    <xsl:choose>
+      <xsl:when test="$module">
+        <xsl:value-of select="$module"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="/module/@name"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <!-- check that the entity/type referenced exists -->
   <xsl:variable name="module_dir">
     <xsl:call-template name="module_directory">
-      <xsl:with-param name="module" select="/module/@name"/>
+      <xsl:with-param name="module" select="$module_name"/>
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:variable name="arm" 
-    select="concat($module_dir,'/arm.xml')"/>
+  <xsl:variable name="arm" select="concat($module_dir,'/arm.xml')"/>
   <xsl:variable name="ae" select="@entity"/>
   <xsl:variable name="schema_name">
     <xsl:call-template name="schema_name">
-      <xsl:with-param name="module_name" select="/module/@name"/>
+      <xsl:with-param name="module_name" select="$module_name"/>
       <xsl:with-param name="arm_mim" select="'arm'"/>
     </xsl:call-template>
   </xsl:variable>
+
   <xsl:choose>
     <xsl:when test="document($arm)/express/schema[entity/@name=$ae or type/@name=$ae]">
-      <li>
+      <li> 
         <xsl:variable name="aname">
           <xsl:call-template name="express_a_name">
             <xsl:with-param name="section1" select="$schema_name"/>
             <xsl:with-param name="section2" select="$ae"/>
           </xsl:call-template>
-        </xsl:variable>    
+        </xsl:variable>
 
+        <xsl:variable name="xref">
+          <xsl:choose>
+            <xsl:when test="$module">
+              <xsl:value-of 
+                select="concat('../../',$module,'/sys/4_info_reqs',$FILE_EXT,
+                        '#',$aname)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="concat('#',$aname)"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
         <xsl:choose>
           <xsl:when test="position()!=last()">
-            <a href="#{$aname}">
+            <a href="{$xref}">
               <xsl:value-of select="$ae"/>
             </a>;
           </xsl:when>
           <xsl:otherwise>
-            <a href="#{$aname}">
+            <a href="{$xref}">
               <xsl:value-of select="$ae"/>
             </a>.
           </xsl:otherwise>
@@ -1479,8 +1508,7 @@ o=isocs; s=central<br/>
     <xsl:otherwise>
       <xsl:call-template name="error_message">
         <xsl:with-param name="message">
-          <xsl:value-of select="concat('Error 6: uof.ae error: The application object ',$ae,' cannot be
-                                found in module ',/module/@name )"/>
+          <xsl:value-of select="concat('Error 6: uof.ae error: The application object ',$ae,' cannot be found in module ',$module)"/>
         </xsl:with-param>
       </xsl:call-template>
 

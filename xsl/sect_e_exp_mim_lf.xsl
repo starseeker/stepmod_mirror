@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_mim_lf.xsl,v 1.6 2003/03/13 19:17:15 robbod Exp $
+$Id: sect_e_exp_mim_lf.xsl,v 1.7 2003/05/05 07:53:44 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the MIM long form express 
@@ -57,7 +57,7 @@ $Id: sect_e_exp_mim_lf.xsl,v 1.6 2003/03/13 19:17:15 robbod Exp $
   <code>
   (*<br/>
     <xsl:value-of 
-      select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.arm_lf, ' - ',
+      select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.mim_lf, ' - ',
               $stdnumber,' ', $module_name, ' - EXPRESS MIM Long form')"/>
     <br/>*)
   </code>

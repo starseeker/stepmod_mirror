@@ -226,12 +226,6 @@ $Id: modules_list.xsl,v 1.12 2002/11/12 14:57:24 robbod Exp $
       </p>
 
       <p class="menuitem">
-        <xsl:variable name="mapping_view_test" 
-          select="concat('../data/modules/',@name,'/nav/mapping_view_with_test',$FILE_EXT)"/>
-        &#160;&#160;<a href="{$mapping_view_test}" target="content">Mapping view with tests</a>
-      </p>
-
-      <p class="menuitem">
         <xsl:variable name="arm_lf_view" 
           select="concat('../data/modules/',@name,'/nav/arm_long_form',$FILE_EXT)"/>
         &#160;&#160;<a href="{$arm_lf_view}" target="content">ARM Long form view</a>

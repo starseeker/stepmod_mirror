@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.7 2003/01/10 08:24:32 robbod Exp $
+//$Id: getExpressMain.js,v 1.8 2003/01/10 10:43:30 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -619,11 +619,108 @@ function MainWindowIrList(expDir, modList, irList) {
 }
 
 
+
+function getExpressFileName(moduleName, arm_or_mim) {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var moduleXmlFile = "../data/modules/"+moduleName+"/module.xml";
+    var fileName ="";
+    if (!fso.FileExists(moduleXmlFile)) {
+	ErrorMessage("The "+moduleXmlFile+" does not exist");
+    } else {
+	var moduleXml =  new ActiveXObject("Msxml2.DOMDocument.3.0");
+	moduleXml.async = false;
+	moduleXml.load(moduleXmlFile);
+	if (checkXMLParse(moduleXml)) {
+	    var expr = "/module";
+	    var theModuleNodes = moduleXml.selectNodes(expr);
+	    var moduleNode = theModuleNodes(0);
+	    var partNo = moduleNode.attributes.getNamedItem("part").nodeValue;
+	    var status = moduleNode.attributes.getNamedItem("status").nodeValue;
+	    status = status.replace(/[^a-zA-Z]/g,"");
+	    status = status.toLowerCase();
+	    var wgGroup = moduleNode.attributes.getNamedItem("sc4.working_group").nodeValue;
+	    if (wgGroup=="") wgGroup = "12";
+	    var fileStub="part"+partNo+status+"_wg"+wgGroup+"n";
+	    if (arm_or_mim == "arm") {
+		var wgNo = moduleNode.attributes.getNamedItem("wg.number.arm").nodeValue;
+		fileName = fileStub+wgNo+"arm.exp";
+	    } else if (arm_or_mim == "mim") {
+		var wgNo = moduleNode.attributes.getNamedItem("wg.number.mim").nodeValue;
+		fileName = fileStub+wgNo+"mim.exp";
+	    } else {
+		ErrorMessage("Must specifiy arm or mim");
+		fileName = "";
+	    }
+	} 
+    }
+    return(fileName);
+}
+
+
+// Copy all the express from the modules listed in a ballot, rename them and copy them to 
+// stepmod/ballots/isohtml/<ballot>
+function MainWindowBallotExpress(ballotName) {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var ballotIndex = "../ballots/ballots/"+ballotName+"/ballot_index.xml";
+    if (!fso.FileExists(ballotIndex)) {
+	ErrorMessage("The "+ballotIndex+" does not exist");
+	return(-1);
+    }
+    var ballotExpressFldr = "../ballots/isohtml/"+ballotName+"/express";
+    if (fso.FolderExists(ballotExpressFldr)) {
+	ErrorMessage("Directory exists:\n"+ballotExpressFldr);
+	return(-1);
+    }
+    fso.CreateFolder(ballotExpressFldr);
+
+    var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
+    xml.async = false;
+    xml.load(ballotIndex);
+    if (checkXMLParse(xml)) {
+	var expr = "//module";
+	var moduleNodes = xml.selectNodes(expr);
+	var members = moduleNodes.length;
+	for (var i = 0; i < members; i++) {	
+	    var node = moduleNodes(i);
+	    var moduleName = node.attributes.getNamedItem("name").nodeValue;
+	    var fileName, src, dst;
+	    var armFile = "../data/modules/"+moduleName+"/arm.exp";
+	    if (fso.FileExists(armFile)) {
+		fileName = getExpressFileName(moduleName, "arm");
+		if (fileName != "") {
+		    dst = ballotExpressFldr+"/"+fileName;
+		    src = fso.GetFile(armFile);
+		    //UserMessage(src+" -> "+dst);
+		    src.Copy(dst);
+		}
+	    } else {
+		ErrorMessage("File does not exist: "+dst);
+	    }
+	    var mimFile = "../data/modules/"+moduleName+"/mim.exp";
+	    if (fso.FileExists(mimFile)) {
+		fileName = getExpressFileName(moduleName, "mim");
+		if (fileName != "") {
+		    dst = ballotExpressFldr+"/"+fileName;
+		    src = fso.GetFile(mimFile);
+		    //UserMessage(src+" -> "+dst);
+		    src.Copy(dst);
+		}
+	    } else {
+		ErrorMessage("File does not exist: "+dst);
+	    }
+	}
+    }
+}
+
+
 //MainWindow("..\\express", "..\\modlist.txt");
 //MainWindow("..\\ballots\\ballots\\plcs_bp1\\express", "..\\ballots\\ballots\\plcs_bp1\\modlist.txt");
 //MainWindowIrList("..\\ballots\\ballots\\plcs_bp2\\express",  "..\\ballots\\ballots\\plcs_bp2\\modlist.txt", "..\\ballots\\ballots\\plcs_bp2\\irlist.txt");
 //MainWindow("..\\ballots\\ballots\\plcs_bp1\\express_nostate", "..\\ballots\\ballots\\plcs_bp1\\modlist_nostate.txt");
 
+//MainWindowBallotExpress("plcs_bp1");
+
 //outputModuleList("plcs_bp2");
 //outputModuleList("pdm_ballot_072002");
+
 

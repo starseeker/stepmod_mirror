@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.15 2002/01/03 09:29:28 robbod Exp $
+$Id: module.xsl,v 1.16 2002/01/03 12:22:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -548,20 +548,21 @@ $Id: module.xsl,v 1.15 2002/01/03 09:29:28 robbod Exp $
 </xsl:template>
 
 <xsl:template match="mapping_table" mode="toc">
-  <ul>
     <xsl:apply-templates select="ae" mode="toc"/> 
-  </ul>
 </xsl:template>
 
 <!-- Output the application element table of contents for the mapping table
      -->
 <xsl:template match="ae" mode="toc">
-  <xsl:variable name="xref" select="concat('5_mapping',$FILE_EXT,'#',@entity)"/>
-  <li>
-    <a href="{$xref}">
-      <xsl:value-of select="@entity"/>
-    </a>
-  </li>
+  <xsl:variable name="xref" 
+    select="concat('5_mapping',$FILE_EXT,'#',@entity)"/>
+  <xsl:variable name="sect_no">
+    <xsl:number/>
+  </xsl:variable>
+  <h3>
+    <xsl:value-of select="concat('5.1.',$sect_no,' ')"/>
+    <a href="{$xref}"><xsl:value-of select="@entity"/></a>
+  </h3>
 </xsl:template>
 
 

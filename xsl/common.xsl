@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.115 2003/08/07 13:58:56 robbod Exp $
+$Id: common.xsl,v 1.116 2003/08/21 15:40:02 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3549,6 +3549,24 @@ is case sensitive.')"/>
   </xsl:choose>
 </xsl:template>
 
+<xsl:template match="projlead" mode="name">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="projlead"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <xsl:choose>
+    <xsl:when test="$projlead">
+      <xsl:apply-templates select="$projlead" mode="name"/>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          Error 1: No contact provided for project leader.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 <xsl:template match="editor">
   <xsl:variable name="ref" select="@ref"/>
   <xsl:variable name="editor"
@@ -3587,6 +3605,44 @@ is case sensitive.')"/>
   </xsl:choose>
 </xsl:template>
 
+<xsl:template match="editor" mode="name">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="editor"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <xsl:choose>
+    <xsl:when test="$editor">
+      <xsl:apply-templates select="$editor"  mode="name"/>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          Error 2: No contact provided for project editor.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
+<xsl:template match="developer" mode="name">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="developer"
+    select="document('../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
+  <xsl:choose>
+    <xsl:when test="$developer">
+      <xsl:apply-templates select="$developer" mode="name"/>      
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          Error 1: No contact provided for developer.
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
 <xsl:template match="contact">
   <xsl:apply-templates select="firstname"/>
   &#160;
@@ -3607,6 +3663,12 @@ is case sensitive.')"/>
   <br/>
   <xsl:apply-templates select="phone"/>
   <xsl:apply-templates select="email"/>
+</xsl:template>
+
+<xsl:template match="contact" mode="name">
+  <xsl:apply-templates select="firstname"/>
+  &#160;
+  <xsl:apply-templates select="lastname"/>
 </xsl:template>
 
 

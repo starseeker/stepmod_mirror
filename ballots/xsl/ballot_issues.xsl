@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_shortnames.xsl,v 1.1 2002/08/29 07:03:36 robbod Exp $
+$Id: ballot_issues.xsl,v 1.1 2003/01/20 12:08:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -56,6 +56,9 @@ $Id: ballot_shortnames.xsl,v 1.1 2002/08/29 07:03:36 robbod Exp $
           <td><b>Number</b></td>
           <td><b>Total issues</b></td>
           <td><b>Open issues</b></td>
+          <td><b>Project leader</b></td>
+          <td><b>Editor</b></td>
+          <td><b>Developer</b></td>
         </tr>
         <xsl:apply-templates select="./*/module">
           <xsl:sort select="@name"/>
@@ -84,18 +87,15 @@ $Id: ballot_shortnames.xsl,v 1.1 2002/08/29 07:03:36 robbod Exp $
         <xsl:variable name="module"
           select="document(concat('../../data/modules/',@name,'/module.xml'))/module"/>
 
-        <td>
-          <xsl:value-of select="$module/@part"/>
-        </td>
-        <td>
-          <a href="../../../data/modules/{$module/@name}/sys/introduction{$FILE_EXT}">
-            <xsl:value-of select="$module/@name"/>
-          </a>
-        </td>
-           
         <xsl:choose>
           <xsl:when test="$module/@development.folder">
+
+            <xsl:variable name="projmg_file" 
+              select="concat('../../data/modules/',$module/@name,'/',$module/@development.folder,'/projmg.xml')"/>
             
+            <xsl:variable name="developer" 
+              select="document($projmg_file)/management/developers/developer[1]"/>
+
             <xsl:variable name="issues_file" 
               select="concat('../../data/modules/',$module/@name,'/',$module/@development.folder,'/issues.xml')"/>
             
@@ -107,28 +107,64 @@ $Id: ballot_shortnames.xsl,v 1.1 2002/08/29 07:03:36 robbod Exp $
             
             <xsl:variable name="total_issues"
               select="count(document($issues_file)/issues/issue)"/>
-            <td>
-              <a href="{$issue_href}">
-                <xsl:value-of select="$total_issues"/>
-              </a>
-            </td>
             <xsl:choose>
               <xsl:when test="$open_issues>0">
-                <td>
-                  <b>
-                    <a href="{$issue_href}">
-                      <font color="#FF0000">
-                        <xsl:value-of select="$open_issues"/>
-                      </font>
-                    </a>
-                  </b>
+                <td bgcolor="#FFFF99">
+                  <xsl:value-of select="$module/@part"/>
+                </td>
+                <td bgcolor="#FFFF99">
+                  <a href="../../../data/modules/{$module/@name}/sys/introduction{$FILE_EXT}">
+                    <xsl:value-of select="$module/@name"/>
+                  </a>
+                </td>           
+                <td bgcolor="#FFFF99">
+                  <a href="{$issue_href}">
+                    <xsl:value-of select="$total_issues"/>
+                  </a>
+                </td>
+                <td bgcolor="#FFFF99">
+                  <a href="{$issue_href}">
+                    <xsl:value-of select="$open_issues"/>
+                  </a>
                 </td>          
+                <td bgcolor="#FFFF99">
+                  <xsl:apply-templates select="$module/contacts/projlead" mode="name"/>
+                </td>
+                <td bgcolor="#FFFF99">
+                  <xsl:apply-templates select="$module/contacts/editor" mode="name"/> 
+                </td>
+                <td bgcolor="#FFFF99">
+                  <xsl:apply-templates select="$developer" mode="name"/>
+                </td>
               </xsl:when>
+
               <xsl:otherwise>
+                <td>
+                  <xsl:value-of select="$module/@part"/>
+                </td>
+                <td>
+                  <a href="../../../data/modules/{$module/@name}/sys/introduction{$FILE_EXT}">
+                    <xsl:value-of select="$module/@name"/>
+                  </a>
+                </td>           
+                <td>
+                  <a href="{$issue_href}">
+                    <xsl:value-of select="$total_issues"/>
+                  </a>
+                </td>
                 <td>
                   <a href="{$issue_href}">
                     <xsl:value-of select="$open_issues"/>
                   </a>
+                </td>
+                <td>
+                  <xsl:apply-templates select="$module/contacts/projlead" mode="name"/> 
+                </td>
+                <td>
+                  <xsl:apply-templates select="$module/contacts/editor" mode="name"/>
+                </td>
+                <td>
+                  <xsl:apply-templates select="$developer" mode="name"/>
                 </td>
               </xsl:otherwise>
             </xsl:choose>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.104 2003/07/23 07:27:50 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.105 2003/07/23 16:23:46 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1315,9 +1315,9 @@
 </xsl:template>
 
 <xsl:template match="explicit" mode="code">
-
   <xsl:if test="@name='id' or @name='identifier' or substring-after(@name,'_')='id'" >
-    <xsl:if test="not(preceding-sibling::node()[@name='id' or substring-after(@name,'_')='id']) and preceding-sibling::node()">
+
+    <xsl:if test="not(preceding-sibling::explicit[1][@name='id' or substring-after(@name,'_')='id']) and preceding-sibling::explicit[1]">
    <xsl:call-template name="error_message">
         <xsl:with-param 
           name="message" 

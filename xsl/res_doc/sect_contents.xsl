@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.18 2003/10/09 03:50:27 thendrix Exp $
+$Id: sect_contents.xsl,v 1.19 2003/11/14 01:09:03 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -199,6 +199,10 @@ $Id: sect_contents.xsl,v 1.18 2003/10/09 03:50:27 thendrix Exp $
    <br/>
  </xsl:template>
 
+ <xsl:template match="express-g" mode="expressg_figure" >
+   <xsl:apply-templates select="imgfile" mode="expressg_figure"/>
+ </xsl:template>
+
  <xsl:template match="imgfile" mode="expressg_figure">
    <xsl:variable name="file">
      <xsl:value-of select ="@file"/>
@@ -239,16 +243,27 @@ $Id: sect_contents.xsl,v 1.18 2003/10/09 03:50:27 thendrix Exp $
          </xsl:when>
 
          <xsl:when test="contains(@file,'schemaexpg')">
-             <xsl:variable name="schname" select="substring-before(@file,'expg')" />
-             <xsl:variable name="diagno" >
-               <xsl:variable name="trail" select="substring-after(@file,'expg')" />
-               <xsl:value-of select="substring-before($trail,'.xml')"/>
-             </xsl:variable>
+           <xsl:variable name="schname" select="substring-before(@file,'expg')" />
+             
+             <xsl:variable name="total-no" >
+               <xsl:value-of select="count(..//imgfile[contains(./@file,$schname)])" />                   
+               </xsl:variable>
+               
+               <xsl:variable name="this-ones-no">
+                 <!--                 <xsl:value-of select="count(..//imgfile/[@file=$file]/position() + 1" /> -->
+                 <!--                 <xsl:value-of select="count(..//imgfile/ancestor-or-self::*[contains(./@file,$schname)])" />                   -->
+                 <xsl:value-of select="position()" />
+                 </xsl:variable>
+                 
+                 <xsl:variable name="diagno" >
+                   <xsl:variable name="trail" select="substring-after(@file,'expg')" />
+                     <xsl:value-of select="substring-before($trail,'.xml')"/> 
+                   </xsl:variable>
 
              <xsl:variable name="figtext" >
                <xsl:value-of 
                  select="concat('Figure D.',($number - 1), 
-                         ' &#8212; EXPRESS-G diagram of the ', $schname, ' diagram ', $diagno)"/>
+                         ' &#8212; EXPRESS-G diagram of the ', $schname, ' (', $this-ones-no,' of ', $total-no,')' )"/>
              </xsl:variable>
 
              <xsl:variable name="resource_dir">
@@ -296,6 +311,7 @@ $Id: sect_contents.xsl,v 1.18 2003/10/09 03:50:27 thendrix Exp $
    <h2>Figures</h2>
    <!-- collect any figures from the introduction -->
    <xsl:apply-templates select="./purpose//figure" mode="toc"/>
+
    <!-- collect interface diagram figures from the introduction -->
    <xsl:apply-templates 
      select="./schema_diag//imgfile" mode="expressg_figure"/>
@@ -303,8 +319,13 @@ $Id: sect_contents.xsl,v 1.18 2003/10/09 03:50:27 thendrix Exp $
    <xsl:apply-templates select="./inscope//figure" mode="toc"/>
    <xsl:apply-templates select="./outscope//figure" mode="toc"/>
    <!-- collect up the EXPRESS-G figures from the schemas -->
-   <xsl:apply-templates 
-     select="./schema//imgfile" mode="expressg_figure"/>
+
+   <!--   <xsl:apply-templates 
+     select="./schema//imgfile" mode="expressg_figure"/> -->
+
+<xsl:apply-templates 
+     select="./schema//express-g" mode="expressg_figure"/>
+
    <!-- collect up the figures from the remaining annexes --> 
    <xsl:apply-templates select="./tech_discussion//figure" mode="toc"/>
    <xsl:apply-templates select="./examples//figure" mode="toc"/>

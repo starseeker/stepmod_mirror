@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.23 2002/09/24 16:42:56 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  description.file="arm_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.23"
+    source="../data/modules/building_structure/arm.exp"/>
+
+  <schema name="Building_structure_arm">
+    <interface
+      kind="use"
+      schema="Building_item_arm">
+    </interface>
+
+    <type name="assembly_functional_type">
+      <enumeration
+        items="roof stairway vertical_passage_enclosure">
+      </enumeration>
+
+
+    </type>
+    <type name="assembly_item">
+      <select
+        selectitems="Item_assembly Building_item">
+      </select>
+
+    </type>
+    <type name="assembly_type">
+      <select
+        selectitems="assembly_functional_type assembly_type_name">
+      </select>
+
+    </type>
+    <type name="assembly_type_name">
+      <builtintype
+        type="STRING">
+      </builtintype>
+
+
+    </type>
+    <type name="relationship_functional_type">
+      <enumeration
+        items="space_to_element penetration touch">
+      </enumeration>
+
+
+    </type>
+    <type name="relationship_type">
+      <select
+        selectitems="relationship_functional_type relationship_type_name">
+      </select>
+
+    </type>
+    <type name="relationship_type_name">
+      <builtintype
+        type="STRING">
+      </builtintype>
+
+
+    </type>
+    <entity
+      name="Building">
+      <explicit
+        name="address"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="owner">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="status">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Building_level"
+      super.expression="(Sublevel)">
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Building_level_assignment">
+      <explicit
+        name="assigned_items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="Building_item"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Building_section">
+      <explicit
+        name="description">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="status">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Item_assembly">
+      <explicit
+        name="assembly_type">
+        <typename
+          name="assembly_type"/>
+      </explicit>
+      <explicit
+        name="components">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="assembly_item"/>
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Item_proximity_relationship">
+      <explicit
+        name="items_in_proximity">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="Building_item"/>
+      </explicit>
+      <explicit
+        name="item">
+        <typename
+          name="Building_item"/>
+      </explicit>
+      <explicit
+        name="relationship_type">
+        <typename
+          name="relationship_type"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Sublevel"
+      supertypes="Building_level">
+      <explicit
+        name="belongs_to">
+        <typename
+          name="Building_level"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

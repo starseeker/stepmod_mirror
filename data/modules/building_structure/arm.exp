@@ -1,0 +1,84 @@
+(*
+   $Id: mkmodule.js,v 1.24 2002/09/30 09:10:26 robbod Exp $
+   N - ISO/CD-TS - 10303- building_structure - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Building_structure_arm;
+
+USE FROM Building_item_arm;
+
+TYPE assembly_functional_type = ENUMERATION OF
+	(roof,
+	 stairway,
+	 vertical_passage_enclosure);
+END_TYPE;
+
+TYPE assembly_item = SELECT
+	(Item_assembly,
+	 Building_item);
+END_TYPE;
+
+TYPE assembly_type = SELECT
+	(assembly_functional_type,
+	 assembly_type_name);
+END_TYPE;
+
+TYPE assembly_type_name = STRING;
+END_TYPE;
+
+TYPE relationship_functional_type = ENUMERATION OF
+	(space_to_element,
+	 penetration,
+	 touch);
+END_TYPE;
+
+TYPE relationship_type = SELECT
+	(relationship_functional_type,
+	 relationship_type_name);
+END_TYPE;
+
+TYPE relationship_type_name = STRING;
+END_TYPE;
+
+ENTITY Building;
+	address : OPTIONAL STRING;
+	owner : STRING;
+	description : STRING;
+	name : STRING;
+	status : STRING;
+END_ENTITY;
+
+ENTITY Building_level
+	SUPERTYPE OF (Sublevel);
+	name : STRING;
+END_ENTITY;
+
+ENTITY Building_level_assignment
+	assigned_level : Building_level;
+	assigned_items : SET [1:?] OF Building_item;
+END_ENTITY;
+
+ENTITY Building_section;
+	description : STRING;
+	name : STRING;
+	status : STRING;
+END_ENTITY;
+
+ENTITY Item_assembly;
+	assembly_type : assembly_type;
+	components : SET [1:?] OF assembly_item;
+	name : STRING;
+	description : STRING;
+END_ENTITY;
+
+ENTITY Item_proximity_relationship;
+	items_in_proximity : SET [1:?] OF Building_item;
+	item : Building_item;
+	relationship_type : relationship_type;
+END_ENTITY;
+
+ENTITY Sublevel
+	SUBTYPE OF (Building_level);
+	belongs_to : Building_level;
+END_ENTITY;
+
+END_SCHEMA;

@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
-<!-- $Id: mim.xml,v 1.3 2003/01/07 09:33:05 whaas Exp $ -->
+<!-- $Id: express2xml.js,v 1.24 2002/10/21 13:28:40 goset1 Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
   description.file="mim_descriptions.xml"
-  rcs.date="$Date: 2003/01/07 09:33:05 $"
-  rcs.revision="$Revision: 1.3 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name="express2xml.js"
@@ -23,6 +23,11 @@
 
     <interface
       kind="use"
+      schema="Shape_property_assignment_mim">
+    </interface>
+
+    <interface
+      kind="use"
       schema="group_schema">
       <interfaced.item
         name="group"/>
@@ -32,7 +37,16 @@
       kind="use"
       schema="product_property_definition_schema">
       <interfaced.item
+        name="property_definition"/>
+      <interfaced.item
         name="shape_aspect"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="product_property_representation_schema">
+      <interfaced.item
+        name="property_definition_representation"/>
     </interface>
 
     <type name="element_component_classification_item">
@@ -46,9 +60,13 @@
       name="applied_element_component_classification_assignment"
       supertypes="applied_classification_assignment">
       <explicit
-        name="items RENAMED element_component_items">
+        name="items">
         <redeclaration
           entity-ref="applied_classification_assignment"/>
+          <aggregate
+            type="SET"
+            lower="1"
+            upper="?"/>
           <typename
             name="element_component_classification_item"/>
         </explicit>
@@ -68,11 +86,11 @@
         supertypes="shape_aspect">
         <where
           label="WR1"
-          expression="(SIZEOF (USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1)    AND    (SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1))) = 0)">
+          expression="(SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1)    AND    (SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +    'PROPERTY_DEFINITION.DEFINITION') |    NOT (SIZEOF (USEDIN (pd, 'BUILDING_COMPONENT_MIM.' +     'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) &gt;= 1))) = 0)">
         </where>
         <where
           label="WR2"
-          expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *    ['BUILDING_ITEM_MIM.BUILDING_ELEMENT',    'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',    'BUILDING_ITEM_MIM.SERVICE_ELEMENT',    'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1">
+          expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *    ['BUILDING_COMPONENT_MIM.BUILDING_ELEMENT',    'BUILDING_COMPONENT_MIM.FIXTURE_EQUIPMENT_ELEMENT',    'BUILDING_COMPONENT_MIM.SERVICE_ELEMENT',    'BUILDING_COMPONENT_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1">
         </where>
       </entity>
 
@@ -81,7 +99,7 @@
         supertypes="negative_component">
         <where
           label="WR1"
-          expression="SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+    'APPLIES_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1">
+          expression="SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.'+    'APPLIED_ELEMENT_COMPONENT_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1">
         </where>
         <where
           label="WR2"
@@ -94,11 +112,11 @@
         supertypes="shape_aspect">
         <where
           label="WR1"
-          expression="(SIZEOF (USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1)    AND    (SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_ITEM_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1))) = 0)">
+          expression="(SIZEOF (USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +    'PROPERTY_DEFINITION.DEFINITION')) &gt;= 1)    AND    (SIZEOF (QUERY (pd &lt;* USEDIN (SELF, 'BUILDING_COMPONENT_MIM.' +    'PROPERTY_DEFINITION.DEFINITION') |    NOT (SIZEOF (USEDIN (pd, 'BUILDING_COMPONENT_MIM.' +     'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) &gt;= 1))) = 0)">
         </where>
         <where
           label="WR2"
-          expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *    ['BUILDING_ITEM_MIM.BUILDING_ELEMENT',    'BUILDING_ITEM_MIM.FIXTURE_EQUIPMENT_ELEMENT',    'BUILDING_ITEM_MIM.SERVICE_ELEMENT',    'BUILDING_ITEM_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1">
+          expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *    ['BUILDING_COMPONENT_MIM.BUILDING_ELEMENT',    'BUILDING_COMPONENT_MIM.FIXTURE_EQUIPMENT_ELEMENT',    'BUILDING_COMPONENT_MIM.SERVICE_ELEMENT',    'BUILDING_COMPONENT_MIM.STRUCTURE_ENCLOSURE_ELEMENT']) = 1">
         </where>
       </entity>
 

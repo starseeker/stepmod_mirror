@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.5 2003/01/22 08:46:34 robbod Exp $ -->
+<!-- $Id: issues.xml,v 1.6 2003/04/28 15:55:50 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 
@@ -94,6 +94,45 @@ Error Map34: ERROR in subtyping in PATH: representation_item is not a supertype 
 Raised as UK ballot comment.
 </description>
 </comment>
+</issue>
+
+<!-- Ballot comments SC4N1481 -->
+
+<issue
+   id="US_SC4N1429_1"
+   type="general"
+   status="open"
+   category="major_technical"
+   by="US Ballot"
+   date="03-05-06"
+   ballot_comment="yes">
+<description>
+<p>Ballot comment</p>
+<p>Presently, EPM parser raises the following error for double_toleranced_measure_item:
+ERROR : Line 1037: Illegal attribute redeclaration.
+Redeclaring attribute: DOUBLE_TOLERANCED_MEASURE_ITEM.ITEM_ELEMENT in line: 1037
+Redeclared attribute: COMPOUND_REPRESENTATION_ITEM.ITEM_ELEMENT in line: 28770
+Redeclaration from aggregate type to simple type is illegal</p>
+<p>Proposed change</p>
+<p>Change to the following (this solution was recommended by Phil Spiby and Pascal Huau)
+
+TYPE list_of_two_representation_items = list_representation_item;
+WHERE
+HIINDEX(SELF) = 2;
+END_TYPE;
+
+ENTITY double_toleranced_item
+ SUBTYPE OF (compound_representation_item);
+  SELF\compound_representation_item.item_element :
+list_of_two_representation_items ;
+DERIVE
+  tolerance_range : value_range :=
+SELF\compound_representation_item.item_element[2];
+  toleranced_measure_value : measure_representation_item :=
+SELF\compound_representation_item.item_element[1];
+END_ENTITY;
+</p>
+</description>
 </issue>
 
 </issues>

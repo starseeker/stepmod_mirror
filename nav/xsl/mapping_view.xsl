@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.17 2003/07/28 07:29:58 robbod Exp $
+$Id: mapping_view.xsl,v 1.18 2003/08/07 18:32:59 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -1367,6 +1367,10 @@ It is possible that two supertypes are declared delineated by [] []
 		<xsl:when test="name()='is-supertype-of'">
 
 			<xsl:choose>
+				<xsl:when test="name(following-sibling::*[not(name() ='new-line')][1])='subtype-template'">
+					<!-- could check to see if valid arm entity 
+					 but for now do nothing ??? -->
+				</xsl:when>
 				<xsl:when test="not($schemas//entity[@name=$second]
 					[contains(concat(' ',@supertypes,' '),concat(' ',$first,' '))])" >
 					<xsl:call-template name="error_message">			
@@ -1389,6 +1393,10 @@ It is possible that two supertypes are declared delineated by [] []
 		</xsl:when>
 		<xsl:when test="name()='is-subtype-of'">
 			<xsl:choose>
+				<xsl:when test="name(following-sibling::*[not(name() ='new-line')][1])='subtype-template'">
+					<!-- could check to see if valid arm entity 
+					 but for now do nothing ??? -->
+				</xsl:when>
 				<xsl:when test="not($schemas//entity[@name=$first]
 					[contains(concat(' ',@supertypes,' '),concat(' ',$second,' '))])" >
 					<xsl:call-template name="error_message">			

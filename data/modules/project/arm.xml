@@ -1,15 +1,26 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.6 2002/05/28 12:48:27 buchanan Exp $ -->
+<!-- $Id: express2xml.js,v 1.15 2002/06/18 11:51:06 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/05/28 12:48:27 $"
-  rcs.revision="$Revision: 1.6 $"
-  description.file="arm_descriptions.xml">
+  description.file="arm_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.15"
+    source="../data/modules/project/arm.exp"/>
 
   <schema name="Project_arm">
+    <interface
+      kind="use"
+      schema="Date_time_arm">
+    </interface>
+
     <interface
       kind="use"
       schema="Event_arm">
@@ -20,96 +31,58 @@
       schema="Person_organization_arm">
     </interface>
 
-    <interface
-      kind="use"
-      schema="Person_organization_assignment_arm">
-    </interface>
-
-    <type name="project_organization_or_person_in_organization_item">
+    <type name="project_item">
       <select
-        basedon="organization_or_person_in_organization_item"
-        selectitems="Project">
-      </select>
-
-    </type>
-    <type name="project_event_item">
-      <select
-        basedon="event_item"
-        selectitems="Project">
+        extensible="YES">
       </select>
 
     </type>
     <entity
       name="Project">
       <explicit
-        name="id"
+        name="id">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="description"
         optional="YES">
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
-        name="participants"
+        name="responsible_organizations"
         optional="YES">
         <aggregate
           type="SET"
-          lower="0"
+          lower="1"
           upper="?"/>
         <typename
-          name="organization_or_person_in_organization_select"/>
-      </explicit>
-      <explicit
-        name="planned_start_date"
-        optional="YES">
-        <aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-        <typename
-          name="Date_or_date_time_assignment"/>
+          name="Organization"/>
       </explicit>
       <explicit
         name="planned_end_date"
         optional="YES">
-        <aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
         <typename
-          name="Date_or_date_time_assignment"/>
+          name="date_or_event"/>
       </explicit>
       <explicit
         name="actual_start_date"
         optional="YES">
-        <aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
         <typename
-          name="Date_or_date_time_assignment"/>
+          name="date_or_date_time_select"/>
       </explicit>
       <explicit
         name="actual_end_date"
         optional="YES">
-        <aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
         <typename
-          name="Date_or_date_time_assignment"/>
+          name="date_or_date_time_select"/>
       </explicit>
-      <inverse
-        name="identifier"
-        entity="Organization_or_person_in_organization_assignment"
-        attribute="items">
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="1"/>
-      </inverse>
-      <where
-        label="WR1"
-        expression="SELF.project.identifier = 'id owner'">
-      </where>
     </entity>
 
     <entity
@@ -149,12 +122,12 @@
           type="STRING"/>
       </explicit>
       <explicit
-        name="project1">
+        name="relating_project">
         <typename
           name="Project"/>
       </explicit>
       <explicit
-        name="project2">
+        name="related_project">
         <typename
           name="Project"/>
       </explicit>

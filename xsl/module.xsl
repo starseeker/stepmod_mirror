@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.85 2002/08/04 08:14:52 robbod Exp $
+$Id: module.xsl,v 1.86 2002/08/05 06:23:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -916,7 +916,7 @@ o=isocs; s=central<br/>
 
     Resource constructs are interpreted to meet the information
     requirements. 
-    This interpretation produces the application interpreted model (MIM). 
+    This interpretation produces the module interpreted model (MIM). 
     This interpretation, given in <a href="5_mapping{$FILE_EXT}">5.1</a>,
     shows the correspondence between the information requirements and the
     MIM. The short listing of the MIM specifies the interface to the

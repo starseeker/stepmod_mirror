@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.40 2002/08/02 15:58:46 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.41 2002/08/02 16:31:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -134,7 +134,7 @@ $Id: sect_5_mapping.xsl,v 1.40 2002/08/02 15:58:46 robbod Exp $
   </p>
 
   <p>
-    In the following, &quot;Application element&quot; designate any entity data
+    In the following, &quot;Application element&quot; designates any entity data
     type defined in clause <a href="{$sect4}">4</a> and any of its 
     explicit attributes. 
     &quot;MIM element&quot; designates any entity data type defined in 

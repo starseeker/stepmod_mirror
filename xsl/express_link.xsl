@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.8 2002/07/15 08:56:44 goset1 Exp $
+     $Id: express_link.xsl,v 1.9 2002/08/02 15:58:46 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -543,7 +543,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
 
     <xsl:when test="contains($nlist,',')">
       <xsl:variable name="first"
-        select="substring-before($nlist,',')"/>
+        select="normalize-space(substring-before($nlist,','))"/>
       <xsl:variable name="rest"
         select="substring-after($nlist,',')"/>
 
@@ -561,6 +561,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
           select="$object_used_in_schema_name"/>
         <xsl:with-param name="clause" select="$clause"/>
       </xsl:call-template>
+
       <xsl:call-template name="output-fix">
         <xsl:with-param name="fix" select="$suffix"/>
       </xsl:call-template>
@@ -620,7 +621,153 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
   </xsl:choose>
 </xsl:template>
 
+<!--
+     Link and format a super.expression
+ONEOF(Csg_model, Manifold_solid_brep, Solid_replica, Swept_area_solid,
+Swept_face_solid)
+NOTE  THIS IS NOT YET IMPLEMENTED
+ONEOF(uniform_curve, b_spline_curve_with_knots,
+                       quasi_uniform_curve, bezier_curve)
+                         ANDOR rational_b_spline_curve
+Needs to deal with expressions starting with not ( i.e. ANDOR above
+-->
 
+<xsl:template name="link_super_expression_list">
+  <xsl:param name="list"/>
+  <xsl:param name="object_used_in_schema_name"/>
+  <xsl:param name="clause" select="section"/>
+  <xsl:param name="indent1" select="0"/>
+  <xsl:param name="indent2" select="0"/>
+  
+  <xsl:variable name="indent">
+    <xsl:value-of select="$indent1 + $indent2"/>
+  </xsl:variable>
+      
+  <!-- replace all whitespace -->
+  <xsl:variable name="nlist1"
+    select="translate(normalize-space($list),' ','')"/>
+
+  <!-- cut any opening parenthesis -->
+  <xsl:variable name="open_paren">
+    <xsl:call-template name="get_open_paren">
+      <xsl:with-param name="str" select="$nlist1"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
+  <xsl:variable name="nlist"
+    select="substring($nlist1,string-length($open_paren)+1)"/>
+  
+  <xsl:choose>
+
+    <!-- maybe passed an empty list, e.g. when called from an empty 
+         extensible select. In which case, just return -->
+    <xsl:when test="string-length($nlist)=0"/>
+
+    <xsl:when test="contains($nlist,',')">
+
+      <!-- get the first word before , or ( -->
+      <xsl:variable name="first">
+        <xsl:variable name="first_comma" 
+          select="substring-before($nlist,',')"/>
+        <xsl:variable name="first_paren" 
+          select="substring-before($nlist,'(')"/>
+        <xsl:choose>
+          <xsl:when test="(string-length($first_paren)>0) 
+            and (string-length($first_comma) > string-length($first_paren))">
+            <xsl:value-of select="$first_paren"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$first_comma"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+      <!-- get the rest of the string after the , or ( -->
+      <xsl:variable name="rest" 
+        select="substring($nlist,string-length($first)+2)"/>
+
+      <xsl:variable name="separator" 
+        select="substring($nlist,string-length($first)+1,1)"/>
+
+      <br/>
+      <!-- indent -->
+      <xsl:call-template name="string_n_chars">
+        <xsl:with-param name="char" select="'&#160;'"/>
+        <xsl:with-param name="no_chars" select="$indent"/>
+      </xsl:call-template>
+
+      <xsl:value-of select="$open_paren"/>
+
+      <xsl:choose>
+        <xsl:when test="($first='ONEOF') 
+                        or ($first='AND') 
+                        or ($first='ANDOR')">
+          <xsl:value-of select="$first"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:call-template name="link_object">
+            <xsl:with-param name="object_name" select="$first"/>
+            <xsl:with-param 
+              name="object_used_in_schema_name" 
+              select="$object_used_in_schema_name"/>
+            <xsl:with-param name="clause" select="$clause"/>
+          </xsl:call-template>
+        </xsl:otherwise>
+      </xsl:choose>
+
+
+      <xsl:variable name="indent22">
+        <xsl:choose>
+          <xsl:when test="($first='ONEOF') 
+                          or ($first='AND') 
+                          or ($first='ANDOR')">
+            <xsl:value-of select="string-length($first)+1"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$indent2"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+      <xsl:value-of select="$separator"/>
+      
+      <xsl:call-template name="link_super_expression_list">
+        <xsl:with-param name="list" select="$rest"/>
+        <xsl:with-param 
+          name="object_used_in_schema_name" 
+          select="$object_used_in_schema_name"/>
+        <xsl:with-param name="clause" select="$clause"/>
+        <xsl:with-param name="indent1" select="$indent1"/>
+        <xsl:with-param name="indent2" select="$indent22"/>
+      </xsl:call-template>
+
+    </xsl:when>
+
+    <xsl:otherwise>
+      <!-- end of recursion -->
+      <br/>
+      <!-- indent -->
+      <xsl:call-template name="string_n_chars">
+        <xsl:with-param name="char" select="'&#160;'"/>
+        <xsl:with-param name="no_chars" select="$indent"/>
+      </xsl:call-template>
+
+      <xsl:variable name="object"
+        select="translate($nlist,')','')"/>
+
+      <xsl:call-template name="link_object">
+        <xsl:with-param name="object_name" select="$object"/>
+        <xsl:with-param 
+          name="object_used_in_schema_name" 
+          select="$object_used_in_schema_name"/>
+        <xsl:with-param name="clause" select="$clause"/>
+      </xsl:call-template>
+
+      <xsl:value-of select="substring-after($nlist,$object)"/>
+      
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
 
 

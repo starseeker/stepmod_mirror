@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.59 2002/08/02 15:58:46 robbod Exp $
+$Id: common.xsl,v 1.60 2002/08/05 06:23:41 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1588,8 +1588,13 @@ $Id: common.xsl,v 1.59 2002/08/02 15:58:46 robbod Exp $
       </xsl:choose>
     </xsl:variable>
 
+    <!-- 
+         Note, if the standard has a status of CD or CD-TS it has not been
+         published - so overide what ever is the @publication.year 
+         -->
     <xsl:variable name="pub_year">
       <xsl:choose>
+        <xsl:when test="$status='CD' or $status='CD-TS'">-</xsl:when>
         <xsl:when test="string-length($module/@publication.year)">
           <xsl:value-of select="$module/@publication.year"/>
         </xsl:when>
@@ -2272,6 +2277,27 @@ $Id: common.xsl,v 1.59 2002/08/02 15:58:46 robbod Exp $
     </xsl:choose>
   </xsl:template>
 
+  <!-- given a string, return the opening paren at the start -->
+  <xsl:template name="get_open_paren">
+    <xsl:param name="str"/>
+    <xsl:param name="previous_str" select="''"/>
+
+    <xsl:variable name="nstr" 
+      select="translate(normalize-space($str),' ','')"/>
+    <xsl:choose>
+      <xsl:when test="substring($nstr,1,1)='('">
+        <xsl:variable name="prev" 
+          select="concat($previous_str,'(')"/>
+        <xsl:call-template name="get_open_paren">
+          <xsl:with-param name="str" select="substring-after($nstr,'(')"/>
+          <xsl:with-param name="previous_str" select="$prev"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$previous_str"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
   <xsl:template name="first_uppercase">
     <xsl:param name="string"/>
@@ -2284,6 +2310,24 @@ $Id: common.xsl,v 1.59 2002/08/02 15:58:46 robbod Exp $
               translate(substring($string,2),$UPPER,$LOWER))"/>
   </xsl:template>
 
+  <!-- generate a string of length no_chars mad up of chars -->
+  <xsl:template name="string_n_chars">
+    <xsl:param name="char"/>
+    <xsl:param name="no_chars"/>
+    <xsl:param name="str" select="''"/>
+    <xsl:choose>
+      <xsl:when test="$no_chars>0">
+        <xsl:call-template name="string_n_chars">
+          <xsl:with-param name="char" select="$char"/>
+          <xsl:with-param name="no_chars" select="$no_chars - 1"/>
+          <xsl:with-param name="str" select="concat($str,$char)"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$str"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
 </xsl:stylesheet>
 

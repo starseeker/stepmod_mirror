@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.31 2002/07/30 10:31:53 robbod Exp $
+     $Id: express_code.xsl,v 1.32 2002/08/02 15:58:46 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -422,18 +422,37 @@
       <xsl:value-of select="')'"/>
     </xsl:if>
   </xsl:variable>
+
+  <xsl:variable name="sup_expr" 
+    select="concat($open_paren,@super.expression,$close_paren)"/>
   <xsl:choose>
     <xsl:when test="@abstract.supertype='YES' or @abstract.supertype='yes'">
       <br/>
       &#160;&#160;ABSTRACT SUPERTYPE
       <xsl:if test="@super.expression">
-        OF&#160;<xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+        OF&#160; <xsl:value-of select="$sup_expr"/>
+      <!--
+        <xsl:call-template name="link_super_expression_list">
+          <xsl:with-param name="list" select="$sup_expr"/>
+          <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+          <xsl:with-param name="clause" select="'section'"/>
+          <xsl:with-param name="indent1" select="25"/>
+        </xsl:call-template>
+-->
       </xsl:if>
     </xsl:when>
     <xsl:otherwise>
       <xsl:if test="@super.expression">
         <br/>
-        &#160; SUPERTYPE OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+        &#160; SUPERTYPE OF <xsl:value-of select="$sup_expr"/>
+        <!--
+      <xsl:call-template name="link_super_expression_list">
+        <xsl:with-param name="list" select="$sup_expr"/>
+        <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+        <xsl:with-param name="clause" select="'section'"/>
+        <xsl:with-param name="indent1" select="16"/>
+      </xsl:call-template>
+-->
     </xsl:if>      
     </xsl:otherwise>
   </xsl:choose>
@@ -459,8 +478,7 @@
       <xsl:with-param name="section3" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
- &#160;&#160; 
-  <xsl:apply-templates select="./redeclaration" mode="code"/>
+ &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:if test="@optional='YES' or @optional='yes'">
     OPTIONAL 
@@ -496,10 +514,9 @@ SELF\<xsl:call-template name="link_object">
   </xsl:variable>
 
   <xsl:if test="position()=1">
-    &#160;&#160;DERIVE<br/>
+    DERIVE<br/>
   </xsl:if>
-  &#160;&#160;&#160;
-  <xsl:apply-templates select="./redeclaration" mode="code"/>
+  &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <!-- need to clarify the XML for derive --> 
   <A NAME="{$aname}"><xsl:value-of select="concat(@name, ' : ')"/></A>
   <xsl:apply-templates select="./aggregate" mode="code"/>
@@ -597,7 +614,7 @@ SELF\<xsl:call-template name="link_object">
   </xsl:variable>
 
   <xsl:if test="position()=1">WHERE<br/></xsl:if>  
-  &#160;&#160;&#160;<A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ', @expression, ';')"/></A>
+  &#160;&#160;<A NAME="{$aname}"><xsl:value-of select="concat(@label, ': ', @expression, ';')"/></A>
   <br/>
 </xsl:template>
 

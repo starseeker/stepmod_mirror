@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.55 2002/07/30 10:31:53 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.56 2002/08/02 15:58:46 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -935,20 +935,38 @@ select="document($module_file)/module/arm/express-g/imgfile">
       <xsl:value-of select="')'"/>
     </xsl:if>
   </xsl:variable>
+
   <xsl:variable name="sup_expr"
     select="concat($open_paren,@super.expression,$close_paren)"/>
+
   <xsl:choose>
     <xsl:when test="@abstract.supertype='YES' or @abstract.supertype='yes'">
       <br/>
       &#160;&#160;ABSTRACT SUPERTYPE
       <xsl:if test="@super.expression">
-        OF&#160;<xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+        OF&#160; <xsl:value-of select="$sup_expr"/>
+        <!-- not yet implemented
+        <xsl:call-template name="link_super_expression_list">
+          <xsl:with-param name="list" select="$sup_expr"/>
+          <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+          <xsl:with-param name="clause" select="'section'"/>
+          <xsl:with-param name="indent1" select="25"/>
+        </xsl:call-template>
+        -->
       </xsl:if>
     </xsl:when>
     <xsl:otherwise>
       <xsl:if test="@super.expression">
       <br/>
-      &#160;SUPERTYPE OF <xsl:value-of select="concat($open_paren,@super.expression,$close_paren)"/>
+      &#160;SUPERTYPE OF <xsl:value-of select="$sup_expr"/>
+      <!-- not yet implemented
+      <xsl:call-template name="link_super_expression_list">
+        <xsl:with-param name="list" select="$sup_expr"/>
+        <xsl:with-param name="object_used_in_schema_name" select="../@name"/>
+        <xsl:with-param name="clause" select="'section'"/>
+        <xsl:with-param name="indent1" select="16"/>
+      </xsl:call-template>
+      -->
     </xsl:if>      
     </xsl:otherwise>
   </xsl:choose>
@@ -968,8 +986,7 @@ select="document($module_file)/module/arm/express-g/imgfile">
 </xsl:template>
 
 <xsl:template match="explicit" mode="code">
-  &#160;&#160; 
-  <xsl:apply-templates select="./redeclaration" mode="code"/>
+&#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <xsl:value-of select="concat(@name, ' : ')"/>
   <xsl:if test="@optional='YES' or @optional='yes'">
     OPTIONAL 
@@ -997,10 +1014,9 @@ SELF\<xsl:call-template name="link_object">
 
 <xsl:template match="derived" mode="code">
   <xsl:if test="position()=1">
-    &#160;&#160;DERIVE<br/>
+    DERIVE<br/>
   </xsl:if>
-  &#160;&#160;&#160;
-  <xsl:apply-templates select="./redeclaration" mode="code"/>
+  &#160;&#160;<xsl:apply-templates select="./redeclaration" mode="code"/>
   <!-- need to clarify the XML for derive --> 
   <xsl:value-of select="concat(@name, ' : ')"/>
   <xsl:apply-templates select="./aggregate" mode="code"/>
@@ -1074,7 +1090,7 @@ SELF\<xsl:call-template name="link_object">
 
 <xsl:template match="where" mode="code">
   <xsl:if test="position()=1">WHERE<br/></xsl:if> 
-  &#160;&#160;&#160;<xsl:value-of select="concat(@label, ': ', @expression, ';')"/>
+  &#160;&#160;<xsl:value-of select="concat(@label, ': ', @expression, ';')"/>
   <br/>
 </xsl:template>
 
@@ -1837,7 +1853,7 @@ SELF\<xsl:call-template name="link_object">
     </code>
   <!-- </blockquote> -->
    </p>
-  <p><u>Argument definitions:</u></p>        
+  <p><u>Argument definitions:</u></p>
   <xsl:call-template name="process_rule_arguments">
     <xsl:with-param name="args" select="@appliesto"/>
   </xsl:call-template>
@@ -1872,7 +1888,6 @@ SELF\<xsl:call-template name="link_object">
 
 <xsl:template name="output_rule_argument">
   <xsl:param name="arg"/>
-  <blockquote>
     <b>
       <xsl:value-of select="concat($arg,' : ')"/>
     </b>
@@ -1884,8 +1899,6 @@ SELF\<xsl:call-template name="link_object">
         select="../../@name"/>
       <xsl:with-param name="clause" select="'section'"/>
     </xsl:call-template>  
-
-  </blockquote>
 </xsl:template>
 
 

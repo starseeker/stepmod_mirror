@@ -1,5 +1,5 @@
 (* 
-   $Id: arm.exp,v 1.9 2004/11/10 09:34:44 rocc Exp $
+   $Id: arm.exp,v 1.10 2004/11/15 20:17:13 robbod Exp $
    ISO/TC184/SC4 WG12N2223 supersedes WG12N1751 - ISO/TS 10303-1105 Multi_linguism - Express ARM 
 *)
 
@@ -11,6 +11,8 @@ END_TYPE;
 ENTITY Language;
   language_code : STRING;
   country_code : OPTIONAL STRING;
+UNIQUE
+  UR1: language_code;
 END_ENTITY;
 
 ENTITY Language_indication;
@@ -25,12 +27,8 @@ ENTITY Attribute_translation_assignment;
    translation_text : STRING;
    translation_language: Language;
 WHERE
-WR1: SIZEOF( QUERY(ci <* considered_instances |
-  SIZEOF(QUERY(ata <* USEDIN(ci, 'MULTI_LINGUISM_ARM.ATTRIBUTE_TRANSLATION_ASSIGNMENT.CONSIDERED_INSTANCE') |
-        (ata.considered_attribute = considered_attribute) AND 
-        (ata.translation_language :=: translation_language) 
-  ))>1 
-     )) =0;
+UNIQUE
+  UR1: considered_instance, considered_attribute, translation_language;
 END_ENTITY;
 
 END_SCHEMA;

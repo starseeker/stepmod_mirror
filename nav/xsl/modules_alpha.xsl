@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_alpha.xsl,v 1.1 2002/09/06 21:21:47 robbod Exp $
+$Id: modules_alpha.xsl,v 1.2 2002/09/11 08:26:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display an alphabetical list of modules.
@@ -53,6 +53,10 @@ $Id: modules_alpha.xsl,v 1.1 2002/09/06 21:21:47 robbod Exp $
     </xsl:when>
 
     <xsl:when test="function-available('saxon:node-set')">
+      <xsl:variable 
+        name="modules-node-set" 
+        select="saxon:node-set($module_nodes)"/>
+      <xsl:for-each select="$modules-node-set/modules/module">
         <xsl:variable name="letter" 
           select="translate(substring(@name,1,1), $lower, $upper)"/>
         
@@ -66,6 +70,7 @@ $Id: modules_alpha.xsl,v 1.1 2002/09/06 21:21:47 robbod Exp $
           </p>
         </xsl:if>
         <xsl:apply-templates select="."/>
+      </xsl:for-each>
     </xsl:when>
     <xsl:otherwise>
       XSL require node-set function.

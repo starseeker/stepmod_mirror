@@ -1,6 +1,6 @@
 (*
-   $Id: arm.exp,v 1.1 2002/11/12 11:36:08 seanbarker Exp $
-ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Probability distribution - EXPRESS ARM
+   $Id: arm.exp,v 1.2 2003/04/30 16:36:55 seanbarker Exp $
+ISO TC184/SC4/WG12 N1583 - ISO/CD-TS 10303-1274 Probability distribution - EXPRESS ARM
 *) 
 
 
@@ -12,26 +12,25 @@ USE FROM Measure_representation_arm;    -- ISO/TS 10303-1118
 
 USE FROM Probability_arm;    -- ISO/CD-TS 10303-1252
 
-USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
-
-TYPE probability_distribution_classification = GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
-   (Probability_distribution);
-END_TYPE; 
-
-TYPE probability_distribution_property = SELECT BASED_ON property_assigment_select WITH 
+TYPE probability_distribution_classification = SELECT BASED_ON classification_item WITH 
    (Probability_distribution);
 END_TYPE; 
 
 ENTITY Distribution_by_value
   SUBTYPE OF (Probability_distribution);
+  defined_function : Value_function;
   distribution_function : STRING;
-  has_values : LIST[0:?] OF Value_element;
+END_ENTITY;
+
+ENTITY Function_value_pair;
+  function_value : Probability_function_value;
+  variable_value : Random_variable;
 END_ENTITY;
 
 ENTITY Parameterized_distribution
   SUBTYPE OF (Probability_distribution);
-  has_parameters : LIST[0:?] OF Probability_distribution_parameter;
+  has_parameters : LIST[1:?] OF Probability_distribution_parameter;
   parameterization_name : STRING;
 END_ENTITY;
 
@@ -53,9 +52,18 @@ ENTITY Probability_distribution_parameter
   parameter_value : NUMBER;
 END_ENTITY;
 
-ENTITY Value_element;
-  actual_value : NUMBER;
-  index : NUMBER;
+ENTITY Probability_function_value
+  SUBTYPE OF (Numerical_item_with_global_unit);
+  pf_value : REAL;
+END_ENTITY;
+
+ENTITY Random_variable
+  SUBTYPE OF (Numerical_item_with_global_unit);
+  rv_value : NUMBER;
+END_ENTITY;
+
+ENTITY Value_function;
+  function_element : LIST[1:?] OF Function_value_pair;
 END_ENTITY;
 
 END_SCHEMA;  -- Probability_distribution_arm

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.10 2003/09/02 23:54:49 thendrix Exp $
+$Id: imgfile.xsl,v 1.11 2003/11/11 22:41:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -192,7 +192,7 @@ $Id: imgfile.xsl,v 1.10 2003/09/02 23:54:49 thendrix Exp $
             <xsl:value-of select="concat($resdoc_root,'/sys/',$clauseno,'_schema',$FILE_EXT,$hash,$frag)"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="concat('../',$this-schema,'/',$this-schema,$FILE_EXT,$hash,$frag)"/>
+            <xsl:value-of select="concat('../../resources/',$this-schema,'/',$this-schema,$FILE_EXT,$hash,$frag)"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>

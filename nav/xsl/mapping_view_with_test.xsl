@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.2 2003/01/14 14:05:26 nigelshaw Exp $
+$Id: mapping_view_with_test.xsl,v 1.3 2003/01/24 11:12:18 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -1291,7 +1291,7 @@ $Id: mapping_view_with_test.xsl,v 1.2 2003/01/14 14:05:26 nigelshaw Exp $
                                           <xsl:variable name="warn3">
                                             <xsl:if test="./ancestor::mapping/@assertion_to">
                                               <xsl:value-of 
-                                                select="concat('Assertion to: ',./ancestor::mapping/@assertion_to)"/>
+                                                select="concat(' Assertion to: ',./ancestor::mapping/@assertion_to)"/>
                                             </xsl:if>
                                           </xsl:variable>
                                           <xsl:call-template name="error_message">
@@ -1302,8 +1302,9 @@ $Id: mapping_view_with_test.xsl,v 1.2 2003/01/14 14:05:26 nigelshaw Exp $
                                               select="concat('Warning Map1: ',$warn1, $warn2, $warn3)"/>
                                           </xsl:call-template>
 
-                                          <xsl:value-of select="concat($warn1, $warn2, $warn3)"/>
+<!--                                          <xsl:value-of select="concat($warn1, $warn2, $warn3)"/>
                                           <br/>
+-->
                                            <!--
 						<xsl:value-of select="." />
 						ENTITY NOT FOUND in mapping of
@@ -1335,7 +1336,7 @@ $Id: mapping_view_with_test.xsl,v 1.2 2003/01/14 14:05:26 nigelshaw Exp $
 
                                           <xsl:variable name="warn3">
                                               <xsl:value-of
-                                                select="concat('Assertion to: ',
+                                                select="concat(' Assertion to: ',
                                                         ./ancestor::mapping/@assertion_to)"/> 
                                           </xsl:variable>
                                           <xsl:call-template name="error_message">
@@ -1345,9 +1346,10 @@ $Id: mapping_view_with_test.xsl,v 1.2 2003/01/14 14:05:26 nigelshaw Exp $
                                               name="message" 
                                               select="concat('Warning Map1: ',$warn1, $warn2, $warn3)"/>
                                           </xsl:call-template>
-
+<!--
                                           <xsl:value-of select="concat($warn1, $warn2, $warn3)"/>
-                                          <br/>
+                                          <br/> 
+-->
                                           <!--
 						<xsl:value-of select="." />
 						NOT FOUND in mapping of
@@ -1599,7 +1601,7 @@ $Id: mapping_view_with_test.xsl,v 1.2 2003/01/14 14:05:26 nigelshaw Exp $
 
 <!-- list any types used by attributes -->
 
-	<xsl:for-each select="explicit/typename" >
+	<xsl:for-each select="explicit/typename | derived/typename" >
 		<xsl:variable name="typename" select="@name" />
 
 		<xsl:apply-templates 

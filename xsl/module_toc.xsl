@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.13 2002/05/21 12:20:36 robbod Exp $
+$Id: module_toc.xsl,v 1.14 2002/05/21 16:43:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -17,7 +17,7 @@ $Id: module_toc.xsl,v 1.13 2002/05/21 12:20:36 robbod Exp $
        If this line in uncommented, then it has been checked in error
        so comment out and check back in
   <xsl:import href="../../plcsmod/xsl/module_menu.xsl"/>
-  -->
+       -->
 
 
 <!--
@@ -38,7 +38,7 @@ $Id: module_toc.xsl,v 1.13 2002/05/21 12:20:36 robbod Exp $
        If this line in uncommented, then it has been checked in error
        so comment out and check back in
   <xsl:call-template name="PLCSmenubar">
-    <xsl:with-param name="plcs_dir" select="'../../../../../'"/>
+    <xsl:with-param name="plcs_dir" select="concat($module_root,'/../../../../plcsmod/')"/>
     <xsl:with-param name="module_name" select="@name"/>
   </xsl:call-template>
        -->
@@ -59,8 +59,7 @@ $Id: module_toc.xsl,v 1.13 2002/05/21 12:20:36 robbod Exp $
         <A HREF="{$module_root}/sys/introduction{$FILE_EXT}#intro">Introduction</A><BR/>
         <A HREF="{$module_root}/sys/1_scope{$FILE_EXT}#scope">1 Scope</A><BR/>
         <A HREF="{$module_root}/sys/2_refs{$FILE_EXT}#nref">2 Normative references</A><BR/>
-        <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}#defns">3 Definitions and
-abbreviations</A>
+        <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}#defns">3 Terms, definitions and abbreviations</A>
       </p>
       </TD>
       <TD valign="TOP">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.39 2002/05/21 12:20:36 robbod Exp $
+$Id: common.xsl,v 1.40 2002/05/29 09:56:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -289,13 +289,13 @@ $Id: common.xsl,v 1.39 2002/05/21 12:20:36 robbod Exp $
   <xsl:param name="aname"/>
   <xsl:param name="informative" select="'informative'"/>
   <center>
-    <h3>
+    <h2>
       <A NAME="{$aname}">
         <xsl:value-of select="concat('Annex ', $annex_no)"/>
-      </A>
-    </h3>
-    (<xsl:value-of select="$informative"/>)
-    <h3><xsl:value-of select="$heading"/></h3>
+      </A><br/>
+    (<xsl:value-of select="$informative"/>)<br/><br/>
+      <xsl:value-of select="$heading"/>
+    </h2>
   </center>
 </xsl:template>
 

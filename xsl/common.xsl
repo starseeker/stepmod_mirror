@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.74 2002/08/28 13:45:43 robbod Exp $
+$Id: common.xsl,v 1.75 2002/09/15 07:44:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -845,7 +845,7 @@ $Id: common.xsl,v 1.74 2002/08/28 13:45:43 robbod Exp $
       select="'../../../../images/warning.gif'"/>
 
     <xsl:message>
-      <xsl:value-of select="$message"/>
+      <xsl:value-of select="translate($message,'#','&#010;')"/>
     </xsl:message>
     <xsl:if test="contains($INLINE_ERRORS,'yes')">
       <xsl:if test="contains($inline,'yes')">

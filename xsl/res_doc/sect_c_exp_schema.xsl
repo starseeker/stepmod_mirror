@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_exp_schema.xsl,v 1.3 2003/10/09 03:50:27 thendrix Exp $
+$Id: sect_c_exp_schema.xsl,v 1.4 2004/11/06 20:36:50 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM short form express 
@@ -172,12 +172,12 @@ $Id: sect_c_exp_schema.xsl,v 1.3 2003/10/09 03:50:27 thendrix Exp $
   <code>
   (*<br/>
     <xsl:value-of 
-      select="concat('ISO TC184/SC4/WG12 N',@wg.number, ' - ',
+      select="concat('ISO TC184/SC4/WG12 N',@wg.number.express, ' - ',
               $stdnumber,' ', $resource_name, ' - EXPRESS')"/>
-    <xsl:if test="string-length(normalize-space(@wg.number.supersedes))>0">
+    <xsl:if test="string-length(normalize-space(@wg.number.express.supersedes))>0">
       <br/>Supersedes 
       <xsl:value-of 
-        select="concat('ISO TC184/SC4/WG12','&#160;N',@wg.number.supersedes)"/>
+        select="concat('ISO TC184/SC4/WG12','&#160;N',@wg.number.express.supersedes)"/>
     </xsl:if>
     <br/>*)
   </code>

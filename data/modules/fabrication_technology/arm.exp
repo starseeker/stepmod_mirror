@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.2 2005/01/06 14:07:02 liutkus Exp $
+   $Id: arm.exp,v 1.3 2005/01/10 08:40:18 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Fabrication technology - EXPRESS ARM
 *)
 
@@ -22,6 +22,10 @@ USE FROM Physical_layout_template_arm;
 USE FROM Requirement_decomposition_arm;
 
 USE FROM Part_feature_location_arm;
+
+  TYPE ft_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+	(Passage_technology_parameters);
+  END_TYPE;
 
   TYPE documentation_layer_purpose = SELECT
     (predefined_documentation_layer_purpose,
@@ -292,7 +296,7 @@ USE FROM Part_feature_location_arm;
   END_ENTITY;
 
   ENTITY Passage_technology_parameters;
-      name                                     : STRING; --ee_name;  
+      name                                     : STRING; 
       plated_passage                           : BOOLEAN;
       maximum_as_finished_passage_extent       : OPTIONAL Length_data_element;
       minimum_as_finished_passage_extent       : OPTIONAL Length_data_element;
@@ -300,8 +304,14 @@ USE FROM Part_feature_location_arm;
       maximum_aspect_ratio                     : OPTIONAL REAL;
       minimum_as_finished_deposition_thickness : OPTIONAL Length_data_element;
       specification                            : OPTIONAL Process_specification;
+	DERIVE 
+  	  deposition_material : SET[0:?] OF Material_identification_with_conductivity_classification := 
+  	  	USEDIN (SELF, 'GENERIC_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION.ITEMS');
     UNIQUE
       UR1 : name;
+	WHERE
+	  WR1: NOT EXISTS(deposition_material) OR SIZEOF(deposition_material) = 1;
+	  WR2: NOT EXISTS(deposition_material) OR get_electrical_conductivity(deposition_material);
   END_ENTITY;
 
   ENTITY Stratum_feature_template
@@ -343,5 +353,20 @@ USE FROM Part_feature_location_arm;
       WR2 : NOT (EXISTS(precedent_stratum_technology_link)) OR (precedent_stratum_technology_link :<>: SELF);
       WR3 : NOT EXISTS(precedent_stratum_technology_link) OR (precedent_stratum_technology_link.subsequent_stratum_technology :=: precedent_stratum_technology);
   END_ENTITY;
+
+FUNCTION get_electrical_conductivity
+  (mi : SET[0:?] OF material_identification) : BOOLEAN;
+	REPEAT i := 1 to SIZEOF(mi) by 1;
+	  IF ('CONDUCTIVITY_MATERIAL_ASPECT.'+'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' 
+	  	IN TYPEOF (mi[i])) THEN
+		  IF((EXISTS(mi[i].electrical_conductivity_classification)) AND 
+		  (mi[i].electrical_conductivity_classification IN ['conductive', 'semi conductive', 'super conductive'])) THEN
+	  		RETURN (TRUE);
+	  	END_IF;	
+	  END_IF;
+	END_REPEAT;
+	RETURN (FALSE);
+END_FUNCTION;
+
 
 END_SCHEMA;

@@ -2,6 +2,34 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Sequential laminate assembly design - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
 SCHEMA Sequential_laminate_assembly_design_arm;
+
+USE FROM Assembly_module_with_interconnect_component_arm;
+
+USE FROM Component_feature_arm;
+
+USE FROM Layered_interconnect_module_design_arm;
+
+  ENTITY Interconnect_module_stratum_based_terminal
+    SUBTYPE OF (Interconnect_module_terminal);
+    WHERE
+      WR1 : SIZEOF(QUERY(imtscr <* USEDIN(SELF,
+ 'AP210_ARM.' + 'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED_SHAPE_ELEMENT') | NOT (SIZEOF(['AP210_ARM.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE',
+ 'AP210_ARM.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE'] * TYPEOF(imtscr.relating)) = 1))) = 0;
+      WR2 : SIZEOF(USEDIN(SELF,
+ 'AP210_ARM.' + 'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED_SHAPE_ELEMENT')) = 1;
+ (** Need to rewrite rule, since we removed inverse part_feature.design_view_definition_component_feature
+      WR3 : SIZEOF(['AP210_ARM.LAND',
+ 'AP210_ARM.NON_FUNCTIONAL_LAND'] * TYPEOF(SELF\part_feature.design_view_definition_component_feature)) = 1; *)
+  END_ENTITY; -- interconnect_module_stratum_based_terminal
+
+  ENTITY Interconnect_module_component_stratum_based_terminal
+    SUBTYPE OF (Interconnect_module_component_terminal);
+      SELF\component_feature.definition : interconnect_module_stratum_based_terminal;
+  END_ENTITY; -- interconnect_module_component_stratum_based_terminal
+
+  ENTITY Interconnect_module_product_assembly_view_fabrication_joint;
+      joined_terminal : SET[1:?] OF interconnect_module_component_stratum_based_terminal;
+  END_ENTITY; -- interconnect_module_product_assembly_view_fabrication_joint
+
 END_SCHEMA;

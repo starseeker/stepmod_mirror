@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="fabrication_technology" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2005/01/27 16:01:04 $" rcs.revision="$Revision: 1.12 $">
+<ext_descriptions module_directory="fabrication_technology" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2005/02/01 09:15:58 $" rcs.revision="$Revision: 1.13 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Fabrication_technology_arm
    <express_ref linkend="fabrication_technology:arm:Fabrication_technology_arm"/>
@@ -586,7 +586,12 @@ multiple products, since there is no dependence of the <b>Design_layer_technolog
 referencing it.  
 A <b>Design_layer_technology</b> shall not be used for printed components as defined by <express_ref linkend="printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template"/> where conductivity class other than 'conductive' is required because the conductivity class of a  <b>Design_layer_technology</b> is required to be 'conductive'.
 <example>
-An example where an application of <b>Design_layer_technology</b> is inappropriate is for paste resistors since the conductivity class for a paste resistor is 'resistive'.
+An example where an application of <b>Design_layer_technology</b> is inappropriate is for paste resistors since the conductivity class for a paste resistor is 'resistive'.  The terminals of the paste resistors
+may be bonded to features of a design layer during fabrication.
+</example>
+<example>
+An example where an application of <b>Design_layer_technology</b> is required is for printed coils because the coil is fabricated from the same physical layer as the rest of
+the wiring that implements the interconnect.
 </example>
 </ext_description>
 <ext_description linkend="Fabrication_technology_arm.Design_layer_technology.minimum_finished_feature_spacing">
@@ -609,17 +614,34 @@ shall be at least one of: thermally, electrically, optically or magnetically con
 </ext_description>
 <!-- +++++++++++ Documentation_layer_technology +++++++++++ -->
 <ext_description linkend="Fabrication_technology_arm.Documentation_layer_technology">
-A <b>Documentation_layer_technology</b> is a type of <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology"/> that defines the purpose for the <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Documentation_layer_stratum"/>.
+A <b>Documentation_layer_technology</b> is a type of 
+<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology"/> that may have patterns applied and whose 
+purpose is not for directly implementing point to point connectivity as in the 
+<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Design_layer_technology"/>.
+A <b>Documentation_layer_technology</b> shall be used for printed components as defined by 
+<express_ref linkend="printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template"/> 
+where conductivity class other than 'conductive' is required because the conductivity class of a  <b>Documentation_layer_technology</b> 
+may be something other than 'conductive'.  The <b>externally_defined_documentation_layer_purpose</b> provides a facility to specify the
+detailed nature of the application.  A standard external to this part of ISO 10303 or industrial exchange agreements may formalize the <b>externally_defined_documentation_layer_purpose</b>.
+<example>
+An example where an application of <b>Documentation_layer_technology</b> is appropriate is for paste resistors since the 
+conductivity class for a paste resistor is 'resistive'.
+</example>
+<example>
+An example where an application of <b>Documentation_layer_technology</b> is appropriate is for paste capacitors since the 
+conductivity class for a paste capacitor is 'non conductive'.
+</example>
 </ext_description>
 <ext_description linkend="Fabrication_technology_arm.Documentation_layer_technology.pre_defined_documentation_layer_purpose">
-specifies either soldermask, solderpaste, silkscreen, gluepaste, or a <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology"/> to describe the purpose for the <b>Documentation_layer_technology</b>. The value of this attribute need not be specified.
+specifies either soldermask, solderpaste, silkscreen, generic_layer, glue, gluemask, pastemask to describe the purpose defined in this part of ISO 10303 for the <b>Documentation_layer_technology</b>.
+The value of this attribute need not be specified.
 </ext_description>
 <ext_description linkend="Fabrication_technology_arm.Documentation_layer_technology.externally_defined_documentation_layer_purpose">
 specifies an inverse relationship that specifies that the existence of the <b>Documentation_layer_technology</b> is dependent on the existence of the <express_ref linkend="External_item_identification_assignment:arm:External_item_identification_assignment_arm.External_source_identification"/> that specifies the <b>Documentation_layer_technology</b> as its <express_ref linkend="External_item_identification_assignment:arm:External_item_identification_assignment_arm.External_source_identification.item"/>.
 </ext_description>
 <ext_description linkend="Fabrication_technology_arm.Documentation_layer_technology.wr:WR1">
 <b>pre_defined_documentation_layer_purpose</b> or <express_ref linkend="fabrication_technology:arm:Fabrication_technology_arm.Documentation_layer_technology.externally_defined_documentation_layer_purpose"/>
-shall exist.
+shall exist but not both together.
 </ext_description>
 <!-- +++++++++++ Default_attachment_size_based_land_physical_template +++++++++++ -->
 <ext_description linkend="Fabrication_technology_arm.Default_attachment_size_based_land_physical_template">
@@ -808,11 +830,8 @@ specifies one role of the <express_ref linkend="Value_with_unit_extension:arm:Va
 <ext_description linkend="Fabrication_technology_arm.Stratum_technology.name">
 the words by which the <b>Stratum_technology</b> is known. Specifies the alphanumeric identifier of a <b>Stratum_technology</b>.
 </ext_description>
-<ext_description linkend="Fabrication_technology_arm.Stratum_technology.minimum_stratum_thickness">
-specifies the minimum <express_ref linkend="Value_with_unit_extension:arm:Value_with_unit_extension_arm.Length_data_element"/> for the thickness of the <b>Stratum_technology</b>.
-</ext_description>
-<ext_description linkend="Fabrication_technology_arm.Stratum_technology.maximum_stratum_thickness">
-specifies the maximum <express_ref linkend="Value_with_unit_extension:arm:Value_with_unit_extension_arm.Length_data_element"/> for the thickness of the <b>Stratum_technology</b>.
+<ext_description linkend="Fabrication_technology_arm.Stratum_technology.stratum_thickness">
+specifies the <express_ref linkend="characteristic:arm:Characteristic_arm.Tolerance_characteristic"/> for the thickness of the <b>Stratum_technology</b>.
 </ext_description>
 <ext_description linkend="Fabrication_technology_arm.Stratum_technology.stratum_material">
 specifies the role of the <express_ref linkend="generic_material_aspects:arm:Generic_material_aspects_arm.Material_identification"/> for the <b>Stratum_technology</b>.

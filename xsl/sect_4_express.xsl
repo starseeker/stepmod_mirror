@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.102 2003/07/18 22:39:57 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.103 2003/07/22 22:03:07 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -102,7 +102,7 @@
   <!-- output description from express -->
   <p>
     <xsl:if test="string-length(./description)>0">
-      <xsl:apply-templates select="./description"/>
+      <xsl:apply-templates select="./description" mode="exp_description"/>
     </xsl:if>
   </p>
 </xsl:template>
@@ -597,7 +597,7 @@
   <p>
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description"/>
+        <xsl:apply-templates select="./description" mode="exp_description"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -791,7 +791,7 @@
   <p>
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description"/>
+        <xsl:apply-templates select="./description" mode="exp_description"/>
       </xsl:when>
       <xsl:otherwise>
 
@@ -1197,7 +1197,7 @@
   <p>
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description"/>
+        <xsl:apply-templates select="./description" mode="exp_description"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -1502,7 +1502,7 @@
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">
-      <xsl:apply-templates select="./description"/>
+      <xsl:apply-templates select="./description" mode="exp_description"/>
     </xsl:when>
     <xsl:otherwise>      
       <xsl:variable name="external_description">
@@ -1563,7 +1563,7 @@
   <!-- output description from express -->
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description"/>
+        <xsl:apply-templates select="./description" mode="exp_description"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -1622,7 +1622,7 @@
   <!-- output description from express -->
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description"/>
+        <xsl:apply-templates select="./description" mode="exp_description"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -1683,7 +1683,7 @@
     
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description"/>
+        <xsl:apply-templates select="./description" mode="exp_description"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -1756,7 +1756,7 @@
 
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description"/>
+        <xsl:apply-templates select="./description" mode="exp_description"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -2132,7 +2132,7 @@
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">
-      <xsl:apply-templates select="./description"/>
+      <xsl:apply-templates select="./description" mode="exp_description"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:variable name="external_description">
@@ -2258,7 +2258,7 @@
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">
-      <xsl:apply-templates select="./description"/>
+      <xsl:apply-templates select="./description" mode="exp_description"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:variable name="external_description">
@@ -2402,7 +2402,7 @@
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">
-      <xsl:apply-templates select="./description"/>
+      <xsl:apply-templates select="./description" mode="exp_description"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:variable name="external_description">
@@ -2493,7 +2493,7 @@
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">
-      <xsl:apply-templates select="./description"/>
+      <xsl:apply-templates select="./description" mode="exp_description"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:variable name="external_description">
@@ -2635,7 +2635,7 @@
   <!-- output description from express -->
   <xsl:choose>
     <xsl:when test="string-length(./description)>0">
-      <xsl:apply-templates select="./description"/>
+      <xsl:apply-templates select="./description" mode="exp_description"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:variable name="external_description">

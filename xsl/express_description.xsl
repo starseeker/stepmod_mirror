@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.28 2003/07/18 22:39:57 thendrix Exp $
+$Id: express_description.xsl,v 1.29 2003/07/21 21:54:07 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -18,7 +18,21 @@ $Id: express_description.xsl,v 1.28 2003/07/18 22:39:57 thendrix Exp $
 
   <xsl:output method="html"/>
 
-  
+
+<!-- Output the description for an Express object, but first check that it
+     is valid -->
+<xsl:template match="description" mode="exp_description">
+  <xsl:apply-templates select="." mode="validate_external_description"/>
+  <xsl:apply-templates/>
+</xsl:template>
+
+
+<!-- check that the description is valid. If not, output a warning -->
+<xsl:template match="description|ext_description" mode="validate_external_description">
+  <!-- the checks need to be written.
+       it would be useful if output_external_description used the same check
+</xsl:template>
+
 
 <xsl:template name="output_external_description">
   <!--

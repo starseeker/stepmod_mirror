@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.75 2002/06/30 06:10:16 robbod Exp $
+$Id: module.xsl,v 1.76 2002/07/01 15:05:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -823,17 +823,6 @@ o=isocs; s=central<br/>
     </xsl:choose>
   </xsl:variable>
 
-  <xsl:variable name="mim_lf">
-    <xsl:choose>
-      <xsl:when test="$FILE_EXT='.xml'">
-        <xsl:value-of select="'e_exp_mim_lf.xml'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'e_exp_mim_lf.htm'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
   <xsl:variable name="UPPER"
     select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER"
@@ -1002,9 +991,51 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 <xsl:template match="arm_lf" mode="annexe">
+  <xsl:variable name="arm_lf">
+    <xsl:choose>
+      <xsl:when test="$FILE_EXT='.xml'">
+        <xsl:value-of select="'e_exp_arm_lf.xml'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'e_exp_arm_lf.htm'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <td>ARM long form EXPRESS</td>
+  <td>
+    <a href="{$arm_lf}">
+      <xsl:value-of select="concat('arm_lf',$FILE_EXT)"/>
+    </a>
+  </td>
+  <td>
+    <a href="../arm_lf.exp">arm_lf.exp</a>
+  </td>
+  <td align="center">&#8212;</td>
 </xsl:template>
 
 <xsl:template match="mim_lf" mode="annexe">
+  <xsl:variable name="mim_lf">
+    <xsl:choose>
+      <xsl:when test="$FILE_EXT='.xml'">
+        <xsl:value-of select="'e_exp_mim_lf.xml'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'e_exp_mim_lf.htm'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <td>MIM long form EXPRESS</td>
+  <td>
+    <a href="{$mim_lf}">
+      <xsl:value-of select="concat('mim_lf',$FILE_EXT)"/>
+    </a>
+  </td>
+  <td>
+    <a href="../mim_lf.exp">mim_lf.exp</a>
+  </td>
+  <td align="center">&#8212;</td>
 </xsl:template>
 
 <xsl:template match="arm">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: definitions.xsl,v 1.1 2002/09/30 10:24:33 robbod Exp $
+$Id: definitions.xsl,v 1.2 2002/09/30 12:59:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited under contract to NIST
   Purpose: Create an index on definitions defined in the modules.
@@ -55,8 +55,9 @@ $Id: definitions.xsl,v 1.1 2002/09/30 10:24:33 robbod Exp $
     <body>
       <xsl:variable name="def_nodes_unsorted">
         <xsl:element name="definitions">
-          <xsl:apply-templates 
-            select="./modules/module" mode="get_definition"/>
+          <xsl:apply-templates select="./modules/module" mode="get_definition"/> 
+          <xsl:apply-templates select="./application_protocols/application_protocol" mode="get_definition"/>
+          <xsl:apply-templates select="./resource_docs/resource_doc" mode="get_definition"/> 
         </xsl:element>
       </xsl:variable>
 
@@ -143,11 +144,28 @@ $Id: definitions.xsl,v 1.1 2002/09/30 10:24:33 robbod Exp $
 </xsl:template>
 
 <xsl:template match="module" mode="get_definition">
-  <xsl:apply-templates 
-    select="document(concat('../../data/modules/',@name,'/module.xml'))/module/definition/term"/>
+  <xsl:apply-templates select="document(concat('../../data/modules/',@name,'/module.xml'))/module/definition/term">
+    <xsl:with-param name="href_root" select="'../data/modules/'"/>
+  </xsl:apply-templates>
 </xsl:template>
 
+<xsl:template match="resource_doc" mode="get_definition">
+  <xsl:apply-templates select="document(concat('../../data/resource_docs/',@name,'/resource.xml'))/resource/definition/term">
+    <xsl:with-param name="href_root" select="'../data/resource_docs/'"/>
+  </xsl:apply-templates>
+</xsl:template>
+
+<xsl:template match="application_protocol" mode="get_definition">
+  <xsl:apply-templates 
+    select="document(concat('../../data/application_protocols/',@name,'/application_protocol.xml'))/application_protocol/definition/term">
+    <xsl:with-param name="href_root" select="'../data/application_protocols/'"/>
+  </xsl:apply-templates>
+</xsl:template>
+
+
+
 <xsl:template match="term">
+  <xsl:param name="href_root"/>
   <xsl:variable name="nterm" select="normalize-space(.)"/>
   <xsl:element name="definition_node">
     <xsl:attribute name="id">
@@ -155,6 +173,9 @@ $Id: definitions.xsl,v 1.1 2002/09/30 10:24:33 robbod Exp $
     </xsl:attribute>
     <xsl:attribute name="term">
       <xsl:value-of select="$nterm"/>
+    </xsl:attribute>
+    <xsl:attribute name="href_root">
+      <xsl:value-of select="$href_root"/>
     </xsl:attribute>
     <xsl:attribute name="module">
       <xsl:value-of select="../../@name"/>
@@ -164,7 +185,7 @@ $Id: definitions.xsl,v 1.1 2002/09/30 10:24:33 robbod Exp $
 
 <xsl:template match="definition_node">
   <xsl:variable name="href" 
-    select="concat('../data/modules/',@module,'/sys/3_defs',$FILE_EXT,'#term-',@term)"/>
+    select="concat(@href_root,@module,'/sys/3_defs',$FILE_EXT,'#term-',@term)"/>
   <p class="menulist">
     <a href="{$href}" target="content">
       <xsl:value-of select="@term"/>

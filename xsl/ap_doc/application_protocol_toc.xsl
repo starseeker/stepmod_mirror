@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol_toc.xsl,v 1.14 2002/12/13 09:48:41 goset1 Exp $
+     $Id: application_protocol_toc.xsl,v 1.15 2003/03/03 17:15:16 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -13,10 +13,9 @@
 						<xsl:if test="@name='nut_and_bolt'">
 		<h1>NB THIS AP IS FOR DEMONSTRATION PURPOSES ONLY</h1>
 						</xsl:if>		
-
 		<xsl:apply-templates select="." mode="TOCbannertitle">
 			<xsl:with-param name="module_root" select="$application_protocol_root"/>
-		</xsl:apply-templates>
+		</xsl:apply-templates> 
 		<xsl:variable name="arm_schema_name" select="concat(@name,'_arm')"/>
 		<xsl:variable name="aim_schema_name" select="concat(@name,'_mim')"/>
 		<xsl:variable name="ap_name" select="./@name"/>

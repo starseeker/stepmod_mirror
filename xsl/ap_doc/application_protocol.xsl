@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.16 2003/03/03 17:15:19 goset1 Exp $
+     $Id: application_protocol.xsl,v 1.18 2003/03/06 15:06:38 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -11,7 +11,7 @@
 	<xsl:output method="html" doctype-system="http://www.w3.org/TR/html4/loose.dtd" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/>
 
 	<xsl:template match="/">
-		<HTML>
+          <HTML>
 			<HEAD>
       	<TITLE>
        		 		<xsl:apply-templates select="./application_protocol" mode="title"/>
@@ -39,6 +39,7 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
+                <!-- no longer permitted
 		<xsl:choose>
 			<xsl:when test="$output_rcs">
 				<xsl:variable  name="date" select="translate(@rcs.date,'$','')"/>
@@ -48,7 +49,20 @@
 			<xsl:otherwise>
 				<xsl:value-of select="concat($lpart,' :- ',@name)"/>
 			</xsl:otherwise>
-		</xsl:choose>
+		</xsl:choose> -->
+
+                <xsl:variable name="stdnumber">
+                  <xsl:call-template name="get_protocol_stdnumber">
+                    <xsl:with-param name="application_protocol" select="."/>
+                  </xsl:call-template>
+                </xsl:variable>
+                
+                <xsl:variable name="protocol_name">
+                  <xsl:call-template name="protocol_display_name">
+                    <xsl:with-param name="application_protocol" select="@name"/>
+                  </xsl:call-template>
+                </xsl:variable>
+                <xsl:value-of select="concat($stdnumber,' ',$protocol_name)"/>                
 	</xsl:template>
 
   <xsl:template match="inscope">

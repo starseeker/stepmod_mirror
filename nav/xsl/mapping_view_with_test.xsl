@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.6 2003/03/03 11:32:09 nigelshaw Exp $
+$Id: mapping_view_with_test.xsl,v 1.7 2003/03/14 01:41:27 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -117,7 +117,6 @@ $Id: mapping_view_with_test.xsl,v 1.6 2003/03/03 11:32:09 nigelshaw Exp $
 		<xsl:variable name="dep-schemas" 
 			  	select="msxsl:node-set($dep-schemas3)" />
 
-	
 		  <xsl:apply-templates select="msxsl:node-set($mappings-result)/module/mapping" mode="output-list">
 			<xsl:with-param name="schemas" select="$dep-schemas" />
 			<xsl:sort select="@entity" />
@@ -988,6 +987,17 @@ $Id: mapping_view_with_test.xsl,v 1.6 2003/03/03 11:32:09 nigelshaw Exp $
 		</xsl:call-template>    
 	</xsl:if>
 
+        <xsl:if test="contains(quote, '-') or contains(quote, '_')">
+          <xsl:value-of select="quote"/>
+          <!-- !! Uppercase characters not expected in "attribute" name !! -->
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="inline" select="'yes'"/>
+            <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+            <xsl:with-param 
+              name="message" 
+              select="concat('Error Map17: Constraint strings should use white space, not - _: ',quote)"/>
+          </xsl:call-template>
+        </xsl:if>
 
 	<xsl:apply-templates select="word" mode="test" >
 		<xsl:with-param name="schemas" select="$schemas" />

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.19 2003/07/28 07:29:58 robbod Exp $
+$Id: select_view.xsl,v 1.20 2003/08/15 14:40:22 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -918,19 +918,25 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 
 
 				<x>
-					<xsl:choose>
-						<xsl:when test="contains($this-schema,'_schema')">
-							<xsl:value-of 
-			select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')" />
-						</xsl:when>
-						<xsl:when test="starts-with($this-schema,'aic_')">
-							<xsl:value-of 
-			select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')" />
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="concat($dir,'data/modules/',$mod,'/arm.xml ')" />
-						</xsl:otherwise>
-					</xsl:choose>
+                                  <xsl:variable name="prefix">
+                                    <xsl:call-template name="get_last_section">
+                                      <xsl:with-param name="path" select="$this-schema"/>
+                                      <xsl:with-param name="divider" select="'_'"/>
+                                    </xsl:call-template>
+                                  </xsl:variable>
+                                  <xsl:choose>
+                                    <xsl:when test="$prefix = '_schema'">
+                                      <xsl:value-of 
+                                        select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')"/>
+                                    </xsl:when>
+                                    <xsl:when test="starts-with($this-schema,'aic_')">
+                                      <xsl:value-of 
+                                        select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                      <xsl:value-of select="concat($dir,'data/modules/',$mod,'/arm.xml ')"/>
+                                    </xsl:otherwise>
+                                  </xsl:choose>
 				</x>
 			</xsl:if>
 

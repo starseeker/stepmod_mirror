@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build.xsl,v 1.1 2002/08/09 13:52:21 robbod Exp $
+$Id: build.xsl,v 1.2 2002/08/12 09:24:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To build the initial ANT build package. 
@@ -101,6 +101,16 @@ $Id: build.xsl,v 1.1 2002/08/09 13:52:21 robbod Exp $
             <xsl:apply-templates select="ballot_package/module">
               <xsl:with-param name="prefix" select="'data/modules/'"/>
               <xsl:with-param name="suffix" select="'/*.exp'"/>
+              <xsl:with-param name="terminate" select="'NO'"/>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="ballot_package/module">
+              <xsl:with-param name="prefix" select="'data/modules/'"/>
+              <xsl:with-param name="suffix" select="'/*.gif'"/>
+              <xsl:with-param name="terminate" select="'NO'"/>
+            </xsl:apply-templates>
+            <xsl:apply-templates select="ballot_package/module">
+              <xsl:with-param name="prefix" select="'data/modules/'"/>
+              <xsl:with-param name="suffix" select="'/*.png'"/>
               <xsl:with-param name="terminate" select="'NO'"/>
             </xsl:apply-templates>
             <xsl:apply-templates select="ballot_package/module">

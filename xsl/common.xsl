@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.49 2002/06/18 08:26:41 robbod Exp $
+$Id: common.xsl,v 1.50 2002/06/19 12:45:32 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -370,20 +370,17 @@ $Id: common.xsl,v 1.49 2002/06/18 08:26:41 robbod Exp $
 </xsl:template>
 
 
-  <xsl:template match="figure">
+<xsl:template match="figure">
     <xsl:variable name="number">
       <xsl:number/>
     </xsl:variable>
 
     <xsl:variable name="aname">
-      <xsl:choose>
-        <xsl:when test="@id">
-          <xsl:value-of select="concat('figure:',@id)"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="concat('figure:',$number)"/>
-        </xsl:otherwise>
-      </xsl:choose>
+      <xsl:call-template name="table_aname">
+        <xsl:with-param name="table" select="."/>
+        <xsl:with-param name="number" select="@number"/>
+        <xsl:with-param name="id" select="@id"/>
+      </xsl:call-template>
     </xsl:variable>
 
 
@@ -606,15 +603,10 @@ $Id: common.xsl,v 1.49 2002/06/18 08:26:41 robbod Exp $
 
 
 <xsl:template match="table">
-
-  <xsl:variable name="number">
-    <xsl:number/>
-  </xsl:variable>
-
   <xsl:variable name="aname">
     <xsl:call-template name="table_aname">
       <xsl:with-param name="table" select="."/>
-      <xsl:with-param name="number" select="$number"/>
+      <xsl:with-param name="number" select="@number"/>
       <xsl:with-param name="id" select="@id"/>
     </xsl:call-template>
   </xsl:variable>
@@ -1974,24 +1966,26 @@ $Id: common.xsl,v 1.49 2002/06/18 08:26:41 robbod Exp $
     <xsl:value-of select="concat($file,'#',$aname)"/>
   </xsl:template>
 
-  <!-- Return the A name with which a table will tagged -->
+
+  <!-- Return the A name with which a TABLE or FIGURE will tagged -->
   <xsl:template name="table_aname">
     <xsl:param name="table" select="."/>
-    <xsl:param name="number"/>
-    <xsl:param name="id"/>
+    <xsl:param name="number" select="./@number"/>
+    <xsl:param name="id" select="./@id"/>
 
     <xsl:variable name="aname">
       <xsl:choose>
         <xsl:when test="$id">
-          <xsl:value-of select="concat('table:',$id)"/>
+          <xsl:value-of select="concat(name($table),':',$id)"/>
         </xsl:when>
         <xsl:otherwise>          
-          <xsl:value-of select="concat('table:',$number)"/>
+          <xsl:value-of select="concat(name($table),':',$number)"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
     <xsl:value-of select="$aname"/>   
   </xsl:template>
+
 
   <!-- return the file that any table or figure XML element is in -->
   <xsl:template name="in_file">
@@ -2007,8 +2001,24 @@ $Id: common.xsl,v 1.49 2002/06/18 08:26:41 robbod Exp $
       <xsl:when test="$table_fig_node/ancestor::inscope[1]|$table_fig_node/ancestor::outscope[1]">
         <xsl:value-of select="concat('1_scope',$FILE_EXT)"/>
       </xsl:when>
-      <xsl:when test="$table_fig_node/ancestor::ext_descriptions[1]">
-        <xsl:value-of select="concat('arm',$FILE_EXT)"/>
+      <xsl:when test="$table_fig_node/ancestor::ext_descriptions[1][@schema_file='arm.xml']">
+        <xsl:value-of select="concat('4_info_reqs',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="$table_fig_node/ancestor::schema">
+        <xsl:variable name="schema" select="//schema/@name"/>
+        <xsl:choose>
+          <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
+            <xsl:value-of select="concat('4_info_reqs',$FILE_EXT)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat('5_mim',$FILE_EXT)"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="$table_fig_node/ancestor::ext_descriptions[1][@schema_file='mim.xml']">
+        <xsl:value-of select="concat('5_mim',$FILE_EXT)"/>
       </xsl:when>
     </xsl:choose>
   </xsl:template>

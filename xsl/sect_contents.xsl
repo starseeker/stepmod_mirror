@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_2_refs.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_contents.xsl,v 1.1 2002/06/17 16:06:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -24,8 +24,7 @@ $Id: sect_2_refs.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
   <xsl:apply-templates select="../module" mode="contents"/>
-  <xsl:apply-templates select="../module" mode="contents_tables"/>
-  <xsl:apply-templates select="../module" mode="contents_figures"/>
+  <xsl:apply-templates select="../module" mode="contents_tables_figures"/>
   <xsl:apply-templates select="../module" mode="copyright"/>
 </xsl:template>
 
@@ -323,13 +322,14 @@ $Id: sect_2_refs.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
   <!-- Output clause 5 index -->
   <!-- use #mim to link direct -->
   <p class="content">
-    <A HREF="./5_mim{$FILE_EXT}">5 Module interpreted
-    model</A>
+    <A HREF="./5_mim{$FILE_EXT}">5 Module interpreted model</A>
   </p>
   <p class="content">
     <A HREF="./5_mapping{$FILE_EXT}">&#160; &#160;5.1
     Mapping specification</A>
   </p>
+  <xsl:apply-templates select="./mapping_table/ae" mode="toc"/>
+
   <p class="content">
     <A HREF="./5_mim{$FILE_EXT}#mim_express">&#160; &#160;5.2 MIM EXPRESS short listing</A>
   </p>
@@ -626,18 +626,6 @@ $Id: sect_2_refs.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
   </p>
 </xsl:template>
 
-<xsl:template match="module" mode="contents_figures">
-  <h3>Figures</h3>
-  <!-- collect up the figures from the Module -->
-  
-  <!-- collect up the figures from the ARM -->
-  <xsl:apply-templates 
-    select="./arm/express-g/imgfile" mode="expressg_figure"/>
-  <!-- collect up the figures from the MIM -->
-  <xsl:apply-templates 
-    select="./mim/express-g/imgfile" mode="expressg_figure"/>
-</xsl:template>
-
 
 <xsl:template match="imgfile" mode="expressg_figure">
   <xsl:variable name="number">
@@ -687,7 +675,8 @@ $Id: sect_2_refs.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
 </xsl:template>
 
 
-<xsl:template match="module" mode="contents_tables">
+<!-- list an index the tables and figures -->
+<xsl:template match="module" mode="contents_tables_figures">
   <xsl:variable name="module_dir">
     <xsl:call-template name="module_directory">
       <xsl:with-param name="module" select="@name"/>
@@ -698,9 +687,9 @@ $Id: sect_2_refs.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
   <xsl:variable name="arm_desc_xml" select="document($arm_xml)/express/@description.file"/>
   <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
   <xsl:variable name="mim_desc_xml" select="document($mim_xml)/express/@description.file"/>
+
   <h3>Tables</h3>
-  <!-- collect up the mapping tables -->
-  <xsl:apply-templates select="*//table" mode="toc"/>
+  <xsl:apply-templates select="//table" mode="toc"/>
   <xsl:choose>
     <xsl:when test="$arm_desc_xml">
       <xsl:apply-templates select="document($arm_desc_xml)//table" mode="toc"/>
@@ -717,39 +706,55 @@ $Id: sect_2_refs.xsl,v 1.4 2002/03/04 07:50:08 robbod Exp $
       <xsl:apply-templates select="document($mim_xml)//table" mode="toc"/>
     </xsl:otherwise>
   </xsl:choose>
-  <xsl:apply-templates select="./mapping_table/ae" mode="toc"/>
+  <a href="./e_exp{$FILE_EXT}#table_e1">
+    Table E.1 &#8212; ARM to MIM EXPRESS short and long form listing.
+  </a>
+
+  <h3>Figures</h3>
+  <!-- collect up the figures from the Module -->
+  <xsl:apply-templates select="//figure" mode="toc"/>
+  <xsl:choose>
+    <xsl:when test="$arm_desc_xml">
+      <xsl:apply-templates select="document($arm_desc_xml)//figure" mode="toc"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates select="document($arm_xml)//figure" mode="toc"/>
+    </xsl:otherwise>
+  </xsl:choose>
+  <xsl:choose>
+    <xsl:when test="$mim_desc_xml">
+      <xsl:apply-templates select="document($mim_desc_xml)//figure" mode="toc"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates select="document($mim_xml)//figure" mode="toc"/>
+    </xsl:otherwise>
+  </xsl:choose>
+
+  <!-- collect up the EXpressG figures from the ARM -->
+  <xsl:apply-templates 
+    select="./arm/express-g/imgfile" mode="expressg_figure"/>
+  <!-- collect up the EXpressG figures from the MIM -->
+  <xsl:apply-templates 
+    select="./mim/express-g/imgfile" mode="expressg_figure"/>
+
 </xsl:template>
 
 
-<xsl:template match="table" mode="toc">
-  <xsl:variable name="file">
-    
-  </xsl:variable>
+<xsl:template match="table|figure" mode="toc">
   <xsl:variable name="href">
     <xsl:call-template name="table_href">
       <xsl:with-param name="table" select="."/>
     </xsl:call-template>
   </xsl:variable>
 
+  <xsl:variable name="table_or_fig" select="name(.)"/>
   <p class="content">
-    <a href="{$href}">
-      Table 
-      <xsl:value-of select="@number"/> &#8212; <xsl:value-of
-select="@caption"/>
+    <a href="{$href}">      
+    <xsl:value-of 
+      select="concat($table_or_fig,' ',@number, '&#8212;', @caption)"/>
     </a>
   </p>
 
-</xsl:template>
-
-<xsl:template match="ae" mode="toc">
-  <xsl:variable name="sect_no">
-    <xsl:number/>
-  </xsl:variable>
-  <xsl:variable name="aname" select="@entity"/>
-  <a href="#{$aname}">
-    <xsl:value-of select="concat('Table ', $sect_no,'  &#8212; ',$aname)"/> 
-  </a>
-  <br/>
 </xsl:template>
 
 
@@ -775,6 +780,63 @@ select="@caption"/>
       E-mail copyright@iso.ch<br/>
       Web www.iso.ch<br/>
     </blockquote>
+  </p>
+</xsl:template>
+
+
+
+<xsl:template match="ae" mode="toc">
+  <xsl:variable name="sect_no">
+    <xsl:number/>
+  </xsl:variable>
+  <xsl:variable name="aname" select="@entity"/>
+  <p class="content">
+    <a href="#{$aname}">
+      <xsl:value-of
+        select="concat('&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;5.1.',$sect_no,' ',$aname)"/>
+    </a>
+  </p>
+
+  <xsl:apply-templates select="aa" mode="toc">
+    <xsl:with-param name="sect" select="concat('5.1.',$sect_no)"/>
+  </xsl:apply-templates>
+
+</xsl:template>
+
+<xsl:template match="aa" mode="toc">
+  <xsl:param name="sect"/>
+  <xsl:variable 
+    name="schema_name" 
+    select="concat(../../../../module/@name,'_arm')"/>
+
+  <xsl:variable name="aa_aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="$schema_name"/>
+      <xsl:with-param name="section2" select="../@entity"/>
+      <xsl:with-param name="section3" select="@attribute"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable 
+    name="aa_xref"
+    select="concat('./4_info_reqs',$FILE_EXT,'#',$aa_aname)"/>
+
+  <xsl:variable name="sect_no" select="concat($sect,'.',position())"/>
+  <p class="content">
+    <xsl:text>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</xsl:text>
+    <xsl:choose>
+      <xsl:when test="@assertion_to">
+        <a href="./5_mapping{$FILE_EXT}#{$aa_aname}">
+          <xsl:value-of 
+            select="concat($sect_no,' ',
+                    ../@entity, ' to ', ./@assertion_to, ' (as ',@attribute,')')"/>
+        </a>
+      </xsl:when>
+      <xsl:otherwise>
+        <a href="./5_mapping{$FILE_EXT}#{$aa_aname}">
+          <xsl:value-of select="concat($sect_no,' ',@attribute)"/>
+        </a>
+      </xsl:otherwise>
+    </xsl:choose>
   </p>
 </xsl:template>
 

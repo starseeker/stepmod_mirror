@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.33 2002/04/19 07:43:10 robbod Exp $
+$Id: common.xsl,v 1.34 2002/04/19 09:54:02 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -785,7 +785,7 @@ $Id: common.xsl,v 1.33 2002/04/19 07:43:10 robbod Exp $
         <xsl:call-template name="error_message">
           <xsl:with-param
             name="message"
-            select="concat('express_ref linkend',
+            select="concat('express_ref linkend ',
                     @linkend,
                     ' is incorrectly specified')"/>
         </xsl:call-template>
@@ -1471,19 +1471,19 @@ $Id: common.xsl,v 1.33 2002/04/19 07:43:10 robbod Exp $
   <xsl:variable name="linkend_ok">
     <xsl:choose>
       <xsl:when test="$arm_mim_ir_section=''">
-        <xsl:value-of select="concat('express_ref linkend', 
+        <xsl:value-of select="concat('express_ref linkend ', 
                               $linkend, 
                               ' is incorrectly specified. 
                               Need to specify :arm: :arm_express: :mim: :ir_express')"/>
       </xsl:when>
       <xsl:when test="$module_section=''">
-        <xsl:value-of select="concat('express_ref linkend', 
+        <xsl:value-of select="concat('express_ref linkend ', 
                               $linkend, 
                               ' is incorrectly specified.
                               Need to specify the module first')"/>
       </xsl:when>
       <xsl:when test="$module_ok!='true'">
-        <xsl:value-of select="concat('express_ref linkend', 
+        <xsl:value-of select="concat('express_ref linkend ', 
                               $linkend, 
                               ' is incorrectly specified.', $module_ok)"/>
       </xsl:when>

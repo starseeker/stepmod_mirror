@@ -1,50 +1,57 @@
-(* WG12N1550  ISO/CD TS 10303-1051	Geometric Tolerance - EXPRESS MIM
-$Id: mim.exp,v 1.6 2002/11/19 09:34:41 goset1 Exp $ *)
+(*
+ISO TC184/SC4/WG12 N1551 - ISO/CD-TS 10303-1051 Geometric tolerance - EXPRESS MIM
+$Id: $
+*) 
 
-SCHEMA Geometric_tolerance_mim;
 
-USE FROM Derived_shape_element_mim;
+SCHEMA Geometric_tolerance_mim; 
 
-USE FROM Elemental_geometric_shape_mim;
+USE FROM Derived_shape_element_mim;    -- ISO/CD-TS 10303-1130
 
-USE FROM Measure_representation_mim;
+USE FROM Elemental_geometric_shape_mim;    -- ISO/CD-TS 10303-1004
 
-USE FROM Shape_property_assignment_mim;
+USE FROM Measure_representation_mim;    -- ISO/TS 10303-1118
 
-USE FROM Value_with_unit_mim;
+USE FROM Shape_property_assignment_mim;    -- ISO/TS 10303-1032
 
-USE FROM aic_geometric_tolerances;
+USE FROM Value_with_unit_mim;    -- ISO/TS 10303-1054
 
-REFERENCE FROM support_resource_schema(
-	type_check_function);
+USE FROM aic_geometric_tolerances;    -- ISO 10303-519
+
+REFERENCE FROM support_resource_schema   -- ISO 10303-41
+  (type_check_function); 
 
 
 ENTITY placed_datum_target_feature
-SUBTYPE OF (datum_target);
+  SUBTYPE OF (datum_target);
 DERIVE
   representation_associations : SET OF product_definition_representation := get_shape_aspect_property_definition_representations(SELF);
 WHERE
   WR1: SELF\shape_aspect.description IN ['point','line','rectangle','circle'];
-  WR2: SIZEOF (QUERY (pdr <* representation_associations |
-              'GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS'
-               IN TYPEOF (pdr.used_representation)
-              )) = 1;
+  WR2: SIZEOF (QUERY (pdr <* representation_associations | 'GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN TYPEOF (pdr.used_representation) )) = 1;
   WR3: valid_datum_target_parameters(SELF);
 END_ENTITY;
 
-
-ENTITY shape_representation_with_parameters 
-SUBTYPE OF (shape_representation); 
-WHERE 
-WR1: SIZEOF( QUERY( i <* SELF.items | 
-   SIZEOF(['GEOMETRIC_TOLERANCE_MIM.PLACEMENT', 
-	'GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM', 
-	'GEOMETRIC_TOLERANCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM'] * TYPEOF(i)) = 1 )) 
-  = SIZEOF(SELF.items); 
+ENTITY shape_representation_with_parameters
+  SUBTYPE OF (shape_representation);
+WHERE
+  WR1: SIZEOF( QUERY( i <* SELF.items | SIZEOF(['GEOMETRIC_TOLERANCE_MIM.PLACEMENT', 'GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM', 'GEOMETRIC_TOLERANCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM'] * TYPEOF(i)) = 1 )) = SIZEOF(SELF.items);
 END_ENTITY;
 
+RULE subtype_exclusiveness_geometric_tolerance FOR 
+(geometric_tolerance);
+WHERE
+  WR1: SIZEOF(QUERY (gt <* geometric_tolerance | NOT (type_check_function(gt, ['GEOMETRIC_TOLERANCE_MIM.ANGULARITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CIRCULAR_RUNOUT_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.COAXIALITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CONCENTRICITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CYLINDRICITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.FLATNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.LINE_PROFILE_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.PARALLELISM_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.PERPENDICULARITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.POSITION_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.ROUNDNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.STRAIGHTNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.SURFACE_PROFILE_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.SYMMETRY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.TOTAL_RUNOUT_TOLERANCE'] , 3 ) ))) = 0;
+END_RULE; 
 
-FUNCTION get_shape_aspect_property_definition_representations (s_a_instance : shape_aspect) : SET OF property_definition_representation; 
+RULE subtype_mandatory_geometric_tolerance FOR 
+(geometric_tolerance);
+WHERE
+  WR1: SIZEOF(QUERY ( gt <* geometric_tolerance | NOT (type_check_function(gt, ['GEOMETRIC_TOLERANCE_MIM.ANGULARITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CIRCULAR_RUNOUT_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.COAXIALITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CONCENTRICITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.CYLINDRICITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.FLATNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.LINE_PROFILE_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.PARALLELISM_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.PERPENDICULARITY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.POSITION_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.ROUNDNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.STRAIGHTNESS_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.SURFACE_PROFILE_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.SYMMETRY_TOLERANCE', 'GEOMETRIC_TOLERANCE_MIM.TOTAL_RUNOUT_TOLERANCE'] , 0) ))) = 0;
+END_RULE; 
+
+FUNCTION get_shape_aspect_property_definition_representations
+ (s_a_instance : shape_aspect) : SET OF property_definition_representation; 
 LOCAL 
   pd_set : SET OF property_definition := []; 
   pdr_set : SET OF property_definition_representation := [] ; 
@@ -58,10 +65,10 @@ REPEAT i := 1 TO HIINDEX(pd_set);
      'GEOMETRIC_TOLERANCE_MIM.SHAPE_DEFINITION_REPRESENTATION' IN TYPEOF(pdr ))); 
 END_REPEAT; 
 RETURN (pdr_set); 
-END_FUNCTION; 
+      END_FUNCTION; 
 
-
-FUNCTION valid_datum_target_parameters (pdf: placed_datum_target_feature): BOOLEAN;
+FUNCTION valid_datum_target_parameters
+ (pdf : placed_datum_target_feature) : BOOLEAN; 
 LOCAL
   parameter_representations: SET OF representation;
 END_LOCAL;
@@ -113,54 +120,6 @@ CASE pdf\shape_aspect.description OF
                   ) = 2))) = 1) )) = 1));
 OTHERWISE : RETURN(FALSE);
 END_CASE;
-END_FUNCTION;
+      END_FUNCTION; 
 
-
-RULE subtype_exclusiveness_geometric_tolerance FOR
-    (geometric_tolerance);
-WHERE
-  WR1:  SIZEOF(QUERY (gt <* geometric_tolerance |
-                    NOT (type_check_function(gt,
-                    ['GEOMETRIC_TOLERANCE_MIM.ANGULARITY_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.CIRCULAR_RUNOUT_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.COAXIALITY_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.CONCENTRICITY_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.CYLINDRICITY_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.FLATNESS_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.LINE_PROFILE_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.PARALLELISM_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.PERPENDICULARITY_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.POSITION_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.ROUNDNESS_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.STRAIGHTNESS_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.SURFACE_PROFILE_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.SYMMETRY_TOLERANCE',
-                     'GEOMETRIC_TOLERANCE_MIM.TOTAL_RUNOUT_TOLERANCE'] , 3 )
-               ))) = 0;
-END_RULE;
-
-RULE subtype_mandatory_geometric_tolerance FOR
-    (geometric_tolerance);
-WHERE
-  WR1:  SIZEOF(QUERY ( gt <* geometric_tolerance | 
-                        NOT (type_check_function(gt,
-                       ['GEOMETRIC_TOLERANCE_MIM.ANGULARITY_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.CIRCULAR_RUNOUT_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.COAXIALITY_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.CONCENTRICITY_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.CYLINDRICITY_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.FLATNESS_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.LINE_PROFILE_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.PARALLELISM_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.PERPENDICULARITY_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.POSITION_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.ROUNDNESS_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.STRAIGHTNESS_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.SURFACE_PROFILE_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.SYMMETRY_TOLERANCE',
-                        'GEOMETRIC_TOLERANCE_MIM.TOTAL_RUNOUT_TOLERANCE'] , 0)
-                    ))) = 0;
-END_RULE;
-
-
-END_SCHEMA;
+END_SCHEMA;  -- Geometric_tolerance_mim

@@ -1,72 +1,65 @@
-{ iso standard 10303 part (11) version (4) }
+(*
+$Id: arm.exp,v 1.4 2003/01/20 11:37:06 seanbarker Exp $
+ISO TC184/SC4/WG12 N1580 - ISO/CD-TS 10303-1258 Observation - EXPRESS ARM
+*) 
 
-(******************************************************************************)
-(*                                                                            *)
-(*          This file was produced by Eurostep Graphical EXPRESS V1.3         *)
-(*                                                                            *)
-(******************************************************************************)
 
-(* Original model: Observation_arm.vsd *)
-(* Title: Observation_arm *)
-(* Author: barker *)
-(* Comments :
- *)
+SCHEMA Observation_arm; 
 
-SCHEMA Observation_arm;
+USE FROM Activity_as_realized_arm;    -- ISO/CD-TS 10303-1259
 
-USE FROM Activity_as_realized_arm;
+USE FROM Approval_arm;    -- ISO/TS 10303-1012
 
-USE FROM Approval_arm;
+USE FROM Classification_assignment_arm;    -- ISO/CD-TS 10303-1114
 
-USE FROM Classification_assignment_arm;
+USE FROM Date_time_assignment_arm;    -- ISO/TS 10303-1014
 
-USE FROM Date_time_assignment_arm;
+USE FROM Person_organization_assignment_arm;    -- ISO/TS 10303-1013
 
-USE FROM Person_organization_assignment_arm;
+USE FROM Product_as_individual_arm;    -- ISO/CD-TS 10303-1164
 
-USE FROM Product_as_individual_arm;
+USE FROM Work_request_arm;    -- ISO/TS 10303-1042
 
-USE FROM Work_request_arm;
 
-TYPE observation_approval = SELECT BASED_ON approval_item WITH
-  (Observation);
-END_TYPE;
+TYPE observation_approval = SELECT BASED_ON approval_item WITH 
+   (Observation);
+END_TYPE; 
 
-TYPE observation_classification_item = SELECT BASED_ON classification_item WITH
-  (Observation,
-   Observation_relationship);
-END_TYPE;
+TYPE observation_classification_item = SELECT BASED_ON classification_item WITH 
+   (Observation, 
+    Observation_relationship);
+END_TYPE; 
 
-TYPE observation_contents = EXTENSIBLE SELECT ;
-END_TYPE;
+TYPE observation_contents = EXTENSIBLE SELECT;
+END_TYPE; 
 
-TYPE observation_date_time = SELECT BASED_ON date_or_date_time_item WITH
-  (Observation);
-END_TYPE;
+TYPE observation_date_time = SELECT BASED_ON date_or_date_time_item WITH 
+   (Observation);
+END_TYPE; 
 
-TYPE observed_context = EXTENSIBLE SELECT ;
-END_TYPE;
+TYPE observation_recorder = EXTENSIBLE SELECT
+   (Product_as_realized);
+END_TYPE; 
 
-TYPE observed_item = EXTENSIBLE SELECT ;
-END_TYPE;
+TYPE observed_context = EXTENSIBLE SELECT;
+END_TYPE; 
 
-TYPE observing_person = SELECT BASED_ON organization_or_person_in_organization_item WITH
-  (Observation);
-END_TYPE;
+TYPE observed_item = EXTENSIBLE SELECT;
+END_TYPE; 
 
-TYPE obsesrvation_recorder = EXTENSIBLE SELECT 
-  (Product_as_realized);
-END_TYPE;
+TYPE observing_person = SELECT BASED_ON organization_or_person_in_organization_item WITH 
+   (Observation);
+END_TYPE; 
 
 ENTITY Observation;
   id : STRING;
   name : STRING;
   description : STRING;
-  applies_to : SET [0 : ?] OF observed_item;
-  in_context : SET [0 : ?] OF observed_context;
-  observed_by : SET [0 : ?] OF obsesrvation_recorder;
+  applies_to : SET[0:?] OF observed_item;
+  in_context : SET[0:?] OF observed_context;
+  observed_by : SET[0:?] OF observation_recorder;
   observed_during : OPTIONAL Activity_actual;
-  related_records : SET [0 : ?] OF observation_contents;
+  related_records : SET[0:?] OF observation_contents;
 END_ENTITY;
 
 ENTITY Observation_consequence;
@@ -83,54 +76,4 @@ ENTITY Observation_relationship;
   role : STRING;
 END_ENTITY;
 
-END_SCHEMA;
-
-SCHEMA Person_organization_assignment_arm;
-
-TYPE organization_or_person_in_organization_item = EXTENSIBLE SELECT ;
-END_TYPE;
-
-END_SCHEMA;
-
-SCHEMA Activity_as_realized_arm;
-
-ENTITY Activity_actual;
-END_ENTITY;
-
-END_SCHEMA;
-
-SCHEMA Date_time_assignment_arm;
-
-TYPE date_or_date_time_item = EXTENSIBLE SELECT ;
-END_TYPE;
-
-END_SCHEMA;
-
-SCHEMA Classification_assignment_arm;
-
-TYPE classification_item = EXTENSIBLE SELECT ;
-END_TYPE;
-
-END_SCHEMA;
-
-SCHEMA Approval_arm;
-
-TYPE approval_item = EXTENSIBLE SELECT ;
-END_TYPE;
-
-END_SCHEMA;
-
-SCHEMA Work_request_arm;
-
-ENTITY Work_request;
-END_ENTITY;
-
-END_SCHEMA;
-
-SCHEMA Product_as_individual_arm;
-
-ENTITY Product_as_realized;
-END_ENTITY;
-
-END_SCHEMA;
-
+END_SCHEMA;  -- Observation_arm

@@ -1,12 +1,2478 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.17 2002/07/15 09:00:07 goset1 Exp $ -->
+<!-- $Id: arm_lf.xml,v 1.2 2002/10/30 18:34:46 davidleal Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl" ?>
+
 <express
-   language_version="2"
-   rcs.date="$Date: 2002/07/15 09:00:07 $"
-   rcs.revision="$Revision: 1.17 $">
+  language_version="1"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name=" Eurostep EXPRESS Parser (Eep!)"
+    owner="Eurostep Limited"
+    url="www.eurostep.com"
+    version="1, 2, 1041, 2056"
+    source="arm_lf.exp"/>
+
   <schema name="functional_data_and_schematic_representation_arm_lf">
+    <type name="activity_item">
+      <select
+        selectitems="Class_of_activity Class_of_composition_of_activity Class_of_composition_of_product Class_of_connection_of_activity Class_of_connection_of_product Class_of_containment_of_product Class_of_involvement_in_activity Class_of_involvement_of_product_in_connection Class_of_person Class_of_product Composition_of_individual_activity Composition_of_individual_product Connection_of_individual_activity Connection_of_individual_product Containment_of_individual_product Drawing_revision_class_of_document Drawing_sheet_revision_class_of_document Individual_activity Individual_involvement_in_activity Involvement_of_individual_product_in_connection Organization Organization_type Person Person_in_organization Possession_of_property Product_as_individual Property_condition Schematic_element Symbolization_by_schematic_element"
+      />
+    </type>
+
+    <type name="any_number_value">
+      <builtintype type="NUMBER"
+      />
+    </type>
+
+    <type name="any_string_value">
+      <builtintype type="STRING"
+      />
+    </type>
+
+    <type name="approval_item">
+      <select
+        selectitems="Drawing_revision Drawing_sheet_revision"
+      />
+    </type>
+
+    <type name="characterized_activity_definition">
+      <select
+        selectitems="Activity Activity_method"
+      />
+    </type>
+
+    <type name="classification_select">
+      <select
+        selectitems="Composition_of_individual_activity Composition_of_individual_product Connection_of_individual_activity Connection_of_individual_product Containment_of_individual_product Individual_activity Individual_involvement_in_activity Involvement_of_individual_product_in_connection Product_as_individual"
+      />
+    </type>
+
+    <type name="complete_membership_select">
+      <select
+        selectitems="Composition_of_individual_activity Composition_of_individual_product Connection_of_individual_activity Connection_of_individual_product Containment_of_individual_product Individual_activity Individual_involvement_in_activity Involvement_of_individual_product_in_connection Product_as_individual"
+      />
+    </type>
+
+    <type name="date_or_date_time_select">
+      <select
+        selectitems="Calendar_date Date_time"
+      />
+    </type>
+
+    <type name="day_in_month_number">
+      <builtintype type="INTEGER"
+      />
+      <where
+        label="WR1"
+        expression="{1 &lt;= SELF &lt;= 31}">
+      </where>
+    </type>
+
+    <type name="draughting_approval_item">
+      <typename name="approval_item"/>
+    </type>
+
+    <type name="external_identification_item">
+      <select
+        selectitems="Class_of_activity Class_of_composition_of_activity Class_of_composition_of_product Class_of_connection_of_activity Class_of_connection_of_product Class_of_containment_of_product Class_of_involvement_in_activity Class_of_involvement_of_product_in_connection Class_of_product Implicit_schematic_element_definition"
+      />
+    </type>
+
+    <type name="hour_in_day">
+      <builtintype type="INTEGER"
+      />
+      <where
+        label="WR1"
+        expression="{0 &lt;= SELF &lt; 24}">
+      </where>
+    </type>
+
+    <type name="identification_item">
+      <select
+        selectitems="Product_as_individual"
+      />
+    </type>
+
+    <type name="involved_class_select">
+      <typename name="activity_item"/>
+      <where
+        label="wr1"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.COMPOSITION_OF_INDIVIDUAL_ACTIVITY&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr2"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.COMPOSITION_OF_INDIVIDUAL_PRODUCT&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr3"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.CONNECTION_OF_INDIVIDUAL_ACTIVITY&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr4"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.CONNECTION_OF_INDIVIDUAL_PRODUCT&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr5"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.CONTAINMENT_OF_INDIVIDUAL_PRODUCT&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr6"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.INDIVIDUAL_ACTIVITY&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr7"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.INDIVIDUAL_INVOLVEMENT_IN_ACTIVITY&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr8"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.INVOLVEMENT_OF_INDIVIDUAL_PRODUCT_IN_CONNECTION&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr9"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.ORGANIZATION&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr10"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.PERSON&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr11"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.PERSON_IN_ORGANIZATION&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr12"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.POSSESSION_OF_PROPERTY&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr13"
+        expression="NOT (&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM.PRODUCT_AS_INDIVIDUAL&apos; IN TYPEOF(SELF))">
+      </where>
+    </type>
+
+    <type name="involved_select">
+      <typename name="activity_item"/>
+    </type>
+
+    <type name="length_measure">
+      <builtintype type="REAL"
+      />
+    </type>
+
+    <type name="maths_atom">
+      <select
+        selectitems="maths_boolean maths_complex maths_integer maths_real"
+      />
+    </type>
+
+    <type name="maths_boolean">
+      <builtintype type="BOOLEAN"
+      />
+    </type>
+
+    <type name="maths_complex">
+      <aggregate type="LIST"
+        lower="2"
+        upper="2"
+      />
+      <builtintype type="REAL"
+      />
+    </type>
+
+    <type name="maths_integer">
+      <builtintype type="INTEGER"
+      />
+    </type>
+
+    <type name="maths_real">
+      <builtintype type="REAL"
+      />
+    </type>
+
+    <type name="maths_tuple">
+      <aggregate type="LIST"
+        lower="0"
+        upper="?"
+      />
+      <typename name="maths_value"/>
+    </type>
+
+    <type name="maths_value">
+      <select
+        selectitems="maths_atom Maths_space maths_tuple"
+      />
+    </type>
+
+    <type name="measure_value">
+      <select
+        selectitems="any_number_value any_string_value length_measure plane_angle_measure"
+      />
+    </type>
+
+    <type name="minute_in_hour">
+      <builtintype type="INTEGER"
+      />
+      <where
+        label="WR1"
+        expression="{0 &lt;= SELF &lt;= 59}">
+      </where>
+    </type>
+
+    <type name="month_in_year_number">
+      <builtintype type="INTEGER"
+      />
+      <where
+        label="WR1"
+        expression="{1 &lt;= SELF &lt;= 12}">
+      </where>
+    </type>
+
+    <type name="offset_orientation">
+      <enumeration
+        items="ahead exact behind"
+      />
+    </type>
+
+    <type name="organization_or_person_in_organization_select">
+      <select
+        selectitems="Organization Person_in_organization"
+      />
+    </type>
+
+    <type name="plane_angle_measure">
+      <builtintype type="REAL"
+      />
+    </type>
+
+    <type name="property_assignment_select">
+      <select
+        selectitems="Class_of_activity Class_of_product Individual_activity Product_as_individual"
+      />
+    </type>
+
+    <type name="relationship_select">
+      <select
+        selectitems="Class_of_composition_of_activity Class_of_composition_of_product Class_of_connection_of_activity Class_of_connection_of_product Class_of_containment_of_product Class_of_involvement_in_activity Class_of_involvement_of_product_in_connection"
+      />
+    </type>
+
+    <type name="second_in_minute">
+      <builtintype type="REAL"
+      />
+      <where
+        label="WR1"
+        expression="{0 &lt;= SELF &lt;= 60.000000}">
+      </where>
+    </type>
+
+    <type name="symbolized_class_select">
+      <select
+        selectitems="Class_of_activity Class_of_composition_of_activity Class_of_composition_of_product Class_of_connection_of_activity Class_of_connection_of_product Class_of_containment_of_product Class_of_involvement_in_activity Class_of_involvement_of_product_in_connection Class_of_person Class_of_product Drawing_revision_class_of_document Drawing_sheet_revision_class_of_document Organization_type Property_condition Schematic_element Symbolization_by_schematic_element"
+      />
+    </type>
+
+    <type name="symbolized_item_select">
+      <select
+        selectitems="Class_of_activity Class_of_composition_of_activity Class_of_composition_of_product Class_of_connection_of_activity Class_of_connection_of_product Class_of_containment_of_product Class_of_involvement_in_activity Class_of_involvement_of_product_in_connection Class_of_person Class_of_product Composition_of_individual_activity Composition_of_individual_product Connection_of_individual_activity Connection_of_individual_product Containment_of_individual_product Drawing_revision_class_of_document Drawing_sheet_revision_class_of_document Individual_activity Individual_involvement_in_activity Involvement_of_individual_product_in_connection Organization Organization_type Person Person_in_organization Possession_of_property Product_as_individual Property_condition Schematic_element Symbolization_by_schematic_element"
+      />
+    </type>
+
+    <type name="year_number">
+      <builtintype type="INTEGER"
+      />
+    </type>
+
+    <entity name="Activity"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="chosen_method">
+        <typename name="Activity_method"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_method"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="consequence"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="purpose">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Activity_property"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="described_element">
+        <typename name="characterized_activity_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_property_representation"
+    >
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="property">
+        <typename name="Activity_property"/>
+      </explicit>
+      <explicit
+        name="rep">
+        <typename name="Representation"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Activity_relationship"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="related_activity">
+        <typename name="Activity"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_status"
+    >
+      <explicit
+        name="assigned_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="status">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Address"
+    >
+      <explicit
+        name="name"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="street_number"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="street"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="postal_box"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="town"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="region"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="postal_code"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="country"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="internal_location"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="facsimile_number"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="telephone_number"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="electronic_mail_address"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="telex_number"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="url"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <where
+        label="WR1"
+        expression="(EXISTS(street_number) OR EXISTS(street) OR EXISTS(postal_box) OR EXISTS(town) OR EXISTS(region) OR EXISTS(postal_code) OR EXISTS(country) OR EXISTS(internal_location) OR EXISTS(facsimile_number) OR EXISTS(telephone_number) OR EXISTS(electronic_mail_address) OR EXISTS(telex_number))">
+      </where>
+    </entity>
+
+    <entity name="Address_assignment"
+    >
+      <explicit
+        name="address_type"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="assigned_address">
+        <typename name="Address"/>
+      </explicit>
+      <explicit
+        name="located_person_organizations">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="organization_or_person_in_organization_select"/>
+      </explicit>
+    </entity>
+
+    <entity name="Amount_of_substance_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Applied_activity_assignment"
+    >
+      <explicit
+        name="assigned_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="activity_item"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Applied_independent_activity_property"
+      supertypes="Activity_property"
+    >
+      <explicit
+        name="base_element_property">
+        <typename name="Independent_property"/>
+      </explicit>
+      <derived
+        name="name"
+        expression="base_element_property.property_type">
+        <builtintype type="STRING"
+        />
+        <redeclaration
+          entity-ref="Activity_property"/>
+      </derived>
+    </entity>
+
+    <entity name="Applied_independent_property"
+      supertypes="Assigned_property"
+    >
+      <explicit
+        name="base_independent_property">
+        <typename name="Independent_property"/>
+      </explicit>
+      <derived
+        name="name"
+        expression="base_independent_property.property_type">
+        <builtintype type="STRING"
+        />
+        <redeclaration
+          entity-ref="Assigned_property"/>
+      </derived>
+    </entity>
+
+    <entity name="Approval"
+    >
+      <explicit
+        name="status">
+        <typename name="Approval_status"/>
+      </explicit>
+      <explicit
+        name="purpose">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="planned_date"
+        optional="YES">
+        <typename name="date_or_date_time_select"/>
+      </explicit>
+      <explicit
+        name="actual_date"
+        optional="YES">
+        <typename name="date_or_date_time_select"/>
+      </explicit>
+    </entity>
+
+    <entity name="Approval_assignment"
+    >
+      <explicit
+        name="assigned_approval">
+        <typename name="Approval"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="approval_item"/>
+      </explicit>
+      <explicit
+        name="role"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Approval_relationship"
+    >
+      <explicit
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_approval">
+        <typename name="Approval"/>
+      </explicit>
+      <explicit
+        name="related_approval">
+        <typename name="Approval"/>
+      </explicit>
+    </entity>
+
+    <entity name="Approval_status"
+    >
+      <explicit
+        name="status_name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Approving_person_organization"
+    >
+      <explicit
+        name="person_organization">
+        <typename name="organization_or_person_in_organization_select"/>
+      </explicit>
+      <explicit
+        name="approval_date"
+        optional="YES">
+        <typename name="date_or_date_time_select"/>
+      </explicit>
+      <explicit
+        name="authorized_approval">
+        <typename name="Approval"/>
+      </explicit>
+      <explicit
+        name="role"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Assigned_property"
+    >
+      <explicit
+        name="id"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="described_element">
+        <typename name="property_assignment_select"/>
+      </explicit>
+    </entity>
+
+    <entity name="Calendar_date"
+    >
+      <explicit
+        name="year_component">
+        <typename name="year_number"/>
+      </explicit>
+      <explicit
+        name="month_component">
+        <typename name="month_in_year_number"/>
+      </explicit>
+      <explicit
+        name="day_component">
+        <typename name="day_in_month_number"/>
+      </explicit>
+    </entity>
+
+    <entity name="Cardinality_of_related_class"
+    >
+      <explicit
+        name="cardinality">
+        <typename name="Maths_space"/>
+      </explicit>
+      <explicit
+        name="relationship">
+        <typename name="relationship_select"/>
+      </explicit>
+    </entity>
+
+    <entity name="Cardinality_of_relating_class"
+    >
+      <explicit
+        name="cardinality">
+        <typename name="Maths_space"/>
+      </explicit>
+      <explicit
+        name="relationship">
+        <typename name="relationship_select"/>
+      </explicit>
+    </entity>
+
+    <entity name="Class"
+      super.expression="ONEOF(Class_by_extension, Class_by_intension)"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Class_by_extension"
+      supertypes="Class"
+    >
+    </entity>
+
+    <entity name="Class_by_intension"
+      supertypes="Class"
+    >
+    </entity>
+
+    <entity name="Class_of_activity"
+      supertypes="Activity Class"
+    >
+    </entity>
+
+    <entity name="Class_of_composition_of_activity"
+      supertypes="Activity_relationship Class"
+    >
+      <explicit
+        name="relating_activity">
+        <typename name="Class_of_activity"/>
+        <redeclaration
+          entity-ref="Activity_relationship"/>
+      </explicit>
+      <explicit
+        name="related_activity">
+        <typename name="Class_of_activity"/>
+        <redeclaration
+          entity-ref="Activity_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Class_of_composition_of_product"
+      supertypes="Product_version_relationship Class"
+    >
+      <explicit
+        name="relating_version">
+        <typename name="Class_of_product"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Class_of_product"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Class_of_connection_of_activity"
+      supertypes="Activity_relationship Class"
+    >
+      <explicit
+        name="relating_activity">
+        <typename name="Class_of_activity"/>
+        <redeclaration
+          entity-ref="Activity_relationship"/>
+      </explicit>
+      <explicit
+        name="related_activity">
+        <typename name="Class_of_activity"/>
+        <redeclaration
+          entity-ref="Activity_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Class_of_connection_of_product"
+      supertypes="Product_version_relationship Class"
+    >
+      <explicit
+        name="relating_version">
+        <typename name="Class_of_product"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Class_of_product"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Class_of_connection_of_product_with_involvements"
+      supertypes="Class_of_connection_of_product Class_of_product"
+    >
+    </entity>
+
+    <entity name="Class_of_containment_of_product"
+      supertypes="Product_version_relationship Class"
+    >
+      <explicit
+        name="relating_version">
+        <typename name="Class_of_product"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Class_of_product"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Class_of_involvement_in_activity"
+      supertypes="Applied_activity_assignment Class"
+    >
+      <explicit
+        name="assigned_activity">
+        <typename name="Class_of_activity"/>
+        <redeclaration
+          entity-ref="Applied_activity_assignment"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="1"
+        />
+        <typename name="involved_class_select"/>
+        <redeclaration
+          entity-ref="Applied_activity_assignment"/>
+      </explicit>
+    </entity>
+
+    <entity name="Class_of_involvement_of_product_in_connection"
+      supertypes="Product_version_relationship Class"
+    >
+      <explicit
+        name="relating_version">
+        <typename name="Class_of_connection_of_product_with_involvements"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Class_of_product"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Class_of_person"
+      supertypes="Class"
+    >
+    </entity>
+
+    <entity name="Class_of_product"
+      supertypes="Product_version Class"
+    >
+    </entity>
+
+    <entity name="Classification"
+    >
+      <explicit
+        name="classified">
+        <typename name="classification_select"/>
+      </explicit>
+      <explicit
+        name="classifier">
+        <typename name="Class"/>
+      </explicit>
+    </entity>
+
+    <entity name="Complement"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="set_1">
+        <typename name="Class"/>
+      </explicit>
+      <explicit
+        name="set_2">
+        <typename name="Class"/>
+      </explicit>
+      <explicit
+        name="universe">
+        <typename name="Class"/>
+      </explicit>
+    </entity>
+
+    <entity name="Complete_membership"
+    >
+      <explicit
+        name="containing_set">
+        <typename name="Class"/>
+      </explicit>
+      <explicit
+        name="members">
+        <aggregate type="SET"
+          lower="0"
+          upper="?"
+        />
+        <typename name="complete_membership_select"/>
+      </explicit>
+    </entity>
+
+    <entity name="Composition_of_individual_activity"
+      supertypes="Activity_relationship"
+    >
+      <explicit
+        name="relating_activity">
+        <typename name="Individual_activity"/>
+        <redeclaration
+          entity-ref="Activity_relationship"/>
+      </explicit>
+      <explicit
+        name="related_activity">
+        <typename name="Individual_activity"/>
+        <redeclaration
+          entity-ref="Activity_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Composition_of_individual_product"
+      supertypes="Product_version_relationship"
+    >
+      <explicit
+        name="relating_version">
+        <typename name="Product_as_individual"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Product_as_individual"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Composition_of_schematic_element_occurrence"
+    >
+      <explicit
+        name="part">
+        <typename name="Schematic_element_occurrence"/>
+      </explicit>
+      <explicit
+        name="whole">
+        <typename name="Schematic_element_occurrence"/>
+      </explicit>
+    </entity>
+
+    <entity name="Connection_of_individual_activity"
+      supertypes="Activity_relationship"
+    >
+      <explicit
+        name="relating_activity">
+        <typename name="Individual_activity"/>
+        <redeclaration
+          entity-ref="Activity_relationship"/>
+      </explicit>
+      <explicit
+        name="related_activity">
+        <typename name="Individual_activity"/>
+        <redeclaration
+          entity-ref="Activity_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Connection_of_individual_product"
+      supertypes="Product_version_relationship"
+    >
+      <explicit
+        name="relating_version">
+        <typename name="Product_as_individual"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Product_as_individual"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Connection_of_individual_product_with_involvements"
+      supertypes="Connection_of_individual_product Product_as_individual"
+    >
+    </entity>
+
+    <entity name="Connection_of_schematic_element_occurrence"
+    >
+      <explicit
+        name="side_1">
+        <typename name="Schematic_element_occurrence"/>
+      </explicit>
+      <explicit
+        name="side_2">
+        <typename name="Schematic_element_occurrence"/>
+      </explicit>
+    </entity>
+
+    <entity name="Containment_of_individual_product"
+      supertypes="Product_version_relationship"
+    >
+      <explicit
+        name="relating_version">
+        <typename name="Product_as_individual"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Product_as_individual"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Context_dependent_unit"
+      supertypes="Unit"
+    >
+      <where
+        label="WR1"
+        expression="EXISTS(SELF\Unit.name)">
+      </where>
+    </entity>
+
+    <entity name="Conversion_based_unit"
+      supertypes="Unit"
+    >
+      <explicit
+        name="conversion_factor">
+        <typename name="Value_with_unit"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="EXISTS(SELF\Unit.name)">
+      </where>
+    </entity>
+
+    <entity name="Date_time"
+    >
+      <explicit
+        name="date_component">
+        <typename name="Calendar_date"/>
+      </explicit>
+      <explicit
+        name="time_component">
+        <typename name="Local_time"/>
+      </explicit>
+    </entity>
+
+    <entity name="Definition_of_schematic_element_occurrence"
+      supertypes="Subset"
+    >
+      <explicit
+        name="subset">
+        <typename name="Schematic_element_occurrence"/>
+        <redeclaration
+          entity-ref="Subset"/>
+      </explicit>
+      <explicit
+        name="superset">
+        <typename name="Schematic_element_definition"/>
+        <redeclaration
+          entity-ref="Subset"/>
+      </explicit>
+    </entity>
+
+    <entity name="Derivation_of_schematic_element_definition"
+    >
+      <explicit
+        name="base">
+        <typename name="Schematic_element_definition"/>
+      </explicit>
+      <explicit
+        name="derived">
+        <typename name="Implicit_schematic_element_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Derived_unit"
+      supertypes="Unit"
+    >
+      <explicit
+        name="elements">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="Derived_unit_element"/>
+      </explicit>
+    </entity>
+
+    <entity name="Derived_unit_element"
+    >
+      <explicit
+        name="base_unit">
+        <typename name="Unit"/>
+      </explicit>
+      <explicit
+        name="exponent">
+        <builtintype type="REAL"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Document"
+      supertypes="Product"
+    >
+    </entity>
+
+    <entity name="Document_version"
+      supertypes="Product_version"
+    >
+      <explicit
+        name="of_product">
+        <typename name="Document"/>
+        <redeclaration
+          entity-ref="Product_version"/>
+      </explicit>
+    </entity>
+
+    <entity name="Draughting_annotation_occurrence"
+      supertypes="Representation"
+    >
+    </entity>
+
+    <entity name="Draughting_approval_assignment"
+      supertypes="Approval_assignment"
+    >
+    </entity>
+
+    <entity name="Drawing_revision"
+      supertypes="Representation"
+    >
+    </entity>
+
+    <entity name="Drawing_revision_class_of_document"
+      supertypes="Document_version Class Drawing_revision"
+    >
+    </entity>
+
+    <entity name="Drawing_sheet_revision"
+      supertypes="Representation"
+    >
+    </entity>
+
+    <entity name="Drawing_sheet_revision_class_of_document"
+      supertypes="Document_version Class Drawing_sheet_revision"
+    >
+    </entity>
+
+    <entity name="Duration"
+      supertypes="Value_with_unit"
+    >
+      <where
+        label="WR1"
+        expression="&apos;FUNCTIONAL_DATA_AND_SCHEMATIC_REPRESENTATION_ARM_LF.&apos; + &apos;TIME_UNIT&apos; IN TYPEOF(SELF\Value_with_unit.unit)">
+      </where>
+    </entity>
+
+    <entity name="Electric_current_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Explicit_schematic_element_definition"
+      supertypes="Schematic_element_definition"
+    >
+      <explicit
+        name="explicit_parts">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="Draughting_annotation_occurrence"/>
+      </explicit>
+    </entity>
+
+    <entity name="External_item_identification"
+      supertypes="External_source_identification"
+    >
+      <explicit
+        name="external_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="External_source_identification"
+    >
+      <explicit
+        name="source_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="source_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="item">
+        <typename name="external_identification_item"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Identification_assignment"
+    >
+      <explicit
+        name="identifier">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="identification_item"/>
+      </explicit>
+    </entity>
+
+    <entity name="Identification_of_property"
+    >
+      <explicit
+        name="identifier">
+        <typename name="maths_value"/>
+      </explicit>
+      <explicit
+        name="property">
+        <typename name="Independent_property_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Implicit_schematic_element_definition"
+      supertypes="Schematic_element_definition"
+    >
+    </entity>
+
+    <entity name="Independent_property"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="property_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Independent_property_definition"
+      supertypes="Independent_property Class"
+      super.expression="ONEOF(Point_property_definition, Range_property_definition)"
+    >
+    </entity>
+
+    <entity name="Independent_property_relationship"
+    >
+      <explicit
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating">
+        <typename name="Independent_property"/>
+      </explicit>
+      <explicit
+        name="related">
+        <typename name="Independent_property"/>
+      </explicit>
+    </entity>
+
+    <entity name="Individual_activity"
+      supertypes="Activity"
+    >
+    </entity>
+
+    <entity name="Individual_involvement_in_activity"
+      supertypes="Applied_activity_assignment"
+    >
+      <explicit
+        name="assigned_activity">
+        <typename name="Individual_activity"/>
+        <redeclaration
+          entity-ref="Applied_activity_assignment"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="1"
+        />
+        <typename name="involved_select"/>
+        <redeclaration
+          entity-ref="Applied_activity_assignment"/>
+      </explicit>
+    </entity>
+
+    <entity name="Intersection"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="operand">
+        <aggregate type="SET"
+          lower="2"
+          upper="?"
+        />
+        <typename name="Class"/>
+      </explicit>
+      <explicit
+        name="resultant">
+        <typename name="Class"/>
+      </explicit>
+    </entity>
+
+    <entity name="Intra_page_connector"
+      supertypes="Page_connector"
+    >
+    </entity>
+
+    <entity name="Involvement_of_individual_product_in_connection"
+      supertypes="Product_version_relationship"
+    >
+      <explicit
+        name="relating_version">
+        <typename name="Connection_of_individual_product_with_involvements"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Product_as_individual"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Length_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Local_time"
+    >
+      <explicit
+        name="hour_component">
+        <typename name="hour_in_day"/>
+      </explicit>
+      <explicit
+        name="minute_component"
+        optional="YES">
+        <typename name="minute_in_hour"/>
+      </explicit>
+      <explicit
+        name="second_component"
+        optional="YES">
+        <typename name="second_in_minute"/>
+      </explicit>
+      <explicit
+        name="zone">
+        <typename name="Time_offset"/>
+      </explicit>
+    </entity>
+
+    <entity name="Luminous_intensity_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Mass_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Maths_space"
+    >
+    </entity>
+
+    <entity name="Numerical_representation_context"
+      supertypes="Representation_context"
+    >
+      <explicit
+        name="units"
+        optional="YES">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="Unit"/>
+      </explicit>
+      <explicit
+        name="accuracies"
+        optional="YES">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="Uncertainty_with_unit"/>
+      </explicit>
+    </entity>
+
+    <entity name="Off_page_connector"
+      supertypes="Page_connector"
+    >
+    </entity>
+
+    <entity name="On_page_connector"
+      supertypes="Page_connector"
+    >
+    </entity>
+
+    <entity name="Organization"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Organization_organization_type_relationship"
+    >
+      <explicit
+        name="organization">
+        <typename name="Organization"/>
+      </explicit>
+      <explicit
+        name="organization_type">
+        <typename name="Organization_type"/>
+      </explicit>
+    </entity>
+
+    <entity name="Organization_relationship"
+    >
+      <explicit
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_organization">
+        <typename name="Organization"/>
+      </explicit>
+      <explicit
+        name="related_organization">
+        <typename name="Organization"/>
+      </explicit>
+    </entity>
+
+    <entity name="Organization_type"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Page_connector"
+      supertypes="Schematic_element_definition"
+    >
+    </entity>
+
+    <entity name="Person"
+    >
+      <explicit
+        name="last_name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="first_name"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="middle_names"
+        optional="YES">
+        <aggregate type="LIST"
+          lower="1"
+          upper="?"
+        />
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="prefix_titles"
+        optional="YES">
+        <aggregate type="LIST"
+          lower="1"
+          upper="?"
+        />
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="suffix_titles"
+        optional="YES">
+        <aggregate type="LIST"
+          lower="1"
+          upper="?"
+        />
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Person_in_organization"
+    >
+      <explicit
+        name="concerned_person">
+        <typename name="Person"/>
+      </explicit>
+      <explicit
+        name="containing_organization">
+        <typename name="Organization"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <unique
+        label="person_is_unique_in_organization">
+        <unique.attribute
+          attribute="concerned_person"/>
+        <unique.attribute
+          attribute="containing_organization"/>
+      </unique>
+    </entity>
+
+    <entity name="Plane_angle_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Point_property_definition"
+      supertypes="Independent_property_definition"
+    >
+    </entity>
+
+    <entity name="Possession_of_property"
+      supertypes="Applied_independent_property"
+    >
+      <explicit
+        name="base_independent_property">
+        <typename name="Independent_property_definition"/>
+        <redeclaration
+          entity-ref="Applied_independent_property"/>
+      </explicit>
+    </entity>
+
+    <entity name="Power_set"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="base">
+        <typename name="Class"/>
+      </explicit>
+      <explicit
+        name="derived">
+        <typename name="Class"/>
+      </explicit>
+    </entity>
+
+    <entity name="Product"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Product_as_individual"
+      abstract.supertype="YES"
+      supertypes="Product_version"
+      super.expression="ONEOF(Product_as_planned, Product_as_realized)"
+    >
+    </entity>
+
+    <entity name="Product_as_planned"
+      supertypes="Product_as_individual"
+    >
+    </entity>
+
+    <entity name="Product_as_realized"
+      supertypes="Product_as_individual"
+    >
+    </entity>
+
+    <entity name="Product_category"
+    >
+      <explicit
+        name="id"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Product_category_assignment"
+    >
+      <explicit
+        name="category">
+        <typename name="Product_category"/>
+      </explicit>
+      <explicit
+        name="products">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="Product"/>
+      </explicit>
+    </entity>
+
+    <entity name="Product_category_hierarchy"
+    >
+      <explicit
+        name="super_category">
+        <typename name="Product_category"/>
+      </explicit>
+      <explicit
+        name="sub_category">
+        <typename name="Product_category"/>
+      </explicit>
+    </entity>
+
+    <entity name="Product_design_to_individual"
+    >
+      <explicit
+        name="individual_product">
+        <typename name="Product_as_individual"/>
+      </explicit>
+      <explicit
+        name="product_version">
+        <typename name="Product_version"/>
+      </explicit>
+    </entity>
+
+    <entity name="Product_planned_to_realized"
+    >
+      <explicit
+        name="planned_product">
+        <typename name="Product_as_planned"/>
+      </explicit>
+      <explicit
+        name="realized_product">
+        <typename name="Product_as_realized"/>
+      </explicit>
+    </entity>
+
+    <entity name="Product_version"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="of_product">
+        <typename name="Product"/>
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="id"/>
+        <unique.attribute
+          attribute="of_product"/>
+      </unique>
+    </entity>
+
+    <entity name="Product_version_relationship"
+    >
+      <explicit
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_version">
+        <typename name="Product_version"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Product_version"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="relating_version :&lt;&gt;: related_version">
+      </where>
+    </entity>
+
+    <entity name="Proper_subset"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="subset">
+        <typename name="Class"/>
+      </explicit>
+      <explicit
+        name="superset">
+        <typename name="Class"/>
+      </explicit>
+    </entity>
+
+    <entity name="Property_condition"
+      supertypes="Applied_independent_property"
+    >
+      <explicit
+        name="base_independent_property">
+        <typename name="Independent_property_definition"/>
+        <redeclaration
+          entity-ref="Applied_independent_property"/>
+      </explicit>
+    </entity>
+
+    <entity name="Property_representation"
+    >
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="property">
+        <typename name="Assigned_property"/>
+      </explicit>
+      <explicit
+        name="rep">
+        <typename name="Representation"/>
+      </explicit>
+      <explicit
+        name="role"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Property_space"
+      supertypes="Independent_property Class"
+    >
+    </entity>
+
+    <entity name="Property_symmetry"
+      supertypes="Independent_property Class"
+    >
+    </entity>
+
+    <entity name="Property_symmetry_by_library_reference"
+      supertypes="Property_symmetry"
+    >
+      <explicit
+        name="item_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="source_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Range_property_definition"
+      supertypes="Independent_property_definition"
+    >
+    </entity>
+
+    <entity name="Ratio_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Reference_between_page_connectors"
+      supertypes="Representation_relationship"
+    >
+      <explicit
+        name="rep_1">
+        <typename name="Page_connector"/>
+        <redeclaration
+          entity-ref="Representation_relationship"/>
+      </explicit>
+      <explicit
+        name="rep_2">
+        <typename name="Page_connector"/>
+        <redeclaration
+          entity-ref="Representation_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Representation"
+    >
+      <explicit
+        name="id"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="context_of_items">
+        <typename name="Representation_context"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="Representation_item"/>
+      </explicit>
+    </entity>
+
+    <entity name="Representation_context"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="kind">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <inverse
+        name="representations_in_context"
+        entity="Representation"
+        attribute="context_of_items">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="?"
+        />
+      </inverse>
+    </entity>
+
+    <entity name="Representation_item"
+      abstract.supertype="YES"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Representation_relationship"
+    >
+      <explicit
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="rep_1">
+        <typename name="Representation"/>
+      </explicit>
+      <explicit
+        name="rep_2">
+        <typename name="Representation"/>
+      </explicit>
+    </entity>
+
+    <entity name="Same_membership"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="set_1">
+        <typename name="Class"/>
+      </explicit>
+      <explicit
+        name="set_2">
+        <typename name="Class"/>
+      </explicit>
+    </entity>
+
+    <entity name="Scale"
+    >
+      <explicit
+        name="identifier">
+        <typename name="Maths_space"/>
+      </explicit>
+      <explicit
+        name="property">
+        <typename name="Property_space"/>
+      </explicit>
+    </entity>
+
+    <entity name="Scale_for_identification_of_property"
+    >
+      <explicit
+        name="identification">
+        <typename name="Identification_of_property"/>
+      </explicit>
+      <explicit
+        name="scale">
+        <typename name="Scale"/>
+      </explicit>
+    </entity>
+
+    <entity name="Schematic_drawing"
+      supertypes="Schematic_element_definition Drawing_sheet_revision"
+    >
+    </entity>
+
+    <entity name="Schematic_element"
+      abstract.supertype="YES"
+      supertypes="Class Representation"
+      super.expression="ONEOF(Schematic_element_definition, Schematic_element_occurrence)"
+    >
+    </entity>
+
+    <entity name="Schematic_element_definition"
+      abstract.supertype="YES"
+      supertypes="Schematic_element"
+      super.expression="ONEOF(Explicit_schematic_element_definition, Implicit_schematic_element_definition)"
+    >
+    </entity>
+
+    <entity name="Schematic_element_occurrence"
+      supertypes="Schematic_element"
+    >
+    </entity>
+
+    <entity name="Solid_angle_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Space_for_property_definition"
+      supertypes="Independent_property_relationship"
+    >
+      <explicit
+        name="relating">
+        <typename name="Property_space"/>
+        <redeclaration
+          entity-ref="Independent_property_relationship"/>
+      </explicit>
+      <explicit
+        name="related">
+        <typename name="Independent_property_definition"/>
+        <redeclaration
+          entity-ref="Independent_property_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Standard_property_symmetry"
+      supertypes="Property_symmetry_by_library_reference"
+    >
+      <where
+        label="valid_standard_class"
+        expression="(SELF\Property_symmetry_by_library_reference.source_id = &apos;ISO-TS-10303-1099&apos;) AND (SELF\Property_symmetry_by_library_reference.item_id IN [&apos;PS001&apos;, &apos;PS002&apos;, &apos;PS003&apos;, &apos;PS004&apos;, &apos;PS005&apos;, &apos;PS006&apos;, &apos;PS007&apos;, &apos;PS008&apos;, &apos;PS009&apos;, &apos;PS010&apos;, &apos;PS011&apos;, &apos;PS012&apos;, &apos;PS013&apos;])">
+      </where>
+    </entity>
+
+    <entity name="Standard_tensor_order_and_symmetry"
+      supertypes="Tensor_order_and_symmetry_by_library_reference"
+    >
+      <where
+        label="valid_standard_class"
+        expression="(SELF\Tensor_order_and_symmetry_by_library_reference.source_id = &apos;ISO-TS-10303-1099&apos;) AND (SELF\Tensor_order_and_symmetry_by_library_reference.item_id IN [&apos;TO001&apos;, &apos;TO002&apos;, &apos;TO003&apos;, &apos;TO004&apos;, &apos;TO005&apos;, &apos;TO006&apos;, &apos;TO007&apos;, &apos;TO008&apos;, &apos;TO009&apos;])">
+      </where>
+    </entity>
+
+    <entity name="String_representation_item"
+      supertypes="Representation_item"
+    >
+      <explicit
+        name="string_value">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Subset"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="subset">
+        <typename name="Class"/>
+      </explicit>
+      <explicit
+        name="superset">
+        <typename name="Class"/>
+      </explicit>
+    </entity>
+
+    <entity name="Supplied_part_relationship"
+      supertypes="Product_version_relationship"
+    >
+      <where
+        label="WR1"
+        expression="SELF\Product_version_relationship.relation_type IN [&apos;supplied item&apos;, &apos;supplied document&apos;]">
+      </where>
+    </entity>
+
+    <entity name="Symbolization_by_schematic_element"
+      supertypes="Class"
+    >
+      <explicit
+        name="symbolized">
+        <typename name="symbolized_item_select"/>
+      </explicit>
+      <explicit
+        name="symbolizer">
+        <typename name="Schematic_element"/>
+      </explicit>
+    </entity>
+
+    <entity name="Symbolization_of_member_or_subclass_by_schematic_element"
+      supertypes="Class"
+    >
+      <explicit
+        name="symbolized">
+        <typename name="symbolized_class_select"/>
+      </explicit>
+      <explicit
+        name="symbolizer">
+        <typename name="Schematic_element_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Symmetry_for_property_definition"
+      supertypes="Independent_property_relationship"
+    >
+      <explicit
+        name="relating">
+        <typename name="Property_symmetry"/>
+        <redeclaration
+          entity-ref="Independent_property_relationship"/>
+      </explicit>
+      <explicit
+        name="related">
+        <typename name="Independent_property_definition"/>
+        <redeclaration
+          entity-ref="Independent_property_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Tensor_order_and_symmetry"
+      supertypes="Independent_property Class"
+    >
+    </entity>
+
+    <entity name="Tensor_order_and_symmetry_by_library_reference"
+      supertypes="Tensor_order_and_symmetry"
+    >
+      <explicit
+        name="item_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="source_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Tensor_order_and_symmetry_for_property_space"
+      supertypes="Independent_property_relationship"
+    >
+      <explicit
+        name="relating">
+        <typename name="Tensor_order_and_symmetry"/>
+        <redeclaration
+          entity-ref="Independent_property_relationship"/>
+      </explicit>
+      <explicit
+        name="related">
+        <typename name="Property_space"/>
+        <redeclaration
+          entity-ref="Independent_property_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Thermodynamic_temperature_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Time_offset"
+    >
+      <explicit
+        name="hour_offset">
+        <builtintype type="INTEGER"
+        />
+      </explicit>
+      <explicit
+        name="minute_offset"
+        optional="YES">
+        <builtintype type="INTEGER"
+        />
+      </explicit>
+      <explicit
+        name="sense">
+        <typename name="offset_orientation"/>
+      </explicit>
+      <derived
+        name="actual_minute_offset"
+        expression="NVL(minute_offset, 0)">
+        <builtintype type="INTEGER"
+        />
+      </derived>
+      <where
+        label="WR1"
+        expression="{0 &lt;= hour_offset &lt; 24}">
+      </where>
+      <where
+        label="WR2"
+        expression="{0 &lt;= minute_offset &lt;= 59}">
+      </where>
+      <where
+        label="WR3"
+        expression="NOT (((hour_offset &lt;&gt; 0) OR (actual_minute_offset &lt;&gt; 0)) AND (sense = exact))">
+      </where>
+    </entity>
+
+    <entity name="Time_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Uncertainty_with_unit"
+      supertypes="Value_with_unit"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Union"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="operand">
+        <aggregate type="SET"
+          lower="2"
+          upper="?"
+        />
+        <typename name="Class"/>
+      </explicit>
+      <explicit
+        name="resultant">
+        <typename name="Class"/>
+      </explicit>
+    </entity>
+
+    <entity name="Unit"
+      super.expression="ONEOF(Amount_of_substance_unit, Electric_current_unit, Length_unit, Luminous_intensity_unit, Mass_unit, Plane_angle_unit, Ratio_unit, Solid_angle_unit, Thermodynamic_temperature_unit, Time_unit)"
+    >
+      <explicit
+        name="name"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="si_unit">
+        <builtintype type="BOOLEAN"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Usage_of_schematic_element_occurrence"
+    >
+      <explicit
+        name="part">
+        <typename name="Schematic_element_occurrence"/>
+      </explicit>
+      <explicit
+        name="whole">
+        <typename name="Implicit_schematic_element_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Value_with_unit"
+    >
+      <explicit
+        name="unit">
+        <typename name="Unit"/>
+      </explicit>
+      <explicit
+        name="value_component">
+        <typename name="measure_value"/>
+      </explicit>
+    </entity>
+
   </schema>
+
 </express>

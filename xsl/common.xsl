@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.61 2002/08/05 09:41:09 robbod Exp $
+$Id: common.xsl,v 1.62 2002/08/05 16:20:48 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -272,7 +272,7 @@ $Id: common.xsl,v 1.61 2002/08/05 09:41:09 robbod Exp $
       </TD>
       <TD valign="MIDDLE" align="RIGHT">
         <xsl:variable name="stdnumber">
-          <xsl:call-template name="get_module_stdnumber">
+          <xsl:call-template name="get_module_pageheader">
             <xsl:with-param name="module" select="."/>
           </xsl:call-template>
         </xsl:variable>
@@ -1569,7 +1569,55 @@ $Id: common.xsl,v 1.61 2002/08/05 09:41:09 robbod Exp $
    <xsl:variable name="status">
     <xsl:choose>
       <xsl:when test="string-length($module/@status)>0">
-        <xsl:value-of select="$module/@status"/>
+        <xsl:value-of select="string($module/@status)"/>
+      </xsl:when>
+        <xsl:otherwise>
+          &lt;status&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <!-- 
+         Note, if the standard has a status of CD or CD-TS it has not been
+         published - so overide what ever is the @publication.year 
+         -->
+    <xsl:variable name="pub_year">
+      <xsl:choose>
+        <xsl:when test="$status='CD' or $status='CD-TS'">-</xsl:when>
+        <xsl:when test="string-length($module/@publication.year)">
+          <xsl:value-of select="$module/@publication.year"/>
+        </xsl:when>
+        <xsl:otherwise>
+          &lt;publication.year&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="orgname" select="'ISO'"/>
+
+    <xsl:value-of 
+      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
+</xsl:template>
+
+<!-- the number of the document for display as a page heaer.
+     Used on the cover page and every page header. -->
+<xsl:template name="get_module_pageheader">
+  <xsl:param name="module"/>
+  <xsl:variable name="part">
+    <xsl:choose>
+      <xsl:when test="string-length($module/@part)>0">
+        <xsl:value-of select="$module/@part"/>
+      </xsl:when>
+        <xsl:otherwise>
+          &lt;part&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+   <xsl:variable name="status">
+    <xsl:choose>
+      <xsl:when test="string-length($module/@status)>0">
+        <xsl:value-of select="string($module/@status)"/>
       </xsl:when>
         <xsl:otherwise>
           &lt;status&gt;
@@ -1606,14 +1654,23 @@ $Id: common.xsl,v 1.61 2002/08/05 09:41:09 robbod Exp $
 
     <xsl:variable name="orgname" select="'ISO'"/>
 
-<!--
-      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
--->
-    <xsl:variable name="stdnumber"
+    <xsl:variable name="stdnumber">
+      <xsl:choose>
+        <xsl:when test="$status='IS' or $status='TS'">
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part)"/>          
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
 
-      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
-		<xsl:value-of select="$stdnumber"/>
+    <xsl:value-of select="$stdnumber"/>
+
 </xsl:template>
+
 
 <xsl:template name="get_module_iso_number">
   <xsl:param name="module"/>

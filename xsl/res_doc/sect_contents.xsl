@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+$Id: sect_contents.xsl,v 1.2 2002/10/28 04:53:41 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -89,6 +89,7 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
    <xsl:if test="count(schema)>0" >
      <xsl:for-each select="./schema">          
        <xsl:call-template name="toc_schema_section">
+         <xsl:with-param name="clause_no" select="position()+3" />
          <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
        </xsl:call-template>
      </xsl:for-each>
@@ -136,6 +137,7 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
    <xsl:message>
      schema_name :<xsl:value-of select="$schema_name"/>
    </xsl:message>
+
    <xsl:variable name="clause_number">
      <xsl:call-template name="express_clause_number">
        <xsl:with-param name="clause" select="$node_type"/>
@@ -265,6 +267,7 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
  </xsl:template>
 
  <xsl:template name="toc_schema_section" > 
+   <xsl:param name="clause_no" />
 
    <xsl:variable name="resource_name">
     <xsl:call-template name="resource_name">
@@ -288,11 +291,11 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
      <xsl:value-of select="concat($resource_dir,'/',$resource_name,'_schema.xml')" />
    </xsl:variable>
 
-   <xsl:variable name="clause_no" select="3+position()"/>
-
+   <!--   <xsl:variable name="clause_no" select="$clause_no"/> -->
    <xsl:variable name="schema_name" select="@name"/>
    <xsl:message >  
      schema_name :<xsl:value-of select="$schema_name" />
+ clause_no :<xsl:value-of select="$clause_no" />
      </xsl:message>
    <p class="content">
      <A HREF="./{$clause_no}_schema{$FILE_EXT}"> 
@@ -315,6 +318,7 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
 
    <xsl:variable name="interface_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
        <xsl:with-param name="clause" select="'interface'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -334,6 +338,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         section -->
    <xsl:variable name="constant_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'constant'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -357,6 +363,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         therefore a section -->
    <xsl:variable name="imported_constant_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'imported_constant'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -375,6 +383,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         section -->
    <xsl:variable name="type_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'type'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -398,6 +408,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         therefore a section -->
    <xsl:variable name="imported_type_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'imported_type'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -417,6 +429,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         section -->
    <xsl:variable name="entity_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'entity'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -441,6 +455,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         therefore a section -->
    <xsl:variable name="imported_entity_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'imported_entity'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -460,6 +476,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         section -->
    <xsl:variable name="subtype_constraint_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'subtype.constraint'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -484,6 +502,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         section -->
    <xsl:variable name="function_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'function'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -506,6 +526,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         therefore a section -->
    <xsl:variable name="imported_function_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'imported_function'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -524,6 +546,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         section -->
    <xsl:variable name="rule_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'rule'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -546,6 +570,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         therefore a section -->
    <xsl:variable name="imported_rule_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'imported_rule'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -564,6 +590,8 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         section -->
    <xsl:variable name="procedure_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
+
        <xsl:with-param name="clause" select="'procedure'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>
@@ -585,6 +613,7 @@ $Id: sect_contents.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
         therefore a section -->
    <xsl:variable name="imported_procedure_clause">
      <xsl:call-template name="express_clause_present">
+       <xsl:with-param name="schema_no" select="$clause_no"/>
        <xsl:with-param name="clause" select="'imported_procedure'"/>
        <xsl:with-param name="schema_name" select="$schema_name"/>
      </xsl:call-template>

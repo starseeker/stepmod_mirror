@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_start.xsl,v 1.2 2002/07/31 07:59:59 robbod Exp $
+$Id: build.xsl,v 1.1 2002/08/09 13:52:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To build the initial ANT build package. 
 
 -->
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                version="1.0">
-
+<xsl:stylesheet 
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  version="1.0">
+  
   <xsl:import href="../../xsl/common.xsl"/>
 
   <xsl:output 
@@ -399,13 +400,22 @@ $Id: ballot_start.xsl,v 1.2 2002/07/31 07:59:59 robbod Exp $
           </xsl:attribute>
         </xsl:element>
 
+
+
+        <xsl:variable name="resources_set">
+          <xsl:apply-templates select="ballot_package/module" 
+            mode="resources"/>            
+        </xsl:variable>
+
         <xsl:element name="property">
           <xsl:attribute name="name">RESOURCESXML</xsl:attribute>
           <xsl:attribute name="value">
-            <xsl:apply-templates select="ballot_package/module" mode="resources">
-              <xsl:with-param name="prefix" select="'data/modules/'"/>
+            <xsl:call-template name="output_resources">
+              <xsl:with-param name="resources"
+                select="normalize-space($resources_set)"/>
+              <xsl:with-param name="prefix" select="'data/resources/'"/>
               <xsl:with-param name="suffix" select="'.xml'"/>
-            </xsl:apply-templates>
+            </xsl:call-template>
           </xsl:attribute>
         </xsl:element>
     </xsl:element>
@@ -1640,31 +1650,31 @@ $Id: ballot_start.xsl,v 1.2 2002/07/31 07:59:59 robbod Exp $
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="module" mode="resource">
+  <xsl:template match="module" mode="resources">
     <xsl:param name="prefix"/>
     <xsl:param name="suffix"/>
     <xsl:param name="terminate" select="'YES'"/>
 
     <xsl:variable name="module_dir">
-      <xsl:call-template name="module_directory">
-        <xsl:with-param name="module" select="@module"/>
-      </xsl:call-template>
+      <xsl:value-of select="concat('../../data/modules/',@name)"/>
     </xsl:variable>
 
+    
     <xsl:variable name="module_ok">
       <xsl:call-template name="check_module_exists">
-        <xsl:with-param name="module" select="@module"/>
+        <xsl:with-param name="module" select="@name"/>
       </xsl:call-template>
     </xsl:variable>
-
 
     <xsl:choose>
       <xsl:when test="$module_ok='true'">
         <xsl:variable name="mim_xml" 
           select="concat($module_dir,'/mim.xml')"/>
+        <xsl:apply-templates select="document($mim_xml)/express/schema/interface"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:call-template name="error_message">
+          <xsl:with-param name="inline" select="'no'"/>
           <xsl:with-param name="message">
             <xsl:value-of select="concat('Error ref1: ', $module_ok)"/>
           </xsl:with-param>
@@ -1674,4 +1684,42 @@ $Id: ballot_start.xsl,v 1.2 2002/07/31 07:59:59 robbod Exp $
   </xsl:template>
 
 
+  <xsl:template match="interface">
+    <xsl:variable name="type" 
+      select="substring(@schema,string-length(@schema)-3)"/>
+    <xsl:if test="$type!='_mim'">
+      <xsl:value-of select="concat(':',@schema,':')"/>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="output_resources">
+    <xsl:param name="resources"/>
+    <xsl:param name="prefix" select="'data/resources/'"/>
+    <xsl:param name="suffix" select="'.xml'"/>
+
+    <xsl:variable
+      name="first"
+      select="substring-before(substring-after($resources,':'),':')"/>
+    <xsl:variable
+      name="rest"
+      select="substring-after(substring-after($resources,':'),':')"/>
+    <xsl:choose>
+      <xsl:when test="contains($rest,$first)">
+        <!-- the schema is in the list and will be dealt with later -->
+        <xsl:call-template name="output_resources">
+          <xsl:with-param name="resources" select="$rest"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="contains($rest,':')">
+        <xsl:value-of select="concat($prefix,$first,'/',$first,$suffix)"/>,<xsl:text/>
+        <xsl:call-template name="output_resources">
+          <xsl:with-param name="resources" select="$rest"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat($prefix,$first,'/',$first,$suffix)"/><xsl:text/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+    
 </xsl:stylesheet>

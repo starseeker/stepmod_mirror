@@ -6,7 +6,7 @@
 <express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $"
   description.file="arm_descriptions.xml"
 >
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="document_definition_arm_v011.vsd" />
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="document_definition_arm_v012.vsd" />
 <schema name="Document_definition_arm">
 <interface kind="use" schema="Document_and_version_identification_arm">
 </interface>
@@ -34,8 +34,9 @@
 </explicit>
 <explicit name="associated_document_version">
 <typename name="Document_version" />
+<redeclaration entity-ref="Product_view_definition" old_name="defined_version" />
 </explicit>
-<graphic.element page="2" xcoord="382" ycoord="302" />
+<graphic.element page="2" xcoord="382" ycoord="300" />
 </entity>
 <entity name="Document_location_identification" supertypes="External_source_identification">
 <where label="WR1" expression="'DOCUMENT_DEFINITION_ARM.DOCUMENT_DEFINITION' IN TYPEOF(SELF\External_item_identification.item)">
@@ -49,6 +50,24 @@
 </explicit>
 <graphic.element page="2" xcoord="323" ycoord="231" />
 </entity>
+<rule 
+    name="document_definition_constraint" 
+    appliesto="Product_view_definition">
+<where label="WR1"
+expression="SIZEOF ( QUERY ( dd &lt;* Product_view_definition | 
+ ( NOT 
+    ( 'DOCUMENT_DEFINITION_ARM.' + 
+      'DOCUMENT_DEFINITION' 
+      IN TYPEOF (dd)
+    ) 
+ ) 
+ AND 
+ ( 'DOCUMENT_DEFINITION_ARM.' +
+   'DOCUMENT_VERSION' 
+   IN TYPEOF ( dd.defined_version) 
+ ) 
+ ) ) =0"
+/></rule>
 <graphic.element page="1" xcoord="232" ycoord="194" />
 </schema>
 </express>

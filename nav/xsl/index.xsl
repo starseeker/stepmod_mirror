@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: index.xsl,v 1.2 2002/09/09 07:27:39 robbod Exp $
+$Id: index.xsl,v 1.3 2002/09/11 11:36:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up the main frames
@@ -28,8 +28,11 @@ $Id: index.xsl,v 1.2 2002/09/09 07:27:39 robbod Exp $
         STEP modules
       </title>
       <script language="JavaScript"><![CDATA[
-       function updateTitleFrame(title) {        
-         top.titlebar.document.all.DIVtitletext.innerText=title;
+       function updateTitleFrame(title) {
+         var divTT = top.titlebar.document.all.DIVtitletext;
+         if (divTT) {
+          divTT.innerText=title;
+         }
        }
       ]]></script>
     </head>

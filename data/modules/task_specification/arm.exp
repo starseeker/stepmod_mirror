@@ -1,14 +1,17 @@
-
 SCHEMA Task_specification_arm;
 
 USE FROM Classification_arm;
 
-USE FROM State_arm;
+USE FROM State_definition_arm;
+
+USE FROM State_observed_arm;
 
 TYPE condition_select = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE;
 
-TYPE returned_value = EXTENSIBLE GENERIC_ENTITY SELECT ;
+TYPE state_or_state_definition_select = SELECT 
+  (State,
+   State_definition);
 END_TYPE;
 
 TYPE task_classified_select = SELECT BASED_ON classified_select WITH
@@ -20,6 +23,9 @@ TYPE task_classified_select = SELECT BASED_ON classified_select WITH
    Task_result,
    Task_result_state_relationship,
    Task_state_relationship);
+END_TYPE;
+
+TYPE task_item = EXTENSIBLE SELECT ;
 END_TYPE;
 
 ENTITY Advisory_task_step
@@ -43,15 +49,20 @@ ENTITY End_task
 SUBTYPE OF (Task_method);
 END_ENTITY;
 
+(*   *)
 ENTITY Exit_loop
 SUBTYPE OF (Task_method);
 END_ENTITY;
 
+(* 
+ *)
 ENTITY Looping_method
 SUBTYPE OF (Structured_task_method);
   repeated_method : Task_method;
 END_ENTITY;
 
+(* 
+ *)
 ENTITY Method_constraint
 SUBTYPE OF (Task_method_relationship);
   applies_in : OPTIONAL Task_method;
@@ -87,6 +98,12 @@ ENTITY Task;
   method : OPTIONAL Task_method;
 END_ENTITY;
 
+ENTITY Task_assignment;
+  assigned_task : Task;
+  items : SET [1 : ?] OF task_item;
+  role : STRING;
+END_ENTITY;
+
 ENTITY Task_invocation
 SUBTYPE OF (Task_method);
   task : Task;
@@ -114,13 +131,8 @@ SUBTYPE OF (Structured_task_method);
 END_ENTITY;
 
 ENTITY Task_method_state_relationship;
-  state : State;
+  state : state_or_state_definition_select;
   task_method : Task_method;
-END_ENTITY;
-
-ENTITY Task_method_with_result
-SUBTYPE OF (Task_method);
-  returns : BAG [1 : ?] OF returned_value;
 END_ENTITY;
 
 ENTITY Task_relationship;
@@ -134,12 +146,12 @@ ENTITY Task_result;
 END_ENTITY;
 
 ENTITY Task_result_state_relationship;
-  state : State;
+  state : state_or_state_definition_select;
   task_result : Task_result;
 END_ENTITY;
 
 ENTITY Task_state_relationship;
-  state : State;
+  state : state_or_state_definition_select;
   task : Task;
 END_ENTITY;
 
@@ -149,4 +161,5 @@ SUBTYPE OF (Task_method);
 END_ENTITY;
 
 END_SCHEMA;
+
 

@@ -1,8 +1,7 @@
 (* 
-$Id: mim.exp,v 1.3 2002/09/16 07:39:29 goset1 Exp $
+$Id: mim.exp,v 1.4 2002/09/22 20:12:09 goset1 Exp $
 N	ISO/WD 10303-1111	Classification with attributes - Express MIM 
 *)
-
 
 SCHEMA Classification_with_attributes_mim;
 
@@ -23,7 +22,8 @@ USE FROM Part_and_version_identification_mim;
 USE FROM Part_view_definition_mim;
 
 USE FROM group_schema(
-	group);
+	group,
+      group_relationship);
 
 USE FROM management_resources_schema (
 	classification_assignment);
@@ -113,5 +113,13 @@ IF ('CLASSIFICATION_WITH_ATTRIBUTES_MIM.' +'CHARACTERIZED_CLASS' IN TYPEOF(aia.a
 END_IF;
 RETURN(TRUE);
 END_FUNCTION;
+
+RULE restrict_group_relationship_for_classification_hierarchy FOR (group_relationship); 
+WHERE 
+WR1: SIZEOF( QUERY( gr <* group_relationship | 
+  (gr.name = 'class hierarchy') AND 
+  (NOT('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(gr.related_group)) OR 
+  NOT('CLASSIFICATION_WITH_ATTRIBUTES_MIM.CLASS' IN TYPEOF(gr.relating_group))) )) = 0; 
+END_RULE; 
 
 END_SCHEMA;

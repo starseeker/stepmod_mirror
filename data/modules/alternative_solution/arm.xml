@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.18 2002/07/14 16:55:57 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  description.file="arm_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.18"
+    source="../data/modules/alternative_solution/arm.exp"/>
+
+  <schema name="Alternative_solution_arm">
+    <interface
+      kind="use"
+      schema="Part_occurrence_arm">
+    </interface>
+
+    <interface
+      kind="use"
+      schema="Person_organization_arm">
+    </interface>
+
+    <type name="complex_product_select">
+      <select
+        selectitems="Alternative_solution Product_component Product_function">
+      </select>
+
+    </type>
+    <entity
+      name="Alternative_solution"
+      super.expression="(ONEOF (Supplier_solution, Technical_solution))">
+      <explicit
+        name="id">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="version_id"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="base_element">
+        <typename
+          name="complex_product_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Alternative_solution_element">
+      <explicit
+        name="realized_solution">
+        <typename
+          name="Alternative_solution"/>
+      </explicit>
+      <explicit
+        name="solution_element">
+        <typename
+          name="Part_occurrence"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Supplier_solution"
+      supertypes="Alternative_solution">
+      <explicit
+        name="supplier">
+        <typename
+          name="Organization"/>
+      </explicit>
+      <explicit
+        name="probability_rate"
+        optional="YES">
+        <builtintype
+          type="REAL"/>
+      </explicit>
+      <derived
+        name="actual_rate"
+        expression="NVL(probability_rate, 1.)">
+        <builtintype
+          type="REAL"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="actual_rate &gt;= 0.">
+      </where>
+    </entity>
+
+    <entity
+      name="Technical_solution"
+      supertypes="Alternative_solution">
+      <explicit
+        name="description">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.36 2003/10/31 15:57:42 robbod Exp $
+$Id: express_description.xsl,v 1.37 2004/01/07 07:51:23 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -258,8 +258,9 @@ and
                     name="message" 
                     select="concat('Warning Attr1 ' ,
                             $description/@linkend,
-                            '. Name attribute description should be a
-phrase. Usually will start with &quot;the identifier for xxx&quot;.')"/>
+                            '. Name attribute description should be a phrase.#
+                            is:',$phrase,'#
+                            Usually will start with &quot;the identifier for xxx&quot;.')"/>
                 </xsl:call-template>
               </xsl:if>
             </xsl:when>
@@ -271,7 +272,9 @@ phrase. Usually will start with &quot;the identifier for xxx&quot;.')"/>
                     name="message" 
                     select="concat('Warning Attr1 ' ,
                             $description/@linkend,
-                            '. Name attribute description should be a phrase. Usually will start with &quot;the words by which the xxx is known&quot;.')"/>
+                            '. Name attribute description should be a phrase.#
+                            is: &quot;',$phrase,'&quot;#
+                            Usually will start with &quot;the words by which the xxx is known&quot;.')"/>
                 </xsl:call-template>
               </xsl:if>
             </xsl:when>
@@ -282,7 +285,9 @@ phrase. Usually will start with &quot;the identifier for xxx&quot;.')"/>
                     name="message" 
                     select="concat('Warning Attr1 ' ,
                             $description/@linkend,
-                            '. Name attribute description should be a phrase. Usually will start with &quot;the text that provides further information about the&quot;.')"/>
+                            '. Name attribute description should be a phrase.#
+                            is: &quot;',$phrase,'&quot;#
+                            Usually will start with &quot;the text that provides further information about the&quot;.')"/>
                 </xsl:call-template>
               </xsl:if>              
             </xsl:when>
@@ -293,7 +298,9 @@ phrase. Usually will start with &quot;the identifier for xxx&quot;.')"/>
                     name="message" 
                     select="concat('Warning Attr1 ' ,
                             $description/@linkend,
-                            '. Name attribute description should be a phrase. Usually will start with &quot;the purpose of&quot;.')"/>
+                            '. Name attribute description should be a phrase.#
+                            is: &quot;',$phrase,'&quot;#
+                            Usually will start with &quot;the purpose of&quot;.')"/>
                 </xsl:call-template>
               </xsl:if>              
             </xsl:when>
@@ -305,7 +312,9 @@ phrase. Usually will start with &quot;the identifier for xxx&quot;.')"/>
                     name="message" 
                     select="concat('Warning Attr1 ' ,
                             $description/@linkend,
-                            '. Name attribute description should be a phrase. Usually will start with &quot;the restriction of&quot;.')"/>
+                            '. Name attribute description should be a phrase.#
+                            is: &quot;',$phrase,'&quot;#
+                            Usually will start with &quot;the restriction of&quot;.')"/>
                 </xsl:call-template>
               </xsl:if>              
             </xsl:when>

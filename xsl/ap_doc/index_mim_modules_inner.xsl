@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_modules_inner.xsl,v 1.2 2003/06/04 16:07:29 nigelshaw Exp $
+$Id: index_mim_modules_inner.xsl,v 1.3 2003/06/13 19:47:03 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -150,9 +150,11 @@ $Id: index_mim_modules_inner.xsl,v 1.2 2003/06/04 16:07:29 nigelshaw Exp $
 
 		<xsl:variable name="mod-name" select="substring-before(@name,'_mim')" />
 
+                  <!--
 		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+                  -->
+                <xsl:variable name="mod-dir" select="concat('../../../../data/modules/',$mod-name)" />
 
-		
 		<A HREF="{$mod-dir}/sys/1_scope{$FILE_EXT}" TARGET="content"><xsl:value-of select="$mod-name" /></A>
 			<br/>
 		

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.45 2002/08/18 17:36:58 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.46 2002/08/21 20:25:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -965,13 +965,14 @@ the mapping specification')"/>
   <xsl:value-of select="$entity"/>
 </xsl:template>
 
-
+<!-- give the A NAME for the mapping of the entity in sect 5 -->
 <xsl:template match="ae" mode="map_attr_aname">
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:value-of select="translate(concat('aeentity',@entity),$UPPER,$LOWER)"/>
 </xsl:template>
 
+<!-- give the A NAME for the mapping of the entity attribute in sect 5 -->
 <xsl:template match="aa" mode="map_attr_aname">
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>

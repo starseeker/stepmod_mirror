@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.62 2002/08/19 00:21:43 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.63 2002/08/21 20:27:12 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -797,7 +797,12 @@
 
 </xsl:template>
 
-
+<!-- give the A NAME for the mapping of the entity in sect 5 -->
+<xsl:template match="ae" mode="mapping_aname">
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:value-of select="translate(concat('aeentity',@name),$UPPER,$LOWER)"/>
+</xsl:template>
 
 
 <xsl:template match="entity">
@@ -862,9 +867,15 @@
       <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
     </A>
     <xsl:apply-templates select="." mode="expressg_icon"/>
-    <xsl:if test="substring($schema_name, string-length($schema_name)-3)= '_arm'">
+    <xsl:if test="substring($schema_name, string-length($schema_name)-3)=
+'_arm'">
+
+      <xsl:variable name="ae_map_aname">
+        <xsl:apply-templates select="." mode="mapping_aname"/>  
+      </xsl:variable>
+
       <xsl:variable name="maphref" 
-        select="concat('./5_mapping',$FILE_EXT,'#',@name)"/>
+        select="concat('./5_mapping',$FILE_EXT,'#',$ae_map_aname)"/>
       <a href="{$maphref}">
         <img align="middle" border="0" 
           alt="Mapping table" src="../../../../images/mapping.gif"/>

@@ -1,97 +1,165 @@
 <?xml version="1.0"?>
-<?xml-stylesheet 
-  type="text/xsl" 
-  href="../../../xsl/express.xsl"
-?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $"
+<!-- $Id: express2xml.js,v 1.25 2002/11/06 00:59:57 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
   description.file="arm_descriptions.xml"
->
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="arm.vsd" />
-<schema name="Construction_geometry_arm">
-<interface kind="use" schema="Elemental_geometric_shape_arm">
-</interface>
-<type name="constructive_element_select">
-<select extensible="YES" selectitems="Curve Point Surface" />
-<graphic.element page="2" xcoord="96" ycoord="623" />
-</type>
-<type name="constructive_geometry_select">
-<select selectitems="Constructive_geometry Geometric_model" />
-<graphic.element page="2" xcoord="300" ycoord="269" />
-</type>
-<type name="point_select">
-<select selectitems="Cartesian_point Point_on_curve Point_on_surface" />
-<graphic.element page="2" xcoord="297" ycoord="491" />
-</type>
-<entity name="Constructive_geometric_element">
-<explicit name="description" optional="YES">
-<builtintype type="STRING" />
-</explicit>
-<explicit name="element">
-<description>
-          geometry
-        </description>
-<typename name="constructive_element_select" />
-</explicit>
-<graphic.element page="2" xcoord="113" ycoord="453" />
-</entity>
-<entity name="Constructive_geometry">
-<explicit name="element">
-<aggregate type="SET" lower="0" upper="?" />
-<typename name="Constructive_geometric_element" />
-</explicit>
-<explicit name="name">
-<builtintype type="STRING" />
-</explicit>
-<graphic.element page="2" xcoord="114" ycoord="346" />
-</entity>
-<entity name="Constructive_geometry_association">
-<explicit name="auxiliary_geometry">
-<typename name="Constructive_geometry" />
-</explicit>
-<explicit name="base_geometry">
-<typename name="constructive_geometry_select" />
-</explicit>
-<explicit name="description">
-<builtintype type="STRING" />
-</explicit>
-<graphic.element page="2" xcoord="99" ycoord="232" />
-</entity>
-<entity name="Curve" supertypes="Detailed_geometric_model_element">
-<graphic.element page="2" xcoord="240" ycoord="666" />
-</entity>
-<entity name="Line" supertypes="Curve">
-<graphic.element page="2" xcoord="233" ycoord="718" />
-</entity>
-<entity name="Measurement_path">
-<explicit name="defined_by">
-<typename name="Curve" />
-</explicit>
-<explicit name="defined_in">
-<typename name="Geometric_coordinate_space" />
-</explicit>
-<graphic.element page="2" xcoord="70" ycoord="693" />
-</entity>
-<entity name="Plane" supertypes="Surface">
-<graphic.element page="2" xcoord="267" ycoord="584" />
-</entity>
-<entity name="Point" supertypes="Detailed_geometric_model_element">
-<explicit name="point">
-<typename name="point_select" />
-</explicit>
-<graphic.element page="2" xcoord="240" ycoord="552" />
-</entity>
-<entity name="Point_on_curve" supertypes="Detailed_geometric_model_element">
-<graphic.element page="2" xcoord="411" ycoord="484" />
-</entity>
-<entity name="Point_on_surface" supertypes="Detailed_geometric_model_element">
-<graphic.element page="2" xcoord="411" ycoord="520" />
-</entity>
-<entity name="Surface" supertypes="Detailed_geometric_model_element">
-<graphic.element page="2" xcoord="240" ycoord="627" />
-</entity>
-<subtype.constraint name="alternate_geometry_items" entity="Detailed_geometric_model_element" super.expression="ONEOF(Curve, Point, Point_on_curve, Point_on_surface, Surface)">
-<graphic.element page="2" xcoord="354" ycoord="741" />
-</subtype.constraint>
-<graphic.element page="1" xcoord="121" ycoord="751" />
-</schema>
-</express>
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.25"
+    source="../data/modules/construction_geometry/arm.exp"/>
+
+  <schema name="Construction_geometry_arm">
+    <interface
+      kind="use"
+      schema="Elemental_geometric_shape_arm">
+    </interface>
+
+    <type name="constructive_element_select">
+      <select
+        extensible="YES"
+        selectitems="Curve point_select Surface">
+      </select>
+
+    </type>
+    <type name="constructive_geometry_select">
+      <select
+        selectitems="Constructive_geometry Geometric_model">
+      </select>
+
+    </type>
+    <type name="point_select">
+      <select
+        selectitems="Cartesian_point Point_on_curve Point_on_surface">
+      </select>
+
+    </type>
+    <entity
+      name="Constructive_geometric_element">
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="element">
+        <typename
+          name="constructive_element_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Constructive_geometry"
+      supertypes="Representation">
+      <explicit
+        name="context_of_items">
+        <redeclaration
+          entity-ref="Representation"/>
+          <typename
+            name="Geometric_coordinate_space"/>
+        </explicit>
+        <explicit
+          name="items">
+          <redeclaration
+            entity-ref="Representation"/>
+            <aggregate
+              type="SET"
+              lower="1"
+              upper="?"/>
+            <typename
+              name="Constructive_geometric_element"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Constructive_geometry_association">
+          <explicit
+            name="auxiliary_geometry">
+            <typename
+              name="Constructive_geometry"/>
+          </explicit>
+          <explicit
+            name="base_geometry">
+            <typename
+              name="constructive_geometry_select"/>
+          </explicit>
+          <explicit
+            name="description">
+            <builtintype
+              type="STRING"/>
+          </explicit>
+          <where
+            label="WR1"
+            expression="auxiliary_geometry\Representation.context_of_items :=: base_geometry\Representation.context_of_items">
+          </where>
+        </entity>
+
+        <entity
+          name="Curve"
+          supertypes="Detailed_geometric_model_element">
+        </entity>
+
+        <entity
+          name="Line"
+          supertypes="Curve">
+        </entity>
+
+        <entity
+          name="Measurement_path">
+          <explicit
+            name="defined_by">
+            <typename
+              name="Curve"/>
+          </explicit>
+          <explicit
+            name="defined_in">
+            <typename
+              name="Geometric_coordinate_space"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Plane"
+          supertypes="Surface">
+        </entity>
+
+        <entity
+          name="Point_on_curve"
+          supertypes="Detailed_geometric_model_element">
+          <explicit
+            name="supporting_curve">
+            <typename
+              name="Curve"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Point_on_surface"
+          supertypes="Detailed_geometric_model_element">
+          <explicit
+            name="supporting_surface">
+            <typename
+              name="Surface"/>
+          </explicit>
+        </entity>
+
+        <entity
+          name="Surface"
+          supertypes="Detailed_geometric_model_element">
+        </entity>
+
+        <subtype.constraint name="alternate_geometry_items"
+          entity="Detailed_geometric_model_element"
+          super.expression="  ONEOF(Curve, Cartesian_point, Point_on_curve, Point_on_surface, Surface)">
+        </subtype.constraint>
+
+      </schema>
+
+    </express>

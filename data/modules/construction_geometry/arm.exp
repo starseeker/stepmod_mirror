@@ -1,6 +1,6 @@
 (*
-  $Id: $
-  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-1131 Construction_geometry
+  $Id: arm.exp,v 1.3 2002/11/06 20:22:54 thendrix Exp $
+  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS 10303-1131 Construction_geometry
 *)
 SCHEMA Construction_geometry_arm;
 
@@ -8,7 +8,7 @@ USE FROM Elemental_geometric_shape_arm;
 
 TYPE constructive_element_select = EXTENSIBLE SELECT 
   (Curve,
-   Point,
+   point_select,
    Surface);
 END_TYPE;
 
@@ -25,19 +25,21 @@ END_TYPE;
 
 ENTITY Constructive_geometric_element;
   description : OPTIONAL STRING;
-  (* geometry *)
   element : constructive_element_select;
 END_ENTITY;
 
-ENTITY Constructive_geometry;
-  element : SET [0 : ?] OF Constructive_geometric_element;
-  name : STRING;
+ENTITY Constructive_geometry
+  SUBTYPE OF (Representation);
+  SELF\Representation.context_of_items : Geometric_coordinate_space;
+  SELF\Representation.items: SET[1:?] OF Constructive_geometric_element;
 END_ENTITY;
 
 ENTITY Constructive_geometry_association;
   auxiliary_geometry : Constructive_geometry;
   base_geometry : constructive_geometry_select;
   description : STRING;
+WHERE
+  WR1: auxiliary_geometry\Representation.context_of_items :=: base_geometry\Representation.context_of_items;
 END_ENTITY;
 
 ENTITY Curve
@@ -57,17 +59,14 @@ ENTITY Plane
 SUBTYPE OF (Surface);
 END_ENTITY;
 
-ENTITY Point
-SUBTYPE OF (Detailed_geometric_model_element);
-  point : point_select;
-END_ENTITY;
-
 ENTITY Point_on_curve
 SUBTYPE OF (Detailed_geometric_model_element);
+  supporting_curve: Curve;
 END_ENTITY;
 
 ENTITY Point_on_surface
 SUBTYPE OF (Detailed_geometric_model_element);
+  supporting_surface: Surface;
 END_ENTITY;
 
 ENTITY Surface
@@ -75,7 +74,7 @@ SUBTYPE OF (Detailed_geometric_model_element);
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT alternate_geometry_items FOR Detailed_geometric_model_element;
-  ONEOF(Curve, Point, Point_on_curve, Point_on_surface, Surface);
+  ONEOF(Curve, Cartesian_point, Point_on_curve, Point_on_surface, Surface);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

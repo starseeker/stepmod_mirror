@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.137 2003/05/04 07:51:15 robbod Exp $
+$Id: module.xsl,v 1.138 2003/05/04 08:15:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1136,7 +1136,15 @@ o=isocs; s=central<br/>
         </xsl:choose>
         <td>
           <a href="{$arm}">
-            <xsl:value-of select="concat('arm',$FILE_EXT)"/>
+            <!-- <xsl:value-of select="concat('arm',$FILE_EXT)"/> -->
+            <xsl:choose>
+              <xsl:when test="$FILE_EXT='.xml'">
+                XML
+              </xsl:when>
+              <xsl:otherwise>
+                HTML
+              </xsl:otherwise>
+            </xsl:choose>
           </a>
         </td>
 
@@ -1159,7 +1167,15 @@ o=isocs; s=central<br/>
         </xsl:choose>
         <td>
           <a href="{$mim}">
-            <xsl:value-of select="concat('mim',$FILE_EXT)"/>
+            <!-- <xsl:value-of select="concat('mim',$FILE_EXT)"/> -->
+            <xsl:choose>
+              <xsl:when test="$FILE_EXT='.xml'">
+                XML
+              </xsl:when>
+              <xsl:otherwise>
+                HTML
+              </xsl:otherwise>
+            </xsl:choose>
           </a>
         </td>
         <xsl:call-template name="output_express_links">
@@ -1193,7 +1209,10 @@ o=isocs; s=central<br/>
   <xsl:param name="file"/>
 
   <td>
-    <a href="../{$file}"><xsl:value-of select="$file"/></a>
+    <a href="../{$file}">
+      EXPRESS
+      <!--  <xsl:value-of select="$file"/> -->
+    </a>
   </td>
   <td align="left">
     <xsl:variable name="test_wg_number">
@@ -3740,9 +3759,7 @@ $module_ok,' Check the normatives references')"/>
 </xsl:template>	
 	
 <xsl:template match="express-g">
-  <ul>
     <xsl:apply-templates select="imgfile|img" mode="expressg"/>
-  </ul>
 </xsl:template>
 
 <xsl:template match="imgfile" mode="expressg">
@@ -3752,11 +3769,11 @@ $module_ok,' Check the normatives references')"/>
     </xsl:call-template>
   </xsl:variable>
   <xsl:variable name="href" select="concat('../',$file)"/>
-  <li>
+  <p>
     <a href="{$href}">
       <xsl:apply-templates select="." mode="title"/>
     </a>
-  </li>
+  </p>
 </xsl:template>
 
 <xsl:template match="imgfile" mode="title">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
 <!--
-	$Id: cc_descriptions_2.xsl,v 1.1 2003/02/08 21:33:08 goset1 Exp $
+	$Id: cc_descriptions_2.xsl,v 1.2 2003/02/14 15:12:31 darla Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -59,7 +59,7 @@ A particular processor may write or read instances of entities that belong to mo
 			<xsl:apply-templates select="example"/>
 		</xsl:for-each>
 		
-		<xsl:variable name="no_of_ccs" select="count(cc)"/>
+
 
 <h3>6.2&#160;Conformance classes per Units of Functionality</h3>
 Table 1 identifies the conformance classes to which each UOF of the modules interfaced in the ARM schema, belongs.
@@ -71,6 +71,7 @@ Table 1 identifies the conformance classes to which each UOF of the modules inte
     </b>
 		</a>  
 		</p>
+  <xsl:variable name="no_of_ccs" select="count(cc)"/>
   <div align="center">
 
 		<table border="1">

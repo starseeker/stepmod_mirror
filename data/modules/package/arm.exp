@@ -2,6 +2,254 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Package - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Package_arm;
-END_SCHEMA;
+
+USE FROM Extended_geometric_tolerance_arm;
+
+-- USE FROM Layered_shape_arm;
+
+USE FROM Shape_property_assignment_arm;
+
+USE FROM Specification_document_arm;
+
+USE FROM Value_with_unit_extension_arm;
+
+USE FROM Physical_unit_usage_view_arm;
+
+-- USE FROM Material_product_arm;
+
+USE FROM Part_feature_function_arm;
+
+USE FROM Part_feature_location_arm;
+
+  TYPE mounting_technology_type = ENUMERATION OF
+    (surface_mount,
+     through_hole);
+  END_TYPE; -- mounting_technology_type
+
+  TYPE lead_form_type = SELECT
+    (predefined_lead_form,
+     external_item_identification);
+  END_TYPE; -- lead_form_type
+
+  TYPE predefined_lead_form = ENUMERATION OF
+    (gull_wing,
+     j_lead,
+     reversed_j_lead,
+     integral_terminal,
+     undefined,
+     ball,
+     straight);
+  END_TYPE; -- predefined_lead_form
+
+  TYPE seating_plane_intersection_type = ENUMERATION OF
+    (surface_intersection,
+     through_intersection,
+     does_not_intersect);
+  END_TYPE; -- seating_plane_intersection_type
+
+  ENTITY Connection_zone_package_interface_plane_relationship;
+      interface_plane          : seating_plane;
+      mating_zone              : connection_zone_in_usage_view;
+      derived_zone             : connection_zone_in_usage_view;
+      derived_zone_shape_class : STRING;
+    INVERSE
+      associated_package_terminal  : SET[0:1] OF package_terminal FOR seating_plane_zone;
+    UNIQUE
+      ur1 : interface_plane, mating_zone;
+    WHERE
+      wr1 : derived_zone_shape_class IN ['area','edge'];
+  END_ENTITY;
+
+  ENTITY Guided_wave_terminal
+    SUBTYPE OF (package_terminal);
+  END_ENTITY; -- guided_wave_terminal
+
+  ENTITY Package
+    SUBTYPE OF (part_usage_view);
+      mounting_technology                        : mounting_technology_type;
+      maximum_seating_plane_installation_offset  : OPTIONAL length_data_element;
+      surface_mount_lead_form                    : OPTIONAL lead_form_type;
+      nominal_mounting_lead_pitch                : OPTIONAL length_data_element;
+      nominal_mounting_lead_span                 : OPTIONAL length_data_element;
+      maximum_body_height_above_seating_plane    : length_data_element;
+      maximum_body_height_below_seating_plane    : OPTIONAL length_data_element;
+      maximum_body_clearance_above_seating_plane : OPTIONAL length_data_element;
+      maximum_body_clearance_below_seating_plane : OPTIONAL length_data_element;
+      minimum_body_clearance_above_seating_plane : OPTIONAL length_data_element;
+      minimum_body_clearance_below_seating_plane : OPTIONAL length_data_element;
+      maximum_lead_length_below_seating_plane    : OPTIONAL length_data_element;
+      least_lead_length_below_seating_plane      : OPTIONAL length_data_element;
+    DERIVE
+      maximum_package_total_vertical_extent : length_data_element := max_data_element(add_data_element(maximum_body_height_above_seating_plane,
+ maximum_body_height_below_seating_plane),
+ add_data_element(maximum_body_height_above_seating_plane,
+ maximum_lead_length_below_seating_plane));
+      cutout_required                       : BOOLEAN := (maximum_body_height_below_seating_plane\value_with_unit.value_component > 0.0);
+      maximum_installed_height              : length_data_element := add_data_element(maximum_body_height_above_seating_plane,
+ maximum_seating_plane_installation_offset);
+    INVERSE
+      body                                  : SET[0:1] OF package_body FOR associated_definition;
+      package_seating_plane                 : non_feature_shape_element FOR scope;
+      interface_plane                       : SET[0:?] OF non_feature_shape_element FOR scope;
+      package_accesses                      : SET[0:?] OF package_terminal FOR associated_definition;
+      package_polarity_indication           : SET[0:1] OF Shape_element FOR containing_shape;
+      package_primary_orientation_feature   : SET[0:1] OF Shape_element FOR containing_shape;
+      package_secondary_orientation_feature : SET[0:1] OF Shape_element FOR containing_shape;
+      package_tertiary_orientation_feature  : SET[0:1] OF Shape_element FOR containing_shape;
+--      of_datum_reference_frame              : SET[0:?] OF non_feature_shape_element FOR scope;
+    WHERE
+      WR1  : NOT (SIZEOF(package_primary_orientation_feature) > 0) OR ('AP210_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(package_primary_orientation_feature[1]));
+      WR2  : NOT (SIZEOF(package_secondary_orientation_feature) > 0) OR ('AP210_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(package_secondary_orientation_feature[1]));
+      WR3  : NOT (SIZEOF(package_tertiary_orientation_feature) > 0) OR ('AP210_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(package_tertiary_orientation_feature[1]));
+      WR4  : 'AP210_ARM.SEATING_PLANE' IN TYPEOF(package_seating_plane);
+      WR5  : 'AP210_ARM.SEATING_PLANE' IN TYPEOF(interface_plane);
+      WR6  : NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)));
+      WR7  : NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\value_with_unit.value_component > 0.0);
+      WR8  : NOT (EXISTS(least_lead_length_below_seating_plane)) OR (least_lead_length_below_seating_plane\value_with_unit.value_component > 0.0);
+      WR9  : (NOT (mounting_technology = surface_mount) AND NOT (EXISTS(surface_mount_lead_form))) OR ((mounting_technology = surface_mount) AND (EXISTS(surface_mount_lead_form)));
+      WR10 : package_seating_plane\shape_element.element_name = 'package seating plane';
+      WR11 : NOT (SIZEOF(interface_plane) > 0) OR (SIZEOF(QUERY(ip <* interface_plane | NOT (ip\shape_element.element_name = 'interface plane'))) = 0);
+      WR12 : NOT (SIZEOF(interface_plane) > 0) OR (SIZEOF(QUERY(ip <* interface_plane | NOT (package_seating_plane <> ip))) = 0);
+      WR13 : SIZEOF(QUERY(prpc <* USEDIN(SELF\product_view_definition.defined_version.of_product,
+ 'AP210_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'package'))) > 0;
+--      WR14 : NOT (SIZEOF(of_datum_reference_frame) > 0) OR (SIZEOF(QUERY(odrf <* of_datum_reference_frame | NOT ('AP210_ARM.DATUM_REFERENCE_FRAME' IN TYPEOF(odrf)))) = 0);
+      WR15 : SIZEOF(QUERY(pa <* package_accesses | 'AP210_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1;
+  END_ENTITY; -- package
+
+  ENTITY Package_body
+    SUBTYPE OF (part_feature);
+      body_material                           : material_identification;
+      SELF\part_feature.associated_definition : package;
+    WHERE
+      WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
+ 'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY') | ('AP210_ARM.' + 'PACKAGE_BODY_TOP_SURFACE' IN TYPEOF(pf)))) <= 1;
+      WR2 : SIZEOF(QUERY(pf <* USEDIN(SELF,
+ 'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY') | ('AP210_ARM.' + 'PACKAGE_BODY_BOTTOM_SURFACE' IN TYPEOF(pf)))) <= 1;
+      WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
+ 'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY') | ('AP210_ARM.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
+  END_ENTITY; -- package_body
+
+  ENTITY Package_body_bottom_surface
+    SUBTYPE OF (package_body_surface);
+  END_ENTITY; -- package_body_bottom_surface
+
+  ENTITY Package_body_edge_segment_surface
+    SUBTYPE OF (package_body_surface);
+      composed_surface : package_body_edge_surface;
+      start_vertex     : edge_segment_vertex;
+      end_vertex       : edge_segment_vertex;
+    WHERE
+      wr1 : start_vertex :<>: end_vertex;
+  END_ENTITY; -- package_body_edge_segment_surface
+
+  ENTITY Package_body_edge_surface
+    SUBTYPE OF (package_body_surface);
+  END_ENTITY; -- package_body_edge_surface
+
+  ENTITY Package_body_surface
+    ABSTRACT SUPERTYPE OF (ONEOF (package_body_bottom_surface,
+ package_body_top_surface,
+ package_body_edge_segment_surface,
+ package_body_edge_surface))
+    SUBTYPE OF (part_feature);
+      SELF\part_feature.associated_definition : package_body;
+  END_ENTITY; -- package_body_surface
+
+  ENTITY Package_body_top_surface
+    SUBTYPE OF (package_body_surface);
+  END_ENTITY; -- package_body_top_surface
+
+(** attribute model_representation changed to analytical_model_assignment
+*)
+  ENTITY Package_terminal
+    SUBTYPE OF (part_feature);
+      SELF\part_feature.associated_definition 		: package;
+      external_connection_zone                : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
+      internal_connection_zone                : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
+      seating_plane_intersection              : seating_plane_intersection_type;
+      terminal_surface_material               : material_identification;
+      terminal_characteristic                 : OPTIONAL SET[1:?] OF characteristic;
+      terminal_core_material                  : OPTIONAL material_identification;
+      minimum_terminal_diametrical_extent     : OPTIONAL length_data_element;
+      maximum_terminal_diametrical_extent     : OPTIONAL length_data_element;
+      seating_plane_zone                      : OPTIONAL connection_zone_package_interface_plane_relationship;
+    DERIVE
+      mates_with_substrate : BOOLEAN := (EXISTS(seating_plane_zone)) AND (associated_definition.package_seating_plane :=: seating_plane_zone.interface_plane);
+    INVERSE
+      SELF\part_feature.feature_shape : SET[1:?] OF usage_concept_usage_relationship FOR associated_usage;
+    WHERE
+      WR1 : NOT (EXISTS(seating_plane_zone)) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.derived_zone = cz))) = 1);
+      WR2 : NOT (EXISTS(seating_plane_zone)) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.mating_zone = cz))) = 1);
+      WR3 : NOT (EXISTS(seating_plane_zone)) OR ((associated_definition.package_seating_plane :=: seating_plane_zone.interface_plane) OR (associated_definition.interface_plane[1] :=: seating_plane_zone.interface_plane));
+      WR4 : NOT (EXISTS(seating_plane_zone)) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection));
+      WR5 : NOT ((seating_plane_intersection = does_not_intersect) AND (EXISTS(seating_plane_zone)));
+  END_ENTITY; -- package_terminal
+
+  ENTITY Package_terminal_surface_constituent_relationship
+    SUBTYPE OF (shape_element_constituent_relationship);
+      SELF\shape_element_relationship.relating : package_body_surface;
+      SELF\shape_element_relationship.related  : package_terminal;
+  END_ENTITY; -- package_terminal_surface_constituent_relationship
+
+  ENTITY Primary_reference_terminal
+    SUBTYPE OF (package_terminal);
+    WHERE
+      WR1 : NOT (EXISTS(SELF\part_feature.precedent_feature));
+  END_ENTITY; -- primary_reference_terminal
+
+  ENTITY Functional_orientation_feature
+    SUBTYPE OF (part_feature);
+      associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
+      associated_terminal             : primary_reference_terminal;
+  END_ENTITY; -- functional_orientation_feature
+
+  ENTITY Polarity_indication_feature
+    SUBTYPE OF (part_feature);
+      associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
+      associated_terminal             : package_terminal;
+  END_ENTITY; -- polarity_indication_feature
+
+  ENTITY Primary_orientation_feature
+    SUBTYPE OF (part_feature,
+ datum_feature);
+      associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
+  END_ENTITY; -- primary_orientation_feature
+
+  ENTITY Secondary_orientation_feature
+    SUBTYPE OF (part_feature,
+ datum_feature);
+      associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
+  END_ENTITY; -- secondary_orientation_feature
+
+  ENTITY Tertiary_orientation_feature
+    SUBTYPE OF (part_feature,
+ datum_feature);
+      associated_body_vertical_extent : OPTIONAL SET[1:2] OF package_body_surface;
+  END_ENTITY; -- tertiary_orientation_feature
+
+  ENTITY Wire_terminal
+    SUBTYPE OF (package_terminal);
+      SELF\package_terminal.internal_connection_zone : SET[1:?] OF connection_zone_in_usage_view;
+      maximum_wire_terminal_length                   : length_data_element;
+      minimum_wire_terminal_length                   : length_data_element;
+  END_ENTITY; -- wire_terminal
+
+  FUNCTION add_data_element(
+    input1 : length_data_element ;
+    input2 : length_data_element
+  ) : length_data_element;
+
+    RETURN(input1);
+  END_FUNCTION; -- add_data_element
+
+  FUNCTION max_data_element(
+    input1 : length_data_element ;
+    input2 : length_data_element
+  ) : length_data_element;
+
+    RETURN(input1);
+  END_FUNCTION; -- max_data_element
+
+END_SCHEMA; -- Package_arm

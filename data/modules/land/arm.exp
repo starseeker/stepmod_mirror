@@ -2,6 +2,157 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Land - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Land_arm;
-END_SCHEMA;
+
+USE FROM Manufacturing_technology_arm;
+
+USE FROM Layered_interconnect_module_design_arm;
+
+
+  ENTITY Component_termination_passage_and_contact_size_dependent_land
+    SUBTYPE OF (Land);
+      SELF\definition_based_product_occurrence.derived_from : default_attachment_size_and_component_termination_passage_based_land_physical_template;
+      reference_passage                        : component_termination_passage;
+    INVERSE
+      interface_access_mechanism : land_interface_terminal FOR associated_component;
+  END_ENTITY; -- component_termination_passage_and_contact_size_dependent_land
+
+  ENTITY Component_termination_passage_and_contact_size_dependent_non_functional_land
+    SUBTYPE OF (Non_functional_land);
+      SELF\definition_based_product_occurrence.derived_from : default_attachment_size_and_component_termination_passage_based_land_physical_template;
+      reference_passage                        : component_termination_passage;
+    INVERSE
+      interface_access_mechanism : non_functional_land_interface_terminal FOR associated_component;
+  END_ENTITY; -- component_termination_passage_and_contact_size_dependent_non_functional_land
+
+  ENTITY Component_termination_passage_dependent_land
+    SUBTYPE OF (Land);
+      reference_passage                        : component_termination_passage;
+      SELF\definition_based_product_occurrence.derived_from : default_component_termination_passage_based_land_physical_template;
+  END_ENTITY; -- component_termination_passage_dependent_land
+
+  ENTITY Component_termination_passage_dependent_non_functional_land
+    SUBTYPE OF (Non_functional_land);
+      reference_passage                        : component_termination_passage;
+      SELF\definition_based_product_occurrence.derived_from : default_component_termination_passage_based_land_physical_template;
+  END_ENTITY; -- component_termination_passage_dependent_non_functional_land
+
+  ENTITY Contact_size_dependent_land
+    SUBTYPE OF (Land);
+      SELF\definition_based_product_occurrence.derived_from : default_attachment_size_based_land_physical_template;
+  END_ENTITY; -- contact_size_dependent_land
+
+  ENTITY Contact_size_dependent_non_functional_land
+    SUBTYPE OF (Non_functional_land);
+      SELF\definition_based_product_occurrence.derived_from : default_attachment_size_based_land_physical_template;
+  END_ENTITY; -- contact_size_dependent_non_functional_land
+
+  ENTITY Land
+    SUPERTYPE OF (ONEOF (via_dependent_land,
+ component_termination_passage_dependent_land,
+ contact_size_dependent_land,
+ component_termination_passage_and_contact_size_dependent_land,
+ via_and_contact_size_dependent_land))
+    SUBTYPE OF (stratum_feature_template_component);
+      alternate_land_definition                : OPTIONAL land_physical_template;
+      SELF\definition_based_product_occurrence.derived_from : OPTIONAL land_physical_template;
+    INVERSE
+      access_mechanism : SET[1:?] OF land_join_terminal FOR associated_component;
+  END_ENTITY; -- land
+
+  ENTITY Land_interface_terminal
+    SUBTYPE OF (Laminate_component_interface_terminal);
+      SELF\component_feature.definition           : land_template_interface_terminal;
+      SELF\component_feature.associated_component : land;
+    WHERE
+      WR1 : SIZEOF(['AP210_ARM.CONTACT_SIZE_DEPENDENT_LAND',
+ 'AP210_ARM.COMPONENT_TERMINATION_PASSAGE_AND_CONTACT_SIZE_DEPENDENT_LAND',
+ 'AP210_ARM.VIA_AND_CONTACT_SIZE_DEPENDENT_LAND'] * TYPEOF(SELF\component_feature.associated_component)) = 1;
+  END_ENTITY; -- land_interface_terminal
+
+  ENTITY Land_join_terminal
+    SUBTYPE OF (Laminate_component_join_terminal);
+      SELF\component_feature.definition           : land_template_join_terminal;
+      SELF\component_feature.associated_component : land;
+  END_ENTITY; -- land_join_terminal
+
+  ENTITY Non_functional_land
+    SUPERTYPE OF (ONEOF (via_dependent_non_functional_land,
+ component_termination_passage_dependent_non_functional_land,
+ contact_size_dependent_non_functional_land,
+ component_termination_passage_and_contact_size_dependent_non_functional_land,
+ unsupported_passage_dependent_non_functional_land,
+ via_and_contact_size_dependent_non_functional_land))
+    SUBTYPE OF (stratum_feature_template_component);
+      alternate_land_definition                : OPTIONAL land_physical_template;
+      SELF\definition_based_product_occurrence.derived_from : land_physical_template;
+    INVERSE
+      access_mechanism : SET[1:?] OF non_functional_land_join_terminal FOR associated_component;
+  END_ENTITY; -- non_functional_land
+
+  ENTITY Non_functional_land_interface_terminal
+    SUBTYPE OF (Laminate_component_interface_terminal);
+      SELF\component_feature.definition           : land_template_interface_terminal;
+      SELF\component_feature.associated_component : non_functional_land;
+    WHERE
+      WR1 : SIZEOF(['AP210_ARM.CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND',
+ 'AP210_ARM.COMPONENT_TERMINATION_PASSAGE_AND_CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND',
+ 'AP210_ARM.VIA_AND_CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND'] * TYPEOF(SELF\component_feature.associated_component)) = 1;
+  END_ENTITY; -- non_functional_land_interface_terminal
+
+  ENTITY Non_functional_land_join_terminal
+    SUBTYPE OF (Laminate_component_join_terminal);
+      SELF\component_feature.definition           : land_template_join_terminal;
+      SELF\component_feature.associated_component : non_functional_land;
+  END_ENTITY; -- non_functional_land_join_terminal
+
+ENTITY Plated_passage_dependent_land
+  SUBTYPE OF (Land);
+    reference_plated_passage                 : plated_passage;
+    SELF\assembly_component.derived_from : 
+          default_plated_passage_based_land_physical_template;
+END_ENTITY; -- plated_passage_dependent_land
+
+ENTITY Plated_passage_dependent_non_functional_land
+  SUBTYPE OF (Non_functional_land);
+    reference_plated_passage                            : plated_passage;
+    SELF\assembly_component.derived_from : 
+	default_plated_passage_based_land_physical_template;
+END_ENTITY; -- plated_passage_dependent_non_functional_land
+
+  ENTITY Unsupported_passage_dependent_non_functional_land
+    SUBTYPE OF (Non_functional_land);
+      reference_passage                        : unsupported_passage;
+      SELF\definition_based_product_occurrence.derived_from : default_unsupported_passage_based_land_physical_template;
+  END_ENTITY; -- unsupported_passage_dependent_non_functional_land
+
+  ENTITY Via_and_contact_size_dependent_land
+    SUBTYPE OF (Land);
+      SELF\definition_based_product_occurrence.derived_from : default_attachment_size_and_via_based_land_physical_template;
+      reference_via                            : via;
+    INVERSE
+      interface_access_mechanism : land_interface_terminal FOR associated_component;
+  END_ENTITY; -- via_and_contact_size_dependent_land
+
+  ENTITY Via_and_contact_size_dependent_non_functional_land
+    SUBTYPE OF (Non_functional_land);
+      reference_via                            : via;
+      SELF\definition_based_product_occurrence.derived_from : default_attachment_size_and_via_based_land_physical_template;
+    INVERSE
+      interface_access_mechanism : non_functional_land_interface_terminal FOR associated_component;
+  END_ENTITY; -- via_and_contact_size_dependent_non_functional_land
+
+  ENTITY Via_dependent_land
+    SUBTYPE OF (Land);
+      reference_via                            : via;
+      SELF\definition_based_product_occurrence.derived_from : default_via_based_land_physical_template;
+  END_ENTITY; -- via_dependent_land
+
+  ENTITY Via_dependent_non_functional_land
+    SUBTYPE OF (Non_functional_land);
+      reference_via                            : via;
+      SELF\definition_based_product_occurrence.derived_from : default_via_based_land_physical_template;
+  END_ENTITY; -- via_dependent_non_functional_land
+
+END_SCHEMA; -- Land_arm

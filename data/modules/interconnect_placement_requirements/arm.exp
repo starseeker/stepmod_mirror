@@ -2,6 +2,64 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Interconnect placement requirements - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Interconnect_placement_requirements_arm;
-END_SCHEMA;
+
+USE FROM Layered_interconnect_module_design_arm;
+
+USE FROM Non_feature_shape_element_arm;
+
+USE FROM Requirement_decomposition_arm;
+
+USE FROM Part_template_extension_arm;
+
+USE FROM Assembly_component_placement_requirements_arm;
+
+USE FROM Characteristic_arm;
+
+	TYPE assembly_or_interconnect_design_object_select = 
+		EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  TYPE interconnect_module_design_object_category = ENUMERATION OF
+    (interconnect_module_via,
+     interconnect_module_inter_stratum_feature,
+     interconnect_module_cutout,
+     interconnect_module_fill_area,
+     interconnect_module_stratum_feature);
+  END_TYPE; -- interconnect_module_design_object_category
+
+	TYPE interconnect_module_design_object_select = 
+		EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  ENTITY Interconnect_module_constraint_region
+    SUBTYPE OF (Non_feature_shape_element);
+      keepout                                          : BOOLEAN;
+      non_conformant_interconnect_module_design_object : OPTIONAL SET[1:?] OF interconnect_module_design_object_select;
+      SELF\non_feature_shape_element.scope             : interconnect_module;
+      design_specific_purpose                          : STRING; --ee_name;
+(** Need WR to constrain the cardinality      
+      requirement                                      : Requirement_definition_property;
+*)      
+      associated_stratum_extent                        : SET[1:?] OF inter_stratum_extent;
+      constrained_design_object_category               : interconnect_module_design_object_category;
+    INVERSE
+      precedent_version_constraint_region : SET[0:1] OF non_feature_shape_element_relationship FOR related;
+    WHERE
+      WR1 : ('AP210_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(SELF\non_feature_shape_element.element_shape)) OR ('AP210_ARM.THREE_DIMENSIONAL_SHAPE' IN TYPEOF(SELF\non_feature_shape_element.element_shape));
+      WR2 : NOT (SIZEOF(precedent_version_constraint_region) = 1) OR ('AP210_ARM.INTERCONNECT_MODULE_CONSTRAINT_REGION' IN TYPEOF(precedent_version_constraint_region[1]\non_feature_shape_element_relationship.relating));
+  END_ENTITY; -- interconnect_module_constraint_region
+
+  ENTITY Layer_qualified_layout_spacing_requirement_occurrence
+    SUBTYPE OF (Layout_spacing_requirement_occurrence);
+      layer_context : SET[1:?] OF inter_stratum_extent;
+  END_ENTITY; -- layer_qualified_layout_spacing_requirement_occurrence
+
+  ENTITY Layout_spacing_requirement_non_conforming_design_object;
+      non_conformant_design_object : SET[1:?] OF assembly_or_interconnect_design_object_select;
+      reference_design_object      : assembly_or_interconnect_design_object_select;
+      design_requirement           : layout_spacing_requirement_occurrence;
+  END_ENTITY; -- layout_spacing_requirement_non_conforming_design_object
+
+END_SCHEMA; -- Interconnect_placement_requirements_arm

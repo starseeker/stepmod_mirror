@@ -2,6 +2,69 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Packaged part white box model - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Packaged_part_white_box_model_arm;
-END_SCHEMA;
+
+USE FROM Packaged_part_black_box_model_arm;
+
+USE FROM Feature_and_connection_zone_arm;
+
+USE FROM Contextual_shape_positioning_arm;
+
+USE FROM Physical_unit_3d_shape_arm;
+
+USE FROM Physical_unit_2d_shape_arm;
+
+USE FROM Bare_die_arm;
+
+  ENTITY Device_2d_position
+    SUBTYPE OF (Mapping_based_template_instance);
+      placed_device  : part_device;
+--      transformation : axis_placement_2d;
+      part_shape     : physical_unit_planar_shape;
+--      device_shape   : physical_unit_planar_shape;
+  END_ENTITY; -- device_2d_position
+
+  ENTITY Device_3d_position
+    SUBTYPE OF (Mapping_based_template_instance);
+      placed_device  : part_device;
+--      transformation : axis_placement_3d;
+      part_shape     : physical_unit_3d_shape;
+--      device_shape   : physical_unit_3d_shape;
+  END_ENTITY; -- device_3d_position
+
+  ENTITY Device_terminal_map;
+      target_terminal        : packaged_part_terminal;
+      mapped_device_terminal : part_device_terminal;
+    UNIQUE
+      ur1 : mapped_device_terminal,
+ target_terminal;
+  END_ENTITY; -- device_terminal_map
+
+  ENTITY Device_terminal_map_relationship;
+      related_device_terminal_map  : device_terminal_map;
+      relating_device_terminal_map : device_terminal_map;
+  END_ENTITY; -- device_terminal_map_relationship
+
+  ENTITY Part_device;
+      defined_packaged_part : packaged_part;
+      included_device       : bare_die;
+      item_identification   : STRING; --ee_name;
+      bonding_agent         : OPTIONAL material_identification;
+    INVERSE
+      device_3d_position : SET[0:1] OF device_3d_position FOR placed_device;
+      device_2d_position : SET[0:1] OF device_2d_position FOR placed_device;
+    UNIQUE
+      ur1 : defined_packaged_part,
+ item_identification;
+  END_ENTITY; -- part_device
+
+  ENTITY Part_device_terminal;
+      used_bare_die_terminal : minimally_defined_bare_die_terminal;
+      terminated_device      : part_device;
+    UNIQUE
+      ur1 : used_bare_die_terminal,
+ terminated_device;
+  END_ENTITY; -- part_device_terminal
+
+END_SCHEMA; -- Packaged_part_white_box_model_arm

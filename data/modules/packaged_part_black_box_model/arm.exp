@@ -1,6 +1,66 @@
 (*
-   $Id: arm.exp,v 1.2 2004/11/18 09:19:29 budreckytej Exp $
+   $Id: arm.exp,v 1.3 2004/11/19 12:12:09 budreckytej Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Packaged part black box model - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Packaged_part_black_box_model_arm;
-END_SCHEMA;
+
+USE FROM Part_external_reference_arm;
+
+USE FROM Pdm_material_aspects_arm;
+
+USE FROM Physical_unit_usage_view_arm;
+
+USE FROM Part_terminal_arm;
+
+USE FROM Network_functional_usage_view_arm;
+
+	TYPE package_or_package_external_reference = 
+		EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+	TYPE package_terminal_or_package_terminal_external_reference = 
+		EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  ENTITY Packaged_part
+    SUBTYPE OF (part_usage_view);
+      used_package         : SET[1:?] OF package_or_package_external_reference;
+      potting_compound     : OPTIONAL material_identification;
+      implemented_function : OPTIONAL functional_unit_usage_view;
+    INVERSE
+      access_mechanisms : SET[0:?] OF packaged_part_terminal FOR associated_definition;
+    WHERE
+      WR1 : NOT (EXISTS(implemented_function) XOR (SIZEOF(access_mechanisms) > 0));
+      WR2 : single_package_version(SELF);
+  END_ENTITY; -- packaged_part
+
+  ENTITY Packaged_part_join_terminal
+    SUBTYPE OF (packaged_part_terminal);
+  END_ENTITY; -- packaged_part_join_terminal
+
+  ENTITY Packaged_part_terminal
+  	ABSTRACT SUPERTYPE
+    SUBTYPE OF (part_terminal);
+      terminal_of_package                     : SET[1:?] OF package_terminal_or_package_terminal_external_reference;
+      SELF\part_feature.associated_definition : packaged_part;
+    WHERE
+      WR1 : disjoint_package_terminals(SELF);
+      WR2 : NOT EXISTS(SELF\part_feature.precedent_feature);
+  END_ENTITY; -- packaged_part_terminal
+
+  FUNCTION disjoint_package_terminals(
+    input : packaged_part_terminal
+  ) : BOOLEAN;
+
+    RETURN(TRUE);
+  END_FUNCTION; -- disjoint_package_terminals
+
+  FUNCTION single_package_version(
+    input : packaged_part
+  ) : BOOLEAN;
+
+    RETURN(TRUE);
+  END_FUNCTION; -- single_package_version
+
+END_SCHEMA; -- Packaged_part_black_box_model_arm

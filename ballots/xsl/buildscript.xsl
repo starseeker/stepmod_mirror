@@ -8,10 +8,15 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
 <xsl:stylesheet 
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:exslt="http://exslt.org/common"
+  exclude-result-prefixes="exslt"
   version="1.0">
   
   <xsl:import href="../../xsl/common.xsl"/>
 
+    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
+    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+        
   <xsl:output 
     method="xml"
     indent="yes"
@@ -38,6 +43,11 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
       <target name="init">
         <tstamp/>
+        <!-- dtd for publication_index is different than ballot_index  -->
+        <!-- <xsl:if test="./resource_docs"> -->
+        <xsl:if test=".//resource">
+        <xsl:apply-templates select="." mode="dependent_res_doc_variables"/>
+      </xsl:if>
 
         <xsl:element name="dirname">
           <xsl:attribute name="property">BALLOTDIR</xsl:attribute>
@@ -131,6 +141,26 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
+          <xsl:attribute name="name">RESEXPRESSFILE</xsl:attribute>
+          <xsl:attribute name="value">resources_${DSTAMP}v1.exp</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESEXPRESS</xsl:attribute>
+          <xsl:attribute name="value">${EXPRESSDIR}\${RESEXPRESSFILE}</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESERRFILE</xsl:attribute>
+          <xsl:attribute name="value">resources_${DSTAMP}v1_err.txt</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESERR</xsl:attribute>
+          <xsl:attribute name="value">${EXPRESSDIR}\${RESERRFILE}</xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
           <xsl:attribute name="name">ZIPFILE</xsl:attribute>
           <xsl:attribute name="value">${CHECKDIR}\check_${DSTAMP}.zip</xsl:attribute>
         </xsl:element>
@@ -143,6 +173,7 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       </xsl:text>
 
       <xsl:variable name="outfile" select="'${ANTERR}'"/>
+
       <target name="checks" depends="init">
         <echo>
           Outputting to: stepmod/${ANTERR}
@@ -161,32 +192,154 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       </xsl:element>
       </target>
 
+      <target name="getexpress" depends="init">
+
+      <xsl:apply-templates select="ballot_package/module"  mode="getexpress">
+        <xsl:with-param name="outfile" select="$outfile"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="ballot_package/resource" mode="getexpress">
+        <xsl:with-param name="outfile" select="$outfile"/>
+      </xsl:apply-templates>
+
+    </target>
+
+      <target name="compileexpress" depends="getexpress">
+        <xsl:apply-templates select="ballot_package/module" mode="compileexpress"/>
+        <xsl:apply-templates select="ballot_package/resource" mode="compileexpress"/>
+      </target>
+    
       <xsl:text>
       </xsl:text>
-      <!-- not yet implemented for resdocs -->
-      <target name="getexpress" depends="init">
-        <echo>Copying Express to ${EXPRESSDIR}</echo>
-        <xsl:element name="exec">
-          <xsl:attribute name="executable">cscript</xsl:attribute>
-          <xsl:attribute name="dir">${UTILSDIR}</xsl:attribute>
-          <arg value="./getExpressIr.wsf"/>
-          <xsl:element name="arg">
-            <xsl:attribute name="value">${EXPRESSDIR}</xsl:attribute>
-          </xsl:element>
-          <xsl:element name="arg">
-            <xsl:attribute name="value">${BALLOTDIR}/modlist.txt</xsl:attribute>
-          </xsl:element>
-          <xsl:element name="arg">
-            <xsl:attribute name="value">${BALLOTDIR}/irlist.txt</xsl:attribute>
-          </xsl:element>
+
+      <target name="zip" depends="init">
+        <echo>Zipping: ${ZIPFILE}</echo>
+
+        <xsl:element name="zip">
+          <xsl:attribute name="zipfile">${ZIPFILE}</xsl:attribute>
+          <xsl:attribute name="basedir">${CHECKDIR}</xsl:attribute>
+          <xsl:attribute name="excludes">**/*.zip, express/**</xsl:attribute>
+          <xsl:attribute name="includes">ant_check*.txt, arm*.*, mim_resources*.*</xsl:attribute>
         </xsl:element>
       </target>
 
       <xsl:text>
       </xsl:text>
+      <target name="all" depends="checks, compileexpress, zip"/>
 
-      <!-- not yet implemented for resdocs -->
-      <target name="compileexpress" depends="getexpress">
+      <xsl:text>
+      </xsl:text>
+  </project>
+
+  </xsl:template>
+
+  <xsl:template match="module">
+    <xsl:param name="outfile"/>
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DMODULES=${{MODULESDIR}}{@name}"/>
+      <arg value="clean_module"/>
+    </exec>
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DMODULES=${{MODULESDIR}}{@name}"/>
+      <arg value="modules"/>
+    </exec>
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DMODULES=${{MODULESDIR}}{@name}"/>
+      <arg value="mapping"/>
+    </exec>
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DMODULESDIR=${{MODULESDIR}}{@name}"/>
+      <arg value="valid_modules"/>
+    </exec>
+  </xsl:template>
+
+  <xsl:template match="resource">
+    <xsl:param name="outfile"/>
+
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DRESDOCS=${{RESDIR}}{@name}"/>
+      <arg value="clean_resdocs"/>
+    </exec>
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DRESDOCS=${{RESDIR}}{@name}"/>
+      <arg value="resdocs"/>
+    </exec>
+    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="ant"/>
+      <arg value="-emacs"/>
+      <arg value="-q"/>
+      <arg value="-buildfile"/>
+      <arg value="build.xml"/>
+      <arg value="-DRESDIR=${{RESDIR}}{@name}"/>
+      <arg value="valid_resdocs"/>
+    </exec>        
+
+  </xsl:template>
+
+  <xsl:template match="resource" mode="getexpress">
+
+
+    <xsl:element name="mkdir">
+      <xsl:attribute name="dir">${EXPRESSDIR}</xsl:attribute>
+    </xsl:element>
+
+
+    <xsl:element name="concat">
+      <xsl:attribute name="destfile">${RESEXPRESS}</xsl:attribute>
+        <xsl:element name="fileset">
+          <xsl:attribute name="dir">
+            <xsl:value-of select="'../../../'"/>
+          </xsl:attribute>
+          <xsl:attribute name="includes">${RESOURCESEXP}</xsl:attribute>
+        </xsl:element>
+      </xsl:element>   
+
+  </xsl:template>
+
+  <xsl:template match="module" mode="getexpress">
+    <xsl:param name="outfile"/>
+
+    <exec executable="cscript" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
+      <arg value="./getExpressIr.wsf"/>
+      <arg value="${{EXPRESSDIR}}"/>
+      <arg value="${{BALLOTDIR}}/modlist.txt"/>
+      <arg value="${{BALLOTDIR}}/irlist.txt"/>
+    </exec>
+
+  </xsl:template>
+
+
+  <xsl:template match="module" mode="compileexpress">
         <echo>Compiling EXPRESS: ${ARMEXPRESS}</echo>
         <xsl:element name="exec">
           <xsl:attribute name="executable">${EXPRESSCOMP}</xsl:attribute>
@@ -249,103 +402,256 @@ $ Id: build_script.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:attribute name="srcdir">${CHECKDIR}</xsl:attribute>
           <xsl:attribute name="includes">*.txt, **/*.exp</xsl:attribute>
         </xsl:element>
-      </target>
-    
-      <xsl:text>
-      </xsl:text>
 
-      <target name="zip" depends="init">
-        <echo>Zipping: ${ZIPFILE}</echo>
+  </xsl:template>
 
-        <xsl:element name="zip">
-          <xsl:attribute name="zipfile">${ZIPFILE}</xsl:attribute>
-          <xsl:attribute name="basedir">${CHECKDIR}</xsl:attribute>
-          <xsl:attribute name="excludes">**/*.zip, express/**</xsl:attribute>
-          <xsl:attribute name="includes">ant_check*.txt, arm*.*, mim_resources*.*</xsl:attribute>
+  <xsl:template match="resource" mode="compileexpress">
+
+        <echo>Compiling EXPRESS: RESOURCE PART</echo>
+        <xsl:element name="exec">
+          <xsl:attribute name="executable">${EXPRESSCOMP}</xsl:attribute>
+          <xsl:attribute name="dir">${EXPRESSDIR}</xsl:attribute>
+          <xsl:attribute name="output">${RESERR}</xsl:attribute>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${EXPRESSARGS}</xsl:attribute>
+          </xsl:element>
+          <xsl:element name="arg">
+            <xsl:attribute name="value">${RESEXPRESS}</xsl:attribute>
+          </xsl:element>
         </xsl:element>
-      </target>
+        <xsl:element name="copy">
+          <xsl:attribute name="verbose">true</xsl:attribute>
+          <xsl:attribute name="overwrite">true</xsl:attribute>
+          <xsl:attribute name="file">${EXPRESSDIR}/errors.em</xsl:attribute>  
+          <xsl:attribute name="tofile">${CHECKDIR}/${RESERRFILE}</xsl:attribute>
+        </xsl:element>
 
-      <xsl:text>
-      </xsl:text>
-      <target name="all" depends="checks, compileexpress, zip"/>
-       <target name="all" depends="checks"/>
+        <xsl:element name="copy">
+          <xsl:attribute name="verbose">true</xsl:attribute>
+          <xsl:attribute name="overwrite">true</xsl:attribute>
+          <xsl:attribute name="file">${RESEXPRESS}</xsl:attribute>  
+          <xsl:attribute name="todir">${CHECKDIR}</xsl:attribute>
+        </xsl:element>
 
-      <xsl:text>
-      </xsl:text>
-  </project>
+        <xsl:text>
+        </xsl:text>
+
+        <xsl:element name="fixcrlf">
+          <xsl:attribute name="srcdir">${CHECKDIR}</xsl:attribute>
+          <xsl:attribute name="includes">*.txt, **/*.exp</xsl:attribute>
+        </xsl:element>
 
   </xsl:template>
 
-  <xsl:template match="module">
-    <xsl:param name="outfile"/>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DMODULES=${{MODULESDIR}}{@name}"/>
-      <arg value="clean_module"/>
-    </exec>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DMODULES=${{MODULESDIR}}{@name}"/>
-      <arg value="modules"/>
-    </exec>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DMODULES=${{MODULESDIR}}{@name}"/>
-      <arg value="mapping"/>
-    </exec>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DMODULESDIR=${{MODULESDIR}}{@name}"/>
-      <arg value="valid_modules"/>
-    </exec>
+
+  <xsl:template match="ballot_index" mode="dependent_res_doc_variables">
+    <xsl:variable name="resdoc_schema">
+      <xsl:call-template name="get_resource_schema_node_set"/>
+    </xsl:variable>
+    <xsl:apply-templates select="." mode="dependent_variables">
+      <xsl:with-param name="mim_modules" select="$resdoc_schema"/>
+    </xsl:apply-templates>
   </xsl:template>
 
-  <xsl:template match="resource">
-    <xsl:param name="outfile"/>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DRESDOCS=${{RESDIR}}{@name}"/>
-      <arg value="clean_resdocs"/>
-    </exec>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DRESDOCS=${{RESDIR}}{@name}"/>
-      <arg value="resdocs"/>
-    </exec>
-    <exec executable="bash" failifexecutionfails="false" dir="${{UTILSDIR}}" output="${{ANTERR}}" append="true">
-      <arg value="ant"/>
-      <arg value="-emacs"/>
-      <arg value="-q"/>
-      <arg value="-buildfile"/>
-      <arg value="build.xml"/>
-      <arg value="-DRESDOCS=${{RESDIR}}{@name}"/>
-      <arg value="valid_resdocs"/>
-    </exec>
+  <xsl:template match="ballot_index" mode="dependent_variables">
+    <xsl:param name="mim_modules"/>
+
+    <xsl:variable name="mim_modules_node_set" select="exslt:node-set($mim_modules)"/>
+
+    <!-- The resources -->
+    <xsl:element name="property">
+      <xsl:attribute name="name">RESOURCESEXP</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/resource" mode="list">
+          <xsl:with-param name="prefix" select="'data/resources/'"/>
+          <xsl:with-param name="suffix" select="'.exp'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+
   </xsl:template>
+
+<!-- return a node set of all the dependent modules and resources,
+     excluding any that are explicitly part of the ballot -->
+
+<xsl:template name="get_resource_schema_node_set">
+  <xsl:variable name="resource_docs">
+    <xsl:for-each select="//resource">
+      <xsl:variable name="selected_res" select="@name"/>
+      <xsl:variable name="res_file" 
+        select="concat('../../data/resource_docs/',$selected_res,'/resource.xml')"/>	    
+      <xsl:variable name="res_node" select="document($res_file)"/>
+      <xsl:for-each select="$res_node/resource/schema">
+        <xsl:value-of select="concat(' ',@name,' ')"/>
+      </xsl:for-each>
+    </xsl:for-each>
+  </xsl:variable>
+
+
+  <xsl:variable name="todo_schema_list" select="string($resource_docs)"/>
+
+
+  <xsl:variable name="mim_schemas">
+    <xsl:call-template name="depends-on-recurse-mim-x">
+      <xsl:with-param name="todo" select="$todo_schema_list"/>
+      <xsl:with-param name="done" select="' '"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="schemas-node-set" select="exslt:node-set($mim_schemas)"/>
+
+  <xsl:for-each select="$schemas-node-set//x">
+    <xsl:sort/>
+    <xsl:variable name="resource" 
+      select="substring-after(substring-before(.,'.xml'),'../../data/resources/')"/>
+    <resource>
+      <xsl:attribute name="name">
+        <xsl:value-of select="$resource"/>
+      </xsl:attribute>
+    </resource>
+  </xsl:for-each>
+</xsl:template>
+
+<xsl:template name="depends-on-recurse-mim-x">
+  <xsl:param name="todo" select="' '"/>
+  <xsl:param name="done"/>
+  <!--
+       For each interfaced schema:
+       Check if not already done
+       Otherwise output and add to todo
+       -->
+  <xsl:variable name="this-schema" select="substring-before(concat(normalize-space($todo),' '),' ')"/>
+    
+  <xsl:if test="$this-schema">
+            
+    <!-- open up the relevant schema  - which can be a resource or a mim schema -->
+    <xsl:variable name="file_name">
+      <xsl:choose>
+        <xsl:when test="substring-before($this-schema,'_mim')">
+          <xsl:value-of select="concat('../../data/modules/',substring-before($this-schema,'_mim'),'/mim.xml')"/>
+        </xsl:when>
+        <xsl:when test="substring-before($this-schema,'_schema')">
+          <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
+        </xsl:when>
+        <xsl:when test="starts-with($this-schema,'aic_')">
+          <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
+        </xsl:when>
+        <xsl:when test="substring-before($this-schema,'_arm')">
+          BAD SCHEMA name !!! {<xsl:value-of select="$this-schema"/>}
+        </xsl:when>
+        <xsl:otherwise>
+          <!-- assume that it is a resource -->
+          <xsl:message>
+            Found <xsl:value-of select="$this-schema"/> assumed a resource.
+          </xsl:message>
+          <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+  
+    <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">
+      <x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      'abcdefghijklmnopqrstuvwxyz')"/></x>
+    </xsl:if>
+  
+    <xsl:variable name="mim-node" select="document($file_name)/express"/>
+  
+  
+    <!-- get the list of schemas for this level that have not already been done -->
+  
+    <xsl:variable name="my-kids">
+      <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">
+        <xsl:apply-templates select="$mim-node//interface" mode="interface-schemas">
+          <xsl:with-param name="done" select="$done"/>
+        </xsl:apply-templates>
+
+        <!-- only process mims and search for express_refs--> 
+        <xsl:if test="substring-before($this-schema,'_mim')">
+          <xsl:variable name="module_dir" 
+            select="concat('../../data/modules/',translate(substring-before($this-schema,'_mim'),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'/')"/>
+        
+          <!-- get the express refs from the mim -->
+          <xsl:apply-templates select="$mim-node//express_ref|$mim-node//module_ref" mode="schema_name">
+            <xsl:with-param name="done" select="$done"/>
+          </xsl:apply-templates>
+          <xsl:if test="$mim-node/@description.file">
+            <xsl:variable name="mim_descriptions"
+              select="document(concat($module_dir,$mim-node/@description.file))"/>
+            
+            <xsl:apply-templates select="$mim_descriptions//express_ref|$mim_descriptions//module_ref" mode="schema_name">
+              <xsl:with-param name="done" select="$done"/>
+            </xsl:apply-templates>
+          </xsl:if>
+          
+          <!-- get the express refs from the arm -->
+          <xsl:variable name="arm-node" select="document(concat($module_dir,'arm.xml'))/express"/>
+          <xsl:apply-templates select="$arm-node//express_ref|$arm-node//module_ref" mode="schema_name">
+            <xsl:with-param name="done" select="$done"/>
+          </xsl:apply-templates>
+          <xsl:if test="$arm-node/@description.file">
+            <xsl:variable name="arm_descriptions"
+              select="document(concat($module_dir,$arm-node/@description.file))"/>
+            <xsl:apply-templates select="$arm_descriptions//express_ref|$arm_descriptions//module_ref" mode="schema_name">
+              <xsl:with-param name="done" select="$done"/>
+            </xsl:apply-templates>
+          </xsl:if>
+          
+          <!-- get the express refs from the module -->
+          <xsl:variable name="module-node" select="document(concat($module_dir,'module.xml'))"/>
+          <xsl:apply-templates select="$module-node//express_ref|$module-node//module_ref" mode="schema_name">
+            <xsl:with-param name="done" select="$done"/>
+          </xsl:apply-templates>
+        </xsl:if>        
+      </xsl:if>    
+    </xsl:variable>
+  
+    <xsl:variable name="after" select="normalize-space(concat(substring-after($todo, $this-schema),$my-kids))"/>
+        
+    <xsl:if test="$after">
+      <xsl:call-template name="depends-on-recurse-mim-x">
+        <xsl:with-param name="todo" select="$after"/>
+        <xsl:with-param name="done" select="concat($done,' ',$this-schema,' ')"/>
+      </xsl:call-template>
+    </xsl:if>
+    
+  </xsl:if>
+
+
+ </xsl:template>
+
+<xsl:template match="interface" mode="interface-schemas">
+  <xsl:param name="done"/>
+  <xsl:variable name="schema" select="concat(' ',@schema,' ')"/>
+  <xsl:if test="not(contains($done,$schema))">
+    <xsl:value-of select="$schema"/> 
+  </xsl:if>
+</xsl:template>
+  <xsl:template match="resource|module|application_protocol|res_doc" mode="list">
+    <xsl:param name="prefix"/>
+    <xsl:param name="suffix"/>
+    <xsl:param name="terminate" select="'YES'"/>
+    <!-- the name of the resource directory should be in lower case -->
+    <xsl:variable name="lname" select="translate(./@name,$UPPER,$LOWER)"/>
+    <!-- workaround - only output first occurrence of a module -->
+    <xsl:if test="not(./preceding-sibling::*[@name = $lname])">
+    <xsl:choose>
+      <xsl:when test="$terminate='YES'">
+        <xsl:choose>
+          <xsl:when test="position()=last()">
+            <xsl:value-of select="concat($prefix,$lname,$suffix)"/><xsl:text/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="concat($prefix,$lname,$suffix)"/>,<xsl:text/>
+      </xsl:otherwise>
+    </xsl:choose>
+    </xsl:if>
+  </xsl:template>
+
 
 
 </xsl:stylesheet>

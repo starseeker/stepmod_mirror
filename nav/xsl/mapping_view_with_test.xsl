@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view_with_test.xsl,v 1.11 2003/08/07 18:32:59 thendrix Exp $
+$Id: mapping_view_with_test.xsl,v 1.12 2003/08/22 06:35:31 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Check the syntax and content of mappings
@@ -1381,7 +1381,7 @@ $Id: mapping_view_with_test.xsl,v 1.11 2003/08/07 18:32:59 thendrix Exp $
 	</blockquote>
 	<hr/>
 	<br/>
-	SCHEMA <xsl:value-of select="$pseudo-schema-name" />
+	SCHEMA <xsl:value-of select="$pseudo-schema-name" />;
 	<br/>
 	<p>(* This schema has been derived from the MIM short form schema. It is in-development and has no official status!!!
 	<br/>

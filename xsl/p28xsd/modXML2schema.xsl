@@ -3,7 +3,8 @@
 	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
 	
 	<xsl:variable name="namespace_prefix" select="string('ap239:')"/>
-	
+	<xsl:variable name="schema_name" select="string('Product_life_cycle_support')"/>
+		
 	<xsl:template match="/">
 		<xsl:apply-templates select="express"/>
 	</xsl:template>
@@ -16,16 +17,16 @@
 		<xsl:text>&#xa;</xsl:text>
 		
 		<xs:schema 
-			targetNamespace="urn:iso10303-28:xs/Product_life_cycle_support"
+			targetNamespace="urn:iso10303-28:xs/{$schema_name}"
   			xmlns:ex="urn:iso10303-28:ex" 
   			xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  			xmlns:ap239="urn:iso10303-28:xs/Product_life_cycle_support"
+  			xmlns:ap239="urn:iso10303-28:xs/{$schema_name}"
 		>
 			<xsl:text>&#xa;</xsl:text>
 			
 			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../../dtd/part28/ex.xsd"/>
 			
-		<xsl:text>&#xa;</xsl:text>
+			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
 			
 			<xs:complexType name="uos">
@@ -59,12 +60,124 @@
 			<xsl:text>&#xa;</xsl:text>
 
 			<xsl:apply-templates select="type"/>
-			<xsl:apply-templates select="entity"/>
-
+			<xsl:apply-templates select="entity" mode="elements_and_types"/>
+			<xs:element substitutionGroup="ex:uos" type="{$namespace_prefix}uos" name="uos" >
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:apply-templates select="entity" mode="keys"/>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:apply-templates select="entity/explicit[typename/@name = //entity/@name]" mode="keys"/>
+			</xs:element>
+			<xsl:text>&#xa;</xsl:text>
+			<xsl:text>&#xa;</xsl:text>
 		</xs:schema>
 	</xsl:template>
 	
+	<xsl:template match="explicit" mode="keys">
+		<xsl:variable name="raw_entity_name" select="../@name"/>
+		<xsl:variable name="raw_attribute_name" select="./@name"/>
+		<xsl:variable name="raw_target_name" select="./typename/@name"/>
+		<xsl:variable name="corrected_entity_name">
+			<xsl:call-template name="put_into_lower_case">
+				<xsl:with-param name="raw_item_name_param" select="$raw_entity_name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="corrected_attribute_name">
+			<xsl:call-template name="put_into_lower_case">
+				<xsl:with-param name="raw_item_name_param" select="$raw_attribute_name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="corrected_target_name">
+			<xsl:call-template name="put_into_lower_case">
+				<xsl:with-param name="raw_item_name_param" select="$raw_target_name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="subtypes_of_target_exist">
+			<xsl:for-each select="//entity/@supertypes">
+				<xsl:if test="contains(concat(' ', normalize-space(.), ' '), concat(' ', $raw_target_name, ' '))">YES</xsl:if>
+			</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:choose>
+			<xsl:when test="contains($subtypes_of_target_exist, 'YES')">
+				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref" refer="{$namespace_prefix}{$schema_name}___Product_category-keysub">
+					<xs:selector xpath=".//{$namespace_prefix}{$corrected_target_name}/{$corrected_attribute_name}"/>
+					<xs:field xpath="@ref"/>
+				</xs:keyref>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+			</xsl:when>
+			<xsl:otherwise>
+				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref"  refer="{$namespace_prefix}{$schema_name}___	{$corrected_target_name}-key">
+					<xs:selector xpath=".//{$namespace_prefix}{$corrected_target_name}/{$corrected_attribute_name}"/>
+					<xs:field xpath="@ref" />
+				</xs:keyref>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
 	
+	<xsl:template match="entity" mode="keys">
+		<xsl:variable name="raw_entity_name" select="./@name"/>
+			
+		<xsl:variable name="corrected_entity_name">
+			<xsl:call-template name="put_into_lower_case">
+				<xsl:with-param name="raw_item_name_param" select="$raw_entity_name"/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:comment>EXPRESS ENTITY DATATYPE KEY DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/></xsl:comment>
+		<xsl:text>&#xa;</xsl:text>
+		<xs:key name="{$schema_name}___{$corrected_entity_name}-key">
+			<xs:selector xpath="{$namespace_prefix}{$corrected_entity_name}" />
+			<xs:field xpath="@id" />
+		</xs:key>
+		<xsl:text>&#xa;</xsl:text>
+		<xsl:text>&#xa;</xsl:text>
+
+		<xsl:comment>EXPRESS ENTITY DATATYPE KEYREF DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/></xsl:comment>
+		<xsl:text>&#xa;</xsl:text>
+ 		<xs:keyref name="{$schema_name}___{$corrected_entity_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_entity_name}-key">
+				<xs:selector xpath=".//{$namespace_prefix}{$corrected_entity_name}"/>
+			<xs:field xpath="@ref"/>
+		</xs:keyref>
+		<xsl:text>&#xa;</xsl:text>
+		<xsl:text>&#xa;</xsl:text>
+		
+		<xsl:variable name="subtypes_list">
+			<!-- xsl:for-each select="//entity/@supertypes">
+				<xsl:variable name="supertypes" select="."/>
+				<xsl:if test="contains(concat(' ', normalize-space($supertypes), ' '), concat(' ', $raw_entity_name, ' '))">
+					<xsl:value-of select="concat(../@name, ' ')"/>
+				</xsl:if>
+			</xsl:for-each -->
+			
+			
+			
+			<xsl:call-template name="collect_subtypes">
+				<xsl:with-param name="top_entity_name_param" select="$raw_entity_name"/>
+			</xsl:call-template>
+			
+		</xsl:variable>
+
+		<xsl:if test="string-length($subtypes_list)!=0">
+			<xsl:comment>EXPRESS ENTITY DATATYPE WITH SUBTYPES KEY DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>				</xsl:comment>
+			<xsl:text>&#xa;</xsl:text>
+			<xs:key name="{$schema_name}___{$corrected_entity_name}-keysub">
+				<xsl:variable name="subtypes_xpath">
+					<xsl:call-template name="generate_subtypes_xpath_for_key">
+						<xsl:with-param name="subtypes_list_param" select="$subtypes_list"/>
+					</xsl:call-template>
+				</xsl:variable>
+				<xs:selector xpath="{$namespace_prefix}{$corrected_entity_name}{$subtypes_xpath}"/>
+				<xs:field xpath="@id"/>
+			</xs:key>
+			<xsl:text>&#xa;</xsl:text>
+			<xsl:text>&#xa;</xsl:text>
+		</xsl:if>
+	</xsl:template>
 	
 	<!-- DEAL WITH NON-ENTITY EXPRESS DATATYPES -->
 	<xsl:template match="type">
@@ -196,7 +309,7 @@
 											/>
 										</xsl:otherwise>
 									</xsl:choose>
-																	</xs:sequence>
+								</xs:sequence>
 								<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
 								<xsl:choose>
 									<xsl:when test="$current_aggregate_type='array'">
@@ -347,7 +460,7 @@
 	
 	<!-- DEAL WITH ENTITY EXPRESS DATATYPES HERE-->
 	
-	<xsl:template match="entity">
+	<xsl:template match="entity" mode="elements_and_types">
 		
 		<xsl:variable name="raw_entity_name" select="./@name"/>
 			
@@ -869,6 +982,42 @@
 	</xsl:template>
 	
 	<!-- PROCEDURES -->
+	
+	<xsl:template name="collect_subtypes">
+		<xsl:param name="top_entity_name_param"/>
+		<xsl:for-each select="//entity/@supertypes">
+			<xsl:variable name="supertypes" select="."/>
+			<xsl:variable name="subtype_name" select="../@name"/>
+			<xsl:if test="contains(concat(' ', normalize-space($supertypes), ' '), concat(' ', $top_entity_name_param, ' '))">
+				<xsl:value-of select="concat($subtype_name, ' ')"/>
+				<xsl:call-template name="collect_subtypes">
+					<xsl:with-param name="top_entity_name_param" select="$subtype_name"/>
+				</xsl:call-template>
+			</xsl:if>
+		</xsl:for-each>
+	</xsl:template>
+	
+	<xsl:template name="generate_subtypes_xpath_for_key">
+		<xsl:param name="subtypes_list_param"/>
+		<xsl:variable name="wlist_of_subtypes" select="concat(normalize-space($subtypes_list_param), ' ')"/>
+		<xsl:choose>
+			<xsl:when test="$wlist_of_subtypes!=' '">
+				<xsl:variable name="first" select="substring-before($wlist_of_subtypes, ' ')"/>
+				<xsl:variable name="rest" select="substring-after($wlist_of_subtypes, ' ')"/>
+				<xsl:variable name="corrected_subtype_name">
+					<xsl:call-template name="put_into_lower_case">
+						<xsl:with-param name="raw_item_name_param" select="$first"/>
+					</xsl:call-template>
+				</xsl:variable>
+				<xsl:value-of select="concat(' | ', $namespace_prefix, $corrected_subtype_name)"/>
+				<xsl:call-template name="generate_subtypes_xpath_for_key">
+					<xsl:with-param name="subtypes_list_param" select="$rest"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise></xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
 	
 	<xsl:template name="check_whether_part_of_multiple_inheritance_graph">
 		<xsl:param name="raw_entity_param"/>

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.3 2003/01/21 08:26:45 goset1 Exp $
+   $Id: mim.exp,v 1.4 2003/01/30 14:11:17 darla Exp $
    N - ISO/CD-TS 10303-1133 WG12 N1668 single_part_representation - EXPRESS MIM*)
 
 SCHEMA Single_part_representation_mim;
@@ -31,6 +31,24 @@ END_TYPE;
 TYPE spr_person_and_organization_item = EXTENSIBLE SELECT BASED_ON person_and_organization_item WITH 
       (product,product_definition,product_definition_formation);
 END_TYPE;
+
+FUNCTION categories_of_product(obj:product):SET OF STRING;
+LOCAL
+  category_assignments: BAG OF product_category;
+  categories: SET OF STRING:=[];
+  i: INTEGER;
+END_LOCAL;
+
+category_assignments := USEDIN(obj, schema_name + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+   
+REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+  categories := categories + category_assignments[i].name;
+END_REPEAT;
+
+RETURN(categories);
+END_FUNCTION;   
+
+
 
 RULE product_requires_category FOR (product);
 WHERE
@@ -65,21 +83,6 @@ WR1: SIZEOF ( QUERY ( prod <* parts |
 END_RULE; 
 
 
-FUNCTION categories_of_product(obj:product):SET OF STRING;
-LOCAL
-  category_assignments: BAG OF product_category;
-  categories: SET OF STRING:=[];
-  i: INTEGER;
-END_LOCAL;
-
-category_assignments := USEDIN(obj, schema_name + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
-   
-REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
-  categories := categories + category_assignments[i].name;
-END_REPEAT;
-
-RETURN(categories);
-END_FUNCTION;   
 
 
 END_SCHEMA;

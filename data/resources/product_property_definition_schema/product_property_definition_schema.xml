@@ -1,10 +1,15 @@
 <?xml version="1.0"?>
-<!-- $Id: product_property_definition_schema.xml,v 1.5 2002/07/14 16:43:51 robbod Exp $ -->
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<?xml-stylesheet type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" reference="ISO 10303-41" rcs.date="$Date: 2002/07/14 16:43:51 $" rcs.revision="$Revision: 1.5 $">
-	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.17" source="../data/resources/product_property_definition_schema/product_property_definition_schema.exp"/>
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $" reference="ISO 10303-41" description.file="descriptions.xml">
+	<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="product_property_definition_schema_v012.vsd"/>
 	<schema name="product_property_definition_schema">
+		<interface kind="reference" schema="basic_attribute_schema">
+			<interfaced.item name="get_id_value"/>
+			<interfaced.item name="id_attribute"/>
+		</interface>
 		<interface kind="reference" schema="process_property_schema">
 			<interfaced.item name="action_property"/>
 			<interfaced.item name="resource_property"/>
@@ -19,21 +24,21 @@
 			<interfaced.item name="label"/>
 			<interfaced.item name="text"/>
 		</interface>
-		<interface kind="reference" schema="basic_attribute_schema">
-			<interfaced.item name="get_id_value"/>
-			<interfaced.item name="id_attribute"/>
-		</interface>
 		<type name="characterized_definition">
 			<select selectitems="characterized_object characterized_product_definition shape_definition"/>
+			<graphic.element page="3" xcoord="214" ycoord="404"/>
 		</type>
 		<type name="characterized_product_definition">
 			<select selectitems="product_definition product_definition_relationship"/>
+			<graphic.element page="3" xcoord="100" ycoord="304"/>
 		</type>
 		<type name="derived_property_select">
-			<select selectitems="property_definition action_property resource_property"/>
+			<select selectitems="action_property property_definition resource_property"/>
+			<graphic.element page="4" xcoord="298" ycoord="319"/>
 		</type>
 		<type name="shape_definition">
 			<select selectitems="product_definition_shape shape_aspect shape_aspect_relationship"/>
+			<graphic.element page="2" xcoord="510" ycoord="99"/>
 		</type>
 		<entity name="characterized_object">
 			<explicit name="name">
@@ -42,6 +47,7 @@
 			<explicit name="description" optional="YES">
 				<typename name="text"/>
 			</explicit>
+			<graphic.element page="3" xcoord="355" ycoord="297"/>
 		</entity>
 		<entity name="characterized_object_relationship">
 			<explicit name="name">
@@ -56,6 +62,7 @@
 			<explicit name="related_object">
 				<typename name="characterized_object"/>
 			</explicit>
+			<graphic.element page="3" xcoord="355" ycoord="226"/>
 		</entity>
 		<entity name="general_property">
 			<explicit name="id">
@@ -67,6 +74,7 @@
 			<explicit name="description" optional="YES">
 				<typename name="text"/>
 			</explicit>
+			<graphic.element page="4" xcoord="298" ycoord="184"/>
 		</entity>
 		<entity name="general_property_association">
 			<explicit name="name">
@@ -81,8 +89,9 @@
 			<explicit name="derived_definition">
 				<typename name="derived_property_select"/>
 			</explicit>
-			<where label="WR1" expression="SIZEOF( USEDIN( derived_definition,                       'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +                        'GENERAL_PROPERTY_ASSOCIATION.' +                        'DERIVED_DEFINITION')) = 1"/>
+			<where label="WR1" expression="SIZEOF( USEDIN( derived_definition, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'GENERAL_PROPERTY_ASSOCIATION.' + 'DERIVED_DEFINITION')) = 1"/>
 			<where label="WR2" expression="derived_definition.name = base_definition.name"/>
+			<graphic.element page="4" xcoord="298" ycoord="255"/>
 		</entity>
 		<entity name="general_property_relationship">
 			<explicit name="name">
@@ -97,12 +106,14 @@
 			<explicit name="related_property">
 				<typename name="general_property"/>
 			</explicit>
+			<graphic.element page="4" xcoord="298" ycoord="42"/>
 		</entity>
 		<entity name="product_definition_shape" supertypes="property_definition">
-			<!-- unique label="UR1">
-				<unique.attribute attribute="SELF\property_definition.definition"/>
-			</unique -->
-			<where label="WR1" expression="SIZEOF     (['PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_PRODUCT_DEFINITION',  'PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_OBJECT'] *TYPEOF         (SELF\property_definition.definition))&gt;0"/>
+			<unique label="UR1">
+				<unique.attribute entity-ref="property_definition" attribute="definition"/>
+			</unique>
+			<where label="WR1" expression="SIZEOF (['PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_PRODUCT_DEFINITION', 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_OBJECT'] *TYPEOF (SELF\property_definition.definition))&gt;0"/>
+			<graphic.element page="2" xcoord="297" ycoord="333"/>
 		</entity>
 		<entity name="property_definition">
 			<explicit name="name">
@@ -117,7 +128,8 @@
 			<derived name="id" expression="get_id_value (SELF)">
 				<typename name="identifier"/>
 			</derived>
-			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+			<graphic.element page="2" xcoord="297" ycoord="418"/>
 		</entity>
 		<entity name="shape_aspect">
 			<explicit name="name">
@@ -135,7 +147,8 @@
 			<derived name="id" expression="get_id_value (SELF)">
 				<typename name="identifier"/>
 			</derived>
-			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+			<graphic.element page="2" xcoord="297" ycoord="248"/>
 		</entity>
 		<entity name="shape_aspect_relationship">
 			<explicit name="name">
@@ -153,7 +166,8 @@
 			<derived name="id" expression="get_id_value (SELF)">
 				<typename name="identifier"/>
 			</derived>
-			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                       'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1"/>
+			<graphic.element page="2" xcoord="297" ycoord="148"/>
 		</entity>
 		<function name="acyclic_characterized_object_relationship">
 			<parameter name="relation">
@@ -169,27 +183,20 @@
 			<builtintype type="BOOLEAN"/>
 			<algorithm>
   LOCAL
-    x                : SET OF characterized_object_relationship;
-  END_LOCAL;
-  IF relation.relating_object IN relatives THEN 
-    RETURN (FALSE);
-  END_IF;
-  x := QUERY (ca &lt;* bag_to_set 
-             (USEDIN (relation.relating_object,
-             'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 
-             'CHARACTERIZED_OBJECT_RELATIONSHIP.' +
-             'RELATED_OBJECT')) |
-              specific_relation IN TYPEOF (ca));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_characterized_object_relationship
-      (x[i], 
-       relatives + relation.relating_object, 
-       specific_relation) THEN
-      RETURN(FALSE);
+      x : SET OF characterized_object_relationship;
+    END_LOCAL;
+
+    IF relation.relating_object IN relatives THEN
+      RETURN (FALSE);
     END_IF;
-  END_REPEAT;
-  RETURN(TRUE);
-      </algorithm>
+    x := QUERY(ca &lt;* bag_to_set(USEDIN(relation.relating_object, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'CHARACTERIZED_OBJECT_RELATIONSHIP.' + 'RELATED_OBJECT')) | specific_relation IN TYPEOF(ca));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_characterized_object_relationship(x[i], relatives + relation.relating_object, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+RETURN (TRUE);
+			</algorithm>
 		</function>
 		<function name="acyclic_general_property_relationship">
 			<parameter name="relation">
@@ -205,27 +212,20 @@
 			<builtintype type="BOOLEAN"/>
 			<algorithm>
   LOCAL
-    x                : SET OF general_property_relationship;
-  END_LOCAL;
-  IF relation.relating_property IN relatives THEN 
-    RETURN (FALSE);
-  END_IF;
-  x := QUERY (genp &lt;* bag_to_set 
-             (USEDIN (relation.relating_property,
-             'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 
-             'GENERAL_PROPERTY_RELATIONSHIP.' +
-             'RELATED_PROPERTY')) |
-              specific_relation IN TYPEOF (genp));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_general_property_relationship
-      (x[i], 
-       relatives + relation.relating_property, 
-       specific_relation) THEN
-      RETURN(FALSE);
+      x : SET OF general_property_relationship;
+    END_LOCAL;
+
+    IF relation.relating_property IN relatives THEN
+      RETURN (FALSE);
     END_IF;
-  END_REPEAT;
-  RETURN(TRUE);
-      </algorithm>
+    x := QUERY(genp &lt;* bag_to_set(USEDIN(relation.relating_property, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'GENERAL_PROPERTY_RELATIONSHIP.' + 'RELATED_PROPERTY')) | specific_relation IN TYPEOF(genp));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_general_property_relationship(x[i], relatives + relation.relating_property, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+		      </algorithm>
 		</function>
 		<function name="acyclic_shape_aspect_relationship">
 			<parameter name="relation">
@@ -240,28 +240,21 @@
 			</parameter>
 			<builtintype type="BOOLEAN"/>
 			<algorithm>
-  LOCAL
-    x                : SET OF shape_aspect_relationship;
-  END_LOCAL;
-  IF relation.relating_shape_aspect IN relatives THEN 
-    RETURN (FALSE);
-  END_IF;
-  x := QUERY (sa &lt;* bag_to_set 
-             (USEDIN (relation.relating_shape_aspect,
-             'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 
-             'SHAPE_ASPECT_RELATIONSHIP.' +
-             'RELATED_SHAPE_ASPECT')) |
-              specific_relation IN TYPEOF (sa));
-  REPEAT i := 1 TO HIINDEX(x);
-    IF NOT acyclic_shape_aspect_relationship
-      (x[i], 
-       relatives + relation.relating_shape_aspect, 
-       specific_relation) THEN
-      RETURN(FALSE);
+ LOCAL
+      x : SET OF shape_aspect_relationship;
+    END_LOCAL;
+
+    IF relation.relating_shape_aspect IN relatives THEN
+      RETURN (FALSE);
     END_IF;
-  END_REPEAT;
-  RETURN(TRUE);
-      </algorithm>
+    x := QUERY(sa &lt;* bag_to_set(USEDIN(relation.relating_shape_aspect, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' + 'SHAPE_ASPECT_RELATIONSHIP.' + 'RELATED_SHAPE_ASPECT')) | specific_relation IN TYPEOF(sa));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_shape_aspect_relationship(x[i], relatives + relation.relating_shape_aspect, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+			</algorithm>
 		</function>
 		<function name="get_shape_aspects">
 			<parameter name="c_def_instance">
@@ -270,24 +263,21 @@
 			<aggregate type="SET"/>
 			<typename name="shape_aspect"/>
 			<algorithm>
-      
-      LOCAL
+  LOCAL
       pd_set : SET OF product_definition_shape := [];
       pdr_set : SET OF shape_aspect := [];
-      END_LOCAL;
-  pd_set := bag_to_set (QUERY(pd &lt;* USEDIN (c_def_instance,
-     'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION')
-      | 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN
-        TYPEOF(pd)));
- IF (SIZEOF (pd_set) &lt; 1 ) THEN RETURN (pdr_set);
- END_IF;
+    END_LOCAL;
 
- REPEAT i:= 1 to HIINDEX (pd_set);
-    pdr_set := pdr_set + bag_to_set (USEDIN (pd_set[i],
-    'PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT.OF_SHAPE'));
- END_REPEAT;
- RETURN (pdr_set);
-      </algorithm>
+    pd_set := bag_to_set(QUERY(pd &lt;* USEDIN(c_def_instance, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION') | 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PRODUCT_DEFINITION_SHAPE' IN TYPEOF(pd)));
+    IF (SIZEOF(pd_set) &lt; 1) THEN
+      RETURN (pdr_set);
+    END_IF;
+    REPEAT i := 1 TO HIINDEX(pd_set);
+      pdr_set := pdr_set + bag_to_set(USEDIN(pd_set[i], 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.SHAPE_ASPECT.OF_SHAPE'));
+    END_REPEAT;
+    RETURN (pdr_set);
+			</algorithm>
 		</function>
+		<graphic.element page="1" xcoord="277" ycoord="107"/>
 	</schema>
 </express>

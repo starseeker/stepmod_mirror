@@ -2,7 +2,7 @@
 
 	WG12 N??? 								2003
 
-	EXPRESS Declarations for ISO 10303-41ed3: 3rd Edition
+	EXPRESS Declarations for ISO 10303-41: 3rd Edition
 *)
 
 SCHEMA product_property_representation_schema; 
@@ -100,92 +100,73 @@ END_ENTITY;
 
 FUNCTION relatives_of_product_definitions
  (definition_set : SET OF product_definition; relation_subtype : STRING) : SET OF product_definition; 
- FUNCTION local_relatives_of_product_definitions
-    (definition_set    : SET OF product_definition;
-     total_definitions : SET OF product_definition;
-     relation_subtype  : STRING) : SET OF product_definition;
-  LOCAL
-    local_def   : SET OF product_definition := [];
-    local_pdr   : SET OF product_definition_relationship := [];
-    local_total : SET OF product_definition := [];
-  END_LOCAL;
-  REPEAT i := 1 TO HIINDEX(definition_set);
-    local_pdr := local_pdr +
-                 bag_to_set(USEDIN
-                   (definition_set[i],
-                    relation_subtype + 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION'));
-  END_REPEAT;
-  REPEAT i := 1 TO HIINDEX(local_pdr);
-    local_def := local_def + local_pdr[i].related_product_definition;
-  END_REPEAT;
-  IF (SIZEOF(local_def) - SIZEOF(total_definitions)) = 0 THEN
-    RETURN (local_def);
-  ELSE
-    local_total := total_definitions + local_def;
-    RETURN(local_def +
-          (local_relatives_of_product_definitions
-          (local_def - total_definitions, local_total, relation_subtype)));
-  END_IF;
-  END_FUNCTION; -- local_relatives_of_product_definitions
-RETURN (local_relatives_of_product_definitions
-       (definition_set, definition_set, relation_subtype));
- END_FUNCTION; 
+FUNCTION local_relatives_of_product_definitions (definition_set : SET OF product_definition; total_definitions : SET OF product_definition; relation_subtype : STRING):SET OF product_definition;
+      LOCAL
+        local_def : SET OF product_definition := [];
+        local_pdr : SET OF product_definition_relationship := [];
+        local_total : SET OF product_definition := [];
+      END_LOCAL;
+
+      REPEAT i := 1 TO HIINDEX(definition_set);
+        local_pdr := local_pdr + bag_to_set(USEDIN(definition_set[i], relation_subtype + '.RELATING_PRODUCT_DEFINITION'));
+      END_REPEAT;
+      REPEAT i := 1 TO HIINDEX(local_pdr);
+        local_def := local_def + local_pdr[i].related_product_definition;
+      END_REPEAT;
+      IF (SIZEOF(local_def) - SIZEOF(total_definitions)) = 0 THEN
+        RETURN (local_def);
+      ELSE
+        local_total := total_definitions + local_def;
+        RETURN (local_def + (local_relatives_of_product_definitions(local_def - total_definitions, local_total, relation_subtype)));
+      END_IF;
+    END_FUNCTION;
+
+    RETURN (local_relatives_of_product_definitions(definition_set, definition_set, relation_subtype));
+END_FUNCTION; 
 
 FUNCTION relatives_of_shape_representations
  (shape_representation_set : SET OF shape_representation) : SET OF shape_representation; 
-FUNCTION local_relatives_of_shape_representations
-     (shape_representation_set : SET OF shape_representation;
-      total_reps    : SET OF shape_representation) : SET OF
-      shape_representation;
-    LOCAL
-      local_shape_rep : SET OF shape_representation := [];
-      local_srr       : SET OF shape_representation_relationship := [];
-      local_total     : SET OF shape_representation := [];
-    END_LOCAL;
-    REPEAT i := 1 TO HIINDEX(shape_representation_set);
-      local_srr := local_srr + QUERY (rr <* bag_to_set
-      (USEDIN(shape_representation_set[i],
-       'REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP.REP_1'))|
-'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION_RELATIONSHIP'
-      IN TYPEOF (rr));
-    END_REPEAT;
-    REPEAT i := 1 TO HIINDEX(local_srr);
-      IF 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+
-                  'SHAPE_REPRESENTATION_RELATIONSHIP' IN TYPEOF(local_srr[i])
-      THEN
-         local_shape_rep := local_shape_rep + local_srr[i].rep_2;
+ FUNCTION local_relatives_of_shape_representations (shape_representation_set : SET OF shape_representation; total_reps : SET OF shape_representation):SET OF shape_representation;
+      LOCAL
+        local_shape_rep : SET OF shape_representation := [];
+        local_srr : SET OF shape_representation_relationship := [];
+        local_total : SET OF shape_representation := [];
+      END_LOCAL;
+
+      REPEAT i := 1 TO HIINDEX(shape_representation_set);
+        local_srr := local_srr + QUERY(rr <* bag_to_set(USEDIN(shape_representation_set[i], 'REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP.REP_1')) | 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION_RELATIONSHIP' IN TYPEOF(rr));
+      END_REPEAT;
+      REPEAT i := 1 TO HIINDEX(local_srr);
+        IF 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' + 'SHAPE_REPRESENTATION_RELATIONSHIP' IN TYPEOF(local_srr[i]) THEN
+          local_shape_rep := local_shape_rep + local_srr[i].rep_2;
+        END_IF;
+      END_REPEAT;
+      IF SIZEOF(local_shape_rep - total_reps) = 0 THEN
+        RETURN (shape_representation_set);
+      ELSE
+        local_total := total_reps + local_shape_rep;
+        RETURN (local_shape_rep + (local_relatives_of_shape_representations(local_shape_rep - total_reps, local_total)));
       END_IF;
-    END_REPEAT;
-    IF SIZEOF (local_shape_rep - total_reps) = 0 THEN
-      RETURN (shape_representation_set);
-    ELSE
-      local_total := total_reps + local_shape_rep;
-      RETURN(local_shape_rep + (local_relatives_of_shape_representations
-                               (local_shape_rep - total_reps, local_total)));
-    END_IF;
-  END_FUNCTION;
-  RETURN (local_relatives_of_shape_representations
-          (shape_representation_set, shape_representation_set));
-      END_FUNCTION; 
+    END_FUNCTION;
+
+    RETURN (local_relatives_of_shape_representations(shape_representation_set, shape_representation_set));      
+END_FUNCTION; 
 
 FUNCTION get_property_definition_representations
  (c_def_instance : characterized_definition) : SET OF property_definition_representation; 
-      
-      LOCAL
+LOCAL
       pd_set : SET OF property_definition := [];
       pdr_set : SET OF property_definition_representation := [];
-      END_LOCAL;
-      
- pd_set := bag_to_set (USEDIN (c_def_instance,
-      'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION'));
- IF (SIZEOF (pd_set) < 1 ) THEN RETURN (pdr_set);
- END_IF;
+    END_LOCAL;
 
- REPEAT i:= 1 to HIINDEX (pd_set);
-    pdr_set := pdr_set + bag_to_set (USEDIN (pd_set[i],
-'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
- END_REPEAT;
- RETURN (pdr_set);
-      END_FUNCTION; 
+    pd_set := bag_to_set(USEDIN(c_def_instance, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION'));
+    IF (SIZEOF(pd_set) < 1) THEN
+      RETURN (pdr_set);
+    END_IF;
+    REPEAT i := 1 TO HIINDEX(pd_set);
+      pdr_set := pdr_set + bag_to_set(USEDIN(pd_set[i], 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION'));
+    END_REPEAT;
+    RETURN (pdr_set);
+END_FUNCTION; 
 
 END_SCHEMA;  -- product_property_representation_schema

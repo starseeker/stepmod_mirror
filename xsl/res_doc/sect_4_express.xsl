@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.18 2004/09/27 05:52:35 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.19 2004/10/11 16:08:26 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -361,7 +361,7 @@
     </p>
     <blockquote>
         <table>  
-        <xsl:for-each select="$schema_node/interface">
+        <xsl:for-each select="$schema_node/interface[not(@schema = node()/preceding::node()/@schema)]">
           <xsl:variable name="schema_name" select="./@schema"/>      
           <tr>
             <td width="266">
@@ -1273,6 +1273,9 @@
     <xsl:with-param name="schema" select="../../@name"/>
     <xsl:with-param name="entity" select="../@name"/>
     <xsl:with-param name="attribute" select="@name"/>
+    <xsl:with-param name="optional" select="@optional"/>
+    <xsl:with-param name="inline_aname" select="$aname"/>
+    <xsl:with-param name="inline_name" select="@name"/>
   </xsl:call-template>
   <!-- output description from express -->
     <xsl:choose>

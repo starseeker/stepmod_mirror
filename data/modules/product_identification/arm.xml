@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.4 2002/02/13 09:44:02 robbod Exp $ -->
+<!-- $Id: arm.xml,v 1.5 2002/03/04 07:45:59 robbod Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2002/02/13 09:44:02 $"
-  rcs.revision="$Revision: 1.4 $">
+  rcs.date="$Date: 2002/03/04 07:45:59 $"
+  rcs.revision="$Revision: 1.5 $">
 
   <application
     name="express2xml.js"
@@ -26,7 +26,7 @@
     </interface>
 
     <type name="product_organization_or_person_in_organization_item">
-      <description><p>This select extends the assignments of an organization or a person in an organization to Product.</p></description>
+      <description><p>The product_organization_or_person_in_organization_item type allows for the assignment of organization information to an instance of Product.</p></description>
       <select
         basedon="organization_or_person_in_organization_item"
         selectitems="Product">
@@ -35,95 +35,68 @@
     </type>
     <entity
       name="Product">
-      <description><p>A <b>Product</b> is something an organization has identified for some purpose. A product is uniquely identified by an identifier and an organizational scope of that identifier within a type of product. This is required since an organization may produce many types of products.</p>
-<example><p>An organization may have two products numbered 2865000 where one is a drawing or document and the other is a part.</p></example>
-<p>A product belongs to one or more categories and has one or more versions.</p>
+      <description><p>A <b>Product</b> represents a product or a type of product. A product is identified by an identifier provided by an organization or a person in an organization.</p>
 
-<note><p>The mechanism for guaranteeing the uniqueness of organization id is outside the scope of ISO 10303.</p></note>
+<note><p>A product belongs to one or more categories and may have zero or more versions.</p></note>
+
+<note><p>The definition of the domain of uniqueness and the mechanism for guaranteeing the uniqueness of product id are outside the scope of this application module.</p></note>
       </description>
       <explicit
         name="id">
-        <description>the identification of the product assigned by the organization</description>
         <builtintype
           type="STRING"/>
+        <description>the identifier that distinguishes the product.
+        <note><p> The meaning of this attribute can be defined in the annotated EXPRESS schemas that use or specialize
+this entity, or in an agreement of common understanding between the partners sharing this information.</p></note>
+
+<example><p>Part numbers, stock item numbers, and serial numbers are examples of product identifiers.</p></example>
+</description>
       </explicit>
       <explicit
         name="name">
-        <description>words by which the product is known.</description>
+        <description>the words by which the product is known.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
         name="description"
         optional="YES">
-        <description>text which describes the product.</description>
+        <description>the text which describes the product.</description>
         <builtintype
           type="STRING"/>
       </explicit>
       <explicit
-        name="product_type">
-        <description>the type of the product.</description>
-        <typename
-          name="Product_category"/>
-      </explicit>
-      <explicit
         name="categories">
-        <description>the class or classes with hierarchies to which the product belongs.</description>
+        <description>the instances of the Product_category entity data type that identify categories to which the product belongs.
+        <example><p>The <b>product</b> may belong to categories named 'part', 'raw material', 'document', 'functionality', or 'requirement'.</p></example>
+<note><p>In some early phase of design, a product may not yet be categorized.</p></note>
+
+</description>
         <aggregate
           type="SET"
-          lower="1"
+          lower="0"
           upper="?"/>
         <typename
           name="Product_category"/>
       </explicit>
       <inverse
-        name="identifier"
+        name="actors"
         entity="Organization_or_person_in_organization_assignment"
         attribute="items">
-        <description>the organization (or person in an organization) that assigned and owns the product id</description>
+        <description>the instances of the entity data types organization and person_in_organization that identify actors of the definition of the product.</description>
       </inverse>
-      <unique
-        label="UR1">
-        <description>The combination of the id, identifier, and product_type shall be unique.</description>
-        <unique.attribute
-          attribute="id"/>
-        <unique.attribute
-          attribute="identifier"/>
-        <unique.attribute
-          attribute="product_type"/>
-      </unique>
 
       <where
         label="WR1"
-        expression="SELF.identifer.role = 'id owner'">
-        <description>The <b>identifier</b> role shall be 'id owner'.</description>
+        expression="SIZEOF(actors)>=1;">
+        <description>The product shall have at least one person or organization that has a role on it.</description>
       </where>
       <where
         label="WR2"
-        expression="SELF.product_type.name IN ['part', 'raw material',       'document', 'functionality', 'requirement']">
-        <description>The <b>product_type</b> role shall be 'part', 'raw material', 'document', 'functionality', or 'requirement'.</description>
+        expression="SIZEOF(QUERY(pooa &lt;* actors| pooa.role.name = 'id owner'))=1;">
+        <description>There shall be exactly one actor that is responsible for the designation of the product id.</description>
       </where>
 
-      <where
-        label="document" >
-        <description>The item plays the role of a document.</description>
-      </where>
-      <where
-        label="part" >
-        <description>The item plays the role of a part.</description>
-      </where>
-      <where
-        label="functionality" >
-        <description>The item plays the role of a function.</description>
-      </where>
-      <where
-        label="raw material" >
-        <description>The item plays the role of raw material.</description>
-      </where>
-      <where
-        label="requirement" >
-        <description>The item plays the role of a requirement.</description>
-      </where>
     </entity>
 
   </schema>

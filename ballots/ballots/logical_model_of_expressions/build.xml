@@ -13,14 +13,37 @@
       <property name="STEPMODSTYLES" value="xsl"/>
       <property name="STEPMODDTDDIR" value="dtd"/>
       <property name="DTDDIR" value="ballots/dtd"/>
-      <property name="ISODIR" value="ballots/isohtml/plib_part20"/>
-      <property name="ISOMENU" value="./ballots/ballots/plib_part20/menubar_iso.xml"/>
-      <property name="BALLOTDIR" value="ballots/ballots/plib_part20"/>
-      <property name="BALLOTMENU" value="./ballots/ballots/plib_part20/menubar_ballot.xml"/>
-      <property name="ARCHIVE" value="plib_part20-${DSTAMP}"/>
+      <property name="ISODIR" value="ballots/isohtml/logical_model_of_expressions"/>
+      <property name="ISOMENU" value="./ballots/ballots/logical_model_of_expressions/menubar_iso.xml"/>
+      <property name="BALLOTDIR" value="ballots/ballots/logical_model_of_expressions"/>
+      <property name="BALLOTMENU" value="./ballots/ballots/logical_model_of_expressions/menubar_ballot.xml"/>
+      <property name="ARCHIVE" value="logical_model_of_expressions-${DSTAMP}"/>
       <property name="EXPRESS" value="data/modules/expression/*.exp,data/modules/generic_expression/*.exp,data/modules/numeric_function/*.exp"/>
         
       <property name="GIFS" value="data/modules/expression/*.exp,data/modules/generic_expression/*.exp,data/modules/numeric_function/*.exp,data/modules/expression/*.gif,data/modules/generic_expression/*.gif,data/modules/numeric_function/*.gif,data/modules/expression/*.png,data/modules/generic_expression/*.png,data/modules/numeric_function/*.png,data/modules/expression/*.jpg,data/modules/generic_expression/*.jpg,data/modules/numeric_function/*.jpg"/>
+      <property name="RESDOCGIFS" value=""/>
+      <property name="RESDOCCONTENTSXML" value=""/>
+      <property name="RESDOCS" value=""/>
+      <property name="RESDOCSCOPEXML" value=""/>
+      <property name="RESDOCREFSXML" value=""/>
+      <property name="RESDOCDEFSXML" value=""/>
+      <property name="RESDOCMAINXML" value=""/>
+      <property name="" value=""/>
+      <property name="RESDOCSCHEMAXML" value=""/>
+      <property name="RESDOCASHORTNAMESXML" value=""/>
+      <property name="RESDOCBOBJREGXML" value=""/>
+      <property name="RESDOCBIBLIOXML" value=""/>
+      <property name="RESDOCCOVERXML" value=""/>
+      <property name="RESDOCCEXPSCHEMAXML" value=""/>
+      <property name="RESDOCCEXPXML" value=""/>
+      <property name="RESDOCDEXPGXML" value=""/>
+      <property name="RESDOCTECHDISCUSSIONXML" value=""/>
+      <property name="RESDOCEXAMPLESXML" value=""/>
+      <property name="RESDOCADDSCOPE" value=""/>
+      <property name="RESDOCFOREWORDXML" value=""/>
+      <property name="RESDOCINTRODUCTIONXML" value=""/>
+      <property name="RESDOCDESCRIPTIONSXML" value=""/>
+      <property name="RESDOCSCHEMADIAGXML" value=""/>
       <property name="CONTENTSXML" value="data/modules/expression/sys/contents.xml,data/modules/generic_expression/sys/contents.xml,data/modules/numeric_function/sys/contents.xml"/>
       <property name="MODULES" value="data/modules/expression/**/*.xml,data/modules/generic_expression/**/*.xml,data/modules/numeric_function/**/*.xml"/>
       <property name="SCOPEXML" value="data/modules/expression/sys/1_scope.xml,data/modules/generic_expression/sys/1_scope.xml,data/modules/numeric_function/sys/1_scope.xml"/>
@@ -52,6 +75,10 @@
       <property name="ARMEXPXML" value="data/modules/expression/arm.xml,data/modules/generic_expression/arm.xml,data/modules/numeric_function/arm.xml"/>
       <property name="MIMEXPXML" value="data/modules/expression/mim.xml,data/modules/generic_expression/mim.xml,data/modules/numeric_function/mim.xml"/>
       <property name="RESOURCESXML" value="data/resources/ISO13584_generic_expressions_schema/ISO13584_generic_expressions_schema.xml,data/resources/ISO13584_expressions_schema/ISO13584_expressions_schema.xml"/>
+      <property name="RESOURCESEXP" value="data/resources/ISO13584_generic_expressions_schema/ISO13584_generic_expressions_schema.exp,data/resources/ISO13584_expressions_schema/ISO13584_expressions_schema.exp"/>
+      <property name="RESDOCRESOURCESEXP" value="data/resources//.exp"/>
+      <property name="RESOURCESSCHEMAEXPGGIFS" value="data/resources/ISO13584_generic_expressions_schema/ISO13584_generic_expressions_schemaexpg*.gif,data/resources/ISO13584_expressions_schema/ISO13584_expressions_schemaexpg*.gif"/>
+      <property name="RESOURCESSCHEMAEXPGXMLS" value="data/resources/ISO13584_generic_expressions_schema/ISO13584_generic_expressions_schemaexpg*.xml,data/resources/ISO13584_expressions_schema/ISO13584_expressions_schemaexpg*.xml"/>
    </target>
     
    <target name="init" depends="variables">
@@ -94,6 +121,9 @@
       <style includes="${RESOURCESXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/express.xsl">
          <param name="output_type" expression="HTM"/>
       </style>
+      <copy todir="${ISODIR}">
+         <fileset dir="." includes="${RESOURCESEXP}"/>
+      </copy>
    </target>
     
    <target name="isomodules" depends="init" description="generate HTML for all modules">
@@ -261,5 +291,143 @@
       <copy todir="${ISODIR}">
          <fileset dir="." includes="${GIFS}"/>
       </copy>
+   </target>
+   <target name="isoresdocs" depends="init" description="generate HTML for all modules">
+      <dependset>
+         <srcfileset dir="${STEPMODDTDDIR}" includes="**/*.dtd, **/*.ent"/>
+         <srcfileset dir="${STEPMODSTYLES}" includes="**/*.xsl"/>
+         <srcfileset dir="." includes="${RESDOCS}"/>
+         <srcfileset dir="." includes="${RESDOCGIFS}"/>
+         <targetfileset dir="${ISODIR}" includes="/data/resource_docs/**/*.htm"/>
+      </dependset>
+      <style includes="${RESDOCCONTENTSXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_contents.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCSCOPEXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_1_scope.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCREFSXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_2_refs.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCDEFSXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_3_defs.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCSCHEMAXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_schema.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCCEXPSCHEMAXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_c_exp_schema.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCCEXPXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_c_exp.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCDEXPGXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_d_expg.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCMAINXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_main.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCASHORTNAMESXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_a_short_names.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCBOBJREGXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_b_obj_reg.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESOURCESSCHEMAEXPGXMLS}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/imgfile.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCTECHDISCUSSIONXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_tech_discussion.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCEXAMPLESXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_examples.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCADDSCOPEXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_add_scope.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCBIBLIOXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_biblio.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCCOVERXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_cover.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCFOREWORDXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_foreword.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCINTRODUCTIONXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/sect_introduction.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <style includes="${RESDOCSCHEMADIAGXML}" destdir="${ISODIR}" extension=".htm" style="${STEPMODSTYLES}/res_doc/imgfile.xsl">
+         <param name="output_type" expression="HTM"/>
+         <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+         <param name="output_issues" expression="${OUTPUT_ISSUES}"/>
+         <param name="menubar_file" expression="${ISOMENU}"/>
+      </style>
+      <copy todir="${ISODIR}">
+         <fileset dir="." includes="${RESDOCGIFS}"/>
+      </copy>
+      <copy todir="${ISODIR}">
+         <fileset dir="." includes="${RESOURCESSCHEMAEXPGGIFS}"/>
+      </copy>
+      <concat destfile="${ISODIR}/wg12n.exp">
+         <fileset dir="." includes="${RESDOCRESOURCESEXP}"/>
+      </concat>
    </target>
 </project>

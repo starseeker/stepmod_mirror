@@ -14,15 +14,10 @@ $Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
                 version="1.0">
 
 	<xsl:import href="../../xsl/express.xsl"/>
-	<xsl:import href="../../xsl/express_link.xsl"/>
 
 
 
   <xsl:output method="html"/>
-
-  <xsl:variable 
-    name="relative_root"
-    select="'../../../../'"/>
 
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -88,44 +83,36 @@ $Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
 
 			<xsl:variable name="dep-schemas" 
 			  	select="msxsl:node-set($dep-schemas3)" />
-                          (* Used from the following schemas <br/>
-                          <xsl:apply-templates
-                            select="$dep-schemas//schema" mode="link"/>
-                          *)
-			<xsl:apply-templates select="$arm_node//constant | $dep-schemas//constant " mode="code">
+				
+			<xsl:apply-templates select="$arm_node//constant | $dep-schemas//constant " mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
-			<xsl:apply-templates select="$arm_node//type | $dep-schemas//type " mode="code">
+			<xsl:apply-templates select="$arm_node//type | $dep-schemas//type " mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
-                          <xsl:apply-templates
-                            select="$arm_node//entity | $dep-schemas//entity" mode="link"/>
-                          
-
-
-			<xsl:apply-templates select="$arm_node//entity | $dep-schemas//entity " mode="code">
+			<xsl:apply-templates select="$arm_node//entity | $dep-schemas//entity " mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
 			<xsl:apply-templates select="$arm_node//subtype.constraint | $dep-schemas//subtype.constraint " 
-						mode="code">
+						mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
 			<xsl:apply-templates select="$arm_node//rule | $dep-schemas//rule " 
-						mode="code">
+						mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
 			<xsl:apply-templates select="$arm_node//function | $dep-schemas//function " 
-						mode="code">
+						mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
 			<xsl:apply-templates select="$arm_node//procedure | $dep-schemas//procedure " 
-						mode="code">
+						mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
@@ -148,35 +135,35 @@ $Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
 			<xsl:variable name="dep-schemas" select="document($schemas-node-set2//x)" />
 
 
-			<xsl:apply-templates select="$arm_node//constant | $dep-schemas//constant " mode="code">
+			<xsl:apply-templates select="$arm_node//constant | $dep-schemas//constant " mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
-			<xsl:apply-templates select="$arm_node//type | $dep-schemas//type " mode="code">
+			<xsl:apply-templates select="$arm_node//type | $dep-schemas//type " mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
-			<xsl:apply-templates select="$arm_node//entity | $dep-schemas//entity " mode="code">
+			<xsl:apply-templates select="$arm_node//entity | $dep-schemas//entity " mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
 			<xsl:apply-templates select="$arm_node//subtype.constraint | $dep-schemas//subtype.constraint " 
-						mode="code">
+						mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
 			<xsl:apply-templates select="$arm_node//rule | $dep-schemas//rule " 
-						mode="code">
+						mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
 			<xsl:apply-templates select="$arm_node//function | $dep-schemas//function " 
-						mode="code">
+						mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
 			<xsl:apply-templates select="$arm_node//procedure | $dep-schemas//procedure " 
-						mode="code">
+						mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
@@ -186,7 +173,7 @@ $Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
               </xsl:choose>
 
 	</blockquote>
-	END_SCHEMA; <xsl:value-of select="concat('-- ',@directory,'_long_form_arm; ')" />
+	END_SCHEMA; <xsl:value-of select="concat('-- ',@directory,'_arm_lf; ')" />
 	<br/>
   
   </body>
@@ -244,6 +231,20 @@ $Id: select_view.xsl,v 1.2 2002/10/21 16:57:24 nigelshaw Exp $
 		</xsl:if>
 
 </xsl:template>
+
+<xsl:template match="*" mode="annotated-code" >
+	<xsl:variable name="addr" select="concat('../../',
+			translate(substring-before(../@name,'_arm'),$UPPER,$LOWER),'/sys/4_info_reqs.xml#',
+			translate(concat(../@name,'.',@name),$UPPER,$LOWER))" />
+
+	<br/>
+	(* <A href="{$addr}"><xsl:value-of select="@name"	/></A> from schema <xsl:value-of select="../@name" /> *)
+	<br/>
+
+	<xsl:apply-templates select="." mode="code"/>
+
+</xsl:template>
+
 
 
 <xsl:template match="interface" mode="interface-schemas" >
@@ -339,28 +340,6 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 	<xsl:if test="not(contains($done,@schema))" >
 		<x><xsl:value-of select="@schema" /></x> 
 	</xsl:if>
-</xsl:template>
-
-<!-- ROB added link to schemas 
-     Note - this relies on global variable relative_root
--->
-<xsl:template match="schema" mode="link">
-  <xsl:call-template name="link_schema">
-    <xsl:with-param 
-      name="schema_name" 
-      select="@name"/>
-    <xsl:with-param name="clause" select="'section'"/>
-  </xsl:call-template><br/>
-</xsl:template>
-
-
-<xsl:template match="entity" mode="link">
-  <xsl:call-template name="link_object">
-    <xsl:with-param name="object_name" select="@name"/>
-    <xsl:with-param name="object_used_in_schema_name" 
-      select="../../@name"/>
-    <xsl:with-param name="clause" select="'section'"/>
-  </xsl:call-template>
 </xsl:template>
 
 </xsl:stylesheet>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: developer.xsl,v 1.9 2003/01/06 17:48:43 robbod Exp $
+$Id: developer.xsl,v 1.10 2003/01/08 08:14:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -76,16 +76,16 @@ $Id: developer.xsl,v 1.9 2003/01/06 17:48:43 robbod Exp $
  
     
     <h3>References to definitions defined in this module</h3>
-    The following XML can be used to reference terms defined in this module
-    from another module. The XML should be included in the 
-    &lt;normrefs&gt; of the module. This will result in the terms being
-    included in Clause 3 of the module.
     <xsl:choose>
       <xsl:when test="$module_nodes/module/definition">
+        The following XML can be used to reference terms defined in this module
+        from another module. The XML should be included in the 
+        &lt;normrefs&gt; of the module. This will result in the terms being
+        included in Clause 3 of the module.
         <xsl:apply-templates select="$module_nodes/module/definition"/>
       </xsl:when>
       <xsl:otherwise>
-        No definitions defined in this module.
+        There are no definitions defined in this module.
       </xsl:otherwise>
     </xsl:choose>
     <h3>References to module sections</h3>

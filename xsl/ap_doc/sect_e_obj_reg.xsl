@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_d_obj_reg.xsl,v 1.6 2003/03/03 17:15:04 goset1 Exp $
+$Id: sect_a_exp_lf.xsl,v 1.1 2003/05/23 15:50:29 robbod Exp $
+  Author:  Mike Ward, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose:     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 

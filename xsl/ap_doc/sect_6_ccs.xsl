@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_6_ccs.xsl,v 1.5 2003/02/08 21:33:08 goset1 Exp $
+$Id: application_protocol.xsl,v 1.22 2003/05/23 15:52:56 robbod Exp $
+  Author:  Mike Ward, Rob Bodington, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose: Display the main set of frames for an AP document.     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
@@ -9,7 +12,6 @@
 	<xsl:import href="cc_descriptions_2.xsl"/>
 	<xsl:output method="html"/>
 	
-	<xsl:template match="module"/>
 	
 	<xsl:template match="application_protocol">
 		<xsl:call-template name="clause_header">
@@ -17,7 +19,7 @@
 			<xsl:with-param name="aname" select="'ccs'"/>
 		</xsl:call-template>
 				
-		<xsl:variable name="annB" select="concat('./b_imp_meth',$FILE_EXT)"/>
+		<xsl:variable name="annC" select="concat('./c_imp_meth',$FILE_EXT)"/>
 		Conformance to this application protocol includes satisfying the requirements stated in this specification, 
 		the requirements of the implementation method(s) supported and the relevant requirements of the normative references.  
 		<p>A conforming implementation shall support at least one of the following implementation methods:</p>
@@ -39,8 +41,8 @@
 			 </xsl:for-each>
 		</ul>
 		<note>
-			Implementation methods-specific requirements are specified in <a href="{$annB}">
-annex B</a>.
+			Implementation methods-specific requirements are
+specified in annex <a href="{$annC}">C</a>.
 		</note>
 
 		<xsl:variable name="ap_dir">

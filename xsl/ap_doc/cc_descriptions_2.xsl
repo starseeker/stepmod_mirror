@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
 <!--
-	$Id: cc_descriptions_2.xsl,v 1.4 2003/02/17 18:46:30 goset1 Exp $
+	$Id: cc_descriptions_2.xsl,v 1.5 2003/03/06 14:47:58 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">	
 <xsl:import href="../common.xsl"/>		<!-- for text formatting templates -->
 	<xsl:output method="html"/>
 	
-	<xsl:template match="/">
-		<html>
-			<body bgcolor="#FFFFFF">
-				<xsl:apply-templates/>
-			</body>
-		</html>
-	</xsl:template>
 	
 	<xsl:template match="conformance_classes">
 	

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.6 2003/05/23 21:29:46 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.7 2003/05/24 16:50:46 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -51,6 +51,7 @@
 	
   <xsl:if test="./data_plan">
     <p>
+      <a name="data_plan"/>
       The data planning model in
       <xsl:apply-templates select="./data_plan/imgfile" mode="data_plan_figures"/>
       provides an overview of the information requirements of this domain.  

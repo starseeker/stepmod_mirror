@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.8 2003/05/24 16:50:31 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.9 2003/05/25 05:52:23 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -137,6 +137,7 @@ $Id: sect_4_info_reqs.xsl,v 1.8 2003/05/24 16:50:31 robbod Exp $
      <xsl:choose>
        <xsl:when test="./data_plan">
          <p>
+           <a name="data_plan"/>
            The data planning model in
            <xsl:apply-templates select="./data_plan/imgfile" mode="data_plan_figures"/>
            provides an overview of the information requirements of this domain.  
@@ -246,20 +247,6 @@ $Id: sect_4_info_reqs.xsl,v 1.8 2003/05/24 16:50:31 robbod Exp $
     </a>
     <xsl:if test="position()!=last()">,&#160;</xsl:if>
   </xsl:template>
-
-
-
-  <xsl:template name="count_figures_from_fundamentals">
-    <xsl:variable name="dp_figure_count">
-      <xsl:value-of select="count(/application_protocol/purpose/data_plan/imgfile)"/>
-    </xsl:variable>
-    <xsl:variable name="intro_figure_count">
-      <xsl:value-of select="count(/application_protocol/purpose/figure)"/>
-    </xsl:variable>
-    <xsl:value-of select="$dp_figure_count+$intro_figure_count"/>
-  </xsl:template>
-
-
 
 
 </xsl:stylesheet>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-	$Id: $
+	$Id: sect_h_guide.xsl,v 1.4 2002/10/08 10:17:28 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../sect_f_guide.xsl"/>
@@ -20,5 +20,10 @@
 		</xsl:call-template>
 		<xsl:apply-templates select="usage_guide"/>
 	</xsl:template>
+
+
+<xsl:template match="usage_guide">
+  <xsl:apply-templates/>
+</xsl:template>
 	
 </xsl:stylesheet>

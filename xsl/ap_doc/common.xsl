@@ -1,32 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: common.xsl,v 1.13 2003/05/23 21:29:46 robbod Exp $
+$Id: application_protocol.xsl,v 1.22 2003/05/23 15:52:56 robbod Exp $
+  Author:  Mike Ward, Rob Bodington, Eurostep Limited
+  Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
+  Purpose: Display the main set of frames for an AP document.     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-	<xsl:import href="../common.xsl"/>
-	<xsl:import href="file_ext.xsl"/>
-	<xsl:import href="parameters.xsl"/>
+  <xsl:import href="../common.xsl"/>
+  <xsl:import href="file_ext.xsl"/>
+  <xsl:import href="parameters.xsl"/>
 	
-	<xsl:template name="ap_module_directory">
-		<xsl:param name="application_protocol"/>
-		<xsl:variable name="mod_dir">
-			<xsl:call-template name="module_name">
-				<xsl:with-param name="module" select="$application_protocol"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:value-of select="concat('../../data/modules/', $mod_dir)"/>
-	</xsl:template>
+  <xsl:template name="ap_module_directory">
+    <xsl:param name="application_protocol"/>
+    <xsl:variable name="mod_dir">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$application_protocol"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="concat('../../data/modules/', $mod_dir)"/>
+  </xsl:template>
 	
-	<xsl:template name="application_protocol_directory">
-		<xsl:param name="application_protocol"/>
-		<xsl:variable name="ap_dir">
-			<xsl:call-template name="module_name">
-				<xsl:with-param name="module" select="$application_protocol"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:value-of select="concat('../../data/application_protocols/', $ap_dir)"/>
-	</xsl:template>
+  <xsl:template name="application_protocol_directory">
+    <xsl:param name="application_protocol"/>
+    <xsl:variable name="ap_dir">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$application_protocol"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="concat('../../data/application_protocols/', $ap_dir)"/>
+  </xsl:template>
 	
 	<xsl:template name="check_application_protocol_exists">
 		<xsl:param name="application_protocol"/>
@@ -272,7 +275,7 @@
   </div>
 </xsl:template>
 
-
+<!-- RBN - not needed
 	<xsl:template match="entity|type|schema|constant" mode="expressg_icon">
 		<xsl:param name="original_schema"/>
 		<xsl:variable name="schema">
@@ -324,7 +327,7 @@
 			<img align="middle" border="0" alt="EXPRESS-G" src="../../../../images/expg.gif"/>
 		</a>
 	</xsl:template>
-
+-->
 
 
 	<xsl:template name="ap_expressg_icon">
@@ -375,6 +378,200 @@
 			<img align="middle" border="0" alt="EXPRESS-G" src="{$module_root}/../../../images/expg.gif"/>
 		</a>
 	</xsl:template>
+
+<!-- test the WG number. 
+     return a string containing Error if incorrect
+     
+     -->
+<xsl:template name="test_wg_number">
+  <xsl:param name="wgnumber"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+  <xsl:variable name="ERR" select="'**************************'"/>
+
+  <xsl:variable name="wgnumber_check"
+    select="translate(translate($wgnumber,$LOWER,$UPPER),$UPPER,$ERR)"/>
+
+  <xsl:choose>
+    <xsl:when test="not($wgnumber)">
+      Error WG-1: No WG number provided.
+    </xsl:when>
+
+    <xsl:when test="$wgnumber = 00000">
+      <!-- the default provided by mkmodule -->
+      Error WG-2: No WG number provided (0 is invalid).
+    </xsl:when>
+   
+    <xsl:when test="contains($wgnumber_check,'*')">
+      Error WG-3: WG number must be an integer.
+    </xsl:when>
+    <xsl:otherwise>
+      'OK'
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="express-g">
+  <ul>
+    <xsl:apply-templates select="imgfile|img" mode="expressg"/>
+  </ul>
+</xsl:template>
+
+<xsl:template match="imgfile" mode="expressg">
+  <xsl:variable name="file">
+    <xsl:call-template name="set_file_ext">
+      <xsl:with-param name="filename" select="@file"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="module" select="../../../../module/@name"/>
+  <xsl:variable name="href" select="concat('../../../modules/', $module, '/', $file)"/>
+  <li>
+    <a href="{$href}">
+	<xsl:apply-templates select="." mode="title"/>
+    </a>
+  </li>
+</xsl:template>
+
+<xsl:template match="imgfile" mode="title">
+  <xsl:variable name="number">
+    <xsl:number/>
+  </xsl:variable>
+  <xsl:variable name="fig_no">
+    <xsl:choose>
+      <xsl:when test="name(../..)='arm'">
+        <xsl:choose>
+          <xsl:when test="$number=1">
+            <xsl:value-of 
+              select="concat('Figure F.',$number, 
+                      ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of 
+              select="concat('Figure F.',$number, 
+                      ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:when test="name(../..)='mim'">
+        <xsl:choose>
+          <xsl:when test="$number=1">
+            <xsl:value-of 
+              select="concat('Figure A.',$number, 
+                      ' - AIM Schema level EXPRESS-G diagram ',$number)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of 
+              select="concat('Figure A.',$number, 
+                      ' - AIM Entity level EXPRESS-G diagram ',($number - 1))"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:value-of select="$fig_no"/>
+</xsl:template>
+
+<xsl:template match="application_protocol" mode="meta_data">
+  <xsl:param name="clause"/>
+  <link rel = "schema.DC"
+    href    = "http://www.dublincore.org/documents/2003/02/04/dces/"/>
+
+  <xsl:variable name="protocol_name">
+    <xsl:call-template name="protocol_display_name">
+      <xsl:with-param name="application_protocol" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="stdnumber">
+    <xsl:call-template name="get_protocol_stdnumber">
+      <xsl:with-param name="application_protocol" select="."/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="apdoc_title">
+    <xsl:value-of select="concat('Product data representation and exchange: Application protocol: ', $protocol_name)"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Title'"/>
+    <xsl:with-param name="content" select="$apdoc_title"/>
+  </xsl:call-template>
+
+  <xsl:variable name="dc.dates"
+    select="normalize-space(substring-after((translate(@rcs.date,'$','')),'Date: '))"/>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Dates'"/>
+    <xsl:with-param name="content" select="$dc.dates"/>
+  </xsl:call-template>
+
+  <xsl:variable name="editor_ref" select="./contacts/editor/@ref"/>
+  <xsl:variable name="editor_contact"
+    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$editor_ref]"/>
+  <xsl:variable name="dc.contributor">
+    <xsl:value-of select="normalize-space(concat($editor_contact/lastname,', ',$editor_contact/firstname))"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Contributor'"/>
+    <xsl:with-param name="content" select="$dc.contributor"/>
+  </xsl:call-template>
+
+  <xsl:variable name="projlead_ref" select="./contacts/projlead/@ref"/>
+  <xsl:variable name="projlead_contact"
+    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$projlead_ref]"/>
+  <xsl:variable name="dc.creator">
+    <xsl:value-of select="normalize-space(concat($projlead_contact/lastname,', ',$projlead_contact/firstname))"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Creator'"/>
+    <xsl:with-param name="content" select="$dc.creator"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Description'"/>
+    <xsl:with-param name="content" select="concat('The application module ',$protocol_name)"/>
+  </xsl:call-template>
+
+  <xsl:variable name="keywords">
+    <xsl:apply-templates select="./keywords"/>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Subject'"/>
+    <xsl:with-param name="content" select="normalize-space($keywords)"/>
+  </xsl:call-template>
+
+  <xsl:variable name="wg_group">
+    <xsl:call-template name="get_module_wg_group"/>
+  </xsl:variable>  
+  <xsl:variable name="id"
+    select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
+  <xsl:variable name="clause_of">
+    <xsl:if test="$clause">
+      <xsl:value-of select="concat('Clause of ',$clause)"/>
+    </xsl:if>
+  </xsl:variable>
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'DC.Identifier'"/>
+    <xsl:with-param name="content" select="$id"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.module.rcs.date'"/>
+    <xsl:with-param name="content" select="translate(./@rcs.date,'$','')"/>
+  </xsl:call-template>
+
+  <xsl:call-template name="meta-elements">
+    <xsl:with-param name="name" select="'STEPMOD.module.rcs.revision'"/>
+    <xsl:with-param name="content" select="translate(./@rcs.revision,'$','')"/>
+  </xsl:call-template>  
+  </xsl:template>
+
+  <xsl:template name="count_figures_from_fundamentals">
+    <xsl:variable name="dp_figure_count">
+      <xsl:value-of select="count(/application_protocol/purpose/data_plan/imgfile)"/>
+    </xsl:variable>
+    <xsl:variable name="intro_figure_count">
+      <xsl:value-of select="count(/application_protocol/purpose/figure)"/>
+    </xsl:variable>
+    <xsl:value-of select="$dp_figure_count+$intro_figure_count"/>
+  </xsl:template>
+
 
 </xsl:stylesheet>
 

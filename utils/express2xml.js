@@ -1,4 +1,4 @@
-//  $Id: express2xml2.js,v 1.7 2003/07/21 19:20:47 thendrix Exp $
+//  $Id: express2xml.js,v 1.34 2004/05/06 21:27:27 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -24,11 +24,14 @@
 //    cscript express2xml.js <module> mim
 //    cscript express2xml.js <module> mim_lf
 //    cscript express2xml.js <module> module
-//    cscript express2xml.js <resource> resource partnumber
+//    cscript express2xml.js <resource> resource <part number>
+//    cscript express2xml.js <reference> reference <directory>
 //
 //    e.g.,
 //    cscript express2xml.js part_and_version_identification arm
 //    cscript express2xml.js action_schema resource "ISO 10303-41"
+//    cscript express2xml.js pdm_schema_12 reference  "pdm_if"
+//             file is  stepmod\pdm_if\pdm_schema_12.exp
 
 
 // ------------------------------------------------------------
@@ -505,7 +508,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.7 2003/07/21 19:20:47 thendrix Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.34 2004/05/06 21:27:27 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -520,7 +523,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.7 $";
+    var appCVSRevision = "$Revision: 1.34 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -1636,9 +1639,14 @@ FunctionObj.prototype.loadAlgorithm = function(algoStr,expTs,outTs) {
     var line = readNextLine(expTs);
     
     // end of algorithm?
-    var reg = /\bEND_FUNCTION|END_PROCEDURE|WHERE/i;
-    if (line.match(reg)) {
-	this.algorithm = algoStr+"\n";
+//TEH modified for case when these are on same line as last part of alogorithm
+//    var reg = /\bEND_FUNCTION|END_PROCEDURE|WHERE/i;
+//    if (line.match(reg)) {
+//
+    var pos = line.search(/\bEND_FUNCTION|END_PROCEDURE|WHERE/i);
+    if (pos != -1) {
+        line=line.substr(0,pos)
+	this.algorithm = algoStr+"\n" +line;
     }
     //     
     else {
@@ -1726,20 +1734,6 @@ function loadDomainRule(expTs,outTs) {
     }
 }
 
-
-// ------------------------------------------------------------
-// function loadRuleAlgorithm()
-// Read the file up to WHERE
-// ------------------------------------------------------------
-function loadRuleAlgorithm(body,expTs) {
-    var l = readNextLine(expTs);
-
-    var reg = /\bWHERE/i;
-    if (!l.match(reg)) {
-	body = loadRuleAlgorithm(body+"\n"+l, expTs);
-    }
-    return(body);
-}
 
 
 // ------------------------------------------------------------
@@ -2022,7 +2016,8 @@ function Main() {
 	    "  express2xml.js <module> mim\nOr\n"+
 	    "  express2xml.js <module> mim_lf\nOr\n"+
 	    "  express2xml.js <module> module\nOr\n"+
-	    "  express2xml.js <resource> resource partnumber\n";
+	    "  express2xml.js <resource> resource <part number>\n"+
+	    "  express2xml.js <reference> reference  <directory>\n";
 	ErrorMessage(msg);
 	return(false);
     }
@@ -2080,6 +2075,20 @@ function Main() {
 		var partNo = "";
 	        Output2xml(expFile, xmlFile, partNo);
 	    }
+	    break;
+
+	case "reference" :
+	    var reference = cArgs(0);	    
+	    if (cArgs.length>2) {
+		var origin = cArgs(2);
+	    } 
+	    else {
+		var origin = "";
+	    }
+	    expFile = '../data/reference/'+origin+'/'+reference+'.exp';
+	    currentExpFile=expFile;
+	    var xmlFile = expFile.replace("\.exp","\.xml");
+		Output2xml(expFile, xmlFile, origin);	    
 	    break;
 
 	case "module" :

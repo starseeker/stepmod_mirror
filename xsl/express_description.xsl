@@ -123,7 +123,15 @@
         </xsl:call-template>        
       </xsl:if>
 
-      <xsl:if test="not(contains(@link_end,$description/b/text()))">
+      <xsl:if test="not(contains($description,' is '))">
+      <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('Warning Ent2: check that description starts with is ', $description/@linkend)"/>
+        </xsl:call-template>        
+      </xsl:if>
+
+      <xsl:if test="not(contains($description/@linkend,$description/b/text()))">
       <xsl:call-template name="error_message">
           <xsl:with-param 
             name="message" 

@@ -1,4 +1,4 @@
-//$Id: express2xml.js,v 1.25 2002/11/06 00:59:57 thendrix Exp $
+//$Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -346,7 +346,7 @@ function readToken(line) {
 
 function xmlXMLhdr(outTs) {
     outTs.Writeline("<?xml version=\"1.0\"?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.25 2002/11/06 00:59:57 thendrix Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.26 2002/12/23 10:00:14 goset1 Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -356,7 +356,7 @@ function xmlXMLhdr(outTs) {
 function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
-    var appCVSRevision = "$Revision: 1.25 $";
+    var appCVSRevision = "$Revision: 1.26 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = appRevision.trim();
@@ -763,7 +763,7 @@ function xmlconstraint_structure(outTs,expTs,mode) {
     default:
 	var statement = readStatement(l,expTs);
 	xmlSuperExpression_cst(statement,outTs);
-								// next statement
+// next statement
 	xmlconstraint_structure(outTs,expTs,mode);
  	break;	
     }
@@ -849,7 +849,8 @@ function xmlUnderlyingType(statement,outTs) {
 
 	xmlCloseAttr(outTs); 
 
-	reg = /\bBINARY|BOOLEAN|GENERIC|GENERICENTITY|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
+// PH: GENERIC_ENTITY
+	reg = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
 	var aggtype = statement.match(reg); 
 	if (aggtype) {
 	    xmlOpenElement("<builtintype",outTs);
@@ -863,7 +864,7 @@ function xmlUnderlyingType(statement,outTs) {
 	return;
     }
 
-    reg = /\bBINARY|BOOLEAN|GENERIC|GENERICENTITY|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
+    reg = /\bBINARY|BOOLEAN|GENERIC_ENTITY|GENERIC|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/;
     var type = statement.match(reg);
 
     if (type) {
@@ -1140,14 +1141,14 @@ FunctionObj.prototype.xmlParamList = function (outTs)
     this.paramStr = this.paramStr.trim();
     var paramArr1 = this.paramStr.split(";");
     for (var i=0; i<paramArr1.length; i++) {
-	// there may be more than one parameter with the same type definition
-	// FUNCTION first_proj_axis(z_axis,arg : direction) : direction;
+  // there may be more than one parameter with the same type definition
+  // FUNCTION first_proj_axis(z_axis,arg : direction) : direction;
 	var params = paramArr1[i].replace(/:.*/,"");
 	var paramArr2 = params.split(",");	
-	//var 
+  //var 
 	var typedef = paramArr1[i].substring(params.length);
 	typedef = typedef.trim();
-	// remove the :
+  // remove the :
 	typedef = typedef.substring(1).trim();
 	for (var j=0; j<paramArr2.length; j++) {
 	    var param = paramArr2[j].trim();
@@ -1202,12 +1203,15 @@ FunctionObj.prototype.xmlAlgorithm = function(outTs)
 function xmlFunction(line,expTs,outTs) {
     var name = getWord(2,line);
     var fnObj = new FunctionObj(name);
+
     fnObj.loadParamList(line,expTs,outTs);
     xmlOpenElement("<function",outTs);
     xmlAttr("name",fnObj.name,outTs);
     outTs.WriteLine(">");
+
     fnObj.xmlParamList(outTs);
     fnObj.xmlRtnStr(outTs);
+
     fnObj.xmlAlgorithm(outTs);
     xmlCloseElement("</function>",outTs);
     outTs.WriteLine("");

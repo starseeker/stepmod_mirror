@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.37 2004/12/29 14:40:33 robbod Exp $
+$Id: common.xsl,v 1.38 2005/01/15 00:49:52 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -1084,8 +1084,8 @@ $Id: common.xsl,v 1.37 2004/12/29 14:40:33 robbod Exp $
         <xsl:choose>
           <xsl:when test="string-length($construct)">
             <a href="biblio{$FILE_EXT}{$construct}">
-	    <xsl:apply-templates select="." mode="bibitem">
-	      <xsl:with-param name="id" select="$id"/>
+	    <xsl:apply-templates/>
+	    <xsl:apply-templates select="." mode="bibitem"><xsl:with-param name="id" select="$id"/>
 	    </xsl:apply-templates></a>
           </xsl:when>
           <xsl:otherwise>
@@ -1102,13 +1102,9 @@ $Id: common.xsl,v 1.37 2004/12/29 14:40:33 robbod Exp $
     <xsl:param name="id" />
     <!-- output the defaults -->
   <xsl:choose>
-    <xsl:when test="document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc[@ref=$id]">
-    [ <xsl:value-of select="count(document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc[@ref=$id])"/>]
-    </xsl:when>
-    <xsl:when test="/application_protocol/bibliography/bibitem.inc[@ref=$id]">
-  [<xsl:value-of 
-    select="count(/application_protocol/bibliography/bibitem.inc[@ref=$id]/preceding-sibling::*) + count(document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc) + 1"/>]
-    </xsl:when>
+    <xsl:when test="document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc[@ref=$id]">[ <xsl:value-of select="count(document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc[@ref=$id])"/>]</xsl:when>
+    <xsl:when test="/application_protocol/bibliography/bibitem.inc[@ref=$id]">[<xsl:value-of 
+    select="count(/application_protocol/bibliography/bibitem.inc[@ref=$id]/preceding-sibling::*) + count(document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc) + 1"/>]</xsl:when>
     <xsl:otherwise>
       <xsl:variable name="err">
       <xsl:call-template name="error_message">

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.17 2002/01/04 10:08:06 robbod Exp $
+$Id: module.xsl,v 1.18 2002/01/04 18:58:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -940,8 +940,9 @@ $Id: module.xsl,v 1.17 2002/01/04 10:08:06 robbod Exp $
   <!-- output the default normative reference and any implicit in the
        module through the ARM and MIM -->
   <xsl:call-template name="output_normrefs"/>
-  
+
 </xsl:template>
+
 
 <!-- output the default normative reference and any implicit in the
      module through the ARM and MIM -->
@@ -954,6 +955,12 @@ $Id: module.xsl,v 1.17 2002/01/04 10:08:06 robbod Exp $
     <xsl:with-param name="normrefs" select="$normrefs"/>
   </xsl:call-template>  
 
+  <!-- output a footnote to say that the normative reference has not been
+       published -->
+  <xsl:call-template name="output_unpublished_normrefs">
+    <xsl:with-param name="normrefs" select="$normrefs"/>
+  </xsl:call-template>
+  
 </xsl:template>
 
 <xsl:template name="output_normrefs_rec">
@@ -1017,6 +1024,117 @@ $Id: module.xsl,v 1.17 2002/01/04 10:08:06 robbod Exp $
 </xsl:template>
     
 
+<!-- output a footnote to say that the normative reference has not been
+     published 
+     Check the normative references in the nodule, then all the auto
+     generated normrefs. These should be passed as a parameter the value of
+     which is deduced by: template name="normrefs_list"
+-->
+<xsl:template name="output_unpublished_normrefs">
+  <xsl:param name="normrefs"/>
+
+  <xsl:variable name="footnote">
+    <xsl:choose>
+      <xsl:when test="/module/normrefs/normref/stdref[@published='n']">
+        <xsl:value-of select="'y'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="output_unpublished_normrefs_rec">
+          <xsl:with-param name="normrefs" select="$normrefs"/>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:if test="$footnote='y'">
+    <p>1) To be published.</p>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template name="output_unpublished_normrefs_rec">
+  <xsl:param name="normrefs"/>
+
+  <xsl:choose>
+    <xsl:when test="$normrefs">
+      <xsl:variable 
+        name="first"
+        select="substring-before(substring-after($normrefs,','),',')"/>
+      <xsl:variable 
+        name="rest"
+        select="substring-after(substring-after($normrefs,','),',')"/>      
+      
+      <xsl:variable name="footnote">
+        <xsl:choose>
+          <xsl:when test="contains($first,'normref:')">
+            <xsl:variable 
+              name="normref" 
+              select="substring-after($first,'normref:')"/>
+            <xsl:choose>
+              <xsl:when
+test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/stdref[@published='n']">
+                <xsl:value-of select="'y'"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="'n'"/>
+              </xsl:otherwise>
+            </xsl:choose>
+
+          </xsl:when>
+
+          <xsl:when test="contains($first,'module:')">
+            <xsl:variable 
+              name="module" 
+              select="substring-after($first,'module:')"/>
+            
+            <xsl:variable name="module_dir">
+              <xsl:call-template name="module_directory">
+                <xsl:with-param name="module" select="$module"/>
+              </xsl:call-template>
+            </xsl:variable>
+
+            <xsl:variable name="module_xml" 
+              select="concat($module_dir,'/module.xml')"/>
+
+            <xsl:choose>
+              <xsl:when test="document($module_xml)/module[@published='n']">
+                <xsl:value-of select="'y'"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="'n'"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+
+          <xsl:otherwise>
+            <xsl:value-of select="'n'"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+      <xsl:choose>
+        <xsl:when test="$footnote='n'">
+          <!-- only recurse if no unpublished standard found -->      
+          <xsl:call-template name="output_unpublished_normrefs_rec">
+            <xsl:with-param name="normrefs" select="$rest"/>
+          </xsl:call-template>        
+        </xsl:when>
+        <xsl:otherwise>
+          <!-- footnote found so stop -->
+          <xsl:value-of select="'y'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+      
+    </xsl:when>
+    <xsl:otherwise>
+      <!-- end of recursion -->
+      <!-- <xsl:value-of select="$footnote"/> -->
+      <xsl:value-of select="'n'"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
+
 <!-- get the normrefs out of the normrefs.xml database -->
 <xsl:template match="normref.inc">
   <xsl:variable name="ref" select="@ref"/>
@@ -1067,6 +1185,10 @@ defines it. Use: normref.inc')"/>
     
     <xsl:value-of select="$orgname"/>
     <xsl:value-of select="$stdnumber"/>
+
+    <xsl:if test="@published='n'">
+      <sup>1</sup>
+    </xsl:if>
     <i>
       <xsl:value-of select="$stdtitle"/>
       <xsl:value-of select="$subtitle"/>
@@ -1079,6 +1201,9 @@ defines it. Use: normref.inc')"/>
   <p>
     <xsl:value-of select="stdref/orgname"/>
     <xsl:value-of select="stdref/stdnumber"/>
+    <xsl:if test="stdref[@published='n']">
+      <sup>1</sup>
+    </xsl:if>
     <i>
       <xsl:value-of select="stdref/stdtitle"/>
       <xsl:value-of select="stdref/subtitle"/>

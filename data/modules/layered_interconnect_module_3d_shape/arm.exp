@@ -2,6 +2,130 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layered interconnect module 3d shape - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Layered_interconnect_module_3d_shape_arm;
+
+USE FROM Layered_interconnect_module_design_arm;
+
+USE FROM Part_template_3d_shape_arm;
+
+  ENTITY Edge_segment_cross_section
+    SUBTYPE OF (shape_definition_3d_intersection);
+    DERIVE
+      SELF\shape_definition_3d_intersection.surface_intersection_result : edge_shape := SELF\shape_definition_3d_intersection.surface_intersection_result;
+      SELF\shape_definition_3d_intersection.projected_volume            : part_template_3d_shape := SELF\shape_definition_3d_intersection.projected_volume;
+      cross_section_reference                                           : edge_segment_vertex := SELF\shape_definition_3d_intersection.projected_volume\part_template_3d_shape.shape_characterized_part_template\inter_stratum_feature_edge_segment_template.start_vertex;
+      associated_template                                               : inter_stratum_feature_edge_segment_template := SELF\shape_definition_3d_intersection.projected_volume\part_template_3d_shape.shape_characterized_part_template;
+    INVERSE
+      referencing_template : inter_stratum_feature_edge_segment_template FOR cross_section;
+    WHERE
+      WR1 : associated_template :=: referencing_template;
+  END_ENTITY; -- edge_segment_cross_section
+
+  ENTITY Inter_stratum_feature_edge_segment_template
+    SUBTYPE OF (Inter_stratum_feature_template);
+      composed_edge  : inter_stratum_feature_edge_template;
+      start_vertex   : edge_segment_vertex;
+      end_vertex     : edge_segment_vertex;
+      reference_path : trimmed_curve;
+      cross_section  : OPTIONAL edge_segment_cross_section;
+    WHERE
+      WR1 : EXISTS(cross_section) XOR (SIZEOF(USEDIN(SELF,
+ 'AP210_ARM.PART_TEMPLATE_3D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) >= 0);
+      WR2 : EXISTS(reference_path.start_point) AND EXISTS(reference_path.end_point);
+      WR3 : NOT (EXISTS(start_vertex\datum_point.location_in_2d)) OR (reference_path.start_point :=: start_vertex\datum_point.location_in_2d);
+      WR4 : NOT (EXISTS(start_vertex\datum_point.location_in_3d)) OR (reference_path.start_point :=: start_vertex\datum_point.location_in_3d);
+      WR5 : NOT (EXISTS(end_vertex\datum_point.location_in_2d)) OR (reference_path.end_point :=: start_vertex\datum_point.location_in_2d);
+      WR6 : NOT (EXISTS(end_vertex\datum_point.location_in_3d)) OR (reference_path.end_point :=: start_vertex\datum_point.location_in_3d);
+      WR7 : start_vertex :<>: end_vertex;
+  END_ENTITY; -- inter_stratum_feature_edge_segment_template
+
+  ENTITY Inter_stratum_feature_edge_template
+    SUBTYPE OF (Inter_stratum_feature_template);
+    INVERSE
+      edges : SET[2:?] OF inter_stratum_feature_edge_segment_template FOR composed_edge;
+  END_ENTITY; -- inter_stratum_feature_edge_template
+
+  ENTITY Cutout
+    SUPERTYPE OF (ONEOF (physical_connectivity_interrupting_cutout,
+ plated_cutout,
+ partially_plated_cutout))
+    SUBTYPE OF (Inter_stratum_feature);
+  END_ENTITY; -- cutout
+
+  ENTITY Cutout_edge_segment
+    SUPERTYPE OF (plated_cutout_edge_segment)
+    SUBTYPE OF (Inter_stratum_feature);
+      composed_cutout                             : cutout;
+      start_vertex                                : edge_segment_vertex;
+      end_vertex                                  : edge_segment_vertex;
+      SELF\inter_stratum_feature.derived_from : inter_stratum_feature_edge_segment_template;
+    WHERE
+      wr1 : start_vertex :<>: end_vertex;
+  END_ENTITY; -- cutout_edge_segment
+
+  ENTITY Partially_plated_cutout
+    SUBTYPE OF (Cutout);
+    INVERSE
+      plated_segment   : SET[1:?] OF cutout_edge_segment FOR composed_cutout;
+      unplated_segment : SET[1:?] OF cutout_edge_segment FOR composed_cutout;
+  END_ENTITY; -- partially_plated_cutout
+
+  ENTITY Plated_cutout_edge_segment
+    SUBTYPE OF (Cutout_edge_segment,
+ plated_inter_stratum_feature);
+      SELF\cutout_edge_segment.composed_cutout : partially_plated_cutout;
+  END_ENTITY; -- plated_cutout_edge_segment
+
+  ENTITY Physical_connectivity_interrupting_cutout
+    SUBTYPE OF (Cutout);
+      interrupted_connectivity_element : SET[1:?] OF conductive_interconnect_element;
+  END_ENTITY; -- physical_connectivity_interrupting_cutout
+
+  ENTITY Plated_cutout
+    SUBTYPE OF (Cutout,
+ plated_inter_stratum_feature);
+  END_ENTITY; -- plated_cutout
+
+  ENTITY Dielectric_material_passage
+    SUBTYPE OF (Inter_stratum_feature);
+      feature_material  : OPTIONAL material_or_specification;
+      precedent_passage : cutout;
+  END_ENTITY; -- dielectric_material_passage
+
+  ENTITY Interconnect_module_edge
+    SUPERTYPE OF (ONEOF (partially_plated_interconnect_module_edge,
+ plated_interconnect_module_edge))
+    SUBTYPE OF (Inter_stratum_feature);
+  END_ENTITY; -- interconnect_module_edge
+
+  ENTITY Interconnect_module_edge_segment
+    SUPERTYPE OF (plated_interconnect_module_edge_segment)
+    SUBTYPE OF (Inter_stratum_feature);
+      composed_edge                               : interconnect_module_edge;
+      start_vertex                                : edge_segment_vertex;
+      end_vertex                                  : edge_segment_vertex;
+      SELF\inter_stratum_feature.derived_from : inter_stratum_feature_edge_segment_template;
+    WHERE
+      wr1 : start_vertex :<>: end_vertex;
+  END_ENTITY; -- interconnect_module_edge_segment
+  
+  ENTITY Partially_plated_interconnect_module_edge
+    SUBTYPE OF (Interconnect_module_edge);
+    INVERSE
+      plated_segment   : SET[1:?] OF interconnect_module_edge_segment FOR composed_edge;
+      unplated_segment : SET[1:?] OF interconnect_module_edge_segment FOR composed_edge;
+  END_ENTITY; -- partially_plated_interconnect_module_edge
+
+  ENTITY Plated_interconnect_module_edge
+    SUBTYPE OF (Interconnect_module_edge,
+ plated_inter_stratum_feature);
+  END_ENTITY; -- plated_interconnect_module_edge
+
+  ENTITY Plated_interconnect_module_edge_segment
+    SUBTYPE OF (plated_inter_stratum_feature,
+ interconnect_module_edge_segment);
+      SELF\interconnect_module_edge_segment.composed_edge : partially_plated_interconnect_module_edge;
+  END_ENTITY; -- plated_interconnect_module_edge_segment
+
 END_SCHEMA;

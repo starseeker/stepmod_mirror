@@ -2,6 +2,30 @@
    $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Interconnect physical requirement allocation - EXPRESS ARM
 *)
-(* UNDER DEVELOPMENT *)
-SCHEMA Interconnect_physical_requirement_allocation_arm;
-END_SCHEMA;
+
+ SCHEMA Interconnect_physical_requirement_allocation_arm;
+
+	USE FROM Requirement_decomposition_arm;
+	
+	USE FROM Manufacturing_technology_arm;
+
+
+ 	TYPE thermal_isolation_removal_structure_or_template = EXTENSIBLE GENERIC_ENTITY SELECT
+ 		(thermal_isolation_removal_template);
+	END_TYPE;
+		
+  ENTITY Thermal_isolation_removal_template
+    SUBTYPE OF (Material_removal_feature_template);
+(*    INVERSE
+      thermal_isolation_spacing_requirement : thermal_isolation_requirement_assignment FOR resulting_structure; *)
+  END_ENTITY; -- thermal_isolation_removal_template
+
+  ENTITY Thermal_isolation_requirement
+  	SUBTYPE OF (Requirement_view_definition);
+  	INVERSE
+			thermal_isolation_spacing_requirement		: Layout_spacing_requirement_occurrence FOR associated_definition;  	
+      effective_current_capacity_requirement 	: Requirement_definition_property FOR associated_definition;
+      angular_orientation_requirement        	: Requirement_definition_property FOR associated_definition;
+  END_ENTITY; -- thermal_isolation_requirement
+  
+ END_SCHEMA; -- Interconnect_physical_requirement_allocation_arm

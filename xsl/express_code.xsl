@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.35 2002/08/06 16:18:00 robbod Exp $
+     $Id: express_code.xsl,v 1.36 2002/08/07 06:37:49 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -749,7 +749,7 @@ SELF\<xsl:call-template name="link_object">
   <A NAME="{$aname}">SUBTYPE_CONSTRAINT <b>
 	<xsl:value-of select="@name"/></b></A>
   <xsl:text> FOR </xsl:text>
-	<xsl:value-of select="@entity_ref"/>
+	<xsl:value-of select="@entity"/>
   ;<br/>
 
     <xsl:if test="@abstract.supertype='YES' or @abstract.supertype='yes'">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.1 2002/08/20 13:51:32 robbod Exp $
+     $Id: issues.xsl,v 1.2 2002/08/21 20:23:50 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -114,14 +114,35 @@
     <xsl:variable name="issue_file" select="concat('../',$module_dir,'/dvlp/issues.xml')"/>
 
     <xsl:apply-templates
-      select="document($issue_file)/issues/issue[@type='arm' and @linkend=$xref]" mode="inline_issue"/>
+      select="document($issue_file)/issues/issue[@type='arm' and @linkend=$xref]" mode="inline_issue">
+      <xsl:sort select="@status" order="descending"/>
+    </xsl:apply-templates>
 
     <xsl:apply-templates
-      select="document($issue_file)/issues/issue[@type='mim' and
-@linkend=$xref]" mode="inline_issue"/>
+      select="document($issue_file)/issues/issue[@type='mim' and @linkend=$xref]" mode="inline_issue">
+      <xsl:sort select="@status" order="descending"/>
+    </xsl:apply-templates>
 
   </xsl:if>
   </xsl:if>
+</xsl:template>
+
+
+<xsl:template match="issue" mode="status_icon">
+  <xsl:choose>
+    <xsl:when test="@status = 'closed'">
+      <img alt="Closed issue" 
+        border="0"
+        align="middle"
+        src="../../../../images/closed.gif"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <img alt="Open issue"
+        border="0"
+          align="middle"
+        src="../../../../images/issues.gif"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="issue" mode="inline_issue">
@@ -129,16 +150,28 @@
     select="translate(
             concat(string(@id), string(@by)),
             '&#xA;', '' ) "/>
+  <xsl:variable name="bg_color">
+    <xsl:choose>
+      <xsl:when test="@status = 'closed'">
+        #C0C0C0
+      </xsl:when>
+      <xsl:otherwise>
+        #FFFF99
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <blockquote>
-    <span style="background-color: #FFFF99">
+    <span style="background-color: {$bg_color}">
       <b>
         <a href="../dvlp/issues{$FILE_EXT}#{$issue_target}">
+          <xsl:apply-templates select="." mode="status_icon"/>
           Issue:
           <xsl:value-of select="concat(
                                 string(@id), 
                                 ' by ', string(@by),
                                 ' (', string(@date), 
-                                ')')" />
+                                ') [', string(@status)']')" />
         </a>
       </b>
       <br/>

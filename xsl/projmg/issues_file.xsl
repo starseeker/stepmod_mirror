@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     $Id: issues_file.xsl,v 1.4 2002/08/21 20:23:50 robbod Exp $
+     $Id: issues_file.xsl,v 1.5 2002/09/03 10:34:02 nigelshaw Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -316,7 +316,7 @@
             src="../../../../images/issues.gif"/>
         </xsl:when>
         <xsl:otherwise>
-          <img alt="closed issue" 
+          <img alt="Closed issue" 
             border="0"
             align="middle"
             src="../../../../images/closed.gif"/>          

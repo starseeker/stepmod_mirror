@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.6 2002/02/07 17:05:55 robbod Exp $
+$Id: module_toc.xsl,v 1.7 2002/03/04 07:54:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -267,7 +267,7 @@ $Id: module_toc.xsl,v 1.6 2002/02/07 17:05:55 robbod Exp $
           <xsl:if test="$constant_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#constants">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $constant_mim_clause,
-                                    ' MIM EXPRESS constants')"/>
+                                    ' MIM constant definitions')"/>
             </A><BR/>
           </xsl:if>          
           <!-- only output if there are imported constants defined and 
@@ -298,7 +298,7 @@ $Id: module_toc.xsl,v 1.6 2002/02/07 17:05:55 robbod Exp $
           <xsl:if test="$type_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#types">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $type_mim_clause,
-                                    ' MIM EXPRESS types')"/>
+                                    ' MIM type definitions')"/>
             </A><BR/>
           </xsl:if>          
           <!-- only output if there are imported types defined and 
@@ -328,7 +328,7 @@ $Id: module_toc.xsl,v 1.6 2002/02/07 17:05:55 robbod Exp $
           <xsl:if test="$entity_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#entities">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $entity_mim_clause,
-                                    ' MIM EXPRESS entitys')"/>
+                                    ' MIM entity definitions')"/>
             </A><BR/>
           </xsl:if>          
 
@@ -360,7 +360,7 @@ $Id: module_toc.xsl,v 1.6 2002/02/07 17:05:55 robbod Exp $
           <xsl:if test="$function_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#functions">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $function_mim_clause,
-                                    ' MIM EXPRESS functions')"/>
+                                    ' MIM function definitions')"/>
             </A><BR/>
           </xsl:if>          
           <!-- only output if there are imported functions defined and 
@@ -392,7 +392,7 @@ $Id: module_toc.xsl,v 1.6 2002/02/07 17:05:55 robbod Exp $
           <xsl:if test="$rule_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#rules">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $rule_mim_clause,
-                                    ' MIM EXPRESS rules')"/>
+                                    ' MIM rule definitions')"/>
             </A><BR/>
           </xsl:if>          
           <!-- only output if there are imported rules defined and 
@@ -422,7 +422,7 @@ $Id: module_toc.xsl,v 1.6 2002/02/07 17:05:55 robbod Exp $
           <xsl:if test="$procedure_mim_clause != 0">
             <A HREF="5_mim{$FILE_EXT}#procedures">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $procedure_mim_clause,
-                                    ' MIM EXPRESS procedures')"/>
+                                    ' MIM procedure definitions')"/>
             </A><BR/>
           </xsl:if>          
           <!-- only output if there are imported procedures defined and 

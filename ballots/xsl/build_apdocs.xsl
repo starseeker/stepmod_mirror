@@ -44,278 +44,291 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       name="ballothtml" default="all" basedir="../../..">
       <xsl:text>
 </xsl:text>
-      <xsl:element name="target">
-        <xsl:attribute name="name">variables</xsl:attribute>
-        <xsl:attribute name="description">initialize variables</xsl:attribute>
-        <xsl:element name="tstamp"/>
-        <xsl:element name="property">
-          <xsl:attribute name="name">BALLLOTSTYLES</xsl:attribute>
-          <xsl:attribute name="value">ballots/xsl</xsl:attribute>
-        </xsl:element>
-      
-        <xsl:element name="property">
-          <xsl:attribute name="name">APDOCS_INLINE_ERRORS</xsl:attribute>
-          <xsl:attribute name="value">'yes'</xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">MODULES_INLINE_ERRORS</xsl:attribute>
-          <xsl:attribute name="value">'yes'</xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">DEPMODULES_INLINE_ERRORS</xsl:attribute>
-          <xsl:attribute name="value">'yes'</xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">OUTPUT_RCS</xsl:attribute>
-          <xsl:attribute name="value">NO</xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">OUTPUT_ISSUES</xsl:attribute>
-          <xsl:attribute name="value">NO</xsl:attribute>
-        </xsl:element>
-        
-        <xsl:element name="property">
-          <xsl:attribute name="name">OUTPUT_APDOCS_BACKGROUND</xsl:attribute>
-          <xsl:choose>
-            <xsl:when test="./@output_apdocs_background='YES'">
-              <xsl:attribute name="value">YES</xsl:attribute>
-            </xsl:when>            
-            <xsl:otherwise>
-              <xsl:attribute name="value">NO</xsl:attribute>            
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:element>
-        <xsl:text>
-      </xsl:text>
-        <xsl:comment>If OUTPUT_APDOCS_BACKGROUND 'YES' then this is the
-        image for the ap documents in package</xsl:comment>
-        <xsl:element name="property">
-          <xsl:attribute name="name">APDOCS_BACKGROUND</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:choose>
-              <xsl:when test="./@background.image.apdocs">
-                <xsl:value-of select="./@background.image.apdocs"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="'refonly.gif'"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:attribute>
-        </xsl:element>
+<xsl:element name="target">
+  <xsl:attribute name="name">variables</xsl:attribute>
+  <xsl:attribute name="description">initialize variables</xsl:attribute>
+  <xsl:element name="tstamp"/>
+  <xsl:element name="property">
+    <xsl:attribute name="name">BALLLOTSTYLES</xsl:attribute>
+    <xsl:attribute name="value">ballots/xsl</xsl:attribute>
+  </xsl:element>
+  
+  <xsl:element name="property">
+    <xsl:attribute name="name">APDOCS_INLINE_ERRORS</xsl:attribute>
+    <xsl:attribute name="value">'yes'</xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">MODULES_INLINE_ERRORS</xsl:attribute>
+    <xsl:attribute name="value">'yes'</xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">DEPMODULES_INLINE_ERRORS</xsl:attribute>
+    <xsl:attribute name="value">'yes'</xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">OUTPUT_RCS</xsl:attribute>
+    <xsl:attribute name="value">NO</xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">OUTPUT_ISSUES</xsl:attribute>
+    <xsl:attribute name="value">NO</xsl:attribute>
+  </xsl:element>
+  
+  <xsl:element name="property">
+    <xsl:attribute name="name">OUTPUT_APDOCS_BACKGROUND</xsl:attribute>
+    <xsl:choose>
+      <xsl:when test="./@output_apdocs_background='YES'">
+	<xsl:attribute name="value">YES</xsl:attribute>
+      </xsl:when>            
+      <xsl:otherwise>
+	<xsl:attribute name="value">NO</xsl:attribute>            
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:element>
 
-        <xsl:element name="property">
-          <xsl:attribute name="name">OUTPUT_MODULES_BACKGROUND</xsl:attribute>
-          <!-- 
-               When an AP document is being balloted as well modules, 
-               the default is a grey image stepmod/images/greybackground.jpg
-               otherwise the modules have no background
-               -->
-          <xsl:choose>
-            <xsl:when test="//ap_doc">
-              <xsl:attribute name="value">YES</xsl:attribute>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:attribute name="value">NO</xsl:attribute>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:element>
-        <xsl:text>
-      </xsl:text>
-        <xsl:comment>If OUTPUT_MODULES_BACKGROUND 'YES' then this is the
-        image for the modules in package</xsl:comment>
-        <xsl:element name="property">
-          <xsl:attribute name="name">MODULES_BACKGROUND</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:choose>
-              <xsl:when test="./@background.image.modules">
-                <xsl:value-of select="./@background.image.modules"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="'greybackground.jpg'"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:attribute>
-        </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">CONFIRMATORY_BALLOT</xsl:attribute>
+    <xsl:choose>
+      <xsl:when test="./@confirmatory_ballot='YES'">
+	<xsl:attribute name="value">YES</xsl:attribute>
+      </xsl:when>            
+      <xsl:otherwise>
+	<xsl:attribute name="value">NO</xsl:attribute>            
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:element>
 
-        <xsl:element name="property">
-          <xsl:attribute name="name">OUTPUT_DEPMODULES_BACKGROUND</xsl:attribute>
-          <xsl:choose>
-            <xsl:when test="./@output.dependent.modules.background='NO'">
-              <xsl:attribute name="value">NO</xsl:attribute>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:attribute name="value">YES</xsl:attribute>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:element>
-        <xsl:text>
-      </xsl:text>
-        <xsl:comment>If OUTPUT_DEPMODULES_BACKGROUND 'YES' then this is the
-        image for the dependent modules in package</xsl:comment>
-        <xsl:element name="property">
-          <xsl:attribute name="name">DEPMODULES_BACKGROUND</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:choose>
-              <xsl:when test="./@background.image.dependent.modules">
-                <xsl:value-of select="./@background.image.dependent.modules"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="'refonly.gif'"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:attribute>
-        </xsl:element>
+  <xsl:text>
+  </xsl:text>
+  <xsl:comment>If OUTPUT_APDOCS_BACKGROUND 'YES' then this is the
+  image for the ap documents in package</xsl:comment>
+  <xsl:element name="property">
+    <xsl:attribute name="name">APDOCS_BACKGROUND</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:choose>
+	<xsl:when test="./@background.image.apdocs">
+	  <xsl:value-of select="./@background.image.apdocs"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="'refonly.gif'"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:attribute>
+  </xsl:element>
 
+  <xsl:element name="property">
+    <xsl:attribute name="name">OUTPUT_MODULES_BACKGROUND</xsl:attribute>
+    <!-- 
+	 When an AP document is being balloted as well modules, 
+	 the default is a grey image stepmod/images/greybackground.jpg
+	 otherwise the modules have no background
+    -->
+    <xsl:choose>
+      <xsl:when test="//ap_doc">
+	<xsl:attribute name="value">YES</xsl:attribute>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:attribute name="value">NO</xsl:attribute>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:element>
+  <xsl:text>
+  </xsl:text>
+  <xsl:comment>If OUTPUT_MODULES_BACKGROUND 'YES' then this is the
+  image for the modules in package</xsl:comment>
+  <xsl:element name="property">
+    <xsl:attribute name="name">MODULES_BACKGROUND</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:choose>
+	<xsl:when test="./@background.image.modules">
+	  <xsl:value-of select="./@background.image.modules"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="'greybackground.jpg'"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:attribute>
+  </xsl:element>
 
-        <xsl:element name="property">
-          <xsl:attribute name="name">OUTPUT_RESOURCES_BACKGROUND</xsl:attribute>
-          <xsl:choose>
-            <xsl:when test="./@output.dependent.resources..background='NO'">
-              <xsl:attribute name="value">NO</xsl:attribute>
-            </xsl:when>            
-            <xsl:otherwise>
-              <xsl:attribute name="value">YES</xsl:attribute>            
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:element>
-        <xsl:text>
-      </xsl:text>
-        <xsl:comment>If OUTPUT_RESOURCES_BACKGROUND 'YES' then this is the
-        image for the dependent modules in package</xsl:comment>
-        <xsl:element name="property">
-          <xsl:attribute name="name">RESOURCES_BACKGROUND</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:choose>
-              <xsl:when test="./@background.image.dependent.resources">
-                <xsl:value-of select="./@background.image.dependent.resources"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="'refonly.gif'"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:attribute>
-        </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">OUTPUT_DEPMODULES_BACKGROUND</xsl:attribute>
+    <xsl:choose>
+      <xsl:when test="./@output.dependent.modules.background='NO'">
+	<xsl:attribute name="value">NO</xsl:attribute>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:attribute name="value">YES</xsl:attribute>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:element>
+  <xsl:text>
+  </xsl:text>
+  <xsl:comment>If OUTPUT_DEPMODULES_BACKGROUND 'YES' then this is the
+  image for the dependent modules in package</xsl:comment>
+  <xsl:element name="property">
+    <xsl:attribute name="name">DEPMODULES_BACKGROUND</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:choose>
+	<xsl:when test="./@background.image.dependent.modules">
+	  <xsl:value-of select="./@background.image.dependent.modules"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="'refonly.gif'"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:attribute>
+  </xsl:element>
 
 
-        <xsl:element name="property">
-          <xsl:attribute name="name">STEPMOD_DATA_MODULES</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="'../../../../data/modules/'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">STEPMOD_DATA_APS</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="'../../../../data/application_protocol/'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">STEPMOD_DATA_RESOURCES</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="'../../../../data/resources/'"/>
-          </xsl:attribute>
-        </xsl:element>
-
-        
-        <xsl:element name="property">
-          <xsl:attribute name="name">STEPMODSTYLES</xsl:attribute>
-          <xsl:attribute name="value">xsl</xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">STEPMODDTDDIR</xsl:attribute>
-          <xsl:attribute name="value">dtd</xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">DTDDIR</xsl:attribute>
-          <xsl:attribute name="value">ballots/dtd</xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">ISODIR</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="concat('ballots/isohtml/',@name)"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">ABSTRACTDIR</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="concat('ballots/isohtml/',@name,'/abstracts')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">EXPRESSDIR</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="concat('ballots/isohtml/',@name,'/express')"/>
-          </xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">APDOCMENU</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="concat('./ballots/ballots/',@name,'/menubar_build.xml')"/>
-          </xsl:attribute>
-        </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">OUTPUT_RESOURCES_BACKGROUND</xsl:attribute>
+    <xsl:choose>
+      <xsl:when test="./@output.dependent.resources..background='NO'">
+	<xsl:attribute name="value">NO</xsl:attribute>
+      </xsl:when>            
+      <xsl:otherwise>
+	<xsl:attribute name="value">YES</xsl:attribute>            
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:element>
+  <xsl:text>
+  </xsl:text>
+  <xsl:comment>If OUTPUT_RESOURCES_BACKGROUND 'YES' then this is the
+  image for the dependent modules in package</xsl:comment>
+  <xsl:element name="property">
+    <xsl:attribute name="name">RESOURCES_BACKGROUND</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:choose>
+	<xsl:when test="./@background.image.dependent.resources">
+	  <xsl:value-of select="./@background.image.dependent.resources"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="'refonly.gif'"/>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:attribute>
+  </xsl:element>
 
 
-        <xsl:element name="property">
-          <xsl:attribute name="name">ISOMENU</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="concat('./ballots/ballots/',@name,'/menubar_iso.xml')"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">BALLOTDIR</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="concat('ballots/ballots/',@name)"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="property">
-          <xsl:attribute name="name">BALLOTMENU</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="concat('./ballots/ballots/',@name,'/menubar_ballot.xml')"/>
-          </xsl:attribute>
-        </xsl:element>
-        
-        <xsl:element name="property">
-          <xsl:attribute name="name">ARCHIVE</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:choose>
-              <xsl:when test="string-length(./@wg.number.ballot_package) > 3">
-                <xsl:value-of select="concat(translate(normalize-space(translate(./@wg.number.ballot_package,$UPPER,$LOWER)),' ',''),'-',@name,'-${DSTAMP}')"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="concat('wgxxnxxxx' ,'-',@name,'-${DSTAMP}')"/>                
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:attribute>
-        </xsl:element>
-        
-        <xsl:element name="property">
-          <xsl:attribute name="name">DATE</xsl:attribute>
-          <xsl:attribute name="value">
-            <xsl:value-of select="'${DSTAMP}'"/>
-          </xsl:attribute>
-        </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">STEPMOD_DATA_MODULES</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="'../../../../data/modules/'"/>
+    </xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">STEPMOD_DATA_APS</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="'../../../../data/application_protocol/'"/>
+    </xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">STEPMOD_DATA_RESOURCES</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="'../../../../data/resources/'"/>
+    </xsl:attribute>
+  </xsl:element>
 
-        <!-- assumption that if the AP document is specified, then all the
-             modules are part of that document -->
-        <xsl:choose>
-          <xsl:when test="./ballot_package/ap_doc">
-            <xsl:apply-templates select="." mode="apdoc_variables"/>
-            <xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
-            <xsl:if test="./ballot_package/module">
-              <xsl:apply-templates select="."  mode="modules_variables"/>
-            </xsl:if>
-          </xsl:when>
-          <xsl:when test="./ballot_package/module">
-            <xsl:apply-templates select="."  mode="modules_variables"/>
-            <xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:message>WARNING --- ONLY DEALING WITH MODULES AND AP DOCUMENTS!!!!</xsl:message>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:apply-templates select="."  mode="abstract_variable"/>
-      </xsl:element>
+  
+  <xsl:element name="property">
+    <xsl:attribute name="name">STEPMODSTYLES</xsl:attribute>
+    <xsl:attribute name="value">xsl</xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">STEPMODDTDDIR</xsl:attribute>
+    <xsl:attribute name="value">dtd</xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">DTDDIR</xsl:attribute>
+    <xsl:attribute name="value">ballots/dtd</xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">ISODIR</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="concat('ballots/isohtml/',@name)"/>
+    </xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">ABSTRACTDIR</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="concat('ballots/isohtml/',@name,'/abstracts')"/>
+    </xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">EXPRESSDIR</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="concat('ballots/isohtml/',@name,'/express')"/>
+    </xsl:attribute>
+  </xsl:element>
+
+  <xsl:element name="property">
+    <xsl:attribute name="name">APDOCMENU</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="concat('./ballots/ballots/',@name,'/menubar_build.xml')"/>
+    </xsl:attribute>
+  </xsl:element>
+
+
+  <xsl:element name="property">
+    <xsl:attribute name="name">ISOMENU</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="concat('./ballots/ballots/',@name,'/menubar_iso.xml')"/>
+    </xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">BALLOTDIR</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="concat('ballots/ballots/',@name)"/>
+    </xsl:attribute>
+  </xsl:element>
+  <xsl:element name="property">
+    <xsl:attribute name="name">BALLOTMENU</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="concat('./ballots/ballots/',@name,'/menubar_ballot.xml')"/>
+    </xsl:attribute>
+  </xsl:element>
+  
+  <xsl:element name="property">
+    <xsl:attribute name="name">ARCHIVE</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:choose>
+	<xsl:when test="string-length(./@wg.number.ballot_package) > 3">
+	  <xsl:value-of select="concat(translate(normalize-space(translate(./@wg.number.ballot_package,$UPPER,$LOWER)),' ',''),'-',@name,'-${DSTAMP}')"/>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:value-of select="concat('wgxxnxxxx' ,'-',@name,'-${DSTAMP}')"/>                
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:attribute>
+  </xsl:element>
+  
+  <xsl:element name="property">
+    <xsl:attribute name="name">DATE</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="'${DSTAMP}'"/>
+    </xsl:attribute>
+  </xsl:element>
+
+  <!-- assumption that if the AP document is specified, then all the
+       modules are part of that document -->
+  <xsl:choose>
+    <xsl:when test="./ballot_package/ap_doc">
+      <xsl:apply-templates select="." mode="apdoc_variables"/>
+      <xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
+      <xsl:if test="./ballot_package/module">
+	<xsl:apply-templates select="."  mode="modules_variables"/>
+      </xsl:if>
+    </xsl:when>
+    <xsl:when test="./ballot_package/module">
+      <xsl:apply-templates select="."  mode="modules_variables"/>
+      <xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:message>WARNING --- ONLY DEALING WITH MODULES AND AP DOCUMENTS!!!!</xsl:message>
+    </xsl:otherwise>
+  </xsl:choose>
+  <xsl:apply-templates select="."  mode="abstract_variable"/>
+</xsl:element>
       
       <xsl:text>
       </xsl:text>
@@ -4186,6 +4199,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'${OUTPUT_APDOCS_BACKGROUND}'"/>
           </xsl:attribute>
         </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'confirmatory_ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+	    <xsl:value-of select="'${CONFIRMATORY_BALLOT}'"/>
+	  </xsl:attribute>        
+	</xsl:element>
          <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'menubar_file'"/>
@@ -6556,6 +6577,14 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:apply-templates select="." mode="modules_target_style_attributes">
           <xsl:with-param name="menu" select="$menu"/>
         </xsl:apply-templates>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'confirmatory_ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+	    <xsl:value-of select="'${CONFIRMATORY_BALLOT}'"/>
+	  </xsl:attribute>        
+	</xsl:element>
         <xsl:element name="param">
           <xsl:attribute name="name">
             <xsl:value-of select="'coverpage_date'"/>

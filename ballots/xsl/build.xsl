@@ -51,6 +51,18 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
+         <xsl:attribute name="name">CONFIRMATORY_BALLOT</xsl:attribute>
+          <xsl:choose>
+            <xsl:when test="./@confirmatory_ballot='YES'">
+              <xsl:attribute name="value">YES</xsl:attribute>
+            </xsl:when>            
+          <xsl:otherwise>
+          <xsl:attribute name="value">NO</xsl:attribute>            
+          </xsl:otherwise>
+          </xsl:choose>
+        </xsl:element>
+
+        <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_BACKGROUND</xsl:attribute>
           <xsl:choose>
             <xsl:when test="./@output_background='YES'">
@@ -2584,6 +2596,16 @@ utable as in buildscript -->
             </xsl:attribute>
             <xsl:attribute name="expression">
               <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:if test="./@confirmatory_ballot">
+          <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'confirmatory_ballot'"/>
+          </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="'${CONFIRMATORY_BALLOT}'"/>
             </xsl:attribute>
           </xsl:element>
         </xsl:if>

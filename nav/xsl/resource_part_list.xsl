@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: resource_part_list.xsl,v 1.1 2002/10/22 13:18:57 robbod Exp $
+$Id: resource_part_list.xsl,v 1.2 2002/12/11 22:30:53 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of resource parts
@@ -74,6 +74,9 @@ $Id: resource_part_list.xsl,v 1.1 2002/10/22 13:18:57 robbod Exp $
     </xsl:choose>    
   </xsl:variable>
   
+  <xsl:variable name="res_dir" select="concat('../../data/resource_docs/',@name,'/resource.xml')" />
+  <xsl:variable name="this_resource" select="document($res_dir)/resource" />
+ 
   <!-- Main module menu (OPEN) -->
   <div id="{$Menu}" style="display:none">
     <p class="menulist">
@@ -120,8 +123,49 @@ $Id: resource_part_list.xsl,v 1.1 2002/10/22 13:18:57 robbod Exp $
       </p>
     </div>
 
+ 
+    <!-- Schema view menu (OPEN) -->
+    <xsl:variable name="schemas" 
+      select="concat('../data/resource_docs/',@name,'/sys/4_schema',$FILE_EXT)"/>
+    <div id="{$Menu}Schemas" style="display:none">
+      <p class="menulist">
+        &#160;&#160;<a href="javascript:swap({$NoMenu}Schemas, {$Menu}Schemas);">
+          <img src="../images/minus.gif" alt="Close menu" 
+            border="false" align="middle"/>    
+        </a>
+        <a href="{$schemas}" target="content">Schemas</a>
+      </p>
+      
+      <xsl:for-each select="$this_resource/schema" >
+	      <p class="menuitem">
+        	<xsl:variable name="schema_dir" 
+	          select="concat('../data/resource_docs/',$this_resource/@name,'/sys/',position()+3,'_schema',$FILE_EXT)"/>
+        	&#160;&#160;<a href="{$schema_dir}" target="content"><xsl:value-of select="@name"/></a>
+		<br/>
+        	<xsl:variable name="schema_expg" 
+	          select="concat('../data/resources/',@name,'/'@name,'expg1',$FILE_EXT)"/>
+		&#160;&#160;&#160;&#160;<a href="{$schema_expg}" target="content">EXPRESS-G</a>
+	      </p>
+     	
+      
+      </xsl:for-each>
+   
+    </div>
+
+    <!-- Schemas view menu (CLOSED) -->
+    <div id="{$NoMenu}Schemas">
+      <p class="menulist">
+        &#160;&#160;<a href="javascript:swap({$Menu}Schemas, {$NoMenu}Schemas);">
+          <img src="../images/plus.gif" alt="Open menu" 
+            border="false" align="middle"/> 
+        </a>
+        <a href="{$schemas}" target="content">Schemas</a>
+      </p>
+    </div>
   </div>
   
+
+ 
   <!-- Main view menu (CLOSED) -->
   <div id="{$NoMenu}">
     <p class="menulist">

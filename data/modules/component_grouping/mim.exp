@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.10 2005/02/03 10:10:31 liutkus Exp $
+   $Id: mim.exp,v 1.11 2005/02/04 15:18:15 budreckytej Exp $
    ISO TC184/SC4/WG12 N3328 - ISO/CD-TS 10303-1656 Component grouping - EXPRESS MIM
 *)
 SCHEMA Component_grouping_mim;
@@ -9,15 +9,16 @@ SCHEMA Component_grouping_mim;
 	USE FROM Physical_unit_design_view_mim;	-- ISO/TS 10303-1728
 	USE FROM Value_with_unit_extension_mim;	-- ISO/TS 10303-1753
 
-ENTITY array_placement_group_component_shape_aspect
-  SUPERTYPE OF (ONEOF(linear_array_placement_group_component_shape_aspect,
-                      rectangular_array_placement_group_component_shape_aspect))
-  SUBTYPE OF (assembly_group_component_shape_aspect);
+ENTITY array_placement_group_component_definition
+  SUPERTYPE OF (ONEOF(linear_array_placement_group_component_definition,
+                      rectangular_array_placement_group_component_definition))
+  SUBTYPE OF (assembly_group_component_definition);
 END_ENTITY;
 
 ENTITY assembly_group_component_definition
-  SUBTYPE OF (component_definition);
+  SUBTYPE OF (assembly_component);
 WHERE
+(* invalid csa
   WR1: (SIZEOF (QUERY (gc <* QUERY (pdr <* USEDIN (SELF,
        'COMPONENT_GROUPING_MIM.' +
        'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
@@ -29,7 +30,7 @@ WHERE
        'COMPONENT_GROUPING_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
        ('COMPONENT_GROUPING_MIM.' +
-        'ASSEMBLY_GROUP_COMPONENT_SHAPE_ASPECT' IN TYPEOF (agcsa)))) = 0);
+        'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF (agcsa)))) = 0); *)
   WR2: (SIZEOF (QUERY(aj <* USEDIN (SELF,
        'COMPONENT_GROUPING_MIM.' +
        'SHAPE_ASPECT.OF_SHAPE') |
@@ -105,47 +106,6 @@ WHERE
              'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')) = 1;
 END_ENTITY; 
 
-ENTITY assembly_group_component_shape_aspect
-  SUBTYPE OF (component_shape_aspect);
-WHERE
-  WR1: (SIZEOF (QUERY (gc <* QUERY (sar <* USEDIN (SELF,
-       'COMPONENT_GROUPING_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'group component') |
-       ('COMPONENT_GROUPING_MIM.' +
-       'COMPONENT_SHAPE_ASPECT' IN
-       TYPEOF (gc.related_shape_aspect))))
-       >= 1);
-END_ENTITY;
-
-ENTITY assembly_group_component_shape_aspect_placement_link
-  SUBTYPE OF (shape_aspect,shape_aspect_relationship);
-WHERE
-  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
-       SELF\shape_aspect_relationship.relating_shape_aspect;
-  WR2: 'COMPONENT_GROUPING_MIM.' +
-       'COMPONENT_SHAPE_ASPECT' IN
-       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
-  WR3: 'COMPONENT_GROUPING_MIM.' +
-       'COMPONENT_SHAPE_ASPECT' IN
-       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
-  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
-       SELF\shape_aspect_relationship ||
-       SELF\assembly_group_component_shape_aspect_placement_link)) = 0;
-  WR5: SELF\shape_aspect.name = '';
-  WR6: SELF\shape_aspect_relationship.name = '';
-  WR7: SIZEOF(USEDIN(SELF, 
-             'COMPONENT_GROUPING_MIM.' +
-             'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) = 1;
-END_ENTITY; 
-
-
-ENTITY array_placement_group_component_definition
-  SUPERTYPE OF (ONEOF(linear_array_placement_group_component_definition,
-                      rectangular_array_placement_group_component_definition))
-  SUBTYPE OF (assembly_group_component_definition);
-END_ENTITY;
-
 ENTITY interfaced_group_component_definition
   SUBTYPE OF (assembly_group_component_definition);
 WHERE
@@ -180,41 +140,12 @@ WHERE
              'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')) = 1;
 END_ENTITY; 
 
-ENTITY linear_array_component_shape_aspect_link
-  SUBTYPE OF (shape_aspect,shape_aspect_relationship);
-WHERE
-  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
-       SELF\shape_aspect_relationship.relating_shape_aspect;
-  WR2: 'COMPONENT_GROUPING_MIM.' +
-       'LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_SHAPE_ASPECT' IN
-       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
-  WR3: 'COMPONENT_GROUPING_MIM.' +
-       'LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_SHAPE_ASPECT' IN
-       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
-  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
-       SELF\shape_aspect_relationship ||
-       SELF\linear_array_component_shape_aspect_link)) = 0;
-  WR5: SELF\shape_aspect.name = '';
-  WR6: SELF\shape_aspect_relationship.name = '';
-  WR7: SIZEOF(USEDIN(SELF, 
-             'COMPONENT_GROUPING_MIM.' +
-             'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) = 1;
-END_ENTITY; 
-
-ENTITY linear_array_placement_group_component_shape_aspect
-  SUBTYPE OF (array_placement_group_component_shape_aspect);
-END_ENTITY;
-
 ENTITY linear_array_placement_group_component_definition
   SUBTYPE OF (array_placement_group_component_definition);
 END_ENTITY;
 
 ENTITY rectangular_array_placement_group_component_definition
   SUBTYPE OF (array_placement_group_component_definition);
-END_ENTITY;
-
-ENTITY rectangular_array_placement_group_component_shape_aspect
-  SUBTYPE OF (array_placement_group_component_shape_aspect);
 END_ENTITY;
 
 RULE product_definition_formation_requires_approval FOR

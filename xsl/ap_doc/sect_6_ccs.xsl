@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.16 2003/07/31 08:57:57 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.17 2003/08/11 16:48:03 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -440,7 +440,7 @@ conformance class')"/>
     <xsl:param name="entities_node_set"/>
     <xsl:param name="conformance_node_set"/>
     <xsl:variable name="ccs" select="$conformance_node_set/cc"/>
-    <xsl:variable name="mims_in_ccs" select="$conformance_node_set/arms_in_ccs"/>
+    <xsl:variable name="mims_in_ccs" select="$conformance_node_set/mims_in_ccs"/>
     <xsl:for-each select="$entities_node_set/*">
       <xsl:sort select="@name"/>
       <xsl:variable name="lname" select="@name"/>

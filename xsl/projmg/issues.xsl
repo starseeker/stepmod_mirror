@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.15 2003/10/22 17:01:15 robbod Exp $
+     $Id: issues.xsl,v 1.16 2004/09/24 07:28:47 robbod Exp $
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -245,6 +245,15 @@
       select="translate(normalize-space(translate(@linkend,$UPPER,$LOWER)),' :=','')"/>
   </xsl:template>
 
+<xsl:template match="issue_management">
+  <blockquote>
+    <b>Issue Management: </b>
+    <xsl:for-each select="@*" >
+    <xsl:value-of select="concat(name(),': ', string(.))" /><br/>
+    </xsl:for-each>
+    <xsl:apply-templates />
+  </blockquote>
+  </xsl:template>
 
 <xsl:template match="ae"  mode="output_mapping_issue">
   <!-- only proceed if global parameter "output_issues" is YES -->

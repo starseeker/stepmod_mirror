@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: resource_issues.xsl,v 1.2 2003/04/11 23:34:35 thendrix Exp $
+     $Id: resource_issues.xsl,v 1.3 2003/10/24 08:41:27 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -266,6 +266,17 @@
     <xsl:apply-templates />
   </blockquote>
   </xsl:template>
+
+<xsl:template match="issue_management">
+  <blockquote>
+    <b>Issue Management: </b>
+    <xsl:for-each select="@*" >
+    <xsl:value-of select="concat(name(),': ', string(.))" /><br/>
+    </xsl:for-each>
+    <xsl:apply-templates />
+  </blockquote>
+  </xsl:template>
+
 
   <xsl:template name="issue_ae_map_aname">
     <xsl:param name="linkend"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.15 2002/07/31 15:47:02 robbod Exp $
+$Id: imgfile.xsl,v 1.16 2002/08/02 15:58:46 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -128,12 +128,12 @@ $Id: imgfile.xsl,v 1.15 2002/07/31 15:47:02 robbod Exp $
             <xsl:when test="$number=1">
               <xsl:value-of 
                 select="concat('Figure C.',$number, 
-                        ' - ARM schema level EXPRESS-G diagram ',$number)"/>
+                        ' &#8212; ARM schema level EXPRESS-G diagram ',$number)"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of 
                 select="concat('Figure C.',$number, 
-                        ' - ARM entity level EXPRESS-G diagram ',($number - 1))"/>
+                        ' &#8212; ARM entity level EXPRESS-G diagram ',($number - 1))"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>
@@ -142,12 +142,12 @@ $Id: imgfile.xsl,v 1.15 2002/07/31 15:47:02 robbod Exp $
             <xsl:when test="$number=1">
               <xsl:value-of 
                 select="concat('Figure D.',$number, 
-                        ' - MIM schema level EXPRESS-G diagram ',$number)"/>
+                        ' &#8212; MIM schema level EXPRESS-G diagram ',$number)"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of 
                 select="concat('Figure D.',$number, 
-                        ' - MIM entity level EXPRESS-G diagram ',($number - 1))"/>
+                        ' &#8212; MIM entity level EXPRESS-G diagram ',($number - 1))"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>

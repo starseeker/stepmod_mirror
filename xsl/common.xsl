@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.58 2002/07/24 07:53:34 robbod Exp $
+$Id: common.xsl,v 1.59 2002/08/02 15:58:46 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2271,6 +2271,19 @@ $Id: common.xsl,v 1.58 2002/07/24 07:53:34 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+
+
+  <xsl:template name="first_uppercase">
+    <xsl:param name="string"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="first_char" 
+      select="translate(substring($string,1,1),$LOWER,$UPPER)"/>
+    <xsl:value-of 
+      select="concat($first_char,
+              translate(substring($string,2),$UPPER,$LOWER))"/>
+  </xsl:template>
+
 
 </xsl:stylesheet>
 

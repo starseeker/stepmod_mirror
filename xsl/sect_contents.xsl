@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.2 2002/06/19 14:41:39 robbod Exp $
+$Id: sect_contents.xsl,v 1.3 2002/08/02 15:58:46 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -652,12 +652,12 @@ $Id: sect_contents.xsl,v 1.2 2002/06/19 14:41:39 robbod Exp $
           <xsl:when test="$number=1">
             <xsl:value-of 
               select="concat('Figure C.',$number, 
-                      ' - ARM Schema level EXPRESS-G diagram ',$number)"/>
+                      ' &#8212; ARM schema level EXPRESS-G diagram ',$number)"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure C.',$number, 
-                      ' - ARM Entity level EXPRESS-G diagram ',($number - 1))"/>
+                      ' &#8212; ARM entity level EXPRESS-G diagram ',($number - 1))"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -666,12 +666,12 @@ $Id: sect_contents.xsl,v 1.2 2002/06/19 14:41:39 robbod Exp $
           <xsl:when test="$number=1">
             <xsl:value-of 
               select="concat('Figure D.',$number, 
-                      ' - MIM Schema level EXPRESS-G diagram ',$number)"/>
+                      ' &#8212; MIM schema level EXPRESS-G diagram ',$number)"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of 
               select="concat('Figure D.',$number, 
-                      ' - MIM Entity level EXPRESS-G diagram ',($number - 1))"/>
+                      ' &#8212; MIM entity level EXPRESS-G diagram ',($number - 1))"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -760,12 +760,19 @@ $Id: sect_contents.xsl,v 1.2 2002/06/19 14:41:39 robbod Exp $
       <xsl:with-param name="table" select="."/>
     </xsl:call-template>
   </xsl:variable>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
 
-  <xsl:variable name="table_or_fig" select="name(.)"/>
+  <xsl:variable name="table_or_fig">
+    <xsl:call-template name="first_uppercase">
+      <xsl:with-param name="string" select="name(.)"/>
+    </xsl:call-template>
+  </xsl:variable>
+
   <p class="content">
     <a href="{$href}">      
     <xsl:value-of 
-      select="concat($table_or_fig,' ',@number, '&#8212;', @caption)"/>
+      select="concat($table_or_fig,' ',@number, ' &#8212; ', ./title)"/>
     </a>
   </p>
 

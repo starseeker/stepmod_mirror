@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.19 2004/11/05 01:00:58 thendrix Exp $
+$Id: common.xsl,v 1.20 2004/11/05 05:37:21 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1122,11 +1122,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     <xsl:param name="inline" select="'yes'"/>
     <xsl:param name="warning_gif"
       select="'../../../../images/warning.gif'"/>
-    <!--
     <xsl:message>
       <xsl:value-of select="translate($message,'#','&#010;')"/>
     </xsl:message>
-    -->
     <xsl:if test="contains($INLINE_ERRORS,'yes')">
       <xsl:if test="contains($inline,'yes')">
         <br/>
@@ -2552,11 +2550,6 @@ is case sensitive.')"/>
 
           <xsl:choose>
             <xsl:when test="contains($relurl,'.xml')">
-              <xsl:message >
-                resdoc_root:<xsl:value-of select="$resdoc_root"/>:resdoc_root                
-                view:<xsl:value-of select="$view"/>:view                
-              </xsl:message>
-
  
              <xsl:value-of 
                 select="concat($resdoc_root,

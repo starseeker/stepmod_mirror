@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.30 2002/03/28 13:11:47 robbod Exp $
+$Id: common.xsl,v 1.31 2002/04/08 16:25:43 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -629,7 +629,7 @@ $Id: common.xsl,v 1.30 2002/03/28 13:11:47 robbod Exp $
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of
-              select="concat('ERROR:  the module', $module_name,
+              select="concat('ERROR:  the module ', $module_name,
                       ' is not identified as a module in repository_index.xml')"/>
           </xsl:otherwise>
         </xsl:choose>
@@ -1440,6 +1440,95 @@ $Id: common.xsl,v 1.30 2002/03/28 13:11:47 robbod Exp $
     </xsl:choose>
 </xsl:template>
 
+<!-- 
+     Return an error message if the linkend of an express_ref is incorrect 
+     Just checks the first section i.e module:arm: 
+-->
+<xsl:template name="check_express_ref_first_section">
+  <xsl:param name="linkend"/>
+  
+  <xsl:variable 
+    name="nlinkend"
+    select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
+  
+  <xsl:variable 
+    name="module_section" 
+    select="substring-before($nlinkend,':')"/>
+  
+  <xsl:variable name="module_ok">
+    <xsl:call-template name="check_module_exists">
+      <xsl:with-param name="module" select="$module_section"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
+  <xsl:variable 
+    name="nlinkend1"
+    select="substring-before(substring-after($nlinkend,':'),':')"/>
+  
+  <xsl:variable name="arm_mim_ir_section">
+    <xsl:choose>
+      <xsl:when test="$nlinkend1='arm'
+                      or $nlinkend1='arm_express'
+                      or $nlinkend1='mim'
+                      or $nlinkend1='mim_express'
+                      or $nlinkend1='ir_express'">
+        <xsl:value-of select="$nlinkend1"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- error found, do nothing until linkend_ok variable is set -->
+        <xsl:value-of select="''"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  
+  
+  <xsl:variable name="linkend_ok">
+    <xsl:choose>
+      <xsl:when test="$arm_mim_ir_section=''">
+        <xsl:value-of select="concat('express_ref linkend', 
+                              $linkend, 
+                              ' is incorrectly specified. 
+                              Need to specify :arm: :arm_express: :mim: :ir_express')"/>
+      </xsl:when>
+      <xsl:when test="$module_section=''">
+        <xsl:value-of select="concat('express_ref linkend', 
+                              $linkend, 
+                              ' is incorrectly specified.
+                              Need to specify the module first')"/>
+      </xsl:when>
+      <xsl:when test="$module_ok!='true'">
+        <xsl:value-of select="concat('express_ref linkend', 
+                              $linkend, 
+                              ' is incorrectly specified.', $module_ok)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="'OK'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:value-of select="$linkend_ok"/>
+</xsl:template>
+  
+
+<!-- 
+     Return an error message if the linkend of an express_ref is incorrect 
+-->
+<xsl:template name="check_express_path">
+  <xsl:param name="linkend"/>
+
+  <xsl:variable 
+    name="nlinkend"
+    select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
+  
+  <xsl:variable 
+    name="express_ref" 
+    select="translate(substring-after(substring-after($nlinkend,':'),':'),
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
+  
+
+</xsl:template>
+
+  
 </xsl:stylesheet>
 
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_index.xsl,v 1.7 2002/02/13 14:23:41 robbod Exp $
+     $Id: repository_index.xsl,v 1.8 2002/03/04 07:50:08 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -107,9 +107,14 @@
 <xsl:template match="module">
   <xsl:variable name="xref"
     select="concat('./data/modules/',@name,'/sys/introduction',$FILE_EXT)"/>
+  <xsl:variable name="part">
+    <xsl:call-template name="get_module_part">
+      <xsl:with-param name="module_name" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
   <a href="{$xref}">
     <font size="-1">
-      <b><xsl:value-of select="@name"/> (<xsl:value-of select="@part"/>)</b>
+      <b><xsl:value-of select="@name"/> (<xsl:value-of select="$part"/>)</b>
     </font>
   </a>
 
@@ -124,6 +129,9 @@
 
   <xsl:variable name="mim_expg"
     select="concat('./data/modules/',@name,'/mimexpg1',$FILE_EXT,'#arm')"/>
+
+  <xsl:variable name="mod_directory"
+    select="concat('./data/modules/',@name)"/>
   
   <table cellspacing="0" cellpadding="1">
     <tr>
@@ -148,6 +156,12 @@
           <a href="{$mim_expg}">MIM-G</a>
         </font>
       </td>
+      <td>
+        <font size="-2">
+          <a href="{$mod_directory}">.</a>
+        </font>
+      </td>
+
       </tr>
     </table>
 </xsl:template>
@@ -160,6 +174,22 @@
     </font>
   </a>
   <br/>
+</xsl:template>
+
+
+<xsl:template name="get_module_part">
+  <!--
+       for now, just use@part
+  <xsl:param name="module_name"/>
+  <xsl:variable name="module_file" 
+    select="concat('../data/modules/',$module_name,'/module.xml')"/>
+
+  <xsl:variable name="module_node"
+    select="document($module_file)/module[@name=$module_name]"/>
+  <xsl:variable name="part" select="$module_node/@part"/>
+  <xsl:value-of select="$part"/>
+-->
+  <xsl:value-of select="@part"/>
 </xsl:template>
 
 </xsl:stylesheet>

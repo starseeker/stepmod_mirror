@@ -26,6 +26,13 @@
       schema="Foundation_representation_arm">
     </interface>
 
+    <type name="appearance_context">
+      <select
+        extensible="YES"
+        genericentity="YES">
+      </select>
+
+    </type>
     <type name="appearance_select">
       <select
         extensible="YES"
@@ -33,10 +40,16 @@
       </select>
 
     </type>
+    <type name="style_model_element_select">
+      <select
+        selectitems="Mapping_based_styled_model Transformation_based_styled_model Styled_element">
+      </select>
+
+    </type>
     <entity
       name="Appearance_assignment">
       <explicit
-        name="component">
+        name="appearance_components">
         <aggregate
           type="SET"
           lower="1"
@@ -47,36 +60,28 @@
     </entity>
 
     <entity
-      name="Appearance_context"
-      abstract.supertype="YES">
-    </entity>
-
-    <entity
       name="Context_dependent_appearance_assignment"
       supertypes="Appearance_assignment">
       <explicit
         name="context_definition">
         <typename
-          name="Appearance_context"/>
+          name="appearance_context"/>
       </explicit>
     </entity>
 
     <entity
-      name="Overriding_styled_element"
+      name="Over_riding_styled_element"
       supertypes="Styled_element">
       <explicit
-        name="is_defined_for">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
+        name="over_ridden_element">
         <typename
-          name="Appearance_context"/>
+          name="Styled_element"/>
       </explicit>
     </entity>
 
     <entity
       name="Styled_element"
+      abstract.supertype="YES"
       supertypes="Representation_item">
       <explicit
         name="appearance">
@@ -98,19 +103,22 @@
         <typename
           name="Geometric_model"/>
       </explicit>
+      <derived
+        name="SELF\Representation.context_of_items"
+        expression="styled_geometry\Representation.context_of_items">
+        <typename
+          name="Numerical_representation_context"/>
+      </derived>
     </entity>
 
     <entity
       name="Styled_model"
       supertypes="Representation">
       <explicit
-        name="additional_elements">
-        <aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-        <typename
-          name="template_instance"/>
+        name="version_id"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
       </explicit>
       <explicit
         name="items">
@@ -121,7 +129,7 @@
             lower="1"
             upper="?"/>
           <typename
-            name="Styled_element"/>
+            name="styled_model_element_select"/>
         </explicit>
       </entity>
 
@@ -131,7 +139,42 @@
         <explicit
           name="element">
           <typename
-            name="Representation_item"/>
+            name="Detailed_geometric_model_element"/>
+        </explicit>
+      </entity>
+
+      <entity
+        name="Mapping_based_styled_model"
+        supertypes="Representation_item">
+        <explicit
+          name="replicated_model">
+          <typename
+            name="Styled_model"/>
+        </explicit>
+        <explicit
+          name="source">
+          <typename
+            name="Axis_placement"/>
+        </explicit>
+        <explicit
+          name="target">
+          <typename
+            name="geometric_mapping_target"/>
+        </explicit>
+      </entity>
+
+      <entity
+        name="Transformation_based_styled_model"
+        supertypes="Representation_item">
+        <explicit
+          name="replicated_model">
+          <typename
+            name="Styled_model"/>
+        </explicit>
+        <explicit
+          name="replication_transformation">
+          <typename
+            name="cartesian_transformation"/>
         </explicit>
       </entity>
 

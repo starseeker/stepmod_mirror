@@ -6,18 +6,40 @@ SCHEMA Appearance_assignment_mim;
 
 USE FROM Elemental_geometric_shape_mim; 
 USE FROM Foundation_representation_mim; 
+USE FROM Identification_assignment_mim;
 
 USE FROM presentation_appearance_schema(
-  context_dependent_over_riding_styled_item,
+  over_riding_styled_item,
   invisibility,
   presentation_style_assignment,
   presentation_style_by_context,
   styled_item); 
 
+USE FROM representation_schema(
+  mapped_item);
+
 USE FROM aic_associative_draughting_elements (
   draughting_model);
 USE FROM aic_mechanical_design_geometric_presentation (
   mechanical_design_geometric_presentation_representation);
+
+TYPE representation_identification_item = SELECT BASED_ON identification_item WITH 
+  (draughting_model,
+   mechanical_design_geometric_presentation_representation);
+END_TYPE; 
+ 
+TYPE representation_version_item = SELECT BASED_ON versionable_item WITH 
+  (draughting_model,
+   mechanical_design_geometric_presentation_representation);
+END_TYPE;
+
+RULE styled_curve FOR (styled_item); 
+WHERE 
+WR1: SIZEOF( QUERY( si <* styled_item | 
+  ('APPEARANCE_ASSIGNMENT_MIM.CURVE' IN TYPEOF (si.item)) AND 
+  (SIZEOF (QUERY (psa <* si.styles | (SIZEOF (QUERY (cs <* psa.styles | 
+  ('APPEARANCE_ASSIGNMENT_MIM.CURVE_STYLE' IN TYPEOF (cs)) )) > 0) )) <> 1) )) = 0; 
+END_RULE; 
 
 END_SCHEMA;
 

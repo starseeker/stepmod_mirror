@@ -8,8 +8,11 @@
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
 	<xsl:output method="html"/>
+	
 	<xsl:template match="application_protocol"/>
+	
 	<xsl:template match="module">
 		<xsl:apply-templates select="arm"/>
 	</xsl:template>
+	
 </xsl:stylesheet>

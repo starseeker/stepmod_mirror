@@ -1,101 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-<!-- last edited mwd 2002-08-19 -->
-
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                version="1.0">
-
-
-  <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       parameters passed in by SAXON - hence these defaults are
-       overwritten. -->
-
-  <!-- The name of the module whose descriptions are being merged -->
-  <xsl:param name="merge_application_protocol" select="'merge_application_protocol'"/>
-
-  <!-- The clause whose descriptions are being merged.
-       Either: arm mim ir
-       -->
-  <xsl:param name="merge_clause" select="'merge_clause'"/>
-
-  <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-
-  <xsl:output 
-    method="xml"
-    version="1.0" 
-    encoding="utf-8"
-    indent="yes"/>
-
-  <!-- work out from the merge_clause which description file is to be read.
-       Note that descriptions are assumed to be stored in:
-          ?module?/descriptions/description.xml
-       The assumption is that there is one description file per module.
-       We could be more sophisticated and have an index that lists all of
-       the modules description files.
-
-       Also note that the path to the document function path argument 
-       is relative to the stylesheet NOT the XML - hence the need to know
-       which module you are in either as a parameter passed to the
-        stylesheets or explicitly mentioned in the XML being processed.
-       -->
-  <xsl:variable name="description_file">
-    <xsl:choose>
-      <!-- reading descriptions for IRs -->
-      <xsl:when test="$merge_clause='ir'">
-        <xsl:value-of select="concat(
-                              '../data/resources/',
-                              $merge_application_protocol,'/descriptions/description.xml')"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat(
-                              '../data/application_protocols/',
-                              $merge_application_protocol,'/descriptions/description.xml')"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
-  <!-- the node set of descriptions from the description document. This is
-       used by the template name="output_ext_description" -->
-  <xsl:variable name="descriptions"
-    select="document($description_file)/ext_descriptions"/>
-  
-
-<!-- Start everything going -->
-<xsl:template match="/">
-  <xsl:message>
-    XSL reading description: <xsl:value-of select="$description_file"/>
-  </xsl:message>
-  <xsl:apply-templates mode="copy"/>
-</xsl:template>
-
-
-<!-- make a copy of everything in the file --> 
-<xsl:template match="*" mode="copy">
-  <!-- debug -->
-  <xsl:message>
-    Copying:<xsl:value-of select="name()"/>    
-  </xsl:message>
-
-  <!-- create a shallow copy of the element being matched -->
-  <xsl:copy>
-    <!-- copy all the attributes of the element -->
-    <xsl:copy-of select="@*"/>
-    
-    <!-- get the description for the element and output it -->
-    <xsl:apply-templates select="." mode="output_description"/>
-
-    <!-- recurse through rest of the elements - a deep copy -->
-    <xsl:apply-templates select="node()" mode="copy"/>
-  </xsl:copy>
-</xsl:template>
-
-
-<!-- empty template to prevent description for schema being output when
-     processing the express element -->
-<xsl:template match="express" mode="output_description"/>
-
-
-<xsl:template match="schema" mode="output_description">
+<!--
+	$Id: $
+-->
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+	<xsl:param name="merge_application_protocol" select="'merge_application_protocol'"/>
+	<xsl:param name="merge_clause" select="'merge_clause'"/>
+	<xsl:output method="xml" version="1.0" encoding="utf-8" indent="yes"/>
+	
+	<xsl:variable name="description_file">
+		<xsl:choose>
+			<xsl:when test="$merge_clause='ir'">
+				<xsl:value-of select="concat('../data/resources/', $merge_application_protocol,'/descriptions/description.xml')"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="concat('../data/application_protocols/', $merge_application_protocol,'/descriptions/description.xml')"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+	<xsl:variable name="descriptions" select="document($description_file)/ext_descriptions"/>
+	
+	<xsl:template match="/">
+		<xsl:message>
+			XSL reading description:
+			<xsl:value-of select="$description_file"/>
+		</xsl:message>
+		<xsl:apply-templates mode="copy"/>
+	</xsl:template>
+	
+	<xsl:template match="*" mode="copy">
+		<xsl:message>
+			Copying:
+			<xsl:value-of select="name()"/>
+		</xsl:message>
+		<xsl:copy>
+			<xsl:copy-of select="@*"/>
+			<xsl:apply-templates select="." mode="output_description"/>
+			<xsl:apply-templates select="node()" mode="copy"/>
+		</xsl:copy>
+	</xsl:template>
+	
+	<xsl:template match="express" mode="output_description"/>
+		<xsl:template match="schema" mode="output_description">
   <xsl:variable name="express_ref">
     <xsl:call-template name="make_express_ref">
       <xsl:with-param name="application_protocol" select="$merge_application_protocol"/>

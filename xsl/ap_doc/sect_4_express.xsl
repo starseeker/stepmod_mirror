@@ -7,6 +7,7 @@
 	<xsl:import href="../sect_4_express.xsl"/>
 	<xsl:import href="express_link.xsl"/> 
   	<xsl:import href="express_description.xsl"/>
+	<xsl:import href="projmg/issues.xsl"/>
 	<xsl:template name="interface_notes">
 		<xsl:param name="schema_node"/>
 		<p class="note">

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- last edited by mwd 2002-08-14 -->
+<!--
+	$Id: $
+-->
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	
 	<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>

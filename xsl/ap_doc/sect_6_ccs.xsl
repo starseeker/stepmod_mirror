@@ -8,6 +8,7 @@
 	<xsl:import href="application_protocol_clause.xsl"/>
 	<xsl:import href="cc_descriptions.xsl"/>
 	<xsl:output method="html"/>
+	
 	<xsl:template match="application_protocol">
 		<xsl:call-template name="clause_header">
 			<xsl:with-param name="heading" select="'6 Conformance requirements'"/>

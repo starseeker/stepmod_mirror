@@ -1,13 +1,15 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-<!-- last edited mwd 2002-08-19 -->
-
+<!--
+	$Id: $
+-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../express_code.xsl"/>
-	<xsl:import href="common.xsl"/>
+	<!-- xsl:import href="common.xsl"/ -->
 	<xsl:import href="express_application.xsl"/>
 	<xsl:import href="express_link.xsl"/>
 	<xsl:output method="html"/>
+	
 	<xsl:template match="interface" mode="code">
 		<xsl:variable name="schema_name" select="../@name"/>
 		<xsl:choose>

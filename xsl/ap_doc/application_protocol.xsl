@@ -7,6 +7,7 @@
 	<xsl:import href="../module.xsl"/>
 	<xsl:import href="application_protocol_toc.xsl"/>
 	<xsl:import href="sect_4_express.xsl"/>
+	<xsl:import href="projmg/issues.xsl"/>
 	<xsl:output method="html" doctype-system="http://www.w3.org/TR/html4/loose.dtd" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/>
 
 	<xsl:template match="/">
@@ -570,7 +571,7 @@
   </ul>
 </xsl:template>
 
-	<xsl:template match="module" mode="annexg">
+	<xsl:template match="application_protocol" mode="annexg">
 		<xsl:call-template name="annex_header">
 			<xsl:with-param name="annex_no" select="'G'"/>
 			<xsl:with-param name="heading" select="'Computer interpretable listings'"/>

@@ -4,10 +4,16 @@
      $Id: $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+
+	<xsl:import href="../sect_foreword.xsl"/>
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
 	<xsl:output method="html"/>
+	
+	<xsl:template match="module"/>
+	
 	<xsl:template match="application_protocol">
 		<xsl:apply-templates select="." mode="foreword"/>
 	</xsl:template>
+	
 </xsl:stylesheet>

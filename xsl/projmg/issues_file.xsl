@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     $Id: issues_file.xsl,v 1.6 2002/09/10 08:54:11 robbod Exp $
-
-  Author: Rob Bodington, Eurostep Limited
-  Owner:  Developed by Eurostep and supplied to NIST under contract.
-  Purpose: 
-     Used to display the issues raised against the a module
+     $Id: $
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
   <!-- need both for module TOC -->
+<xsl:import href="../../projmg/issues_file.xsl" />
+
   <xsl:import href="../sect_4_express.xsl"/>
   <xsl:import href="../module_toc.xsl"/>
 

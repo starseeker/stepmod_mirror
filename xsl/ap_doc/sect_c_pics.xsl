@@ -6,7 +6,8 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
-	 <xsl:output method="html"/>
+	<xsl:output method="html"/>
+	
 	<xsl:template match="application_protocol">
 		<a name="pics"/>
 		<xsl:call-template name="annex_header">
@@ -23,7 +24,7 @@
 		<p>
 			This annex is in the form of a questionnaire.  This  questionnaire is intended to be filed in by the implementor and may be used in preparation for conformance testing by a testing laboratory.  The completed PICS form is referred to as a "PICS".
 		</p>
-		<h4>D.1 Protocol implementation identification</h4>
+		<h4>C.1 Protocol implementation identification</h4>
 		<table border="1">
 			<tr>
 				<th align="left">
@@ -51,7 +52,7 @@
 				</td>
 			</tr>
 		</table>
-		<h4>D.2 Implementation method</h4>
+		<h4>C.2 Implementation method</h4>
 		<p>
 			Indicate the chosen implementation method and supported directions of translation.
 		</p>
@@ -82,27 +83,26 @@
 				</tr>
 			</xsl:for-each>
 		</table>
-		<h4>D.3 Implemented conformance classes</h4>
+		<h4>C.3 Implemented conformance classes</h4>
 		<table border="1">
 			<tr>
 				<th align="left">Conformance class</th>
 				<th>Preprocessor</th>
 				<th>Postprocessor</th>
 			</tr>
-			<xsl:for-each select="document		('../../data/application_protocols/nut_and_bolt/ccs.xml')/conformance_classes/cc">
-			<!-- xsl:sort select="@name"/ -->
-			<tr>
-				<td align="left">
-					<xsl:value-of select="concat(@name, ' (CC', @identifier, ')')"/>
-				</td>
-				<td>
-						&#160;			
-				</td>
-				<td>
-						&#160;			
-				</td>
-			</tr>
-		</xsl:for-each>
+			<xsl:for-each select="document('../../data/application_protocols/nut_and_bolt/ccs.xml')/conformance_classes/cc">
+				<tr>
+					<td align="left">
+						<xsl:value-of select="concat(@name, ' (CC', @identifier, ')')"/>
+					</td>
+					<td>
+							&#160;			
+					</td>
+					<td>
+							&#160;			
+					</td>
+				</tr>
+			</xsl:for-each>
 		</table>
 	</xsl:template>
 </xsl:stylesheet>

@@ -4,9 +4,14 @@
      $Id: $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+
+	<xsl:import href="../sect_b_obj_reg.xsl"/>
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
 	<xsl:output method="html"/>
+	
+	<xsl:template match="module"/>
+	
 	<xsl:template match="application_protocol">
 		<xsl:call-template name="annex_header">
 			<xsl:with-param name="annex_no" select="'D'"/>
@@ -30,14 +35,14 @@
 		<xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
 		<xsl:variable name="schema_name" select="document($arm_xml)/express/schema/@name"/>
 		<xsl:variable name="object_reg" select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
-		<h3>B.1 Document Identification </h3>
+		<h3>D.1 Document Identification </h3>
 		To provide for unambiguous identification of an information object in an open system, the object identifier
 		<p align="center">
 			<xsl:value-of select="concat($object_reg,' }' )"/>
 		</p>
 		is assigned to this part of ISO 10303. The meaning of this value is defined in ISO/IEC 8824-1, and is described in ISO 10303-1.
-		<h3>B.2 Schema identification</h3>
-		<!-- get the name of the ARM schema from the express -->
+		<h3>D.2 Schema identification</h3>
+		
 		<xsl:variable name="arm_schema" select="document($arm_xml)/express/schema/@name"/>
 		<xsl:variable name="arm_schema_reg" select="translate($arm_schema,$UPPER, $LOWER)"/>
 		<h3>B.2.1 <xsl:value-of select="$arm_schema"/> schema identification</h3>
@@ -52,7 +57,7 @@
 		</p>
 		<xsl:variable name="aim_schema" select="document($aim_xml)/express/schema/@name"/>
 		<xsl:variable name="aim_schema_reg" select="translate($aim_schema,$UPPER, $LOWER)"/>
-		<h3>B.2.2 <xsl:value-of select="substring-before($aim_schema, '_mim')"/>_aim schema identification</h3>
+		<h3>D.2.2 <xsl:value-of select="substring-before($aim_schema, '_mim')"/>_aim schema identification</h3>
 		<p>
 			To provide for unambiguous identification of the schema specifications given in this application module in an open information system, the object identifiers are assigned as follows:
 		</p>
@@ -64,4 +69,5 @@
     ISO 10303-1.
 		</p>
 	</xsl:template>
+	
 </xsl:stylesheet>

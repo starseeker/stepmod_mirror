@@ -8,11 +8,14 @@
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
 	<xsl:output method="html"/>
+	
 	<xsl:template match="application_protocol"/>
+	
 	<xsl:template match="module">
 		<xsl:call-template name="output_normrefs">
 			<xsl:with-param name="module_number" select="./@part"/>
 			<xsl:with-param name="current_module" select="."/>
 		</xsl:call-template>
 	</xsl:template>
+	
 </xsl:stylesheet>

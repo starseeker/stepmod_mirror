@@ -2,13 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: projmg.xsl,v 1.2 2002/08/14 12:47:27 robbod Exp $
-
-  Author: Rob Bodington, Eurostep Limited
-  Owner:  Developed by Eurostep and supplied to NIST under contract.
-  Purpose: 
-     Used to display the commented XML encoded Express
-     in clause 4 and 5 of a module.
+     $Id: $
 -->
 
 <xsl:stylesheet 
@@ -17,8 +11,9 @@
 >
 
   <!-- need both for module TOC -->
-  <xsl:import href="../sect_4_express.xsl"/>
-  <xsl:import href="../module_toc.xsl"/>
+<xsl:import href="../../projmg/projmg.xsl" />
+<xsl:import href="../sect_4_express.xsl"/>
+ <xsl:import href="../module_toc.xsl"/>
 
   <xsl:output method="html"/>
 

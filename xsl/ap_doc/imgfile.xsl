@@ -21,6 +21,7 @@
 				<xsl:variable name="self" select="."/>
 				<xsl:choose>
 					<xsl:when test="@application_protocol">
+					
 						<xsl:variable name="application_protocol_dir">
             						<xsl:call-template name="application_protocol_directory">
 								<xsl:with-param name="application_protocol" select="@application_protocol"/>

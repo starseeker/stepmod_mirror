@@ -7,6 +7,7 @@
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>
 	 <xsl:output method="html"/>
+	
 	<xsl:template match="application_protocol">
 		<xsl:call-template name="annex_header">
     			<xsl:with-param name="annex_no" select="'B'"/>
@@ -36,4 +37,5 @@
 		in <xsl:value-of select="$imp_meths_phrase"/> and in the AIM defined in Annex A of this part of ISO 10303. The header of the
 		exchange structure shall identify the use of this part of ISO 10303 by the schema name "<xsl:value-of select="$schema_name"/>".
 	</xsl:template>
+	
 </xsl:stylesheet>

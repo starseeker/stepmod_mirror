@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-<!-- last edited mwd 2002-08-19 -->
+<!--
+	$Id: $
+-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
+	<xsl:import href="../expressg.xsl"/>
+	
 	<xsl:output method="html"/>
 	
 	<xsl:template match="/">
@@ -10,13 +14,13 @@
 	</xsl:template>
 	
 	<xsl:template match="expressg">
-		<HTML>
-			<HEAD>
-			</HEAD>
-			<BODY bgcolor="#FFFFFF" link="#0000FF" vlink="#800080">
+		<html>
+			<head>
+			</head>
+			<body bgcolor="#FFFFFF" link="#0000FF" vlink="#800080">
 				<xsl:apply-templates select="expressg.page"/>
-			</BODY>
-		</HTML>
+			</body>
+		</html>
 	</xsl:template>
 	
 	<xsl:template match="expressg.page">

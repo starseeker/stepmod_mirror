@@ -6,7 +6,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../common.xsl"/>
 	<xsl:import href="file_ext.xsl"/>
-	<!-- xsl:import href="parameters.xsl"/ -->
+	<xsl:import href="parameters.xsl"/>
 	
 	<xsl:template name="ap_module_directory">
 		<xsl:param name="application_protocol"/>
@@ -67,6 +67,8 @@
 		</a>
 	</xsl:template>
 	
+	<xsl:template match="module" mode="TOCbannertitle"/>
+
 	<xsl:template match="application_protocol" mode="TOCbannertitle">
 		<xsl:param name="selected"/>
 		<xsl:param name="module_root" select="'..'"/>
@@ -110,6 +112,119 @@
 			</tr>
 		</TABLE>
 	</xsl:template>
+	
+	<xsl:template name="rcs_output">
+		<xsl:param name="module" select="@name"/>
+		<xsl:param name="module_root" select="'..'"/>
+		<xsl:variable name="icon_path" select="concat($module_root,'/../../../images/')"/>
+		<xsl:if test="$output_rcs='YES'">
+			<xsl:variable name="ap_mod_dir">
+				<xsl:call-template name="ap_module_directory">
+					<xsl:with-param name="application_protocol" select="$module"/>
+				</xsl:call-template>
+			</xsl:variable>
+			<xsl:variable name="fldr_gif" select="concat($icon_path,'folder.gif')"/>
+			<xsl:variable name="proj_gif" select="concat($icon_path,'project.gif')"/>
+			<table cellspacing="0" border="0">
+				<xsl:variable name="module_file" select="concat($ap_mod_dir,'/module.xml')"/>
+				<xsl:variable name="module_date" select="translate(document($module_file)/module/@rcs.date,'$','')"/>
+				<xsl:variable name="module_rev" select="translate(document($module_file)/module/@rcs.revision,'$','')"/>
+				<tr>
+					<td>
+						<p class="rcs">
+							<a href="{$module_root}">
+								<img alt="module folder" border="0" align="middle" src="{$fldr_gif}"/>
+							</a>&#160;
+							<xsl:if test="@development.folder">
+								<xsl:variable name="prjmg_href" select="concat($module_root,'/',	@development.folder,'/projmg',$FILE_EXT)"/>
+								<a href="{$prjmg_href}">
+									<img alt="project management summary" border="0" align="middle" src="{$proj_gif}"/>
+								</a>&#160;
+								<xsl:variable name="issue_href" select="concat($module_root,'/',	@development.folder,'/issues',$FILE_EXT)"/>
+								<xsl:variable name="issues_file" select="concat($ap_mod_dir,'/',	@development.folder,'/issues.xml')"/>
+								<xsl:variable name="open_issues" select="count(document($issues_file)/issues/issue	[@status!='closed'])"/>
+								<xsl:variable name="total_issues" select="count(document($issues_file)/issues/issue)"/>
+								<xsl:variable name="issue_gif">
+									<xsl:choose>
+										<xsl:when test="$open_issues>0">
+											<xsl:value-of select="concat($icon_path,'issues.gif')"/>
+										</xsl:when>
+										<xsl:otherwise>
+											<xsl:value-of select="concat($icon_path,'closed.gif')"/>
+										</xsl:otherwise>
+									</xsl:choose>
+								</xsl:variable>
+								<xsl:if test="$total_issues > 0">
+									<a href="{$issue_href}">
+										<img alt="issues" border="0" align="middle" src="{$issue_gif}"/>
+										<small>
+											[
+											<xsl:value-of select="$open_issues"/>
+											/
+											<xsl:value-of select="$total_issues"/>
+											]
+										</small>
+									</a>
+									&#160;
+								</xsl:if>
+							</xsl:if>
+						</p>
+					</td>
+					<td>
+						<font size="-2">
+							<p class="rcs">
+								xsl:value-of select="'module.xml'"/>
+							</p>
+						</font>
+					</td>
+					<td>
+						<font size="-2">
+							<p class="rcs">
+								<xsl:value-of select="concat('(',$module_date,' ',$module_rev,')')"/>
+							</p>
+						</font>
+					</td>
+					<td>&#160;&#160;</td>
+					<xsl:variable name="arm_file" select="concat($ap_mod_dir,'/arm.xml')"/>
+					<xsl:variable name="arm_date" select="translate(document($arm_file)/express/@rcs.date,'$','')"/>
+					<xsl:variable name="arm_rev" select="translate(document($arm_file)/express/@rcs.revision,'$','')"/>
+					<td>
+						<font size="-2">
+							<p class="rcs">
+								<xsl:value-of select="'arm.xml'"/>
+							</p>
+						</font>
+					</td>
+					<td>
+						<font size="-2">
+							<p class="rcs">
+								<xsl:value-of select="concat('(', $arm_date,' ',$arm_rev,')')"/>
+							</p>
+						</font>
+					</td>
+					<td>&#160;&#160;</td>
+					<xsl:variable name="mim_file" select="concat($ap_mod_dir,'/mim.xml')"/>
+					<xsl:variable name="mim_date" select="translate(document($mim_file)/express/@rcs.date,'$','')"/>
+					<xsl:variable name="mim_rev" select="translate(document($mim_file)/express/@rcs.revision,'$','')"/>
+					<td>
+						<font size="-2">
+							<p class="rcs">
+								<xsl:value-of select="'mim.xml'"/>
+							</p>
+						</font>
+					</td>
+					<td>
+						<font size="-2">
+							<p class="rcs">
+								<xsl:value-of select="concat('(', $mim_date, ' ', $mim_rev, ')')"/>
+							</p>
+						</font>
+					</td>
+				</tr>
+			</table>
+		</xsl:if>
+	</xsl:template>
+	
 	
 	<xsl:template match="img">
   <xsl:param name="alt"/>
@@ -157,6 +272,53 @@
   </div>
 </xsl:template>
 
+	<xsl:template name="ap_expressg_icon">
+		<xsl:param name="schema"/>
+		<xsl:param name="entity"/>
+		<xsl:param name="module_root" select="'..'"/>
+		<xsl:variable name="href_expg">
+			<xsl:choose>
+				<xsl:when test="$entity">
+					<xsl:choose>
+						<xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
+							<xsl:choose>
+								<xsl:when test="./graphic.element/@page">
+									<xsl:value-of select="concat			('../../modules/nut_and_bolt/armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
+			                			</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="concat('../../../modules/nut_and_bolt/armexpg1',			$FILE_EXT)"/>
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:when>
+						<xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
+							<xsl:choose>
+								<xsl:when test="./graphic.element/@page">
+									<xsl:value-of select="concat				('../../modules/nut_and_bolt/mimexpg',./graphic.element/@page,$FILE_EXT)"/>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="concat('../../../modules/nut_and_bolt/mimexpg1',			$FILE_EXT)"/>
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:when>
+					</xsl:choose>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:choose>
+						<xsl:when test="substring($schema, string-length($schema)-3)='_arm'">
+							<xsl:value-of select="concat	($module_root,'/../../modules/nut_and_bolt/armexpg1',	$FILE_EXT)"/>
+						</xsl:when>
+						<xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
+							<xsl:value-of select="concat	($module_root,'/../../modules/nut_and_bolt/mimexpg1',	$FILE_EXT)"/>
+						</xsl:when>
+					</xsl:choose>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		&#160;&#160;
+		<a href="{$href_expg}">
+			<img align="middle" border="0" alt="EXPRESS-G" src="{$module_root}/../../../images/expg.gif"/>
+		</a>
+	</xsl:template>
 
 </xsl:stylesheet>
 

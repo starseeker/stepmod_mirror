@@ -1,20 +1,12 @@
 <?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: issues.xsl,v 1.4 2002/09/12 09:36:18 robbod Exp $
-
-  Author: Rob Bodington, Eurostep Limited
-  Owner:  Developed by Eurostep and supplied to NIST under contract.
-  Purpose: 
-     Used to display the commented XML encoded Express
-     in clause 4 and 5 of a module.
+     $Id: $
 -->
 
-<xsl:stylesheet 
-	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	version="1.0"
->
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+	<xsl:import href="../../projmg/issues.xsl" />
 
   <xsl:output method="html"/>
 

@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: $
+	$Id: $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:import href="../sect_5_main.xsl"/>
 	<xsl:import href="application_protocol.xsl"/>
 	<xsl:import href="application_protocol_clause.xsl"/>	
 	<xsl:output method="html"/>
+	
+	<xsl:template match="module"/>
+	
 	<xsl:template match="application_protocol">
 		<xsl:call-template name="clause_header">
 			<xsl:with-param name="heading" select="'5 Application interpreted model'"/>
@@ -23,4 +27,5 @@ $Id: $
 			</a>
 		</h3>
 	</xsl:template>
+	
 </xsl:stylesheet>

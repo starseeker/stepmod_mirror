@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-
 <!--
      $Id: $
 -->
-
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+
+	<xsl:template match="module" mode="TOCmultiplePage"/>
+	
 	<xsl:template match="application_protocol" mode="TOCmultiplePage">
 		<xsl:param name="selected"/>
 		<xsl:param name="application_protocol_root" select="'..'"/>
@@ -365,6 +366,9 @@
 								<br/>
 							</xsl:if>
 						</small>
+						<a href="{$application_protocol_root}/sys/6_ccs{$FILE_EXT}">6 Conformance requirements</a>
+						<br/>
+
 					</p>
 				</td>
 				<td valign="TOP">
@@ -372,8 +376,8 @@
 						<a href="{$application_protocol_root}/sys/a_exp_aim_lf{$FILE_EXT}">
 							A AIM EXPRESS expanded listing
 						</a>
-						<xsl:call-template name="expressg_icon">
-							<xsl:with-param name="schema" select="concat(./@name,'_mim')"/>
+						<xsl:call-template name="ap_expressg_icon">
+							<xsl:with-param name="schema" select="concat(./@name, '_mim')"/>
 							<xsl:with-param name="module_root" select="$application_protocol_root"/>
 						</xsl:call-template>
 						<br/>
@@ -400,7 +404,7 @@
 						<a href="{$application_protocol_root}/sys/f_arm_expg{$FILE_EXT}">
 							F Application reference model
 						</a>
-						<xsl:call-template name="expressg_icon">
+						<xsl:call-template name="ap_expressg_icon">
 							<xsl:with-param name="schema" select="concat(./@name,'_arm')"/>
 							<xsl:with-param name="module_root" select="$application_protocol_root"/>
 						</xsl:call-template>

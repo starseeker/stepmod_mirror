@@ -1,7 +1,7 @@
 (*
- $Id: mim.exp,v 1.5 2003/04/24 12:04:47 nigelshaw Exp $
+ $Id: mim.exp,v 1.6 2003/10/21 13:30:01 robbod Exp $
  ISO TC184/SC4/WG3 N1388 - ISO/TS 10303-1307 AP239 work definition - EXPRESS MIM
- Supersedes ISO TC184/SC4/WG3 N1282
+Supersedes ISO TC184/SC4/WG3 N1282
 *) 
 
 
@@ -47,6 +47,10 @@ USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
 
 USE FROM Document_definition_mim;    -- ISO/TS 10303-1123
 
+USE FROM Effectivity_mim;    -- ISO/TS 10303-1057
+
+USE FROM effectivity_schema;    -- ISO 10303-41
+
 USE FROM Event_mim;    -- ISO/TS 10303-1064
 
 USE FROM File_identification_mim;    -- ISO/TS 10303-1127
@@ -62,6 +66,8 @@ USE FROM Interface_lifecycle_mim;    -- ISO/TS 10303-1294
 USE FROM Interface_mim;    -- ISO/TS 10303-1251
 
 USE FROM Justification_mim;    -- ISO/TS 10303-1263
+
+USE FROM Location_assignment_mim;    -- ISO/TS 10303-1277
 
 USE FROM Location_mim;    -- ISO/TS 10303-1276
 
@@ -93,6 +99,8 @@ USE FROM Product_group_mim;    -- ISO/TS 10303-1278
 
 USE FROM Product_identification_mim;    -- ISO/TS 10303-1017
 
+USE FROM product_property_definition_schema;    -- ISO 10303-41
+
 USE FROM Product_version_mim;    -- ISO/TS 10303-1018
 
 USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
@@ -100,6 +108,8 @@ USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
 USE FROM Product_view_definition_relationship_mim;    -- ISO/TS 10303-1041
 
 USE FROM Project_mim;    -- ISO/TS 10303-1061
+
+USE FROM Property_assignment_arm;    -- ISO/TS 10303-1030
 
 USE FROM Required_resource_mim;    -- ISO/TS 10303-1267
 
@@ -144,8 +154,10 @@ TYPE wd_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WI
    (action, 
     action_method, 
     action_resource, 
+    applied_action_assignment, 
     contract, 
     document_file, 
+    effectivity, 
     event_occurrence, 
     organization, 
     person, 
@@ -161,7 +173,10 @@ TYPE wd_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_m
    (action, 
     action_method, 
     action_resource, 
+    action_resource, 
     action_resource_requirement, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
     contract, 
     event_occurrence, 
     location, 
@@ -206,11 +221,14 @@ END_TYPE;
 
 TYPE wd_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH 
    (action, 
-    action_method);
+    action_method, 
+    applied_action_method_assignment);
 END_TYPE; 
 
 TYPE wd_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH 
-   (action_method_relationship, 
+   (action, 
+    action_method_relationship, 
+    applied_action_assignment, 
     applied_action_method_assignment, 
     group);
 END_TYPE; 
@@ -219,6 +237,7 @@ TYPE wd_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item 
    (action, 
     action_method, 
     action_method_relationship, 
+    applied_action_assignment, 
     applied_action_method_assignment, 
     group);
 END_TYPE; 
@@ -241,6 +260,7 @@ TYPE wd_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON docu
    (action, 
     action_method, 
     action_method_relationship, 
+    applied_action_assignment, 
     applied_action_method_assignment, 
     group);
 END_TYPE; 
@@ -257,6 +277,7 @@ TYPE wd_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justifica
    (action, 
     action_method, 
     action_method_relationship, 
+    applied_action_assignment, 
     applied_action_method_assignment, 
     group);
 END_TYPE; 
@@ -265,6 +286,9 @@ TYPE wd_justification_support_item = SELECT BASED_ON justification_support_item 
    (action, 
     action_directive, 
     action_method, 
+    action_request_solution, 
+    applied_action_assignment, 
+    applied_action_method_assignment, 
     applied_state_assignment, 
     applied_state_type_assignment, 
     contract, 
@@ -276,6 +300,13 @@ TYPE wd_justification_support_item = SELECT BASED_ON justification_support_item 
     state_observed, 
     state_type, 
     versioned_action_request);
+END_TYPE; 
+
+TYPE wd_location_item = SELECT BASED_ON location_item WITH 
+   (action, 
+    action_request_solution, 
+    applied_action_assignment, 
+    applied_action_method_assignment);
 END_TYPE; 
 
 TYPE wd_multi_language_attribute_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON multi_language_attribute_item WITH 
@@ -301,6 +332,7 @@ TYPE wd_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item WI
    (action, 
     action_method, 
     action_method_relationship, 
+    applied_action_assignment, 
     applied_action_method_assignment, 
     group);
 END_TYPE; 
@@ -309,9 +341,20 @@ TYPE wd_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON
    (action, 
     action_method, 
     action_method_relationship, 
+    applied_action_assignment, 
     applied_action_method_assignment, 
     group);
 END_TYPE; 
 
+TYPE wd_state_of_item = SELECT BASED_ON state_of_item WITH 
+   (action, 
+    applied_action_assignment);
+END_TYPE; 
+
+ENTITY characterized_applied_action_assignment
+  SUBTYPE OF (applied_action_assignment, characterized_object);
+END_ENTITY;
+
 END_SCHEMA;  -- Ap239_work_definition_mim
+
 

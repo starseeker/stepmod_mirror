@@ -500,6 +500,7 @@
 					
 		<xsl:if test="./explicit/redeclaration">
 			<xsl:comment>EXPRESS ENTITY DATATYPE  WITHOUT MULTIPLE INHERITANCE BUT WITH REDECLARED ATTRIBUTES TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
+			<xsl:text>&#xa;</xsl:text>
 			<xs:complexType name="{$corrected_entity_name_param}-temp" abstract="true">
 				<xs:complexContent>
 					<xs:restriction base="{$namespace_prefix}{$corrected_supertype_name}">
@@ -545,7 +546,7 @@
 												</xs:element>
 											</xsl:when>
 											<xsl:otherwise>
-												<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$target}"/>
+												<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"/>
 											</xsl:otherwise>
 										</xsl:choose>
 									</xsl:when>
@@ -746,8 +747,6 @@
 													/>
 												</xsl:otherwise>
 											</xsl:choose>
-
-											<xs:element ref="{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
 										</xs:sequence>
 										<xs:attribute ref="ex:itemType" fixed="{$base_datatype}"/>
 										<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>

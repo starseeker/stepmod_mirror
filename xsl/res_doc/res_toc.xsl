@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.6 2002/12/18 22:26:26 nigelshaw Exp $
+$Id: res_toc.xsl,v 1.7 2002/12/19 21:02:58 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -282,7 +282,12 @@ NEED TO FIX up the hrefs -->
   </xsl:apply-templates>
 
   <xsl:apply-templates select="." mode="test_resdoc_name"/>  
-  
+
+   <xsl:variable name="annex_list">
+     <xsl:apply-templates select="." mode="annex_list" />
+   </xsl:variable>
+
+
   <TABLE border="1" cellspacing="1" width="100%">
     <TR>
       <TD valign="TOP">
@@ -372,18 +377,44 @@ NEED TO FIX up the hrefs -->
 
         <xsl:if test="string-length(./tech_discussion) > 10">
         <!-- use #annexa to link direct -->
-          <A HREF="{$resdoc_root}/sys/tech_discussion{$FILE_EXT}#tech_discssion">
-            F  Technical discussion</A><BR/>
+		<xsl:variable name="pos" >
+			<xsl:call-template name="annex_position" >
+				<xsl:with-param name="annex_name" select="'Technical discussion'"/>
+				<xsl:with-param name="annex_list" select="$annex_list" />
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="annex_letter" select="substring('EFGH',$pos,1)" />
+
+	<A HREF="{$resdoc_root}/sys/tech_discussion{$FILE_EXT}#tech_discssion">
+            <xsl:value-of select="$annex_letter"/> Technical discussion</A><BR/>
         </xsl:if>
         <xsl:if test="string-length(./examples) > 10">
         <!-- use #annexa to link direct -->
+		<xsl:variable name="pos" >
+			<xsl:call-template name="annex_position" >
+				<xsl:with-param name="annex_name" select="'Examples'"/>
+				<xsl:with-param name="annex_list" select="$annex_list" />
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="annex_letter" select="substring('EFGH',$pos,1)" />
           <A HREF="{$resdoc_root}/sys/examples{$FILE_EXT}">
-            G  Examples</A><BR/>
+            <xsl:value-of select="$annex_letter"/>  Examples</A><BR/>
         </xsl:if>
         <xsl:if test="string-length(./add_scope) > 10">
         <!-- use #annexa to link direct -->
-          <A HREF="{$resdoc_root}/sys/resource_doc#annexh{$FILE_EXT}">
-            H  Additional scope</A><BR/>
+		<xsl:variable name="pos" >
+			<xsl:call-template name="annex_position" >
+				<xsl:with-param name="annex_name" select="'Additional scope'"/>
+				<xsl:with-param name="annex_list" select="$annex_list" />
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="annex_letter" select="substring('EFGH',$pos,1)" />
+		
+          <A HREF="{$resdoc_root}/sys/add_scope{$FILE_EXT}">
+            <xsl:value-of select="$annex_letter"/>  Additional scope</A><BR/>
         </xsl:if>
 
         <xsl:if test="./bibliography/*">
@@ -425,23 +456,25 @@ NEED TO FIX up the hrefs -->
         <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}#annexd">D Computer interpretable listings</A>
       </TD>
       <TD valign="TOP">
-        <xsl:if test="./tech_discussion">
+        <xsl:if test="string-length(./tech_discussion) > 10">
           <!-- use #annexf to link direct -->
           <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}">
             E Technical discussions</A><BR/>
         </xsl:if>
-        <xsl:if test="./examples">
+        <xsl:if test="string-length(./examples) > 10">
           <!-- use #annexf to link direct -->
           <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}">
             F Examples</A><BR/>
         </xsl:if>
-        <xsl:if test="./add_scope">
+        <xsl:if test="string-length(./add_scope) > 10">
           <!-- use #annexf to link direct -->
           <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}">
             G Additional scope</A><BR/>
         </xsl:if>
         <!-- use #biblio to link direct -->
-        <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}">Bibliography</A>
+	<xsl:if test="./bibliography/*" >
+	        <A HREF="{$resdoc_root}/sys/resource{$FILE_EXT}">Bibliography</A>
+	</xsl:if>
       </TD>
     </TR>
   </TABLE>

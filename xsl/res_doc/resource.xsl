@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.10 2002/12/06 23:56:32 thendrix Exp $
+$Id: resource.xsl,v 1.11 2002/12/12 23:08:05 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -15,6 +15,7 @@ $Id: resource.xsl,v 1.10 2002/12/06 23:56:32 thendrix Exp $
  <xsl:import href="sect_4_express.xsl"/>
 
  <xsl:import href="../projmg/resource_issues.xsl"/>
+
 
   <xsl:output 
     method="html"
@@ -3143,5 +3144,41 @@ $resource_ok,' Check the normatives references')"/>
   <xsl:variable name="href" select="."/>
   <br/><a href="{$href}"><xsl:value-of select="$href"/></a>
 </xsl:template>
+
+<xsl:template match="resource" mode="annex_list" >
+<!-- returns a list of annexes with content as a string with each annex name as a single word(no spaces)
+separated by spaces -->
+        <xsl:if test="string-length(./tech_discussion) > 10">
+            Technicaldiscussion
+        </xsl:if>
+        <xsl:if test="string-length(./examples) > 10">
+            Examples 
+        </xsl:if>
+        <xsl:if test="string-length(./add_scope) > 10">
+             Additionalscope
+        </xsl:if>
+
+</xsl:template>
+
+<xsl:template name="annex_position" >
+	<xsl:param name="annex_name" />
+	<xsl:param name="annex_list" />
+<!-- returns integer count of position of named annex in list of annexes -->
+	<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+	<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+
+	<xsl:variable name="annex" select="concat(translate($annex_name,' ',''),' ')" />
+
+	<xsl:value-of select="string-length(
+					translate(
+						substring-before(
+							concat(' ',normalize-space($annex_list),' '),
+							$annex
+							     ),
+						concat($UPPER,$LOWER),
+						'')
+						)" />
+</xsl:template>
+
 
 </xsl:stylesheet>

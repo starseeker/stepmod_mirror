@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.7 2002/12/18 22:29:38 nigelshaw Exp $
+$Id: sect_contents.xsl,v 1.8 2002/12/19 06:56:16 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -52,6 +52,11 @@ $Id: sect_contents.xsl,v 1.7 2002/12/18 22:29:38 nigelshaw Exp $
        </xsl:otherwise>
      </xsl:choose>           
    </xsl:variable>
+
+   <xsl:variable name="annex_list">
+     <xsl:apply-templates select="." mode="annex_list" />
+   </xsl:variable>
+
 
    <xsl:message >
      resdoc_dir :<xsl:value-of select="$resdoc_dir"/>
@@ -115,17 +120,75 @@ $Id: sect_contents.xsl,v 1.7 2002/12/18 22:29:38 nigelshaw Exp $
      <A HREF="./d_expg{$FILE_EXT}">D EXPRESS-G diagrams</A>
    </p>
 
-   <xsl:if test="./usage_guide">
-     <!-- use #annexa to link direct -->
+        <xsl:if test="string-length(./tech_discussion) > 10">
+        <!-- use #annexa to link direct -->
+		<xsl:variable name="pos" >
+			<xsl:call-template name="annex_position" >
+				<xsl:with-param name="annex_name" select="'Technical discussion'"/>
+				<xsl:with-param name="annex_list" select="$annex_list" />
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="annex_letter" select="substring('EFGH',$pos,1)" />
+
+		<p class="content">
+   		<A HREF="./tech_discussion{$FILE_EXT}#tech_discssion">
+            	<xsl:value-of select="$annex_letter"/>  Technical discussion</A>
+	    	</p>
+        </xsl:if>
+        <xsl:if test="string-length(./examples) > 10">
+        <!-- use #annexa to link direct -->
+		<xsl:variable name="pos" >
+			<xsl:call-template name="annex_position" >
+				<xsl:with-param name="annex_name" select="'Examples'"/>
+				<xsl:with-param name="annex_list" select="$annex_list" />
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="annex_letter" select="substring('EFGH',$pos,1)" />
+	   	<p class="content">
+   		<A HREF="./examples{$FILE_EXT}">
+	            <xsl:value-of select="$annex_letter"/>  Examples</A>
+		</p>
+        </xsl:if>
+        <xsl:if test="string-length(./add_scope) > 10">
+        <!-- use #annexa to link direct -->
+	
+		<xsl:variable name="pos" >
+			<xsl:call-template name="annex_position" >
+				<xsl:with-param name="annex_name" select="'Additional scope'"/>
+				<xsl:with-param name="annex_list" select="$annex_list" />
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:variable name="annex_letter" select="substring('EFGH',$pos,1)" />
+
+	
+	        <p class="content">
+		<A HREF="./add_scope{$FILE_EXT}">
+	            <xsl:value-of select="$annex_letter"/>  Additional scope</A>
+		</p>
+        </xsl:if>
+
+<!-- not sure if needed for an IR -->
+<!--
+   <xsl:if test="string-length(./usage_guide) > 10">
      <p class="content">
-       <A HREF="./f_guide{$FILE_EXT}">
-         F  
+       <A HREF="./e_guide{$FILE_EXT}">
+         ??  User Guide
        </A>
      </p>
    </xsl:if>
-   <A HREF="./biblio{$FILE_EXT}#bibliography">Bibliography</A>
+-->
 
- </xsl:template>
+   <xsl:if test="./bibliography/*">
+	      <p class="content">
+	      <A HREF="./biblio{$FILE_EXT}#bibliography">Bibliography</A>
+	      </p>
+   </xsl:if>
+
+
+  </xsl:template>
 
  <xsl:template match="constant|type|entity|subtype.constraint|rule|procedure|function" 
    mode="contents">

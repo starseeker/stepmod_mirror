@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.135 2004/10/30 07:11:47 robbod Exp $
+$Id: common.xsl,v 1.136 2004/10/30 09:54:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -744,7 +744,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         <xsl:choose>
           <xsl:when test="img.area">
             <IMG src="{$src}" border="0" usemap="#map" alt="{$alt1}">
-              <MAP NAME="map">
+              <MAP ID="map" NAME="map">
                 <xsl:apply-templates select="img.area"/>
               </MAP>
             </IMG>        

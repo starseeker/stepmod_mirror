@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.31 2004/09/24 15:33:33 robbod Exp $
+$Id: common.xsl,v 1.32 2004/10/19 21:23:16 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -246,7 +246,7 @@ $Id: common.xsl,v 1.31 2004/09/24 15:33:33 robbod Exp $
     <xsl:choose>
       <xsl:when test="img.area">
         <IMG src="{$src}" border="0" usemap="#map" alt="{$alt1}">
-          <MAP NAME="map">
+          <MAP ID="map" NAME="map">
             <xsl:apply-templates select="img.area"/>
           </MAP>
         </IMG>        

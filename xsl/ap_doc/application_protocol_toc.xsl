@@ -406,7 +406,7 @@
 							A AIM EXPRESS expanded listing
 						</A>
 						<xsl:call-template name="expressg_icon">
-							<xsl:with-param name="schema" select="concat(./@name,'_aim')"/>
+							<xsl:with-param name="schema" select="concat(./@name,'_mim')"/>
 							<xsl:with-param name="application_protocol_root" select="$application_protocol_root"/>
 						</xsl:call-template>
 						<BR/>

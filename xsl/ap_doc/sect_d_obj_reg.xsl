@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.7 2002-07-15 21:37:28 mwd Exp $
-  Author:  Mike Ward, Eurostep Limited
-  Owner:   Developed by Eurostep and supplied to NIST under contract.
-  Purpose:
-     
+     $Id: $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -30,8 +25,8 @@ $Id: sect_b_obj_reg.xsl,v 1.7 2002-07-15 21:37:28 mwd Exp $
 		<xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ_</xsl:variable>
 		<xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz-</xsl:variable>
 		
-		<xsl:variable name="module_dir">
-			<xsl:call-template name="module_directory">
+		<xsl:variable name="ap_module_dir">
+			<xsl:call-template name="ap_module_directory">
 				<xsl:with-param name="application_protocol" select="@name"/>
 			</xsl:call-template>
 		</xsl:variable>
@@ -42,9 +37,9 @@ $Id: sect_b_obj_reg.xsl,v 1.7 2002-07-15 21:37:28 mwd Exp $
 			</xsl:call-template>
 		</xsl:variable>
 				
-		<xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
+		<xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
 		
-		<xsl:variable name="aim_xml" select="concat($application_protocol_dir,'/aim.xml')"/>
+		<xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
 		
 		<!-- there is only one schema in a module -->
 		
@@ -78,7 +73,7 @@ $Id: sect_b_obj_reg.xsl,v 1.7 2002-07-15 21:37:28 mwd Exp $
 		<!-- get the name of the AIM schema from the express -->
 		<xsl:variable name="aim_schema" select="document($aim_xml)/express/schema/@name"/>
 		<xsl:variable name="aim_schema_reg" select="translate($aim_schema,$UPPER, $LOWER)"/>
-		<h3>B.2.2 <xsl:value-of select="$aim_schema"/> schema identification</h3>
+		<h3>B.2.2 <xsl:value-of select="substring-before($aim_schema, '_mim')"/>_aim schema identification</h3>
 		
 		<p>
 			To provide for unambiguous identification of the schema specifications given in this application module in an open information system, the object
@@ -88,7 +83,7 @@ $Id: sect_b_obj_reg.xsl,v 1.7 2002-07-15 21:37:28 mwd Exp $
 			<xsl:value-of select="concat($object_reg,' schema(1) ', $aim_schema_reg,'(2) }' )"/>
 		</p>
 		<p>
-			is assigned to the <xsl:value-of select="$aim_schema"/> schema. The meaning of this value is defined in ISO 8824-1, and is described in
+			is assigned to the <xsl:value-of select="substring-before($aim_schema, '_mim')"/>_aim schema. The meaning of this value is defined in ISO 8824-1, and is described in
     ISO 10303-1.
 		</p>
 	

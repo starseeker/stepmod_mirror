@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.139 2004/11/25 05:06:46 thendrix Exp $
+$Id: common.xsl,v 1.140 2004/11/25 13:43:59 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -792,7 +792,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       <xsl:with-param name="inline" select="'yes'"/>
       <xsl:with-param name="message">
         <xsl:value-of 
-          select="concat('Warning IM3: diagram contains offpage reference to ',substring-after($href,'/')'. Check this and counterpart on referenced diagram.')"/>
+          select="concat('Warning IM3: diagram contains offpage reference to ',substring-after($href,'/'),'. Check this and counterpart on referenced diagram.')"/>
       </xsl:with-param>
       <xsl:with-param name="warning_gif"
         select="'../../../images/warning.gif'"/>

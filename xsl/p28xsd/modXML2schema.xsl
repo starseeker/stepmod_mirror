@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="urn:iso10303-28:ex">
 	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
 	
 	<!-- xsl:variable name="namespace_prefix" select="string('ap239:')"/ -->
@@ -30,8 +30,6 @@
 			
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
-			
-			
 			
 			<xs:complexType name="uos">
 				<xs:complexContent>
@@ -77,11 +75,27 @@
 			<xsl:text>&#xa;</xsl:text>
 			<!-- ex:configuration id="{$namespace_prefix}{$schema_name}" xmlns:ex="urn:iso10303-28:ex">
 				<xsl:apply-templates select="entity" mode="and_ors"/>
-			</ex:configuration>
+			</ex:configuration -->
 			<xsl:text>&#xa;</xsl:text>
-			<xsl:text>&#xa;</xsl:text -->
-			</xsl:element>
-		
+			<xsl:text>&#xa;</xsl:text>
+			
+			<!-- SYNTHETIC ENTITIES -->
+			<xsl:variable name="configuration" select="document(concat('../../data/modules/', $module_directory_name, '/p28_config.xml'))"/>
+			
+			<xsl:for-each select="$configuration//ex:entity">
+				<xsl:variable name="synthetic_entity_name" select="./@name"/>
+				<xsl:variable name="supertypes" select="./@select"/>
+				
+				<xsl:call-template name="inheritance-free_mapping">
+					<xsl:with-param name="raw_entity_name_param" select="$synthetic_entity_name"/>
+					<xsl:with-param name="corrected_entity_name_param" select="$synthetic_entity_name"/>
+					<xsl:with-param name="abstractness_param" select="'false'"/>
+					<xsl:with-param name="base_type_of_optional_array_param" select="'false'"/>
+					<xsl:with-param name="raw_supertype_name_param" select="$supertypes"/>
+				</xsl:call-template>
+			</xsl:for-each>
+		</xsl:element>
+		<xsl:text>&#xa;</xsl:text>
 	</xsl:template>
 	
 	<!-- xsl:template match="entity" mode="and_ors">
@@ -111,7 +125,6 @@
 		<xsl:if test="string-length($subtypes_list)!=0">
 			<ex:entity select="{$corrected_entity_name} External_class" name="{$corrected_entity_name}-External_class"/>
 		</xsl:if>
-		
 	</xsl:template -->
 	
 	<xsl:template match="explicit" mode="keys">
@@ -591,7 +604,7 @@
 			<xsl:when test="$base_type_of_optional_array_param='true'">
 			</xsl:when>
 			<xsl:when test="$base_type_of_optional_array_param='false'">
-				<xsl:comment>EXPRESS ENTITY DATATYPE WITH MULTIPLE INHERITANCE: xsd element declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
+				<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE-FREE MAPPING ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
 				<xs:element
 					name="{$corrected_entity_name_param}" 
 					type="{$namespace_prefix}{$corrected_entity_name_param}" 
@@ -600,7 +613,7 @@
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
 				
-				<xsl:comment>EXPRESS ENTITY DATATYPE WITH MULTIPLE INHERITANCE: xsd complexType declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
+				<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE-FREE MAPPING TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
 				<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
 			<xs:complexContent>
 				<xs:extension base="ex:Entity">
@@ -618,7 +631,7 @@
 
 			</xsl:when>
 		</xsl:choose>
-		<xsl:comment>EXPRESS ENTITY DATATYPE WITH MULTIPLE INHERITANCE: xsd group declaration for <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
+		
 		<xsl:variable name="subtypes_exist">
 			<xsl:for-each select="//entity/@supertypes">
 				<xsl:if test="contains(concat(' ', normalize-space(.), ' '), concat(' ', $raw_entity_name_param, ' '))">YES</xsl:if>
@@ -627,6 +640,7 @@
 		
 		<xsl:choose>
 			<xsl:when test="contains($subtypes_exist, 'YES')">
+				<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE-FREE MAPPING GROUP DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
 				<xs:group name="{$corrected_entity_name_param}-group">
 					<xs:choice>
 						<xs:element ref="{$namespace_prefix}{$corrected_entity_name_param}"/>
@@ -662,19 +676,19 @@
 			</xsl:choose>
 		</xsl:variable>
 		
-		<xsl:comment>EXPRESS ENTITY DATATYPE WITHOUT MULTIPLE INHERITANCE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment><xsl:text>&#xa;</xsl:text>
+		<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE MAPPING  ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment><xsl:text>&#xa;</xsl:text>
 
 		
 		<xs:element 
 			name="{$corrected_entity_name_param}" 
 			type="{$namespace_prefix}{$corrected_entity_name_param}"
-			block="extension restriction"
+			block="extension"
 			substitutionGroup="{$ext_base_sub_grp}"
 			nillable="true">
 		</xs:element>
 		<xsl:text>&#xa;</xsl:text>
 		<xsl:text>&#xa;</xsl:text>
-		<xsl:comment>EXPRESS ENTITY DATATYPE WITHOUT MULTIPLE INHERITANCE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment><xsl:text>&#xa;</xsl:text>
+		<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE MAPPING  TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment><xsl:text>&#xa;</xsl:text>
 
 		<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
 			<xs:complexContent>

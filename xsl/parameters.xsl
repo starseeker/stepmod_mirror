@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.7 2002/06/06 12:11:22 robbod Exp $
+     $Id: parameters.xsl,v 1.8 2002/06/17 15:48:54 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -68,7 +68,7 @@
   <xsl:param name="menubar_file" select="'../plcsmod/menubar.xml'"/>
   <xsl:param name="menubar_file" select="'menubar_pdm_ballot.xml'"/>
   -->
-  <xsl:param name="menubar_file" select="'menubar_pdm_ballot.xml'"/>
+  <xsl:param name="menubar_file" select="'menubar_default.xml'"/>
 
 
 </xsl:stylesheet>

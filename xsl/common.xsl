@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.112 2003/08/06 20:37:56 thendrix Exp $
+$Id: common.xsl,v 1.113 2003/08/07 06:59:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3735,8 +3735,8 @@ is case sensitive.')"/>
 
 <!-- Flag a warning if the description is not a phrase.
      A phrase should NOT end in a period -->
-<xsl:template match="description" mode="check_phrase">
-  <xsl:variable name="defn" select="normalize-space(.)"/>
+<xsl:template match="description|def" mode="check_phrase">
+  <xsl:variable name="defn" select="normalize-space(text())"/>
   <xsl:if test="substring($defn,string-length($defn))='.'">
     <xsl:call-template name="error_message">
       <xsl:with-param 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.155 2003/08/06 06:40:35 robbod Exp $
+$Id: module.xsl,v 1.156 2003/08/07 06:58:19 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3733,6 +3733,7 @@ $module_ok,' Check the normatives references')"/>
   </xsl:template>
   
   <xsl:template match="def">
+    <xsl:apply-templates select="." mode="check_phrase"/> 
     <xsl:apply-templates/>
   </xsl:template>
 	

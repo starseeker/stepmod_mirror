@@ -1,5 +1,5 @@
 (*
- $Id: arm_lf.exp,v 1.7 2005/03/02 10:21:01 rocc Exp $
+ $Id: arm_lf.exp,v 1.8 2005/03/09 16:23:59 rocc Exp $
  ISO TC184/SC4/WG3 N1341 - ISO/CD-TS 10303-436 ap236 furniture catalog and interior design - EXPRESS ARM Long form
 *)
 SCHEMA Ap236_furniture_catalog_and_interior_design_arm_lf;
@@ -931,10 +931,12 @@ SCHEMA Ap236_furniture_catalog_and_interior_design_arm_lf;
       description : OPTIONAL STRING;
   END_ENTITY;
 
-  ENTITY coating_layer
-    SUBTYPE OF(SHAPE_ELEMENT);
+  ENTITY Coating_layer
+    SUBTYPE OF (Shape_element);
     INVERSE
-      thickness : SET [0:1] OF Unresolved_name FOR applied_to;
+      thickness : SET[0:1] OF Thickness_size_dimension FOR applied_to;
+    WHERE
+      WR1: SIZEOF(USEDIN(SELF, 'SURFACE_CONDITIONS_ARM.MATERIAL_IDENTIFICATION.ITEMS'))=1;
   END_ENTITY;
 
   ENTITY Collected_item_association
@@ -1612,9 +1614,9 @@ SCHEMA Ap236_furniture_catalog_and_interior_design_arm_lf;
   END_ENTITY;
 
   ENTITY Item_assembly
-    SUBTYPE OF(PRODUCT_VIEW_DEFINITION);
+    SUBTYPE OF (Product_view_definition);
     INVERSE
-      component_relationships : SET [1:?] OF Unresolved_name FOR relating_view;
+      component_relationships : SET[1:?] OF Assembly_component_relationship FOR relating_view;
   END_ENTITY;
 
   ENTITY Item_design_association;
@@ -2607,11 +2609,11 @@ SCHEMA Ap236_furniture_catalog_and_interior_design_arm_lf;
   END_ENTITY;
 
   ENTITY Specification_based_product_version
-    SUBTYPE OF(PRODUCT_VERSION);
+    SUBTYPE OF (Product_version);
     INVERSE
-      specification_source : Unresolved_name FOR design;
+      specification_source: Item_design_association FOR design;
     WHERE
-       WR1 : 'SPECIFIED_PRODUCT_ARM.PRODUCT_SPECIFICATION' IN TYPEOF(specification_source.configuration);
+      WR1 : 'SPECIFIED_PRODUCT_ARM.PRODUCT_SPECIFICATION' IN TYPEOF(specification_source.configuration);
   END_ENTITY;
 
   ENTITY Specification_category;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.73 2003/10/22 07:14:40 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.74 2003/11/30 10:30:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -111,6 +111,11 @@ $Id: sect_5_mapping.xsl,v 1.73 2003/10/22 07:14:40 robbod Exp $
        +++++++++++++++++++ -->
 
 <!-- overwrites the template declared in module.xsl -->
+
+  <xsl:variable 
+    name="modname"
+    select="/module_clause/@directory"/>
+
 <xsl:template match="module">
   <!--
        SC4 do not like the index of mapping tables at the top
@@ -448,7 +453,8 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
     <xsl:choose>
       <!-- original_module specified then the ARM object is declared in
            another module -->
-      <xsl:when test="@original_module">
+      <!-- TEH except when it isnt - as in derived_geometry -->
+      <xsl:when test="@original_module and @original_module != $modname">
         <xsl:call-template name="schema_name">
           <xsl:with-param name="module_name" select="@original_module"/>
           <xsl:with-param name="arm_mim" select="'arm'"/>
@@ -474,6 +480,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
     <xsl:choose>
       <!-- if original_module specified then the ARM object is declared in
            another module -->
+      <!-- TEH except when it isnt - as in derived_geometry -->
       <xsl:when test="@original_module">
         <xsl:value-of 
           select="concat('../../',@original_module,'/sys/4_info_reqs',$FILE_EXT,'#',$ae_aname)"/>
@@ -578,7 +585,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
   
   <!-- original_module specified then the ARM object is declared in
        another module -->
-  <xsl:if test="@original_module">
+  <xsl:if test="@original_module  and @original_module != $modname">
     <!-- get the URL of the mapping -->
     <xsl:variable name="map_xref"
       select="translate(concat('../../',@original_module,'/sys/5_mapping',$FILE_EXT,'#aeentity',@entity),$UPPER,$LOWER)"/>

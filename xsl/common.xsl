@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.76 2002/09/15 20:46:28 robbod Exp $
+$Id: common.xsl,v 1.77 2002/09/27 07:51:33 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1535,7 +1535,19 @@ $Id: common.xsl,v 1.76 2002/09/15 20:46:28 robbod Exp $
         <xsl:apply-templates/>
       </xsl:when>
       <xsl:otherwise>
-        <a href="{$href}"><xsl:apply-templates/></a>
+        <xsl:choose>
+          <xsl:when test="string-length(.)>0">
+            <a href="{$href}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:variable name="module_name">
+              <xsl:call-template name="module_display_name">
+                <xsl:with-param name="module" select="$module"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <a href="{$href}"><xsl:value-of select="$module_name"/></a>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

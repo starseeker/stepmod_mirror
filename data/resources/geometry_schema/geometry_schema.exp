@@ -1,5 +1,6 @@
-(* Genenerated from: ../../irs/wg12n976.exp *)
-
+ (* Document WG12 N1046r date 2003-04-29. EXPRESS listing corresponding to part
+ 42  edition IS WG12 N536, as modified by TC1 WG12 N608 and
+ by revision 1 (edition 3)  WG12 N1045 *)
  SCHEMA geometry_schema;
    REFERENCE FROM representation_schema
      (definitional_representation,
@@ -421,6 +422,12 @@ END_ENTITY;
    radius   : positive_length_measure;
  END_ENTITY;
 
+ ENTITY circular_involute
+   SUBTYPE OF (curve);
+   position    : axis2_placement;
+   base_radius : positive_length_measure;
+ END_ENTITY;
+
  ENTITY clothoid
    SUBTYPE OF (curve);
      position          : axis2_placement;
@@ -480,12 +487,12 @@ END_ENTITY;
    WR1: radius >= 0.0;
  END_ENTITY;
 
- ENTITY curve
-   SUPERTYPE OF (ONEOF(line, conic, clothoid, pcurve, surface_curve,
-                       offset_curve_2d, offset_curve_3d, curve_replica))
+ENTITY curve
+   SUPERTYPE OF (ONEOF(line, conic, clothoid, circular_involute, pcurve,
+             surface_curve, offset_curve_2d, offset_curve_3d, curve_replica))
    SUBTYPE OF (geometric_representation_item);
- END_ENTITY;
-
+END_ENTITY;
+ 
  ENTITY curve_bounded_surface
     SUBTYPE OF (bounded_surface);
     basis_surface    : surface;
@@ -1548,40 +1555,41 @@ END_FUNCTION;
    RETURN (scalar);
  END_FUNCTION;
 
- FUNCTION first_proj_axis(z_axis, arg : direction) : direction;
-   LOCAL
-     x_axis : direction;
-     v      : direction;
-     z      : direction;
-     x_vec  : vector;
-   END_LOCAL;
-   
-   IF (NOT EXISTS(z_axis)) THEN
-     RETURN (?) ;
-   ELSE
-     z := normalise(z_axis);
-     IF NOT EXISTS(arg) THEN
-       IF (z.direction_ratios <> [1.0,0.0,0.0]) THEN
-         v :=  dummy_gri || direction([1.0,0.0,0.0]);
-       ELSE
-         v := dummy_gri || direction([0.0,1.0,0.0]);
-       END_IF;
-     ELSE
-       IF  (arg.dim <> 3) THEN
-         RETURN (?) ;
-       END_IF;
-       IF ((cross_product(arg,z).magnitude) = 0.0) THEN
-         RETURN (?);
-       ELSE
-         v := normalise(arg);
-       END_IF;
-     END_IF;
-     x_vec := scalar_times_vector(dot_product(v, z), z);
-     x_axis := vector_difference(v, x_vec).orientation;
-     x_axis := normalise(x_axis);
-   END_IF;
-   RETURN(x_axis);
- END_FUNCTION;
+FUNCTION first_proj_axis(z_axis, arg : direction) : direction;
+  LOCAL
+    x_axis : direction;
+    v      : direction;
+    z      : direction;
+    x_vec  : vector;
+  END_LOCAL;
+  
+  IF (NOT EXISTS(z_axis)) THEN
+    RETURN (?) ;
+  ELSE
+    z := normalise(z_axis);
+    IF NOT EXISTS(arg) THEN
+      IF ((z.direction_ratios <> [1.0,0.0,0.0]) AND
+          (z.direction_ratios <> [-1.0,0.0,0.0]))  THEN
+        v :=  dummy_gri || direction([1.0,0.0,0.0]);
+      ELSE
+        v := dummy_gri || direction([0.0,1.0,0.0]);
+      END_IF;
+    ELSE
+      IF  (arg.dim <> 3) THEN
+        RETURN (?) ;
+      END_IF;
+      IF ((cross_product(arg,z).magnitude) = 0.0) THEN
+        RETURN (?);
+      ELSE
+        v := normalise(arg);
+      END_IF;
+    END_IF;
+    x_vec := scalar_times_vector(dot_product(v, z), z);
+    x_axis := vector_difference(v, x_vec).orientation;
+    x_axis := normalise(x_axis);
+  END_IF;
+  RETURN(x_axis);
+END_FUNCTION;
 
 FUNCTION get_basis_surface (c : curve_on_surface) : SET[0:2] OF surface;
   LOCAL
@@ -1618,7 +1626,7 @@ FUNCTION get_basis_surface (c : curve_on_surface) : SET[0:2] OF surface;
 END_FUNCTION;
 
  FUNCTION list_to_array(lis : LIST [0:?] OF GENERIC : T;
-                      low,u : INTEGER) : ARRAY OF GENERIC : T;
+                      low,u : INTEGER) : ARRAY [low:u] OF GENERIC : T;
    LOCAL
      n   : INTEGER;
      res : ARRAY [low:u] OF GENERIC : T;
@@ -1638,7 +1646,7 @@ END_FUNCTION;
 
  FUNCTION make_array_of_array(lis : LIST[1:?] OF LIST [1:?] OF GENERIC : T;
                               low1, u1, low2, u2 : INTEGER):
-                 ARRAY OF ARRAY OF GENERIC : T;
+                 ARRAY [low1:u1] OF ARRAY [low2:u2] OF GENERIC : T;
    LOCAL
      res   : ARRAY[low1:u1] OF ARRAY [low2:u2] OF GENERIC : T;
    END_LOCAL;
@@ -1665,7 +1673,7 @@ END_FUNCTION;
  FUNCTION make_array_of_array_of_array(lis : LIST[1:?] OF
               LIST [1:?] OF LIST [1:?] OF GENERIC : T;
               low1, u1, low2, u2, low3, u3 : INTEGER):
-              ARRAY OF ARRAY OF ARRAY OF GENERIC : T;
+      ARRAY[low1:u1] OF ARRAY[low2:u2] OF ARRAY[low3:u3] OF GENERIC : T;
  LOCAL 
    res   : ARRAY[low1:u1] OF ARRAY [low2:u2] OF
              ARRAY[low3:u3] OF GENERIC : T;

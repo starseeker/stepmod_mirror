@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
-<!-- last edited by mwd 2002-08-19 -->
+<!--
+     $Id: $
+-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../repository_index.xsl"/>
 	<xsl:variable name="file_ref" select="/modules_index/@filename"/>
@@ -263,8 +265,8 @@
 		</a>
 		<xsl:variable name="xref4" select="concat('./',@name,'/sys/4_info_reqs',$FILE_EXT)"/>
 	  	<xsl:variable name="arm_expg" select="concat('../modules/',@name,'/armexpg1',$FILE_EXT)"/>
-	  	<xsl:variable name="xref5" select="concat('./',@name,'/sys/5_aim',$FILE_EXT)"/>
-	  	<xsl:variable name="aim_expg" select="concat('./',@name,'/mimexpg1',$FILE_EXT)"/>
+	  	<xsl:variable name="xref5" select="concat('../modules/',@name,'/sys/5_mim',$FILE_EXT)"/>
+	  	<xsl:variable name="aim_expg" select="concat('../modules/',@name,'/mimexpg1',$FILE_EXT)"/>
 		<xsl:variable name="aam" select="concat('./',@name,'/sys/e_aam',$FILE_EXT)"/>
 		<xsl:variable name="ap_directory" select="concat('./',@name)"/>
 		<table cellspacing="0" cellpadding="1">

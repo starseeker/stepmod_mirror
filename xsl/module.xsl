@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.94 2002/08/07 12:09:14 robbod Exp $
+$Id: module.xsl,v 1.95 2002/08/07 13:33:02 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1325,9 +1325,11 @@ o=isocs; s=central<br/>
   <br/>(*<br/>
   </code>
 
-  <a name="uof">
-    <h3>4.1 Units of functionality</h3>
-  </a>
+  <h3>
+    <a name="uof">
+      4.1 Units of functionality
+    </a>
+  </h3>
   This subclause specifies the units of functionality (UoF) for this part
   ISO 10303 as well as any support elements needed for the application module
   definition. This part of ISO 10303 specifies the following units of

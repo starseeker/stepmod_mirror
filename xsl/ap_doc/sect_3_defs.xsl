@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.10 2003/05/29 20:52:10 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.11 2003/07/23 16:35:49 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -165,7 +165,7 @@ $Id: sect_3_defs.xsl,v 1.10 2003/05/29 20:52:10 robbod Exp $
             select="substring-after($first,'module:')"/>
 
           <xsl:variable name="module_dir" 
-            select="concat('../../data/application_protocols/',$module)"/>
+            select="concat('../../data/modules/',$module)"/>
 
           <xsl:variable name="module_ok">
             <xsl:call-template name="check_module_exists">
@@ -179,7 +179,6 @@ $Id: sect_3_defs.xsl,v 1.10 2003/05/29 20:52:10 robbod Exp $
                 select="concat($module_dir,'/module.xml')"/>
               <xsl:variable name="normrefid"
                 select="concat('10303-',document($module_xml)/module/@part)"/>
-              
               <!-- check to see if the terms for the module have been output
                    as part of normative references -->
               <xsl:if test="not(contains($normref_ids,$normrefid))">
@@ -203,7 +202,7 @@ $Id: sect_3_defs.xsl,v 1.10 2003/05/29 20:52:10 robbod Exp $
                 <ul>
                   <!-- now output the terms -->
                   <xsl:apply-templates 
-                    select="/module/normrefs/normref.inc[@module.name=$module]/term.ref" 
+                    select="/application_protocol/normrefs/normref.inc[@module.name=$module]/term.ref" 
                     mode="module"/>
                 </ul>
               </xsl:if>
@@ -499,11 +498,7 @@ $module_ok,' Check the normatives references')"/>
   <xsl:template match="term.ref" mode="module">
     <xsl:variable name="module" select="../@module.name"/>
 
-    <xsl:variable name="module_dir">
-      <xsl:call-template name="module_directory">
-        <xsl:with-param name="module" select="$module"/>
-      </xsl:call-template>
-    </xsl:variable>
+    <xsl:variable name="module_dir" select="concat('../../data/modules/',$module)"/>
 
     <xsl:variable name="module_ok">
       <xsl:call-template name="check_module_exists">
@@ -513,7 +508,6 @@ $module_ok,' Check the normatives references')"/>
 
     <xsl:variable name="module_xml" 
       select="concat($module_dir,'/module.xml')"/>
-
     <xsl:choose>
       <xsl:when test="$module_ok='true'">
         <xsl:variable 
@@ -586,11 +580,7 @@ $module_ok,' Check the normatives references')"/>
       
       <xsl:choose>
         <xsl:when test="$module_ok='true'">
-          <xsl:variable name="module_dir">
-            <xsl:call-template name="module_directory">
-              <xsl:with-param name="module" select="$module"/>
-            </xsl:call-template>
-          </xsl:variable>
+          <xsl:variable name="module_dir" select="concat('../../data/modules/',$module)"/>
           <xsl:variable name="module_xml" 
             select="concat($module_dir,'/module.xml')"/>
           <xsl:variable name="part"

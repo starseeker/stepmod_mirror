@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.11 2003/07/28 12:32:41 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.12 2003/07/28 17:10:55 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -34,10 +34,10 @@ $Id: sect_2_refs.xsl,v 1.11 2003/07/28 12:32:41 robbod Exp $
 
 <!-- output the default normative reference  -->
 <xsl:template match="application_protocol" mode="output_default_normrefs">
-  
   <xsl:variable name="normrefs">
     <xsl:apply-templates select="." mode="normrefs_list"/>
   </xsl:variable>
+
   <xsl:variable name="pruned_normrefs">
     <xsl:call-template name="prune_normrefs_list">
       <xsl:with-param name="normrefs_list" select="$normrefs"/>
@@ -352,7 +352,7 @@ $Id: sect_2_refs.xsl,v 1.11 2003/07/28 12:32:41 robbod Exp $
   <xsl:variable name="ir_ref">
     <xsl:if test="$ir_ok='true'">
       <xsl:value-of 
-        select="document(concat('../data/resources/',
+        select="document(concat('../../data/resources/',
                 $resource_schema,'/',$resource_schema,'.xml'))/express/@reference"/>
     </xsl:if>
   </xsl:variable>
@@ -454,7 +454,7 @@ $Id: sect_2_refs.xsl,v 1.11 2003/07/28 12:32:41 robbod Exp $
               select="substring-after($first,'normref:')"/>
             <xsl:choose>
               <xsl:when
-test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/stdref[@published='n']">
+                test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/stdref[@published='n']">
                 <xsl:value-of select="'y'"/>
               </xsl:when>
               <xsl:otherwise>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: select_view.xsl,v 1.8 2003/02/03 12:29:06 nigelshaw Exp $
+$Id: select_view.xsl,v 1.9 2003/02/05 14:30:36 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -820,7 +820,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 		<!-- find the extending type in the top schema - if there is one (or more) -->
 
 		<xsl:variable name="top-selects">
-			<xsl:apply-templates select="$called-schemas//type[select/@basedon=$this-type]" 
+			<xsl:apply-templates select="$called-schemas//type[@name=$this-type][select]" 
 					mode="find-top-select">
 				<xsl:with-param name="top-schema" select="$top-schema" />
 				<xsl:with-param name="called-schemas" select="$called-schemas" />		

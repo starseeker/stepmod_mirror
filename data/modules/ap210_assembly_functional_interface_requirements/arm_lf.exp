@@ -6,9 +6,6 @@ TYPE am_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON
 	Digital_analytical_model_vector_port);
 END_TYPE; -- am_external_identification_item
 
-TYPE analytical_model_application_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT ;
-END_TYPE; -- analytical_model_application_assignment_select
-
 TYPE analytical_model_port_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE; -- analytical_model_port_assignment_select
 
@@ -264,6 +261,11 @@ TYPE date_or_event = SELECT (
 	Date_time,
 	Event);
 END_TYPE; -- date_or_event
+
+TYPE axis_placement_or_cto2d = SELECT (
+	Axis_placement,
+	Cartesian_transformation_2d);
+END_TYPE; -- axis_placement_or_cto2d
 
 TYPE centre_type = ENUMERATION OF (
 	centred_on_arc,
@@ -572,11 +574,6 @@ TYPE effectivity_for_replacement = SELECT BASED_ON effectivity_item WITH (
 	Part_definition_relationship);
 END_TYPE; -- effectivity_for_replacement
 
-TYPE axis_placement_or_cto2d = SELECT (
-	Axis_placement,
-	Cartesian_transformation_2d);
-END_TYPE; -- axis_placement_or_cto2d
-
 TYPE l2ds_part_template_or_physical_unit_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_shape_select WITH (
 	part_template_or_physical_unit_2d_shape_select);
 END_TYPE; -- l2ds_part_template_or_physical_unit_shape_select
@@ -707,10 +704,6 @@ TYPE nfdw_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_O
 	Functional_unit);
 END_TYPE; -- nfdw_requirement_assignment_item
 
-TYPE nfuv_analytical_model_application_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_application_assignment_select WITH (
-	Functional_unit_definition);
-END_TYPE; -- nfuv_analytical_model_application_assignment_select
-
 TYPE ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE; -- ee_product_definition_with_annotation_elements
 
@@ -725,10 +718,6 @@ TYPE mounting_technology_type = ENUMERATION OF (
 	surface_mount,
 	through_hole );
 END_TYPE; -- mounting_technology_type
-
-TYPE p_analytical_model_application_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_application_assignment_select WITH (
-	Package_terminal);
-END_TYPE; -- p_analytical_model_application_assignment_select
 
 TYPE predefined_lead_form = ENUMERATION OF (
 	gull_wing,
@@ -846,10 +835,6 @@ TYPE correlated_or_independent = SELECT (
 	characteristic);
 END_TYPE; -- correlated_or_independent
 
-TYPE plt_analytical_model_application_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_application_assignment_select WITH (
-	Layout_template_definition);
-END_TYPE; -- plt_analytical_model_application_assignment_select
-
 TYPE plt_physical_unit_or_part_template_or_fp_or_pd = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_or_part_template_or_fp_or_pd WITH (
 	Layout_template_definition);
 END_TYPE; -- plt_physical_unit_or_part_template_or_fp_or_pd
@@ -910,10 +895,6 @@ TYPE physical_unit_or_part_template_or_fp_or_pd = EXTENSIBLE GENERIC_ENTITY SELE
 	Part_view_definition);
 END_TYPE; -- physical_unit_or_part_template_or_fp_or_pd
 
-TYPE pudv_analytical_model_application_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_application_assignment_select WITH (
-	Part_design_view);
-END_TYPE; -- pudv_analytical_model_application_assignment_select
-
 TYPE pudv_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH (
 	Assembly_item_number);
 END_TYPE; -- pudv_requirement_assignment_item
@@ -955,11 +936,6 @@ TYPE material_state_change_enumeration = ENUMERATION OF (
 	material_addition,
 	material_removal );
 END_TYPE; -- material_state_change_enumeration
-
-TYPE puuv_analytical_model_application_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_application_assignment_select WITH (
-	Part_usage_view,
-	Part_feature_template_definition);
-END_TYPE; -- puuv_analytical_model_application_assignment_select
 
 TYPE puuv_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH (
 	Part_feature);
@@ -1436,6 +1412,41 @@ ENTITY approving_person_organization;
 END_ENTITY; -- Approving_person_organization
 
 
+ENTITY circular_area
+	SUBTYPE OF (Primitive_2d);
+	centre : Cartesian_point;
+	radius : Length_data_element;
+END_ENTITY; -- Circular_area
+
+
+ENTITY elliptic_area
+	SUBTYPE OF (Primitive_2d);
+	position : Axis_placement_2d;
+	semi_axis_1 : Length_data_element;
+	semi_axis_2 : Length_data_element;
+END_ENTITY; -- Elliptic_area
+
+
+ENTITY polygonal_area
+	SUBTYPE OF (Primitive_2d);
+	bounds : LIST [3:?] OF  UNIQUE Cartesian_point;
+END_ENTITY; -- Polygonal_area
+
+
+ENTITY primitive_2d
+	ABSTRACT SUPERTYPE OF (ONEOF (Circular_area, Elliptic_area, Rectangular_area, Polygonal_area))
+	SUBTYPE OF (Detailed_geometric_model_element);
+END_ENTITY; -- Primitive_2d
+
+
+ENTITY rectangular_area
+	SUBTYPE OF (Primitive_2d);
+	position : Axis_placement_2d;
+	x : Length_data_element;
+	y : Length_data_element;
+END_ENTITY; -- Rectangular_area
+
+
 ENTITY assembly_module_interface_terminal
 	SUBTYPE OF (Assembly_module_terminal);
 END_ENTITY; -- Assembly_module_interface_terminal
@@ -1910,6 +1921,11 @@ ENTITY product_configuration;
 INVERSE
 	corresponding_design: SET [0:1] OF Item_design_association FOR configuration;
 END_ENTITY; -- Product_configuration
+
+
+ENTITY csg_2d_model
+	SUBTYPE OF (Geometric_model);
+END_ENTITY; -- Csg_2d_model
 
 
 ENTITY contextual_shape_representation_inclusion;
@@ -2456,6 +2472,16 @@ ENTITY relative_event
 	base_event : Event;
 	offset : Duration;
 END_ENTITY; -- Relative_event
+
+
+ENTITY axis_placement_2d
+	SUBTYPE OF (Axis_placement);
+END_ENTITY; -- Axis_placement_2d
+
+
+ENTITY axis_placement_3d
+	SUBTYPE OF (Axis_placement);
+END_ENTITY; -- Axis_placement_3d
 
 
 ENTITY detailed_geometric_model_element_relationship;
@@ -4095,11 +4121,6 @@ ENTITY part_definition_relationship
 END_ENTITY; -- Part_definition_relationship
 
 
-ENTITY axis_placement_2d
-	SUBTYPE OF (Axis_placement);
-END_ENTITY; -- Axis_placement_2d
-
-
 ENTITY part_template_or_physical_unit_2d_shape_representation_relationship
 	SUBTYPE OF (Geometric_model_relationship);
 	SELF\Geometric_model_relationship.rep_1 RENAMED principal_part_shape : part_template_or_physical_unit_2d_shape_select;
@@ -4132,11 +4153,6 @@ ENTITY reference_geometric_representation_relationship
 WHERE
 	WR1 :  EXISTS(related_feature_shape_placement)OR(related_feature_shape.context_of_items :=: resultant_feature_shape.context_of_items);
 END_ENTITY; -- Reference_geometric_representation_relationship
-
-
-ENTITY axis_placement_3d
-	SUBTYPE OF (Axis_placement);
-END_ENTITY; -- Axis_placement_3d
 
 
 ENTITY part_template_or_physical_unit_3d_shape_representation_relationship
@@ -7761,11 +7777,11 @@ ENTITY work_request_status;
 END_ENTITY; -- Work_request_status
 
 
-SUBTYPE_CONSTRAINT group_abstract FOR Group;
-END_SUBTYPE_CONSTRAINT; -- group_abstract
+SUBTYPE_CONSTRAINT am_group_abstract FOR Group;
+END_SUBTYPE_CONSTRAINT; -- am_group_abstract
 
-SUBTYPE_CONSTRAINT group_relationship_abstract FOR Group_relationship;
-END_SUBTYPE_CONSTRAINT; -- group_relationship_abstract
+SUBTYPE_CONSTRAINT am_group_relationship_abstract FOR Group_relationship;
+END_SUBTYPE_CONSTRAINT; -- am_group_relationship_abstract
 
 SUBTYPE_CONSTRAINT egt_non_feature_shape_element_subtypes FOR Non_feature_shape_element;
 	ONEOF (Derived_non_feature_shape_element, Directed_axis, Positional_boundary, Positional_boundary_member, Tolerance_zone_boundary, Tolerance_zone_boundary_member, Viewing_plane, Seating_plane, Reference_graphic_registration_mark);

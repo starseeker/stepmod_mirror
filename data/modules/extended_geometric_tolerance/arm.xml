@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-06T19:54:07" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-11T10:12:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_geometric_tolerance_arm schema_instance"/>
    <schema name="Extended_geometric_tolerance_arm">
       <interface kind="use" schema="Geometric_tolerance_arm"/>
@@ -195,8 +195,8 @@
             <typename name="Shape_definition_3d_intersection"/>
          </explicit>
          <where label="WR1" expression=" NOT ( EXISTS ( location_in_2d ) AND EXISTS ( location_in_3d ) ) OR EXISTS ( associated_3d_shape_intersection ) "/>
-         <where label="WR2" expression=" NOT ( EXISTS ( location_in_2d ) ) OR ( ( SIZEOF ( location_in_2d \ cartesian_point . coordinates ) ) = 2 ) "/>
-         <where label="WR3" expression=" NOT ( EXISTS ( location_in_3d ) ) OR ( ( SIZEOF ( location_in_3d \ cartesian_point . coordinates ) ) = 3 ) "/>
+         <where label="WR2" expression=" NOT ( EXISTS ( location_in_2d ) ) OR ( ( SIZEOF ( location_in_2d \ Cartesian_point . coordinates ) ) = 2 ) "/>
+         <where label="WR3" expression=" NOT ( EXISTS ( location_in_3d ) ) OR ( ( SIZEOF ( location_in_3d \ Cartesian_point . coordinates ) ) = 3 ) "/>
       </entity>
       <entity name="Datum_shape_element" supertypes="Datum Non_feature_shape_element"/>
       <entity name="Datum_target_set" supertypes="Datum_feature">
@@ -445,6 +445,11 @@
          <explicit name="applied_to">
             <typename name="restrained_item_select"/>
          </explicit>
+         <derived name="restraint_description" expression=" QUERY ( rd &lt;* QUERY ( ra &lt;* USEDIN ( SELF , 'REQUIREMENT_ASSIGNMENT_ARM.' + 'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO' ) | ( ra . id = 'restraint description' ) ) | 'REQUIREMENT_VIEW_DEFINITION_ARM.' + 'REQUIREMENT_VIEW_DEFINITION' IN TYPEOF ( rd . assigned_requirement ) ) ">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Requirement_view_definition"/>
+         </derived>
+         <where label="WR1" expression=" EXISTS ( restraint_description ) AND SIZEOF ( restraint_description ) = 1 "/>
       </entity>
       <entity name="Runout_tolerance_zone_definition_with_specified_angle" supertypes="Tolerance_zone_definition">
          <explicit name="runout_orientation">
@@ -501,11 +506,21 @@
          <explicit name="alternate_dimension" optional="YES">
             <typename name="Geometric_dimension"/>
          </explicit>
+         <derived name="statistical_control_requirement" expression=" QUERY ( scr &lt;* QUERY ( ra &lt;* USEDIN ( SELF , 'REQUIREMENT_ASSIGNMENT_ARM.' + 'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO' ) | ( ra . id = 'statistical control requirement' ) ) | 'REQUIREMENT_VIEW_DEFINITION_ARM.' + 'REQUIREMENT_VIEW_DEFINITION' IN TYPEOF ( scr . assigned_requirement ) ) ">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Requirement_view_definition"/>
+         </derived>
+         <where label="WR1" expression=" EXISTS ( statistical_control_requirement ) AND SIZEOF ( statistical_control_requirement ) = 1 "/>
       </entity>
       <entity name="Statistical_geometric_tolerance" supertypes="Geometric_tolerance">
          <explicit name="alternate_tolerance" optional="YES">
             <typename name="Geometric_tolerance"/>
          </explicit>
+         <derived name="statistical_control_requirement" expression=" QUERY ( scr &lt;* QUERY ( ra &lt;* USEDIN ( SELF , 'REQUIREMENT_ASSIGNMENT_ARM.' + 'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO' ) | ( ra . id = 'statistical control requirement' ) ) | 'REQUIREMENT_VIEW_DEFINITION_ARM.' + 'REQUIREMENT_VIEW_DEFINITION' IN TYPEOF ( scr . assigned_requirement ) ) ">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Requirement_view_definition"/>
+         </derived>
+         <where label="WR1" expression=" EXISTS ( statistical_control_requirement ) AND SIZEOF ( statistical_control_requirement ) = 1 "/>
       </entity>
       <entity name="Tangent_plane" supertypes="Tangent_shape_element"/>
       <entity name="Tangent_shape_element" supertypes="Derived_non_feature_shape_element" super.expression="Tangent_plane"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-06T19:54:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-11T10:12:50" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="chemical_substance_arm schema_instance"/>
    <schema name="Chemical_substance_arm">
       <interface kind="use" schema="Value_with_unit_arm"/>
@@ -20,12 +20,16 @@
          <enumeration extensible="YES" items="VOLUME MASS MOLES ATOMS"/>
       </type>
       <entity name="Chemical_compound" supertypes="Substance">
+         <derived name="id_owner" expression=" QUERY ( temp &lt;* USEDIN ( SELF , 'PERSON_ORGANIZATION_ASSIGNMENT_ARM.' + 'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( temp . role = 'id owner' ) ) ">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Organization_or_person_in_organization_assignment"/>
+         </derived>
          <where label="WR1" expression=" SIZEOF ( [ 'chemical compound' ] * types_of_product ( SELF ) ) = 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( t &lt;* SELF \ organization_or_person_in_organization_assignment . items | t . role = 'id owner' ) = 1 ) "/>
+         <where label="WR2" expression=" EXISTS ( id_owner ) AND sizeof ( id_owner ) = 1 "/>
       </entity>
       <entity name="Chemical_element" supertypes="Substance">
          <where label="WR1" expression=" SIZEOF ( [ 'chemical element' ] * types_of_product ( SELF ) ) = 1 "/>
-         <where label="WR2" expression=" SELF / product . name in chemical_elements "/>
+         <where label="WR2" expression=" SELF / Product . name in chemical_elements "/>
       </entity>
       <entity name="Physical_particle" supertypes="Substance">
          <where label="WR1" expression=" SIZEOF ( [ 'physical particle' ] * types_of_product ( SELF ) ) = 1 "/>
@@ -65,7 +69,7 @@
             <typename name="Value_with_unit"/>
             <redeclaration entity-ref="Assembly_component_relationship"/>
          </explicit>
-         <where label="WR1" expression=" 'VALUE_WITH_UNIT_ARM.RATIO_UNIT' IN TYPEOF ( amount . unit ) "/>
+         <where label="WR1" expression=" 'VALUE_WITH_UNIT_ARM.RATIO_UNIT' IN TYPEOF ( amount . Unit ) "/>
       </entity>
       <entity name="Substance_version" supertypes="Product_version">
          <explicit name="of_product">

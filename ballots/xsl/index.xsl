@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
+$Id: index.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the ballot packages
@@ -29,6 +29,12 @@ $Id: common.xsl,v 1.23 2002/02/14 16:47:52 robbod Exp $
       </head>
       <body>
         <h2>Module ballots</h2>
+        <xsl:call-template name="output_menubar">
+          <xsl:with-param name="module_root" select="'./pdm_ballot_072002/'"/>
+          <xsl:with-param name="module_name" select="@name"/>
+        </xsl:call-template>
+        <hr/>
+
         <p>
           The modules have been balloted according to the following ballot
           packages. 

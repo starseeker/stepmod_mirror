@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
+$Id: ballot_summary.xsl,v 1.2 2002/06/20 13:04:38 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -84,6 +84,96 @@ $Id: ballot_summary.xsl,v 1.1 2002/06/20 12:49:08 robbod Exp $
           <td>Convener leader checklist WGn</td>
           <td>Project leader</td>
           <td>Project editor</td>
+        </tr>
+        <tr>
+          <td><small><i>&#160;</i></small></td>
+          <td align="right"><small>file:</small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
+        </tr>
+        <tr>
+          <td><small><i>&#160;</i></small></td>
+          <td align="right"><small>attribute:</small></td>
+        <td><small><i>
+          /module/@part
+        </i></small></td>
+
+        <!-- Version -->
+        <td><small><i>
+          /module/@version
+        </i></small></td>
+
+        <!-- Status -->
+        <td><small><i>
+          /module/@status
+        </i></small></td>
+
+        <!-- Year -->
+        <td><small><i>
+          /module/@publication.year
+        </i></small></td>
+
+        <!-- Published -->
+        <td><small><i>
+          /module/@published
+        </i></small></td>
+
+        <!-- Doc WGn -->
+        <td><small><i>
+          /module/@wg.number
+        </i></small></td>
+
+        <!-- Superceded Doc WGn -->
+        <td><small><i>
+          /module/@wg.number.supersedes
+        </i></small></td>
+        
+        <!-- MIM WGn -->
+        <td><small><i>
+          /module/@wg.number.mim
+        </i></small></td>
+
+        <!-- ARM WGn -->
+        <td><small><i>
+          /module/@wg.number.arm
+        </i></small></td>
+
+        <!-- Internal checklist WGn -->
+        <td><small><i>
+          /module/@checklist.internal_review
+        </i></small></td>
+        
+        <!-- Project leader checklist WGn -->
+        <td><small><i>
+          module/@checklist.project_leader
+        </i></small></td>
+
+        <!-- Convener leader checklist WGn -->
+        <td><small><i>
+          module/@checklist.convener"/>
+        </i></small></td>
+        
+        <!-- Project leader -->
+        <td><small><i>
+          module/contacts/projlead/@ref
+        </i></small></td>
+
+        <!-- Project editor -->
+        <td><small><i>
+          module/contacts/editor/@ref
+        </i></small></td>
         </tr>
         <xsl:apply-templates select="./*/module"/>
       </table>

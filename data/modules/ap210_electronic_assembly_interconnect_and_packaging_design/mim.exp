@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.20 2005/01/04 07:21:18 kovaliovas Exp $
+   $Id: mim.exp,v 1.21 2005/01/06 14:03:18 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Ap210 electronic assembly interconnect and packaging design - EXPRESS MIM
 *)
 
@@ -189,16 +189,18 @@ ENTITY owner_assignment
  items : SET [1:?] OF managed_design_object; 
 END_ENTITY;
 *)
-RULE application_context_requires_ap_definition FOR
-  (application_context, application_protocol_definition);
+
+RULE application_protocol_definition_required FOR
+    (application_context);
 WHERE
-  WR1: SIZEOF (QUERY (ac <* application_context |
-       NOT (SIZEOF (QUERY (apd <* application_protocol_definition |
-       (ac :=: apd\application_protocol_definition.application)
-       AND
-       (apd\application_protocol_definition.application_interpreted_model_schema_name =
-         'electronic_assembly_interconnect_and_packaging_design'
-       ))) = 1 ))) = 0;
+  WR1:  SIZEOF( QUERY( ac <* application_context |
+              (SIZEOF (QUERY (apd <*
+USEDIN(ac,'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.APPLICATION_PROTOCOL_DEFINITION.APPLICATION')
+|
+                apd.application_interpreted_model_schema_name =
+'electronic_assembly_interconnect_and_packaging_design'
+                )) > 0)
+              )) > 0;
 END_RULE;
 
 RULE dependent_instantiable_tolerance_value FOR (

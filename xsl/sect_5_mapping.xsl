@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.24 2002/06/18 11:33:58 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.25 2002/06/19 06:46:48 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -589,7 +589,11 @@ $Id: sect_5_mapping.xsl,v 1.24 2002/06/18 11:33:58 robbod Exp $
   </xsl:if>
 </xsl:template>
 
-<xsl:template name="check_ref_path_line">
+
+<!-- to be done -->
+<xsl:template name="check_ref_path_line"/>
+
+<xsl:template name="check_ref_path_line_RBN">
   <xsl:param name="refpath"/>
 
   <xsl:variable name="entity">

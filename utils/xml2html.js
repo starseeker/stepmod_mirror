@@ -1,4 +1,4 @@
-//$Id: make_module.js,v 1.4 2001/12/28 13:22:32 robbod Exp $
+//$Id: xml2html.js,v 1.1 2001/12/28 15:58:59 robbod Exp $
 // JScript to convert the module XML to HTML
 //
 // This script uses The Saxon XSLT processor:
@@ -18,7 +18,7 @@
 //
 // cscript xml2html.js all 
 //   generate all the HTML for the module repository.
-/
+
 
 // ------------------------------------------------------------
 // Global variables
@@ -241,8 +241,8 @@ function makeHtmlResources() {
     }
 }
 function makeHtmlAll() {
-    //makeHtmlResources();
-    //makeHtmlModules();
+    makeHtmlResources();
+    makeHtmlModules();
     makeHtmlIndex();
 }
 

@@ -6,7 +6,7 @@ USE FROM Part_view_definition_arm;
 
 USE FROM Property_assignment_arm;
 
-	TYPE cma_property_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH
+	TYPE cma_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
 		(Material_identification_with_conductivity_classification);
 	END_TYPE;
 
@@ -15,34 +15,63 @@ USE FROM Property_assignment_arm;
 	END_TYPE;
 	
  ENTITY Conductivity_material_property_class
-  SUBTYPE OF (Pdm_material_property);
+--   ABSTRACT SUPERTYPE OF (ONEOF....)
+  SUBTYPE OF (Class);
   WHERE
-	WR1: SELF\Independent_property.property_type IN 
-	['magnetic conductivity', 'optical conductivity', 'thermal conductivity', 'electrical conductivity']; 
-	WR2: SIZEOF(USEDIN(SELF, 'INDEPENDENT_PROPERTY_REPRESENTATION_ARM.' + 'INDEPENDENT_PROPERTY_REPRESENTATION.' + 'PROPERTY') = 1);
-	WR3:  (QUERY(ipr <* USEDIN(SELF,
-	 	'INDEPENDENT_PROPERTY_REPRESENTATION_ARM.' + 
-	 	'INDEPENDENT_PROPERTY_REPRESENTATION.' + 'PROPERTY') 
- 		| SIZEOF(QUERY (it <*  ipr.rep.items |
-       ('FOUNDATION_REPRESENTATION_ARM.'+
-       'STRING_REPRESENTATION_ITEM' IN
-       TYPEOF (it))AND
-       (it\String_representation_item.string_value IN 
-       ['conductive', 'non conductive', 'resistive', 'semi conductive']))) = 1));
-(**	This independent_property_representation must have EXACTLY one String_representation_item. 
-		It must have string_value IN ['conductive', 'non conductive', 'resistive', 'semi conductive']; *)
+	WR1: SELF\Class.name IN 
+       ['conductive', 'non conductive', 'resistive', 'semi conductive', 'super conductive'];
  END_ENTITY;
 
  ENTITY Material_identification_with_conductivity_classification
   SUBTYPE OF (Material_identification);
+  DERIVE
+    electrical_conductivity_classification : STRING := get_cond_class(SELF,'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS');
+    magnetic_conductivity_classification   : STRING := get_cond_class(SELF,'MATERIAL_THERMAL_CONDUCTIVITY_CLASS');
+    optical_conductivity_classification    : STRING := get_cond_class(SELF,'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS');
+    thermal_conductivity_classification    : STRING := get_cond_class(SELF,'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS');
   WHERE 	
-  	WR1: (SIZEOF(QUERY(aip <* USEDIN(SELF,
-	 	'PROPERTY_ASSIGNMENT_ARM.' + 
-	 	'APPLIED_INDEPENDENT_PROPERTY.' + 'DESCRIBED_ELEMENT') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
-	 	'CONDUCTIVITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF (aip.base_independent_property)))) >= 1);
-(**  	It must be referenced by at least one Applied_independent_property, 
-  		where base attribute goes to Conductivity_material_property_class; *)
+  	WR1: (SIZEOF(QUERY(ca <* USEDIN(SELF,
+	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
+	 	'CONDUCTIVITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) >= 1);
+  	WR2: (SIZEOF(QUERY(ca <* USEDIN(SELF,
+	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
+	 	'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
+  	WR3: (SIZEOF(QUERY(ca <* USEDIN(SELF,
+	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
+	 	'MATERIAL_THERMAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
+  	WR4: (SIZEOF(QUERY(ca <* USEDIN(SELF,
+	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
+	 	'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
+  	WR5: (SIZEOF(QUERY(ca <* USEDIN(SELF,
+	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
+	 	'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
  END_ENTITY;
-
-END_SCHEMA;
+ 
+ FUNCTION get_cond_class(input1 : Material_identification_with_conductivity_classification;
+                         input2 : STRING) : STRING;
+ LOCAL
+  car : SET OF Classification_assignment := [];
+ END_LOCAL;
+  car := QUERY(ca <* USEDIN(SELF,
+	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
+	 	input2 IN TYPEOF (ca.assigned_class)));
+ IF SIZEOF(car) = 1
+  THEN
+    RETURN(car[1].assigned_class\class.name);
+  ELSE
+    RETURN('?');
+ END_IF;
+ END_FUNCTION;
+ END_SCHEMA;

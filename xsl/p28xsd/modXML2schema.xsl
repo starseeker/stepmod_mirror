@@ -25,7 +25,7 @@
 			
 			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../../dtd/part28/ex.xsd"/>
 			
-			<xsl:apply-templates select="type"/>
+		<xsl:apply-templates select="type"/>
 			<xsl:apply-templates select="entity"/>
 		</xs:schema>
 	</xsl:template>
@@ -784,6 +784,7 @@
 								</xsl:call-template>
 							</xsl:variable>
 							<xsl:choose>
+							
 								<xsl:when test="$target = //type[select]/@name">
 									<xs:element name="{$corrected_attribute_name}">
 									<xs:complexType>
@@ -793,11 +794,25 @@
 									<xsl:text>&#xa;</xsl:text>
 									<xsl:text>&#xa;</xsl:text>
 								</xsl:when>
+								
+								<xsl:when test="$target = //entity/@name">
+									<xs:element name="{$corrected_attribute_name}">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element ref="{$namespace_prefix}{$corrected_target_name}"/>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+									<xsl:text>&#xa;</xsl:text>
+									<xsl:text>&#xa;</xsl:text>
+								</xsl:when>			
+
 								<xsl:otherwise>
 									<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"/>
 									<xsl:text>&#xa;</xsl:text>
 									<xsl:text>&#xa;</xsl:text>
 								</xsl:otherwise>
+								
 							</xsl:choose>
 						</xsl:when>
 						<xsl:when test="./builtintype">

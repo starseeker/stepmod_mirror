@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_top.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
+$Id: index_arm_mappings_top.xsl,v 1.12 2004/10/21 14:48:23 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -58,10 +58,10 @@ $Id: index_arm_mappings_top.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
 
     </head>
   <body>
+    <small>
   	<A HREF="frame_index{$FILE_EXT}" TARGET="index" >Back to navigation indices</A>
 	<BR/>
 	<B>Entity Mapping index</B>
-	<br/>
 	<br/>
 
 	<xsl:variable name="top_module_file" 
@@ -131,7 +131,7 @@ $Id: index_arm_mappings_top.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
 
 			</xsl:choose>
   
-  <HR/>
+                      </small>
   </body>
 </HTML>
 </xsl:template>
@@ -150,7 +150,7 @@ $Id: index_arm_mappings_top.xsl,v 1.11 2004/02/05 17:51:07 robbod Exp $
 			</xsl:for-each>
 		</xsl:variable>
 
-			<B>Entity Mappings:</B>
+                <!-- <B>Entity Mappings:</B> -->
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$ent-names" />

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.2 2005/01/06 14:08:41 liutkus Exp $
+   $Id: arm.exp,v 1.3 2005/01/14 23:55:48 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Physical connectivity definition - EXPRESS ARM
 *)
 
@@ -25,7 +25,8 @@ USE FROM Physical_component_feature_arm;
 	END_TYPE;
 
 	TYPE termination_or_junction = EXTENSIBLE GENERIC_ENTITY SELECT
-    	(Component_terminal);
+    	(Component_terminal,
+    	 Topological_junction);
   	END_TYPE;
 
   ENTITY Physical_connectivity_definition
@@ -33,10 +34,11 @@ USE FROM Physical_component_feature_arm;
       name                  : STRING; --ee_name;    
       associated_definition : Physical_unit_network_definition;
       associated_terminals  : SET[2:?] OF Physical_component_terminal;
+    DERIVE
+      sizeof_terminals : INTEGER := SIZEOF(associated_terminals);
     UNIQUE
-      UR1 : name,
- associated_definition;
- 			UR2 : associated_terminals;
+      UR1 : name, associated_definition;
+      UR2 : associated_terminals;
   END_ENTITY;
 
   ENTITY Physical_connectivity_definition_relationship;
@@ -53,8 +55,7 @@ USE FROM Physical_component_feature_arm;
       end_terminus         : termination_or_junction;
       connectivity_context : Physical_connectivity_structure_definition;
     UNIQUE
-      UR1 : name,
- connectivity_context;
+      UR1 : name, connectivity_context;
     WHERE
       WR1 : start_terminus <> end_terminus;
   END_ENTITY;
@@ -72,8 +73,32 @@ USE FROM Physical_component_feature_arm;
 
   ENTITY Physical_unit_network_definition
     SUBTYPE OF (Product_view_definition);
+    DERIVE
+      terminals : SET [0:?] OF Component_terminal := get_terminals(connectivity_definitions);
+    INVERSE
+      connectivity_definitions : SET [0:?] OF Physical_connectivity_definition FOR associated_definition;
     WHERE
       WR1 : NOT ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF)) OR ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_DESIGN_VIEW' IN TYPEOF(SELF));
+      WR2 : SIZEOF(QUERY(t <* terminals | SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + 
+                          'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1)) =
+            SIZEOF(terminals);
   END_ENTITY;
 
+  ENTITY Topological_junction;
+      name  : STRING; --ee_name;  
+      scope : Physical_connectivity_structure_definition;
+    UNIQUE
+      UR1 : name, scope;
+  END_ENTITY; 
+
+  FUNCTION get_terminals(input : SET OF Physical_connectivity_definition) : SET OF Component_terminal;
+  LOCAL
+   ct : SET OF Component_terminal := [];
+    i : INTEGER := 0;
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   ct := ct + input[i].associated_terminals;
+  END_REPEAT;
+  RETURN(ct);
+  END_FUNCTION;
 END_SCHEMA;

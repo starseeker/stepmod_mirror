@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.95 2002/08/07 13:33:02 robbod Exp $
+$Id: module.xsl,v 1.96 2002/08/09 08:18:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -255,8 +255,7 @@ $Id: module.xsl,v 1.95 2002/08/07 13:33:02 robbod Exp $
               (via the ISO TC 184/SC4 Secretariat's member body) or to the
               ISO's member body in the country of the requestor 
             </p>
-            <p>
-              <div align="center">
+            <div align="center">
                 Copyright Manager<br/>
                 ANSI<br/>
                 11 West 42nd Street<br/>
@@ -264,8 +263,7 @@ $Id: module.xsl,v 1.95 2002/08/07 13:33:02 robbod Exp $
                 USA<br/>
                 phone: +1-212-642-4900<br/>
                 fax: +1-212-398-0023<br/>
-              </div>
-            </p>
+            </div>
             <p>
               Reproduction for sales purposes may be subject to royalty
               payments or a licensing agreement. 
@@ -291,7 +289,7 @@ $Id: module.xsl,v 1.95 2002/08/07 13:33:02 robbod Exp $
               ISO at the address below or ISO's member body in the 
               country of the requester:
             </p>
-            <p>
+
             <div align="center">
               <!--
               Copyright Manager, ISO Central Secretariat<br/>
@@ -307,10 +305,8 @@ o=isocs; s=central<br/>
               Tel. +41 22 749 01 11<br/>
               Fax +41-22-734-10 79<br/>
               E-mail copyright@iso.ch<br/>
+             </div>
  
-
-            </div>
-          </p>
             <p>
               Reproduction for sales purposes may be subject to
               royalty payments or a licensing agreement.
@@ -1056,9 +1052,9 @@ o=isocs; s=central<br/>
     </a>&gt;
   </blockquote>
   
-  <b>
-    <p align="center">
-      <a name="table_e1">
+  <div align="center">
+    <a name="table_e1">
+      <b>
         <xsl:choose>
           <xsl:when test="./mim_lf or ./arm_lf">
             Table E.1 &#8212; ARM and MIM EXPRESS short and long form listings
@@ -1067,9 +1063,10 @@ o=isocs; s=central<br/>
             Table E.1 &#8212; ARM and MIM EXPRESS listings
           </xsl:otherwise>
         </xsl:choose>
-      </a>
-    </p>
-  </b>
+      </b>
+    </a>
+  </div>
+
   <br/>
 
   <div align="center">
@@ -1110,9 +1107,7 @@ o=isocs; s=central<br/>
           <xsl:with-param name="file" select="'arm.exp'"/>
         </xsl:call-template>        
       </tr>
-      <tr>
-        <xsl:apply-templates select="arm_lf" mode="annexe"/>
-      </tr>
+      <xsl:apply-templates select="arm_lf" mode="annexe"/>
 
       <!-- MIM HTML row -->
       <tr>
@@ -1135,9 +1130,7 @@ o=isocs; s=central<br/>
           <xsl:with-param name="file" select="'mim.exp'"/>
         </xsl:call-template>        
       </tr>
-      <tr>
-        <xsl:apply-templates select="mim_lf" mode="annexe"/>
-      </tr>
+      <xsl:apply-templates select="mim_lf" mode="annexe"/>
     </table>
   </div>
   <p>
@@ -1208,16 +1201,18 @@ o=isocs; s=central<br/>
     </xsl:choose>
   </xsl:variable>
 
-  <td>ARM long form EXPRESS</td>
-  <td>
-    <a href="{$arm_lf}">
-      <xsl:value-of select="concat('arm_lf',$FILE_EXT)"/>
-    </a>
-  </td>
-  <td>
-    <a href="../arm_lf.exp">arm_lf.exp</a>
-  </td>
-  <td align="center">&#8212;</td>
+  <tr>
+    <td>ARM long form EXPRESS</td>
+    <td>
+      <a href="{$arm_lf}">
+        <xsl:value-of select="concat('arm_lf',$FILE_EXT)"/>
+      </a>
+    </td>
+    <td>
+      <a href="../arm_lf.exp">arm_lf.exp</a>
+    </td>
+    <td align="center">&#8212;</td>
+  </tr>
 </xsl:template>
 
 <xsl:template match="mim_lf" mode="annexe">
@@ -1231,17 +1226,18 @@ o=isocs; s=central<br/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
-
-  <td>MIM long form EXPRESS</td>
-  <td>
-    <a href="{$mim_lf}">
-      <xsl:value-of select="concat('mim_lf',$FILE_EXT)"/>
-    </a>
-  </td>
-  <td>
-    <a href="../mim_lf.exp">mim_lf.exp</a>
-  </td>
-  <td align="center">&#8212;</td>
+  <tr>
+    <td>MIM long form EXPRESS</td>
+    <td>
+      <a href="{$mim_lf}">
+        <xsl:value-of select="concat('mim_lf',$FILE_EXT)"/>
+      </a>
+    </td>
+    <td>
+      <a href="../mim_lf.exp">mim_lf.exp</a>
+    </td>
+    <td align="center">&#8212;</td>
+  </tr>
 </xsl:template>
 
 <xsl:template match="arm">

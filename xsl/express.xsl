@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: express.xsl,v 1.8 2002/07/15 08:56:44 goset1 Exp $
+$Id: express.xsl,v 1.9 2002/07/16 07:45:12 goset1 Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the  express for an Integrated Resource schema
@@ -14,7 +14,12 @@ $Id: express.xsl,v 1.8 2002/07/15 08:56:44 goset1 Exp $
 
   <xsl:import href="express_code.xsl"/>
 
-  <xsl:output method="html"/>
+  <xsl:output 
+    method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
+    indent="yes"
+    />
 
   <!-- +++++++++++++++++++
          Global variables
@@ -79,7 +84,7 @@ $Id: express.xsl,v 1.8 2002/07/15 08:56:44 goset1 Exp $
       </xsl:call-template>
       <TITLE>Integrated Resource: <xsl:value-of select="./express/schema/@name"/></TITLE>
     </HEAD>
-    <BODY>  
+    <BODY>
   <!-- debug <xsl:value-of select="$global_xref_list"/> -->
     <h3>
       <xsl:value-of select="concat('Schema: ',./express/schema/@name)"/>

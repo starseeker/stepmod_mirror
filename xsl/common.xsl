@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.63 2002/08/06 12:08:51 robbod Exp $
+$Id: common.xsl,v 1.64 2002/08/07 12:09:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -414,7 +414,7 @@ $Id: common.xsl,v 1.63 2002/08/06 12:08:51 robbod Exp $
     </xsl:choose>
   </xsl:variable>
   <div align="center">
-    <IMG src="{$src}" border="0" usemap="#map">
+    <IMG src="{$src}" border="0" usemap="#map" alt="{$src}">
       <MAP NAME="map">
         <xsl:apply-templates select="img.area"/>
       </MAP>
@@ -423,7 +423,17 @@ $Id: common.xsl,v 1.63 2002/08/06 12:08:51 robbod Exp $
 </xsl:template>
 
 <xsl:template match="img.area">
-  <xsl:variable name="shape" select="@shape"/>
+  <xsl:variable name="shape">
+    <xsl:choose>
+      <xsl:when test="string(@shape)='polygon' or
+                      string(@shape)='POLYGON'">
+        <xsl:value-of select="'poly'"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@shape"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
   <xsl:variable name="coords" select="@coords"/>
   <xsl:variable name="href">
     <xsl:choose>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.6 2002/08/07 07:59:53 robbod Exp $
+$Id: sect_contents.xsl,v 1.7 2002/08/09 08:03:35 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -792,7 +792,6 @@ $Id: sect_contents.xsl,v 1.6 2002/08/07 07:59:53 robbod Exp $
     ISO's member body in the 
     country of the requester.
   </p>
-  <p>
     <blockquote>
       ISO copyright office<br/>
       Case postale 56. CH-1211 Geneva 20<br/>
@@ -801,7 +800,6 @@ $Id: sect_contents.xsl,v 1.6 2002/08/07 07:59:53 robbod Exp $
       E-mail copyright@iso.ch<br/>
       Web www.iso.ch<br/>
     </blockquote>
-  </p>
 </xsl:template>
 
 

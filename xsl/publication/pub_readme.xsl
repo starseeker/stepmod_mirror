@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
+$Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the readme file for a published module.
@@ -52,9 +52,6 @@ To expand the document, unzip the file into an empty directory.
 NOTE - if you already purchased other Application modules, then unzip the
 file into the same directory as the other modules.
 If asked when unzipping the file, you should overwrite any file in the images directory.
-      <xsl:variable name="prefix" select="translate(concat('part',@part,@status,'_wg',@wg,'n'),$UPPER,$LOWER)"/>
-      <xsl:variable name="arm_exp"
-      select="concat('iso10303_',@part,'express/',$prefix,@wg.number.arm,'arm.exp')"/>
 
 The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
 
@@ -99,6 +96,8 @@ file into the same directory as the other modules.
 If asked when unzipping the file, you should overwrite any file in the images directory.
       <xsl:variable name="prefix" select="concat('part',@part,@status,'_wg',@wg,'n')"/>
       <xsl:variable name="arm_exp" select="concat('express/',$prefix,@wg.number.arm,'arm.exp')"/>
+The  EXPRESS listings that are referenced in this  part are collected in the express folder.
+
 The ARM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$arm_exp"/>
       <xsl:if test="./arm_lf">        
         <xsl:variable name="armlf_exp" select="concat('express/',$prefix,@wg.number.arm_lf,'arm_lf.exp')"/>
@@ -146,10 +145,7 @@ To expand the document, unzip the file into an empty directory.
 NOTE - if you already purchased other parts, then unzip the
 file into the same directory as the other parts.
 If asked when unzipping the file, you should overwrite any file in the images directory.
-      <xsl:variable name="prefix" select="translate(concat('part',@part,@status,'_wg',@wg,'n'),$UPPER,$LOWER)"/>
-      <xsl:variable name="express" select="concat('iso10303_',@part,'express/',$prefix,@wg.number.express,'.exp')"/>
-The EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$express"/>
-`
+
 The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
   </xsl:template>
 

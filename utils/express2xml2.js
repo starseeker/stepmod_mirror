@@ -1,4 +1,4 @@
-//  $Id: express2xml2.js,v 1.3 2003/05/02 07:56:57 robbod Exp $
+//  $Id: express2xml2.js,v 1.4 2003/07/18 16:21:35 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
@@ -498,7 +498,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.3 2003/05/02 07:56:57 robbod Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml2.js,v 1.4 2003/07/18 16:21:35 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -513,7 +513,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.3 $";
+    var appCVSRevision = "$Revision: 1.4 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -719,7 +719,7 @@ function xmlSupertypes(statement, outTs) {
 function xmlOpenEntity(statement,outTs,expTs) {
     xmlOpenElement("<entity",outTs);
     var entity = getWord(2,statement);
-    entity = entity.toLowerCase();
+//    entity = entity.toLowerCase();
     xmlAttr("name",entity,outTs);
     if (getAbstractSuper(statement)) xmlAbstract(outTs);
     xmlSuperExpression(statement,outTs);
@@ -811,9 +811,14 @@ function xmlEntityStructure(outTs,expTs,mode) {
 	    expression = expression.replace(reg,"");
 	    expression = tidyExpression(expression);
 	    var typedef = rest.replace(/:=.*/,"");
-	    xmlAttr("name",name,outTs);
+	    xmlAttr("name",name.replace(/^.*\./,""),outTs);
 	    xmlAttr("expression",expression,outTs);
 	    outTs.WriteLine(">");
+//TEH added 
+	    if (isRedeclared(name)) {
+		xmlRedeclaredAttribute(name.replace(/^.*\\/,"").replace(/\.$/,""), outTs);
+	    }
+//end TEH added
 	    xmlUnderlyingType(typedef,outTs);
 	    xmlCloseElement("</derived>",outTs);
 	    
@@ -911,10 +916,22 @@ function xmlUnique(statement, outTs) {
     for (var i=0; i<arr.length; i++) {
     	
     	//is this the correct way to handle SELF\? SPF
-        arr[i] = arr[i].replace(/^SELF\\/,"");
+//TEH modified  - need to add entity-ref attr if SELF
+	if (isRedeclared(arr[i])){
+
+
+		var tmp = arr[i].replace(/^.*\./,"");
+    		var entity_ref = arr[i].replace(/\..*/g,"");
+
+	}
+//end TEH modified 
+        tmp = arr[i].replace(/^SELF\\/,"");
         
 	xmlOpenElement("<unique.attribute",outTs);
-	xmlAttr("attribute",arr[i],outTs);
+	if (isRedeclared(arr[i])){
+    		xmlAttr("entity-ref",entity_ref,outTs);
+	}
+	xmlAttr("attribute",arr[i].replace(/^.*\./,""),outTs);
 	xmlCloseAttr(outTs);
     }
     xmlCloseElement("</unique>",outTs);    
@@ -958,7 +975,7 @@ function getInverseAttr(statement) {
 // 	Output elements for aggregate
 // ------------------------------------------------------------
 function xmlAggregate(statement, outTs) {
-    var reg = /\bSET|BAG|LIST|ARRAY\b/i;
+    var reg = /\bSET\b|\bBAG\b|\bLIST\b|\bARRAY\b/i;
     var agg = statement.match(reg);
     if (agg) {
     	agg = agg.toString();
@@ -1120,7 +1137,7 @@ function xmlUnderlyingType(statement,outTs) {
     statement = normaliseStatement(statement);
 
 // PH: Add aggregate for function parameters
-    var reg = /\bSET|BAG|LIST|ARRAY|AGGREGATE\b/i;
+    var reg = /\bSET\b|\bBAG\b|\bLIST\b|\bARRAY\b|\bAGGREGATE\b/i;
     var agg = statement.match(reg);
     
     if (agg) {
@@ -1342,7 +1359,7 @@ function xmlBuiltInType(typeType,statement,outTs) {
 //	Get the type and return
 // ------------------------------------------------------------
 function getType(statement) {
-    var reg = /\bSET|BAG|LIST|ARRAY|AGGREGATE|SELECT|ENUMERATION|BINARY|BOOLEAN|INTEGER|LOGICAL|NUMBER|REAL|STRING\b/i;
+    var reg = /\bSET\b|\bBAG\b|\bLIST\b|\bARRAY\b|\bAGGREGATE\b|\bSELECT\b|\bENUMERATION\b|\bBINARY\b|\bBOOLEAN\b|\bINTEGER\b|\bLOGICAL\b|\bNUMBER\b|\bREAL\b|\bSTRING\b/i;
     var type = statement.match(reg);
     //debug("getType1:"+type);
     

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: extract_descriptions.xsl,v 1.2 2002/03/19 15:13:42 robbod Exp $
+     $Id: extract_descriptions.xsl,v 1.3 2002/03/19 16:29:42 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -58,10 +58,10 @@
     </xsl:attribute>
 
   <xsl:attribute name="rcs.date">
-    <xsl:value-of select="'$Date: 2002/03/19 15:13:42 $'"/>
+    <xsl:value-of select="'$Date: 2002/03/19 16:29:42 $'"/>
   </xsl:attribute>
   <xsl:attribute name="rcs.revision">
-    <xsl:value-of select="'$Revision: 1.2 $'"/>
+    <xsl:value-of select="'$Revision: 1.3 $'"/>
   </xsl:attribute>
 
     <xsl:apply-templates select="schema">      
@@ -91,8 +91,13 @@
   <xsl:variable name="linkend" select="translate(@name,$UPPER, $LOWER)"/>
   -->
   <xsl:variable name="linkend" select="@name"/>
+
   <xsl:comment> ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  <xsl:value-of select="concat(' Schema: ',@name,' ')"/>
+  Schema: <xsl:value-of select="@name"/>
+  &#x20;<xsl:call-template name="output_express_ref">
+    <xsl:with-param name="schema" select="@name"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ </xsl:comment>
   <xsl:element name="ext_description">
     <xsl:attribute name="linkend">
@@ -109,6 +114,7 @@
   <xsl:apply-templates select="./procedure"/>
 </xsl:template>
 
+
 <xsl:template match="entity">
   <!--
   <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
@@ -124,7 +130,11 @@
   <xsl:comment> 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
-  <xsl:value-of select="concat(' Entity: ',@name,' ')"/>
+  <xsl:value-of select="concat(' Entity: ',@name,' ')"/> 
+  &#x20;<xsl:call-template name="output_express_ref">
+    <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   </xsl:comment>
   <xsl:element name="ext_description">
@@ -159,6 +169,10 @@
   <xsl:value-of select="concat(' Schema: ',../../@name,' ')"/>
   <xsl:value-of select="concat(' Entity: ',../@name,' ')"/>
   <xsl:value-of select="concat(' Attribute: ',@name,' ')"/>
+  &#x20;<xsl:call-template name="output_express_ref">
+    <xsl:with-param name="schema" select="../../@name"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   </xsl:comment>
   <xsl:element name="ext_description">
@@ -189,6 +203,12 @@
   <xsl:value-of select="concat(' Schema: ',../../@name,' ')"/>
   <xsl:value-of select="concat(' Entity: ',../@name,' ')"/>
   <xsl:value-of select="concat(' Where: ',@label,' ')"/>
+  &#x20;<xsl:call-template name="output_express_ref">
+  <xsl:with-param name="schema" select="../../@name"/>
+    <xsl:with-param name="rule" select="'wr'"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
+
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   </xsl:comment>
   <xsl:element name="ext_description">
@@ -220,6 +240,11 @@
   <xsl:value-of select="concat(' Schema: ',../../@name,' ')"/>
   <xsl:value-of select="concat(' Entity: ',../@name,' ')"/>
   <xsl:value-of select="concat(' Unique: ',@label,' ')"/>
+  &#x20;<xsl:call-template name="output_express_ref">
+  <xsl:with-param name="schema" select="../../@name"/>
+    <xsl:with-param name="rule" select="'ur'"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   </xsl:comment>
   <xsl:element name="ext_description">
@@ -249,6 +274,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
   <xsl:value-of select="concat(' Type: ',@name,' ')"/>
+  &#x20;<xsl:call-template name="output_express_ref">
+  <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   </xsl:comment>
   <xsl:element name="ext_description">
@@ -277,6 +306,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
   <xsl:value-of select="concat(' Function: ',@name,' ')"/>
+  &#x20;<xsl:call-template name="output_express_ref">
+  <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   </xsl:comment>
   <xsl:element name="ext_description">
@@ -304,6 +337,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
   <xsl:value-of select="concat(' Rule: ',@name,' ')"/>
+  &#x20;<xsl:call-template name="output_express_ref">
+  <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   </xsl:comment>
   <xsl:element name="ext_description">
@@ -332,6 +369,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
   <xsl:value-of select="concat(' Procedure: ',@name,' ')"/>
+  &#x20;<xsl:call-template name="output_express_ref">
+  <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   </xsl:comment>
   <xsl:element name="ext_description">
@@ -361,6 +402,10 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   <xsl:value-of select="concat(' Schema: ',../@name,' ')"/>
   <xsl:value-of select="concat(' Constant: ',@name,' ')"/>
+  &#x20;<xsl:call-template name="output_express_ref">
+  <xsl:with-param name="schema" select="../@name"/>
+    <xsl:with-param name="linkend" select="$linkend"/>
+  </xsl:call-template>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   </xsl:comment>
   <xsl:element name="ext_description">
@@ -380,6 +425,30 @@
 
 <xsl:template match="described.item">
 
+</xsl:template>
+
+<xsl:template name="output_express_ref">
+  <xsl:param name="schema"/>
+  <xsl:param name="linkend"/>
+  <xsl:param name="rule"/>
+  <xsl:variable name="arm_mim">
+    <xsl:choose>
+      <xsl:when test="contains($schema,'_arm')">
+        <xsl:value-of select="'arm'"/>
+      </xsl:when>
+      <xsl:when test="contains($schema,'_mim')">
+        <xsl:value-of select="'mim'"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:variable name="module">
+    <xsl:call-template name="module_name">
+      <xsl:with-param name="module" select="$schema"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:value-of 
+      select="concat('&lt;express_ref linkend=&quot;',
+              $module,':',$arm_mim,':'$linkend,'&quot;/&gt;')"/>  
 </xsl:template>
 
 

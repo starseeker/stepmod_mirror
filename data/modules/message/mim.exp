@@ -1,6 +1,6 @@
 
 (*
-$Id: mim.exp,v 1.12 2003/01/23 13:49:13 seanbarker Exp $
+$Id: mim.exp,v 1.13 2003/02/10 17:41:29 seanbarker Exp $
 ISO TC184/SC4/WG12 N1476 - ISO/CD-TS 10303-1270 Message - EXPRESS MIM
 *) 
 
@@ -16,13 +16,11 @@ USE FROM Group_mim;    -- ISO/CD-TS 10303-1113
 USE FROM group_schema   -- ISO 10303-41
   (group); 
 
-USE FROM management_resources_schema;    -- ISO 10303-41
-
 USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
 
 USE FROM Person_organization_mim;    -- ISO/TS 10303-1011
 
-USE FROM Product_definition_schema   -- ISO 10303-41
+USE FROM product_definition_schema   -- ISO 10303-41
   (product,
    product_category,
    product_related_product_category,
@@ -40,7 +38,8 @@ USE FROM Security_classification_mim;    -- ISO/TS 10303-1015
 
 USE FROM State_observed_mim;    -- ISO/CD-TS 10303-1256
 
-USE FROM state_observed_schema;    -- ISO 10303-56
+USE FROM state_observed_schema   -- ISO 10303-56
+  (state_of_item); 
 
 
 TYPE contents_item = SELECT BASED_ON groupable_item WITH 
@@ -55,7 +54,7 @@ TYPE message_date = SELECT BASED_ON date_item WITH
    (structured_message);
 END_TYPE; 
 
-TYPE message_date_time = SELECT BASED_ON date_and_time_item WITH 
+TYPE message_date_time = SELECT BASED_ON date_time_item WITH 
    (structured_message);
 END_TYPE; 
 
@@ -81,14 +80,14 @@ END_TYPE;
 
 ENTITY containing_message
   SUBTYPE OF (applied_group_assignment);
-  SELF\applied_group_assignment.assigned_group : message_contents_group;
+  SELF\group_assignment.assigned_group : message_contents_group;
   SELF\applied_group_assignment.items RENAMED containing_message : SET[1:1] OF message_having_contents;
 END_ENTITY;
 
 ENTITY message_contents_assignment
   SUBTYPE OF (applied_group_assignment);
-  SELF\applied_group_assignment.assigned_group : message_contents_group;
-  SELF\applied_group_assignment.items : SET[0:?] OF contents_item;
+  SELF\group_assignment.assigned_group : message_contents_group;
+  SELF\applied_group_assignment.items : SET[1:?] OF contents_item;
 END_ENTITY;
 
 ENTITY message_contents_group

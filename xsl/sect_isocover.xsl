@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.6 2004/10/20 10:47:26 robbod Exp $
+$Id: sect_isocover.xsl,v 1.7 2004/10/30 07:12:13 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -18,8 +18,8 @@ $Id: sect_isocover.xsl,v 1.6 2004/10/20 10:47:26 robbod Exp $
   <xsl:import href="res_doc/common.xsl"/>
 
   <xsl:output method="html"
-    doctype-system="http://www.w3.org/TR/REC-html40/Strict.dtd"
-    doctype-public="-//W3C//DTD HTML 4.0//EN"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
     indent="yes"
     />
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.3 2002/10/24 06:14:09 thendrix Exp $
+$Id: common.xsl,v 1.4 2002/12/17 11:43:33 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2528,6 +2528,7 @@ is case sensitive.')"/>
       <xsl:when test="$table_fig_node/ancestor::inscope[1]|$table_fig_node/ancestor::outscope[1]">
         <xsl:value-of select="concat('1_scope',$FILE_EXT)"/>
       </xsl:when>
+
       <xsl:when test="$table_fig_node/ancestor::ext_descriptions[1][@schema_file='arm.xml']">
         <xsl:value-of select="concat('4_info_reqs',$FILE_EXT)"/>
       </xsl:when>
@@ -2535,11 +2536,11 @@ is case sensitive.')"/>
       <xsl:when test="$table_fig_node/ancestor::schema">
         <xsl:variable name="schema" select="//schema/@name"/>
         <xsl:choose>
-          <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
-            <xsl:value-of select="concat('4_info_reqs',$FILE_EXT)"/>
+          <xsl:when test="substring($schema,string-length($schema)-6)='_schema'">
+            <xsl:value-of select="concat(position()+3,'_schema',$FILE_EXT)"/>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="concat('5_mim',$FILE_EXT)"/>
+            <xsl:value-of select="concat('',$FILE_EXT)"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -2547,8 +2548,17 @@ is case sensitive.')"/>
       <xsl:when test="$table_fig_node/ancestor::ext_descriptions[1][@schema_file='mim.xml']">
         <xsl:value-of select="concat('5_mim',$FILE_EXT)"/>
       </xsl:when>
-      <xsl:when test="$table_fig_node/ancestor::usage_guide[1]">
-        <xsl:value-of select="concat('f_guide',$FILE_EXT)"/>
+
+      <xsl:when test="$table_fig_node/ancestor::tech_discussion[1]">
+        <xsl:value-of select="concat('tech_discussion',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="$table_fig_node/ancestor::examples[1]">
+        <xsl:value-of select="concat('examples',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="$table_fig_node/ancestor::add_scope[1]">
+        <xsl:value-of select="concat('add_scope',$FILE_EXT)"/>
       </xsl:when>
 
     </xsl:choose>

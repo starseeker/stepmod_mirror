@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.9 2002/12/20 12:35:58 nigelshaw Exp $
+$Id: sect_contents.xsl,v 1.10 2002/12/23 18:24:45 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -306,11 +306,27 @@ $Id: sect_contents.xsl,v 1.9 2002/12/20 12:35:58 nigelshaw Exp $
 
 
    <h3>Tables</h3>
-   <xsl:apply-templates select="//table" mode="toc"/>
+
+   <!-- collect any tables from each section- must do this to get shortname in sequence -->
+   <xsl:apply-templates select="./purpose//table" mode="toc"/>
+
+   <xsl:apply-templates select="./inscope//table" mode="toc"/>
+   <xsl:apply-templates select="./outscope//table" mode="toc"/>
+   <xsl:apply-templates select="./schema//table" mode="toc"/>
+   <!-- collect up the EXpressG figures from the schemas -->
+
    <xsl:apply-templates select="//shortnames" mode="toc" />
+
+   <!-- collect up the figures from the annexes --> 
+   <xsl:apply-templates select="./tech_discussion//table" mode="toc"/>
+   <xsl:apply-templates select="./example//table" mode="toc"/>
+   <xsl:apply-templates select="./add_scope//table" mode="toc"/>
+
+
    <h3>Figures</h3>
-   <!-- collect up the figures from the Module -->
+   <!-- collect any figures from the introduction -->
    <xsl:apply-templates select="./purpose//figure" mode="toc"/>
+   <!-- collect interface diagram figures from the introduction -->
    <xsl:apply-templates 
      select="./schema_diag//imgfile" mode="expressg_figure"/>
 
@@ -319,8 +335,11 @@ $Id: sect_contents.xsl,v 1.9 2002/12/20 12:35:58 nigelshaw Exp $
    <!-- collect up the EXpressG figures from the schemas -->
    <xsl:apply-templates 
      select="./schema//imgfile" mode="expressg_figure"/>
-   <xsl:apply-templates select="./usage_guide//figure" mode="toc"/>
- </xsl:template>
+   <!-- collect up the figures from the remaining annexes --> 
+   <xsl:apply-templates select="./tech_discussion//figure" mode="toc"/>
+   <xsl:apply-templates select="./examples//figure" mode="toc"/>
+   <xsl:apply-templates select="./add_scope//figure" mode="toc"/>
+</xsl:template>
 
 
  <xsl:template match="table|figure" mode="toc">
@@ -352,7 +371,7 @@ $Id: sect_contents.xsl,v 1.9 2002/12/20 12:35:58 nigelshaw Exp $
    <p class="content">
      <a href="{$href}">      
      <xsl:value-of 
-       select="concat($table_or_fig,' ',$number, ' &#8212; ', ./@title, ./@caption)"/>
+       select="concat($table_or_fig,' ',$number, ' &#8212; ', ./title, ./@caption)"/>
      </a>
    </p>
 

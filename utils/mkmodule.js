@@ -1,4 +1,4 @@
-//$Id: mkmodule.js,v 1.12 2002/06/17 15:47:36 robbod Exp $
+//$Id: mkmodule.js,v 1.13 2002/06/17 16:00:13 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:  JScript to generate the default XML for the module.
@@ -14,7 +14,7 @@
 
 // Change this to wherever you have installed the module repository
 // Note the use of UNIX path descriptions as opposed to DOS
-var stepmodHome = "e:/My Documents/projects/nist_module_repo/stepmod";
+var stepmodHome = "e:/qMy Documents/projects/nist_module_repo/stepmod";
 
 var moduleClauses = new Array("main", "cover", "contents", 
 			      "introduction", "foreword", 
@@ -28,21 +28,31 @@ var moduleClauses = new Array("main", "cover", "contents",
 			      "f_guide", 
 			      "biblio");
 
+// If 1 then output user messages
+var outputUsermessage = 1;
+
+
+
 //------------------------------------------------------------
-function ErrorMessage(msg){
-    var objShell = WScript.CreateObject("WScript.Shell");
-    WScript.Echo(msg);
-    objShell.Popup(msg);
+function userMessage(msg){
+    if (outputUsermessage == 1)
+	WScript.Echo(msg);
 }
 
-function userMessage(msg) {
-    WScript.Echo(msg);
-}		
+
+function ErrorMessage(msg){
+    var objShell = WScript.CreateObject("WScript.Shell");
+    if (outputUsermessage == 1)
+	WScript.Echo(msg);
+    objShell.Popup(msg);
+}
 
 function CheckStepHome() {
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     if (!fso.FolderExists(stepmodHome)) {
-	ErrorMessage("The variable stepmodHome is incorrectly set in mkmodule.js\n"+ stepmodHome);
+	ErrorMessage("The variable stepmodHome is incorrectly set in:\n"+
+		     "stepmod/utils/mkmodule.js to:\n\n"+stepmodHome+
+		     "\n\nNote: it is a UNIX rather then WINDOWS path i.e. uses / not \\");
 	return(false);
     } 
     return(true);
@@ -76,6 +86,36 @@ function GetModuleDir(module) {
     return( stepmodHome+"/data/modules/"+module+"/");
 }
 
+// Create the dvlp directory and insert the projmg and issues file
+function MakeDvlpDir(module) {
+    var ForReading = 1, ForWriting = 2, ForAppending = 8;
+    var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var modFldr = GetModuleDir(module);
+    var modDvlpFldr = modFldr+"dvlp/";
+    var projmgXML = modDvlpFldr+"projmg.xml";
+    var issuesXML = modDvlpFldr+"issues.xml";
+
+    var f,ts;
+    if (!fso.FolderExists(modDvlpFldr)) 
+	fso.CreateFolder(modDvlpFldr);
+    if (!fso.FileExists(projmgXML)) { 
+	fso.CreateTextFile(projmgXML, true );
+	f = fso.GetFile(projmgXML);
+	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+	// ADD XML HERE
+	ts.Close();
+    }
+    if (!fso.FileExists(issuesXML)) {
+	fso.CreateTextFile(issuesXML, true );
+	f = fso.GetFile(issuesXML);
+	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+	// ADD XML HERE
+	ts.Close();
+    }
+}
+
+
 function MakeModuleClause(module, clause) {
     var ForReading = 1, ForWriting = 2, ForAppending = 8;
     var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
@@ -91,7 +131,7 @@ function MakeModuleClause(module, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.12 2002/06/17 15:47:36 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.13 2002/06/17 16:00:13 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");
@@ -114,7 +154,7 @@ function MakeModuleXML(module, partNo) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.12 2002/06/17 15:47:36 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.13 2002/06/17 16:00:13 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
     //ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     //ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -201,7 +241,7 @@ function MakeExpressG(module, expgfile, title, gif) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.12 2002/06/17 15:47:36 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.13 2002/06/17 16:00:13 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/text.ent\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("    href=\"../../../xsl/imgfile.xsl\"?>");
@@ -228,7 +268,7 @@ function MakeExpressXML(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.12 2002/06/17 15:47:36 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkmodule.js,v 1.13 2002/06/17 16:00:13 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");

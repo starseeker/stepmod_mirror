@@ -1,5 +1,5 @@
 (*
-  $Id: mim.exp,v 1.6 2002/10/24 23:36:03 thendrix Exp $
+  $Id: mim.exp,v 1.7 2002/11/12 20:54:31 goset1 Exp $
   ISO/TC184/SC4 WG12N1377 - ISO/CD-TS 10303-1106 Extended_measure_representation MIM
 *)
 
@@ -70,22 +70,18 @@ END_FUNCTION;
    
 FUNCTION value_range_wr3(
     agg: AGGREGATE OF representation_item): BOOLEAN;
-  BEGIN
-    IF (SIZEOF(QUERY ( i <* agg | (
-    'EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM' IN 
-    TYPEOF(i)) )) <> 2) OR (SIZEOF(QUERY ( i1 <* agg | 
-     ('EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM' 
-     IN TYPEOF (i1))
-     AND
-     (SIZEOF(QUERY ( i2 <* agg | 
-	((i1\measure_with_unit.unit_component:=: i2\measure_with_unit.unit_component) OR
-     (i1\measure_with_unit.unit_component :=: i2\measure_with_unit.unit_component)) ))
-    = 2) )) = 2) THEN
-      RETURN(TRUE);
-    ELSE
-      RETURN(FALSE);
-    END_IF;
-  END;
+BEGIN 
+  IF (SIZEOF(QUERY( i1 <* agg | 
+    ('EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i1)) AND 
+  (SIZEOF ( QUERY (i2 <* agg | 
+    ('EXTENDED_MEASURE_REPRESENTATION_MIM.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i2)) AND 
+  (i1 :<>: i2) AND  (i1\measure_with_unit.unit_component :=: i2\measure_with_unit.unit_component) ) ) = 1 ))) = 2 )
+  THEN 
+      RETURN (TRUE); 
+  ELSE 
+      RETURN (FALSE); 
+  END_IF; 
+END; 
 END_FUNCTION;
 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_summary.xsl,v 1.23 2004/02/23 20:55:15 thendrix Exp $
+$Id: ballot_summary.xsl,v 1.24 2004/07/30 21:59:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -722,8 +722,7 @@ $Id: ballot_summary.xsl,v 1.23 2004/02/23 20:55:15 thendrix Exp $
 
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'DC.Description'"/>
-    <xsl:with-param name="content">
-      <xsl:value-of select="@description"/><xsl:value-of select="./description"/></xsl:with-param>
+    <xsl:with-param name="content"><xsl:value-of select="@description"/><xsl:value-of select="./description"/></xsl:with-param>
   </xsl:call-template>
 
   <xsl:variable name="keywords">

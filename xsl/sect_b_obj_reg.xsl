@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.7 2002/05/30 08:37:28 robbod Exp $
+$Id: sect_b_obj_reg.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -112,6 +112,62 @@ $Id: sect_b_obj_reg.xsl,v 1.7 2002/05/30 08:37:28 robbod Exp $
     ISO 10303-1.  
   </p>
 
+
+
+  <xsl:if test="./arm_lf">
+    <!-- get the name of the ARM_LF schema from the express -->
+    <xsl:variable name="arm_lf_xml"
+      select="concat($module_dir,'/arm_lf.xml')"/>
+    <xsl:variable name="arm_schema_lf" 
+      select="document($arm_lf_xml)/express/schema/@name"/>
+    <xsl:variable name="arm_schema_lf_reg" 
+      select="translate($arm_schema_lf,$UPPER, $LOWER)"/>
+    
+
+    <h2>B.2.3 <xsl:value-of select="$arm_schema_lf"/> schema identification</h2>
+
+    <p>
+      To provide for unambiguous identification of the schema specifications
+      given in this application module in an open information system, the object
+      identifiers are assigned as follows: 
+    </p>
+    <p align="center">
+      <xsl:value-of 
+        select="concat($object_reg,' schema(1) ', $arm_schema_lf_reg,'(3) }' )"/>
+    </p>
+    <p>
+      is assigned to the <xsl:value-of select="$arm_schema_lf"/> schema. 
+      The meaning of this value is defined in ISO 8824-1, and is described in
+      ISO 10303-1.
+    </p>
+  </xsl:if>
+
+  <xsl:if test="./mim_lf">
+    <!-- get the name of the MIM_LF schema from the express -->
+    <xsl:variable name="mim_lf_xml"
+      select="concat($module_dir,'/mim_lf.xml')"/>
+    <xsl:variable name="mim_schema_lf" 
+      select="document($mim_lf_xml)/express/schema/@name"/>
+    <xsl:variable name="mim_schema_lf_reg" 
+      select="translate($mim_schema_lf,$UPPER, $LOWER)"/>
+    
+    <h2>B.2.2 <xsl:value-of select="$mim_schema_lf"/> schema identification</h2>
+
+    <p>
+      To provide for unambiguous identification of the schema specifications
+      given in this application module in an open information system, the object
+      identifiers are assigned as follows: 
+    </p>
+    <p align="center">
+      <xsl:value-of 
+        select="concat($object_reg,' schema(1) ', $mim_schema_lf_reg,'(4) }' )"/>
+    </p>
+    <p>
+      is assigned to the <xsl:value-of select="$mim_schema_lf"/> schema. 
+      The meaning of this value is defined in ISO 8824-1, and is described in
+      ISO 10303-1.
+    </p>
+  </xsl:if>
 </xsl:template>
   
 </xsl:stylesheet>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.29 2003/08/21 15:14:14 robbod Exp $
+$Id: common.xsl,v 1.30 2004/07/17 08:08:10 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -787,10 +787,10 @@ $Id: common.xsl,v 1.29 2003/08/21 15:14:14 robbod Exp $
     <xsl:variable name="construct_tmp">
       <xsl:choose>
         <xsl:when test="contains($nlinkend2,':')">
-          <xsl:value-of select="substring-before($nlinkend2,':')"/>
+          <xsl:value-of select="normalize-space(substring-before($nlinkend2,':'))"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="$nlinkend2"/>
+          <xsl:value-of select="normalize-space($nlinkend2)"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -809,6 +809,7 @@ $Id: common.xsl,v 1.29 2003/08/21 15:14:14 robbod Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
+
 
     <xsl:variable name="construct">
       <xsl:choose>
@@ -833,7 +834,7 @@ $Id: common.xsl,v 1.29 2003/08/21 15:14:14 robbod Exp $
         </xsl:when>
 
         <!-- AAM definition don't have construct as prefix -->
-        <xsl:when test="$construct_tmp=$construct_tmp='activity'
+        <xsl:when test="$construct_tmp='activity'
                         or $construct_tmp='icom'">
           <xsl:choose>
             <!-- test that an id has been given -->
@@ -856,7 +857,8 @@ $Id: common.xsl,v 1.29 2003/08/21 15:14:14 robbod Exp $
           <xsl:value-of select="'data_plan'"/>
         </xsl:when>
 
-        <xsl:when test="$construct_tmp=''"/>
+        <xsl:when test="string-length($construct_tmp)=0"/>
+          
 
         <xsl:otherwise>
           <!--
@@ -952,7 +954,7 @@ $Id: common.xsl,v 1.29 2003/08/21 15:14:14 robbod Exp $
             Figure <a href="../{$dp_file}"><xsl:value-of select="$figure_count+1"/></a>
           </xsl:when>
 
-          <xsl:when test="string-length($construct)">
+          <xsl:when test="string-length($construct)!=0">
             <a href="4_info_reqs{$FILE_EXT}"><xsl:apply-templates/></a>
           </xsl:when>
           <xsl:otherwise>

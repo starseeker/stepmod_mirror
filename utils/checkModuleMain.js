@@ -1,4 +1,4 @@
-//$Id: checkModuleMain.js,v 1.3 2003/03/10 01:27:38 robbod Exp $
+//$Id: checkModuleMain.js,v 1.4 2003/10/08 16:13:15 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -238,6 +238,29 @@ function getExpId(moduleName,armmim) {
     }
 }
 
+function getExpSchema(moduleName,armmim) {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var expFileName = "../data/modules/"+moduleName+"/"+armmim+".exp";
+    if (fso.FileExists(expFileName)) {
+	var expF = fso.GetFile(expFileName);
+	var expTs = expF.OpenAsTextStream(ForReading, TristateUseDefault);
+	while (!expTs.AtEndOfStream)
+	    {
+		var l = expTs.ReadLine();
+		var reg = /SCHEMA /;
+		if (l.match(reg)) {
+		    var schemaName = normalizeSpace(l.replace(reg,''));
+		    reg = /;/;
+		    schemaName = schemaName.replace(reg,'');
+		    return(schemaName);
+		}
+	    }
+    } else {
+	errorMessage(expFileName+" does not exist");
+	return("");
+    }
+}
+
 
 // Check that all the sys, nav and dvlp folders are present
 function checkModuleFldr(moduleName, fldrName, fileArray) {
@@ -414,8 +437,8 @@ function checkExpressFile(moduleName,armmim) {
 	var line2 = normalizeSpace(getExpId(moduleName,armmim));
 	
 	if (line1 != line2) {
-	    var id = "$Id: "+"$";
-	    var msg = "Error. Header of "+armmim+".exp is incorect. It should be\n(*";
+	    var id = "$Id: checkModuleMain.js,v 1.4 2003/10/08 16:13:15 robbod Exp $";
+	    var msg = "Error - Header of "+armmim+".exp is incorrect. It should be\n(*";
 	    if (wgn_supersedes) {
 		msg = msg+"\n "+id+"\n "+header+"\n "+supersedes+"\n*)\n";
 	    } else {
@@ -423,9 +446,15 @@ function checkExpressFile(moduleName,armmim) {
 	    }
 	    errorMessage(msg);
 	}
-	// Now open arm.exp and make sure that:
-	// - there is one schema and it is the correct name
-	// - the header is correc tand has the same number as in the module.
+
+	var schema = getExpSchema(moduleName,armmim);
+	schema = schema.toLowerCase();
+	var module_exp = moduleName+"_"+armmim;
+	module_exp = module_exp.toLowerCase();
+	if (schema != module_exp) {
+	    var msg = "Error - The schema (" + schema + ") in the file (" +moduleName+"/"+armmim+ ".exp) does not correspond to the module.";
+	    errorMessage(msg);
+	}
     }
 }
 
@@ -501,8 +530,9 @@ function Main() {
 //MainWindow("ap239_management_resource_information");
 //testModule("condition");
 //testModule("ap239_product_definition_information");
-//checkExpressFile("condition", "arm");
+checkExpressFile("condition", "arm");
 //checkExpressFile("ap239_product_definition_information", "arm");
 
 //testRepository();
+
 

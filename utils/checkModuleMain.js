@@ -1,4 +1,4 @@
-//$Id: testRepositoryIndexMain.js,v 1.3 2002/07/30 13:23:45 robbod Exp $
+//$Id: checkModuleMain.js,v 1.1 2003/02/15 12:45:22 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -16,11 +16,24 @@ var stepmodHome = '..';
 // If 1 then output user messages
 var outputUsermessage = 1;
 
+// A string that collects up all the user messages
+var userMsgStr = "";
+
+
+// A string that collects up all the error messages
+var errorMsgStr = "";
+
+// A count of all the errors
+// set in testModule and incremented in errorMessage;
+var errorCount = 0;
+
 // If 1 then popup error message
 var popUpErrormessage = 0;
 
 var ForReading = 1, ForWriting = 2, ForAppending = 8;
 var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+
+
 
 
 
@@ -50,9 +63,6 @@ var moduleFiles = new Array("module.xml",
 			   "arm.xml",
 			   "mim.xml");
 
-// If 1 then output user messages
-var outputUsermessage = 1;
-
 
 
 function testArgs() {
@@ -69,26 +79,30 @@ function testArgs() {
 
 //------------------------------------------------------------
 function userMessage(msg){
+    userMsgStr += msg;
     if (outputUsermessage == 1)
-	WScript.Echo(msg);
+	WScript.Echo(msg);  
+    errorMsgStr += msg+"\n"; 
 }
 
 
 function errorMessage(msg){
+    errorCount = errorCount+1;
     var objShell = WScript.CreateObject("WScript.Shell");
     if (outputUsermessage == 1)
 	WScript.Echo(msg);
     if (popUpErrormessage == 1)
-	objShell.Popup(msg);    
+	objShell.Popup(msg);  
+    errorMsgStr += msg+"\n";  
 }
 
 
 function checkXMLParse(doc) {
     if (doc.parseError.errorCode !=0) {
-	var strError = new String;
-	
+	var strError = new String;	
 	var fso = new ActiveXObject("Scripting.FileSystemObject");
-	if (!fso.FileExists(doc.parseError.url)) {
+	var file = doc.parseError.url.replace("file:///","");
+	if (!fso.FileExists(file)) {
 	    strError='Error: File:'+doc.parseError.url+' does not exist\n';
 	}
 
@@ -99,7 +113,7 @@ function checkXMLParse(doc) {
 	    + '  File Position: ' + doc.parseError.filepos + '\n'
 	    + '  Source Text: ' + doc.parseError.srcText + '\n'
 	    + '  Error Code: ' + doc.parseError.errorCode + '\n'
-	    + '  Description: ' + doc.parseError.reason;
+	    + '  Description: ' + doc.parseError.reason + '\n';
 	errorMessage(strError);
     }
     return (doc.parseError.errorCode == 0 );
@@ -195,14 +209,14 @@ function checkModuleFldr(moduleName, fldrName, fileArray) {
     var modFldr = "../data/modules/"+moduleName+"/"+fldrName;
     
     if (!fso.FolderExists(modFldr)) {
-	errorMessage("Error: "+modFldr + " not found");
+	errorMessage("Critical Error: "+modFldr + " not found");
     }
     
     for (var i=0; i<fileArray.length; i++) {
 	var fileName = fileArray[i];
 	var file = modFldr+"/"+fileName;
 	if (!fso.FileExists(file))
-	    errorMessage("Error: "+file + " not found");
+	    errorMessage("Critical Error: "+file + " not found");
     }
 }
 
@@ -214,12 +228,12 @@ function checkExpressGFileInModule(moduleName,fileName) {
     var xmlFile = modDir+"/"+fileName;
     //userMessage("Checking "+ moduleName + " " + fileName + " " + xmlFile);
     if (!fso.FileExists(xmlFile)) {
-	errorMessage("Error: "+fileName + " specified in "+moduleName+"/module.xml but not found");
+	errorMessage("Critical Error: "+fileName + " specified in "+moduleName+"/module.xml but not found");
     }
     var gifFile = xmlFile.replace('.xml','.gif');
     if (!fso.FileExists(gifFile)) {
 	fileName = fileName.replace('.xml','.gif');
-	errorMessage("Error: "+fileName + " specified in "+moduleName+"/module.xml but not found");
+	errorMessage("Critical Error: "+fileName + " specified in "+moduleName+"/module.xml but not found");
     }
 }
 
@@ -238,10 +252,17 @@ function checkExpressGFileInModFldr(moduleName) {
 	for (; !fc.atEnd(); fc.moveNext()) {
 	    var f = fc.item();
 	    var fname = f.Name;
-	    var reg = /armexpg.*xml/;
+	    var reg = /^armexpg.*xml$/;
 	    if (fname.match(reg)) {
 		var expr = '/module/arm/express-g/imgfile[@file=\''+fname+'\']';
-		//expr = '/module/arm/express-g/imgfile';
+		var expNodes = xml.selectNodes(expr);
+		var members = expNodes.length;
+		if (members == 0)
+		    errorMessage("Error: "+fname+" in folder: "+modDir+" but not listed in "+modDir+"/module.xml");
+	    }
+	    reg = /^mimexpg.*xml$/;
+	    if (fname.match(reg)) {
+		var expr = '/module/mim/express-g/imgfile[@file=\''+fname+'\']';
 		var expNodes = xml.selectNodes(expr);
 		var members = expNodes.length;
 		if (members == 0)
@@ -298,7 +319,7 @@ function checkExpress(moduleName,expressXml) {
 	    var descriptionFile = descFileAttr.nodeValue;
 	    descriptionFile = "../data/modules/"+moduleName+"/"+descriptionFile;
 	    if (!fso.FileExists(descriptionFile)) {
-		errorMessage("Error: "+descriptionFile+" identified in "+xmlFile+" but not found");
+		errorMessage("Critical Error: "+descriptionFile+" identified in "+xmlFile+" but not found");
 	    } else 
 	    // having found a reference express description file, check that it is valid XML
 	    checkXML(xmlFile);
@@ -313,7 +334,45 @@ function checkExpress(moduleName,expressXml) {
     }
 }
 
-function MainWindow(module) {
+
+function testModule(moduleName) {
+    errorCount = 0;
+    userMessage("____________________________________________________________\nChecking module: "+moduleName+"\n");
+    checkModuleFldr(moduleName,'.',moduleFiles);
+    checkModuleFldr(moduleName,'sys',moduleSysFiles);
+    checkModuleFldr(moduleName,'nav',moduleNavFiles);
+    checkModule(moduleName);
+    checkExpress(moduleName,"arm.xml");
+    checkExpress(moduleName,"mim.xml");
+    if (errorCount > 0) {
+	userMessage("There are "+errorCount+" errors in the module files\n");
+    } else {
+	userMessage("Module OK\n");
+    }
+    return(errorMsgStr);
+}
+
+
+// Test all the modules in the repository
+function testRepository() {
+    var repoIndexXml = "../repository_index.xml";
+    // create a new document instance
+    var objXML = new ActiveXObject('MSXML2.DOMDocument.3.0');
+    objXML.async = true;
+    objXML.load(repoIndexXml);
+    if (checkXMLParse(objXML)) {
+	var expr = "/repository_index/modules/module";
+	var moduleNodes = objXML.selectNodes(expr);
+	var members = moduleNodes.length;
+	for (var i = 0; i < members; i++) {	
+	    var node = moduleNodes(i);
+	    var moduleName = node.attributes.getNamedItem("name").nodeValue;
+	    testModule(moduleName);
+	}
+    }
+}
+
+function MainWindowOld(module) {
     var objShell = WScript.CreateObject("WScript.Shell");
     var modName = NameModule(module);
     var dateArmExp = getDate(getExpId(module,'arm'));
@@ -323,28 +382,29 @@ function MainWindow(module) {
     userMessage(dateArmXml);
 
     if (compareDates(dateArmExp,dateArmXml)) {
-	errorMessage("arm.exp (date: "+dateArmExp+")has not been created from arm.xml (date:"+dateArmXml+")");
+	errorMessage("arm.exp (date: "+dateArmExp+") has not been created from arm.xml (date:"+dateArmXml+")");
     }
 }
+
 
 
 function Main() {
     if (testArgs()==1) {
 	var cArgs = WScript.Arguments;
 	var moduleName = cArgs(0);
-	userMessage("____________________________________________________________\nChecking module: "+moduleName);
-	checkModule(moduleName);
-	checkExpress(moduleName,"arm.xml");
-	checkExpress(moduleName,"mim.xml");
-	checkModuleFldr(moduleName,'.',moduleFiles);
-	checkModuleFldr(moduleName,'sys',moduleSysFiles);
-	checkModuleFldr(moduleName,'nav',moduleNavFiles);
+	var errStr = testModule(moduleName);
+	if (errorCount > 0) {
+	    errorMessage("There are "+errorCount+" errors in the module files");
+	} 	    
     }
 }
 
-Main();
+//Main();
 
 //MainWindow("ap239_management_resource_information");
 //checkModule("condition");
 //checkModule("condition_criteria");
-//checkModule("expression_applications");
+//testModule("classification_with_attributes");
+
+
+//testRepository();

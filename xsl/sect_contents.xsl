@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.32 2004/11/02 09:51:32 robbod Exp $
+$Id: sect_contents.xsl,v 1.33 2004/11/02 09:56:04 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -778,6 +778,12 @@ $Id: sect_contents.xsl,v 1.32 2004/11/02 09:51:32 robbod Exp $
     <A HREF="./b_obj_reg{$FILE_EXT}">Annex B Information object registration</A><br/>
     &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b1">B.1 Document identification</A><br/>
     &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b2">B.2 Schema identification</A><br/>
+
+    <!-- RBN 2004-11-02
+         according to the sup dirs the TOC shall contain entries to the
+         second level (the first subclause level).
+         Hence this is commented out.
+
     &#160;&#160;&#160;&#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b21">B.2.1 <xsl:value-of select="$arm_schema_xml/@name"/> schema identification</A><br/>
     
     &#160;&#160;&#160;&#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b22">B.2.2 <xsl:value-of select="$mim_schema_xml/@name"/> schema identification</A><br/>
@@ -795,6 +801,8 @@ $Id: sect_contents.xsl,v 1.32 2004/11/02 09:51:32 robbod Exp $
       select="document($mim_lf_xml)/express/schema/@name"/>
       &#160;&#160;&#160;&#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b24">B.2.4 <xsl:value-of select="$mim_schema_lf"/> schema identification</A><br/>       
     </xsl:if>
+    RBN 2004-11-02 -->
+
 
   <!-- use #annexc to link direct -->
     <A HREF="./c_arm_expg{$FILE_EXT}">Annex C ARM EXPRESS-G</A>

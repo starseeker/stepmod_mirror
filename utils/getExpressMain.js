@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.10 2003/01/23 08:11:26 robbod Exp $
+//$Id: getExpressMain.js,v 1.11 2003/03/10 01:27:38 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -659,21 +659,35 @@ function getExpressFileName(moduleName, arm_or_mim) {
 	    var status = moduleNode.attributes.getNamedItem("status").nodeValue;
 	    status = status.replace(/[^a-zA-Z]/g,"");
 	    status = status.toLowerCase();
-	    var wgGroup = moduleNode.attributes.getNamedItem("sc4.working_group").nodeValue;
-	    if (wgGroup=="") wgGroup = "12";
+	    var wgGroup = moduleNode.attributes.getNamedItem("sc4.working_group");
+	    if (wgGroup) {
+		wgGroup = wgGroup.nodeValue;
+	    } else {
+		wgGroup = "12";
+	    }
 	    var fileStub="part"+partNo+status+"_wg"+wgGroup+"n";
 	    if (arm_or_mim == "arm") {
 		var wgNo = moduleNode.attributes.getNamedItem("wg.number.arm").nodeValue;
 		fileName = fileStub+wgNo+"arm.exp";
 	    } else if (arm_or_mim == "arm_lf") {
-		var wgNo = moduleNode.attributes.getNamedItem("wg.number.arm_lf").nodeValue;
-		fileName = fileStub+wgNo+"arm_lf.exp";
+		var wgNo = moduleNode.attributes.getNamedItem("wg.number.arm_lf");
+		if (wgNo) {
+		    wgNo = wgNo.nodeValue;		
+		    fileName = fileStub+wgNo+"arm_lf.exp";
+		} else {
+		    fileName = "";
+		}
 	    } else if (arm_or_mim == "mim") {
 		var wgNo = moduleNode.attributes.getNamedItem("wg.number.mim").nodeValue;
 		fileName = fileStub+wgNo+"mim.exp";
 	    } else if (arm_or_mim == "mim_lf") {
-		var wgNo = moduleNode.attributes.getNamedItem("wg.number.mim_lf").nodeValue;
-		fileName = fileStub+wgNo+"mim_lf.exp";
+		var wgNo = moduleNode.attributes.getNamedItem("wg.number.mim_lf");
+		if (wgNo) {
+		    wgNo = wgNo.nodeValue;
+		    fileName = fileStub+wgNo+"mim_lf.exp";
+		} else {
+		    fileName = "";
+		}
 	    } else {
 		ErrorMessage("Must specifiy arm, arm_lf, mim or mim_lf");
 		fileName = "";
@@ -793,7 +807,7 @@ function MainWindowBallotExpress(ballotName) {
 //MainWindowIrList("..\\ballots\\ballots\\plcs_bp2\\express",  "..\\ballots\\ballots\\plcs_bp2\\modlist.txt", "..\\ballots\\ballots\\plcs_bp2\\irlist.txt");
 //MainWindow("..\\ballots\\ballots\\plcs_bp1\\express_nostate", "..\\ballots\\ballots\\plcs_bp1\\modlist_nostate.txt");
 
-//MainWindowBallotExpress("plcs_bp2");
+MainWindowBallotExpress("plcs_bp3");
 
 //outputModuleList("plcs_bp2");
 //outputModuleList("pdm_ballot_072002");

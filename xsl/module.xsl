@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.120 2003/01/03 10:04:25 robbod Exp $
+$Id: module.xsl,v 1.121 2003/01/06 17:41:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -362,6 +362,17 @@ o=isocs; s=central<br/>
         </a>
       </h3>
       <xsl:apply-templates select="./keywords"/>
+
+      <!-- check that valid keywords provided -->
+      <xsl:variable name="keywords" select="normalize-space(translate(./keywords,',&#x9;&#xA;&#x20;&#xD;',''))"/>
+      <xsl:if test="$keywords = 'module' or string-length($keywords)=0">
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message">
+            Error K-1: Error in module.xml/keywords - no keywords specified.
+          </xsl:with-param>
+        </xsl:call-template>            
+      </xsl:if>
+
       
       <h3>COMMENTS TO READER:</h3>
       <xsl:variable name="ballot_cycle_or_pub">

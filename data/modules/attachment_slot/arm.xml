@@ -3,12 +3,10 @@
   type="text/xsl" 
   href="../../../xsl/express.xsl"
 ?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $">
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="Slot_arm - Draft 012.vsd" />
+<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $" description.file="arm_descriptions.xml">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="Slot_arm - Draft 013.vsd" />
 <schema name="Attachment_slot_arm">
 <interface kind="use" schema="Interface_arm">
-</interface>
-<interface kind="use" schema="Part_view_definition_arm">
 </interface>
 <interface kind="use" schema="Product_identification_arm">
 </interface>
@@ -20,7 +18,7 @@
 <select extensible="YES" basedon="connector_on_item" selectitems="Slot_definition" />
 <graphic.element page="3" xcoord="298" ycoord="341" />
 </type>
-<entity name="Part_in_slot">
+<entity name="Product_in_slot">
 <explicit name="description">
 <builtintype type="STRING" />
 </explicit>
@@ -30,8 +28,8 @@
 <explicit name="name">
 <builtintype type="STRING" />
 </explicit>
-<explicit name="part">
-<typename name="Part_view_definition" />
+<explicit name="product">
+<typename name="Product_view_definition" />
 </explicit>
 <explicit name="slot">
 <typename name="Slot_definition" />
@@ -42,10 +40,10 @@
 <graphic.element page="2" xcoord="97" ycoord="418" />
 </entity>
 <entity name="Slot_as_planned" supertypes="Slot_version">
-<graphic.element page="2" xcoord="207" ycoord="198" />
+<graphic.element page="2" xcoord="267" ycoord="325" />
 </entity>
 <entity name="Slot_as_realized" supertypes="Slot_version">
-<graphic.element page="2" xcoord="340" ycoord="198" />
+<graphic.element page="2" xcoord="468" ycoord="325" />
 </entity>
 <entity name="Slot_definition" supertypes="Product_view_definition">
 <explicit name="definition_for">
@@ -54,12 +52,15 @@
 </explicit>
 <graphic.element page="2" xcoord="468" ycoord="418" />
 </entity>
+<entity name="Slot_design" supertypes="Slot_version">
+<graphic.element page="2" xcoord="97" ycoord="325" />
+</entity>
 <entity name="Slot_design_to_planned">
 <explicit name="description">
 <builtintype type="STRING" />
 </explicit>
 <explicit name="design">
-<typename name="Slot_version" />
+<typename name="Slot_design" />
 </explicit>
 <explicit name="id">
 <builtintype type="STRING" />
@@ -70,14 +71,16 @@
 <explicit name="planned">
 <typename name="Slot_as_planned" />
 </explicit>
-<graphic.element page="2" xcoord="82" ycoord="269" />
+<where label="WR1" expression="SELF.design.of_product :=: SELF.planned.of_product">
+</where>
+<graphic.element page="2" xcoord="73" ycoord="226" />
 </entity>
 <entity name="Slot_design_to_realized">
 <explicit name="description">
 <builtintype type="STRING" />
 </explicit>
 <explicit name="design">
-<typename name="Slot_version" />
+<typename name="Slot_design" />
 </explicit>
 <explicit name="id">
 <builtintype type="STRING" />
@@ -88,9 +91,11 @@
 <explicit name="realized">
 <typename name="Slot_as_realized" />
 </explicit>
-<graphic.element page="2" xcoord="448" ycoord="269" />
+<where label="WR1" expression="SELF.design.of_product :=: SELF.realized.of_product">
+</where>
+<graphic.element page="2" xcoord="470" ycoord="226" />
 </entity>
-<entity name="Slot_on_part">
+<entity name="Slot_on_product">
 <explicit name="description">
 <builtintype type="STRING" />
 </explicit>
@@ -100,8 +105,8 @@
 <explicit name="name">
 <builtintype type="STRING" />
 </explicit>
-<explicit name="part">
-<typename name="Part_view_definition" />
+<explicit name="product">
+<typename name="Product_view_definition" />
 </explicit>
 <explicit name="slot">
 <typename name="Slot_definition" />
@@ -124,9 +129,11 @@
 <explicit name="realized">
 <typename name="Slot_as_realized" />
 </explicit>
-<graphic.element page="2" xcoord="277" ycoord="99" />
+<where label="WR1" expression="SELF.planned.of_product :=: SELF.realized.of_product">
+</where>
+<graphic.element page="2" xcoord="277" ycoord="86" />
 </entity>
-<entity name="Slot_version" supertypes="Product_version" super.expression="ONEOF(Slot_as_planned, Slot_as_realized)">
+<entity name="Slot_version" supertypes="Product_version" super.expression="ONEOF(Slot_as_planned, Slot_as_realized, Slot_design)">
 <explicit name="of_product">
 <typename name="Slot" />
 <redeclaration entity-ref="Product_version" />

@@ -36,9 +36,9 @@
 						</xsl:apply-templates>
 						<xsl:choose>
 							<xsl:when test="./@file">
-								<xsl:apply-templates select="document($application_protocol_file)/application_protocol/*/express-g/imgfile" mode="nav_arrows">
+								<h1><xsl:apply-templates select="document($application_protocol_file)/application_protocol/aam/idef0/imgfile" mode="nav_arrows">
 									<xsl:with-param name="file" select="@file"/>
-								</xsl:apply-templates>
+								</xsl:apply-templates></h1>
 							</xsl:when>
 							<xsl:otherwise>
 								To enable navigation, add file parameter to expressg file
@@ -49,7 +49,7 @@
 							<xsl:when test="./@file">
 								<div align="center">
 									<h3>
-										<xsl:apply-templates select="document($application_protocol_file)/application_protocol/*/express-g/imgfile" mode="title">
+										<xsl:apply-templates select="document($application_protocol_file)/application_protocol/aam/idef0/imgfile" mode="title">
 											<xsl:with-param name="file" select="@file"/>
 										</xsl:apply-templates>
 									</h3>
@@ -110,6 +110,22 @@
 								</xsl:otherwise>
 							</xsl:choose>
 						</xsl:when>
+						<xsl:when test="name(../..)='aam'">
+							<xsl:variable name="ap_dir">
+								<xsl:value-of select="../../../@name"/>
+							</xsl:variable>
+							
+							<xsl:variable name="aam_path">
+								<xsl:value-of select="concat('../../data/application_protocols/', $ap_dir, '/aam.xml')"/>
+							</xsl:variable>
+					
+							<xsl:variable name="aam_filename" select="./@file"/>
+							
+							<xsl:variable name="fig_no" select="position()"/>
+							<xsl:variable name="node" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@node"/>
+							<xsl:variable name="fig_title" select="document(string($aam_path))/idef0/page[position() = $fig_no]/@title"/>
+							E.<xsl:value-of select="$fig_no"/> - <xsl:value-of select="$node"/> <xsl:value-of select="concat(' ', $fig_title)"/>
+						</xsl:when>
 					</xsl:choose>
 				</xsl:variable>
 			<xsl:value-of select="$fig_no"/>
@@ -118,7 +134,7 @@
 	
 	<xsl:template match="imgfile" mode="nav_arrows">
 		<xsl:param name="file"/>
-		<xsl:if test="$file=@file">
+			<xsl:if test="$file=@file">
 			<xsl:variable name="maphref" select="concat('./sys/5_mapping',$FILE_EXT,'#mappings')"/>
 				<a href="{$maphref}">
 					<img align="middle" border="0" alt="Mapping table" src="../../../images/mapping.gif"/>

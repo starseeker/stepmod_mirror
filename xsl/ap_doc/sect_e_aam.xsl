@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
-<!-- created MWD 2002-07-15 -->
-
+<!--
+     $Id: $
+-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
 	<xsl:import href="application_protocol.xsl"/>
@@ -18,11 +19,8 @@
     			<xsl:with-param name="heading" select="'Application activity model'"/>
     			<xsl:with-param name="aname" select="'annexe'"/>
 		</xsl:call-template>
-		
 					
  		The application activity model (AAM) is provided as an aid to understanding the scope and information requirements defined in this part of ISO 10303.  The model is presented as a set of figures that contain the activity diagrams and a set of definitions of the activities and their data. Activities and data flows that are out of scope are marked with an asterisk.
-
-		
 
 		<xsl:variable name="ap_dir">
 			<xsl:value-of select="@name"/>
@@ -41,9 +39,12 @@
 	</xsl:template>
 
 	<xsl:template match="aam">
+		<xsl:apply-templates select="idef0"/>	
+	</xsl:template>
 	
+	<xsl:template match="idef0">
 		<xsl:variable name="ap_dir">
-			<xsl:value-of select="../@name"/>
+			<xsl:value-of select="../../@name"/>
 		</xsl:variable>
 
 		<xsl:variable name="aam_path">

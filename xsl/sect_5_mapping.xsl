@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.18 2002/05/15 09:10:25 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.19 2002/06/05 10:46:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -153,14 +153,31 @@ NOT USED
 
   <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
   <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-  <xsl:variable name="arm_entity"
-    select="translate(@entity,$LOWER,$UPPER)"/>
+  <xsl:variable name="ae" select="translate(@entity,$LOWER,$UPPER)"/>
+  <xsl:variable name="arm_entity" select="@entity"/>
 
 
   <td VALIGN="TOP" width="21%">
+
+    <xsl:variable name="module_dir">
+      <xsl:call-template name="module_directory">
+        <xsl:with-param name="module" select="../../../module/@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
+    <xsl:choose>
+      <xsl:when test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity])">
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message"
+            select="concat('Error m1: The entity ', $arm_entity, 
+                    ' does not exist in the arm')"/>
+        </xsl:call-template>
+      </xsl:when>
+    </xsl:choose>
+
     <small>
       <a href="{$ae_xref}">
-        <xsl:value-of select="$arm_entity"/>
+        <xsl:value-of select="$ae"/>
       </a>
     </small>
     <xsl:apply-templates select="./alt"/>
@@ -189,6 +206,21 @@ NOT USED
 
   <tr>
     <td VALIGN="TOP" width="21%">
+     <!-- user frequently try to write the assertion explicitly e.g.
+           Part_version to Part (as of_product)
+           instead of using assertion_to -->
+      <xsl:choose>
+        <xsl:when test="contains(@attribute,'(as')">
+          
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message">
+              <xsl:value-of select="concat('Error m2: ', @attribute, ' should
+                                    be the name of an ARM entity. Use 
+                                    &lt;aa attribute=&#034;&#034; assertion_to=&#034;&#034;&gt; ')"/>
+            </xsl:with-param>
+          </xsl:call-template>
+        </xsl:when>
+      </xsl:choose>
       <small>
         <xsl:choose>
           <xsl:when test="@assertion_to">

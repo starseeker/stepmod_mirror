@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2004-11-23T15:25:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_2d_design_arm schema_instance"/>
+   <schema name="Layered_interconnect_module_2d_design_arm">
+      <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
+      <interface kind="use" schema="Physical_unit_2d_shape_arm"/>
+      <type name="stratum_feature_planar_representation_select">
+         <select selectitems="Stratum_feature_styled_area_representation Stratum_feature_planar_shape"/>
+      </type>
+      <entity name="Stratum_feature_styled_area_representation">
+         <explicit name="represented_stratum_feature">
+            <typename name="Stratum_feature"/>
+         </explicit>
+         <explicit name="shape_styled_area_representation">
+            <typename name="styled_area_representation"/>
+         </explicit>
+         <explicit name="derived_planar_shape" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Stratum_feature_planar_shape"/>
+         </explicit>
+      </entity>
+      <entity name="Stratum_feature_in_stratum_planar_position">
+         <explicit name="feature_shape">
+            <typename name="stratum_feature_planar_representation_select"/>
+         </explicit>
+         <explicit name="transformation">
+            <typename name="Axis_placement_2d"/>
+         </explicit>
+         <explicit name="stratum_shape">
+            <typename name="Stratum_planar_shape"/>
+         </explicit>
+      </entity>
+      <entity name="Stratum_feature_planar_shape" supertypes="Planar_projected_shape">
+         <explicit name="represented_stratum_feature">
+            <typename name="Stratum_feature"/>
+         </explicit>
+         <where label="WR1" expression=" ( SIZEOF ( USEDIN ( SELF , 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE' ) ) = 0 ) "/>
+      </entity>
+      <entity name="Stratum_interconnect_module_planar_position">
+         <explicit name="transformation">
+            <typename name="Axis_placement_2d"/>
+         </explicit>
+         <explicit name="interconnect_module_shape">
+            <typename name="Physical_unit_planar_shape"/>
+         </explicit>
+         <explicit name="stratum_shape">
+            <typename name="Stratum_planar_shape"/>
+         </explicit>
+         <explicit name="stratum_component">
+            <typename name="Interconnect_module_stratum_assembly_relationship"/>
+         </explicit>
+         <unique label="u1">
+            <unique.attribute entity-ref="Stratum_interconnect_module_planar_position" attribute="stratum_component"/>
+         </unique>
+      </entity>
+      <entity name="Stratum_planar_shape" supertypes="Planar_projected_shape">
+         <explicit name="shape_characterized_stratum">
+            <typename name="Stratum"/>
+         </explicit>
+         <unique label="ur1">
+            <unique.attribute entity-ref="Stratum_planar_shape" attribute="shape_characterized_stratum"/>
+         </unique>
+         <where label="WR1" expression=" ( SIZEOF ( USEDIN ( SELF , 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE' ) ) = 0 ) "/>
+      </entity>
+   </schema>
+</express>

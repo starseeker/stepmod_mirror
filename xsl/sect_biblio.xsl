@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
+$Id: sect_biblio.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -21,7 +21,14 @@ $Id: scope.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
-sect_biblio.xsl  TO BE DONE
+  <center>
+    <h3>
+      <A NAME="bibliography">Bibliography</A>
+    </h3>
+  </center>
+
+  <xsl:apply-templates select="./bibliography"/>
+
 </xsl:template>
   
 </xsl:stylesheet>

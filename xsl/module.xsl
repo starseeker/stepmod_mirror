@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module.xsl,v 1.14 2001/12/31 08:42:41 robbod Exp $
+$Id: module.xsl,v 1.15 2002/01/03 09:29:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1350,10 +1350,6 @@ defines it. Use: normref.inc')"/>
     </xsl:call-template>    
   </xsl:variable>
 
-  <xsl:message>
-    l2a:<xsl:value-of select="$normref_list2"/>:l2
-  </xsl:message>
-
   <!-- get all normrefs that define terms for which abbreviations are
        provided.
        Get the abbreviation.inc from abbreviations_default.xml, 
@@ -1628,5 +1624,75 @@ defines it. Use: normref.inc')"/>
     <a href="{$href}"><xsl:value-of select="$fig_no"/></a>
   </li>
 </xsl:template>
+
+
+<xsl:template match="bibliography">
+  <!-- output the defaults -->
+  <xsl:apply-templates 
+    select="document('../data/basic/bibliography_default.xml')/bibliography/bibitem.inc"/>
+  <xsl:apply-templates select="./bibitem"/>
+  <xsl:apply-templates select="./bibitem.inc"/>
+</xsl:template>
+
+<xsl:template match="bibitem">
+  <p>
+    [<xsl:number/>] <xsl:apply-templates select="orgname"/>
+    <xsl:apply-templates select="orgname"/>
+    <xsl:apply-templates select="pubdate"/>
+    <xsl:apply-templates select="stdnumber"/>
+    <xsl:apply-templates select="stdtitle"/>
+    <xsl:apply-templates select="stdsubtitle"/>
+    <xsl:apply-templates select="ulink"/>
+  </p>
+</xsl:template>
+
+<xsl:template match="bibitem.inc">
+  <xsl:variable name="ref" select="@ref"/>
+  <xsl:variable name="bibitem" 
+    select="document('../data/basic/bibliography.xml')/bibitem.list/bibitem[@id=$ref]"/>
+  
+
+  <xsl:choose>
+    <xsl:when test="$bibitem">
+      <xsl:apply-templates select="$bibitem"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message"
+          select="concat('Can not find bibitem referenced by: ',$ref,
+                  'in ../data/basic/bibliography.xml')"/>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+  <xsl:apply-templates />
+</xsl:template>
+
+<xsl:template match="orgname">
+  <xsl:value-of select="."/>,
+</xsl:template>
+
+<xsl:template match="pubdate">
+  <xsl:value-of select="."/>,
+</xsl:template>
+
+<xsl:template match="stdnumber">
+  <xsl:value-of select="."/>,
+</xsl:template>
+
+<xsl:template match="subtitle">
+  <xsl:value-of select="."/>
+</xsl:template>
+
+<xsl:template match="stdtitle">
+  <xsl:value-of select="."/>
+</xsl:template>
+
+<xsl:template match="ulink">
+  <xsl:variable name="href" select="."/>
+  <br/><a href="{$href}"><xsl:value-of select="$href"/></a>
+</xsl:template>
+
+
 
 </xsl:stylesheet>

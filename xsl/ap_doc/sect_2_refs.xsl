@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.7 2003/05/27 13:21:58 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.8 2003/05/29 21:29:06 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -38,50 +38,44 @@ $Id: sect_2_refs.xsl,v 1.7 2003/05/27 13:21:58 robbod Exp $
   <xsl:variable name="normrefs">
     <xsl:apply-templates select="." mode="normrefs_list"/>
   </xsl:variable>
-
   <xsl:variable name="pruned_normrefs">
     <xsl:call-template name="prune_normrefs_list">
       <xsl:with-param name="normrefs_list" select="$normrefs"/>
     </xsl:call-template>  
   </xsl:variable>
-
   <xsl:call-template name="output_normrefs_rec">
     <xsl:with-param name="normrefs" select="$pruned_normrefs"/>
     <xsl:with-param name="application_protocol_number" select="./@part"/>
   </xsl:call-template>  
-
   <!-- output a footnote to say that the normative reference has not been
        published -->
   <xsl:call-template name="output_unpublished_normrefs">
     <xsl:with-param name="normrefs" select="$normrefs"/>
   </xsl:call-template>
-
   <!-- output a footnote to say that the normative reference has not been
        published -->
   <xsl:call-template name="output_derogated_normrefs">
     <xsl:with-param name="normrefs" select="$normrefs"/>
   </xsl:call-template>
-  
 </xsl:template>
 
 
 <xsl:template match="application_protocol" mode="normrefs_list">
 
-  <xsl:variable name="normref_list1">
+  <xsl:variable name="normref_list1">    
     <xsl:call-template name="get_normref">
       <xsl:with-param name="normref_nodes" 
         select="document('../../data/basic/ap_doc/normrefs_default.xml')/normrefs/normref.inc"/>
       <xsl:with-param name="normref_list" select="''"/>
     </xsl:call-template>
   </xsl:variable>
-  
   <xsl:variable name="normref_list2">
     <xsl:call-template name="get_normref">
       <xsl:with-param name="normref_nodes" select="/application_protocol/normrefs/normref.inc"/>
       <xsl:with-param name="normref_list" select="$normref_list1"/>
     </xsl:call-template>
   </xsl:variable>
-		
+
   <xsl:variable name="normref_list3">
     <xsl:call-template name="get_normrefs_from_abbr">
       <xsl:with-param name="abbrvinc_nodes" select="document('../../data/basic/ap_doc/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>
@@ -280,7 +274,8 @@ $Id: sect_2_refs.xsl,v 1.7 2003/05/27 13:21:58 robbod Exp $
           <xsl:when test="contains($first,'module:')">
             <xsl:variable name="module" select="substring-after($first, 'module:')"/>
             
-            <xsl:variable name="module_xml" select="concat('../../data/modules/',$module,'/module.xml')"/>
+            <xsl:variable name="module_xml"
+              select="concat('../../data/modules/',$module,'/module.xml')"/>
             <xsl:variable name="normref">
               <xsl:apply-templates select="document($module_xml)/module" mode="prune_normrefs_list"/>
             </xsl:variable>
@@ -746,17 +741,27 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
   <xsl:variable name="normref_list_ret">
     <xsl:choose>
       <xsl:when test="$cc_nodes">
-        <xsl:variable name="first" select="concat('module:',$cc_nodes[1]/@module)"/>
-        <xsl:variable name="normref_list1">
-          <xsl:call-template name="add_normref">
-            <xsl:with-param name="normref" select="$first"/>
-            <xsl:with-param name="normref_list" select="$normref_list"/>
-          </xsl:call-template>
-        </xsl:variable>
-        <xsl:call-template name="get_cc_normrefs_list">
-          <xsl:with-param name="cc_nodes" select="$cc_nodes[position()!=1]"/>
-          <xsl:with-param name="normref_list" select="$normref_list1"/>
-        </xsl:call-template>
+          <xsl:choose>
+            <xsl:when test="$cc_nodes[1]/@module">
+              <xsl:variable name="first" select="concat('module:',$cc_nodes[1]/@module)"/>
+              <xsl:variable name="normref_list1">
+                <xsl:call-template name="add_normref">
+                  <xsl:with-param name="normref" select="$first"/>
+                  <xsl:with-param name="normref_list" select="$normref_list"/>
+                </xsl:call-template>
+              </xsl:variable>
+              <xsl:call-template name="get_cc_normrefs_list">
+                <xsl:with-param name="cc_nodes" select="$cc_nodes[position()!=1]"/>
+                <xsl:with-param name="normref_list" select="$normref_list1"/>
+              </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:call-template name="get_cc_normrefs_list">
+                <xsl:with-param name="cc_nodes" select="$cc_nodes[position()!=1]"/>
+                <xsl:with-param name="normref_list" select="$normref_list"/>
+              </xsl:call-template>              
+            </xsl:otherwise>
+          </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="$normref_list"/>

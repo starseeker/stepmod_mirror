@@ -1135,8 +1135,8 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         <xsl:apply-templates select="ballot_package/module">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
           <xsl:with-param name="suffix" select="'/sys/e_exp_mim_lf.xml'"/>
-        </xsl:apply-templates>
-      </xsl:attribute> -->
+        </xsl:apply-templates> -->
+      </xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">

@@ -1,0 +1,156 @@
+(*
+  $Id: arm.exp,v 1.14 2002/08/02 13:53:41 darla Exp $
+  ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-1248 Product breakdown - EXPRESS ARM
+*) 
+
+
+SCHEMA Product_breakdown_arm; 
+
+USE FROM Product_identification_arm;    -- ISO/TS 10303-1017
+
+USE FROM Product_version_arm;    -- ISO/TS 10303-1018
+
+USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
+
+USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
+
+
+TYPE in_zone_item = EXTENSIBLE SELECT
+   (Product_view_definition);
+END_TYPE; 
+
+TYPE realization_item = EXTENSIBLE SELECT
+   (Product_view_definition, 
+    View_definition_relationship);
+END_TYPE; 
+
+ENTITY Breakdown
+  SUBTYPE OF (Product);
+END_ENTITY;
+
+ENTITY Breakdown_definition
+  SUBTYPE OF (Product_view_definition);
+  SELF\Product_view_definition.definition_for : Breakdown_version;
+END_ENTITY;
+
+ENTITY Breakdown_element
+  SUPERTYPE OF (ONEOF (Functional_element,
+                       Physical_element,
+                       System_element,
+                       Zone_element))
+  SUBTYPE OF (Product);
+END_ENTITY;
+
+ENTITY Breakdown_element_definition
+  SUPERTYPE OF (ONEOF (Functional_element_definition,
+                       Physical_element_definition,
+                       System_element_definition,
+                       Zone_element_definition))
+  SUBTYPE OF (Product_view_definition);
+  SELF\Product_view_definition.definition_for : Breakdown_element_version;
+END_ENTITY;
+
+ENTITY Breakdown_element_realization;
+  breakdown_element : Breakdown_element_definition;
+  description : STRING;
+  id : STRING;
+  item : realization_item;
+  name : STRING;
+END_ENTITY;
+
+ENTITY Breakdown_element_usage;
+  breakdown_context : Breakdown_definition;
+  child_element : Breakdown_element_definition;
+  description : STRING;
+  id : STRING;
+  name : STRING;
+  parent_element : Breakdown_element_definition;
+END_ENTITY;
+
+ENTITY Breakdown_element_version
+  SUPERTYPE OF (ONEOF (Functional_element_version,
+                       Physical_element_version,
+                       System_element_version,
+                       Zone_element_version))
+  SUBTYPE OF (Product_version);
+  SELF\Product_version.of_product : Breakdown_element;
+END_ENTITY;
+
+ENTITY Breakdown_of;
+  breakdown : Breakdown_definition;
+  description : STRING;
+  id : STRING;
+  name : STRING;
+  of_view : Product_view_definition;
+END_ENTITY;
+
+ENTITY Breakdown_version
+  SUBTYPE OF (Product_version);
+  SELF\Product_version.of_product : Breakdown;
+END_ENTITY;
+
+ENTITY Functional_element
+  SUBTYPE OF (Breakdown_element);
+END_ENTITY;
+
+ENTITY Functional_element_definition
+  SUBTYPE OF (Breakdown_element_definition);
+  SELF\Breakdown_element_definition.definition_for : Functional_element_version;
+END_ENTITY;
+
+ENTITY Functional_element_version
+  SUBTYPE OF (Breakdown_element_version);
+  SELF\Breakdown_element_version.of_product : Functional_element;
+END_ENTITY;
+
+ENTITY In_zone;
+  description : STRING;
+  id : STRING;
+  located_item : in_zone_item;
+  name : STRING;
+  zone : Zone_element_definition;
+END_ENTITY;
+
+ENTITY Physical_element
+  SUBTYPE OF (Breakdown_element);
+END_ENTITY;
+
+ENTITY Physical_element_definition
+  SUBTYPE OF (Breakdown_element_definition);
+  SELF\Breakdown_element_definition.definition_for : Physical_element_version;
+END_ENTITY;
+
+ENTITY Physical_element_version
+  SUBTYPE OF (Breakdown_element_version);
+  SELF\Breakdown_element_version.of_product : Physical_element;
+END_ENTITY;
+
+ENTITY System_element
+  SUBTYPE OF (Breakdown_element);
+END_ENTITY;
+
+ENTITY System_element_definition
+  SUBTYPE OF (Breakdown_element_definition);
+  SELF\Breakdown_element_definition.definition_for : System_element_version;
+END_ENTITY;
+
+ENTITY System_element_version
+  SUBTYPE OF (Breakdown_element_version);
+  SELF\Breakdown_element_version.of_product : System_element;
+END_ENTITY;
+
+ENTITY Zone_element
+  SUBTYPE OF (Breakdown_element);
+END_ENTITY;
+
+ENTITY Zone_element_definition
+  SUBTYPE OF (Breakdown_element_definition);
+  SELF\Breakdown_element_definition.definition_for : Zone_element_version;
+END_ENTITY;
+
+ENTITY Zone_element_version
+  SUBTYPE OF (Breakdown_element_version);
+  SELF\Breakdown_element_version.of_product : Zone_element;
+END_ENTITY;
+
+END_SCHEMA;  -- Product_breakdown_arm

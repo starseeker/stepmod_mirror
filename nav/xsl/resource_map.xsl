@@ -66,7 +66,6 @@
 	<p>
 	The following table that is ordered by entity 
 	and shows those Arm elements (and their respective modules) that use each resource entity in the mapping.
-	Clicking on a resource schema will take you to the relevant section of the table.
 	<br/>
 	Where entries appear above the line, the resource entity is directly referenced as an MIM element. 
 	<br/>

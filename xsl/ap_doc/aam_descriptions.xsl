@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: $
+	$Id: aam_descriptions.xsl,v 1.3 2002/10/19 07:14:12 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -29,8 +29,7 @@
 				</xsl:if>
 			</xsl:variable>
 			<h4>
-				E1.
-				<xsl:value-of select="position()"/>
+				E.1.<xsl:value-of select="position()"/>
 				<xsl:value-of select="concat(' ', ./name)"/>
 				<xsl:value-of select="$asterisk"/>
 			</h4>

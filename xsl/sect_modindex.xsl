@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_modindex.xsl,v 1.3 2003/07/28 07:28:41 robbod Exp $
+$Id: sect_modindex.xsl,v 1.4 2003/07/29 16:05:27 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -282,14 +282,23 @@ $Id: sect_modindex.xsl,v 1.3 2003/07/28 07:28:41 robbod Exp $
 
     <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
     <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-    <xsl:variable name="map_aname" select="translate(concat('aeentity',@name),$UPPER,$LOWER)"/>
+    <xsl:variable name="map_aname">
+      <xsl:choose>
+        <xsl:when test="name()='entity'">
+          <xsl:value-of select="translate(concat('aeentity',@name),$UPPER,$LOWER)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="translate(concat('scconstraint',@name),$UPPER,$LOWER)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
 
     <xsl:attribute name="map_href">
       <xsl:value-of select="concat('5_mapping',$FILE_EXT,'#',$map_aname)"/>
     </xsl:attribute>
 
     <xsl:attribute name="map_clause_no">
-      <xsl:apply-templates select="$module//ae[@entity=$name]" mode="clause_no"/>
+      <xsl:apply-templates select="$module//ae[@entity=$name]|$module//sc[@constraint=$name]" mode="clause_no"/>
     </xsl:attribute>
   </arm_entity>
 </xsl:template>
@@ -498,6 +507,14 @@ $Id: sect_modindex.xsl,v 1.3 2003/07/28 07:28:41 robbod Exp $
     <xsl:number/>
   </xsl:variable>
   <xsl:value-of select="concat('5.1.',$sect_no)"/>
+</xsl:template>
+
+<xsl:template match="sc" mode="clause_no">
+  <xsl:variable name="sect_no">
+    <xsl:number/>
+  </xsl:variable>
+  <xsl:variable name="ae_count" select="count(//ae)" />
+  <xsl:value-of select="concat('5.1.',$sect_no+$ae_count)"/>
 </xsl:template>
 
 

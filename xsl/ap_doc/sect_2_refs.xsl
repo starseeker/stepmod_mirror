@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.16 2003/08/15 07:15:03 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -241,7 +241,6 @@ $Id: sect_2_refs.xsl,v 1.16 2003/08/15 07:15:03 robbod Exp $
           </xsl:call-template>
         </xsl:variable>
         <xsl:variable name="application_protocol_xml" select="concat($application_protocol_dir,'/application_protocol.xml')"/>
-        
         <xsl:apply-templates select="document($application_protocol_xml)/application_protocol" mode="normref"/>
       </xsl:when>
       <xsl:when test="contains($first,'resource:')">
@@ -477,14 +476,13 @@ $Id: sect_2_refs.xsl,v 1.16 2003/08/15 07:15:03 robbod Exp $
               select="substring-after($first,'module:')"/>
             
             <xsl:variable name="module_dir">
-              <xsl:call-template name="module_directory">
-                <xsl:with-param name="module" select="$module"/>
+              <xsl:call-template name="ap_module_directory">
+                <xsl:with-param name="application_protocol" select="$module"/>
               </xsl:call-template>
             </xsl:variable>
 
             <xsl:variable name="module_xml" 
               select="concat($module_dir,'/module.xml')"/>
-
             <xsl:variable name="module_status" 
               select="string(document($module_xml)/module/@status)"/>
             <xsl:choose>

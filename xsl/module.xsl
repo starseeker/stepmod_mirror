@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.73 2002/06/19 14:41:39 robbod Exp $
+$Id: module.xsl,v 1.74 2002/06/19 16:07:45 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1324,15 +1324,25 @@ o=isocs; s=central<br/>
   <xsl:variable name="arm" 
     select="concat($module_dir,'/arm.xml')"/>
   <xsl:variable name="ae" select="@entity"/>
+  <xsl:variable name="schema_name">
+    <xsl:call-template name="schema_name">
+      <xsl:with-param name="module_name" select="/module/@name"/>
+      <xsl:with-param name="arm_mim" select="'arm'"/>
+    </xsl:call-template>
+  </xsl:variable>
   <xsl:choose>
     <xsl:when test="document($arm)/express/schema[entity/@name=$ae or type/@name=$ae]">
       <li>
         <xsl:choose>
           <xsl:when test="position()!=last()">
-            <xsl:value-of select="concat(@entity,';')"/>
+            <a href="#{$schema_name}.{$ae}">
+              <xsl:value-of select="$ae"/>
+            </a>;
           </xsl:when>
           <xsl:otherwise>
-            <xsl:value-of select="concat(@entity,'.')"/>        
+            <a href="#{$schema_name}.{$ae}">
+              <xsl:value-of select="$ae"/>
+            </a>.
           </xsl:otherwise>
         </xsl:choose>
       </li>

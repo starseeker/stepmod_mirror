@@ -1,70 +1,65 @@
 (*
-$Id: risk_schema.exp,v 1.3 2003/06/23 06:45:53 magnevs Exp $
+$Id: risk_schema.exp,v 1.4 2003/09/11 15:32:27 magnevs Exp $
   WG12N???? - ISO 10303-58 risk_schema
 *)
 
 SCHEMA risk_schema; 
 
-USE FROM support_resource_schema;    -- ISO 10303-41
+USE FROM action_schema   -- ISO 10303-41
+  (action,
+   action_method,
+   action_method_relationship); 
+
+USE FROM basic_attribute_schema   -- ISO 10303-41
+  (object_role); 
+
+USE FROM management_resources_schema   -- ISO 10303-41
+  (action_method_assignment,
+   classification_assignment); 
+
+USE FROM support_resource_schema   -- ISO 10303-41
+  (identifier,
+   label,
+   text); 
 
 
 TYPE mitigation_select = SELECT
-   (applied_risk_consequence, 
-    risk, 
-    risk_impact, 
-    risk_perception, 
+   (risk, 
+    risk_consequence, 
     risk_perception_relationship, 
     risk_probability_assignment, 
+    risk_relationship, 
+    risk_source_assignment);
+END_TYPE; 
+
+TYPE risk_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT
+   (risk, 
+    risk_consequence, 
+    risk_perception, 
+    risk_perception_relationship, 
+    risk_probability, 
     risk_relationship);
 END_TYPE; 
 
 TYPE risk_criteria_select = SELECT
-   (applied_risk_consequence, 
+   (risk_consequence, 
+    risk_context, 
     risk_perception, 
+    risk_perception_relationship, 
+    risk_probability_assignment, 
     risk_source_assignment, 
     risk_treatment);
 END_TYPE; 
 
-ENTITY applied_risk_consequence;
-  name : label;
-  description : OPTIONAL text;
-  effect : risk_impact;
-  pertaining_consequence : risk_consequence;
-END_ENTITY;
-
-ENTITY applied_risk_criteria;
-  pertaining_criteria : risk_criteria;
-  inputs : SET[1:?] OF risk_criteria_select;
-  role : risk_criteria_role;
-END_ENTITY;
-
-ENTITY defined_risk_consequence;
-  name : label;
-  description : OPTIONAL text;
-  relating_consequence : risk_consequence;
-  related_risk : risk;
-END_ENTITY;
-
-ENTITY defined_risk_probability;
-  name : label;
-  description : OPTIONAL text;
-  relating_probability : risk_probability;
-  related_risk : risk;
-END_ENTITY;
-
-ENTITY residual_risk;
-  id : OPTIONAL identifier;
-  name : label;
-  description : OPTIONAL text;
-  remaining_risk : risk_perception;
-  protective_measure : risk_reduction;
+ENTITY applied_risk_classification_assignment
+  SUBTYPE OF (classification_assignment);
+  items : SET[1:?] OF risk_classification_item;
 END_ENTITY;
 
 ENTITY risk;
   id : OPTIONAL identifier;
   name : label;
   description : OPTIONAL text;
-  negation : LOGICAL;
 END_ENTITY;
 
 ENTITY risk_consequence;
@@ -75,49 +70,71 @@ END_ENTITY;
 ENTITY risk_context;
   name : label;
   description : OPTIONAL text;
-  pertinent_criteria : SET[0:?] OF risk_criteria;
-  related_risk : risk;
 END_ENTITY;
 
-ENTITY risk_criteria;
-  name : label;
-  description : OPTIONAL text;
+ENTITY risk_criteria
+  SUBTYPE OF (action_method);
+DERIVE
+  id : identifier := get_id_value (SELF);
+WHERE
+  : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
 END_ENTITY;
 
-ENTITY risk_criteria_role;
-  name : label;
-  description : OPTIONAL text;
+ENTITY risk_criteria_assignment
+  SUBTYPE OF (action_method_assignment);
+  assigned_risk_criteria : risk_criteria;
+  inputs : SET[1:?] OF risk_criteria_select;
+WHERE
+  : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
 END_ENTITY;
 
-ENTITY risk_impact;
-  name : label;
-  description : OPTIONAL text;
+ENTITY risk_evaluation
+  SUBTYPE OF (action);
+  risk_perception : risk_perception;
+  risk_criteria : risk_criteria;
+END_ENTITY;
+
+ENTITY risk_impact
+  SUBTYPE OF (risk_consequence);
+  causal_consequence : OPTIONAL risk_consequence;
 END_ENTITY;
 
 ENTITY risk_impact_assignment
   ABSTRACT SUPERTYPE ;
   assigned_risk_impact : risk_impact;
-  role : risk_impact_role;
+DERIVE
+  role : object_role := get_role (SELF);
+WHERE
+  : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
 END_ENTITY;
 
-ENTITY risk_impact_role;
-  description : OPTIONAL text;
-  name : label;
+ENTITY risk_owner_assignment
+  ABSTRACT SUPERTYPE ;
+  assigned_risk : SET[1:?] OF risk;
+DERIVE
+  role : object_role := get_role (SELF);
+WHERE
+  : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
 END_ENTITY;
 
-ENTITY risk_perception;
-  name : label;
-  description : OPTIONAL text;
-  perceived_consequence : applied_risk_consequence;
-  perceived_probability : risk_probability_assignment;
-  perceived_risk : risk;
+ENTITY risk_perception
+  SUBTYPE OF (action_method);
+  risk : risk;
+  risk_probability : risk_probability_assignment;
+  risk_impact : SET[0:?] OF risk_impact;
+  SELF\action_method.consequence RENAMED risk_consequence : SET[1:?] OF risk_consequence;
+  SELF\action_method.purpose RENAMED risk_context : risk_context;
+DERIVE
+  id : identifier := get_id_value (SELF);
+WHERE
+  : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) <= 1;
 END_ENTITY;
 
-ENTITY risk_perception_relationship;
-  name : label;
-  description : OPTIONAL text;
-  relating : risk_perception;
-  related : risk_perception;
+ENTITY risk_perception_relationship
+  SUBTYPE OF (action_method_relationship);
+  relating_risk_perception : risk_perception;
+  related_risk_perception : risk_perception;
+  probability : OPTIONAL risk_probability_assignment;
 END_ENTITY;
 
 ENTITY risk_probability;
@@ -127,55 +144,44 @@ END_ENTITY;
 
 ENTITY risk_probability_assignment
   ABSTRACT SUPERTYPE ;
-  name : label;
-  description : OPTIONAL text;
   assigned_risk_probability : risk_probability;
-  role : risk_probability_role;
+DERIVE
+  role : object_role := get_role (SELF);
 END_ENTITY;
 
-ENTITY risk_probability_role;
-  name : label;
-  description : OPTIONAL text;
-END_ENTITY;
-
-ENTITY risk_reduction;
-  id : OPTIONAL identifier;
-  name : label;
-  description : OPTIONAL text;
+ENTITY risk_reduction
+  SUBTYPE OF (action);
   approach : risk_treatment;
   resolves : SET[1:?] OF mitigation_select;
+  risk_evaluation : OPTIONAL risk_evaluation;
 END_ENTITY;
 
 ENTITY risk_relationship;
   id : OPTIONAL identifier;
   name : label;
   description : OPTIONAL text;
-  relating : risk;
-  related : risk;
+  relating_risk : risk;
+  related_risk : risk;
 END_ENTITY;
 
 ENTITY risk_source_assignment
   ABSTRACT SUPERTYPE ;
   assigned_risk : risk;
-  role : risk_source_role;
-END_ENTITY;
-
-ENTITY risk_source_role;
-  name : label;
-  description : OPTIONAL text;
+  role : risk_context;
+WHERE
+  : SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) <= 1;
 END_ENTITY;
 
 ENTITY risk_status;
   id : OPTIONAL identifier;
   name : label;
   description : OPTIONAL text;
-  status : risk;
+  of_risk : risk;
 END_ENTITY;
 
-ENTITY risk_treatment;
-  id : OPTIONAL identifier;
-  name : label;
-  description : OPTIONAL text;
+ENTITY risk_treatment
+  SUBTYPE OF (action_method);
+  SELF\action_method.purpose RENAMED risk_context : risk_context;
 END_ENTITY;
 
 END_SCHEMA;  -- risk_schema

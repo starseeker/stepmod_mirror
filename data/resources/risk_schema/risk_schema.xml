@@ -5,93 +5,43 @@
 ?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express language_version="2" 
 description.file="descriptions.xml" rcs.date="$Date: $" rcs.revision="$Revision: $">
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="Risk_schema_v006.vsd" />
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3" source="Risk_schema_v016.vsd" />
 <schema name="risk_schema">
+<interface kind="use" schema="action_schema">
+<interfaced.item name="action" />
+<interfaced.item name="action_method" />
+<interfaced.item name="action_method_relationship" />
+</interface>
+<interface kind="use" schema="basic_attribute_schema">
+<interfaced.item name="object_role" />
+</interface>
+<interface kind="use" schema="management_resources_schema">
+<interfaced.item name="action_method_assignment" />
+<interfaced.item name="classification_assignment" />
+</interface>
 <interface kind="use" schema="support_resource_schema">
+<interfaced.item name="identifier" />
+<interfaced.item name="label" />
+<interfaced.item name="text" />
 </interface>
 <type name="mitigation_select">
-<select selectitems="applied_risk_consequence risk risk_impact risk_perception risk_perception_relationship risk_probability_assignment risk_relationship" />
-<graphic.element page="3" xcoord="114" ycoord="489" />
+<select selectitems="risk risk_consequence risk_perception_relationship risk_probability_assignment risk_relationship risk_source_assignment" />
+<graphic.element page="3" xcoord="85" ycoord="544" />
+</type>
+<type name="risk_classification_item">
+<select extensible="YES" genericentity="YES" selectitems="risk risk_consequence risk_perception risk_perception_relationship risk_probability risk_relationship" />
+<graphic.element page="4" xcoord="396" ycoord="646" />
 </type>
 <type name="risk_criteria_select">
-<select selectitems="applied_risk_consequence risk_perception risk_source_assignment risk_treatment" />
-<graphic.element page="3" xcoord="595" ycoord="389" />
+<select selectitems="risk_consequence risk_context risk_perception risk_perception_relationship risk_probability_assignment risk_source_assignment risk_treatment" />
+<graphic.element page="3" xcoord="724" ycoord="313" />
 </type>
-<entity name="applied_risk_consequence">
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<explicit name="effect">
-<typename name="risk_impact" />
-</explicit>
-<explicit name="pertaining_consequence">
-<typename name="risk_consequence" />
-</explicit>
-<graphic.element page="2" xcoord="822" ycoord="546" />
-</entity>
-<entity name="applied_risk_criteria">
-<explicit name="pertaining_criteria">
-<typename name="risk_criteria" />
-</explicit>
-<explicit name="inputs">
+<entity name="applied_risk_classification_assignment" supertypes="classification_assignment">
+<explicit name="items">
 <aggregate type="SET" lower="1" upper="?" />
-<typename name="risk_criteria_select" />
+<typename name="risk_classification_item" />
 </explicit>
-<explicit name="role">
-<typename name="risk_criteria_role" />
-</explicit>
-<graphic.element page="3" xcoord="595" ycoord="482" />
-</entity>
-<entity name="defined_risk_consequence">
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<explicit name="relating_consequence">
-<typename name="risk_consequence" />
-</explicit>
-<explicit name="related_risk">
-<typename name="risk" />
-</explicit>
-<graphic.element page="2" xcoord="822" ycoord="375" />
-</entity>
-<entity name="defined_risk_probability">
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<explicit name="relating_probability">
-<typename name="risk_probability" />
-</explicit>
-<explicit name="related_risk">
-<typename name="risk" />
-</explicit>
-<graphic.element page="2" xcoord="284" ycoord="376" />
-</entity>
-<entity name="residual_risk">
-<explicit name="id" optional="YES">
-<typename name="identifier" />
-</explicit>
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<explicit name="remaining_risk">
-<typename name="risk_perception" />
-</explicit>
-<explicit name="protective_measure">
-<typename name="risk_reduction" />
-</explicit>
-<graphic.element page="3" xcoord="241" ycoord="482" />
+<graphic.element page="4" xcoord="134" ycoord="644" />
 </entity>
 <entity name="risk">
 <explicit name="id" optional="YES">
@@ -103,10 +53,7 @@ description.file="descriptions.xml" rcs.date="$Date: $" rcs.revision="$Revision:
 <explicit name="description" optional="YES">
 <typename name="text" />
 </explicit>
-<explicit name="negation">
-<builtintype type="LOGICAL" />
-</explicit>
-<graphic.element page="2" xcoord="468" ycoord="291" />
+<graphic.element page="2" xcoord="374" ycoord="262" />
 </entity>
 <entity name="risk_consequence">
 <explicit name="name">
@@ -115,7 +62,7 @@ description.file="descriptions.xml" rcs.date="$Date: $" rcs.revision="$Revision:
 <explicit name="description" optional="YES">
 <typename name="text" />
 </explicit>
-<graphic.element page="2" xcoord="822" ycoord="460" />
+<graphic.element page="2" xcoord="744" ycoord="375" />
 </entity>
 <entity name="risk_context">
 <explicit name="name">
@@ -124,92 +71,104 @@ description.file="descriptions.xml" rcs.date="$Date: $" rcs.revision="$Revision:
 <explicit name="description" optional="YES">
 <typename name="text" />
 </explicit>
-<explicit name="pertinent_criteria">
-<aggregate type="SET" lower="0" upper="?" />
+<graphic.element page="2" xcoord="559" ycoord="120" />
+</entity>
+<entity name="risk_criteria" supertypes="action_method">
+<derived name="id" expression="get_id_value (SELF)">
+<typename name="identifier" />
+</derived>
+<where expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1">
+</where>
+<graphic.element page="3" xcoord="602" ycoord="545" />
+</entity>
+<entity name="risk_criteria_assignment" supertypes="action_method_assignment">
+<explicit name="assigned_risk_criteria">
 <typename name="risk_criteria" />
 </explicit>
-<explicit name="related_risk">
-<typename name="risk" />
+<explicit name="inputs">
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="risk_criteria_select" />
 </explicit>
-<graphic.element page="2" xcoord="652" ycoord="207" />
+<where expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) &lt;= 1">
+</where>
+<graphic.element page="3" xcoord="602" ycoord="446" />
 </entity>
-<entity name="risk_criteria">
-<explicit name="name">
-<typename name="label" />
+<entity name="risk_evaluation" supertypes="action">
+<explicit name="risk_perception">
+<typename name="risk_perception" />
 </explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
+<explicit name="risk_criteria">
+<typename name="risk_criteria" />
 </explicit>
-<graphic.element page="3" xcoord="595" ycoord="567" />
+<graphic.element page="3" xcoord="226" ycoord="545" />
 </entity>
-<entity name="risk_criteria_role">
-<explicit name="name">
-<typename name="label" />
+<entity name="risk_impact" supertypes="risk_consequence">
+<explicit name="causal_consequence" optional="YES">
+<typename name="risk_consequence" />
 </explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<graphic.element page="3" xcoord="723" ycoord="482" />
-</entity>
-<entity name="risk_impact">
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<graphic.element page="2" xcoord="822" ycoord="631" />
+<graphic.element page="2" xcoord="744" ycoord="474" />
 </entity>
 <entity name="risk_impact_assignment" abstract.supertype="YES">
 <explicit name="assigned_risk_impact">
 <typename name="risk_impact" />
 </explicit>
-<explicit name="role">
-<typename name="risk_impact_role" />
-</explicit>
-<graphic.element page="2" xcoord="822" ycoord="716" />
+<derived name="role" expression="get_role (SELF)">
+<typename name="object_role" />
+</derived>
+<where expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) &lt;= 1">
+</where>
+<graphic.element page="2" xcoord="744" ycoord="574" />
 </entity>
-<entity name="risk_impact_role">
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<graphic.element page="2" xcoord="1021" ycoord="716" />
-</entity>
-<entity name="risk_perception">
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<explicit name="perceived_consequence">
-<typename name="applied_risk_consequence" />
-</explicit>
-<explicit name="perceived_probability">
-<typename name="risk_probability_assignment" />
-</explicit>
-<explicit name="perceived_risk">
+<entity name="risk_owner_assignment" abstract.supertype="YES">
+<explicit name="assigned_risk">
+<aggregate type="SET" lower="1" upper="?" />
 <typename name="risk" />
 </explicit>
-<graphic.element page="2" xcoord="468" ycoord="546" />
+<derived name="role" expression="get_role (SELF)">
+<typename name="object_role" />
+</derived>
+<where expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) &lt;= 1">
+</where>
+<graphic.element page="2" xcoord="77" ycoord="375" />
 </entity>
-<entity name="risk_perception_relationship">
-<explicit name="name">
-<typename name="label" />
+<entity name="risk_perception" supertypes="action_method">
+<explicit name="risk">
+<typename name="risk" />
 </explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
+<explicit name="risk_probability">
+<typename name="risk_probability_assignment" />
 </explicit>
-<explicit name="relating">
+<explicit name="risk_impact">
+<aggregate type="SET" lower="0" upper="?" />
+<typename name="risk_impact" />
+</explicit>
+<explicit name="risk_consequence">
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="risk_consequence" />
+<redeclaration entity-ref="action_method" old_name="consequence" />
+</explicit>
+<explicit name="risk_context">
+<typename name="risk_context" />
+<redeclaration entity-ref="action_method" old_name="purpose" />
+</explicit>
+<derived name="id" expression="get_id_value (SELF)">
+<typename name="identifier" />
+</derived>
+<where expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1">
+</where>
+<graphic.element page="2" xcoord="374" ycoord="474" />
+</entity>
+<entity name="risk_perception_relationship" supertypes="action_method_relationship">
+<explicit name="relating_risk_perception">
 <typename name="risk_perception" />
 </explicit>
-<explicit name="related">
+<explicit name="related_risk_perception">
 <typename name="risk_perception" />
 </explicit>
-<graphic.element page="2" xcoord="623" ycoord="672" />
+<explicit name="probability" optional="YES">
+<typename name="risk_probability_assignment" />
+</explicit>
+<graphic.element page="2" xcoord="78" ycoord="474" />
 </entity>
 <entity name="risk_probability">
 <explicit name="name">
@@ -218,42 +177,18 @@ description.file="descriptions.xml" rcs.date="$Date: $" rcs.revision="$Revision:
 <explicit name="description" optional="YES">
 <typename name="text" />
 </explicit>
-<graphic.element page="2" xcoord="284" ycoord="460" />
+<graphic.element page="2" xcoord="374" ycoord="673" />
 </entity>
 <entity name="risk_probability_assignment" abstract.supertype="YES">
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
 <explicit name="assigned_risk_probability">
 <typename name="risk_probability" />
 </explicit>
-<explicit name="role">
-<typename name="risk_probability_role" />
-</explicit>
-<graphic.element page="2" xcoord="284" ycoord="546" />
+<derived name="role" expression="get_role (SELF)">
+<typename name="object_role" />
+</derived>
+<graphic.element page="2" xcoord="374" ycoord="574" />
 </entity>
-<entity name="risk_probability_role">
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<graphic.element page="2" xcoord="284" ycoord="631" />
-</entity>
-<entity name="risk_reduction">
-<explicit name="id" optional="YES">
-<typename name="identifier" />
-</explicit>
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
+<entity name="risk_reduction" supertypes="action">
 <explicit name="approach">
 <typename name="risk_treatment" />
 </explicit>
@@ -261,7 +196,10 @@ description.file="descriptions.xml" rcs.date="$Date: $" rcs.revision="$Revision:
 <aggregate type="SET" lower="1" upper="?" />
 <typename name="mitigation_select" />
 </explicit>
-<graphic.element page="3" xcoord="241" ycoord="567" />
+<explicit name="risk_evaluation" optional="YES">
+<typename name="risk_evaluation" />
+</explicit>
+<graphic.element page="3" xcoord="226" ycoord="729" />
 </entity>
 <entity name="risk_relationship">
 <explicit name="id" optional="YES">
@@ -273,31 +211,24 @@ description.file="descriptions.xml" rcs.date="$Date: $" rcs.revision="$Revision:
 <explicit name="description" optional="YES">
 <typename name="text" />
 </explicit>
-<explicit name="relating">
+<explicit name="relating_risk">
 <typename name="risk" />
 </explicit>
-<explicit name="related">
+<explicit name="related_risk">
 <typename name="risk" />
 </explicit>
-<graphic.element page="2" xcoord="285" ycoord="291" />
+<graphic.element page="2" xcoord="190" ycoord="263" />
 </entity>
 <entity name="risk_source_assignment" abstract.supertype="YES">
 <explicit name="assigned_risk">
 <typename name="risk" />
 </explicit>
 <explicit name="role">
-<typename name="risk_source_role" />
+<typename name="risk_context" />
 </explicit>
-<graphic.element page="2" xcoord="652" ycoord="291" />
-</entity>
-<entity name="risk_source_role">
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<graphic.element page="2" xcoord="822" ycoord="291" />
+<where expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'ROLE_ASSOCIATION.ITEM_WITH_ROLE')) &lt;= 1">
+</where>
+<graphic.element page="2" xcoord="559" ycoord="262" />
 </entity>
 <entity name="risk_status">
 <explicit name="id" optional="YES">
@@ -309,23 +240,18 @@ description.file="descriptions.xml" rcs.date="$Date: $" rcs.revision="$Revision:
 <explicit name="description" optional="YES">
 <typename name="text" />
 </explicit>
-<explicit name="status">
+<explicit name="of_risk">
 <typename name="risk" />
 </explicit>
-<graphic.element page="2" xcoord="284" ycoord="206" />
+<graphic.element page="2" xcoord="374" ycoord="120" />
 </entity>
-<entity name="risk_treatment">
-<explicit name="id" optional="YES">
-<typename name="identifier" />
+<entity name="risk_treatment" supertypes="action_method">
+<explicit name="risk_context">
+<typename name="risk_context" />
+<redeclaration entity-ref="action_method" old_name="purpose" />
 </explicit>
-<explicit name="name">
-<typename name="label" />
-</explicit>
-<explicit name="description" optional="YES">
-<typename name="text" />
-</explicit>
-<graphic.element page="3" xcoord="411" ycoord="567" />
+<graphic.element page="3" xcoord="602" ycoord="729" />
 </entity>
-<graphic.element page="1" xcoord="113" ycoord="616" />
+<graphic.element page="1" xcoord="242" ycoord="616" />
 </schema>
 </express>

@@ -1,7 +1,3 @@
-(*
-   $Id: mkmodule.js,v 1.21 2002/08/20 13:43:56 robbod Exp $
-   N - ISO/CD-TS - 10303- generic_expression - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
 SCHEMA Generic_expression_arm;
 
 USE FROM Expression_arm;
@@ -30,6 +26,13 @@ ABSTRACT SUPERTYPE OF(Variable)
 SUBTYPE OF (Simple_generic_expression);
 INVERSE
 	interpretation : Environment FOR syntactic_representation;
+END_ENTITY;
+
+ENTITY Variable
+ABSTRACT SUPERTYPE OF (ONEOF (Numeric_variable,
+				Boolean_variable,
+					String_variable))
+SUBTYPE OF(Generic_variable);
 END_ENTITY;
 
 ENTITY Variable_semantics
@@ -64,7 +67,7 @@ END_ENTITY;
 
 FUNCTION Is_Acyclic (arg: Generic_expression): BOOLEAN;
 RETURN (Acyclic (arg, []));
-END_FUNCTION ; -- Is_Acyclic
+END_FUNCTION ; 
 
 FUNCTION Acyclic (arg1: Generic_expression; 
 			arg2: SET OF Generic_expression): BOOLEAN;
@@ -73,7 +76,7 @@ LOCAL
 	result: BOOLEAN;
 END_LOCAL;
 
-IF ('ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Simple_generic_expression'
+IF ('Generic_expression_arm_GENERIC_EXPRESSIONS_SCHEMA.Simple_generic_expression'
 	IN TYPEOF (arg1)) 
 THEN
 	RETURN (TRUE);
@@ -84,14 +87,14 @@ THEN
 	RETURN (FALSE);
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Unary_generic_expression' 
+IF 'Generic_expression_arm_GENERIC_EXPRESSIONS_SCHEMA.Unary_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	RETURN 
 	(Acyclic(arg1\Unary_generic_expression.operand,arg2+[arg1]));
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Binary_generic_expression' 
+IF 'Generic_expression_arm_GENERIC_EXPRESSIONS_SCHEMA.Binary_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	RETURN 
@@ -101,7 +104,7 @@ THEN
 END_IF;
 
 IF 
-'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Multiple_arity_generic_expression' 
+'Generic_expression_arm_GENERIC_EXPRESSIONS_SCHEMA.Multiple_arity_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	result := TRUE;
@@ -114,7 +117,7 @@ THEN
 	RETURN (result);
 END_IF;
 
-END_FUNCTION; -- Acyclic
+END_FUNCTION; 
 
 FUNCTION Used_variables (arg : Generic_expression) : 
 			SET OF Generic_variable;
@@ -123,19 +126,19 @@ LOCAL
 	result : SET OF Generic_variable := [];
 END_LOCAL;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Generic_variable' 
+IF 'Generic_expression_arm_GENERIC_EXPRESSIONS_SCHEMA.Generic_variable' 
 	IN TYPEOF (arg) 
 THEN 
 	RETURN ([arg]);
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Unary_generic_expression' 
+IF 'Generic_expression_arm_GENERIC_EXPRESSIONS_SCHEMA.Unary_generic_expression' 
 	IN TYPEOF (arg)
 THEN 
 	RETURN (Used_variables (arg\Unary_generic_expression.operand));
 END_IF;
 
-IF 'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Binary_generic_expression'
+IF 'Generic_expression_arm_GENERIC_EXPRESSIONS_SCHEMA.Binary_generic_expression'
 	IN TYPEOF (arg)
 THEN 
 	RETURN(Used_variables(arg\Binary_generic_expression.operands[1])
@@ -143,7 +146,7 @@ THEN
 END_IF;
 
 IF
-'ISO13584_GENERIC_EXPRESSIONS_SCHEMA.Multiple_arity_generic_expression' 
+'Generic_expression_arm_GENERIC_EXPRESSIONS_SCHEMA.Multiple_arity_generic_expression' 
 	IN TYPEOF (arg)
 THEN
 	REPEAT i := 1 TO 
@@ -154,9 +157,9 @@ THEN
 	
 	RETURN (result);
 END_IF;
-RETURN ([ ]);      -- in this case the subtype shall not contain
-			            -- any Variable (see IP1 in Generic_expression)
-END_FUNCTION; -- Used_variables
+RETURN ([ ]);      
+			            
+END_FUNCTION; 
 
 
 

@@ -1,10 +1,7 @@
-(*
-   $Id: mim.exp,v 1.4 2002/12/03 12:48:07 rocc Exp $
-   N - ISO/CD-TS - 10303- generic_expression - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
 SCHEMA generic_expression_mim;
 
-USE FROM Expression_mim;
+USE FROM expression_mim;
+
 
 ENTITY generic_expression
 ABSTRACT SUPERTYPE OF(ONEOF(simple_generic_expression,
@@ -12,7 +9,7 @@ ABSTRACT SUPERTYPE OF(ONEOF(simple_generic_expression,
 			    binary_generic_expression,
 			    multiple_arity_generic_expression));
 WHERE 
-	WR1: Is_Acyclic(SELF);
+	WR1: is_acyclic(SELF);
 END_ENTITY;
 
 ENTITY simple_generic_expression
@@ -30,6 +27,13 @@ ABSTRACT SUPERTYPE OF(variable)
 SUBTYPE OF (simple_generic_expression);
 INVERSE
 	interpretation : environment FOR syntactic_representation;
+END_ENTITY;
+
+ENTITY variable
+ABSTRACT SUPERTYPE OF (ONEOF (numeric_variable,
+				boolean_variable,
+					string_variable))
+SUBTYPE OF(generic_variable);
 END_ENTITY;
 
 ENTITY variable_semantics
@@ -62,18 +66,18 @@ END_ENTITY;
 
 
 
-FUNCTION Is_Acyclic (arg: generic_expression): BOOLEAN;
-RETURN (Acyclic (arg, []));
-END_FUNCTION ; -- Is_Acyclic
+FUNCTION is_acyclic (arg: generic_expression): BOOLEAN;
+RETURN (acyclic (arg, []));
+END_FUNCTION ; 
 
-FUNCTION Acyclic (arg1: generic_expression; 
+FUNCTION acyclic (arg1: generic_expression; 
 			arg2: SET OF generic_expression): BOOLEAN;
 
 LOCAL
 	result: BOOLEAN;
 END_LOCAL;
 
-IF ('ISO13584_generic_expressionS_SCHEMA.simple_generic_expression'
+IF ('generic_expression_mim_generic_expressionS_SCHEMA.simple_generic_expression'
 	IN TYPEOF (arg1)) 
 THEN
 	RETURN (TRUE);
@@ -84,79 +88,79 @@ THEN
 	RETURN (FALSE);
 END_IF;
 
-IF 'ISO13584_generic_expressionS_SCHEMA.unary_generic_expression' 
+IF 'generic_expression_mim_generic_expressionS_SCHEMA.unary_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	RETURN 
-	(Acyclic(arg1\unary_generic_expression.operand,arg2+[arg1]));
+	(acyclic(arg1\unary_generic_expression.operand,arg2+[arg1]));
 END_IF;
 
-IF 'ISO13584_generic_expressionS_SCHEMA.binary_generic_expression' 
+IF 'generic_expression_mim_generic_expressionS_SCHEMA.binary_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	RETURN 
-	(Acyclic(arg1\binary_generic_expression.operands[1],arg2+[arg1])
+	(acyclic(arg1\binary_generic_expression.operands[1],arg2+[arg1])
 	AND
-	Acyclic(arg1\binary_generic_expression.operands[2],arg2+[arg1]));
+	acyclic(arg1\binary_generic_expression.operands[2],arg2+[arg1]));
 END_IF;
 
 IF 
-'ISO13584_generic_expressionS_SCHEMA.multiple_arity_generic_expression' 
+'generic_expression_mim_generic_expressionS_SCHEMA.multiple_arity_generic_expression' 
 	IN TYPEOF (arg1) 
 THEN 
 	result := TRUE;
 	REPEAT i := 1 TO 
 			SIZEOF (arg1\multiple_arity_generic_expression.operands);
 		result := result AND
-		Acyclic(arg1\multiple_arity_generic_expression.operands[i], arg2+[arg1]);
+		acyclic(arg1\multiple_arity_generic_expression.operands[i], arg2+[arg1]);
 	END_REPEAT;
 
 	RETURN (result);
 END_IF;
 
-END_FUNCTION; -- Acyclic
+END_FUNCTION; 
 
-FUNCTION Used_variables (arg : generic_expression) : 
+FUNCTION used_variables (arg : generic_expression) : 
 			SET OF generic_variable;
 
 LOCAL
 	result : SET OF generic_variable := [];
 END_LOCAL;
 
-IF 'ISO13584_generic_expressionS_SCHEMA.generic_variable' 
+IF 'generic_expression_mim_generic_expressionS_SCHEMA.generic_variable' 
 	IN TYPEOF (arg) 
 THEN 
 	RETURN ([arg]);
 END_IF;
 
-IF 'ISO13584_generic_expressionS_SCHEMA.unary_generic_expression' 
+IF 'generic_expression_mim_generic_expressionS_SCHEMA.unary_generic_expression' 
 	IN TYPEOF (arg)
 THEN 
-	RETURN (Used_variables (arg\unary_generic_expression.operand));
+	RETURN (used_variables (arg\unary_generic_expression.operand));
 END_IF;
 
-IF 'ISO13584_generic_expressionS_SCHEMA.binary_generic_expression'
+IF 'generic_expression_mim_generic_expressionS_SCHEMA.binary_generic_expression'
 	IN TYPEOF (arg)
 THEN 
-	RETURN(Used_variables(arg\binary_generic_expression.operands[1])
-		+ Used_variables (arg\binary_generic_expression.operands[2]));
+	RETURN(used_variables(arg\binary_generic_expression.operands[1])
+		+ used_variables (arg\binary_generic_expression.operands[2]));
 END_IF;
 
 IF
-'ISO13584_generic_expressionS_SCHEMA.multiple_arity_generic_expression' 
+'generic_expression_mim_generic_expressionS_SCHEMA.multiple_arity_generic_expression' 
 	IN TYPEOF (arg)
 THEN
 	REPEAT i := 1 TO 
 		SIZEOF(arg\multiple_arity_generic_expression.operands);
-		result := result + Used_variables(
+		result := result + used_variables(
 			arg\multiple_arity_generic_expression.operands[i]);
 	END_REPEAT;
 	
 	RETURN (result);
 END_IF;
-RETURN ([ ]);      -- in this case the subtype shall not contain
-			            -- any variable (see IP1 in generic_expression)
-END_FUNCTION; -- Used_variables
+RETURN ([ ]);      
+			            
+END_FUNCTION; 
 
 
 

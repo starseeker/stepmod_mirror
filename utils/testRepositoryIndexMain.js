@@ -1,4 +1,4 @@
-//$Id: testRepositoryIndexMain.js,v 1.1 2002/07/30 13:14:15 robbod Exp $
+//$Id: testRepositoryIndexMain.js,v 1.2 2002/07/30 13:20:56 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:
@@ -34,6 +34,7 @@ var errorCount = 0;
 
 //------------------------------------------------------------
 function userMessage(msg){
+    var objShell = WScript.CreateObject("WScript.Shell");
     if (outputUsermessage == 1)
 	WScript.Echo(msg);
     else

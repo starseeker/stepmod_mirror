@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
 <!--
-	$Id: cc_descriptions.xsl,v 1.2 2002/10/08 10:20:08 mikeward Exp $
+	$Id: cc_descriptions_2.xsl,v 1.1 2003/02/08 21:33:08 goset1 Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -129,7 +129,7 @@ Table 1 identifies the conformance classes to which each UOF of the modules inte
 
 	</div>	
 
-<h3>6.3&#160;Conformance classes per ARM entity</h3>
+<!-- <h3>6.3&#160;Conformance classes per ARM entity</h3>
 <p>
 Table 2 identifies the conformance classes to which each entity of the ARM long-form schema, belongs.
 </p>
@@ -196,15 +196,15 @@ Table 2 identifies the conformance classes to which each entity of the ARM long-
 		</xsl:for-each>
 	</table>
 	</div>
-	
-<h3>6.4 Conformance classes per MIM entity</h3>
+-->	
+<h3>6.3 Conformance classes per MIM entity</h3>
 <p>
-Table 3 identifies the conformance classes to which each entity of the MIM long-form schema, belongs.
+Table 2 identifies the conformance classes to which each entity of the MIM long-form schema, belongs.
 </p>
   <p align="center">
 	  <a name="table_3">
 		    <b>
-      Table 3 - Conformance classes per MIM entity
+      Table 2 - Conformance classes per MIM entity
     </b>
 		</a>
   </p>

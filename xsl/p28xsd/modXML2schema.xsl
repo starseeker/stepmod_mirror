@@ -336,9 +336,11 @@
 		<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
 			<xs:complexContent>
 				<xs:extension base="{$ext_base_sub_grp}">
-					<xs:sequence>
-						<xsl:apply-templates select="explicit"/>
-					</xs:sequence>
+					<xsl:if test="./explicit">
+						<xs:sequence>
+							<xsl:apply-templates select="explicit"/>
+						</xs:sequence>
+					</xsl:if>
 				</xs:extension>
 			</xs:complexContent>
 		</xs:complexType>
@@ -356,34 +358,34 @@
 								<xsl:with-param name="raw_supertype_param" select="$raw_supertype_name_param"/>
 								<xsl:with-param name="raw_entity_param" select="$raw_entity_name_param"/>
 							</xsl:call-template>
-						</xs:sequence>
-						<xsl:for-each select="./explicit/redeclaration[not(@old_name)]">
-							<xsl:variable name="raw_attribute_name" select="../@name"/>
-							<xsl:variable name="corrected_attribute_name">
-								<xsl:call-template name="put_into_lower_case">
-									<xsl:with-param name="raw_item_name_param" select="$raw_attribute_name"/>
-								</xsl:call-template>
-							</xsl:variable>
-							<xsl:variable name="optionality">
-								<xsl:if test="../@optional = 'YES'">
-									<xsl:value-of select="number(0)"/>
-								</xsl:if>
-							</xsl:variable>
-							<xsl:choose>
-								<xsl:when test="../builtintype">
-									<xsl:variable name="attribute" select=".."/>
-									<xsl:call-template name="generate_attribute_to_simple_datatype">
-										<xsl:with-param name="type_param" select=".."/>
-										<xsl:with-param name="optionality_param" select="$optionality"/>
-										<xsl:with-param name="attribute_name_param" select="$corrected_attribute_name"/>
+							<xsl:for-each select="./explicit/redeclaration[not(@old_name)]">
+								<xsl:variable name="raw_attribute_name" select="../@name"/>
+								<xsl:variable name="corrected_attribute_name">
+									<xsl:call-template name="put_into_lower_case">
+										<xsl:with-param name="raw_item_name_param" select="$raw_attribute_name"/>
 									</xsl:call-template>
-								</xsl:when>
-								<xsl:when test="../typename">
-									<xsl:variable name="target" select="../typename/@name"/>
-									<xs:element name="{$corrected_attribute_name}" type="ap239:{$target}"/>
-								</xsl:when>
-							</xsl:choose>
-						</xsl:for-each>
+								</xsl:variable>
+								<xsl:variable name="optionality">
+									<xsl:if test="../@optional = 'YES'">
+										<xsl:value-of select="number(0)"/>
+									</xsl:if>
+								</xsl:variable>
+								<xsl:choose>
+									<xsl:when test="../builtintype">
+										<xsl:variable name="attribute" select=".."/>
+										<xsl:call-template name="generate_attribute_to_simple_datatype">
+											<xsl:with-param name="type_param" select=".."/>
+											<xsl:with-param name="optionality_param" select="$optionality"/>
+											<xsl:with-param name="attribute_name_param" select="$corrected_attribute_name"/>
+										</xsl:call-template>
+									</xsl:when>
+									<xsl:when test="../typename">
+										<xsl:variable name="target" select="../typename/@name"/>
+										<xs:element name="{$corrected_attribute_name}" type="ap239:{$target}"/>
+									</xsl:when>
+								</xsl:choose>
+							</xsl:for-each>
+						</xs:sequence>
 					</xs:restriction>
 				</xs:complexContent>
 			</xs:complexType>

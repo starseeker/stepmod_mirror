@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: p28xsd.xsl,v 1.6 2004/02/19 07:55:51 robbod Exp $
+$Id: p28xsd.xsl,v 1.7 2004/04/22 20:41:23 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf
@@ -50,7 +50,14 @@ $Id: p28xsd.xsl,v 1.6 2004/02/19 07:55:51 robbod Exp $
           <a href="./sys/introduction{$FILE_EXT}"><xsl:value-of select="@directory"/></a>
         </h3>
         <p>
-          <b>WARNING THIS IS UNDER DEVELOPMENT</b>
+          <b>WARNING:</b>
+        </p>
+        <p>
+          <b>
+            This xml schema is based on the 2004 CD draft of ISO 10303-28 Edition 2. It
+            is subject to further change and is awaiting resolution of technical
+            issues. Do not use.
+          </b>
         </p>
         <xsl:choose>
           <xsl:when test="$module_xml/module/arm_lf">

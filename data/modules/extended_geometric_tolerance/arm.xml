@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-23T15:21:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-11-26T18:23:12" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_geometric_tolerance_arm schema_instance"/>
    <schema name="Extended_geometric_tolerance_arm">
       <interface kind="use" schema="Geometric_tolerance_arm"/>
@@ -14,9 +14,6 @@
       <interface kind="use" schema="Requirement_decomposition_arm"/>
       <interface kind="use" schema="Dimension_tolerance_arm"/>
       <interface kind="use" schema="Shape_parameters_arm"/>
-      <type name="axis_placement_or_datum_based_vector_orientation_select">
-         <select selectitems="Axis_placement Datum_based_vector_orientation"/>
-      </type>
       <type name="angle_relator">
          <enumeration items="equal large small"/>
       </type>
@@ -31,9 +28,6 @@
       </type>
       <type name="dimensional_location_or_dimensional_size">
          <select selectitems="Size_dimension Location_dimension"/>
-      </type>
-      <type name="dimensional_types">
-         <enumeration items="angular radius arc_length diameter linear controlled_radius"/>
       </type>
       <type name="geometric_or_dimension_select">
          <select selectitems="Geometric_tolerance Geometric_dimension"/>
@@ -56,14 +50,8 @@
       <type name="Physical_feature_or_part_template">
          <select extensible="YES" genericentity="YES"/>
       </type>
-      <type name="precedence_type">
-         <enumeration items="secondary tertiary primary"/>
-      </type>
       <type name="restrained_item_select">
          <select selectitems="Single_datum Physical_feature_or_part_template"/>
-      </type>
-      <type name="toleranceable_shape_element">
-         <select selectitems="Centre_axis Centre_plane Centre_point Tangent_plane Physical_feature_or_part_template"/>
       </type>
       <type name="true_profile_representations">
          <select extensible="YES" genericentity="YES"/>
@@ -206,42 +194,6 @@
          <where label="wr3" expression=" NOT ( EXISTS ( location_in_3d ) ) OR ( ( SIZEOF ( location_in_3d \ cartesian_point . coordinates ) ) = 3 ) "/>
          <where label="wr2" expression=" NOT ( EXISTS ( location_in_2d ) ) OR ( ( SIZEOF ( location_in_2d \ cartesian_point . coordinates ) ) = 2 ) "/>
          <where label="wr1" expression=" NOT ( EXISTS ( location_in_2d ) AND EXISTS ( location_in_3d ) ) OR EXISTS ( associated_3d_shape_intersection ) "/>
-      </entity>
-      <entity name="Datum_reference_frame" supertypes="Non_feature_shape_element">
-         <explicit name="reference_origin">
-            <typename name="Datum_point"/>
-         </explicit>
-         <explicit name="reference_axis_pairs">
-            <aggregate type="SET" lower="3" upper="3"/>
-            <typename name="Perpendicular_shape_element_relationship"/>
-         </explicit>
-         <explicit name="reference_axes">
-            <aggregate type="SET" lower="3" upper="3"/>
-            <typename name="Datum_axis"/>
-         </explicit>
-         <explicit name="reference_plane_pairs">
-            <aggregate type="SET" lower="3" upper="3"/>
-            <typename name="Perpendicular_shape_element_relationship"/>
-         </explicit>
-         <explicit name="reference_planes">
-            <aggregate type="SET" lower="3" upper="3"/>
-            <typename name="Datum_plane"/>
-         </explicit>
-         <inverse name="geometric_model" entity="Non_feature_shape_definition" attribute="associated_element">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
-         <where label="WR7" expression=" NOT ( SIZEOF ( geometric_model ) &gt; 0 ) OR ( SIZEOF ( QUERY ( sd &lt;* geometric_model | NOT ( 'AP210_ARM.DATUM_REFERENCE_FRAME_SHAPE_DEFINITION' IN TYPEOF ( sd ) ) ) ) = 0 ) "/>
-         <where label="WR6" expression=" SIZEOF ( QUERY ( ra &lt;* reference_axes | NOT ( 'AP210_ARM.DERIVED_SHAPE_ELEMENT' IN TYPEOF ( ra ) ) ) ) = 0 "/>
-         <where label="WR1" expression=" 'AP210_ARM.DERIVED_SHAPE_ELEMENT' IN TYPEOF ( reference_origin ) "/>
-      </entity>
-      <entity name="Datum_reference_frame_shape_definition" supertypes="Non_feature_shape_definition">
-         <explicit name="associated_element">
-            <typename name="Datum_reference_frame"/>
-            <redeclaration entity-ref="Non_feature_shape_definition" old_name="associated_element"/>
-         </explicit>
-         <where label="WR3" expression=" SIZEOF ( SELF \ geometric_model . items ) = 1 "/>
-         <where label="WR2" expression=" SELF \ geometric_model . context_of_items . dimension_count = 3 "/>
-         <where label="WR1" expression=" NOT EXISTS ( SELF \ non_feature_shape_definition . model_shape ) "/>
       </entity>
       <entity name="Datum_target_set" supertypes="Datum_feature">
          <inverse name="included_datum_targets" entity="Datum_target_usage_in_datum_target_set_relationship" attribute="defined_datum_target_set">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.41 2002/05/30 08:37:43 robbod Exp $
+$Id: common.xsl,v 1.42 2002/05/30 15:09:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -245,6 +245,15 @@ $Id: common.xsl,v 1.41 2002/05/30 08:37:43 robbod Exp $
   </xsl:call-template>
   
   <TABLE cellspacing="0" border="0" width="100%">
+    <tr>
+      <td>
+        <!-- RBN - this xref is here to aid navigation, it may need to be
+             removed for the ISO process -->
+        <A HREF="../../../../repository_index{$FILE_EXT}">
+          Module repository
+        </A><BR/>
+      </td>
+    </tr>
     <TR>
       <TD valign="MIDDLE">
         <B>
@@ -254,7 +263,7 @@ $Id: common.xsl,v 1.41 2002/05/30 08:37:43 robbod Exp $
           </xsl:call-template>
         </B>
       </TD>
-      <TD valign="MIDDLE">
+      <TD valign="MIDDLE" align="RIGHT">
         <xsl:variable name="stdnumber">
           <xsl:call-template name="get_module_stdnumber">
             <xsl:with-param name="module" select="."/>
@@ -262,6 +271,11 @@ $Id: common.xsl,v 1.41 2002/05/30 08:37:43 robbod Exp $
         </xsl:variable>
         <b>
           <xsl:value-of select="$stdnumber"/>
+          <xsl:variable name="status" select="string(@status)"/>
+          <xsl:if test="$status='TS' or $status='DIS' or $status='IS'">
+            <br/>
+            &#169; ISO
+          </xsl:if>
         </b>
       </TD>
     </TR>

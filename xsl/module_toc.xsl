@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.15 2002/05/30 08:37:42 robbod Exp $
+$Id: module_toc.xsl,v 1.16 2002/05/30 17:08:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -49,12 +49,7 @@ $Id: module_toc.xsl,v 1.15 2002/05/30 08:37:42 robbod Exp $
     <TR>
       <TD valign="TOP">
         <p class="toc">
-        <!-- RBN - this xref is here to aid navigation, it may need to be
-             removed for the ISO process -->
-        <A HREF="../../../../repository_index{$FILE_EXT}">
-          Module repository
-        </A><BR/>
-        <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
+          <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
         <A HREF="{$module_root}/sys/foreword{$FILE_EXT}#foreword">Foreword</A><BR/>
         <A HREF="{$module_root}/sys/introduction{$FILE_EXT}#intro">Introduction</A><BR/>
         <A HREF="{$module_root}/sys/1_scope{$FILE_EXT}#scope">1 Scope</A><BR/>

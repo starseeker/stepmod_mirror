@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.56 2002/05/30 15:06:54 robbod Exp $
+$Id: module.xsl,v 1.57 2002/05/30 17:08:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -203,13 +203,12 @@ $Id: module.xsl,v 1.56 2002/05/30 15:06:54 robbod Exp $
             </p>
             <p>
               <center>
-              Copyright Manager<br/>
-              ISO Central Secretariat<br/>
+              Copyright Manager,ISO Central Secretariat<br/>
               1 rue de Varembe<br/>
-              1211 Geneva 20 Switzerland<br/>
+              CH-1211 Geneva 20 Switzerland<br/>
               telephone: +41 22 749 0111<br/>
               telefacsimile: +41 22 734 0179<br/>
-              Internet: central@isocs.iso.ch<br/>
+              Internet: central@isocs.iso.ch, X.400: c=ch; a=400net; p=iso; o=isocs; s=central<br/>
               </center>
             </p>
             <p>
@@ -239,13 +238,12 @@ $Id: module.xsl,v 1.56 2002/05/30 15:06:54 robbod Exp $
             </p>
             <p>
             <center>
-              Copyright Manager<br/>
-              ISO Central Secretariat<br/>
+              Copyright Manager, ISO Central Secretariat<br/>
               1 rue de Varembe<br/>
-              1211 Geneva 20 Switzerland<br/>
+              CH-1211 Geneva 20 Switzerland<br/>
               telephone: +41 22 749 0111<br/>
               telefacsimile: +41 22 734 0179<br/>
-              Internet: central@isocs.iso.ch<br/>
+              Internet: central@isocs.iso.ch, X.400: c=ch; a=400net; p=iso; o=isocs; s=central<br/>
             </center>
           </p>
             <p>
@@ -278,10 +276,50 @@ $Id: module.xsl,v 1.56 2002/05/30 15:06:54 robbod Exp $
       <xsl:apply-templates select="./keywords"/>
       
       <h3>COMMENTS TO READER:</h3>
-      This document has been reviewed using the internal review checklist (see
-      WG12 N681), the project leader checklist (see WG12 N682) and the convener
-      checklist (see WG12 N683), and has been determined to be ready for this
-      ballot cycle.
+      <xsl:variable name="ballot_cycle_or_pub">
+        <xsl:choose>
+          <xsl:when test="$status='CD-TS'">
+            this ballot cycle
+          </xsl:when>
+          <xsl:when test="$status='TS'">
+            publication
+          </xsl:when>
+        </xsl:choose>
+      </xsl:variable>
+      This document has been reviewed using the internal review checklist 
+      (see <xsl:value-of select="@checklist.internal_review"/>),
+      <xsl:if test="@checklist.internal_review = 00000">
+        <!-- the default provided by mkmodule -->
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message">
+            Error 16: No WG number provided for internal review checklist
+          </xsl:with-param>
+        </xsl:call-template>     
+      </xsl:if>
+
+      the project leader checklist 
+      (see <xsl:value-of select="@checklist.project_leader"/>),
+      <xsl:if test="@checklist.project_leader = 00000">
+        <!-- the default provided by mkmodule -->
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message">
+            Error 17: No WG number provided for project leader checklist
+          </xsl:with-param>
+        </xsl:call-template>     
+      </xsl:if>
+
+      and the convener checklist
+      (see <xsl:value-of select="@checklist.convener"/>),
+      <xsl:if test="@checklist.convener = 00000">
+        <!-- the default provided by mkmodule -->
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message">
+            Error 17: No WG number provided for convener checklist
+          </xsl:with-param>
+        </xsl:call-template>     
+      </xsl:if>
+      and has been determined to be ready for 
+       <xsl:value-of select="$ballot_cycle_or_pub"/>.
     </td>
   </tr>
  

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-02T15:43:07" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-02-11T13:32:36" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ap210_product_data_management_mim schema_instance"/>
    <schema name="Ap210_product_data_management_mim">
       <interface kind="use" schema="Alias_identification_mim"/>
@@ -30,6 +30,7 @@
       <interface kind="use" schema="Product_identification_mim"/>
       <interface kind="use" schema="Part_occurrence_mim"/>
       <interface kind="use" schema="Plib_class_reference_mim"/>
+      <interface kind="use" schema="Pre_defined_product_data_management_specialisations_mim"/>
       <interface kind="use" schema="Product_replacement_mim"/>
       <interface kind="use" schema="Product_view_definition_mim"/>
       <interface kind="use" schema="Project_mim"/>
@@ -39,6 +40,8 @@
       <interface kind="use" schema="Security_classification_mim"/>
       <interface kind="use" schema="Shape_property_assignment_mim"/>
       <interface kind="use" schema="Work_order_mim"/>
+      <interface kind="use" schema="Test_select_product_mim"/>
+      <interface kind="use" schema="Promissory_usage_in_product_concept_mim"/>
       <interface kind="use" schema="contract_schema">
          <interfaced.item name="contract_type"/>
       </interface>
@@ -61,7 +64,7 @@
          <select extensible="YES" genericentity="YES" basedon="approval_item" selectitems="action action_directive certification configuration_effectivity configuration_item contract date directed_action document general_property_relationship product product_definition product_definition_relationship product_definition_formation representation security_classification shape_aspect_relationship versioned_action_request"/>
       </type>
       <type name="pdm_certification_item">
-         <select extensible="YES" genericentity="YES" basedon="certification_item" selectitems="supplied_part_relationship make_from_usage_option"/>
+         <select extensible="YES" genericentity="YES" basedon="certification_item" selectitems="make_from_usage_option"/>
       </type>
       <type name="pdm_classification_item">
          <select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="material_designation"/>
@@ -97,29 +100,11 @@
          <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="descriptive_representation_item configuration_item product_definition product_definition_formation product shape_aspect representation"/>
       </type>
       <type name="pdm_security_classification_item">
-         <select extensible="YES" genericentity="YES" basedon="security_classification_item" selectitems="applied_promissory_usage_in_product_model_assignment assembly_component_usage document make_from_usage_option product_definition_formation product_definition"/>
+         <select extensible="YES" genericentity="YES" basedon="security_classification_item" selectitems="assembly_component_usage document make_from_usage_option product_definition_formation product_definition"/>
       </type>
       <type name="promissory_usage_in_product_model_assigned_item">
          <select selectitems="product_concept product_definition"/>
       </type>
-      <entity name="applied_promissory_usage_in_product_model_assignment" supertypes="group_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="promissory_usage_in_product_model_assigned_item"/>
-         </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(pm &lt;* items |&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PRODUCT_CONCEPT' IN TYPEOF(pm)&#10;        )) = 1"/>
-         <where label="WR2" expression="SIZEOF(QUERY(pd &lt;* items |&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PRODUCT_DEFINITION' IN TYPEOF(pd)&#10;        )) = 1"/>
-         <where label="WR3" expression="SIZEOF(items) = 2"/>
-         <where label="WR4" expression="'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PROMISSORY_USAGE_IN_PRODUCT_MODEL' IN TYPEOF(SELF\group_assignment.assigned_group)"/>
-         <where label="WR5" expression="SIZEOF(USEDIN(SELF,&#10;      'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) &lt;= 1"/>
-      </entity>
-      <entity name="promissory_usage_in_product_model" supertypes="group">
-         <where label="WR1" expression="SIZEOF( QUERY(aga &lt;* USEDIN(SELF,&#10;        'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;        'GROUP_ASSIGNMENT.ASSIGNED_GROUP') | &#10;        'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;        'APPLIED_PROMISSORY_USAGE_IN_PRODUCT_MODEL_ASSIGNMENT' IN TYPEOF(aga))&#10;           ) &gt;= 1"/>
-      </entity>
-      <entity name="supplied_part_relationship" supertypes="product_definition_relationship">
-         <where label="WR1" expression="'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE' IN&#10;       TYPEOF (SELF.related_product_definition.formation)"/>
-         <where label="WR2" expression="NOT ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION' IN ROLESOF (SELF))"/>
-      </entity>
       <rule name="approval_requires_approval_date_time" appliesto="approval approval_date_time">
          <where label="WR1" expression="SIZEOF(QUERY ( app &lt;* approval |&#10;       NOT (SIZEOF (QUERY (adt &lt;* approval_date_time |&#10;       app :=: adt.dated_approval)) = 1))) = 0"/>
       </rule>
@@ -469,9 +454,6 @@ END_REPEAT;</algorithm>
       <rule name="subtype_exclusive_action_request_assignment" appliesto="action_request_assignment">
          <where label="WR1" expression="SIZEOF (QUERY (ara &lt;* action_request_assignment |&#10;       NOT (SIZEOF ([&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'CHANGE_REQUEST',&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'START_REQUEST']&#10;       * TYPEOF(ara)) &lt;= 1))) = 0"/>
       </rule>
-      <rule name="subtype_exclusive_product_definition_relationship" appliesto="product_definition_relationship">
-         <where label="WR1" expression="SIZEOF (QUERY (pdr &lt;* product_definition_relationship |&#10;       NOT (SIZEOF ([&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PRODUCT_DEFINITION_USAGE', &#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'PRODUCT_MATERIAL_COMPOSITION_RELATIONSHIP', &#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'SUPPLIED_PART_RELATIONSHIP']&#10;       * TYPEOF(pdr)) &lt;= 1))) = 0"/>
-      </rule>
       <rule name="subtype_exclusive_property_definition_representation" appliesto="property_definition_representation">
          <where label="WR1" expression="SIZEOF (QUERY (pdr &lt;* property_definition_representation |&#10;       NOT (SIZEOF ([&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'SHAPE_DEFINITION_REPRESENTATION',   &#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'MATERIAL_PROPERTY_REPRESENTATION']&#10;       * TYPEOF(pdr)) &lt;= 1))) = 0"/>
       </rule>
@@ -483,62 +465,6 @@ END_REPEAT;</algorithm>
       </rule>
       <rule name="subtype_mandatory_product_definition_usage" appliesto="product_definition_usage">
          <where label="WR1" expression="SIZEOF (QUERY (pdu &lt;* product_definition_usage |&#10;       NOT (SIZEOF([&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'ASSEMBLY_COMPONENT_USAGE',&#10;       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +&#10;       'MAKE_FROM_USAGE_OPTION'] * &#10;       TYPEOF(pdu)) = 1))) = 0"/>
-      </rule>
-      <rule name="supplied_product_version_unique_constraint" appliesto="product_definition_formation_with_specified_source">
-         <algorithm>LOCAL
-  spv : BAG OF product_definition_formation_with_specified_source := 
-QUERY( r &lt;*
-product_definition_formation_with_specified_source | 
-(SIZEOF(QUERY( pd &lt;* USEDIN(r,
-'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
-'PRODUCT_DEFINITION.FORMATION') |
-(SIZEOF(QUERY( pdr &lt;* USEDIN(pd, 
-'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
-'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
-(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
-'SUPPLIED_PART_RELATIONSHIP')
-IN TYPEOF(pdr))))&gt;0)))&gt;0));
-  aoa_bag : BAG OF applied_organization_assignment;
-  o_bag : BAG OF organization := [];
-  pdf_bag : BAG OF product_definition_formation_with_specified_source;
-  spn_bag : BAG OF STRING;
-  pass : BOOLEAN := TRUE;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(spv) by 1;
-  aoa_bag := QUERY( aoa &lt;* USEDIN( spv[i], 
-'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
-'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') | (aoa.role\organization_role.name = 'supplier') );
-  REPEAT j := 1 to SIZEOF(aoa_bag) by 1;
-    IF EXISTS( aoa_bag[j].assigned_organization ) THEN
-      IF ( NOT ( aoa_bag[j].assigned_organization IN o_bag ) ) THEN
-        o_bag := o_bag + aoa_bag[j].assigned_organization;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(o_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  pdf_bag := QUERY( pdf &lt;* spv | (SIZEOF(QUERY( aoa &lt;* USEDIN(pdf,
-'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
-'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')|
-((aoa.role\organization_role.name = 'supplier') AND (aoa.assigned_organization :=: 
-                                              o_bag[i])) ) )&gt;0) );
-  spn_bag := [];
-  REPEAT j := 1 to SIZEOF(pdf_bag) by 1;
-    IF EXISTS( pdf_bag[j].of_product.id ) THEN
-      IF ( pdf_bag[j].of_product.id IN spn_bag ) THEN
-        pass := FALSE;
-        ESCAPE;
-      ELSE
-        spn_bag := spn_bag + pdf_bag[j].of_product.id;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
       </rule>
       <rule name="versioned_action_request_requires_approval" appliesto="versioned_action_request applied_approval_assignment">
          <where label="WR1" expression="SIZEOF (QUERY (varq &lt;* versioned_action_request |&#10;       NOT (SIZEOF (QUERY (aaa &lt;* applied_approval_assignment |&#10;       varq IN aaa.items )) = 1 ))) = 0"/>

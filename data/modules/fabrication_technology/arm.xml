@@ -2,18 +2,18 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-02-02T14:45:05" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-02-11T13:31:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
    <schema name="Fabrication_technology_arm">
-      <interface kind="use" schema="Feature_and_connection_zone_arm"/>
-      <interface kind="use" schema="Value_with_unit_extension_arm"/>
-      <interface kind="use" schema="Generic_material_aspects_arm"/>
       <interface kind="use" schema="External_item_identification_assignment_arm"/>
-      <interface kind="use" schema="Shape_property_assignment_arm"/>
-      <interface kind="use" schema="Specification_document_arm"/>
+      <interface kind="use" schema="Feature_and_connection_zone_arm"/>
+      <interface kind="use" schema="Generic_material_aspects_arm"/>
+      <interface kind="use" schema="Part_feature_location_arm"/>
       <interface kind="use" schema="Physical_layout_template_arm"/>
       <interface kind="use" schema="Requirement_decomposition_arm"/>
-      <interface kind="use" schema="Part_feature_location_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
+      <interface kind="use" schema="Specification_document_arm"/>
+      <interface kind="use" schema="Value_with_unit_extension_arm"/>
       <type name="ft_material_item_select">
          <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Passage_technology_parameters"/>
       </type>
@@ -89,7 +89,7 @@
          <inverse name="externally_defined_documentation_layer_purpose" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <where label="WR1" expression="(EXISTS (pre_defined_documentation_layer_purpose)) OR ((SIZEOF(externally_defined_documentation_layer_purpose)) = 1)"/>
+         <where label="WR1" expression="(EXISTS (pre_defined_documentation_layer_purpose)) XOR ((SIZEOF(externally_defined_documentation_layer_purpose)) = 1)"/>
       </entity>
       <entity name="Electrical_isolation_removal_template" supertypes="Material_removal_feature_template">
          <explicit name="electrical_isolation_spacing_requirement">
@@ -163,7 +163,7 @@
          <where label="WR1" expression="'FABRICATION_TECHNOLOGY_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Requirement_definition_property.required_coordinated_characteristic[1].items[1])"/>
       </entity>
       <entity name="Material_addition_feature_template" supertypes="Stratum_feature_template"/>
-      <entity name="Material_removal_feature_template" supertypes="Layout_template_definition">
+      <entity name="Material_removal_feature_template" supertypes="Template_definition">
          <explicit name="of_stratum_technology" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Stratum_technology"/>
@@ -198,7 +198,7 @@
             <unique.attribute entity-ref="Passage_technology_parameters" attribute="name"/>
          </unique>
       </entity>
-      <entity name="Stratum_feature_template" supertypes="Layout_template_definition" super.expression="ONEOF (Land_physical_template, Material_addition_feature_template)">
+      <entity name="Stratum_feature_template" supertypes="Template_definition" super.expression="ONEOF (Land_physical_template, Material_addition_feature_template)">
          <explicit name="of_stratum_technology" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Stratum_technology"/>
@@ -211,11 +211,8 @@
          <explicit name="layer_position">
             <typename name="layer_position_type"/>
          </explicit>
-         <explicit name="maximum_stratum_thickness">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="minimum_stratum_thickness">
-            <typename name="Length_data_element"/>
+         <explicit name="stratum_thickness">
+            <typename name="Tolerance_characteristic"/>
          </explicit>
          <explicit name="minimum_finished_feature_size" optional="YES">
             <typename name="Length_data_element"/>

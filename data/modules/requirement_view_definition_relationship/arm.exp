@@ -1,6 +1,37 @@
 (*
-   $Id: mkmodule.js,v 1.20 2002/08/18 17:36:01 robbod Exp $
-   N - ISO/CD-TS - 10303- requirement_view_definition_relationship - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+ $Id: arm.exp,v 1.4 2002/10/24 14:51:53 mikeward Exp $
+ ISO/TC184/SC4 WG12N1498 - ISO/TS - 10303-1142 Requirement view definition relationship - EXPRESS ARM 
+*)
+
 SCHEMA Requirement_view_definition_relationship_arm;
+
+	ENTITY Requirement_view_definition;
+	END_ENTITY;
+
+	END_SCHEMA;
+
+	SCHEMA Requirement_view_definition_relationship_arm;
+
+	USE FROM Product_view_definition_relationship_arm;
+
+	USE FROM Requirement_view_definition_arm;
+
+	(*"" The Requirement_collection_relationship is used to relate a parent (collection) requirement to its member requirements. This provides a method for collecting together a set of requirements and treating them as a single requirement, whilst still being able to refer to the individual requirements. Note that the inherited "relating_view" and "related_view" attributes have been renamed for purposes of clarity. *)
+	ENTITY Requirement_collection_relationship
+	SUBTYPE OF (View_definition_relationship);
+	(*"collection" The collection atribute points to the view definition of the requirement which collects together the member requirements *)
+	SELF\View_definition_relationship.relating_view RENAMED collection : Requirement_view_definition;
+	(*"member" The member attribute points to the view definition of a requirement which constitutes a part of the collection. *)
+	SELF\View_definition_relationship.related_view RENAMED member : Requirement_view_definition;
+	END_ENTITY;
+
+	(*"" The Tracing_relationship shows tracing from (traces_from) one requirement to another (traces_to). For example a requirement on the performance of a catalytic converter in a car may be traced from a more general emissions requirement. A requirement may trace to many other requirements and vice versa - this is achieved by creating multiple instances of the tracing relationship entity. Note that the inherited "view_1" and "view_2" attributes have been renamed for purposes of clarity . Properties may be attached to tracing relationships - this is intended to handle "user defined" attributes which are common on tracing relationships in requirements tools. *)
+	ENTITY Tracing_relationship
+	SUBTYPE OF (View_definition_relationship);
+	(*"traces_from" The traces_from attribute points to the view definition of the requirement which traces to another requirement. *)
+	SELF\View_definition_relationship.relating_view RENAMED traces_from : Requirement_view_definition;
+	(*"traces_to" The traces_to attribute points to the view definition of the requirement which traces from another requirement. *)
+	SELF\View_definition_relationship.related_view RENAMED traces_to : Requirement_view_definition;
+	END_ENTITY;
+
 END_SCHEMA;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-11T10:12:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-21T11:05:58" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
@@ -575,6 +575,9 @@
             <aggregate type="SET" lower="2" upper="?"/>
             <typename name="Layer_connection_point"/>
          </explicit>
+         <derived name="associated_stratum" expression=" points_to_be_connected [ 1 ] . resident_design_layer_stratum ">
+            <typename name="Design_layer_stratum"/>
+         </derived>
          <inverse name="ordered_implementation" entity="Conductor" attribute="implementation_requirement">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
@@ -582,6 +585,7 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression=" ( EXISTS ( ordered_implementation ) ) XOR ( EXISTS ( random_implementation ) ) "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( ptbc &lt;* points_to_be_connected | NOT ( ptbc . resident_design_layer_stratum = associated_stratum ) ) ) = 0 "/>
       </entity>
       <entity name="Join_relationship" abstract.supertype="YES" super.expression="ONEOF (Inter_stratum_join_relationship, Intra_stratum_join_relationship, Stratum_embedded_component_join_relationship, Unrouted_join_relationship)">
          <explicit name="associated_layout">
@@ -609,10 +613,9 @@
          <inverse name="cad_layer" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <where label="WR1" expression=" ( ( SIZEOF ( padstack_occurrence_assembly ) = SIZEOF ( footprint_occurrence_assembly ) ) AND ( SIZEOF ( padstack_occurrence_assembly ) = 0 ) AND ( SIZEOF ( SELF \ Definition_based_product_occurrence . occurrence_contexts ) &gt; 0 ) ) OR ( ( SIZEOF ( padstack_occurrence_assembly ) &lt;&gt; SIZEOF ( footprint_occurrence_assembly ) ) AND ( SIZEOF ( SELF \ Definition_based_product_occurrence . occurrence_contexts ) = 0 ) ) "/>
-         <where label="WR2" expression=" NOT ( SIZEOF ( occurrence_contexts ) = 0 ) OR ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF ( SELF ) ) "/>
-         <where label="WR3" expression=" NOT ( SIZEOF ( occurrence_contexts ) = 0 ) OR ( SIZEOF ( SELF \ Laminate_component . padstack_occurrence_assembly ) + SIZEOF ( SELF \ Laminate_component . footprint_occurrence_assembly ) = 1 ) "/>
-         <where label="WR4" expression=" ( SIZEOF ( occurrence_contexts ) &gt; 0 ) OR ( ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF ( SELF ) ) AND ( SIZEOF ( SELF \ Laminate_component . padstack_occurrence_assembly ) + SIZEOF ( SELF \ Laminate_component . footprint_occurrence_assembly ) = 1 ) ) "/>
+         <where label="WR1" expression=" SIZEOF ( padstack_occurrence_assembly ) + SIZEOF ( footprint_occurrence_assembly ) &lt; 2 "/>
+         <where label="WR2" expression=" NOT ( SIZEOF ( padstack_occurrence_assembly ) = 1 ) OR padstack_occurrence_assembly [ 1 ] = SELF \ Assembly_component . occurrence_contexts [ 1 ] "/>
+         <where label="WR3" expression=" NOT ( SIZEOF ( padstack_occurrence_assembly ) = 1 ) OR footprint_occurrence_assembly [ 1 ] = SELF \ Assembly_component . occurrence_contexts [ 1 ] "/>
       </entity>
       <entity name="Laminate_component_feature" abstract.supertype="YES" supertypes="Component_feature" super.expression="ONEOF (Conductive_interconnect_element_terminal, Laminate_component_interface_terminal, Laminate_component_join_terminal, Via_terminal)"/>
       <entity name="Laminate_component_interface_terminal" abstract.supertype="YES" supertypes="Laminate_component_feature"/>
@@ -795,6 +798,9 @@
          </explicit>
       </entity>
       <entity name="Passage_technology" super.expression="ONEOF (Default_via_definition, Default_component_termination_passage_definition, Default_unsupported_passage_definition)">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
          <explicit name="of_technology">
             <typename name="Passage_technology_parameters"/>
          </explicit>
@@ -804,7 +810,18 @@
          <explicit name="as_finished_inter_stratum_extent">
             <typename name="Inter_stratum_extent"/>
          </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) &lt;= 1 ) "/>
+         <inverse name="deposition_material" entity="Material_identification" attribute="items">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Passage_technology" attribute="name"/>
+            <unique.attribute entity-ref="Passage_technology" attribute="associated_definition"/>
+         </unique>
+         <where label="WR1" expression=" NOT ( SIZEOF ( deposition_material ) = 1 ) OR ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( deposition_material ) ) "/>
+         <where label="WR2" expression=" NOT ( of_technology . plated_passage ) OR ( SIZEOF ( deposition_material ) = 1 ) "/>
+         <where label="WR3" expression=" NOT ( of_technology . maximum_as_finished_deposition_thickness ) OR ( SIZEOF ( deposition_material ) = 1 ) "/>
+         <where label="WR4" expression=" NOT ( of_technology . minimum_as_finished_deposition_thickness ) OR ( SIZEOF ( deposition_material ) = 1 ) "/>
+         <where label="WR5" expression=" NOT ( of_technology . plated_passage ) OR SIZEOF ( [ deposition_material [ 1 ] . electrical_conductivity_classification , deposition_material [ 1 ] . magnetic_conductivity_classification , deposition_material [ 1 ] . optical_conductivity_classification , deposition_material [ 1 ] . thermal_conductivity_classification ] * [ 'conductive' ] ) &gt;= 1 "/>
       </entity>
       <entity name="Pcb" supertypes="Interconnect_module">
          <explicit name="usage_view" optional="YES">

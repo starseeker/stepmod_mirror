@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-11T10:12:55" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-21T11:05:58" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_connectivity_definition_arm schema_instance"/>
    <schema name="Physical_connectivity_definition_arm">
       <interface kind="use" schema="Part_external_reference_arm"/>
@@ -16,7 +16,7 @@
          <select extensible="YES" genericentity="YES" basedon="_SELECT_specification_product_object_select" selectitems="Physical_connectivity_element Physical_connectivity_definition"/>
       </type>
       <type name="termination_or_junction">
-         <select extensible="YES" genericentity="YES" selectitems="Component_terminal"/>
+         <select extensible="YES" genericentity="YES" selectitems="Component_terminal Topological_junction"/>
       </type>
       <entity name="Physical_connectivity_definition" super.expression="Physical_connectivity_structure_definition">
          <explicit name="name">
@@ -29,6 +29,9 @@
             <aggregate type="SET" lower="2" upper="?"/>
             <typename name="Physical_component_terminal"/>
          </explicit>
+         <derived name="sizeof_terminals" expression=" SIZEOF ( associated_terminals ) ">
+            <builtintype type="INTEGER"/>
+         </derived>
          <unique label="UR1">
             <unique.attribute entity-ref="Physical_connectivity_definition" attribute="name"/>
             <unique.attribute entity-ref="Physical_connectivity_definition" attribute="associated_definition"/>
@@ -78,7 +81,36 @@
          </inverse>
       </entity>
       <entity name="Physical_unit_network_definition" supertypes="Product_view_definition">
+         <derived name="terminals" expression=" get_terminals ( connectivity_definitions ) ">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Component_terminal"/>
+         </derived>
+         <inverse name="connectivity_definitions" entity="Physical_connectivity_definition" attribute="associated_definition">
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
+         </inverse>
          <where label="WR1" expression=" NOT ( 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF ( SELF ) ) OR ( 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_DESIGN_VIEW' IN TYPEOF ( SELF ) ) "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( t &lt;* terminals | SIZEOF ( USEDIN ( t , 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + 'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS' ) ) = 1 ) ) = SIZEOF ( terminals ) "/>
       </entity>
+      <entity name="Topological_junction">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="scope">
+            <typename name="Physical_connectivity_structure_definition"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Topological_junction" attribute="name"/>
+            <unique.attribute entity-ref="Topological_junction" attribute="scope"/>
+         </unique>
+      </entity>
+      <function name="get_terminals">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Physical_connectivity_definition"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Component_terminal"/>
+         <algorithm> LOCAL ct : SET OF Component_terminal := [ ] ; i : INTEGER := 0 ; END_LOCAL ; REPEAT i := 1 TO SIZEOF ( input ) BY 1 ; ct := ct + input [ i ] . associated_terminals ; END_REPEAT ; RETURN ( ct ) ; </algorithm>
+      </function>
    </schema>
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-11T10:12:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-21T11:05:56" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
    <schema name="Fabrication_technology_arm">
       <interface kind="use" schema="Feature_and_connection_zone_arm"/>
@@ -14,8 +14,8 @@
       <interface kind="use" schema="Physical_layout_template_arm"/>
       <interface kind="use" schema="Requirement_decomposition_arm"/>
       <interface kind="use" schema="Part_feature_location_arm"/>
-      <type name="documentation_layer_purpose">
-         <select selectitems="predefined_documentation_layer_purpose External_item_identification"/>
+      <type name="ft_material_item_select">
+         <select extensible="YES" genericentity="YES" basedon="_SELECT_material_item_select" selectitems="Passage_technology_parameters"/>
       </type>
       <type name="land_template_terminal_class">
          <enumeration items="surface_point_class edge_curve_class edge_point_class surface_area_class"/>
@@ -80,11 +80,16 @@
             <typename name="Length_data_element"/>
             <redeclaration entity-ref="Stratum_technology"/>
          </explicit>
+         <where label="WR1" expression=" SIZEOF ( [ stratum_material . electrical_conductivity_classification , stratum_material . magnetic_conductivity_classification , stratum_material . optical_conductivity_classification , stratum_material . thermal_conductivity_classification ] * [ 'conductive' ] ) &gt;= 1 "/>
       </entity>
       <entity name="Documentation_layer_technology" supertypes="Stratum_technology">
          <explicit name="pre_defined_documentation_layer_purpose" optional="YES">
-            <typename name="documentation_layer_purpose"/>
+            <typename name="predefined_documentation_layer_purpose"/>
          </explicit>
+         <inverse name="externally_defined_documentation_layer_purpose" entity="External_source_identification" attribute="item">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <where label="WR1" expression=" ( EXISTS ( pre_defined_documentation_layer_purpose ) ) OR ( ( SIZEOF ( externally_defined_documentation_layer_purpose ) ) = 1 ) "/>
       </entity>
       <entity name="Electrical_isolation_removal_template" supertypes="Material_removal_feature_template">
          <explicit name="electrical_isolation_spacing_requirement">
@@ -232,11 +237,13 @@
          <explicit name="surface_specification" optional="YES">
             <typename name="Surface_finish_specification"/>
          </explicit>
+         <inverse name="stratum_material" entity="Material_identification" attribute="items"/>
          <unique label="UR1">
             <unique.attribute entity-ref="Stratum_technology" attribute="name"/>
          </unique>
          <where label="WR1" expression=" NOT ( layer_position = layer_position_type . primary ) OR ( 'FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF ( SELF ) ) "/>
          <where label="WR2" expression=" NOT ( layer_position = layer_position_type . secondary ) OR ( 'FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF ( SELF ) ) "/>
+         <where label="WR3" expression=" 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( stratum_material ) "/>
       </entity>
       <entity name="Stratum_technology_link">
          <explicit name="precedent_stratum_technology">
@@ -256,5 +263,13 @@
          <where label="WR2" expression=" NOT ( EXISTS ( precedent_stratum_technology_link ) ) OR ( precedent_stratum_technology_link :&lt;&gt;: SELF ) "/>
          <where label="WR3" expression=" NOT EXISTS ( precedent_stratum_technology_link ) OR ( precedent_stratum_technology_link . subsequent_stratum_technology :=: precedent_stratum_technology ) "/>
       </entity>
+      <function name="get_electrical_conductivity">
+         <parameter name="mi">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Material_identification"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> REPEAT i := 1 to SIZEOF ( mi ) by 1 ; IF ( 'CONDUCTIVITY_MATERIAL_ASPECT.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi [ i ] ) ) THEN IF ( ( EXISTS ( mi [ i ] . electrical_conductivity_classification ) ) AND ( mi [ i ] . electrical_conductivity_classification IN [ 'conductive' , 'semi conductive' , 'super conductive' ] ) ) THEN RETURN ( TRUE ) ; END_IF ; END_IF ; END_REPEAT ; RETURN ( FALSE ) ; </algorithm>
+      </function>
    </schema>
 </express>

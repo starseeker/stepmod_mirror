@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-11T10:12:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-21T11:05:56" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_geometric_tolerance_arm schema_instance"/>
    <schema name="Extended_geometric_tolerance_arm">
       <interface kind="use" schema="Geometric_tolerance_arm"/>
@@ -15,6 +15,9 @@
       <interface kind="use" schema="Dimension_tolerance_arm"/>
       <interface kind="use" schema="Shape_parameters_arm"/>
       <interface kind="use" schema="Default_tolerance_arm"/>
+      <interface kind="reference" schema="Requirement_decomposition_arm">
+         <interfaced.item name="get_rvd"/>
+      </interface>
       <type name="centre_type">
          <enumeration items="centred_on_arc centred_on_radial"/>
       </type>
@@ -173,7 +176,7 @@
             <redeclaration entity-ref="Shape_element_relationship" old_name="related"/>
          </explicit>
       </entity>
-      <entity name="Datum_difference_based_characteristic" supertypes="Measure_item">
+      <entity name="Datum_difference_based_characteristic" supertypes="Representation_item">
          <explicit name="of_datum_difference">
             <typename name="Datum_difference"/>
          </explicit>
@@ -445,7 +448,7 @@
          <explicit name="applied_to">
             <typename name="restrained_item_select"/>
          </explicit>
-         <derived name="restraint_description" expression=" QUERY ( rd &lt;* QUERY ( ra &lt;* USEDIN ( SELF , 'REQUIREMENT_ASSIGNMENT_ARM.' + 'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO' ) | ( ra . id = 'restraint description' ) ) | 'REQUIREMENT_VIEW_DEFINITION_ARM.' + 'REQUIREMENT_VIEW_DEFINITION' IN TYPEOF ( rd . assigned_requirement ) ) ">
+         <derived name="restraint_description" expression=" get_rvd ( SELF , 'restraint description' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Requirement_view_definition"/>
          </derived>
@@ -506,7 +509,7 @@
          <explicit name="alternate_dimension" optional="YES">
             <typename name="Geometric_dimension"/>
          </explicit>
-         <derived name="statistical_control_requirement" expression=" QUERY ( scr &lt;* QUERY ( ra &lt;* USEDIN ( SELF , 'REQUIREMENT_ASSIGNMENT_ARM.' + 'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO' ) | ( ra . id = 'statistical control requirement' ) ) | 'REQUIREMENT_VIEW_DEFINITION_ARM.' + 'REQUIREMENT_VIEW_DEFINITION' IN TYPEOF ( scr . assigned_requirement ) ) ">
+         <derived name="statistical_control_requirement" expression=" get_rvd ( SELF , 'statistical control requirement' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Requirement_view_definition"/>
          </derived>
@@ -516,7 +519,7 @@
          <explicit name="alternate_tolerance" optional="YES">
             <typename name="Geometric_tolerance"/>
          </explicit>
-         <derived name="statistical_control_requirement" expression=" QUERY ( scr &lt;* QUERY ( ra &lt;* USEDIN ( SELF , 'REQUIREMENT_ASSIGNMENT_ARM.' + 'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO' ) | ( ra . id = 'statistical control requirement' ) ) | 'REQUIREMENT_VIEW_DEFINITION_ARM.' + 'REQUIREMENT_VIEW_DEFINITION' IN TYPEOF ( scr . assigned_requirement ) ) ">
+         <derived name="statistical_control_requirement" expression=" get_rvd ( SELF , 'statistical control requirement' ) ">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Requirement_view_definition"/>
          </derived>

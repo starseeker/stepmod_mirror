@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-11T10:12:49" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-21T11:05:55" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_technology_arm schema_instance"/>
    <schema name="Assembly_technology_arm">
       <interface kind="use" schema="Conductivity_material_aspects_arm"/>
@@ -59,11 +59,15 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <inverse name="bond_category" entity="External_source_identification" attribute="item"/>
+         <inverse name="bond_material" entity="Material_identification" attribute="items"/>
          <unique label="UR1">
             <unique.attribute entity-ref="Assembly_bond_definition" attribute="name"/>
          </unique>
+         <unique label="UR2">
+            <unique.attribute entity-ref="Assembly_bond_definition" attribute="associated_definition"/>
+         </unique>
          <where label="WR1" expression=" bonded_feature_1 &lt;&gt; bonded_feature_2 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) = 1 ) "/>
+         <where label="WR2" expression=" 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( bond_material ) "/>
       </entity>
       <entity name="Assembly_joint" super.expression="Assembled_with_fasteners ANDOR Assembled_with_bonding">
          <explicit name="name">

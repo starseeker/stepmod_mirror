@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-01-11T10:12:55" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-01-21T11:05:59" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="requirement_decomposition_arm schema_instance"/>
    <schema name="Requirement_decomposition_arm">
       <interface kind="use" schema="Characteristic_arm"/>
@@ -90,10 +90,13 @@
          <explicit name="reference_clause" optional="YES">
             <typename name="Structured_text_id_in_document"/>
          </explicit>
+         <inverse name="required_material" entity="Material_identification" attribute="items">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
          <unique label="UR1">
             <unique.attribute entity-ref="Requirement_definition_property" attribute="associated_definition"/>
          </unique>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( mi &lt;* USEDIN ( SELF , 'GENERIC_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_IDENTIFICATION.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( mi ) ) ) &lt;= 1 ) "/>
+         <where label="WR1" expression=" NOT ( SIZEOF ( required_material ) = 1 ) OR ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( required_material ) ) "/>
       </entity>
       <entity name="Shape_and_ee_product_definition_based_constraint_occurrence" supertypes="Ee_product_definition_based_constraint_occurrence">
          <explicit name="constraining_shape">
@@ -115,7 +118,18 @@
             <builtintype type="STRING"/>
          </parameter>
          <typename name="Requirement_definition_property"/>
-         <algorithm> LOCAL requirements : SET [ 0 : ? ] OF Requirement_definition_property ; END_LOCAL ; requirements := USEDIN ( ra . assigned_requirement , 'REQUIREMENT_DECOMPOSITION.' + 'REQUIREMENT_DEFINTION_PROPERTY.ASSOCIATED_DEFINITION' ) ; REPEAT i := 1 to SIZEOF ( requirements ) by 1 ; IF ( requirements [ i ] IN TYPEOF ( req_type ) ) THEN RETURN ( requirements [ i ] ) ; END_IF ; END_REPEAT ; RETURN ( ? ) ; </algorithm>
+         <algorithm> LOCAL requirements : SET [ 0 : ? ] OF Requirement_definition_property ; END_LOCAL ; requirements := USEDIN ( ra . assigned_requirement , 'REQUIREMENT_DECOMPOSITION.' + 'REQUIREMENT_DEFINTION_PROPERTY.ASSOCIATED_DEFINITION' ) ; REPEAT i := 1 to SIZEOF ( requirements ) by 1 ; IF ( req_type IN TYPEOF ( requirements [ i ] ) ) THEN RETURN ( requirements [ i ] ) ; END_IF ; END_REPEAT ; RETURN ( ? ) ; </algorithm>
+      </function>
+      <function name="get_rvd">
+         <parameter name="input">
+            <typename name="requirement_assignment_item"/>
+         </parameter>
+         <parameter name="id">
+            <builtintype type="STRING"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Requirement_view_definition"/>
+         <algorithm> LOCAL rvd : SET [ 0 : ? ] OF Requirement_view_definition := [ ] ; ra : SET [ 0 : ? ] OF Requirement_assignment := [ ] ; END_LOCAL ; ra := ( QUERY ( rai &lt;* USEDIN ( input , 'REQUIREMENT_ASSIGNMENT_ARM.' + 'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO' ) | ( rai . id = id ) ) ) ; REPEAT i := 1 to SIZEOF ( ra ) by 1 ; rvd := rvd + ra [ i ] . assigned_requirement ; END_REPEAT ; RETURN ( rvd ) ; </algorithm>
       </function>
       <function name="valid_constraining_shape">
          <parameter name="sd">

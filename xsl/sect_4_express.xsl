@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.24 2002/04/02 07:07:16 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.25 2002/04/03 06:42:07 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1126,8 +1126,7 @@
       END_FUNCTION;
     </code>
   </blockquote>
-
-
+  <xsl:apply-templates select="./parameter" mode="description"/>
 </xsl:template>
 
 <xsl:template match="procedure">  
@@ -1227,6 +1226,7 @@
     </code>
   </blockquote>
   (*
+  <xsl:apply-templates select="./explicit" mode="description"/>
 </xsl:template>
 
 <!-- empty template to prevent the algorithm element being out put along
@@ -1249,6 +1249,57 @@
   </xsl:choose>
 </xsl:template>
 
+<xsl:template match="parameter" mode="description">
+  <xsl:if test="position()=1">
+    <p><u>Argument definitions:</u></p>
+  </xsl:if>
+
+  <xsl:variable name="aname">
+    <xsl:call-template name="express_a_name">
+      <xsl:with-param name="section1" select="../../@name"/>
+      <xsl:with-param name="section2" select="../@name"/>
+      <xsl:with-param name="section3" select="@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <p class="expressdescription">
+    <b>
+      <a name="{$aname}">
+        <xsl:value-of select="@name"/>:
+      </a>
+    </b>
+
+  <!-- get description from external file -->
+  <xsl:call-template name="output_external_description">
+    <xsl:with-param name="schema" select="../../@name"/>
+    <xsl:with-param name="entity" select="../@name"/>
+    <xsl:with-param name="attribute" select="@name"/>
+  </xsl:call-template>
+  
+  <!-- output description from express -->
+  <xsl:choose>
+    <xsl:when test="./description">
+      <xsl:apply-templates select="./description"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:variable name="external_description">
+        <xsl:call-template name="check_external_description">
+          <xsl:with-param name="schema" select="../../@name"/>
+          <xsl:with-param name="entity" select="../@name"/>
+          <xsl:with-param name="attribute" select="@name"/>
+        </xsl:call-template>        
+      </xsl:variable>
+      <xsl:if test="$external_description='false'">
+        <xsl:call-template name="error_message">
+          <xsl:with-param 
+            name="message" 
+            select="concat('No description provided for ',$aname)"/>
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:otherwise>
+  </xsl:choose>
+</p>
+</xsl:template>
 
 <xsl:template match="algorithm" mode="code">
   <xsl:value-of select="."/>

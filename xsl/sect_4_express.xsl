@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.22 2002/03/26 11:14:15 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.23 2002/03/27 09:38:09 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1117,7 +1117,8 @@
   <blockquote>
     <code>
       FUNCTION <xsl:value-of select="@name"/>
-      <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
+      <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> :</xsl:text>
+      <xsl:apply-templates select="./aggregate" mode="code"/>
       <xsl:apply-templates select="./*" mode="underlying"/>;
       <pre>
         <xsl:apply-templates select="./algorithm" mode="code"/>
@@ -1217,6 +1218,7 @@
     <code>
       PROCEDURE <xsl:value-of select="@name"/>
     <xsl:apply-templates select="./parameter" mode="code"/><xsl:text> : </xsl:text>
+    <xsl:apply-templates select="./aggregate" mode="code"/>
     <xsl:apply-templates select="./*" mode="underlying"/>;
     <pre>
       <xsl:apply-templates select="./algorithm" mode="code"/>

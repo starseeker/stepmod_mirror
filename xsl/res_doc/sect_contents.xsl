@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.12 2003/01/24 00:40:54 thendrix Exp $
+$Id: sect_contents.xsl,v 1.13 2003/02/05 20:51:34 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -235,14 +235,15 @@ $Id: sect_contents.xsl,v 1.12 2003/01/24 00:40:54 thendrix Exp $
        <xsl:choose>
          <xsl:when test="contains(@file,'schema_diag')">
            <xsl:variable name="figtext" >
-             
-           <xsl:value-of 
-             select="concat('Figure ',$number, 
-                         ' &#8212; The relationship of schemas of this part to the standard ISO 10303 integration architecture ')"/>
-           </xsl:variable>
-           <xsl:variable name="expg_path">
+             <xsl:if test="string-length(@title) > 3" >
+               <xsl:value-of 
+                 select="concat('Figure ',$number, 
+                         ' &#8212; ',@title)" />
+               </xsl:if>       
+             </xsl:variable>
+             <xsl:variable name="expg_path">
                <xsl:value-of select="substring-before($file,'.xml')"/>
-           </xsl:variable>
+             </xsl:variable>
 
              <xsl:variable name="schema_url">
                <xsl:choose>

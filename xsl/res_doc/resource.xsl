@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.18 2003/01/31 07:40:27 nigelshaw Exp $
+$Id: resource.xsl,v 1.19 2003/02/26 02:05:18 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3083,10 +3083,11 @@ $resource_ok,' Check the normatives references')"/>
         </xsl:choose>
       </xsl:when>
       <xsl:otherwise >
+      <xsl:if test="string-length(@title) > 3" >
             <xsl:value-of 
               select="concat('Figure ',$number, 
-                      ' &#8212; The relationship of schemas of this part to the ISO 10303 integration architecture')" />
-       
+                      ' &#8212; ',@title)" />
+      </xsl:if>       
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.5 2002/12/20 14:42:38 nigelshaw Exp $
+$Id: imgfile.xsl,v 1.6 2003/01/31 07:34:56 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -204,9 +204,10 @@ $Id: imgfile.xsl,v 1.5 2002/12/20 14:42:38 nigelshaw Exp $
                       ' &#8212; EXPRESS-G diagram of the ', $schname, ' (', $number,' of ', $img_count, ')' )" />
             </xsl:when>
             <xsl:otherwise>
-                      <xsl:value-of 
-              select="concat('Figure  1. ',
-                      ' &#8212; The relationship of schemas of this part to the standard ISO 10303 integration architecture')" />
+              <xsl:if test="string-length(@title) > 3" >
+                <xsl:value-of 
+                  select="concat('Figure  1.  &#8212; ',@title)" />
+                </xsl:if>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>

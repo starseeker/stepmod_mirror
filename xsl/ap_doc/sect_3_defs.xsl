@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.11 2003/07/23 16:35:49 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.12 2003/08/11 07:00:25 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -667,11 +667,11 @@ $module_ok,' Check the normatives references')"/>
 
   <xsl:template match="definition">
     <xsl:param name="section"/>
-    <h2>
+    <h4>
       <!-- <xsl:value-of select="$section"/>.<xsl:number/><br/> -->
       <xsl:value-of select="concat($section,'.',position())"/><br/> 
       <xsl:apply-templates select="term"/>
-    </h2>
+    </h4>
     <xsl:apply-templates select="def"/>
   </xsl:template>
   

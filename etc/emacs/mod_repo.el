@@ -1,4 +1,4 @@
-;;; $Id: plcs.el,v 1.9 2001-09-12 09:16:36+01 rob Exp rob $
+;;; $Id: mod_repo.el,v 1.1 2002/08/18 17:27:30 robbod Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
@@ -122,15 +122,13 @@
 	   )
 	  )
     (insert "\"\n")
-
+    (insert "   status=\"open\"\n")
     (insert "   category=\"editorial\"\n")
     (insert "   by=\"")
     (insert modrep-user)
     (insert "\"\n")
     (insert "   date=\"")
     (insert (modrep-date))
-    (insert "\"\n")
-    (insert "   status=\"open\"")
     (insert ">\n")
 
 
@@ -146,27 +144,26 @@
 
 
 
-(defun modrep-issue-status ()
-  "Insert a modrep comment status"
+(defun modrep-issue-comment ()
+  "Insert a modrep issue comment"
   (interactive)
   (let (pos)
     (search-forward "</issue>")
     (search-backward "</issue>")
     (insert "\n")
     (beginning-of-line)
-    (insert "<status\n")
+    (insert "<comment\n")
     (insert "   by=\"")
     (insert modrep-user)
     (insert "\"\n")
     (insert "   date=\"")
     (insert (modrep-date))
-    (insert "\"\n")
-    (insert "   status=\"closed\">\n")
+    (insert "\">\n")
     (insert "<description>\n")
     (setq pos (point))
     (insert "\n")
     (insert "</description>\n")
-    (insert "</status>\n")
+    (insert "</comment>\n")
     (goto-char pos)
     )
   )
@@ -176,7 +173,7 @@
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: ") (insert "$\n")
+  (insert "$Id: mod_repo.el,v 1.1 2002/08/18 17:27:30 robbod Exp $\n")
   (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-esl)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")
@@ -426,7 +423,7 @@
 ;     ["Open issues/issue1.xml" 
 ;      (find-file (concat modrep-home "../issues/issue1.xml")) t]
 
-     ["Insert <status> issue status" (modrep-issue-status) t]
+     ["Insert <comment> issue" (modrep-issue-comment) t]
      )
    ["Insert development folder" 
     (modrep-insert-development-folder) t]

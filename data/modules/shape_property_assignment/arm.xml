@@ -18,6 +18,11 @@
   <schema name="Shape_property_assignment_arm">
     <interface
       kind="use"
+      schema="Elemental_geometric_shape_arm">
+    </interface>
+
+    <interface
+      kind="use"
       schema="Product_view_definition_arm">
     </interface>
 
@@ -44,12 +49,30 @@
       </select>
 
     </type>
+    <type name="shape_dependent_select">
+      <select
+        selectitems="Item_shape Shape_element">
+      </select>
+
+    </type>
+    <type name="shape_definition_select">
+      <select
+        selectitems="Item_shape Shape_element Shape_element_relationship">
+      </select>
+
+    </type>
     <entity
       name="Item_shape"
-      supertypes="Element_property">
+      supertypes="Assigned_property">
+      <derived
+        name="SELF\Assigned_property.name"
+        expression="'shape' ">
+        <builtintype
+          type="STRING"/>
+      </derived>
       <where
         label="WR1"
-        expression="SIZEOF (QUERY( item &lt;* SELF\Identification_assignment.described_element |       NOT ('SHAPE_PROPERTY_ASSIGNMENT_ARM.' + 'SHAPEABLE_DEFINITION_SELECT') IN TYPEOF(item) )) = 0">
+        expression="('SHAPE_PROPERTY_ASSIGNMENT_ARM.' + 'SHAPEABLE_DEFINITION_SELECT') IN 	TYPEOF(SELF\Assigned_property.described_element) ))">
       </where>
     </entity>
 
@@ -116,6 +139,41 @@
         optional="YES">
         <builtintype
           type="STRING"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Shape_dependent_property_representation">
+      <explicit
+        name="described_element">
+        <typename
+          name="shape_dependent_select"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype
+          type="STRING"/>
+      </explicit>
+      <explicit
+        name="is_defined_in">
+        <typename
+          name="Cartesian_coordinate_space"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="Shape_description_association"
+      supertypes="Property_representation">
+      <explicit
+        name="SELF\Property_representation.property">
+        <typename
+          name="shape_definition_select"/>
+      </explicit>
+      <explicit
+        name="SELF\Property_representation.rep">
+        <typename
+          name="Geometric_model"/>
       </explicit>
     </entity>
 

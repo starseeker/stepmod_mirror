@@ -2,6 +2,8 @@
 
 SCHEMA Shape_property_assignment_arm;
 
+USE FROM Elemental_geometric_shape_arm;
+
 USE FROM Product_view_definition_arm;
 
 USE FROM Product_view_definition_relationship_arm;
@@ -19,10 +21,20 @@ TYPE shapeable_definition_select = SELECT
    View_definition_relationship);
 END_TYPE;
 
+TYPE shape_dependent_select = SELECT (Item_shape, Shape_element);
+END_TYPE;
+
+TYPE shape_definition_select = SELECT (Item_shape, Shape_element, Shape_element_relationship);
+END_TYPE;
+
+
 ENTITY Item_shape
-SUBTYPE OF (Element_property);
+SUBTYPE OF (Assigned_property);
+DERIVE
+   SELF\Assigned_property.name : STRING := 'shape' ;
 WHERE
-WR1: ('SHAPE_PROPERTY_ASSIGNMENT_ARM.' + 'SHAPEABLE_DEFINITION_SELECT') IN TYPEOF(SELF\Element_property.described_element) ));
+WR1: ('SHAPE_PROPERTY_ASSIGNMENT_ARM.' + 'SHAPEABLE_DEFINITION_SELECT') IN 
+	TYPEOF(SELF\Assigned_property.described_element) ));
 END_ENTITY;
 
 ENTITY Characterizable_object;
@@ -42,6 +54,18 @@ ENTITY Shape_element_relationship;
   relating : Shape_element;
   relation_type : STRING;
   description : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Shape_dependent_property_representation;
+  described_element : shape_dependent_select;
+  description : OPTIONAL STRING;
+  is_defined_in : Cartesian_coordinate_space;
+END_ENTITY;
+
+ENTITY Shape_description_association
+SUBTYPE OF (Property_representation);
+  SELF\Property_representation.property : shape_definition_select;
+  SELF\Property_representation.rep : Geometric_model;
 END_ENTITY;
 
 END_SCHEMA;

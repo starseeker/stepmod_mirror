@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.54 2002/10/29 10:21:44 goset1 Exp $
+$Id: sect_5_mapping.xsl,v 1.55 2002/11/26 15:19:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -796,6 +796,165 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
 </xsl:template>
 
 
+<xsl:template match="refpath_extend" mode="specification">
+  <xsl:variable name="ae" select="ancestor::ae/@entity"/>
+  <xsl:variable name="orig_mod" select="ancestor::ae/@original_module"/>
+  <xsl:choose>
+    <xsl:when test="ancestor::ae/@original_module">
+      <!-- if there has been an external module declared, then get the 
+           alt_map descriptions from there -->
+      <xsl:variable name="module_dir">
+        <xsl:call-template name="module_directory">
+          <xsl:with-param name="module" select="$orig_mod"/>
+        </xsl:call-template>
+      </xsl:variable>
+      
+      <xsl:variable name="module_ok">
+        <xsl:choose>
+          <!-- original_module specified then the ARM object is declared in
+               another module -->
+          <xsl:when test="$orig_mod">
+            <xsl:call-template name="check_module_exists">
+              <xsl:with-param name="module" select="$orig_mod"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            false
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable> <!-- module_ok -->
+
+      <xsl:choose>
+        <xsl:when test="$module_ok != 'true'">
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="message"
+              select="concat('Error refpath_ext2: The module specified in the
+                      @original_module attribute (', $orig_mod,') does not exist in stepmod/repository_index.xml')"/>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+
+          <!-- get the refpath from the mapped attribute of the original module and extend -->          
+          <xsl:variable name="refpath">
+            <xsl:choose>
+              <xsl:when test="name(..)='alt_map'">
+                <!-- the refpath in the original module must be in the same
+                     alternative -->
+                <xsl:variable name="assertion_to" select="./@assertion_to"/>
+                <xsl:variable name="attribute" select="../../@attribute"/>
+                <xsl:variable name="alt_id" select="../@alt_map.inc"/>
+                <xsl:value-of
+                  select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/aa[@attribute=$attribute and @assertion_to=$assertion_to]/alt_map[@alt_map.inc=$alt_id]/refpath"/>
+              </xsl:when>
+
+              <xsl:otherwise>
+                <xsl:variable name="assertion_to" select="./@assertion_to"/>
+                <xsl:variable name="attribute" select="../@attribute"/>
+                <xsl:value-of 
+                  select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/aa[@attribute=$attribute and @assertion_to=$assertion_to]/refpath"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:variable>
+
+          <xsl:if test="string-length($refpath)=0">
+            <tr valign="top">
+              <td></td>
+              <td>
+                <xsl:variable name="msg">
+                  <xsl:choose>
+                    <xsl:when test="name(..)='alt_map'">
+                      <xsl:variable name="assertion_to" select="./@assertion_to"/>
+                      <xsl:variable name="attribute" select="../../@attribute"/>
+                      <xsl:variable name="alt_id" select="../@alt_map.inc"/>
+                      <xsl:value-of 
+                        select="concat('Error refpath_ext4: The refath to be
+                                extended can not be found in the module: ',
+                                $orig_mod,'. Check that the entity ',$ae,' exists in ',$orig_mod,' and has
+                                an attribute ',$attribute,', that there is
+                                an assertion to ',$assertion_to,' and that
+                                the there is an alt_map alt_map.inc=',$alt_id)"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:variable name="assertion_to" select="./@assertion_to"/>
+                      <xsl:variable name="attribute" select="../@attribute"/>
+                      <xsl:value-of 
+                        select="concat('Error refpath_ext4: The refath to be
+                                extended can not be found in the module: ',
+                                $orig_mod,'. Check that the entity ',$ae,' exists in ',$orig_mod,' and has
+                                an attribute ',$attribute,' and there is an assertion to ',$assertion_to)"/>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:variable>
+                <xsl:call-template name="error_message">
+                  <xsl:with-param name="message" select="$msg"/>
+                </xsl:call-template>
+              </td>
+            </tr>
+          </xsl:if>
+
+              
+          <xsl:variable name="refpath1">
+            <xsl:call-template name="remove_start_end_whitespace">
+              <xsl:with-param name="string" select="$refpath"/>
+            </xsl:call-template>
+          </xsl:variable>
+
+          <xsl:variable name="refpath_extend">
+            <xsl:call-template name="remove_start_end_whitespace">
+              <xsl:with-param name="string" select="string(.)"/>
+            </xsl:call-template>
+          </xsl:variable>
+
+          <!-- the refpath may be an alternative path in which case it will
+               end in )
+               So test for ) and insert refpath_extend before ) -->
+          <xsl:variable name="refpath_extend1">
+            <xsl:choose>
+              <xsl:when test="substring($refpath1,string-length($refpath1))=')'">
+                <xsl:value-of
+                  select="concat(substring($refpath1,1,string-length($refpath1)-1),'&#xA;',$refpath_extend,')')"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="concat($refpath1,'&#xA;',$refpath_extend)"/>
+              </xsl:otherwise>
+            </xsl:choose>            
+          </xsl:variable>
+
+
+          <xsl:if test="string-length($refpath_extend1)>0">
+            <tr valign="top">
+              <td>Reference path:&#160;&#160;</td>
+
+              <!--
+         R          <xsl:apply-templates select="$refpath" mode="check_ref_path"/>
+                   -->
+
+              <xsl:apply-templates select="." mode="check_ref_path"/>
+
+              <td>
+                <xsl:call-template name="output_string_with_linebreaks">
+                  <xsl:with-param name="string" select="$refpath_extend1"/>
+                </xsl:call-template>
+              </td>
+            </tr>
+          </xsl:if>
+
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:variable name="msg"
+        select="concat('Error refpath_extend_1: No original_module specified in ',$ae)"/>
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message">
+          <xsl:value-of select="$msg"/>
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+
 <xsl:template match="refpath" mode="specification">
   <xsl:variable name="str">
     <xsl:call-template name="remove_trailing_whitespace">
@@ -849,7 +1008,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
                    another module -->
               <xsl:when test="../../@original_module">
                 <xsl:call-template name="check_module_exists">
-                  <xsl:with-param name="module" select="@original_module"/>
+                  <xsl:with-param name="module" select="../../@original_module"/>
                 </xsl:call-template>
               </xsl:when>
               <xsl:otherwise>
@@ -859,14 +1018,24 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
               </xsl:otherwise>
             </xsl:choose>
           </xsl:variable> <!-- module_ok -->
-          <xsl:if test="$module_ok != 'true'">
-            <!-- get the alt_map description from the original module -->
-            <xsl:variable name="alt_description"
-              select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/alt_map[@id=$dsc.id]"/>
-            <xsl:if test="$alt_description">
-              <xsl:apply-templates select="$alt_description" mode="output_id_description"/>              
-            </xsl:if>
-          </xsl:if>
+
+          <xsl:choose>
+            <xsl:when test="$module_ok != 'true'">
+              <xsl:call-template name="error_message">
+                <xsl:with-param name="message"
+                  select="concat('Error refpath_ext3: The module specified in the
+                          @original_module attribute (', ../../@original_module,') does not exist in stepmod/repository_index.xml')"/>
+              </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+              <!-- get the alt_map description from the original module -->
+              <xsl:variable name="alt_description"
+                select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/alt_map[@id=$dsc.id]"/>
+              <xsl:if test="$alt_description">
+                <xsl:apply-templates select="$alt_description" mode="output_id_description"/>              
+              </xsl:if>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="../../alt_map[@id=$dsc.id]/description">
           <xsl:apply-templates 
@@ -925,6 +1094,7 @@ the mapping specification')"/>
     <xsl:apply-templates select="./source"  mode="specification"/>
     <xsl:apply-templates select="./rules"  mode="specification"/>
     <xsl:apply-templates select="./refpath"  mode="specification"/>
+    <xsl:apply-templates select="./refpath_extend"  mode="specification"/>
   </table>  
 </xsl:template>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.31 2002/06/28 10:19:55 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.32 2002/06/28 14:52:24 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -502,7 +502,7 @@ $Id: sect_5_mapping.xsl,v 1.31 2002/06/28 10:19:55 robbod Exp $
     test="not(document($arm_xml)/express/schema/entity[@name=$arm_entity]/explicit[@name=$arm_attr])">
     <xsl:call-template name="error_message">
       <xsl:with-param name="message"
-        select="concat('Error m1: The attribute ', ../@entity,'.',@attribute 
+        select="concat('Error m1: The attribute ', ../@entity,'.',@attribute, 
                 ' does not exist in the arm as an expilcit attribute')"/>
     </xsl:call-template>
   </xsl:if>

@@ -1,5 +1,5 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: arm.exp,v 1.6 2005/01/04 07:10:58 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Design management - EXPRESS ARM
 *)
 
@@ -13,64 +13,71 @@ USE FROM Work_request_arm;
 
 USE FROM Product_view_definition_arm;
 
-  TYPE design_object_management_relationship_item = SELECT (
-		Work_request, 
-		Work_order);
-  END_TYPE;
+	TYPE design_object_management_relationship_item = SELECT (
+                Work_request,
+                Work_order);
+  	END_TYPE;
 
-	TYPE dm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
-   (Frozen_assignment);
-	END_TYPE; 
+    TYPE dm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH
+   		(Frozen_assignment);
+    END_TYPE;
 
- 	TYPE managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT;
-	END_TYPE;
+    TYPE managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT;
+    END_TYPE;
 
-  ENTITY Add_design_object_management_relationship
-    SUBTYPE OF (Design_object_management_relationship);
-      current_design_object : managed_design_object;
-    UNIQUE
-      UR1 : current_design_object;
-  END_ENTITY;
+  	ENTITY Add_design_object_management_relationship
+      SUBTYPE OF (Design_object_management_relationship);
+    	current_design_object : managed_design_object;
+      DERIVE
+    	SELF\Activity.name : STRING := 'add';
+      UNIQUE
+        UR1 : current_design_object;
+	END_ENTITY;
 
-  ENTITY Change_design_object_management_relationship
-    SUBTYPE OF (Design_object_management_relationship);
-      current_design_object  : managed_design_object;
-      previous_design_object : managed_design_object;
-    UNIQUE
-      UR1 : current_design_object;
-      UR2 : previous_design_object;
-  END_ENTITY;
+  	ENTITY Change_design_object_management_relationship
+      SUBTYPE OF (Design_object_management_relationship);
+    	current_design_object  : managed_design_object;
+      	previous_design_object : OPTIONAL managed_design_object;
+      	attribute_name : OPTIONAL STRING;
+      DERIVE
+    	SELF\Activity.name : STRING := 'change';
+      WHERE
+      	WR1: TYPEOF(current_design_object) = TYPEOF(previous_design_object);
+       	WR2: current_design_object <> previous_design_object;
+  	END_ENTITY;
 
-  ENTITY Delete_design_object_management_relationship
-    SUBTYPE OF (Design_object_management_relationship);
-      previous_design_object : managed_design_object;
-    UNIQUE
-      UR1 : previous_design_object;
-  END_ENTITY;
+  	ENTITY Delete_design_object_management_relationship
+      SUBTYPE OF (Design_object_management_relationship);
+      	previous_design_object : managed_design_object;
+      DERIVE
+    	SELF\Activity.name : STRING := 'delete';
+      UNIQUE
+      	UR1 : previous_design_object;
+  	END_ENTITY;
 
-  ENTITY Design_object_management_relationship
-    ABSTRACT SUPERTYPE OF (ONEOF (Change_design_object_management_relationship,
- Delete_design_object_management_relationship,
- Add_design_object_management_relationship)ANDOR(View_dependent_design_object_management_relationship));
-  END_ENTITY;
+  	ENTITY Design_object_management_relationship
+   	  ABSTRACT SUPERTYPE OF (ONEOF
+		(Change_design_object_management_relationship,
+       	Delete_design_object_management_relationship,
+		Add_design_object_management_relationship)ANDOR
+		(View_dependent_design_object_management_relationship))
+      SUBTYPE OF (Activity);
+  	END_ENTITY;
 
 
-  ENTITY Design_object_management_relationship_assignment;
-      changes: SET[1:?] OF Design_object_management_relationship;
-      items : SET[1:?] OF design_object_management_relationship_item;
-  END_ENTITY;
+  	ENTITY Frozen_assignment;
+    	frozen_item       : SET[1:?] OF managed_design_object;
+		(** Need a global rule to capture cardinality
+	      assigned_approval : Approval;
+		*)
+  	END_ENTITY;
 
-  ENTITY Frozen_assignment;
-      frozen_item       : SET[1:?] OF managed_design_object;
-(** Need a global rule to capture cardinality      
-      assigned_approval : Approval;
-*)      
-  END_ENTITY;
-
-  ENTITY View_dependent_design_object_management_relationship
-    SUBTYPE OF (Design_object_management_relationship);
-      previous_design : Product_view_definition;
-      current_design  : Product_view_definition;
-  END_ENTITY;
+  	ENTITY View_dependent_design_object_management_relationship
+      SUBTYPE OF (Design_object_management_relationship);
+      	previous_design : Product_view_definition;
+      	current_design  : Product_view_definition;
+      DERIVE
+    	SELF\Activity.name : STRING := 'design dependent';
+  	END_ENTITY;
 
 END_SCHEMA;

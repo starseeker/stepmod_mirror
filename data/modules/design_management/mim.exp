@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.6 2004/12/23 09:00:59 liutkus Exp $
+   $Id: mim.exp,v 1.9 2005/01/04 07:21:21 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Design management - EXPRESS MIM
 *)
 
@@ -15,101 +15,21 @@ SCHEMA Design_management_mim;
 TYPE managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT;
 END_TYPE;
 
-ENTITY add_design_object_assignment
-   SUBTYPE OF (action_assignment);
-     items : SET [1:?] OF managed_design_object;
-WHERE
-   WR1: SIZEOF(QUERY(it <* SELF.items |
-        ('DESIGN_MANAGEMENT_MIM.' +
-        'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(it))
-        AND (it\product_definition_relationship.name = 
-                       'design object addition'))) = 1;
+ENTITY current_design_assignment
+	SUBTYPE OF (design_object_management_assignment);
 END_ENTITY;
 
-ENTITY add_design_object_request_assignment
-   SUBTYPE OF (action_request_assignment);
-     items : SET [1:?] OF managed_design_object;
-WHERE
-   WR1: SIZEOF(QUERY(it <* SELF.items |
-        ('DESIGN_MANAGEMENT_MIM.' +
-        'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(it))
-        AND (it\product_definition_relationship.name = 
-                         'design object addition'))) = 1;
+ENTITY current_design_object_assignment 
+	SUBTYPE OF (design_object_management_assignment);
 END_ENTITY;
 
-ENTITY change_from_design_object_assignment
-   SUBTYPE OF (action_assignment);
-     items : SET [1:?] OF managed_design_object;
-WHERE
-   WR1: SIZEOF(QUERY(aa <* USEDIN(SELF\action_assignment.assigned_action,
-        'DESIGN_MANAGEMENT_MIM.' +
-        'ACTION_ASSIGNMENT.ASSIGNED_ACTION')
-        |'DESIGN_MANAGEMENT_MIM.' +
-         'CHANGE_TO_DESIGN_OBJECT_ASSIGNMENT' IN TYPEOF(aa))) >= 1;
+ENTITY design_object_management_assignment
+	SUBTYPE OF (action_assignment);
+	 items : SET [1:?] OF managed_design_object; 
 END_ENTITY;
 
-ENTITY change_from_design_object_request_assignment
-   SUBTYPE OF (action_request_assignment);
-     items : SET [1:?] OF managed_design_object;
-WHERE
-   WR1: SIZEOF(QUERY(aa <*
-        USEDIN(SELF\action_request_assignment.assigned_action_request,
-        'DESIGN_MANAGEMENT_MIM.' +
-        'ACTION_REQUEST_ASSIGNMENT.ASSIGNED_ACTION_REQUEST')
-        |'DESIGN_MANAGEMENT_MIM.' +
-         'CHANGE_TO_DESIGN_OBJECT_REQUEST_ASSIGNMENT' IN TYPEOF(aa))) >= 1;
-END_ENTITY;
-
-ENTITY change_to_design_object_assignment
-   SUBTYPE OF (action_assignment);
-     items : SET [1:?] OF managed_design_object;
-WHERE
-   WR1: SIZEOF(QUERY(aa <* USEDIN(SELF\action_assignment.assigned_action,
-        'DESIGN_MANAGEMENT_MIM.' +
-        'ACTION_ASSIGNMENT.ASSIGNED_ACTION')
-        |'DESIGN_MANAGEMENT_MIM.' +
-         'CHANGE_FROM_DESIGN_OBJECT_ASSIGNMENT' IN TYPEOF(aa))) >= 1;
-   WR2: SIZEOF(QUERY ( pdr <* SELF.items | 
-        ('DESIGN_MANAGEMENT_MIM.' +
-        'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(pdr)) AND
-        (pdr\product_definition_relationship.name = 'design object change'))) = 1;
-END_ENTITY;
-
-ENTITY change_to_design_object_request_assignment
-   SUBTYPE OF (action_request_assignment);
-     items : SET [1:?] OF managed_design_object;
-WHERE
-   WR1: SIZEOF(QUERY(aa <* 
-        USEDIN(SELF\action_request_assignment.assigned_action_request,
-        'DESIGN_MANAGEMENT_MIM.' +
-        'ACTION_REQUEST_ASSIGNMENT.ASSIGNED_ACTION_REQUEST')
-        |'DESIGN_MANAGEMENT_MIM.' +
-         'CHANGE_FROM_DESIGN_OBJECT_REQUEST_ASSIGNMENT' 
-         IN TYPEOF(aa))) >= 1;
-   WR2: SIZEOF(QUERY ( pdr <* SELF.items | 
-        ('DESIGN_MANAGEMENT_MIM.' +
-        'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(pdr)) AND
-        (pdr\product_definition_relationship.name = 'design object change'))) = 1;
-END_ENTITY;
-
-ENTITY delete_design_object_assignment
-   SUBTYPE OF (action_assignment);
-     items : SET [1:?] OF managed_design_object;
-WHERE
-   WR1: SIZEOF(QUERY(it <* SELF.items |
-        ('DESIGN_MANAGEMENT_MIM.' +
-        'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(it))
-        AND (it\product_definition_relationship.name = 'design object deletion'))) = 1;
-END_ENTITY;
-
-ENTITY delete_design_object_request_assignment
-   SUBTYPE OF (action_request_assignment);
-     items : SET [1:?] OF managed_design_object;
-WHERE
-   WR1: SIZEOF(QUERY(it <* SELF.items |
-        ('DESIGN_MANAGEMENT_MIM.' +
-        'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(it))
-        AND (it\product_definition_relationship.name = 'design object deletion'))) = 1;
+ENTITY design_object_management_relationship_action
+	SUBTYPE OF (action);
 END_ENTITY;
 
 ENTITY frozen_assignment 
@@ -119,6 +39,15 @@ WHERE
  WR1: SELF\approval_assignment.assigned_approval.status.name in ['approved', 'not yet approved'];
 END_ENTITY;
 
+ENTITY previous_design_assignment
+	SUBTYPE OF (design_object_management_assignment);
+END_ENTITY;
+
+ENTITY previous_design_object_assignment 
+	SUBTYPE OF (design_object_management_assignment);
+END_ENTITY;
+
+(** Need to review - rewrite global rules below
 RULE add_design_object_management_relationship_unique_constraint FOR
  ( add_design_object_assignment, add_design_object_request_assignment );
 LOCAL
@@ -513,7 +442,7 @@ END_REPEAT;
 WHERE
   WR1: pass;
 END_RULE;
-	
+*)	
 END_SCHEMA;
 
 

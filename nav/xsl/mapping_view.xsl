@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.5 2002/11/26 11:14:26 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.6 2002/11/26 13:54:50 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -214,7 +214,8 @@ $Id: mapping_view.xsl,v 1.5 2002/11/26 11:14:26 nigelshaw Exp $
 	<blockquote>
 		<xsl:variable name="the-ent" select="@entity" />
 	
-		<xsl:if test="not($arm_node//entity[@name=$the-ent])" >
+		<xsl:if test="not(@original_module)" >
+			<xsl:if test="not($arm_node//entity[@name=$the-ent])" >
 				<xsl:call-template name="error_message">
 				  <xsl:with-param name="inline" select="'yes'"/>
 				  <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
@@ -224,6 +225,7 @@ $Id: mapping_view.xsl,v 1.5 2002/11/26 11:14:26 nigelshaw Exp $
 				</xsl:call-template>    
 			
 			</xsl:if>
+		</xsl:if>
 
 		<xsl:choose>
 		<xsl:when test="@original_module" >

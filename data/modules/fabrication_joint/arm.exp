@@ -1,5 +1,5 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   $Id: arm.exp,v 1.8 2005/01/04 17:05:09 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Fabrication joint - EXPRESS ARM
 *)
 
@@ -35,5 +35,23 @@ USE FROM Sequential_laminate_assembly_design_arm;
       auxiliary_joint_material       : OPTIONAL Stratum_feature_template_component;
       associated_interconnect_module : Interconnect_module;
   END_ENTITY;
+  
+  ENTITY Passage_terminal_based_fabrication_joint_link;
+      associated_terminal : fabricated_feature_select;
+      precedent_point     : Fabrication_joint;
+      subsequent_point    : Fabrication_joint;
+    UNIQUE
+      UR1 : associated_terminal, precedent_point, subsequent_point;
+    WHERE
+      WR1 : precedent_point <> subsequent_point;
+      WR2 : precedent_point.fabrication_features_2 = associated_terminal;
+      WR3 : subsequent_point.fabrication_features_1 = associated_terminal;
+      WR4 : SIZEOF(TYPEOF(associated_terminal) *
+            ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 
+             'COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL',
+             'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 
+             'VIA_TERMINAL']) = 1;
+  END_ENTITY; 
+  
 
 END_SCHEMA;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_description.xsl,v 1.20 2003/06/28 01:00:52 thendrix Exp $
+     $Id: express_description.xsl,v 1.21 2003/06/30 01:14:23 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -128,11 +128,19 @@
 
       <xsl:for-each select="$description//b">
         <xsl:choose>
-          <xsl:when test="not(contains(substring-after($description/@linkend,'.'),.))">
+          <xsl:when test="(
+not(contains(.,substring-before(substring-after($description/@linkend,'.'),'.'))) 
+and  
+string-length(substring-before(substring-after($description/@linkend,'.'),'.'))>0)
+ or
+(
+not(contains(.,substring-after($description/@linkend,'.'))) 
+and 
+string-length(substring-before(substring-after($description/@linkend,'.'),'.'))=0)">
             <xsl:call-template name="error_message">
               <xsl:with-param 
                 name="message" 
-                select="concat('Warning Ent7: bold text &quot;  ', . , ' &quot; found in definition of express identifier  &quot;',$description/@linkend,'&quot;','  If an express identifier, consider tagging as &lt;express_ref&gt;.')"/>
+                select="concat('Warning Ent7: bold text &quot;  ', . , '&quot; found in definition of express identifier  &quot;',$description/@linkend,'&quot;','  If an express identifier, consider tagging as &lt;express_ref&gt;.')"/>
             </xsl:call-template>
           </xsl:when>
         </xsl:choose>

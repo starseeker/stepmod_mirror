@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_resdoc.xsl,v 1.1 2003/01/18 19:13:12 thendrix Exp $
+$Id: build_resdoc.xsl,v 1.2 2003/01/20 05:14:47 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To build the initial ANT build package. 
@@ -851,7 +851,7 @@ $Id: build_resdoc.xsl,v 1.1 2003/01/18 19:13:12 thendrix Exp $
           <xsl:value-of select="'${BALLOTDIR}/ballot_summary.xml'"/>
         </xsl:attribute>
         <xsl:attribute name="out">
-          <xsl:value-of select="'${ISODIR}/module_index.htm'"/>
+          <xsl:value-of select="'${ISODIR}/index.htm'"/>
         </xsl:attribute>
         <xsl:attribute name="destdir">
           <xsl:value-of select="'${ISODIR}'"/>

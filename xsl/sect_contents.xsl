@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.24 2003/05/04 08:15:03 robbod Exp $
+$Id: sect_contents.xsl,v 1.25 2003/05/09 23:08:38 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -858,6 +858,8 @@ $Id: sect_contents.xsl,v 1.24 2003/05/04 08:15:03 robbod Exp $
     </xsl:choose>
   </xsl:variable>
   
+  <!-- removed at request of convener
+
   <xsl:variable name="no_nodes">
     <xsl:apply-templates select="." mode="count"/>
   </xsl:variable>
@@ -875,6 +877,14 @@ $Id: sect_contents.xsl,v 1.24 2003/05/04 08:15:03 robbod Exp $
         </a>
       </xsl:otherwise>
     </xsl:choose>
+-->
+
+    &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+
+        <a href="{$xref}">
+          <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
+        </a>
+
   <br/>
 </xsl:template>
 

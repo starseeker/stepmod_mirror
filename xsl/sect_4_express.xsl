@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.92 2003/05/06 12:48:10 mikeward Exp $
+     $Id: sect_4_express.xsl,v 1.93 2003/05/09 14:17:32 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -567,7 +567,7 @@
     </xsl:call-template>
   </xsl:variable>    
   <h2>
-    <!-- only number section if more than one constant -->
+    <!-- only number section if more than one constant
     <xsl:choose>
       <xsl:when test="count(../constant) > 1 ">
         <a name="{$aname}">
@@ -580,6 +580,11 @@
         </a>
       </xsl:otherwise>
     </xsl:choose>
+-->
+     <a name="{$aname}">
+          <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+        </a>
+   
   </h2>
 
   <!-- output description from express --> 
@@ -740,7 +745,7 @@
   </xsl:variable>   
 
 
-  <!-- only number section if more than one type -->
+  <!-- only number section if more than one type
   <xsl:choose>
     <xsl:when test="count(../type) > 1 ">
       <h2>
@@ -759,6 +764,13 @@
       </h2>      
     </xsl:otherwise>
   </xsl:choose>
+-->
+      <h2>
+        <a name="{$aname}">
+          <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
+        </a>
+        <xsl:apply-templates select="." mode="expressg_icon"/>
+      </h2>      
 
   <xsl:call-template name="check_type_name">
     <xsl:with-param name="type_name" select="@name"/>
@@ -1094,7 +1106,7 @@
   </xsl:variable>
 
   <h2>
-    <!-- only number section if more than one entity -->
+    <!-- only number section if more than one entity
     <xsl:choose>
       <xsl:when test="count(../entity) > 1 ">
         <a name="{$aname}">
@@ -1107,6 +1119,11 @@
         </a>        
       </xsl:otherwise>
     </xsl:choose>
+-->
+     <a name="{$aname}">
+          <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+        </a>
+   
     <xsl:apply-templates select="." mode="expressg_icon"/>
     <xsl:if test="substring($schema_name, string-length($schema_name)-3)='_arm'">
 
@@ -1794,7 +1811,7 @@
   </xsl:variable>
 
   <h2>
-  <!-- only number section if more than one sub type constraint -->
+  <!-- only number section if more than one sub type constraint
   <xsl:choose>
     <xsl:when test="count(../subtype.constraint) > 1 ">      
       <A NAME="{$aname}">
@@ -1807,6 +1824,10 @@
       </A>
     </xsl:otherwise>
   </xsl:choose>
+-->
+      <A NAME="{$aname}">
+        <xsl:value-of select="concat($clause_number,'.',position(),' ',@name)"/>
+      </A>
 
   <xsl:apply-templates select="." mode="expressg_icon"/>
 

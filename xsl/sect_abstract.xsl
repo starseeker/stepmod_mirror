@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp.xsl,v 1.2 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_abstract.xsl,v 1.1 2003/03/10 20:56:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -40,5 +40,59 @@ $Id: sect_e_exp.xsl,v 1.2 2002/03/04 07:50:08 robbod Exp $
       </BODY>
     </HTML>
   </xsl:template>
+
+  <xsl:template match="module_ref">
+    <!-- remove all whitespace -->
+    <xsl:variable
+      name="nlinkend"
+      select="translate(@linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
+
+    <xsl:variable name="module_sect">
+      <xsl:choose>
+        <xsl:when test="contains($nlinkend,':')">
+          <xsl:value-of select="substring-before($nlinkend,':')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$nlinkend"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="module">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$module_sect"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="string-length(.)>0">
+        <xsl:apply-templates/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="module_name">
+          <xsl:call-template name="module_display_name">
+            <xsl:with-param name="module" select="$module"/>
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:value-of select="$module_name"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="express_ref">
+    <xsl:variable name="item">
+      <xsl:call-template name="get_last_section">
+        <xsl:with-param name="path" select="@linkend"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="string-length(.)>0">
+        <b><xsl:apply-templates/></b>
+      </xsl:when>
+      <xsl:otherwise>
+        <b><xsl:value-of select="$item"/></b>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
 
 </xsl:stylesheet>

@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.26 2002/01/23 15:20:28 robbod Exp $
+$Id: module.xsl,v 1.27 2002/01/28 11:07:18 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -443,9 +443,14 @@ $Id: module.xsl,v 1.26 2002/01/23 15:20:28 robbod Exp $
     <xsl:with-param name="heading" select="'1 Scope'"/>
     <xsl:with-param name="aname" select="'scope'"/>
   </xsl:call-template>
+  <xsl:variable name="module_name">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="../@name"/>
+    </xsl:call-template>           
+  </xsl:variable>
   <p>
     This part of ISO 10303 specifies the application module for 
-    <xsl:value-of select="../@name"/>.
+    <xsl:value-of select="$module_name"/>.
     <a name="inscope"/>
     The following are within scope of this part of ISO 10303: 
   </p>
@@ -1302,7 +1307,7 @@ $Id: module.xsl,v 1.26 2002/01/23 15:20:28 robbod Exp $
 <!-- Output the standard set of normative references and then any added by
      the module
      -->
-<xsl:template match="normrefs">
+<xsl:template name="output_normrefs">
   <h3>2 Normative references</h3>
   The following normative documents contain provisions which, through
   reference in this text, constitute provisions of this International
@@ -1315,18 +1320,18 @@ $Id: module.xsl,v 1.26 2002/01/23 15:20:28 robbod Exp $
   registers of currently valid International Standards. 
 
   <!-- output the normative reference explicitly defined in the module -->
-  <xsl:apply-templates select="./normref"/>
+  <xsl:apply-templates select="/modules/normrefs/normref"/>
 
   <!-- output the default normative reference and any implicit in the
        module through the ARM and MIM -->
-  <xsl:call-template name="output_normrefs"/>
+  <xsl:call-template name="output_default_normrefs"/>
 
 </xsl:template>
 
 
 <!-- output the default normative reference and any implicit in the
      module through the ARM and MIM -->
-<xsl:template name="output_normrefs">
+<xsl:template name="output_default_normrefs">
   <xsl:variable name="normrefs">
     <xsl:call-template name="normrefs_list"/>
   </xsl:variable>

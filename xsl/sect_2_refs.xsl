@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_2_refs.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.2 2002/01/15 10:18:15 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -21,7 +21,7 @@ $Id: sect_2_refs.xsl,v 1.1 2001/10/22 09:31:59 robbod Exp $
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
-  <xsl:apply-templates select="./normrefs"/>
+  <xsl:call-template name="output_normrefs"/>
 </xsl:template>
 
 

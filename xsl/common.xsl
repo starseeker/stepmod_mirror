@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: common.xsl,v 1.19 2002/01/14 17:35:49 robbod Exp $
+$Id: common.xsl,v 1.20 2002/01/15 09:07:34 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -360,7 +360,21 @@ $Id: common.xsl,v 1.19 2002/01/14 17:35:49 robbod Exp $
 <xsl:template match="img.area">
   <xsl:variable name="shape" select="@shape"/>
   <xsl:variable name="coords" select="@coords"/>
-  <xsl:variable name="href" select="@href"/>
+  <xsl:variable name="href">
+    <xsl:choose>
+      <xsl:when test="contains(@href,'xml')">
+        <xsl:value-of select="concat(substring-before(@href,'.xml'),
+                              $FILE_EXT,
+                              substring-after(@href,'.xml'))"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@href"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:message>
+    <xsl:value-of select="$href"/>]]]
+  </xsl:message>
   <AREA shape="{$shape}" coords="{$coords}" href="{$href}"/>
 </xsl:template>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol.xsl,v 1.9 2002/10/28 18:18:24 mikeward Exp $
+     $Id: application_protocol.xsl,v 1.10 2002/10/29 18:43:10 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
@@ -580,12 +580,13 @@
   </ul>
 </xsl:template -->
 
-	<xsl:template match="application_protocol" mode="annexg">
+	<xsl:template match="module" mode="annexg">
 		<xsl:call-template name="annex_header">
 			<xsl:with-param name="annex_no" select="'G'"/>
 			<xsl:with-param name="heading" select="'Computer interpretable listings'"/>
 			<xsl:with-param name="aname" select="'annexg'"/>
 		</xsl:call-template>
+		
 		<xsl:variable name="arm">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
@@ -596,6 +597,18 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
+		
+		<xsl:variable name="arm_lf">
+			<xsl:choose>
+				<xsl:when test="$FILE_EXT='.xml'">
+					<xsl:value-of select="'g_exp_arm_lf.xml'"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="'g_exp_arm_lf.htm'"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+
 		<xsl:variable name="aim">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
@@ -606,6 +619,7 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
+		
 		<xsl:variable name="aim_lf">
 			<xsl:choose>
 				<xsl:when test="$FILE_EXT='.xml'">
@@ -628,6 +642,7 @@
     10303. It also provides a listing of each EXPRESS schema specified in this part of ISO 10303 without comments nor other explanatory text. These
     listings are available in computer-interpretable form in Table G.1 and can be found at the following URLs:
 		</p>
+		
 		<blockquote>
 			Short names:&lt;
 			<a href="{$names_url}">
@@ -639,78 +654,88 @@
 				<xsl:value-of select="$parts_url"/>
 			</a>&gt;
 		</blockquote>
-		<b>
-			<p align="center">
-				<a name="table_g1">
-					Table G.1 &#8212; ARM to AIM EXPRESS short and long form listing.
-				</a>
-			</p>
-			</b>
-			<br/>
-			<div align="center">
-				<table border="1" cellspacing="1">
-					<tr>
-						<td>
-							<b>
-								Description
-							</b>
-						</td>
-						<td>
-							<b>
-								File
-							</b>
-						</td>
-						<td>
-							<b>
-								File
-							</b>
-						</td>
-						<td>
-							<b>
-								Identifier
-							</b>
-						</td>
-					</tr>
-					<tr>
-						<xsl:choose>
-							<xsl:when test="$FILE_EXT='.xml'">
-								<td>ARM short form EXPRESS</td>
-							</xsl:when>
-							<xsl:otherwise>
-								<td>
-									ARM short form EXPRESS
-								</td>
-							</xsl:otherwise>
-						</xsl:choose>
-						<td>
-							<a href="{$arm}">
-								<xsl:value-of select="concat('arm',$FILE_EXT)"/>
-							</a>
-						</td>
-						<xsl:call-template name="output_express_links">
-							<xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
-							<xsl:with-param name="file" select="'arm.exp'"/>
-							<xsl:with-param name="file_name" select="'arm.exp'"/>
-							<xsl:with-param name="ap" select="$ap"/>
-						</xsl:call-template>
-					</tr>
-					<tr>
-						<xsl:apply-templates select="arm_lf" mode="annexg"/>
-					</tr>
-					<tr>
-						<xsl:choose>
-							<xsl:when test="$FILE_EXT='.xml'">
-								<td>
-									AIM short form EXPRESS
-								</td>
-							</xsl:when>
-							<xsl:otherwise>
-								<td>
-									AIM short form EXPRESS
-								</td>
-							</xsl:otherwise>
-						</xsl:choose>
-						<td>
+	
+		<div align="center">
+			<a name="table_g1">
+				<b>
+					<xsl:choose>
+						<xsl:when test="./mim_lf or ./arm_lf">
+							Table G.1 &#8212; ARM to AIM EXPRESS short and long form listings
+						</xsl:when>
+						<xsl:otherwise>
+							Table G.1 &#8212; ARM and MIM EXPRESS listings
+						</xsl:otherwise>
+					</xsl:choose>
+				</b>
+			</a>
+		</div>
+			
+		<br/>
+		
+		<div align="center">
+			<table border="1" cellspacing="1">
+				<tr>
+					<td>
+						<b>
+							Description
+						</b>
+					</td>
+					<td>
+						<b>
+							File
+						</b>
+					</td>
+					<td>
+						<b>
+							File
+						</b>
+					</td>
+					<td>
+						<b>
+							Identifier
+						</b>
+					</td>
+				</tr>
+				<tr>
+					<xsl:choose>
+						<xsl:when test="$FILE_EXT='.xml'">
+							<td>ARM short form EXPRESS</td>
+						</xsl:when>
+						<xsl:otherwise>
+							<td>
+								ARM short form EXPRESS
+							</td>
+						</xsl:otherwise>
+					</xsl:choose>
+					<td>
+						<a href="{$arm}">
+							<xsl:value-of select="concat('arm',$FILE_EXT)"/>
+						</a>
+					</td>
+					<xsl:call-template name="output_express_links">
+						<xsl:with-param name="wgnumber" select="./@wg.number.arm"/>
+						<xsl:with-param name="file" select="'arm.exp'"/>
+						<xsl:with-param name="file_name" select="'arm.exp'"/>
+						<xsl:with-param name="ap" select="$ap"/>
+					</xsl:call-template>
+				</tr>
+				<tr>
+					<xsl:apply-templates select="arm_lf" mode="annexg"/>
+				</tr>
+				<tr>
+					<xsl:choose>
+						<xsl:when test="$FILE_EXT='.xml'">
+							<td>
+								AIM short form EXPRESS
+							</td>
+						</xsl:when>
+						<xsl:otherwise>
+							<td>
+								AIM short form EXPRESS
+							</td>
+						</xsl:otherwise>
+					</xsl:choose>
+					<td>
 						<a href="{$aim}">
 							<xsl:value-of select="concat('aim',$FILE_EXT)"/>
 						</a>
@@ -723,7 +748,7 @@
 					</xsl:call-template>
 				</tr>
 				<tr>
-					<xsl:apply-templates select="aim_lf" mode="annexg"/>
+					<xsl:apply-templates select="mim_lf" mode="annexg"/>
 				</tr>
 			</table>
 		</div>
@@ -739,7 +764,6 @@
 			</small>
 		</p>
 	</xsl:template>
-
 
 	<xsl:template name="output_express_links">
 		<xsl:param name="wgnumber"/>
@@ -780,6 +804,77 @@
 			</xsl:choose>
 		</td>
 	</xsl:template>
+	
+	<xsl:template match="arm_lf" mode="annexg">
+		<xsl:variable name="module_name" select="../@name"/>
+		<xsl:variable name="arm_lf">
+			<xsl:choose>
+				<xsl:when test="$FILE_EXT='.xml'">
+					<xsl:value-of select="'g_exp_arm_lf.xml'"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="'g_exp_arm_lf.htm'"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="arm_lf_exp">
+			<xsl:value-of select="concat('../../../modules/', $module_name, '/arm_lf.exp')"/>
+		</xsl:variable>
+		<tr>
+			<td>
+				ARM long form EXPRESS
+			</td>
+			<td>
+				<a href="{$arm_lf}">
+					<xsl:value-of select="concat('arm_lf',$FILE_EXT)"/>
+				</a>
+			</td>
+			<td>
+				<a href="{$arm_lf_exp}">
+					arm_lf.exp
+				</a>
+			</td>
+			<td align="center">
+				&#8212;
+			</td>
+		</tr>
+	</xsl:template>
+	
+	<xsl:template match="mim_lf" mode="annexg">
+		<xsl:variable name="module_name" select="../@name"/>
+		<xsl:variable name="aim_lf">
+			<xsl:choose>
+				<xsl:when test="$FILE_EXT='.xml'">
+					<xsl:value-of select="'g_exp_aim_lf.xml'"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="'g_exp_aim_lf.htm'"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="aim_lf_exp">
+			<xsl:value-of select="concat('../../../modules/', $module_name, '/mim_lf.exp')"/>
+		</xsl:variable>
+		<tr>
+			<td>
+				ARM long form EXPRESS
+			</td>
+			<td>
+				<a href="{$aim_lf}">
+					<xsl:value-of select="concat('aim_lf',$FILE_EXT)"/>
+				</a>
+			</td>
+			<td>
+				<a href="{$aim_lf_exp}">
+					aim_lf.exp
+				</a>
+			</td>
+			<td align="center">
+				&#8212;
+			</td>
+		</tr>
+	</xsl:template>
+
 
 	<xsl:template match="arm">
 		<xsl:call-template name="clause_header">

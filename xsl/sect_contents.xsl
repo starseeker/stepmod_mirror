@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.21 2003/03/26 07:12:40 robbod Exp $
+$Id: sect_contents.xsl,v 1.22 2003/04/17 15:11:30 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -109,7 +109,7 @@ $Id: sect_contents.xsl,v 1.21 2003/03/26 07:12:40 robbod Exp $
             <xsl:value-of select="concat($interface_clause,
                                   ' Required AM ARM')"/>
           </A>
-          
+          <br/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:if>

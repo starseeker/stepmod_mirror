@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.65 2003/04/17 15:11:29 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.66 2003/04/25 11:19:37 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -66,7 +66,13 @@ $Id: sect_5_mapping.xsl,v 1.65 2003/04/17 15:11:29 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           
-          <xsl:variable name="express_xml" select="concat($module_dir,'/mim.xml')"/>
+          <!-- RBN was
+               <xsl:variable name="express_xml"
+                 select="concat($module_dir,'/mim.xml')"/>
+               changed to allow linking of ARM assertions, Checking of
+               refpath is now done in mapping view 
+          -->
+          <xsl:variable name="express_xml" select="concat($module_dir,'/arm.xml')"/>
           <xsl:call-template name="build_xref_list">
             <xsl:with-param name="express" select="document($express_xml)/express"/>
           </xsl:call-template>
@@ -702,7 +708,13 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
         
         <xsl:value-of select="concat($sect_no,' ')"/>
         <a href="{$ae_xref}"><xsl:value-of select="../@entity"/></a>
-        to <xsl:value-of select="@assertion_to"/>
+        to <xsl:call-template name="link_object">
+        <xsl:with-param name="object_name" select="@assertion_to"/>
+        <xsl:with-param name="object_used_in_schema_name" 
+          select="$schema_name"/>
+        <xsl:with-param name="clause" select="'section'"/>
+      </xsl:call-template>
+      <!-- <xsl:value-of select="@assertion_to"/> -->
         (as <a href="{$aa_xref}"><xsl:value-of select="@attribute"/></a>)
       </xsl:when>
       <xsl:otherwise>
@@ -755,7 +767,6 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
 </xsl:template>
 
 <xsl:template match="aimelt" mode="specification">
-  <xsl:apply-templates select="." mode="check_aimelt"/>
   <tr valign="top">
     <td>MIM element:</td>
     <td>
@@ -1412,7 +1423,6 @@ the mapping specification')"/>
 </xsl:template>
 
 <xsl:template match="constraint" mode="specification">
-  <xsl:apply-templates select="." mode="check_aimelt"/>
   <tr valign="top">
     <td>Constraint:</td>
     <td>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping_check.xsl,v 1.9 2002/10/22 14:13:26 robbod Exp $
+$Id: sect_5_mapping_check.xsl,v 1.10 2002/11/27 13:31:58 robbod Exp $
   Author:  Rob Bodington, Nigel Shaw Eurostep Limited
   Owner:   Developed by Eurostep in conjunction with PLCS Inc
   Purpose:
@@ -206,8 +206,6 @@ $Id: sect_5_mapping_check.xsl,v 1.9 2002/10/22 14:13:26 robbod Exp $
       <xsl:with-param name="refpath" select="$refpath"/>
     </xsl:call-template>
   </xsl:if>
-</xsl:template>
-<xsl:template match="aimelt" mode="check_aimelt">
 </xsl:template>
 
 <xsl:template match="refpath|refpath_extend" mode="check_ref_path">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.89 2003/04/09 10:48:13 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.90 2003/04/11 14:27:22 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -158,8 +158,7 @@
         <xsl:value-of select="$clause_header"/>
       </A>
     </h2>
-
-    <xsl:value-of select="$clause_intro"/>
+    <p><xsl:value-of select="$clause_intro"/></p>
     <xsl:if test="contains($schema_name,'_arm')">
       <p><u>EXPRESS specification:</u></p>
     </xsl:if>
@@ -547,7 +546,7 @@
         <xsl:value-of select="$clause_header"/>
       </A>
     </h2>
-    <xsl:value-of select="$clause_intro"/>
+    <p><xsl:value-of select="$clause_intro"/></p>
   </xsl:if>
 
   <xsl:if test="position()=1">
@@ -730,7 +729,7 @@
         <xsl:value-of select="$clause_header"/>
       </a>
     </h2>
-    <xsl:value-of select="$clause_intro"/>
+    <p><xsl:value-of select="$clause_intro"/></p>
   </xsl:if>
 
   <xsl:variable name="aname">
@@ -1084,7 +1083,7 @@
       </a>
     </h2>
 
-    <xsl:value-of select="$clause_intro"/>
+    <p><xsl:value-of select="$clause_intro"/></p>
   </xsl:if>
 
   <xsl:variable name="aname">
@@ -1787,7 +1786,7 @@
         <xsl:value-of select="$clause_header"/>
       </a>
     </h2>
-    <xsl:value-of select="$clause_intro"/>
+    <p><xsl:value-of select="$clause_intro"/></p>
   </xsl:if>
 
   <xsl:variable name="aname">
@@ -2145,7 +2144,7 @@
         <xsl:value-of select="$clause_header"/>
       </a>
     </h2>
-    <xsl:value-of select="$clause_intro"/>
+    <p><xsl:value-of select="$clause_intro"/></p>
   </xsl:if>
 
   <xsl:variable name="aname">
@@ -2288,7 +2287,7 @@
           select="$clause_header"/>
       </a>
       </h2> 
-      <xsl:value-of select="$clause_intro"/>
+      <p><xsl:value-of select="$clause_intro"/></p>
   </xsl:if>
 
   <xsl:variable name="aname">
@@ -2518,7 +2517,7 @@
         <xsl:value-of select="$clause_header"/>
       </a>
     </h2>
-    <xsl:value-of select="$clause_intro"/>
+    <p><xsl:value-of select="$clause_intro"/></p>
   </xsl:if>
 
   <xsl:variable name="aname">
@@ -3438,39 +3437,39 @@
     <xsl:choose>
       <xsl:when test="@basedon and @extensible='YES'">
         <!-- an extended and extensible SELECT type -->
-         <!-- <p><b><i><font color="#FF0000">an extended and extensible SELECT type</font></i></b></p> -->
-        The <b><xsl:value-of select="$typename"/></b> type is an extension
-        of the 
-        <b>
-          <xsl:call-template name="link_object">
-            <xsl:with-param name="object_name" select="@basedon"/>
-            <xsl:with-param name="object_used_in_schema_name" 
-              select="../../@name"/>
-            <xsl:with-param name="clause" select="'section'"/>
-          </xsl:call-template>  
-        </b> type. 
-        <xsl:if test="@selectitems and (string-length(@selectitems)!=0)">
-          It adds the data 
-          <xsl:choose>
-            <!-- if the list has a space there must be more than one item -->
-            <xsl:when test="contains(normalize-space(@selectitems),' ')">
-              types
-            </xsl:when>
-            <xsl:otherwise>
-              type
-            </xsl:otherwise>
-          </xsl:choose>
-          <xsl:call-template name="link_list">
-            <xsl:with-param name="suffix" select="', '"/>
-            <xsl:with-param name="list" select="@selectitems"/>
-            <xsl:with-param name="object_used_in_schema_name"
-              select="../../@name"/>
-            <xsl:with-param name="clause" select="'section'"/>
-            <xsl:with-param name="and_for_last_pair" select="'yes'"/>
-          </xsl:call-template>
-          to the list of alternate data types.
-        </xsl:if>
-
+        <p>
+          The <b><xsl:value-of select="$typename"/></b> type is an extension
+          of the 
+          <b>
+            <xsl:call-template name="link_object">
+              <xsl:with-param name="object_name" select="@basedon"/>
+              <xsl:with-param name="object_used_in_schema_name" 
+                select="../../@name"/>
+              <xsl:with-param name="clause" select="'section'"/>
+            </xsl:call-template>  
+          </b> type. 
+          <xsl:if test="@selectitems and (string-length(@selectitems)!=0)">
+            It adds the data 
+            <xsl:choose>
+              <!-- if the list has a space there must be more than one item -->
+              <xsl:when test="contains(normalize-space(@selectitems),' ')">
+                types
+              </xsl:when>
+              <xsl:otherwise>
+                type
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:call-template name="link_list">
+              <xsl:with-param name="suffix" select="', '"/>
+              <xsl:with-param name="list" select="@selectitems"/>
+              <xsl:with-param name="object_used_in_schema_name"
+                select="../../@name"/>
+              <xsl:with-param name="clause" select="'section'"/>
+              <xsl:with-param name="and_for_last_pair" select="'yes'"/>
+            </xsl:call-template>
+            to the list of alternate data types.
+          </xsl:if>
+        </p>
         <p class="note">
           <small>
             <xsl:choose>
@@ -3492,12 +3491,11 @@
             </xsl:choose>
           </small>
         </p>
-          
-      </xsl:when>
+                </xsl:when>
 
       <xsl:when test="(@basedon and @extensible='NO') or @basedon">
         <!-- an extended not extensible SELECT type  -->
-         <!-- <p><b><i><font color="#FF0000">an extended not extensible SELECT type</font></i></b></p> -->
+        <p>
         The <b><xsl:value-of select="$typename"/></b> type is an extension
         of the 
         <b>
@@ -3529,6 +3527,7 @@
           </xsl:call-template>
           to the list of alternate data types.
         </xsl:if>
+      </p>
       </xsl:when>
 
       <xsl:when test="@extensible='YES'">
@@ -3537,12 +3536,13 @@
 
           <xsl:when test="@selectitems">
             <!-- an extensible non-empty SELECT type -->
-             <!-- <p><b><i><font color="#FF0000">an extensible non-empty SELECT type</font></i></b></p> -->
-            The <b><xsl:value-of select="$typename"/></b> type is an
-            extensible list of alternate data types. It provides a
-            mechanism to refer to instances of the data types included in
-            the <b><xsl:value-of select="$typename"/></b> type or in it's
-            extensions.  
+            <p>
+              The <b><xsl:value-of select="$typename"/></b> type is an
+              extensible list of alternate data types. It provides a
+              mechanism to refer to instances of the data types included in
+              the <b><xsl:value-of select="$typename"/></b> type or in it's
+              extensions.  
+            </p>
             <p class="note">
               <small>
                 <xsl:choose>
@@ -3564,18 +3564,13 @@
 
           <xsl:otherwise>
             <!-- an extensible empty SELECT type -->
-            <!-- <p><b><i><font color="#FF0000">an extensible empty SELECT type</font></i></b></p> -->
-            The <b><xsl:value-of select="$typename"/></b> type is an
-            extensible list of alternate data types. It provides a
-            mechanism to refer to instances of the data types included in
-            the types that extend the 
-            <b><xsl:value-of select="$typename"/></b> type. 
-            <!--
-              The <b><xsl:value-of select="$typename"/></b> type shall be
-            extended in application modules that use the constructs of this
-            module.
-                 -->
-
+            <p>
+              The <b><xsl:value-of select="$typename"/></b> type is an
+              extensible list of alternate data types. It provides a
+              mechanism to refer to instances of the data types included in
+              the types that extend the 
+              <b><xsl:value-of select="$typename"/></b> type. 
+            </p>
             <p class="note">
               <small>
                 <xsl:choose>
@@ -3598,10 +3593,11 @@
       </xsl:when>
       <xsl:otherwise>
         <!-- a non extensible SELECT type -->
-         <!-- <p><b><i><font color="#FF0000">a non extensible SELECT type</font></i></b></p> -->
-        The <b><xsl:value-of select="$typename"/></b> type is a list of
-        alternate data types. It provides a mechanism to refer to an
-        instance of one of these data types.  
+        <p>
+          The <b><xsl:value-of select="$typename"/></b> type is a list of
+          alternate data types. It provides a mechanism to refer to an
+          instance of one of these data types.  
+        </p>
       </xsl:otherwise>
       
     </xsl:choose>    

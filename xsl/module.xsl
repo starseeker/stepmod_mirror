@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.135 2003/03/18 14:28:07 robbod Exp $
+$Id: module.xsl,v 1.136 2003/04/23 14:33:19 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2409,16 +2409,17 @@ o=isocs; s=central<br/>
   <xsl:param name="module_number"/>
   <xsl:param name="current_module"/>
   <h2>2 Normative references</h2>
-  The following normative documents contain provisions which, through
-  reference in this text, constitute provisions of this International
-  Standard. For dated references, subsequent amendments to, or revisions of,
-  any of these publications do not apply. However, parties to agreements
-  based on this International Standard are encouraged to investigate the
-  possibility of applying the most recent editions of the normative documents
-  indicated below. For undated references, the latest edition of the
-  normative document referred to applies. Members of ISO and IEC maintain
-  registers of currently valid International Standards. 
-
+  <p>
+    The following normative documents contain provisions which, through
+    reference in this text, constitute provisions of this International
+    Standard. For dated references, subsequent amendments to, or revisions of,
+    any of these publications do not apply. However, parties to agreements
+    based on this International Standard are encouraged to investigate the
+    possibility of applying the most recent editions of the normative documents
+    indicated below. For undated references, the latest edition of the
+    normative document referred to applies. Members of ISO and IEC maintain
+    registers of currently valid International Standards. 
+  </p>
   <!-- output any issues -->
   <xsl:apply-templates select="." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'normrefs'"/>
@@ -3208,10 +3209,12 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
             <xsl:value-of select="concat('3.',$section_no,
                                   ' Terms defined in ',$stdnumber)"/>
             </h2>
-            For the purposes of this part of ISO 10303, 
-            the following terms defined in 
-            <xsl:value-of select="$stdnumber"/>
-            apply:
+            <p>
+              For the purposes of this part of ISO 10303, 
+              the following terms defined in 
+              <xsl:value-of select="$stdnumber"/>
+              apply:
+            </p>
             <ul>
               <!-- now output the terms -->
               <xsl:apply-templates 
@@ -3274,10 +3277,12 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
                   <xsl:value-of select="concat('3.',$section_no,
                                         ' Terms defined in ', $stdnumber)"/>
                 </h2>
-                For the purposes of this part of ISO 10303, 
-                the following terms defined in 
-                <xsl:value-of select="$stdnumber"/>
-                apply:
+                <p>
+                  For the purposes of this part of ISO 10303, 
+                  the following terms defined in 
+                  <xsl:value-of select="$stdnumber"/>
+                  apply:
+                </p>
                 <ul>
                   <!-- now output the terms -->
                   <xsl:apply-templates 
@@ -3698,8 +3703,8 @@ $module_ok,' Check the normatives references')"/>
 		<xsl:value-of select="@title"/>
 		</xsl:variable>
 		
-		<a name="{$title}"><H2><xsl:value-of select="concat('F.',$sect_no,' ')"/>
-			<xsl:value-of select="@title"/></H2></a>			
+		<a name="{$title}"><h2><xsl:value-of select="concat('F.',$sect_no,' ')"/>
+			<xsl:value-of select="@title"/></h2></a>			
 		 <xsl:apply-templates/>
 </xsl:template>
 
@@ -3711,8 +3716,8 @@ $module_ok,' Check the normatives references')"/>
 		<xsl:value-of select="@title"/>
 		</xsl:variable>
 	
-		<A name="{$title}"><H2><xsl:value-of select="concat('F.',$sect_no,' ')"/>
-			<xsl:value-of select="@title"/></H2></A>
+		<A name="{$title}"><h2><xsl:value-of select="concat('F.',$sect_no,' ')"/>
+			<xsl:value-of select="@title"/></h2></A>
 			
 			<xsl:variable name="sect_sup">
 		<xsl:value-of select="concat('F.',$sect_no,'.')"/>
@@ -3726,9 +3731,9 @@ $module_ok,' Check the normatives references')"/>
 			<xsl:value-of select="@title"/>
 			</xsl:variable>
 									
-						<A name="{$subtitle}"><H4>
+						<A name="{$subtitle}"><h4>
 						<xsl:value-of select="concat($sect_sup,$sect_nos,' ')"/>
-						<xsl:value-of select="@title"/></H4></A>
+						<xsl:value-of select="@title"/></h4></A>
 			      <xsl:apply-templates/>
 				</xsl:for-each>
 

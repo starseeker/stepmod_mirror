@@ -6695,435 +6695,454 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
   <xsl:template match="ballot_index" mode="dependent_modules_target">
     <xsl:param name="menu"/>
-    <xsl:text>
-    </xsl:text>    
-     <target
-       xsl:extension-element-prefixes="exslt"        
-       name="isodepmodules" depends="init" 
-       description="generate HTML for all modules">
-      <dependset>
-        <xsl:element name="srcfileset">
-          <xsl:attribute name="dir">
-            <xsl:value-of select="'${STEPMODDTDDIR}'"/>
-          </xsl:attribute>
-          <xsl:attribute name="includes">
-            <xsl:value-of select="'**/*.dtd, **/*.ent'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="srcfileset">
-          <xsl:attribute name="dir">
-            <xsl:value-of select="'${STEPMODSTYLES}'"/>
-          </xsl:attribute>
-          <xsl:attribute name="includes">
-            <xsl:value-of select="'**/*.xsl'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="srcfileset">
-          <xsl:attribute name="dir">
-            <xsl:value-of select="'.'"/>
-          </xsl:attribute>
-          <xsl:attribute name="includes">
-            <xsl:value-of select="'${DMODMODULES}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="srcfileset">
-          <xsl:attribute name="dir">
-            <xsl:value-of select="'.'"/>
-          </xsl:attribute>
-          <xsl:attribute name="includes">
-            <xsl:value-of select="'${DMODGIFS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="srcfileset">
-          <xsl:attribute name="dir">
-            <xsl:value-of select="'.'"/>
-          </xsl:attribute>
-          <xsl:attribute name="includes">
-            <xsl:value-of select="'${DMODEXPRESS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-        <xsl:element name="targetfileset">
-          <xsl:attribute name="dir">
-            <xsl:value-of select="'${ISODIR}'"/>
-          </xsl:attribute>
-          <xsl:attribute name="includes">
-            <xsl:value-of select="'/data/modules/**/*.htm'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </dependset>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODCONTENTSXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_contents.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODSCOPEXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_1_scope.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODREFSXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_2_refs.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODDEFSXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_3_defs.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODINFOREQSXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_4_info_reqs.xsl'"/>
-        </xsl:attribute>
-              <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-                <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODMAINXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_5_main.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODMAPPINGXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mapping.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODMIMXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mim.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
 
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODINDEXXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/index.xsl'"/>
-        </xsl:attribute>
-              <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODABSTRACTXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_abstract.xsl'"/>
-        </xsl:attribute>        
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODASHORTNAMESXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_a_short_names.xsl'"/>
-        </xsl:attribute>
-              <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODBOBJREGXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_b_obj_reg.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODBIBLIOXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_biblio.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODMODINDEXXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_modindex.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODCARMEXPGXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_c_arm_expg.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODCOVERXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_cover.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-        <xsl:element name="param">
-          <xsl:attribute name="name">
-            <xsl:value-of select="'coverpage_date'"/>
-          </xsl:attribute>
-          <xsl:attribute name="expression">
-            <xsl:value-of select="'${DATE}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODDMIMEXPGXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_d_mim_expg.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODEEXPXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODEEXPARMXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODEEXPARMLFXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODEEXPMIMXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODFGUIDEXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_f_guide.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODFOREWORDXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_foreword.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODINTRODUCTIONXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_introduction.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-      
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODARMEXPXML}, ${DMODMIMEXPXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${DMODARMEXPGXML},${DMODMIMEXPGXML}'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/imgfile.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-
-      <xsl:element name="style">
-        <xsl:attribute name="includes">
-          <xsl:value-of select="'${SYS}/e_exp_arm_lf.xml'"/>
-        </xsl:attribute>
-        <xsl:attribute name="style">
-          <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
-          <xsl:with-param name="menu" select="$menu"/>
-        </xsl:apply-templates>
-      </xsl:element>
-
-      <xsl:element name="copy">
-        <xsl:attribute name="todir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:element name="fileset">
-          <xsl:attribute name="dir">
-            <xsl:value-of select="'.'"/>
-          </xsl:attribute>
-          <xsl:attribute name="includes">
-            <xsl:value-of select="'${DMODEXPRESS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-      
-      <xsl:element name="copy">
-        <xsl:attribute name="todir">
-          <xsl:value-of select="'${ISODIR}'"/>
-        </xsl:attribute>
-        <xsl:element name="fileset">
-          <xsl:attribute name="dir">
-            <xsl:value-of select="'.'"/>
-          </xsl:attribute>
-          <xsl:attribute name="includes">
-            <xsl:value-of select="'${DMODGIFS}'"/>
-          </xsl:attribute>
-        </xsl:element>
-      </xsl:element>
-    </target>
+    <xsl:variable name="mim_modules">
+      <xsl:call-template name="get_mod_node_set"/>
+    </xsl:variable>
+    <xsl:variable name="mim_modules_node_set" select="exslt:node-set($mim_modules)"/>
+    
+    <xsl:choose>
+      <xsl:when test="$mim_modules_node_set/module">
+        <xsl:text>
+        </xsl:text>    
+        <target
+          xsl:extension-element-prefixes="exslt"        
+          name="isodepmodules" depends="init" 
+          description="generate HTML for all modules">
+          <dependset>
+            <xsl:element name="srcfileset">
+              <xsl:attribute name="dir">
+                <xsl:value-of select="'${STEPMODDTDDIR}'"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="'**/*.dtd, **/*.ent'"/>
+              </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="srcfileset">
+              <xsl:attribute name="dir">
+                <xsl:value-of select="'${STEPMODSTYLES}'"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="'**/*.xsl'"/>
+              </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="srcfileset">
+              <xsl:attribute name="dir">
+                <xsl:value-of select="'.'"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="'${DMODMODULES}'"/>
+              </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="srcfileset">
+              <xsl:attribute name="dir">
+                <xsl:value-of select="'.'"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="'${DMODGIFS}'"/>
+              </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="srcfileset">
+              <xsl:attribute name="dir">
+                <xsl:value-of select="'.'"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="'${DMODEXPRESS}'"/>
+              </xsl:attribute>
+            </xsl:element>
+            <xsl:element name="targetfileset">
+              <xsl:attribute name="dir">
+                <xsl:value-of select="'${ISODIR}'"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="'/data/modules/**/*.htm'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </dependset>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODCONTENTSXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_contents.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODSCOPEXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_1_scope.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODREFSXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_2_refs.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODDEFSXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_3_defs.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODINFOREQSXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_4_info_reqs.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODMAINXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_5_main.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODMAPPINGXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mapping.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODMIMXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mim.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODINDEXXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/index.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODABSTRACTXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_abstract.xsl'"/>
+            </xsl:attribute>        
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODASHORTNAMESXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_a_short_names.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODBOBJREGXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_b_obj_reg.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODBIBLIOXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_biblio.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODMODINDEXXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_modindex.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODCARMEXPGXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_c_arm_expg.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODCOVERXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_cover.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+            <xsl:element name="param">
+              <xsl:attribute name="name">
+                <xsl:value-of select="'coverpage_date'"/>
+              </xsl:attribute>
+              <xsl:attribute name="expression">
+                <xsl:value-of select="'${DATE}'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODDMIMEXPGXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_d_mim_expg.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODEEXPXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODEEXPARMXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODEEXPARMLFXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODEEXPMIMXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODEEXPMIMLFXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_mim_lf.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODFGUIDEXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_f_guide.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODFOREWORDXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_foreword.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODINTRODUCTIONXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_introduction.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODARMEXPXML}, ${DMODMIMEXPXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${DMODARMEXPGXML},${DMODMIMEXPGXML}'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/imgfile.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="style">
+            <xsl:attribute name="includes">
+              <xsl:value-of select="'${SYS}/e_exp_arm_lf.xml'"/>
+            </xsl:attribute>
+            <xsl:attribute name="style">
+              <xsl:value-of select="'${STEPMODSTYLES}/sect_e_exp_arm_lf.xsl'"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="." mode="dependent_modules_target_style_attributes">
+              <xsl:with-param name="menu" select="$menu"/>
+            </xsl:apply-templates>
+          </xsl:element>
+          
+          <xsl:element name="copy">
+            <xsl:attribute name="todir">
+              <xsl:value-of select="'${ISODIR}'"/>
+            </xsl:attribute>
+            <xsl:element name="fileset">
+              <xsl:attribute name="dir">
+                <xsl:value-of select="'.'"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="'${DMODEXPRESS}'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:element>
+          
+          <xsl:element name="copy">
+            <xsl:attribute name="todir">
+              <xsl:value-of select="'${ISODIR}'"/>
+            </xsl:attribute>
+            <xsl:element name="fileset">
+              <xsl:attribute name="dir">
+                <xsl:value-of select="'.'"/>
+              </xsl:attribute>
+              <xsl:attribute name="includes">
+                <xsl:value-of select="'${DMODGIFS}'"/>
+              </xsl:attribute>
+            </xsl:element>
+          </xsl:element>
+        </target>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:message>
+          No dependent modules
+        </xsl:message>
+        <target
+          xsl:extension-element-prefixes="exslt"        
+          name="isodepmodules" depends="init" 
+          description="generate HTML for all modules"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="resource">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: arm.xml,v 1.1 2002/04/26 09:32:17 goset1 Exp $ -->
+<!-- $Id: arm.xml,v 1.2 2002/04/26 15:47:41 goset1 Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
@@ -22,7 +22,7 @@ href="../../../xsl/express.xsl" ?>
       name="Assembly_component_relationship"
       supertypes="View_definition_usage"
 			abstract.supertype="YES"
-			super.expression="ONEOF(Next_assembly_usage, Promissory_usage)">
+			super.expression="ONEOF(Next_assembly_usage, Promissory_usage, Component_upper_level_identification)">
 
 		<explicit
         name="quantity"
@@ -53,5 +53,51 @@ href="../../../xsl/express.xsl" ?>
       supertypes="Assembly_component_relationship">
     </entity>
 
+		<entity
+      name="Component_upper_level_identification"
+      supertypes="Assembly_component_relationship">
+      <explicit
+        name="upper_assembly_relationship">
+        <typename
+          name="Assembly_component_relationship"/>
+      </explicit>
+      <explicit
+        name="sub_assembly_relationship">
+        <typename
+          name="Next_assembly_usage"/>
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="upper_assembly_relationship"/>
+        <unique.attribute
+          attribute="sub_assembly_relationship"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="SELF :&lt;&gt;: upper_assembly_relationship">
+      </where>
+      <where
+        label="WR2"
+        expression="SELF\view_definition_relationship.view1 :=: upper_assembly_relationship\view_definition_relationship.view1">
+      </where>
+      <where
+        label="WR3"
+        expression="SELF\view_definition_relationship.view2 :=: sub_assembly_relationship\view_definition_relationship.view2">
+      </where>
+      <where
+        label="WR4"
+        expression="(upper_assembly_relationship\view_definition_relationship.view2 :=:
+       sub_assembly_relationship\view_definition_relationship.view1) OR
+	(SIZEOF (QUERY (pdr &lt;* USEDIN(upper_assembly_relationship\view_definition_relationship.view2 ,
+	'ASSEMBLY_COMPONENT_CHARACTERIZATION_ARM.VIEW_DEFINITION_RELATIONSHIP.' + 'VIEW2') | 
+	pdr.view1 :=: sub_assembly_relationship\view_definition_relationship.view1)) = 1)">
+      </where>			
+      <where
+        label="WR5"
+        expression="SIZEOF (['ASSEMBLY_COMPONENT_CHARACTERIZATION_ARM.NEXT_ASSEMBLY_USAGE',
+	'ASSEMBLY_COMPONENT_CHARACTERIZATION_ARM.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship)) = 1">
+      </where>				
+    </entity>
   </schema>
 </express>

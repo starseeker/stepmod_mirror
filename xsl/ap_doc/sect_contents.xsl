@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.37 2004/11/01 13:45:05 robbod Exp $
+$Id: sect_contents.xsl,v 1.38 2004/11/02 12:00:23 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -25,7 +25,7 @@ $Id: sect_contents.xsl,v 1.37 2004/11/01 13:45:05 robbod Exp $
     <!-- if complete is yes then display the introduction foreword etc -->
     <xsl:param name="complete" select="'no'"/>
     <!-- if short is yes then display level 3 entries -->
-    <xsl:param name="short" select="'no'"/>
+    <xsl:param name="short" select="'yes'"/>
 
     <xsl:variable name="annex_list">
       <xsl:apply-templates select="." mode="annex_list"/>
@@ -109,9 +109,9 @@ $Id: sect_contents.xsl,v 1.37 2004/11/01 13:45:05 robbod Exp $
     </xsl:apply-templates>
     <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">Annex A EXPRESS expanded listings</a>
     <br/>
-    &#160;&#160;&#160;
+    &#160;&#160;&#160;&#160;&#160;
     <a href="./annex_exp_lf{$FILE_EXT}#annexa1" target="{$target}">A.1 ARM EXPRESS expanded listing</a><br/>
-    &#160;&#160;&#160;
+    &#160;&#160;&#160;&#160;&#160;
     <a href="./annex_exp_lf{$FILE_EXT}#annexa2" target="{$target}">A.2 MIM EXPRESS expanded listing</a><br/>
 
     <a href="./annex_shortnames{$FILE_EXT}" target="{$target}">
@@ -128,7 +128,7 @@ $Id: sect_contents.xsl,v 1.37 2004/11/01 13:45:05 robbod Exp $
       </xsl:variable>
       <xsl:choose>
         <xsl:when test="@general='y'">
-          &#160;&#160;&#160;
+          &#160;&#160;&#160;&#160;&#160;
           <a href="./annex_imp_meth{$FILE_EXT}#c{$sect_no}" target="{$target}">
             <xsl:value-of select="concat('C.',$sect_no,' ')"/>
             General requirements
@@ -136,7 +136,7 @@ $Id: sect_contents.xsl,v 1.37 2004/11/01 13:45:05 robbod Exp $
           <br/>
         </xsl:when>
         <xsl:otherwise>
-          &#160;&#160;&#160;
+          &#160;&#160;&#160;&#160;&#160;
           <a href="./annex_imp_meth{$FILE_EXT}#c{$sect_no}" target="{$target}">
             <xsl:value-of select="concat('C.',$sect_no,' ')"/>
             Requirements specific to the implementation method defined in 
@@ -152,15 +152,15 @@ $Id: sect_contents.xsl,v 1.37 2004/11/01 13:45:05 robbod Exp $
       Annex D Protocol Implementation Conformance Statement (PICS) form
     </a>
     <br/>
-    &#160;&#160;&#160;
+    &#160;&#160;&#160;&#160;&#160;
     <a href="./annex_pics{$FILE_EXT}#d1" target="{$target}">
       D.1 Protocol implementation identification
     </a><br/>
-    &#160;&#160;&#160;
+    &#160;&#160;&#160;&#160;&#160;
     <a href="./annex_pics{$FILE_EXT}#d2" target="{$target}">
       D.2 Implementation method
     </a><br/>
-    &#160;&#160;&#160;
+    &#160;&#160;&#160;&#160;&#160;
     <a href="./annex_pics{$FILE_EXT}#d3" target="{$target}">
       D.3 Implemented conformance classes
     </a><br/>
@@ -168,26 +168,26 @@ $Id: sect_contents.xsl,v 1.37 2004/11/01 13:45:05 robbod Exp $
     <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">
       Annex E Information object registration
     </a><br/>
-    &#160;&#160;&#160;<A HREF="./annex_obj_reg{$FILE_EXT}#e1" target="{$target}">E.1 Document identification</A><br/>
-    &#160;&#160;&#160;<A HREF="./annex_obj_reg{$FILE_EXT}#e2" target="{$target}">E.2 Schema identification</A><br/>
-    &#160;&#160;&#160;&#160;&#160;&#160;
-    <A HREF="./annex_obj_reg{$FILE_EXT}#e21" target="{$target}">E.2.1 <xsl:value-of select="$arm_xml/@name"/> schema identification</A><br/>    
-    &#160;&#160;&#160;&#160;&#160;&#160;
-    <A HREF="./annex_obj_reg{$FILE_EXT}#e22" target="{$target}">E.2.2 <xsl:value-of select="$mim_xml/@name"/> schema identification</A><br/>
-    <xsl:if test="$module_xml//arm_lf">
-      <xsl:variable name="arm_lf_xml" select="concat($ap_module_dir,'/arm_lf.xml')"/>
-      <xsl:variable name="arm_schema_lf"  select="document($arm_lf_xml)/express/schema/@name"/>
-      &#160;&#160;&#160;&#160;&#160;&#160;
-      <A HREF="./annex_obj_reg{$FILE_EXT}#e23" target="{$target}">E.2.3 <xsl:value-of select="$arm_schema_lf"/> schema identification</A><br/>     
+    &#160;&#160;&#160;&#160;&#160;<A HREF="./annex_obj_reg{$FILE_EXT}#e1" target="{$target}">E.1 Document identification</A><br/>
+    &#160;&#160;&#160;&#160;&#160;<A HREF="./annex_obj_reg{$FILE_EXT}#e2" target="{$target}">E.2 Schema identification</A><br/>
+    <xsl:if test="$short='no'">
+      &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+      <A HREF="./annex_obj_reg{$FILE_EXT}#e21" target="{$target}">E.2.1 <xsl:value-of select="$arm_xml/@name"/> schema identification</A><br/>    
+      &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+      <A HREF="./annex_obj_reg{$FILE_EXT}#e22" target="{$target}">E.2.2 <xsl:value-of select="$mim_xml/@name"/> schema identification</A><br/>
+      <xsl:if test="$module_xml//arm_lf">
+        <xsl:variable name="arm_lf_xml" select="concat($ap_module_dir,'/arm_lf.xml')"/>
+        <xsl:variable name="arm_schema_lf"  select="document($arm_lf_xml)/express/schema/@name"/>
+        &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+        <A HREF="./annex_obj_reg{$FILE_EXT}#e23" target="{$target}">E.2.3 <xsl:value-of select="$arm_schema_lf"/> schema identification</A><br/>     
+      </xsl:if>
+      <xsl:if test="$module_xml//mim_lf">
+        <xsl:variable name="mim_lf_xml" select="concat($ap_module_dir,'/mim_lf.xml')"/>
+        <xsl:variable name="mim_schema_lf" select="document($mim_lf_xml)/express/schema/@name"/>
+        &#160;&#160;&#160;&#160;&#160;
+        <A HREF="./annex_obj_reg{$FILE_EXT}#e24" target="{$target}">E.2.4 <xsl:value-of select="$mim_schema_lf"/> schema identification</A><br/>       
+      </xsl:if>
     </xsl:if>
-    <xsl:if test="$module_xml//mim_lf">
-      <xsl:variable name="mim_lf_xml" select="concat($ap_module_dir,'/mim_lf.xml')"/>
-      <xsl:variable name="mim_schema_lf" select="document($mim_lf_xml)/express/schema/@name"/>
-      &#160;&#160;&#160;&#160;&#160;&#160;
-      <A HREF="./annex_obj_reg{$FILE_EXT}#e24" target="{$target}">E.2.4 <xsl:value-of select="$mim_schema_lf"/> schema identification</A><br/>       
-    </xsl:if>
-
-
     <a href="./annex_aam{$FILE_EXT}" target="{$target}">
       Annex F Application activity model
     </a>

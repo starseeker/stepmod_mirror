@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.4 2002/09/12 09:12:20 robbod Exp $
+$Id: ap_list.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of application_protocols
@@ -59,7 +59,7 @@ $Id: modules_list.xsl,v 1.4 2002/09/12 09:12:20 robbod Exp $
 <xsl:template match="application_protocol">
   <xsl:param name="part_no" select="'no'"/>
   <xsl:variable name="href" 
-    select="concat('../data/application_protocols/',@name,'/sys/introduction',$FILE_EXT)"/>
+    select="concat('../data/application_protocols/',@name,'/home',$FILE_EXT)"/>
   <xsl:variable name="Menu" select="concat('Menu',@name)"/>
   <xsl:variable name="NoMenu" select="concat('NoMenu',@name)"/>
 
@@ -73,21 +73,27 @@ $Id: modules_list.xsl,v 1.4 2002/09/12 09:12:20 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>    
   </xsl:variable>
-  
+
+  <p class="menulist">
+    <a href="{$href}" target="_blank">
+      <xsl:value-of select="$part_name"/>
+    </a>
+  </p>
+
+  <!--       
   <div id="{$Menu}" style="display:none">
     <p class="menulist">
       <a href="javascript:swap({$NoMenu}, {$Menu});">
         <img src="../images/minus.gif" alt="Close menu" 
           border="false" align="middle"/>    
       </a>
-      <a href="{$href}" target="content">
+      <a href="{$href}" target="_blank">
         <xsl:value-of select="$part_name"/>
       </a>
     </p>
-    <p class="menuitem">Summary</p>
     
     <p class="menuitem">
-      <a href="{$href}" target="content">
+      <a href="{$href}" target="_blank">
         ISO view
       </a>
     </p>
@@ -127,6 +133,7 @@ $Id: modules_list.xsl,v 1.4 2002/09/12 09:12:20 robbod Exp $
       </a>
     </p>
   </div>
+  -->
 </xsl:template>
 
 

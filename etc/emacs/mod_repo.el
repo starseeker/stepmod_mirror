@@ -1,4 +1,4 @@
-;;; $Id: mod_repo.el,v 1.13 2003/04/13 16:30:32 thendrix Exp $
+;;; $Id: mod_repo.el,v 1.14 2003/04/23 14:59:32 robbod Exp $
 ;;;  Author:  Rob Bodington, Eurostep Limited
 ;;;  Purpose: A set of facilities for editing the stepmod files
 ;;;           Set the global variable modrep-home
@@ -219,7 +219,7 @@
     (insert "\"\n")
     (insert "   date=\"")
     (insert (modrep-date))
-    (insert "\n")
+    (insert "\"\n")
     (insert "   seds=\"no\">\n")
 
     ;(insert "   category=\"editorial general model implementation\">\n")
@@ -283,7 +283,7 @@
   "Insert XSL File header"
   (interactive)
   (insert "<!--\n")
-  (insert "$Id: mod_repo.el,v 1.13 2003/04/13 16:30:32 thendrix Exp $\n")
+  (insert "$Id: mod_repo.el,v 1.14 2003/04/23 14:59:32 robbod Exp $\n")
   (insert "  Author:  ") (insert modrep-user) (insert ", ") (insert modrep-org)
   (insert "\n")
   (insert "  Owner:   ") (insert modrep-owner-notice) (insert "\n")

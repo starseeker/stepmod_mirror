@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.8 2002/07/11 16:58:52 robbod Exp $ -->
+<!-- $Id: build.xml,v 1.9 2002/08/14 06:47:41 robbod Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -42,6 +42,9 @@ generates HTML for all the modules
 "ant -DMODULES=data/modules/[module-name] modules" 
 generates HTML for a single module
 
+"ant nav"
+generates all the navigation indices for the repository
+
 "ant ballots" 
 generates HTML for ballot indices
 
@@ -80,6 +83,11 @@ tar.gz format)
     <property name="RESOURCES" value="${RESOURCESDIR}/**"/>
     <property name="MODULESDIR" value="data/modules"/>
     <property name="MODULES" value="${MODULESDIR}/**"/>
+
+    <property name="NAVDIR" value="nav"/>
+    <property name="NAV" value="${NAVDIR}/**"/>
+    <property name="NAVXSL" value="nav/xsl"/>
+
     <property name="SYS" value="${MODULES}/sys"/>
     <property name="ARCHIVE" value="stepmod-html-${DSTAMP}"/>
     <property name="ARCHIVEALL" value="stepmod-${DSTAMP}"/>
@@ -107,7 +115,7 @@ tar.gz format)
     </delete>
   </target>
 
-  <target name="index" depends="init, ballots" 
+  <target name="index" depends="init, ballots, nav" 
           description="generate repository index">
     <dependset>
       <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
@@ -138,6 +146,7 @@ tar.gz format)
   <target name="modules" depends="init" 
           description="generate modules">
     <dependset>
+
       <srcfileset dir="${DTDDIR}" includes="**/*.dtd, **/*.ent"/>
       <srcfileset dir="${STYLES}" includes="**/*.xsl"/>
       <targetfileset dir="." includes="${MODULES}/*.htm*"/>
@@ -359,6 +368,85 @@ tar.gz format)
   </target>
 
 
+  <target name="nav" depends="init" 
+    description="generate navigation indices">
+    <dependset>
+      <srcfileset dir="${NAVXSL}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="${NAV}/*.htm*"/>
+    </dependset>
+    <style includes="${NAV}/index.xml" destdir="."
+	   extension=".htm"
+      style="${NAVXSL}/index.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${NAV}/banner.xml" destdir="."
+	   extension=".htm"
+      style="${NAVXSL}/banner.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${NAV}/introduction.xml" destdir="."
+	   extension=".htm"
+      style="${NAVXSL}/introduction.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${NAV}/ballot_modules.xml" destdir="."
+	   extension=".htm"
+      style="${NAVXSL}/ballot_modules.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${NAV}/arm_objects.xml" destdir="."
+	   extension=".htm"
+      style="${NAVXSL}/arm_objects.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${NAV}/mim_objects.xml" destdir="."
+	   extension=".htm"
+      style="${NAVXSL}/mim_objects.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${NAV}/resource_objects.xml" destdir="."
+	   extension=".htm"
+      style="${NAVXSL}/resource_objects.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${NAV}/modules_alpha.xml" destdir="."
+	   extension=".htm"
+      style="${NAVXSL}/modules_alpha.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${NAV}/modules_numbers.xml" destdir="."
+	   extension=".htm"
+      style="${NAVXSL}/modules_numbers.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+    <style includes="${NAV}/modules_project.xml" destdir="."
+	   extension=".htm"
+      style="${NAVXSL}/modules_project.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+    </style>
+
+  </target>
+
+
   <target name="all" depends="index, resources, modules"
 	  description="create HTML for everything"/>
 
@@ -403,6 +491,9 @@ stepmod/data/**, stepmod/help/**, stepmod/images/**, stepmod/ballots/**"
 	 src="${SFTARBALL}" dest="../stepmod-cvsroot-${DSTAMP}.tar.gz"
 	 verbose="true"/>
   </target>
+
+
+
 
 </project>
 

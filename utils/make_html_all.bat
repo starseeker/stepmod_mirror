@@ -1,5 +1,5 @@
 @echo off
-REM $Id: make_html_all.bat,v 1.2 2001/11/21 17:14:04 robbod Exp $
+REM $Id: make_html_all.bat,v 1.3 2002/02/15 12:06:54 robbod Exp $
 
 REM Generate the html for all the modules.
 
@@ -7,10 +7,10 @@ REM Generate the html for all the modules.
 REM +++++++++++++++++++++++++++++++++++++++
 REM create the html for all the modules
 REM ++ copy the next line for each new module
-goto :BP1
+rem goto :BP1
 rem goto :BP2
 rem goto :BP3
-rem goto :ALL
+goto :START
 
 
 rem Ballot Package 1
@@ -47,8 +47,8 @@ rem Ballot packge 3
 :BP3
 call make_html work_order
 call make_html work_request
-goto :END
-
+rem goto :END
+goto :START
 
 :ALL
 call make_html advanced_boundary_representation
@@ -66,6 +66,9 @@ call make_html date_time_assignment
 call make_html document_and_version_identification
 call make_html document_assignment
 call make_html document_definition
+
+:START
+
 call make_html document_properties
 call make_html document_structure
 call make_html edge_based_wireframe

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: summary.xsl,v 1.2 2002/09/30 15:12:02 robbod Exp $
+$Id: summary.xsl,v 1.3 2002/10/02 16:43:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -63,8 +63,14 @@ $Id: summary.xsl,v 1.2 2002/09/30 15:12:02 robbod Exp $
   </xsl:template>
 
   <xsl:template match="module" mode="cover">
+    <xsl:variable name="wg_group">
+      <xsl:call-template name="get_module_wg_group">
+        <xsl:with-param name="module" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
+
     <xsl:variable name="n_number"
-      select="concat('ISO TC184/SC4/WG12&#160;N',./@wg.number)"/>
+      select="concat('ISO TC184/SC4/WG',$wg_group,'&#160;N',./@wg.number)"/>
     <xsl:variable name="test_wg_number">
       <xsl:call-template name="test_wg_number">
         <xsl:with-param name="wgnumber" select="./@wg.number"/>
@@ -86,10 +92,15 @@ $Id: summary.xsl,v 1.2 2002/09/30 15:12:02 robbod Exp $
     <h3>       
       <xsl:value-of select="concat('Module: ',$module_name,'&#160;&#160;&#160;',$stdnumber)"/>
     </h3>
+
+
+
     <div class="summarytable">
       <table border="1">
         <tr>
-          <td valign="top">WG12 Module number:</td>
+          <td valign="top">
+            <xsl:value-of select="concat('WG',$wg_group,'&#160; module number:')"/>
+          </td>
           <td valign="top">
             <xsl:value-of select="$n_number"/>
             <xsl:if test="contains($test_wg_number,'Error')">
@@ -113,7 +124,7 @@ $Id: summary.xsl,v 1.2 2002/09/30 15:12:02 robbod Exp $
                 </xsl:when>
                 <xsl:otherwise>
                   <xsl:value-of 
-                    select="concat('ISO&#160;TC184/SC4/WG12&#160;N',@wg.number.supersedes)"/>
+                    select="concat('ISO&#160;TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.supersedes)"/>
                 </xsl:otherwise>
               </xsl:choose>
               <xsl:variable name="test_wg_number_supersedes">
@@ -148,18 +159,22 @@ $Id: summary.xsl,v 1.2 2002/09/30 15:12:02 robbod Exp $
         </tr>
         
         <tr>
-          <td valign="top">WG12 ARM number:</td>
+          <td valign="top">
+            <xsl:value-of select="concat('WG',$wg_group,'&#160; ARM number:')"/>
+          </td>
           <td valign="top">
             <xsl:value-of
-              select="concat('ISO&#160;TC184/SC4/WG12&#160;N',@wg.number.arm)"/>
+              select="concat('ISO&#160;TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.arm)"/>
           </td>
         </tr>
         
         <tr>
-          <td valign="top">WG12 MIM number:</td>
+          <td valign="top">
+            <xsl:value-of select="concat('WG',$wg_group,'&#160; MIM number:')"/>
+          </td>
           <td valign="top">
             <xsl:value-of 
-              select="concat('ISO&#160;TC184/SC4/WG12&#160;N',@wg.number.mim)"/>
+              select="concat('ISO&#160;TC184/SC4/WG',$wg_group,'&#160;N',@wg.number.mim)"/>
           </td>
         </tr>
         

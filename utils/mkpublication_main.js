@@ -1,4 +1,4 @@
-//$Id: mkballot_main.js,v 1.16 2003/08/19 06:35:47 robbod Exp $
+//$Id: mkpublication_main.js,v 1.1 2004/01/09 17:36:24 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:  JScript to generate a publication package
@@ -46,7 +46,7 @@ function mkPublicationXsl(publication,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkpublication_main.js,v 1.16 2003/08/19 06:35:47 robbod Exp $");
+    ts.WriteLine("$Id: mkpublication_main.js,v 1.1 2004/01/09 17:36:24 robbod Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: ");
@@ -79,7 +79,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE publication_index SYSTEM \"../../dtd/publication_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.16 2003/08/19 06:35:47 robbod Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.1 2004/01/09 17:36:24 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("           and supplied to NIST under contract");
@@ -99,7 +99,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("           wg.number.publication_set ");
 	ts.WriteLine("               The WG number for the publication set. ");
 	ts.WriteLine("               It should be an integer. ");
-	ts.WriteLine("           wg.number.publication_set_comment ");
+	ts.WriteLine("           wg.number.publication_set_comments ");
 	ts.WriteLine("               The WG number for the addressed ballot comments");
 	ts.WriteLine("           date.iso_submission");
 	ts.WriteLine("               The date the set of parts were submitted to ISO");
@@ -111,7 +111,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("  name=\""+publication+"\"");
 	ts.WriteLine("  sc4.working_group=\"\"");
 	ts.WriteLine("  wg.number.publication_set=\"\"");
-	ts.WriteLine("  wg.number.publication_set_comment=\"\"");
+	ts.WriteLine("  wg.number.publication_set_comments=\"\"");
 	ts.WriteLine("  date.iso_submission=\"\"");
 	ts.WriteLine("  date.iso_publication=\"\">");
 	ts.WriteLine("");
@@ -155,7 +155,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.16 2003/08/19 06:35:47 robbod Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.1 2004/01/09 17:36:24 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -174,7 +174,7 @@ function mkPublicationPackage(publication) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkpublication_main.js,v 1.16 2003/08/19 06:35:47 robbod Exp $");
+	ts.WriteLine("$Id: mkpublication_main.js,v 1.1 2004/01/09 17:36:24 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");

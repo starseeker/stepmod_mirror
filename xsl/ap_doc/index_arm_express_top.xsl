@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express.xsl,v 1.3 2003/05/22 15:03:59 nigelshaw Exp $
+$Id: index_arm_express_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -38,10 +38,6 @@ $Id: index_arm_express.xsl,v 1.3 2003/05/22 15:03:59 nigelshaw Exp $
   <xsl:variable name="ap_top_module"
 	    select="$ap_node/application_protocol/@module_name"/>
 
-  <xsl:variable name="iframe-width"
-	    select="170"/>
-
-
 
   <xsl:template match="/" >
     <HTML>
@@ -61,7 +57,7 @@ $Id: index_arm_express.xsl,v 1.3 2003/05/22 15:03:59 nigelshaw Exp $
 	<br/>
 
 	<xsl:variable name="top_module_file" 
-	    select="concat('../../data/modules/',$selected_ap,'/arm.xml')"/>
+	    select="concat('../../data/modules/',$ap_top_module,'/arm.xml')"/>
 
 	<xsl:variable name="top_module_node"
 	    select="document($top_module_file)/express"/>
@@ -207,6 +203,40 @@ $Id: index_arm_express.xsl,v 1.3 2003/05/22 15:03:59 nigelshaw Exp $
 			<br/>
 		</xsl:if>
 
+		<xsl:variable name="subc-names">
+			<xsl:for-each select="$called-schemas//subtype.constraint" >
+				<xsl:value-of select="concat(' ',@name,' ')" />
+			</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:if test="string-length($subc-names) > 1" >
+			<A HREF="index_arm_express_inner.xml#subc" TARGET="toc_inner" ><B>Subtype Constraints:</B></A>
+			<xsl:text> </xsl:text>
+			<xsl:call-template name="alph-index">
+				<xsl:with-param name="names" select="$subc-names" />
+				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="internal-link-root" select="'subc-letter'" />
+			</xsl:call-template>
+			<br/>
+		</xsl:if>
+
+		<xsl:variable name="rule-names">
+			<xsl:for-each select="$called-schemas//rule" >
+				<xsl:value-of select="concat(' ',@name,' ')" />
+			</xsl:for-each>
+		</xsl:variable>
+
+		<xsl:if test="string-length($rule-names) > 1" >
+			<A HREF="index_arm_express_inner.xml#rules" TARGET="toc_inner" ><B>Rules:</B></A>
+			<xsl:text> </xsl:text>
+			<xsl:call-template name="alph-index">
+				<xsl:with-param name="names" select="$rule-names" />
+				<xsl:with-param name="file" select="'index_arm_express_inner.xml'" />
+				<xsl:with-param name="internal-link-root" select="'rule-letter'" />
+			</xsl:call-template>
+			<br/>
+		</xsl:if>
+
 		<xsl:variable name="fun-names">
 			<xsl:for-each select="$called-schemas//function" >
 				<xsl:value-of select="concat(' ',@name,' ')" />
@@ -231,7 +261,7 @@ $Id: index_arm_express.xsl,v 1.3 2003/05/22 15:03:59 nigelshaw Exp $
 		</xsl:variable>
 
 		<xsl:if test="string-length($proc-names) > 1" >
-			<A HREF="index_arm_express_inner.xml#procedures" TARGET="toc_inner" ><B>Procedures:</B></A>
+			<A HREF="index_arm_express_inner.xml#procedures" TARGET="toc_in	ner" ><B>Procedures:</B></A>
 			<xsl:text> </xsl:text>
 			<xsl:call-template name="alph-index">
 				<xsl:with-param name="names" select="$proc-names" />

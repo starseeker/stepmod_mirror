@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
+$Id: index_arm_modules_top.xsl,v 1.2 2003/05/22 23:47:36 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -38,8 +38,6 @@ $Id: index_arm_modules_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
   <xsl:variable name="ap_top_module"
 	    select="$ap_node/application_protocol/@module_name"/>
 
-  <xsl:variable name="iframe-width"
-	    select="170"/>
 
 
 
@@ -60,7 +58,7 @@ $Id: index_arm_modules_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 	<br/>
 
 	<xsl:variable name="top_module_file" 
-	    select="concat('../../data/modules/',$selected_ap,'/arm.xml')"/>
+	    select="concat('../../data/modules/',$ap_top_module,'/arm.xml')"/>
 
 	<xsl:variable name="top_module_node"
 	    select="document($top_module_file)/express"/>
@@ -136,7 +134,7 @@ $Id: index_arm_modules_top.xsl,v 1.1 2003/05/22 22:28:49 nigelshaw Exp $
 	<xsl:param name="this-schema" />
 	<xsl:param name="called-schemas" />
 
-	<h3>Modules</h3>
+	<h3>Mappings of ARM entities</h3>
 	
 <!--	<TABLE width="}">
 		<TR >

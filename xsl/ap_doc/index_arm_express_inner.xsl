@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_inner.xsl,v 1.2 2003/05/22 15:03:59 nigelshaw Exp $
+$Id: index_arm_express_inner.xsl,v 1.3 2003/05/22 22:29:41 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -165,6 +165,27 @@ $Id: index_arm_express_inner.xsl,v 1.2 2003/05/22 15:03:59 nigelshaw Exp $
 		</xsl:call-template>
 	</xsl:if>
 
+	<xsl:if test="$called-schemas//subtype.constraint" >
+		<br/>
+		<A name="subc"><b>Subtype Constraints</b></A>
+		<br/>
+		<xsl:call-template name="alph-list">
+			<xsl:with-param name="items" select="$called-schemas//subtype.constraint" />
+			<xsl:with-param name="internal-link-root" select="'subc-letter'" />
+		</xsl:call-template>
+	</xsl:if>
+
+	<xsl:if test="$called-schemas//rule" >
+		<br/>
+		<A name="rules"><b>Rules</b></A>
+		<br/>
+		<xsl:call-template name="alph-list">
+			<xsl:with-param name="items" select="$called-schemas//rule" />
+			<xsl:with-param name="internal-link-root" select="'rule-letter'" />
+		</xsl:call-template>
+	</xsl:if>
+
+
 	<xsl:if test="$called-schemas//function" >
 		<br/>
 		<A name="functions"><b>Functions</b></A>
@@ -228,6 +249,34 @@ $Id: index_arm_express_inner.xsl,v 1.2 2003/05/22 15:03:59 nigelshaw Exp $
 			<br/>
 		
 </xsl:template>
+
+<xsl:template match="subtype.constraint" mode="module-index" >
+
+		<xsl:variable name="mod-name" select="substring-before(../@name,'_arm')" />
+
+		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+
+		
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{../@name}.{@name}" TARGET="content" >
+		<xsl:value-of select="@name" /></A>
+			<br/>
+		
+</xsl:template>
+
+<xsl:template match="rule" mode="module-index" >
+
+		<xsl:variable name="mod-name" select="substring-before(../@name,'_arm')" />
+
+		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+
+		
+		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{../@name}.{@name}" TARGET="content" >
+		<xsl:value-of select="@name" /></A>
+			<br/>
+		
+</xsl:template>
+
+
 
 <xsl:template match="function" mode="module-index" >
 

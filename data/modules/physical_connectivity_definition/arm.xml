@@ -36,9 +36,6 @@
             <unique.attribute entity-ref="Physical_connectivity_definition" attribute="name"/>
             <unique.attribute entity-ref="Physical_connectivity_definition" attribute="associated_definition"/>
          </unique>
-         <unique label="UR2">
-            <unique.attribute entity-ref="Physical_connectivity_definition" attribute="associated_terminals"/>
-         </unique>
       </entity>
       <entity name="Physical_connectivity_definition_relationship">
          <explicit name="previous_definition">
@@ -89,7 +86,9 @@
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <where label="WR1" expression=" NOT ( 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF ( SELF ) ) OR ( 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_DESIGN_VIEW' IN TYPEOF ( SELF ) ) "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( t &lt;* terminals | SIZEOF ( USEDIN ( t , 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + 'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS' ) ) = 1 ) ) = SIZEOF ( terminals ) "/>
+         <where label="WR2" expression=" NOT (SIZEOF(terminals) &gt; 1) OR
+           SIZEOF(QUERY(t &lt;* terminals | NOT(SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + 
+                          'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1))) = 0; "/>
       </entity>
       <entity name="Topological_junction">
          <explicit name="name">

@@ -33,6 +33,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       ant -buildfile buildbuild.xml
     </xsl:comment>
 
+
     <!-- 
          note the use of xsl:extension-element-prefixes to prevent the
          output of the names space
@@ -41,7 +42,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       xsl:extension-element-prefixes="exslt"
       name="ballothtml" default="all" basedir="../../..">
       <xsl:text>
-      </xsl:text>
+</xsl:text>
       <xsl:element name="target">
         <xsl:attribute name="name">variables</xsl:attribute>
         <xsl:attribute name="description">initialize variables</xsl:attribute>
@@ -60,16 +61,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         </xsl:element>
         
         <xsl:element name="property">
-          <xsl:attribute name="name">OUTPUT_MODULES_BACKGROUND</xsl:attribute>
-          <xsl:attribute name="value">YES</xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
-          <xsl:attribute name="name">OUTPUT_DEPMODULES_BACKGROUND</xsl:attribute>
-          <xsl:attribute name="value">YES</xsl:attribute>
-        </xsl:element>
-
-        <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_APDOCS_BACKGROUND</xsl:attribute>
           <xsl:choose>
             <xsl:when test="./@output_apdocs_background='YES'">
@@ -80,11 +71,92 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:otherwise>
           </xsl:choose>
         </xsl:element>
+        <xsl:text>
+      </xsl:text>
+        <xsl:comment>If OUTPUT_APDOCS_BACKGROUND 'YES' then this is the
+        image for the ap documents in package</xsl:comment>
+        <xsl:element name="property">
+          <xsl:attribute name="name">APDOCS_BACKGROUND</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:choose>
+              <xsl:when test="./@background.image.apdocs">
+                <xsl:value-of select="./@background.image.apdocs"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="'refonly.gif'"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">OUTPUT_MODULES_BACKGROUND</xsl:attribute>
+          <!-- 
+               When an AP document is being balloted as well modules, 
+               the default is a grey image stepmod/images/greybackground.jpg
+               otherwise the modules have no background
+               -->
+          <xsl:choose>
+            <xsl:when test="//ap_doc">
+              <xsl:attribute name="value">YES</xsl:attribute>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:attribute name="value">NO</xsl:attribute>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:element>
+        <xsl:text>
+      </xsl:text>
+        <xsl:comment>If OUTPUT_MODULES_BACKGROUND 'YES' then this is the
+        image for the modules in package</xsl:comment>
+        <xsl:element name="property">
+          <xsl:attribute name="name">MODULES_BACKGROUND</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:choose>
+              <xsl:when test="./@background.image.modules">
+                <xsl:value-of select="./@background.image.modules"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="'greybackground.jpg'"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:attribute>
+        </xsl:element>
+
+        <xsl:element name="property">
+          <xsl:attribute name="name">OUTPUT_DEPMODULES_BACKGROUND</xsl:attribute>
+          <xsl:choose>
+            <xsl:when test="./@output.dependent.modules.background='NO'">
+              <xsl:attribute name="value">NO</xsl:attribute>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:attribute name="value">YES</xsl:attribute>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:element>
+        <xsl:text>
+      </xsl:text>
+        <xsl:comment>If OUTPUT_DEPMODULES_BACKGROUND 'YES' then this is the
+        image for the dependent modules in package</xsl:comment>
+        <xsl:element name="property">
+          <xsl:attribute name="name">DEPMODULES_BACKGROUND</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:choose>
+              <xsl:when test="./@background.image.dependent.modules">
+                <xsl:value-of select="./@background.image.dependent.modules"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="'refonly.gif'"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:attribute>
+        </xsl:element>
+
 
         <xsl:element name="property">
           <xsl:attribute name="name">OUTPUT_RESOURCES_BACKGROUND</xsl:attribute>
           <xsl:choose>
-            <xsl:when test="./@output_resources_background='NO'">
+            <xsl:when test="./@output.dependent.resources..background='NO'">
               <xsl:attribute name="value">NO</xsl:attribute>
             </xsl:when>            
             <xsl:otherwise>
@@ -92,6 +164,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </xsl:otherwise>
           </xsl:choose>
         </xsl:element>
+        <xsl:text>
+      </xsl:text>
+        <xsl:comment>If OUTPUT_RESOURCES_BACKGROUND 'YES' then this is the
+        image for the dependent modules in package</xsl:comment>
+        <xsl:element name="property">
+          <xsl:attribute name="name">RESOURCES_BACKGROUND</xsl:attribute>
+          <xsl:attribute name="value">
+            <xsl:choose>
+              <xsl:when test="./@background.image.dependent.resources">
+                <xsl:value-of select="./@background.image.dependent.resources"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="'refonly.gif'"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:attribute>
+        </xsl:element>
+
 
         <xsl:element name="property">
           <xsl:attribute name="name">STEPMOD_DATA_MODULES</xsl:attribute>
@@ -143,12 +233,15 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="concat('ballots/isohtml/',@name,'/express')"/>
           </xsl:attribute>
         </xsl:element>
+
         <xsl:element name="property">
           <xsl:attribute name="name">APDOCMENU</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:value-of select="concat('./ballots/ballots/',@name,'/menubar_build.xml')"/>
           </xsl:attribute>
         </xsl:element>
+
+
         <xsl:element name="property">
           <xsl:attribute name="name">ISOMENU</xsl:attribute>
           <xsl:attribute name="value">
@@ -189,13 +282,24 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           </xsl:attribute>
         </xsl:element>
 
-        <xsl:if test="./ballot_package/ap_doc">
-          <xsl:apply-templates select="." mode="apdoc_variables"/>
-          <xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
-        </xsl:if>
-        <xsl:if test="./ballot_package/module">
-          <xsl:apply-templates select="."  mode="modules_variables"/>
-        </xsl:if>
+        <!-- assumption that if the AP document is specified, then all the
+             modules are part of that document -->
+        <xsl:choose>
+          <xsl:when test="./ballot_package/ap_doc">
+            <xsl:apply-templates select="." mode="apdoc_variables"/>
+            <xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
+            <xsl:if test="./ballot_package/module">
+              <xsl:apply-templates select="."  mode="modules_variables"/>
+            </xsl:if>
+          </xsl:when>
+          <xsl:when test="./ballot_package/module">
+            <xsl:apply-templates select="."  mode="modules_variables"/>
+            <xsl:apply-templates select="." mode="dependent_mod_res_variables"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:message>WARNING --- ONLY DEALING WITH MODULES AND AP DOCUMENTS!!!!</xsl:message>
+          </xsl:otherwise>
+        </xsl:choose>
         <xsl:apply-templates select="."  mode="abstract_variable"/>
       </xsl:element>
       
@@ -206,7 +310,9 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         name="init" depends="variables">
 
         <!-- output the menubar file -->
-        <xsl:apply-templates select="." mode="menubar_build"/>
+        <xsl:if test="//ap_doc">
+          <xsl:apply-templates select="." mode="menubar_build"/>
+        </xsl:if>
 
         <xsl:element name="mkdir">
           <xsl:attribute name="dir">
@@ -239,7 +345,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:variable name="all_target3">
         <xsl:choose>
           <xsl:when test="./ballot_package/module">
-            <xsl:value-of select="concat($all_target2, ', isomodules')"/>
+            <xsl:value-of select="concat($all_target2, ', isomodules, isodepmodules')"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="$all_target2"/>
@@ -364,13 +470,33 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <xsl:text>
       </xsl:text>
       
-      <xsl:if test="./ballot_package/ap_doc">
-        <xsl:apply-templates select="." mode="apdoc_target"/>
-        <xsl:apply-templates select="." mode="dependent_modules_target"/>
-      </xsl:if>
-      <xsl:if test="./ballot_package/module">
-        <xsl:apply-templates select="." mode="modules_target"/>
-      </xsl:if>
+      <!-- assumption that if the AP document is specified, then all the
+           modules are part of that document -->
+      <xsl:choose>
+        <xsl:when test="./ballot_package/ap_doc">
+          <xsl:apply-templates select="." mode="apdoc_target"/>
+          <xsl:apply-templates select="." mode="dependent_modules_target">
+            <xsl:with-param name="menu" select="'APDOCMENU'"/>
+          </xsl:apply-templates>
+          <xsl:if test="./ballot_package/module">
+            <xsl:apply-templates select="." mode="modules_target">
+              <xsl:with-param name="menu" select="'APDOCMENU'"/>
+            </xsl:apply-templates>
+          </xsl:if>
+        </xsl:when>
+        <xsl:when test="./ballot_package/module">
+          <xsl:apply-templates select="." mode="modules_target">
+            <xsl:with-param name="menu" select="'ISOMENU'"/>
+          </xsl:apply-templates>
+          <xsl:apply-templates select="." mode="dependent_modules_target">
+            <xsl:with-param name="menu" select="'ISOMENU'"/>
+          </xsl:apply-templates>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:message>WARNING --- ONLY DEALING WITH MODULES AND AP DOCUMENTS!!!!</xsl:message>
+        </xsl:otherwise>
+      </xsl:choose>
+      
       <xsl:apply-templates select="." mode="resources_target"/>      
       <xsl:apply-templates select="." mode="abstracts_target"/>      
       <xsl:apply-templates select="." mode="express_target"/>      
@@ -1095,6 +1221,8 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   
   <!-- output the variable for the dependent modules and resources -->
   <xsl:template match="ballot_index" mode="dependent_mod_res_variables">
+    <xsl:param name="menu"/>
+
     <xsl:variable name="mim_modules">
       <xsl:call-template name="get_mod_node_set"/>
     </xsl:variable>
@@ -5327,6 +5455,8 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:template>
 
   <xsl:template match="ballot_index" mode="modules_target">
+    <xsl:param name="menu"/>
+
     <xsl:text>
     </xsl:text>    
      <target
@@ -5338,7 +5468,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
           <xsl:attribute name="dir">
             <xsl:value-of select="'${STEPMODDTDDIR}'"/>
           </xsl:attribute>
-          <xsl:attribute name="includes">
+          <xsl:attribute name="includes">2
             <xsl:value-of select="'**/*.dtd, **/*.ent'"/>
           </xsl:attribute>
         </xsl:element>
@@ -5427,7 +5557,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -5521,7 +5651,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -5615,7 +5745,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -5709,7 +5839,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -5803,7 +5933,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -5897,7 +6027,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -5991,7 +6121,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6085,7 +6215,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6163,7 +6293,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6219,7 +6349,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6291,7 +6421,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6385,7 +6515,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6479,7 +6609,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6573,7 +6703,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6667,7 +6797,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6769,7 +6899,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6863,7 +6993,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -6957,7 +7087,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7051,7 +7181,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7177,7 +7307,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7271,7 +7401,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7365,7 +7495,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7459,7 +7589,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7553,7 +7683,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7647,7 +7777,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7741,7 +7871,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7835,7 +7965,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -7917,6 +8047,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:template>
 
   <xsl:template match="ballot_index" mode="dependent_modules_target">
+    <xsl:param name="menu"/>
     <xsl:text>
     </xsl:text>    
      <target
@@ -8017,7 +8148,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8111,7 +8242,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8205,7 +8336,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8299,7 +8430,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8393,7 +8524,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8487,7 +8618,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8581,7 +8712,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8675,7 +8806,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8817,7 +8948,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -8911,7 +9042,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9005,7 +9136,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9087,7 +9218,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9169,7 +9300,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9271,7 +9402,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9365,7 +9496,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9459,7 +9590,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9553,7 +9684,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9631,7 +9762,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9687,7 +9818,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9765,7 +9896,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9789,7 +9920,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9883,7 +10014,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -9977,7 +10108,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -10071,7 +10202,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -10165,7 +10296,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -10259,7 +10390,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -10353,7 +10484,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="'menubar_file'"/>
           </xsl:attribute>
           <xsl:attribute name="expression">
-            <xsl:value-of select="'${APDOCMENU}'"/>
+            <xsl:value-of select="concat('${',$menu,'}')"/>
           </xsl:attribute>
         </xsl:element>
         <xsl:element name="param">
@@ -10476,6 +10607,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
          Otherwise output and add to todo
          -->
     <xsl:variable name="this-schema" select="substring-before(concat(normalize-space($todo),' '),' ')"/>
+
     <xsl:if test="$this-schema">
 
       <!-- open up the relevant schema  - which can be a resource or a mim schema -->
@@ -10491,7 +10623,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
           </xsl:when>
           <xsl:when test="substring-before($this-schema,'_arm')">
-            BAD SCHEMA name !!! <xsl:value-of select="$this-schema"/>
+            BAD SCHEMA name !!! {<xsl:value-of select="$this-schema"/>}
           </xsl:when>
           <xsl:otherwise>
             <!-- assume that it is a resource -->
@@ -10507,7 +10639,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
       <x><xsl:value-of select="translate($file_name,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
       'abcdefghijklmnopqrstuvwxyz')" /></x>
     </xsl:if>
-    
+
     <xsl:variable name="mim-node" select="document($file_name)/express"/>
   
   
@@ -10560,7 +10692,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
     </xsl:variable>
     
     <xsl:variable name="after" select="normalize-space(concat(substring-after($todo, $this-schema),$my-kids))"/>
-    
+
     <xsl:if test="$after">
       <xsl:call-template name="depends-on-recurse-mim-x">
         <xsl:with-param name="todo" select="$after"/>
@@ -10581,7 +10713,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 </xsl:template>
 
 <xsl:template match="module_ref" mode="schema_name">
-  <xsl:value-of select="concat(normalize-space(substring-before(@linkend,':')),'_mim ')"/>
+  <xsl:value-of select="concat(' ',normalize-space(substring-before(@linkend,':')),'_mim ')"/>
 </xsl:template>
 
 <xsl:template match="express_ref" mode="schema_name">
@@ -10638,6 +10770,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:variable>
   
   <xsl:variable name="todo_schema_list" select="concat(string($aps),string($modules))"/>
+
   <xsl:variable name="mim_schemas">
     <xsl:call-template name="depends-on-recurse-mim-x">
       <xsl:with-param name="todo" select="$todo_schema_list"/>
@@ -10764,51 +10897,54 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
         select="document(concat('../../data/modules/',$module,'/module.xml'))"/>
 
       <xsl:variable name="part" select="$module_xml/module/@part"/>
-      <xsl:variable name="wg.number.arm" select="$module_xml/module/@wg.number.arm"/>
-      <xsl:variable name="wg.number.arm_lf" select="$module_xml/module/@wg.number.arm_lf"/>
-      <xsl:variable name="wg.number.mim" select="$module_xml/module/@wg.number.mim"/> 
-      <xsl:variable name="wg.number.mim_lf" select="$module_xml/module/@wg.number.mim_lf"/>
       <xsl:variable name="status" 
         select="translate(translate($module_xml/module/@status,$UPPER,$LOWER),'-','')"/>
       <xsl:variable name="wg" select="$module_xml/module/@sc4.working_group"/>
       <xsl:variable name="prefix" select="concat('part',$part,$status,'_wg',$wg,'n')"/>
 
-     <xsl:element name="copy">
-       <xsl:attribute name="file">
-         <xsl:value-of select="concat('data/modules/',@name,'/arm.exp')"/>
-       </xsl:attribute>
-       <xsl:attribute name="tofile">
-         <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.arm,'arm.exp')"/>
-       </xsl:attribute>
-     </xsl:element>
+      <xsl:variable name="wg.number.arm" select="$module_xml/module/@wg.number.arm"/>
+      <xsl:element name="copy">
+        <xsl:attribute name="file">
+          <xsl:value-of select="concat('data/modules/',@name,'/arm.exp')"/>
+        </xsl:attribute>
+        <xsl:attribute name="tofile">
+          <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.arm,'arm.exp')"/>
+        </xsl:attribute>
+      </xsl:element>
 
-     <xsl:element name="copy">
-       <xsl:attribute name="file">
-         <xsl:value-of select="concat('data/modules/',@name,'/arm_lf.exp')"/>
-       </xsl:attribute>
-       <xsl:attribute name="tofile">
-         <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.arm_lf,'arm_lf.exp')"/>
-       </xsl:attribute>
-     </xsl:element>
+      <xsl:if test="$module_xml/module/arm_lf">
+        <xsl:variable name="wg.number.arm_lf" select="$module_xml/module/@wg.number.arm_lf"/>
+        <xsl:element name="copy">
+          <xsl:attribute name="file">
+            <xsl:value-of select="concat('data/modules/',@name,'/arm_lf.exp')"/>
+          </xsl:attribute>
+          <xsl:attribute name="tofile">
+            <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.arm_lf,'arm_lf.exp')"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:if>
 
-     <xsl:element name="copy">
-       <xsl:attribute name="file">
-         <xsl:value-of select="concat('data/modules/',@name,'/mim.exp')"/>
-       </xsl:attribute>
-       <xsl:attribute name="tofile">
-         <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.mim,'mim.exp')"/>
-       </xsl:attribute>
-     </xsl:element>
+      <xsl:variable name="wg.number.mim" select="$module_xml/module/@wg.number.mim"/> 
+      <xsl:element name="copy">
+        <xsl:attribute name="file">
+          <xsl:value-of select="concat('data/modules/',@name,'/mim.exp')"/>
+        </xsl:attribute>
+        <xsl:attribute name="tofile">
+          <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.mim,'mim.exp')"/>
+        </xsl:attribute>
+      </xsl:element>
 
-     <xsl:element name="copy">
-       <xsl:attribute name="file">
-         <xsl:value-of select="concat('data/modules/',@name,'/mim_lf.exp')"/>
-       </xsl:attribute>
-       <xsl:attribute name="tofile">
-         <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.mim_lf,'mim_lf.exp')"/>
-       </xsl:attribute>
-     </xsl:element>
-
+      <xsl:if test="$module_xml/module/mim_lf">
+        <xsl:variable name="wg.number.mim_lf" select="$module_xml/module/@wg.number.mim_lf"/>
+        <xsl:element name="copy">
+          <xsl:attribute name="file">
+            <xsl:value-of select="concat('data/modules/',@name,'/mim_lf.exp')"/>
+          </xsl:attribute>
+          <xsl:attribute name="tofile">
+            <xsl:value-of select="concat('${EXPRESSDIR}/',$prefix,$wg.number.mim_lf,'mim_lf.exp')"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:if>
     </xsl:for-each>
    </target>
 </xsl:template>

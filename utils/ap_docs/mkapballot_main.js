@@ -1,4 +1,4 @@
-//$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $
+//$Id: mkapballot_main.js,v 1.4 2003/07/31 14:22:29 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to PDES and NIST under contract.
 //  Purpose:  JScript to generate a ballot package for an AP Document
@@ -46,7 +46,7 @@ function mkBallotXsl(ballot,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $");
+    ts.WriteLine("$Id: mkapballot_main.js,v 1.4 2003/07/31 14:22:29 robbod Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: A grouping of AP docs into ballot packages");
@@ -75,7 +75,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE ballot_index SYSTEM \"../../dtd/ballot_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $");
+	ts.WriteLine("$Id: mkapballot_main.js,v 1.4 2003/07/31 14:22:29 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A grouping of AP docs into ballot packages");
@@ -89,13 +89,20 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("           can be set by the following attributes:");
   	ts.WriteLine("             background.image.modules");
   	ts.WriteLine("                The background of the modules being balloted");
-  	ts.WriteLine("                The default is a grey image stepmod/images/greybackground.jpg");        
+  	ts.WriteLine("                When an AP document is being balloted as well modules,");
+  	ts.WriteLine("                the default is a grey image stepmod/images/greybackground.jpg"); 
+     	ts.WriteLine("             output.dependent.modules.background");
+  	ts.WriteLine("                When YES the image specified in @background.image.dependent.modules");
+  	ts.WriteLine("                will be used as the background image for dependent modules.");
   	ts.WriteLine("             background.image.dependent.modules");
   	ts.WriteLine("                The background of the modules on which the AP is dependent");
-  	ts.WriteLine("                The default is a grey image stepmod/images/greybackground.jpg");        
+  	ts.WriteLine("                The default is a reference only image stepmod/images/refonly.jpg"); 
+     	ts.WriteLine("             output.dependent.resources.background");
+  	ts.WriteLine("                When YES the image specified in @background.image.dependent.resources");
+  	ts.WriteLine("                will be used as the background image for dependent resources");
   	ts.WriteLine("             background.image.dependent.resources");
   	ts.WriteLine("                The background of the integrated resources on which the AP modules are dependent");
-  	ts.WriteLine("                The default is a grey image stepmod/images/greybackground.jpg");        
+  	ts.WriteLine("                The default is a grey image stepmod/images/refonly.jpg");        
 
 	ts.WriteLine("-->");
 
@@ -109,7 +116,9 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("  ballot.close.date=\"\"");
 	ts.WriteLine("  comments.resolved.date=\"\"");
 	ts.WriteLine("  ballot.complete=\"\"");
+	ts.WriteLine("  output.dependent.modules.background=\"YES\"");
 	ts.WriteLine("  background.image.dependent.modules=\"refonly.gif\"");
+	ts.WriteLine("  output.dependent.resources.background=\"YES\"");
 	ts.WriteLine("  background.image.dependent.resources=\"refonly.gif\">");
 	ts.WriteLine("");
 	ts.WriteLine("  <description>");
@@ -124,6 +133,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("    <description>");
 	ts.WriteLine("    </description>");
    	ts.WriteLine("    <ap_doc name=\"\"/>");
+   	ts.WriteLine("    <module name=\"\"/>");
 	ts.WriteLine("  </ballot_package>");
 	ts.WriteLine("");
 	ts.WriteLine("  <!-- record of the CVS tags that have been created for managing this");
@@ -156,7 +166,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $");
+	ts.WriteLine("$Id: mkapballot_main.js,v 1.4 2003/07/31 14:22:29 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar for packages");
@@ -204,7 +214,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $");
+	ts.WriteLine("$Id: mkapballot_main.js,v 1.4 2003/07/31 14:22:29 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -228,7 +238,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkapballot_main.js,v 1.3 2003/07/31 12:29:34 robbod Exp $");
+	ts.WriteLine("$Id: mkapballot_main.js,v 1.4 2003/07/31 14:22:29 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");
@@ -260,7 +270,7 @@ function mkBallotPackage(ballot) {
 	ts.WriteLine("This directory contains files used to generate an package");
 	ts.WriteLine("for distribution to SC4 for balloting.");
 	ts.WriteLine("");
-	ts.WriteLine("1) Add the AP docs to be balloted to ballot_index.xml");
+	ts.WriteLine("1) Add the AP docs and modules to be balloted to ballot_index.xml");
 	ts.WriteLine("");
 	ts.WriteLine("2) Generate the build file using ANT");
 	ts.WriteLine("     ant -buildfile buildbuild.xml");

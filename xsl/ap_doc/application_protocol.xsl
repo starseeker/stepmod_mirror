@@ -4,17 +4,13 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../module.xsl"/>
 	<xsl:import href="application_protocol_toc.xsl"/>
+	<xsl:import href="sect_4_express.xsl"/>
 	<xsl:output method="html" doctype-system="http://www.w3.org/TR/html4/loose.dtd" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/>
 
 	<xsl:template match="/">
 		<HTML>
 			<HEAD>
-      				<!-- apply a cascading stylesheet. The stylesheet will only be applied if the parameter output_css is set in parameter.xsl -->
-				<xsl:call-template name="output_css">
-        				<xsl:with-param name="path" select="'../../../../css/'"/>
-      				</xsl:call-template>
       				<TITLE>
-        				<!-- output the appllication protocol page title -->
        		 		<xsl:apply-templates select="./application_protocol" mode="title"/>
       				</TITLE>
 			</HEAD>
@@ -26,9 +22,11 @@
 	</xsl:template>
 	
 	<xsl:template match="application_protocol">
-		<xsl:apply-templates select="." mode="coverpage"/>
 		<xsl:apply-templates select="." mode="foreword"/>
-		<xsl:apply-templates/>
+	</xsl:template>
+	
+	<xsl:template match="module">
+		<!-- xsl:apply-templates select="." mode="coverpage"/ -->
 	</xsl:template>
 
 	<xsl:template match="application_protocol" mode="title">
@@ -54,389 +52,331 @@
 		</xsl:choose>
 	</xsl:template>
 
-	<xsl:template match="application_protocol" mode="TOCbannertitle">
-		<xsl:param name="selected"/>
-		<xsl:param name="module_root" select="'..'"/>
-		<xsl:call-template name="rcs_output">
-			<xsl:with-param name="module" select="@name"/>
-			<xsl:with-param name="module_root" select="$module_root"/>
-		</xsl:call-template>
-		<TABLE cellspacing="0" border="0" width="100%">
+	<xsl:template match="module" mode="coverpage">
+		<xsl:variable name="n_number" select="concat('ISO TC184/SC4/WG12&#160;N',./@wg.number)"/>
+		<xsl:variable name="date" select="translate(substring-before(substring-after(@rcs.date,'$Date: '),' '), '/','-')"/>
+		<table width="624">
 			<tr>
 				<td>
-					<A HREF="{$module_root}/../../../data/application_protocols/combined_ap_module_index{$FILE_EXT}">#
-						Module and application protocol repository
-					</A>
-					<BR/>
-					<xsl:call-template name="output_menubar">
-						<xsl:with-param name="module_root" select="$module_root"/>
-						<xsl:with-param name="module_name" select="@name"/>
-					</xsl:call-template>
+					<h2>
+						<xsl:value-of select="$n_number"/>
+					</h2>
+				</td>
+				<td>&#x20;</td>
+				<td valign="top">
+					<b>Date:&#x20;</b>
+					<xsl:value-of select="$date"/>
 				</td>
 			</tr>
-			<tr>
-				<td valign="MIDDLE">
-					<B>
-						Application protocol:
-						<xsl:call-template name="module_display_name">
-							<xsl:with-param name="module" select="@name"/>
-						</xsl:call-template>
-					</B>
-				</td>
-				<td valign="MIDDLE" align="RIGHT">
-					<xsl:variable name="stdnumber">
-						<xsl:call-template name="get_module_pageheader">
-							<xsl:with-param name="module" select="."/>
-						</xsl:call-template>
-					</xsl:variable>
-					<b>
-						<xsl:value-of select="$stdnumber"/>
-						<xsl:variable name="status" select="string(@status)"/>
-						<xsl:if test="$status='TS' or $status='DIS' or $status='IS'">
-							<br/>
-							&#169; ISO
-						</xsl:if>
-					</b>
-				</td>
-			</tr>
-		</TABLE>
-	</xsl:template>
-
-<xsl:template match="application_protocol" mode="coverpage">
-	<xsl:variable name="n_number" select="concat('ISO TC184/SC4/WG12&#160;N',./@wg.number)"/>
-	<xsl:variable name="date" select="translate(substring-before(substring-after(@rcs.date,'$Date: '),' '), '/','-')"/>
-	<table width="624">
-		<tr>
-			<td>
-				<h2>
-					<xsl:value-of select="$n_number"/>
-				</h2>
-			</td>
-			<td>&#x20;</td>
-			<td valign="top">
-				<b>Date:&#x20;</b>
-				<xsl:value-of select="$date"/>
-			</td>
-		</tr>
-		<xsl:variable name="test_wg_number">
-			<xsl:call-template name="test_wg_number">
-				<xsl:with-param name="wgnumber" select="./@wg.number"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:if test="contains($test_wg_number,'Error')">
-			<tr>
-				<td>
-					<xsl:call-template name="error_message">
-						<xsl:with-param name="message">
-							<xsl:value-of select="concat('Error in application_protocol.xml/application_protocol/@wg.number - ', $test_wg_number)"/>
-						</xsl:with-param>
-					</xsl:call-template>
-				</td>
-			</tr>
-		</xsl:if>
-		<xsl:if test="@wg.number.supersedes">
-			<tr>
-				<td>
-					<h3>
-						Supersedes
-						<xsl:choose>
-							<xsl:when test="contains(@wg.number.supersedes, 'ISO')">
-								<xsl:value-of select="@wg.number.supersedes"/>
-							</xsl:when>
-							<xsl:otherwise>
-								<xsl:value-of select="concat('ISO&#160;TC184/SC4/WG12&#160;N',@wg.number.supersedes)"/>
-							</xsl:otherwise>
-						</xsl:choose>
-					</h3>
-					<xsl:variable name="test_wg_number_supersedes">
-						<xsl:call-template name="test_wg_number">
-							<xsl:with-param name="wgnumber" select="./@wg.number.supersedes"/>
-						</xsl:call-template>
-					</xsl:variable>
-					<xsl:if test="contains($test_wg_number_supersedes,'Error')">
-						<tr>
-							<td>
-								<xsl:call-template name="error_message">
-									<xsl:with-param name="message">
-										<xsl:value-of select="concat('Error in application_protocol.xml/application_protocol/@wg.number.supersedes - ', $test_wg_number_supersedes)"/>
-									</xsl:with-param>
-								</xsl:call-template>
-							</td>
-						</tr>
-					</xsl:if>
-					<xsl:if test="@wg.number.supersedes = @wg.number">
+			<xsl:variable name="test_wg_number">
+				<xsl:call-template name="test_wg_number">
+					<xsl:with-param name="wgnumber" select="./@wg.number"/>
+				</xsl:call-template>
+			</xsl:variable>
+			<xsl:if test="contains($test_wg_number,'Error')">
+				<tr>
+					<td>
 						<xsl:call-template name="error_message">
 							<xsl:with-param name="message">
-								Error in application_protocol.xml/application_protocol/@wg.number.supersedes - 
-								Error WG-16: New WG number is the same as superseded WG number.
+								<xsl:value-of select="concat('Error in module.xml/application_protocol/@wg.number - ', 	$test_wg_number)"/>
 							</xsl:with-param>
 						</xsl:call-template>
-					</xsl:if>
-				</td>
-			</tr>
-		</xsl:if>
-	</table>
-	<xsl:variable name="application_protocol_name">
-		<xsl:call-template name="module_display_name">
-			<xsl:with-param name="module" select="./@name"/>
-		</xsl:call-template>
-	</xsl:variable>
-	<xsl:variable name="stdnumber">
-		<xsl:call-template name="get_module_stdnumber">
-			<xsl:with-param name="module" select="."/>
-		</xsl:call-template>
-	</xsl:variable>
-	<h4>
-		<xsl:value-of select="$stdnumber"/>
-		<br/>
-		Product data representation and exchange: Application protocol:
-		<xsl:value-of select="$application_protocol_name"/>
-	</h4>
-	<xsl:variable name="status" select="string(@status)"/>
-	<xsl:variable name="status_words">
-		<xsl:choose>
-			<xsl:when test="@status='CD'">
-				Committee Draft
-			</xsl:when>
-			<xsl:when test="@status='FDIS'">
-				Final Draft International Standard
-			</xsl:when>
-			<xsl:when test="@status='DIS'">
-				Draft International Standard
-			</xsl:when>
-			<xsl:when test="@status='IS'">
-				International Standard
-			</xsl:when>
-			<xsl:when test="@status='CD-TS'">
-				draft technical specification
-			</xsl:when>
-			<xsl:when test="@status='TS'">
-				technical specification
-			</xsl:when>
-			<xsl:when test="@status='WD'">
-				working draft
-			</xsl:when>
-			<xsl:otherwise>
-				application protocol status not set.
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:variable>
+					</td>
+				</tr>
+			</xsl:if>
+			<xsl:if test="@wg.number.supersedes">
+				<tr>
+					<td>
+						<h3>
+							Supersedes
+							<xsl:choose>
+								<xsl:when test="contains(@wg.number.supersedes, 'ISO')">
+									<xsl:value-of select="@wg.number.supersedes"/>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="concat('ISO&#160;TC184/SC4/WG12&#160;N',@wg.number.supersedes)"/>
+								</xsl:otherwise>
+							</xsl:choose>
+						</h3>
+						<xsl:variable name="test_wg_number_supersedes">
+							<xsl:call-template name="test_wg_number">
+								<xsl:with-param name="wgnumber" select="./@wg.number.supersedes"/>
+							</xsl:call-template>
+						</xsl:variable>
+						<xsl:if test="contains($test_wg_number_supersedes,'Error')">
+							<tr>
+								<td>
+									<xsl:call-template name="error_message">
+										<xsl:with-param name="message">
+											<xsl:value-of select="concat('Error in module.xml/application_protocol/	@wg.number.supersedes - ', $test_wg_number_supersedes)"/>
+										</xsl:with-param>
+									</xsl:call-template>
+								</td>
+							</tr>
+						</xsl:if>
+						<xsl:if test="@wg.number.supersedes = @wg.number">
+							<xsl:call-template name="error_message">
+								<xsl:with-param name="message">
+									Error in module.xml/application_protocol/@wg.number.supersedes - 
+									Error WG-16: New WG number is the same as superseded WG number.
+								</xsl:with-param>
+							</xsl:call-template>
+						</xsl:if>
+					</td>
+				</tr>
+			</xsl:if>
+		</table>
+		<xsl:variable name="module_name">
+			<xsl:call-template name="module_display_name">
+				<xsl:with-param name="module" select="./@name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="stdnumber">
+			<xsl:call-template name="get_module_stdnumber">
+				<xsl:with-param name="module" select="."/>
+			</xsl:call-template>
+		</xsl:variable>
+		<h4>
+			<xsl:value-of select="$stdnumber"/>
+			<br/>
+			Product data representation and exchange: Application protocol:
+			<xsl:value-of select="$module_name"/>
+		</h4>
+		<xsl:variable name="status" select="string(@status)"/>
+		<xsl:variable name="status_words">
+			<xsl:choose>
+				<xsl:when test="@status='CD'">
+					Committee Draft
+				</xsl:when>
+				<xsl:when test="@status='FDIS'">
+					Final Draft International Standard
+				</xsl:when>
+				<xsl:when test="@status='DIS'">
+					Draft International Standard
+				</xsl:when>
+				<xsl:when test="@status='IS'">
+					International Standard
+				</xsl:when>
+				<xsl:when test="@status='CD-TS'">
+					draft technical specification
+				</xsl:when>
+				<xsl:when test="@status='TS'">
+					technical specification
+				</xsl:when>
+				<xsl:when test="@status='WD'">
+					working draft
+				</xsl:when>
+				<xsl:otherwise>
+					application protocol status not set.
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		
+		<table border="1" cellspacing="1" cellpadding="8" width="624">
+	    <tr>
+	      <td valign="TOP" colspan="2" height="26">
+	        <h3>COPYRIGHT NOTICE:</h3>
 	
-	<table border="1" cellspacing="1" cellpadding="8" width="624">
-    <tr>
-      <td valign="TOP" colspan="2" height="26">
-        <h3>COPYRIGHT NOTICE:</h3>
-
-        <xsl:choose>
-          <xsl:when test="$status='CD'">
-            Committee Draft
-          </xsl:when>
-          <xsl:when test="$status='FDIS'">
-            Final Draft International Standard
-          </xsl:when>
-          <xsl:when test="$status='DIS'">
-            Draft International Standard
-          </xsl:when>
-          <xsl:when test="$status='IS'">
-            International Standard
-          </xsl:when>
-
-          <xsl:when test="$status='CD-TS'">
-            <p>
-              This ISO document is a Committee Draft Technical
-              Specification and is copyright protected by ISO. While the
-              reproduction of working drafts or Committee Drafts in any
-              form for use by Participants in the ISO standards development
-              process is permitted without prior written permission from
-              ISO, neither this document nor any extract from it may be 
-              reproduced, stored or transmitted in any form for any other
-              purpose without prior written permission from ISO. 
-            </p>
-            <p>
-              Requests for permission to reproduce this document for the
-              purposes of selling it should be addressed as shown below
-              (via the ISO TC 184/SC4 Secretariat's member body) or to the
-              ISO's member body in the country of the requestor 
-            </p>
-            <p>
-              <div align="center">
-                Copyright Manager<br/>
-                ANSI<br/>
-                11 West 42nd Street<br/>
-                New York, New York 10036<br/>
-                USA<br/>
-                phone: +1-212-642-4900<br/>
-                fax: +1-212-398-0023<br/>
-              </div>
-            </p>
-            <p>
-              Reproduction for sales purposes may be subject to royalty
-              payments or a licensing agreement. 
-            </p>
-            <p>
-              Violators may be prosecuted.
-            </p>
-          </xsl:when>
-
-
-          <xsl:when test="$status='TS'">
-            <p>
-              This document is a Technical Specification and is
-              copyright-protected by ISO. Except as permitted under the
-              applicable laws of the user's country, neither this ISO
-              document nor any extract from it may be reproduced, stored in
-              a retrieval system or transmitted in any form or by 
-              any means, electronic, photocopying, recording, or otherwise,
-              without prior written permission being secured.  
-            </p>
-            <p>
-              Requests for permission to reproduce should be addressed to
-              ISO at the address below or ISO's member body in the 
-              country of the requester:
-            </p>
-            <p>
-            <div align="center">
-              <!--
-              Copyright Manager, ISO Central Secretariat<br/>
-              1 rue de Varembe<br/>
-              CH-1211 Geneva 20 Switzerland<br/>
-              telephone: +41 22 749 0111<br/>
-              telefacsimile: +41 22 734 0179<br/>
-              Internet: central@isocs.iso.ch, X.400: c=ch; a=400net; p=iso;
-o=isocs; s=central<br/>
--->
-              ISO copyright office<br/>
-              Case postale 56, CH-1211 Geneva 20<br/>
-              Tel. +41 22 749 01 11<br/>
-              Fax +41-22-734-10 79<br/>
-              E-mail copyright@iso.ch<br/>
- 
-
-            </div>
-          </p>
-            <p>
-              Reproduction for sales purposes may be subject to
-              royalty payments or a licensing agreement.
-            </p>
-            <p>
-              Violators may be prosecuted.
-            </p>
-          </xsl:when>
-
-          <xsl:when test="$status='WD'">
-            working draft 
-          </xsl:when>
-          <xsl:otherwise>
-            application protocol status not set.
-          </xsl:otherwise>
-        </xsl:choose>
-      </td>
-    </tr>
-    <tr>
-    <td valign="TOP" colspan="2" height="88">
-      <h3>ABSTRACT:</h3>
-      This document is the
-      <xsl:value-of select="$status_words"/>
-      of the application protocol for 
-      <xsl:value-of select="$application_protocol_name"/>.
-
-      <h3>KEYWORDS:</h3>
-      <xsl:apply-templates select="./keywords"/>
-      
-      <h3>COMMENTS TO READER:</h3>
-      <xsl:variable name="ballot_cycle_or_pub">
-        <xsl:choose>
-          <xsl:when test="$status='CD-TS'">
-            this ballot cycle
-          </xsl:when>
-          <xsl:when test="$status='TS'">
-            publication
-          </xsl:when>
-        </xsl:choose>
-      </xsl:variable>
-  
-      This document has been reviewed using the internal review checklist 
-      (see <xsl:value-of select="concat('WG12&#160;N',@checklist.internal_review)"/>),
-      <!-- test the checklist WG number for checklist.internal_review -->
-      <xsl:variable name="test_cl_internal_review">
-        <xsl:call-template name="test_wg_number">
-          <xsl:with-param name="wgnumber" select="./@checklist.internal_review"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:if test="contains($test_cl_internal_review,'Error')">
-        <p>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of 
-                select="concat('Error in
-                        application_protocol.xml/application_protocol/@checklist.internal_review - ', 
-                        $test_cl_internal_review)"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </p>
-      </xsl:if>
-
-
-      the project leader checklist 
-      (see <xsl:value-of
-      select="concat('WG12&#160;N',@checklist.project_leader)"/>),
-
-      <!-- test the checklist WG number for checklist.project_leader -->
-      <xsl:variable name="test_cl_project_leader">
-        <xsl:call-template name="test_wg_number">
-          <xsl:with-param name="wgnumber" select="./@checklist.project_leader"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:if test="contains($test_cl_project_leader,'Error')">
-        <p>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of 
-                select="concat('Error in
-                        application_protocol.xml/application_protocol/@checklist.project_leader - ', 
-                        $test_cl_project_leader)"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </p>
-      </xsl:if>
-
-      and the convener checklist
-      (see <xsl:value-of select="concat('WG12&#160;N',@checklist.convener)"/>),
-
-      <!-- test the checklist WG number for checklist.convener -->
-      <xsl:variable name="test_cl_convener">
-        <xsl:call-template name="test_wg_number">
-          <xsl:with-param name="wgnumber" select="./@checklist.convener"/>
-        </xsl:call-template>
-      </xsl:variable>
-      <xsl:if test="contains($test_cl_convener,'Error')">
-        <p>
-          <xsl:call-template name="error_message">
-            <xsl:with-param name="message">
-              <xsl:value-of 
-                select="concat('Error in
-                        application_protocol.xml/application_protocol/@checklist.convener - ', 
-                        $test_cl_convener)"/>
-            </xsl:with-param>
-          </xsl:call-template>
-        </p>
-      </xsl:if>
-      and has been determined to be ready for 
-       <xsl:value-of select="$ballot_cycle_or_pub"/>.
-    </td>
-  </tr>
- 
-  <tr>
-    <td width="50%" valign="TOP" height="88">
-      <xsl:apply-templates select="./contacts/projlead"/>
-    </td>
-    <td width="50%" valign="TOP" height="88">
-      <xsl:apply-templates select="./contacts/editor"/>
-    </td>
-  </tr>
-  </table>
-
-</xsl:template>
+	        <xsl:choose>
+	          <xsl:when test="$status='CD'">
+	            Committee Draft
+	          </xsl:when>
+	          <xsl:when test="$status='FDIS'">
+	            Final Draft International Standard
+	          </xsl:when>
+	          <xsl:when test="$status='DIS'">
+	            Draft International Standard
+	          </xsl:when>
+	          <xsl:when test="$status='IS'">
+	            International Standard
+	          </xsl:when>
+	
+	          <xsl:when test="$status='CD-TS'">
+	            <p>
+	              This ISO document is a Committee Draft Technical
+	              Specification and is copyright protected by ISO. While the
+	              reproduction of working drafts or Committee Drafts in any
+	              form for use by Participants in the ISO standards development
+	              process is permitted without prior written permission from
+	              ISO, neither this document nor any extract from it may be 
+	              reproduced, stored or transmitted in any form for any other
+	              purpose without prior written permission from ISO. 
+	            </p>
+	            <p>
+	              Requests for permission to reproduce this document for the
+	              purposes of selling it should be addressed as shown below
+	              (via the ISO TC 184/SC4 Secretariat's member body) or to the
+	              ISO's member body in the country of the requestor 
+	            </p>
+	            <p>
+	              <div align="center">
+	                Copyright Manager<br/>
+	                ANSI<br/>
+	                11 West 42nd Street<br/>
+	                New York, New York 10036<br/>
+	                USA<br/>
+	                phone: +1-212-642-4900<br/>
+	                fax: +1-212-398-0023<br/>
+	              </div>
+	            </p>
+	            <p>
+	              Reproduction for sales purposes may be subject to royalty
+	              payments or a licensing agreement. 
+	            </p>
+	            <p>
+	              Violators may be prosecuted.
+	            </p>
+	          </xsl:when>
+	
+	
+	          <xsl:when test="$status='TS'">
+	            <p>
+	              This document is a Technical Specification and is
+	              copyright-protected by ISO. Except as permitted under the
+	              applicable laws of the user's country, neither this ISO
+	              document nor any extract from it may be reproduced, stored in
+	              a retrieval system or transmitted in any form or by 
+	              any means, electronic, photocopying, recording, or otherwise,
+	              without prior written permission being secured.  
+	            </p>
+	            <p>
+	              Requests for permission to reproduce should be addressed to
+	              ISO at the address below or ISO's member body in the 
+	              country of the requester:
+	            </p>
+	            <p>
+	            <div align="center">
+	               ISO copyright office<br/>
+	              Case postale 56, CH-1211 Geneva 20<br/>
+	              Tel. +41 22 749 01 11<br/>
+	              Fax +41-22-734-10 79<br/>
+	              E-mail copyright@iso.ch<br/>
+	 
+	
+	            </div>
+	          </p>
+	            <p>
+	              Reproduction for sales purposes may be subject to
+	              royalty payments or a licensing agreement.
+	            </p>
+	            <p>
+	              Violators may be prosecuted.
+	            </p>
+	          </xsl:when>
+	
+	          <xsl:when test="$status='WD'">
+	            working draft 
+	          </xsl:when>
+	          <xsl:otherwise>
+	            application protocol status not set.
+	          </xsl:otherwise>
+	        </xsl:choose>
+	      </td>
+	    </tr>
+	    <tr>
+	    <td valign="TOP" colspan="2" height="88">
+	      <h3>ABSTRACT:</h3>
+	      This document is the
+	      <xsl:value-of select="$status_words"/>
+	      of the application protocol for 
+	      <xsl:value-of select="$module_name"/>.
+	
+	      <h3>KEYWORDS:</h3>
+	      <xsl:apply-templates select="./keywords"/>
+	      
+	      <h3>COMMENTS TO READER:</h3>
+	      <xsl:variable name="ballot_cycle_or_pub">
+	        <xsl:choose>
+	          <xsl:when test="$status='CD-TS'">
+	            this ballot cycle
+	          </xsl:when>
+	          <xsl:when test="$status='TS'">
+	            publication
+	          </xsl:when>
+	        </xsl:choose>
+	      </xsl:variable>
+	  
+	      This document has been reviewed using the internal review checklist 
+	      (see <xsl:value-of select="concat('WG12&#160;N',@checklist.internal_review)"/>),
+	      <!-- test the checklist WG number for checklist.internal_review -->
+	      <xsl:variable name="test_cl_internal_review">
+	        <xsl:call-template name="test_wg_number">
+	          <xsl:with-param name="wgnumber" select="./@checklist.internal_review"/>
+	        </xsl:call-template>
+	      </xsl:variable>
+	      <xsl:if test="contains($test_cl_internal_review,'Error')">
+	        <p>
+	          <xsl:call-template name="error_message">
+	            <xsl:with-param name="message">
+	              <xsl:value-of 
+	                select="concat('Error in
+	                        application_protocol.xml/application_protocol/@checklist.internal_review - ', 
+	                        $test_cl_internal_review)"/>
+	            </xsl:with-param>
+	          </xsl:call-template>
+	        </p>
+	      </xsl:if>
+	
+	
+	      the project leader checklist 
+	      (see <xsl:value-of
+	      select="concat('WG12&#160;N',@checklist.project_leader)"/>),
+	
+	      <!-- test the checklist WG number for checklist.project_leader -->
+	      <xsl:variable name="test_cl_project_leader">
+	        <xsl:call-template name="test_wg_number">
+	          <xsl:with-param name="wgnumber" select="./@checklist.project_leader"/>
+	        </xsl:call-template>
+	      </xsl:variable>
+	      <xsl:if test="contains($test_cl_project_leader,'Error')">
+	        <p>
+	          <xsl:call-template name="error_message">
+	            <xsl:with-param name="message">
+	              <xsl:value-of 
+	                select="concat('Error in
+	                        application_protocol.xml/application_protocol/@checklist.project_leader - ', 
+	                        $test_cl_project_leader)"/>
+	            </xsl:with-param>
+	          </xsl:call-template>
+	        </p>
+	      </xsl:if>
+	
+	      and the convener checklist
+	      (see <xsl:value-of select="concat('WG12&#160;N',@checklist.convener)"/>),
+	
+	      <!-- test the checklist WG number for checklist.convener -->
+	      <xsl:variable name="test_cl_convener">
+	        <xsl:call-template name="test_wg_number">
+	          <xsl:with-param name="wgnumber" select="./@checklist.convener"/>
+	        </xsl:call-template>
+	      </xsl:variable>
+	      <xsl:if test="contains($test_cl_convener,'Error')">
+	        <p>
+	          <xsl:call-template name="error_message">
+	            <xsl:with-param name="message">
+	              <xsl:value-of 
+	                select="concat('Error in
+	                        application_protocol.xml/application_protocol/@checklist.convener - ', 
+	                        $test_cl_convener)"/>
+	            </xsl:with-param>
+	          </xsl:call-template>
+	        </p>
+	      </xsl:if>
+	      and has been determined to be ready for 
+	       <xsl:value-of select="$ballot_cycle_or_pub"/>.
+	    </td>
+	  </tr>
+	 
+	  <tr>
+	    <td width="50%" valign="TOP" height="88">
+	      <xsl:apply-templates select="./contacts/projlead"/>
+	    </td>
+	    <td width="50%" valign="TOP" height="88">
+	      <xsl:apply-templates select="./contacts/editor"/>
+	    </td>
+	  </tr>
+	  </table>
+	</xsl:template>
 
 <xsl:template match="projlead">
   <xsl:variable name="ref" select="@ref"/>
@@ -603,6 +543,53 @@ o=isocs; s=central<br/>
     for archiving.
   </p>
   <xsl:apply-templates/>
+<p>
+    Clause <a href="1_scope{$FILE_EXT}">1</a> defines the scope of the
+    application protocol and summarizes the functionality and data covered. 
+
+    Clause <a href="3_defs{$FILE_EXT}">3</a> lists the words defined in
+    this part of ISO 10303 and gives pointers to words defined elsewhere. 
+
+    The information requirements of the application are specified in clause 
+    <a href="4_info_reqs{$FILE_EXT}">4</a> using terminology appropriate to
+    the application. 
+
+    A graphical representation of the information requirements, referred to
+    as the application reference model, is given in annex 
+    <a href="f_arm_expg{$FILE_EXT}">F</a>. 
+
+    Resource constructs are interpreted to meet the information
+    requirements. 
+    This interpretation produces the application interpreted model (AIM). 
+    This interpretation, given in <a href="5_mapping{$FILE_EXT}">5.1</a>,
+    shows the correspondence between the information requirements and the
+    AIM. The short listing of the AIM specifies the interface to the
+    resources and is given in <a href="5_aim{$FILE_EXT}">5.2</a>.  
+  </p>
+  <p>
+    In this International Standard, the same English language words may be
+    used to refer to an object in the real world or concept, and as the
+    name of an EXPRESS data type that represents this object or concept. 
+  </p>
+  <p>
+    The following typographical convention is used to distinguish between
+    these. If a word or phrase occurs in the same typeface as narrative
+    text, the referent is the object or concept. If the word or phrase
+    occurs in a bold typeface or as a hyperlink, the referent is the
+    EXPRESS data type. 
+  </p>
+  <p>
+    The name of an EXPRESS data type may be used to refer to the data type
+    itself, or to an instance of the data type. The distinction between
+    these uses is normally clear from the context. If there is a likelihood
+    of ambiguity, either the phrase "entity data type" or "instance(s) of" is
+    included in the text. 
+  </p>
+  <p>
+    Double quotation marks " " denote quoted text. Single quotation marks ' '
+    denote particular text string values.
+  </p>
+
 </xsl:template>
 
 <xsl:template match="inscope">
@@ -1364,128 +1351,61 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 
-
-
-
-
-<xsl:template name="normrefs_list">
-
-  <!-- get all default normrefs listed in ../data/basic/normrefs_default.xml -->
-  <xsl:variable name="normref_list1">
-    <xsl:call-template name="get_normref">
-      <xsl:with-param 
-        name="normref_nodes" 
-        select="document('../../data/basic/normrefs_default.xml')/normrefs/normref.inc"/>
-      <xsl:with-param 
-        name="normref_list" 
-        select="''"/>
-    </xsl:call-template>    
-  </xsl:variable>
-
-  <!--
-  <xsl:message>
-    l1:<xsl:value-of select="$normref_list1"/>:l1
-  </xsl:message>
-  -->
-
-  <!-- get all normrefs explicitly included in the module by normref.inc -->
-  <xsl:variable name="normref_list2">
-    <xsl:call-template name="get_normref">
-      <xsl:with-param 
-        name="normref_nodes" 
-        select="/application_protocol/normrefs/normref.inc"/>
-      <xsl:with-param 
-        name="normref_list" 
-        select="$normref_list1"/>
-    </xsl:call-template>    
-  </xsl:variable>
-
-  <!--
-  <xsl:message>
-    l2:<xsl:value-of select="$normref_list2"/>:l2
-  </xsl:message>
-  -->
-
-  <!-- get all normrefs that define terms for which abbreviations are
-       provided.
-       Get the abbreviation.inc from abbreviations_default.xml, 
-       get the referenced abbreviation from abbreviations.xml
-       then get the normref in which the term is defined
-       -->
-  <xsl:variable name="normref_list3">
-    <xsl:call-template name="get_normrefs_from_abbr">
-      <xsl:with-param 
-        name="abbrvinc_nodes" 
-        select="document('../../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>
-      <xsl:with-param 
-        name="normref_list" 
-        select="$normref_list2"/>
-    </xsl:call-template>    
-  </xsl:variable>
-
-  <!--
-  <xsl:message>
-    l3:<xsl:value-of select="$normref_list3"/>:l3
-  </xsl:message>
-  -->
-
-  <!-- get all modules referenced by a USE FROM in the ARM -->
-  <xsl:variable name="module_dir">
-    <xsl:call-template name="ap_module_directory">
-      <xsl:with-param name="application_protocol" select="/application_protocol/@name"/>
+	<xsl:template name="normrefs_list">
+		<xsl:variable name="normref_list1">
+			<xsl:call-template name="get_normref">
+				<xsl:with-param name="normref_nodes" select="document('../../data/basic/normrefs_default.xml')/normrefs/normref.inc"/>
+				<xsl:with-param name="normref_list" select="''"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="normref_list2">
+			<xsl:call-template name="get_normref">
+				<xsl:with-param name="normref_nodes" select="/application_protocol/normrefs/normref.inc"/>
+				<xsl:with-param name="normref_list" select="$normref_list1"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="normref_list3">
+			<xsl:call-template name="get_normrefs_from_abbr">
+				<xsl:with-param name="abbrvinc_nodes" select="document('../../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>
+				<xsl:with-param name="normref_list" select="$normref_list2"/>
+			</xsl:call-template>
+		</xsl:variable>
+		
+		<xsl:variable name="ap_module_dir">
+			<xsl:call-template name="ap_module_directory">
+				<xsl:with-param name="application_protocol" select="/module/@name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		
+		<!-- xsl:variable name="module_dir">
+    <xsl:call-template name="module_directory">
+      <xsl:with-param name="module" select="/module/@name"/>
     </xsl:call-template>
-  </xsl:variable>
+  </xsl:variable -->
 
-<xsl:variable name="application_protocol_dir">
-    <xsl:call-template name="application_protocol_directory">
-      <xsl:with-param name="application_protocol" select="/application_protocol/@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-
-  <xsl:variable name="arm_xml"
-    select="concat($module_dir,'/arm.xml')"/>
-
-  <xsl:variable name="normref_list4">
-    <xsl:call-template name="get_normrefs_from_schema">
-      <xsl:with-param 
-        name="interface_nodes" 
-        select="document($arm_xml)/express/schema/interface"/>
-      <xsl:with-param 
-        name="normref_list" 
-        select="$normref_list3"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <!--
-  <xsl:message>
-    l4:<xsl:value-of select="$normref_list4"/>:l4
-  </xsl:message>
-  -->
-
-  <!-- get all modules referenced by a USE FROM in the MIM -->
-  <xsl:variable name="aim_xml"
-    select="concat($application_protocol_dir,'/aim.xml')"/>
-
-  <xsl:variable name="normref_list5">
-    <xsl:call-template name="get_normrefs_from_schema">
-      <xsl:with-param 
-        name="interface_nodes" 
-        select="document($aim_xml)/express/schema/interface"/>
-      <xsl:with-param 
-        name="normref_list" 
-        select="$normref_list4"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <!--
-  <xsl:message>
-    l5:<xsl:value-of select="$normref_list5"/>:l5
-  </xsl:message>
-  -->
-  <xsl:value-of select="concat($normref_list5,',')"/>
-
-</xsl:template>
+		
+		
+		<!-- xsl:variable name="application_protocol_dir">
+			<xsl:call-template name="application_protocol_directory">
+				<xsl:with-param name="application_protocol" select="/application_protocol/@name"/>
+			</xsl:call-template>
+		</xsl:variable -->
+		<xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
+		<xsl:variable name="normref_list4">
+			<xsl:call-template name="get_normrefs_from_schema">
+				<xsl:with-param name="interface_nodes" select="document($arm_xml)/express/schema/interface"/>
+				<xsl:with-param name="normref_list" select="$normref_list3"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
+		<xsl:variable name="normref_list5">
+			<xsl:call-template name="get_normrefs_from_schema">
+				<xsl:with-param name="interface_nodes" select="document($aim_xml)/express/schema/interface"/>
+				<xsl:with-param name="normref_list" select="$normref_list4"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:value-of select="concat($normref_list5,',')"/>
+	</xsl:template>
 
 <!-- given a list of normref nodes, add the ids of the normrefs to the
      normref_list, if not already a member. ids in normref_list are
@@ -1801,32 +1721,6 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 
-<!-- Output the standard set of normative references and then any added by
-     the module
-     This is the main template for outputting normrefs. It is called from
-     the sect_2_refs.xsl
-     -->
-<xsl:template name="output_normrefs">
-  <h3>2 Normative references</h3>
-  The following normative documents contain provisions which, through
-  reference in this text, constitute provisions of this International
-  Standard. For dated references, subsequent amendments to, or revisions of,
-  any of these publications do not apply. However, parties to agreements
-  based on this International Standard are encouraged to investigate the
-  possibility of applying the most recent editions of the normative documents
-  indicated below. For undated references, the latest edition of the
-  normative document referred to applies. Members of ISO and IEC maintain
-  registers of currently valid International Standards. 
-
-  <!-- output the normative reference explicitly defined in the module -->
-  <xsl:apply-templates select="/application_protocols/normrefs/normref"/>
-
-  <!-- output the default normative reference and any implicit in the
-       module through the ARM and MIM -->
-  <xsl:call-template name="output_default_normrefs"/>
-
-</xsl:template>
-
 
 <!-- output the default normative reference and any implicit in the
      module through the ARM and MIM -->
@@ -2130,41 +2024,20 @@ o=isocs; s=central<br/>
   </p>
 </xsl:template>
 
-
-<!-- Output the standard set of abbreviations and then any added by
-     the module
-     -->
-<xsl:template name="output_abbreviations">
-  <xsl:param name="section"/>
-  <h3>
-    <xsl:value-of select="concat('3.',$section)"/> Abbreviations
-  </h3>
-  <p>
-    For the purposes of this part of ISO 10303, the following abbreviations
-    apply:
-  </p>
-  <table width="80%">
-    <!-- get the default abbreviations out of the abbreviations_default.xml
-         database -->
-    <xsl:apply-templates 
-      select="document('../../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>
-    
-    <xsl:apply-templates select="/application_protocol/abbreviations" mode="output"/>    
-  </table>
-</xsl:template>
-
+	<xsl:template name="output_abbreviations">
+		<xsl:param name="section"/>
+		<h3>
+			<xsl:value-of select="concat('3.',$section)"/> Abbreviations
+		</h3>
+		<p>
+			For the purposes of this part of ISO 10303, the following abbreviations apply:
+		</p>
+		<table width="80%">
+			<xsl:apply-templates select="document('../../data/basic/abbreviations_default.xml')/abbreviations/abbreviation.inc"/>
+			<xsl:apply-templates select="/module/abbreviations" mode="output"/>
+		</table>
+	</xsl:template>
   
-
-<!-- Output the standard set of abbreviations and then any added by
-     the module
-     -->
-<xsl:template match="abbreviations" mode="output">
-  <!-- output any abbreviations defined in the module-->
-  <xsl:apply-templates select="/application_protocol/abbreviations/abbreviation"/>
-
-  <!-- output any abbreviations defined in the module-->
-  <xsl:apply-templates select="/application_protocol/abbreviations/abbreviation.inc"/>
-</xsl:template>
 
 <!-- get the abbreviations out of the abbreviations.xml database -->
 <xsl:template match="abbreviation.inc">
@@ -2739,47 +2612,6 @@ o=isocs; s=central<br/>
   <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template name="ap_module_directory">
-		<xsl:param name="application_protocol"/>
-		<xsl:variable name="mod_dir">
-			<xsl:call-template name="module_name">
-				<xsl:with-param name="module" select="$application_protocol"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:value-of select="concat('../../data/modules/', $mod_dir)"/>
-	</xsl:template>
-	
-	<xsl:template name="application_protocol_directory">
-		<xsl:param name="application_protocol"/>
-		<xsl:variable name="ap_dir">
-			<xsl:call-template name="module_name">
-				<xsl:with-param name="application_protocol" select="$application_protocol"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:value-of select="concat('../../data/application_protocols/',$ap_dir)"/>
-	</xsl:template>
-	
-	<xsl:template name="check_application_protocol_exists">
-		<xsl:param name="application_protocol"/>
-		<xsl:variable name="application_protocol_name">
-			<xsl:call-template name="module_name">
-				<xsl:with-param name="module" select="$application_protocol"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:variable name="ret_val">
-			<xsl:choose>
-				<xsl:when test="document('../../repository_index.xml')/repository_index/modules/module[@name=$application_protocol_name]">
-            <xsl:value-of select="'true'"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of
-              select="concat(' The application_protocol ', $application_protocol_name,
-                      ' is not identified as a application_protocol module in repository_index.xml')"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      <xsl:value-of select="$ret_val"/>
-  </xsl:template>
 
 	<xsl:template name="idef0_icon">
 		<xsl:param name="schema"/>

@@ -9,6 +9,8 @@
 	
 	<xsl:template match="application_protocol_clause">
     		<xsl:variable name="application_protocol_xml_file" select="concat('../../data/application_protocols/',@directory,'/application_protocol.xml')"/>
+		<xsl:variable name="module_xml_file" select="concat('../../data/modules/',@directory,'/module.xml')"/>
+
     		<HTML>
       			<HEAD>
         			<TITLE>
@@ -18,6 +20,7 @@
       			<BODY>
         			<xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol" mode="TOCmultiplePage"/>
 				<xsl:apply-templates select="document($application_protocol_xml_file)/application_protocol"/>
+				<xsl:apply-templates select="document($module_xml_file)/module"/>
       			</BODY>
     		</HTML>
 	</xsl:template>

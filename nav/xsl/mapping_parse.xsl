@@ -11,7 +11,7 @@
   >
 
   <xsl:variable name="rep_index"
-    select="document('../repository_index.xml')"/>
+    select="document('../../../repository_index.xml')"/> 
 
   <xsl:variable name="apos"><xsl:text>'</xsl:text></xsl:variable>
   <xsl:variable name="aposlong"><xsl:text>''''''</xsl:text></xsl:variable>
@@ -25,10 +25,10 @@
 
 	<modules>
 
-              <xsl:apply-templates select="$rep_index//modules/module" mode="mapping-full">
+             <xsl:apply-templates select="$rep_index//modules/module" mode="mapping-full">
                 <xsl:sort select="@name"/>
               </xsl:apply-templates>
-	      
+
 	</modules>
 	      
 

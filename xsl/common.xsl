@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.37 2002/05/16 07:32:07 robbod Exp $
+$Id: common.xsl,v 1.38 2002/05/19 07:55:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -108,13 +108,21 @@ $Id: common.xsl,v 1.37 2002/05/16 07:32:07 robbod Exp $
   <!-- output RCS version control information -->
 <xsl:template name="rcs_output">
   <xsl:param name="module" select="@name"/>
-  <xsl:param name="fldr_icon" select="'../../../../images/folder.gif'"/>
+  <!-- the relative path in HTML from the file calling to the module
+       directory -->
+  <xsl:param name="module_root" select="'..'"/>
+
+  <xsl:variable name="icon_path" select="concat($module_root,'/../../../images/')"/>
+
   <xsl:if test="$output_rcs">
     <xsl:variable name="mod_dir">
       <xsl:call-template name="module_directory">
         <xsl:with-param name="module" select="$module"/>
       </xsl:call-template>
     </xsl:variable>
+
+    <xsl:variable name="fldr_gif" select="concat($icon_path,'folder.gif')"/>
+    <xsl:variable name="proj_gif" select="concat($icon_path,'project.gif')"/>
 
     <table cellspacing="0" border="0">
       <xsl:variable
@@ -128,21 +136,38 @@ $Id: common.xsl,v 1.37 2002/05/16 07:32:07 robbod Exp $
         select="translate(document($module_file)/module/@rcs.revision,'$','')"/>
       <tr>
         <td>
+          <p class="rcs">
           <a href="..">
             <img alt="module folder" 
               border="0"
               align="middle"
-              src="{$fldr_icon}"/>
-          </a>&#160;&#160;
+              src="{$fldr_gif}"/>
+          </a>&#160;
+
+          <xsl:if test="@development.folder">
+            <xsl:variable name="prjmg_href"
+              select="concat($module_root,'/',@development.folder,'/projmg',$FILE_EXT)"/>
+            <a href="{$prjmg_href}">
+              <img alt="project management summary" 
+                border="0"
+                align="middle"
+                src="{$proj_gif}"/>
+            </a>&#160;
+          </xsl:if>
+        </p>
         </td>
         <td>
           <font size="-2">
-            <xsl:value-of select="'module.xml'"/>
+            <p class="rcs">
+              <xsl:value-of select="'module.xml'"/>
+            </p>
           </font>
         </td>
         <td>
           <font size="-2">
-            <xsl:value-of select="concat('(',$module_date,' ',$module_rev,')')"/>
+            <p class="rcs">
+              <xsl:value-of select="concat('(',$module_date,' ',$module_rev,')')"/>
+            </p>
           </font>
         </td>
         <td>&#160;&#160;</td>
@@ -158,12 +183,16 @@ $Id: common.xsl,v 1.37 2002/05/16 07:32:07 robbod Exp $
 
         <td>
           <font size="-2">
-            <xsl:value-of select="'arm.xml'"/>
+            <p class="rcs">
+              <xsl:value-of select="'arm.xml'"/>
+            </p>
           </font>
         </td>
         <td>
           <font size="-2">
-            <xsl:value-of select="concat('(', $arm_date,' ',$arm_rev,')')"/>
+            <p class="rcs">
+              <xsl:value-of select="concat('(', $arm_date,' ',$arm_rev,')')"/>
+            </p>
           </font>
         </td>
         <td>&#160;&#160;</td>
@@ -180,12 +209,17 @@ $Id: common.xsl,v 1.37 2002/05/16 07:32:07 robbod Exp $
 
         <td>
           <font size="-2">
-            <xsl:value-of select="'mim.xml'"/>
+            <p class="rcs">
+              <xsl:value-of select="'mim.xml'"/>
+            </p>
           </font>
         </td>
         <td>
           <font size="-2">
-            <xsl:value-of select="concat('(',$mim_date,' ',$mim_rev,')')"/>
+            <p class="rcs">
+              <xsl:value-of select="concat('(',$mim_date,'
+',$mim_rev,')')"/>
+            </p>
           </font>
         </td>
       </tr>
@@ -202,16 +236,12 @@ $Id: common.xsl,v 1.37 2002/05/16 07:32:07 robbod Exp $
 <xsl:template match="module" mode="TOCbannertitle">
   <!-- the entry that has been selected -->
   <xsl:param name="selected"/>
-
-  <!-- the path of the fldr icon - needed for files not in sys directory 
-       e.g. armexpg1.xml
-       -->
-  <xsl:param name="fldr_icon" select="'../../../../images/folder.gif'"/>
+  <xsl:param name="module_root" select="'..'"/>
 
   <!-- output RCS version control information -->
   <xsl:call-template name="rcs_output">
     <xsl:with-param name="module" select="@name"/>
-    <xsl:with-param name="fldr_icon" select="$fldr_icon"/>
+    <xsl:with-param name="module_root" select="$module_root"/>
   </xsl:call-template>
   
   <TABLE cellspacing="0" border="0" width="100%">

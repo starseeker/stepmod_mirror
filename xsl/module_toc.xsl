@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
+$Id: module_toc.xsl,v 1.12 2002/05/19 07:55:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -16,6 +16,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
        PLCS specific menu bar - this should not used in the ISO documents
        If this line in uncommented, then it has been checked in error
        so comment out and check back in
+
   <xsl:import href="../../plcsmod/xsl/module_menu.xsl"/>
        -->
 
@@ -27,10 +28,10 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
 <xsl:template match="module" mode="TOCmultiplePage">
   <!-- the entry that has been selected -->
   <xsl:param name="selected"/>
-  <xsl:param name="fldr_icon" select="'../../../../images/folder.gif'"/>
+  <xsl:param name="module_root" select="'..'"/>
 
   <xsl:apply-templates select="." mode="TOCbannertitle">
-    <xsl:with-param name="fldr_icon" select="$fldr_icon"/>
+    <xsl:with-param name="module_root" select="$module_root"/>
   </xsl:apply-templates>
 
   <!-- 
@@ -48,24 +49,28 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
   <TABLE border="1" cellspacing="1" width="100%">
     <TR>
       <TD valign="TOP">
+        <p class="toc">
         <!-- RBN - this xref is here to aid navigation, it may need to be
              removed for the ISO process -->
         <A HREF="../../../../repository_index{$FILE_EXT}">
           Module repository
         </A><BR/>
-        <A HREF="cover{$FILE_EXT}">Cover page</A><BR/>
-        <A HREF="foreword{$FILE_EXT}#foreword">Foreword</A><BR/>
-        <A HREF="introduction{$FILE_EXT}#intro">Introduction</A><BR/>
-        <A HREF="1_scope{$FILE_EXT}#scope">1 Scope</A><BR/>
-        <A HREF="2_refs{$FILE_EXT}#nref">2 Normative references</A><BR/>
-        <A HREF="3_defs{$FILE_EXT}#defns">3 Definitions and abbreviations</A>
+        <A HREF="{$module_root}/sys/cover{$FILE_EXT}">Cover page</A><BR/>
+        <A HREF="{$module_root}/sys/foreword{$FILE_EXT}#foreword">Foreword</A><BR/>
+        <A HREF="{$module_root}/sys/introduction{$FILE_EXT}#intro">Introduction</A><BR/>
+        <A HREF="{$module_root}/sys/1_scope{$FILE_EXT}#scope">1 Scope</A><BR/>
+        <A HREF="{$module_root}/sys/2_refs{$FILE_EXT}#nref">2 Normative references</A><BR/>
+        <A HREF="{$module_root}/sys/3_defs{$FILE_EXT}#defns">3 Definitions and
+abbreviations</A>
+      </p>
       </TD>
       <TD valign="TOP">
+        <p class="toc">
         <!-- Output Section 4. Only set up the index to express clauses that
              exist. -->
-        <A HREF="4_info_reqs{$FILE_EXT}#arm">4 Information requirements</A><BR/>
+        <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#arm">4 Information requirements</A><BR/>
         <small>
-          <A HREF="4_info_reqs{$FILE_EXT}#uof">
+          <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#uof">
             <xsl:value-of select="concat('&#160;&#160;',' 4.1 Units of functionality')"/>
           </A><BR/>
 
@@ -78,7 +83,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$interface_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#interfaces">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#interfaces">
               <xsl:value-of select="concat('&#160; &#160;', $interface_clause,
                                     ' Required AM ARMs')"/>
             </A><BR/>
@@ -93,7 +98,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$constant_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#constants">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#constants">
               <xsl:value-of select="concat('&#160; &#160;', $constant_clause,
                                     ' ARM constant definitions')"/>
             </A><BR/>
@@ -108,7 +113,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_constant_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#imported_constant">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_constant">
               <xsl:value-of select="concat('&#160; &#160;', 
                                     $imported_constant_clause,
                                     ' ARM imported constant modifications')"/>
@@ -125,7 +130,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$type_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#types">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#types">
               <xsl:value-of select="concat('&#160; &#160;', $type_clause,
                                     ' ARM type definitions')"/>
             </A><BR/>
@@ -140,7 +145,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_type_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#imported_type">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_type">
               <xsl:value-of select="concat('&#160; &#160;', 
                                     $imported_type_clause,
                                     ' ARM imported type modifications')"/>
@@ -157,7 +162,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$entity_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#entities">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#entities">
               <xsl:value-of select="concat('&#160; &#160;', $entity_clause,
                                     ' ARM entity definitions')"/>
             </A><BR/>
@@ -172,7 +177,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_entity_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#imported_entity">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_entity">
               <xsl:value-of select="concat('&#160; &#160;', 
                                     $imported_entity_clause,
                                     ' ARM imported entity modifications')"/>
@@ -188,7 +193,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$function_clause !=0">
-            <A HREF="4_info_reqs{$FILE_EXT}#functions">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#functions">
               <xsl:value-of select="concat('&#160; &#160;', $function_clause,
                                     ' ARM function definitions')"/>
             </A><BR/>
@@ -202,7 +207,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_function_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#imported_function">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_function">
               <xsl:value-of select="concat('&#160; &#160;', 
                                     $imported_function_clause,
                                     ' ARM imported function modifications')"/>
@@ -218,7 +223,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$rule_clause !=0">
-            <A HREF="4_info_reqs{$FILE_EXT}#rules">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#rules">
               <xsl:value-of select="concat('&#160; &#160;', $rule_clause,
                                     'ARM rule definitions')"/>
             </A><BR/>
@@ -232,7 +237,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_rule_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#imported_rule">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_rule">
               <xsl:value-of select="concat('&#160; &#160;', 
                                     $imported_rule_clause,
                                     ' ARM imported rule modifications')"/>
@@ -248,7 +253,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$procedure_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#procedures">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#procedures">
               <xsl:value-of select="concat('&#160; &#160;', $procedure_clause,
                                     ' ARM procedure definitions')"/>
             </A><BR/>
@@ -262,7 +267,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_procedure_clause != 0">
-            <A HREF="4_info_reqs{$FILE_EXT}#imported_procedure">
+            <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_procedure">
               <xsl:value-of select="concat('&#160; &#160;', 
                                     $imported_procedure_clause,
                                     ' ARM imported procedure modifications')"/>
@@ -272,10 +277,10 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
         </small>
 
         <!-- Output clause 5 index -->
-        <A HREF="5_mim{$FILE_EXT}#mim">5 Module interpreted model</A><BR/>
+        <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#mim">5 Module interpreted model</A><BR/>
         <small>
-          <A HREF="5_mim{$FILE_EXT}#mapping">&#160; &#160;5.1 Mapping specification</A><BR/>
-          <A HREF="5_mim{$FILE_EXT}#mim_express">&#160; &#160;5.2 MIM EXPRESS short listing</A><BR/>
+          <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#mapping">&#160; &#160;5.1 Mapping specification</A><BR/>
+          <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#mim_express">&#160; &#160;5.2 MIM EXPRESS short listing</A><BR/>
           <!-- only output if there are constants defined and therefore a
                section -->
           <xsl:variable name="constant_mim_clause">
@@ -286,7 +291,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
           </xsl:variable>
 
           <xsl:if test="$constant_mim_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#constants">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#constants">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $constant_mim_clause,
                                     ' MIM constant definitions')"/>
             </A><BR/>
@@ -300,7 +305,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_constant_mim_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#imported_constant">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_constant">
               <xsl:value-of select="concat('&#160; &#160; &#160;', 
                                     $imported_constant_mim_clause,
                                     ' MIM imported constant modifications')"/>
@@ -317,7 +322,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$type_mim_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#types">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#types">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $type_mim_clause,
                                     ' MIM type definitions')"/>
             </A><BR/>
@@ -331,7 +336,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_mim_type_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#imported_type">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_type">
               <xsl:value-of select="concat('&#160; &#160; &#160;', 
                                     $imported_mim_type_clause,
                                     ' MIM imported type modifications')"/>
@@ -347,7 +352,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$entity_mim_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#entities">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#entities">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $entity_mim_clause,
                                     ' MIM entity definitions')"/>
             </A><BR/>
@@ -362,7 +367,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_mim_entity_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#imported_entity">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_entity">
               <xsl:value-of select="concat('&#160; &#160; &#160;', 
                                     $imported_mim_entity_clause,
                                     ' MIM imported entity modifications')"/>
@@ -379,7 +384,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$function_mim_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#functions">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#functions">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $function_mim_clause,
                                     ' MIM function definitions')"/>
             </A><BR/>
@@ -393,7 +398,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_mim_function_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#imported_function">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_function">
               <xsl:value-of select="concat('&#160; &#160; &#160;', 
                                     $imported_mim_function_clause,
                                     ' MIM imported function modifications')"/>
@@ -411,7 +416,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$rule_mim_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#rules">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#rules">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $rule_mim_clause,
                                     ' MIM rule definitions')"/>
             </A><BR/>
@@ -425,7 +430,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_mim_rule_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#imported_rule">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_rule">
               <xsl:value-of select="concat('&#160; &#160; &#160;', 
                                     $imported_mim_rule_clause,
                                     ' MIM imported rule modifications')"/>
@@ -441,7 +446,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$procedure_mim_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#procedures">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#procedures">
               <xsl:value-of select="concat('&#160; &#160; &#160;', $procedure_mim_clause,
                                     ' MIM procedure definitions')"/>
             </A><BR/>
@@ -455,7 +460,7 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
             </xsl:call-template>
           </xsl:variable>
           <xsl:if test="$imported_mim_procedure_clause != 0">
-            <A HREF="5_mim{$FILE_EXT}#imported_procedure">
+            <A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_procedure">
               <xsl:value-of select="concat('&#160; &#160; &#160;', 
                                     $imported_mim_procedure_clause,
                                     ' MIM imported procedure modifications')"/>
@@ -464,27 +469,30 @@ $Id: module_toc.xsl,v 1.11 2002/05/14 09:16:20 robbod Exp $
 
 
         </small>
+      </p>
       </TD>
       <TD valign="TOP">
-        <A HREF="a_short_names{$FILE_EXT}#annexa">A AM MIM short names</A><BR/>
-        <A HREF="b_obj_reg{$FILE_EXT}#annexb">B Information requirements object
+        <p class="toc">
+        <A HREF="{$module_root}/sys/a_short_names{$FILE_EXT}#annexa">A AM MIM short names</A><BR/>
+        <A HREF="{$module_root}/sys/b_obj_reg{$FILE_EXT}#annexb">B Information requirements object
         registration</A><BR/>
-        <A HREF="c_arm_expg{$FILE_EXT}#annexc">C ARM EXPRESS-G</A>
+        <A HREF="{$module_root}/sys/c_arm_expg{$FILE_EXT}#annexc">C ARM EXPRESS-G</A>
         <xsl:apply-templates 
           select="arm/express-g/imgfile" mode="page_number"/>
         <BR/>
 
-        <A HREF="d_mim_expg{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
+        <A HREF="{$module_root}/sys/d_mim_expg{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
         <xsl:apply-templates 
           select="mim/express-g/imgfile" mode="page_number"/>
         <BR/>
-        <A HREF="e_exp{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS
+        <A HREF="{$module_root}/sys/e_exp{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS
 listings</A><BR/>
         <xsl:if test="./usage_guide">
-          <A HREF="f_guide{$FILE_EXT}#annexf">
+          <A HREF="{$module_root}/sys/f_guide{$FILE_EXT}#annexf">
             F Application module implementation and usage guide</A><BR/>
         </xsl:if>
-        <A HREF="biblio{$FILE_EXT}#biblio">Bibliography</A>
+        <A HREF="{$module_root}/sys/biblio{$FILE_EXT}#biblio">Bibliography</A>
+      </p>
       </TD>
     </TR>
   </TABLE>
@@ -495,33 +503,36 @@ listings</A><BR/>
      displayed on a single page
 -->
 <xsl:template match="module" mode="TOCsinglePage">
-  <xsl:apply-templates select="." mode="TOCbannertitle"/>  
+  <xsl:param name="module_root" select="'..'"/>
+  <xsl:apply-templates select="." mode="TOCbannertitle">
+    <xsl:with-param name="module_root" select="$module_root"/>
+  </xsl:apply-templates>
   <TABLE border="1" cellspacing="1" width="100%">
     <TR>
       <TD valign="TOP">
-        <A HREF="module{$FILE_EXT}#cover_page">Cover page</A><BR/>
-        <A HREF="module{$FILE_EXT}#foreword">Foreword</A><BR/>
-        <A HREF="module{$FILE_EXT}#intro">Introduction</A><BR/>
-        <A HREF="module{$FILE_EXT}#scope">1 Scope</A><BR/>
-        <A HREF="module{$FILE_EXT}#nref">2 Normative references</A><BR/>
-        <A HREF="module{$FILE_EXT}#defns">3 Definitions and abbreviations</A>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#cover_page">Cover page</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#foreword">Foreword</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#intro">Introduction</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#scope">1 Scope</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#nref">2 Normative references</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#defns">3 Definitions and abbreviations</A>
       </TD>
       <TD valign="TOP">
-        <A HREF="module{$FILE_EXT}#arm">4 Information requirements</A><BR/>
-        <A HREF="module{$FILE_EXT}#mim">5 Module interpreted model</A><BR/>
-        <A HREF="module{$FILE_EXT}#annexa">A AM MIM short names</A><BR/>
-        <A HREF="module{$FILE_EXT}#annexb">B Information requirements object
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#arm">4 Information requirements</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#mim">5 Module interpreted model</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexa">A AM MIM short names</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexb">B Information requirements object
         registration</A><BR/>
-        <A HREF="module{$FILE_EXT}#annexc">C ARM EXPRESS-G</A><BR/>
-        <A HREF="module{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexc">C ARM EXPRESS-G</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexd">D MIM EXPRESS-G</A>
       </TD>
       <TD valign="TOP">
-        <A HREF="module{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS listings</A><BR/>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexe">E AM ARM and MIM EXPRESS listings</A><BR/>
         <xsl:if test="./usage_guide">
-          <A HREF="module{$FILE_EXT}#annexf">
+          <A HREF="{$module_root}/sys/module{$FILE_EXT}#annexf">
             F Application module implementation and usage guide</A><BR/>
         </xsl:if>
-        <A HREF="module{$FILE_EXT}#biblio">Bibliography</A>
+        <A HREF="{$module_root}/sys/module{$FILE_EXT}#biblio">Bibliography</A>
       </TD>
     </TR>
   </TABLE>

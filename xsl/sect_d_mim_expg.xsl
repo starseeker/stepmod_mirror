@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_d_mim_expg.xsl,v 1.8 2002/06/06 09:22:41 robbod Exp $
+$Id: sect_d_mim_expg.xsl,v 1.9 2002/07/22 09:08:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -34,8 +34,9 @@ $Id: sect_d_mim_expg.xsl,v 1.8 2002/06/06 09:22:41 robbod Exp $
     select="concat('./5_mim',$FILE_EXT,'#mim_express')"/>
        
   The following diagrams provide a graphical representation of the 
-  <a href="{$href}">MIM EXPRESS short listing</a> defined in
-  Clause 5.2. The diagrams are presented in EXPRESS-G.
+  MIM EXPRESS short listing defined in 
+  <a href="{$href}">Clause 5.2</a>. 
+  The diagrams are presented in EXPRESS-G.
   <p>
     This annex contain two distinct representations of the Module
     Interpreted Model of this application module:

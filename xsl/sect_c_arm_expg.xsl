@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_arm_expg.xsl,v 1.7 2002/06/06 09:22:41 robbod Exp $
+$Id: sect_c_arm_expg.xsl,v 1.8 2002/07/22 09:08:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -30,8 +30,10 @@ $Id: sect_c_arm_expg.xsl,v 1.7 2002/06/06 09:22:41 robbod Exp $
     <xsl:with-param name="aname" select="'annexc'"/>
   </xsl:call-template>
   <p>
-    The following diagrams provide a graphical representation of the EXPRESS
-    structure and constructs specified in clause 4. 
+    The following diagrams provide a graphical representation of the 
+    <!-- EXPRESS structure and constructs specified in clause 4. -->
+    ARM EXPRESS short listing defined in 
+    <a href="./4_info_reqs{$FILE_EXT}">Clause 4</a>.
     The diagrams are presented in EXPRESS-G.
   </p>
   <p>

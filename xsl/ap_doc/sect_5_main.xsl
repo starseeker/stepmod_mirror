@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_5_main.xsl,v 1.6 2003/05/23 15:52:56 robbod Exp $
+$Id: sect_5_main.xsl,v 1.7 2003/06/06 16:45:28 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -40,41 +40,56 @@ $Id: sect_5_main.xsl,v 1.6 2003/05/23 15:52:56 robbod Exp $
     <xsl:variable name="module_partno" select="concat('ISO 10303-',$module_xml/module/@part)"/>
     <xsl:variable name="module_href" select="concat('../../../modules/',$module,'/sys/cover',$FILE_EXT)"/>
     <xsl:variable name="module_clause5" select="concat('../../../modules/',$module,'/sys/5_main',$FILE_EXT)"/>
-
+    <xsl:variable name="module_clause51" 
+      select="concat('../../../modules/',$module,'/sys/5_mapping',$FILE_EXT,'#mapping')"/>
+    <xsl:variable name="module_clause52" 
+      select="concat('../../../modules/',$module,'/sys/5_mim',$FILE_EXT,'#mim_express')"/>
     <xsl:call-template name="clause_header">
       <xsl:with-param name="heading" select="'5 Application interpreted model'"/>
       <xsl:with-param name="aname" select="'mim'"/>
     </xsl:call-template>
     <p>
       The application interpreted model for this AP is the module interpreted
-      model (MIM) in specified in clause 
+      model (MIM) specified in clause 
       <a href="{$module_clause5}">5</a> of the AP module, 
-      <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
+      <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>,
+      which consists of the mapping specification and the EXPRESS short form.
+    </p>
+
+    <p>
+      The mapping specification found in clause
+      <a href="{$module_clause51}">5.1</a>
+      of the AP module, 
+      <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>,
+      shows (through inclusion or reference) how each application object maps
+      to one or more MIM constructs. 
     </p>
 
     <p class="note">
       <small>
         NOTE&#160;1&#160;&#160;
-        The application interpreted model consists of the mapping
-        specification and the EXPRESS short form.
+        The ARM entity mapping
+        <a href="index_arm_mappings{$FILE_EXT}" target="toc">index</a>
+        contains a complete list of the
+        mappings of ARM entities identified (through inclusion or
+        reference) in the information requirements in the AP module 
+        (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>).
       </small>
+    </p>
+
+    <p>
+      The EXPRESS schema that uses elements from the integrated resources and
+      other application modules and contains the types, entity
+      specializations, rules and functions that are specific to this part of
+      ISO 10303 are specified in clause 
+      <a href="{$module_clause52}">5.2</a>
+      of the AP module,  
+      <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
     </p>
 
     <p class="note">
       <small>
         NOTE&#160;2&#160;&#160;
-        The ARM entity mapping
-        <a href="index_arm_mappings{$FILE_EXT}" target="toc">index</a>
-        contains a complete list of the
-        mappings of ARM entities identified in the information
-        requirements in the AP module 
-        (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>).
-      </small>
-    </p>
-
-    <p class="note">
-      <small>
-        NOTE&#160;3&#160;&#160;
         The MIM EXPRESS
         <a href="index_mim_express{$FILE_EXT}" target="toc">index</a>
         contains a complete list of MIM

@@ -2,7 +2,7 @@
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 <!--
-$Id: document_xsl.xsl,v 1.5 2003/05/28 23:34:29 thendrix Exp $
+$Id: document_xsl.xsl,v 1.6 2003/06/27 06:07:07 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
      Purpose: To display the import/includes in stylesheets
@@ -44,12 +44,17 @@ $Id: document_xsl.xsl,v 1.5 2003/05/28 23:34:29 thendrix Exp $
     <xsl:if test="/xsl:stylesheet/xsl:param">
     <hr/>      
     <h2>Parameters</h2>
-    <ul>
+    <ul> 
+    <!--    <table><THEAD>
+    <TR><TD>NAME</TD><TD>SELECT</TD></TR>
+  </THEAD>
+  <TBODY> 
+  -->
       <xsl:apply-templates select="/xsl:stylesheet/xsl:param[@name]">
         <xsl:sort select="./@name"/>
       </xsl:apply-templates>
-    </ul>
-
+      </ul>
+      <!-- </TBODY></table> -->
     </xsl:if>
 
     <xsl:if test="/xsl:stylesheet/xsl:variable">
@@ -109,14 +114,19 @@ $Id: document_xsl.xsl,v 1.5 2003/05/28 23:34:29 thendrix Exp $
 </xsl:template>
 
 <xsl:template match="xsl:param">
+  <!--
+<tr>
+    <td><xsl:value-of select="@name"/></td><td><xsl:value-of select="@select"/></td>
+</tr>
+-->
   <li>
-      parameter name="<xsl:value-of select="@name"/>"     
+      parameter name="<xsl:value-of select="@name"/>" select="<xsl:value-of select="@select"/>"     
   </li>
 </xsl:template>
 
 <xsl:template match="xsl:variable">
   <li>
-      global  name="<xsl:value-of select="@name"/>"     
+      global  name="<xsl:value-of select="@name"/>"     select="<xsl:value-of select="@select"/>"
   </li>
 </xsl:template>
 

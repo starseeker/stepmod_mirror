@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_numbers.xsl,v 1.1 2002/09/09 08:27:08 robbod Exp $
+$Id: modules_numbers.xsl,v 1.2 2002/09/09 12:51:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display an index of modules ordered by part number
@@ -55,7 +55,7 @@ $Id: modules_numbers.xsl,v 1.1 2002/09/09 08:27:08 robbod Exp $
       <xsl:value-of select="@name"/>
     </xsl:attribute>
     <xsl:attribute name="part">
-      <xsl:value-of select="@part"/>
+      <xsl:value-of select="document($mod_doc)/module/@part"/>
     </xsl:attribute>
   </xsl:element>
 </xsl:template>

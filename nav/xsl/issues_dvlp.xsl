@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: developer.xsl,v 1.8 2002/11/26 10:13:35 robbod Exp $
+$Id: issues_dvlp.xsl,v 1.1 2002/12/24 14:36:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -269,6 +269,7 @@ $Id: developer.xsl,v 1.8 2002/11/26 10:13:35 robbod Exp $
     &#160;&#160;by=""<br/>
     &#160;&#160;date=""<br/>
     &#160;&#160;status="open"&gt;<br/>
+    Issue description goes here.<br/>
     &lt;/issue&gt;<br/>
 </p>
 </xsl:template>

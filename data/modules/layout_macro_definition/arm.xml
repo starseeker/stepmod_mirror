@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-26T18:41:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-01T16:26:57" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layout_macro_definition_arm schema_instance"/>
    <schema name="Layout_macro_definition_arm">
       <interface kind="use" schema="Printed_physical_layout_template_arm"/>
@@ -12,13 +12,21 @@
       <entity name="Layout_macro_component" supertypes="Printed_component">
          <explicit name="derived_from">
             <typename name="Layout_macro_floor_plan_template"/>
-            <redeclaration entity-ref="Printed_component" old_name="derived_from"/>
+            <redeclaration entity-ref="Printed_component"/>
          </explicit>
          <explicit name="design_definition">
             <typename name="Layout_macro_definition"/>
          </explicit>
-         <where label="WR2" expression=" NOT ( EXISTS ( SELF \ printed_component . footprint_implementation ) ) "/>
-         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ printed_component . stratum_feature_implementation ) ) AND NOT ( EXISTS ( SELF \ printed_component . printed_component_stack ) ) AND NOT ( EXISTS ( SELF \ printed_component . associated_precedent_link ) ) AND NOT ( EXISTS ( SELF \ printed_component . associated_subsequent_link ) ) AND NOT ( EXISTS ( SELF \ printed_component . required_material_stack ) ) "/>
+         <where label="Wr2" expression=" NOT ( EXISTS ( SELF \ printed_component . footprint_implementation ) ) "/>
+         <where label="Wr1" expression=" NOT ( EXISTS ( SELF \ printed_component . stratum_feature_implementation ) ) AND NOT ( EXISTS ( SELF \ printed_component . printed_component_stack ) ) AND NOT ( EXISTS ( SELF \ printed_component . associated_precedent_link ) ) AND NOT ( EXISTS ( SELF \ printed_component . associated_subsequent_link ) ) AND NOT ( EXISTS ( SELF \ printed_component . required_material_stack ) ) "/>
+      </entity>
+      <entity name="Layout_macro_definition" supertypes="Pcb">
+         <explicit name="floor_layout_view">
+            <typename name="Layout_macro_floor_plan_template"/>
+         </explicit>
+         <where label="Wr3" expression=" SIZEOF ( USEDIN ( SELF , 'AP210_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE.DERIVED_FROM' ) ) = 0 "/>
+         <where label="Wr2" expression=" NOT ( EXISTS ( SELF \ interconnect_module . assembly_design_requirement ) ) "/>
+         <where label="Wr1" expression=" NOT ( EXISTS ( SELF \ part_design_view . usage_view ) ) "/>
       </entity>
       <entity name="Layout_macro_definition_terminal_to_usage_terminal_assignment">
          <explicit name="assigned_design_object">
@@ -27,7 +35,7 @@
          <explicit name="defined_template_feature">
             <typename name="Printed_part_template_terminal"/>
          </explicit>
-         <where label="WR1" expression=" SIZEOF ( USEDIN ( SELF , 'AP210_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE.ACCESS_MAPS' ) ) = 1 "/>
+         <where label="Wr1" expression=" SIZEOF ( USEDIN ( SELF , 'AP210_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE.ACCESS_MAPS' ) ) = 1 "/>
       </entity>
       <entity name="Layout_macro_floor_plan_template" supertypes="Printed_part_template">
          <explicit name="access_maps">
@@ -37,15 +45,7 @@
          <inverse name="macro_definition" entity="Layout_macro_definition" attribute="floor_layout_view">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ printed_part_template . of_stratum_technology ) ) AND NOT ( EXISTS ( SELF \ printed_part_template . material_stack ) ) AND NOT ( EXISTS ( SELF \ printed_part_template . printed_part_template_stack ) ) "/>
-      </entity>
-      <entity name="Layout_macro_definition" supertypes="Pcb">
-         <explicit name="floor_layout_view">
-            <typename name="Layout_macro_floor_plan_template"/>
-         </explicit>
-         <where label="WR3" expression=" SIZEOF ( USEDIN ( SELF , 'AP210_ARM.DEFINITION_BASED_PRODUCT_OCCURRENCE.DERIVED_FROM' ) ) = 0 "/>
-         <where label="WR2" expression=" NOT ( EXISTS ( SELF \ interconnect_module . assembly_design_requirement ) ) "/>
-         <where label="WR1" expression=" NOT ( EXISTS ( SELF \ part_design_view . usage_view ) ) "/>
+         <where label="Wr1" expression=" NOT ( EXISTS ( SELF \ printed_part_template . of_stratum_technology ) ) AND NOT ( EXISTS ( SELF \ printed_part_template . material_stack ) ) AND NOT ( EXISTS ( SELF \ printed_part_template . printed_part_template_stack ) ) "/>
       </entity>
       <subtype.constraint name="printed_component_subtypes" entity="Printed_component" super.expression="ONEOF (Layout_macro_component, Printed_connector_component, Routed_printed_component)"/>
    </schema>

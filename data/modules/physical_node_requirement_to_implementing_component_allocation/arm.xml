@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2004-11-26T18:50:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2004-12-01T16:27:00" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_node_requirement_to_implementing_component_allocation_arm schema_instance"/>
    <schema name="Physical_node_requirement_to_implementing_component_allocation_arm">
       <interface kind="use" schema="Functional_design_elaboration_arm">
@@ -42,23 +42,11 @@
             <aggregate type="SET" lower="0" upper="1"/>
             <typename name="Part_connected_terminals_definition"/>
          </derived>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( pct &lt;* physical_node_requirement . associated_terminals | pct \ component_feature . associated_component = implementation_component ) ) = 0 "/>
-         <where label="WR2" expression=" ( SIZEOF ( implementation_connection_definition_1 ) + SIZEOF ( implementation_connection_definition_2 ) = 1 ) OR ( ( 'AP210_ARM.INTERFACE_COMPONENT' IN TYPEOF ( implementation_component ) ) AND ( 'AP210_ARM.COMPONENT_INTERFACE_TERMINAL' IN TYPEOF ( get_cit ( implementation_component , implementation_joint_set ) ) ) ) OR ( 'AP210_ARM.ROUTED_INTERCONNECT_COMPONENT' IN TYPEOF ( implementation_component ) ) "/>
-         <where label="WR1" expression=" EXISTS ( implementation_interface_joint_set ) XOR EXISTS ( implementation_joint_set ) "/>
+         <where label="Wr3" expression=" SIZEOF ( QUERY ( pct &lt;* physical_node_requirement . associated_terminals | pct \ component_feature . associated_component = implementation_component ) ) = 0 "/>
+         <where label="Wr2" expression=" ( SIZEOF ( implementation_connection_definition_1 ) + SIZEOF ( implementation_connection_definition_2 ) = 1 ) OR ( ( 'AP210_ARM.INTERFACE_COMPONENT' IN TYPEOF ( implementation_component ) ) AND ( 'AP210_ARM.COMPONENT_INTERFACE_TERMINAL' IN TYPEOF ( get_cit ( implementation_component , implementation_joint_set ) ) ) ) OR ( 'AP210_ARM.ROUTED_INTERCONNECT_COMPONENT' IN TYPEOF ( implementation_component ) ) "/>
+         <where label="Wr1" expression=" EXISTS ( implementation_interface_joint_set ) XOR EXISTS ( implementation_joint_set ) "/>
       </entity>
-      <function name="get_pctr">
-         <parameter name="ac">
-            <typename name="Assembly_component"/>
-         </parameter>
-         <parameter name="imjb">
-            <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Interface_mounted_join"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="Packaged_connector_terminal_relationship"/>
-         <algorithm> LOCAL cf : component_feature ; pctr : SET OF packaged_connector_terminal_relationship := [ ] ; END_LOCAL ; cf := imjb [ 1 ] . connection_to_interconnect_module_component ; IF ac :=: cf . associated_component THEN IF ( 'AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF ( cf . definition ) ) THEN pctr := cf . definition . external_connector_function ; RETURN ( pctr ) ; ELSE RETURN ( pctr ) ; END_IF ; ELSE RETURN ( pctr ) ; END_IF ; RETURN ( ? ) ; </algorithm>
-      </function>
-      <function name="get_cit">
+      <function name="Get_cit">
          <parameter name="ac">
             <typename name="Assembly_component"/>
          </parameter>
@@ -69,7 +57,7 @@
          <typename name="Component_interface_terminal"/>
          <algorithm> LOCAL cf : LIST [ 1 : ? ] OF component_feature := [ ] ; cit : component_interface_terminal ; END_LOCAL ; REPEAT i := 1 TO 2 BY 1 ; cf [ 1 ] := ajb [ 1 ] . assembly_features_1 ; cf [ 2 ] := ajb [ 1 ] . assembly_features_2 ; IF ac :=: cf [ i ] . associated_component THEN IF ( 'AP210_ARM.INTERFACE_COMPONENT' IN TYPEOF ( cf [ i ] . associated_component ) ) THEN RETURN ( cf [ i ] ) ; ELSE RETURN ( ? ) ; END_IF ; ELSE RETURN ( ? ) ; END_IF ; END_REPEAT ; RETURN ( ? ) ; </algorithm>
       </function>
-      <function name="get_pctd">
+      <function name="Get_pctd">
          <parameter name="ac">
             <typename name="Assembly_component"/>
          </parameter>
@@ -80,6 +68,18 @@
          <aggregate type="SET" lower="0" upper="?"/>
          <typename name="Part_connected_terminals_definition"/>
          <algorithm> LOCAL cf : LIST [ 1 : ? ] OF component_feature ; pctd : SET OF part_connected_terminals_definition := [ ] ; END_LOCAL ; REPEAT i := 1 TO 2 BY 1 ; cf [ 1 ] := ajb [ 1 ] . assembly_features_1 ; cf [ 2 ] := ajb [ 1 ] . assembly_features_2 ; IF ac :=: cf [ i ] . associated_component THEN IF ( 'AP210_ARM.PART_TERMINAL' IN TYPEOF ( cf [ i ] . definition ) ) THEN pctd := cf [ i ] . definition . connection_requirement ; RETURN ( pctd ) ; ELSE RETURN ( pctd ) ; END_IF ; ELSE RETURN ( pctd ) ; END_IF ; END_REPEAT ; RETURN ( ? ) ; </algorithm>
+      </function>
+      <function name="Get_pctr">
+         <parameter name="ac">
+            <typename name="Assembly_component"/>
+         </parameter>
+         <parameter name="imjb">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Interface_mounted_join"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Packaged_connector_terminal_relationship"/>
+         <algorithm> LOCAL cf : component_feature ; pctr : SET OF packaged_connector_terminal_relationship := [ ] ; END_LOCAL ; cf := imjb [ 1 ] . connection_to_interconnect_module_component ; IF ac :=: cf . associated_component THEN IF ( 'AP210_ARM.PACKAGED_PART_INTERFACE_TERMINAL' IN TYPEOF ( cf . definition ) ) THEN pctr := cf . definition . external_connector_function ; RETURN ( pctr ) ; ELSE RETURN ( pctr ) ; END_IF ; ELSE RETURN ( pctr ) ; END_IF ; RETURN ( ? ) ; </algorithm>
       </function>
    </schema>
 </express>

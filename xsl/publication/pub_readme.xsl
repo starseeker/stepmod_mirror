@@ -43,7 +43,7 @@ open the file "iso10303_<xsl:value-of select="@part"/>.htm".
 The folders 
   "data"
   "images"
-contains the various components of the main document.
+contain the various components of the main document.
 
 To expand the document, unzip the file into an empty directory.
 NOTE - if you already purchased other Application modules, then unzip the

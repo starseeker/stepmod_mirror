@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.3 2002/10/23 05:48:45 thendrix Exp $
+$Id: imgfile.xsl,v 1.4 2002/12/15 22:21:27 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -13,6 +13,7 @@ $Id: imgfile.xsl,v 1.3 2002/10/23 05:48:45 thendrix Exp $
 
 
   <xsl:import href="sect_4_express.xsl"/>
+
   <xsl:import href="res_toc.xsl"/>
 
 
@@ -309,6 +310,41 @@ $Id: imgfile.xsl,v 1.3 2002/10/23 05:48:45 thendrix Exp $
   <a href="{$href}">
     <xsl:value-of select="position()"/>
   </a>&#160;
+</xsl:template>
+
+<xsl:template match="resource" mode="annex_list" >
+<!-- returns a list of annexes with content as a string with each annex name as a single word(no spaces)
+separated by spaces -->
+        <xsl:if test="string-length(./tech_discussion) > 10">
+            Technicaldiscussion
+        </xsl:if>
+        <xsl:if test="string-length(./examples) > 10">
+            Examples 
+        </xsl:if>
+        <xsl:if test="string-length(./add_scope) > 10">
+             Additionalscope
+        </xsl:if>
+
+</xsl:template>
+
+<xsl:template name="annex_position" >
+	<xsl:param name="annex_name" />
+	<xsl:param name="annex_list" />
+<!-- returns integer count of position of named annex in list of annexes -->
+	<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+	<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+
+	<xsl:variable name="annex" select="concat(translate($annex_name,' ',''),' ')" />
+
+	<xsl:value-of select="string-length(
+					translate(
+						substring-before(
+							concat(' ',normalize-space($annex_list),' '),
+							$annex
+							     ),
+						concat($UPPER,$LOWER),
+						'')
+						)" />
 </xsl:template>
 
 

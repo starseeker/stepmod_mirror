@@ -1,0 +1,335 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.2 2001/11/21 15:38:19 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.2"
+    source="../data/modules/foundation_representation/mim_lf.exp"/>
+
+  <schema name="foundation_representation_mim">
+    <type name="description_attribute_select">
+      <select
+        selectitems="representation">
+      </select>
+
+    </type>
+    <type name="founded_item_select">
+      <select
+        selectitems="representation_item">
+      </select>
+
+    </type>
+    <type name="id_attribute_select">
+      <select
+        selectitems="representation">
+      </select>
+
+    </type>
+    <type name="identifier">
+      <builtintype
+        type="STRING">
+      </builtintype>
+
+
+    </type>
+    <type name="label">
+      <builtintype
+        type="STRING">
+      </builtintype>
+
+
+    </type>
+    <type name="text">
+      <builtintype
+        type="STRING">
+      </builtintype>
+
+
+    </type>
+    <entity
+      name="description_attribute">
+      <explicit
+        name="attribute_value">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="described_item">
+        <typename
+          name="description_attribute_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="id_attribute">
+      <explicit
+        name="attribute_value">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="identified_item">
+        <typename
+          name="id_attribute_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="representation">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="representation_item"/>
+      </explicit>
+      <explicit
+        name="context_of_items">
+        <typename
+          name="representation_context"/>
+      </explicit>
+      <derived
+        name="id"
+        expression="get_id_value(SELF)">
+        <typename
+          name="identifier "/>
+      </derived>
+      <derived
+        name="description"
+        expression="get_description_value(SELF)">
+        <typename
+          name="text "/>
+      </derived>
+      <where
+        label="wr1"
+        expression="(SIZEOF(USEDIN(SELF,'FOUNDATION_REPRESENTATION_MIM.' +                'ID_ATTRIBUTE.IDENTIFIED_ITEM')) &lt;= 1)">
+      </where>
+      <where
+        label="wr2"
+        expression="(SIZEOF(USEDIN(SELF,'FOUNDATION_REPRESENTATION_MIM.' +                'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1)">
+      </where>
+    </entity>
+
+    <entity
+      name="representation_context">
+      <explicit
+        name="context_identifier">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="context_type">
+        <typename
+          name="text"/>
+      </explicit>
+      <inverse
+        name="representations_in_context"
+        entity="representation"
+        attribute="context_of_items">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+      </inverse>
+    </entity>
+
+    <entity
+      name="representation_item">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <where
+        label="wr1"
+        expression="(SIZEOF(using_representations(SELF)) &gt; 0)">
+      </where>
+    </entity>
+
+    <function
+      name="bag_to_set">
+      <aggregate
+        type="SET"/>
+      <typename
+        name="GENERICintype"/>
+      <parameter
+        name="the_bag">
+        <aggregate
+          type="BAG"/>
+        <typename
+          name="GENERICintype"/>
+      </parameter>
+      <algorithm>
+
+    LOCAL
+      the_set : SET OF GENERIC:intype := [];
+    END_LOCAL;
+    IF SIZEOF(the_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag) BY 1;
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+
+      </algorithm>
+
+    </function>
+
+    <function
+      name="get_description_value">
+      <typename
+        name="text"/>
+      <parameter
+        name="obj">
+        <typename
+          name="description_attribute_select"/>
+      </parameter>
+      <algorithm>
+
+    LOCAL
+      description_bag : BAG OF description_attribute := USEDIN(obj,
+                         'FOUNDATION_REPRESENTATION_MIM.' + 
+                         'DESCRIPTION_ATTRIBUTE.' + 'DESCRIBED_ITEM');
+    END_LOCAL;
+    IF SIZEOF(description_bag) = 1 THEN
+      RETURN(description_bag[1].attribute_value);
+    ELSE
+      RETURN(?);
+    END_IF;
+
+      </algorithm>
+
+    </function>
+
+    <function
+      name="get_id_value">
+      <typename
+        name="identifier"/>
+      <parameter
+        name="obj">
+        <typename
+          name="id_attribute_select"/>
+      </parameter>
+      <algorithm>
+
+    LOCAL
+      id_bag : BAG OF id_attribute := USEDIN(obj,
+                'FOUNDATION_REPRESENTATION_MIM.' + 'ID_ATTRIBUTE.' + 
+                'IDENTIFIED_ITEM');
+    END_LOCAL;
+    IF SIZEOF(id_bag) = 1 THEN
+      RETURN(id_bag[1].attribute_value);
+    ELSE
+      RETURN(?);
+    END_IF;
+
+      </algorithm>
+
+    </function>
+
+    <function
+      name="using_items">
+      <aggregate
+        type="SET"/>
+      <typename
+        name="founded_item_select"/>
+      <parameter
+        name="item">
+        <typename
+          name="founded_item_select"/>
+      </parameter>
+      <parameter
+        name="checked_items">
+        <aggregate
+          type="SET"/>
+        <typename
+          name="founded_item_select"/>
+      </parameter>
+      <algorithm>
+
+    LOCAL
+      next_items      : SET OF founded_item_select;
+      new_check_items : SET OF founded_item_select;
+      result_items    : SET OF founded_item_select;
+    END_LOCAL;
+    result_items := [];
+    new_check_items := checked_items + item;
+    next_items := QUERY ( z &lt;* bag_to_set(USEDIN(item,'')) | ((
+        'FOUNDATION_REPRESENTATION_MIM.REPRESENTATION_ITEM' IN TYPEOF(z)) 
+        OR ('FOUNDATION_REPRESENTATION_MIM.FOUNDED_ITEM' IN TYPEOF(z))) );
+    IF SIZEOF(next_items) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(next_items) BY 1;
+        IF NOT (next_items[i] IN new_check_items) THEN
+          result_items := result_items + next_items[i] + using_items(
+              next_items[i],new_check_items);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN(result_items);
+
+      </algorithm>
+
+    </function>
+
+    <function
+      name="using_representations">
+      <aggregate
+        type="SET"/>
+      <typename
+        name="representation"/>
+      <parameter
+        name="item">
+        <typename
+          name="founded_item_select"/>
+      </parameter>
+      <algorithm>
+
+    LOCAL
+      results            : SET OF representation;
+      intermediate_items : SET OF founded_item_select;
+      result_bag         : BAG OF representation;
+    END_LOCAL;
+    results := [];
+    result_bag := USEDIN(item,
+        'FOUNDATION_REPRESENTATION_MIM.REPRESENTATION.ITEMS');
+    IF SIZEOF(result_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(result_bag) BY 1;
+        results := results + result_bag[i];
+      END_REPEAT;
+    END_IF;
+    intermediate_items := using_items(item,[]);
+    IF SIZEOF(intermediate_items) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(intermediate_items) BY 1;
+        result_bag := USEDIN(intermediate_items[i],
+            'FOUNDATION_REPRESENTATION_MIM.REPRESENTATION.ITEMS');
+        IF SIZEOF(result_bag) &gt; 0 THEN
+          REPEAT j := 1 TO HIINDEX(result_bag) BY 1;
+            results := results + result_bag[j];
+          END_REPEAT;
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN(results);
+
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

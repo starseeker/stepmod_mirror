@@ -1,55 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by David Ferguson (Boeing Shared Services Group) -->
-<!-- $Id: $ -->
+<!-- $Id: module.xml,v 1.4 2002/05/24 23:45:50 thendrix Exp $ -->
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-<module name="property_value_numerical" part="10xx" version="1" wg.number="N" status="TS" language="E" publication.year="2002" published="n" rcs.date="$Date: 2002/04/11 18:08:21 $" rcs.revision="$Revision: 1.3 $">
+<module name="value_with_unit" part="1054" version="1" wg.number="00000" status="WD" language="E" publication.year="-" published="n" rcs.date="$Date: 2002/05/24 23:45:50 $" rcs.revision="$Revision: 1.4 $">
   <keywords>
-    module, value, property
+    module, value, unit
  </keywords>
   <contacts>
     <projlead ref="pdmmodules.projlead"/>
     <editor ref="pdmmodules.editor"/>
   </contacts>
   <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-  <purpose>The Property_value_numerical application module supports the requirement to specify a physical quantity as a numerical property.</purpose>
+  <purpose>The Value_with_unit application module supports the specification of physical quantities.</purpose>
   <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
   <inscope>
-    <li>specification of a property value as a single number with units.</li>
+    <li>Values that are single numbers.</li>
+    <li>units.</li>
   </inscope>
+  <outscope>
+    <li>Value as representation of property</li>
+    <li>Range of values</li>
+    <li>Qualification of  value as to type, uncertainty, or precision</li>
+  </outscope>
 
   <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
   <normrefs>
-    <!-- list the normative references explicitly detailed 
-    Note: rather than explicitly detailing the normative reference
-    here, it would be better to add the reference to 
-    data/basic/normrefs.xml and then use normref.inc as shown below.
-    -->
-    <!-- list the normative references to be included. 
-    The normative reference is detailed in data/basic/normrefs.xml
-    Note: this is a repetition of the reference specified above.
-    -->
     <normref.inc normref="ref10303-41.2000"/>
-    <normref.inc normref="ref10303-43.2000"/>
-    <normref.inc normref="ref10303-45.1998"/>
-    <!-- If a term defined in a normative reference is to be used, then the
-    term must be specified in the definition of the normative reference,
-    and then identified by term.ref in when including the normative
-    reference through the use normref.inc
-    Note: This reference is already included as a default in
-    data/basic/normrefs_default.xml
-
-    <normref.inc module.name="example">
-    <term.ref linkend="ttt"/>
-  </normref.inc>
-    -->
   </normrefs>
   <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
   <arm>
-    <uof name="Property_Value_Numerical">
+    <uof name="Value_With_Unit">
       <description> This UoF supports the specification of numerical
-values of properties, with units of measure.
+values for physical quantities.
 			</description>
+      <uof.ae entity="Value_with_unit"/>
+      <uof.ae entity="Duration"/>
     </uof>
     <express-g>
      <imgfile file="armexpg1.xml"/>
@@ -57,18 +43,15 @@ values of properties, with units of measure.
     </express-g>
   </arm>
   <mapping_table>
-    <ae entity="PROPERTY_VALUE_WITH_UNIT">
-      <alt>
- #1:If the unit is not assigned globally. #2: If the unit is assigned
-globally.</alt>
-      <aimelt>#1: (measure_representation_item)
- #2:([value_representation_item]
-[global_unit_assigned_context])</aimelt>
-      <source>
-45
-43
-</source>
-      <refpath></refpath>
+    <ae entity="VALUE_WITH_UNIT">
+      <aimelt>measure_with_unit</aimelt>
+      <source>41</source>
+    </ae>
+    <ae entity="DURATION">
+      <aimelt>time_measure_with_unit</aimelt>
+      <source>41</source>
+	<refpath>time_measure_with_unit =&gt;
+measure_with_unit</refpath>
       </ae>
     </mapping_table>
   <mim>
@@ -76,19 +59,321 @@ globally.</alt>
       <imgfile file="mimexpg1.xml"/>
     </express-g>
   </mim>
-  <bibliography>
-    <!-- include a bibliographic entry -->
-    <bibitem>
-			<orgname>ISO TC 184/SC4</orgname>
-<pubdate>1997</pubdate> <stdtitle>Proposed Standing Document -
-Guidelines for application module development, revision 0.6</stdtitle>
-<ulink url="http://wg10step.aticorp.org/Deliverables/Guidelines/AMConGde06.html"/>
-		</bibitem>
-    <!-- include a bibliographic entry from ../data/basic/bibliography.xml -->
-    <bibitem.inc ref="AMConGde06"/>
-  </bibliography>
-</module>
+  <usage_guide>
+<b>Measure and units</b><p>
+A measure with unit is the specification of a physical quantity as defined in ISO31 (clause 2). The PDM Schema allows specifying different measure with units used for, e.g., a property definition or quantity of an assembly relationship. A measure with unit is characterized by two components, a value specifying the quantity and a unit in which the value is expressed.
+</p>
+The PDM Schema supports the application of:
+<dl><dd> simple units including predefined SI units according to ISO1000 (clause 2); </dd>
+<dd>converted units which are derived from another unit by a conversion factor;</dd>
+<dd>derived units which are defined by an expression of units;</dd>
+<dd>user defined units which are dependent on a specific context and which are not related to the     system of units within the PDM Schema.
+</dd></dl>
 
+Measure with unit specification
+
+The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of measure with unit are shown in Diagram 72.
+
+ 
+Diagram 73 : Measure with Unit Entity and Attributes
+
+<p><b>measure_with_unit</b></p>
+<p>A measure_with_unit is the specification of a physical quantity as defined in ISO31 (clause 2). It  may be of subtype measure_representation_item if it is used in the context of properties associated with product data, e.g., to represent the value and unit of a property or it may be of subtype uncertainty_measure_with_unit .</p>
+
+<p>A measure_with_unit may be typed by one of the following predefined subtypes depending on the used unit definition (16.2), if it does not represent a derived unit (16.2.3):</p>
+<screen>
+SUPERTYPE OF (ONE OF (length_measure_with_unit,  mass_measure_with_unit, time_measure_with_unit, electric_current_measure_with_unit, thermodynamic_temperature_measure_with_unit, amount_of_substance_measure_with_unit, luminous_intensity_measure_with_unit, plane_angle_measure_with_unit, solid_angle_measure_with_unit, area_measure_with_unit, volume_measure_with_unit, ratio_measure_with_unit));</screen>
+
+<p><b>Attributes</b>
+</p>
+<dl><dd>The unit_component attribute provides the unit in which the physical quantity is expressed.</dd>
+<dd>The value_component attribute provides the value of the physical quantity if expressed with respect to the unit_component.</dd>
+</dl>
+
+ENTITY measure with unit	Attribute Population	Remarks
+unit_component	type: unit = named_unit, derived_unit	references associated unit_component
+value_component	type: measure_value = length_measure, mass_measure, time_measure, electric_current_measure, thermodynamic_temperature_measure, amount_of_substance_measure, luminous_intensity_measure, plane_angle_measure, solid_angle_measure, area_measure, volume_measure, ratio_measure, parameter_value, numeric_measure, context_dependent_measure, descriptive_measure, positive_length_measure, positive_plane_angle_measure, positive_ratio_measure, count_measure, celsius_temperature_measure	references associated value_component; the type of measure_value is constrained by the selected subtype of measure_with_unit
+
+Preprocessor Recommendations: 
+It is recommended to use one of the predefined subtypes to precise measure_with_unit  if it does not represent a derived_unit and if it is applicable. The type of measure_value is constrained by the respective subtype of measure_with_unit, e.g., mass_measure is required if mass_measure_with_unit is applied.
+
+Postprocessor Recommendations: None specified.
+
+Related Entities: A measure_with_unit may be referenced by the following entities:
+·	conversion_based_unit - as the conversion factor that specifies the physical quantity from which the conversion_based_unit is derived,
+·	lot_effectivity - for the specification of the effectivity lot size, i.e., the size of the batch of items,
+·	make_from_usage_option - for the specification of the amount of the relating_product_definition that can be made from the related_product_definition,
+·	quantified_assembly_component_usage - for the specification of a measure that defines how many or how much of the constituent is used in the assembly.
+16.21.2	Unit definition
+16.2.11.2.1	Simple and predefined units
+A simple unit is a named unit where the type of unit is defined only implicitly by the selected type of measure_value for value_component (table in 16.1.1.1) and not explicitly by using any predefined subtype of named_unit. Examples are count_measure like "each".
+
+A predefined unit is a named unit where the  unit type is defined by using a predefined subtype of named_unit. Examples are length_unit or mass_unit. A special type of a predefined unit is an SI unit based on the specifications of ISO1000 (clause 2).
+
+The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of named unit are shown in Diagram 74.
+
+ 
+Diagram 74 : Named Unit Instance Diagram
+
+An instantiation example is shown in Diagram 75 representing a predefined length unit "millimeter".
+
+ 
+Diagram 75 : SI Unit Instance Diagram
+
+16.2.1.11.2.1.1	named_unit
+A named_unit is a unit quantity. A named_unit may be of subtype si_unit (16.2.1.3), conversion_based_unit (16.2.2.1) or context_dependent_unit (16.2.4.1).
+
+A named_unit may be typed (also) by one of the following predefined subtypes: 
+
+SUPERTYPE OF (ONEOF(si_unit, conversion_based_unit, context_dependent_unit) ANDOR
+ONEOF (length_unit, mass_unit, time_unit, electric_current_unit, thermodynamic_temperature_unit, amount_of_substance_unit, luminous_intensity_unit, plane_angle_unit, solid_angle_unit, area_unit, volume_unit, ratio_unit))
+
+The attribute dimensions specifies the powers of the dimensions of seven base quantities via dimensional_exponents (16.2.1.2). If named_unit is of subtype si_unit, there is a rule specifying how to instantiate the dimensional_exponents attributes referenced via the derived dimensions attribute of si_unit.
+
+Attributes
+·	The dimensions attribute provides the dimensional_exponents of the base properties by which the named_unit is defined.
+
+
+ENTITY named_unit	Attribute Population	Remarks
+dimensions	type: entity = dimensional_exponents	references associated dimensional_exponents
+
+<b>Preprocessor Recommendations</b>: In the case of a simple unit the predefined subtypes (length_measure, mass_measure, etc.) are not applicable. Therefore named_unit is instantiated by its self.
+<p>
+In all other cases (wherever applicable) it is recommended to use one of the predefined subtypes to precise a named_unit. It should be done via a complex instance with one of the other subtypes of named_unit (context_dependent_unit, conversion_based_unit or si_unit). It is recommended to not use a predefined subtype by its self without combining it with context_dependent_unit, conversion_based_unit or si_unit.
+</p>
+<p>
+The complex instance is also recommended for si_unit (even though a predefined si_unit should be of common understanding world wide) to be compatible as it has always been implemented, but with the exceptions of area_unit and volume_unit (see PDM UG 16.2.1.3).</p>
+<p>
+The predefined subtypes of named_unit are constraint by respective subtypes of measure_with_unit, e.g., mass_unit is required, if mass_measure_with_unit is applied.
+</p>
+<p>
+<b>Postprocessor Recommendations:</b> None specified.
+</p>
+<b>Related Entities:</b> A named_unit may be referenced by the following entities:
+<dl>
+      <dt>	measure_with _unit - as the unit component that provides the unit in which the physical quantity is expressed.</dt>
+      <dt>·	derived_unit_element - as the unit specifying the mathematical factor of the element.</dt>
+    </dl>
+<b>dimensional_exponents</b>
+<p>
+The dimensional_exponents entity defines the powers of the dimensions of the seven base quantities. 
+</p>
+<p>
+<b>Attributes</b>
+·	The length_exponent attribute provides the power of the length base quantity.
+·	The mass_exponent attribute provides the power of the mass base quantity.
+·	The time_exponent attribute provides the power of the time base quantity.
+·	The electric_current_exponent attribute provides the power of the electric current base quantity.
+·	The amount_of_substance_exponent attribute provides the power of theamount of substance base quantity.
+·	The luminous_intensity_exponent attribute provides the power of luminous intensity base quantity.
+·	The thermodynamic_temperature_exponent attribute provides the power of the thermodynamic temperature base quantity.
+
+ENTITY dimensional_exponents	Attribute Population	Remarks
+length_exponent	type: REAL	
+mass_exponent	type: REAL	
+time_exponent	type: REAL	
+electric_current_exponent	type: REAL	
+amount_of_substance_exponent	type: REAL	
+luminous_intensity_exponent	type: REAL	
+thermodynamic_temperature_exponent	type: REAL	
+
+Preprocessor Recommendations: 
+The values of the single attributes of dimension are constraint by where clauses and function in PDM Schema dependent on the selected subtype of named_unit.
+
+Postprocessor Recommendations: None specified.
+
+Related Entities: None specified.
+
+16.2.1.31.2.1.3	si_unit
+An si_unit is a subtype of named_unit that defines a unit with respect to the system of units defined in this schema. The system of units is based on the specifications of ISO1000 (clause 2) but differs from them for the unit of mass.
+
+The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of SI unit are shown in Diagram 76.
+
+ 
+Diagram 76 : SI Unit Entities and Attributes
+
+Attributes
+·	The dimensions attribute provides the dimensional_exponents for the si_unit (see 16.2.1.2)
+·	The name attribute provides the name of an SI unit. The definitions of names of SI units are specified in ISO1000 (clause 2)
+·	The prefix attribute provides the name of a prefix that may be associated with an si_unit. The definitions of SI prefixes are specified in ISO1000 (clause 3).
+
+ENTITY si_unit	Attribute Population	Remarks
+dimensions	type: entity = dimensional_exponents	retransmitted, DERIVED reference to the associated dimensional_exponents
+name	type: si_unit_name = (metre, gram, second, ampere, kelvin, mole, candela, radian, steradian, hertz, newton, pascal, joule, watt, coulomb, volt, farad, ohm, siemens, weber, tesla, henry, degree_celsius, lumen, lux, becquerel, gray, sievert);	the name attribute indicates the name of the represented si_unit
+prefix	type: si_prefix = (exa, peta, tera, giga, mega, kilo, hecto, deca, deci, centi, milli, micro, nano, pico, femto, atto)	OPTIONAL
+
+Preprocessor Recommendations: A complex instance with one of the predefined subtypes of named_unit is recommended for si_unit (even though si_unit should be of common understanding world wide) to be compatible as it has always been implemented (see examples in Example 71). However, area_unit and volume_unit are not allowed in combination with si_unit.
+
+It is recommended to not use any prefix if si_unit is referenced by conversion_based_unit.conversion_factor (via measure_with_unit.unit_component) to simplify the calculation of the conversion by using only a basic SI unit.
+</p>
+Postprocessor Recommendations: None specified.
+
+Related Entities: None specified.
+16.2.21.2.2	Converted units
+16.2.2.11.2.2.1	conversion_based_unit
+A conversion_based_unit is a type of named_unit that defines a unit on the basis of a measure_with_unit. The value_component of the measure_with_unit defines the conversion factor. An inch is an example for a conversion based unit.
+
+The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of conversion based unit are shown in Diagram 77.
+
+ 
+Diagram 77 : Conversion Based Unit Instance Diagram
+
+Attributes<dl><dd>The dimensions attribute provides the dimensional_exponents for the conversion_based_unit  (see 16.2.1.2)</dd><dd>The name attribute provides the label by which the conversion_based_unit is known.
+</dd><dd>The conversion_factor attribute provides the measure with unit that specifies the physical quantity from which the conversion_based_unit is derived.
+</dd></dl>
+
+<dl><dt><b>ENTITY </b>measure with unit	Attribute Population	Remarks</dt>
+
+<dd>dimensions	type: entity = dimensional_exponents	references to the associated dimensional_exponents</dd>
+<dd>name	type: label = STRING	the name attribute indicates the name of the represented conversion_based_unit</dd>
+<dd>conversion_factor	type: entity_measure_with_unit	references the associated conversion factor</dd></dl>
+
+Preprocessor Recommendations: If applicable a complex instance with one of the predefined subtypes of named_unit is recommended for conversion_based_unit (see examples in Example 71).
+
+If applicable only basic measure with units (e.g., SI units without prefix) should be used for conversion_factor (via measure_with_unit.unit_component). It is recommended to simplify the calculation of the conversion by avoiding chains of conversions.
+
+Postprocessor Recommendations: None specified.
+
+Related Entities: None specified.
+
+16.2.31.2.3	Derived units
+16.2.3.11.2.3.1	derived_unit
+A derived_unit is an expression of units. For instance "Newton per square millimeters" is a derived_unit. A derived_unit is also typically used to specify a surface or volume unit as derivation from a length unit like "square meter" derived from "meter".
+
+The predefined subtypes of measure_with_unit are not applicable for a derived_unit, because a derived_unit may be expressed by measure with units of different (sub)types like "Newton per square millimeters".
+
+The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of derived unit are shown in Diagram 78.
+
+
+ 
+Diagram 78 : Derived Unit Instance Diagram
+Attributes
+·	The name attribute provides the label by which the derived_unit is known.
+·	The elements attribute provides the derived_unit_element objects and their exponents that define the derived_unit.
+
+ENTITY derived_unit	Attribute Population	Remarks
+name	type: label = STRING	DERIVED attribute which indicates the name of the represented derived_unit
+elements	type: entity = S[1:?] of derived_unit_element	references the associated elements of the unit expression
+
+Preprocessor Recommendations: None specified.
+
+Postprocessor Recommendations: None specified.
+
+Related Entities: None specified.
+16.2.3.21.2.3.2	derived_unit_element
+A derived_unit_element is the association of a named_unit with an exponent. This entity is used to represent an element of the dimensional expression of a derived_unit. For instance "Newton per square millimeter" is a derived_unit. It has two elements, "Newton" whose exponent has a value of 1.0 and "millimeter" whose exponent is -2.0.
+
+Attributes
+·	The unit attribute provides the named_unit that specifies the mathematical factor of the element.
+·	The exponent attribute provides the power that is applied to the unit attribute.
+
+ENTITY derived_unit_element	Attribute Population	Remarks
+unit	type: entity = named_unit	references the associated named_unit
+exponent	type: REAL	identifies the exponent of the referenced named_unit
+
+Preprocessor Recommendations: None specified.
+
+Postprocessor Recommendations: None specified.
+
+Related Entities: None specified.
+16.2.41.2.4	User defined units
+A user defined unit is a named unit which can neither be described as a simple unit, SI unit, a converted unit nor a derived unit. A user defined unit usually depends on a specific context the unit is used in, e.g., if a physical quantity depends on a global unit specified for the referenced object. The entity context_dependent_unit supports the representation of a user defined unit.
+16.2.4.11.2.4.1	context_dependent_unit
+A context_dependent_unit is a type of named_unit which is not related to the system of units defined in this standard. It should only be used if neither si_unit, conversion_based_unit, derived_unit nor the predefined subtypes of named_unit are applicable. 
+
+A context_dependent_unit should also be used, if the physical quantity depends on a global unit specified for the referenced object or if the physical quantity is not described explicitly, but depends on a specific context. For example the unit may be "one milliliter" or "one gram" of lubricant depending on the global unit specified for the lubricant being "milliliter" or "gram" in the case of a quantified assembly relationship with quantity "one each".
+
+The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of context dependent unit are shown in Diagram 79.
+
+ 
+Diagram 79 : Context Dependent Unit Instance Diagram
+Attributes
+·	The dimensions attribute provides the dimensional_exponents for the context_dependent_unit (see 16.2.1.2).
+·	The name attribute provides the label by which the context dependent unit is known.
+
+ENTITY context_dependent_unit	Attribute Population	Remarks
+imensions	type: entity = dimensional_exponents	references associated dimensional_exponents
+name	type: label = STRING	the name attribute indicates the name of the represented context_dependent_unit
+
+Preprocessor Recommendations: If applicable a complex instance with one of the predefined subtypes of named_unit is recommended for context_dependent_unit.
+
+Postprocessor Recommendations: None specified.
+
+Related Entities: None specified.
+
+The Instance Model: STEP exchange file format (ISO10303 Part 21 syntax)
+<example number="1">
+<screen>
+/* Millimeter [mm]: */
+#1=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.0),#2);
+#2=(LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.));
+
+/* Gram [g]: */
+#5=MASS_MEASURE_WITH_UNIT(MASS_MEASURE(150.5),#6);
+#6=(MASS_UNIT() NAMED_UNIT(*) SI_UNIT($,.GRAM.));
+
+/* Square meter [m2]: */
+#10=AREA_MEASURE_WITH_UNIT(AREA_MEASURE(2.5E+001),#20);
+#20=DERIVED_UNIT((#30));
+#30=DERIVED_UNIT_ELEMENT(#50,2.0);
+#40=NAME_ATTRIBUTE('SQUARE METER',#20);
+#50=(LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT($,.METRE.));
+
+/* Inch [in]: */
+#110=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(2.54E-002),#120);
+#120=(CONVERSION_BASED_UNIT('INCH',#140) LENGTH_UNIT() NAMED_UNIT(#130));
+#130=DIMENSIONAL_EXPONENTS(1.0,0.0,0.0,0.0,0.0,0.0,0.0);
+#140=LENGTH_MEASURE_WITH_UNIT(LENGTH_MEASURE(5.0),#150);
+#150=(LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT($,.METRE.));
+
+/* Newton per square millimeter [N/mm2]: */
+#201=MEASURE_WITH_UNIT(NUMERIC_MEASURE(500.),#202); 
+#202=DERIVED_UNIT((#203,#204));
+#203=DERIVED_UNIT_ELEMENT(#205,1.);
+#204=DERIVED_UNIT_ELEMENT(#206,-2.);
+#205=SI_UNIT(*,$,.NEWTON.);
+#206=(LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.));
+
+/* Liter [l]: */
+#300=VOLUME_MEASURE_WITH_UNIT(VOLUME_MEASURE(1.5),#310);
+#310=(CONVERSION_BASED_UNIT('LITER',#330)NAMED_UNIT(#320)
+VOLUME_UNIT());
+#320=DIMENSIONAL_EXPONENTS(3.0,0.0,0.0,0.0,0.0,0.0,0.0);
+#330=LENGTH_MEASURE_WITH_UNIT(VOLUME_MEASURE(1.0E-003),#340); 
+#340=DERIVED_UNIT((#350));
+#350=DERIVED_UNIT_ELEMENT(#360,3.0);
+#360=(LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT($,.METRE.));
+
+/* Each []: */
+#400=MEASURE_WITH_UNIT(COUNT_MEASURE(2),#401);
+#401=NAMED_UNIT(#402);
+#402=DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+
+/* Unit of prefabricated []: */
+#500=MEASURE_WITH_UNIT(CONTEXT_DEPENDENT_MEASURE(3.0),#501);
+#501=CONTEXT_DEPENDENT_UNIT(#502,'UNIT OF  PREFABRICATED');
+#502=DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+
+/* As required []: */
+#600=MEASURE_WITH_UNIT(CONTEXT_DEPENDENT_MEASURE(1.0),#601);
+#601=CONTEXT_DEPENDENT_UNIT(#602,'AS REQUIRED');
+#602=DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+</screen>
+</example>
+</usage_guide>
+</module>
 
 
 

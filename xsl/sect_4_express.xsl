@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.46 2002/06/21 09:35:52 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.47 2002/06/24 07:39:19 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -857,6 +857,7 @@ select="document($module_file)/module/arm/express-g/imgfile">
   <!-- <blockquote> -->
     <code>
       ENTITY <xsl:value-of select="@name"/>
+      <xsl:call-template name="abstract.entity"/>
       <xsl:call-template name="super.expression-code"/>
       <xsl:call-template name="supertypes-code"/>;    
       <br/>
@@ -877,6 +878,11 @@ select="document($module_file)/module/arm/express-g/imgfile">
   <xsl:call-template name="output_where_informal"/>
 </xsl:template>
 
+
+<xsl:template name="abstract.entity">
+  <xsl:if test="@abstract.entity='YES' or @abstract.entity='yes'">
+    ABSTRACT</xsl:if>
+</xsl:template>
 
 <xsl:template name="super.expression-code">
   <!-- check of the expression already ends in () -->

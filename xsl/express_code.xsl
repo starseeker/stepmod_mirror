@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.22 2002/06/17 15:48:54 robbod Exp $
+     $Id: express_code.xsl,v 1.23 2002/06/18 07:56:40 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -311,7 +311,7 @@
   </xsl:if>
 
   SELECT<xsl:if test="@basedon">
-    BASED ON
+    BASED_ON
       <xsl:call-template name="link_object">
         <xsl:with-param name="object_name" select="@basedon"/>
         <xsl:with-param name="object_used_in_schema_name" 
@@ -358,6 +358,7 @@
 
   <br/>
   <A NAME="{$aname}">ENTITY <b><xsl:value-of select="@name"/></b></A>
+  <xsl:call-template name="abstract.entity"/>
   <xsl:call-template name="super.expression-code"/>
   <xsl:call-template name="supertypes-code"/>;    
   <br/>
@@ -368,6 +369,13 @@
   <xsl:apply-templates select="./where" mode="code"/>
   END_ENTITY;<br/>
 </xsl:template>
+
+
+<xsl:template name="abstract.entity">
+  <xsl:if test="@abstract.entity='YES' or @abstract.entity='yes'">
+    ABSTRACT</xsl:if>
+</xsl:template>
+
 
 <xsl:template name="super.expression-code">
   <!-- check of the expression already ends in () -->

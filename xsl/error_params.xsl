@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.14 2003/06/16 16:43:57 robbod Exp $
+     $Id: error_params.xsl,v 1.1 2003/08/06 06:40:35 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep.
@@ -28,6 +28,9 @@
        apart from the last one which should end in .
        If not then and error is flagged -->
   <xsl:param name="ERROR_CHECK_LIST_ITEMS" select="'NO'"/>
+
+  <!-- If YES, will apply checks to attributes -->
+  <xsl:param name="ERROR_CHECK_ATTRIBUTES" select="'NO'"/>
 
 
 </xsl:stylesheet>

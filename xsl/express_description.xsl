@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.32 2003/08/18 22:43:55 thendrix Exp $
+$Id: express_description.xsl,v 1.33 2003/08/25 23:28:53 thendrix Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -73,6 +73,11 @@ $Id: express_description.xsl,v 1.32 2003/08/18 22:43:55 thendrix Exp $
   <!-- if an entity, the name of an attribute 
        Optional exclusive parameter -->
   <xsl:param name="attribute" select="''"/>
+
+  <!-- if an entity, the name of an attribute 
+       Optional parameter -->
+  <xsl:param name="optional" select="''"/>
+
   
   <!-- if an entity, the name of a where rule 
        Optional exclusive parameter -->
@@ -239,6 +244,58 @@ and
 
     <xsl:if test="string-length($type)=0 and contains(substring-after($description/@linkend,'.'),'.') and not(contains($schema,$description/@linkend)) and not(contains($description/@linkend,'.wr:'))">
 
+      <xsl:if test="$ERROR_CHECK_ATTRIBUTES='YES'">
+        <xsl:variable name="first_word"
+          select="substring-before(normalize-space($description/text()),' ')"/>
+        <xsl:if test="not(contains('the a an one', $first_word))">
+          <xsl:call-template name="error_message">
+            <xsl:with-param 
+              name="message" 
+              select="concat('Warning Ent9 ' , $description/@linkend, '. Attribute description should be a phrase. Usually will start with &quot;the&quot;, &quot;a&quot;, &quot;an&quot;, or &quot;one&quot;, but not &quot;is&quot; or &quot;this&quot;.')"/>
+          </xsl:call-template>     
+        </xsl:if>
+      
+        <!-- If the attribute is OPTIONAL, then it must have the phrase.
+             The value of the attribute need not be specified.
+             -->
+        <xsl:variable name="flat_description">
+          <xsl:apply-templates select="$description" mode="flatten_description"/>
+        </xsl:variable>
+        
+        <xsl:variable name="optional_text1" select="'The value of the attribute need not be specified.'"/>
+        <xsl:variable name="optional_text2" select="'The value of this attribute need not be specified.'"/>
+        <xsl:choose>
+          <xsl:when test="$optional='YES'">
+            <xsl:if
+              test="not(contains(normalize-space($flat_description),$optional_text1)) and
+                    not(contains(normalize-space($flat_description),$optional_text2))">
+              <xsl:call-template name="error_message">
+                <xsl:with-param 
+                  name="message" 
+                  select="concat('Warning Ent10 ' , $description/@linkend, 
+                          '. The attribute is optional. It should contain the
+                          phrase &quot;The value of this attribute need not be specified.&quot;.')"/>
+              </xsl:call-template>
+            </xsl:if>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:if
+              test="(contains(normalize-space($flat_description),$optional_text1)) or
+                    (contains(normalize-space($flat_description),$optional_text2))">
+              <xsl:call-template name="error_message">
+                <xsl:with-param 
+                  name="message" 
+                  select="concat('Warning Ent10:' , $description/@linkend, 
+                          '. The attribute is NOT optional. It should NOT contain the
+                          phrase &quot;The value of this attribute need not be specified.&quot;.')"/>
+              </xsl:call-template>
+            </xsl:if>          
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:if>
+      
+
+      
 <xsl:if test="contains(substring-before(normalize-space($description/text()[position()=1]),' '),'is')">
       <xsl:call-template name="error_message">
           <xsl:with-param 

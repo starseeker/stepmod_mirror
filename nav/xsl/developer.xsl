@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: developer.xsl,v 1.4 2002/09/28 07:32:26 robbod Exp $
+$Id: developer.xsl,v 1.5 2002/09/29 08:46:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -91,12 +91,18 @@ $Id: developer.xsl,v 1.4 2002/09/28 07:32:26 robbod Exp $
       name="arm_xml_file"
       select="concat('../../data/modules/',@directory,'/arm.xml')"/>
     <xsl:apply-templates 
-      select="document($arm_xml_file)/express/schema/type"/>
+      select="document($arm_xml_file)/express/schema/type">
+      <xsl:with-param name="clause" 
+        select="concat('../sys/4_info_reqs',$FILE_EXT)"/>
+    </xsl:apply-templates>
 
     <h3>References to ARM EXPRESS entities</h3>
     The following XML constructs can be used to reference ARM entities.
     <xsl:apply-templates 
-      select="document($arm_xml_file)/express/schema/entity"/>
+      select="document($arm_xml_file)/express/schema/entity">
+      <xsl:with-param name="clause" 
+        select="concat('../sys/4_info_reqs',$FILE_EXT)"/>
+    </xsl:apply-templates>
 
     <xsl:variable
       name="mim_xml_file"
@@ -104,12 +110,18 @@ $Id: developer.xsl,v 1.4 2002/09/28 07:32:26 robbod Exp $
     <h3>References to MIM EXPRESS types</h3>
     The following XML constructs can be used to reference MIM types.
     <xsl:apply-templates 
-      select="document($mim_xml_file)/express/schema/type"/>
+      select="document($mim_xml_file)/express/schema/type">
+      <xsl:with-param name="clause" 
+        select="concat('../sys/5_mim',$FILE_EXT)"/>
+    </xsl:apply-templates>
 
     <h3>References to MIM EXPRESS entities</h3>
     The following XML constructs can be used to reference MIM entities.
     <xsl:apply-templates 
-      select="document($mim_xml_file)/express/schema/entity"/>
+      select="document($mim_xml_file)/express/schema/entity">
+      <xsl:with-param name="clause" 
+        select="concat('../sys/5_mim',$FILE_EXT)"/>
+    </xsl:apply-templates>
   </body>
 </HTML>
 </xsl:template>
@@ -120,11 +132,13 @@ $Id: developer.xsl,v 1.4 2002/09/28 07:32:26 robbod Exp $
 
 
 <xsl:template match="entity|type">
+  <xsl:param name="clause"/>
   <xsl:variable name="linkend" select="concat(../@name, '.', @name)"/>
   <xsl:variable name="href" 
-    select="translate(concat('../sys/4_info_reqs',$FILE_EXT,'#',$linkend),$UPPER,$LOWER)"/>
+    select="translate(concat($clause,'#',$linkend),$UPPER,$LOWER)"/>
   <p class="hrefname">
-    Entity: <a href="{$href}">
+    <xsl:value-of select="concat(name(),': ')"/>
+    <a href="{$href}">
       <xsl:value-of select="@name"/>
     </a>
   </p>
@@ -134,25 +148,85 @@ $Id: developer.xsl,v 1.4 2002/09/28 07:32:26 robbod Exp $
       <xsl:with-param name="linkend" select="$linkend"/>
     </xsl:call-template>
   </p>
+  <xsl:apply-templates select="enumeration"/>
   <xsl:apply-templates select="explicit"/>
   <xsl:apply-templates select="derived"/>
   <xsl:apply-templates select="inverse"/>
 </xsl:template>
 
 <xsl:template match="explicit|derived|inverse">
+  <xsl:param name="clause"/>
   <xsl:variable name="linkend" 
     select="concat(../../@name,'.',../@name,'.',@name)"/>
   <xsl:variable name="href" 
-    select="translate(concat('../sys/4_info_reqs',$FILE_EXT,'#',$linkend),$UPPER,$LOWER)"/>
+    select="translate(concat($clause,'#',$linkend),$UPPER,$LOWER)"/>
   <p class="attrname">
-        Attribute:
-        <a href="{$href}">
+        attribute: <a href="{$href}">
       <xsl:value-of select="@name"/>
     </a>
   </p>
   <p class="attrhref">
     <xsl:call-template name="output_express_ref">
       <xsl:with-param name="schema" select="../../@name"/>
+      <xsl:with-param name="linkend" select="$linkend"/>
+    </xsl:call-template>
+  </p>
+</xsl:template>
+
+<xsl:template match="enumeration">
+  <xsl:param name="clause"/>
+  <xsl:call-template name="output_enums">
+    <xsl:with-param name="clause" select="$clause"/>
+    <xsl:with-param name="str" select="normalize-space(@items)"/>
+  </xsl:call-template> 
+</xsl:template>
+
+<xsl:template name="output_enums">
+  <xsl:param name="clause"/>
+  <xsl:param name="str"/>
+  <xsl:variable name="break_char" select="' '"/>
+  <xsl:choose>
+    <xsl:when test="contains($str,$break_char)">
+      <xsl:variable name="substr" 
+        select="substring-before($str,$break_char)"/>
+      <xsl:call-template name="output_enum_item">
+        <xsl:with-param name="clause" select="$clause"/>
+        <xsl:with-param name="enum_value" select="$substr"/>
+      </xsl:call-template> 
+      
+      <xsl:variable name="rest" select="substring-after($str,$break_char)"/>
+      <xsl:call-template name="output_enums">
+        <xsl:with-param name="clause" select="$clause"/>
+        <xsl:with-param name="str" select="$rest"/>
+      </xsl:call-template> 
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="output_enum_item">
+        <xsl:with-param name="clause" select="$clause"/>
+        <xsl:with-param name="enum_value" select="$str"/>
+      </xsl:call-template> 
+    </xsl:otherwise>        
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="output_enum_item">
+  <xsl:param name="enum_value"/>
+  <xsl:param name="clause"/>
+  <xsl:variable name="schema" select="../../@name"/>
+  <xsl:variable name="enum_type" select="../@name"/>
+  <xsl:variable name="linkend" 
+    select="concat($schema,'.',$enum_type,'.',$enum_value)"/>
+  <xsl:variable name="href"
+    select="translate(concat($clause,'#',$linkend),$UPPER,$LOWER)"/> 
+
+  <p class="attrname">
+        item: <a href="{$href}">
+      <xsl:value-of select="$enum_value"/>
+    </a>
+  </p>
+  <p class="attrhref">
+    <xsl:call-template name="output_express_ref">
+      <xsl:with-param name="schema" select="$schema"/>
       <xsl:with-param name="linkend" select="$linkend"/>
     </xsl:call-template>
   </p>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.12 2004/12/31 11:52:32 kovaliovas Exp $
+   $Id: arm.exp,v 1.13 2005/01/04 07:10:57 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Bare die - EXPRESS ARM *)
 (* UNDER DEVELOPMENT *)
 
@@ -23,10 +23,19 @@ USE FROM Shape_composition_arm;
 
 USE FROM Part_terminal_arm;
 
-USE FROM Pdm_material_aspects_arm;
+USE FROM Conductivity_material_aspects_arm;
 
-USE FROM Product_occurrence_arm;
+USE FROM Part_occurrence_arm;
 
+	TYPE bd_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Bare_die_terminal);
+	END_TYPE;
+
+	TYPE derived_zone_shape_class = ENUMERATION OF(
+		area,
+		edge);
+	END_TYPE;
+	
   ENTITY Bare_die
     SUBTYPE OF (Part_usage_view);
       least_material_condition_centroid_location   : OPTIONAL Cartesian_point;
@@ -79,6 +88,12 @@ USE FROM Product_occurrence_arm;
     SUBTYPE OF (Minimally_defined_bare_die_terminal);
       external_connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
       seating_plane_zone       : OPTIONAL Connection_zone_bare_die_interface_plane_relationship;
+    WHERE  
+	  WR1 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
   END_ENTITY;
 
   ENTITY Bare_die_terminal_surface_constituent_relationship
@@ -95,14 +110,12 @@ USE FROM Product_occurrence_arm;
       interface_plane          : Seating_plane;
       mating_zone              : Connection_zone_in_usage_view;
       derived_zone             : Connection_zone_in_usage_view;
-      derived_zone_shape_class : STRING;
+      derived_zone_shape_class : derived_zone_shape_class;
     INVERSE
       associated_bare_die_terminal : SET[0:1] OF bare_die_terminal FOR seating_plane_zone;
     UNIQUE
       UR1 : interface_plane,
  mating_zone;
-    WHERE
-      WR1 : derived_zone_shape_class IN ['area', 'edge'];
   END_ENTITY; 
 
   ENTITY Guided_wave_bare_die_terminal

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.10 2004/12/17 15:19:19 liutkus Exp $
+   $Id: arm.exp,v 1.13 2005/01/04 07:11:23 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Requirement decomposition - EXPRESS ARM
 *)
 
@@ -23,7 +23,7 @@ USE FROM Analytical_model_arm;
 
 USE FROM Functional_specification_arm;
 
-USE FROM Pdm_material_aspects_arm;
+USE FROM Conductivity_material_aspects_arm;
 
  
   TYPE material_conductivity_classification = ENUMERATION OF
@@ -33,7 +33,11 @@ USE FROM Pdm_material_aspects_arm;
      non_conductive);
   END_TYPE;
 
-	SUBTYPE_CONSTRAINT model_parameter_subtypes FOR Model_parameter; 
+	TYPE rd_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Requirement_definition_property);
+	END_TYPE;
+
+	SUBTYPE_CONSTRAINT rd_model_parameter_subtypes FOR Model_parameter; 
 		 ONEOF (Analytical_model_parameter,
 		 Category_model_parameter,
 		 Rule_function_domain_parameter,
@@ -102,7 +106,17 @@ USE FROM Pdm_material_aspects_arm;
     SUBTYPE OF (Requirement_definition_property);
   END_ENTITY;
 
-  ENTITY Requirement_definition_property;
+  ENTITY Requirement_definition_property
+	SUPERTYPE OF((ONEOF (Thermal_requirement_occurrence,
+		 Electromagnetic_requirement_occurrence,
+		 Electrical_requirement_occurrence,
+		 Mechanical_requirement_occurrence) ANDOR
+		 ONEOF (Design_requirement_occurrence,
+		 Inspection_requirement_occurrence,
+		 Test_requirement_occurrence,
+		 Purpose_occurrence,
+		 Constraint_occurrence,
+		 Design_characteristic_occurrence)));
       associated_definition               : Requirement_view_definition;
       required_analytical_representation  : OPTIONAL SET[1:?] OF Analytical_model_application;
       required_functional_specification   : OPTIONAL SET[1:?] OF Functional_specification;
@@ -113,6 +127,12 @@ USE FROM Pdm_material_aspects_arm;
       reference_clause                    : OPTIONAL Structured_text_id_in_document;
     UNIQUE
       UR1 : associated_definition;
+    WHERE  
+	  WR1 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) <= 1);
   END_ENTITY;
 
   ENTITY Shape_and_ee_product_definition_based_constraint_occurrence
@@ -132,19 +152,6 @@ USE FROM Pdm_material_aspects_arm;
   ENTITY Thermal_requirement_occurrence
     SUBTYPE OF (Requirement_definition_property);
   END_ENTITY;
-
-	SUBTYPE_CONSTRAINT Requirement_definition_property_subtypes FOR Requirement_definition_property;     
-	    ((ONEOF (Thermal_requirement_occurrence,
-	 Electromagnetic_requirement_occurrence,
-	 Electrical_requirement_occurrence,
-	 Mechanical_requirement_occurrence) ANDOR
-	 ONEOF (Design_requirement_occurrence,
-	 Inspection_requirement_occurrence,
-	 Test_requirement_occurrence,
-	 Purpose_occurrence,
-	 Constraint_occurrence,
-	 Design_characteristic_occurrence)));
-	END_SUBTYPE_CONSTRAINT;
 
 FUNCTION get_requirement_definition_property
   (ra : Requirement_assignment;

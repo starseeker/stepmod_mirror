@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.7 2004/12/17 11:42:25 liutkus Exp $
+   $Id: arm.exp,v 1.10 2005/01/04 07:10:59 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Device marking - EXPRESS ARM
 *)
 
@@ -9,7 +9,7 @@ USE FROM Approval_arm;
 
 USE FROM Characteristic_arm;
 
-USE FROM Pdm_material_aspects_arm;
+USE FROM Conductivity_material_aspects_arm;
 
 USE FROM Part_template_2d_shape_arm;
 
@@ -28,6 +28,10 @@ USE FROM Product_version_arm;
 USE FROM Specification_document_arm;
 
 USE FROM Styled_text_arm;
+
+	TYPE dm_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Marking);
+	END_TYPE;
 
   TYPE marked_message_select = SELECT
     (Configuration_controlled_message,
@@ -73,6 +77,11 @@ END_TYPE;
       WR2 : SIZEOF(QUERY(ap <* marked_device_shape\geometric_model.items | ap = placement)) = 1;
       WR3 : SIZEOF(TYPEOF(marked_device_shape) * ['DEVICE_MARKING_ARM.PHYSICAL_UNIT_3D_SHAPE',
  'DEVICE_MARKING_ARM.PHYSICAL_UNIT_PLANAR_SHAPE']) = 1;
+	  WR4 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
   END_ENTITY;
 
 END_SCHEMA;

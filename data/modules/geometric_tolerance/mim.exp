@@ -1,7 +1,5 @@
-(*
-  $Id: $
-  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-ZZZZ Geometric_tolerance *)
-
+(* Nxxx  ISO/CD TS 10303-1051
+$Id: $ *)
 SCHEMA Geometric_tolerance_mim;
 
 USE FROM aic_geometric_tolerances;
@@ -77,12 +75,12 @@ WHERE
               )) = 1);
   WR9: (SELF.description <> 'rectangle') OR
              (SIZEOF( QUERY( pdr <* get_shape_aspect_property_definition_representations(SELF) |
-              ('GEOMETRIC_TOLERANCE.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
+              ('GEOMETRIC_TOLERANCE_MIM.SHAPE_REPRESENTATION_WITH_PARAMETERS' IN 
                TYPEOF(pdr.used_representation)) AND
               (SIZEOF( QUERY( i <* pdr.used_representation.items |
                 (i.name='target length') AND
                 (SIZEOF(['GEOMETRIC_TOLERANCE_MIM.MEASURE_REPRESENTATION_ITEM',
-GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
+'GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                  ) = 2)
                )) = 1)
               )) = 1);
@@ -98,5 +96,52 @@ GEOMETRIC_TOLERANCE_MIM.LENGTH_MEASURE_WITH_UNIT']*TYPEOF(i)
                 )) = 1)
                )) = 1);
 END_ENTITY;
+
+RULE subtype_exclusiveness_geometric_tolerance FOR
+    (geometric_tolerance);
+WHERE
+  WR1:  SIZEOF(QUERY (gt <* geometric_tolerance |
+                    NOT (type_check_function(gt,
+                    ['GEOMETRIC_TOLERANCE_MIM.ANGULARITY_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.CIRCULAR_RUNOUT_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.COAXIALITY_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.CONCENTRICITY_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.CYLINDRICITY_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.FLATNESS_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.LINE_PROFILE_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.PARALLELISM_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.PERPENDICULARITY_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.POSITION_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.ROUNDNESS_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.STRAIGHTNESS_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.SURFACE_PROFILE_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.SYMMETRY_TOLERANCE',
+                     'GEOMETRIC_TOLERANCE_MIM.TOTAL_RUNOUT_TOLERANCE'] , 3 )
+               ))) = 0;
+
+END_RULE;
+RULE subtype_mandatory_geometric_tolerance FOR
+    (geometric_tolerance);
+WHERE
+  WR1:  SIZEOF(QUERY ( gt <* geometric_tolerance | 
+                        NOT (type_check_function(gt,
+                       ['GEOMETRIC_TOLERANCE_MIM.ANGULARITY_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.CIRCULAR_RUNOUT_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.COAXIALITY_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.CONCENTRICITY_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.CYLINDRICITY_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.FLATNESS_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.LINE_PROFILE_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.PARALLELISM_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.PERPENDICULARITY_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.POSITION_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.ROUNDNESS_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.STRAIGHTNESS_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.SURFACE_PROFILE_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.SYMMETRY_TOLERANCE',
+                        'GEOMETRIC_TOLERANCE_MIM.TOTAL_RUNOUT_TOLERANCE'] , 0)
+                    ))) = 0;
+END_RULE;
+
 
 END_SCHEMA;

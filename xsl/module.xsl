@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.18 2002/01/04 18:58:51 robbod Exp $
+$Id: module.xsl,v 1.19 2002/01/06 08:46:40 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -8,8 +11,6 @@ $Id: module.xsl,v 1.18 2002/01/04 18:58:51 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
-
-
 
   <xsl:import href="module_toc.xsl"/>
 

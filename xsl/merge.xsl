@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: express.xsl,v 1.6 2001/11/21 15:35:19 robbod Exp $
+$Id: merge.xsl,v 1.1 2001/11/23 12:35:00 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
-  Purpose: Merges descriptions into EXPRESS and then outputs new XML     
+  Purpose: Merges descriptions into EXPRESS and then outputs new XML.
+     Assumes a single description file containing the descriptions
+     stored in:
+          ?module?/descriptions/description.xml
+
+     The description file comprises of XML with the following DTD.
+     !ELEMENT ext_descriptions (ext_description*)
+     !ATTLIST ext_descriptions module_directory CDATA #REQUIRED
+     
+     !ELEMENT ext_description (ext_description*)
+     !ATTLIST ext_descriptions reference CDATA #REQUIRED
+
+     reference identifies the EXPRESS construct for which a description is
+     being provided. In a module ARM or MIM it has the form:
+     <module>:mim|arm:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
+ 
+     e.g. work_order:arm:work_arm_schema.Activity.name
+
+     In an Integrated Resource schema:
+     <ir>:ir:<schema>.<entity|type|function|constant>.<attribute>|wr:<whererule>|ur:<uniquerule>
 -->
+
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: db2prog.xsl,v 1.1 2004/09/14 20:27:04 joshualubell Exp $
+<!-- $Id: rngdoc.xsl,v 1.1 2004/09/27 21:15:44 joshualubell Exp $
 
      XSLT transform to convert annotated RELAX NG schema to DocBook 
      section element documenting the schema.
@@ -29,11 +29,6 @@ following constructs.</xsl:param>
       </para>
       <xsl:for-each select="//rng:element">
 	<xsl:sort select="@name"/>
-	<xsl:message>
-	  <xsl:text>Entering element </xsl:text>
-	  <xsl:value-of select="@name"/>
-	  <xsl:text> at top level</xsl:text>
-	</xsl:message>
 	<section>
 	  <title>Element <xsl:value-of select="@name"/></title>
 	  <informaltable>
@@ -50,7 +45,14 @@ following constructs.</xsl:param>
 		<row>
 		  <entry>Content Model</entry>
 		  <entry>
-		    <xsl:apply-templates select="rng:ref | rng:element"
+		    <xsl:apply-templates select="rng:empty |
+						 rng:zeroOrMore | 
+						 rng:oneOrMore | 
+						 rng:optional | 
+						 rng:choice | 
+						 rng:ref | 
+						 rng:element | 
+						 rng:text"
 					 mode="content"/>
 		  </entry>
 		</row>
@@ -69,15 +71,12 @@ following constructs.</xsl:param>
   </xsl:template>
 
   <xsl:template match="rng:define" mode="content">
-    <xsl:apply-templates mode="content"/>
+    <xsl:if test="not(rng:empty)">
+      <xsl:apply-templates mode="content"/>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:element" mode="content">
-    <xsl:message>
-      <xsl:text>entering element </xsl:text>
-      <xsl:value-of select="@name"/>
-      <xsl:text> in content mode</xsl:text>
-    </xsl:message>
     <xsl:text> </xsl:text>
     <xsl:value-of select="@name"/>
     <xsl:text> </xsl:text>
@@ -85,6 +84,10 @@ following constructs.</xsl:param>
 
   <xsl:template match="rng:text" mode="content">
     <xsl:text> #PCDATA </xsl:text>
+  </xsl:template>
+
+  <xsl:template match="rng:empty" mode="content">
+    <xsl:text> EMPTY </xsl:text>
   </xsl:template>
 
   <xsl:template match="rng:zeroOrMore" mode="content">
@@ -100,9 +103,11 @@ following constructs.</xsl:param>
   </xsl:template>
 
   <xsl:template match="rng:optional" mode="content">
-    <xsl:text>(</xsl:text>
-    <xsl:apply-templates mode="content"/>
-    <xsl:text>)?</xsl:text>
+    <xsl:if test="not(rng:attribute)">
+      <xsl:text>(</xsl:text>
+      <xsl:apply-templates mode="content"/>
+      <xsl:text>)?</xsl:text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="rng:choice" mode="content">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: arm_long_form.xsl,v 1.3 2002/11/25 16:40:49 nigelshaw Exp $
+$Id: arm_long_form.xsl,v 1.4 2003/04/14 07:54:24 thendrix Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -13,7 +13,8 @@ $Id: arm_long_form.xsl,v 1.3 2002/11/25 16:40:49 nigelshaw Exp $
 		xmlns:exslt="http://exslt.org/common"
 		version="1.0">
 
-	<xsl:import href="../../xsl/express.xsl"/>
+
+  <xsl:import href="select_view.xsl"/>
 
 
 
@@ -22,12 +23,13 @@ $Id: arm_long_form.xsl,v 1.3 2002/11/25 16:40:49 nigelshaw Exp $
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
 
+  <!--
   <xsl:variable name="mod_file" 
 	    select="concat('../../data/modules/',/stylesheet_application[1]/@directory,'/module.xml')"/>
 	    
   <xsl:variable name="module_node"
 	    select="document($mod_file)"/>
-
+  -->
 
   <xsl:template match="/" >
     <xsl:apply-templates select="./stylesheet_application"/>
@@ -88,10 +90,11 @@ $Id: arm_long_form.xsl,v 1.3 2002/11/25 16:40:49 nigelshaw Exp $
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
 
-			<xsl:apply-templates select="$arm_node//type | $dep-schemas//type " mode="annotated-code">
-				<xsl:sort select="@name" />
-			</xsl:apply-templates>
-
+			<xsl:call-template name="long-form-output" >
+                          <xsl:with-param name="this-schema" select="$arm_node"/>
+                          <xsl:with-param name="called-schemas" select="$dep-schemas" />
+			</xsl:call-template>
+                        
 			<xsl:apply-templates select="$arm_node//entity | $dep-schemas//entity " mode="annotated-code">
 				<xsl:sort select="@name" />
 			</xsl:apply-templates>
@@ -343,5 +346,137 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 		<x><xsl:value-of select="@schema" /></x> 
 	</xsl:if>
 </xsl:template>
+
+<!-- output all the TYPES in as a long form -->
+<xsl:template name="long-form-output">
+  <xsl:param name="this-schema"/>
+  <xsl:param name="called-schemas"/>
+  <xsl:for-each select="$this-schema//type | $called-schemas//type">
+    <xsl:sort select="@name"/>
+    <xsl:choose>
+      <xsl:when test="./select/@basedon">
+        <xsl:variable name="this_select" select="@name"/>
+        <xsl:variable name="this_base" select="select/@basedon"/>
+        <br/>    
+        TYPE <b><xsl:value-of select="@name"/></b> = SELECT
+          
+        <xsl:variable name="based-on-down" >
+          <xsl:apply-templates select="$this-schema//type[@name=$this_base] 
+                                       | $called-schemas//type[@name=$this_base]"
+            mode="basedon-down">
+            <xsl:with-param name="this-schema" select="$this-schema"/>
+            <xsl:with-param name="called-schemas" select="$called-schemas"/>
+            <xsl:with-param name="done" select="concat(' ',$this_select,' ')"/>
+          </xsl:apply-templates>
+        </xsl:variable>
+
+        <!-- check if select items overlaps with already included types from lower selects -->
+        <!-- should also check against subtypes of previous items ??? -->
+    
+        <xsl:variable name="overlap">
+          <xsl:call-template name="filter-word-list" >
+            <xsl:with-param name="allowed-list" select="select/@selectitems"/>
+            <xsl:with-param name="word-list" select="based-on-down"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:if test="string-length($overlap) > 2" >
+          <xsl:call-template name="error_message">
+            <xsl:with-param name="inline" select="'yes'"/>
+            <xsl:with-param name="warning_gif" select="'../../../../images/warning.gif'"/>
+            <xsl:with-param name="message" 
+              select="concat('Warning Sel9: Select items ', $overlap,
+                      ' have already been included in a lower SELECT type.')"/>
+          </xsl:call-template>               
+        </xsl:if>
+        
+        <xsl:variable name="select-items1">
+          <xsl:choose>
+            <xsl:when test="select/@selectitems">
+              <xsl:value-of select="concat(select/@selectitems,' ',$based-on-down)"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$based-on-down"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        
+        <xsl:variable name="select-items2">
+          <xsl:call-template name="remove_duplicates">
+            <xsl:with-param name="list" select="$select-items1"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="select-items3">
+          <xsl:call-template name="sort_list">
+            <xsl:with-param name="list" select="normalize-space($select-items2)"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="select-items">
+          <xsl:call-template name="output_comma_separated_list">
+            <xsl:with-param name="string" select="normalize-space($select-items3)"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <br/>
+        &#160;&#160;&#160;&#160;(<xsl:call-template name="output_line_breaks">
+           <xsl:with-param name="str" select="$select-items"/>
+           <xsl:with-param name="break_char" select="','"/>
+         </xsl:call-template>);
+         <br/>
+         END_TYPE;
+         <br/>
+       </xsl:when>
+
+       <xsl:when test="./select[@extensible='YES' and not(@basedon)]">
+        <br/>
+        TYPE <b><xsl:value-of select="@name"/></b> = SELECT
+      
+        <xsl:variable name="sel-items">
+          <xsl:apply-templates select="." mode="basedon">
+            <xsl:with-param name="this-schema" select="$this-schema"/>
+            <xsl:with-param name="called-schemas" select="$called-schemas"/>
+            <xsl:with-param name="done" select="' '"/>
+          </xsl:apply-templates>
+        </xsl:variable>
+      
+        <xsl:variable name="sel-items-unique">
+          <xsl:call-template name="filter-word-list-unique" >
+            <xsl:with-param name="word-list" select="$sel-items"/>
+          </xsl:call-template>
+        </xsl:variable>
+          
+        <xsl:variable name="select-items4">
+          <xsl:call-template name="sort_list">
+            <xsl:with-param name="list" select="normalize-space($sel-items-unique)"/>
+          </xsl:call-template>
+        </xsl:variable>
+      
+        <xsl:variable name="select-items5">
+          <xsl:call-template name="output_comma_separated_list">
+            <xsl:with-param name="string" select="normalize-space($select-items4)"/>
+          </xsl:call-template>
+        </xsl:variable>
+      
+        <br/>
+        &#160;&#160;&#160;&#160;(<xsl:call-template name="output_line_breaks">
+            <xsl:with-param name="str" select="$select-items5"/>
+            <xsl:with-param name="break_char" select="','"/>
+          </xsl:call-template>);
+        <br/>
+        END_TYPE;
+        <br/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="." mode="code"/>
+      </xsl:otherwise>
+
+     </xsl:choose>
+   </xsl:for-each>
+   <hr/>
+</xsl:template>
+
+
 
 </xsl:stylesheet>

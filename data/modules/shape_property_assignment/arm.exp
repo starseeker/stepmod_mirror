@@ -1,38 +1,52 @@
 { iso standard 10303 part (11) version (4) }
-(*  $Id: $ *) 
+
+(* 
+$Id: $
+WG12 N1225 - ISO/CD TS - 10303-1032 Shape_property_assigment_arm - EXPRESS ARM 
+*)
 
 SCHEMA Shape_property_assignment_arm;
 
+USE FROM Product_view_definition_arm;
+
+USE FROM Product_view_definition_relationship_arm;
+
 USE FROM Property_assignment_arm;
 
-TYPE shape_property_assignment = EXTENSIBLE SELECT BASED_ON property_assignment_select WITH
-  (Item_shape,
-   Shape_element,
+TYPE shape_select = SELECT BASED_ON property_assignment_select WITH
+  (Shape_element,
    Shape_element_relationship);
+END_TYPE;
+
+TYPE shapeable_definition_select = SELECT 
+  (Object,
+   Product_view_definition,
+   View_definition_relationship);
 END_TYPE;
 
 ENTITY Item_shape
 SUBTYPE OF (Element_property);
 WHERE
-  WR1: 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_PROPERTY_ASSIGNMENT' NOT IN TYPEOF(SELF\Property_of_shape.described_element);
+  (* WR1*)
+  WR1: SizeOf (QUERY( item <* SELF\Identification_assignment.described_element | 
+      NOT ('SHAPE_PROPERTY_ASSIGNMENT_ARM.' + 'SHAPEABLE_DEFINITION_SELECT') IN TypeOf(item) )) = 0;
 END_ENTITY;
 
-ENTITY Property_of_shape
-SUBTYPE OF (Element_property);
-WHERE
-  WR1: 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_PROPERTY_ASSIGNMENT' IN TYPEOF(SELF\Property_of_shape.described_element);
+ENTITY Object;
 END_ENTITY;
 
 ENTITY Shape_element;
   composition : Item_shape;
+  descr : OPTIONAL STRING;
+  element_name : OPTIONAL STRING;
+  ident : OPTIONAL STRING;
 END_ENTITY;
 
 ENTITY Shape_element_relationship;
-  description : OPTIONAL STRING;
-  element_name : OPTIONAL STRING;
+  descr : OPTIONAL STRING;
   related : Shape_element;
   relating : Shape_element;
+  relation_type : STRING;
 END_ENTITY;
 
 END_SCHEMA;
-

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.170 2004/11/03 10:47:41 robbod Exp $
+$Id: module.xsl,v 1.171 2004/11/03 11:14:57 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3337,7 +3337,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 
 
   <p>
-    For the purposes of this part of ISO 10303, the following abbreviations
+    For the purposes of this document, the following abbreviations
     apply:
   </p>
   <!-- get the default abbreviations out of the abbreviations_default.xml
@@ -3526,7 +3526,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
       <xsl:with-param name="module" select="/module"/>
       <xsl:with-param name="section" select="concat('3.',$def_section+1)"/>
     </xsl:call-template>
-    For the purposes of this part of ISO 10303, 
+    For the purposes of this document, 
     the following definitions apply:
   </xsl:if>
 

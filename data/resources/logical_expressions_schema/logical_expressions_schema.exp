@@ -1,10 +1,10 @@
 SCHEMA logical_expressions_schema; 
 
-REFERENCE FROM iso13584_expressions_schema   -- ISO 13584
-  (defined_fucntion,
-   expression); 
+REFERENCE FROM iso13584_expressions_schema   -- ISO 13584-20
+  (expression,
+   variable); 
 
-REFERENCE FROM iso13584_generic_expressions_schema   -- ISO 13584
+REFERENCE FROM iso13584_generic_expressions_schema   -- ISO 13584-20
   (binary_generic_expression,
    generic_expression,
    generic_literal,
@@ -17,8 +17,8 @@ REFERENCE FROM iso13584_iec61360_dictionary_schema   -- ISO 13584-42
 
 
 ENTITY binary_logical_expression
-  SUPERTYPE OF (ONEOF (instance_equal,
-                       logical_xor))
+  SUPERTYPE OF (ONEOF (logical_xor,
+                       value_equal))
   SUBTYPE OF (binary_generic_expression, logical_expression);
 END_ENTITY;
 
@@ -29,10 +29,6 @@ END_ENTITY;
 
 ENTITY default_boolean_variable
   SUBTYPE OF (logical_variable);
-END_ENTITY;
-
-ENTITY instance_equal
-  SUBTYPE OF (binary_logical_expression);
 END_ENTITY;
 
 ENTITY logical_and
@@ -48,10 +44,9 @@ ENTITY logical_comparison
                        logical_like,
                        logical_not_equal,
                        user_defined_logical_comparison))
-  SUBTYPE OF (binary_generic_expression, logical_expression);
-DERIVE
-  SELF\generic_literal.operands RENAMED specified_value : generic_literal[1];
-  SELF\generic_literal.operands RENAMED the_parameter : generic_variable[2];
+  SUBTYPE OF (logical_expression);
+  specified_value : generic_literal;
+  the_parameter : generic_variable;
 END_ENTITY;
 
 ENTITY logical_comparison_equal
@@ -105,7 +100,7 @@ ENTITY logical_or
 END_ENTITY;
 
 ENTITY logical_variable
-  SUBTYPE OF (generic_variable, simple_logical_expression);
+  SUBTYPE OF (simple_logical_expression, variable);
 END_ENTITY;
 
 ENTITY logical_xor
@@ -131,6 +126,10 @@ ENTITY user_defined_logical_comparison
   declaration : STRING;
   description : STRING;
   language : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY value_equal
+  SUBTYPE OF (binary_logical_expression);
 END_ENTITY;
 
 END_SCHEMA;  -- logical_expressions_schema

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: res_toc.xsl,v 1.7 2002/12/19 21:02:58 nigelshaw Exp $
+$Id: res_toc.xsl,v 1.8 2002/12/20 12:35:58 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -53,7 +53,7 @@ NEED TO FIX up the hrefs -->
           </A><BR/>
 
           <!-- fundamental concepts - seems to always be there -->
-          &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#funcon{$clauseno}">
+          &#160; &#160;<A HREF="{$resdoc_root}/sys/{$clauseno}_schema{$FILE_EXT}#funcon">
           <xsl:value-of select="concat($clauseno,'.2 Fundamental concepts and assumptions')"/>
           </A><BR/>
 

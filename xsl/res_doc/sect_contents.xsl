@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.10 2002/12/23 18:24:45 thendrix Exp $
+$Id: sect_contents.xsl,v 1.11 2002/12/23 20:52:45 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -237,11 +237,25 @@ $Id: sect_contents.xsl,v 1.10 2002/12/23 18:24:45 thendrix Exp $
            <xsl:variable name="figtext" >
              
            <xsl:value-of 
-             select="concat('Figure',$number, 
+             select="concat('Figure ',$number, 
                          ' &#8212; The relationship of schemas of this part to the standard ISO 10303 integration architecture ')"/>
            </xsl:variable>
+           <xsl:variable name="expg_path">
+               <xsl:value-of select="substring-before($file,'.xml')"/>
+           </xsl:variable>
 
-           <xsl:variable name="href" select="concat('../',$file)"/>
+             <xsl:variable name="schema_url">
+               <xsl:choose>
+                 <xsl:when test="$FILE_EXT='.xml'">
+                   <xsl:value-of select="concat('../',$expg_path,'.xml')"/>
+                 </xsl:when>
+                 <xsl:otherwise>
+                   <xsl:value-of select="concat('../',$expg_path,'.htm')"/>
+                 </xsl:otherwise>
+               </xsl:choose>
+             </xsl:variable>
+        
+             <xsl:variable name="href" select="$schema_url"/>
            
            <p class="content">
              <a href="{$href}"><xsl:value-of select="$figtext"/></a>
@@ -284,7 +298,6 @@ $Id: sect_contents.xsl,v 1.10 2002/12/23 18:24:45 thendrix Exp $
              </xsl:variable>
         
              <xsl:variable name="href" select="$schema_url"/>
-
              <p class="content">
                <a href="{$href}"><xsl:value-of select="$figtext"/></a>
              </p>
@@ -434,7 +447,7 @@ $Id: sect_contents.xsl,v 1.10 2002/12/23 18:24:45 thendrix Exp $
 
            <!-- fundamental concepts - seems to always be there -->
            </p><p class="content">
-           &#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#funcon{$clause_no}">
+           &#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#funcon">
            <xsl:value-of select="concat($clause_no,'.2 Fundamental concepts and assumptions')"/>
            </A><BR/>
  </p>

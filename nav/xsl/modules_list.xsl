@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.15 2002/12/12 23:17:24 nigelshaw Exp $
+$Id: modules_list.xsl,v 1.16 2002/12/24 14:37:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -160,7 +160,16 @@ $Id: modules_list.xsl,v 1.15 2002/12/12 23:17:24 nigelshaw Exp $
         &#160;&#160;<a href="{$summary}#arm_dict_types" target="content">ARM dictionary
       </a>
       </p>
-      <!-- would need to determin whether the ARM actually had these
+
+      <!-- really should check to see if the module has an issue log. This
+           would however slow everything down -->
+      <xsl:variable name="issue_log" select="concat('../data/modules/',@name,'/dvlp/issues',$FILE_EXT)"/>
+      <p class="menuitem">
+        &#160;&#160;<a href="{$issue_log}" target="content">Module issue log.</a>
+      </p>
+
+
+      <!-- would need to determine whether the ARM actually had these
            sections, which would slow everything down 
       <p class="menuitem">
         &#160;&#160;<a href="{$summary}#arm_dict_types" target="content">ARM Type dictionary

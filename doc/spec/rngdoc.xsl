@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: rngdoc.xsl,v 1.8 2004/10/12 18:26:48 joshualubell Exp $
+<!-- $Id: rngdoc.xsl,v 1.9 2004/10/14 19:21:19 joshualubell Exp $
 
      XSLT transform to convert annotated RELAX NG schema to DocBook 
      section element documenting the schema.
@@ -79,48 +79,48 @@
 	      <xsl:text> (Root Element)</xsl:text>
 	    </xsl:if>
 	  </title>
-	  <informaltable>
-	    <tgroup cols="2">
-	      <tbody>
-		<xsl:if test="a:documentation">
-		  <row>
-		    <entry><emphasis role="bold">Documentation</emphasis></entry>
-		    <entry>
-		      <xsl:value-of select="a:documentation"/>
-		    </entry>
-		  </row>
-		</xsl:if>
-		<row>
-		  <entry><emphasis role="bold">Content Model</emphasis></entry>
-		  <entry>
+	  <variablelist>
+	    <xsl:if test="a:documentation">
+	      <varlistentry>
+		<term>Documentation</term>
+		<listitem>
+		  <para>
+		    <xsl:value-of select="a:documentation"/>
+		  </para>
+		</listitem>
+	      </varlistentry>
+	    </xsl:if>
+	    <varlistentry>
+	      <term>Content Model</term>
+	      <listitem>
+		<para>
+		  <literal>
+		    <xsl:apply-templates select="rng:empty |
+						 rng:zeroOrMore | 
+						 rng:oneOrMore | 
+						 rng:optional | 
+						 rng:choice | 
+						 rng:ref | 
+						 rng:element | 
+						 rng:text"
+					 mode="content"/>
+		  </literal>
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <xsl:if test="@name != $root">
+	      <varlistentry>
+		<term>Parent Elements</term>
+		<listitem>
+		  <para>
 		    <literal>
-		      <xsl:apply-templates select="rng:empty |
-						   rng:zeroOrMore | 
-						   rng:oneOrMore | 
-						   rng:optional | 
-						   rng:choice | 
-						   rng:ref | 
-						   rng:element | 
-						   rng:text"
-					   mode="content"/>
+		      <xsl:apply-templates select=".." mode="parents"/>
 		    </literal>
-		  </entry>
-		</row>
-		<xsl:if test="@name != $root">
-		  <row>
-		    <entry><emphasis role="bold">Parent Elements</emphasis></entry>
-		    <entry>
-		      <literal>
-			<xsl:apply-templates
-			    select=".."
-			    mode="parents"/>
-		      </literal>
-		    </entry>
-		  </row>
-		</xsl:if>
-	      </tbody>
-	    </tgroup>
-	  </informaltable>
+		  </para>
+		</listitem>
+	      </varlistentry>
+	    </xsl:if>
+	  </variablelist>
 	  <xsl:variable name="attributes">
 	    <xsl:apply-templates select="rng:optional | rng:ref"
 				 mode="attributes"/>

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules_inner.xsl,v 1.4 2003/06/04 15:51:07 nigelshaw Exp $
+$Id: index_arm_modules_inner.xsl,v 1.5 2003/06/08 22:03:10 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -155,7 +155,7 @@ $Id: index_arm_modules_inner.xsl,v 1.4 2003/06/04 15:51:07 nigelshaw Exp $
 
 		<xsl:variable name="mod-name" select="translate(substring-before(@name,'_arm'),$UPPER,$LOWER)" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 
 		<A HREF="{$mod-dir}/sys/1_scope{$FILE_EXT}" TARGET="content"><xsl:value-of select="$mod-name" /></A>
 		<br/>
@@ -203,7 +203,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 			select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')" />
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/arm.xml ')" />
+                                                  <xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/arm.xml ')" />
 						</xsl:otherwise>
 					</xsl:choose>
 				</x>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol.xsl,v 1.24 2003/05/28 14:34:02 robbod Exp $
+$Id: application_protocol.xsl,v 1.25 2003/06/06 09:07:12 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -28,37 +28,7 @@ $Id: application_protocol.xsl,v 1.24 2003/05/28 14:34:02 robbod Exp $
       </BODY>
     </HTML>
   </xsl:template>
-  
-  <!-- The templates for the display of each clause are partly in the files sect_xxx.xsl 
-       The concept of priority between homonym templates is used to display either the application protocol
-       file content or the ap module file content -->
-  
-  <xsl:template match="application_protocol" mode="title">
-    <xsl:variable name="lpart">
-      <xsl:choose>
-        <xsl:when test="string-length(@part)>0">
-          <xsl:value-of select="@part"/>
-        </xsl:when>
-        <xsl:otherwise>
-          XXXX
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:variable name="stdnumber">
-      <xsl:call-template name="get_protocol_stdnumber">
-        <xsl:with-param name="application_protocol" select="."/>
-      </xsl:call-template>
-    </xsl:variable>
-    
-    <xsl:variable name="protocol_name">
-      <xsl:call-template name="protocol_display_name">
-        <xsl:with-param name="application_protocol" select="@name"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:value-of select="concat($stdnumber,' ',$protocol_name)"/>                
-  </xsl:template>
-
+ 
 
   <!-- returns a list of annexes with content as a string with each annex name as a single word(no spaces)
        separated by spaces -->
@@ -106,6 +76,27 @@ $Id: application_protocol.xsl,v 1.24 2003/05/28 14:34:02 robbod Exp $
 
   <xsl:value-of select="substring('GHIJK',$pos,1)"/> 
 </xsl:template>
+
+  <xsl:template match="application_protocol" mode="abstract">
+    <xsl:choose>
+      <xsl:when test="./abstract">
+        <xsl:apply-templates select="./abstract/*"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <P>
+          This part of ISO 10303 specifies the application protocol
+          <xsl:value-of select="@name"/>.
+      </P>
+      <P>
+        The following are within the scope of this part of ISO 10303:
+      </P>
+
+      <UL>
+        <xsl:apply-templates select="./inscope/li"/>
+      </UL>
+    </xsl:otherwise>
+  </xsl:choose>
+  </xsl:template>
 
 
 </xsl:stylesheet>

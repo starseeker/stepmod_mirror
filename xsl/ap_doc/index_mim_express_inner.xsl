@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
+$Id: index_mim_express_inner.xsl,v 1.3 2003/06/11 10:16:30 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -41,7 +41,7 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 	    select="$ap_node/application_protocol/@module_name"/>
 
 	<xsl:variable name="top_module_file" 
-	    select="concat('../../../stepmod/data/modules/',$ap_top_module,'/mim.xml')"/>
+          select="concat('../../../stepmod/data/modules/',$ap_top_module,'/mim.xml')"/>
 
 	<xsl:variable name="top_module_node"
 	    select="document($top_module_file)/express"/>
@@ -684,7 +684,7 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 	<xsl:choose>
 		<xsl:when test="substring-before($schema-name,'_mim')" >
     			<xsl:variable name="mod-dir" 
-				 select="translate(concat('../../../../../stepmod/data/modules/',
+				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
                           <xsl:apply-templates select="." mode="expressg_icon">
                             <xsl:with-param name="target" select="'content'"/>
@@ -693,28 +693,28 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			
 		</xsl:when>
 		<xsl:when test="substring-before($schema-name,'_schema')" >
  	 		<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			</xsl:when>
@@ -742,7 +742,7 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 
 			<xsl:variable name="mod-name" select="substring-before(../@name,'_mim')" />
 	
-			<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+			<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 
 		
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{../@name}.{@name}" TARGET="content" >
@@ -763,35 +763,35 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 		<xsl:choose>
 			<xsl:when test="substring-before($schema-name,'_mim')" >
     				<xsl:variable name="mod-dir" 
-				 select="translate(concat('../../../../../stepmod/data/modules/',
+				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
 				<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" 
 					TARGET="content" >Definition</A>
 				<xsl:text> </xsl:text>
 				<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 				TARGET="content" >Long-form</A>
 				<br/>
 			
 			</xsl:when>
 			<xsl:when test="substring-before($schema-name,'_schema')" >
  	 			<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 				<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" 
 					TARGET="content" >Definition</A>
 				<xsl:text> </xsl:text>
 				<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 				TARGET="content" >Long-form</A>
 				<br/>
 				</xsl:when>
 				<xsl:when test="starts-with($schema-name,'aic_')" >
 		    			<xsl:variable name="res-dir" 
-					 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+					 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 				<xsl:text> </xsl:text>
 				<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 				TARGET="content" >Long-form</A>
 				<br/>
 				</xsl:when>
@@ -828,7 +828,7 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 	<xsl:choose>
 		<xsl:when test="substring-before($schema-name,'_mim')" >
     			<xsl:variable name="mod-dir" 
-				 select="translate(concat('../../../../../stepmod/data/modules/',
+				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
                           <xsl:apply-templates select="." mode="expressg_icon">
                             <xsl:with-param name="target" select="'content'"/>
@@ -837,28 +837,28 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			
 		</xsl:when>
 		<xsl:when test="substring-before($schema-name,'_schema')" >
  	 		<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			</xsl:when>
@@ -883,7 +883,7 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 
 		<xsl:variable name="mod-name" select="substring-before(../@name,'_mim')" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)"/>
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)"/>
 
                 <xsl:apply-templates select="." mode="expressg_icon">
                   <xsl:with-param name="target" select="'content'"/>
@@ -913,33 +913,33 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 	<xsl:choose>
 		<xsl:when test="substring-before($schema-name,'_mim')" >
     			<xsl:variable name="mod-dir" 
-				 select="translate(concat('../../../../../stepmod/data/modules/',
+				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			
 		</xsl:when>
 		<xsl:when test="substring-before($schema-name,'_schema')" >
  	 		<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			</xsl:when>
@@ -975,33 +975,33 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 	<xsl:choose>
 		<xsl:when test="substring-before($schema-name,'_mim')" >
     			<xsl:variable name="mod-dir" 
-				 select="translate(concat('../../../../../stepmod/data/modules/',
+				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			
 		</xsl:when>
 		<xsl:when test="substring-before($schema-name,'_schema')" >
  	 		<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			</xsl:when>
@@ -1035,33 +1035,33 @@ $Id: index_mim_express_inner.xsl,v 1.2 2003/06/08 22:03:09 nigelshaw Exp $
 	<xsl:choose>
 		<xsl:when test="substring-before($schema-name,'_mim')" >
     			<xsl:variable name="mod-dir" 
-				 select="translate(concat('../../../../../stepmod/data/modules/',
+				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			
 		</xsl:when>
 		<xsl:when test="substring-before($schema-name,'_schema')" >
  	 		<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			</xsl:when>
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
-				 select="concat('../../../../../stepmod/data/resources/',$schema-name)" />
+				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="content" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
-			HREF="../../../../../stepmod/data/modules/{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
+			HREF="{$STEPMOD_DATA_MODULES}{$ap_top_module}/sys/e_exp_mim_lf{$FILE_EXT}#{../@name}.{@name}" 
 			TARGET="content" >Long-form</A>
 			<br/>
 			</xsl:when>

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_resources_top.xsl,v 1.1 2003/05/24 10:21:00 nigelshaw Exp $
+$Id: index_resources_top.xsl,v 1.2 2003/06/06 16:15:17 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -156,7 +156,7 @@ $Id: index_resources_top.xsl,v 1.1 2003/05/24 10:21:00 nigelshaw Exp $
 
 <xsl:template match="schema" mode="module-index" >
 
-		<xsl:variable name="mod-dir" select="concat('../../../stepmod/data/resources/',@name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_RESOURCES,@name)" />
 		
 		<A HREF="{$mod-dir}/sys/{@name}.{$FILE_EXT}" ><xsl:value-of select="@name" /></A>
 			<br/>

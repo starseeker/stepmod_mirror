@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_mappings_inner.xsl,v 1.9 2003/06/08 22:03:10 nigelshaw Exp $
+$Id: index_arm_mappings_inner.xsl,v 1.10 2003/06/13 19:53:16 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited for NIST.
   Purpose: 
@@ -147,10 +147,10 @@ $Id: index_arm_mappings_inner.xsl,v 1.9 2003/06/08 22:03:10 nigelshaw Exp $
 
 		  <xsl:variable name="modules-nodes2">
 		      <xsl:choose>
-			<xsl:when test="2 > string-length($arm_schemas)" >
+			<xsl:when test="2 > string-length($modules-list)" >
 		        </xsl:when>
 		        <xsl:otherwise>
-		          <xsl:copy-of select="exslt:node-set($arm_schemas)"/>
+		          <xsl:copy-of select="exslt:node-set($modules-list)"/>
 		        </xsl:otherwise>
 		      </xsl:choose>
 		    </xsl:variable>
@@ -201,7 +201,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.9 2003/06/08 22:03:10 nigelshaw Exp $
 
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ent-name" select="@name" />
 		<xsl:variable name="lc-ent" select="translate(@name,$UPPER,$LOWER)" />
 
@@ -210,8 +210,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.9 2003/06/08 22:03:10 nigelshaw Exp $
 			<xsl:value-of select="@name"/>
 		</A>
 		<br/>
-
-<!-- check that mapping exists -->
+                <!-- check that mapping exists -->
 		<xsl:if test="not($called-modules//module[@name=$mod-name]//ae[@entity=$ent-name])" >
 <!--			Mapping NOT found -->
 			<xsl:call-template name="error_message">
@@ -256,7 +255,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.9 2003/06/08 22:03:10 nigelshaw Exp $
 
 		<xsl:variable name="mod-name" select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="lc-ent" select="translate(../@name,$UPPER,$LOWER)"/>
 		<xsl:variable name="ent-name" select="../@name"/>
 
@@ -312,7 +311,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.9 2003/06/08 22:03:10 nigelshaw Exp $
 					select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
 				<xsl:variable name="the-select-mod-dir" 
-					select="concat('../../../../../stepmod/data/modules/', $the-mod-name)" />
+					select="concat($STEPMOD_DATA_MODULES, $the-mod-name)" />
 
 				<A HREF="{$the-select-mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$the-mod-name}_arm.{@name}" 
 					TARGET="content"><xsl:value-of select="@name"/></A>
@@ -497,7 +496,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.9 2003/06/08 22:03:10 nigelshaw Exp $
 				<xsl:variable name="this-item-mod" 
 					select="translate($called-schemas//schema[entity/@name=$this-item]/@name,$UPPER,$LOWER)" />
 				<xsl:variable name="this-item-dir" 
-					select="concat('../../../../../stepmod/data/modules/',
+					select="concat($STEPMOD_DATA_MODULES,
 					substring-before($this-item-mod,'_arm'))" />
 						
 				<xsl:variable name="lc-this-item" 
@@ -507,7 +506,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.9 2003/06/08 22:03:10 nigelshaw Exp $
 					TARGET="content"><xsl:value-of select="$this-item" /></A>
 				<xsl:text>  </xsl:text>
 				<xsl:variable name="the-mod-dir" 
-					select="concat('../../../../../stepmod/data/modules/',$this-module)" />
+					select="concat($STEPMOD_DATA_MODULES,$this-module)" />
 				<br/>&#160;&#160;
 				<A HREF="{$the-mod-dir}/sys/5_mapping{$FILE_EXT}#aeentity{$this-entity}aaattribute{$this-attribute}assertion_to{$lc-this-item}" TARGET="content">map</A>
 				<xsl:text> </xsl:text>
@@ -530,7 +529,7 @@ $Id: index_arm_mappings_inner.xsl,v 1.9 2003/06/08 22:03:10 nigelshaw Exp $
 					select="substring-before($this-select-mod,'_arm')" />
 
 				<xsl:variable name="the-select-mod-dir" 
-					select="concat('../../../../../stepmod/data/modules/', $the-select-mod)" />
+					select="concat($STEPMOD_DATA_MODULES, $the-select-mod)" />
 
 				<A HREF="{$the-select-mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$this-select-mod}.{$this-select/@name}" 
 					TARGET="content">select</A>
@@ -597,7 +596,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 			select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')" />
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/arm.xml ')" />
+                                                  <xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/arm.xml ')" />
 						</xsl:otherwise>
 					</xsl:choose>
 				</x>
@@ -975,7 +974,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 
 
 				<x>
-					<xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/module.xml ')" />
+                                  <xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/module.xml ')" />
 				</x>
 			</xsl:if>
 

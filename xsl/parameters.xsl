@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.12 2003/05/06 20:45:01 thendrix Exp $
+     $Id: parameters.xsl,v 1.13 2003/05/17 01:01:07 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -76,5 +76,18 @@
   <!-- when length is 0, use the rcs date. Otherwise use value of param, as when building -->
   <xsl:param name="coverpage_date" select="''"/>
 
+  <!-- The path to the modules. This will be overwritten from the
+       ballot package generation as the ballots html is stored in
+       stepmod/ballots/isohtml/<ballot>/data/modules-->
+  <xsl:param name="STEPMOD_DATA_MODULES" select="'../../../../../stepmod/data/modules/'"/>
 
+  <!-- The path to the resources. This will be overwritten from the
+       ballot package generation as the ballots html is stored in
+       stepmod/ballots/isohtml/<ballot>/data/resources-->
+  <xsl:param name="STEPMOD_DATA_RESOURCES" select="'../../../../../stepmod/data/resources/'"/>
+
+  <!-- The path to the ap_docs. This will be overwritten from the
+       ballot package generation as the ballots html is stored in
+       stepmod/ballots/isohtml/<ballot>/data/ap_docs-->
+  <xsl:param name="STEPMOD_DATA_APS" select="'../../../../../stepmod/data/application_protocol/'"/>
 </xsl:stylesheet>

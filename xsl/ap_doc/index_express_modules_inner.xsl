@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_express_modules_inner.xsl,v 1.1 2003/05/23 12:13:20 nigelshaw Exp $
+$Id: index_express_modules_inner.xsl,v 1.2 2003/06/08 21:55:09 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -197,7 +197,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 			select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')" />
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/arm.xml ')" />
+                                                  <xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/arm.xml ')" />
 						</xsl:otherwise>
 					</xsl:choose>
 				</x>

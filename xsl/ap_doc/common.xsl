@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.21 2003/06/06 10:28:22 robbod Exp $
+$Id: common.xsl,v 1.22 2003/06/11 14:28:11 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -669,6 +669,37 @@ $Id: common.xsl,v 1.21 2003/06/06 10:28:22 robbod Exp $
       <xsl:value-of select="$prev_edition"/>
   </xsl:if>
 </xsl:template>
+
+  <!-- The templates for the display of each clause are partly in the files sect_xxx.xsl 
+       The concept of priority between homonym templates is used to display either the application protocol
+       file content or the ap module file content -->
+  
+  <xsl:template match="application_protocol" mode="title">
+    <xsl:variable name="lpart">
+      <xsl:choose>
+        <xsl:when test="string-length(@part)>0">
+          <xsl:value-of select="@part"/>
+        </xsl:when>
+        <xsl:otherwise>
+          XXXX
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="stdnumber">
+      <xsl:call-template name="get_protocol_stdnumber">
+        <xsl:with-param name="application_protocol" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
+    
+    <xsl:variable name="protocol_name">
+      <xsl:call-template name="protocol_display_name">
+        <xsl:with-param name="application_protocol" select="@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="concat($stdnumber,' ',$protocol_name)"/>                
+  </xsl:template>
+
 
 </xsl:stylesheet>
 

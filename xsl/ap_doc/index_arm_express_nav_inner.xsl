@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
+$Id: index_arm_express_nav_inner.xsl,v 1.1 2003/06/15 19:41:23 nigelshaw Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -38,7 +38,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 	    select="$ap_node/application_protocol/@module_name"/>
 
   <xsl:variable name="root2dir"
-	    select="'../../../../../stepmod/data/modules/'"/>
+	    select="$STEPMOD_DATA_MODULES"/>
 
   <xsl:variable name="top_module_file" 
 	    select="concat('../../data/modules/',$ap_top_module,'/arm.xml')"/>
@@ -257,7 +257,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 		<xsl:variable name="ent-name" select="@name" />
 		<xsl:variable name="ent-name-spaced" select="concat(' ',@name,' ')" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 
@@ -283,7 +283,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" >
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" TARGET="content">
 						<xsl:value-of select="@name" /></a>
 						<br/>
 					</xsl:for-each>
@@ -298,7 +298,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" >
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" TARGET="content">
 						<xsl:value-of select="@name" /></a>
 						<br/>
 					</xsl:for-each>
@@ -313,7 +313,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(../@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}" >
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}" TARGET="content" >
 						<xsl:value-of select="concat(../@name,'.',@name)" /></a>
 						<br/>
 					</xsl:for-each>
@@ -328,7 +328,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" >
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="content">
 						<xsl:value-of select="@name" /></a>
 						<br/>
 					</xsl:for-each>
@@ -346,7 +346,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
@@ -362,7 +362,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 	<xsl:param name="called-schemas" />
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		<xsl:variable name="typ-name" select="@name" />
@@ -390,7 +390,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(../@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}" >
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}"  TARGET="content">
 
 						<xsl:value-of select="concat(../@name,'.',@name)" /></a>
 						<br/>
@@ -406,7 +406,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 						<xsl:variable name="ref-mod" 
 						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" >
+						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="content">
 						<xsl:value-of select="@name" /></a>
 						<br/>
 					</xsl:for-each>
@@ -424,7 +424,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 	<xsl:param name="called-schemas" />
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
                   <xsl:apply-templates select="." mode="expressg_icon">
@@ -442,7 +442,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 	<xsl:param name="called-schemas" />
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
@@ -459,7 +459,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
@@ -474,7 +474,7 @@ $Id: index_arm_express_inner.xsl,v 1.9 2003/06/06 12:49:14 robbod Exp $
 
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
-		<xsl:variable name="mod-dir" select="concat('../../../../../stepmod/data/modules/',$mod-name)" />
+		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
 		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
 
 		
@@ -525,7 +525,7 @@ msxml Only seems to pick up on first file - treating parameter to document() dif
 			select="concat($dir,'data/resources/',$this-schema,'/',$this-schema,'.xml ')" />
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/arm.xml ')" />
+                                                  <xsl:value-of select="concat($dir,'stepmod/data/modules/',$mod,'/arm.xml ')" />
 						</xsl:otherwise>
 					</xsl:choose>
 				</x>

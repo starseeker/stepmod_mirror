@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.9 2003/06/01 13:56:35 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.10 2003/06/02 08:32:40 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -66,6 +66,8 @@
         </xsl:call-template>    
   </xsl:if>
 	
+  <xsl:apply-templates select="/application_protocol/changes/change_summary" mode="introduction"/>
+
   <xsl:if test="./data_plan">
     <p>
       <a name="data_plan"/>
@@ -153,6 +155,34 @@
       <xsl:value-of select="position()"/>
     </a>
     <xsl:if test="position()!=last()">,&#160;</xsl:if>
+  </xsl:template>
+
+
+  <xsl:template match="change_summary" mode="introduction">
+    <a name="changes"/>
+    <xsl:apply-templates select="."/> 
+
+   <xsl:variable name="annex_list">
+     <xsl:apply-templates select="/application_protocol" mode="annex_list"/>
+   </xsl:variable>
+
+    <xsl:variable name="al_changes">
+      <xsl:call-template name="annex_letter">
+        <xsl:with-param name="annex_name" select="'changedetail'"/>
+        <xsl:with-param name="annex_list" select="$annex_list"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <p class="note">
+      <small>
+        NOTE&#160;&#160;Detailed description of the changes is provided in
+        Annex
+        <a href="./annex_changes{$FILE_EXT}">
+          <xsl:value-of select="$al_changes"/>
+        </a>
+      </small>
+    </p>
+
   </xsl:template>
 
 </xsl:stylesheet>

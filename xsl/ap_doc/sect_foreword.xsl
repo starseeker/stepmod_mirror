@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_cover.xsl,v 1.6 2003/05/23 15:52:57 robbod Exp $
+$Id: sect_foreword.xsl,v 1.5 2003/06/02 08:32:39 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -232,8 +232,7 @@ $Id: sect_cover.xsl,v 1.6 2003/05/23 15:52:57 robbod Exp $
         </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:apply-templates select="./changes/change_summary" mode="foreword"/>
-    <xsl:apply-templates select="./changes/change_detail" mode="foreword"/>
+    <xsl:apply-templates select="./changes" mode="foreword"/>
   </xsl:if>
 
   <p>
@@ -258,17 +257,19 @@ $Id: sect_cover.xsl,v 1.6 2003/05/23 15:52:57 robbod Exp $
     </a>.
   </blockquote>
   <p>
-    Annexes A, B, C, D, E, F and G form an integral part of this part of
+    Annexes 
+    <a href="./annex_exp_lf.xml">A</a>,
+    <a href="./annex_shortnames.xml">B</a>,
+    <a href="./annex_imp_meth.xml">C</a>,
+    <a href="./annex_pics.xml">D</a> and 
+    <a href="./annex_obj_reg.xml">E</a>
+    form an integral part of this part of
     ISO 10303. Subsequent annexes are for information only.
-  </p> 
-</xsl:template>
-
-
-  <xsl:template match="change_summary" mode="foreword">
-    <xsl:apply-templates select="."/>    
+  </p>
   </xsl:template>
 
-  <xsl:template match="change_detail" mode="foreword">
+
+  <xsl:template match="changes" mode="foreword">
    <xsl:variable name="annex_list">
      <xsl:apply-templates select="/application_protocol" mode="annex_list"/>
    </xsl:variable>
@@ -280,15 +281,34 @@ $Id: sect_cover.xsl,v 1.6 2003/05/23 15:52:57 robbod Exp $
       </xsl:call-template>
     </xsl:variable>
 
-    <p class="note">
-      <small>
-        NOTE&#160;&#160;Detailed description of the changes is provided in
-        Annex
-        <a href="./annex_changes{$FILE_EXT}">
-          <xsl:value-of select="$al_changes"/>
-        </a>
-      </small>
-    </p>
-
+    <xsl:choose>
+      <xsl:when test="./change_summary and ./change_detail">
+        <p class="note">
+          <small>
+            NOTE&#160;&#160;Detailed description of the changes is provided
+            in the 
+            <a href="./introduction{$FILE_EXT}#changes">
+              Introduction
+            </a>
+            and Annex
+            <a href="./annex_changes{$FILE_EXT}">
+              <xsl:value-of select="$al_changes"/>.
+            </a>
+          </small>
+        </p>
+      </xsl:when>
+      <xsl:otherwise>
+        <p class="note">
+          <small>
+            NOTE&#160;&#160;Detailed description of the changes is provided
+            in the 
+            <a href="./introduction{$FILE_EXT}#changes">
+              Introduction
+            </a>. 
+          </small>
+        </p>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
+
 </xsl:stylesheet>

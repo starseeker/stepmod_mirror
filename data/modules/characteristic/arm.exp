@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.14 2005/02/03 10:10:32 liutkus Exp $
+   $Id: arm.exp,v 1.15 2005/02/04 17:30:52 budreckytej Exp $
    ISO TC184/SC4/WG12 N3321 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
 *)
 
@@ -99,6 +99,13 @@ SCHEMA Characteristic_arm;
     SUBTYPE OF (Characteristic_representation);
       SELF\Characteristic_representation.items 	: SET[2:2] OF Numerical_item_with_unit;
       range_type				: range_class;
+  WHERE
+    WR1 : TYPEOF(SELF\Characteristic_representation.items[1]) =
+          TYPEOF(SELF\Characteristic_representation.items[2]);
+    WR2 : TYPEOF(SELF\Characteristic_representation.items[1]\Value_with_unit.unit) =
+          TYPEOF(SELF\Characteristic_representation.items[2]\Value_with_unit.unit);
+    WR3 : valid_range(SELF\Characteristic_representation.items[1],
+                      SELF\Characteristic_representation.items[2]);          
   END_ENTITY;
 
   ENTITY Standard_uncertainty
@@ -144,4 +151,10 @@ SCHEMA Characteristic_arm;
       description  : STRING; --text;
   END_ENTITY;
 
+  FUNCTION valid_range(input1 : Numerical_item_with_unit;
+                       input2 : Numerical_item_with_unit) : BOOLEAN;
+--This function returns true if input1 is less than input2 e.g,. on the real number line                       
+--comment only for now.
+   RETURN(TRUE);
+  END_FUNCTION; 
 END_SCHEMA;

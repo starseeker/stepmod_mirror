@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.21 2005/01/17 23:21:06 thomasrthurman Exp $
+   $Id: arm.exp,v 1.22 2005/01/18 12:02:12 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly functional interface requirement - EXPRESS ARM *)
 (* UNDER DEVELOPMENT *)
 
@@ -9,50 +9,21 @@ USE FROM Packaged_part_black_box_model_arm;
 
 USE FROM Product_view_definition_arm;
 
-USE FROM Requirement_assignment_arm;	
+USE FROM Requirement_assignment_arm;
 
 USE FROM Requirement_decomposition_arm;
 
-USE FROM Assembly_physical_interface_requirement_arm(
-	Mating_connector_component,
-	Next_higher_assembly_interface_requirement);
+REFERENCE FROM Requirement_decomposition_arm
+(get_requirement_definition_property, get_rvd);
 
-REFERENCE FROM Requirement_decomposition_arm (get_requirement_definition_property, get_rvd);
-
-(** Renamed packaged_or_printed_terminal to mating_connector_definition_select *)
-	TYPE mating_connector_definition_select = SELECT
-		(Packaged_part_terminal,
-		Printed_part_template_terminal);
-	END_TYPE;
 
 	TYPE afir_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
 	   (Protocol_physical_layer_definition);
 	END_TYPE; 
 
 	TYPE afir_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
-	    (Mating_connector_termination,
-	    Termination_constraint);
+	    (Mating_connector_termination);
 	END_TYPE; 
-
-  ENTITY Interface_requirement_occurrence
-    SUBTYPE OF (Design_requirement_occurrence);
-      interface_to_next_higher_assembly : OPTIONAL Next_higher_assembly_interface_requirement;
-      reference_protocol                : OPTIONAL Protocol_physical_layer_definition;
-  END_ENTITY;
-
-  ENTITY Mating_connector_termination;
-      name               : STRING;
-      definition         : mating_connector_definition_select;
-      accessed_connector : Mating_connector_component;
-	DERIVE
-  		signal_definition: SET[0:?] OF Requirement_view_definition :=
-  		get_rvd(SELF, 'signal definition');
-    UNIQUE
-      UR1 : definition,
- accessed_connector;
-	WHERE
-   		WR1 : NOT EXISTS (signal_definition) OR SIZEOF(signal_definition) = 1;
-  END_ENTITY;
 
   ENTITY Minimally_defined_connector
     SUBTYPE OF (Packaged_part);
@@ -116,25 +87,6 @@ REFERENCE FROM Requirement_decomposition_arm (get_requirement_definition_propert
       	WR5 : EXISTS(host_functional_definition) OR EXISTS(media_functional_definition);
   END_ENTITY;
 
-  ENTITY Protocol_requirement_allocation_to_part_terminal
-    SUBTYPE OF (Requirement_assignment);
-      SELF\Requirement_assignment.assigned_to : Part_terminal;
-      protocol_signal                                   : Functional_unit_usage_view_terminal_definition;
-    DERIVE
-    	assigned_requirement_property :  requirement_definition_property := get_requirement_definition_property(SELF, 'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_ARM.'+'INTERFACE_REQUIREMENT_OCCURRENCE');
-    WHERE
-      WR1 : EXISTS(SELF\Requirement_assignment.assigned_requirement\interface_requirement_occurrence.reference_protocol);
-      WR2 : protocol_signal IN SELF\Requirement_assignment.assigned_requirement\interface_requirement_occurrence.reference_protocol.host_functional_definition\Functional_unit_usage_view.access_mechanism;
-  END_ENTITY;
-
-  ENTITY Termination_constraint;
-      constrained_termination      : SET[2:?] OF Mating_connector_termination;
-	DERIVE
-  		termination_usage_constraint: SET[0:?] OF Requirement_view_definition :=
-  		get_rvd(SELF, 'termination usage constraint');
-	WHERE
-   		WR1 : NOT EXISTS (termination_usage_constraint) OR SIZEOF(termination_usage_constraint) = 1;
-  END_ENTITY;
 
 END_SCHEMA;
 

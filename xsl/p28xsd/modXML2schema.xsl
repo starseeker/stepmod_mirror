@@ -40,26 +40,28 @@
 		<xsl:choose>
 			<xsl:when test="./select">
 				<xsl:variable name="list_of_items" select="./select/@selectitems"/>
-				<xsl:comment>EXPRESS SELECT DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment><xsl:text>&#xa;</xsl:text>
-
-				<xs:complexType name="{$corrected_type_name}">
-					<xs:group ref="ap239:{$corrected_type_name}"/>
-				</xs:complexType>
-				<xsl:text>&#xa;</xsl:text>
-				<xsl:text>&#xa;</xsl:text>
-
-				<xsl:comment>EXPRESS SELECT DATATYPE GROUP DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment><xsl:text>&#xa;</xsl:text>
-				<xs:group name="{$corrected_type_name}">
-					<xs:choice>
-						<xsl:call-template name="recurse_through_select_items">
-							<xsl:with-param name="list_of_items_param" select="$list_of_items"/>
-						</xsl:call-template>
-					</xs:choice>
-				</xs:group>
-				<xsl:text>&#xa;</xsl:text>
-				<xsl:text>&#xa;</xsl:text>
-
-			</xsl:when>
+					
+							<xsl:comment>EXPRESS SELECT DATATYPE TYPE DECLARATION FOR: <xsl:value-of 	select="$corrected_type_name"/></xsl:comment><xsl:text>&#xa;</xsl:text>
+	
+							<xs:complexType name="{$corrected_type_name}">
+								<xs:group ref="ap239:{$corrected_type_name}"/>
+							</xs:complexType>
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:text>&#xa;</xsl:text>
+			
+							<xsl:comment>EXPRESS SELECT DATATYPE GROUP DECLARATION FOR: <xsl:value-of 			select="$corrected_type_name"/></xsl:comment><xsl:text>&#xa;</xsl:text>
+							<xs:group name="{$corrected_type_name}">
+								<xs:choice>
+									<xsl:call-template name="recurse_through_select_items">
+										<xsl:with-param name="list_of_items_param" select="$list_of_items"/>
+									</xsl:call-template>
+								</xs:choice>
+							</xs:group>
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:text>&#xa;</xsl:text>
+	
+				
+							</xsl:when>
 			
 			<xsl:when test="./aggregate">
 				<xsl:variable name="base_datatype">
@@ -116,8 +118,22 @@
 					</xsl:variable>
 					<xsl:choose>
 						<xsl:when test="position()=1 and position()=last()">
-							<xsl:comment>EXPRESS AGGREGATE DATATYPE: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
-
+							<xsl:comment>EXPRESS AGGREGATE DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+							<xsl:text>&#xa;</xsl:text>
+							<xs:element name="{$corrected_type_name}" nillable="true">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="ap239:{$corrected_type_name}">
+											<xs:attributeGroup ref="ex:instanceAttributes"/>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:text>&#xa;</xsl:text>
+							
+							<xsl:comment>EXPRESS AGGREGATE DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+							<xsl:text>&#xa;</xsl:text>
 							<xs:complexType name="{$corrected_type_name}">
 								<xs:sequence>
 									<xs:element 
@@ -133,8 +149,24 @@
 							<xsl:text>&#xa;</xsl:text>
 							<xsl:text>&#xa;</xsl:text>
 						</xsl:when>
+						
 						<xsl:when test="position()=1 and position()!=last()">
-							<xsl:comment>EXPRESS AGGREGATE DATATYPE: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+							<xsl:comment>EXPRESS AGGREGATE DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+							<xsl:text>&#xa;</xsl:text>
+							<xs:element name="{$corrected_type_name}" nillable="true">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="ap239:{$corrected_type_name}">
+											<xs:attributeGroup ref="ex:instanceAttributes"/>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:text>&#xa;</xsl:text>
+
+						
+							<xsl:comment>EXPRESS AGGREGATE DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
 							<xs:complexType name="{$corrected_type_name}">
 								<xs:sequence>
 									<xs:element 
@@ -151,7 +183,22 @@
 							<xsl:text>&#xa;</xsl:text>
 						</xsl:when>
 						<xsl:when test="position()!=1 and position()!=last()">
-							<xsl:comment>EXPRESS AGGREGATE DATATYPE: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+						<xsl:comment>EXPRESS AGGREGATE DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+							<xsl:text>&#xa;</xsl:text>
+							<xs:element name="{$corrected_type_name}" nillable="true">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="ap239:{$corrected_type_name}">
+											<xs:attributeGroup ref="ex:instanceAttributes"/>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:text>&#xa;</xsl:text>
+
+						
+							<xsl:comment>EXPRESS AGGREGATE DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
 							
 								<xs:complexType name="{$seq_prefix}{$base_datatype}">
 									<xs:sequence>
@@ -170,7 +217,22 @@
 							<xsl:text>&#xa;</xsl:text>
 						</xsl:when>
 						<xsl:when test="position()=last()">
-							<xsl:comment>EXPRESS AGGREGATE DATATYPE: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+							<xsl:comment>EXPRESS AGGREGATE DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+							<xsl:text>&#xa;</xsl:text>
+							<xs:element name="{$corrected_type_name}" nillable="true">
+								<xs:complexType>
+									<xs:complexContent>
+										<xs:extension base="ap239:{$corrected_type_name}">
+											<xs:attributeGroup ref="ex:instanceAttributes"/>
+										</xs:extension>
+									</xs:complexContent>
+								</xs:complexType>
+							</xs:element>
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:text>&#xa;</xsl:text>
+
+						
+							<xsl:comment>EXPRESS AGGREGATE DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
 							
 								<xs:complexType name="{$seq_prefix}{$base_datatype}">
 									<xs:sequence>
@@ -192,19 +254,42 @@
 				</xsl:for-each>
 			</xsl:when>
 			<xsl:when test="./typename/@name=//type[select]/@name">
+				<xsl:variable name="raw_select_type_name" select="./typename/@name"/>
 				<xsl:variable name="corrected_underlying_select_type_name">
 					<xsl:call-template name="put_into_lower_case">
-						<xsl:with-param name="type" select="./typename/@name"/>
+						<xsl:with-param name="raw_item_name_param" select="$raw_select_type_name"/>
 					</xsl:call-template>
 				</xsl:variable>
+				
+				<xsl:comment>EXPRESS DEFINED DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+				<xsl:text>&#xa;</xsl:text>
+				
+				<xs:element name="{$corrected_type_name}" nillable="true">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="ap239:{$corrected_type_name}">
+								<xs:attributeGroup ref="ex:instanceAttributes"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+				
+				<xsl:comment>EXPRESS DEFINED DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+				<xsl:text>&#xa;</xsl:text>
+
+				
 				<xs:complexType name = "{$corrected_type_name}">
-					<xs:group ref="ap239:{$corrected_underlying_select_type_name}"/>
+					<xs:complexContent>
+						<xs:restriction base="ap239:{$corrected_underlying_select_type_name}"/>
+					</xs:complexContent>
 				</xs:complexType>
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:comment>SIMPLE DEFINED TYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+				<xsl:comment>EXPRESS DEFINED DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
 				<xsl:text>&#xa;</xsl:text>
 				<xs:element name="{$corrected_type_name}" nillable="true">
 					<xs:complexType>
@@ -217,7 +302,9 @@
 				</xs:element>
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
-				<xsl:comment>SIMPLE DEFINED TYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
+				
+			
+				<xsl:comment>EXPRESS DEFINED DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
 				<xsl:text>&#xa;</xsl:text>
 				<xs:simpleType name = "{$corrected_type_name}">
 					<xsl:call-template name="generate_restriction">

@@ -1,0 +1,85 @@
+(*
+$Id:$
+N
+*)
+
+SCHEMA state_type_schema;
+
+REFERENCE FROM logical_expressions_schema;
+
+TYPE state_type_of_select = GENERIC_ENTITY SELECT ;
+END_TYPE;
+
+ENTITY state_type;
+description : STRING;
+name : STRING;
+END_ENTITY;
+
+ENTITY state_type_assignment;
+assigned_to : state_type_of_select;
+described_state_type : state_type;
+END_ENTITY;
+
+ENTITY state_type_cause_effect
+SUBTYPE OF (state_type_relationship);
+SELF\state_type_relationship.related RENAMED cause : SET [1 : ?] OF state_type;
+SELF\state_type_relationship.relating RENAMED effect : SET [1 : ?] OF state_type;
+END_ENTITY;
+
+ENTITY state_type_complement
+SUBTYPE OF (state_type_relationship);
+SELF\state_type_relationship.relating RENAMED set_1 : state_type;
+SELF\state_type_relationship.relating RENAMED set_2 : state_type;
+SELF\state_type_relationship.related RENAMED universe : state_type;
+END_ENTITY;
+
+ENTITY state_type_composition
+SUBTYPE OF (state_type_relationship);
+SELF\state_type_relationship.relating RENAMED part : SET [2 : ?] OF state_type;
+SELF\state_type_relationship.related RENAMED whole : state_type;
+END_ENTITY;
+
+ENTITY state_type_condition;
+conditionable_state : OPTIONAL state_type;
+contingency : SET [0 : ?] OF literal_assignment;
+END_ENTITY;
+
+ENTITY state_type_proper_subset
+SUBTYPE OF (state_type_relationship);
+SELF\state_type_relationship.related RENAMED proper_subset : state_type;
+SELF\state_type_relationship.relating RENAMED proper_superset : state_type;
+END_ENTITY;
+
+ENTITY state_type_relationship
+SUPERTYPE OF (ONEOF(state_type_cause_effect, state_type_complement, state_type_composition, state_type_proper_subset, state_type_sequence, state_type_subset, state_type_symptom, state_type_transition));
+description : STRING;
+name : STRING;
+related : state_type;
+relating : state_type;
+END_ENTITY;
+
+ENTITY state_type_sequence
+SUBTYPE OF (state_type_relationship);
+SELF\state_type_relationship.related RENAMED predecessor : state_type;
+SELF\state_type_relationship.relating RENAMED successor : state_type;
+END_ENTITY;
+
+ENTITY state_type_subset
+SUBTYPE OF (state_type_relationship);
+SELF\state_type_relationship.related RENAMED subset : state_type;
+SELF\state_type_relationship.relating RENAMED superset : state_type;
+END_ENTITY;
+
+ENTITY state_type_symptom
+SUBTYPE OF (state_type_relationship);
+SELF\state_type_relationship.related RENAMED symptom_cause : state_type;
+SELF\state_type_relationship.relating RENAMED symptom_effect : state_type;
+END_ENTITY;
+
+ENTITY state_type_transition
+SUBTYPE OF (state_type_relationship);
+SELF\state_type_relationship.relating RENAMED end_state : state_type;
+SELF\state_type_relationship.related RENAMED start_state : state_type;
+END_ENTITY;
+
+END_SCHEMA;

@@ -1,15 +1,19 @@
-//  $Id: express2xml.js,v 1.36 2004/05/25 20:27:05 thendrix Exp $
+//  $Id: express2xml.js,v 1.37 2004/08/12 22:13:29 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //
 //  Other editors:
-//	T. Hendrix (Boeing) 
+//	T. Hendrix (aka THX and TEH)(Boeing) 
 //	P. Huau (GOSET) for subtype_constraint and algorithms of global rules
 //      S. Frechette (NIST)
 //
 //  Open issues:
 //	Script does not handle SELF\ construct correctly - deletes it in most cases
 //
+//  Recent changes: 2004 summer
+// Added handling for type labels in function formal params
+// Added handling of constants that are aggregates.
+// Fixed abstract supertype in subtype constraints.
 //	function xmlEnumeration:
 //		Still to do ????
 //			width CDATA #IMPLIED
@@ -488,6 +492,15 @@ function readToken(line) {
 		    token = -1;
 	    	}
 	    	break;
+//thx added 20040813	    		
+	    case "ABSTRACT" :
+	    	var reg = /^\s*ABSTRACT SUPERTYPE\b/i;
+	    	token = line.match(reg);
+	    	if (token) {
+		    token = token[0].replace(/\s*/g,"");
+		    token = token.toString();
+	    	}
+	    	break;
 	    		
 	    default :
 	    	break;
@@ -508,7 +521,7 @@ function readToken(line) {
 // ------------------------------------------------------------
 function xmlFileHeader(outTs) {
     outTs.Writeline("<?xml version='1.0' encoding='UTF-8'?>");
-    outTs.Writeline("<!-- $Id: express2xml.js,v 1.36 2004/05/25 20:27:05 thendrix Exp $ -->");
+    outTs.Writeline("<!-- $Id: express2xml.js,v 1.37 2004/08/12 22:13:29 thendrix Exp $ -->");
     outTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/express.xsl\"?>");
     outTs.Writeline("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
 
@@ -523,7 +536,7 @@ function getApplicationRevision() {
     // get CVS to set the revision in the variable, then extract the 
     // revision from the string.
     // SPF: not interacting with CVS
-    var appCVSRevision = "$Revision: 1.36 $";
+    var appCVSRevision = "$Revision: 1.37 $";
     var appRevision = appCVSRevision.replace(/Revision:/,"");
     appRevision = appRevision.replace(/\$/g,"");
     appRevision = trim(appRevision);
@@ -1107,7 +1120,7 @@ function xmlConstraintStructure(outTs,expTs,mode) {
 	xmlConstraintStructure(outTs,expTs,mode);
 	break;
 
-    case "ABSTRACT SUPERTYPE" :	
+    case "ABSTRACTSUPERTYPE" :	
 	xmlAbstract(outTs);
 	
 	// process next statement

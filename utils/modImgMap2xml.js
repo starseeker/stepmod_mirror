@@ -1,10 +1,10 @@
-//$Id: imagemap2xml.js,v 1.1 2001/12/27 13:54:13 robbod Exp $
+//$Id: modImgMap2xml.js,v 1.1 2002/01/29 16:49:37 robbod Exp $
 
 // Convert a ballot module expressG HTML file containing a single image map 
 // into an XML file
 // cscript modImgMap2xml.js
 
-// The string added to the begining of the xml ouput to indent the output
+// The string added to the begining of the xml output to indent the output
 var indent = "";
 
 var armOrmim = "";
@@ -13,8 +13,8 @@ var appltypeDict, applobjDict;
 // ------------------------------------------------------------
 // Call Main program
 // -----------------------------------------------------------
-//Main();
-convertAllModulesArm();
+Main();
+//convertAllModulesArm();
 //convertAllModulesMim();
 
 function init() {
@@ -291,7 +291,7 @@ function ErrorMessage(msg){
 
 function xmlXMLhdr(xmlTs) {
     xmlTs.Writeline("<?xml version=\"1.0\"?>");
-    xmlTs.Writeline("<!-- $Id: imagemap2xml.js,v 1.1 2001/12/27 13:54:13 robbod Exp $ -->");
+    xmlTs.Writeline("<!-- $Id: modImgMap2xml.js,v 1.1 2002/01/29 16:49:37 robbod Exp $ -->");
     xmlTs.Writeline("<?xml-stylesheet type=\"text\/xsl\" href=\"..\/..\/..\/xsl\/imgfile.xsl\"?>");
     xmlTs.Writeline("<!DOCTYPE imgfile.content SYSTEM \"../../../dtd/text.ent\">");
 }
@@ -551,6 +551,7 @@ function testArgs() {
     var cArgs = WScript.Arguments;
     var msg="Incorrect arguments\n"+
 	"  cscript imagemap2xml.js <module> <arm|mim> <imagemap.html> <file.xml> <optional title>\n";
+    userMessage( cArgs(0) );
     if ( !((cArgs.length == 4) || (cArgs.length == 5)) ) {
 	ErrorMessage(msg);
 	return(0);    

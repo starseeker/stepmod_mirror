@@ -1,4 +1,4 @@
-//$Id: make_module.js,v 1.3 2001/11/22 14:29:59 robbod Exp $
+//$Id: make_module.js,v 1.4 2001/12/28 13:22:32 robbod Exp $
 // JScript to generate the expressg html for a module.
 // This script uses The Saxon XSLT processor:
 //  http://sourceforge.net/projects/saxon
@@ -10,9 +10,9 @@
 // Global variables
 // -----------------------------------------------------------
 
-var saxonExe = "z:/apps/instant-saxon/saxon.exe";
-var stepmodHome = "Z:/My Documents/projects/nist_module_repo/stepmod";
-var ballotModulesHome = "Z:/My Documents/technology/stepparts/modules/BallotModulesSC4N1169";
+var saxonExe = "e:/apps/instant-saxon/saxon.exe";
+var stepmodHome = "e:/My Documents/projects/nist_module_repo/stepmod";
+var ballotModulesHome = "e:/My Documents/technology/stepparts/modules/BallotModulesSC4N1169";
 
 var ForReading = 1, ForWriting = 2, ForAppending = 8;
 var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
@@ -45,7 +45,7 @@ var moduleClauses = new Array("main", "cover", "introduction", "foreword",
 //
 //  generate the directory structure and initial content for a module
 //   - run MainMakeModule
-MainMakeModule();
+//MainMakeModule();
 //
 //  update the directory structure and initial content for a module
 //   - run MainUpdateModule
@@ -54,7 +54,7 @@ MainMakeModule();
 //  update the directory structure and initial content for all modules listed
 // in repository_index.xml
 //   - run MainUpdateModule
-//MainUpdateModules() 
+MainUpdateModules() 
 //
 // Make the HTML for all the resources from the XML
 //MainMakeHtmlResources()
@@ -131,13 +131,13 @@ function UpdateModule(module) {
     userMessage("Updating module "+module);
 
     for (var i=0; i<moduleClauses.length; i++) {
-	MakeModuleClause(module, moduleClauses[i]);
+	//MakeModuleClause(module, moduleClauses[i]);
     }
     
     MakeExpressXML(module,"arm");
     MakeExpressXML(module,"mim");
     MakeExpressXML(module,"mim_lf");
-    MakeModuleXML(module);
+    //MakeModuleXML(module);
 }
 
 function MakeModule(module) {
@@ -179,7 +179,7 @@ function MakeModuleXML(module) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: make_module.js,v 1.3 2001/11/22 14:29:59 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.4 2001/12/28 13:22:32 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module SYSTEM \"../../../dtd/module.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -232,7 +232,7 @@ function MakeExpressXML(module, armOrMim) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: make_module.js,v 1.3 2001/11/22 14:29:59 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.4 2001/12/28 13:22:32 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../xsl/express.xsl\" ?>");
@@ -258,7 +258,7 @@ function MakeModuleClause(module, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: make_module.js,v 1.3 2001/11/22 14:29:59 robbod Exp $ -->");
+    ts.WriteLine("<!-- $Id: make_module.js,v 1.4 2001/12/28 13:22:32 robbod Exp $ -->");
     ts.WriteLine("<!DOCTYPE module_clause SYSTEM \"../../../../dtd/module_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/" + clauseXSL + "\" ?>");
@@ -465,6 +465,7 @@ function readRepositoryIndexModules2Array() {
 		var reg = /<module\b.*name=/;
 		if (l.match(reg)) {
 		    l = l.replace(reg,"");
+		    l = l.replace(/\bpart=.*/,"");
 		    l = l.replace(/"/g,"");
 		    l = l.replace(/\/>/g,"");
 		    l = l.replace(/(^\s*)|(\s*$)/g, "");
@@ -535,6 +536,7 @@ function MainUpdateModule() {
 function MainUpdateModules() {
     var modules = readRepositoryIndexModules2Array();
     for (var i=0; i<modules.length; i++) {
+	userMessage(modules[i]);
 	UpdateModule(modules[i]);
     }
 }

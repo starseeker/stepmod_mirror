@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_e_exp_arm_lf.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
+$Id: sect_e_exp_arm_lf.xsl,v 1.1 2002/07/14 15:07:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM long form express 
@@ -87,6 +87,34 @@ $Id: sect_e_exp_arm_lf.xsl,v 1.3 2002/03/04 07:50:08 robbod Exp $
     <xsl:with-param name="aname" select="'annexe-arm_lf-express'"/>
   </xsl:call-template>
   
+  <xsl:variable name="stdnumber">
+    <xsl:call-template name="get_module_iso_number">
+      <xsl:with-param name="module" select="./@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="module_name">
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="./@name"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+
+  <xsl:call-template name="test_module_wg_group">
+    <xsl:with-param name="module" select="."/>
+  </xsl:call-template>
+
+  <code>
+  (*<br/>
+    <xsl:value-of 
+      select="concat($stdnumber,' ', $module_name, ' - EXPRESS ARM Long form')"/>
+    <br/>*)
+  </code>
+  <br/>
+
+
+
+
   <!-- output all the EXPRESS specifications -->
   <xsl:variable name="module_dir">
     <xsl:call-template name="module_directory">

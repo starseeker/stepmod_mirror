@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.38 2004/01/07 08:09:22 robbod Exp $
+$Id: express_description.xsl,v 1.39 2004/01/07 13:13:08 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -248,9 +248,23 @@ and
         <xsl:variable name="phrase" select="normalize-space($description/text())"/>
         <xsl:variable name="first_word"
           select="substring-before($phrase,' ')"/>
+        <xsl:variable name="second_word"
+          select="substring-before(substring-after($phrase,' '),' ')"/>
         
         <xsl:if test="string-length($attribute)>0">
           <xsl:choose>
+            <!-- check for description: the description -->
+            <xsl:when test="$attribute=$second_word">
+              <xsl:call-template name="error_message">
+                <xsl:with-param 
+                  name="message" 
+                  select="concat('Warning Attr2 ', $description/@linkend,
+                          '. Circular definition. 
+                          The attribute description should not start with the name of the attribute#
+                          Phrase:',$phrase)"/>
+              </xsl:call-template>
+            </xsl:when>
+            
             <xsl:when test="$attribute='id'">
               <xsl:if test="not(contains($phrase,'identifier'))">
                 <xsl:call-template name="error_message">

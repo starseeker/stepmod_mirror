@@ -12,6 +12,7 @@
 
 ;;TEH notes: 
 ;;    Not tested with XEmacs.
+;;    Only does fontifying.
 ;;    Tail remarks dont work if they contain a single quote.
 ;;    There is a lot of cruft that either Craig or I added 
 ;;        while figuring out how major modes work.
@@ -35,8 +36,7 @@
 (defvar express-mode-syntax-table nil
   "Syntax table for Express mode.")
 ;; comment out 'if' on next line to force execution during bytc-compile. 
-(if  
-   (not express-mode-syntax-table)
+;;(if  (not express-mode-syntax-table)
     (let ((i 0))
       (setq express-mode-syntax-table (make-syntax-table))
       (while (< i ?0)
@@ -69,9 +69,21 @@
       (modify-syntax-entry ?\^m ">   " express-mode-syntax-table)
       (modify-syntax-entry ?\[  "(]  " express-mode-syntax-table)
       (modify-syntax-entry ?\]  ")[  " express-mode-syntax-table)
+
+;;experiment with tail remarks
+
+;      (modify-syntax-entry ?\(  "() " express-mode-syntax-table)  
+					;     (modify-syntax-entry ?\)  ")( " express-mode-syntax-table)
+;     (modify-syntax-entry ?\*  ". " express-mode-syntax-table)
+;     (modify-syntax-entry ?\n ">  "  express-mode-syntax-table)
+;     (modify-syntax-entry ?\- ">\12"  express-mode-syntax-table)
+
+
+;; uncomment after experiment.
       (modify-syntax-entry ?\(  "()1 " express-mode-syntax-table)  
       (modify-syntax-entry ?\)  ")(4 " express-mode-syntax-table)
       (modify-syntax-entry ?\*  ". 23" express-mode-syntax-table)
+
 
       ;; if this is uncommented then XEmacs dies during syntactic
       ;; fontification of large EXPRESS files
@@ -79,6 +91,7 @@
 ;      (modify-syntax-entry ?-  ". 56"  express-mode-syntax-table)
       (modify-syntax-entry ?-  ".   "  express-mode-syntax-table)
 ;      (modify-syntax-entry ?\n "> b"  express-mode-syntax-table)
+; declares single quote to be a string delimiter
       (modify-syntax-entry ?\' "\"   " express-mode-syntax-table)
       (modify-syntax-entry ?_  "_   "  express-mode-syntax-table)
 ;; teh add _ to the word characters - seems to work.
@@ -92,39 +105,6 @@
       (modify-syntax-entry ?+  ".   "  express-mode-syntax-table)
       (modify-syntax-entry ?\. ".   "  express-mode-syntax-table)
       )
-;; comment out next close paren  to force execution 
-;; during byte-compile, for debugging  
-)
-
-
-
-;;; Menus stuff
-;;(defvar express-mode-popup-menu nil)
-;;(defvar express-mode-popup-menu-1
-;;	(purecopy '("Express"
-;;		    ["Insert ENTITY"    express-insert-entity    nil]
-;;		    ["Insert FUNCTION"  express-insert-function  nil]
-;;		    ["Insert PROCEDURE" express-insert-procedure nil]
-;;		    ["Insert RULE"      express-insert-rule      nil]
-;;		    ["Insert SCHEMA"    express-insert-schema    nil]
-;;		    ["Insert TYPE"      express-insert-type      nil]
-;;		    "---"
-;;		    ["Upcase Keywords in Buffer" express-upcase-buffer-keywords nil]
-;;		    ["Upcase Keywords in Region" express-upcase-region-keywords nil] ;;(region-exists-p)]
-;;		    "---"
-;;		    ["Comment Out Region" express-comment-region nil] ;;(region-exists-p)]
-;;		    "---"
-;;		    ["Indent Buffer" express-indent-buffer nil]
-;;		    ["Indent Region" express-indent-region nil] ;;(region-exists-p)]
-;;		    )))
-
-;(defun express-mode-variables (express-syntax)
-;  (cond (express-syntax
-;	 (set-syntax-table express-mode-syntax-table)))
-;  (setq local-abbrev-table express-mode-abbrev-table)
-;  ;; not sure what else to put here
-;  )
-
 
 ;; not used..
 (defvar express-keywords
@@ -203,81 +183,57 @@
 (setq express-flkw-1
       (purecopy
        (list
+	;;syntax table does not support both kinds of express remarks, so handle tail remarks here.
 	'("--.*[\n\r]" . font-lock-comment-face)
-	'("\\<\\(ENTITY\\|TYPE\\)\\>[ \t]+\\([a-zA-Z][a-z0-9A-Z_]*\\)"
+;; the newline in the middle of separator chars takes care of the newline in express, somehow, sometimes.
+	'("\\<\\(ENTITY\\|TYPE\\|SUBTYPE_CONSTRAINT\\)\\>[
+ \t]+\\([a-zA-Z][a-z0-9A-Z_]*\\)"
 	  (1 font-lock-keyword-face)
 	  (2 font-lock-type-face))
-	'("\\<\\(FUNCTION\\|PROCEDURE\\|RULE\\|CONSTANT\\)\\>[\n \t]+\\([a-zA-Z][a-z0-9A-Z_]*\\)"
+	'("\\<\\(FUNCTION\\|PROCEDURE\\|RULE\\)\\>[
+ \t]+\\([a-zA-Z][a-z0-9A-Z_]*\\)"
 	  (1 font-lock-keyword-face)
 	  (2 font-lock-function-name-face))
+	'("\\<\\(CONSTANT\\)\\>[
+ \t]+\\([a-zA-Z][a-z0-9A-Z_]*\\)"
+	  (1 font-lock-keyword-face)
+	  (2 font-lock-constant-face))
+
 	'("\\<\\(SCHEMA\\)\\>[ \t]+\\([a-zA-Z][a-z0-9A-Z_]*\\)"
 	  (1 font-lock-keyword-face)
 	  (2 font-lock-variable-name-face))
-	'("\\<END_\\(ENTITY\\|TYPE\\)\\>"
-	;;  (1 font-lock-keyword-face)) this will not color END_
+	'("\\<END_\\(ENTITY\\|TYPE\\|SUBTYPE_CONSTRAINT\\)\\>"
 	  . font-lock-keyword-face)
+	;; EXPRESS Operators
+	'("\\<\\(AND\\|ANDOR\\|DIV\\|IN\\|LIKE\\|MOD\\|NOT\\|OR\\|XOR\\)\\>"
+	  . font-lock-function-name-face)
+	'("\\<\\(DERIVE\\|INVERSE\\|UNIQUE\\|WHERE\\)\\>"
+	  . font-lock-keyword-face)
+	'("\\<\\(ABSTRACT\\|SUPERTYPE\\|SUBTYPE\\|FOR\\|OF\\|ONEOF\\|OPTIONAL\\)\\>"
+	  1 font-lock-keyword-face)
+	'("\\<\\(SELECT\\|ENUMERATION\\)\\>" . font-lock-keyword-face)
+	(cons (concat "\\<\\(NUMBER\\|REAL\\|INTEGER\\|STRING\\|BOOLEAN\\|LOGICAL\\|"
+		      "GENERIC\\|LIST\\|SET\\|BAG\\|ARRAY\\|AGGREGATE\\)\\>")
+	      'font-lock-type-face)
+	'("\\<END_\\(ENTITY\\|FUNCTION\\|PROCEDURE\\|RULE\\|TYPE\\|SCHEMA\\|CONSTANT\\)\\>"
+	  . font-lock-keyword-face)
+	'("\\<\\(IN\\|QUERY\\|SUBTYPE\\|OF\\|FROM\\|USE\\|REFERENCE\\)\\>"
+	  . font-lock-keyword-face)
+	;; Algorithm Keywords - there are more, feel free to add :-)
+	'("\\<\\(BEGIN\\|END\\|CASE\\|END_CASE\\|IF\\|THEN\\|REPEAT\\|ESCAPE\\|ELSE\\|SKIP\\|END_IF\\|END_REPEAT\\|LOCAL\\|END_LOCAL\\|RETURN\\)\\>"
+	  . font-lock-keyword-face)
+	;; EXPRESS Constants
+	'("\\<\\(\\?\\|CONST_E\\|FALSE\\|PI\\|SELF\\|TRUE\\|UNKNOWN\\)\\>"
+	  . font-lock-constant-face)
+	;; EXPRESS Functions
+;;	'("\\<\\(ABS\\|ACOS\\|ASIN\\|ATAN\\|BLENGTH\\|COS\\|EXISTS\\|EXP\\|FORMAT\\|HIBOUND\\|HIINDEX\\|LENGTH\\|LOBOUND\\|LOG\\|LOG2\\|LOG10\\|LOINDEX\\|NVL\\|ODD\\|ROLESOF\\|SIN\\|SIZEOF\\|SQRT\\|TAN\\|TYPEOF\\|USEDIN\\|VALUE\\)\\>"
+	'("\\(TYPEOF\\|USEDIN\\)"
+	  . font-lock-function-name-face)
+	;; EXPRESS Procedures
+	'("\\<\\(insert\\|remove\\)\\>" . font-lock-function-name-face)
 	)
-       ))
-
-(setq express-mode-font-lock-keywords-1 express-flkw-1)
-
-
-(defvar express-flkw-2 nil)
-(defvar express-mode-font-lock-keywords-2 nil
-  "Medium highlighting for EXPRESS mode.")
-
-(setq express-flkw-2
-      (list
-       '("\\<\\(DERIVE\\|INVERSE\\|UNIQUE\\|WHERE\\)\\>"
-	 . font-lock-keyword-face)
-       '("\\<\\(ABSTRACT\\|SUPERTYPE\\|SUBTYPE\\|FOR\\|OF\\|ONEOF\\|OPTIONAL\\)\\>"
-	 1 font-lock-keyword-face)
-       '("\\<\\(SELECT\\|ENUMERATION\\)\\>" . font-lock-keyword-face)
-       (cons (concat "\\<\\(NUMBER\\|REAL\\|INTEGER\\|STRING\\|BOOLEAN\\|LOGICAL\\|"
-		     "GENERIC\\|LIST\\|SET\\|BAG\\|ARRAY\\|AGGREGATE\\)\\>")
-	     'font-lock-type-face)
-       ))
-
-(setq express-mode-font-lock-keywords-2
-      (purecopy
-       (append
-	express-flkw-1
-	express-flkw-2
-	)))
-
-(defvar express-flkw-3 nil)
-(defvar express-mode-font-lock-keywords-3 nil
-  "Maximum highlighting for EXPRESS mode.")
-
-(setq express-flkw-3
-      (list
-       '("\\<END_\\(ENTITY\\|FUNCTION\\|PROCEDURE\\|RULE\\|TYPE\\|SCHEMA\\|CONSTANT\\)\\>"
-	 . font-lock-keyword-face)
-       '("\\<\\(IN\\|QUERY\\|SUBTYPE\\|OF\\|FROM\\|USE\\|REFERENCE\\)\\>"
-	 . font-lock-keyword-face)
-       ;; EXPRESS Operators
-       '("\\<\\(AND\\|ANDOR\\|DIV\\|IN\\|LIKE\\|MOD\\|NOT\\|OR\\|XOR\\)\\>"
-	 . font-lock-function-name-face)
-       ;; EXPRESS Functions
-       (cons (concat "\\<\\(ABS\\|ACOS\\|ASIN\\|ATAN\\|BLENGTH\\|COS\\|EXISTS\\|"
-		     "EXP\\|FORMAT\\|HIBOUND\\|HIINDEX\\|LENGTH\\|"
-		     "LO\\(BOUND\\|G\\|G2\\|G10\\|INDEX\\)\\|NVL\\|ODD\\|ROLESOF\\|"
-		     "SIN\\|SIZEOF\\|SQRT\\|TAN\\|TYPEOF\\|USEDIN\\|VALUE\\)\\>")
-	     'font-lock-function-name-face)
-       ;; EXPRESS Constants
-       '("\\<\\(\\?\\|CONST_E\\|FALSE\\|PI\\|SELF\\|TRUE\\|UNKNOWN\\)\\>"
-	 . font-lock-variable-name-face)
-       ;; EXPRESS Procedures
-       '("\\<\\(insert\\|remove\\)\\>" . font-lock-function-name-face)
-	 ))
-
-(setq express-mode-font-lock-keywords-3
-      (purecopy
-       (append
-	express-flkw-1
-	express-flkw-2
-	express-flkw-3
-	)))
+       )
+      )
 
 
 ;; teh added
@@ -298,8 +254,6 @@
       (purecopy
        (append
 	express-flkw-1
-	express-flkw-2
-	express-flkw-3
 	express-flkw-4
 	)))
 

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2005/01/10 14:31:03 liutkus Exp $
+   $Id: arm.exp,v 1.14 2005/01/11 07:04:56 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Device marking - EXPRESS ARM
 *)
 
@@ -75,6 +75,8 @@ END_TYPE;
       placement                   : Axis_placement;
       message_representation      : Feature_shape_definition;
       message_representation_text : Styled_text;
+	INVERSE
+		marking_material : material_identification FOR items;
 	DERIVE
   		marking_specification: SET[0:?] OF Specification_definition :=
 		QUERY (ms <* QUERY (da <* USEDIN (SELF,
@@ -89,11 +91,14 @@ END_TYPE;
       WR2 : SIZEOF(QUERY(ap <* marked_device_shape\Geometric_model.items | ap = placement)) = 1;
       WR3 : SIZEOF(TYPEOF(marked_device_shape) * ['DEVICE_MARKING_ARM.PHYSICAL_UNIT_3D_SHAPE',
  'DEVICE_MARKING_ARM.PHYSICAL_UNIT_PLANAR_SHAPE']) = 1;
-	  WR4 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+(*
+      WR4 : SIZEOF(QUERY(mi <* USEDIN(SELF,
 	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
 	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
 	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
 	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
+*)
+      WR4 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (marking_material);
    	  WR5 : EXISTS (marking_specification) AND SIZEOF(marking_specification) = 1;
   END_ENTITY;
 

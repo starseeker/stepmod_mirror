@@ -1,0 +1,88 @@
+{ iso standard 10303 part (11) version (4) }
+
+(******************************************************************************)
+(*                                                                            *)
+(*          This file was produced by Eurostep Graphical EXPRESS V1.3         *)
+(*                                                                            *)
+(******************************************************************************)
+
+(* Original model: resource_management.vsd *)
+(* Title: resource_management *)
+(* Author: LEGY *)
+(* Comments :
+ *)
+
+SCHEMA Resource_management_arm;
+
+USE FROM Classification_arm;
+
+USE FROM Required_resource_arm;
+
+USE FROM Resource_item_arm;
+
+USE FROM Value_with_unit_arm;
+
+TYPE allocated_resource_classified_select = SELECT BASED_ON classified_select WITH
+  (Resource_allocation);
+END_TYPE;
+
+TYPE allocation_of_select = SELECT 
+  (Provision_location_relationship,
+   Provision_of_resource,
+   Resource_location_relationship);
+END_TYPE;
+
+TYPE managed_resource_classified_select = SELECT BASED_ON classified_select WITH
+  (Provision_location_relationship,
+   Resource_location);
+END_TYPE;
+
+TYPE provided_by_select = EXTENSIBLE SELECT ;
+END_TYPE;
+
+TYPE resource_allocation_select = EXTENSIBLE SELECT ;
+END_TYPE;
+
+TYPE resource_location_select = EXTENSIBLE SELECT ;
+END_TYPE;
+
+ENTITY Provision_location_relationship;
+  relating : Provision_of_resource;
+  related : Resource_location;
+  quantity : OPTIONAL Value_with_unit;
+END_ENTITY;
+
+ENTITY Provision_of_resource;
+  provision_of : Resource_item;
+  provided_by : provided_by_select;
+  quantity : OPTIONAL Value_with_unit;
+END_ENTITY;
+
+ENTITY Resource_allocation;
+  allocation_of : allocation_of_select;
+  allocation_to : resource_allocation_select;
+  quantity : OPTIONAL Value_with_unit;
+END_ENTITY;
+
+ENTITY Resource_allocation_required_resource_relationship;
+  relating : Resource_allocation;
+  related : Required_resource;
+END_ENTITY;
+
+ENTITY Resource_location;
+  name : STRING;
+  description : STRING;
+  location : OPTIONAL resource_location_select;
+END_ENTITY;
+
+ENTITY Resource_location_relationship;
+  relating : Resource_item;
+  related : Resource_location;
+  quantity : Value_with_unit;
+END_ENTITY;
+
+END_SCHEMA;
+
+
+
+

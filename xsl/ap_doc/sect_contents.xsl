@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.34 2004/05/01 09:05:56 robbod Exp $
+$Id: sect_contents.xsl,v 1.35 2004/08/03 12:19:52 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -183,11 +183,17 @@ $Id: sect_contents.xsl,v 1.34 2004/05/01 09:05:56 robbod Exp $
         Annex <xsl:value-of select="$al_uguide"/> Application protocol implementation and usage guide
       </a>
       <br/>
+      <xsl:apply-templates select="./usage_guide/annex_clause" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+        <xsl:with-param name="short" select="$short"/>
+        <xsl:with-param name="annex_file"  select="'annex_guide'"/>
+        <xsl:with-param name="annex_letter"  select="$al_uguide"/>
+      </xsl:apply-templates>
     </xsl:if>
 
     <xsl:if test="./tech_disc">
       <xsl:variable name="al_tech_disc">
-        <xsl:call-template name="annex_letter" >
+        <xsl:call-template name="annex_letter">
           <xsl:with-param name="annex_name" select="'techdisc'"/>
           <xsl:with-param name="annex_list" select="$annex_list"/>
         </xsl:call-template>
@@ -196,6 +202,12 @@ $Id: sect_contents.xsl,v 1.34 2004/05/01 09:05:56 robbod Exp $
         Annex <xsl:value-of select="$al_tech_disc"/> Technical discussions
       </a>
       <br/>
+      <xsl:apply-templates select="./tech_disc/annex_clause" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+        <xsl:with-param name="short" select="$short"/>
+        <xsl:with-param name="annex_file"  select="'annex_tech_disc'"/>
+        <xsl:with-param name="annex_letter"  select="$al_tech_disc"/>
+      </xsl:apply-templates>
     </xsl:if>
     
     <xsl:if test="./changes/change_detail">
@@ -677,5 +689,33 @@ $Id: sect_contents.xsl,v 1.34 2004/05/01 09:05:56 robbod Exp $
   </a>
   <br/>
 </xsl:template>
+
+
+<xsl:template match="annex_clause" mode="toc">
+  <xsl:param name="target" select="'_self'"/>
+  <xsl:param name="short" select="'no'"/>
+  <xsl:param name="annex_letter"/>
+  <xsl:param name="annex_file"/>
+  <xsl:param name="indentation"/>
+  <xsl:if test="$short='no'">
+    <xsl:variable name="annex_no">
+      <xsl:apply-templates select="." mode="number"/>
+    </xsl:variable>
+    <xsl:variable name="new_indentation" select="concat('&#160;&#160;&#160;&#160;&#160;',$indentation)"/>
+    <xsl:value-of select="$new_indentation"/>
+    <a href="./{$annex_file}{$FILE_EXT}#{@title}" target="{$target}">
+      <xsl:value-of select="concat($annex_letter,'.',$annex_no,' ',@title)"/>
+    </a>
+    <br/>
+    <xsl:apply-templates select="./annex_clause" mode="toc">
+      <xsl:with-param name="target" select="$target"/>
+      <xsl:with-param name="short" select="$short"/>
+        <xsl:with-param name="annex_file"  select="$annex_file"/>
+      <xsl:with-param name="annex_letter"  select="$annex_letter"/>
+      <xsl:with-param name="indentation" select="$new_indentation"/>
+    </xsl:apply-templates>
+  </xsl:if>
+</xsl:template>
+
 
 </xsl:stylesheet>

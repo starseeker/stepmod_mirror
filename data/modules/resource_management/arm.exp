@@ -6,13 +6,15 @@
 (*                                                                            *)
 (******************************************************************************)
 
-(* Original model: resource_management.vsd *)
-(* Title: resource_management *)
+(* Original model: resource_management_arm.vsd *)
+(* Title: resource_management_arm *)
 (* Author: LEGY *)
 (* Comments :
  *)
 
 SCHEMA Resource_management_arm;
+
+USE FROM Activity_arm;
 
 USE FROM Classification_arm;
 
@@ -20,69 +22,80 @@ USE FROM Required_resource_arm;
 
 USE FROM Resource_item_arm;
 
+USE FROM State_observed_arm;
+
+USE FROM Time_interval_arm;
+
 USE FROM Value_with_unit_arm;
 
-TYPE allocated_resource_classified_select = SELECT BASED_ON classified_select WITH
-  (Resource_allocation);
+TYPE allocated_item = SELECT 
+  (Managed_resource,
+   Resource_item);
 END_TYPE;
 
-TYPE allocation_of_select = SELECT 
-  (Provision_location_relationship,
-   Provision_of_resource,
-   Resource_location_relationship);
+TYPE allocated_resource_activity_item = SELECT BASED_ON activity_item WITH
+  (Allocated_resource);
+END_TYPE;
+
+TYPE allocated_resource_classified_select = SELECT BASED_ON classified_select WITH
+  (Allocated_required_resource_relationship,
+   Allocated_resource);
+END_TYPE;
+
+TYPE allocated_resource_time_interval_item = SELECT BASED_ON time_interval_item WITH
+  (Allocated_resource_by_time_interval);
+END_TYPE;
+
+TYPE managed_resource_activity_item = SELECT BASED_ON activity_item WITH
+  (Managed_resource);
 END_TYPE;
 
 TYPE managed_resource_classified_select = SELECT BASED_ON classified_select WITH
-  (Provision_location_relationship,
+  (Managed_resource,
+   Managed_resource_relationship,
    Resource_location);
 END_TYPE;
 
-TYPE provided_by_select = EXTENSIBLE SELECT ;
+TYPE managed_resource_state_of_select = SELECT BASED_ON state_of_select WITH
+  (Managed_resource);
 END_TYPE;
 
-TYPE resource_allocation_select = EXTENSIBLE SELECT ;
+TYPE resource_location_item = EXTENSIBLE SELECT ;
 END_TYPE;
 
-TYPE resource_location_select = EXTENSIBLE SELECT ;
-END_TYPE;
-
-ENTITY Provision_location_relationship;
-  relating : Provision_of_resource;
-  related : Resource_location;
-  quantity : OPTIONAL Value_with_unit;
-END_ENTITY;
-
-ENTITY Provision_of_resource;
-  provision_of : Resource_item;
-  provided_by : provided_by_select;
-  quantity : OPTIONAL Value_with_unit;
-END_ENTITY;
-
-ENTITY Resource_allocation;
-  allocation_of : allocation_of_select;
-  allocation_to : resource_allocation_select;
-  quantity : OPTIONAL Value_with_unit;
-END_ENTITY;
-
-ENTITY Resource_allocation_required_resource_relationship;
-  relating : Resource_allocation;
+ENTITY Allocated_required_resource_relationship;
+  relating : Allocated_resource;
   related : Required_resource;
+END_ENTITY;
+
+ENTITY Allocated_resource;
+  item : allocated_item;
+END_ENTITY;
+
+ENTITY Allocated_resource_by_quantity
+SUBTYPE OF (Allocated_resource);
+  quantity : Value_with_unit;
+END_ENTITY;
+
+ENTITY Allocated_resource_by_time_interval
+SUBTYPE OF (Allocated_resource);
+END_ENTITY;
+
+ENTITY Managed_resource;
+  item : Resource_item;
+  quantity : OPTIONAL Value_with_unit;
+  location : OPTIONAL Resource_location;
+END_ENTITY;
+
+ENTITY Managed_resource_relationship;
+  relating : Managed_resource;
+  related : Managed_resource;
 END_ENTITY;
 
 ENTITY Resource_location;
   name : STRING;
-  description : STRING;
-  location : OPTIONAL resource_location_select;
-END_ENTITY;
-
-ENTITY Resource_location_relationship;
-  relating : Resource_item;
-  related : Resource_location;
-  quantity : Value_with_unit;
+  description : OPTIONAL STRING;
+  location : OPTIONAL resource_location_item;
 END_ENTITY;
 
 END_SCHEMA;
-
-
-
-

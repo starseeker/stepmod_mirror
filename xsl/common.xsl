@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.118 2003/10/03 13:41:29 robbod Exp $
+$Id: common.xsl,v 1.119 2003/10/08 08:16:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -829,8 +829,9 @@ $Id: common.xsl,v 1.118 2003/10/03 13:41:29 robbod Exp $
 
 
 <xsl:template match="a">
-  <a href="{@href}">
+  <a href="{@href}" target="_blank">
     <xsl:apply-templates/>
+    (<xsl:value-of select="@href"/>)
   </a>
 </xsl:template>
 

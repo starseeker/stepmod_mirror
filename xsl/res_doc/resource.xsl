@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.25 2003/04/01 02:45:09 thendrix Exp $
+$Id: resource.xsl,v 1.26 2003/04/11 23:34:37 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -94,6 +94,12 @@ $Id: resource.xsl,v 1.25 2003/04/01 02:45:09 thendrix Exp $
   <!-- output any issues -->
   <xsl:apply-templates select="." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'general'"/>
+  </xsl:apply-templates>
+  <xsl:apply-templates select="." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'cover'"/>
+  </xsl:apply-templates>
+  <xsl:apply-templates select="." mode="output_clause_issue">
+    <xsl:with-param name="clause" select="'abstract'"/>
   </xsl:apply-templates>
   <xsl:apply-templates select="." mode="output_clause_issue">
     <xsl:with-param name="clause" select="'keywords'"/>
@@ -1238,7 +1244,7 @@ defined in annex D of ISO 10303-11.
       <xsl:with-param name="resource" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:variable name="express_xml" select="concat($resource_dir,'/',@name,'.xml')"/>
+  <xsl:variable name="express_xml" select="document(concat($resource_dir,'/',@name,'.xml'))"/>
 
   <!-- there is only one schema in a schema clause of an IR -->
   <xsl:variable 
@@ -1277,7 +1283,7 @@ defined in annex D of ISO 10303-11.
   <!-- display the EXPRESS for the interfaces in the ARM.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($express_xml)/express/schema/interface"/>
+    select="$express_xml/express/schema/interface"/>
 
   <!-- output the intro and fundamental contants.! -->
   <xsl:call-template name="clause_header">
@@ -1315,46 +1321,46 @@ defined in annex D of ISO 10303-11.
 
 <!-- display the constant EXPRESS. The template is in sect4_express.xsl -->
 <xsl:apply-templates 
-  select="document($express_xml)/express/schema/constant"/>
+  select="$express_xml/express/schema/constant"/>
 
 <!-- display the EXPRESS for the types in the schema.
      The template is in sect4_express.xsl -->
 <xsl:apply-templates 
-  select="document($express_xml)/express/schema/type">
+  select="$express_xml/express/schema/type">
   <xsl:with-param name="main_clause" select="($schema_no+3)" />
   </xsl:apply-templates>
   <!-- display the EXPRESS for the entities in the schema.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($express_xml)/express/schema/entity">
+    select="$express_xml/express/schema/entity">
     <xsl:with-param name="main_clause" select="$schema_no+3" />
     </xsl:apply-templates>
 
   <!-- display the EXPRESS for the subtype.contraints in the schema.
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($express_xml)/express/schema/subtype.constraint"/>
+    select="$express_xml/express/schema/subtype.constraint"/>
 
   <!-- display the EXPRESS for the functions in the schema
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($express_xml)/express/schema/function"/>
+    select="$express_xml/express/schema/function"/>
 
   <!-- display the EXPRESS for the entities in the schema. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($express_xml)/express/schema/rule"/>
+    select="$express_xml/express/schema/rule"/>
 
   <!-- display the EXPRESS for the procedures in the schema. 
        The template is in sect4_express.xsl -->
   <xsl:apply-templates 
-    select="document($express_xml)/express/schema/procedure"/>
+    select="$express_xml/express/schema/procedure"/>
 
   
   <code>
     <br/>    <br/>
     *)<br/>
-    END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="document($express_xml)/express/schema/@name"/>
+    END_SCHEMA;&#160;&#160;--&#160;<xsl:value-of select="$express_xml/express/schema/@name"/>
     <br/>(*
   </code>
 

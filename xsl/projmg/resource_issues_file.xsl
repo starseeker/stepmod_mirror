@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-     $Id: resource_issues_file.xsl,v 1.3 2003/02/10 02:44:45 thendrix Exp $
+     $Id: resource_issues_file.xsl,v 1.4 2003/04/11 01:05:12 thendrix Exp $
 
   Author: Tom Hendrix
   Owner:  
@@ -63,20 +63,29 @@
           <xsl:value-of select="@resource"/>
         </h3>
 
-
-
-        
         <xsl:if test="issue[@type='general']">
           &#160;<a href="#general">general</a>&#160;|
         </xsl:if>
   
-      <xsl:if test="issue[@type='keywords']">
+        <xsl:if test="issue[@type='cover']">
+        &#160;<a href="#cover">cover</a>&#160;|
+      </xsl:if>
+
+        <xsl:if test="issue[@type='keywords']">
         &#160;<a href="#keywords">keywords</a>&#160;|
       </xsl:if>
+
+        <xsl:if test="issue[@type='abstract']">
+        &#160;<a href="#abstract">abstract</a>&#160;|
+      </xsl:if>
+
       <xsl:if test="issue[@type='contacts']">
         &#160;<a href="#contacts">contacts</a>&#160;|
       </xsl:if>
       <xsl:if test="issue[@type='purpose']">
+        &#160;<a href="#purpose">purpose</a>&#160;|
+      </xsl:if>  
+      <xsl:if test="issue[@type='schema_diag']">
         &#160;<a href="#purpose">purpose</a>&#160;|
       </xsl:if>  
       <xsl:if test="issue[@type='inscope']">
@@ -94,40 +103,55 @@
       <xsl:if test="issue[@type='abbreviations']">
         &#160;<a href="#abbreviations">abbreviations</a>&#160;|
       </xsl:if>
-      <xsl:if test="issue[@type='arm']">
-        &#160;<a href="#arm">arm</a>&#160;|
+      <xsl:if test="issue[@type='intro']">
+        &#160;<a href="#intro">introduction</a>&#160;|
       </xsl:if>
-      <xsl:if test="issue[@type='armexpg']">
-        &#160;<a href="#armexpg">armexpg</a>&#160;|
+      <xsl:if test="issue[@type='foreword']">
+        &#160;<a href="#foreword">foreword</a>&#160;|
       </xsl:if>
-      <xsl:if test="issue[@type='arm_lf']">
-        &#160;<a href="#arm_lf">arm_lf</a>&#160;|
+      <xsl:if test="issue[@type='contents']">
+        &#160;<a href="#contents">contents</a>&#160;|
       </xsl:if>
-      <xsl:if test="issue[@type='armexpg_lf']">
-        &#160;<a href="#armexpg_lf">armexpg_lf</a>&#160;|
-     </xsl:if>
-     <xsl:if test="issue[@type='mapping_table']">
-        &#160;<a href="#mapping_table">mapping_table</a>&#160;|
-     </xsl:if>
-     <xsl:if test="issue[@type='mim']">
-       &#160;<a href="#mim ">mim</a>&#160;|
-     </xsl:if>
-     <xsl:if test="issue[@type='mimexpg']">
-        &#160;<a href="#mimexpg">mimexpg</a>&#160;|
-     </xsl:if>
-     <xsl:if test="issue[@type='mim_lf']">
-        &#160;<a href="#mim_lf">mim_lf</a>&#160;|
-     </xsl:if>
-     <xsl:if test="issue[@type='mimexpg_lf']">
-       &#160;<a href="#mimexpg_lf">mimexpg_lf</a>&#160;|
-     </xsl:if>
-     <xsl:if test="issue[@type='usage_guide']">
-        &#160;<a href="#usage_guide">usage_guide</a>&#160;|
-     </xsl:if>
+      <xsl:if test="issue[@type='index']">
+        &#160;<a href="#index">index</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='schema_intro']">
+        &#160;<a href="#schema_intro">schema_intro</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='schema_clause']">
+        &#160;<a href="#schema_intro">schema_clause</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='fund_cons']">
+        &#160;<a href="#fund_cons">fund_cons</a>&#160;|
+      </xsl:if>
+
+      <xsl:if test="issue[@type='express']">
+        &#160;<a href="#express">express</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='express_doc']">
+        &#160;<a href="#express">express doc</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='shortnames']">
+        &#160;<a href="#shortnames">shortnames</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='tech_discussion']">
+        &#160;<a href="#tech_discussion">tech_discussion</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='examples']">
+        &#160;<a href="#examples">examples</a>&#160;|
+      </xsl:if>
+      <xsl:if test="issue[@type='add_scope']">
+        &#160;<a href="#add_scope">abbreviations</a>&#160;|
+      </xsl:if>
+
+
      <xsl:if test="issue[@type='bibliography']">
         &#160;<a href="#bibliography">bibliography</a>&#160;|
      </xsl:if>
-     <xsl:if test="(issue[@type!='general']) and (issue[@type!='keywords'])
+     <xsl:if test="(issue[@type!='general']) 
+                   and (issue[@type!='cover'])
+                   and (issue[@type!='abstract'])
+                   and (issue[@type!='keywords'])
                    and (issue[@type!='contacts'])
                    and (issue[@type!='purpose'])
                    and (issue[@type!='inscope'])
@@ -154,15 +178,28 @@
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
+        <xsl:apply-templates select="issue[@type='cover']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
         <xsl:apply-templates select="issue[@type='keywords']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='abstract']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
 
         <xsl:apply-templates select="issue[@type='contacts']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
         <xsl:apply-templates select="issue[@type='purpose']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='schema_diag']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
@@ -186,43 +223,65 @@
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
-        <xsl:apply-templates select="issue[@type='arm']">
+        <xsl:apply-templates select="issue[@type='intro']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
-        <xsl:apply-templates select="issue[@type='armexpg']">
+        <xsl:apply-templates select="issue[@type='foreword']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
-        <xsl:apply-templates select="issue[@type='arm_lf']">
+        <xsl:apply-templates select="issue[@type='contents']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
-        <xsl:apply-templates select="issue[@type='armexpg_lf']">
+        <xsl:apply-templates select="issue[@type='index']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
-        <xsl:apply-templates select="issue[@type='mapping_table']">
+        <xsl:apply-templates select="issue[@type='schema_clause']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
-        <xsl:apply-templates select="issue[@type='mim ']">
+
+        <xsl:apply-templates select="issue[@type='schema_intro']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
-        <xsl:apply-templates select="issue[@type='mimexpg']">
+        <xsl:apply-templates select="issue[@type='fund_cons']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
-        <xsl:apply-templates select="issue[@type='mim_lf']">
+        <xsl:apply-templates select="issue[@type='express']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
-        <xsl:apply-templates select="issue[@type='mimexpg_lf']">
+        <xsl:apply-templates select="issue[@type='express_doc']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
-        <xsl:apply-templates select="issue[@type='usage_guide']">
+
+        <xsl:apply-templates select="issue[@type='expg']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='shortnames']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='tech_discussion']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='examples']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='add_scope']">
+          <xsl:sort select="./@status" order="descending"/>
+        </xsl:apply-templates>
+
+        <xsl:apply-templates select="issue[@type='bibliography']">
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
 
@@ -232,25 +291,33 @@
 
         <!-- deal with unknown type -->
         <xsl:apply-templates select="issue[(@type!='general')
-                                     and (@type!='keywords')
-                                     and (@type!='contacts')
-                                     and (@type!='purpose')
-                                     and (@type!='inscope')
-                                     and (@type!='outscope')
-                                     and (@type!='normrefs')
-                                     and (@type!='definition')
-                                     and (@type!='abbreviations')
-                                     and (@type!='arm')
-                                     and (@type!='armexpg')
-                                     and (@type!='arm_lf')
-                                     and (@type!='armexpg_lf')
-                                     and (@type!='mapping_table')
-                                     and (@type!='mim')
-                                     and (@type!='mimexpg')
-                                     and (@type!='mim_lf')
-                                     and (@type!='mimexpg_lf')
-                                     and (@type!='usage_guide')
-                                     and (@type!='bibliography')]">
+                          and (@type!='cover')
+                          and (@type!='keywords')
+                          and (@type!='abstract')
+                          and (@type!='contacts')
+                          and (@type!='purpose')
+                          and (@type!='schema_diag')
+                          and (@type!='inscope')
+                          and (@type!='outscope')
+                          and (@type!='normrefs')
+                          and (@type!='definition')
+                          and (@type!='abbreviations')
+                          and (@type!='intro')
+                          and (@type!='foreword')
+                          and (@type!='contents')
+                          and (@type!='index')
+                          and (@type!='schema_clause')
+                          and (@type!='schema_intro')
+                          and (@type!='fund_cons')
+                          and (@type!='express')
+                          and (@type!='express_doc')
+                          and (@type!='expg')
+                          and (@type!='shortnames')
+                          and (@type!='tech_discussion')
+                          and (@type!='examples')
+                          and (@type!='add_scope')
+                          and (@type!='bibliography')]">
+
           <xsl:sort select="./@status" order="descending"/>
         </xsl:apply-templates>
       </body>
@@ -266,24 +333,32 @@
     <xsl:if test="position()=1">
       <xsl:variable name="aname">
         <xsl:choose>
-          <xsl:when test="(@type!='general') and (@type!='keywords')
+          <xsl:when test="(@type!='general') 
+                          and (@type!='cover')
+                          and (@type!='keywords')
+                          and (@type!='abstract')
                           and (@type!='contacts')
                           and (@type!='purpose')
+                          and (@type!='schema_diag')
                           and (@type!='inscope')
                           and (@type!='outscope')
                           and (@type!='normrefs')
                           and (@type!='definition')
                           and (@type!='abbreviations')
-                          and (@type!='arm')
-                          and (@type!='armexpg')
-                          and (@type!='arm_lf')
-                          and (@type!='armexpg_lf')
-                          and (@type!='mapping_table')
-                          and (@type!='mim')
-                          and (@type!='mimexpg')
-                          and (@type!='mim_lf')
-                          and (@type!='mimexpg_lf')
-                          and (@type!='usage_guide')
+                          and (@type!='intro')
+                          and (@type!='foreword')
+                          and (@type!='contents')
+                          and (@type!='index')
+                          and (@type!='schema_clause')
+                          and (@type!='schema_intro')
+                          and (@type!='fund_cons')
+                          and (@type!='express_doc')
+                          and (@type!='express')
+                          and (@type!='expg')
+                          and (@type!='shortnames')
+                          and (@type!='tech_discussion')
+                          and (@type!='examples')
+                          and (@type!='add_scope')
                           and (@type!='bibliography')">
             <xsl:value-of select="'other'"/>
           </xsl:when>
@@ -352,6 +427,20 @@
     <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
     <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
     <xsl:choose>
+      <xsl:when test="@type='cover'">
+        <b> keywords</b> issue<br/>
+        <a href="../sys/cover{$FILE_EXT}#keywords">
+          (againts the cover page).
+        </a>
+      </xsl:when>
+
+      <xsl:when test="@type='abstract'">
+        <b> keywords</b> issue<br/>
+        <a href="../sys/cover{$FILE_EXT}#abstract">
+          (resource.xml/resource/abstract or inscope).
+        </a>
+      </xsl:when>
+
       <xsl:when test="@type='keywords'">
         <b> keywords</b> issue<br/>
         <a href="../sys/cover{$FILE_EXT}#keywords">
@@ -361,145 +450,158 @@
       <xsl:when test="@type='contacts'">
         against contacts.
         <a href="../sys/cover{$FILE_EXT}#keywords">
-          (module.xml/module/contacts).
+          (resource.xml/resource/contacts).
         </a>
       </xsl:when>
 
       <xsl:when test="@type='purpose'">
         against purpose.
         <a href="../sys/introduction{$FILE_EXT}#introduction">
-          (module.xml/module/purpose).
+          (resource.xml/resource/purpose).
         </a>
       </xsl:when>
 
       <xsl:when test="@type='inscope'">
         against inscope.
-        <a href="../sys/scope{$FILE_EXT}#scope">
+        <a href="../sys/1_scope{$FILE_EXT}#scope">
           (resource.xml/resource/inscope).
         </a>
       </xsl:when>
 
       <xsl:when test="@type='outscope'">
         against outscope.
-        <a href="../sys/scope{$FILE_EXT}#outscope">
-          (module.xml/module/outscope).
+        <a href="../sys/1_scope{$FILE_EXT}#scope">
+          (resource.xml/resource/outscope).
         </a>
       </xsl:when>
 
       <xsl:when test="@type='normrefs'">
         against normrefs.
         <a href="../sys/2_refs{$FILE_EXT}">
-          (module.xml/module/normrefs).
+          (resource.xml/resource/normrefs).
         </a>
       </xsl:when>
 
       <xsl:when test="@type='definition'">
         against definition.
         <a href="../sys/3_defs{$FILE_EXT}#defns">
-          (module.xml/module/definition).
+          (resource.xml/resource/definition).
         </a>
       </xsl:when>
 
       <xsl:when test="@type='abbreviations'">
         against abbreviations.
         <a href="../sys/3_defs{$FILE_EXT}#abbrv">
-          (module.xml/module/abbreviations).
+          (resource.xml/resource/abbreviations).
         </a>
       </xsl:when>
 
-      <xsl:when test="@type='arm'">
-        <xsl:variable name="link" select="translate(@linkend,$UPPER,$LOWER)"/>
-        against ARM.
-        <a href="../sys/4_info_reqs{$FILE_EXT}#{$link}">
-          <xsl:value-of select="concat('arm.xml/',@linkend)"/>
+      <xsl:when test="@type='intro'">
+        against introduction.
+        <a href="../sys/introduction{$FILE_EXT}#introduction">
+          (resource.xml/resource/purpose).
         </a>
       </xsl:when>
 
-      <xsl:when test="@type='armexpg'">
-        against ARM EXPRESS-G.
-        <xsl:variable name="link" select="@linkend"/>
-        <a href="../{$link}">
-          <xsl:value-of select="@linkend"/>
+      <xsl:when test="@type='foreword'">
+        against foreword.
+        <a href="../sys/foreword{$FILE_EXT}#foreword">
+          (see xsl).
         </a>
       </xsl:when>
 
-      <xsl:when test="@type='arm_lf'">
-        <xsl:variable name="link" select="translate(@linkend,$UPPER,$LOWER)"/>
-        against ARM long form.
-        <a href="../sys/4_info_reqs{$FILE_EXT}#{$link}">
-          <xsl:value-of select="concat('arm_lf.xml/',@linkend)"/>
+      <xsl:when test="@type='contents'">
+        against contents.
+        <a href="../sys/contents{$FILE_EXT}#contents">
+          (see xsl).
         </a>
       </xsl:when>
 
-      <xsl:when test="@type='armexpg_lf'">
-        against ARM Long form EXPRESS-G.
-        <xsl:variable name="link" select="@linkend"/>
-        <a href="../{$link}">
-          <xsl:value-of select="@linkend"/>
+      <xsl:when test="@type='index'">
+        against .
+        <a href="../sys/index{$FILE_EXT}">
+          (resource/index.xml).
         </a>
       </xsl:when>
 
-      <xsl:when test="@type='mapping_table'">
-        against mapping.
+      <xsl:when test="@type='schema_clause'">
+        against schema introduction.
+        <xsl:if test="@linkend">
+          <xsl:call-template name="link_schema">
+            <xsl:with-param name="schema_name" select="@linkend"/>
+          </xsl:call-template>
+        </xsl:if>
+      </xsl:when>
+   
+      <xsl:when test="@type='schema_intro'">
+        against schema introduction.
+        <xsl:if test="@linkend">
+          <xsl:call-template name="link_schema">
+            <xsl:with-param name="schema_name" select="@linkend"/>
+          </xsl:call-template>
+        </xsl:if>
+      </xsl:when>
+   
+      <xsl:when test="@type='fund_cons'">
+        against fundamental concepts.
+        <xsl:if test="@linkend">
+          <xsl:call-template name="link_schema">
+            <xsl:with-param name="schema_name" select="@linkend"/>
+          </xsl:call-template>
+        </xsl:if>
+      </xsl:when>
 
-        <xsl:variable name="link" 
-          select="translate(normalize-space(translate(@linkend,$UPPER,$LOWER)),
-                  ' :=','')"/>
+      <xsl:when test="@type='express'">
+        against express
+        <xsl:if test="@linkend">
+          <xsl:call-template name="link_schema">
+            <xsl:with-param name="schema_name" select="@linkend"/>
+          </xsl:call-template>
+        </xsl:if>
+      </xsl:when>
 
-        <a href="../sys/5_mapping{$FILE_EXT}#{$link}">
-          <xsl:choose>
-            <xsl:when test="contains($link,'aaattribute')">
-              <xsl:value-of 
-                select="substring-before(substring-after($link,'aeentity'),'aaattribute')"/> to
-              <xsl:value-of 
-                select="substring-before(substring-after($link,'aaattribute'),'assertion_to')"/> (as
-              <xsl:value-of 
-                select="substring-after($link,'assertion_to')"/>)
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of 
-                select="substring-after($link,'aeentity')"/> 
-            </xsl:otherwise>
-          </xsl:choose>
+      <xsl:when test="@type='express_doc'">
+        against express
+        <xsl:if test="@linkend">
+          <xsl:call-template name="link_schema">
+            <xsl:with-param name="schema_name" select="@linkend"/>
+          </xsl:call-template>
+        </xsl:if>
+      </xsl:when>
+
+
+      <xsl:when test="@type='expg'">
+        against abbreviations.
+        <a href="../sys/d_expg{$FILE_EXT}">
+          (schema directory).
         </a>
       </xsl:when>
 
-      <xsl:when test="@type='mim'">
-        <xsl:variable name="link" select="translate(@linkend,$UPPER,$LOWER)"/>
-        against MIM.
-        <a href="../sys/5_mim{$FILE_EXT}#{$link}">
-          <xsl:value-of select="concat('mim.xml/',@linkend)"/>
+      <xsl:when test="@type='shortnames'">
+        against short names.
+        <a href="../sys/a_short_names{$FILE_EXT}">
+          (resource.xml/resource/shortnames).
         </a>
       </xsl:when>
 
-      <xsl:when test="@type='mimexpg'">
-        against MIM EXPRESS-G.
-        <xsl:variable name="link" select="@linkend"/>
-        <a href="../{$link}">
-          <xsl:value-of select="@linkend"/>
+      <xsl:when test="@type='tech_discussion'">
+        against  technical discussion.
+        <a href="../sys/tech_discussion{$FILE_EXT}">
+          (resource.xml/resource/tech_discussion).
         </a>
       </xsl:when>
 
-      <xsl:when test="@type='mim_lf'">
-        <xsl:variable name="link" select="translate(@linkend,$UPPER,$LOWER)"/>
-        against MIM long form.
-        <a href="../sys/4_info_reqs{$FILE_EXT}#{$link}">
-          <xsl:value-of select="concat('mim_lf.xml/',@linkend)"/>
+      <xsl:when test="@type='examples'">
+        against examples.
+        <a href="../sys/examples{$FILE_EXT}">
+          (resource.xml/resource/examples).
         </a>
       </xsl:when>
 
-      <xsl:when test="@type='mimexpg_lf'">
-        against MIM Long form EXPRESS-G.
-        <xsl:variable name="link" select="@linkend"/>
-        <a href="../{$link}">
-          <xsl:value-of select="@linkend"/>
-        </a>
-      </xsl:when>
-
-      <xsl:when test="@type='usage_guide'">
-        against usage guide.
-        <a href="../sys/f_guide{$FILE_EXT}">
-          (module.xml/module/usage_guide).
+      <xsl:when test="@type='add_scope'">
+        against additional scope.
+        <a href="../sys/add_scope{$FILE_EXT}">
+          (resource.xml/resource/add_scope).
         </a>
       </xsl:when>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.3 2003/01/24 21:00:28 thendrix Exp $
+     $Id: express_link.xsl,v 1.4 2003/02/05 20:51:35 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -956,7 +956,9 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
           select="concat($data_path,'/modules/',substring-before($schema_name_tmp,'_arm;'),
                   '/arm.xml')"/>
       </xsl:when>
-
+      <xsl:when test="$resdoc_xml">
+        
+      </xsl:when>
       <xsl:otherwise>
         <xsl:value-of 
           select="concat($data_path,'/resources/',$schema_name,'/',$schema_name,'.xml')"/>
@@ -1027,28 +1029,6 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
   <xsl:variable name="schema_name_tmp"
     select="concat(translate($schema_name,$UPPER, $LOWER),';')"/>
 
-  <xsl:variable name="mim_file">
-    <xsl:choose>
-      <xsl:when test="$clause='annexe'">
-        <xsl:value-of select="'e_exp_mim'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'5_mim'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
-  <xsl:variable name="arm_file">
-    <xsl:choose>
-      <xsl:when test="$clause='annexe'">
-        <xsl:value-of select="'e_exp_arm'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'4_info_reqs'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
 
   <xsl:variable name="filepath">
     <xsl:choose>
@@ -1061,16 +1041,14 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
         <xsl:value-of select="''"/>
       </xsl:when>
       -->
-      <xsl:when test="contains($schema_name_tmp,'_mim;')">
+      <xsl:when test="$resdoc_xml//schema[@name=$schema_name]/@name">
+        <xsl:variable name="clauseno">
+        <xsl:apply-templates select="$resdoc_xml//schema[@name=$schema_name]" mode="pos">
+        </xsl:apply-templates>
+      </xsl:variable>
         <xsl:value-of 
-          select="concat($data_path,'/modules/',substring-before($schema_name_tmp,'_mim;'),
-                  '/sys/',$mim_file,$FILE_EXT)"/>
-      </xsl:when>
-
-      <xsl:when test="contains($schema_name_tmp,'_arm;')">
-        <xsl:value-of 
-          select="concat($data_path,'/modules/',substring-before($schema_name_tmp,'_arm;'),
-                  '/sys/',$arm_file,$FILE_EXT)"/>
+          select="concat($data_path,'/resource_docs/',$resdoc_name,'/sys/',$clauseno,'_schema',$FILE_EXT)"/>
+        
       </xsl:when>
 
       <xsl:otherwise>
@@ -1170,5 +1148,9 @@ Needs to deal with expressions starting with not ( i.e. ANDOR above
   </xsl:choose>
 </xsl:template>
 
-
+<xsl:template match="schema" mode="pos">
+  <!--  <xsl:value-of select="position()"/> -->
+  <!-- <xsl:variable name="clauseno" select="3+position()"/> -->
+  <xsl:value-of select="3+position()"/>
+</xsl:template>
 </xsl:stylesheet>

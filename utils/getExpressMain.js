@@ -1,4 +1,4 @@
-//$Id: getExpressMain.js,v 1.13 2003/03/12 14:33:25 robbod Exp $
+//$Id: getExpressMain.js,v 1.14 2003/03/28 23:23:50 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -652,6 +652,18 @@ function getResdocAbstractFileName(resdocName) {
     }
 }
 
+function getResdocIssuesFileName(resdocName) {
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var resdocXmlFile = "../data/resource_docs/"+resdocName+"/resource.xml";
+    var fileName ="";
+    if (!fso.FileExists(resdocXmlFile)) {
+	ErrorMessage("The "+resdocXmlFile+" does not exist");
+    } else {
+	return(resdocName+"_issues.htm");
+    }
+}
+
+
 function getExpressFileName(moduleName, arm_or_mim) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var moduleXmlFile = "../data/modules/"+moduleName+"/module.xml";
@@ -708,10 +720,6 @@ function getExpressFileName(moduleName, arm_or_mim) {
     return(fileName);
 }
 
-// Copy across all the abstracts for a ballot
-function GetBallotAbstracts(ballotName) {
-    
-}
 
 // Copy all the express from the modules listed in a ballot, rename them and copy them to 
 // stepmod/ballots/isohtml/<ballot>
@@ -735,6 +743,8 @@ function MainWindowBallotExpress(ballotName) {
 	return(-1);
     }
     fso.CreateFolder(ballotAbstractFldr);
+
+
 
 
     var xml = new ActiveXObject("Msxml2.DOMDocument.3.0");
@@ -827,6 +837,10 @@ function MainWindowBallotExpress(ballotName) {
             dst = ballotExpressFldr;
 //fso is a dummy object for CopyFile method
             fso.CopyFile(expFile, dst)
+
+
+	UserMessage("Copied EXPRESS to:\n  "+ballotExpressFldr);
+
 	    
 
 //abstract
@@ -838,14 +852,39 @@ function MainWindowBallotExpress(ballotName) {
 		    src = fso.GetFile(abstractFile);
 		    //UserMessage(src+" -> "+dst);
 		    src.Copy(dst);
+		UserMessage("Copied abstract to:\n  "+ballotAbstractFldr);
 		}
 	    } else {
 		ErrorMessage("File does not exist: "+abstractFile);
 	    }
+
+//issues
+	    var issuesFile ="../data/resource_docs/"+resdocName+"/dvlp/issues.htm";
+
+	    var ballotIssuesFldr =  "../ballots/isohtml/"+ballotName+"/data/resource_docs/"+resdocName+"/issues";
+    	if (fso.FolderExists(ballotIssuesFldr)) {
+		ErrorMessage("Directory exists:\n"+ballotIssuesFldr);
+		return(-1);
+    	}
+		ErrorMessage("ballotIssuesFldr:\n"+ballotIssuesFldr);
+    	fso.CreateFolder(ballotIssuesFldr);
+
+
+	    if (fso.FileExists(issuesFile)) {
+		fileName = getResdocIssuesFileName(resdocName, "issues");
+		if (fileName != "") {
+		    dst = ballotIssuesFldr+"/"+fileName;
+		    src = fso.GetFile(issuesFile);
+		    //UserMessage(src+" -> "+dst);
+		    src.Copy(dst);
+		UserMessage("Copied Issues to:\n  "+ballotIssuesFldr);
+		}
+	    } else {
+		ErrorMessage("File does not exist: "+issuesFile);
+	    }
+
 	}
      }
-//end TEH added ... somewhere around  here \-)
-	UserMessage("Copied EXPRESS to:\n  "+ballotExpressFldr);
 
     }
 

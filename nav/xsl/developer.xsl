@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: developer.xsl,v 1.10 2003/01/08 08:14:07 robbod Exp $
+$Id: developer.xsl,v 1.11 2003/01/08 08:26:17 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -175,7 +175,7 @@ $Id: developer.xsl,v 1.10 2003/01/08 08:14:07 robbod Exp $
   </p>
   <p class="hrefhref">
     <xsl:value-of select="concat('&lt;normref.inc module.name=&quot;',../@name,'&quot;&gt;')"/><br/>
-    <xsl:value-of select="concat('&#160;&#160;&lt;termref.inc linkend=&quot;', term/@id, '&quot;/&gt;')"/><br/>
+    <xsl:value-of select="concat('&#160;&#160;&lt;term.ref linkend=&quot;', term/@id, '&quot;/&gt;')"/><br/>
     <xsl:value-of select="'&lt;/normref.inc&gt;'"/><br/>
   </p>
 </xsl:template>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: index2.xsl,v 1.1 2003/02/24 09:25:19 robbod Exp $
+$Id: index2.xsl,v 1.2 2003/02/27 07:24:54 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up the main frames
@@ -48,7 +48,7 @@ $Id: index2.xsl,v 1.1 2003/02/24 09:25:19 robbod Exp $
       <frame name="banner" 
         src="banner{$FILE_EXT}"
         marginwidth="2" marginheight="0" scrolling="auto"/>
-      <frameset cols="15%,15%,70%">
+      <frameset cols="15%,0%,70%">
         <frame name="index" 
           src="modules_alpha{$FILE_EXT}"
           scrolling="auto"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_list.xsl,v 1.19 2003/03/11 13:37:03 robbod Exp $
+$Id: modules_list.xsl,v 1.20 2003/03/13 19:33:06 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -18,7 +18,7 @@ $Id: modules_list.xsl,v 1.19 2003/03/11 13:37:03 robbod Exp $
 
 
   <!-- hack to disable module index while being developed -->
-  <xsl:variable name="index2" select="'NO'"/>
+  <xsl:variable name="index2" select="'YES'"/>
     
 
   <xsl:template match="/" >
@@ -38,10 +38,9 @@ $Id: modules_list.xsl,v 1.19 2003/03/11 13:37:03 robbod Exp $
       </title>
 
       <script language="JavaScript"><![CDATA[
-
           function swap(ShowDiv, HideDiv) {
-            show(ShowDiv) ;
-            hide(HideDiv) ;
+            show(ShowDiv);
+            hide(HideDiv);
           }
 
           function show(DivID) {
@@ -89,7 +88,6 @@ $Id: modules_list.xsl,v 1.19 2003/03/11 13:37:03 robbod Exp $
         <xsl:value-of select="$part_name"/>
       </a>
     </p>
-    <xsl:if test="$index2 != 'NO'">
       <xsl:variable name="mod_index_href" 
         select="concat('../data/modules/',@name,'/nav/module_index',$FILE_EXT)"/>
       <p class="menulist1">
@@ -99,7 +97,6 @@ $Id: modules_list.xsl,v 1.19 2003/03/11 13:37:03 robbod Exp $
           Module index
         </a>
       </p>
-    </xsl:if>
 
     <xsl:apply-templates select="." mode="iso_sub_menus">
       <xsl:with-param name="module_root" select="concat('../data/modules/',@name)"/>

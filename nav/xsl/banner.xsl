@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: banner.xsl,v 1.15 2002/12/24 16:50:21 robbod Exp $
+$Id: banner.xsl,v 1.16 2003/02/27 07:24:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -13,9 +13,6 @@ $Id: banner.xsl,v 1.15 2002/12/24 16:50:21 robbod Exp $
 
 
   <xsl:output method="html"/>
-
-  <!-- hack to disable module index while being developed -->
-  <xsl:variable name="index2" select="'NO'"/>
 
   <xsl:template match="/" >
     <xsl:apply-templates select="./stylesheet_application"/>
@@ -66,8 +63,7 @@ $Id: banner.xsl,v 1.15 2002/12/24 16:50:21 robbod Exp $
                   &#160;&#160;&#160;
                   <a href="../help/index.htm"
                     Target="content">Help</a><br/>
-                  <xsl:if test="$index2 != 'NO'">
-                  <div id="closed_menu" style="display:none">
+                  <div id="closed_menu">
                     <p class="bannermenuitem">
                       Module menu
                       <a href="javascript:openModuleIndexFrame();">
@@ -76,7 +72,7 @@ $Id: banner.xsl,v 1.15 2002/12/24 16:50:21 robbod Exp $
                       </a>
                     </p>
                   </div>
-                  <div id="open_menu">
+                  <div id="open_menu" style="display:none">
                     <p class="bannermenuitem">
                       Module menu
                       <a href="javascript:closeModuleIndexFrame();">
@@ -85,7 +81,6 @@ $Id: banner.xsl,v 1.15 2002/12/24 16:50:21 robbod Exp $
                       </a>
                     </p>
                   </div>
-                </xsl:if>
                 </p>
               </td>
               <td align="left" valign="top">

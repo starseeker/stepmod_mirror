@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_index.xsl,v 1.1 2003/02/24 09:25:20 robbod Exp $
+$Id: module_index.xsl,v 1.2 2003/03/11 13:37:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -81,7 +81,6 @@ $Id: module_index.xsl,v 1.1 2003/02/24 09:25:20 robbod Exp $
           <xsl:value-of select="$module_node/module/@name"/>
         </title>
         <script language="JavaScript"><![CDATA[
-        
           function swap(ShowDiv, HideDiv) {
             show(ShowDiv);
             hide(HideDiv);
@@ -122,8 +121,6 @@ $Id: module_index.xsl,v 1.1 2003/02/24 09:25:20 robbod Exp $
               <b>Module clauses</b>
             </p>
           </div>
-          
-
           <xsl:variable name="DeveloperViewMenu" select="concat('DeveloperViewMenu',$module_node/@name)"/>
           <xsl:variable name="NoDeveloperViewMenu" select="concat('NoDeveloperViewMenu',$module_node/@name)"/>
           <!-- ModuleClausesMenu (OPEN) -->
@@ -317,11 +314,13 @@ $Id: module_index.xsl,v 1.1 2003/02/24 09:25:20 robbod Exp $
       </a>
       <a href="../sys/4_info_reqs{$FILE_EXT}" target="content">4 Information requirements</a>
     </p>
-    
+
+    <!--    
     <p class="menuitem2">
       <a href="../sys/4_info_reqs{$FILE_EXT}#uof" target="content">4.1 Units of functionality</a>
     </p>
-    
+    -->
+
     <!-- only output if there are interfaces defined and therefore a
          section -->
     <xsl:variable name="interface_clause">
@@ -475,7 +474,7 @@ $Id: module_index.xsl,v 1.1 2003/02/24 09:25:20 robbod Exp $
       
       <!-- Entity menu (OPEN) -->
       <div id="{$EntityMenu}" style="display:none">
-        <p class="menulist1">
+        <p class="menulist2">
           <a href="javascript:swap({$NoEntityMenu}, {$EntityMenu});">
             <img src="../../../../images/minus.gif" alt="Close menu" 
               border="false" align="middle"/>    
@@ -489,7 +488,7 @@ $Id: module_index.xsl,v 1.1 2003/02/24 09:25:20 robbod Exp $
       </div><!-- Entity menu (OPEN) -->
       <!-- Entity menu (CLOSED) -->
       <div id="{$NoEntityMenu}">
-        <p class="menulist1">
+        <p class="menulist2">
           <a href="javascript:swap({$EntityMenu}, {$NoEntityMenu});">
             <img src="../../../../images/plus.gif" alt="Open menu" 
               border="false" align="middle"/> 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.92 2003/05/06 10:26:57 robbod Exp $
+$Id: common.xsl,v 1.93 2003/05/23 20:25:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -122,7 +122,7 @@ $Id: common.xsl,v 1.92 2003/05/06 10:26:57 robbod Exp $
 </xsl:template>
 
 
-<xsl:template match="module|application_protocol" mode="meta_data">
+<xsl:template match="module" mode="meta_data">
   <xsl:param name="clause"/>
   <link rel = "schema.DC"
     href    = "http://www.dublincore.org/documents/2003/02/04/dces/"/>

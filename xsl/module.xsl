@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.144 2003/05/17 01:01:07 thendrix Exp $
+$Id: module.xsl,v 1.145 2003/05/19 14:09:43 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -37,7 +37,6 @@ $Id: module.xsl,v 1.144 2003/05/17 01:01:07 thendrix Exp $
         <xsl:apply-templates select="./module" mode="title"/>
       </TITLE>
     </HEAD>
-
     <xsl:element name="body">
       <xsl:if test="$output_background='YES'">
         <xsl:attribute name="background">

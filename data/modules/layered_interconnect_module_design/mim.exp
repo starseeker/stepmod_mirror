@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.11 2005/01/06 09:21:37 liutkus Exp $
+   $Id: mim.exp,v 1.12 2005/01/06 14:07:58 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Layered interconnect module design - EXPRESS MIM
 *)
 
@@ -347,8 +347,15 @@ WHERE
        TYPEOF (cp.related_shape_aspect))) >= 2);
 END_ENTITY;
 
+
+  ENTITY laminate_component_feature
+    ABSTRACT SUPERTYPE OF (ONEOF (laminate_component_interface_terminal,
+ laminate_component_join_terminal))
+    SUBTYPE OF (component_feature);
+  END_ENTITY;
+
 ENTITY laminate_component_interface_terminal
-  SUBTYPE OF (shape_aspect);
+  SUBTYPE OF (laminate_component_feature);
 WHERE
   WR1: (NOT (SELF\shape_aspect.description IN 
        ['component termination passage interface terminal', 
@@ -447,6 +454,11 @@ WHERE
         product_definition.frame_of_reference\
         application_context_element.name = 'layout occurrence');
 END_ENTITY;
+
+  ENTITY laminate_component_join_terminal
+    SUBTYPE OF (laminate_component_feature,
+ 		component_terminal);
+  END_ENTITY;
 
 ENTITY laminate_group_component_make_from_relationship
   SUBTYPE OF (make_from_usage_option);

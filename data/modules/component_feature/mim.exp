@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.6 2004/12/31 11:52:32 kovaliovas Exp $
+   $Id: mim.exp,v 1.7 2005/01/04 07:21:21 kovaliovas Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Component feature - EXPRESS MIM *)
 (* UNDER DEVELOPMENT *)
 SCHEMA Component_feature_mim;
@@ -33,7 +33,7 @@ WHERE
 END_ENTITY; 
 
 ENTITY component_terminal
-  SUBTYPE OF (shape_aspect);
+  SUBTYPE OF (component_feature);
 WHERE
   WR1: (SELF\shape_aspect.description IN 
       ['assembly module component terminal', 
@@ -374,19 +374,19 @@ WHERE
 END_ENTITY;
 
 ENTITY make_from_feature_relationship
- SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+ SUBTYPE OF (component_feature_relationship);
 WHERE
   WR1: SIZEOF (['COMPONENT_FEATURE_MIM.' +
        'COMPONENT_TERMINAL',
        'COMPONENT_FEATURE_MIM.' +
-       'COMPONENT_INTERFACE_TERMINAL',
+       'PHYSICAL_COMPONENT_INTERFACE_TERMINAL',
        'COMPONENT_FEATURE_MIM.' +
        'COMPONENT_SHAPE_ASPECT'] *
        TYPEOF (SELF.relating_shape_aspect)) = 1;
   WR2: SIZEOF (['COMPONENT_FEATURE_MIM.' +
        'COMPONENT_TERMINAL',
        'COMPONENT_FEATURE_MIM.' +
-       'COMPONENT_INTERFACE_TERMINAL',
+       'PHYSICAL_COMPONENT_INTERFACE_TERMINAL',
        'COMPONENT_FEATURE_MIM.' +
        'COMPONENT_SHAPE_ASPECT'] *
        TYPEOF (SELF.related_shape_aspect)) = 1;
@@ -407,7 +407,7 @@ WHERE
 END_ENTITY;
 
 RULE component_feature_unique_constraint FOR
- ( component_terminal, component_interface_terminal );
+ ( component_terminal, physical_component_interface_terminal );
 LOCAL
   ct : BAG OF shape_aspect := 
      QUERY( ct <* component_terminal | (ct\shape_aspect.description IN 
@@ -419,7 +419,7 @@ LOCAL
 'minimally defined component terminal',
 'packaged component join terminal']) );
   cit : BAG OF shape_aspect := 
-         QUERY( cit <* component_interface_terminal | (
+         QUERY( cit <* physical_component_interface_terminal | (
 cit\shape_aspect.description IN ['interconnect component interface terminal',
 'packaged connector component interface terminal']) );
   cf : BAG OF shape_aspect;

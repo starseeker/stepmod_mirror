@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.12 2003/11/03 16:12:10 rugarcia Exp $
+   $Id: mim.exp,v 1.13 2004/03/02 19:50:28 panetto Exp $
    ISO/TC184/SC4 WG3N1304 - ISO/CD-TS 10303-1351 catalog_data_information - EXPRESS MIM
 *)
 
@@ -10,7 +10,7 @@ USE FROM Alias_identification_mim;
 
 USE FROM Alternative_solution_mim ;
 
-USE FROM Approval_arm_mim ;
+USE FROM Approval_mim ;
 
 USE FROM Assembly_structure_mim ;
 
@@ -123,7 +123,7 @@ USE FROM Time_interval_mim ;
 USE FROM Value_with_unit_mim ;
 
 USE FROM action_schema
-  (executed_action; 
+  (executed_action); 
 USE FROM application_context_schema
   (application_context); 
 USE FROM approval_schema
@@ -191,11 +191,11 @@ USE FROM product_definition_schema
 USE FROM product_property_definition_schema
   (general_property,
    general_property_relationship,
-   property_definition); 
+   property_definition,
+   shape_aspect,
+   shape_aspect_relationship); 
 USE FROM product_property_representation_schema
-  (shape_aspect,
-   shape_aspect_relationship,
-   shape_representation); 
+  (shape_representation); 
 USE FROM product_structure_schema
   (alternate_product_relationship,
    assembly_component_usage_substitute); 
@@ -909,12 +909,12 @@ RULE restrict_document_reference FOR
 	(applied_document_reference);
 WHERE
 WR1: SIZEOF(QUERY(adr <* applied_document_reference |
- (SELF.role.name = 'general tolerance definition') AND 
- (NOT item_correlation (SELF.items, ['REPRESENTATION']))
+ (adr.role.name = 'general tolerance definition') AND 
+ (NOT item_correlation (adr.items, ['REPRESENTATION']))
 	))=0; 
 WR2: SIZEOF(QUERY(adr <* applied_document_reference |
-  NOT ((SELF.role.name = 'general tolerance definition') OR 
-   item_correlation (SELF.items, 
+  NOT ((adr.role.name = 'general tolerance definition') OR 
+   item_correlation (adr.items, 
 	['APPROVAL','CERTIFICATION','CLASS',
 	'CLASS_SYSTEM','CONFIGURATION_DESIGN', 
 	'CONFIGURATION_ITEM','CONTRACT',
@@ -1013,14 +1013,14 @@ RULE restrict_group_assignment FOR
 	(applied_group_assignment);
 WHERE
 WR2: SIZEOF(QUERY(aeia <* applied_group_assignment |
- (SELF.role.name = 'group membership') AND
-  (NOT item_correlation (SELF.items, ['GEOMETRIC_REPRESENTATION_ITEM', 'SHAPE_ASPECT'])) 
+ (aeia.role.name = 'group membership') AND
+  (NOT item_correlation (aeia.items, ['GEOMETRIC_REPRESENTATION_ITEM', 'SHAPE_ASPECT'])) 
 	))=0; 
 WR3: SIZEOF(QUERY(aeia <* applied_group_assignment |
-(SELF.role.name = 'group membership')) AND
- (NOT  ((SIZEOF(SELF.items) = SIZEOF( QUERY( i <* SELF.items | 'CATALOG_DATA_INFORMATION_MIM' + '.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(i)))) OR 
-  (SIZEOF(SELF.items) = SIZEOF( QUERY( i <* SELF.items | 'CATALOG_DATA_INFORMATION_MIM' + '.SHAPE_ASPECT' IN TYPEOF(i)))))) 
-	))=0; 
+(aeia.role.name = 'group membership')) AND
+ (NOT  ((SIZEOF(aeia.items) = SIZEOF( QUERY( i <* aeia.items | 'CATALOG_DATA_INFORMATION_MIM' + '.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(i)))) OR 
+  (SIZEOF(aeia.items) = SIZEOF( QUERY( i <* aeia.items | 'CATALOG_DATA_INFORMATION_MIM' + '.SHAPE_ASPECT' IN TYPEOF(i)))))) 
+	)=0; 
 END_RULE;
 
 RULE restrict_multi_language_for_alternate_product_relationship FOR
@@ -1399,8 +1399,8 @@ RULE restrict_person_and_organization_assignment FOR
 	(applied_person_and_organization_assignment);
 WHERE
 WR1: SIZEOF(QUERY(aoa <* applied_person_and_organization_assignment |
- (SELF.role.name = 'signing for contract') AND
-    (NOT item_correlation (SELF.items, ['APPLIED_ORGANIZATION_ASSIGNMENT']))
+ (aoa.role.name = 'signing for contract') AND
+    (NOT item_correlation (aoa.items, ['APPLIED_ORGANIZATION_ASSIGNMENT']))
 	))= 0;
 END_RULE;
 

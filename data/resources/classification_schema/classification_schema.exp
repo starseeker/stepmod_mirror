@@ -1,16 +1,20 @@
 (* 
+ $Id:  $
  Extracted from:
-  ISO/DIS 10303-54, Set theory, 2002-12-19
-  WG12 N1510
-*)
+ ISO TC184/SC4/WG12 N00000 - ISO/IS 10303-54 Classification and set theory - EXPRESS
+*) 
 
-SCHEMA classification_schema;
 
-  REFERENCE FROM management_resources_schema -- ISO 10303-41
-    (classification_assignment);
+SCHEMA classification_schema; 
 
-  REFERENCE FROM group_schema -- ISO 10303-41
-    (group);
+USE FROM group_schema;    -- ISO 10303-41
+
+REFERENCE FROM group_schema   -- ISO 10303-41
+  (group); 
+
+REFERENCE FROM management_resources_schema   -- ISO 10303-41
+  (classification_assignment); 
+
 
 TYPE classification_select = EXTENSIBLE SELECT;
 END_TYPE; 
@@ -18,15 +22,7 @@ END_TYPE;
 TYPE complete_membership_select = EXTENSIBLE SELECT;
 END_TYPE; 
 
-ENTITY applied_classification_assignment
-  SUBTYPE OF (classification_assignment);
-  items : SET[1:?] OF classification_select;
-END_ENTITY;
-
 ENTITY class
-  SUPERTYPE OF (ONEOF (
-    class_by_extension,
-    class_by_intension))
   SUBTYPE OF (group);
 END_ENTITY;
 
@@ -39,23 +35,20 @@ ENTITY class_by_intension
 END_ENTITY;
 
 ENTITY classification
-  SUBTYPE OF (applied_classification_assignment);
-  SELF\applied_classification_assignment.items : SET[1:1] OF classification_select;
+  SUBTYPE OF (classification_assignment);
+  classified : classification_select;
 DERIVE
-  classified  : classification_select := SELF\applied_classification_assignment.items[1];
-  classifier  : class := SELF\classification_assignment.assigned_class;
+  classifier : class := SELF\classification_assignment.assigned_class;
 END_ENTITY;
 
 ENTITY complete_membership
   SUBTYPE OF (classification_assignment);
-  members        : SET[0:?] OF complete_membership_select;
+  members : SET[0:?] OF complete_membership_select;
 DERIVE
-  containing_set : class :=
-                         SELF\classification_assignment.assigned_class;
+  containing_set : class := SELF\classification_assignment.assigned_class;
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT classification_or_complete_membership FOR classification_assignment;
-  ONEOF (applied_classification_assignment, complete_membership);
 END_SUBTYPE_CONSTRAINT;
 
-END_SCHEMA;
+END_SCHEMA;  -- classification_schema

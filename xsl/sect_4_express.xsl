@@ -2,12 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.68 2002/09/12 07:19:35 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.69 2002/09/16 07:29:05 goset1 Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
-     Used to display the commented XML encoded Express
+     Used to display the commented XML encoded EXPRESS
      in clause 4 and 5 of a module.
 -->
 
@@ -113,7 +113,7 @@
     <xsl:variable name="clause_intro">
       <xsl:choose>
         <xsl:when test="contains($schema_name,'_arm')">
-          The following Express interface statements specify the elements
+          The following EXPRESS interface statements specify the elements
           imported from the ARMs of other application modules.
         </xsl:when>
         <xsl:when test="contains($schema_name,'_mim')">
@@ -349,10 +349,10 @@
             <xsl:choose>
               <xsl:when
                 test="count(document($module_file)/module/arm/express-g/imgfile)=1">
-                figure
+                Figure
               </xsl:when>
               <xsl:otherwise>
-                figures
+                Figures
               </xsl:otherwise>
             </xsl:choose>
             
@@ -382,10 +382,10 @@
             <xsl:choose>
               <xsl:when
                 test="count(document($module_file)/module/mim/express-g/imgfile)=1">
-                figure
+                Figure
               </xsl:when>
               <xsl:otherwise>
-                figures
+                Figures
               </xsl:otherwise>
             </xsl:choose>
             

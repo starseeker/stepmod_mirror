@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.19 2002/08/09 20:37:25 robbod Exp $
+$Id: imgfile.xsl,v 1.20 2002/09/11 12:27:05 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -200,7 +200,7 @@ $Id: imgfile.xsl,v 1.19 2002/08/09 20:37:25 robbod Exp $
 
       <a href="./{$home}">
         <img align="middle" border="0" 
-          alt="Index of Express-G pages" src="../../../images/home.gif"/>
+          alt="Index of EXPRESS-G pages" src="../../../images/home.gif"/>
       </a>
       <xsl:variable name="img_position">
         <xsl:number/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.75 2002/09/15 07:44:43 robbod Exp $
+$Id: common.xsl,v 1.76 2002/09/15 20:46:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -852,7 +852,7 @@ $Id: common.xsl,v 1.75 2002/09/15 07:44:43 robbod Exp $
         <br/>
         <IMG
           SRC="{$warning_gif}" ALT="[warning:]"
-          align="absbottom" border="0"
+          align="bottom" border="0"
           width="20" height="20"/>
         <font color="#FF0000" size="-1">
           <i>

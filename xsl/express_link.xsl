@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.11 2002/08/06 08:05:48 robbod Exp $
+     $Id: express_link.xsl,v 1.12 2002/08/21 20:27:12 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -458,7 +458,7 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
 
 
 <!--
-     Output HREF URL for an Express object (either a TYPE or ENTITY).
+     Output HREF URL for an EXPRESS object (either a TYPE or ENTITY).
      The clause parameter can be used to specify what express should be
      linked. either:
       section for referencing ARM and MIM express in section 4 and 5

@@ -59,6 +59,12 @@ USE FROM Shape_parameters_arm;
 		(Externally_defined_dimension_representation);
 	END_TYPE;
 
+	TYPE egt_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+	    (Restraint_condition,
+	  	Statistical_dimensional_tolerance,
+	  	Statistical_geometric_tolerance);
+	END_TYPE; 
+
   TYPE geometric_or_dimension_select = SELECT
     (geometric_tolerance,
      geometric_dimension);
@@ -113,7 +119,11 @@ USE FROM Shape_parameters_arm;
      physical_feature_or_part_template);
   END_TYPE; -- restrained_item_select
 
-	TYPE true_profile_representations = EXTENSIBLE GENERIC_ENTITY SELECT;
+	TYPE true_profile_representations = SELECT(
+		dimension_set,
+     	document_definition,
+     	rule_function,
+     	three_dimensional_shape);
 	END_TYPE;
 
   ENTITY Apex
@@ -145,17 +155,6 @@ USE FROM Shape_parameters_arm;
   ENTITY Centre_point
     SUBTYPE OF (Centre_of_symmetry);
   END_ENTITY; -- centre_point
-
--- Need a confirmation from Tom to remove it
---  ENTITY Composite_feature_locating_position_tolerance
---    SUBTYPE OF (position_tolerance_with_referenced_datum_system);
---  END_ENTITY; -- composite_feature_locating_position_tolerance
-
--- Need a confirmation from Tom to remove it
---  ENTITY Composite_feature_relating_position_tolerance
---    SUBTYPE OF (position_tolerance);
---      refined_control : locating_or_relating_position_tolerance;
---  END_ENTITY; -- composite_feature_relating_position_tolerance
 
   ENTITY Composite_linear_profile_refinement_tolerance
     SUBTYPE OF (Line_profile_tolerance);
@@ -225,13 +224,6 @@ USE FROM Shape_parameters_arm;
   ENTITY Datum_based_vector_orientation;
       direction_components : SET[2:2] OF direction_element;
   END_ENTITY; -- datum_based_vector_orientation
-
--- Need a confirmation from Tom to remove it
---  ENTITY Boundary_based_position_tolerance
---    SUBTYPE OF (position_tolerance_with_referenced_datum_system,
--- geometric_tolerance_with_applied_material_condition_property);
---      profile_control : OPTIONAL surface_profile_tolerance;
---  END_ENTITY; -- boundary_based_position_tolerance
 
   ENTITY Datum_difference
     SUBTYPE OF (shape_element_relationship);

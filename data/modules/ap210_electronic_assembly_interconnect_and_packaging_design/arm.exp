@@ -32,18 +32,9 @@ USE FROM Ap210_functional_requirement_allocation_arm;
 USE FROM Plib_class_reference_arm;
 
 (*=================== Temporary use froms ======================== *)
-USE FROM Geometric_tolerance_arm; -- ISO/TS 10303-1051
-
 USE FROM Model_parameter_arm;    -- ISO/TS 10303-xxx
 
-USE FROM Dimension_tolerance_arm; -- ISO/TS 10303-1051
-
-USE FROM Alias_identification_arm; -- ISO/TS 10303-1025
-
-USE FROM Advanced_boundary_representation_arm;    --  ISO/TS 10303-1514
 USE FROM Wireframe_2d_arm;    --  ISO/TS 10303-1347           --Geometrically_bounded_2d_wireframe_arm;
-USE FROM Geometrically_bounded_surface_arm;    --  ISO/TS 10303-1507    -- was Non_topological_surface_arm;
-
 
 -- New modules, not existing as uof
  
@@ -242,22 +233,8 @@ USE FROM Layered_interconnect_module_3d_design_arm;
 --USE FROM Stratum_position_arm;
 USE FROM Styled_curve_arm;
 USE FROM Styled_text_arm;
--- USE FROM Test_probe_arm; -- moved into Layered_interconnect_module_design_arm;
--- USE FROM Wireframe_2d_model_with_topology_arm;
--- USE FROM Edge_based_wireframe_arm;    --  ISO/TS 10303-1501     -- was Wireframe_with_topology_arm, 1 of 2;
--- USE FROM Shell_based_wireframe_arm;    --  ISO/TS 10303-1502     -- was Wireframe_with_topology_arm, 2 of 2;
-USE FROM Curve_swept_solid_arm;
 
 (*=================== END OF Temporary use froms ======================== *)
-
-SUBTYPE_CONSTRAINT assembly_component_subtypes FOR assembly_component; 
-    (((ONEOF (physical_component,
- printed_component,
- laminate_component) ANDOR
- shield) ANDOR
- thermal_component) ANDOR
- assembly_group_component);
-END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT assembly_module_subtypes FOR assembly_module; 
 (ONEOF (pca,
@@ -603,184 +580,6 @@ SUBTYPE_CONSTRAINT view_level_non_feature_shape_definition_subtypes FOR view_lev
  part_template_planar_keepout_shape));
 END_SUBTYPE_CONSTRAINT; 
  
-TYPE ap210_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
-   (coordinated_characteristic, 
-   model_parameter);
-END_TYPE; 
-
-	TYPE ap210_mating_connector_definition_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON mating_connector_definition_select WITH 
-   	(printed_part_template_terminal);
-	END_TYPE; 
-
-	TYPE ap210_message_source_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON message_source_select WITH 
-    (organization,
-     approval,
-     product_version);
-  END_TYPE; -- ap210_message_source_select
-
-	TYPE ap210_package_or_printed_part_template = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON package_or_printed_part_template WITH 
-    (package,
-     printed_part_template);
-  END_TYPE; -- ap210_package_or_printed_part_template
-
-	TYPE ap210_package_terminal_or_printed_part_template_terminal = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON package_terminal_or_printed_part_template_terminal WITH 
-    (package_terminal,
-     printed_part_template_terminal);
-  END_TYPE; -- ap210_package_terminal_or_printed_part_template_terminal
-
-	TYPE ap210_parameter_assignment_or_rule_general_clause = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON parameter_assignment_or_rule_general_clause WITH 
-    (parameter_assignment,
-     rule_general_clause);
-  END_TYPE; -- ap210_parameter_assignment_or_rule_general_clause
-
-	TYPE ap210_part_feature_or_template_feature = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_feature_or_template_feature WITH 
-   	(printed_part_template_terminal,
-   	land_template_terminal,
-   	component_termination_passage_template_terminal,
-   	via_template_terminal,
-   	part_terminal_external_reference,
-   	part_feature);
-	END_TYPE; 
-
-	TYPE ap210_pca_interface_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pca_interface_select WITH 
-    (interconnect_module_component_terminal,
-     component_interface_terminal,
-     assembly_module_component_terminal);
-  END_TYPE; -- pca_interface_select
-
-	TYPE ap210_physical_unit_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_shape_select WITH 
-    (physical_unit_3d_shape,
-     physical_unit_planar_shape,
-     part_template_3d_shape,
-     part_template_planar_shape);
-  END_TYPE; -- ap210_physical_unit_shape_select
-
--- Ex product_object_select
-TYPE ap210_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
-    (assembly_item_number,
-     product_configuration,
-     product_view_definition,
-     product_version,
-     product,
-     functional_unit,
-     assembly_joint,
-     part_feature,
-     physical_connectivity_element,
-     physical_connectivity_definition,
-     restriction_basis_item,
-     physical_connectivity_definition_relationship,
--- Entities, which previously had direct link now substituted by assignment     
-			Component_feature_to_layout_feature_relationship,
-  		Placement_group,
-  		Mating_connector_termination,
-  		Termination_constraint,
-  		Restraint_condition,
-  		Statistical_dimensional_tolerance,
-  		Statistical_geometric_tolerance,
-  		Stratum_concept_relationship,
-			Interconnect_module_constraint_region,
-			Part_template_3d_keepout_shape,
-			Part_template_planar_keepout_shape,
-			Physical_unit_3d_keepout_shape,
-			Physical_unit_planar_shape,
-			Physical_unit_planar_keepout_shape,
-			Physical_unit_3d_shape,
-			Electrical_isolation_removal_structure,
-			Thermal_isolation_removal_structure_or_template
-     );
-END_TYPE; 
-
-TYPE ap210_restriction_basis_item = EXTENSIBLE SELECT BASED_ON restriction_basis_item WITH 
-   (component_or_component_feature,
-   stratum_concept,
-   stratum,
-   Requirement_definition_property,
-   part_feature);
-END_TYPE; 
-
-TYPE ap210_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON security_classification_item WITH 
-   (document_definition,
-   product_version,
-   product_view_definition,
-   promissory_usage,
-   assembly_component_relationship);
-END_TYPE; --ap210_security_classification_item
-
-TYPE ap210_specification_product_object_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON specification_product_object_select WITH 
-    (product_configuration,
-     product_view_definition,
-     product_version,
-     product,
-     part_feature,
-     physical_connectivity_element,
-     physical_connectivity_definition,
-     stratum_concept,
-     stratum,
-     component_or_component_feature);
-  END_TYPE; -- ap210_specification_product_object_select
-
-	TYPE ap210_stratum_feature_or_stratum_feature_template_component = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON stratum_feature_or_stratum_feature_template_component WITH 
-    (stratum_feature,
-    stratum_feature_template_component);
-  END_TYPE; -- ap210_stratum_feature_or_stratum_feature_template_component
-
-	TYPE ap210_styled_area_representation = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON styled_area_representation WITH 
-    (fill_area_occurrence);
-  END_TYPE; -- ap210_styled_area_representation
-
-	TYPE ap210_terminal_or_inter_stratum_feature = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON terminal_or_inter_stratum_feature WITH 
-    (inter_stratum_feature,
-     embedded_component_terminal,
-     interconnect_module_macro_component_join_terminal,
-     interconnect_module_terminal,
-     printed_component_join_terminal);
-  END_TYPE; -- ap210_terminal_or_inter_stratum_feature
-
-	TYPE ap210_termination_or_junction = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON termination_or_junction WITH 
-    (component_terminal,
-     topological_junction);
-  END_TYPE; -- ap210_termination_or_junction
- 
-TYPE ap210_three_dimensional_shape = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON three_dimensional_shape WITH 
-	(Advanced_brep_shape_representation,
--- 	csg_solid,
-	curve_swept_solid,
--- 	Edge_based_wireframe_shape_representation,
- 	Geometrically_bounded_surface_shape_representation
--- 	shell_based_wireframe_shape_representation
-);
-END_TYPE; -- ap210_three_dimensional_shape
-
-	TYPE ap210_trace_junction_or_via = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON trace_junction_or_via WITH 
-    (inter_stratum_join_relationship,
-     explicitly_located_layer_connection_point);
-  END_TYPE; -- ap210_trace_junction_or_via
-
-	TYPE ap210_true_profile_representations = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON true_profile_representations WITH 
-    (dimension_set,
-     document_definition,
-     rule_function,
-     three_dimensional_shape);
-  END_TYPE; -- ap210_true_profile_representations
-
-
-TYPE ap210_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
-    (land_template_terminal,
-     component_termination_passage_template_terminal,
-     via_template_terminal,
-     non_feature_shape_element,
-     part_feature,
-     printed_part_template_terminal);
-  END_TYPE; -- ap210_usage_concept
-
-TYPE ap210_view_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON view_shape_select WITH 
-    (part_template_3d_shape,
-     physical_unit_3d_shape,
-     part_template_non_planar_2d_shape,
-     part_template_planar_shape,
-     physical_unit_planar_shape);
-END_TYPE; -- ap210_view_shape_select
-
 TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON managed_design_object WITH 
 (adjacent_stratum_surface_definition,
  adjacent_stratum_surface_embedded_component_surface_definition,

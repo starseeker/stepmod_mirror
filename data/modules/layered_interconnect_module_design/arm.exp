@@ -37,6 +37,11 @@ USE FROM Layered_shape_arm;
 
 USE FROM Basic_curve_arm;
 
+	SUBTYPE_CONSTRAINT assembly_component_subtypes FOR assembly_component; 
+	    (ONEOF (physical_component,
+	 	laminate_component));
+	END_SUBTYPE_CONSTRAINT;
+
  	TYPE bare_die_component_or_packaged_component = EXTENSIBLE GENERIC_ENTITY SELECT;
 	END_TYPE;
 
@@ -68,6 +73,14 @@ USE FROM Basic_curve_arm;
 		Laminate_component);
 	END_TYPE;
 
+	TYPE limd_part_feature_or_template_feature = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_feature_or_template_feature WITH 
+	   	(printed_part_template_terminal,
+	   	land_template_terminal,
+	   	component_termination_passage_template_terminal,
+	   	via_template_terminal,
+	   	part_terminal_external_reference);
+	END_TYPE; 
+
 	TYPE limd_physical_feature_or_part_template = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_feature_or_part_template WITH 
 	   (Part_feature,
 		Physical_component_feature,
@@ -75,6 +88,20 @@ USE FROM Basic_curve_arm;
 	 	Layout_template_definition,
 	 	Stratum_feature);
 	END_TYPE; --ap210_physical_feature_or_part_template
+
+	TYPE limd_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+	    (Stratum_concept_relationship);
+	END_TYPE; 
+
+	TYPE limd_specification_product_object_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON specification_product_object_select WITH 
+	    (stratum_concept,
+	     stratum);
+	END_TYPE; -- ap210_specification_product_object_select
+
+	TYPE limd_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
+		(Component_termination_passage_template_terminal,
+	     Via_template_terminal);
+	END_TYPE;
 
   TYPE printed_part_template_or_printed_part_cross_section_template = SELECT
     (printed_part_template,
@@ -89,11 +116,10 @@ USE FROM Basic_curve_arm;
      stratum_surface);
 	END_TYPE;
 
-	TYPE stratum_feature_or_stratum_feature_template_component = 
-		EXTENSIBLE GENERIC_ENTITY SELECT;
+	TYPE stratum_feature_or_stratum_feature_template_component = SELECT(
+		stratum_feature,
+    	stratum_feature_template_component);
 	END_TYPE;
-
-(* ------------------ STRATUM -----------------------*)
 
   TYPE stratum_surface_designation = ENUMERATION OF
     (primary_surface,

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.64 2003/03/21 07:45:55 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.65 2003/04/17 15:11:29 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -858,13 +858,26 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
           <xsl:variable name="refpath">
             <xsl:choose>
               <xsl:when test="name(..)='alt_map'">
-                <!-- the refpath in the original module must be in the same
-                     alternative -->
+		<!-- if there exists an alt map in the original module, 
+		     the refpath in the original module must be in the same
+                    alternative 
+		    
+		    Note that where there are alternatives at both the original and the using case:
+		    do not use refpath extension, supply a full path
+		    -->
                 <xsl:variable name="extended_select" select="./@extended_select"/>
-                <xsl:variable name="attribute" select="../../@attribute"/>
-                <xsl:variable name="alt_id" select="../@alt_map.inc"/>
-                <xsl:value-of
-                  select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/aa[@attribute=$attribute and @assertion_to=$extended_select]/alt_map[@alt_map.inc=$alt_id]/refpath"/>
+       	        <xsl:variable name="attribute" select="../../@attribute"/>
+               	<xsl:variable name="alt_id" select="../@alt_map.inc"/>
+		     <xsl:choose>
+			<xsl:when test="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/aa[@attribute=$attribute and @assertion_to=$extended_select]/alt_map" >
+		                <xsl:value-of
+        		          select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/aa[@attribute=$attribute and @assertion_to=$extended_select]/alt_map[@alt_map.inc=$alt_id]/refpath"/>	
+			</xsl:when>			     
+			<xsl:otherwise>
+		                <xsl:value-of 
+                		  select="document(concat($module_dir,'/module.xml'))/module/mapping_table/ae[@entity=$ae]/aa[@attribute=$attribute and @assertion_to=$extended_select]/refpath"/>
+			</xsl:otherwise>
+		      </xsl:choose>
               </xsl:when>
 
               <xsl:otherwise>

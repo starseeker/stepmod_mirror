@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: summary.xsl,v 1.1 2002/09/29 08:44:02 robbod Exp $
+$Id: summary.xsl,v 1.2 2002/09/30 15:12:02 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
 -->
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                version="1.0">
+<xsl:stylesheet 
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  xmlns:saxon="http://icl.com/saxon"
+  version="1.0">
 
   <xsl:import href="../../xsl/module.xsl"/>
+
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
 
   <xsl:template match="/" >
     <xsl:apply-templates select="./stylesheet_application"/>
@@ -43,7 +49,6 @@ $Id: summary.xsl,v 1.1 2002/09/29 08:44:02 robbod Exp $
     <xsl:apply-templates select="./inscope"/>
     <xsl:apply-templates select="./outscope"/>
     <xsl:apply-templates select="./arm"/>
-
   </xsl:template>
 
   <xsl:template match="module" mode="banner">
@@ -542,5 +547,6 @@ $Id: summary.xsl,v 1.1 2002/09/29 08:44:02 robbod Exp $
   </xsl:choose>
 </div>
 </xsl:template>
+
 
 </xsl:stylesheet>

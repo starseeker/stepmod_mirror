@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: developer.xsl,v 1.5 2002/09/29 08:46:22 robbod Exp $
+$Id: developer.xsl,v 1.6 2002/10/01 18:08:52 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -318,10 +318,14 @@ $Id: developer.xsl,v 1.5 2002/09/29 08:46:22 robbod Exp $
     name="arm_xml_file"
     select="concat('../../data/modules/',$module,'/arm.xml')"/>
 
+  <xsl:variable
+    name="arm_express_nodes"
+    select="document(string($arm_xml_file))"/>
+
   <xsl:variable name="arm_desc_xml_file">
     <xsl:choose>
       <xsl:when 
-        test="document(string($arm_xml_file))/express[string-length(@description.file)>0]">
+        test="$arm_express_nodes/express[string-length(@description.file)>0]">
         <xsl:value-of 
           select="concat('../../data/modules/',$module,'/arm_descriptions.xml')"/>
       </xsl:when>
@@ -349,10 +353,14 @@ $Id: developer.xsl,v 1.5 2002/09/29 08:46:22 robbod Exp $
       name="mim_xml_file"
       select="concat('../../data/modules/',$module,'/mim.xml')"/>
 
+  <xsl:variable
+    name="mim_express_nodes"
+    select="document(string($mim_xml_file))"/>
+
   <xsl:variable name="mim_desc_xml_file">
     <xsl:choose>
       <xsl:when 
-        test="document(string($mim_xml_file))/express[string-length(@description.file)>0]">
+        test="$mim_express_nodes/express[string-length(@description.file)>0]">
         <xsl:value-of 
           select="concat('../../data/modules/',$module,'/mim_descriptions.xml')"/>
       </xsl:when>
@@ -394,9 +402,38 @@ $Id: developer.xsl,v 1.5 2002/09/29 08:46:22 robbod Exp $
     </xsl:call-template>
   </xsl:variable>
 
+
+  <xsl:variable name="mim_interfaced_modules">
+    <xsl:apply-templates
+      select="$mim_express_nodes/express//interface" 
+      mode="get_schema"/>    
+  </xsl:variable>
+  <xsl:variable name="arm_interfaced_modules">
+    <xsl:apply-templates
+      select="$arm_express_nodes/express//interface" 
+      mode="get_schema"/>    
+  </xsl:variable>
+
+  <xsl:variable name="interfaced_modules" 
+    select="concat(' ',$module,' ',$arm_interfaced_modules,$mim_interfaced_modules)"/>
+    
+
+  <xsl:variable name="nmodules_list1">
+    <xsl:call-template name="prune_normrefs_from_bib_entries">
+      <xsl:with-param name="modules_list" 
+        select="concat(' ',$modules_list,' ')"/>
+      <xsl:with-param name="interfaced_modules"
+        select="$interfaced_modules"/>
+    </xsl:call-template>
+  </xsl:variable>
   <xsl:variable name="nmodules_list"
-    select="$modules_list"/>
- 
+    select="normalize-space($nmodules_list1)"/>
+  <!--
+  m:{<xsl:value-of select="$modules_list"/>}:{<xsl:value-of select="$interfaced_modules"/>}<br/>
+
+  nm:{<xsl:value-of select="$nmodules_list"/>}<br/>
+-->
+
   <xsl:choose>
     <xsl:when test="string-length($nmodules_list)>0">
       <h3>Bibliography entries</h3>
@@ -425,10 +462,71 @@ $Id: developer.xsl,v 1.5 2002/09/29 08:46:22 robbod Exp $
   </xsl:choose>
 </xsl:template>
 
+<xsl:template match="interface" mode="get_schema">
+  <xsl:variable name="module">
+    <xsl:call-template name="module_name">
+      <xsl:with-param name="module" select="@schema"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:value-of select="concat(' ',$module,' ')"/>
+</xsl:template>
+
+
+<xsl:template name="prune_normrefs_from_bib_entries">
+  <xsl:param name="modules_list"/>
+  <xsl:param name="ok_modules_list"/>
+  <xsl:param name="interfaced_modules"/>
+  <xsl:variable name="module">
+    <xsl:call-template name="module_name">
+      <xsl:with-param name="module" 
+        select="substring-before($modules_list,' ')"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
+  <xsl:variable name="module_item" select="concat(' ',$module,' ')"/>
+  <xsl:variable name="rest" 
+    select="substring-after($modules_list,' ')"/>
+
+  <xsl:message>
+    <xsl:value-of select="concat($modules_list,':',$module,':',$rest,':')"/>
+  </xsl:message>
+
+
+  <xsl:variable name="nmodules_list">
+    <xsl:choose>
+      <xsl:when test="not(contains($interfaced_modules, $module_item))">
+        <xsl:value-of select="concat($ok_modules_list,' ',$module,' ')"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$ok_modules_list"/>      
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="string-length($rest)>1">
+      <xsl:call-template name="prune_normrefs_from_bib_entries">
+        <xsl:with-param name="modules_list" select="$rest"/>
+        <xsl:with-param name="ok_modules_list" select="$nmodules_list"/>
+        <xsl:with-param name="interfaced_modules"
+          select="$interfaced_modules"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="$nmodules_list"/>      
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 <xsl:template name="output_bib_entry">
   <xsl:param name="modules_list"/>
-  <xsl:variable name="module" 
-    select="substring-before($modules_list,' ')"/>
+  <xsl:variable name="module">
+    <xsl:call-template name="module_name">
+      <xsl:with-param name="module" 
+        select="substring-before($modules_list,' ')"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
   <xsl:variable name="rest" 
     select="substring-after($modules_list,' ')"/>
   <li>

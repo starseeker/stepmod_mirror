@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
+$Id: index_mim_express_inner.xsl,v 1.11 2003/11/25 17:24:53 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -27,7 +27,10 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 
   <xsl:variable name="selected_ap" select="/application_protocol/@directory"/>
 
-  <xsl:output method="html"/>
+  <xsl:output method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/> 
+
 
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -728,7 +731,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name-l)"/>
                         <xsl:text> </xsl:text>
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -739,7 +742,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name-l)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name-l}{$FILE_EXT}#{$schema-name-l}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -807,7 +810,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
     				<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						$module),$UPPER,$LOWER)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 				<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" 
 					TARGET="info" >Definition</A>
 				<xsl:text> </xsl:text>
@@ -820,7 +823,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 			<xsl:when test="$prefix='schema'">
  	 			<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 				<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" 
 					TARGET="info" >Definition</A>
 				<xsl:text> </xsl:text>
@@ -832,7 +835,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 				<xsl:when test="starts-with($schema-name,'aic_')" >
 		    			<xsl:variable name="res-dir" 
 					 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 				<xsl:text> </xsl:text>
 				<A 
@@ -901,7 +904,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 		<xsl:when test="$prefix='schema'">
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A
@@ -912,7 +915,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -986,7 +989,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						substring-before($schema-name,'_mim')),$UPPER,$LOWER)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -998,7 +1001,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 		<xsl:when test="$prefix='schema'" >
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -1009,7 +1012,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -1075,7 +1078,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						$module),$UPPER,$LOWER)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -1087,7 +1090,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 		<xsl:when test="$prefix='schema'">
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -1098,7 +1101,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -1161,7 +1164,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
     			<xsl:variable name="mod-dir" 
 				 select="translate(concat($STEPMOD_DATA_MODULES,
 						$module),$UPPER,$LOWER)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$mod-dir}/sys/5_mim{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -1173,7 +1176,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 		<xsl:when test="$prefix='schema'">
  	 		<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 
@@ -1184,7 +1187,7 @@ $Id: index_mim_express_inner.xsl,v 1.10 2003/11/25 12:54:55 robbod Exp $
 		<xsl:when test="starts-with($schema-name,'aic_')" >
 		    	<xsl:variable name="res-dir" 
 				 select="concat($STEPMOD_DATA_RESOURCES,$schema-name)" />
-                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif"/>
+                          &#160;&#160;<img align="middle" border="0" src="../../../../images/expg_spacer.gif" alt="space"/>
 			<A HREF="{$res-dir}/{$schema-name}{$FILE_EXT}#{$schema-name}.{@name}" TARGET="info" >Definition</A>
 			<xsl:text> </xsl:text>
 			<A 

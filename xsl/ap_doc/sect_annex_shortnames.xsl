@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.10 2003/08/01 08:58:23 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.11 2003/11/25 17:24:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -282,15 +282,17 @@ href="../../../../data/modules/{$module}/sys/a_short_names{$FILE_EXT}"> -->
           <small>
             NOTE&#160;&#160;The EXPRESS entity names are available from
             Internet:<br/>  
+          </small>
+        </p>
+        <p align="center">
+          <small>
             <xsl:variable name="names_url"
               select="'http://www.tc184-sc4.org/Short_Names/'"/>      
-            <p align="center">
-              &lt;
-              <a href="{$names_url}" target="_blank">
-                <xsl:value-of select="$names_url"/>
-              </a>
-              &gt;
-            </p>
+            &lt;
+            <a href="{$names_url}" target="_blank">
+              <xsl:value-of select="$names_url"/>
+            </a>
+            &gt;
           </small>
         </p>
         <p align="center">

@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_express_nav_inner.xsl,v 1.5 2003/08/01 08:58:23 robbod Exp $
+$Id: index_arm_express_nav_inner.xsl,v 1.6 2003/11/25 17:24:53 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -24,7 +24,9 @@ $Id: index_arm_express_nav_inner.xsl,v 1.5 2003/08/01 08:58:23 robbod Exp $
 
   <xsl:variable name="selected_ap" select="/application_protocol/@directory"/>
 
-  <xsl:output method="html"/>
+  <xsl:output method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/> 
 
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -65,8 +67,6 @@ $Id: index_arm_express_nav_inner.xsl,v 1.5 2003/08/01 08:58:23 robbod Exp $
 </xsl:template>
 
 <xsl:template match="/" mode="arm_express" >
-<small>
-
 	<xsl:variable name="top_module_node"
 	    select="document($top_module_file)/express"/>
 
@@ -157,7 +157,6 @@ $Id: index_arm_express_nav_inner.xsl,v 1.5 2003/08/01 08:58:23 robbod Exp $
 			</xsl:when>
 
 			</xsl:choose>
- </small> 
 </xsl:template>
 
 
@@ -179,7 +178,7 @@ $Id: index_arm_express_nav_inner.xsl,v 1.5 2003/08/01 08:58:23 robbod Exp $
 
 	<xsl:if test="$called-schemas//type" >
 		<br/>
-		<A name="types"><b>Types</b></A>
+                  <A name="types"><b>Types</b></A>
 		<br/>
 		<xsl:call-template name="alph-list">
 			<xsl:with-param name="items" select="$called-schemas//type" />
@@ -252,98 +251,111 @@ $Id: index_arm_express_nav_inner.xsl,v 1.5 2003/08/01 08:58:23 robbod Exp $
 
 
 <xsl:template match="entity" mode="module-index" >
-        <xsl:param name="expressg"/>
-	<xsl:param name="called-schemas" />
-		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
-		<xsl:variable name="ent-name" select="@name" />
-		<xsl:variable name="ent-name-spaced" select="concat(' ',@name,' ')" />
+  <xsl:param name="expressg"/>
+  <xsl:param name="called-schemas" />
+    <xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)"/>
+    <xsl:variable name="ent-name" select="@name"/>
+    <xsl:variable name="ent-name-spaced" select="concat(' ',@name,' ')"/>
+          
+    <xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)"/>
+    <xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)"/>
+              
+    <xsl:apply-templates select="." mode="expressg_icon">
+      <xsl:with-param name="target" select="'info'"/>
+      <xsl:with-param name="expressg" select="$expressg"/>
+    </xsl:apply-templates> 
 
-		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
-		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
+    <A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info">
+      <xsl:value-of select="@name"/>
+    </A>
 
+    <xsl:variable name="subs" select="$called-schemas//entity[contains(
+                                      concat(' ',@supertypes,' '),$ent-name-spaced)]"/>
+    <xsl:variable name="used-in-explicit" select="$called-schemas//explicit[typename/@name=$ent-name]"/>
+    <xsl:variable name="used-in-select" select="$called-schemas//type[select]
+                                                [contains(concat(' ',select/@selectitems,' '),$ent-name-spaced)]"/>
 
-		<xsl:apply-templates select="." mode="expressg_icon">
-                  <xsl:with-param name="target" select="'info'"/>
-                  <xsl:with-param name="expressg" select="$expressg" />
-                </xsl:apply-templates> 
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
-		<xsl:value-of select="@name" /></A>
-		<TABLE>
-			<TR>
-			<TD><small>&#160;&#160;&#160;</small></TD>
-			<TD ALIGN="LEFT" >
-			<small>
-			<xsl:if test="@supertypes" >
-				<xsl:variable name="super-list" select="concat(' ',@supertypes,' ')" />
-				<xsl:variable name="supers" select="$called-schemas//entity[contains(
-					$super-list,@name)]" />
-				SUPERTYPES:
-					<br/>
-					<xsl:for-each select="$supers" >
-						<xsl:sort select="@name" />
-						<xsl:variable name="ref-mod" 
-						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
-						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" TARGET="info">
-						<xsl:value-of select="@name" /></a>
-						<br/>
-					</xsl:for-each>
-			</xsl:if>
-			<xsl:variable name="subs" select="$called-schemas//entity[contains(
-				concat(' ',@supertypes,' '),$ent-name-spaced)]" />
-				<xsl:if test="$subs" >
-					SUBTYPES:
-					<br/>
-					<xsl:for-each select="$subs" >
-						<xsl:sort select="@name" />
-						<xsl:variable name="ref-mod" 
-						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
-						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" TARGET="info">
-						<xsl:value-of select="@name" /></a>
-						<br/>
-					</xsl:for-each>
-				</xsl:if>
-			<xsl:variable name="used-in-explicit" select="$called-schemas//explicit[typename/@name=$ent-name]" />
-				<xsl:if test="$used-in-explicit" >
-					USED IN (ATTRIBUTE):
-					<br/>
-					<xsl:for-each select="$used-in-explicit" >
-						<xsl:sort select="../@name" />
-						<xsl:sort select="@name" />
-						<xsl:variable name="ref-mod" 
-						  select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
-						<xsl:variable name="lc-ref" select="translate(../@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}" TARGET="info" >
-						<xsl:value-of select="concat(../@name,'.',@name)" /></a>
-						<br/>
-					</xsl:for-each>
-				</xsl:if>
-			<xsl:variable name="used-in-select" select="$called-schemas//type[select]
-						[contains(concat(' ',select/@selectitems,' '),$ent-name-spaced)]" />
-				<xsl:if test="$used-in-select" >
-					USED IN (SELECT):
-					<br/>
-					<xsl:for-each select="$used-in-select" >
-						<xsl:sort select="@name" />
-						<xsl:variable name="ref-mod" 
-						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
-						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="info">
-						<xsl:value-of select="@name" /></a>
-						<br/>
-					</xsl:for-each>
-				</xsl:if>
-					
-			</small>
-			</TD>
-			</TR>
-			</TABLE>
-					
+    <xsl:if test="@supertypes or $used-in-explicit or $used-in-select">
+      <TABLE>
+        <TR>
+          <TD><small>&#160;&#160;&#160;</small></TD>
+          <TD ALIGN="LEFT" >
+            <small>
+              <xsl:if test="@supertypes" >
+                <xsl:variable name="super-list" select="concat(' ',@supertypes,' ')"/>
+                <xsl:variable name="supers" select="$called-schemas//entity[contains(
+                                                    $super-list,@name)]"/>
+                SUPERTYPES:
+                <br/>
+                <xsl:for-each select="$supers">
+                  <xsl:sort select="@name"/>
+                  <xsl:variable name="ref-mod" 
+                    select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)"/>
+                  <xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)"/>
+                  &#160;&#160;&#160;
+                  <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" TARGET="info">
+                    <xsl:value-of select="@name"/>
+                  </a>
+                  <br/>
+                </xsl:for-each>
+              </xsl:if>
+			
+              <xsl:if test="$subs">
+                SUBTYPES:
+                <br/>
+                <xsl:for-each select="$subs">
+                  <xsl:sort select="@name"/>
+                  <xsl:variable name="ref-mod" 
+                    select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)"/>
+                  <xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)"/>
+                  &#160;&#160;&#160;
+                  <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}" TARGET="info">
+                    <xsl:value-of select="@name"/>
+                  </a>
+                  <br/>
+                </xsl:for-each>
+              </xsl:if>
+              <xsl:if test="$used-in-explicit">
+                USED IN (ATTRIBUTE):
+                <br/>
+                <xsl:for-each select="$used-in-explicit">
+                  <xsl:sort select="../@name"/>
+                  <xsl:sort select="@name"/>
+                  <xsl:variable name="ref-mod" 
+                    select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)"/>
+                  <xsl:variable name="lc-ref" select="translate(../@name,$UPPER,$LOWER)"/>
+                  &#160;&#160;&#160;
+                  <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}" TARGET="info">
+                    <xsl:value-of select="concat(../@name,'.',@name)"/>
+                  </a>
+                  <br/>
+                </xsl:for-each>
+              </xsl:if>
+              <xsl:if test="$used-in-select">
+                USED IN (SELECT):
+                <br/>
+                <xsl:for-each select="$used-in-select">
+                  <xsl:sort select="@name"/>
+                  <xsl:variable name="ref-mod" 
+                    select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)"/>
+                  <xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)"/>
+                  &#160;&#160;&#160;
+                  <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="info">
+                    <xsl:value-of select="@name"/>
+                  </a>
+                  <br/>
+                </xsl:for-each>
+              </xsl:if>					
+            </small>
+          </TD>
+        </TR>
+      </TABLE>
+    </xsl:if>
+    <br/>
 </xsl:template>
 
 <xsl:template match="constant" mode="module-index" >
-	<xsl:param name="called-schemas" />
+	<xsl:param name="called-schemas"/>
 
 		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
 
@@ -352,72 +364,78 @@ $Id: index_arm_express_nav_inner.xsl,v 1.5 2003/08/01 08:58:23 robbod Exp $
 
 		
 		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
-		<xsl:value-of select="@name" /></A>
+		<xsl:value-of select="@name"/></A>
 			<br/>
 		
 </xsl:template>
 
 
-<xsl:template match="type" mode="module-index" >
-        <xsl:param name="expressg"/>
-	<xsl:param name="called-schemas" />
-		<xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
+<xsl:template match="type" mode="module-index">
+  <xsl:param name="expressg"/>
+  <xsl:param name="called-schemas"/>
+  <xsl:variable name="mod-name" select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)"/>
 
-		<xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)" />
-		<xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)" />
+  <xsl:variable name="mod-dir" select="concat($STEPMOD_DATA_MODULES,$mod-name)"/>
+  <xsl:variable name="ref" select="translate(concat(../@name,'.',@name),$UPPER,$LOWER)"/>
 
-		<xsl:variable name="typ-name" select="@name" />
-		<xsl:variable name="typ-name-spaced" select="concat(' ',@name,' ')" />
+  <xsl:variable name="typ-name" select="@name"/>
+  <xsl:variable name="typ-name-spaced" select="concat(' ',@name,' ')"/>
+  
+  <xsl:apply-templates select="." mode="expressg_icon">
+    <xsl:with-param name="target" select="'info'"/>
+    <xsl:with-param name="expressg" select="$expressg"/>
+  </xsl:apply-templates>
+  <A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info">
+    <xsl:value-of select="@name"/>
+  </A>
 
-                <xsl:apply-templates select="." mode="expressg_icon">
-                  <xsl:with-param name="target" select="'info'"/>
-                  <xsl:with-param name="expressg" select="$expressg" />
-                </xsl:apply-templates> 
-
-		<A HREF="{$mod-dir}/sys/4_info_reqs{$FILE_EXT}#{$ref}" TARGET="info" >
-		<xsl:value-of select="@name" /></A>
-		<TABLE>
-			<TR>
-			<TD><small>&#160;&#160;&#160;</small></TD>
-			<TD ALIGN="LEFT" >
-			<small>
-			<xsl:variable name="used-in-explicit" select="$called-schemas//explicit[typename/@name=$typ-name]" />
-				<xsl:if test="$used-in-explicit" >
-					USED BY (ATTRIBUTE):
-					<br/>
-					<xsl:for-each select="$used-in-explicit" >
-						<xsl:sort select="../@name" />
-						<xsl:sort select="@name" />
-						<xsl:variable name="ref-mod" 
-						  select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)" />
-						<xsl:variable name="lc-ref" select="translate(../@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}"  TARGET="info">
-
-						<xsl:value-of select="concat(../@name,'.',@name)" /></a>
-						<br/>
-					</xsl:for-each>
-				</xsl:if>
-			<xsl:variable name="used-in-select" select="$called-schemas//type[select]
-						[contains(concat(' ',select/@selectitems,' '),$typ-name-spaced)]" />
-				<xsl:if test="$used-in-select" >
-					USED IN (SELECT):
-					<br/>
-					<xsl:for-each select="$used-in-select" >
-						<xsl:sort select="@name" />
-						<xsl:variable name="ref-mod" 
-						  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)" />
-						<xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)" />
-						<a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="info">
-						<xsl:value-of select="@name" /></a>
-						<br/>
-					</xsl:for-each>
-				</xsl:if>
-					
-			</small>
-			</TD>
-			</TR>
-			</TABLE>
-		
+  <xsl:variable name="used-in-explicit" select="$called-schemas//explicit[typename/@name=$typ-name]"/>
+  <xsl:variable name="used-in-select" select="$called-schemas//type[select]
+                                              [contains(concat(' ',select/@selectitems,' '),$typ-name-spaced)]"/>
+  <xsl:if test="$used-in-explicit or $used-in-select">
+    <TABLE>
+      <TR>
+        <TD><small>&#160;&#160;&#160;</small></TD>
+        <TD ALIGN="LEFT">
+          <small>
+            <xsl:if test="$used-in-explicit">
+              USED BY (ATTRIBUTE):
+              <br/>
+              <xsl:for-each select="$used-in-explicit">
+                <xsl:sort select="../@name"/>
+                <xsl:sort select="@name"/>
+                <xsl:variable name="ref-mod" 
+                  select="translate(substring-before(../../@name,'_arm'),$UPPER,$LOWER)"/>
+                <xsl:variable name="lc-ref" select="translate(../@name,$UPPER,$LOWER)"/>
+                &#160;&#160;&#160;
+                <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}.{@name}"  TARGET="info">
+                  <xsl:value-of select="concat(../@name,'.',@name)"/>
+                </a>
+                <br/>
+              </xsl:for-each>
+            </xsl:if>
+            
+            <xsl:if test="$used-in-select">
+              USED IN (SELECT):
+              <br/>
+              <xsl:for-each select="$used-in-select">
+                <xsl:sort select="@name"/>
+                <xsl:variable name="ref-mod" 
+                  select="translate(substring-before(../@name,'_arm'),$UPPER,$LOWER)"/>
+                <xsl:variable name="lc-ref" select="translate(@name,$UPPER,$LOWER)"/>
+                &#160;&#160;&#160;
+                <a HREF="{$root2dir}{$ref-mod}/sys/4_info_reqs{$FILE_EXT}#{$ref-mod}_arm.{$lc-ref}"  TARGET="info">
+                  <xsl:value-of select="@name"/>
+                </a>
+                <br/>
+              </xsl:for-each>
+            </xsl:if>
+          </small>
+        </TD>
+      </TR>
+    </TABLE>
+  </xsl:if>
+  <br/>
 </xsl:template>
 
 <xsl:template match="subtype.constraint" mode="module-index" >

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.12 2003/08/11 07:00:25 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.13 2003/08/15 08:34:17 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -12,8 +12,8 @@ $Id: sect_3_defs.xsl,v 1.12 2003/08/11 07:00:25 robbod Exp $
   <xsl:output method="html"/>
 	
   <xsl:template match="application_protocol">
-    <a name="defns">
-      <h2>
+    <h2>
+      <a name="defns">
         <xsl:choose>
           <xsl:when test="./definition/term">
             3 Terms, definitions and abbreviations
@@ -22,8 +22,8 @@ $Id: sect_3_defs.xsl,v 1.12 2003/08/11 07:00:25 robbod Exp $
             3 Terms and abbreviations
           </xsl:otherwise>
         </xsl:choose>
-      </h2>
-    </a>
+      </a>
+    </h2>
     <xsl:apply-templates select="." mode="output_terms"/>
   </xsl:template>
 	

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol.xsl,v 1.27 2003/10/10 12:44:21 robbod Exp $
+$Id: application_protocol.xsl,v 1.28 2003/11/03 07:40:47 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -116,8 +116,10 @@ $Id: application_protocol.xsl,v 1.27 2003/10/10 12:44:21 robbod Exp $
                 <xsl:with-param name="application_protocol" select="$module"/>
               </xsl:call-template>
             </xsl:variable>
-            <xsl:apply-templates
-              select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
+            <ul>
+              <xsl:apply-templates
+                select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
+            </ul>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="error_message">
@@ -132,7 +134,9 @@ $Id: application_protocol.xsl,v 1.27 2003/10/10 12:44:21 robbod Exp $
         
     <!-- output the scope statements from the AP doc -->
     <xsl:if test="./li">
-      <xsl:apply-templates select="li"/>
+      <ul>
+        <xsl:apply-templates select="li"/>
+      </ul>
     </xsl:if>
     
   </xsl:template>
@@ -158,8 +162,10 @@ $Id: application_protocol.xsl,v 1.27 2003/10/10 12:44:21 robbod Exp $
                 <xsl:with-param name="application_protocol" select="$module"/>
               </xsl:call-template>
             </xsl:variable>
-            <xsl:apply-templates
-              select="document(concat($module_dir,'/module.xml'))/module/outscope/li"/>
+            <ul>
+              <xsl:apply-templates
+                select="document(concat($module_dir,'/module.xml'))/module/outscope/li"/>
+            </ul>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="error_message">
@@ -174,7 +180,9 @@ $Id: application_protocol.xsl,v 1.27 2003/10/10 12:44:21 robbod Exp $
         
     <!-- output the scope statements from the AP doc -->
     <xsl:if test="./li">
-      <xsl:apply-templates select="li"/>
+      <ul>
+        <xsl:apply-templates select="li"/>
+      </ul>
     </xsl:if>
   </xsl:template> 
 

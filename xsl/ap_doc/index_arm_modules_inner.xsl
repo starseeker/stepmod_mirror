@@ -2,7 +2,7 @@
 <!-- <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 -->
 <!--
-$Id: index_arm_modules_inner.xsl,v 1.9 2003/08/01 08:58:23 robbod Exp $
+$Id: index_arm_modules_inner.xsl,v 1.10 2003/11/25 17:24:53 robbod Exp $
   Author:  Nigel Shaw, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: 
@@ -25,7 +25,10 @@ $Id: index_arm_modules_inner.xsl,v 1.9 2003/08/01 08:58:23 robbod Exp $
 
   <xsl:variable name="selected_ap" select="/application_protocol/@directory"/>
 
-  <xsl:output method="html"/>
+  <xsl:output method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/> 
+
 
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>

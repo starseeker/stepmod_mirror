@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.31 2003/09/16 16:04:46 robbod Exp $
+$Id: sect_contents.xsl,v 1.32 2003/10/23 12:53:42 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -49,6 +49,7 @@ $Id: sect_contents.xsl,v 1.31 2003/09/16 16:04:46 robbod Exp $
     <xsl:variable name="aam_xml" select="document(concat($application_protocol_dir, '/aam.xml'))"/>
 
     <h2><a name="contents"></a>Contents</h2>
+    <small>
     <xsl:if test="$complete='yes'">
       <a href="./cover{$FILE_EXT}" target="{$target}">Cover page</a>
       <br/>
@@ -209,6 +210,7 @@ $Id: sect_contents.xsl,v 1.31 2003/09/16 16:04:46 robbod Exp $
     <a href="./biblio{$FILE_EXT}#biblio" target="{$target}">Bibliography</a>
     <br/>
     <a href="./index_apdoc{$FILE_EXT}#index" target="{$target}">Index</a>
+  </small>
   </xsl:template>
   
   <xsl:template match="application_protocol" mode="contents_tables_figures">
@@ -220,6 +222,7 @@ $Id: sect_contents.xsl,v 1.31 2003/09/16 16:04:46 robbod Exp $
     </xsl:variable>
 
     <h2><a name="tables">Tables</a></h2>
+    <small>
     <xsl:apply-templates select="//changes/change_summary//table" mode="toc">
       <xsl:with-param name="target" select="$target"/>
     </xsl:apply-templates>
@@ -324,10 +327,11 @@ $Id: sect_contents.xsl,v 1.31 2003/09/16 16:04:46 robbod Exp $
     <xsl:apply-templates select="//changes/change_detail//table" mode="toc">
       <xsl:with-param name="target" select="$target"/>
     </xsl:apply-templates>
-
+  </small>
 
     <xsl:if test="count(//figure|//data_plan)!=0">
       <h2>Figures</h2>
+      <small>
       <xsl:apply-templates select="//changes/change_summary//figure" mode="toc">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
@@ -372,6 +376,7 @@ $Id: sect_contents.xsl,v 1.31 2003/09/16 16:04:46 robbod Exp $
       <xsl:apply-templates select="//changes/change_detail//figure" mode="toc">
         <xsl:with-param name="target" select="$target"/>
       </xsl:apply-templates>
+    </small>
     </xsl:if>
 
     <!--

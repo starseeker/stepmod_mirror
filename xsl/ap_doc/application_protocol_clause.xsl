@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_clause.xsl,v 1.14 2003/05/28 14:34:04 robbod Exp $
+$Id: application_protocol_clause.xsl,v 1.15 2003/07/31 12:29:11 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -36,9 +36,10 @@ $Id: application_protocol_clause.xsl,v 1.14 2003/05/28 14:34:04 robbod Exp $
           <xsl:attribute name="background">
             <xsl:value-of select="concat('../../../../images/',$ap_background_image)"/>
           </xsl:attribute>
+          <!-- can only use this for Internet explorer, so not valid HTML
           <xsl:attribute name="bgproperties" >
             <xsl:value-of select="'fixed'"/>
-          </xsl:attribute>
+          </xsl:attribute> -->
         </xsl:if>
         
         <xsl:variable name="module" select="$application_protocol_xml/application_protocol/@module_name"/>

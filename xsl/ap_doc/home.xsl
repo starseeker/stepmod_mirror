@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: home.xsl,v 1.4 2003/07/31 07:29:41 robbod Exp $
+$Id: home.xsl,v 1.5 2003/07/31 08:57:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -12,7 +12,9 @@ $Id: home.xsl,v 1.4 2003/07/31 07:29:41 robbod Exp $
 
   <xsl:import href="application_protocol.xsl"/>
 
-  <xsl:output method="html"/>
+  <xsl:output method="html"
+    doctype-system="http://www.w3.org/TR/html4/frameset.dtd" 
+    doctype-public="-//W3C//DTD HTML 4.01 Frameset//EN" indent="yes"/>
 
   <xsl:template match="/">
     <xsl:apply-templates select="./application_protocol"/>
@@ -44,37 +46,41 @@ $Id: home.xsl,v 1.4 2003/07/31 07:29:41 robbod Exp $
        }
       ]]></script> -->
       </head>
-    <frameset framespacing="1" border="0" rows="60,*" frameborder="0">
+    <frameset rows="60,*">
       <frame name="menu" 
         src="./sys/frame_aptitle{$FILE_EXT}"
+        frameborder="0"
         marginwidth="2" marginheight="0" scrolling="no"/>
       <frameset cols="20%,80%">
         <frame name="index" 
-          src="./sys/frame_toc_short{$FILE_EXT}"
+          src="./sys/frame_toc_short{$FILE_EXT}" 
+          frameborder="0"
           marginwidth="2" marginheight="0" scrolling="auto"/>
 
         <!-- commented out to avoid using JavaScript as required by HTML guidelines
-        <frameset framespacing="1" border="0" rows="48,*" frameborder="0">
+        <frameset rows="48,*">
           <frame name="contenttitle"
+            frameborder="0"
             src="./sys/frame_contenttitle{$FILE_EXT}"
             scrolling="no"/>
           <frame name="content"
             onload="updateTitleFrame(top.content.document.title)"  
+            frameborder="0"
             src="./sys/cover{$FILE_EXT}"
             scrolling="auto"/>
         </frameset> -->
 
         <frame name="info"
-            src="./sys/cover{$FILE_EXT}"
+            src="./sys/cover{$FILE_EXT}" 
+            frameborder="0"
             scrolling="auto"/>
       </frameset>
+
+      <noframes>
+        <p>This page uses frames, but your browser doesn't support them.</p>
+      </noframes>
     </frameset>
 
-    <noframes>
-      <body>
-        <p>This page uses frames, but your browser doesn't support them.</p>
-      </body>
-    </noframes>
     </html>
   </xsl:template>
 

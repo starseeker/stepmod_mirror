@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.17 2003/08/11 16:48:03 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.18 2003/12/22 07:37:47 panetto Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -651,14 +651,20 @@ conformance class')"/>
             <xsl:with-param name="application_protocol" select="$module"/>
           </xsl:call-template>
         </xsl:variable>
-        <xsl:apply-templates
-          select="document(concat($module_dir,'/module.xml'))/module/inscope/li"/>
+        <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
+        <xsl:if test="$module_xml/module/inscope/li">
+          <ul>
+            <xsl:apply-templates select="$module_xml/module/inscope/li"/>
+          </ul>
+        </xsl:if>
       </xsl:if>
     </xsl:if>
         
     <!-- output the scope statements from the AP doc -->
     <xsl:if test="./li">
-      <xsl:apply-templates select="li"/>
+      <ul>
+        <xsl:apply-templates select="li"/>
+      </ul>
     </xsl:if>
     
   </xsl:template>

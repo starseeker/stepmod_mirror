@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: frame_index.xsl,v 1.3 2003/06/15 19:42:29 nigelshaw Exp $
+$Id: frame_index.xsl,v 1.4 2003/10/31 15:55:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -11,7 +11,10 @@ $Id: frame_index.xsl,v 1.3 2003/06/15 19:42:29 nigelshaw Exp $
   version="1.0">
 
   <xsl:import href="../file_ext.xsl"/>
-  <xsl:output method="html"/>
+
+  <xsl:output method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/> 
 
   <xsl:template match="/">
     <xsl:apply-templates select="./application_protocol"/>

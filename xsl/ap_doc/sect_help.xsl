@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_help.xsl,v 1.2 2003/07/31 13:01:23 robbod Exp $
+$Id: sect_help.xsl,v 1.3 2003/07/31 13:05:58 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -9,7 +9,10 @@ $Id: sect_help.xsl,v 1.2 2003/07/31 13:01:23 robbod Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
   <xsl:import href="common.xsl"/>
-  <xsl:output method="html"/>
+
+  <xsl:output method="html"
+    doctype-system="http://www.w3.org/TR/html4/loose.dtd"
+    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/> 
 
   <xsl:template match="/">
     <xsl:apply-templates select="./application_protocol_clause"/>

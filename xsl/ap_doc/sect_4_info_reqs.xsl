@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.18 2003/07/31 08:57:56 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.19 2003/08/11 16:48:03 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -225,9 +225,9 @@ $Id: sect_4_info_reqs.xsl,v 1.18 2003/07/31 08:57:56 robbod Exp $
         <h2>
           <a name="{$clause_aname}">
             <xsl:value-of select="$clause_hdr"/>
-            <a href="{$href}">
-              <xsl:value-of select="$module_name"/>
-            </a>
+          </a>
+          <a href="{$href}">
+            <xsl:value-of select="$module_name"/>
           </a>
         </h2>
         This application module shall be used to address the following areas of

@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mim.xml,v 1.6 2003/10/24 10:19:10 davidleal Exp $ -->
+<!-- $Id: mim.xml,v 1.7 2004/04/15 10:29:31 davidleal Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 <express
    language_version="2"
-   rcs.date="$Date: 2003/10/24 10:19:10 $"
-   rcs.revision="$Revision: 1.6 $">
+   rcs.date="$Date: 2004/04/15 10:29:31 $"
+   rcs.revision="$Revision: 1.7 $">
   <schema name="Property_space_mim">
 <interface kind="use" schema="Class_mim"></interface>
+<interface kind="use" schema="Class_of_activity_mim"></interface>
+<interface kind="use" schema="Class_of_product_mim"></interface>
 <interface kind="use" schema="Independent_property_mim"></interface>
+<interface kind="use" schema="Process_property_assignment_mim"></interface>
+<interface kind="use" schema="Property_assignment_mim"></interface>
 <interface
       kind="use"
       schema="external_reference_schema">
@@ -18,6 +22,47 @@ href="../../../xsl/express.xsl" ?>
        <interfaced.item
         name="external_source"/>
 </interface>
+
+
+<entity
+       name="class_of_possession_of_property_by_activity"
+       supertypes="action_property">
+<description>A <b>class_of_possession_of_property_by_activity</b> is a type of <b>action_property</b> that is a <express_ref linkend="property_space:arm:Property_space_arm.Class_of_possession_of_property">Class_of_possession_of_property</express_ref>
+(as defined in the ARM).
+       </description>
+<explicit name="definition">
+<redeclaration entity-ref="action_property"/>
+<typename name="class_of_activity" />
+<description>a <express_ref linkend="class_of_activity:arm:Class_of_activity_arm.Class_of_activity">Class_of_activity</express_ref> that
+has a mapping to the property space.</description>
+</explicit>
+</entity>
+<entity
+       name="class_of_possession_of_property_by_product"
+       supertypes="property_definition">
+<description>A <b>class_of_possession_of_property_by_product</b> is a type of <b>property_definition</b> that is a <express_ref linkend="property_space:arm:Property_space_arm.Class_of_possession_of_property">Class_of_possession_of_property</express_ref>
+(as defined in the ARM).
+       </description>
+<where label="link_to_individual" expression="'CLASS_OF_PRODUCT_MIM.CLASS_OF_PRODUCT' IN TYPEOF(SELF\property_definition.definition.formation)">
+<description>The <b>class_of_possession_of_property_by_product</b> shall reference a
+<express_ref linkend="class_of_product:mim:Class_of_product_mim.class_of_product">class_of_product</express_ref>.</description>
+</where>
+</entity>
+<entity
+       name="possessed_property_space"
+       supertypes="general_property_association">
+<description>A <b>possessed_property_space</b> is a type of <b>general_property_association</b> that specifies a <express_ref linkend="property_space:arm:Property_space_arm.Property_space">Property_space</express_ref> 
+(as defined in the ARM) for a <express_ref linkend="property_space:arm:Property_space_arm.Class_of_possession_of_property">Class_of_possession_of_property</express_ref> (as defined in the ARM).
+       </description>
+<explicit name="base_definition">
+<redeclaration entity-ref="general_property_association"/>
+<typename name="property_space" />
+<description>a <express_ref linkend="property_space:arm:Property_space_arm.Property_space">Property_space</express_ref> that has possessed members.</description>
+</explicit>
+<where label="link_to_possession" expression="('PROPERTY_SPACE_MIM.CLASS_OF_POSSESSION_OF_PROPERTY_BY_ACTIVITY' IN TYPEOF(SELF\general_property_association.derived_definition)) OR ('PROPERTY_SPACE_MIM.CLASS_OF_POSSESSION_OF_PROPERTY_BY_PRODUCT' IN TYPEOF(SELF\general_property_association.derived_definition))">
+<description>the <express_ref linkend="property_space:arm:Property_space_arm.Property_space">Property_space</express_ref> shall be referenced by a class of possession of property.</description>
+</where>
+</entity>
 
 <entity
        name="property_space"

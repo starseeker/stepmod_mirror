@@ -3,10 +3,32 @@
 SCHEMA Property_space_mim;
 
 USE FROM Class_mim;    --  ISO/CD-TS 10303-1070
+USE FROM Class_of_activity_mim;    --  ISO/CD-TS 10303-1071
+USE FROM Class_of_product_mim;    --  ISO/CD-TS 10303-1077
 USE FROM Independent_property_mim;    --  ISO/TS 10303-1036
+USE FROM Process_property_assignment_mim;    --  ISO/TS 10303-1040
+USE FROM Property_assignment_mim;    --  ISO/TS 10303-1030
 USE FROM external_reference_schema    --  ISO 10303-41
   (externally_defined_item,
    external_source); 
+
+ENTITY class_of_possession_of_property_by_activity
+  SUBTYPE OF (action_property);
+  SELF\action_property.definition : class_of_activity;
+END_ENTITY;
+
+ENTITY class_of_possession_of_property_by_product
+  SUBTYPE OF (property_definition);
+WHERE
+  link_to_individual: 'CLASS_OF_PRODUCT_MIM.CLASS_OF_PRODUCT' IN TYPEOF(SELF\property_definition.definition.formation);
+END_ENTITY;
+
+ENTITY possessed_property_space
+  SUBTYPE OF (general_property_association);
+  SELF\general_property_association.base_definition : property_space;
+WHERE
+  link_to_possession: ('PROPERTY_SPACE_MIM.CLASS_OF_POSSESSION_OF_PROPERTY_BY_ACTIVITY' IN TYPEOF(SELF\general_property_association.derived_definition)) OR ('PROPERTY_SPACE_MIM.CLASS_OF_POSSESSION_OF_PROPERTY_BY_PRODUCT' IN TYPEOF(SELF\general_property_association.derived_definition));
+END_ENTITY;
 
 ENTITY property_space
   SUBTYPE OF (general_property, class);

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.5 2003/02/21 16:46:15 darla Exp $
+   $Id: mim.exp,v 1.6 2003/07/15 07:24:43 rugarcia Exp $
    N - ISO/CD-TS 10303-1133 WG12 N1668 single_part_representation - EXPRESS MIM*)
 
 SCHEMA Single_part_representation_mim;
@@ -51,34 +51,6 @@ WHERE
 WR1: SIZEOF(QUERY(p <* product | 
   SIZEOF(USEDIN(p, 'SINGLE_PART_REPRESENTATION_MIM' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS')) = 0)) = 0;
 END_RULE; 
-
-RULE part_requires_version FOR (product);
-LOCAL
-  parts: SET OF product := [];
-END_LOCAL;
-  parts := QUERY ( prod <* product | 
-     SIZEOF(['part', 'raw material', 'tool']* categories_of_product(prod)) > 0) ;
-
-WHERE
-WR1: SIZEOF(QUERY(prod <* parts | 
-	SIZEOF(USEDIN(prod, 'SINGLE_PART_REPRESENTATION_MIM' + '.PRODUCT_DEFINITION_FORMATION.OF_PRODUCT')) = 0 )) = 0;
-END_RULE;
-
-RULE part_requires_id_owner FOR (product); 
-LOCAL
-  parts: SET OF product := [];
-END_LOCAL;
-  parts := QUERY ( prod <* product | 
-     SIZEOF(['part', 'raw material', 'tool']* categories_of_product(prod)) > 0) ;
-WHERE 
-WR1: SIZEOF ( QUERY ( prod <* parts | 
-  SIZEOF( QUERY (apoa <* USEDIN ( prod, 'SINGLE_PART_REPRESENTATION_MIM' + '.APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS' ) | 
-   apoa\person_and_organization_assignment.role.name = 'id owner' )) + 
-  SIZEOF( QUERY (oa <* USEDIN ( prod, 'SINGLE_PART_REPRESENTATION_MIM' + '.APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS' ) | 
-    oa\organization_assignment.role.name = 'id owner' )) <>  1 )) = 0; 
-END_RULE; 
-
-
 
 
 END_SCHEMA;

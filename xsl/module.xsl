@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.77 2002/07/14 15:05:52 robbod Exp $
+$Id: module.xsl,v 1.78 2002/07/27 07:42:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -759,6 +759,29 @@ o=isocs; s=central<br/>
     for archiving.
   </p>
   <xsl:apply-templates/>
+  <p>
+    In this International Standard, the same English language words may be
+    used to refer to an object in the real world or concept, and as the
+    name of an EXPRESS data type that represents this object or concept. 
+  </p>
+  <p>
+    The following typographical convention is used to distinguish between
+    these. If a word or phrase occurs in the same typeface as narrative
+    text, the referent is the object or concept. If the word or phrase
+    occurs in a bold typeface, the referent is the EXPRESS data type. Names of
+    EXPRESS schemas also occur in a bold typeface.
+  </p>
+  <p>
+    The name of an EXPRESS data type may be used to refer to the data type
+    itself, or to an instance of the data type. The distinction between
+    these uses is normally clear from the context. If there is a likelihood
+    of ambiguity, either the phrase "entity data type" or "instance(s) of" is
+    included in the text. 
+  </p>
+  <p>
+    Double quotation marks " " denote quoted text. Single quotation marks ' '
+    denote particular text string values.
+  </p>
 </xsl:template>
 
 <xsl:template match="inscope">
@@ -1609,7 +1632,7 @@ o=isocs; s=central<br/>
     </xsl:call-template>    
   </xsl:variable>
 
-  <!--
+  <!-- 
   <xsl:message>
     l1:<xsl:value-of select="$normref_list1"/>:l1
   </xsl:message>
@@ -1627,11 +1650,12 @@ o=isocs; s=central<br/>
     </xsl:call-template>    
   </xsl:variable>
 
-  <!--
+  <!--  
   <xsl:message>
     l2:<xsl:value-of select="$normref_list2"/>:l2
   </xsl:message>
   -->
+
 
   <!-- get all normrefs that define terms for which abbreviations are
        provided.
@@ -1650,7 +1674,7 @@ o=isocs; s=central<br/>
     </xsl:call-template>    
   </xsl:variable>
 
-  <!--
+  <!-- 
   <xsl:message>
     l3:<xsl:value-of select="$normref_list3"/>:l3
   </xsl:message>
@@ -1677,7 +1701,7 @@ o=isocs; s=central<br/>
     </xsl:call-template>
   </xsl:variable>
 
-  <!--
+  <!-- 
   <xsl:message>
     l4:<xsl:value-of select="$normref_list4"/>:l4
   </xsl:message>
@@ -1698,11 +1722,12 @@ o=isocs; s=central<br/>
     </xsl:call-template>
   </xsl:variable>
 
-  <!--
+  <!--   
   <xsl:message>
     l5:<xsl:value-of select="$normref_list5"/>:l5
   </xsl:message>
   -->
+
   <xsl:value-of select="concat($normref_list5,',')"/>
 
 </xsl:template>
@@ -2322,8 +2347,8 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 
     
     <xsl:variable name="stdtitle"
-      select="concat('Industrial automation systems and integration',
-              '- Product data representation and exchange')"/>
+      select="concat('Industrial automation systems and integration ',
+              '- Product data representation and exchange ')"/>
 
     <xsl:variable name="module_name">
       <xsl:call-template name="module_display_name">

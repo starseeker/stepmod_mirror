@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol_toc.xsl,v 1.20 2003/05/23 16:27:58 robbod Exp $
+$Id: application_protocol_toc.xsl,v 1.21 2003/05/28 14:34:04 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -127,6 +127,19 @@ $Id: application_protocol_toc.xsl,v 1.20 2003/05/23 16:27:58 robbod Exp $
                 </xsl:variable>
                 <a href="{$application_protocol_root}/sys/annex_arm_expg{$FILE_EXT}">
                   <xsl:value-of select="$al_armexpressg"/> ARM EXPRESS-G diagrams
+                </a>
+                <br/>
+              </xsl:if>
+
+              <xsl:if test="$module_xml/module/mim_lf/express-g">
+                <xsl:variable name="al_mimexpressg">
+                  <xsl:call-template name="annex_letter" >
+                    <xsl:with-param name="annex_name" select="'MIMexpressG'"/>
+                    <xsl:with-param name="annex_list" select="$annex_list"/>
+                  </xsl:call-template>
+                </xsl:variable>
+                <a href="{$application_protocol_root}/sys/annex_mim_expg{$FILE_EXT}">
+                  <xsl:value-of select="$al_mimexpressg"/> MIM EXPRESS-G diagrams
                 </a>
                 <br/>
               </xsl:if>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_shortnames.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
+$Id: sect_annex_shortnames.xsl,v 1.2 2003/06/02 14:12:49 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -107,6 +107,9 @@ $Id: sect_annex_shortnames.xsl,v 1.1 2003/05/28 14:34:05 robbod Exp $
         <xsl:variable name="short-names3">
           <xsl:for-each select="$schemas-node-set//x">
             <xsl:sort/>
+            <xsl:message>
+              x<xsl:value-of select="."/>x
+            </xsl:message>
 
             <xsl:variable name="module" 
               select="substring-after(substring-before(.,'/mim'),'modules/')"/>

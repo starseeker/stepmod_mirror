@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: application_protocol.xsl,v 1.23 2003/05/27 07:34:15 robbod Exp $
+$Id: application_protocol.xsl,v 1.24 2003/05/28 14:34:02 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -72,6 +72,10 @@ $Id: application_protocol.xsl,v 1.23 2003/05/27 07:34:15 robbod Exp $
       <xsl:if
         test="document(concat($module_dir,'/module.xml'))/module/arm_lf/express-g">
         <xsl:value-of select="' ARMexpressG '"/>
+      </xsl:if>
+      <xsl:if
+        test="document(concat($module_dir,'/module.xml'))/module/mim_lf/express-g">
+        <xsl:value-of select="' MIMexpressG '"/>
       </xsl:if>
       <xsl:value-of select="' computerinterpretablelisting '"/>
       <xsl:if test="./usage_guide">

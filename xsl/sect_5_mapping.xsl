@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.77 2004/08/13 20:12:49 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.78 2004/08/31 12:16:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -238,7 +238,7 @@ $Id: sect_5_mapping.xsl,v 1.77 2004/08/13 20:12:49 robbod Exp $
     statement.
   </p>
   <p>
-    This clause contains the mapping specification that defines how each UoF and
+    This clause contains the mapping specification that defines how each 
     application element of this part of ISO 10303 (see Clause <a href="{$sect4}">4</a>) maps to one
     or more MIM elements (see Clause <a href="{$sect52}">5.2</a>).
   </p>

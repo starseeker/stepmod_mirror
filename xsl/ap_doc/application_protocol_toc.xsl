@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: application_protocol_toc.xsl,v 1.12 2002/10/30 21:07:08 mikeward Exp $
+     $Id: application_protocol_toc.xsl,v 1.13 2002/12/04 11:32:42 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
@@ -10,9 +10,10 @@
 	<xsl:template match="application_protocol" mode="TOCmultiplePage">
 		<xsl:param name="selected"/>
 		<xsl:param name="application_protocol_root" select="'..'"/>
-		<xsl:if test="./@name='nut_and_bolt'">
+						<xsl:if test="@name='nut_and_bolt'">
 		<h1>NB THIS AP IS FOR DEMONSTRATION PURPOSES ONLY</h1>
-		</xsl:if>
+						</xsl:if>		
+
 		<xsl:apply-templates select="." mode="TOCbannertitle">
 			<xsl:with-param name="module_root" select="$application_protocol_root"/>
 		</xsl:apply-templates>
@@ -174,7 +175,7 @@
 						</xsl:variable>
 						<xsl:if test="$rule_clause !=0">
 							<a href="{$application_protocol_root}/sys/4_info_reqs{$FILE_EXT}#rules">
-								<xsl:value-of select="concat('&#160; &#160;', $rule_clause, 'ARM rule definitions')"/>
+								<xsl:value-of select="concat('&#160; &#160;', $rule_clause, ' ARM rule definitions')"/>
 							</a>
 							<br/>
 						</xsl:if>

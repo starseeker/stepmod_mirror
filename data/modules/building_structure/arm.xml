@@ -1,153 +1,59 @@
 <?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.5 2003/01/20 08:46:36 goset1 Exp $ -->
+<!-- $Id: arm.xml,v 1.6 2003/02/28 17:09:40 whaas Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2003/01/20 08:46:36 $"
-  rcs.revision="$Revision: 1.5 $">
-
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.26"
-    source="../data/modules/building_structure/arm.exp"/>
-
-  <schema name="Building_structure_arm">
-    <interface
-      kind="use"
-      schema="Building_item_arm">
-    </interface>
-
-	<interface
-      kind="use"
-      schema="Assembly_structure_arm">
-    </interface>	
-		
-    <interface
-      kind="use"
-      schema="Person_organization_assignment_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Product_view_definition_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Product_view_definition_relationship_arm">
-    </interface>
-
-    <type name="assembly_item">
-      <select
-        selectitems="Item_assembly Building_item">
-      </select>
-
-    </type>
-    <type name="building_organization_or_person_in_organization_item">
-      <select
-        basedon="organization_or_person_in_organization_item"
-        selectitems="Building">
-      </select>
-
-    </type>
-    <entity
-      name="Building"
-      supertypes="Product_view_definition">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (bdpa &lt;* USEDIN (SELF, 'BUILDING_STRUCTURE_ARM.' +       'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |       bdpa.role = 'owner'))= 1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'BUILDING_STRUCTURE_ARM.'+       'VIEW_DEFINITION_RELATIONSHIP.RELATING_VIEW') |       'BUILDING_STRUCTURE_ARM.BUILDING_SECTION'       IN TYPEOF (pdr.related_view))) &gt;= 1">
-      </where>
-    </entity>
-
-    <entity
-      name="Building_level"
-      super.expression="(Sublevel)"
-      supertypes="Product_view_definition">
-    </entity>
-
-    <entity
-      name="Building_level_assignment"
-      supertypes="View_definition_relationship">
-      <explicit
-        name="related_view RENAMED assigned_item">
-        <redeclaration
-          entity-ref="View_definition_relationship"/>
-          <typename
-            name="Building_item"/>
-        </explicit>
-        <explicit
-          name="relating_view RENAMED assigned_level">
-          <redeclaration
-            entity-ref="View_definition_relationship"/>
-            <typename
-              name="Building_level"/>
-          </explicit>
-        </entity>
-
-        <entity
-          name="Building_section"
-          supertypes="Product_view_definition">
-          <where
-            label="WR1"
-            expression="SIZEOF (QUERY (pdr &lt;* USEDIN(SELF,'BUILDING_STRUCTURE_ARM.'+       'VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') |       'BUILDING_STRUCTURE_ARM.BUILDING' IN       TYPEOF (pdr.relating_view))) = 1">
-          </where>
-        </entity>
-
-        <entity
-          name="Item_assembly"
-          supertypes="Product_view_definition">
-          <inverse
-            name="component_relationships"
-            entity="Assembly_component_relationship"
-            attribute="View_definition_relationship.relating_view">
-            <inverse.aggregate
-              type="SET"
-              lower="1"
-              upper="?"/>
-          </inverse>
-          <where
-            label="WR1"
-            expression="SIZEOF(component_relationships)= SIZEOF(QUERY(cr &lt;* component_relationships |	'ASSEMBLY_ITEM' IN TYPEOF(cr.related_view) ))">
-          </where>
-        </entity>
-
-        <entity
-          name="Item_proximity_relationship"
-          supertypes="View_definition_relationship">
-          <explicit
-            name="related_view RENAMED item">
-            <redeclaration
-              entity-ref="View_definition_relationship"/>
-              <typename
-                name="Building_item"/>
-            </explicit>
-            <explicit
-              name="relating_view RENAMED item_in_proximity">
-              <redeclaration
-                entity-ref="View_definition_relationship"/>
-                <typename
-                  name="Building_item"/>
-              </explicit>
-            </entity>
-
-            <entity
-              name="Sublevel"
-              supertypes="Building_level">
-              <explicit
-                name="belongs_to">
-                <typename
-                  name="Building_level"/>
-              </explicit>
-            </entity>
-
-          </schema>
-
-        </express>
+<express language_version="2" description.file="arm_descriptions.xml" rcs.date="$Date: 2003/02/28 17:09:40 $" rcs.revision="$Revision: 1.6 $">
+	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.26" source="../data/modules/building_structure/arm.exp"/>
+	<schema name="Building_structure_arm">
+		<interface kind="use" schema="Building_item_arm"/>
+		<interface kind="use" schema="Assembly_structure_arm"/>
+		<interface kind="use" schema="Person_organization_assignment_arm"/>
+		<interface kind="use" schema="Product_view_definition_arm"/>
+		<interface kind="use" schema="Product_view_definition_relationship_arm"/>
+		<type name="assembly_item">
+			<select selectitems="Item_assembly Building_item"/>
+		</type>
+		<type name="building_organization_or_person_in_organization_item">
+			<select basedon="organization_or_person_in_organization_item" selectitems="Building"/>
+		</type>
+		<entity name="Building" supertypes="Product_view_definition">
+			<where label="WR1" expression="SIZEOF (QUERY (bdpa &lt;* USEDIN (SELF, 'BUILDING_STRUCTURE_ARM.' +       'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |       bdpa.role = 'owner'))= 1"/>
+			<where label="WR2" expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF, 'BUILDING_STRUCTURE_ARM.'+       'VIEW_DEFINITION_RELATIONSHIP.RELATING_VIEW') |       'BUILDING_STRUCTURE_ARM.BUILDING_SECTION'       IN TYPEOF (pdr.related_view))) &gt;= 1"/>
+		</entity>
+		<entity name="Building_level" super.expression="(Sublevel)" supertypes="Product_view_definition"/>
+		<entity name="Building_level_assignment" supertypes="View_definition_relationship">
+			<explicit name="assigned_item">
+				<typename name="Building_item"/>
+				<redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+			</explicit>
+			<explicit name="assigned_level">
+				<typename name="Building_level"/>
+				<redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+			</explicit>
+		</entity>
+		<entity name="Building_section" supertypes="Product_view_definition">
+			<where label="WR1" expression="SIZEOF (QUERY (pdr &lt;* USEDIN(SELF,'BUILDING_STRUCTURE_ARM.'+       'VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') |       'BUILDING_STRUCTURE_ARM.BUILDING' IN       TYPEOF (pdr.relating_view))) = 1"/>
+		</entity>
+		<entity name="Item_assembly" supertypes="Product_view_definition">
+			<inverse name="component_relationships" entity="Assembly_component_relationship" attribute="View_definition_relationship.relating_view">
+				<inverse.aggregate type="SET" lower="1" upper="?"/>
+			</inverse>
+			<where label="WR1" expression="SIZEOF(component_relationships)= SIZEOF(QUERY(cr &lt;* component_relationships |	'ASSEMBLY_ITEM' IN TYPEOF(cr.related_view) ))"/>
+		</entity>
+		<entity name="Item_proximity_relationship" supertypes="View_definition_relationship">
+			<explicit name="item">
+				<typename name="Building_item"/>
+				<redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+			</explicit>
+			<explicit name="item_in_proximity">
+				<typename name="Building_item"/>
+				<redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+			</explicit>
+		</entity>
+		<entity name="Sublevel" supertypes="Building_level">
+			<explicit name="belongs_to">
+				<typename name="Building_level"/>
+			</explicit>
+		</entity>
+	</schema>
+</express>

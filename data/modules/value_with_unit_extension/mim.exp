@@ -9,10 +9,9 @@ SCHEMA Value_with_unit_extension_mim;
 
 	USE FROM Iso13584_generic_expressions_schema
 		(environment,
+		generic_literal,
 		variable_semantics);
 	
-	USE FROM Mathematical_functions_schema(complex_number_literal);
-
 ENTITY absorbed_dose_measure_with_unit
  SUBTYPE OF (measure_with_unit);
 WHERE
@@ -199,6 +198,15 @@ WHERE
        TYPEOF(SELF\measure_with_unit.value_component);
 END_ENTITY;
 
+ENTITY polar_complex_number_literal
+  SUBTYPE OF (generic_literal);
+  radius    : REAL;
+  angle     : REAL;
+WHERE
+  WR1: radius >= 0;
+  WR2: { 0 <= angle < 2*PI };
+END_ENTITY;
+
 ENTITY power_measure_with_unit
  SUBTYPE OF (measure_with_unit);
 WHERE
@@ -236,9 +244,9 @@ WHERE
 END_ENTITY;
 
 ENTITY scattering_parameter
- SUBTYPE OF (complex_number_literal);
+ SUBTYPE OF (polar_complex_number_literal);
 WHERE
-  WR1: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\complex_number_literal ||
+  WR1: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\polar_complex_number_literal ||
        SELF\scattering_parameter))) = 0;
 END_ENTITY;
 

@@ -28,6 +28,11 @@
 
     <interface
       kind="use"
+      schema="Person_organization_assignment_mim">
+    </interface>
+
+    <interface
+      kind="use"
       schema="Product_breakdown_mim">
     </interface>
 
@@ -36,12 +41,77 @@
       schema="Specification_based_configuration_mim">
     </interface>
 
+    <interface
+      kind="use"
+      schema="qualified_measure_schema">
+      <interfaced.item
+        name="measure_representation_item"/>
+    </interface>
+
+    <interface
+      kind="use"
+      schema="measure_schema">
+      <interfaced.item
+        name="ratio_measure_with_unit"/>
+    </interface>
+
+    <type name="organization_item_sol">
+      <select
+        basedon="organization_item"
+        selectitems="product_definition">
+      </select>
+
+    </type>
+    <rule
+      name="alternative_solution_requires_solution_definition"
+      appliesto="product_definition_formation">
+      <algorithm>
+LOCAL
+  solution_versions: SET OF product_definition_formation := [];
+END_LOCAL;
+  solution_versions :=  QUERY( pdf &lt;* product_definition_formation |
+	SIZEOF( QUERY( prpc &lt;* USEDIN(pdf.of_product, 'ALTERNATIVE_SOLUTION_MIM.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+	prpc.name = 'alternative solution')) = 1);
+      </algorithm>
+
+      <where
+        label="WR1"
+        expression="SIZEOF( QUERY( pdf &lt;* solution_versions | SIZEOF( QUERY( pd &lt;* USEDIN(pdf, 'ALTERNATIVE_SOLUTION_MIM.' + 'PRODUCT_DEFINITION.FORMATION') |  pd.frame_of_reference.name = 'alternative definition')) &lt;&gt; 1)) ))= 0">
+      </where>
+
+    </rule>
+
+    <rule
+      name="restrict_alternative_definition"
+      appliesto="product_definition">
+      <algorithm>
+LOCAL
+  solution_definitions: SET OF product_definition := [];
+END_LOCAL;
+  solution_definitions :=  QUERY( pd &lt;* product_definition |(pd.frame_of_reference.name = 'alternative definition'));
+      </algorithm>
+
+      <where
+        label="wr1"
+        expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd ,'ALTERNATIVE_SOLUTION_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION' ) |  pdr.name = 'solution alternative definition' ) ) &lt;&gt;1 ) ) ) = 0">
+      </where>
+      <where
+        label="wr2"
+        expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions |  NOT ( pd.name IN ['technical' , 'supplier' , 'technical supplier' , ''] ) ) ) = 0">
+      </where>
+      <where
+        label="wr3"
+        expression="SIZEOF ( QUERY ( pd &lt;* solution_definitions | ( pd.name IN ['supplier' , 'technical supplier'] ) AND ( SIZEOF ( QUERY ( aoa &lt;* USEDIN ( pd.formation ,'ALTERNATIVE_SOLUTION_MIM.' + 'APPLIED_ORGANIZATION_ASSIGNMENT.' + 'ITEMS' ) |  aoa.role.name = 'supplier' ) ) &lt;&gt;1 ) ) ) = 0">
+      </where>
+
+    </rule>
+
     <rule
       name="restrict_solution_category"
       appliesto="product_definition">
       <algorithm>
 LOCAL
-  solution_definitions: SET OF product_definition: := [];
+  solution_definitions: SET OF product_definition := [];
 END_LOCAL;
   solution_definitions :=  QUERY( pd &lt;* product_definition |(pd.frame_of_reference.name = 'alternative definition'));
       </algorithm>

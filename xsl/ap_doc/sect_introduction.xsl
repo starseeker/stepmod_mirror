@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.15 2003/08/01 08:58:23 robbod Exp $
+     $Id: sect_introduction.xsl,v 1.16 2003/08/01 14:11:17 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -98,7 +98,7 @@
     
     <p>
       An application activity model that is the basis for the definition of
-      the scope is provided in annex 
+      the scope is provided in Annex 
       <a href="annex_aam{$FILE_EXT}">F</a>.
     </p>
 
@@ -113,7 +113,7 @@
       The information requirements of the application are specified in 
       the AP module 
       (<a href="{$module_cover}"><xsl:value-of select="$module_no"/></a>)
-      that is referenced in clause 
+      that is referenced in Clause 
       <a href="4_info_reqs{$FILE_EXT}#arm">4</a>.
       Clause <a href="4_info_reqs{$FILE_EXT}#41">4.1</a> 
       presents the business context for the information required for the
@@ -171,7 +171,7 @@
       <xsl:if test="$module_xml/module/arm_lf/express-g">
         A graphical
         representation of the information requirements, referred  
-        to as the application reference model, is given in annex 
+        to as the application reference model, is given in Annex 
         <a href="annex_arm_expg{$FILE_EXT}">
           <xsl:call-template name="annex_letter" >
             <xsl:with-param name="annex_name" select="'ARMexpressG'"/>
@@ -185,18 +185,18 @@
       Resource constructs are interpreted to meet the information
       requirements.  The interpretation is specified in the AP module 
       (<a href="{$module_cover}"><xsl:value-of select="$module_no"/></a>)
-      that is referenced in clause 
+      that is referenced in Clause 
       <a href="5_main{$FILE_EXT}">5</a>.
       This interpretation shows the correspondence
       between the information requirements and the MIM.  The short listing of
       the MIM that specifies the interface to the integrated resources  is
       included by reference from the AP module.   The expanded listing of the
-      MIM that is referenced in annex 
+      MIM that is referenced in Annex 
       <a href="annex_exp_lf{$FILE_EXT}">A</a>
       contains the complete EXPRESS for the MIM without annotation.  
       
       <xsl:if test="$module_xml/module/mim_lf/express-g">
-        A graphical presentation of the MIM is provided in annex
+        A graphical presentation of the MIM is provided in Annex
         <a href="annex_mim_expg{$FILE_EXT}">
           <xsl:call-template name="annex_letter" >
             <xsl:with-param name="annex_name" select="'MIMexpressG'"/>
@@ -214,7 +214,7 @@
     </p>
     <p>
       Additional requirements for specific implementation methods are given in
-      annex 
+      Annex 
       <a href="annex_imp_meth{$FILE_EXT}">C</a>.
     </p>
 

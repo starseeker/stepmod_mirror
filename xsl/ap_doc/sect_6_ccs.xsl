@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.15 2003/07/31 07:29:41 robbod Exp $
+$Id: sect_6_ccs.xsl,v 1.16 2003/07/31 08:57:57 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -57,7 +57,7 @@ $Id: sect_6_ccs.xsl,v 1.15 2003/07/31 07:29:41 robbod Exp $
     <xsl:variable name="annC" select="concat('./annex_imp_meth',$FILE_EXT)"/>
     <p>
       Requirements with respect to implementation methods-specific
-      requirements are specified in annex       
+      requirements are specified in Annex       
       <a href="{$annC}">C</a>. 
     </p>
 
@@ -65,7 +65,7 @@ $Id: sect_6_ccs.xsl,v 1.15 2003/07/31 07:29:41 robbod Exp $
     <p>
       The Protocol Implementation Conformance Statement (PICS) form
       lists the options or the combinations of options that may be included
-      in the implementation. The PICS form is provided in annex
+      in the implementation. The PICS form is provided in Annex
       <a href="{$annD}">D</a>.
     </p>
 

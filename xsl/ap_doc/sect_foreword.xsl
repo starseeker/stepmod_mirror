@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.10 2003/06/09 10:57:55 robbod Exp $
+$Id: sect_foreword.xsl,v 1.11 2003/07/28 12:32:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -240,7 +240,7 @@ $Id: sect_foreword.xsl,v 1.10 2003/06/09 10:57:55 robbod Exp $
             <a href="./introduction{$FILE_EXT}#changes">
               Introduction
             </a>
-            and annex
+            and Annex
             <a href="./annex_changes{$FILE_EXT}">
               <xsl:value-of select="$al_changes"/>.
             </a>

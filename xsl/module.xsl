@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.156 2003/08/07 06:58:19 robbod Exp $
+$Id: module.xsl,v 1.157 2003/08/07 07:50:21 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -973,7 +973,7 @@ o=isocs; s=central<br/>
     Clause <a href="3_defs{$FILE_EXT}">3</a> lists the words defined in
     this part of ISO 10303 and gives pointers to words defined elsewhere. 
 
-    The information requirements of the application are specified in clause 
+    The information requirements of the application are specified in Clause 
     <a href="4_info_reqs{$FILE_EXT}">4</a> using terminology appropriate to
     the application. 
 
@@ -1557,7 +1557,7 @@ o=isocs; s=central<br/>
                  -->
             This part of ISO 10303 also includes the units of functionality
             defined in the application modules that are imported with the USE
-            FROM statements specified in clause 4.2  
+            FROM statements specified in Clause 4.2  
           </p>        
         </xsl:otherwise>
       </xsl:choose>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.70 2003/07/09 16:26:13 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.71 2003/08/07 07:51:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -220,24 +220,24 @@ $Id: sect_5_mapping.xsl,v 1.70 2003/07/09 16:26:13 robbod Exp $
     select="concat('5_mim',$FILE_EXT,'#mim_express')"/>
   <p>
     In the following, &quot;Application element&quot; designates any entity data
-    type defined in clause <a href="{$sect4}">4</a>, any of its 
+    type defined in Clause <a href="{$sect4}">4</a>, any of its 
     explicit attributes and any subtype constraint. 
     &quot;MIM element&quot; designates any entity data type defined in 
-    clause <a href="{$sect52}">5.2</a> or imported with a USE FROM
+    Clause <a href="{$sect52}">5.2</a> or imported with a USE FROM
     statement, from another EXPRESS schema, any of its 
-    attributes and any subtype constraint defined in clause <a href="{$sect52}">5.2</a> or imported with a USE FROM
+    attributes and any subtype constraint defined in Clause <a href="{$sect52}">5.2</a> or imported with a USE FROM
     statement.
   </p>
   <p>
     This clause contains the mapping specification that defines how each UoF and
-    application element of this part of ISO 10303 (see clause <a href="{$sect4}">4</a>) maps to one
-    or more MIM elements (see clause <a href="{$sect52}">5.2</a>).
+    application element of this part of ISO 10303 (see Clause <a href="{$sect4}">4</a>) maps to one
+    or more MIM elements (see Clause <a href="{$sect52}">5.2</a>).
   </p>
 
 	<p>
-The mapping for each application element is specified in a separate sub-clause below. 
-The mapping specification of an attribute of an ARM entity is a sub-clause of the clause that contains the mapping specification of this entity.
-    Each mapping specification sub-clause contains up to five elements.
+The mapping for each application element is specified in a separate subclause below. 
+The mapping specification of an attribute of an ARM entity is a subclause of the clause that contains the mapping specification of this entity.
+    Each mapping specification subclause contains up to five elements.
   </p>
   <p>
     <b>Title:</b>
@@ -283,7 +283,7 @@ When the mapping of an application element involves more than one MIM element, e
     in the reference path. When no rule applies, this section is omitted.
 		</p>
 		<p>A reference to a
-    global rule may be followed by a reference to the sub-clause in
+    global rule may be followed by a reference to the subclause in
     which the rule is defined.
   </p> 
   <p>
@@ -293,7 +293,7 @@ When the mapping of an application element involves more than one MIM element, e
     in the reference path. When no subtype constraint applies, this section is omitted.
   </p>
   <p>
-    A reference to a subtype constraint may be followed by a reference to the sub-clause in
+    A reference to a subtype constraint may be followed by a reference to the subclause in
     which the subtype constraint is defined.
   </p> 
 

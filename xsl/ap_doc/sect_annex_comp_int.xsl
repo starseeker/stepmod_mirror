@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_comp_int.xsl,v 1.4 2003/06/11 08:26:54 robbod Exp $
+$Id: sect_annex_comp_int.xsl,v 1.5 2003/07/28 12:32:41 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: 
@@ -112,11 +112,11 @@ $Id: sect_annex_comp_int.xsl,v 1.4 2003/06/11 08:26:54 robbod Exp $
 
   <p>
     This annex provides a listing of the complete EXPRESS schema referenced
-    in annex 
+    in Annex 
     <a href="annex_exp_lf{$FILE_EXT}">A</a> 
     of this part of ISO 10303 without comments or other
     explanatory text. It also provides a listing of the EXPRESS entity
-    names and corresponding short names as specified in annex 
+    names and corresponding short names as specified in Annex 
     <a href="annex_shortnames{$FILE_EXT}">B</a> 
     of this part of ISO 10303.  The content of this annex is available in
     computer-interpretable form and can be found in Table 

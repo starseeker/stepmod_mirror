@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_a_short_names.xsl,v 1.16 2003/05/04 06:26:02 robbod Exp $
+$Id: sect_a_short_names.xsl,v 1.17 2003/07/28 12:16:28 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -69,7 +69,7 @@ $Id: sect_a_short_names.xsl,v 1.16 2003/05/04 06:26:02 robbod Exp $
              found in the implementation methods included in ISO 10303.  
              -->
         Entity names in this part of ISO 10303 have been defined in other
-        ISO standards identified in clause 2. Requirements on the use 
+        ISO standards identified in Clause 2. Requirements on the use 
         of the short names are found in the implementation methods included in ISO
         10303.
       </p>
@@ -114,8 +114,8 @@ $Id: sect_a_short_names.xsl,v 1.16 2003/05/04 06:26:02 robbod Exp $
       this part of ISO 10303.
     </p>
     <p>
-      Entity names in this part of ISO 10303 have been defined in clause 5.2 and
-      in other ISO standards identified in clause 2.
+      Entity names in this part of ISO 10303 have been defined in Clause 5.2 and
+      in other ISO standards identified in Clause 2.
     </p>
     <p>
       Requirements on the use of the short names are found in the

@@ -2,10 +2,10 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.10 2002/06/20 13:05:26 robbod Exp $
+     $Id: menubar_params.xsl,v 1.1 2002/06/23 07:51:46 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
-  Owner:  Developed by Eurostep and supplied to NIST under contract.
+  Owner:  Developed by Eurostep
   Purpose: 
      Used to identify the menubar displayed at the top of modules.
      ONLY menubar_default.xml should be checked in
@@ -25,12 +25,12 @@
   <xsl:param name="menubar_file" select="'menubar_default.xml'"/>
   -->
 
-  <!--
   <xsl:param name="menubar_file" select="'../plcsmod/menubar.xml'"/>
+  <!--
   -->
 
-
+  <!--
   <xsl:param name="menubar_file" select="'./ballots/ballots/pdm_ballot_072002/menubar_ballot.xml'"/>
-  <!-- -->
+  -->
 
 </xsl:stylesheet>

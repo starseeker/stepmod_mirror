@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
-<!-- $Id: mim_lf.xml,v 1.7 2004/02/07 19:04:12 robbod Exp $ -->
+<!-- $Id: mim_lf.xml,v 1.8 2004/03/09 13:00:22 robbod Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl" ?>
 
 <express
   language_version="1"
-  rcs.date="$Date: 2004/02/07 19:04:12 $"
-  rcs.revision="$Revision: 1.7 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
-    version="1, 2, 1041, 2056"
+    version="1, 3, 11, 13"
     source="mim_lf.exp"/>
 
   <schema name="AP239_product_life_cycle_support_mim_lf">
@@ -9507,6 +9507,7 @@
         <aggregate type="SET"
         />
         <builtintype type="GENERIC"
+          typelabel="gen"
         />
       </parameter>
       <parameter name="set_of_input_types">
@@ -9527,9 +9528,9 @@
   LOCAL
     number_of_input_instances : INTEGER;
     number_of_referring_instances : INTEGER;
-    bag_of_referring_instances : BAG OF GENERIC := [];
+    bag_of_referring_instances : BAG OF GENERIC:gen := [];
     dependently_instantiated_flag : BOOLEAN;
-    previous_in_chain_plus : LIST OF GENERIC := [];
+    previous_in_chain_plus : LIST OF GENERIC:gen := [];
     recursion : BOOLEAN;
     result : BOOLEAN := TRUE;
     set_of_types : SET OF STRING := [];
@@ -10567,7 +10568,6 @@
       </where>
     </rule>
 
-
     <rule name="product_requires_category"
       appliesto="product">
       <where
@@ -10643,28 +10643,6 @@
       <where
         label="WR1"
         expression="SIZEOF(QUERY(pd &lt;* product_definition | initial_context_is_additional(pd))) = 0">
-      </where>
-    </rule>
-
-    <rule name="validate_dependently_instantiable_entity_data_types"
-      appliesto="attribute_value_role cartesian_transformation_operator classification_role document_usage_constraint effectivity_context_role experience_role experience_type_role location_representation_role location_role organization_type_role person_type_definition_role person_type_role placement point position_in_organization_role position_in_organization_type_role qualification_type_role representation_map vector">
-      <algorithm>
-  LOCAL
-    number_of_input_instances : INTEGER;
-    previous_in_chain : LIST OF GENERIC := [];
-    set_of_input_types : SET OF STRING := [];
-    all_instances : SET OF GENERIC := [];
-  END_LOCAL;
-
-  all_instances := ;
-  number_of_input_instances := SIZEOF(all_instances);
-  REPEAT i := 1 TO number_of_input_instances;
-    set_of_input_types := set_of_input_types + TYPEOF(all_instances[i]);
-  END_REPEAT;
-      </algorithm>
-      <where
-        label="wr1"
-        expression="dependently_instantiated(all_instances, set_of_input_types, previous_in_chain)">
       </where>
     </rule>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_cover.xsl,v 1.12 2004/08/03 12:19:52 robbod Exp $
+$Id: sect_cover.xsl,v 1.13 2004/08/31 13:15:12 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -449,7 +449,12 @@ o=isocs; s=central<br/>
       and is ready for 
       <xsl:value-of select="normalize-space($ballot_cycle_or_pub)"/>.
 
-
+      <xsl:if test="$confirmatory_ballot='YES'">
+	<p>
+	  This document is being submitted for a confirmatory 
+<xsl:value-of select="$status" /> ballot in accordance with clause 2.5 of the SC4 Handbook (SC4 N1620)
+	</p>
+      </xsl:if>
       <xsl:variable name="dvlp_fldr" select="@development.folder"/>
       <xsl:if test="string-length($dvlp_fldr)>0">
         <xsl:variable name="seds" 

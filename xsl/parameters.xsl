@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.16 2004/10/11 14:06:01 thendrix Exp $
+     $Id: parameters.xsl,v 1.17 2004/10/12 00:03:29 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -95,6 +95,12 @@
 
   <xsl:param name="ballot" select="'NO'"/>
   <!--  Publication  build process sets to YES to provide navigation to ISO  cover-->  
-<xsl:param name="publication" select="'NO'"/>
+  <xsl:param name="publication" select="'NO'"/>
+
+<!-- When YES, ballot is confirmatory so special paragraph is included  in the sc4 cover sheet -->
+  <xsl:param name="confirmatory_ballot" select="'NO'"/>
+
+  
+
 
 </xsl:stylesheet>

@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.3 2002/04/25 20:17:10 lubell Exp $ -->
+<!-- $Id: build.xml,v 1.1 2002/04/30 20:52:52 joshualubell Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -48,6 +48,18 @@ containing all HTML files
 creates a .zip file, suitable for distribution, containing all HTML
 files
 
+The following build targets are intended for automatic backups,
+mirroring, and such. Most developers should have no need to use them.
+
+"ant cvsupdate"
+does an anonymous (pserver) CVS update of your local copy of the
+repository. USE THIS TARGET ONLY WITH AN ANONYMOUSLY CHECKED OUT LOCAL
+COPY. DO NOT USE IF YOUR LOCAL REPOSITORY WAS CHECKED OUT USING SSH.
+
+"ant cvstarball"
+downloads most recent CVS repository backup from SourceForge (in
+tar.gz format)
+
 -->
 
 <project name="repohtml" default="all" basedir="..">
@@ -61,6 +73,10 @@ files
     <property name="MODULES" value="${MODULESDIR}/**"/>
     <property name="SYS" value="${MODULES}/sys"/>
     <property name="ARCHIVE" value="stepmod-html-${DSTAMP}"/>
+    <property name="SFTARBALL"
+	      value="http://cvs.sourceforge.net/cvstarballs/stepmod-cvsroot.tar.gz"/>
+    <property name="SFCVSROOT"
+	      value="cvs.stepmod.sourceforge.net:/cvsroot/stepmod"/>
   </target>
 
   <target name="clean" depends="init" description="delete generated files">
@@ -220,7 +236,8 @@ files
   </target>
 
 
-  <target name="all" depends="index, resources, modules"/>
+  <target name="all" depends="index, resources, modules"
+	  description="create HTML for everything"/>
 
   <target name="tgz" depends="all" 
           description="create .tar.gz file">
@@ -243,4 +260,20 @@ stepmod/data/**, stepmod/help/**, stepmod/images/**"
     />
   </target>
 
+  <target name="cvsupdate" depends="init" 
+          description="update local copy of repository through anonymous CVS">
+    <cvs
+	 cvsRoot=":pserver:anonymous@${SFCVSROOT}" 
+         command="update" compression="true" dest=".."
+	 package="stepmod" />
+  </target>
+
+  <target name="cvstarball" depends="init" 
+          description="download most recent SourceForge CVS repository backup">
+    <get
+	 src="${SFTARBALL}" dest="../stepmod-cvsroot-${DSTAMP}.tar.gz"
+	 verbose="true"/>
+  </target>
+
 </project>
+

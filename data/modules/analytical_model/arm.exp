@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.10 2004/12/15 22:30:33 thomasrthurman Exp $
+   $Id: arm.exp,v 1.11 2004/12/20 23:13:10 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Analytical model - EXPRESS ARM
 *)
 
@@ -18,6 +18,10 @@ REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017
 USE FROM Software_arm;
 
 USE FROM Document_structure_arm;
+
+ 	TYPE am_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Digital_analytical_model_vector_port);
+	END_TYPE;
 
 	TYPE analytical_model_application_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT;
 	END_TYPE;
@@ -42,7 +46,7 @@ USE FROM Document_structure_arm;
   END_TYPE; -- signal_flow_direction
 
   ENTITY Across_port_variable
-    SUBTYPE OF (analog_port_variable);
+    SUBTYPE OF (Analog_port_variable);
     WHERE
       WR1 : EXISTS(SELF\analog_port_variable.unit_of_measure);
   END_ENTITY; -- across_port_variable
@@ -171,8 +175,8 @@ amsp, amvp.
   ENTITY Analytical_model_scalar_port
     SUBTYPE OF (Analytical_model_vector_port);
     WHERE
-      WR1 : SIZEOF(SELF\element_port) = 1;
-      WR2 : SELF = SELF\analytical_model_vector_port.element_port[1];
+      WR1 : SIZEOF(SELF\Analytical_model_vector_port.element_port) = 1;
+      WR2 : SELF = SELF\Analytical_model_vector_port.element_port[1];
   END_ENTITY; -- analytical_model_scalar_port
 
   ENTITY Analytical_model_vector_port
@@ -200,9 +204,10 @@ amsp, amvp.
 
   ENTITY Digital_analytical_model_vector_port
     SUBTYPE OF (Digital_analytical_model_port,Analytical_model_vector_port);
-      data_encoding_method          : external_definition;
+    INVERSE
+      data_encoding_method 	: External_source_identification FOR item;
     WHERE
-     WR1 : SELF\port_type = model_parameter_type.string_property_type;
+     WR1 : SELF\Digital_analytical_model_port.port_type = model_parameter_type.string_property_type;
   END_ENTITY; -- digital_analytical_model_port
 
   ENTITY Terminal_pair_port_equivalence_relationship;

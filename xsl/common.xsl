@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.54 2002/06/23 07:50:52 robbod Exp $
+$Id: common.xsl,v 1.55 2002/06/26 15:11:36 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2047,25 +2047,46 @@ $Id: common.xsl,v 1.54 2002/06/23 07:50:52 robbod Exp $
 
   <!-- display the expressg Icon for an express construct -->
   <xsl:template match="entity|type|schema|constant" mode="expressg_icon">
-    <xsl:variable name="schema" select="../@name"/>
+    <!-- the entity may be being referenced from another module
+         in which case the schema needs to be explicit.
+         This only happens in the mapping tables when and ARM object is
+         being remapped from another module. -->
+    <xsl:param name="original_schema"/>
+    
+    <xsl:variable name="schema">
+      <xsl:choose>
+        <!-- original_module specified then the ARM object is declared in
+             another module -->
+        <xsl:when test="$original_schema">
+          <xsl:value-of select="$original_schema"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="../@name"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <xsl:variable name="module_dir">
       <xsl:call-template name="module_directory">
         <xsl:with-param name="module" select="$schema"/>
       </xsl:call-template>
     </xsl:variable>
 
-    <xsl:variable name="module_file"
-      select="concat($module_dir,'/module.xml')"/> 
+    <xsl:variable name="module_name">
+      <xsl:call-template name="module_name">
+        <xsl:with-param name="module" select="$schema"/>
+      </xsl:call-template>
+    </xsl:variable>
 
     <xsl:variable name="href_expg">
       <xsl:choose>
         <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
           <xsl:choose>
             <xsl:when test="./graphic.element/@page">
-              <xsl:value-of select="concat('../armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
+              <xsl:value-of select="concat('../../',$module_name,'/armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of select="concat('../armexpg1',$FILE_EXT)"/>
+              <xsl:value-of select="concat('../../',$module_name,'/armexpg1',$FILE_EXT)"/>
             </xsl:otherwise>
           </xsl:choose>
           
@@ -2073,10 +2094,10 @@ $Id: common.xsl,v 1.54 2002/06/23 07:50:52 robbod Exp $
         <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
           <xsl:choose>
             <xsl:when test="./graphic.element/@page">
-              <xsl:value-of select="concat('../mimexpg',./graphic.element/@page,$FILE_EXT)"/>
+              <xsl:value-of select="concat('../../',$module_name,'/mimexpg',./graphic.element/@page,$FILE_EXT)"/>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:value-of select="concat('../mimexpg1',$FILE_EXT)"/>
+              <xsl:value-of select="concat('../../',$module_name,'/mimexpg1',$FILE_EXT)"/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>
@@ -2099,10 +2120,7 @@ $Id: common.xsl,v 1.54 2002/06/23 07:50:52 robbod Exp $
       <xsl:call-template name="module_directory">
         <xsl:with-param name="module" select="$schema"/>
       </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="module_file"
-      select="concat($module_dir,'/module.xml')"/> 
+    </xsl:variable>  
 
     <xsl:variable name="href_expg">
       <xsl:choose>

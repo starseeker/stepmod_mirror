@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.124 2003/02/05 10:56:21 robbod Exp $
+$Id: module.xsl,v 1.125 2003/02/11 13:25:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -479,6 +479,15 @@ o=isocs; s=central<br/>
 </xsl:template>
 
 <xsl:template match="keywords">
+  <xsl:if test="not(contains(.,'STEP'))">
+    STEP, 
+  </xsl:if>
+  <xsl:if test="not(contains(.,'10303'))">
+    ISO 10303,  
+  </xsl:if>
+  <xsl:if test="not(contains(.,'module'))">
+    module, 
+  </xsl:if>  
   <xsl:value-of select="."/>
 </xsl:template>
 

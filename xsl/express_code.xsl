@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.44 2002/12/30 08:31:12 goset1 Exp $
+     $Id: express_code.xsl,v 1.45 2003/02/21 09:05:26 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -573,12 +573,28 @@
 
 
 <xsl:template match="unique.attribute" mode="code">
+  <xsl:variable name="suffix">
+    <xsl:choose>
+      <xsl:when test="position()!=last()">
+        <xsl:value-of select="', '"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="';'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:choose>
-    <xsl:when test="position()!=last()">
-      <xsl:value-of select="concat(@attribute,', ')"/>
+    <xsl:when test="@entity-ref">
+      SELF\<xsl:call-template name="link_object">
+      <xsl:with-param name="object_name" select="@entity-ref"/>
+      <xsl:with-param name="object_used_in_schema_name" 
+        select="../../@name"/>
+      <xsl:with-param name="clause" select="'annexe'"/>
+    </xsl:call-template><xsl:value-of select="concat('.',@attribute,$suffix)"/>
     </xsl:when>
     <xsl:otherwise>
-      <xsl:value-of select="concat(@attribute,';')"/>
+      <xsl:value-of select="concat(@attribute,$suffix)"/>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>

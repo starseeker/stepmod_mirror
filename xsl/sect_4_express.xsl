@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.82 2003/02/11 12:56:23 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.83 2003/02/21 09:05:26 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -642,7 +642,8 @@
       <xsl:with-param name="section1" select="$schema_name"/>
       <xsl:with-param name="section2" select="@name"/>
     </xsl:call-template>
-  </xsl:variable>    
+  </xsl:variable>   
+
   <h3>
     <A NAME="{$aname}">
       <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
@@ -1180,12 +1181,28 @@
 
 
 <xsl:template match="unique.attribute" mode="code">
+  <xsl:variable name="suffix">
+    <xsl:choose>
+      <xsl:when test="position()!=last()">
+        <xsl:value-of select="', '"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="';'"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:choose>
-    <xsl:when test="position()!=last()">
-      <xsl:value-of select="concat(@attribute,', ')"/>
+    <xsl:when test="@entity-ref">
+      SELF\<xsl:call-template name="link_object">
+      <xsl:with-param name="object_name" select="@entity-ref"/>
+      <xsl:with-param name="object_used_in_schema_name" 
+        select="../../@name"/>
+      <xsl:with-param name="clause" select="'section'"/>
+    </xsl:call-template><xsl:value-of select="concat('.',@attribute,$suffix)"/>
     </xsl:when>
     <xsl:otherwise>
-      <xsl:value-of select="concat(@attribute,';')"/>
+      <xsl:value-of select="concat(@attribute,$suffix)"/>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>

@@ -1,7 +1,7 @@
 (*
-  $Id: mim.exp,v 1.9 2002/12/02 19:18:57 thendrix Exp $
-  ISO/TC184/SC4 WG12N1377 - ISO/CD-TS 10303-1106 Extended_measure_representation MIM
-*)
+ISO TC184/SC4/WG12 N1377 - ISO/CD-TS 10303-1106 Extended measure representation - EXPRESS MIM
+*) 
+
 
 SCHEMA Extended_measure_representation_mim; 
 
@@ -18,26 +18,26 @@ USE FROM representation_schema   -- ISO 10303-43
 
 USE FROM Value_with_unit_mim;    -- ISO/TS 10303-1054
 
-REFERENCE FROM support_resource_schema   -- ISO 10303-41
-  (type_check_function); 
+REFERENCE FROM support_resource_schema;    -- ISO 10303-41
+
+
+TYPE list_of_two_representation_items = list_representation_item;
+WHERE
+  WR1: HIINDEX(SELF) = 2;
+END_TYPE; 
 
 ENTITY double_toleranced_measure_item
-SUBTYPE OF (compound_representation_item);
+  SUBTYPE OF (compound_representation_item);
+  SELF\compound_representation_item.item_element : list_of_two_representation_items;
 DERIVE
-  tolerance_range : value_range := 
-SELF\compound_representation_item.item_element[2];
-  toleranced_measure_value : measure_representation_item :=
-SELF\compound_representation_item.item_element[1];
-WHERE
-  WR1: SIZEOF(SELF\compound_representation_item.item_element) = 2;
-  WR2: 'LIST_REPRESENTATION_ITEM' IN
-TYPEOF(SELF\compound_representation_item.item_element);
+  tolerance_range : value_range := SELF\compound_representation_item.item_element[2];
+  toleranced_measure_value : measure_representation_item := SELF\compound_representation_item.item_element[1];
 END_ENTITY;
 
 ENTITY value_range
   SUBTYPE OF (compound_representation_item);
 WHERE
-  WR1: ( 'EXTENDED_MEASURE_REPRESENTATION_MIM.'+ 'SET_REPRESENTATION_ITEM' IN TYPEOF ( item_element ) ) AND value_range_wr1 (item_element );
+  WR1: ( 'value_with_unit_mim.'+ 'SET_REPRESENTATION_ITEM' IN TYPEOF ( item_element ) ) AND value_range_wr1 ( item_element );
   WR2: value_range_wr2 ( item_element );
   WR3: value_range_wr3 ( item_element );
 END_ENTITY;

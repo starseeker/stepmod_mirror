@@ -71,9 +71,6 @@ USE FROM Shape_property_assignment_arm;  -- ISO/TS 10303-1032
 
 USE FROM Work_order_arm;    -- ISO/TS 10303-1043
 
--- AP210 specific use froms
-
-USE FROM Physical_unit_design_view_arm;
 
 TYPE pdm_activity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_item WITH 
    (Item_usage_effectivity, 
@@ -277,8 +274,7 @@ TYPE pdm_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item W
 END_TYPE; 
 
 TYPE pdm_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
-    (Assembly_item_number,
-	Product_configuration,
+    (Product_configuration,
     Product_view_definition,
     Product_version,
     Product);
@@ -313,27 +309,8 @@ TYPE pdm_string_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON string_select
     View_definition_relationship);
 END_TYPE; 
 
-  ENTITY Assembly_alternate_product
-    SUBTYPE OF (Alternate_product_relationship);
-      basis_context : part_design_view;
-  END_ENTITY; -- assembly_alternate_product
-
   ENTITY Test_select_product
     SUBTYPE OF (Alternate_product_relationship);
   END_ENTITY; -- test_select_product
-
-  ENTITY Assembly_item_number;
-      assembly_usage : SET[1:?] OF assembly_component_relationship; --part_occurrence_definition_relationship;
-      item_number    : STRING; --ee_name;
-    DERIVE
-      assembly : part_design_view := assembly_usage[1].related_view;
-      part     : product:= assembly_usage[1].relating_view\definition_based_product_occurrence.derived_from\product_view_definition.defined_version.of_product;
-    UNIQUE
-      ur1 : assembly,
- item_number;
-    WHERE
-      wr1 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view\definition_based_product_occurrence.derived_from\product_view_definition.defined_version.of_product = part))) = 0;
-      wr2 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.related_view = assembly))) = 0;
-  END_ENTITY; -- assembly_item_number
 
 END_SCHEMA;  -- Product_data_management_arm

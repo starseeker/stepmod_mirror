@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: $
+$Id: common.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -39,7 +39,13 @@ $Id: $
      Output the module title
 -->
 <xsl:template match="module" mode="title">
-  <xsl:value-of select="concat(@part,' :- ',@name)"/>
+  <xsl:variable 
+    name="date"
+    select="translate(@cvs.date,'$','')"/>
+  <xsl:variable 
+    name="rev"
+    select="translate(@cvs.revision,'$','')"/>
+  <xsl:value-of select="concat(@part,' :- ',@name,'  (',$date,' ',$rev,')')"/>
 </xsl:template>
 
 <!--

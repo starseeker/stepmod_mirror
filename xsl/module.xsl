@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: $
+$Id: module.xsl,v 1.1 2001/10/05 07:52:22 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -18,7 +18,10 @@ $Id: $
 <xsl:template match="/">
   <HTML>
     <HEAD>
-      <TITLE></TITLE>
+      <TITLE>
+        <!-- output the module page title -->
+        <xsl:apply-templates select="./module" mode="title"/>
+      </TITLE>
     </HEAD>
     <BODY>
       <xsl:apply-templates select="./module" mode="TOCsinglePage"/>

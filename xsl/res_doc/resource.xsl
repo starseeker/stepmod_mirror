@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.50 2004/12/07 01:02:42 thendrix Exp $
+$Id: resource.xsl,v 1.51 2005/03/02 19:50:32 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -609,28 +609,52 @@ o=isocs; s=central<br/>
     </xsl:call-template>           
   </xsl:variable>
 
+  <P>
+	<xsl:value-of select="$resdoc_stdnumber"/>  specifies the integrated resource 
+	<xsl:value-of select="$resdoc_name"/>.
+  </P>
+
+
   <xsl:choose>
     <xsl:when test="./abstract">
-      <xsl:apply-templates select="./abstract"/>
+      <xsl:choose>
+        <xsl:when  test="./abstract/li">
+          <xsl:choose>
+            <xsl:when  test="count(./abstract/li)=1">
+              <P>
+                The following is within the scope of 
+				<xsl:value-of select="$resdoc_stdnumber"/>: 
+              </P>
+            </xsl:when>
+            <xsl:otherwise>
+              <P>
+                The following are within the scope of 
+				<xsl:value-of select="$resdoc_stdnumber"/>:
+              </P>
+            </xsl:otherwise>
+          </xsl:choose>
+          <ul>
+            <xsl:apply-templates select="./abstract/*"/>
+          </ul>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="./abstract/*"/>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:when>
     <xsl:otherwise>
       <P>
-        <xsl:value-of select="$resdoc_stdnumber"/>  specifies the integrated resource 
-        <xsl:value-of select="$resdoc_name"/>.
-      </P>
-      <P>
-        The following are within the scope of 
-        <xsl:value-of select="$resdoc_stdnumber"/>:
-      </P>
-
-      <UL>
-        <xsl:apply-templates select="./inscope/li"/>
+		The following are within the scope of 
+		<xsl:value-of select="$resdoc_stdnumber"/>:
+	  </P>
+	  <UL>
+		<xsl:apply-templates select="./inscope/li"/>
       </UL>
     </xsl:otherwise>
   </xsl:choose>
       
 </xsl:template>
-
+<!--
 <xsl:template match="abstract">
 
 
@@ -654,6 +678,7 @@ o=isocs; s=central<br/>
 
     <xsl:apply-templates select="*"/>
 </xsl:template>
+-->
 
 
 <xsl:template match="keywords">

@@ -1,35 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.24 2002/09/30 09:10:26 robbod Exp $ -->
+<!-- $Id: mim.xml,v 1.1 2002/10/26 11:45:54 davidleal Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 <express
    language_version="2"
-   rcs.date="$Date: 2002/09/30 09:10:26 $"
-   rcs.revision="$Revision: 1.24 $">
-  <schema name="schematic_and_symbolization_mim">
-<interface kind="use" schema="schematic_element_library_mim"></interface>
-<interface kind="use" schema="schematic_drawing_mim"></interface>
-<interface kind="use" schema="class_of_document_mim"></interface>
-<interface kind="use" schema="symbolization_by_schematic_element_mim"></interface>
-<interface kind="use" schema="external_item_identification_assignment_mim"></interface>
+   rcs.date="$Date: 2002/10/26 11:45:54 $"
+   rcs.revision="$Revision: 1.1 $">
+  <schema name="Schematic_and_symbolization_mim">
+<interface kind="use" schema="Schematic_element_library_mim"></interface>
+<interface kind="use" schema="Schematic_drawing_mim"></interface>
+<interface kind="use" schema="Document_and_version_identification_mim"></interface>
+<interface kind="use" schema="Class_mim"></interface>
+<interface kind="use" schema="Symbolization_by_schematic_element_mim"></interface>
+<interface kind="use" schema="External_item_identification_assignment_mim"></interface>
+
 <type name="externally_identified_schematic_element_definition">
 <select basedon="external_identification_item" selectitems="implicit_schematic_element_definition" />
 <description>
 An <b>implicit_schematic_element_definition</b> that has an external identification.
 </description>
 </type>
+
 <entity
        name="drawing_revision_class_of_document"
-       supertypes="class_of_document drawing_revision">
+       supertypes="class product_definition_formation drawing_revision">
        <description>
-A <B>drawing_revision_class_of_document</B> is a <b>class_of_document</b> and a <b>drawing_revision</b>.</description>
+A <b>drawing_revision_class_of_document</b> is a <b>product_definition</b> that is a class of document and <b>drawing_revision</b>.</description>
+
+<where label="appropriate_category"
+expression=
+"SIZEOF (QUERY (prpc &lt;* SELF\product_definition_formation.of_product |
+    prpc.name = 'document')) = 1"
+>
+ <description>The <b>product_definition_formation</b> shall be
+ for a <b>product</b> that has a <b>product_category</b> with the
+ name 'document'.</description>
+</where>
 </entity>
+
 <entity
        name="drawing_sheet_revision_class_of_document"
-       supertypes="class_of_document drawing_sheet_revision">
+       supertypes="class product_definition_formation drawing_sheet_revision">
        <description>
-A <B>drawing_sheet_revision_class_of_document</B> is a <b>class_of_document</b> and a <b>drawing_sheet_revision</b>.</description>
+A <b>drawing_sheet_revision_class_of_document</b> is a <b>product_definition</b> that is a class of document and a <b>drawing_sheet_revision</b>.</description>
+
+<where label="appropriate_category"
+expression=
+"SIZEOF (QUERY (prpc &lt;* SELF\product_definition_formation.of_product |
+    prpc.name = 'document')) = 1"
+>
+ <description>The <b>product_definition_formation</b> shall be
+ for a <b>product</b> that has a <b>product_category</b> with the
+ name 'document'.</description>
+</where>
 </entity>
-  </schema>
+
+</schema>
 </express>

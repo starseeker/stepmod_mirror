@@ -1,6 +1,6 @@
 (*
   $Id: $
-  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-1050 Dimension_tolerance
+  ISO/TC184/SC4 WG12NXXXX - ISO/CD-TS - 10303-ZZZZ Dimension_tolerance
 *)
 SCHEMA Dimension_tolerance_arm;
 
@@ -34,22 +34,13 @@ TYPE limitation_definition_select = SELECT
    Plus_minus_bounds);
 END_TYPE;
 
-TYPE origin_enumeration = ENUMERATION OF 
-  (unchanged,
-   mirror,
-   positive_normal,
-   negative_normal);
-END_TYPE;
-
 TYPE placed_element_select = EXTENSIBLE SELECT 
   (element_with_dimension_select);
 END_TYPE;
 
 ENTITY Angular_location_dimension
 SUBTYPE OF (Location_dimension);
-  major_angle : BOOLEAN;
-  mirror_target : BOOLEAN;
-  origin_determination : origin_enumeration;
+  orientation : OPTIONAL Axis_placement;
 END_ENTITY;
 
 ENTITY Angular_size_dimension
@@ -61,7 +52,6 @@ END_ENTITY;
 ENTITY Curved_distance_dimension
 SUBTYPE OF (Location_dimension);
   used_path : Measurement_path;
-  with_curve_direction : BOOLEAN;
 END_ENTITY;
 
 ENTITY Dimension_value_with_limitation;
@@ -89,14 +79,14 @@ END_ENTITY;
 
 ENTITY Linear_distance_dimension
 SUBTYPE OF (Location_dimension);
-  directed : BOOLEAN;
-  orientation : OPTIONAL Axis_placement;
+  orientation : OPTIONAL Vector;
 END_ENTITY;
 
 ENTITY Location_dimension
 ABSTRACT SUPERTYPE OF (ONEOF(Angular_location_dimension, Curved_distance_dimension, Linear_distance_dimension))
 SUBTYPE OF (Geometric_dimension);
   description : STRING;
+  directed : BOOLEAN;
   origin : placed_element_select;
   target : placed_element_select;
 END_ENTITY;
@@ -118,6 +108,9 @@ END_ENTITY;
 ENTITY Thickness_dimension
 SUBTYPE OF (Size_dimension);
   used_path : Measurement_path;
+END_ENTITY;
+
+ENTITY Vector;
 END_ENTITY;
 
 END_SCHEMA;

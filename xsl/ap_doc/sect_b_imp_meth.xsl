@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./pas_document_xsl.xsl" ?>
 <!--
-     $Id: sect_b_imp_meth.xsl,v 1.3 2002/10/08 10:18:09 mikeward Exp $
+     $Id: sect_b_imp_meth.xsl,v 1.4 2002/10/29 18:43:10 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="application_protocol.xsl"/>
@@ -34,10 +34,40 @@
 			</xsl:for-each>
 		</xsl:variable>					
 		 The implementation method defines what types of exchange behaviour are required with respect to this
-		part of ISO 10303. Conformance to this part of ISO 10303 shall be realized in an exchange structure.
-		The file format shall be encoded according to the syntax and EXPRESS language mapping defined
-		in <xsl:value-of select="$imp_meths_phrase"/> and in the AIM defined in Annex A of this part of ISO 10303. The header of the
-		exchange structure shall identify the use of this part of ISO 10303 by the schema name "<xsl:value-of select="$schema_name"/>".
+		part of ISO 10303. 
+		
+<!--		<xsl:value-of select="imp_meths/imp_meth/description"/> -->
+	<xsl:for-each select="imp_meths/imp_meth">		
+		<xsl:variable name="sect_no">
+			<xsl:number/>
+		</xsl:variable>
+		
+		<xsl:choose>
+			<xsl:when test="@general='y'">
+			<H3>
+			<xsl:value-of select="concat('B.',$sect_no,' ')"/>
+			General requirements</H3>
+			</xsl:when>
+			<xsl:otherwise>
+			<H3>
+			<xsl:value-of select="concat('B.',$sect_no,' ')"/>
+			Requirements specific to the implementation method defined in 
+			<xsl:value-of select="concat('ISO 10303-', @part)"/>
+			</H3>
+			</xsl:otherwise>
+		</xsl:choose>			
+				<xsl:choose>
+			<xsl:when test="string-length(./description) > 0">
+				<xsl:apply-templates select="description"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="error_message">
+					<xsl:with-param name="message" select="concat('Error 3: No description provided for the implementation method',' ')"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:for-each>
+
 	</xsl:template>
 	
 </xsl:stylesheet>

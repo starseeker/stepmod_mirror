@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: express_description.xsl,v 1.40 2004/01/07 14:25:44 robbod Exp $
+$Id: express_description.xsl,v 1.41 2004/01/07 14:58:40 robbod Exp $
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
   Purpose: 
@@ -310,7 +310,7 @@ and
                 <xsl:call-template name="error_message">
                   <xsl:with-param 
                     name="message" 
-                    select="concat('Warning Attr1 ' ,
+                    select="concat('Warning Attr5 ' ,
                             $description/@linkend,
                             '. Purpose attribute description should be a phrase.#
                             is: &quot;',$phrase,'&quot;#

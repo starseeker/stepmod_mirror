@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.43 2004/12/21 22:38:30 thendrix Exp $
+$Id: sect_contents.xsl,v 1.44 2004/12/22 19:50:38 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -312,6 +312,56 @@ $Id: sect_contents.xsl,v 1.43 2004/12/21 22:38:30 thendrix Exp $
       </xsl:call-template>
     </xsl:variable>
 
+    <xsl:if test="count(//figure|//data_plan)!=0">
+      <h2>Figures</h2>
+      <small>
+      <xsl:apply-templates select="//changes/change_summary//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//purpose" mode="data_plan_figure">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//purpose//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//fundamentals" mode="data_plan_figure">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//inscope//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//outscope//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//inforeqt//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+
+      <xsl:apply-templates select="//aam/idef0/imgfile" mode="aam_figure">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//usage_guide//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//tech_disc//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+
+      <xsl:apply-templates select="//changes/change_detail//figure" mode="toc">
+        <xsl:with-param name="target" select="$target"/>
+      </xsl:apply-templates>
+    </small>
+    </xsl:if>
+
     <h2><a name="tables">Tables</a></h2>
     <small>
     <xsl:apply-templates select="//changes/change_summary//table" mode="toc">
@@ -420,55 +470,6 @@ $Id: sect_contents.xsl,v 1.43 2004/12/21 22:38:30 thendrix Exp $
     </xsl:apply-templates>
   </small>
 
-    <xsl:if test="count(//figure|//data_plan)!=0">
-      <h2>Figures</h2>
-      <small>
-      <xsl:apply-templates select="//changes/change_summary//figure" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="//purpose" mode="data_plan_figure">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="//purpose//figure" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="//fundamentals" mode="data_plan_figure">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="//inscope//figure" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="//outscope//figure" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="//inforeqt//figure" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-
-      <xsl:apply-templates select="//aam/idef0/imgfile" mode="aam_figure">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="//usage_guide//figure" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="//tech_disc//figure" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-
-      <xsl:apply-templates select="//changes/change_detail//figure" mode="toc">
-        <xsl:with-param name="target" select="$target"/>
-      </xsl:apply-templates>
-    </small>
-    </xsl:if>
 
     <!--
     <h2><a name="index">Index</a></h2>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.14 2004/05/01 09:05:57 robbod Exp $
+$Id: sect_foreword.xsl,v 1.15 2004/12/31 16:41:28 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -497,6 +497,9 @@ $Id: sect_foreword.xsl,v 1.14 2004/05/01 09:05:57 robbod Exp $
   <p>
     ISO 10303 is organized as a series of parts, each published
     separately. The structure of ISO 10303 is described in ISO 10303-1.
+    <sup>
+      <a href="#10303-1">1</a>)
+    </sup>.
   </p>
   <p>
     Each part of ISO 10303 is a member of one of the following series:
@@ -513,6 +516,12 @@ $Id: sect_foreword.xsl,v 1.14 2004/05/01 09:05:57 robbod Exp $
     <A HREF="http://www.tc184-sc4.org/titles/STEP_Titles.htm" target="_blank">
       http://www.tc184-sc4.org/titles/STEP_Titles.htm</A>.
   </blockquote>
+  <p>
+    <a name="10303-1">
+      <sup>1)</sup>A future edition of ISO 10303-1 will describe the application
+      modules series.
+    </a>
+  </p> 
 
   <!-- ISO No longer require the Annexes to be listed
    <xsl:variable name="annex_list">

@@ -1,20 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- last edited by mwd 2002-08-15 -->
-<!ELEMENT aim_entities EMPTY>
-<!ELEMENT arm_entities (cc.ae+)>
-<!ELEMENT cc (description, uofs, arm_entities?, aim_entities?)>
+<!--
+     $Id: application_protocol.dtd,v 1.13 2003/03/06 14:51:45 goset1 Exp $
+     Author:  Mike Ward, David Proce, Rob Bodington, Nigel Shaw  Eurostep Limited
+     Owner:   Developed by Eurostep and supplied to PDES / NIST under contract.
+     Purpose: DTD for AP conformance classes
+ -->
+
+
+<!--	External entity sets	-->
+<!ENTITY % HTMLsymbol PUBLIC "-//W3C//ENTITIES Symbols for XHTML//EN" "../xhtml-symbol.ent">
+     %HTMLsymbol;
+     
+<!ENTITY % HTMLspecial PUBLIC "-//W3C//ENTITIES Special for XHTML//EN" "../xhtml-special.ent">
+     %HTMLspecial;
+
+<!ENTITY % HTMLlat1 PUBLIC "-//W3C//ENTITIES Latin 1 for XHTML//EN" "../xhtml-lat1.ent">
+    %HTMLlat1;
+
+
+<!ENTITY % desctext SYSTEM "../text.ent">
+%desctext;
+
+<!-- use the %description.content defined in text.ent              -->
+<!ELEMENT description (%description.content;)*>
+
+
+<!-- Conformance classes -->
+<!ELEMENT conformance (cc+)>
+<!ELEMENT cc (inscope, description?, arm_entities?)>
+<!-- description of the scope of the CC -->
+
+<!-- 
+     id     : the number of the conformance class
+     name   : the name of the conformance class
+     module : the name of the implementation level module against which the
+              the conformance is claimed
+-->
 <!ATTLIST cc
-	identifier CDATA #REQUIRED
+	id CDATA #REQUIRED
 	name CDATA #REQUIRED
+	module NMTOKEN #REQUIRED
 >
-<!ELEMENT conformance_classes (cc+)>
-<!ELEMENT description (#PCDATA)>
-<!ELEMENT uof EMPTY>
-<!ATTLIST uof
-	name NMTOKEN #REQUIRED
+
+<!-- the scope of the conformance class 
+     If from_module is YES then XSL will copy the in scope statement from the conformance class module 
+-->
+<!ELEMENT inscope (li*)>
+<!ATTLIST inscope
+        from_module (NO | YES) "NO"
 >
-<!ELEMENT uofs (uof+)>
-<!ELEMENT cc.ae EMPTY>
-<!ATTLIST cc.ae
-	entity NMTOKEN #REQUIRED
+
+<!-- the list of ARM entities in a conformance class 
+     Note that if no arm entities are specified then it is assumed that the 
+     all ARM entities in the implementation level module are in the conformance class.
+ -->
+<!ELEMENT arm_entities (arm_entity+)>
+
+<!-- a reference to an ARM entity in a conformace class -->
+<!ELEMENT arm_entity EMPTY>
+<!ATTLIST arm_entity
+	name CDATA #REQUIRED
 >

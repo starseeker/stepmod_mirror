@@ -1,21 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-     $Id: application_protocol.dtd,v 1.12 2003/02/28 13:48:12 rugarcia Exp $
--->
-<!ENTITY % isodoc SYSTEM "../isodoc.ent">
+     $Id: application_protocol.dtd,v 1.13 2003/03/06 14:51:45 goset1 Exp $
+     Author:  Mike Ward, David Price, Rob Bodington, Nigel Shaw,  Eurostep Limited
+     Owner:   Developed by Eurostep and supplied to PDES / NIST under contract.
+     Purpose: DTD for AP document
+ -->
+<!ENTITY % isodoc SYSTEM "isodoc.ent">
 %isodoc;
-<!--                    application protocol                         -->
-<!ELEMENT application_protocol (contacts, purpose, normrefs?, definition*, abbreviations?, mapping_table?, fundamentals, aam, imp_meths, usage_guide?, tech_disc?, bibliography?)>
+
+
+<!--  application protocol -->
+<!ELEMENT application_protocol (keywords?, abstract?, changes?, contacts, purpose, inscope?, outscope?, normrefs?, definition*, abbreviations?, inforeqt, aam,  imp_meths, usage_guide?, tech_disc?, bibliography?)>
+<!--    
+        name            AP directory name
+	module_name     top level implementation module
+        title           AP title
+        part            ISO 10303 part number
+        wg.number       SC4 N-number
+        wg.number.supersedes    superseded SC4 N-number
+	version         AP version 
+	status          document status
+	language        E for English langauge
+	publication.year        year of publication 
+	published       y if published
+	previous.revision.number         
+	previous.revision.year 
+	previous.revision.cancelled 
+	revision.complete 
+	revision.scope 
+	wg.number.ballot_package 
+	wg.number.ballot_comment 
+	checklist.internal_review
+	checklist.project_leader 
+	checklist.convener 
+ Attributes for source control software like RCS or CVS
+        rcs.date      $Date: 2003/03/10 01:25:54 $     
+        rcs.revision  $Revision: 1.29 $                
+-->
+
 <!ATTLIST application_protocol
 	xmlns:xlink CDATA #FIXED "http://www.w3.org/1999/xlink"
 	name NMTOKEN #REQUIRED
 	module_name NMTOKEN #REQUIRED
-	title NMTOKEN #REQUIRED
+	title CDATA #REQUIRED
 	part NMTOKEN #REQUIRED
 	wg.number CDATA #REQUIRED
 	wg.number.supersedes CDATA #IMPLIED
-	wg.number.arm CDATA #REQUIRED
-	wg.number.mim CDATA #REQUIRED
 	version NMTOKEN #REQUIRED
 	status (CD | FDIS | DIS | IS | CD-TS | TS | WD) "CD-TS"
 	language (E) "E"
@@ -26,21 +56,39 @@
 	previous.revision.cancelled (NO | YES) #IMPLIED
 	revision.complete (NO | YES) #IMPLIED
 	revision.scope CDATA #IMPLIED
+	wg.number.ballot_package CDATA #IMPLIED
+	wg.number.ballot_comment CDATA #IMPLIED
 	checklist.internal_review CDATA #IMPLIED
 	checklist.project_leader CDATA #IMPLIED
 	checklist.convener CDATA #IMPLIED
 	rcs.date CDATA #REQUIRED
 	rcs.revision CDATA #REQUIRED
 >
+
+<!ELEMENT changes (change_summary, change_detail?)>
+<!ELEMENT change_summary (%description.content;)*>
+<!ELEMENT change_detail (%description.content;)*>
+
+<!-- Clause 4 -->
+<!ELEMENT inforeqt (fundamentals, reqtover+)>
+
+<!-- Clause 4 immediate text which is 4.1 in San Diego paper -->
 <!ELEMENT fundamentals (%description.content;)*>
-<!--			application activity model		-->
+
+<!-- Clauses 4.2x one for each module overview -->
+<!ELEMENT reqtover (description)>
+<!ATTLIST reqtover module NMTOKEN #REQUIRED>
+
+<!-- application activity model -->
 <!ELEMENT aam (idef0)>
 <!ELEMENT idef0 (imgfile+)>
+
 <!-- implementation methods -->
 <!ELEMENT imp_meths (imp_meth+)>
 <!ELEMENT imp_meth (description)>
 <!ATTLIST imp_meth
 	general (y | n) "n"
-	part (21 | 22 | 28) #REQUIRED
+	part (21 | 22 | 23 | 24 | 25 | 27 | 28 | 29) #REQUIRED
 >
 <!ELEMENT tech_disc (%description.content;)*>
+

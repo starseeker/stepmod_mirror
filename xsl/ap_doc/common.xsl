@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: $
+     $Id: common.xsl,v 1.6 2002/10/08 10:20:08 mikeward Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:import href="../common.xsl"/>
@@ -173,7 +173,7 @@
 					<td>
 						<font size="-2">
 							<p class="rcs">
-								xsl:value-of select="'module.xml'"/>
+								<xsl:value-of select=" 'application_protocol.xml' "/>
 							</p>
 						</font>
 					</td>

@@ -1,4 +1,4 @@
-//$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $
+//$Id: mkballot_main.js,v 1.15 2003/08/15 16:17:25 robbod Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep and supplied to NIST under contract.
 //  Purpose:  JScript to generate a ballot package
@@ -46,7 +46,7 @@ function mkBallotXsl(ballot,xsl,xml) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
+    ts.WriteLine("$Id: mkballot_main.js,v 1.15 2003/08/15 16:17:25 robbod Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: A grouping of modules into ballot packages");
@@ -71,7 +71,7 @@ function mkBallotIssueTableXsl(ballot,xsl,xml,content) {
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../xsl/"+xsl+"\" ?>");
 
     ts.WriteLine("<!-- ");
-    ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
+    ts.WriteLine("$Id: mkballot_main.js,v 1.15 2003/08/15 16:17:25 robbod Exp $");
     ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
     ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
     ts.WriteLine("  Purpose: A grouping of modules into ballot packages");
@@ -100,7 +100,7 @@ function mkBallotPackage(ballot, depend) {
 	ts.WriteLine("<!DOCTYPE ballot_index SYSTEM \"../../dtd/ballot_index.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.15 2003/08/15 16:17:25 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A grouping of modules into ballot packages");
@@ -173,7 +173,7 @@ function mkBallotPackage(ballot, depend) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.15 2003/08/15 16:17:25 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar for packages");
@@ -221,7 +221,7 @@ function mkBallotPackage(ballot, depend) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.15 2003/08/15 16:17:25 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A menubar providing links to the index of modules");
@@ -236,7 +236,7 @@ function mkBallotPackage(ballot, depend) {
 	ts.Close();
 
 
-	// Make the buidbuild file
+	// Make the buildbuild file
 	var buildbuildXml = stepmodHome+"/ballots/ballots/"+ballot+"/buildbuild.xml";
 	fso.CreateTextFile(buildbuildXml, true );
 	f = fso.GetFile(buildbuildXml);
@@ -245,13 +245,13 @@ function mkBallotPackage(ballot, depend) {
 	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
 	
 	ts.WriteLine("<!-- ");
-	ts.WriteLine("$Id: mkballot_main.js,v 1.14 2003/05/19 08:56:06 robbod Exp $");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.15 2003/08/15 16:17:25 robbod Exp $");
 	ts.WriteLine("  Author:  Rob Bodington, Eurostep Limited");
 	ts.WriteLine("  Owner:   Developed by Eurostep Limited http://www.eurostep.com");
 	ts.WriteLine("  Purpose: A bootstrap file used to create the main build");
 	ts.WriteLine("           file for the ballot package. Run:");
 	ts.WriteLine("              ant -buildfile buildbuild.xml");
-	ts.WriteLine("           This will create the build.xml file.");
+	ts.WriteLine("           This will  create the build.xml file.");
 	ts.WriteLine("           Then run: ");
 	ts.WriteLine("              ant all");
 	ts.WriteLine("           to create the HTML version of the ballot package");
@@ -268,6 +268,43 @@ function mkBallotPackage(ballot, depend) {
 	ts.WriteLine("   </target>");
 	ts.WriteLine("</project>");
 	ts.Close();
+
+
+
+	// Make the buildscript file
+	var buildscriptXml = stepmodHome+"/ballots/ballots/"+ballot+"/buildscript.xml";
+	fso.CreateTextFile(buildscriptXml, true );
+	f = fso.GetFile(buildscriptXml);
+	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
+	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	ts.WriteLine("<!DOCTYPE menubar SYSTEM \"../../../dtd/menubar.dtd\">");
+	
+	ts.WriteLine("<!-- ");
+	ts.WriteLine("$Id: mkballot_main.js,v 1.15 2003/08/15 16:17:25 robbod Exp $");
+	ts.WriteLine("  Author:  Tom Hendrix");
+	ts.WriteLine("  Purpose: A bootstrap file used to create the qc script");
+	ts.WriteLine("           file for the ballot package. Run:");
+	ts.WriteLine("              ant -buildtfile buildscript.xml");
+	ts.WriteLine("           This will create the script.xml file.");
+	ts.WriteLine("           Then run: ");
+	ts.WriteLine("              ant -buildfile script.xml all");
+	ts.WriteLine("           to create the HTML version of the ballot package");
+	ts.WriteLine("-->");
+	ts.WriteLine("<project name=\"buildscript\" default=\"main\" basedir=\".\">");
+	ts.WriteLine("   <target name=\"main\">");
+	ts.WriteLine("     <dependset>");
+	ts.WriteLine("       <srcfilelist dir=\".\" files=\"../../xsl/buildscript.xsl\"/>");
+	ts.WriteLine("       <targetfilelist dir=\".\" files=\"script.xml\"/>");
+	ts.WriteLine("     </dependset>");
+	ts.WriteLine("    <style in=\"ballot_index.xml\" out=\"script.xml\" destdir=\".\" extension=\".xml\"");
+	ts.WriteLine("      style=\"../../xsl/buildscript.xsl\">");
+	ts.WriteLine("    </style>");
+	ts.WriteLine("   </target>");
+	ts.WriteLine("</project>");
+	ts.Close();
+
+
+
 
 	// Make the readme file
 	var readmetxt = stepmodHome+"/ballots/ballots/"+ballot+"/readme.txt";

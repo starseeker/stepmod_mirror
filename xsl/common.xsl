@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.120 2003/10/09 06:49:18 robbod Exp $
+$Id: common.xsl,v 1.121 2003/10/21 12:24:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2534,13 +2534,18 @@ $Id: common.xsl,v 1.120 2003/10/09 06:49:18 robbod Exp $
 
 
 
-<!-- given a string xxx.ccc.qqq return the value after the last . -->
-<xsl:template name="get_last_section">
+<!-- 
+     given a string xxx.ccc.qqq return the value after the last . 
+     The . is the divider
+-->
+<xsl:template name="get_last_section">  
   <xsl:param name="path"/>
+  <xsl:param name="divider" select="'.'"/>
   <xsl:choose>
-    <xsl:when test="contains($path,'.')">
+    <xsl:when test="contains($path,$divider)">
       <xsl:call-template name="get_last_section">
-        <xsl:with-param name="path" select="substring-after($path,'.')"/>
+        <xsl:with-param name="path" select="substring-after($path,$divider)"/>
+        <xsl:with-param name="divider" select="$divider"/>
       </xsl:call-template>
     </xsl:when>
     <xsl:otherwise>

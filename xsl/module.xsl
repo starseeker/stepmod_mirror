@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.45 2002/04/20 17:09:21 robbod Exp $
+$Id: module.xsl,v 1.46 2002/04/21 14:21:53 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -958,7 +958,7 @@ found in module ',$module )"/>
 		<p>This clause also
     specifies the modifications that apply to the constructs 
     imported from the common resources.</p>
-		<p>The following restrictions apply onto the use, in this schema, of constructs defined in common resources or in application
+		<p>The following restrictions apply to the use, in this schema, of constructs defined in common resources or in application
     modules:</p>
 		<ul>
 		<li>Use of a supertype entity does not make applicable any of its specializations, unless the specialization is also imported in the MIM schema.</li>

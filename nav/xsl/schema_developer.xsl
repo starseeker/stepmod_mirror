@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: schema_developer.xsl,v 1.2 2002/09/17 07:39:09 robbod Exp $
+$Id: schema_developer.xsl,v 1.3 2002/09/30 07:01:13 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -55,12 +55,16 @@ $Id: schema_developer.xsl,v 1.2 2002/09/17 07:39:09 robbod Exp $
       name="schema_xml_file"
       select="concat('../../data/resources/',@directory,'/',@directory,'.xml')"/>
     <xsl:apply-templates 
-      select="document($schema_xml_file)/express/schema/type"/>
+      select="document($schema_xml_file)/express/schema/type">
+      <xsl:sort select="@name"/>
+    </xsl:apply-templates>
 
     <h3>References to SCHEMA EXPRESS entities</h3>
     The following XML constructs can be used to reference EXPRESS entities.
     <xsl:apply-templates 
-      select="document($schema_xml_file)/express/schema/entity"/>
+      select="document($schema_xml_file)/express/schema/entity">
+      <xsl:sort select="@name"/>
+    </xsl:apply-templates>
 
   </body>
 </HTML>

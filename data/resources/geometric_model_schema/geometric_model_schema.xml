@@ -1,0 +1,1309 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.4"
+    source="../data/resources/geometric_model_schema/geometric_model_schema.exp"/>
+
+  <schema name="geometric_model_schema">
+    <interface
+      kind="reference"
+      schema="geometry_schema">
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="topology_schema">
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="measure_schema">
+      <interfaced.item
+        name="length_measure"/>
+      <interfaced.item
+        name="parameter_value"/>
+      <interfaced.item
+        name="plane_angle_measure"/>
+      <interfaced.item
+        name="plane_angle_unit"/>
+      <interfaced.item
+        name="positive_length_measure"/>
+      <interfaced.item
+        name="positive_plane_angle_measure"/>
+    </interface>
+
+    <type name="boolean_operand">
+      <select
+        selectitems="solid_model half_space_solid csg_primitive boolean_result half_space_2d">
+      </select>
+
+    </type>
+    <type name="boolean_operator">
+      <enumeration
+        items="union intersection difference">
+      </enumeration>
+
+
+    </type>
+    <type name="csg_select">
+      <select
+        selectitems="boolean_result csg_primitive">
+      </select>
+
+    </type>
+    <type name="csg_primitive">
+      <select
+        selectitems="sphere ellipsoid block right_angular_wedge faceted_primitive rectangular_pyramid torus right_circular_cone eccentric_cone right_circular_cylinder cyclide_segment_solid primitive_2d">
+      </select>
+
+    </type>
+    <type name="geometric_set_select">
+      <select
+        selectitems="point curve surface">
+      </select>
+
+    </type>
+    <type name="surface_model">
+      <select
+        selectitems="shell_based_surface_model face_based_surface_model">
+      </select>
+
+    </type>
+    <type name="wireframe_model">
+      <select
+        selectitems="shell_based_wireframe_model edge_based_wireframe_model">
+      </select>
+
+    </type>
+    <entity
+      name="block"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="position">
+        <typename
+          name="axis2_placement_3d"/>
+      </explicit>
+      <explicit
+        name="x">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="y">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="z">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="boolean_result"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="operator">
+        <typename
+          name="boolean_operator"/>
+      </explicit>
+      <explicit
+        name="first_operand">
+        <typename
+          name="boolean_operand"/>
+      </explicit>
+      <explicit
+        name="second_operand">
+        <typename
+          name="boolean_operand"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="box_domain">
+      <explicit
+        name="corner">
+        <typename
+          name="cartesian_point"/>
+      </explicit>
+      <explicit
+        name="xlength">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="ylength">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="zlength">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(item &lt;* USEDIN(SELF,'')|             NOT ('GEOMETRIC_MODEL_SCHEMA.BOXED_HALF_SPACE'                    IN TYPEOF(item)))) = 0">
+      </where>
+    </entity>
+
+    <entity
+      name="boxed_half_space"
+      supertypes="half_space_solid">
+      <explicit
+        name="enclosure">
+        <typename
+          name="box_domain"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="brep_2d"
+      supertypes="solid_model">
+      <explicit
+        name="extent">
+        <typename
+          name="face"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF (['TOPOLOGY_SCHEMA.FACE_SURFACE',          'TOPOLOGY_SCHEMA.SUBFACE', 'TOPOLOGY_SCHEMA.ORIENTED_FACE'] *              TYPEOF (SELF.extent)) = 0">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (QUERY (bnds &lt;* extent.bounds |         NOT ('TOPOLOGY_SCHEMA.EDGE_LOOP' IN TYPEOF(bnds.bound))) ) = 0">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (QUERY (bnds &lt;* extent.bounds |         'TOPOLOGY_SCHEMA.FACE_OUTER_BOUND' IN TYPEOF(bnds))) = 1">
+      </where>
+      <where
+        label="WR4"
+        expression="SIZEOF(QUERY (elp_fbnds &lt;* QUERY (bnds &lt;* extent.bounds |         'TOPOLOGY_SCHEMA.EDGE_LOOP' IN TYPEOF(bnds.bound)) |          NOT (SIZEOF (QUERY (oe &lt;* elp_fbnds.bound\path.edge_list | NOT          (('TOPOLOGY_SCHEMA.EDGE_CURVE' IN TYPEOF(oe.edge_element)) AND         (oe.edge_element\geometric_representation_item.dim = 2)))) =                0))) = 0">
+      </where>
+    </entity>
+
+    <entity
+      name="brep_with_voids"
+      supertypes="manifold_solid_brep">
+      <explicit
+        name="voids">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="oriented_closed_shell"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="circular_area"
+      supertypes="primitive_2d">
+      <explicit
+        name="centre">
+        <typename
+          name="cartesian_point"/>
+      </explicit>
+      <explicit
+        name="radius">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="convex_hexahedron"
+      supertypes="faceted_primitive">
+      <where
+        label="WR1"
+        expression="SIZEOF(points) = 8 ">
+      </where>
+      <where
+        label="WR2"
+        expression="above_plane(points[1], points[2], points[3], points[4]) = 0.0">
+      </where>
+      <where
+        label="WR3"
+        expression="above_plane(points[5], points[8], points[7], points[6]) = 0.0">
+      </where>
+      <where
+        label="WR4"
+        expression="above_plane(points[1], points[4], points[8], points[5]) = 0.0">
+      </where>
+      <where
+        label="WR5"
+        expression="above_plane(points[4], points[3], points[7], points[8]) = 0.0">
+      </where>
+      <where
+        label="WR6"
+        expression="above_plane(points[3], points[2], points[6], points[7]) = 0.0">
+      </where>
+      <where
+        label="WR7"
+        expression="above_plane(points[1], points[5], points[6], points[2]) = 0.0">
+      </where>
+      <where
+        label="WR8"
+        expression="same_side([points[1], points[2], points[3]],                     [points[5], points[6], points[7], points[8]])">
+      </where>
+      <where
+        label="WR9"
+        expression="same_side([points[1], points[4], points[8]],                     [points[3], points[7], points[6], points[2]])">
+      </where>
+      <where
+        label="WR10"
+        expression="same_side([points[1], points[2], points[5]],                      [points[3], points[7], points[8], points[4]])">
+      </where>
+      <where
+        label="WR11"
+        expression="same_side([points[5], points[6], points[7]],                     [points[1], points[2], points[3], points[4]])">
+      </where>
+      <where
+        label="WR12"
+        expression="same_side([points[3], points[7], points[6]],                     [points[1], points[4], points[8], points[5]])">
+      </where>
+      <where
+        label="WR13"
+        expression="same_side([points[3], points[7], points[8]],                      [points[1], points[5], points[6], points[2]])">
+      </where>
+    </entity>
+
+    <entity
+      name="csg_solid"
+      supertypes="solid_model">
+      <explicit
+        name="tree_root_expression">
+        <typename
+          name="csg_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="cyclide_segment_solid"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="position">
+        <typename
+          name="axis2_placement_3d"/>
+      </explicit>
+      <explicit
+        name="radius1">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="radius2">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="cone_angle1">
+        <typename
+          name="plane_angle_measure"/>
+      </explicit>
+      <explicit
+        name="cone_angle2">
+        <typename
+          name="plane_angle_measure"/>
+      </explicit>
+      <explicit
+        name="turn_angle">
+        <typename
+          name="plane_angle_measure"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="eccentric_cone"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="position">
+        <typename
+          name="axis2_placement_3d"/>
+      </explicit>
+      <explicit
+        name="semi_axis_1">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="semi_axis_2">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="height">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="x_offset">
+        <typename
+          name="length_measure"/>
+      </explicit>
+      <explicit
+        name="y_offset">
+        <typename
+          name="length_measure"/>
+      </explicit>
+      <explicit
+        name="ratio">
+        <builtintype
+          type="REAL"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="ratio &gt;= 0.0">
+      </where>
+    </entity>
+
+    <entity
+      name="edge_based_wireframe_model"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="ebwm_boundary">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="connected_edge_set"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="face_based_surface_model"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="fbsm_faces">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="connected_face_set"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="geometric_curve_set"
+      supertypes="geometric_set">
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(temp &lt;* SELF\geometric_set.elements |                            'GEOMETRY_SCHEMA.SURFACE' IN TYPEOF(temp))) = 0">
+      </where>
+    </entity>
+
+    <entity
+      name="geometric_set"
+      super.expression="(ONEOF(geometric_curve_set,                       geometric_set_replica))"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="elements">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="geometric_set_select"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="ellipsoid"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="position">
+        <typename
+          name="axis2_placement_3d"/>
+      </explicit>
+      <explicit
+        name="semi_axis_1">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="semi_axis_2">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="semi_axis_3">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="elliptic_area"
+      supertypes="primitive_2d">
+      <explicit
+        name="position">
+        <typename
+          name="axis2_placement_2d"/>
+      </explicit>
+      <explicit
+        name="semi_axis_1">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="semi_axis_2">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="extruded_area_solid"
+      supertypes="swept_area_solid">
+      <explicit
+        name="extruded_direction">
+        <typename
+          name="direction"/>
+      </explicit>
+      <explicit
+        name="depth">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="dot_product(        (SELF\swept_area_solid.swept_area.basis_surface\        elementary_surface.position.p[3]), extruded_direction) &lt;&gt; 0.0">
+      </where>
+    </entity>
+
+    <entity
+      name="extruded_face_solid"
+      supertypes="swept_face_solid">
+      <explicit
+        name="extruded_direction">
+        <typename
+          name="direction"/>
+      </explicit>
+      <explicit
+        name="depth">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="dot_product(        (SELF\swept_face_solid.swept_face.face_geometry\        elementary_surface.position.p[3]), extruded_direction) &lt;&gt; 0.0">
+      </where>
+    </entity>
+
+    <entity
+      name="faceted_brep"
+      supertypes="manifold_solid_brep">
+    </entity>
+
+    <entity
+      name="faceted_primitive"
+      super.expression="(ONEOF(tetrahedron, convex_hexahedron))"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="points">
+        <aggregate
+          type="LIST"
+          lower="4"
+          upper="?"/>
+        <typename
+          name="UNIQUE"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="points[1].dim = 3 ">
+      </where>
+    </entity>
+
+    <entity
+      name="geometric_set_replica"
+      supertypes="geometric_set">
+      <explicit
+        name="parent_set">
+        <typename
+          name="geometric_set"/>
+      </explicit>
+      <explicit
+        name="transformation">
+        <typename
+          name="cartesian_transformation_operator"/>
+      </explicit>
+      <derived
+        name="SELF\geometric_set.elements"
+        expression="build_transformed_set(transformation, parent_set)">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="geometric_set_select"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="acyclic_set_replica(SELF, parent_set)">
+      </where>
+    </entity>
+
+    <entity
+      name="half_space_2d"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="base_curve">
+        <typename
+          name="curve"/>
+      </explicit>
+      <explicit
+        name="agreement_flag">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="half_space_solid"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="base_surface">
+        <typename
+          name="surface"/>
+      </explicit>
+      <explicit
+        name="agreement_flag">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="manifold_solid_brep"
+      supertypes="solid_model">
+      <explicit
+        name="outer">
+        <typename
+          name="closed_shell"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="polygonal_area"
+      supertypes="primitive_2d">
+      <explicit
+        name="bounds">
+        <aggregate
+          type="LIST"
+          lower="3"
+          upper="?"/>
+        <typename
+          name="UNIQUE"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="primitive_2d"
+      supertypes="geometric_representation_item">
+      <where
+        label="WR1"
+        expression="SELF\geometric_representation_item.dim = 2">
+      </where>
+    </entity>
+
+    <entity
+      name="rectangle_domain">
+      <explicit
+        name="corner">
+        <typename
+          name="cartesian_point"/>
+      </explicit>
+      <explicit
+        name="xlength">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="ylength">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(item &lt;* USEDIN(SELF, '')| NOT   ('GEOMETRIC_MODEL_SCHEMA.RECTANGLED_HALF_SPACE' IN TYPEOF(item)))) = 0">
+      </where>
+    </entity>
+
+    <entity
+      name="rectangled_half_space"
+      supertypes="half_space_2d">
+      <explicit
+        name="enclosure">
+        <typename
+          name="rectangle_domain"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="rectangular_area"
+      supertypes="primitive_2d">
+      <explicit
+        name="position">
+        <typename
+          name="axis2_placement_2d"/>
+      </explicit>
+      <explicit
+        name="x">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="y">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="rectangular_pyramid"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="position">
+        <typename
+          name="axis2_placement_3d"/>
+      </explicit>
+      <explicit
+        name="xlength">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="ylength">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="height">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="revolved_area_solid"
+      supertypes="swept_area_solid">
+      <explicit
+        name="axis">
+        <typename
+          name="axis1_placement"/>
+      </explicit>
+      <explicit
+        name="angle">
+        <typename
+          name="plane_angle_measure"/>
+      </explicit>
+      <derived
+        name="axis_line"
+        expression="representation_item('')||                    geometric_representation_item()|| curve()||                    line(axis.location, representation_item('')||                    geometric_representation_item()||                    vector(axis.z, 1.0))">
+        <typename
+          name="line "/>
+      </derived>
+    </entity>
+
+    <entity
+      name="revolved_face_solid"
+      supertypes="swept_face_solid">
+      <explicit
+        name="axis">
+        <typename
+          name="axis1_placement"/>
+      </explicit>
+      <explicit
+        name="angle">
+        <typename
+          name="plane_angle_measure"/>
+      </explicit>
+      <derived
+        name="axis_line"
+        expression="representation_item('')||                     geometric_representation_item()|| curve()||                     line(axis.location, representation_item('')||                     geometric_representation_item()||                     vector(axis.z, 1.0))">
+        <typename
+          name="line "/>
+      </derived>
+    </entity>
+
+    <entity
+      name="right_angular_wedge"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="position">
+        <typename
+          name="axis2_placement_3d"/>
+      </explicit>
+      <explicit
+        name="x">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="y">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="z">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="ltx">
+        <typename
+          name="length_measure"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="((0.0 &lt;= ltx) AND (ltx &lt; x))">
+      </where>
+    </entity>
+
+    <entity
+      name="right_circular_cone"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="position">
+        <typename
+          name="axis1_placement"/>
+      </explicit>
+      <explicit
+        name="height">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="radius">
+        <typename
+          name="length_measure"/>
+      </explicit>
+      <explicit
+        name="semi_angle">
+        <typename
+          name="plane_angle_measure"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="radius &gt;= 0.0">
+      </where>
+    </entity>
+
+    <entity
+      name="right_circular_cylinder"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="position">
+        <typename
+          name="axis1_placement"/>
+      </explicit>
+      <explicit
+        name="height">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="radius">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="sectioned_spine"
+      supertypes="geometric_curve_set">
+      <explicit
+        name="cross_sections">
+        <aggregate
+          type="LIST"
+          lower="2"
+          upper="?"/>
+        <typename
+          name="curve"/>
+      </explicit>
+      <explicit
+        name="spine_points">
+        <aggregate
+          type="LIST"
+          lower="2"
+          upper="?"/>
+        <typename
+          name="point"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF(SELF\geometric_set.elements) = 1">
+      </where>
+      <where
+        label="WR2"
+        expression="'GEOMETRY_SCHEMA.CURVE' IN                     TYPEOF(SELF\geometric_set.elements[1])">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF(cross_sections) = SIZEOF(spine_points)">
+      </where>
+      <where
+        label="WR4"
+        expression="SELF\geometric_representation_item.dim = 3">
+      </where>
+    </entity>
+
+    <entity
+      name="shell_based_surface_model"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="sbsm_boundary">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="shell"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="constraints_geometry_shell_based_surface_model(SELF)">
+      </where>
+    </entity>
+
+    <entity
+      name="shell_based_wireframe_model"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="sbwm_boundary">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="shell"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="constraints_geometry_shell_based_wireframe_model(SELF)">
+      </where>
+    </entity>
+
+    <entity
+      name="solid_replica"
+      supertypes="solid_model">
+      <explicit
+        name="parent_solid">
+        <typename
+          name="solid_model"/>
+      </explicit>
+      <explicit
+        name="transformation">
+        <typename
+          name="cartesian_transformation_operator_3d"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="acyclic_solid_replica(SELF, parent_solid)">
+      </where>
+      <where
+        label="WR2"
+        expression="parent_solid\geometric_representation_item.dim = 3">
+      </where>
+    </entity>
+
+    <entity
+      name="solid_model"
+      super.expression="(ONEOF( csg_solid, manifold_solid_brep, swept_face_solid,                        swept_area_solid, solid_replica,                        brep_2d, trimmed_volume))"
+      supertypes="geometric_representation_item">
+    </entity>
+
+    <entity
+      name="sphere"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="radius">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="centre">
+        <typename
+          name="point"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="surface_curve_swept_area_solid"
+      supertypes="swept_area_solid">
+      <explicit
+        name="directrix">
+        <typename
+          name="curve"/>
+      </explicit>
+      <explicit
+        name="start_param">
+        <builtintype
+          type="REAL"/>
+      </explicit>
+      <explicit
+        name="end_param">
+        <builtintype
+          type="REAL"/>
+      </explicit>
+      <explicit
+        name="reference_surface">
+        <typename
+          name="surface"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="(NOT ('GEOMETRY_SCHEMA.SURFACE_CURVE' IN TYPEOF(directrix))) OR          (reference_surface IN (directrix\surface_curve.basis_surface))">
+      </where>
+    </entity>
+
+    <entity
+      name="surface_curve_swept_face_solid"
+      supertypes="swept_face_solid">
+      <explicit
+        name="directrix">
+        <typename
+          name="curve"/>
+      </explicit>
+      <explicit
+        name="start_param">
+        <builtintype
+          type="REAL"/>
+      </explicit>
+      <explicit
+        name="end_param">
+        <builtintype
+          type="REAL"/>
+      </explicit>
+      <explicit
+        name="reference_surface">
+        <typename
+          name="surface"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="(NOT ('GEOMETRY_SCHEMA.SURFACE_CURVE' IN TYPEOF(directrix))) OR          (reference_surface IN (directrix\surface_curve.basis_surface))">
+      </where>
+    </entity>
+
+    <entity
+      name="swept_area_solid"
+      super.expression="(ONEOF(revolved_area_solid, extruded_area_solid,                       surface_curve_swept_area_solid))"
+      supertypes="solid_model">
+      <explicit
+        name="swept_area">
+        <typename
+          name="curve_bounded_surface"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="'GEOMETRY_SCHEMA.PLANE' IN TYPEOF(swept_area.basis_surface)">
+      </where>
+    </entity>
+
+    <entity
+      name="swept_face_solid"
+      super.expression="(ONEOF(extruded_face_solid, revolved_face_solid,                 surface_curve_swept_face_solid))"
+      supertypes="solid_model">
+      <explicit
+        name="swept_face">
+        <typename
+          name="face_surface"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="'GEOMETRY_SCHEMA.PLANE' IN TYPEOF(swept_face.face_geometry)">
+      </where>
+    </entity>
+
+    <entity
+      name="tetrahedron"
+      supertypes="faceted_primitive">
+      <where
+        label="WR1"
+        expression="SIZEOF(points) = 4 ">
+      </where>
+      <where
+        label="WR2"
+        expression="above_plane(points[1], points[2], points[3], points[4]) &lt;&gt; 0.0">
+      </where>
+    </entity>
+
+    <entity
+      name="torus"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="position">
+        <typename
+          name="axis1_placement"/>
+      </explicit>
+      <explicit
+        name="major_radius">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <explicit
+        name="minor_radius">
+        <typename
+          name="positive_length_measure"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="major_radius &gt; minor_radius">
+      </where>
+    </entity>
+
+    <entity
+      name="trimmed_volume"
+      supertypes="solid_model">
+      <explicit
+        name="basis_volume">
+        <typename
+          name="volume"/>
+      </explicit>
+      <explicit
+        name="u1">
+        <typename
+          name="parameter_value"/>
+      </explicit>
+      <explicit
+        name="u2">
+        <typename
+          name="parameter_value"/>
+      </explicit>
+      <explicit
+        name="v1">
+        <typename
+          name="parameter_value"/>
+      </explicit>
+      <explicit
+        name="v2">
+        <typename
+          name="parameter_value"/>
+      </explicit>
+      <explicit
+        name="w1">
+        <typename
+          name="parameter_value"/>
+      </explicit>
+      <explicit
+        name="w2">
+        <typename
+          name="parameter_value"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="u1 &lt;&gt; u2">
+      </where>
+      <where
+        label="WR2"
+        expression="v1 &lt;&gt; v2">
+      </where>
+      <where
+        label="WR3"
+        expression="w1 &lt;&gt; w2">
+      </where>
+    </entity>
+
+    <function
+      name="acyclic_set_replica">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="rep">
+        <typename
+          name="geometric_set_replica"/>
+      </parameter>
+      <parameter
+        name="parent">
+        <typename
+          name="geometric_set"/>
+      </parameter>
+      <algorithm>
+   IF NOT (('GEOMETRY_SCHEMA.GEOMETRIC_SET_REPLICA') IN TYPEOF(parent))
+        THEN  RETURN (TRUE);
+   END_IF;
+ (* Return TRUE if the parent is not of type geometric_set_replica *)
+   IF (parent :=: rep) THEN
+      RETURN (FALSE);
+  (* Return FALSE if the parent is the same geometric_set_replica,
+     otherwise, call function again with the parents own parent_set.  *)
+    ELSE RETURN(acyclic_set_replica(rep,
+                          parent\geometric_set_replica.parent_set));
+    END_IF;
+      </algorithm>
+
+    </function>
+
+    <function
+      name="acyclic_solid_replica">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="rep">
+        <typename
+          name="solid_replica"/>
+      </parameter>
+      <parameter
+        name="parent">
+        <typename
+          name="solid_model"/>
+      </parameter>
+      <algorithm>
+   IF NOT (('GEOMETRY_SCHEMA.SOLID_REPLICA') IN TYPEOF(parent)) THEN
+      RETURN (TRUE);
+   END_IF;
+ (* Return TRUE if the parent is not of type solid_replica. *)
+   IF (parent :=: rep) THEN
+      RETURN (FALSE);
+  (* Return FALSE if the parent is the same solid_replica, otherwise,
+   call function again with the parents own parent_solid.     *)
+    ELSE RETURN(acyclic_solid_replica(rep,
+                      parent\solid_replica.parent_solid));
+    END_IF;
+      </algorithm>
+
+    </function>
+
+    <function
+      name="build_transformed_set">
+      <aggregate
+        type="SET"
+        lower="0"
+        upper="?"/>
+      <typename
+        name="geometric_set_select"/>
+      <parameter
+        name="tr">
+        <typename
+          name="cartesian_transformation_operator"/>
+      </parameter>
+      <parameter
+        name="gset">
+        <typename
+          name="geometric_set"/>
+      </parameter>
+      <algorithm>
+    LOCAL
+     s          : SET [1:?] OF geometric_set_select := gset.elements;
+     trset      : SET [0:?] OF geometric_set_select := [];
+    END_LOCAL;
+    REPEAT j := 1 TO SIZEOF(s);
+      IF ('GEOMETRY_SCHEMA.CURVE' IN TYPEOF(s[j])) THEN
+         trset := trset + curve_replica(s[j],tr); ELSE
+         IF ('GEOMETRY_SCHEMA.POINT' IN TYPEOF(s[j])) THEN
+           trset := trset + point_replica(s[j],tr); ELSE
+           IF ('GEOMETRY_SCHEMA.SURFACE' IN TYPEOF(s[j])) THEN
+             trset := trset + surface_replica(s[j],
+                tr || cartesian_transformation_operator_3d (?));
+           END_IF;
+         END_IF;
+      END_IF;
+    END_REPEAT;
+    RETURN(trset);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="constraints_geometry_shell_based_surface_model">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="m">
+        <typename
+          name="shell_based_surface_model"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     result : BOOLEAN := TRUE;
+   END_LOCAL;
+   
+   REPEAT j := 1 TO SIZEOF(m.sbsm_boundary);
+     IF (NOT ('TOPOLOGY_SCHEMA.OPEN_SHELL' IN
+                     TYPEOF(m.sbsm_boundary[j])) AND
+        (NOT ('TOPOLOGY_SCHEMA.CLOSED_SHELL' IN
+           TYPEOF(m.sbsm_boundary[j]))))
+     THEN
+       result := FALSE;
+       RETURN(result);
+       (* A surface model is composed of OPEN_ and CLOSED_SHELLs. *)
+     END_IF;
+   END_REPEAT;
+   RETURN(result);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="constraints_geometry_shell_based_wireframe_model">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="m">
+        <typename
+          name="shell_based_wireframe_model"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     result : BOOLEAN := TRUE;
+   END_LOCAL;
+
+   REPEAT j := 1 TO SIZEOF(m.sbwm_boundary);
+     IF (NOT ('TOPOLOGY_SCHEMA.WIRE_SHELL' IN
+                    TYPEOF(m.sbwm_boundary[j])) AND
+        (NOT ('TOPOLOGY_SCHEMA.VERTEX_SHELL' IN
+                      TYPEOF(m.sbwm_boundary[j]))))
+     THEN
+       result := FALSE;
+       RETURN(result);
+       (* A wireframe model is composed of WIRE_ and VERTEX_SHELLs *)
+     END_IF;
+   END_REPEAT;
+   RETURN(result);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="msb_shells">
+      <aggregate
+        type="SET"
+        lower="1"
+        upper="?"/>
+      <typename
+        name="closed_shell"/>
+      <parameter
+        name="brep">
+        <typename
+          name="manifold_solid_brep"/>
+      </parameter>
+      <algorithm>
+ 
+     IF SIZEOF (QUERY (msbtype &lt;* TYPEOF (brep) |
+       msbtype LIKE '*BREP_WITH_VOIDS')) &gt;= 1 THEN
+       RETURN (brep\brep_with_voids.voids + brep.outer);
+     ELSE
+       RETURN([brep.outer]);
+     END_IF;
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.4"
+    source="../data/resources/material_property_definition_schema/material_property_definition_schema.exp"/>
+
+  <schema name="material_property_definition_schema">
+    <interface
+      kind="reference"
+      schema="product_definition_schema">
+      <interfaced.item
+        name="product_definition_relationship"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="product_property_definition_schema">
+      <interfaced.item
+        name="characterized_definition"/>
+      <interfaced.item
+        name="property_definition"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+      <interfaced.item
+        name="bag_to_set"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="measure_schema">
+      <interfaced.item
+        name="measure_with_unit"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="material_property_representation_schema">
+      <interfaced.item
+        name="material_property_representation"/>
+    </interface>
+
+    <type name="characterized_material_property">
+      <select
+        selectitems="material_property_representation product_material_composition_relationship">
+      </select>
+
+    </type>
+    <entity
+      name="material_property"
+      supertypes="property_definition">
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="SELF\property_definition.name"/>
+        <unique.attribute
+          attribute="SELF\property_definition.definition"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="('PRODUCT_PROPERTY_DEFINITION_SCHEMA.CHARACTERIZED_OBJECT' IN          TYPEOF(SELF\property_definition.definition)) OR       (SIZEOF(bag_to_set(USEDIN(SELF ,                     'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +                     'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) -              QUERY(temp &lt;* bag_to_set(USEDIN(SELF ,                       'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +                       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) |                       ('MATERIAL_PROPERTY_REPRESENTATION_SCHEMA.' +                      'MATERIAL_PROPERTY_REPRESENTATION' IN                      TYPEOF(temp)))) = 0)">
+      </where>
+    </entity>
+
+    <entity
+      name="property_definition_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="relating_property_definition">
+        <typename
+          name="property_definition"/>
+      </explicit>
+      <explicit
+        name="related_property_definition">
+        <typename
+          name="property_definition"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="material_designation">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="definitions">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="characterized_definition"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="material_designation_characterization">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="designation">
+        <typename
+          name="material_designation"/>
+      </explicit>
+      <explicit
+        name="property">
+        <typename
+          name="characterized_material_property"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="product_material_composition_relationship"
+      supertypes="product_definition_relationship">
+      <explicit
+        name="class">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="constituent_amount">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="measure_with_unit"/>
+      </explicit>
+      <explicit
+        name="composition_basis">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="determination_method">
+        <typename
+          name="text"/>
+      </explicit>
+    </entity>
+
+    <function
+      name="acyclic_property_definition_relationship">
+      <builtintype
+        type="LOGICAL"/>
+      <parameter
+        name="relation">
+        <typename
+          name="property_definition_relationship"/>
+      </parameter>
+      <parameter
+        name="relatives">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="property_definition"/>
+      </parameter>
+      <parameter
+        name="specific_relation">
+        <builtintype
+          type="STRING"/>
+      </parameter>
+      <algorithm>
+
+  LOCAL
+    x                : SET OF property_definition_relationship;
+  END_LOCAL;
+
+  IF relation.relating_property_definition IN 
+            relatives THEN
+    RETURN (FALSE);
+  END_IF;             -- IN is based in instance equality
+
+  x := QUERY (pd &lt;* bag_to_set (USEDIN
+       (relation.relating_property_definition,
+        'MATERIAL_PROPERTY_DEFINITION_SCHEMA.' +
+        'PROPERTY_DEFINITION_RELATIONSHIP.' +
+        'RELATED_PROPERTY_DEFINITION')) |
+         specific_relation IN TYPEOF (pd));
+
+  REPEAT I := 1 TO HIINDEX(x);             -- pre-checked loop
+    IF NOT acyclic_property_definition_relationship
+      (x[i],
+       relatives + relation.relating_property_definition,
+       specific_relation) THEN
+      RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+
+  RETURN(TRUE);
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

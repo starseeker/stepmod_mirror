@@ -1,0 +1,636 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.4"
+    source="../data/resources/representation_schema/representation_schema.exp"/>
+
+  <schema name="representation_schema">
+    <interface
+      kind="reference"
+      schema="basic_attribute_schema">
+      <interfaced.item
+        name="get_description_value"/>
+      <interfaced.item
+        name="get_id_value"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="measure_schema">
+      <interfaced.item
+        name="measure_value"/>
+      <interfaced.item
+        name="measure_with_unit"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="bag_to_set"/>
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+
+    <type name="compound_item_definition">
+      <select
+        selectitems="list_representation_item set_representation_item">
+      </select>
+
+    </type>
+    <type name="founded_item_select">
+      <select
+        selectitems="founded_item representation_item">
+      </select>
+
+    </type>
+    <type name="list_representation_item">
+      <typename
+        name="LIST [1:?] OF representation_item"/>
+
+    </type>
+    <type name="set_representation_item">
+      <typename
+        name="SET [1:?] OF representation_item"/>
+
+    </type>
+    <type name="transformation">
+      <select
+        selectitems="item_defined_transformation functionally_defined_transformation">
+      </select>
+
+    </type>
+    <entity
+      name="compound_representation_item"
+      supertypes="representation_item">
+      <explicit
+        name="item_element">
+        <typename
+          name="compound_item_definition"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="definitional_representation"
+      supertypes="representation">
+      <where
+        label="WR1"
+        expression="'REPRESENTATION_SCHEMA.PARAMETRIC_REPRESENTATION_CONTEXT' IN        TYPEOF (SELF\representation.context_of_items )">
+      </where>
+    </entity>
+
+    <entity
+      name="founded_item">
+    </entity>
+
+    <entity
+      name="functionally_defined_transformation">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="global_uncertainty_assigned_context"
+      supertypes="representation_context">
+      <explicit
+        name="uncertainty">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="uncertainty_measure_with_unit"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="item_defined_transformation">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="transform_item_1">
+        <typename
+          name="representation_item"/>
+      </explicit>
+      <explicit
+        name="transform_item_2">
+        <typename
+          name="representation_item"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="mapped_item"
+      supertypes="representation_item">
+      <explicit
+        name="mapping_source">
+        <typename
+          name="representation_map"/>
+      </explicit>
+      <explicit
+        name="mapping_target">
+        <typename
+          name="representation_item"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="acyclic_mapped_representation(using_representations(SELF), [SELF])">
+      </where>
+    </entity>
+
+    <entity
+      name="parametric_representation_context"
+      supertypes="representation_context">
+    </entity>
+
+    <entity
+      name="representation">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="representation_item"/>
+      </explicit>
+      <explicit
+        name="context_of_items">
+        <typename
+          name="representation_context"/>
+      </explicit>
+      <derived
+        name="id"
+        expression="get_id_value (SELF)">
+        <typename
+          name="identifier "/>
+      </derived>
+      <derived
+        name="description"
+        expression="get_description_value (SELF)">
+        <typename
+          name="text "/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                             'ID_ATTRIBUTE.IDENTIFIED_ITEM'))       &lt;= 1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                             'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM'))       &lt;= 1">
+      </where>
+    </entity>
+
+    <entity
+      name="representation_context">
+      <explicit
+        name="context_identifier">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="context_type">
+        <typename
+          name="text"/>
+      </explicit>
+      <inverse
+        name="representations_in_context"
+        entity="representation"
+        attribute="context_of_items">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+      </inverse>
+    </entity>
+
+    <entity
+      name="representation_item">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF(using_representations(SELF)) &gt; 0">
+      </where>
+    </entity>
+
+    <entity
+      name="representation_item_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="relating_representation_item">
+        <typename
+          name="representation_item"/>
+      </explicit>
+      <explicit
+        name="related_representation_item">
+        <typename
+          name="representation_item"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="representation_map">
+      <explicit
+        name="mapping_origin">
+        <typename
+          name="representation_item"/>
+      </explicit>
+      <explicit
+        name="mapped_representation">
+        <typename
+          name="representation"/>
+      </explicit>
+      <inverse
+        name="map_usage"
+        entity="mapped_item"
+        attribute="mapping_source">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+      </inverse>
+      <where
+        label="WR1"
+        expression="item_in_context(SELF.mapping_origin,       SELF.mapped_representation.context_of_items)">
+      </where>
+    </entity>
+
+    <entity
+      name="representation_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="rep_1">
+        <typename
+          name="representation"/>
+      </explicit>
+      <explicit
+        name="rep_2">
+        <typename
+          name="representation"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="representation_relationship_with_transformation"
+      supertypes="representation_relationship">
+      <explicit
+        name="transformation_operator">
+        <typename
+          name="transformation"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SELF\representation_relationship.rep_1.context_of_items   :&lt;&gt;: SELF\representation_relationship.rep_2.context_of_items">
+      </where>
+    </entity>
+
+    <entity
+      name="uncertainty_assigned_representation"
+      supertypes="representation">
+      <explicit
+        name="uncertainty">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="uncertainty_measure_with_unit"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="uncertainty_measure_with_unit"
+      supertypes="measure_with_unit">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="valid_measure_value (SELF\measure_with_unit.value_component)">
+      </where>
+    </entity>
+
+    <entity
+      name="value_representation_item"
+      supertypes="representation_item">
+      <explicit
+        name="value_component">
+        <typename
+          name="measure_value"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (rep &lt;* using_representations (SELF) |       NOT ('MEASURE_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT'       IN TYPEOF (rep.context_of_items)       ))) = 0">
+      </where>
+    </entity>
+
+    <function
+      name="acyclic_mapped_representation">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="parent_set">
+        <aggregate
+          type="SET"/>
+        <typename
+          name="representation"/>
+      </parameter>
+      <parameter
+        name="children_set">
+        <aggregate
+          type="SET"/>
+        <typename
+          name="representation_item"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    x,y : SET OF representation_item;
+  END_LOCAL;
+  -- Determine the subset of children_set that are mapped_items
+  x := QUERY(z &lt;* children_set | 'REPRESENTATION_SCHEMA.MAPPED_ITEM'
+       IN TYPEOF(z));
+  -- Determine that the subset has elements
+  IF SIZEOF(x) &gt; 0 THEN
+    -- Check each element of the set
+    REPEAT i := 1 TO HIINDEX(x);
+      -- If the selected element maps a representation in the
+      -- parent_set, then return false
+      IF x[i]\mapped_item.mapping_source.mapped_representation
+        IN parent_set THEN
+        RETURN (FALSE);
+      END_IF;
+      -- Recursive check of the items of mapped_representation
+      IF NOT acyclic_mapped_representation
+        (parent_set +
+        x[i]\mapped_item.mapping_source.mapped_representation,
+        x[i]\mapped_item.mapping_source.mapped_representation.items) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  -- Determine the subset of children_set that are not
+  -- mapped_items
+  x := children_set - x;
+  -- Determine that the subset has elements
+  IF SIZEOF(x) &gt; 0 THEN
+    -- For each element of the set:
+    REPEAT i := 1 TO HIINDEX(x);
+      -- Determine the set of representation_items referenced
+      y := QUERY(z &lt;* bag_to_set( USEDIN(x[i], '')) |
+           'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(z));
+      -- Recursively check for an offending mapped_item
+      -- Return false for any errors encountered
+      IF NOT acyclic_mapped_representation(parent_set, y) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  -- Return true when all elements are checked and
+  -- no error conditions found
+  RETURN (TRUE);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="item_in_context">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="item">
+        <typename
+          name="representation_item"/>
+      </parameter>
+      <parameter
+        name="cntxt">
+        <typename
+          name="representation_context"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    y : BAG OF representation_item;
+  END_LOCAL;
+  -- If there is one or more representation using both the item
+  -- and cntxt return true.
+  IF SIZEOF(USEDIN(item,'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS')
+    * cntxt.representations_in_context) &gt; 0 THEN
+    RETURN (TRUE);
+    -- Determine the bag of representation_items that reference
+    -- item
+    ELSE y := QUERY(z &lt;* USEDIN (item , '') |
+           'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(z));
+      -- Ensure that the bag is not empty
+      IF SIZEOF(y) &gt; 0 THEN
+      -- For each element in the bag
+      REPEAT i := 1 TO HIINDEX(y);
+        -- Check to see it is an item in the input cntxt.
+        IF item_in_context(y[i], cntxt) THEN
+          RETURN (TRUE);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+  END_IF;
+  -- Return false when all possible branches have been checked
+  -- with no success.
+  RETURN (FALSE);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="using_items">
+      <aggregate
+        type="SET"/>
+      <typename
+        name="founded_item_select"/>
+      <parameter
+        name="item">
+        <typename
+          name="founded_item_select"/>
+      </parameter>
+      <parameter
+        name="checked_items">
+        <aggregate
+          type="SET"/>
+        <typename
+          name="founded_item_select"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    new_check_items    : SET OF founded_item_select;
+    result_items       : SET OF founded_item_select;
+    next_items         : SET OF founded_item_select;
+  END_LOCAL;
+  result_items := [];
+  new_check_items := checked_items + item;
+  -- Find the set of representation_items or founded_items
+  -- in which item is used directly.
+  next_items := QUERY(z &lt;* bag_to_set( USEDIN(item , '')) |
+    ('REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(z)) OR
+    ('REPRESENTATION_SCHEMA.FOUNDED_ITEM'        IN TYPEOF(z)));
+  -- If the set of next_items is not empty;
+  IF SIZEOF(next_items) &gt; 0 THEN
+    -- For each element in the set, find the using_items recursively
+    REPEAT i := 1 TO HIINDEX(next_items);
+      -- Check for loop in data model, i.e. one of the next_items
+      -- occurred earlier in the set of check_items;
+      IF NOT(next_items[i] IN new_check_items) THEN
+        result_items := result_items + next_items[i] +
+                        using_items(next_items[i],new_check_items);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  -- return the set of representation_items or founded_items
+  -- in which the input item is used directly and indirectly.
+  RETURN (result_items);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="using_representations">
+      <aggregate
+        type="SET"/>
+      <typename
+        name="representation"/>
+      <parameter
+        name="item">
+        <typename
+          name="founded_item_select"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    results            : SET OF representation;
+    result_bag         : BAG OF representation;
+    intermediate_items : SET OF founded_item_select;
+  END_LOCAL;
+  -- Find the representations in which the item is used and add to the
+  -- results set.
+  results := [];
+  result_bag :=
+USEDIN(item,'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS');
+  IF SIZEOF(result_bag) &gt; 0 THEN
+    REPEAT i := 1 TO HIINDEX(result_bag);
+      results := results + result_bag[i];
+    END_REPEAT;
+  END_IF;
+  -- Find all representation_items or founded_items
+  -- by which item is referenced directly or indirectly.
+  intermediate_items := using_items(item,[]);
+  -- If the set of intermediate items is not empty;
+  IF SIZEOF(intermediate_items) &gt; 0 THEN
+    -- For each element in the set, add the
+    -- representations of that element.
+    REPEAT i := 1 TO HIINDEX(intermediate_items);
+      result_bag := USEDIN(intermediate_items[i],
+                    'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS');
+      IF SIZEOF(result_bag) &gt; 0 THEN
+        REPEAT j := 1 TO HIINDEX(result_bag);
+          results := results + result_bag[j];
+        END_REPEAT;
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  -- Return the set of representation in which the input item is
+  -- used directly and indirectly (through intervening
+  -- representation_items or founded items).
+  RETURN (results);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="valid_measure_value">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="m">
+        <typename
+          name="measure_value"/>
+      </parameter>
+      <algorithm>
+  IF ('REAL' IN TYPEOF (m)) THEN
+  RETURN (m &gt; 0.0);
+  ELSE
+    IF ('INTEGER' IN TYPEOF (m)) THEN
+    RETURN (m &gt; 0);
+    ELSE
+      RETURN (TRUE);
+    END_IF;
+  END_IF;
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.4"
+    source="../data/resources/shape_dimension_schema/shape_dimension_schema.exp"/>
+
+  <schema name="shape_dimension_schema">
+    <interface
+      kind="reference"
+      schema="measure_schema">
+      <interfaced.item
+        name="measure_with_unit"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="representation_schema">
+      <interfaced.item
+        name="representation"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="qualified_measure_schema">
+      <interfaced.item
+        name="measure_representation_item"/>
+      <interfaced.item
+        name="qualified_representation_item"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="product_property_representation_schema">
+      <interfaced.item
+        name="shape_representation"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="product_property_definition_schema">
+      <interfaced.item
+        name="shape_aspect"/>
+      <interfaced.item
+        name="shape_aspect_relationship"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+
+    <type name="angle_relator">
+      <enumeration
+        items="equal large small">
+      </enumeration>
+
+
+    </type>
+    <type name="dimensional_characteristic">
+      <select
+        selectitems="dimensional_location dimensional_size">
+      </select>
+
+    </type>
+    <entity
+      name="angular_location"
+      supertypes="dimensional_location">
+      <explicit
+        name="angle_selection">
+        <typename
+          name="angle_relator"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="angular_size"
+      supertypes="dimensional_size">
+      <explicit
+        name="angle_selection">
+        <typename
+          name="angle_relator"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="dimensional_characteristic_representation">
+      <explicit
+        name="dimension">
+        <typename
+          name="dimensional_characteristic"/>
+      </explicit>
+      <explicit
+        name="representation">
+        <typename
+          name="shape_dimension_representation"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="dimensional_location"
+      super.expression="(ONEOF (angular_location,                       dimensional_location_with_path))"
+      supertypes="shape_aspect_relationship">
+    </entity>
+
+    <entity
+      name="dimensional_location_with_path"
+      supertypes="dimensional_location">
+      <explicit
+        name="path">
+        <typename
+          name="shape_aspect"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="dimensional_size"
+      super.expression="(ONEOF (angular_size,                       dimensional_size_with_path))">
+      <explicit
+        name="applies_to">
+        <typename
+          name="shape_aspect"/>
+      </explicit>
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="applies_to.product_definitional = TRUE">
+      </where>
+    </entity>
+
+    <entity
+      name="dimensional_size_with_path"
+      supertypes="dimensional_size">
+      <explicit
+        name="path">
+        <typename
+          name="shape_aspect"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="shape_dimension_representation"
+      supertypes="shape_representation">
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (temp &lt;* SELF\representation.items |     NOT ('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM'         IN TYPEOF (temp)))) = 0">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (SELF\representation.items) &lt;= 3">
+      </where>
+      <where
+        label="WR3"
+        expression="SIZEOF (QUERY (pos_mri &lt;* QUERY (real_mri &lt;*        SELF\representation.items | 'REAL' IN TYPEOF        (real_mri\measure_with_unit.value_component) ) |             NOT  (pos_mri\measure_with_unit.value_component &gt; 0.0 ))) = 0">
+      </where>
+    </entity>
+
+  </schema>
+
+</express>

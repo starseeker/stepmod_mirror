@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.4"
+    source="../data/resources/draughting_element_schema/draughting_element_schema.exp"/>
+
+  <schema name="draughting_element_schema">
+    <interface
+      kind="reference"
+      schema="geometry_schema">
+      <interfaced.item
+        name="geometric_representation_item"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="presentation_definition_schema">
+      <interfaced.item
+        name="annotation_occurrence"/>
+      <interfaced.item
+        name="annotation_curve_occurrence"/>
+      <interfaced.item
+        name="annotation_text_occurrence"/>
+      <interfaced.item
+        name="annotation_symbol_occurrence"/>
+    </interface>
+
+    <type name="draughting_callout_element">
+      <select
+        selectitems="annotation_text_occurrence annotation_symbol_occurrence annotation_curve_occurrence">
+      </select>
+
+    </type>
+    <type name="dimension_extent_usage">
+      <enumeration
+        items="origin target">
+      </enumeration>
+
+
+    </type>
+    <entity
+      name="dimension_curve"
+      supertypes="annotation_curve_occurrence">
+      <where
+        label="wr1"
+        expression="(SIZEOF(          QUERY(dct &lt;* USEDIN(SELF,'DRAUGHTING_ELEMENT_SCHEMA.' +                'TERMINATOR_SYMBOL.ANNOTATED_CURVE')               | (('DRAUGHTING_ELEMENT_SCHEMA.'+                  'DIMENSION_CURVE_TERMINATOR' IN TYPEOF(dct))                  ))          ) &lt;= 2)">
+      </where>
+      <where
+        label="wr2"
+        expression="SIZEOF(            QUERY( dcdc &lt;* USEDIN(SELF,'DRAUGHTING_ELEMENT_SCHEMA.' +                   'DRAUGHTING_CALLOUT.CONTENTS') |                   ('DRAUGHTING_ELEMENT_SCHEMA.'+                    'DIMENSION_CURVE_DIRECTED_CALLOUT' IN TYPEOF(dcdc)))       )&gt;= 1">
+      </where>
+      <where
+        label="wr3"
+        expression="(SIZEOF(            QUERY(dct1 &lt;* USEDIN(SELF,'DRAUGHTING_ELEMENT_SCHEMA.' +                  'TERMINATOR_SYMBOL.ANNOTATED_CURVE')                | (('DRAUGHTING_ELEMENT_SCHEMA.'+                  'DIMENSION_CURVE_TERMINATOR' IN TYPEOF(dct1))                   AND (dct1.role = origin)))        ) &lt;= 1)     AND         (SIZEOF(            QUERY (dct2 &lt;* USEDIN(SELF,'DRAUGHTING_ELEMENT_SCHEMA.'+                   'TERMINATOR_SYMBOL.ANNOTATED_CURVE')                  | (('DRAUGHTING_ELEMENT_SCHEMA.'+                   'DIMENSION_CURVE_TERMINATOR' IN TYPEOF(dct2))                   AND (dct2.role = target)))       ) &lt;= 1)">
+      </where>
+    </entity>
+
+    <entity
+      name="leader_curve"
+      supertypes="annotation_curve_occurrence">
+      <where
+        label="WR1"
+        expression="SIZEOF(           QUERY(ldc &lt;* USEDIN( SELF, 'DRAUGHTING_ELEMENT_SCHEMA.' +                       'DRAUGHTING_CALLOUT.CONTENTS')                   |   'DRAUGHTING_ELEMENT_SCHEMA.' +                       'LEADER_DIRECTED_CALLOUT'  IN TYPEOF(ldc))) &gt;= 1">
+      </where>
+    </entity>
+
+    <entity
+      name="projection_curve"
+      supertypes="annotation_curve_occurrence">
+    </entity>
+
+    <entity
+      name="terminator_symbol"
+      supertypes="annotation_symbol_occurrence">
+      <explicit
+        name="annotated_curve">
+        <typename
+          name="annotation_curve_occurrence"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="dimension_curve_terminator"
+      supertypes="terminator_symbol">
+      <explicit
+        name="role">
+        <typename
+          name="dimension_extent_usage"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="'DRAUGHTING_ELEMENT_SCHEMA.DIMENSION_CURVE' IN TYPEOF       (SELF\terminator_symbol.annotated_curve)">
+      </where>
+    </entity>
+
+    <entity
+      name="leader_terminator"
+      supertypes="terminator_symbol">
+      <where
+        label="WR1"
+        expression="'DRAUGHTING_ELEMENT_SCHEMA.LEADER_CURVE' IN TYPEOF       (SELF\terminator_symbol.annotated_curve)">
+      </where>
+    </entity>
+
+    <entity
+      name="draughting_callout"
+      supertypes="geometric_representation_item">
+      <explicit
+        name="contents">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="draughting_callout_element"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="draughting_callout_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="relating_draughting_callout">
+        <typename
+          name="draughting_callout"/>
+      </explicit>
+      <explicit
+        name="related_draughting_callout">
+        <typename
+          name="draughting_callout"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="leader_directed_callout"
+      supertypes="draughting_callout">
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (l_1 &lt;* SELF\draughting_callout.contents |       'DRAUGHTING_ELEMENT_SCHEMA.LEADER_CURVE' IN (TYPEOF(l_1)))) &gt;= 1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF(SELF\draughting_callout.contents) &gt;=2">
+      </where>
+    </entity>
+
+    <entity
+      name="projection_directed_callout"
+      supertypes="draughting_callout">
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(p_1&lt;*SELF\draughting_callout.contents |       'DRAUGHTING_ELEMENT_SCHEMA.PROJECTION_CURVE' IN (TYPEOF(p_1))))=1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF(SELF\draughting_callout.contents) &gt;=2">
+      </where>
+    </entity>
+
+    <entity
+      name="dimension_curve_directed_callout"
+      supertypes="draughting_callout">
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(d_c&lt;*SELF\draughting_callout.contents |       'DRAUGHTING_ELEMENT_SCHEMA.DIMENSION_CURVE' IN (TYPEOF(d_c))))=1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF(SELF\draughting_callout.contents) &gt;= 2">
+      </where>
+    </entity>
+
+  </schema>
+
+</express>

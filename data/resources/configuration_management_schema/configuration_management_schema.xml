@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.4"
+    source="../data/resources/configuration_management_schema/configuration_management_schema.exp"/>
+
+  <schema name="configuration_management_schema">
+    <interface
+      kind="reference"
+      schema="product_definition_schema">
+      <interfaced.item
+        name="product_definition"/>
+      <interfaced.item
+        name="product_definition_formation"/>
+      <interfaced.item
+        name="product_definition_effectivity"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="product_structure_schema">
+      <interfaced.item
+        name="product_definition_usage"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="product_concept_schema">
+      <interfaced.item
+        name="product_concept"/>
+      <interfaced.item
+        name="product_concept_feature_association"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="basic_attribute_schema">
+      <interfaced.item
+        name="get_description_value"/>
+      <interfaced.item
+        name="get_name_value"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="text"/>
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="bag_to_set"/>
+    </interface>
+
+    <type name="configuration_design_item">
+      <select
+        selectitems="product_definition product_definition_formation">
+      </select>
+
+    </type>
+    <entity
+      name="configurable_item"
+      supertypes="configuration_item">
+      <explicit
+        name="item_concept_feature">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="product_concept_feature_association"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="configuration_design">
+      <explicit
+        name="configuration">
+        <typename
+          name="configuration_item"/>
+      </explicit>
+      <explicit
+        name="design">
+        <typename
+          name="configuration_design_item"/>
+      </explicit>
+      <derived
+        name="name"
+        expression="get_name_value (SELF)">
+        <typename
+          name="label "/>
+      </derived>
+      <derived
+        name="description"
+        expression="get_description_value (SELF)">
+        <typename
+          name="text "/>
+      </derived>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="configuration"/>
+        <unique.attribute
+          attribute="design"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                             'NAME_ATTRIBUTE.NAMED_ITEM')) &lt;= 1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                             'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1">
+      </where>
+    </entity>
+
+    <entity
+      name="configuration_effectivity"
+      supertypes="product_definition_effectivity">
+      <explicit
+        name="configuration">
+        <typename
+          name="configuration_design"/>
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="configuration"/>
+        <unique.attribute
+          attribute="usage"/>
+        <unique.attribute
+          attribute="id"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="'PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_USAGE' IN        TYPEOF (SELF\product_definition_effectivity.usage)">
+      </where>
+    </entity>
+
+    <entity
+      name="configuration_item">
+      <explicit
+        name="id">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="item_concept">
+        <typename
+          name="product_concept"/>
+      </explicit>
+      <explicit
+        name="purpose"
+        optional="YES">
+        <typename
+          name="label"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="configuration_item_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="relating_configuration_item">
+        <typename
+          name="configuration_item"/>
+      </explicit>
+      <explicit
+        name="related_configuration_item">
+        <typename
+          name="configuration_item"/>
+      </explicit>
+    </entity>
+
+  </schema>
+
+</express>

@@ -1,0 +1,322 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.4"
+    source="../data/resources/product_structure_schema/product_structure_schema.exp"/>
+
+  <schema name="product_structure_schema">
+    <interface
+      kind="reference"
+      schema="product_definition_schema">
+      <interfaced.item
+        name="product"/>
+      <interfaced.item
+        name="product_definition"/>
+      <interfaced.item
+        name="product_definition_relationship"/>
+      <interfaced.item
+        name="acyclic_product_definition_relationship"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="measure_schema">
+      <interfaced.item
+        name="measure_with_unit"/>
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+
+    <entity
+      name="alternate_product_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="definition"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="alternate">
+        <typename
+          name="product"/>
+      </explicit>
+      <explicit
+        name="base">
+        <typename
+          name="product"/>
+      </explicit>
+      <explicit
+        name="basis">
+        <typename
+          name="text"/>
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="alternate"/>
+        <unique.attribute
+          attribute="base"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="alternate :&lt;&gt;: base">
+      </where>
+    </entity>
+
+    <entity
+      name="assembly_component_usage"
+      super.expression="(ONEOF (next_assembly_usage_occurrence,                       specified_higher_usage_occurrence,                       promissory_usage_occurrence))"
+      supertypes="product_definition_usage">
+      <explicit
+        name="reference_designator"
+        optional="YES">
+        <typename
+          name="identifier"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="assembly_component_usage_substitute">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="definition"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="base">
+        <typename
+          name="assembly_component_usage"/>
+      </explicit>
+      <explicit
+        name="substitute">
+        <typename
+          name="assembly_component_usage"/>
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="base"/>
+        <unique.attribute
+          attribute="substitute"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="base.relating_product_definition :=:       substitute.relating_product_definition">
+      </where>
+      <where
+        label="WR2"
+        expression="base :&lt;&gt;: substitute">
+      </where>
+    </entity>
+
+    <entity
+      name="assembly_component_usage_substitute_with_ranking"
+      supertypes="assembly_component_usage_substitute">
+      <explicit
+        name="ranking">
+        <builtintype
+          type="INTEGER"/>
+      </explicit>
+      <explicit
+        name="ranking_rationale">
+        <typename
+          name="text"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="make_from_usage_option"
+      supertypes="product_definition_usage">
+      <explicit
+        name="ranking">
+        <builtintype
+          type="INTEGER"/>
+      </explicit>
+      <explicit
+        name="ranking_rationale">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="quantity">
+        <typename
+          name="measure_with_unit"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="(NOT ('NUMBER' IN TYPEOF(quantity.value_component)))       OR (quantity.value_component &gt; 0)">
+      </where>
+    </entity>
+
+    <entity
+      name="make_from_usage_option_group">
+      <explicit
+        name="members">
+        <aggregate
+          type="SET"
+          lower="2"
+          upper="?"/>
+        <typename
+          name="make_from_usage_option"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF (QUERY (example &lt;* members |       example.related_product_definition       :=: members[1].related_product_definition)) =SIZEOF(members)">
+      </where>
+    </entity>
+
+    <entity
+      name="next_assembly_usage_occurrence"
+      supertypes="assembly_component_usage">
+    </entity>
+
+    <entity
+      name="product_definition_occurrence_relationship">
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="occurrence">
+        <typename
+          name="product_definition"/>
+      </explicit>
+      <explicit
+        name="occurrence_usage">
+        <typename
+          name="assembly_component_usage"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="occurrence_usage.relating_product_definition :&lt;&gt;:        occurrence">
+      </where>
+      <where
+        label="WR2"
+        expression="occurrence_usage.related_product_definition :&lt;&gt;:        occurrence">
+      </where>
+      <where
+        label="WR3"
+        expression="occurrence.formation :=:       occurrence_usage.related_product_definition.formation">
+      </where>
+    </entity>
+
+    <entity
+      name="product_definition_usage"
+      super.expression="(ONEOF (make_from_usage_option,                       assembly_component_usage))"
+      supertypes="product_definition_relationship">
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="SELF\product_definition_relationship.id"/>
+        <unique.attribute
+          attribute="SELF\product_definition_relationship.relating_product_definition"/>
+        <unique.attribute
+          attribute="SELF\product_definition_relationship.related_product_definition"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="acyclic_product_definition_relationship         (SELF,         [SELF\product_definition_relationship.related_product_definition],         'PRODUCT_STRUCTURE_SCHEMA.PRODUCT_DEFINITION_USAGE')">
+      </where>
+    </entity>
+
+    <entity
+      name="promissory_usage_occurrence"
+      supertypes="assembly_component_usage">
+    </entity>
+
+    <entity
+      name="quantified_assembly_component_usage"
+      supertypes="assembly_component_usage">
+      <explicit
+        name="quantity">
+        <typename
+          name="measure_with_unit"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="(NOT ('NUMBER' IN TYPEOF(quantity.value_component)))       OR (quantity.value_component &gt; 0)">
+      </where>
+    </entity>
+
+    <entity
+      name="specified_higher_usage_occurrence"
+      supertypes="assembly_component_usage">
+      <explicit
+        name="upper_usage">
+        <typename
+          name="assembly_component_usage"/>
+      </explicit>
+      <explicit
+        name="next_usage">
+        <typename
+          name="next_assembly_usage_occurrence"/>
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="upper_usage"/>
+        <unique.attribute
+          attribute="next_usage"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="SELF :&lt;&gt;: upper_usage">
+      </where>
+      <where
+        label="WR2"
+        expression="SELF\product_definition_relationship.relating_product_definition       :=: upper_usage.relating_product_definition">
+      </where>
+      <where
+        label="WR3"
+        expression="SELF\product_definition_relationship.related_product_definition       :=: next_usage.related_product_definition">
+      </where>
+      <where
+        label="WR4"
+        expression="(upper_usage.related_product_definition :=:       next_usage.relating_product_definition) OR       (SIZEOF (QUERY (pdr &lt;* USEDIN (upper_usage.related_product_definition,       'PRODUCT_DEFINITION_SCHEMA.PRODUCT_DEFINITION_RELATIONSHIP.' +       'RELATED_PRODUCT_DEFINITION') |        pdr.relating_product_definition :=:         next_usage.relating_product_definition)) = 1)">
+      </where>
+      <where
+        label="WR5"
+        expression="SIZEOF (['PRODUCT_STRUCTURE_SCHEMA.NEXT_ASSEMBLY_USAGE_OCCURRENCE',       'PRODUCT_STRUCTURE_SCHEMA.SPECIFIED_HIGHER_USAGE_OCCURRENCE']       * TYPEOF(upper_usage)) = 1">
+      </where>
+    </entity>
+
+  </schema>
+
+</express>

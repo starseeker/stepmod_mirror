@@ -1,0 +1,1201 @@
+<?xml version="1.0"?>
+<!-- $Id: express2xml.js,v 1.4 2001/12/14 11:56:28 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.4"
+    source="../data/resources/topology_schema/topology_schema.exp"/>
+
+  <schema name="topology_schema">
+    <interface
+      kind="reference"
+      schema="geometry_schema">
+    </interface>
+
+    <interface
+      kind="reference"
+      schema="representation_schema">
+      <interfaced.item
+        name="representation_item"/>
+    </interface>
+
+    <type name="list_of_reversible_topology_item">
+      <typename
+        name="LIST [0:?] of reversible_topology_item"/>
+
+    </type>
+    <type name="reversible_topology">
+      <select
+        selectitems="reversible_topology_item list_of_reversible_topology_item set_of_reversible_topology_item">
+      </select>
+
+    </type>
+    <type name="reversible_topology_item">
+      <select
+        selectitems="edge path face face_bound closed_shell open_shell">
+      </select>
+
+    </type>
+    <type name="set_of_reversible_topology_item">
+      <typename
+        name="SET [0:?] of reversible_topology_item"/>
+
+    </type>
+    <type name="shell">
+      <select
+        selectitems="vertex_shell wire_shell open_shell closed_shell">
+      </select>
+
+    </type>
+    <entity
+      name="closed_shell"
+      supertypes="connected_face_set">
+    </entity>
+
+    <entity
+      name="connected_edge_set"
+      supertypes="topological_representation_item">
+      <explicit
+        name="ces_edges">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="edge"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="connected_face_set"
+      super.expression="(ONEOF (closed_shell, open_shell))"
+      supertypes="topological_representation_item">
+      <explicit
+        name="cfs_faces">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="face"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="connected_face_sub_set"
+      supertypes="connected_face_set">
+      <explicit
+        name="parent_face_set">
+        <typename
+          name="connected_face_set"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="edge"
+      super.expression="(ONEOF(edge_curve, oriented_edge, subedge))"
+      supertypes="topological_representation_item">
+      <explicit
+        name="edge_start">
+        <typename
+          name="vertex"/>
+      </explicit>
+      <explicit
+        name="edge_end">
+        <typename
+          name="vertex"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="edge_curve"
+      supertypes="edge geometric_representation_item">
+      <explicit
+        name="edge_geometry">
+        <typename
+          name="curve"/>
+      </explicit>
+      <explicit
+        name="same_sense">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="edge_loop"
+      supertypes="loop path">
+      <derived
+        name="ne"
+        expression="SIZEOF(SELF\path.edge_list)">
+        <builtintype
+          type="INTEGER"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="(SELF\path.edge_list[1].edge_start) :=:        (SELF\path.edge_list[ne].edge_end)">
+      </where>
+    </entity>
+
+    <entity
+      name="face"
+      super.expression="(ONEOF(face_surface, subface, oriented_face))"
+      supertypes="topological_representation_item">
+      <explicit
+        name="bounds">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="face_bound"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="NOT (mixed_loop_type_set(list_to_set(list_face_loops(SELF))))">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF(QUERY(temp &lt;* bounds | 'TOPOLOGY_SCHEMA.FACE_OUTER_BOUND' IN                                               TYPEOF(temp))) &lt;= 1">
+      </where>
+    </entity>
+
+    <entity
+      name="face_bound"
+      supertypes="topological_representation_item">
+      <explicit
+        name="bound">
+        <typename
+          name="loop"/>
+      </explicit>
+      <explicit
+        name="orientation">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="face_outer_bound"
+      supertypes="face_bound">
+    </entity>
+
+    <entity
+      name="face_surface"
+      supertypes="face geometric_representation_item">
+      <explicit
+        name="face_geometry">
+        <typename
+          name="surface"/>
+      </explicit>
+      <explicit
+        name="same_sense">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="NOT ('GEOMETRY_SCHEMA.ORIENTED_SURFACE' IN TYPEOF(face_geometry))">
+      </where>
+    </entity>
+
+    <entity
+      name="loop"
+      super.expression="(ONEOF(vertex_loop, edge_loop, poly_loop))"
+      supertypes="topological_representation_item">
+    </entity>
+
+    <entity
+      name="open_path"
+      supertypes="path">
+      <derived
+        name="ne"
+        expression="SIZEOF(SELF\path.edge_list)">
+        <builtintype
+          type="INTEGER"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="(SELF\path.edge_list[1].edge_element.edge_start) :&lt;&gt;:                       (SELF\path.edge_list[ne].edge_element.edge_end)">
+      </where>
+    </entity>
+
+    <entity
+      name="open_shell"
+      supertypes="connected_face_set">
+    </entity>
+
+    <entity
+      name="oriented_closed_shell"
+      supertypes="closed_shell">
+      <explicit
+        name="closed_shell_element">
+        <typename
+          name="closed_shell"/>
+      </explicit>
+      <explicit
+        name="orientation">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+      <derived
+        name="SELF\connected_face_set.cfs_faces"
+        expression="conditional_reverse(SELF.orientation,                                   SELF.closed_shell_element.cfs_faces)">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="face"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_CLOSED_SHELL'                 IN TYPEOF (SELF.closed_shell_element))">
+      </where>
+    </entity>
+
+    <entity
+      name="oriented_edge"
+      supertypes="edge">
+      <explicit
+        name="edge_element">
+        <typename
+          name="edge"/>
+      </explicit>
+      <explicit
+        name="orientation">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+      <derived
+        name="SELF\edge.edge_start"
+        expression="boolean_choose (SELF.orientation,                                            SELF.edge_element.edge_start,                                            SELF.edge_element.edge_end)">
+        <typename
+          name="vertex "/>
+      </derived>
+      <derived
+        name="SELF\edge.edge_end"
+        expression="boolean_choose (SELF.orientation,                                            SELF.edge_element.edge_end,                                            SELF.edge_element.edge_start)">
+        <typename
+          name="vertex "/>
+      </derived>
+      <where
+        label="WR1"
+        expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_EDGE' IN TYPEOF (SELF.edge_element))">
+      </where>
+    </entity>
+
+    <entity
+      name="oriented_face"
+      supertypes="face">
+      <explicit
+        name="face_element">
+        <typename
+          name="face"/>
+      </explicit>
+      <explicit
+        name="orientation">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+      <derived
+        name="SELF\face.bounds"
+        expression="conditional_reverse(SELF.orientation,SELF.face_element.bounds)">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="face_bound"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_FACE' IN TYPEOF (SELF.face_element))">
+      </where>
+    </entity>
+
+    <entity
+      name="oriented_open_shell"
+      supertypes="open_shell">
+      <explicit
+        name="open_shell_element">
+        <typename
+          name="open_shell"/>
+      </explicit>
+      <explicit
+        name="orientation">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+      <derived
+        name="SELF\connected_face_set.cfs_faces"
+        expression="conditional_reverse(SELF.orientation,                                      SELF.open_shell_element.cfs_faces)">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="face"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_OPEN_SHELL'                 IN TYPEOF (SELF.open_shell_element))">
+      </where>
+    </entity>
+
+    <entity
+      name="oriented_path"
+      supertypes="path">
+      <explicit
+        name="path_element">
+        <typename
+          name="path"/>
+      </explicit>
+      <explicit
+        name="orientation">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+      <derived
+        name="SELF\path.edge_list"
+        expression="conditional_reverse(SELF.orientation,                                         SELF.path_element.edge_list)">
+        <aggregate
+          type="LIST"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="UNIQUE"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="NOT ('TOPOLOGY_SCHEMA.ORIENTED_PATH' IN TYPEOF (SELF.path_element))">
+      </where>
+    </entity>
+
+    <entity
+      name="path"
+      super.expression="(ONEOF(open_path, edge_loop, oriented_path))"
+      supertypes="topological_representation_item">
+      <explicit
+        name="edge_list">
+        <aggregate
+          type="LIST"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="UNIQUE"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="path_head_to_tail(SELF)">
+      </where>
+    </entity>
+
+    <entity
+      name="poly_loop"
+      supertypes="loop geometric_representation_item">
+      <explicit
+        name="polygon">
+        <aggregate
+          type="LIST"
+          lower="3"
+          upper="?"/>
+        <typename
+          name="UNIQUE"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="seam_edge"
+      supertypes="oriented_edge">
+      <explicit
+        name="pcurve_reference">
+        <typename
+          name="pcurve "/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="( 'TOPOLOGY_SCHEMA.EDGE_CURVE' IN TYPEOF (edge_element) )  AND                ('TOPOLOGY_SCHEMA.SEAM_CURVE' IN TYPEOF                       (edge_element\edge_curve.edge_geometry)) ">
+      </where>
+      <where
+        label="WR2"
+        expression="pcurve_reference IN edge_element\edge_curve.edge_geometry\                                 surface_curve.associated_geometry ">
+      </where>
+    </entity>
+
+    <entity
+      name="subedge"
+      supertypes="edge">
+      <explicit
+        name="parent_edge">
+        <typename
+          name="edge"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="subface"
+      supertypes="face">
+      <explicit
+        name="parent_face">
+        <typename
+          name="face"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="NOT (mixed_loop_type_set(list_to_set(list_face_loops(SELF)) +              list_to_set(list_face_loops(parent_face))))">
+      </where>
+    </entity>
+
+    <entity
+      name="topological_representation_item"
+      super.expression="(ONEOF(vertex, edge, face_bound, face, vertex_shell,                   wire_shell, connected_edge_set, connected_face_set,                    (loop ANDOR path)))"
+      supertypes="representation_item">
+    </entity>
+
+    <entity
+      name="vertex"
+      supertypes="topological_representation_item">
+    </entity>
+
+    <entity
+      name="vertex_point"
+      supertypes="vertex geometric_representation_item">
+      <explicit
+        name="vertex_geometry">
+        <typename
+          name="point"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="vertex_loop"
+      supertypes="loop">
+      <explicit
+        name="loop_vertex">
+        <typename
+          name="vertex"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="vertex_shell"
+      supertypes="topological_representation_item">
+      <explicit
+        name="vertex_shell_extent">
+        <typename
+          name="vertex_loop"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="wire_shell"
+      supertypes="topological_representation_item">
+      <explicit
+        name="wire_shell_extent">
+        <aggregate
+          type="SET"
+          lower="1"
+          upper="?"/>
+        <typename
+          name="loop"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="NOT mixed_loop_type_set(wire_shell_extent)">
+      </where>
+    </entity>
+
+    <function
+      name="boolean_choose">
+      <typename
+        name="generic : item"/>
+      <parameter
+        name="b">
+        <typename
+          name="boolean"/>
+      </parameter>
+      <parameter
+        name="choice1">
+        <typename
+          name="generic : item"/>
+      </parameter>
+      <parameter
+        name="choice2">
+        <typename
+          name="generic : item"/>
+      </parameter>
+      <algorithm>
+ 
+     IF b THEN
+       RETURN (choice1);
+     ELSE
+       RETURN (choice2);
+     END_IF;
+      </algorithm>
+
+    </function>
+
+    <function
+      name="closed_shell_reversed">
+      <typename
+        name="oriented_closed_shell"/>
+      <parameter
+        name="a_shell">
+        <typename
+          name="closed_shell"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    the_reverse : oriented_closed_shell;
+  END_LOCAL;
+   IF ('TOPOLOGY_SCHEMA.ORIENTED_CLOSED_SHELL' IN TYPEOF (a_shell) ) THEN
+      the_reverse := dummy_tri ||
+                    connected_face_set (
+                       a_shell\connected_face_set.cfs_faces) ||
+                    closed_shell () || oriented_closed_shell(
+                     a_shell\oriented_closed_shell.closed_shell_element,
+                       NOT(a_shell\oriented_closed_shell.orientation));
+   ELSE
+      the_reverse := dummy_tri ||
+               connected_face_set (
+                 a_shell\connected_face_set.cfs_faces) ||
+               closed_shell () || oriented_closed_shell (a_shell, FALSE);
+   END_IF;
+   RETURN (the_reverse);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="conditional_reverse">
+      <typename
+        name="reversible_topology"/>
+      <parameter
+        name="p">
+        <builtintype
+          type="BOOLEAN"/>
+      </parameter>
+      <parameter
+        name="an_item">
+        <typename
+          name="reversible_topology"/>
+      </parameter>
+      <algorithm>
+   IF p THEN
+     RETURN (an_item);
+   ELSE
+     RETURN (topology_reversed (an_item));
+   END_IF;
+      </algorithm>
+
+    </function>
+
+    <function
+      name="edge_curve_pcurves">
+      <aggregate
+        type="SET"/>
+      <typename
+        name="pcurve"/>
+      <parameter
+        name="an_edge">
+        <typename
+          name="edge_curve"/>
+      </parameter>
+      <parameter
+        name="the_surface_curves">
+        <aggregate
+          type="SET"/>
+        <typename
+          name="surface_curve"/>
+      </parameter>
+      <algorithm>
+LOCAL
+  a_curve      : curve;
+  result       : SET OF pcurve;
+  the_geometry : LIST[1:2] OF pcurve_or_surface;
+END_LOCAL;
+  a_curve := an_edge.edge_geometry;
+  result := [];
+  IF 'GEOMETRY_SCHEMA.PCURVE' IN TYPEOF(a_curve) THEN
+    result := result + a_curve;
+  ELSE
+    IF 'GEOMETRY_SCHEMA.SURFACE_CURVE' IN TYPEOF(a_curve) THEN
+      the_geometry := a_curve\surface_curve.associated_geometry;
+      REPEAT k := 1 TO SIZEOF(the_geometry);
+         IF 'GEOMETRY_SCHEMA.PCURVE' IN TYPEOF (the_geometry[k])
+         THEN
+            result := result + the_geometry[k];
+         END_IF;
+      END_REPEAT;
+    ELSE
+      REPEAT j := 1 TO SIZEOF(the_surface_curves);
+        the_geometry := the_surface_curves[j].associated_geometry;
+        IF the_surface_curves[j].curve_3d :=: a_curve
+        THEN
+          REPEAT k := 1 TO SIZEOF(the_geometry);
+            IF 'GEOMETRY_SCHEMA.PCURVE' IN TYPEOF (the_geometry[k])
+            THEN
+              result := result + the_geometry[k];
+            END_IF;
+          END_REPEAT;
+        END_IF;
+      END_REPEAT;
+    END_IF;
+  END_IF;
+
+  RETURN (RESULT);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="edge_reversed">
+      <typename
+        name="oriented_edge"/>
+      <parameter
+        name="an_edge">
+        <typename
+          name="edge"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     the_reverse : oriented_edge;
+   END_LOCAL;
+
+   IF ('TOPOLOGY_SCHEMA.ORIENTED_EDGE' IN TYPEOF (an_edge) ) THEN
+     the_reverse  := dummy_tri ||
+             edge(an_edge.edge_end, an_edge.edge_start) ||
+             oriented_edge(an_edge\oriented_edge.edge_element,
+                        NOT (an_edge\oriented_edge.orientation)) ;
+   ELSE
+     the_reverse := dummy_tri ||
+             edge(an_edge.edge_end, an_edge.edge_start) ||
+             oriented_edge(an_edge, FALSE);
+   END_IF;
+   RETURN (the_reverse);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="face_bound_reversed">
+      <typename
+        name="face_bound"/>
+      <parameter
+        name="a_face_bound">
+        <typename
+          name="face_bound"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     the_reverse : face_bound ;
+   END_LOCAL;
+   IF ('TOPOLOGY_SCHEMA.FACE_OUTER_BOUND' IN TYPEOF (a_face_bound) ) THEN
+     the_reverse := dummy_tri ||
+                      face_bound(a_face_bound\face_bound.bound,
+                           NOT (a_face_bound\face_bound.orientation))
+                            || face_outer_bound() ;
+   ELSE
+     the_reverse := dummy_tri ||
+         face_bound(a_face_bound.bound, NOT(a_face_bound.orientation));
+   END_IF;
+  RETURN (the_reverse);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="face_reversed">
+      <typename
+        name="oriented_face"/>
+      <parameter
+        name="a_face">
+        <typename
+          name="face"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     the_reverse : oriented_face ;
+   END_LOCAL;
+   IF ('TOPOLOGY_SCHEMA.ORIENTED_FACE' IN TYPEOF (a_face) ) THEN
+     the_reverse := dummy_tri ||
+       face(set_of_topology_reversed(a_face.bounds)) ||
+          oriented_face(a_face\oriented_face.face_element,
+                           NOT (a_face\oriented_face.orientation)) ;
+   ELSE
+     the_reverse := dummy_tri ||
+       face(set_of_topology_reversed(a_face.bounds)) ||
+                               oriented_face(a_face, FALSE) ;
+   END_IF;
+      RETURN (the_reverse);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="list_face_loops">
+      <aggregate
+        type="LIST"
+        lower="0"
+        upper="?"/>
+      <typename
+        name="loop"/>
+      <parameter
+        name="f">
+        <typename
+          name="face"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     loops : LIST[0:?] OF loop := [];
+   END_LOCAL;
+   
+   REPEAT i := 1 TO SIZEOF(f.bounds);
+     loops := loops +(f.bounds[i].bound);
+   END_REPEAT;
+      
+   RETURN(loops);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="list_loop_edges">
+      <aggregate
+        type="LIST"
+        lower="0"
+        upper="?"/>
+      <typename
+        name="edge"/>
+      <parameter
+        name="l">
+        <typename
+          name="loop"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     edges : LIST[0:?] OF edge := [];
+   END_LOCAL;
+      
+   IF 'TOPOLOGY_SCHEMA.EDGE_LOOP' IN TYPEOF(l) THEN
+     REPEAT i := 1 TO SIZEOF(l\path.edge_list);
+       edges := edges + (l\path.edge_list[i].edge_element);
+     END_REPEAT;
+   END_IF;
+
+   RETURN(edges);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="list_of_topology_reversed">
+      <typename
+        name="list_of_reversible_topology_item"/>
+      <parameter
+        name="a_list">
+        <typename
+          name="list_of_reversible_topology_item"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     the_reverse : list_of_reversible_topology_item;
+   END_LOCAL;
+    
+   the_reverse := [];
+   REPEAT i := 1 TO SIZEOF (a_list);
+     the_reverse := topology_reversed (a_list [i]) + the_reverse;
+   END_REPEAT;
+  
+   RETURN (the_reverse);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="list_shell_edges">
+      <aggregate
+        type="LIST"
+        lower="0"
+        upper="?"/>
+      <typename
+        name="edge"/>
+      <parameter
+        name="s">
+        <typename
+          name="shell"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     edges : LIST[0:?] OF edge := [];
+   END_LOCAL;
+      
+   REPEAT i := 1 TO SIZEOF(list_shell_loops(s));
+     edges := edges + list_loop_edges(list_shell_loops(s)[i]);
+   END_REPEAT;
+   
+   RETURN(edges);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="list_shell_faces">
+      <aggregate
+        type="LIST"
+        lower="0"
+        upper="?"/>
+      <typename
+        name="face"/>
+      <parameter
+        name="s">
+        <typename
+          name="shell"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     faces : LIST[0:?] OF face := [];
+   END_LOCAL;
+   
+   IF ('TOPOLOGY_SCHEMA.CLOSED_SHELL' IN TYPEOF(s)) OR 
+      ('TOPOLOGY_SCHEMA.OPEN_SHELL' IN TYPEOF(s)) THEN
+     REPEAT i := 1 TO SIZEOF(s\connected_face_set.cfs_faces);
+       faces := faces + s\connected_face_set.cfs_faces[i];
+     END_REPEAT;
+   END_IF;
+      
+   RETURN(faces);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="list_shell_loops">
+      <aggregate
+        type="LIST"
+        lower="0"
+        upper="?"/>
+      <typename
+        name="loop"/>
+      <parameter
+        name="s">
+        <typename
+          name="shell"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     loops : LIST[0:?] OF loop := [];
+   END_LOCAL;
+      
+   IF 'TOPOLOGY_SCHEMA.VERTEX_SHELL' IN TYPEOF(s) THEN
+     loops := loops + s.vertex_shell_extent;
+   END_IF;
+      
+   IF 'TOPOLOGY_SCHEMA.WIRE_SHELL' IN TYPEOF(s) THEN
+     REPEAT i := 1 TO SIZEOF(s.wire_shell_extent);
+       loops := loops + s.wire_shell_extent[i];
+     END_REPEAT;
+   END_IF;
+      
+   IF ('TOPOLOGY_SCHEMA.OPEN_SHELL' IN TYPEOF(s)) OR 
+      ('TOPOLOGY_SCHEMA.CLOSED_SHELL' IN TYPEOF(s)) THEN
+     REPEAT i := 1 TO SIZEOF(s.cfs_faces);
+       loops := loops + list_face_loops(s.cfs_faces[i]);
+     END_REPEAT;
+   END_IF;
+      
+   RETURN(loops);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="list_to_set">
+      <aggregate
+        type="SET"/>
+      <typename
+        name="GENERICT"/>
+      <parameter
+        name="l">
+        <aggregate
+          type="LIST"
+          lower="0"
+          upper="?"/>
+        <typename
+          name="GENERICT"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     s : SET OF GENERIC:T := [];
+   END_LOCAL;
+      
+   REPEAT i := 1 TO SIZEOF(l);
+     s := s + l[i];
+   END_REPEAT;
+   
+   RETURN(s);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="mixed_loop_type_set">
+      <builtintype
+        type="LOGICAL"/>
+      <parameter
+        name="l">
+        <aggregate
+          type="SET"
+          lower="0"
+          upper="?"/>
+        <typename
+          name="loop"/>
+      </parameter>
+      <algorithm>
+    LOCAL
+      poly_loop_type: LOGICAL;
+    END_LOCAL;
+    IF(SIZEOF(l) &lt;= 1) THEN
+      RETURN(FALSE);
+    END_IF;
+    poly_loop_type := ('TOPOLOGY_SCHEMA.POLY_LOOP' IN TYPEOF(l[1]));
+    REPEAT i := 2 TO SIZEOF(l);
+      IF(('TOPOLOGY_SCHEMA.POLY_LOOP' IN TYPEOF(l[i])) &lt;&gt; poly_loop_type)
+          THEN
+          RETURN(TRUE);
+       END_IF;
+    END_REPEAT;
+    RETURN(FALSE);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="open_shell_reversed">
+      <typename
+        name="oriented_open_shell"/>
+      <parameter
+        name="a_shell">
+        <typename
+          name="open_shell"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     the_reverse : oriented_open_shell;
+   END_LOCAL;
+   IF ('TOPOLOGY_SCHEMA.ORIENTED_OPEN_SHELL' IN TYPEOF (a_shell) ) THEN
+     the_reverse := dummy_tri ||
+                  connected_face_set (
+                      a_shell\connected_face_set.cfs_faces) ||
+                  open_shell () || oriented_open_shell(
+                    a_shell\oriented_open_shell.open_shell_element,
+                      (NOT (a_shell\oriented_open_shell.orientation)));
+   ELSE
+     the_reverse := dummy_tri ||
+                 connected_face_set (
+                     a_shell\connected_face_set.cfs_faces) ||
+                 open_shell () ||  oriented_open_shell (a_shell, FALSE);
+   END_IF;
+   RETURN (the_reverse);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="path_head_to_tail">
+      <builtintype
+        type="BOOLEAN"/>
+      <parameter
+        name="a_path">
+        <typename
+          name="path"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     n : INTEGER;
+     p : BOOLEAN := TRUE;
+   END_LOCAL;
+     
+     n := SIZEOF (a_path.edge_list);
+     REPEAT i := 2 TO n;
+       p := p AND (a_path.edge_list[i-1].edge_end :=:
+                   a_path.edge_list[i].edge_start);
+     END_REPEAT;
+     
+     RETURN (p);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="path_reversed">
+      <typename
+        name="oriented_path"/>
+      <parameter
+        name="a_path">
+        <typename
+          name="path"/>
+      </parameter>
+      <algorithm>
+  LOCAL
+    the_reverse : oriented_path ;
+  END_LOCAL;
+  IF ('TOPOLOGY_SCHEMA.ORIENTED_PATH' IN TYPEOF (a_path) ) THEN
+    the_reverse := dummy_tri ||
+       path(list_of_topology_reversed (a_path.edge_list)) ||
+          oriented_path(a_path\oriented_path.path_element,
+                          NOT(a_path\oriented_path.orientation)) ;
+  ELSE
+    the_reverse := dummy_tri ||
+                   path(list_of_topology_reversed (a_path.edge_list)) ||
+                       oriented_path(a_path, FALSE);
+  END_IF;
+
+  RETURN (the_reverse);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="set_of_topology_reversed">
+      <typename
+        name="set_of_reversible_topology_item"/>
+      <parameter
+        name="a_set">
+        <typename
+          name="set_of_reversible_topology_item"/>
+      </parameter>
+      <algorithm>
+   LOCAL
+     the_reverse : set_of_reversible_topology_item;
+   END_LOCAL;
+   
+   the_reverse := [];
+   REPEAT i := 1 TO SIZEOF (a_set);
+     the_reverse := the_reverse + topology_reversed (a_set [i]);
+   END_REPEAT;
+   
+   RETURN (the_reverse);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="shell_reversed">
+      <typename
+        name="shell"/>
+      <parameter
+        name="a_shell">
+        <typename
+          name="shell"/>
+      </parameter>
+      <algorithm>
+   IF ('TOPOLOGY_SCHEMA.OPEN_SHELL' IN TYPEOF (a_shell) ) THEN
+     RETURN (open_shell_reversed (a_shell));
+   ELSE
+     IF ('TOPOLOGY_SCHEMA.CLOSED_SHELL' IN TYPEOF (a_shell) ) THEN
+       RETURN (closed_shell_reversed (a_shell));
+     ELSE
+       RETURN (?);
+     END_IF;
+   END_IF;
+      </algorithm>
+
+    </function>
+
+    <function
+      name="topology_reversed">
+      <typename
+        name="reversible_topology"/>
+      <parameter
+        name="an_item">
+        <typename
+          name="reversible_topology"/>
+      </parameter>
+      <algorithm>
+
+   IF ('TOPOLOGY_SCHEMA.EDGE' IN TYPEOF (an_item)) THEN
+     RETURN (edge_reversed (an_item));
+   END_IF;
+
+   IF ('TOPOLOGY_SCHEMA.PATH' IN TYPEOF (an_item)) THEN
+     RETURN (path_reversed (an_item));
+   END_IF;
+
+   IF ('TOPOLOGY_SCHEMA.FACE_BOUND' IN TYPEOF (an_item)) THEN
+     RETURN (face_bound_reversed (an_item));
+   END_IF;
+  
+   IF ('TOPOLOGY_SCHEMA.FACE' IN TYPEOF (an_item)) THEN
+     RETURN (face_reversed (an_item));
+   END_IF;
+
+   IF ('TOPOLOGY_SCHEMA.SHELL' IN TYPEOF (an_item)) THEN
+     RETURN (shell_reversed (an_item));
+   END_IF;
+
+   IF ('SET' IN TYPEOF (an_item)) THEN
+     RETURN (set_of_topology_reversed (an_item));
+   END_IF;
+
+   IF ('LIST' IN TYPEOF (an_item)) THEN
+     RETURN (list_of_topology_reversed (an_item));
+   END_IF;
+
+   RETURN (?);
+      </algorithm>
+
+    </function>
+
+    <function
+      name="vertex_point_pcurves">
+      <aggregate
+        type="SET"/>
+      <typename
+        name="degenerate_pcurve"/>
+      <parameter
+        name="a_vertex">
+        <typename
+          name="vertex_point"/>
+      </parameter>
+      <parameter
+        name="the_degenerates">
+        <aggregate
+          type="SET"/>
+        <typename
+          name="evaluated_degenerate_pcurve"/>
+      </parameter>
+      <algorithm>
+LOCAL
+  a_point : point;
+  result  : SET OF degenerate_pcurve;
+END_LOCAL;
+  a_point := a_vertex.vertex_geometry;
+  result := [];
+  IF 'GEOMETRY_SCHEMA.DEGENERATE_PCURVE' IN TYPEOF(a_point) THEN
+    result := result + a_point;
+  ELSE
+      REPEAT j := 1 TO SIZEOF(the_degenerates);
+         IF (the_degenerates[j].equivalent_point :=: a_point)  THEN
+            result := result + the_degenerates[j];
+         END_IF;
+      END_REPEAT;
+  END_IF;
+
+  RETURN (RESULT);
+      </algorithm>
+
+    </function>
+
+  </schema>
+
+</express>

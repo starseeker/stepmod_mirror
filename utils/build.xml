@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.36 2003/01/22 07:16:26 robbod Exp $ -->
+<!-- $Id: build.xml,v 1.37 2003/02/05 20:09:40 thendrix Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -16,7 +16,6 @@
 <!-- Requires a TrAX-compliant XSLT processor (such    -->
 <!-- as Saxon or Xalan) and the Sun Java JDK           -->
 <!-- ================================================= -->
-
 <!--
 ============================================================
   NOTE - The XSL for navigation uses a number of XSL parser 
@@ -54,6 +53,9 @@ checks resource XML files for well-formedness
 checks XML files of all modules for well-formedness (this take several
 minutes)
 
+"ant wf_resdocs"
+checks XML files of all resource parts for well-formedness
+
 "ant -DMODULESDIR=data/modules/[module-name] wf_modules"
 checks a module's XML files for well-formedness
 
@@ -66,8 +68,14 @@ checks navigation XML and XSL files for well-formedness
 "ant valid_modules"
 checks module XML for well-formedness and conformance to DTD
 
+"ant valid_resdocs"
+checks all resource part  XML for well-formedness and conformance to DTD
+
 "ant -DMODULESDIR=data/modules/[module-name] valid_modules"
 check a single module XML for well-formedness and conformance to DTD
+
+"ant -DRESDIR=data/resource_docs/[resdoc-name] valid_resdocs"
+check a single resource part XML for well-formedness and conformance to DTD
 
 "ant index" 
 generates HTML for repository_index.xml
@@ -272,6 +280,13 @@ tar.gz format)
     </xmlvalidate>
   </target>
 
+  <target name="wf_resdocs" depends="init" 
+	  description="check navigation files for well-formedness">
+    <echo level="info">Checking files in ${RESDIR} for well-formedness...</echo>
+    <xmlvalidate lenient="yes" warn="yes" failonerror="no">
+      <fileset dir="${RESDIR}" includes="**/*.xml, **/*.xsl"/>
+    </xmlvalidate>
+  </target>
 
 
   <target name="valid_modules" depends="init" 
@@ -280,6 +295,18 @@ tar.gz format)
     <echo message="Checking files in ${MODULESDIR} for well-formedness and conformance to DTD"/>
     <xmlvalidate lenient="no" warn="no" failonerror="no">
       <fileset dir="${MODULESDIR}">
+        <include name="**/*.xml"/>
+        <exclude name="**/nav/*.xml"/>
+      </fileset>
+    </xmlvalidate>
+  </target>
+
+  <target name="valid_resdocs" depends="init" 
+	  description="check modules for well-formedness">
+    <echo message="____________________________________________________________"/>
+    <echo message="Checking files in ${RESDIR} for well-formedness and conformance to DTD"/>
+    <xmlvalidate lenient="no" warn="no" failonerror="no">
+      <fileset dir="${RESDIR}">
         <include name="**/*.xml"/>
         <exclude name="**/nav/*.xml"/>
       </fileset>

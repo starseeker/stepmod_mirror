@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.56 2002/11/27 13:31:58 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.57 2002/11/29 17:25:25 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -915,7 +915,16 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
                   select="concat(substring($refpath1,1,string-length($refpath1)-1),'&#xA;',$refpath_extend,')')"/>
               </xsl:when>
               <xsl:otherwise>
-                <xsl:value-of select="concat($refpath1,'&#xA;',$refpath_extend)"/>
+                <!-- if the refpath_extend does not start with * then add
+                     new line, otherwise continue on same line -->
+                <xsl:choose>
+                  <xsl:when test="starts-with($refpath_extend,'*>')">
+                    <xsl:value-of select="concat($refpath1,'&#160;',$refpath_extend)"/>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="concat($refpath1,'&#xA;',$refpath_extend)"/>
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:otherwise>
             </xsl:choose>            
           </xsl:variable>

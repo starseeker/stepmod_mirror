@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
+$Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -214,8 +214,6 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
             </span>
           </div>
 
-          <hr/>
-        
           <xsl:choose>
             <xsl:when test="@status='DIS'">
               <xsl:apply-templates select="." mode="dis_copyright">
@@ -248,224 +246,169 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
   <xsl:template match="module|application_protocol|resource" mode="dis_copyright">
     <xsl:param name="stage" select="'Draft'"/>
-    <div align="center">
-      <table border="0" cellspacing="0" cellpadding="0" width="800"
-        style='width:600.0pt; border-collapse:collapse;mso-padding-alt:0pt 5.4pt 0pt 5.4pt'>
+
+    <!-- ICS number -->
+    <div align="center" style="margin-top:30pt">
+      <span style="font-size:14; font-family:sans-serif;">
+        <b>ICS&#160;&#160;##.###.##;&#160;&#160;##.###.##</b>
+      </span>
+    </div>
+
+    <br/><br/>
+
+
+    <!-- Voting table -->
+    <table border="1" align="center">
+      <tr style="font-size:14; font-family:sans-serif" align="center">
+        <td width="200">
+          ISO/TC <b>184</b>/SC&#160;<b>4</b><br/>
+          Secretariat: 
+            <b>
+              <xsl:value-of select="string-length($SECRETARIAT)"/>
+              <xsl:value-of select="$SECRETARIAT"/>
+            </b>
+          </td>
+        <td width="200">Voting begins on:<br/><b>####-##-##</b></td>
+        <td width="200">Voting terminates on:<br/><b>####-##-##</b></td> 
+      </tr>
+      </table>
+      <br/><br/><br/>
+
+
+      <table border="0" align="center">
         <tr>
-          <td width="800" valign="top" 
-            style='width:600.0pt;border:solid windowtext .75pt; border-right:none;padding:0pt 5.4pt 0pt 5.4pt'>
-            <p class="MsoNormal" align="center" 
-              style='margin-top:6.0pt;margin-right:0pt; margin-bottom:3.0pt;margin-left:0pt;text-align:center;line-height:13.5pt; mso-line-height-rule:exactly'>
-              <span style='font-family:Arial'>
-                ISO/TC&#160;<b>184</b>/SC&#160;<b>4<br/></b>Secretariat: 
-              <b>
-                <xsl:value-of select="string-length($SECRETARIAT)"/>
-                <xsl:value-of select="$SECRETARIAT"/>
-              </b>
-              </span>
-            </p>
-          </td>
-
-          <td width="800" valign="top" 
-            style='width:600.0pt;border-top:solid windowtext .75pt; border-left:none;border-bottom:solid windowtext .75pt;border-right:none; padding:0pt 5.4pt 0pt 5.4pt'>
-            <p class="MsoNormal" align="center" 
-              style='margin-top:6.0pt;margin-right:0pt; margin-bottom:3.0pt;margin-left:0pt;text-align:center;line-height:13.5pt; mso-line-height-rule:exactly'>
-              <span style='font-family:Arial'>
-                Voting begins on:<br/><b>????</b>
-              </span>
-            </p>
-          </td>
-
-          <td width="800" valign="top" 
-            style='width:600.0pt;border:solid windowtext .75pt; border-left:none;padding:0pt 5.4pt 0pt 5.4pt'>
-            <p class="MsoNormal" align="center" 
-              style='margin-top:6.0pt;margin-right:0pt; margin-bottom:3.0pt;margin-left:0pt;text-align:center;line-height:13.5pt; mso-line-height-rule:exactly'>
-              <span style='font-family:Arial'>
-                Voting terminates on:<b><br/>????</b>
-              </span>
-            </p>
+          <td><br/></td>
+          <td><hr/></td>
+          <td><br/></td>
+        </tr>
+        
+        <tr style="font-size:12; font-family:sans-serif" align="center">
+          <td colspan="3">
+            <b>
+              In accordance with the provisions of Council Resolution 15/1993 this document is 
+              circulated in the English language only.
+            </b>
           </td>
         </tr>
 
+        <tr style="font-size:12; font-family:sans-serif" align="center">
+          <td colspan="3">
+            <b>
+              Conform&#233;ment aux dispositions de la R&#233;solution du Conseil 15/1993, 
+              ce document est distribu&#233; en version anglaise seulement.
+            </b>
+          </td>
+        </tr>
         <tr>
-          <td width="800" colspan="3" valign="top" 
-            style='width:600.0pt;border:none; mso-border-top-alt:solid windowtext .75pt;padding:0pt 5.4pt 0pt 5.4pt'>
-            <p class="MsoNormal" align="center" 
-              style='margin-top:12.0pt;margin-right:0pt; margin-bottom:3.0pt;margin-left:0pt;text-align:center;line-height:13.5pt; mso-line-height-rule:exactly'>
-              <span style='font-family:Arial'>
-                In accordance with the provisions of Council Resolution
-                15/1993, this document is
+          <td><br/></td>
+          <td><hr/></td>
+          <td><br/></td>
+        </tr>
+        <tr style="font-size:12; font-family:sans-serif" align="center">
+          <td colspan="3">
+            <b>
+              To expedite distribution, this document is circulated as received from the committee 
+              secretariat.
+              <br/>
+              ISO Central Secretariat work of editing and text composition will be 
+              undertaken at publication stage.
+            </b>
+          </td>
+        </tr>
+        
+        <tr style="font-size:12; font-family:sans-serif" align="center">
+          <td colspan="3">
+            <b>Pour acc&#233;l&#233;rer la distribution, le pr&#233;sent document est 
+            distribu&#233; tel qu'il est parvenu du secr&#233;tariat du comit&#233;.<br/>
+            Le travail de r&#233;daction et de composition de texte sera effectu&#233; au
+            Secr&#233;tariat central de l'ISO au stade de
+            publication.</b>
+          </td>
+        </tr>
+        <tr><td><br/></td>
+        <td><hr/></td>
+        <td><br/></td></tr>
+        <tr style="font-size:10; font-family:sans-serif" align="center">
+          <td colspan="3">
+            THIS DOCUMENT IS A DRAFT CIRCULATED FOR COMMENT AND APPROVAL. IT IS THEREFORE SUBJECT 
+            TO CHANGE
+            <br/>
+            AND MAY NOT BE REFERRED TO AS AN INTERNATIONAL STANDARD UNTIL
+            PUBLISHED AS SUCH.
+          </td>
+        </tr>
+        <tr style="font-size:10; font-family:sans-serif" align="center">
+          <td colspan="3">
+              IN ADDITION TO THEIR EVALUATION AS BEING ACCEPTABLE FOR INDUSTRIAL, TECHNOLOGICAL, 
+              COMMERCIAL AND USER PURPOSES,
+              <br/>
+              DRAFT INTERNATIONAL STANDARDS MAY ON OCCASION HAVE TO BE CONSIDERED IN THE LIGHT OF 
+              THEIR POTENTIAL TO BECOME
+              <br/>
+              STANDARDS TO WHICH REFERENCE MAY BE MADE IN NATIONAL
+              REGULATIONS.
+            </td>
+          </tr>
+          <tr>
+            <td width="220"></td>
+            <td width="310"></td>
+            <td width="220"></td>
+          </tr>
+        </table>
+
+        <hr/>
+
+        <table border="0" align="center">
+          <tr>
+            <td colspan="3" align="center" valign="top">
+              <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
+                &#169;&#160;ISO&#160;<xsl:value-of select="@publication.year"/>
+              </div>
+              <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
+                <a name="copyright"/>
+                <b>Copyright notice</b>
+              </div>
+              <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
+                This ISO document is a Draft International Standard and is copyright-protected by 
+                ISO. Except as permitted under the applicable laws of the user's
+                country,
                 <br/>
-                <b style='mso-bidi-font-weight:normal'>
-                  circulated in the English language only
-                </b>.
-              </span>
-            </p>
-          </td>
-        </tr>
-
-        <tr>
-          <td width="800" colspan="3" valign="top" 
-            style='width:600.0pt;padding:0pt 5.4pt 0pt 5.4pt'>
-            <p class="MsoFooter" 
-              style='margin-top:12.0pt;text-align:justify'>
-              <span style='font-size:8.0pt;mso-bidi-font-size:12.0pt;font-family:Arial; text-transform:uppercase;mso-bidi-font-weight:bold'>
-                This document is a draft circulated for comment and
-                approval. it is therefore subject to change and may not
-                be referred to an international standard until
-                published as such.
-              </span>
-            </p>
-
-            <p class="MsoNormal" 
-              style='margin-top:6.0pt;margin-right:0pt;margin-bottom: 3.0pt;margin-left:0pt;text-align:justify'>
-              <span 
-                style='font-size:8.0pt; mso-bidi-font-size:12.0pt;font-family:Arial;text-transform:uppercase; mso-bidi-font-weight:bold'>
-                in addition to there evaluation as being acceptable for
-                industrial, technological, commercial and user
-                purposes, draft international standards may on occasion
-                have to be considered in the light of their potential
-                to become standards to which reference may be made in
-                national regulations.
-              </span>
-            </p>
-          </td>
-        </tr>
-      </table>
-    </div>
-
-          <xsl:call-template name="empty_para"/>
-
-    <div align="center">
-      <table border="1" cellspacing="0" cellpadding="0" width="800"
-        style='width:600.0pt; border-collapse:collapse;border:none;mso-border-top-alt:solid windowtext 1.0pt; mso-padding-alt:0pt 5.4pt 0pt 5.4pt'>
-        <tr>
-          <td width="199" valign="top" 
-            style='width:149.15pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 5.4pt 0pt 0pt'>
-            <p class="MsoNormal" 
-              style='margin-top:2.0pt;line-height:13.5pt;mso-line-height-rule: exactly'>
-              <b>
-                <span style='font-family:Arial'>ICS&#160;&#160;25.040.40</span>
-              </b>
-            </p>
-          </td>
-
-          <td width="274" valign="top" 
-            style='width:205.35pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 5.4pt 0pt 5.4pt'>
-            <p class="fdcopy" align="center" 
-              style="margin-bottom:3.0pt;text-align:center; line-height:13.5pt;mso-line-height-rule:exactly;border:none;mso-padding-alt: 0pt 0pt 0pt 0pt">
-              <b style="mso-bidi-font-weight:normal">
-              <a name="copyright"/>
-                Copyright notice
-              </b>
-            </p>
-
-            <p class="fdcopy" 
-              style="margin-bottom:6.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt">
-              <span style='font-size: 9.0pt;mso-bidi-font-size:10.0pt'>
-                This ISO document is a 
-                <xsl:value-of select="$stage"/>
-                International Standard and is
-                copyright-protected by ISO. Except as permitted under
-                the applicable laws of the user's country, neither this
-                ISO draft nor any extract from it may be reproduced,
-                stored in a retrieval system or transmitted in any form
-                or by any means, electronic, photocopying, recording or
-                otherwise, without prior written permission being
-                secured.
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:3.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size: 9.0pt;mso-bidi-font-size:10.0pt'>
-                Requests for permission to reproduce should be addressed to
-                either ISO at the address below or ISO's member
-                body in the country of the requester.
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style="margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt">
-            <span style="font-size:9.0pt;mso-bidi-font-size: 10.0pt">
-              ISO copyright office
-            </span>
-          </p>
-
-            <p class="fdcopy" 
-              style="margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt">
-              <span style="font-size:9.0pt;mso-bidi-font-size: 10.0pt">
-                Case postale 56&#160;
-              </span>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt;font-family:Symbol;mso-ascii-font-family:Arial;mso-hansi-font-family: Arial;mso-char-type:symbol;mso-symbol-font-family:Symbol'>
-                <span style='mso-char-type:symbol;mso-symbol-font-family:Symbol'>&#183;</span>
-              </span>
-              <span style='font-size:9.0pt;mso-bidi-font-size:10.0pt'>
-                &#160;CH-1211 Geneva 20
-              </span>
-            </p>
-            
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                Tel.&#160;&#160;+41 22 749 01 11
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                Fax&#160;&#160;+41 22 749 09 47
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:0pt;margin-bottom:.0001pt;text-indent: 20.0pt;line-height:11.5pt;mso-line-height-rule:exactly;border:none; mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span 
-                style='font-size:9.0pt;mso-bidi-font-size: 10.0pt'>
-                E-mail&#160;&#160;copyright@iso.ch
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:6.0pt;text-indent:20.0pt;line-height: 11.5pt;mso-line-height-rule:exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size:9.0pt;mso-bidi-font-size:10.0pt'>
-                Web&#160;&#160;www.iso.ch
-              </span>
-            </p>
-
-            <p class="fdcopy" 
-              style='margin-bottom:6.0pt;line-height:11.5pt;mso-line-height-rule: exactly;border:none;mso-padding-alt:0pt 0pt 0pt 0pt'>
-              <span style='font-size: 9.0pt;mso-bidi-font-size:10.0pt'>
-                Reproduction may be subject to royalty payments or a licensing agreement. 
-              </span>
-            </p>
-            
-            <p class="MsoNormal" 
-              style='margin-top:0pt;margin-right:5.0pt;margin-bottom: 0pt;margin-left:5.0pt;margin-bottom:.0001pt;text-align:justify'>
-              <span style='font-size:9.0pt;mso-bidi-font-size:12.0pt;font-family:Arial'>
+                neither this ISO draft nor any extract from it may be reproduced, stored in a 
+                retrieval system or transmitted in any form or by any means,<br/>
+                electronic, photocopying, recording or otherwise, without prior written 
+                permission being secured.
+              </div>
+              <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
+                Requests for permission to reproduce should be addressed to either ISO at the 
+                address below or ISO's member body in the country of the
+                requester.
+              </div>
+              <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
+                ISO copyright office
+                <br/>
+                Case postale 56&#160;&#160;<span style="font-family:Symbol">&#183;</span>&#160;CH-1211 Geneva 20<br/>
+                Tel.&#160;&#160;+ 41 22 749 01 11<br/>
+                Fax&#160;&#160;+ 41 22 749 09 47<br/>
+                E-mail&#160;&#160;copyright@iso.org<br/>
+                Web&#160;&#160;www.iso.org
+              </div>
+              <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
+                Reproduction may be subject to royalty payments or a licensing
+                agreement.
+              </div>
+              <div style="font-size:12; font-family:sans-serif; margin-bottom:3pt">
                 Violators may be prosecuted.
-              </span>
-            </p>
-          </td>
-
-          <td width="199" valign="top" 
-            style='width:149.15pt;border:none;border-top:solid windowtext 1.0pt; padding:0pt 0pt 0pt 5.4pt'>
-            <p class="MsoNormal" align="right" 
-              style='margin-top:2.0pt;text-align:right; line-height:13.5pt;mso-line-height-rule:exactly'>
-              <b>
-                <span style='font-family:Arial'>
-                  &#169;&#160;&#160;&#160;ISO&#160;<xsl:value-of select="@publication.year"/>
-              </span>
-              </b>
-            </p>
-          </td>
-        </tr>
-      </table>
-    </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td width="220"></td><td width="310"></td><td width="220"></td>
+          </tr>
+        </table>
   </xsl:template>
 
   <xsl:template match="module|application_protocol|resource" mode="ts_copyright">
+    <hr/>      
     <table border="0" align="center">
         <tr>
           <td width="220" valign="top">
@@ -484,7 +427,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
 
           <td width="220" align="right" valign="top">
             <span style="font-size:14; font-family:sans-serif;">
-              <b>Price base on ## pages</b>
+              <b>Price based on ## pages</b> 
             </span>
           </td>
         </tr>
@@ -800,15 +743,85 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   </xsl:template>
 
 
+  <xsl:template name="get_stdnumber">
+    <xsl:param name="part_xml"/>
+    <xsl:variable name="part">
+      <xsl:choose>
+        <xsl:when test="string-length($part_xml/@part)>0">
+          <xsl:value-of select="$part_xml/@part"/>
+        </xsl:when>
+        <xsl:otherwise>
+          &lt;part&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    
+    <xsl:variable name="status">
+      <xsl:choose>
+        <xsl:when test="string-length($part_xml/@status)>0">
+          <xsl:value-of select="string($part_xml/@status)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          &lt;status&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    
+    <!-- 
+         Note, if the standard has a status of CD or CD-TS it has not been
+         published - so overide what ever is the @publication.year 
+         -->
+    <xsl:variable name="pub_year">
+      <xsl:choose>
+        <xsl:when test="$status='CD' or $status='CD-TS'">&#8212;</xsl:when>
+        <xsl:when test="string-length($part_xml/@publication.year)">
+          <xsl:value-of select="$part_xml/@publication.year"/>
+        </xsl:when>
+        <xsl:otherwise>
+          &lt;publication.year&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    
+    <xsl:variable name="language">
+      <xsl:choose>
+        <xsl:when test="string-length($part_xml/@language)">
+          <xsl:value-of select="$part_xml/@language"/>
+        </xsl:when>
+        <xsl:otherwise>
+          E
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    
+    <xsl:variable name="orgname" select="'ISO'"/>
+    
+    <xsl:value-of 
+      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+    
+  </xsl:template>
+
+
   <xsl:template match="module|resource" mode="start_link">
+    <xsl:variable name="stdnumber">
+      <xsl:call-template name="get_stdnumber">
+        <xsl:with-param name="part_xml" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
+    
     <a href="./contents{$FILE_EXT}" target="_self">
-      <xsl:value-of select="concat('ISO 10303-',@part)"/>
+      <xsl:value-of select="$stdnumber"/>
     </a>
   </xsl:template>
 
 
   <xsl:template match="application_protocol" mode="start_link">
-    <xsl:value-of select="concat('ISO 10303-',@part)"/>
+    <xsl:variable name="stdnumber">
+      <xsl:call-template name="get_stdnumber">
+        <xsl:with-param name="part_xml" select="."/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="$stdnumber"/>
   </xsl:template>
 
 </xsl:stylesheet>

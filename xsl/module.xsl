@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.61 2002/06/02 13:21:39 robbod Exp $
+$Id: module.xsl,v 1.62 2002/06/03 22:38:32 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1607,10 +1607,128 @@ o=isocs; s=central<br/>
 </xsl:template>
      
 
+<xsl:template name="prune_normrefs_list">
+  <xsl:param name="normrefs_list"/>
+  <xsl:param name="pruned_normrefs_list" select="''"/>
+  <xsl:param name="pruned_normrefs_ids" select="''"/>
+  <xsl:choose>
+    <xsl:when test="$normrefs_list">
+      <xsl:variable 
+        name="first"
+        select="substring-before(substring-after($normrefs_list,','),',')"/>
+      <xsl:variable 
+        name="rest"
+        select="substring-after(substring-after($normrefs_list,','),',')"/>
+
+      <xsl:variable name="add_to_pruned_normrefs_ids">
+        <xsl:choose>
+          <xsl:when test="contains($first,'normref:')">
+            <!--  The default or explicit deal normrefs have
+                 already been pruned so just add -->
+            <xsl:variable 
+              name="id" 
+              select="substring-after($first,'normref:')"/>
+
+            <xsl:variable name="normref">
+              <xsl:apply-templates 
+                select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$id]" mode="prune_normrefs_list"/>
+            </xsl:variable>
+            <!-- return the normref to be added to the list -->
+            <xsl:value-of select="$normref"/>
+          </xsl:when>
+
+          <xsl:when test="contains($first,'module:')">
+            <xsl:variable 
+              name="module" 
+              select="substring-after($first,'module:')"/>
+            
+            <xsl:variable name="module_dir">
+              <xsl:call-template name="module_directory">
+                <xsl:with-param name="module" select="$module"/>
+              </xsl:call-template>
+            </xsl:variable>
+            
+            <xsl:variable name="module_xml" 
+              select="concat($module_dir,'/module.xml')"/>
+            
+            <!-- output the normative reference derived from the module -->
+            <xsl:variable name="normref">
+              <xsl:apply-templates 
+                select="document($module_xml)/module" mode="prune_normrefs_list"/>
+            </xsl:variable>
+            <xsl:message><xsl:value-of select="concat('mm: ',$normref)"/></xsl:message>          
+            <!-- if the normref for the module has been already been added,
+                 ignore -->
+            <xsl:if test="not(contains($pruned_normrefs_ids,$normref))">
+              <!-- return the normref to be added to the list -->
+              <xsl:value-of select="$normref"/>
+              <xsl:message><xsl:value-of select="concat('m2: ',$normref,'*',$pruned_normrefs_ids)"/></xsl:message>          
+            </xsl:if>
+          </xsl:when>
+          <xsl:otherwise/>
+        
+        </xsl:choose>
+      </xsl:variable> <!-- add_to_pruned_normrefs_ids -->
+      
+      <xsl:message><xsl:value-of select="concat('add:  ',$add_to_pruned_normrefs_ids)"/></xsl:message>
+      <xsl:variable name="new_pruned_normrefs_ids">
+        <xsl:choose>
+          <xsl:when test="string-length($add_to_pruned_normrefs_ids)>0">
+            <xsl:value-of 
+              select="concat($pruned_normrefs_ids,',',$add_to_pruned_normrefs_ids,',')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$pruned_normrefs_ids"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+      <xsl:variable name="new_pruned_normrefs_list">
+        <xsl:choose>
+          <xsl:when test="string-length($add_to_pruned_normrefs_ids)>0">
+            <xsl:value-of 
+              select="concat($pruned_normrefs_list,',',$first,',')"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$pruned_normrefs_list"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+
+      <xsl:message><xsl:value-of select="concat('IDS:  ',$new_pruned_normrefs_ids)"/></xsl:message>
+      <xsl:message><xsl:value-of select="concat('LIST: ',$new_pruned_normrefs_list)"/></xsl:message>
+
+      <xsl:call-template name="prune_normrefs_list">
+        <xsl:with-param name="normrefs_list" select="$rest"/>
+        <xsl:with-param name="pruned_normrefs_list" 
+          select="$new_pruned_normrefs_list"/>
+        <xsl:with-param name="pruned_normrefs_ids" 
+          select="$new_pruned_normrefs_ids"/>
+      </xsl:call-template>  
+
+    </xsl:when>
+    <xsl:otherwise>
+      <!-- end of recursion -->
+      <xsl:value-of select="$pruned_normrefs_list"/>
+    </xsl:otherwise>
+  </xsl:choose>   
+</xsl:template>
+
+<xsl:template match="normref" mode="prune_normrefs_list">
+  <xsl:value-of select="concat(./stdref/stdnumber,./stdref/pubdate)"/>
+</xsl:template>
+
+
+<xsl:template match="module" mode="prune_normrefs_list">
+  <xsl:value-of select="concat('10303-',./@part,./@publication.year)"/>
+</xsl:template>
 
 
 <!-- Output the standard set of normative references and then any added by
      the module
+     This is the main template for outputting normrefs. It is called from
+     the sect_2_refs.xsl
      -->
 <xsl:template name="output_normrefs">
   <h3>2 Normative references</h3>
@@ -1641,8 +1759,14 @@ o=isocs; s=central<br/>
     <xsl:call-template name="normrefs_list"/>
   </xsl:variable>
 
+  <xsl:variable name="pruned_normrefs">
+    <xsl:call-template name="prune_normrefs_list">
+      <xsl:with-param name="normrefs_list" select="$normrefs"/>
+    </xsl:call-template>  
+  </xsl:variable>
+
   <xsl:call-template name="output_normrefs_rec">
-    <xsl:with-param name="normrefs" select="$normrefs"/>
+    <xsl:with-param name="normrefs" select="$pruned_normrefs"/>
   </xsl:call-template>  
 
   <!-- output a footnote to say that the normative reference has not been
@@ -1675,54 +1799,54 @@ o=isocs; s=central<br/>
             <xsl:apply-templates 
               select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]"/>
           </xsl:when>
-              <xsl:otherwise>
-                <xsl:call-template name="error_message">
-                  <xsl:with-param name="message">
-                    <xsl:value-of select="concat('Error 7: ', $normref, 'not found')"/>
-                  </xsl:with-param>
-                </xsl:call-template>
-              </xsl:otherwise>
-            </xsl:choose>
-        </xsl:when>
-
-        <xsl:when test="contains($first,'module:')">
-          <xsl:variable 
-            name="module" 
-            select="substring-after($first,'module:')"/>
-
-          <xsl:variable name="module_dir">
-            <xsl:call-template name="module_directory">
-              <xsl:with-param name="module" select="$module"/>
+          <xsl:otherwise>
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message">
+                <xsl:value-of select="concat('Error 7: ', $normref, 'not found')"/>
+              </xsl:with-param>
             </xsl:call-template>
-          </xsl:variable>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
 
-          <xsl:variable name="module_xml" 
-            select="concat($module_dir,'/module.xml')"/>
-
-          <!-- output the normative reference derived from the module -->
-          <xsl:apply-templates 
-            select="document($module_xml)/module" mode="normref"/>
-
-        </xsl:when>
-
-        <xsl:when test="contains($first,'resource:')">
-          <xsl:variable 
-            name="resource" 
-            select="substring-after($first,'resource:')"/>
-          <xsl:call-template name="output_resource_normref">
-            <xsl:with-param name="resource_schema" select="$resource"/>
-          </xsl:call-template>          
-        </xsl:when>
-      </xsl:choose>
-
-      <xsl:call-template name="output_normrefs_rec">
-        <xsl:with-param name="normrefs" select="$rest"/>
-      </xsl:call-template>
-
-    </xsl:when>
-    <xsl:otherwise/>
-    <!-- end of recursion -->
-  </xsl:choose>
+      <xsl:when test="contains($first,'module:')">
+        <xsl:variable 
+          name="module" 
+          select="substring-after($first,'module:')"/>
+        
+        <xsl:variable name="module_dir">
+          <xsl:call-template name="module_directory">
+            <xsl:with-param name="module" select="$module"/>
+          </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:variable name="module_xml" 
+          select="concat($module_dir,'/module.xml')"/>
+        
+        <!-- output the normative reference derived from the module -->
+        <xsl:apply-templates 
+          select="document($module_xml)/module" mode="normref"/>
+        
+      </xsl:when>
+      
+      <xsl:when test="contains($first,'resource:')">
+        <xsl:variable 
+          name="resource" 
+          select="substring-after($first,'resource:')"/>
+        <xsl:call-template name="output_resource_normref">
+          <xsl:with-param name="resource_schema" select="$resource"/>
+        </xsl:call-template>          
+      </xsl:when>
+    </xsl:choose>
+    
+    <xsl:call-template name="output_normrefs_rec">
+      <xsl:with-param name="normrefs" select="$rest"/>
+    </xsl:call-template>
+    
+  </xsl:when>
+  <xsl:otherwise/>
+  <!-- end of recursion -->
+</xsl:choose>
 </xsl:template>
     
 

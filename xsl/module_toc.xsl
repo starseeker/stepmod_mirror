@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.9 2002/05/13 15:52:48 robbod Exp $
+$Id: module_toc.xsl,v 1.10 2002/05/13 16:54:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -512,31 +512,22 @@ listings</A><BR/>
       <xsl:with-param name="filename" select="concat('../',@file)"/>
     </xsl:call-template>
   </xsl:variable>
-  
-  <xsl:choose>
-    <xsl:when test="position()=1">
+
+  <xsl:if test="position()=1">
       &#x20;(
-      <small>
-        <a href="{$href}">
-          <xsl:value-of select="position()"/>
-        </a>
-      </small>,
-    </xsl:when>
+  </xsl:if>
+  <small>
+    <a href="{$href}">
+      <xsl:value-of select="position()"/>
+    </a>
+  </small>
+
+  <xsl:choose>
     <xsl:when test="position()=last()">
-      &#x20;
-      <small>
-        <a href="{$href}">
-          <xsl:value-of select="position()"/>
-        </a>
-      </small>)
+      )
     </xsl:when>
     <xsl:otherwise>
-      &#x20;
-      <small>
-        <a href="{$href}">
-          <xsl:value-of select="position()"/>
-        </a>
-      </small>,
+      ,&#x20;
     </xsl:otherwise>
   </xsl:choose>
   

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: mapping_view.xsl,v 1.8 2002/11/26 17:32:49 nigelshaw Exp $
+$Id: mapping_view.xsl,v 1.9 2002/11/26 22:31:52 nigelshaw Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: A set of imported templates to set up a list of modules
@@ -214,9 +214,9 @@ $Id: mapping_view.xsl,v 1.8 2002/11/26 17:32:49 nigelshaw Exp $
 	<blockquote>
 
 		<xsl:variable name="the-ent" select="@entity" />
-		<xsl:variable name="the-attr" select="@entity" />
+		<xsl:variable name="the-attr" select="@attribute" />
 	
-		<xsl:if test="not(@original_module)" >
+		<xsl:if test="not(@original_module) and not(@attribute)" >
 			<xsl:if test="not($arm_node//entity[@name=$the-ent])" >
 				<xsl:call-template name="error_message">
 				  <xsl:with-param name="inline" select="'yes'"/>
@@ -816,6 +816,11 @@ $Id: mapping_view.xsl,v 1.8 2002/11/26 17:32:49 nigelshaw Exp $
 	<B>Reference Path analysis:</B>
 	<blockquote>
 	
+	<xsl:if test="@extension='TRUE'" >
+		Mapping extends previous mapping to include <xsl:value-of select="@assertion_to" />
+		<br/>		
+	</xsl:if>
+
 	<xsl:if test="count(./start-paren) != count(./end-paren)" >
 		
 		<!-- !! MISMATCH in () !! -->

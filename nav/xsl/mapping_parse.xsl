@@ -1,4 +1,5 @@
 <?xml version="1.0" ?>
+<?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
      Stylesheet to produce check mapping table syntax
 	Nigel Shaw 
@@ -62,28 +63,77 @@
 	<xsl:attribute name="entity" >
 		<xsl:value-of select="@entity" />
 	</xsl:attribute>
+	
+	<xsl:if test="@original_module" >
+		<xsl:attribute name="original_module" >
+			<xsl:value-of select="@original_module" />
+		</xsl:attribute>
+	</xsl:if>
 
 	<xsl:element name="aimelt" >
-		<xsl:value-of select="aimelt" />
+		<xsl:variable name="aimelement" select="normalize-space(aimelt)" />
+		<xsl:choose>
+			<xsl:when test="contains($aimelement,' ')" >
+			<!-- more than one MIM element -->
+				<xsl:value-of select="translate($aimelement,' ','&#x0A;')" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$aimelement" />
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:element>
 
 	<xsl:element name="source" >
-		<xsl:value-of select="../source" />
+		<xsl:value-of select="source" />
 	</xsl:element>
 
-	<xsl:apply-templates select="refpath" />
+	<xsl:apply-templates select="./refpath" />
+	<xsl:apply-templates select="alt_map" mode="parse"/>
+
 		
    </mapping>
    
 </xsl:template>
 
+<xsl:template match="alt_map" mode="parse">
+
+   <alt-map>
+	<xsl:attribute name="id" >
+		<xsl:value-of select="@id" />
+	</xsl:attribute>
+
+	<xsl:copy-of select="description" />
+
+	<xsl:element name="aimelt" >
+		<xsl:variable name="aimelement" select="normalize-space(aimelt)" />
+		<xsl:choose>
+			<xsl:when test="contains($aimelement,' ')" >
+			<!-- more than one MIM element -->
+				<xsl:value-of select="translate($aimelement,' ','&#x0A;')" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$aimelement" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:element>
+
+	<xsl:element name="source" >
+		<xsl:value-of select="source" />
+	</xsl:element>
+
+	<xsl:apply-templates select="refpath" />
+
+   </alt-map>
+
+</xsl:template>
 
 
-<xsl:template match="refpath">
+<xsl:template match="refpath" mode="parse" >
 
 <!--
 	<ORIG><xsl:value-of select="." /></ORIG> 
 -->
+
 	<refpath>
 		<xsl:variable name="this-path" >
 			<xsl:call-template name="space-out-path" >
@@ -115,14 +165,24 @@
 	</xsl:if>
 
 	<xsl:element name="aimelt" >
-		<xsl:value-of select="aimelt" />
+		<xsl:variable name="aimelement" select="normalize-space(aimelt)" />
+		<xsl:choose>
+			<xsl:when test="contains($aimelement,' ')" >
+			<!-- more than one MIM element -->
+				<xsl:value-of select="translate($aimelement,' ','&#x0A;')" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$aimelement" />
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:element>
 
 	<xsl:element name="source" >
-		<xsl:value-of select="../source" />
+		<xsl:value-of select="source" />
 	</xsl:element>
 
-	<xsl:apply-templates select="refpath" />
+	<xsl:apply-templates select="refpath" mode="parse"  />
+	<xsl:apply-templates select="alt_map" />
 
    </mapping>
    
@@ -309,6 +369,14 @@
 				<xsl:element name="is-extension-from" />
 			</xsl:when>
 
+<!--			<xsl:when test="substring($word,1,5)='SELF\'">
+				<xsl:element name="SELF" />
+				<word>
+					<xsl:value-of select="substring($word,6)" />
+				</word>
+			</xsl:when>
+-->
+
 			<xsl:otherwise>
 				<word>
 					<xsl:value-of select="$word" />
@@ -317,7 +385,6 @@
 		</xsl:choose>
 	</xsl:if>
 </xsl:template>
-
 
 
 </xsl:stylesheet>

@@ -103,7 +103,11 @@
               </xsl:apply-templates>
 	</xsl:when>
 
-
+	<xsl:otherwise>
+		<br/>
+		STYLESHEET set up to work with msxsl: and saxon:. Neither is available.
+		<br/>
+	</xsl:otherwise>
 
       </xsl:choose>	
 
@@ -147,6 +151,7 @@
 	<xsl:param name="mappings" />
 
 	<xsl:variable name="ent_name" select="@name"/>
+	<xsl:variable name="ent_name_bracket" select="concat('[',@name,']')"/>
 	<xsl:variable name="schema_name" select="../@name"/>
 
 	<table width="95%" border="3" cellspacing="0" cellpadding="4">
@@ -173,12 +178,14 @@
 
 		</TD>	
 		<TD>
-			<xsl:apply-templates select="$mappings//mapping[aimelt=$ent_name]" mode="map"/>
+			<xsl:apply-templates select="$mappings//mapping[descendant::aimelt=$ent_name 
+						or contains(descendant::aimelt,$ent_name_bracket)]" mode="map"/>
 
 			<hr/>
 
-			<xsl:apply-templates select="$mappings//mapping[aimelt!=$ent_name]
-								[refpath/word=$ent_name]" mode="map"/>
+			<xsl:apply-templates select="$mappings//mapping[descendant::aimelt!=$ent_name]
+								[descendant::refpath/word=$ent_name]
+								" mode="map"/>
 
 		</TD>	
 	</TR>
@@ -225,13 +232,13 @@
 
 		</TD>	
 		<TD>
-			<xsl:apply-templates select="$mappings//mapping[aimelt=$attr_name]" mode="map"/>
+			<xsl:apply-templates select="$mappings//mapping[descendant::aimelt=$attr_name]" mode="map"/>
 
 			<hr/>
 
 
-			<xsl:apply-templates select="$mappings//mapping[aimelt!=$attr_name]
-								[refpath/word=$attr_name]" mode="map"/>
+			<xsl:apply-templates select="$mappings//mapping[descendant::aimelt!=$attr_name]
+								[descendant::refpath/word=$attr_name]" mode="map"/>
 
 		</TD>	
 	</TR>
@@ -340,13 +347,13 @@
 
 		</TD>	
 		<TD>
-			<xsl:apply-templates select="$mappings//mapping[aimelt=$attr_name]" mode="map"/>
+			<xsl:apply-templates select="$mappings//mapping[descendant::aimelt=$attr_name]" mode="map"/>
 
 			<hr/>
 
 
-			<xsl:apply-templates select="$mappings//mapping[aimelt!=$attr_name]
-								[refpath/word=$attr_name]" mode="map"/>
+			<xsl:apply-templates select="$mappings//mapping[descendant::aimelt!=$attr_name]
+								[descendant::refpath/word=$attr_name]" mode="map"/>
 
 		</TD>	
 	</TR>

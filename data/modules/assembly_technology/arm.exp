@@ -1,11 +1,11 @@
 (*
-   $Id: arm.exp,v 1.8 2004/12/15 18:27:07 liutkus Exp $
+   $Id: arm.exp,v 1.9 2004/12/16 10:25:18 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Assembly technology - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
 
 SCHEMA Assembly_technology_arm;
 
-USE FROM Pdm_material_aspects_arm;
+USE FROM Conductivity_material_aspects_arm;
 
 USE FROM Analytical_model_arm;
 
@@ -25,6 +25,10 @@ USE FROM Product_identification_extension_arm;
 	END_SUBTYPE_CONSTRAINT;
 
  	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Assembly_bond_definition);
+	END_TYPE;
+
+	TYPE at_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
 		(Assembly_bond_definition);
 	END_TYPE;
 
@@ -62,7 +66,6 @@ USE FROM Product_identification_extension_arm;
   ENTITY Assembly_bond_definition;
       analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF analytical_model_application;
       associated_definition                   : externally_defined_ee_product_definition;
-      bond_material                           : material_identification;
       bonded_feature_1                        : part_feature;
       bonded_feature_2                        : part_feature;
       name                                    : STRING; 
@@ -73,6 +76,11 @@ USE FROM Product_identification_extension_arm;
       UR1 : name;
     WHERE
       WR1 : bonded_feature_1 <> bonded_feature_2;
+	  WR2 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
   END_ENTITY; -- assembly_bond_definition
 
   ENTITY Assembly_joint

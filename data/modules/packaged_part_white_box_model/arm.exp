@@ -26,6 +26,10 @@ USE FROM Bare_die_arm;
     part_feature);
 	END_TYPE;
 
+	TYPE ppwbm_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Part_device);
+	END_TYPE;
+
 	SUBTYPE_CONSTRAINT physical_unit_keepout_shape_subtypes FOR Physical_unit_keepout_shape;  
 	    (ONEOF (Physical_unit_3d_keepout_shape,
 	 	Physical_unit_planar_keepout_shape));
@@ -69,14 +73,19 @@ USE FROM Bare_die_arm;
       defined_packaged_part : packaged_part;
       included_device       : bare_die;
       item_identification   : STRING; --ee_name;
-      bonding_agent         : OPTIONAL material_identification;
-    INVERSE
+     INVERSE
       device_3d_position : SET[0:1] OF device_3d_position FOR placed_device;
       device_2d_position : SET[0:1] OF device_2d_position FOR placed_device;
     UNIQUE
       UR1 : defined_packaged_part,
  item_identification;
-  END_ENTITY; -- part_device
+ 	WHERE
+	  WR1 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) <= 1);
+   END_ENTITY; -- part_device
 
   ENTITY Part_device_terminal;
       used_bare_die_terminal : minimally_defined_bare_die_terminal;

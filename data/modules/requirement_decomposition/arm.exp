@@ -23,7 +23,7 @@ USE FROM Analytical_model_arm;
 
 USE FROM Functional_specification_arm;
 
-USE FROM Pdm_material_aspects_arm;
+USE FROM Conductivity_material_aspects_arm;
 
  
   TYPE material_conductivity_classification = ENUMERATION OF
@@ -32,6 +32,10 @@ USE FROM Pdm_material_aspects_arm;
      semi_conductive,
      non_conductive);
   END_TYPE; -- material_conductivity_classification
+
+	TYPE rd_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Requirement_definition_property);
+	END_TYPE;
 
 	SUBTYPE_CONSTRAINT model_parameter_subtypes FOR model_parameter; 
 		 ONEOF (analytical_model_parameter,
@@ -110,10 +114,15 @@ USE FROM Pdm_material_aspects_arm;
       required_coordinated_characteristic : OPTIONAL SET[1:?] OF coordinated_characteristic;
       requirement_specification           : SET[1:?] OF specification_definition;
       required_characteristic             : OPTIONAL SET[1:?] OF characteristic;
-      required_material                   : OPTIONAL material_identification;
       reference_clause                    : OPTIONAL structured_text_id_in_document;
     UNIQUE
       UR1 : associated_definition;
+    WHERE  
+	  WR1 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) <= 1);
   END_ENTITY; -- Requirement_definition_property
 
   ENTITY Shape_and_ee_product_definition_based_constraint_occurrence

@@ -380,13 +380,17 @@ USE FROM Basic_curve_arm;
     SUBTYPE OF (passage_technology);
       minimum_allowed_component_terminal_extent	: length_data_element;
       maximum_allowed_component_terminal_extent	: length_data_element;
-      SELF\passage_technology.deposition_material : material_identification;
     DERIVE
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\passage_technology.of_technology;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\passage_technology.of_technology.minimum_as_finished_passage_extent;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
-      WR3 : EXISTS(minimum_as_finished_passage_extent);
+      WR2 : EXISTS(minimum_as_finished_passage_extent);
+	  WR3 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
   END_ENTITY; -- default_component_termination_passage_definition
 
   ENTITY Default_passage_based_land_physical_template
@@ -431,13 +435,18 @@ USE FROM Basic_curve_arm;
 
   ENTITY Default_via_definition
     SUBTYPE OF (passage_technology);
-	    SELF\passage_technology.deposition_material : Material_identification;
     DERIVE
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\passage_technology.of_technology;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\passage_technology.of_technology.minimum_as_finished_passage_extent;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
-      WR3 : EXISTS(minimum_as_finished_passage_extent);
+      WR2 : EXISTS(minimum_as_finished_passage_extent);
+      (** Deposition_material *)
+	  WR3 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
   END_ENTITY; -- default_via_definition
 
   ENTITY Design_layer_stratum
@@ -838,7 +847,12 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 	  of_technology						: Passage_technology_parameters;
       associated_definition				: Interconnect_module;
       as_finished_inter_stratum_extent	: Inter_stratum_extent;      
-      deposition_material               : OPTIONAL Material_identification;
+	  WHERE
+	  WR1 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) <= 1);
 	END_ENTITY;
 
   ENTITY Pcb

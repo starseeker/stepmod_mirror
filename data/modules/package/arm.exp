@@ -23,6 +23,11 @@ USE FROM Part_feature_location_arm;
 		(package_terminal);
 	END_TYPE;
 
+	TYPE p_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Package_body,
+		Package_terminal);
+	END_TYPE;
+
   TYPE lead_form_type = SELECT
     (predefined_lead_form,
      external_item_identification);
@@ -131,7 +136,6 @@ USE FROM Part_feature_location_arm;
 
   ENTITY Package_body
     SUBTYPE OF (part_feature);
-      body_material                           : material_identification;
       SELF\part_feature.associated_definition : package;
     WHERE
       WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
@@ -140,6 +144,11 @@ USE FROM Part_feature_location_arm;
  'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY') | ('AP210_ARM.' + 'PACKAGE_BODY_BOTTOM_SURFACE' IN TYPEOF(pf)))) <= 1;
       WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
  'AP210_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY') | ('AP210_ARM.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
+	  WR4 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
   END_ENTITY; -- package_body
 
   ENTITY Package_body_bottom_surface
@@ -186,9 +195,7 @@ USE FROM Part_feature_location_arm;
       external_connection_zone                : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
       internal_connection_zone                : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
       seating_plane_intersection              : seating_plane_intersection_type;
-      terminal_surface_material               : material_identification;
       terminal_characteristic                 : OPTIONAL SET[1:?] OF characteristic;
-      terminal_core_material                  : OPTIONAL material_identification;
       minimum_terminal_diametrical_extent     : OPTIONAL length_data_element;
       maximum_terminal_diametrical_extent     : OPTIONAL length_data_element;
       seating_plane_zone                      : OPTIONAL connection_zone_package_interface_plane_relationship;
@@ -202,6 +209,12 @@ USE FROM Part_feature_location_arm;
       WR3 : NOT (EXISTS(seating_plane_zone)) OR ((associated_definition.package_seating_plane :=: seating_plane_zone.interface_plane) OR (associated_definition.interface_plane[1] :=: seating_plane_zone.interface_plane));
       WR4 : NOT (EXISTS(seating_plane_zone)) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection));
       WR5 : NOT ((seating_plane_intersection = does_not_intersect) AND (EXISTS(seating_plane_zone)));
+      (** [1:1] - terminal_surface_material, [0:1] - terminal_core_material *)
+	  WR6 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) >= 1);
   END_ENTITY; -- package_terminal
 
   ENTITY Package_terminal_surface_constituent_relationship

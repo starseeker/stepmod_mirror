@@ -9,7 +9,7 @@ USE FROM Approval_arm;
 
 USE FROM Characteristic_arm;
 
-USE FROM Pdm_material_aspects_arm;
+USE FROM Conductivity_material_aspects_arm;
 
 USE FROM Part_template_2d_shape_arm;
 
@@ -28,6 +28,10 @@ USE FROM Product_version_arm;
 USE FROM Specification_document_arm;
 
 USE FROM Styled_text_arm;
+
+	TYPE dm_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Marking);
+	END_TYPE;
 
   TYPE marked_message_select = SELECT
     (configuration_controlled_message,
@@ -64,7 +68,6 @@ END_TYPE; -- ap210_marking_shape_select
   ENTITY Marking;
       marked_message              : marked_message_select;
       marked_device_shape         : marking_shape_select;
-      marking_material            : material_identification;
       placement                   : axis_placement;
       message_representation      : feature_shape_definition;
       message_representation_text : styled_text;
@@ -74,6 +77,11 @@ END_TYPE; -- ap210_marking_shape_select
       WR2 : SIZEOF(QUERY(ap <* marked_device_shape\geometric_model.items | ap = placement)) = 1;
       WR3 : SIZEOF(TYPEOF(marked_device_shape) * ['AP210_ARM.PHYSICAL_UNIT_3D_SHAPE',
  'AP210_ARM.PHYSICAL_UNIT_PLANAR_SHAPE']) = 1;
+	  WR4 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
   END_ENTITY; -- marking
 
 END_SCHEMA; -- Device_marking_arm

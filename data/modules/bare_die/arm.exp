@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.6 2004/12/05 14:41:04 liutkus Exp $
+   $Id: arm.exp,v 1.7 2004/12/07 03:01:47 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Bare die - EXPRESS ARM
 (* UNDER DEVELOPMENT *)
 
@@ -13,8 +13,6 @@ USE FROM Part_feature_function_arm;
 	
 USE FROM Extended_geometric_tolerance_arm;
 
-USE FROM Pdm_material_aspects_arm;
-
 USE FROM Physical_unit_usage_view_arm;
 
 USE FROM Network_functional_usage_view_arm;
@@ -25,9 +23,13 @@ USE FROM Shape_composition_arm;
 
 USE FROM Part_terminal_arm;
 
-USE FROM Pdm_material_aspects_arm;
+USE FROM Conductivity_material_aspects_arm;
 
 USE FROM Part_occurrence_arm;
+
+	TYPE bd_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Bare_die_terminal);
+	END_TYPE;
 
   ENTITY Bare_die
     SUBTYPE OF (part_usage_view);
@@ -79,9 +81,14 @@ USE FROM Part_occurrence_arm;
 
   ENTITY Bare_die_terminal
     SUBTYPE OF (Minimally_defined_bare_die_terminal);
-      material                 : material_identification;
       external_connection_area : OPTIONAL SET[1:?] OF connection_zone_in_usage_view;
       seating_plane_zone       : OPTIONAL connection_zone_bare_die_interface_plane_relationship;
+    WHERE  
+	  WR1 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
   END_ENTITY; -- bare_die_terminal
 
   ENTITY Bare_die_terminal_surface_constituent_relationship

@@ -1,6 +1,48 @@
-(*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
-   N - ISO/CD-TS - 10303- conductivity_material_aspects - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
 SCHEMA Conductivity_material_aspects_arm;
+
+USE FROM Generic_material_aspects_arm;
+
+USE FROM Part_view_definition_arm;
+
+USE FROM Property_assignment_arm;
+
+	TYPE cma_property_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH
+		(Material_identification_with_conductivity_classification);
+	END_TYPE;
+
+	TYPE cma_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Part_view_definition);
+	END_TYPE;
+	
+ ENTITY Conductivity_material_property
+  SUBTYPE OF (Pdm_material_property);
+  WHERE
+	WR1: SELF\Independent_property.property_type IN 
+	['magnetic conductivity', 'optical conductivity', 'thermal conductivity', 'electrical conductivity']; 
+	WR2: SIZEOF(USEDIN(SELF, 'INDEPENDENT_PROPERTY_REPRESENTATION_ARM.' + 'INDEPENDENT_PROPERTY_REPRESENTATION.' + 'PROPERTY') = 1);
+	WR3:  (QUERY(ipr <* USEDIN(SELF,
+	 	'INDEPENDENT_PROPERTY_REPRESENTATION_ARM.' + 
+	 	'INDEPENDENT_PROPERTY_REPRESENTATION.' + 'PROPERTY') 
+ 		| SIZEOF(QUERY (it <*  ipr.rep.items |
+       ('FOUNDATION_REPRESENTATION_ARM.'+
+       'STRING_REPRESENTATION_ITEM' IN
+       TYPEOF (it))AND
+       (it\string_representation_item.string_value IN 
+       ['conductive', 'non conductive', 'resistive', 'semi conductive']))) = 1));
+(**	This independent_property_representation must have EXACTLY one string_representation_item. 
+		It must have string_value IN ['conductive', 'non conductive', 'resistive', 'semi conductive']; *)
+ END_ENTITY;
+
+ ENTITY Material_identification_with_conductivity_classification
+  SUBTYPE OF (Material_identification);
+  WHERE 	
+  	WR1: (SIZEOF(QUERY(aip <* USEDIN(SELF,
+	 	'PROPERTY_ASSIGNMENT_ARM.' + 
+	 	'APPLIED_INDEPENDENT_PROPERTY.' + 'DESCRIBED_ELEMENT') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'CONDUCTIVITY_MATERIAL_PROPERTY' IN TYPEOF (aip.base)))) >= 1);
+(**  	It must be referenced by at least one applied_independent_property, 
+  		where base attribute goes to Conductivity_material_property; *)
+ END_ENTITY;
+
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2004/11/30 12:23:15 budreckytej Exp $
+   $Id: arm.exp,v 1.5 2004/12/07 07:25:14 liutkus Exp $
    ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Packaged part black box model - EXPRESS ARM 
 (* UNDER DEVELOPMENT *)
 
@@ -7,7 +7,7 @@ SCHEMA Packaged_part_black_box_model_arm;
 
 USE FROM Part_external_reference_arm;
 
-USE FROM Pdm_material_aspects_arm;
+USE FROM Conductivity_material_aspects_arm;
 
 USE FROM Physical_unit_usage_view_arm;
 
@@ -17,16 +17,24 @@ USE FROM Package_arm;
 
 USE FROM Network_functional_usage_view_arm;
 
+	TYPE ppbbm_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Packaged_part);
+	END_TYPE;
+
   ENTITY Packaged_part
     SUBTYPE OF (part_usage_view);
       used_package         : SET[1:?] OF Package;
-      potting_compound     : OPTIONAL material_identification;
       implemented_function : OPTIONAL functional_unit_usage_view;
     INVERSE
       access_mechanisms : SET[0:?] OF packaged_part_terminal FOR associated_definition;
     WHERE
       WR1 : NOT (EXISTS(implemented_function) XOR (SIZEOF(access_mechanisms) > 0));
       WR2 : single_package_version(SELF);
+	  WR3 : SIZEOF(QUERY(mi <* USEDIN(SELF,
+	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
+	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
+	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) <= 1);
   END_ENTITY; -- packaged_part
 
   ENTITY Packaged_part_join_terminal

@@ -2,11 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.2 2002-07-17 14:41:39 mwd Exp $
-  Author:  Mike Ward, Eurostep Limited
-  Owner:   Developed by Eurostep and supplied to NIST under contract.
-  Purpose: Output the refs section as a web page
-     
+$Id: $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 

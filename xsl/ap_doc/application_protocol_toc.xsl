@@ -458,7 +458,7 @@
 						<!-- use #annexh to link direct -->
 						<xsl:if test="./usage_guide">
 							<A HREF="{$application_protocol_root}/sys/h_guide{$FILE_EXT}">
-								H Computer interpretable listing
+								H Application protocol implementation and usage guide
 							</A>
 							<BR/>
 						</xsl:if>
@@ -508,18 +508,18 @@
       </TD>
       <TD valign="TOP">
         <A HREF="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexe">E Application activity model</A><BR/>
-		<A HREF="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexe">F Application reference model</A><BR/>
-	<A HREF="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexe">G Computer interpretable listing</A><BR/>
+		<A HREF="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexf">F Application reference model</A><BR/>
+	<A HREF="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexg">G Computer interpretable listing</A><BR/>
 	<xsl:if test="./usage_guide">
 		<!-- use #annexh to link direct -->
-		<A HREF="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}">
+		<A HREF="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexh">
 			H Application protocol implementation and usage guide
 		</A>
 		<BR/>
 	</xsl:if>
 	<xsl:if test="./tech_disc">
 		<!-- use #annexj to link direct -->
-		<A HREF="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}">
+		<A HREF="{$application_protocol_root}/sys/application_protocol{$FILE_EXT}#annexj">
 			J Technical discussions
 		</A>
 		<BR/>

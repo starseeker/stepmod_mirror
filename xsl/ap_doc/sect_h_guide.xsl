@@ -2,11 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_h_guide.xsl,v 1.1 2002/08/28 10:29:36 mikeward Exp $
-  Author:  Mike Ward, Eurostep Limited
-  Owner:   Developed by Eurostep and supplied to NIST under contract.
-  Purpose:
-     
+	$Id: $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.23 2003/06/15 19:43:18 nigelshaw Exp $
+$Id: sect_contents.xsl,v 1.24 2003/07/23 16:34:49 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -94,26 +94,26 @@ $Id: sect_contents.xsl,v 1.23 2003/06/15 19:43:18 nigelshaw Exp $
     <br/>
     <a href="./6_ccs{$FILE_EXT}" target="{$target}">6 Conformance requirements</a>
     <br/>
-    <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">A EXPRESS expanded listings</a>
+    <a href="./annex_exp_lf{$FILE_EXT}" target="{$target}">Annex A EXPRESS expanded listings</a>
     <br/>
     <a href="./annex_shortnames{$FILE_EXT}" target="{$target}">
-      B MIM short names
+      Annex B MIM short names
     </a>
     <br/>
     <a href="./annex_imp_meth{$FILE_EXT}" target="{$target}">
-      C Implementation method specific requirements
+      Annex C Implementation method specific requirements
     </a>
     <br/>
     <a href="./annex_pics{$FILE_EXT}" target="{$target}">
-      D Protocol Implementation Conformance Statement (PICS) form
+      Annex D Protocol Implementation Conformance Statement (PICS) form
     </a>
     <br/>
     <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">
-      E Information object registration
+      Annex E Information object registration
     </a>
     <br/>
     <a href="./annex_aam{$FILE_EXT}" target="{$target}">
-      F Application activity model
+      Annex F Application activity model
     </a>
     <br/>
 
@@ -140,7 +140,7 @@ $Id: sect_contents.xsl,v 1.23 2003/06/15 19:43:18 nigelshaw Exp $
       </xsl:variable>
       <a
         href="./annex_arm_expg{$FILE_EXT}" target="{$target}">
-        <xsl:value-of select="$al_armexpressg"/> MIM EXPRESS-G diagrams
+        Annex <xsl:value-of select="$al_armexpressg"/> MIM EXPRESS-G diagrams
       </a>
       <br/>
     </xsl:if>
@@ -152,7 +152,7 @@ $Id: sect_contents.xsl,v 1.23 2003/06/15 19:43:18 nigelshaw Exp $
       </xsl:call-template>
     </xsl:variable>
     <a href="./annex_comp_int{$FILE_EXT}" target="{$target}">
-      <xsl:value-of select="$al_com_int"/> Computer interpretable listing
+      Annex <xsl:value-of select="$al_com_int"/> Computer interpretable listing
     </a>
     <br/>
 
@@ -164,7 +164,7 @@ $Id: sect_contents.xsl,v 1.23 2003/06/15 19:43:18 nigelshaw Exp $
         </xsl:call-template>
       </xsl:variable>
       <a href="./annex_guide{$FILE_EXT}" target="{$target}">
-        <xsl:value-of select="$al_uguide"/> Application protocol implementation and usage guide
+        Annex <xsl:value-of select="$al_uguide"/> Application protocol implementation and usage guide
       </a>
       <br/>
     </xsl:if>
@@ -177,7 +177,7 @@ $Id: sect_contents.xsl,v 1.23 2003/06/15 19:43:18 nigelshaw Exp $
         </xsl:call-template>
       </xsl:variable>
       <a href="./annex_tech_disc{$FILE_EXT}" target="{$target}">
-        <xsl:value-of select="$al_tech_disc"/> Technical discussions
+        Annex <xsl:value-of select="$al_tech_disc"/> Technical discussions
       </a>
       <br/>
     </xsl:if>
@@ -190,7 +190,7 @@ $Id: sect_contents.xsl,v 1.23 2003/06/15 19:43:18 nigelshaw Exp $
         </xsl:call-template>
       </xsl:variable>
       <a href="./annex_changes{$FILE_EXT}" target="{$target}">
-        <xsl:value-of select="$al_changes"/> Detailed changes
+        Annex <xsl:value-of select="$al_changes"/> Detailed changes
       </a>
       <br/>
     </xsl:if>

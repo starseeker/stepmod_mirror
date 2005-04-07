@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.35 2005/02/17 02:20:59 thendrix Exp $
+$Id: build_apdocs.xsl,v 1.36 2005/03/07 21:09:50 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -425,7 +425,7 @@ $Id: build_apdocs.xsl,v 1.35 2005/02/17 02:20:59 thendrix Exp $
         </xsl:choose>
       </xsl:variable>
 
-      <xsl:variable name="all_target" select="concat($all_target3,', copy_abstracts, copy_express')"/>
+      <xsl:variable name="all_target" select="concat($all_target3,', copy_abstracts, copy_express, concat_express')"/>
       <target
         xsl:extension-element-prefixes="exslt"        
         name="all" depends="{$all_target}" 
@@ -728,6 +728,7 @@ $Id: build_apdocs.xsl,v 1.35 2005/02/17 02:20:59 thendrix Exp $
       <xsl:apply-templates select="." mode="dependent_resources_target"/>      
       <xsl:apply-templates select="." mode="abstracts_target"/>      
       <xsl:apply-templates select="." mode="express_target"/>      
+      <xsl:apply-templates select="." mode="concat_express_target"/> 
 
     </project>
 
@@ -1346,6 +1347,17 @@ $Id: build_apdocs.xsl,v 1.35 2005/02/17 02:20:59 thendrix Exp $
     </xsl:element>
     
     <xsl:element name="property">
+      <xsl:attribute name="name">ARMEXPRESS</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/arm.exp'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+
+
+    <xsl:element name="property">
       <xsl:attribute name="name">GIFS</xsl:attribute>
       <xsl:attribute name="value">
         <!-- not sure why copying EXPRESS
@@ -1776,6 +1788,16 @@ $Id: build_apdocs.xsl,v 1.35 2005/02/17 02:20:59 thendrix Exp $
         <xsl:apply-templates select="$mim_modules_node_set/module">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
           <xsl:with-param name="suffix" select="'/*.exp'"/>
+        </xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">DMODARMEXPRESS</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="$mim_modules_node_set/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/arm.exp'"/>
         </xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
@@ -8977,7 +8999,7 @@ $Id: build_apdocs.xsl,v 1.35 2005/02/17 02:20:59 thendrix Exp $
 <xsl:template match="module_ref" mode="schema_name">
   <xsl:variable name="schema"
     select="concat(' ',normalize-space(substring-before(@linkend,':')),'_mim ')"/>  
-  <!--
+  <!-- 
   <xsl:message>
     <xsl:variable name="root" select="/*"/>
     <xsl:choose>
@@ -9010,7 +9032,6 @@ $Id: build_apdocs.xsl,v 1.35 2005/02/17 02:20:59 thendrix Exp $
     </xsl:choose>
   </xsl:variable>
   <xsl:if test="not(contains($done,$schema1))">
-    <!--
     <xsl:message>
       <xsl:variable name="root" select="/*"/>
       <xsl:choose>
@@ -9024,7 +9045,7 @@ $Id: build_apdocs.xsl,v 1.35 2005/02/17 02:20:59 thendrix Exp $
           <xsl:value-of select="concat('express_ref:',name($root),':',$schema1)"/>
         </xsl:otherwise>
       </xsl:choose>
-    </xsl:message> -->
+    </xsl:message>
     <xsl:value-of select="$schema1"/> 
   </xsl:if>
 </xsl:template>
@@ -9233,6 +9254,71 @@ $Id: build_apdocs.xsl,v 1.35 2005/02/17 02:20:59 thendrix Exp $
     </xsl:for-each>
    </target>
 </xsl:template>
+
+<xsl:template match="ballot_index" mode="concat_express_target">
+   <target 
+     xsl:extension-element-prefixes="exslt"
+     name="concat_express" 
+     depends="init" 
+     description="concatenate ballot express, used for building long forms.">
+<!-- need to do add mim and resources -->
+ 
+    <xsl:element name="concat">
+      <xsl:attribute name="destfile">
+	<xsl:value-of select="concat('${BALLOTDIR}','/', 'arm_','${DATE}','v1.exp')" />
+      </xsl:attribute>
+      <xsl:element name="filelist">
+	<xsl:attribute name="dir">
+	  <xsl:value-of select="'.'"/>
+	</xsl:attribute>
+	<xsl:attribute name="files">
+	  <xsl:value-of select="'${ARMEXPRESS}'"/>
+	</xsl:attribute>
+      </xsl:element>
+      <xsl:element name="filelist">
+	<xsl:attribute name="dir">
+	  <xsl:value-of select="'.'"/>
+	</xsl:attribute>
+	<xsl:attribute name="files">
+	  <xsl:value-of select="'${DMODARMEXPRESS}'"/>
+	</xsl:attribute>
+      </xsl:element>
+    </xsl:element>
+
+<!-- fix up for mmim
+    <xsl:element name="concat">
+      <xsl:attribute name="destfile">
+	<xsl:value-of select="concat('${BALLOTDIR}','/', 'arm_','${DATE}','v1.exp')" />
+      </xsl:attribute>
+      <xsl:element name="filelist">
+	<xsl:attribute name="dir">
+	  <xsl:value-of select="'.'"/>
+	</xsl:attribute>
+	<xsl:attribute name="files">
+	  <xsl:value-of select="'${MIMEXPRESS}'"/>
+	</xsl:attribute>
+      </xsl:element>
+      <xsl:element name="filelist">
+	<xsl:attribute name="dir">
+	  <xsl:value-of select="'.'"/>
+	</xsl:attribute>
+	<xsl:attribute name="files">
+	  <xsl:value-of select="'${DMODMIMEXPRESS}'"/>
+	</xsl:attribute>
+      </xsl:element>
+      <xsl:element name="filelist">
+	<xsl:attribute name="dir">
+	  <xsl:value-of select="'.'"/>
+	</xsl:attribute>
+	<xsl:attribute name="files">
+	  <xsl:value-of select="'${DMODRESOURCES check this  }'"/>
+	</xsl:attribute>
+      </xsl:element>
+    </xsl:element>  -->
+
+   </target>
+</xsl:template>
+
 
 <xsl:template name="get_long_form_modules">
   <xsl:param name="modules"/>

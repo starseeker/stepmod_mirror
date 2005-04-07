@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.50 2005/03/30 12:55:38 liutkus Exp $
+   $Id: arm.exp,v 1.51 2005/04/04 10:08:27 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -101,6 +101,10 @@ SCHEMA Layered_interconnect_module_design_arm;
 		Laminate_component);
 	END_TYPE;
 
+	TYPE limd_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Passage_technology);
+	END_TYPE;
+
 	TYPE limd_part_feature_or_template_feature = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_feature_or_template_feature WITH 
 	   	(Printed_part_template_terminal,
 	   	Land_template_terminal,
@@ -118,7 +122,8 @@ SCHEMA Layered_interconnect_module_design_arm;
 	END_TYPE;
 
 	TYPE limd_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
-	    (Stratum_concept_relationship);
+	    (Stratum_concept_relationship,
+	    Interconnect_module);
 	END_TYPE; 
 
 	TYPE limd_specification_product_object_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON specification_product_object_select WITH 
@@ -292,7 +297,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Conductive_interconnect_element_with_pre_defined_transitions
     SUPERTYPE OF (Join_two_physical_connectivity_definition_supporting_printed_component)
     SUBTYPE OF (Conductive_interconnect_element);
-      SELF\Definition_based_product_occurrence.derived_from                : Trace_template;
+      SELF\Definition_based_product_occurrence.derived_from   : Trace_template;
       centreline_shape                                        : Curve;
       SELF\Conductive_interconnect_element.composed_conductor : Stratum_feature;
     INVERSE
@@ -364,7 +369,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
     INVERSE
-      SELF\Passage_technology.deposition_material : material_identification FOR items;
+      SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
@@ -424,7 +429,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
     INVERSE
-      SELF\Passage_technology.deposition_material : material_identification FOR items;
+      SELF\Passage_technology.deposition_material : SET [0:1] OF material_identification FOR items;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
@@ -504,7 +509,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Footprint_occurrence_sub_assembly_relationship
-	SUBTYPE OF (Part_occurrence_definition_relationship);  
+	SUBTYPE OF (View_definition_relationship);  
       SELF\View_definition_relationship.relating_view                 : Footprint_occurrence;	
       SELF\View_definition_relationship.related_view                  : Laminate_component;
       sub_assembly_reference_designation : Part_template_location_in_padstack_definition;
@@ -670,7 +675,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 			Laminate_text_string_component) ANDOR
 			Fiducial)
     SUBTYPE OF (Assembly_component);
-      SELF\Definition_based_product_occurrence.derived_from : OPTIONAL Template_definition;
+      SELF\Definition_based_product_occurrence.derived_from : Template_definition;
     INVERSE
       padstack_occurrence_assembly  : SET[0:1] OF padstack_occurrence_sub_assembly_relationship FOR related_view; --related_component;      
       footprint_occurrence_assembly : SET[0:1] OF footprint_occurrence_sub_assembly_relationship FOR related_view;
@@ -726,7 +731,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Laminate_text_component
     SUBTYPE OF (Laminate_component);
       of_character                             : STRING (1) FIXED;
-      SELF\Definition_based_product_occurrence.derived_from : OPTIONAL Part_text_template;
+      SELF\Definition_based_product_occurrence.derived_from : Part_text_template;
       stratum_feature_implementation           : SET[1:?] OF Stratum_feature;
   END_ENTITY;
 
@@ -815,7 +820,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Padstack_occurrence_sub_assembly_relationship
-	SUBTYPE OF (Part_occurrence_definition_relationship);  
+	SUBTYPE OF (View_definition_relationship);  
       SELF\View_definition_relationship.relating_view                 : Padstack_occurrence;	
       SELF\View_definition_relationship.related_view                  : Laminate_component;
       sub_assembly_reference_designation : Part_template_location_in_padstack_definition;
@@ -884,7 +889,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
   ENTITY Probe_access_area
     SUPERTYPE OF (Internal_probe_access_area)
     SUBTYPE OF (Laminate_component);
-    	SELF\Definition_based_product_occurrence.derived_from : OPTIONAL Stratum_feature_template;
+    	SELF\Definition_based_product_occurrence.derived_from : Stratum_feature_template;
       probed_layout_item 																		: Stratum_feature;
       probe_contact_zone 																		: Connection_zone_in_design_view;
     	stratum_feature_material_stackup											: OPTIONAL Multi_layer_stratum_feature;
@@ -966,7 +971,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 
   ENTITY Stratum_feature_template_component
     SUBTYPE OF (Laminate_component);
-      SELF\Definition_based_product_occurrence.derived_from : OPTIONAL Stratum_feature_template;
+      SELF\Definition_based_product_occurrence.derived_from : Stratum_feature_template;
       stratum_feature_implementation           : Stratum_feature;
   END_ENTITY;
 

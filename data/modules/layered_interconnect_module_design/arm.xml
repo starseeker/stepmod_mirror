@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-04T09:45:45" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-08T16:22:08" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Form_features_arm"/>
@@ -30,6 +30,9 @@
       <type name="limd_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Laminate_layer Stratum Laminate_component"/>
       </type>
+      <type name="limd_material_item_select">
+         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Passage_technology"/>
+      </type>
       <type name="limd_part_feature_or_template_feature">
          <select extensible="YES" genericentity="YES" basedon="part_feature_or_template_feature" selectitems="Printed_part_template_terminal Land_template_terminal Component_termination_passage_template_terminal Via_template_terminal Part_terminal_external_reference"/>
       </type>
@@ -37,7 +40,7 @@
          <select extensible="YES" genericentity="YES" basedon="physical_feature_or_part_template" selectitems="Part_feature Physical_component_feature Laminate_component Template_definition Stratum_feature"/>
       </type>
       <type name="limd_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Stratum_concept_relationship"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Stratum_concept_relationship Interconnect_module"/>
       </type>
       <type name="limd_specification_product_object_select">
          <select extensible="YES" genericentity="YES" basedon="specification_product_object_select" selectitems="stratum_concept Stratum"/>
@@ -305,6 +308,7 @@
             <typename name="Length_data_element"/>
          </derived>
          <inverse name="deposition_material" entity="Material_identification" attribute="items">
+            <inverse.aggregate type="SET" lower="1" upper="1"/>
             <redeclaration entity-ref="Passage_technology"/>
          </inverse>
          <where label="WR1" expression=" EXISTS ( minimum_as_finished_deposition_thickness ) "/>
@@ -361,6 +365,7 @@
             <typename name="Length_data_element"/>
          </derived>
          <inverse name="deposition_material" entity="Material_identification" attribute="items">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
             <redeclaration entity-ref="Passage_technology"/>
          </inverse>
          <where label="WR1" expression=" EXISTS ( minimum_as_finished_deposition_thickness ) "/>
@@ -427,7 +432,7 @@
          <where label="WR3" expression=" SIZEOF ( TYPEOF ( SELF ) * [ 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT' , 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' , 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT' ] ) = 0 "/>
          <where label="WR4" expression=" ( SIZEOF ( components ) = 0 ) "/>
       </entity>
-      <entity name="Footprint_occurrence_sub_assembly_relationship" supertypes="Part_occurrence_definition_relationship">
+      <entity name="Footprint_occurrence_sub_assembly_relationship" supertypes="View_definition_relationship">
          <explicit name="relating_view">
             <typename name="Footprint_occurrence"/>
             <redeclaration entity-ref="View_definition_relationship"/>
@@ -601,7 +606,7 @@
          </explicit>
       </entity>
       <entity name="Laminate_component" supertypes="Assembly_component" super.expression="ONEOF (Conductive_interconnect_element, Material_removal_laminate_component, Stratum_feature_template_component, Probe_access_area, Inter_stratum_feature, Special_symbol_laminate_component, Laminate_text_component, Laminate_text_string_component) ANDOR Fiducial">
-         <explicit name="derived_from" optional="YES">
+         <explicit name="derived_from">
             <typename name="Template_definition"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
@@ -659,7 +664,7 @@
          <explicit name="of_character">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="derived_from" optional="YES">
+         <explicit name="derived_from">
             <typename name="Part_text_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
@@ -775,7 +780,7 @@
          <where label="WR1" expression=" SIZEOF ( TYPEOF ( SELF ) * [ 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT' , 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' , 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT' ] ) = 0 "/>
          <where label="WR2" expression=" ( SIZEOF ( components ) = 0 ) "/>
       </entity>
-      <entity name="Padstack_occurrence_sub_assembly_relationship" supertypes="Part_occurrence_definition_relationship">
+      <entity name="Padstack_occurrence_sub_assembly_relationship" supertypes="View_definition_relationship">
          <explicit name="relating_view">
             <typename name="Padstack_occurrence"/>
             <redeclaration entity-ref="View_definition_relationship"/>
@@ -834,7 +839,7 @@
       <entity name="Plated_passage" supertypes="Plated_inter_stratum_feature" super.expression="ONEOF (Component_termination_passage, Via)"/>
       <entity name="Primary_stratum_indicator_symbol" supertypes="Special_symbol_laminate_component"/>
       <entity name="Probe_access_area" supertypes="Laminate_component" super.expression="Internal_probe_access_area">
-         <explicit name="derived_from" optional="YES">
+         <explicit name="derived_from">
             <typename name="Stratum_feature_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
@@ -937,7 +942,7 @@
          </unique>
       </entity>
       <entity name="Stratum_feature_template_component" supertypes="Laminate_component">
-         <explicit name="derived_from" optional="YES">
+         <explicit name="derived_from">
             <typename name="Stratum_feature_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>

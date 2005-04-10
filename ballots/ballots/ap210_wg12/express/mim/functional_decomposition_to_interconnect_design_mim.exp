@@ -1,0 +1,86 @@
+(*
+   $Id: mim.exp,v 1.7 2005/04/04 10:08:46 liutkus Exp $
+   ISO TC184/SC4/WG12 N3424 - ISO/CD-TS 10303-1677 Functional decomposition to interconnect design - EXPRESS MIM
+*)
+
+
+SCHEMA Functional_decomposition_to_interconnect_design_mim;
+	USE FROM Fabrication_joint_mim;	-- ISO/TS 10303-1668
+	USE FROM Network_functional_design_view_mim;	-- ISO/TS 10303-1704
+
+RULE
+design_functional_unit_allocation_to_fabrication_joint_unique_constraint
+FOR ( product_definition_relationship );
+LOCAL
+  dfuatfj : BAG OF product_definition_relationship := 
+      QUERY( pdr <* product_definition_relationship |
+(pdr\product_definition_relationship.name = 'design functional unit allocation to fabrication joint') );
+  pass : BOOLEAN := TRUE;
+  pd_bag : BAG OF product_definition := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(dfuatfj) by 1;
+  IF EXISTS( dfuatfj[i].relating_product_definition ) THEN
+    IF ( dfuatfj[i].relating_product_definition.id = 
+                    'design composition path' ) THEN
+      IF ( dfuatfj[i].relating_product_definition IN pd_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        pd_bag := pd_bag + dfuatfj[i].relating_product_definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE transmission_line_functional_unit_terminal_allocation_unique_constraint
+ FOR ( shape_aspect_relationship );
+LOCAL
+  tlfuta : BAG OF shape_aspect_relationship := 
+QUERY( r <* shape_aspect_relationship |
+(r\shape_aspect_relationship.name = 'transmission line functional terminal allocation'));
+  sa_bag : BAG OF shape_aspect;
+  sar_bag : BAG OF shape_aspect_relationship;
+  ut_bag : BAG OF shape_aspect := [];
+  pass : BOOLEAN := TRUE;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(tlfuta) by 1;
+  IF EXISTS( tlfuta[i].relating_shape_aspect ) THEN
+    IF ( tlfuta[i].relating_shape_aspect\shape_aspect.description = 'unit terminal' )
+                                                              THEN
+      IF ( NOT ( tlfuta[i].relating_shape_aspect IN ut_bag ) ) THEN
+        ut_bag := ut_bag + tlfuta[i].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(ut_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sar_bag := QUERY( sar <* tlfuta | 
+((sar.related_shape_aspect\shape_aspect.description =
+'printed component join terminal') AND 
+(sar.relating_shape_aspect :=: ut_bag[i])) );
+  sa_bag := [];
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
+      IF ( sar_bag[j].related_shape_aspect IN sa_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        sa_bag := sa_bag + sar_bag[j].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+	
+END_SCHEMA;
+

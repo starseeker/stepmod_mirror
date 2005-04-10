@@ -1,0 +1,24 @@
+(*
+   $Id: arm.exp,v 1.3 2005/02/04 18:03:03 budreckytej Exp $
+   ISO TC184/SC4/WG12 N3682 - ISO/TS 10303-1758 Promissory usage in product concept - EXPRESS MIM
+*)
+
+SCHEMA Promissory_usage_in_product_concept_arm;
+
+	USE FROM Configuration_item_arm;	-- ISO/TS 10303-1056
+	USE FROM Security_classification_arm;	-- ISO/TS 10303-1015
+
+ TYPE puipc_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT
+BASED_ON security_classification_item WITH
+    (Promissory_usage_in_product_concept_relationship);
+ END_TYPE;
+
+ ENTITY Promissory_usage_in_product_concept_relationship
+  SUBTYPE OF (Product_configuration);
+     INVERSE
+      security_code : SET[0:1] OF security_classification_assignment FOR items;
+     WHERE
+      WR1: SIZEOF(SELF\Product_configuration.corresponding_design) = 1;
+ END_ENTITY;
+
+END_SCHEMA;

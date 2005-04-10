@@ -1,0 +1,69 @@
+(*
+   $Id: arm.exp,v 1.16 2005/04/04 10:08:52 liutkus Exp $
+   ISO TC184/SC4/WG12 N3471 - ISO/CD-TS 10303-1694 Layered 3d shape - EXPRESS ARM
+*)
+
+SCHEMA Layered_3d_shape_arm;
+
+	USE FROM Advanced_boundary_representation_arm;	-- ISO/TS 10303-1514
+	USE FROM Curve_swept_solid_arm;	-- ISO/TS 10303-1659
+	USE FROM Geometrically_bounded_surface_arm;	-- ISO/TS 10303-1507
+	USE FROM Part_template_3d_shape_arm;	-- ISO/TS 10303-1717
+--	USE FROM Part_template_non_planar_shape_arm;	-- ISO/TS 10303-1719
+    USE FROM Layered_2d_shape_arm; -- -- ISO/TS 10303-1693
+	USE FROM Physical_unit_3d_shape_arm;	-- ISO/TS 10303-1727
+
+	SUBTYPE_CONSTRAINT l3ds_geometric_representation_relationship_subtypes FOR Geometric_model_relationship;     
+		(ONEOF (Shape_definition_3d_intersection,
+		 Shape_definition_3d_plane_projection 
+		 ));    
+	END_SUBTYPE_CONSTRAINT;
+
+	TYPE l3ds_part_template_or_physical_unit_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_shape_select WITH 
+ 		(part_template_or_physical_unit_3d_shape_select);
+	END_TYPE;
+
+ 	  TYPE part_template_or_physical_unit_3d_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT
+	    (Part_template_3d_shape,
+	     Physical_unit_3d_shape);
+	  END_TYPE;
+
+	TYPE three_dimensional_shape = SELECT
+		(Advanced_brep_shape_representation,
+		Curve_swept_solid,
+	 	Geometrically_bounded_surface_shape_representation);
+	END_TYPE;
+
+  ENTITY Part_template_or_physical_unit_3d_shape_representation_relationship
+  	SUBTYPE OF (Geometric_model_relationship);
+      SELF\Geometric_model_relationship.rep_1 RENAMED principal_part_shape : part_template_or_physical_unit_3d_shape_select;
+      SELF\Geometric_model_relationship.rep_2 RENAMED related_part_shape   : part_template_or_physical_unit_3d_shape_select;
+    UNIQUE
+      UR1 : principal_part_shape,
+ related_part_shape;
+    WHERE
+      WR1 : principal_part_shape :<>: related_part_shape;
+  END_ENTITY;
+
+  ENTITY Shape_definition_3d_intersection
+    SUBTYPE OF (Geometric_model_relationship);
+      orientation_intersection_plane : Axis_placement_3d;
+      planar_shape_origin            : Axis_placement_2d;
+      SELF\Geometric_model_relationship.rep_1 RENAMED surface_intersection_result : Planar_shape;
+      SELF\Geometric_model_relationship.rep_2 RENAMED projected_volume            : Geometric_model;
+    WHERE
+      WR1 : NOT ('LAYERED_3D_SHAPE_ARM.PLANAR_SHAPE' IN TYPEOF(projected_volume));
+  END_ENTITY;
+
+  ENTITY Shape_definition_3d_plane_projection
+    SUBTYPE OF (Geometric_model_relationship);
+      viewing_plane       : Axis_placement_3d;
+      planar_shape_origin : Axis_placement_2d;
+      SELF\Geometric_model_relationship.rep_1 RENAMED surface_projection_result : Planar_shape;
+      SELF\Geometric_model_relationship.rep_2 RENAMED projected_volume          : Geometric_model;
+    WHERE
+      WR1 : NOT ('LAYERED_3D_SHAPE_ARM.PLANAR_SHAPE' IN TYPEOF(projected_volume));
+  END_ENTITY;
+
+END_SCHEMA;
+

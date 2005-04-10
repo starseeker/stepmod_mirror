@@ -1,0 +1,160 @@
+(*
+   $Id: mim.exp,v 1.13 2005/04/04 09:39:51 liutkus Exp $
+   ISO TC184/SC4/WG12 N3328 - ISO/CD-TS 10303-1656 Component grouping - EXPRESS MIM
+*)
+SCHEMA Component_grouping_mim;
+
+	USE FROM Interface_component_mim;	-- ISO/TS 10303-1691
+
+ENTITY array_placement_group_component_definition
+  SUPERTYPE OF (ONEOF(linear_array_placement_group_component_definition,
+                      rectangular_array_placement_group_component_definition))
+  SUBTYPE OF (assembly_group_component_definition);
+END_ENTITY;
+
+ENTITY assembly_group_component_definition
+  SUBTYPE OF (assembly_component);
+WHERE
+(* invalid csa
+  WR1: (SIZEOF (QUERY (gc <* QUERY (pdr <* USEDIN (SELF,
+       'COMPONENT_GROUPING_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'group component') |
+       ('COMPONENT_GROUPING_MIM.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (gc.related_product_definition)))) >= 1)  OR
+       (SIZEOF (QUERY(agcsa <* USEDIN (SELF,
+       'COMPONENT_GROUPING_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('COMPONENT_GROUPING_MIM.' +
+        'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF (agcsa)))) = 0); *)
+  WR2: (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'COMPONENT_GROUPING_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('COMPONENT_GROUPING_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (aj)))) = 0) OR
+       (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'COMPONENT_GROUPING_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('COMPONENT_GROUPING_MIM.' +
+       'ASSEMBLY_JOINT' IN TYPEOF (aj)) AND
+       (SIZEOF (QUERY( acu <* USEDIN (aj\shape_aspect_relationship.relating_shape_aspect,
+       'COMPONENT_GROUPING_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       ('COMPONENT_GROUPING_MIM.' +
+       'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF (acu))
+       AND (acu\product_definition_relationship.relating_product_definition = SELF)
+       )) >= 1))) >= 1);
+  WR3: (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'COMPONENT_GROUPING_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('COMPONENT_GROUPING_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (aj)))) = 0) OR
+       (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'COMPONENT_GROUPING_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('COMPONENT_GROUPING_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (aj))AND
+       (SIZEOF (QUERY( acu <* USEDIN (aj\
+        shape_aspect_relationship.related_shape_aspect,
+        'COMPONENT_GROUPING_MIM.' +
+        'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+        ('COMPONENT_GROUPING_MIM.' +
+        'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF (acu))
+        AND (acu\product_definition_relationship.relating_product_definition = SELF)
+        )) = 0))) = 0);
+  WR4: (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'COMPONENT_GROUPING_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('COMPONENT_GROUPING_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (aj)))) = 0) OR
+       (SIZEOF (QUERY(aj <* USEDIN (SELF,
+       'COMPONENT_GROUPING_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('COMPONENT_GROUPING_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (aj)) AND
+       (SIZEOF (QUERY( cl <* USEDIN (aj\
+        shape_aspect_relationship.related_shape_aspect.of_shape.definition,
+        'COMPONENT_GROUPING_MIM.' +
+        'REPRESENTATION.ITEMS') |
+        ('COMPONENT_GROUPING_MIM.' +
+        'COMPONENT_LOCATION' IN TYPEOF (cl))
+        AND (aj IN cl\representation.items))) = 0))) = 0);
+END_ENTITY;
+
+ENTITY assembly_group_component_definition_placement_link
+  SUBTYPE OF (product_definition,product_definition_relationship);
+WHERE
+  WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
+  WR2: 'COMPONENT_GROUPING_MIM.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.related_product_definition);
+  WR3: 'COMPONENT_GROUPING_MIM.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.relating_product_definition);
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\product_definition ||
+       SELF\product_definition_relationship ||
+       SELF\assembly_group_component_definition_placement_link)) = 0;
+  WR5: SELF\product_definition.name = '';
+  WR6: SELF\product_definition_relationship.name = '';
+  WR7: SIZEOF(USEDIN(SELF, 
+             'COMPONENT_GROUPING_MIM.' +
+             'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')) = 1;
+END_ENTITY; 
+
+ENTITY interfaced_group_component_definition
+  SUBTYPE OF (assembly_group_component_definition);
+WHERE
+  WR1: (SIZEOF (QUERY (gc <* QUERY (pdr <* USEDIN (SELF,
+       'COMPONENT_GROUPING_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'group component') |
+       ('COMPONENT_GROUPING_MIM.' +
+       'INTERFACE_COMPONENT_DEFINITION' IN 
+       TYPEOF (gc.related_product_definition))))
+       >= 1);
+END_ENTITY;
+
+ENTITY linear_array_component_definition_link
+  SUBTYPE OF (product_definition,product_definition_relationship);
+WHERE
+  WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
+  WR2: 'COMPONENT_GROUPING_MIM.' +
+       'LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.related_product_definition);
+  WR3: 'COMPONENT_GROUPING_MIM.' +
+       'LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.relating_product_definition);
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\product_definition ||
+       SELF\product_definition_relationship ||
+       SELF\linear_array_component_definition_link)) = 0;
+  WR5: SELF\product_definition.name = '';
+  WR6: SELF\product_definition_relationship.name = '';
+  WR7: SIZEOF(USEDIN(SELF, 
+             'COMPONENT_GROUPING_MIM.' +
+             'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')) = 1;
+END_ENTITY; 
+
+ENTITY linear_array_placement_group_component_definition
+  SUBTYPE OF (array_placement_group_component_definition);
+END_ENTITY;
+
+ENTITY rectangular_array_placement_group_component_definition
+  SUBTYPE OF (array_placement_group_component_definition);
+END_ENTITY;
+
+RULE product_definition_formation_requires_approval FOR
+(product_definition,
+  applied_approval_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* product_definition |
+       (NOT('COMPONENT_GROUPING_MIM.' +
+       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF(pd))) AND
+       (NOT (SIZEOF (QUERY (aaa <* applied_approval_assignment |
+       pd.formation IN aaa.items )) = 1 )))) = 0;
+END_RULE;
+
+END_SCHEMA;
+

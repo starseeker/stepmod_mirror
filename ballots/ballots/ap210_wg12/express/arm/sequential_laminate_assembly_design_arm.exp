@@ -1,0 +1,34 @@
+(*
+   $Id: arm.exp,v 1.12 2005/04/04 10:35:36 liutkus Exp $
+   ISO TC184/SC4/WG12 N3594 - ISO/CD-TS 10303-1741 Sequential laminate assembly design - EXPRESS ARM
+*)
+
+SCHEMA Sequential_laminate_assembly_design_arm;
+
+	USE FROM Assembly_module_with_interconnect_component_arm;	-- ISO/TS 10303-1643
+	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
+
+  ENTITY Interconnect_module_component_stratum_based_terminal
+    SUBTYPE OF (Interconnect_module_component_terminal);
+      SELF\Component_feature.definition : Interconnect_module_stratum_based_terminal;
+  END_ENTITY;
+
+  ENTITY Interconnect_module_product_assembly_view_fabrication_joint;
+      joined_terminal : SET[1:?] OF Interconnect_module_component_stratum_based_terminal;
+  END_ENTITY;
+
+  ENTITY Interconnect_module_stratum_based_terminal
+    SUBTYPE OF (Interconnect_module_terminal);
+    WHERE
+      WR1 : SIZEOF(QUERY(imtscr <* USEDIN(SELF,
+ 'SEQUENTIAL_LAMINATE_ASSEMBLY_DESIGN_ARM.' + 'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED') | NOT (SIZEOF(['SEQUENTIAL_LAMINATE_ASSEMBLY_DESIGN_ARM.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE',
+ 'SEQUENTIAL_LAMINATE_ASSEMBLY_DESIGN_ARM.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE'] * TYPEOF(imtscr.relating)) = 1))) = 0;
+      WR2 : SIZEOF(USEDIN(SELF,
+ 'SEQUENTIAL_LAMINATE_ASSEMBLY_DESIGN_ARM.' + 'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED')) = 1;
+ (** Need to rewrite rule, since we removed inverse Part_feature.design_view_definition_component_feature
+      WR3 : SIZEOF(['SEQUENTIAL_LAMINATE_ASSEMBLY_DESIGN_ARM.LAND',
+ 'SEQUENTIAL_LAMINATE_ASSEMBLY_DESIGN_ARM.NON_FUNCTIONAL_LAND'] * TYPEOF(SELF\Part_feature.design_view_definition_component_feature)) = 1; *)
+  END_ENTITY;
+
+END_SCHEMA;
+

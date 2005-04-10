@@ -1,0 +1,45 @@
+(*
+   $Id: mim.exp,v 1.11 2005/04/08 18:15:28 liutkus Exp $
+   ISO TC184/SC4/WG12 N3397 - ISO/CD-TS 10303-1664 Device marking - EXPRESS MIM
+*)
+
+
+SCHEMA Device_marking_mim;
+
+	USE FROM Part_template_2d_shape_mim;	-- ISO/TS 10303-1716
+	USE FROM Part_template_non_planar_shape_mim;	-- ISO/TS 10303-1719
+	USE FROM Physical_unit_2d_shape_mim;	-- ISO/TS 10303-1726
+	
+	USE FROM Presentation_definition_schema(annotation_text_occurrence);
+
+TYPE device_marking_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH 
+     (representation);
+END_TYPE;
+
+TYPE device_marking_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
+     (representation);
+END_TYPE;
+
+TYPE device_marking_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+     (representation);
+END_TYPE;
+
+RULE marking_constraint FOR ( representation );
+WHERE
+  WR1: SIZEOF(QUERY(rep <* representation |
+       ((rep\representation.name = 'marking')
+       AND (SIZEOF(QUERY(pdr <* USEDIN(rep,
+       'DEVICE_MARKING_MIM.'
+        + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('DEVICE_MARKING_MIM.'
+        + 'SHAPE_ASPECT' IN TYPEOF(pdr.definition)))) > 0))
+       AND NOT (SIZEOF(QUERY(place <* rep.items |
+       (('DEVICE_MARKING_MIM.'
+        + 'PLACEMENT' IN TYPEOF (place))
+       AND (place\representation_item.name = 'marking location'))
+       )) = 1)
+       )) = 0;
+END_RULE;
+	
+END_SCHEMA;
+

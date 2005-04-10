@@ -1,0 +1,103 @@
+(*
+   $Id: mim.exp,v 1.13 2005/04/08 18:28:36 liutkus Exp $
+   ISO TC184/SC4/WG12 N3619 - ISO/CD-TS 10303-1749 Styled curve - EXPRESS MIM
+*)
+
+SCHEMA Styled_curve_mim;
+	USE FROM Colour_mim;    -- ISO/TS 10303-1002
+
+	USE FROM Elemental_geometric_shape_mim;    -- ISO/TS 10303-1004
+
+	USE FROM presentation_definition_schema
+		(annotation_curve_occurrence,
+		annotation_occurrence);
+
+	USE FROM presentation_appearance_schema
+		(presentation_style_assignment,
+		presentation_style_select,
+		styled_item);
+	
+	USE FROM representation_schema
+		(parametric_representation_context);
+		
+		
+	USE FROM presentation_appearance_schema
+		(curve_style,
+		curve_style_font,
+		curve_style_font_and_scaling,
+		fill_area_style_colour,		
+		pre_defined_curve_font);
+
+ENTITY solid_curve_font
+ SUBTYPE OF (pre_defined_curve_font);
+END_ENTITY; 
+
+RULE curve_style_font_and_scaling_unique_constraint 
+   FOR (curve_style_font_and_scaling);
+
+LOCAL
+  r : BAG OF curve_style_font_and_scaling := 
+                         QUERY (r <* curve_style_font_and_scaling | TRUE);
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i]\curve_style_font_and_scaling.name ) THEN
+    IF (r[i]\curve_style_font_and_scaling.name IN name_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      name_bag := name_bag + r[i]\curve_style_font_and_scaling.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+WHERE
+WR1 : pass;
+
+END_RULE;
+
+RULE curve_style_requires_length_measure_with_unit FOR ( curve_style );
+WHERE
+  WR1: SIZEOF(QUERY(cs <* curve_style |
+       NOT('STYLED_CURVE_MIM.'
+        + 'LENGTH_MEASURE_WITH_UNIT' IN TYPEOF(cs))
+       )) = 0;
+END_RULE;
+
+RULE curve_style_unique_constraint FOR
+ ( representation );
+LOCAL
+  cs : BAG OF representation := QUERY( r <* representation |
+((r\representation.name = 'curve style parameters') AND (r.context_of_items\representation_context.context_type =
+'curve style parametric context')) );
+  pass : BOOLEAN := TRUE;
+  desc_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(cs) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  REPEAT j := 1 to SIZEOF(cs[i].items) by 1;
+    IF ( ('STYLED_CURVE_MIM.' +
+'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(cs[i].items[j])) AND
+(cs[i].items[j]\representation_item.name = 'curve style name') ) THEN
+      IF EXISTS( cs[i].items[j]\descriptive_representation_item.description ) THEN
+        IF ( cs[i].items[j]\descriptive_representation_item.description IN desc_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          desc_bag := desc_bag + cs[i].items[j]\descriptive_representation_item.description;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+	
+END_SCHEMA;
+
+

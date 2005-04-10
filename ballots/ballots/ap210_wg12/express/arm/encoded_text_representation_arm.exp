@@ -1,0 +1,58 @@
+(*
+$Id $
+ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Encoded text representation - EXPRESS ARM
+*) 
+
+
+SCHEMA Encoded_text_representation_arm; 
+
+USE FROM Class_arm;    -- ISO/TS 10303-1070
+
+USE FROM Document_definition_arm;    -- ISO/TS 10303-1123
+
+USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
+
+
+TYPE template_specification_item = EXTENSIBLE SELECT
+   (Document_definition, 
+    String_representation_item, 
+    Uniform_resource_indicator_representation_item);
+END_TYPE; 
+
+ENTITY Encoded_text_format
+  SUBTYPE OF (Class);
+  version_identifier : STRING;
+END_ENTITY;
+
+ENTITY Encoded_text_representation_item
+  SUBTYPE OF (String_representation_item);
+  encoding : Encoded_text_format;
+END_ENTITY;
+
+ENTITY String_representation_item_composition
+  SUBTYPE OF (String_representation_item_relationship);
+END_ENTITY;
+
+ENTITY String_representation_item_relationship
+  ABSTRACT SUPERTYPE ;
+  relating_representation_item : String_representation_item;
+  related_representation_item : String_representation_item;
+END_ENTITY;
+
+ENTITY String_representation_item_sequence
+  SUBTYPE OF (String_representation_item_relationship);
+END_ENTITY;
+
+ENTITY Template_specification;
+  description : OPTIONAL STRING;
+  template : template_specification_item;
+  text : Encoded_text_representation_item;
+END_ENTITY;
+
+ENTITY Uniform_resource_indicator_representation_item
+  SUBTYPE OF (Representation_item);
+  uri : STRING;
+END_ENTITY;
+
+END_SCHEMA;  -- Encoded_text_representation_arm
+

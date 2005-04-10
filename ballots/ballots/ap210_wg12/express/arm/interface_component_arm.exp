@@ -1,0 +1,28 @@
+(*
+   $Id: arm.exp,v 1.11 2005/04/04 10:08:45 liutkus Exp $
+   ISO TC184/SC4/WG12 N3462 - ISO/CD-TS 10303-1691 Interface component - EXPRESS ARM
+*)
+
+SCHEMA Interface_component_arm;
+
+	USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721
+
+	SUBTYPE_CONSTRAINT physical_component_feature_subtypes FOR Physical_component_feature;
+		(ONEOF (Physical_component_terminal,
+	 	Physical_component_interface_terminal));
+	END_SUBTYPE_CONSTRAINT;
+
+  ENTITY Physical_component_interface_terminal
+    ABSTRACT SUPERTYPE 
+    SUBTYPE OF (Physical_component_feature);
+      SELF\Component_feature.associated_component : Interface_component;
+  END_ENTITY;
+
+  ENTITY Interface_component
+    SUBTYPE OF (Physical_component);
+    INVERSE
+      access_mechanism : SET[1:?] OF physical_component_interface_terminal FOR associated_component;
+  END_ENTITY;
+
+END_SCHEMA;
+

@@ -1,0 +1,48 @@
+(*
+   $Id: mim.exp,v 1.5 2005/02/10 13:04:03 liutkus Exp $
+   ISO TC184/SC4/WG12 N3673 - ISO/CD-TS 10303-1667 Extended elemental geometric shape - EXPRESS MIM
+*)
+
+
+SCHEMA Extended_elemental_geometric_shape_mim;
+	USE FROM Basic_geometry_mim;	-- ISO/TS 10303-1652
+	USE FROM Shape_property_assignment_mim; -- ISO/TS 10303-1032
+	
+	USE FROM Representation_schema(
+		mapped_item,
+		representation_item_relationship,
+		representation_map,
+		representation_relationship_with_transformation,
+		transformation);
+		
+	USE FROM Geometry_schema(
+		vector);	
+
+  ENTITY definitional_representation_relationship
+    SUBTYPE OF (representation_relationship);
+  END_ENTITY;  
+	
+ENTITY shape_item_relationship
+  SUBTYPE OF (representation_item, representation_item_relationship);
+UNIQUE
+  UR1: SELF\representation_item_relationship.relating_representation_item, 
+       SELF\representation_item_relationship.related_representation_item;
+WHERE
+  WR1: SELF\representation_item_relationship.relating_representation_item :<>: 
+       SELF\representation_item_relationship.related_representation_item;
+  WR2: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation_item ||
+       SELF\representation_item_relationship || 
+       SELF\shape_item_relationship))) = 0;
+END_ENTITY; 
+
+RULE feature_shape_definition_constraint FOR (
+         shape_representation);
+WHERE
+  WR1: SIZEOF(QUERY(sr <* shape_representation |
+       (sr\representation.name = 'zone shape')
+       AND (sr.context_of_items.coordinate_space_dimension = 3)
+       AND NOT('EXTENDED_ELEMENTAL_GEOMETRIC_SHAPE_MIM.'
+       + 'MANIFOLD_SUBSURFACE_SHAPE_REPRESENTATION' IN TYPEOF(sr)))) = 0;
+END_RULE;
+	
+END_SCHEMA;

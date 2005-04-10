@@ -1,0 +1,163 @@
+(*
+   $Id: mim.exp,v 1.7 2005/03/29 15:38:18 budreckytej Exp $
+   ISO TC184/SC4/WG12 N3661 - ISO/CD-TS 10303-1699 Layered interconnect module with design intent modifications - EXPRESS MIM
+*)
+
+
+SCHEMA Layered_interconnect_module_with_design_intent_modifications_mim;
+	USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
+	USE FROM Layered_interconnect_module_design_mim;	-- ISO/TS 10303-1698
+
+TYPE limwdim_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+     (shape_modification);
+END_TYPE; 
+
+ENTITY shape_modification
+ SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SIZEOF (QUERY (dim <* QUERY (sar <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'design intent') |
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'STRATUM_FEATURE' IN
+       TYPEOF (dim.relating_shape_aspect))) = 1;
+(* invalid csa      
+  WR2: (SIZEOF (QUERY (pd<* USEDIN (SELF, 
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       ('LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'REQUIREMENTS_PROPERTY' IN 
+       TYPEOF (pd)) AND
+       (pd\property_definition.description = 'modification causal'))) = 1) OR
+       (SIZEOF (QUERY (mcf <* QUERY (sar <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'modification causal feature') |
+       (SIZEOF (['LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'COMPONENT_SHAPE_ASPECT',
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'COMPONENT_TERMINAL',
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'PHYSICAL_COMPONENT_INTERFACE_TERMINAL',
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'STRATUM_FEATURE'] *
+       TYPEOF (mcf.relating_shape_aspect)) = 1) OR
+       ('LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'STRATUM' IN
+       TYPEOF (mcf.relating_shape_aspect.of_shape.definition)))) = 1); *)
+  WR3: (NOT (SELF\shape_aspect.description IN ['electrical isolation removal',
+         'thermal isolation removal'])) OR (SIZEOF(
+          QUERY ( pd <* USEDIN(SELF,
+         'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+         'PROPERTY_DEFINITION.DEFINITION') | 
+         (pd\property_definition.name = 'spacing requirement')  AND
+         (SIZEOF(QUERY (pdr <* USEDIN(pd,
+         'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+   'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION')|
+         (pdr\property_definition_relationship.name = 'spacing requirement') AND
+         ('LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+         'REQUIREMENTS_PROPERTY' IN
+         TYPEOF(pdr.relating_property_definition)))) = 1) ))
+                = 1);
+  WR4: (NOT (SELF\shape_aspect.description IN ['electrical isolation removal',
+       'thermal isolation removal'])) OR
+       (SIZEOF (QUERY (di <* QUERY (sar <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'design intent') |
+       ('LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'STRATUM_FEATURE' IN
+       TYPEOF (di.relating_shape_aspect)) AND
+       (di.relating_shape_aspect\shape_aspect.description IN ['conductive filled area',
+       'connected filled area']))) = 1);
+  WR5: (NOT (SELF\shape_aspect.description = 'thermal isolation removal')) OR
+       (SIZEOF (QUERY (pd<* USEDIN (SELF, 
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       ('LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'REQUIREMENTS_PROPERTY' IN 
+       TYPEOF (pd)) AND
+       (pd\property_definition.description = 'angular orientation requirement'))) = 1);
+  WR6: (NOT (SELF\shape_aspect.description = 'thermal isolation removal')) OR
+       (SIZEOF (QUERY (pd<* USEDIN (SELF, 
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       ('LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'REQUIREMENTS_PROPERTY' IN 
+       TYPEOF (pd)) AND
+       (pd\property_definition.description = 'effective current capacity requirement'))) = 1);
+  WR7: (NOT (SELF\shape_aspect.description = 'material addition feature')) OR
+       (SIZEOF (QUERY (dim <* QUERY (sar <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'material addition shape') |
+       (dim.relating_shape_aspect\shape_aspect.description =
+       'material addition feature template'))) = 1);
+END_ENTITY;
+
+RULE design_intent_modification_sequence_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+   WR1: SIZEOF (QUERY (sar <* shape_aspect_relationship |
+               (sar\shape_aspect_relationship.name = 'shape modification sequence')
+               AND
+         (NOT('LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+            'SHAPE_MODIFICATION' IN TYPEOF (sar.relating_shape_aspect)))
+               )) = 0;
+   WR2: SIZEOF (QUERY (sar <* shape_aspect_relationship |
+               (sar\shape_aspect_relationship.name = 'shape modification sequence')
+               AND
+        (NOT('LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+            'SHAPE_MODIFICATION' IN TYPEOF (sar.related_shape_aspect)))
+               )) = 0;
+END_RULE;
+
+RULE design_intent_modification_sequence_unique_constraint FOR
+ ( shape_aspect_relationship );
+LOCAL
+  dims : BAG OF shape_aspect_relationship := 
+         QUERY( sar <* shape_aspect_relationship |
+(sar\shape_aspect_relationship.name = 'shape modification sequence'));
+  pm_bag : BAG OF shape_modification := [];
+  sar_bag : BAG OF shape_aspect_relationship;
+  sm_bag : BAG OF shape_modification;
+  pass : BOOLEAN := TRUE;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(dims) by 1;
+  IF EXISTS( dims[i].relating_shape_aspect ) THEN
+    IF( 'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+'SHAPE_MODIFICATION' IN TYPEOF(dims[i].relating_shape_aspect) ) THEN
+      IF ( NOT ( dims[i].relating_shape_aspect IN pm_bag ) ) THEN
+        pm_bag := pm_bag + dims[i].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pm_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sar_bag := QUERY( sar <* dims | 
+         (sar.relating_shape_aspect :=: pm_bag[i]) );
+  sm_bag := [];
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
+      IF( 'LAYERED_INTERCONNECT_MODULE_WITH_DESIGN_INTENT_MODIFICATIONS_MIM.' +
+'SHAPE_MODIFICATION' IN 
+                     TYPEOF(sar_bag[j].related_shape_aspect) ) THEN
+        IF ( sar_bag[j].related_shape_aspect IN sm_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          sm_bag := sm_bag + sar_bag[j].related_shape_aspect;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;	
+END_SCHEMA;

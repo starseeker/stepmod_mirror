@@ -1,0 +1,240 @@
+(*
+   $Id: mim.exp,v 1.14 2005/04/04 09:13:38 liutkus Exp $
+   ISO TC184/SC4/WG12 N3292 - ISO/CD-TS 10303-1634 Assembly component placement requirements - EXPRESS MIM
+*)
+SCHEMA Assembly_component_placement_requirements_mim;
+
+	USE FROM Assembly_module_with_interconnect_component_mim;	-- ISO/TS 10303-1643
+	USE FROM Requirement_decomposition_mim;	-- ISO/TS 10303-1740	
+
+TYPE acpr_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+     (group_shape_aspect,
+     group_product_definition);
+END_TYPE;
+
+TYPE acpr_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH 
+     (shape_aspect,
+     requirements_property);
+END_TYPE;
+
+ENTITY group_product_definition
+  SUBTYPE OF (component_definition);
+WHERE
+  WR1: SELF.frame_of_reference.name = 'design requirement';
+  WR2: (NOT (SELF\product_definition.description = 
+                                      'placement group')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'REQUIREMENTS_PROPERTY' IN
+       TYPEOF (pd))) >= 1);
+END_ENTITY;
+
+RULE component_placement_restriction_assignment_constraint FOR
+( representation );
+LOCAL
+  cpra : SET OF representation := QUERY( cpra <* representation |
+          cpra.name = 'component placement restriction assignment');
+     i : INTEGER ;
+  pass1 : BOOLEAN := TRUE;
+  pass2 : BOOLEAN := TRUE;
+  mra : BOOLEAN := FALSE;
+  mrv : BOOLEAN := FALSE;
+END_LOCAL;
+ REPEAT i := 1 to SIZEOF (cpra);
+  IF NOT(pass1) THEN ESCAPE; END_IF;
+
+  IF NOT((SIZEOF(QUERY(rr <* USEDIN(cpra[i],
+  'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'REPRESENTATION_RELATIONSHIP.REP_1') | (rr.name =
+    'component placement restriction assignment area') AND
+    (SIZEOF(QUERY(pdr <* USEDIN(rr.rep_2,
+  'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+    ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'MOUNTING_RESTRICTION_AREA' IN TYPEOF(pdr.definition.definition)))
+    ) = 1 ) 
+     )) <=1 ) OR
+(SIZEOF(QUERY(rr <* USEDIN(cpra[i],
+  'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'REPRESENTATION_RELATIONSHIP.REP_1') | (rr.name =
+    'component placement restriction assignment volume') AND
+    (SIZEOF(QUERY(pdr <* USEDIN(rr.rep_2,
+  'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+    ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'MOUNTING_RESTRICTION_VOLUME' IN TYPEOF(pdr.definition.definition)))
+    ) = 1 )
+     )) <=1 )
+        ) THEN pass1 := FALSE;
+  END_IF;      
+  mra := (SIZEOF(QUERY(rr <* USEDIN(cpra[i],
+  'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'REPRESENTATION_RELATIONSHIP.REP_1') | (rr.name =
+    'component placement restriction assignment area') AND
+    (SIZEOF(QUERY(pdr <* USEDIN(rr.rep_2,
+  'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+    ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'MOUNTING_RESTRICTION_AREA' IN TYPEOF(pdr.definition.definition)))
+    ) = 1 )
+     )) =1 );
+  mrv := (SIZEOF(QUERY(rr <* USEDIN(cpra[i],
+  'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'REPRESENTATION_RELATIONSHIP.REP_1') | (rr.name =
+    'component placement restriction assignment volume') AND
+    (SIZEOF(QUERY(pdr <* USEDIN(rr.rep_2,
+  'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+    ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'MOUNTING_RESTRICTION_VOLUME' IN TYPEOF(pdr.definition.definition)))
+    ) = 1 )
+     )) =1 );
+  IF NOT(mra OR mrv) THEN pass1 := FALSE; END_IF;
+ END_REPEAT;
+ REPEAT i := 1 to SIZEOF (cpra);
+  IF NOT(pass1) THEN ESCAPE; END_IF;
+  IF NOT(pass2) THEN ESCAPE; END_IF;
+
+  IF NOT(SIZEOF(QUERY(pdr <* USEDIN(cpra[i],
+  'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') | 
+    ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+  'GROUPED_REQUIREMENTS_PROPERTY' IN TYPEOF(pdr.definition))
+    AND
+    (pdr.definition\group.name =
+    'item restricted requirements property')
+     )
+    ) = 1 ) THEN pass2 := FALSE;
+  END_IF;
+ END_REPEAT;
+WHERE
+  WR1: pass1;
+  WR2: pass2; 
+END_RULE;
+
+ENTITY mounting_restriction_area
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: EXISTS(SELF.of_shape.definition\product_definition.name);
+  WR2: ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'PHYSICAL_UNIT' IN TYPEOF (SELF.of_shape.definition));
+
+  WR3: SELF.of_shape.definition.frame_of_reference.name IN ['physical design'];
+
+  WR4: SELF.of_shape.definition\product_definition.name = 'assembly module';
+
+  WR5: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'SHAPE_REPRESENTATION' IN 
+       TYPEOF (pdr.used_representation)) AND
+       ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'CSG_2D_SHAPE_REPRESENTATION' IN 
+       TYPEOF (pdr.used_representation)))) = 1))) = 0;
+  WR6: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       ((sar\shape_aspect_relationship.name = 'mounting surface') AND 
+       (sar.related_shape_aspect\shape_aspect.description =
+       'interconnect module component surface feature')))) = 1;
+  WR7: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\shape_aspect ||
+       SELF\mounting_restriction_area))) = 0;
+
+END_ENTITY;
+
+ENTITY mounting_restriction_volume
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'PHYSICAL_UNIT' IN TYPEOF (SELF.of_shape.definition));
+
+  WR2: SELF.of_shape.definition.frame_of_reference.name IN ['physical design'];
+
+  WR3: SELF.of_shape.definition.name = 'assembly module';
+
+  WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'SHAPE_REPRESENTATION' IN 
+       TYPEOF (pdr.used_representation)) AND
+        (pdr.used_representation\representation.context_of_items\
+       geometric_representation_context.coordinate_space_dimension = 3)
+       )) = 1))) = 0;
+(* invlaid csa
+  WR5: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.' +
+       'COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (sar.related_shape_aspect)) AND
+       (sar\shape_aspect_relationship.name = 'mounting surface') AND 
+       (sar.related_shape_aspect\shape_aspect.description =
+       'interconnect module component surface feature'))) = 1; *)
+  WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\shape_aspect ||
+       SELF\mounting_restriction_volume))) = 0;
+END_ENTITY;
+
+RULE placement_group_area_assignment_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'area impacted group') AND NOT
+       ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.'
+       + 'MOUNTING_RESTRICTION_AREA' IN TYPEOF(sar.related_shape_aspect))
+       )) = 0;
+  WR2: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'area impacted group') AND NOT
+       (('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.'
+       + 'GROUP_SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+       OR (('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.'
+       + 'SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+       AND ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.'
+       + 'GROUP_PRODUCT_DEFINITION'
+       IN TYPEOF(sar.relating_shape_aspect.of_shape.definition))
+       AND ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.'
+       + 'PRODUCT_DEFINITION_CONTEXT'
+IN TYPEOF(sar.relating_shape_aspect.of_shape.definition.frame_of_reference))
+   AND 
+     (sar.relating_shape_aspect.of_shape.definition.frame_of_reference.name
+       = 'design requirement') 
+       )))) = 0;
+END_RULE;
+
+RULE placement_group_volume_assignment_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'volume impacted group') AND NOT
+       ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.'
+       + 'MOUNTING_RESTRICTION_VOLUME' IN TYPEOF(sar.related_shape_aspect))
+       )) = 0;
+  WR2: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'volume impacted group') AND NOT
+       (('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.'
+       + 'GROUP_SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+       OR (('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.'
+       + 'SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+       AND ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.'
+       + 'GROUP_PRODUCT_DEFINITION'
+       IN TYPEOF(sar.relating_shape_aspect.of_shape.definition))
+       AND ('ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_MIM.'
+       + 'PRODUCT_DEFINITION_CONTEXT'
+IN TYPEOF(sar.relating_shape_aspect.of_shape.definition.frame_of_reference))
+   AND 
+     (sar.relating_shape_aspect.of_shape.definition.frame_of_reference.name
+       = 'design requirement') 
+       )))) = 0;
+END_RULE;
+
+END_SCHEMA;
+

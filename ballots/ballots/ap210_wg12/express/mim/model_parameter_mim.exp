@@ -1,0 +1,171 @@
+(*
+   $Id: mim.exp,v 1.19 2005/04/04 10:22:52 liutkus Exp $
+   ISO TC184/SC4/WG12 N3493 - ISO/CD-TS 10303-1703 Model parameter - EXPRESS MIM
+*)
+
+
+SCHEMA Model_parameter_mim;
+	USE FROM Characteristic_mim;	-- ISO/TS 10303-1654
+	USE FROM Classification_with_attributes_mim;	-- ISO/TS 10303-1111
+	USE FROM Independent_property_representation_mim;	-- ISO/TS 10303-1038
+	USE FROM Group_mim;	-- ISO/TS 10303-1113	
+	
+	USE FROM Specification_document_mim;	-- ISO/TS 10303-1747
+
+TYPE mp_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH 
+   (representation_item);
+END_TYPE; 
+
+TYPE mp_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+   (model_parameter);
+END_TYPE; 
+
+TYPE model_parameter_assigned_item = SELECT
+     (unit);
+END_TYPE;
+
+ENTITY category_model_parameter 
+ SUBTYPE OF (model_parameter);
+END_ENTITY;
+
+ENTITY model_parameter 
+ SUBTYPE OF (descriptive_representation_item,group_assignment, general_property);
+  items : OPTIONAL SET [1:1] OF model_parameter_assigned_item;
+WHERE
+  WR1: SIZEOF (USEDIN (SELF, 
+       'MODEL_PARAMETER_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 1;
+  WR2: SIZEOF (QUERY (aga <* USEDIN (SELF, 
+       'MODEL_PARAMETER_MIM.' +
+       'APPLIED_GROUP_ASSIGNMENT.ITEMS') |
+       ('MODEL_PARAMETER_MIM.' +
+       'PARAMETER_TYPE' IN 
+       TYPEOF (aga.assigned_group)) AND
+       (aga.assigned_group\group.name IN ['string property type', 
+       'logical property type', 'physical property type', 
+       'boolean property type']))) = 1;
+END_ENTITY;
+
+ENTITY parameter_assignment_override
+  SUBTYPE OF (representation, representation_relationship);
+UNIQUE
+  UR1: SELF\representation_relationship.rep_1, SELF\representation_relationship.rep_2;
+WHERE
+  WR1: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation ||
+       SELF\representation_relationship || 
+       SELF\parameter_assignment_override))) = 0;
+  WR2: SELF\representation_relationship.rep_1 <> 
+       SELF\representation_relationship.rep_2;
+  WR3: SELF\representation_relationship.name = '';
+  WR4: SELF\representation.name = '';
+  WR5: 'MODEL_PARAMETER_MIM.' +
+       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF(SELF\representation_relationship.rep_1);
+  WR6: 'MODEL_PARAMETER_MIM.' +
+       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF(SELF\representation_relationship.rep_2);
+END_ENTITY; 
+
+ENTITY parameter_assignment
+  SUBTYPE OF (parameter_assignment_representation, property_definition_representation);
+END_ENTITY; 
+
+ENTITY parameter_assignment_representation
+  SUBTYPE OF (representation);
+WHERE
+  WR1: SIZEOF (SELF.items) = 2;
+  WR2: SIZEOF (QUERY (it <* SELF.items |
+       (SIZEOF (TYPEOF (it) *
+       ['MODEL_PARAMETER_MIM.' +
+       'MODEL_PARAMETER']) 
+       = 1))) = 1;
+  WR3: SIZEOF (QUERY (it <* SELF.items |
+       (SIZEOF (TYPEOF (it) *
+       ['MODEL_PARAMETER_MIM.' +
+       'COORDINATED_REPRESENTATION_ITEM']) 
+       = 1))) <= 1;
+  WR4: SIZEOF (QUERY (it <* SELF.items |
+        (SIZEOF (QUERY(aga <* USEDIN (it,
+        'MODEL_PARAMETER_MIM.' +
+        'APPLIED_GROUP_ASSIGNMENT.ITEMS') |
+             (SIZEOF (TYPEOF ( aga\group_assignment.assigned_group) *
+       ['MODEL_PARAMETER_MIM.' +
+       'CHARACTERISTIC_TYPE']) = 1))) 
+       = 1))) <= 1;
+  WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
+       SELF\parameter_assignment_representation)) = 0; 
+END_ENTITY;
+
+ENTITY product_specific_parameter_value_assignment
+  SUBTYPE OF (characterized_object,
+              product_related_product_category); 
+WHERE
+  WR1: SIZEOF(SELF\product_related_product_category.products) = 1;
+  WR2: SIZEOF(QUERY(pd <* USEDIN(SELF,
+       'MODEL_PARAMETER_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (pd\property_definition.description = 
+                                'assigned parameter') AND
+       (SIZEOF(QUERY(pdr <* USEDIN(pd,
+       'MODEL_PARAMETER_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       (SIZEOF (
+       ['MODEL_PARAMETER_MIM.' +
+       'PARAMETER_ASSIGNMENT_REPRESENTATION'] *
+       TYPEOF (pdr.used_representation)) = 1))) = 1))) = 1;
+  WR3: NOT ('MODEL_PARAMETER_MIM.' +
+       'CHARACTERIZED_PRODUCT_CATEGORY' IN
+       TYPEOF(SELF));  
+  WR4: SELF\characterized_object.name = SELF\product_category.name;  
+END_ENTITY;
+
+ENTITY schema_based_model_parameter 
+ SUBTYPE OF (model_parameter);
+END_ENTITY;
+
+RULE model_parameter_unique_constraint FOR
+ ( model_parameter );
+LOCAL
+  name_bag : BAG OF STRING := [];
+  mp_bag : BAG OF model_parameter;
+  adr_bag : BAG OF applied_document_reference;
+  pass : BOOLEAN := TRUE;
+  d_bag : BAG OF document;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(model_parameter) by 1;
+  IF EXISTS( model_parameter[i]\representation_item.name ) THEN
+    IF( NOT( model_parameter[i]\representation_item.name IN name_bag ) ) THEN
+      name_bag := name_bag + model_parameter[i]\representation_item.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  mp_bag := QUERY( mp <* model_parameter | (mp\representation_item.name = name_bag[i]) );
+  d_bag := [];
+  REPEAT j := 1 to SIZEOF(mp_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    adr_bag := USEDIN( mp_bag[j], 
+'MODEL_PARAMETER_MIM.'
++ 'APPLIED_DOCUMENT_REFERENCE.ITEMS' );
+    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
+      IF EXISTS( adr_bag[k].assigned_document ) THEN
+        IF ( adr_bag[k].assigned_document IN d_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          d_bag := d_bag + adr_bag[k].assigned_document;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+END_SCHEMA;
+
+

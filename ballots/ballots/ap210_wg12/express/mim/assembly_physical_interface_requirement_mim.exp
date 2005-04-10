@@ -1,0 +1,52 @@
+(*
+   $Id: mim.exp,v 1.14 2005/04/04 09:13:44 liutkus Exp $
+   ISO TC184/SC4/WG12 N3361 - ISO/CD-TS 10303-1647 Assembly physical interface requirement - EXPRESS MIM
+*)
+
+
+SCHEMA Assembly_physical_interface_requirement_mim;
+
+	USE FROM Assembly_functional_interface_requirement_mim;	-- ISO/TS 10303-1635
+	USE FROM Printed_physical_layout_template_mim; -- ISO/TS 10303-1737
+	USE FROM Requirement_decomposition_mim; -- ISO/TS 10303-1740
+	USE FROM Product_structure_schema(specified_higher_usage_occurrence);
+
+TYPE apir_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+    (shape_aspect); 
+END_TYPE; 
+
+TYPE apir_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+    (protocol_physical_layer_definition); 
+END_TYPE; 
+
+RULE mating_connector_placement_relationship_constraint FOR
+( shape_representation );
+WHERE
+  WR1: SIZEOF(QUERY(sr <* shape_representation |
+       (sr\representation.name = 'mating connector placement')
+       AND (SIZEOF(QUERY(p <* sr.items |
+       ('ASSEMBLY_PHYSICAL_INTERFACE_REQUIREMENT_MIM.'
+        + 'PLACEMENT' IN TYPEOF(p))
+       AND (p\representation_item.name = 'connector placement'))) = 0))) = 0;
+END_RULE;
+
+RULE next_higher_assembly_interface_requirement_constraint FOR 
+( specified_higher_usage_occurrence );
+WHERE
+  WR1: SIZEOF(QUERY(shuo <* specified_higher_usage_occurrence |
+       NOT(SIZEOF(QUERY(pd <* USEDIN(shuo,
+       'ASSEMBLY_PHYSICAL_INTERFACE_REQUIREMENT_MIM.'
+       + 'PROPERTY_DEFINITION.DEFINITION') |
+       NOT(SIZEOF(QUERY(pdr <* USEDIN(pd,
+       'ASSEMBLY_PHYSICAL_INTERFACE_REQUIREMENT_MIM.'
+       + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+        ('ASSEMBLY_PHYSICAL_INTERFACE_REQUIREMENT_MIM.'
+       + 'SHAPE_REPRESENTATION' IN TYPEOF(pdr.used_representation))
+       AND (pdr.used_representation\representation.name = '3d bound volume shape'))) = 0)
+       )) = 0)
+       )) = 0;
+END_RULE;
+	
+END_SCHEMA;
+
+

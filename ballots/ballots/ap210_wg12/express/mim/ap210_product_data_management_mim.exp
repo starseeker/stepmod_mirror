@@ -1,0 +1,962 @@
+(*
+   $Id: mim.exp,v 1.43 2005/04/08 18:23:54 liutkus Exp $
+   ISO TC184/SC4/WG12 N3349 - ISO/CD-TS 10303-1628 Ap210 product data management - EXPRESS MIM
+*)
+
+
+SCHEMA Ap210_product_data_management_mim;
+
+	USE FROM Product_data_management_mim;	-- ISO/TS 10303-1231
+	USE FROM Alias_identification_mim;	-- ISO/TS 10303-1025
+	USE FROM Classification_with_attributes_mim;	-- ISO/TS 10303-1111
+	USE FROM Generic_material_aspects_mim;	-- ISO/TS 10303-1681
+	USE FROM Group_mim;	-- ISO/TS 10303-1113
+	USE FROM Part_occurrence_mim;	-- ISO/TS 10303-1715
+	USE FROM Pre_defined_product_data_management_specialisations_mim;
+	USE FROM Promissory_usage_in_product_concept_mim;	-- ISO/TS 10303-1758
+	USE FROM Requirement_assignment_mim;	-- ISO/TS 10303-1233
+	USE FROM Requirement_view_definition_relationship_mim;	-- ISO/TS 10303-1142
+	USE FROM Test_select_product_mim;	-- ISO/TS 10303-1757
+
+
+	USE FROM Contract_schema(contract_type);
+	USE FROM Document_schema(document_type);
+	USE FROM Product_definition_schema(product_definition_formation_with_specified_source);
+	USE FROM Product_structure_schema(make_from_usage_option);
+	USE FROM Representation_schema(parametric_representation_context);
+
+
+TYPE ap210_pdm_name_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON name_item WITH 
+   (external_class_library,
+   product,
+   product_definition);
+END_TYPE; 
+
+TYPE ap210_pdm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_approval_item WITH 
+     (action_directive,
+      certification,
+      configuration_item,
+      contract,
+      date,
+      directed_action,
+      document,
+      effectivity,
+      executed_action,
+      general_property_relationship,
+      product,
+      product_definition,
+      product_definition_formation_relationship,
+      product_definition_relationship,
+      product_definition_formation,
+      representation,
+      requirement_assignment,
+      security_classification,
+      shape_aspect_relationship);
+END_TYPE;
+
+TYPE ap210_pdm_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_certification_item WITH 
+     (alternate_product_relationship,
+     product_definition_formation,
+     make_from_usage_option);
+END_TYPE;
+
+TYPE ap210_pdm_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_classification_item WITH 
+     (material_designation);
+END_TYPE;
+
+TYPE ap210_pdm_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item WITH 
+     (action_directive,
+      alternate_product_relationship,
+      directed_action,
+      person_and_organization,
+      product,
+      product_definition_formation);
+END_TYPE;
+
+TYPE ap210_pdm_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_date_and_time_item WITH 
+     (action_directive,
+      approval_person_organization,
+      certification,
+      contract,
+      directed_action,
+      document,
+      product_definition,
+      security_classification);
+END_TYPE;
+
+TYPE ap210_pdm_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_document_reference_item WITH 
+     (applied_external_identification_assignment,
+      assembly_component_usage,
+      characterized_object,
+      configuration_item,
+      descriptive_representation_item,
+      externally_defined_item,
+      material_designation,
+      measure_representation_item,
+      product,
+      product_category,
+      product_definition,
+      product_definition_formation,
+      property_definition,
+      representation,
+      representation_item);
+END_TYPE;
+
+TYPE ap210_pdm_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH 
+     (product_definition,
+     product_definition_formation,
+     property_definition_representation,
+     representation,
+     representation_item,
+     shape_aspect,
+     shape_aspect_relationship);
+END_TYPE;
+
+TYPE ap210_pdm_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_organization_item WITH 
+     (action_directive,
+      applied_identification_assignment,
+      certification,
+      directed_action,
+      document,
+      product,
+      product_definition,
+      product_definition_formation,
+      product_definition_formation_relationship,
+      representation);
+END_TYPE;
+
+TYPE ap210_pdm_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_person_and_organization_item WITH 
+     (action_directive,
+      applied_identification_assignment,
+      certification,
+      document,
+      product,
+      product_definition_formation,
+      product_definition_formation_relationship,
+      product_definition,
+      directed_action);
+END_TYPE;
+
+TYPE ap210_pdm_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+    (descriptive_representation_item, 
+     configuration_item, 
+     product_definition, 
+     product_definition_formation, 
+     product, 
+     shape_aspect, 
+     representation); 
+END_TYPE; 
+
+TYPE ap210_pdm_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_security_classification_item WITH 
+     (document,
+      make_from_usage_option,
+      product_definition_formation,
+      product_definition);
+END_TYPE;
+
+TYPE ap210_pdm_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_date_item WITH 
+     (action_directive,
+      product_definition,
+      directed_action,
+      approval_person_organization,
+      contract,
+	  document,
+	  executed_action,
+      security_classification,
+      certification);
+END_TYPE;
+
+TYPE ap210_pdm_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_identification_item WITH 
+     (characterized_class,
+      configuration_item,
+      material_designation,
+      person_and_organization,
+      product,
+      product_category,
+      product_concept,
+      product_definition_formation,
+      organization);
+END_TYPE;
+
+TYPE promissory_usage_in_product_model_assigned_item = SELECT
+     (product_concept,
+      product_definition);
+END_TYPE;
+
+TYPE ap210_pdm_action_request_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pdm_action_request_item WITH 
+     (versioned_action_request);
+END_TYPE;
+
+RULE approval_requires_approval_date_time FOR (approval,
+         approval_date_time);
+WHERE
+  WR1: SIZEOF(QUERY ( app <* approval |
+       NOT (SIZEOF (QUERY (adt <* approval_date_time |
+       app :=: adt.dated_approval)) = 1))) = 0;
+END_RULE;
+
+RULE approval_requires_approval_person_organization FOR (approval,
+         approval_person_organization);
+WHERE
+  WR1: SIZEOF (QUERY (app <* approval |
+       NOT (SIZEOF (QUERY (apo <* approval_person_organization |
+       app :=: apo.authorized_approval)) >= 1))) = 0;
+END_RULE;
+
+RULE approval_role_constraint FOR
+  (approval_role);
+WHERE
+  WR1: SIZEOF (QUERY (apr <* approval_role |
+       NOT (apr\approval_role.role = 'authorizer')
+       )) = 0;
+END_RULE;
+
+RULE approvals_are_assigned FOR
+  (approval, approval_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (app <* approval |
+       NOT (SIZEOF (QUERY (aa <* approval_assignment |
+       app :=: aa.assigned_approval )) >= 1 ))) = 0;
+END_RULE;
+
+RULE certification_requires_date_or_date_and_time FOR
+  (certification, applied_date_and_time_assignment,
+   applied_date_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (cert <* certification |
+       NOT ((SIZEOF (QUERY (adata <* applied_date_and_time_assignment |
+       cert IN adata.items )) = 1 ) OR
+       (SIZEOF (QUERY (ada <* applied_date_assignment |
+       cert IN ada.items )) = 1 )))) = 0;
+END_RULE;
+
+RULE certification_unique_constraint FOR (certification);
+
+LOCAL
+  r :  BAG OF certification := QUERY (r <* certification | TRUE);
+  pass :  BOOLEAN := TRUE;
+  name_bag :  BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i]\certification.name ) THEN
+    IF (r[i]\certification.name IN name_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      name_bag := name_bag + r[i]\certification.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+WHERE
+  WR1:  pass;
+
+END_RULE;
+
+RULE configuration_item_requires_person_organization FOR
+  (configuration_item,
+  applied_person_and_organization_assignment,
+  applied_organization_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (ci <* configuration_item |
+       NOT ((SIZEOF (QUERY (apaoa <*
+       applied_person_and_organization_assignment |
+       ci IN apaoa.items )) = 1 ) OR
+       (SIZEOF (QUERY (aoa <*
+       applied_organization_assignment |
+       ci IN aoa.items )) = 1 )))) = 0;
+END_RULE;
+
+RULE contract_unique_constraint FOR (contract);
+
+LOCAL
+  r : BAG OF contract := QUERY (r <* contract | TRUE);
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i]\contract.name ) THEN
+    IF (r[i]\contract.name IN name_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      name_bag := name_bag + r[i]\contract.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+WHERE
+  WR1 : pass;
+
+END_RULE;
+
+RULE date_and_time_require_minute_and_second FOR ( date_and_time );
+WHERE
+  WR1: SIZEOF(QUERY(dat <* date_and_time |
+              NOT(Exists(dat.time_component.minute_component)))) = 0;
+  WR2: SIZEOF(QUERY(dat <* date_and_time |
+              NOT(Exists(dat.time_component.second_component)))) = 0;
+END_RULE;
+
+RULE date_constraint FOR (date);
+WHERE
+  WR1: SIZEOF (QUERY (d <* date |
+       d.year_component < 1856)) = 0;
+END_RULE;
+
+RULE dependent_instantiable_action_directive FOR (action_directive);
+WHERE
+  WR1: SIZEOF (QUERY (ad <* action_directive |
+       NOT (SIZEOF (USEDIN (ad, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_approval_status FOR (approval_status);
+WHERE
+WR1: SIZEOF (QUERY (ast <* approval_status |
+     NOT (SIZEOF (USEDIN (ast, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_certification_type FOR (certification_type);
+WHERE
+  WR1: SIZEOF (QUERY (ct <* certification_type |
+       NOT (SIZEOF (USEDIN (ct, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_contract_type FOR (contract_type);
+WHERE
+  WR1: SIZEOF(QUERY ( ct <* contract_type |
+       NOT (SIZEOF (USEDIN (ct, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_date FOR (date);
+WHERE
+  WR1: SIZEOF (QUERY (dt <* date |
+       NOT (SIZEOF(USEDIN (dt, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_date_role FOR (date_role);
+WHERE
+  WR1: SIZEOF (QUERY (dr <* date_role |
+       NOT (SIZEOF (USEDIN (dr, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_date_time_role FOR (date_time_role);
+WHERE
+  WR1: SIZEOF (QUERY (dtr <* date_time_role |
+       NOT (SIZEOF (USEDIN (dtr, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_document_type FOR (document_type);
+WHERE
+  WR1: SIZEOF (QUERY (dt <* document_type |
+       NOT (SIZEOF (USEDIN (dt, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_named_unit FOR (named_unit);
+WHERE
+  WR1: SIZEOF (QUERY (nu <* named_unit |
+       NOT (SIZEOF (USEDIN (nu, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_organization_role FOR (
+         organization_role);
+WHERE
+  WR1: SIZEOF (QUERY (org <* organization_role |
+       NOT (SIZEOF (USEDIN (org, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_parametric_representation_context FOR
+  (parametric_representation_context);
+WHERE
+  WR1: SIZEOF (QUERY (prc <* parametric_representation_context |
+       NOT (SIZEOF (USEDIN (prc, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_person_and_organization_role FOR (
+         person_and_organization_role);
+WHERE
+  WR1: SIZEOF (QUERY (poar <* person_and_organization_role |
+       NOT (SIZEOF (USEDIN (poar, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_representation_item FOR (representation_item);
+WHERE
+  WR1: SIZEOF (QUERY (ri <* representation_item |
+       NOT (SIZEOF (USEDIN (ri, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_security_classification_level FOR (
+         security_classification_level);
+WHERE
+  WR1: SIZEOF (QUERY (scl <* security_classification_level |
+       NOT (SIZEOF (USEDIN (scl, '')) >= 1))) = 0;
+END_RULE;
+
+RULE dependent_instantiable_shape_representation FOR (
+         shape_representation);
+WHERE
+  WR1: SIZEOF (QUERY (sr <* shape_representation |
+       NOT (SIZEOF(USEDIN(sr, '')) >= 1))) = 0;
+END_RULE;
+
+RULE directed_action_requires_approval FOR
+  (directed_action, applied_approval_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (da <* directed_action |
+       NOT (SIZEOF (QUERY (aaa <* applied_approval_assignment |
+       da IN aaa.items )) = 1 ))) = 0;
+END_RULE;
+
+RULE directed_action_requires_date_or_date_and_time FOR
+  (directed_action, applied_date_and_time_assignment,
+   applied_date_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (da <* directed_action |
+       NOT ((SIZEOF (QUERY (adata <* applied_date_and_time_assignment |
+       (da IN adata.items)
+       AND (adata.role\date_time_role.name = 'start date'))) = 1 ) OR
+       (SIZEOF (QUERY (ada <* applied_date_assignment |
+       (da IN ada.items)
+       AND (ada.role\date_role.name = 'start date'))) = 1 )))) = 0;
+END_RULE;
+
+RULE ee_product_configuration_unique_constraint FOR
+ ( configuration_item );
+LOCAL
+  id_bag : BAG OF STRING := [];
+  ci_bag : BAG OF configuration_item;
+  cd_bag : BAG OF configuration_design;
+  pass : BOOLEAN := TRUE;
+  pdf_bag : BAG OF product_definition_formation;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(configuration_item) by 1;
+  IF EXISTS( configuration_item[i].id ) THEN
+    IF( NOT( configuration_item[i].id IN id_bag ) ) THEN
+      id_bag := id_bag + configuration_item[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(id_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  pdf_bag := [];
+  ci_bag := QUERY( ci <* configuration_item | (ci.id = id_bag[i]) );
+  REPEAT j := 1 to SIZEOF(ci_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    cd_bag := USEDIN( ci_bag[j], 
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
++ 'CONFIGURATION_DESIGN.CONFIGURATION');
+    REPEAT k := 1 to SIZEOF(cd_bag) by 1;
+      IF EXISTS( cd_bag[k].design ) THEN
+        IF ( cd_bag[k].design IN pdf_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          pdf_bag := pdf_bag + cd_bag[k].design;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE ee_product_constraint FOR ( product );
+WHERE
+  WR1: SIZEOF(QUERY(prod <* product |
+       NOT ((SIZEOF(QUERY(aoa <* USEDIN(prod,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')
+       | (aoa.role\organization_role.name = 'design owner')
+       )) = 1) OR 
+       (SIZEOF(QUERY(apaoa <* USEDIN(prod,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS')
+       | (apaoa.role\person_and_organization_role.name = 'design owner')
+       )) = 1)))) = 0;
+  WR2: SIZEOF(QUERY(p <* product |
+              SIZEOF(USEDIN(p,
+              'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+              + 'PRODUCT_DEFINITION_FORMATION.OF_PRODUCT')) = 0)) = 0;
+END_RULE;
+
+RULE ee_product_definition_constraint FOR 
+( product_definition_with_associated_documents );
+WHERE
+  WR1: SIZEOF(QUERY(pdwad <* product_definition_with_associated_documents |
+       NOT(
+       (SIZEOF(QUERY(adata <* USEDIN(pdwad,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS')
+       | (adata.role\date_time_role.name = 'creation date')
+       )) = 1)))) = 0;
+  WR2: SIZEOF(QUERY(pdwad <* product_definition_with_associated_documents |
+       NOT ((SIZEOF(QUERY(aoa <* USEDIN(pdwad,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')
+       | (aoa.role\organization_role.name = 'creator')
+       )) = 1) OR 
+       (SIZEOF(QUERY(apaoa <* USEDIN(pdwad,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS')
+       | (apaoa.role\person_and_organization_role.name = 'creator')
+       )) = 1))
+       )) = 0;
+  WR3: SIZEOF(QUERY(pdwad <* product_definition_with_associated_documents |
+       NOT(
+       (SIZEOF(USEDIN(pdwad,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')
+       ) = 1)
+       )
+       )) = 0;
+  WR4: SIZEOF(QUERY(pdwad <* product_definition_with_associated_documents |
+       NOT(
+       (SIZEOF(USEDIN(pdwad,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')
+       ) = 1)
+       )
+       )) = 0;
+END_RULE;
+
+RULE ee_product_model_unique_constraint FOR (product_concept);
+
+LOCAL
+  r : BAG OF product_concept := QUERY (r <* product_concept | TRUE);
+  pass : BOOLEAN := TRUE;
+  id_bag : BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i].id ) THEN
+    IF (r[i]\product_concept.id IN id_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      id_bag := id_bag + r[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+WHERE
+  WR1 : pass;
+END_RULE;
+
+RULE ee_product_unique_constraint FOR
+ ( product );
+LOCAL
+  id_bag : BAG OF STRING := [];
+  p_bag : BAG OF product;
+  aoa_bag : BAG OF applied_organization_assignment;
+  apaoa_bag : BAG OF applied_person_and_organization_assignment;
+  pass : BOOLEAN := TRUE;
+  o_bag : BAG OF organization;
+  pao_bag : BAG OF person_and_organization;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(product) by 1;
+  IF EXISTS( product[i].id ) THEN
+    IF( NOT( product[i].id IN id_bag ) ) THEN
+      id_bag := id_bag + product[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(id_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  o_bag := [];
+  pao_bag := [];
+  p_bag := QUERY( p <* product | (p.id = id_bag[i]) );
+  REPEAT j := 1 to SIZEOF(p_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    aoa_bag := QUERY( aoa <* USEDIN( p_bag[j], 
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
++ 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') | 
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'ORGANIZATION' IN TYPEOF(aoa.assigned_organization)) AND 
+(aoa.role\organization_role.name = 'design owner')) );
+    REPEAT k := 1 to SIZEOF(aoa_bag) by 1;
+      IF EXISTS( aoa_bag[k].assigned_organization ) THEN
+        IF ( aoa_bag[k].assigned_organization IN o_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          o_bag := o_bag + aoa_bag[k].assigned_organization;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+    apaoa_bag := QUERY( apaoa <* USEDIN( p_bag[j], 
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
++ 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') | 
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'PERSON_AND_ORGANIZATION' IN 
+TYPEOF(apaoa.assigned_person_and_organization)) 
+AND (apaoa.role\person_and_organization_role.name = 'design owner')) );
+    REPEAT k := 1 to SIZEOF(apaoa_bag) by 1;
+      IF EXISTS( apaoa_bag[k].assigned_person_and_organization ) THEN
+        IF ( apaoa_bag[k].assigned_person_and_organization IN pao_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          pao_bag := pao_bag + 
+                     apaoa_bag[k].assigned_person_and_organization;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE ee_product_version_supersedence_constraint FOR 
+( product_definition_formation_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdfr <* product_definition_formation_relationship |
+       ((pdfr\product_definition_formation_relationship.name = 'product version supersedence')
+       AND (NOT(pdfr.relating_product_definition_formation.of_product :=:
+           pdfr.related_product_definition_formation.of_product)))
+       )) = 0;
+END_RULE;
+
+RULE next_higher_assembly_relationship_constraint FOR
+( next_assembly_usage_occurrence );
+WHERE
+  WR1: SIZEOF(QUERY(nauo <* next_assembly_usage_occurrence|
+       NOT(SIZEOF(QUERY(pd <* USEDIN(nauo,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'PROPERTY_DEFINITION.DEFINITION') |
+       ((SIZEOF(QUERY(pdr <* USEDIN(pd,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+        ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'COMPONENT_LOCATION' IN TYPEOF(pdr.used_representation))
+       AND 
+       (pdr.used_representation.context_of_items\geometric_representation_context.
+       coordinate_space_dimension = 3)
+       )) <= 1)
+       AND
+       (SIZEOF(QUERY(pdr <* USEDIN(pd,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+        ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'COMPONENT_LOCATION' IN TYPEOF(pdr.used_representation))
+       AND 
+       (pdr.used_representation.context_of_items\geometric_representation_context.
+       coordinate_space_dimension = 2)
+       )) <= 1))
+       )) <= 1)
+       )) = 0;
+END_RULE;
+
+RULE organization_unique_constraint FOR (organization);
+
+LOCAL
+  r : BAG OF organization := QUERY (r <* organization | TRUE);
+  pass : BOOLEAN := TRUE;
+  id_bag : BAG OF string := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF (r) by 1;
+  IF EXISTS( r[i].id ) THEN
+    IF (r[i]\organization.id IN id_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      id_bag := id_bag + r[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+WHERE
+WR1 : pass;
+END_RULE;
+
+RULE planned_effectivity_constraint FOR ( configuration_effectivity );
+WHERE
+  WR1: SIZEOF(QUERY(ce <* configuration_effectivity |
+       NOT(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF(ce.usage))
+       AND (ce.usage\product_definition_relationship.name = 'assembly composition'))
+       )) = 0;
+  WR2: SIZEOF(QUERY(ce <* configuration_effectivity |
+       SIZEOF(USEDIN(ce,
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 0 
+       )) = 0;
+
+END_RULE;
+
+RULE planned_effectivity_unique_constraint FOR
+ ( configuration_effectivity );
+LOCAL
+  ce_bag : BAG OF configuration_effectivity;
+  ci_bag : BAG OF configuration_item := [];
+  pass : BOOLEAN := TRUE;
+  acu_bag : BAG OF assembly_component_usage;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(configuration_effectivity) by 1;
+  IF EXISTS( configuration_effectivity[i].configuration.configuration ) THEN
+    IF( NOT( configuration_effectivity[i].configuration.configuration IN 
+                                                            ci_bag ) ) THEN
+      ci_bag := ci_bag + 
+               configuration_effectivity[i].configuration.configuration;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(ci_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  ce_bag := QUERY( r <* configuration_effectivity |
+((r.configuration.configuration :=: ci_bag[i]) AND 
+                              (r.usage\product_definition_relationship.name = 'assembly composition')
+AND ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF(r.usage)) ) );
+  acu_bag := [];
+  REPEAT j := 1 to SIZEOF(ce_bag) by 1;
+    IF EXISTS( ce_bag[j].usage ) THEN
+      IF ( ce_bag[j].usage IN acu_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        acu_bag := acu_bag + ce_bag[j].usage;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+
+RULE product_concept_requires_configuration_item FOR
+  (product_concept, configuration_item);
+WHERE
+  WR1: SIZEOF (QUERY (pc <* product_concept |
+       NOT (SIZEOF (QUERY (ci <* configuration_item |
+       pc :=: ci.item_concept)) >=1 ))) = 0;
+END_RULE;
+
+RULE product_definition_formation_requires_person_organization FOR
+  (product_definition,
+  applied_person_and_organization_assignment,
+  applied_organization_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* product_definition|
+       (NOT('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF(pd))) AND
+       (NOT ((SIZEOF (QUERY (apaoa <*
+       applied_person_and_organization_assignment |
+       (pd.formation IN apaoa.items) AND (apaoa.role\person_and_organization_role.name = 'creator'))) = 1 ) OR
+       (SIZEOF (QUERY (aoa <*
+       applied_organization_assignment |
+       (pd.formation IN aoa.items) AND (aoa.role\organization_role.name = 'creator'))) = 1 ))))) = 0;
+END_RULE;
+
+RULE product_requires_person_organization FOR
+  (product, applied_person_and_organization_assignment,
+   applied_organization_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (prod <* product |
+       NOT ((SIZEOF (QUERY (apaoa <*
+       applied_person_and_organization_assignment |
+       prod IN apaoa.items )) = 1 ) OR
+       (SIZEOF (QUERY (aoa <*
+       applied_organization_assignment |
+       prod IN aoa.items )) = 1 )))) = 0;
+END_RULE;
+
+RULE product_requires_product_definition_formation FOR
+  (product, product_definition_formation);
+WHERE
+  WR1: SIZEOF (QUERY (prod <* product |
+       NOT (SIZEOF (QUERY (pdf <* product_definition_formation |
+       prod :=: pdf.of_product )) >= 1 ))) = 0;
+END_RULE;
+
+RULE restrict_action_request_status FOR (action_request_status);
+WHERE
+  WR1: SIZEOF (QUERY (ars <* action_request_status |
+       NOT (ars\action_request_status.status IN
+       ['proposed', 'in work', 'issued', 'hold']))) = 0;
+END_RULE;
+
+RULE restrict_approval_status FOR (approval_status);
+WHERE
+  WR1: SIZEOF (QUERY (ast <* approval_status |
+       NOT (ast\approval_status.name IN
+       ['approved', 'not yet approved', 'disapproved', 'withdrawn']))) = 0;
+END_RULE;
+
+RULE restrict_date_role FOR (date_role);
+WHERE
+  WR1: SIZEOF (QUERY (dr <* date_role |
+       NOT (dr\date_role.name IN ['creation date', 'request date', 'release date',
+       'start date', 'contract date', 'certification date', 'sign off date',
+       'classification date', 'declassification date']))) = 0;
+END_RULE;
+
+RULE security_classification_constraint FOR (security_classification,
+     applied_date_and_time_assignment, applied_date_assignment,
+     applied_person_and_organization_assignment, applied_approval_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (sc <* security_classification |
+       NOT ((SIZEOF (QUERY (adata <* applied_date_and_time_assignment |
+       (sc IN adata.items) AND
+       ('classification date' = adata.role\date_time_role.name))) = 1 ) OR
+       (SIZEOF (QUERY (ada <* applied_date_assignment |
+       (sc IN ada.items) AND
+       ('classification date' = ada.role\date_role.name))) = 1 )))) = 0;
+  WR2: SIZEOF (QUERY (sc <* security_classification |
+       SIZEOF (QUERY (apa <* applied_person_and_organization_assignment |
+       (sc IN apa.items) AND
+       (apa.role\person_and_organization_role.name = 'classification officer')
+       )) = 0)) = 0;
+  WR3: SIZEOF (QUERY (sc <* security_classification |
+       SIZEOF (QUERY (aaa <* applied_approval_assignment |
+       (sc IN aaa.items))) = 0)) = 0;
+END_RULE;
+
+RULE subtype_exclusive_action_request_assignment FOR 
+  (action_request_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (ara <* action_request_assignment |
+       NOT (SIZEOF ([
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'CHANGE_REQUEST',
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'START_REQUEST']
+       * TYPEOF(ara)) <= 1))) = 0;
+END_RULE;
+
+RULE subtype_exclusive_property_definition_representation FOR 
+  (property_definition_representation);
+WHERE
+  WR1: SIZEOF (QUERY (pdr <* property_definition_representation |
+       NOT (SIZEOF ([
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'SHAPE_DEFINITION_REPRESENTATION',   
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'MATERIAL_PROPERTY_REPRESENTATION']
+       * TYPEOF(pdr)) <= 1))) = 0;
+END_RULE;
+
+RULE subtype_mandatory_address FOR (address);
+WHERE
+  WR1: SIZEOF (QUERY (add <* address |
+       NOT (SIZEOF ([
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'PERSONAL_ADDRESS',
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'ORGANIZATIONAL_ADDRESS'] * 
+       TYPEOF (add)) = 1))) = 0;
+END_RULE;
+
+RULE subtype_mandatory_date FOR (date);
+WHERE
+  WR1: SIZEOF (QUERY (d <* date |
+       NOT (
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'CALENDAR_DATE'
+       IN TYPEOF (d)))) = 0;
+END_RULE;
+
+RULE subtype_mandatory_product_definition_usage FOR
+  (product_definition_usage);
+WHERE
+  WR1: SIZEOF (QUERY (pdu <* product_definition_usage |
+       NOT (SIZEOF([
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'ASSEMBLY_COMPONENT_USAGE',
+       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'MAKE_FROM_USAGE_OPTION'] * 
+       TYPEOF(pdu)) = 1))) = 0;
+END_RULE;
+
+
+RULE versioned_action_request_requires_approval FOR
+  (versioned_action_request, applied_approval_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (varq <* versioned_action_request |
+       NOT (SIZEOF (QUERY (aaa <* applied_approval_assignment |
+       varq IN aaa.items )) = 1 ))) = 0;
+END_RULE;
+
+RULE versioned_action_request_requires_date_or_date_and_time FOR
+  (versioned_action_request, applied_date_and_time_assignment,
+   applied_date_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (varq <* versioned_action_request |
+       NOT ((SIZEOF (QUERY (adata <* applied_date_and_time_assignment |
+       varq IN adata.items )) = 1 ) OR
+       (SIZEOF (QUERY (ada <* applied_date_assignment |
+       varq IN ada.items )) = 1 )))) = 0;
+END_RULE;
+
+RULE versioned_action_request_requires_person_organization FOR
+  (versioned_action_request,
+  applied_person_and_organization_assignment,
+  applied_organization_assignment);
+WHERE
+  WR1: SIZEOF (QUERY (varq <* versioned_action_request |
+       NOT ((SIZEOF (QUERY (apaoa <*
+       applied_person_and_organization_assignment |
+       varq IN apaoa.items )) >= 1 ) OR
+       (SIZEOF (QUERY (aoa <*
+       applied_organization_assignment |
+       varq IN aoa.items )) >= 1 )))) = 0;
+END_RULE;
+
+RULE versioned_action_request_requires_status FOR
+  (versioned_action_request, action_request_status);
+WHERE
+  WR1: SIZEOF (QUERY (ar <* versioned_action_request |
+       NOT (SIZEOF (QUERY (ars <* action_request_status |
+       ar :=: ars.assigned_request)) = 1))) = 0;
+END_RULE;
+
+
+RULE work_request_unique_constraint FOR
+ ( versioned_action_request );
+LOCAL
+  r : BAG OF versioned_action_request := 
+QUERY( r <* versioned_action_request | 
+(SIZEOF(QUERY( ara <* USEDIN(r,
+'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'ACTION_REQUEST_ASSIGNMENT.ASSIGNED_ACTION_REQUEST' ) |
+((('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
+'CHANGE_REQUEST') IN TYPEOF(ara)) OR
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
+'START_REQUEST') IN TYPEOF(ara))))) > 0 ) );
+  pass : BOOLEAN := TRUE;
+  id_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(r) by 1;
+  IF EXISTS( r[i].id ) THEN
+    IF ( r[i].id IN id_bag ) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      id_bag := id_bag + r[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+END_SCHEMA;
+
+

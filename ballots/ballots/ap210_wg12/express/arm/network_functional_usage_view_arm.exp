@@ -1,0 +1,125 @@
+(*
+   $Id: arm.exp,v 1.22 2005/04/04 10:22:52 liutkus Exp $
+   ISO TC184/SC4/WG12 N3342 - ISO/CD-TS 10303-1705 Network functional usage view - EXPRESS ARM
+*)
+
+SCHEMA Network_functional_usage_view_arm;
+
+ USE FROM Analytical_model_arm;		-- ISO/TS 10303-1603
+ 
+-- USE FROM Product_identification_arm;          -- ISO/TS 10303-1017 
+ 
+  REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017 
+          types_of_product 
+  ); 
+  
+  USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
+  
+  USE FROM Network_functional_design_view_arm;	-- ISO/TS 10303-1704
+
+  ENTITY Equivalent_functional_terminals_assignment;
+      name                 : STRING; --ee_name;  
+      equivalent_terminals : SET[2:?] OF Functional_unit_usage_view_terminal_definition;
+  END_ENTITY;
+ 
+  ENTITY Equivalent_functional_unit_definition_assignment;
+      name                                   : STRING; --ee_name;  
+      equivalent_functional_unit_definitions : SET[2:?] OF Functional_unit_definition;
+  END_ENTITY;
+
+  ENTITY Functional_terminal_group;
+      name              : STRING; --ee_name;
+      group_description : STRING;
+      group_type        : STRING;
+    UNIQUE
+      UR1 : name;
+  END_ENTITY;
+
+  ENTITY Functional_terminal_group_assignment;
+      composed_group                 : Functional_terminal_group;
+      functional_usage_view_terminal : Scalar_terminal_definition;
+  END_ENTITY;
+ 
+   ENTITY Functional_unit_definition
+    ABSTRACT SUPERTYPE 
+    SUBTYPE OF (Product_view_definition);
+      SELF\Product_view_definition.defined_version : Network_function_version;
+  END_ENTITY;
+
+	ENTITY Functional_unit_make_from_relationship
+		SUBTYPE OF (View_definition_relationship);
+		SELF\View_definition_relationship.relating_view : Functional_unit_usage_view;		
+		SELF\View_definition_relationship.related_view 	: Functional_unit_usage_view;
+	END_ENTITY;
+
+  ENTITY Functional_unit_usage_view
+    SUBTYPE OF (Functional_unit_definition);
+    INVERSE
+      access_mechanism : SET[1:?] OF functional_unit_usage_view_terminal_definition FOR associated_functional_unit_definition;
+  END_ENTITY;
+
+  ENTITY Functional_unit_usage_view_terminal_definition
+    SUPERTYPE OF (Scalar_terminal_definition);
+      associated_functional_unit_definition : Functional_unit_usage_view;
+      signal_name                           : STRING; --ee_name;
+    INVERSE
+      node_assignment : SET[0:?] OF functional_unit_network_terminal_definition_node_assignment FOR connected_terminal;
+      bus_assignment  : SET[0:?] OF functional_unit_network_terminal_definition_bus_assignment FOR connected_terminal;
+    UNIQUE
+      UR1 : signal_name,
+ associated_functional_unit_definition;
+    WHERE
+      WR1 : (EXISTS(node_assignment) AND NOT (EXISTS(bus_assignment))) OR (NOT (EXISTS(node_assignment)) AND EXISTS(bus_assignment)) OR (NOT (EXISTS(node_assignment)) AND NOT (EXISTS(bus_assignment)));
+  END_ENTITY;
+
+  ENTITY Functional_unit_usage_view_terminal_definition_make_from_relationship;
+      associated_make_from : Functional_unit_make_from_relationship;
+      reusable_feature     : Functional_unit_usage_view_terminal_definition;
+      resultant_feature    : Functional_unit_usage_view_terminal_definition;
+    UNIQUE
+      UR1 : reusable_feature,
+ resultant_feature;
+    WHERE
+      WR1 : reusable_feature :<>: resultant_feature;
+      WR2 : reusable_feature.associated_functional_unit_definition :<>: resultant_feature.associated_functional_unit_definition;
+  END_ENTITY;
+
+  ENTITY Network_function
+  	SUBTYPE OF (Product);
+  	WHERE 
+  		WR1 : SIZEOF([ 'network function' ] * types_of_product(SELF))= 1 ;
+  END_ENTITY;
+  
+  ENTITY Network_function_version
+  	SUBTYPE OF (Product_version);
+  		SELF\Product_version.of_product : Network_function;
+  END_ENTITY;
+
+  ENTITY Scalar_terminal_definition
+    SUBTYPE OF (Functional_unit_usage_view_terminal_definition);
+  END_ENTITY;
+
+  ENTITY Scalar_terminal_definition_link;
+      precedent_terminal_definition  : Scalar_terminal_definition;
+      subsequent_terminal_definition : Scalar_terminal_definition;
+    UNIQUE
+      UR1 : precedent_terminal_definition,
+ subsequent_terminal_definition;
+    WHERE
+      WR1 : precedent_terminal_definition :<>: subsequent_terminal_definition;
+  END_ENTITY;
+
+RULE network_function_version_constraint FOR 
+(Product_version);
+WHERE
+  WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'NETWORK_FUNCTION_USAGE_VIEW_ARM.' + 'NETWORK_FUNCTION_VERSION' IN TYPEOF ( pv) ) ) AND ( 'NETWORK_FUNCTION_USAGE_VIEW_ARM.' + 'NETWORK_FUNCTION' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
+END_RULE; 
+
+RULE functional_unit_definition_constraint FOR 
+(Product_view_definition);
+WHERE
+  WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'NETWORK_FUNCTION_USAGE_VIEW_ARM.' + 'FUNCTIONAL_UNIT_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'NETWORK_FUNCTION_USAGE_VIEW_ARM.' + 'NETWORK_FUNCTION_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
+END_RULE; 
+
+
+END_SCHEMA;

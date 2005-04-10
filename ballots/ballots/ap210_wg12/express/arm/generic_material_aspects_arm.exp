@@ -1,0 +1,50 @@
+(*
+   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
+   ISO TC184/SC4/WG12 N3657 - ISO/CD-TS 10303-1681 Generic material aspects - EXPRESS ARM
+*)
+
+SCHEMA Generic_material_aspects_arm;
+
+	USE FROM Independent_property_arm;	-- ISO/TS 10303-1036
+	USE FROM Independent_property_representation_arm;	-- ISO/TS 10303-1038
+	USE FROM Property_assignment_arm;	-- ISO/TS 10303-1030
+
+TYPE material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE;
+
+TYPE dependent_or_independent_property_representation = SELECT(
+  Independent_property_representation,
+  Property_representation);
+END_TYPE;
+
+ ENTITY Data_environment;
+  environment_name : STRING;
+  description : OPTIONAL STRING;
+  environment_characterization: SET[1:?] OF dependent_or_independent_property_representation;
+ END_ENTITY;
+
+ ENTITY Material_identification;
+  material_name : STRING;
+  items : SET[1:?] OF material_item_select;
+ END_ENTITY;
+
+ ENTITY Material_property_association;
+  described_material : Material_identification;
+  associated_property_value : Material_property_value_representation;
+  definitional : OPTIONAL BOOLEAN;
+ END_ENTITY;
+
+ ENTITY Material_property_value_representation
+  SUBTYPE OF (Property_representation);
+  environment_condition : Data_environment;
+  SELF\Property_representation.property : Applied_independent_property;
+WHERE
+WR1: 'MATERIAL_ASPECTS_ARM.PDM_MATERIAL_PROPERTY' IN TYPEOF(SELF\Property_representation.property.base_independent_property); 
+END_ENTITY;
+
+ ENTITY Pdm_material_property
+  SUBTYPE OF (Independent_property);
+ END_ENTITY;
+
+
+END_SCHEMA;

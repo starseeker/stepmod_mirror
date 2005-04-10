@@ -1,0 +1,44 @@
+(*
+   $Id: mim.exp,v 1.13 2005/04/04 10:35:36 liutkus Exp $
+   ISO TC184/SC4/WG12 N3604 - ISO/CD-TS 10303-1744 Shield - EXPRESS MIM
+*)
+
+
+SCHEMA Shield_mim;
+
+	USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
+	USE FROM Layered_interconnect_module_with_printed_component_design_mim;	-- ISO/TS 10303-1700
+
+ENTITY discrete_shield
+  SUBTYPE OF (assembly_component);
+WHERE
+  WR1: SELF.frame_of_reference.name = 'physical occurrence';
+  WR2: SIZEOF (QUERY (si <* QUERY (pdr <* USEDIN (SELF,
+       'SHIELD_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'shielded item') |
+       'SHIELD_MIM.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (si.relating_product_definition))) >= 1;
+END_ENTITY;
+
+ENTITY integral_shield
+  SUBTYPE OF (assembly_component);
+WHERE
+  WR1: SIZEOF (QUERY(pdr <* USEDIN(SELF,
+       'SHIELD_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       (('SHIELD_MIM.' +
+       'COMPONENT_DEFINITION' IN TYPEOF(pdr.relating_property_definition))
+       OR ('SHIELD_MIM.' +
+    'COMPONENT_DEFINITION' IN TYPEOF(pdr.relating_property_definition)))
+       AND (pdr\property_definition_relationship.name = 'shielded item'))) >=1;
+END_ENTITY;
+
+ENTITY routed_shield
+  SUBTYPE OF (routed_printed_component);
+END_ENTITY;
+	
+END_SCHEMA;
+
+

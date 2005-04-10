@@ -1,0 +1,72 @@
+(*
+   $Id: mim.exp,v 1.12 2005/04/04 10:08:31 liutkus Exp $
+   ISO TC184/SC4/WG12 N3427 - ISO/CD-TS 10303-1679 Functional specification - EXPRESS MIM
+*)
+
+
+SCHEMA Functional_specification_mim;
+	USE FROM Signal_mim;	-- ISO/TS 10303-1745
+	USE FROM Network_functional_usage_view_mim;	-- ISO/TS 10303-1705	
+	
+	USE FROM Application_context_schema(application_context_element);	
+
+TYPE fs_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
+   (functional_specification);
+END_TYPE; 
+
+TYPE fs_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+   (representation);
+END_TYPE; 
+	
+ENTITY functional_specification
+  SUBTYPE OF (representation);
+WHERE
+  WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'FUNCTIONAL_SPECIFICATION_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_2') |
+       (rr\representation_relationship.name = 'functional characteristic category') AND
+       ('FUNCTIONAL_SPECIFICATION_MIM.' +
+       'EXTERNAL_DEFINITION' IN
+       TYPEOF (rr.rep_1.items[1])))) = 1;
+  WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'FUNCTIONAL_SPECIFICATION_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_1') |
+       (rr\representation_relationship.name = 'characterizing signal' +
+       'for functional specification')
+       )) = 1;
+  WR3: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'FUNCTIONAL_SPECIFICATION_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_1') |
+       (rr\representation_relationship.name = 'reference signal for' +
+        'functional specification') 
+       )) = 1;
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
+       SELF\functional_specification)) = 0;
+  WR5: SELF\representation.name = '';
+  WR6: SIZEOF(QUERY( pdr <* USEDIN (SELF,
+       'FUNCTIONAL_SPECIFICATION_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('FUNCTIONAL_SPECIFICATION_MIM.' +
+        'COMPONENT_FUNCTIONAL_UNIT' IN TYPEOF (pdr.definition.definition)) 
+        )) = 0;
+END_ENTITY;
+	
+ENTITY functional_specification_definition
+  SUBTYPE OF (functional_unit);
+WHERE
+  WR1: SELF.frame_of_reference\application_context_element.name =
+             'functional network design';
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'FUNCTIONAL_SPECIFICATION_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'FUNCTIONAL_SPECIFICATION_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       ('FUNCTIONAL_SPECIFICATION_MIM.' +
+       'FUNCTIONAL_SPECIFICATION' IN TYPEOF (pdr.used_representation))
+       )) > 0))) > 0;
+END_ENTITY;
+	
+END_SCHEMA;
+
+

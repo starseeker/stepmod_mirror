@@ -1,0 +1,101 @@
+(*
+   $Id: arm.exp,v 1.9 2005/04/04 10:26:04 liutkus Exp $
+   ISO TC184/SC4/WG12 N3666 - ISO/CD-TS 10303-1755 Physical connectivity definition - EXPRESS ARM
+*)
+
+SCHEMA Physical_connectivity_definition_arm;
+
+	USE FROM Part_external_reference_arm;	-- ISO/TS 10303-1711
+	USE FROM Physical_component_feature_arm;	-- ISO/TS 10303-1721
+	USE FROM Requirement_decomposition_arm;	-- ISO/TS 10303-1740
+
+REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740		
+
+	TYPE fde_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+	    (Physical_connectivity_element,
+	    Physical_connectivity_definition,
+	    Physical_connectivity_definition_relationship);
+	END_TYPE; 
+
+	TYPE fde_specification_product_object_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON specification_product_object_select WITH 
+		(Physical_connectivity_element,
+		 Physical_connectivity_definition);
+	END_TYPE;
+
+	TYPE termination_or_junction = EXTENSIBLE GENERIC_ENTITY SELECT
+    	(Component_terminal,
+    	 Topological_junction);
+  	END_TYPE;
+
+  ENTITY Physical_connectivity_definition
+    SUPERTYPE OF (Physical_connectivity_structure_definition);
+      name                  : STRING; --ee_name;    
+      associated_definition : Physical_unit_network_definition;
+      associated_terminals  : SET[2:?] OF Physical_component_terminal;
+    UNIQUE
+      UR1 : name, associated_definition;
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_definition_relationship;
+      previous_definition : Physical_connectivity_definition;
+      current_definition  : Physical_connectivity_definition;
+	DERIVE
+  		requirement: SET[1:1] OF Requirement_view_definition :=	get_rvd(SELF, 'requirement');
+	WHERE
+   		WR1 : EXISTS (requirement);
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_element;
+      name                 : STRING; --ee_name;
+      start_terminus       : termination_or_junction;
+      end_terminus         : termination_or_junction;
+      connectivity_context : Physical_connectivity_structure_definition;
+    UNIQUE
+      UR1 : name, connectivity_context;
+    WHERE
+      WR1 : start_terminus <> end_terminus;
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_make_from_relationship;
+      reusable_definition  : Physical_connectivity_definition;
+      resultant_definition : Physical_connectivity_definition;
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_structure_definition
+    SUBTYPE OF (Physical_connectivity_definition);
+    INVERSE
+      structural_element : SET[1:?] OF physical_connectivity_element FOR connectivity_context;
+  END_ENTITY;
+
+  ENTITY Physical_unit_network_definition
+    SUBTYPE OF (Product_view_definition);
+    DERIVE
+      terminals : SET [0:?] OF Component_terminal := get_terminals(connectivity_definitions);
+    INVERSE
+      connectivity_definitions : SET [0:?] OF Physical_connectivity_definition FOR associated_definition;
+    WHERE
+      WR1 : NOT ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF)) OR 
+                ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_DESIGN_VIEW' IN TYPEOF(SELF));
+      WR2 : NOT (SIZEOF(terminals) > 1) OR
+           SIZEOF(QUERY(t <* terminals | NOT(SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + 
+                          'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1))) = 0;
+  END_ENTITY;
+
+  ENTITY Topological_junction;
+      name  : STRING; --ee_name;  
+      scope : Physical_connectivity_structure_definition;
+    UNIQUE
+      UR1 : name, scope;
+  END_ENTITY; 
+
+  FUNCTION get_terminals(input : SET OF Physical_connectivity_definition) : SET OF Component_terminal;
+  LOCAL
+   ct : SET OF Component_terminal := [];
+    i : INTEGER := 0;
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   ct := ct + input[i].associated_terminals;
+  END_REPEAT;
+  RETURN(ct);
+  END_FUNCTION;
+END_SCHEMA;

@@ -1,0 +1,221 @@
+(*
+   $Id: arm.exp,v 1.24 2005/04/04 10:10:24 liutkus Exp $
+   ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
+*)
+
+SCHEMA Part_template_2d_shape_arm;
+
+	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
+	USE FROM Package_arm;	-- ISO/TS 10303-1707
+	USE FROM Part_template_extension_arm;	-- ISO/TS 10303-1718
+	USE FROM Printed_physical_layout_template_arm;	-- ISO/TS 10303-1737
+
+REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
+	
+
+	TYPE package_or_printed_part_template = SELECT
+		(Package,
+     	Printed_part_template);
+	END_TYPE;
+
+	TYPE package_terminal_or_printed_part_template_terminal = SELECT
+		(Package_terminal,
+     	Printed_part_template_terminal);
+	END_TYPE;
+
+	TYPE pt2ds_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
+   	(Footprint_definition,
+   	Padstack_definition);
+	END_TYPE; 
+
+  	TYPE pt2ds_part_template_or_physical_unit_2d_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_2d_shape_select WITH 
+    	(Part_template_planar_shape);
+  	END_TYPE;
+
+	TYPE pt2ds_physical_unit_or_part_template_or_fp_or_pd = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_or_part_template_or_fp_or_pd WITH 
+    (Footprint_definition,
+     Padstack_definition);
+  END_TYPE;
+
+	TYPE pt2ds_physical_unit_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_shape_select WITH 
+	    (Part_template_planar_shape);
+  	END_TYPE;
+
+  TYPE padstack_arrangement = ENUMERATION OF
+    (top,
+     bottom,
+     symmetrical);
+  END_TYPE;
+
+  ENTITY Design_layer_type_specific_padstack_definition
+    SUBTYPE OF (Padstack_definition);
+      design_layer_type_reference : Design_layer_technology;
+  END_ENTITY;
+
+(** It does not have shape, it is not a subtype of shape_element and consequently 
+a subtype of layout_template_definition *)
+  ENTITY Footprint_definition
+    SUBTYPE OF (Template_definition);
+      reference_breakout : OPTIONAL SET[1:?] OF Assembly_group_component;
+      reference_package  : package_or_printed_part_template;
+    DERIVE
+      footprint_location                : padstack_arrangement := get_padstack_arrangement(padstack);
+      padstack_reference_implementation : reference_packaged_part_interconnect_implementation := padstack[1].padstack.reference_implementation;
+    INVERSE
+    	shape    : footprint_definition_shape FOR shape_characterized_footprint_definition;
+      padstack : SET[1:?] OF padstack_location_in_footprint_definition FOR footprint;
+    WHERE
+      WR1 : SIZEOF(QUERY(ps <* padstack | ps.padstack.padstack_location <> footprint_location)) = 0;
+      WR2 : SIZEOF(QUERY(ps <* padstack | ps.padstack.reference_implementation <> padstack_reference_implementation)) = 0;
+      WR3 : ((footprint_location = padstack_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR 
+            (NOT (footprint_location = padstack_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'));
+      WR4 : ((footprint_location = padstack_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR 
+            (NOT (footprint_location = padstack_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'));
+      WR5 : ((footprint_location = padstack_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR 
+            (NOT (footprint_location = padstack_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'));
+  END_ENTITY;
+
+  ENTITY Footprint_definition_shape
+    SUBTYPE OF (Planar_projected_shape);
+      shape_characterized_footprint_definition : Footprint_definition;
+      shape_environment                        : OPTIONAL application_environment;
+      shape_material_condition                 : material_condition;
+      reference_shape                          : physical_unit_shape_select;
+    UNIQUE
+    	UR1 : shape_characterized_footprint_definition;
+    WHERE
+      WR1 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR (shape_characterized_footprint_definition.reference_package :=: reference_shape.shape_characterized_physical_unit);
+      WR2 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR ('PART_TEMPLATE_2D_SHAPE_ARM.PACKAGE' IN TYPEOF(reference_shape.shape_characterized_physical_unit));
+      WR3 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR (shape_characterized_footprint_definition.reference_package :=: reference_shape.shape_characterized_part_template);
+      WR4 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape.shape_characterized_part_template));
+			WR5 : (SIZEOF(USEDIN(SELF,
+ 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
+  END_ENTITY;
+
+  ENTITY Padstack_definition
+    SUPERTYPE OF (ONEOF (Design_layer_type_specific_padstack_definition, Stratum_type_independent_padstack_definition))  
+    SUBTYPE OF (Template_definition);
+      reference_implementation : Reference_packaged_part_interconnect_implementation;
+      padstack_location        : padstack_arrangement;
+    INVERSE
+  		shape : padstack_definition_shape FOR shape_characterized_padstack_definition;
+      template : SET[1:?] OF part_template_location_in_padstack_definition FOR padstack;
+    WHERE
+      WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
+ 'PART_TEMPLATE_2D_SHAPE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.name = 'template model'))) > 0;
+  END_ENTITY;
+
+  ENTITY Padstack_definition_shape
+    SUBTYPE OF (Planar_projected_shape);
+      shape_characterized_padstack_definition : Padstack_definition;
+      shape_environment                       : OPTIONAL application_environment;
+      shape_material_condition                : material_condition;
+    UNIQUE
+    	UR1 : shape_characterized_padstack_definition;
+		WHERE
+			WR1 : (SIZEOF(USEDIN(SELF,
+ 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
+  END_ENTITY;
+
+  ENTITY Padstack_location_in_footprint_definition;
+      padstack                   : Padstack_definition;
+      footprint                  : Footprint_definition;
+      reference_package_terminal : package_terminal_or_printed_part_template_terminal;
+    INVERSE
+      transform : padstack_location_in_footprint_definition_transform FOR reference_location;
+    WHERE
+      WR1 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PART_FEATURE' IN TYPEOF(reference_package_terminal)) OR reference_package_terminal\shape_element.containing_shape :=: footprint.reference_package;
+      WR2 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE_TERMINAL' IN TYPEOF(reference_package_terminal)) OR reference_package_terminal.associated_definition :=: footprint.reference_package;
+      WR3 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_CONNECTOR_TEMPLATE' IN TYPEOF(footprint.reference_package)) OR ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE_INTERFACE_TERMINAL' IN TYPEOF(reference_package_terminal));
+  END_ENTITY;
+
+  ENTITY Padstack_location_in_footprint_definition_transform;
+      padstack_shape     : Padstack_definition_shape;
+      footprint_shape    : Footprint_definition_shape;
+      reference_location : Padstack_location_in_footprint_definition;
+      transform          : Axis_placement_2d;
+    UNIQUE 
+    	UR1 : reference_location;
+  END_ENTITY;
+
+  ENTITY Part_template_location_in_padstack_definition;
+      padstack              : Padstack_definition;
+      template              : Template_definition;
+      reference_designation : STRING;
+    INVERSE
+      transform : SET[0:1] OF part_template_location_in_padstack_definition_transform FOR reference_location;
+    WHERE
+      WR1 : ((SIZEOF(transform) = 1) AND (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(transform[1].template_shape.shape_characterized_part_template)) = 0)) OR (NOT (SIZEOF(transform) = 1) AND (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
+ 'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(template.associated_template_occurrence)) = 1));
+  END_ENTITY;
+
+  ENTITY Part_template_location_in_padstack_definition_transform;
+      padstack_shape     : Padstack_definition_shape;
+      template_shape     : Part_template_planar_shape;
+      reference_location : Part_template_location_in_padstack_definition;
+      transform          : Axis_placement_2d;
+		UNIQUE
+			UR1 : reference_location;
+  END_ENTITY;
+
+  ENTITY Part_template_planar_keepout_shape
+    SUBTYPE OF (Planar_shape,
+ 			Non_feature_shape_definition,
+ 			Part_template_keepout_shape);
+	DERIVE
+  		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
+		get_rvd(SELF, 'application technology constraint');
+	WHERE
+   		WR1 : NOT EXISTS (application_technology_constraint) OR SIZEOF(application_technology_constraint) = 1;
+  END_ENTITY;
+
+  ENTITY Part_template_planar_shape
+    SUBTYPE OF (Planar_projected_shape, Part_template_shape);
+  END_ENTITY;
+
+  ENTITY Stratum_type_independent_padstack_definition
+    SUBTYPE OF (Padstack_definition);
+  END_ENTITY;
+
+  FUNCTION get_padstack_arrangement(
+    input : SET OF Padstack_location_in_footprint_definition
+  ) : padstack_arrangement;
+
+    LOCAL
+      pabt : BAG OF STRING := [];
+      pabb : BAG OF STRING := [];
+      pabs : BAG OF STRING := [];
+    END_LOCAL;
+
+    REPEAT i := 1 TO SIZEOF(input) BY 1;
+      IF input[i].padstack.padstack_location = padstack_arrangement.top THEN
+        pabt := pabt + 'top';
+      END_IF;
+      IF input[i].padstack.padstack_location = padstack_arrangement.bottom THEN
+        pabb := pabb + 'bottom';
+      END_IF;
+      IF input[i].padstack.padstack_location = padstack_arrangement.symmetrical THEN
+        pabs := pabs + 'symmetrical';
+      END_IF;
+    END_REPEAT;
+    IF (SIZEOF(pabt) > 0) AND (SIZEOF(pabb) = 0) THEN
+      RETURN(padstack_arrangement.top);
+    END_IF;
+    IF (SIZEOF(pabb) > 0) AND (SIZEOF(pabt) = 0) THEN
+      RETURN(padstack_arrangement.bottom);
+    END_IF;
+    IF (SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabs) > 0) THEN
+      RETURN(padstack_arrangement.symmetrical);
+    END_IF;
+    RETURN(?);
+  END_FUNCTION;
+
+END_SCHEMA;
+

@@ -1,0 +1,59 @@
+(*
+   $Id: mim.exp,v 1.8 2005/02/04 15:27:11 budreckytej Exp $
+   ISO TC184/SC4/WG12 N3409 - ISO/CD-TS 10303-1671 Feature and connection zone - EXPRESS MIM
+*)
+
+
+SCHEMA Feature_and_connection_zone_mim;
+	USE FROM Shape_property_assignment_mim;	-- ISO/TS 10303-1032
+	
+ENTITY connection_zone_interface_plane_relationship
+  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+UNIQUE
+  UR1: SELF\shape_aspect_relationship.name;
+WHERE
+  WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect_relationship ||
+       SELF\connection_zone_interface_plane_relationship ||
+       SELF\shape_aspect)) = 0;
+  WR2: 'FEATURE_AND_CONNECTION_ZONE_MIM.' +
+       'SEATING_PLANE' IN 
+       TYPEOF(SELF\shape_aspect_relationship.relating_shape_aspect);
+  WR3: SELF\shape_aspect_relationship.relating_shape_aspect\shape_aspect.description = 
+      'plane';
+  WR4: SELF\shape_aspect_relationship.related_shape_aspect\shape_aspect.description = 
+      'connection zone';
+  WR5: SELF\shape_aspect_relationship.description IN ['area', 'edge']; 
+  WR6: SELF\shape_aspect.of_shape = SELF\shape_aspect_relationship.related_shape_aspect.of_shape;
+  WR7: SELF\shape_aspect.of_shape = SELF\shape_aspect_relationship.relating_shape_aspect.of_shape;
+  WR8: SIZEOF (QUERY (dz <* QUERY (sar <* USEDIN (SELF,
+       'FEATURE_AND_CONNECTION_ZONE_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'derived zone') |
+       dz.related_shape_aspect\shape_aspect.description = 'connection zone')) = 1;
+END_ENTITY;
+
+RULE connection_zone_constraint FOR ( shape_aspect, representation );
+WHERE
+   WR1: SIZEOF( QUERY( sa <* shape_aspect | 
+        (sa\shape_aspect.description = 'connection zone') AND NOT 
+        (SIZEOF (USEDIN (sa, '')) >= 1))) = 0;
+   WR2: SIZEOF( QUERY( sa <* shape_aspect | 
+              (sa\shape_aspect.description = 'connection zone') AND 
+        NOT(SIZEOF( QUERY( sar <* USEDIN(sa,
+        'FEATURE_AND_CONNECTION_ZONE_MIM.' +
+        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+        (sar\shape_aspect_relationship.name IN [
+        'connection',
+        'minimum attachment region size',
+        'maximum attachment region size',
+        'external connection area', 
+        'external connection zone',
+        'internal connection zone',
+        'mounting area', 
+        'terminal connection zone'
+         ]))) >= 1))) = 0;
+END_RULE;
+	
+END_SCHEMA;
+
+

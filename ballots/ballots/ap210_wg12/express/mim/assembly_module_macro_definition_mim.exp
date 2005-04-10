@@ -1,0 +1,51 @@
+(*
+   $Id: mim.exp,v 1.10 2005/04/04 09:13:40 liutkus Exp $
+   ISO TC184/SC4/WG12 N3352 - ISO/CD-TS 10303-1637 Assembly module macro definition - EXPRESS MIM
+*)
+
+
+SCHEMA Assembly_module_macro_definition_mim;
+	USE FROM Interconnect_module_with_macros_mim;	-- ISO/TS 10303-1687
+
+SUBTYPE_CONSTRAINT assembly_module_terminal_subtypes FOR assembly_module_terminal;         
+  (ONEOF (assembly_module_interface_terminal, 
+           assembly_module_join_terminal));
+END_SUBTYPE_CONSTRAINT;        
+
+ENTITY assembly_module_join_terminal
+  SUBTYPE OF (assembly_module_terminal);
+END_ENTITY;
+
+RULE 
+component_terminal_to_assembly_module_join_terminal_assignment_unique_constraint
+FOR
+ ( shape_aspect_relationship );
+LOCAL
+  cttamta : BAG OF shape_aspect_relationship := QUERY( sar <*
+shape_aspect_relationship | (sar\shape_aspect_relationship.name = 
+              'component feature to physical usage view assignment') );
+  pass : BOOLEAN := TRUE;
+  amt_bag : BAG OF assembly_module_join_terminal := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(cttamta) by 1;
+  IF EXISTS( cttamta[i].relating_shape_aspect ) THEN
+    IF ( 'ASSEMBLY_MODULE_MACRO_DEFINITION_MIM.' +
+'ASSEMBLY_MODULE_JOIN_TERMINAL' IN TYPEOF(cttamta[i].relating_shape_aspect) ) 
+    THEN
+      IF ( cttamta[i].relating_shape_aspect IN amt_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        amt_bag := amt_bag + cttamta[i].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+	
+END_SCHEMA;
+
+

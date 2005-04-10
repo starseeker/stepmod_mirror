@@ -1,0 +1,75 @@
+(*
+   $Id: mim.exp,v 1.13 2005/04/04 10:35:34 liutkus Exp $
+   ISO TC184/SC4/WG12 N3607 - ISO/CD-TS 10303-1745 Signal - EXPRESS MIM
+*)
+
+
+SCHEMA Signal_mim;
+	USE FROM Characteristic_mim;	-- ISO/TS 10303-1654
+	
+	USE FROM Product_property_definition_schema
+		(characterized_object,
+		property_definition);
+	USE FROM Material_property_definition_schema(property_definition_relationship);
+	USE FROM Group_schema(group);
+	USE FROM Document_schema(document_usage_constraint);
+	
+TYPE s_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
+     (composite_signal_property_relationship,
+      property_definition,
+      signal);
+END_TYPE; 
+	
+ENTITY composite_signal_property_relationship
+  SUBTYPE OF (property_definition, property_definition_relationship);
+WHERE
+  WR1: SELF\property_definition_relationship.related_property_definition.definition :<>:
+       SELF\property_definition_relationship.relating_property_definition.definition;
+  WR2: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\property_definition_relationship ||
+       SELF\composite_signal_property_relationship || SELF\property_definition)) = 0;
+  WR3: SELF\property_definition_relationship.related_property_definition.name =
+       'signal property';
+  WR4: SELF\property_definition_relationship.relating_property_definition.name =
+       'composite signal property';
+  WR5: SELF\property_definition.name = '';
+  WR6: SELF\property_definition.description = '';
+  WR7: SELF\property_definition_relationship.name = '';
+  WR8: SELF\property_definition_relationship.description = '';
+  WR9: ('SIGNAL_MIM.' +
+       'CHARACTERIZED_OBJECT' IN TYPEOF(SELF\property_definition.definition)) AND
+       (SELF\property_definition.definition.description = 'aggregate operation');
+ WR10: 'SIGNAL_MIM.' +
+       'EXTERNAL_DEFINITION' IN TYPEOF(SELF\property_definition.definition);
+END_ENTITY;
+
+ENTITY signal
+  SUBTYPE OF (characterized_object);
+WHERE
+  WR1: SIZEOF (QUERY (aca <* USEDIN (SELF,
+       'SIGNAL_MIM.' + 
+       'APPLIED_CLASSIFICATION_ASSIGNMENT.ITEMS') |
+       'SIGNAL_MIM.' +
+       'SIGNAL_CATEGORY' IN
+       TYPEOF (aca.assigned_group))) >= 1;
+  WR2: (SIZEOF (QUERY (ada <* USEDIN (SELF,
+       'SIGNAL_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       SIZEOF (QUERY (duc <* USEDIN (ada.assigned_document,
+       'SIGNAL_MIM.' +
+       'DOCUMENT_USAGE_CONSTRAINT.SOURCE') |
+       duc\document_usage_constraint.subject_element = 'signal category')) = 1)) = 1);
+  WR3: SIZEOF (USEDIN (SELF, 
+       'SIGNAL_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 1;
+END_ENTITY;
+
+ENTITY signal_category
+  SUBTYPE OF (group);
+WHERE
+  WR1: SELF\group.description IN ['signal characteristic category', 
+       'signal property category'];
+END_ENTITY;
+	
+END_SCHEMA;
+
+

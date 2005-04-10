@@ -1,0 +1,41 @@
+(*
+   $Id: mim.exp,v 1.10 2005/04/04 10:26:08 liutkus Exp $
+   ISO TC184/SC4/WG12 N3541 - ISO/CD-TS 10303-1723 Physical node requirement to implementing component allocation - EXPRESS MIM
+*)
+
+
+SCHEMA Physical_node_requirement_to_implementing_component_allocation_mim;
+	USE FROM Assembly_module_with_packaged_connector_component_mim;	-- ISO/TS 10303-1645
+	USE FROM Assembly_technology_mim;	-- ISO/TS 10303-1649
+	USE FROM Physical_connectivity_definition_mim;	-- ISO/TS 10303-1755
+	
+REFERENCE FROM product_property_definition_schema -- ISO 10303-41
+  (acyclic_shape_aspect_relationship);
+	
+ENTITY physical_node_requirement_to_implementing_component_allocation
+  SUBTYPE OF (shape_aspect_relationship, shape_aspect);
+WHERE
+  WR1: ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_MIM.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (SELF.related_shape_aspect.of_shape\property_definition.definition)) AND
+       (NOT (SELF.related_shape_aspect.of_shape\property_definition.definition\product_definition.description IN 
+       ['laminate component']));
+  WR2: 'PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_MIM.' +
+       'PHYSICAL_CONNECTIVITY_DEFINITION' IN
+       TYPEOF (SELF.relating_shape_aspect);
+  WR3: acyclic_shape_aspect_relationship(SELF,
+       [SELF\shape_aspect_relationship.related_shape_aspect],
+       'PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_MIM.'+
+       'PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION');
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\shape_aspect_relationship ||
+       SELF\physical_node_requirement_to_implementing_component_allocation)) = 0;
+(*
+  WR5: SIZEOF(terminal_of_implementing_component(SELF,SELF.relating_shape_aspect)) = 0;
+*)
+END_ENTITY;
+	
+	
+END_SCHEMA;
+
+

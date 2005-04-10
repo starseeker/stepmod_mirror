@@ -1,0 +1,36 @@
+(*
+   $Id: arm.exp,v 1.10 2005/04/04 10:08:50 liutkus Exp $
+   ISO TC184/SC4/WG12 N3429 - ISO/CD-TS 10303-1678 Functional decomposition with nodal representation to packaged mapping - EXPRESS ARM
+*)
+
+SCHEMA Functional_decomposition_with_nodal_representation_to_packaged_mapping_arm;
+
+	USE FROM Physical_connectivity_definition_arm;	-- ISO/TS 10303-1755
+
+ 
+  TYPE design_composition_path_or_root = SELECT
+    (Design_composition_path,
+     Functional_unit_network_definition);
+  END_TYPE;
+
+  ENTITY Aggregate_connectivity_requirement;
+      connectivity_requirement : Functional_unit_network_node_definition;
+      design_definition_path   : design_composition_path_or_root;
+    UNIQUE
+      UR1 : design_definition_path,
+ connectivity_requirement;
+    WHERE
+      WR1 : NOT ('FUNCTIONAL_DECOMPOSITION_WITH_NODAL_REPRESENTATION_TO_PACKAGED_MAPPING_ARM.FUNCTIONAL_UNIT_NETWORK_DEFINITION' IN TYPEOF(design_definition_path)) OR (connectivity_requirement.associated_functional_unit_definition = design_definition_path);
+      WR2 : NOT ('FUNCTIONAL_DECOMPOSITION_WITH_NODAL_REPRESENTATION_TO_PACKAGED_MAPPING_ARM.DESIGN_COMPOSITION_PATH' IN TYPEOF(design_definition_path)) OR (connectivity_requirement.associated_functional_unit_definition = design_definition_path.design_functional_unit.definition);
+  END_ENTITY;
+
+  ENTITY Connectivity_allocation;
+      implementation           : Physical_connectivity_definition;
+      connectivity_requirement : Aggregate_connectivity_requirement;
+    UNIQUE
+      UR1 : implementation;
+  END_ENTITY;
+
+END_SCHEMA;
+
+

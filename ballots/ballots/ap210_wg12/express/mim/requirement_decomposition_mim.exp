@@ -1,0 +1,309 @@
+(*
+   $Id: mim.exp,v 1.11 2005/04/04 10:35:34 liutkus Exp $
+   ISO TC184/SC4/WG12 N3592 - ISO/CD-TS 10303-1740 Requirement decomposition - EXPRESS MIM
+*)
+
+
+SCHEMA Requirement_decomposition_mim;
+
+	USE FROM Conductivity_material_aspects_mim;	-- ISO/TS 10303-1756
+	USE FROM Elemental_geometric_shape_mim;	-- ISO/TS 10303-1004
+	USE FROM Functional_specification_mim;	-- ISO/TS 10303-1679
+	USE FROM Product_rule_mim;	-- ISO/TS 10303-1739
+	
+	USE FROM Material_property_definition_schema(property_definition_relationship);	
+
+REFERENCE FROM support_resource_schema   -- ISO 10303-41
+  (bag_to_set); 
+	
+
+TYPE rd_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+     (requirements_property);
+END_TYPE; 
+
+TYPE rd_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH 
+     (requirements_property);
+END_TYPE;
+	
+ENTITY material_electrical_conductivity_category
+  SUBTYPE OF (group);
+WHERE
+  WR1: SELF\group.name IN ['conductive', 'non conductive', 'resistive',  
+       'semi conductive'];
+END_ENTITY;
+
+ENTITY requirements_property
+  SUBTYPE OF (property_definition);
+WHERE
+  WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'requirements property composition')) <= 1;
+  WR2: SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       ('REQUIREMENT_DECOMPOSITION_MIM.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM' IN
+       TYPEOF (it)) AND
+       (it\representation_item.name = 'requirements description'))) = 1)) <= 1;
+  WR3: SIZEOF (QUERY (dr <* USEDIN (SELF,
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'EE_SPECIFICATION' IN 
+       TYPEOF (dr.assigned_document))) >= 1;
+  WR4: NOT(EXISTS(SELF\property_definition.description)) OR
+       (NOT (SELF\property_definition.description IN ['constraint', 
+        'part based constraint']) OR
+       (SIZEOF (QUERY (dc <* QUERY (pdr <* USEDIN (SELF,
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'design constraint') |
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'RULE_DEFINITION' IN 
+       TYPEOF (dc.relating_property_definition.definition))) = 1));
+  WR5: NOT(EXISTS(SELF\property_definition.description)) OR
+       (NOT (SELF\property_definition.description = 
+          'part based constraint') OR
+       (SIZEOF (QUERY (cp <* QUERY (pdr <* USEDIN (SELF,
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'constraining part') |
+       ('REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP' IN
+       TYPEOF (cp.relating_property_definition.definition)) AND
+       (cp.relating_property_definition.definition\product_definition_relationship.name = 
+       'constraining part') AND
+   (cp.relating_property_definition.definition.related_product_definition.
+       frame_of_reference.name = 'design requirement'))) = 1));
+  WR6: NOT(EXISTS(SELF\property_definition.description)) OR
+       (NOT (SELF\property_definition.description = 
+         'interface requirement') OR
+       (SIZEOF (QUERY (itnha <* QUERY (pdr <* USEDIN (SELF,
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'interface to next higher assembly') |
+       ('REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PRODUCT_DEFINITION' IN
+       TYPEOF (itnha.relating_property_definition.definition)) AND
+    (itnha.relating_property_definition.definition.frame_of_reference.name
+       = 'design requirement') AND
+       (SIZEOF (QUERY (hai <* QUERY (pdr <* 
+       USEDIN (itnha.relating_property_definition.definition,
+       'REQUIREMENT_DECOMPOSITION_MIM.' + 
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'higher assembly interface') |
+       SIZEOF (QUERY (pdr <* USEDIN (hai,
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'SPECIFIED_HIGHER_USAGE_OCCURRENCE'  
+       IN TYPEOF (pdr))) = 1)) = 1))) = 1));
+END_ENTITY;
+
+(** It is declared as used for ARM concept Requirement_allocation, which is now substituted by requirement_assignment.
+Need to analyse more on this *)
+ENTITY requirement_allocation_group
+  SUBTYPE OF (group, property_definition_relationship);
+WHERE
+  WR1: (SIZEOF (QUERY (aga <* QUERY (ga <* USEDIN (SELF, 
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'APPLIED_GROUP_ASSIGNMENT' IN
+       TYPEOF (ga)) |
+       (SIZEOF (['REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PRODUCT',
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PRODUCT_DEFINITION_FORMATION',
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'CONFIGURATION_ITEM'] * TYPEOF (aga.items)) = 1))) = 1);
+
+  WR2: 'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'REQUIREMENTS_PROPERTY' IN TYPEOF 
+   (SELF\property_definition_relationship.relating_property_definition);
+
+  WR3: NOT(SELF\property_definition_relationship.related_property_definition.description = 'test requirement') OR
+       (SIZEOF (QUERY (aga <* QUERY (ga <* USEDIN (SELF,
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'GROUP_ASSIGNMENT.ASSIGNED_GROUP') |
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'APPLIED_GROUP_ASSIGNMENT' IN
+       TYPEOF (ga)) |
+       (SIZEOF (['REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION'] * TYPEOF (aga.items)) = 1))) >= 1);
+END_ENTITY;
+
+ENTITY requirement_definition
+ SUBTYPE OF (product_definition);
+WHERE
+  WR1: (NOT ('REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
+       TYPEOF (SELF))) OR
+       (SIZEOF (QUERY (docs <* 
+       SELF\product_definition_with_associated_documents.
+        documentation_ids |
+       docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
+  WR2: SIZEOF (QUERY (adta <* USEDIN (SELF, 
+       'REQUIREMENT_DECOMPOSITION_MIM.' + 
+       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
+       adta.role\date_time_role.name = 'creation date')) + 
+       SIZEOF (QUERY (ada <* USEDIN (SELF, 
+       'REQUIREMENT_DECOMPOSITION_MIM.' + 
+       'APPLIED_DATE_ASSIGNMENT.ITEMS') |
+       ada.role\date_role.name = 'creation date')) = 1;
+  WR3: SIZEOF (USEDIN (SELF, 
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1;
+  WR4: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\person_and_organization_role.name = 'creator')) +
+       SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\organization_role.name = 'creator')) >= 1;
+  WR5: SIZEOF (USEDIN (SELF, 
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
+  WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||
+       SELF\requirement_definition))) = 0;
+  WR7: SIZEOF (QUERY (prpc <* USEDIN (SELF.formation.of_product,
+       'REQUIREMENT_DECOMPOSITION_MIM.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.' +
+       'PRODUCTS') |
+       prpc\product_category.name = 'requirements model')) >= 1;
+END_ENTITY;
+
+RULE operational_requirement_occurrence_relationship_constraint FOR
+( property_definition_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdr <* property_definition_relationship |
+       ((pdr\property_definition_relationship.name = 'and operation')
+        OR (pdr\property_definition_relationship.name = 'or operation'))
+       AND NOT('REQUIREMENT_DECOMPOSITION_MIM.'
+        + 'REQUIREMENTS_PROPERTY' IN 
+                             TYPEOF(pdr.related_property_definition))
+       )) = 0;
+  WR2: SIZEOF(QUERY(pdr <* property_definition_relationship |
+       ((pdr\property_definition_relationship.name = 'and operation')
+        OR (pdr\property_definition_relationship.name = 'or operation'))
+       AND NOT('REQUIREMENT_DECOMPOSITION_MIM.'
+        + 'REQUIREMENTS_PROPERTY' IN 
+                           TYPEOF(pdr.relating_property_definition))
+       )) = 0;
+END_RULE;
+
+RULE requirements_property_constraint FOR 
+           (product_definition,
+            descriptive_representation_item,
+            requirements_property);
+LOCAL
+ri : BAG OF descriptive_representation_item := 
+         QUERY (dri <* descriptive_representation_item 
+                              | dri\representation_item.name = 
+                                          'requirements name');
+pd : BAG OF product_definition:=
+         QUERY(tpd <* product_definition
+               | ('REQUIREMENT_DECOMPOSITION_MIM.' +
+                  'APPLICATION_CONTEXT_ELEMENT' IN
+                  TYPEOF(tpd.frame_of_reference)) AND
+                  (tpd.frame_of_reference.name IN ['requirement',
+                                                   'design requirement',
+                                                   'assembly requirement'])
+                  AND
+                  (tpd.name = 'requirements model'));
+
+r : BAG OF representation := [];
+pdr : BAG OF property_definition_representation := [];
+pass1 : BOOLEAN := TRUE;
+
+rp : BAG OF property_definition := [];
+pass2 : BOOLEAN := TRUE;
+
+END_LOCAL;
+  (* WR1 Test *)
+  REPEAT i := 1 to SIZEOF (ri) by 1;
+     r := [];
+     pdr := [];
+     r := (USEDIN(ri[i],
+         'REQUIREMENT_DECOMPOSITION_MIM.' +
+             'REPRESENTATION.ITEMS'));
+     pass1 := (SIZEOF(r) = 1);
+     IF (NOT pass1) THEN ESCAPE; END_IF;
+
+     pdr := (USEDIN(r[1],
+             'REQUIREMENT_DECOMPOSITION_MIM.' +
+             'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+     pass1 := (SIZEOF(pdr) = 1);
+     IF (NOT pass1) THEN ESCAPE; END_IF;
+
+     pass1 := ('REQUIREMENT_DECOMPOSITION_MIM.' +
+             'REQUIREMENTS_PROPERTY' IN TYPEOF(pdr[1].definition));
+     IF (NOT pass1) THEN ESCAPE; END_IF;
+  END_REPEAT;
+  (* WR2 Test *)
+  REPEAT i := 1 to SIZEOF (pd) by 1;
+     rp := [];
+     IF (NOT pass2) THEN ESCAPE; END_IF;
+     rp := QUERY(rp <* USEDIN(pd[i],
+             'REQUIREMENT_DECOMPOSITION_MIM.' +
+             'PROPERTY_DEFINITION.DEFINITION') |
+             'REQUIREMENT_DECOMPOSITION_MIM.' +
+             'REQUIREMENTS_PROPERTY' IN TYPEOF(rp));
+     pass2 := (SIZEOF(rp) = 1);
+  END_REPEAT;
+WHERE
+ WR1: pass1;
+ WR2: pass2;
+END_RULE;
+
+RULE requirements_property_unique_constraint FOR 
+           (descriptive_representation_item,
+            requirements_property);
+LOCAL
+desc_bag : BAG OF STRING := [];
+pass1 : BOOLEAN := TRUE;
+pdr : BAG OF property_definition_representation := [];
+rep : BAG OF representation := [];
+pd : BAG OF product_definition := [];
+
+END_LOCAL;
+  REPEAT i := 1 to SIZEOF (requirements_property) by 1;
+     IF (NOT pass1) THEN ESCAPE; END_IF;
+     IF ('REQUIREMENT_DECOMPOSITION_MIM.' +
+         'PRODUCT_DEFINITION' IN TYPEOF(requirements_property[i].definition))
+      THEN pd := pd + requirements_property[i].definition;
+     END_IF;
+  END_REPEAT;
+  IF (instance_unique(pd) = FALSE ) THEN pass1 := FALSE; END_IF;
+WHERE
+ WR1: pass1;
+END_RULE;
+
+FUNCTION instance_unique 
+
+      ( the_bag : BAG OF GENERIC : intype ) : BOOLEAN;
+
+LOCAL
+
+      the_set : SET OF GENERIC : intype := [];
+      i : INTEGER ;
+      pass : BOOLEAN := TRUE;
+END_LOCAL ;
+
+      IF SIZEOF (the_bag) > 0 THEN
+                  the_set := bag_to_set(the_bag);
+      END_IF ;
+      IF NOT(SIZEOF(the_set) = SIZEOF(the_bag)) THEN
+       pass := FALSE;
+      END_IF;
+
+      RETURN (pass);
+
+END_FUNCTION ;
+	
+END_SCHEMA;
+
+

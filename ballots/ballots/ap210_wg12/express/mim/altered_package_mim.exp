@@ -1,0 +1,112 @@
+(*
+   $Id: mim.exp,v 1.10 2005/04/04 09:00:27 liutkus Exp $
+   ISO TC184/SC4/WG12 N3283 - ISO/CD-TS 10303-1601 Altered package - EXPRESS MIM
+*)
+
+
+SCHEMA Altered_package_mim;
+	USE FROM Package_mim;	-- ISO/TS 10303-1707
+
+(** Needed by mapping *)
+TYPE ap_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+     (package_terminal);
+END_TYPE; 
+
+ENTITY altered_package_terminal
+  ABSTRACT SUPERTYPE OF ((shape_formed_terminal ANDOR
+      surface_prepped_terminal) ANDOR length_trimmed_terminal)
+   SUBTYPE OF (package_terminal);
+WHERE
+ WR1: SIZEOF(QUERY ( sar <* USEDIN (SELF,
+      'ALTERED_PACKAGE_MIM.' +
+      'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'terminal to be altered' ))
+       = 1;
+ WR2: (SELF.of_shape.definition\product_definition.description =
+       'altered package');
+END_ENTITY;
+
+ENTITY length_trimmed_terminal
+   SUBTYPE OF (altered_package_terminal);
+WHERE
+ WR1: (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ALTERED_PACKAGE_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ALTERED_PACKAGE_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       SIZEOF (
+       ['ALTERED_PACKAGE_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'ALTERED_PACKAGE_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] *
+       TYPEOF (it)) = 2)) = 2)) = 1))) = 0);
+ WR2:  (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ALTERED_PACKAGE_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ALTERED_PACKAGE_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       (SIZEOF (
+       ['ALTERED_PACKAGE_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'ALTERED_PACKAGE_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] *
+       TYPEOF (it)) = 2) AND
+       (it\representation_item.name = 
+                   'maximum trimmed length'))) = 1)) = 1))) = 0);
+ WR3:  (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ALTERED_PACKAGE_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ALTERED_PACKAGE_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       (SIZEOF (
+       ['ALTERED_PACKAGE_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'ALTERED_PACKAGE_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] *
+       TYPEOF (it)) = 2) AND 
+        (it\representation_item.name = 
+                  'minimum trimmed length'))) = 1
+       )) = 1))) = 0);
+
+END_ENTITY;
+
+ENTITY shape_formed_terminal
+   SUBTYPE OF (altered_package_terminal);
+WHERE
+ WR1: (SIZEOF (QUERY (ada <* USEDIN (SELF,
+       'ALTERED_PACKAGE_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       ('ALTERED_PACKAGE_MIM.' +
+       'EE_SPECIFICATION' IN
+       TYPEOF (ada.assigned_document)) AND
+       (ada.assigned_document.kind\document_type.product_data_type =
+       'lead form specification') AND
+       (SIZEOF (QUERY (dr <* USEDIN (ada.assigned_document,
+       'ALTERED_PACKAGE_MIM.' +
+       'DOCUMENT_RELATIONSHIP.RELATED_DOCUMENT') |
+       dr.relating_document.kind\document_type.product_data_type =
+       'material specification')) = 1))) = 1);
+END_ENTITY;
+
+ENTITY surface_prepped_terminal
+   SUBTYPE OF (altered_package_terminal);
+WHERE
+WR2: (SIZEOF (QUERY (ada <* USEDIN (SELF,
+       'ALTERED_PACKAGE_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       ('ALTERED_PACKAGE_MIM.' +
+       'EE_SPECIFICATION' IN
+       TYPEOF (ada.assigned_document)) AND
+       (ada.assigned_document.kind\document_type.product_data_type =
+       'surface finish specification'))) = 1);
+END_ENTITY;
+	
+END_SCHEMA;
+
+

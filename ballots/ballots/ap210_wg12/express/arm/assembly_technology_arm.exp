@@ -1,0 +1,128 @@
+(*
+   $Id: arm.exp,v 1.28 2005/04/04 09:13:41 liutkus Exp $
+   ISO TC184/SC4/WG12 N3312 - ISO/CD-TS 10303-1649 Assembly technology - EXPRESS ARM
+*)
+
+
+SCHEMA Assembly_technology_arm;
+	USE FROM Assembly_module_design_arm;	-- ISO/TS 10303-1636
+	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
+	USE FROM Product_identification_extension_arm;	-- ISO/TS 10303-1738
+
+	SUBTYPE_CONSTRAINT assembly_module_subtypes FOR Assembly_module; 
+		(ONEOF (Pca,
+		 Reference_packaged_part_assembly_implementation));
+	END_SUBTYPE_CONSTRAINT;
+
+ 	TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Assembly_bond_definition);
+	END_TYPE;
+
+	TYPE at_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Assembly_bond_definition);
+	END_TYPE;
+
+	TYPE at_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+	    (Assembly_joint);
+	END_TYPE; 
+	
+  TYPE degree_of_freedom = ENUMERATION OF
+    (x,
+     y,
+     z,
+     u,
+     v,
+     w);
+  END_TYPE;
+
+	SUBTYPE_CONSTRAINT process_specification_subtypes FOR Process_specification;   
+		(ONEOF (Assembly_technology_specification,
+		Fabrication_technology_specification));
+	END_SUBTYPE_CONSTRAINT; 
+
+  ENTITY Assembled_with_bonding
+    SUBTYPE OF (Assembly_joint);
+      default_bond_definition : Assembly_bond_definition;
+    WHERE
+      WR1 : SELF\Assembly_joint.assembly_features_1.definition :=: default_bond_definition.bonded_feature_1;
+      WR2 : SELF\Assembly_joint.assembly_features_2.definition :=: default_bond_definition.bonded_feature_2;
+  END_ENTITY;
+
+  ENTITY Assembled_with_fasteners
+    SUBTYPE OF (Assembly_joint);
+      SELF\Assembly_joint.associated_assembly : Assembly_group_component;
+  END_ENTITY;
+
+  ENTITY Assembly_bond_definition;
+      name                                    : STRING;   
+      analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF Analytical_model_application;
+      associated_definition                   : Externally_defined_view_definition;
+      bonded_feature_1                        : Part_feature;
+      bonded_feature_2                        : Part_feature;
+    INVERSE
+      default_shape : SET[0:1] OF default_assembly_bond_shape FOR characterized_bond_definition;
+	  bond_category	: External_source_identification FOR item;
+	  bond_material : material_identification FOR items;      
+    UNIQUE
+      UR1 : name;
+      UR2 : associated_definition;
+    WHERE
+      WR1 : bonded_feature_1 <> bonded_feature_2;
+      WR2 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (bond_material);
+  END_ENTITY;
+
+  ENTITY Assembly_joint
+    SUPERTYPE OF (assembled_with_fasteners ANDOR
+ Assembled_with_bonding);
+      name                : STRING; 
+      assembly_features_1 : assembled_feature_select;
+      assembly_features_2 : assembled_feature_select;
+      associated_assembly : assembly_module_or_assembly_group_component;
+      description         : OPTIONAL STRING;
+    UNIQUE
+      UR1 : name,
+ associated_assembly;
+    WHERE
+      WR1 : assembly_features_1 :<>: assembly_features_2;
+      WR2 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_1)) AND (SIZEOF(QUERY(ay <* assembly_features_1\Component_feature.associated_component\Definition_based_product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
+      WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_2)) AND (SIZEOF(QUERY(ay <* assembly_features_2\Component_feature.associated_component\Definition_based_product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
+  END_ENTITY;
+
+  ENTITY Assembly_technology_specification
+    SUBTYPE OF (Process_specification);
+  END_ENTITY;
+
+  ENTITY Component_mating_constraint_condition;
+      name                          : STRING;  
+      constraining_joint            : SET[1:3] OF Assembly_joint;
+      constrained_degree_of_freedom : SET[1:5] OF degree_of_freedom;
+      of_context                    : Part_design_view;
+    UNIQUE
+      UR1 : name,
+ of_context;
+  END_ENTITY;
+
+  ENTITY Connection_zone_based_assembly_joint
+    SUBTYPE OF (Assembly_joint);
+      zone_1 : Connection_zone_in_design_view;
+      zone_2 : Connection_zone_in_design_view;
+    WHERE
+      WR1 : zone_1 :<>: zone_2;
+  END_ENTITY;
+
+  ENTITY Default_assembly_bond_shape
+    SUBTYPE OF (Feature_shape_definition);
+      characterized_bond_definition : Assembly_bond_definition;
+  END_ENTITY;
+
+  ENTITY Reference_packaged_part_assembly_implementation
+    SUBTYPE OF (Assembly_module);
+
+    WHERE
+      WR1 : SIZEOF(QUERY(pca <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
+ 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | NOT
+ (pca.category\Product_category.name = 'template model'))) = 0;
+  END_ENTITY;
+
+END_SCHEMA;
+

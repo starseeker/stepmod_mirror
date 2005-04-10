@@ -1,0 +1,156 @@
+(*
+   $Id: mim.exp,v 1.10 2005/04/04 10:08:45 liutkus Exp $
+   ISO TC184/SC4/WG12 N3463 - ISO/CD-TS 10303-1691 Interface component - EXPRESS MIM
+*)
+
+
+SCHEMA Interface_component_mim;
+	USE FROM Physical_component_feature_mim;	-- ISO/TS 10303-1721
+	
+ENTITY physical_component_interface_terminal
+ SUBTYPE OF (physical_component_feature);
+WHERE
+  WR1: SELF\shape_aspect.description IN [
+       'interconnect component interface terminal',
+       'packaged connector component interface terminal'];
+  WR2: 'INTERFACE_COMPONENT_MIM.' +
+       'COMPONENT_DEFINITION' IN 
+       TYPEOF (SELF.of_shape.definition);
+  WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'INTERFACE_COMPONENT_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated feature')) <= 1;
+  WR4: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'INTERFACE_COMPONENT_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'design usage')) <= 1;
+  WR5: (NOT (SELF\shape_aspect.description = 
+       'packaged connector component interface terminal')) OR
+       ('INTERFACE_COMPONENT_MIM.' +
+       'INTERFACE_COMPONENT_DEFINITION' IN 
+       TYPEOF (SELF.of_shape.definition));
+  WR6: (NOT (SELF\shape_aspect.description = 
+       'packaged connector component interface terminal')) OR
+       (SELF.of_shape.definition\product_definition.
+        frame_of_reference.name = 
+       'physical occurrence');
+  WR7: (NOT (SELF\shape_aspect.description = 
+       'interconnect component interface terminal')) OR
+       ((SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'INTERFACE_COMPONENT_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       (sar.related_shape_aspect\shape_aspect.description = 'connection zone'))) = 1)
+       AND 
+       NOT(SELF.of_shape.definition\product_definition.description 
+       IN ['assembly module component', 'bare die component',
+       'interconnect module component', 'laminate component',
+       'packaged component']));
+  WR8: (NOT (SELF\shape_aspect.description = 
+       'packaged connector component interface terminal')) OR
+       (SELF.product_definitional);
+  WR9: (NOT (SELF\shape_aspect.description = 
+       'packaged connector component interface terminal')) OR
+       (('INTERFACE_COMPONENT_MIM.' +
+       'PACKAGED_COMPONENT' IN
+       TYPEOF (SELF.of_shape.definition)) AND
+       (SELF.of_shape.definition\product_definition.description = 
+       'packaged connector component') AND
+       (SELF.of_shape.definition\product_definition.
+       frame_of_reference.name = 
+       'physical occurrence'));
+ WR10: (NOT (SELF\shape_aspect.description = 
+       'packaged connector component interface terminal')) OR
+       (SIZEOF (QUERY (i_f <* QUERY (sar <* USEDIN (SELF,
+       'INTERFACE_COMPONENT_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated feature') |
+       ('INTERFACE_COMPONENT_MIM.' +
+       'PACKAGED_PART_TERMINAL' IN
+       TYPEOF (i_f.relating_shape_aspect)) AND
+       (i_f.relating_shape_aspect\shape_aspect.description =
+       'interface terminal'))) = 1);
+END_ENTITY;
+
+ENTITY interface_component_definition
+  SUBTYPE OF (assembly_component);
+WHERE
+  WR1: (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'INTERFACE_COMPONENT_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (sa <* USEDIN (pd,
+       'INTERFACE_COMPONENT_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('INTERFACE_COMPONENT_MIM.' +
+       'PHYSICAL_COMPONENT_INTERFACE_TERMINAL' IN 
+       TYPEOF (sa)) AND
+       (sa\shape_aspect.description IN ['interconnect component interface terminal',
+       'packaged connector component interface terminal']))) >= 1)) >= 1);
+END_ENTITY;
+
+RULE component_feature_unique_constraint FOR
+ ( component_terminal, physical_component_interface_terminal );
+LOCAL
+  ct : BAG OF shape_aspect := 
+     QUERY( ct <* component_terminal | (ct\shape_aspect.description IN 
+['assembly module component terminal',
+'bare die component terminal',
+'interconnect component join terminal',
+'interconnect module component terminal',
+'interconnect module component stratum based terminal',
+'minimally defined component terminal',
+'packaged component join terminal']) );
+  cit : BAG OF shape_aspect := 
+         QUERY( cit <* physical_component_interface_terminal | (
+cit\shape_aspect.description IN ['interconnect component interface terminal',
+'packaged connector component interface terminal']) );
+  cf : BAG OF shape_aspect;
+  cd_bag : BAG OF component_definition := [];
+  sa_bag : BAG OF shape_aspect;
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  def_bag : BAG OF shape_aspect;
+END_LOCAL;
+
+cf := ct + cit;
+REPEAT i := 1 to SIZEOF(cf) by 1;
+  IF EXISTS( cf[i].of_shape.definition ) THEN
+    IF ( 'COMPONENT_FEATURE_MIM.' +
+'COMPONENT_DEFINITION' IN TYPEOF(cf[i].of_shape.definition) ) THEN
+      IF ( NOT ( cf[i].of_shape.definition IN cd_bag )) THEN
+        cd_bag := cd_bag + cf[i].of_shape.definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(cd_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  def_bag := [];
+  sa_bag := QUERY( sa <* cf | (sa.of_shape.definition :=: cd_bag[i]) );
+  REPEAT j := 1 to SIZEOF(sa_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    sar_bag := QUERY( sar <* USEDIN( sa_bag[j],
+'COMPONENT_FEATURE_MIM.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | 
+             (sar\shape_aspect_relationship.name = 'instantiated feature') );
+    REPEAT k := 1 to SIZEOF(sar_bag) by 1;
+      IF EXISTS( sar_bag[k].relating_shape_aspect ) THEN
+        IF ( sar_bag[k].relating_shape_aspect IN def_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          def_bag := def_bag + sar_bag[k].relating_shape_aspect;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+	
+END_SCHEMA;
+
+

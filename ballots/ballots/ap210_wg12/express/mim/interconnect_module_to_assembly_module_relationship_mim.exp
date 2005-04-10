@@ -1,0 +1,50 @@
+(*
+   $Id: mim.exp,v 1.14 2005/04/04 10:09:08 liutkus Exp $
+   ISO TC184/SC4/WG12 N3445 - ISO/CD-TS 10303-1685 Interconnect module to assembly module relationship - EXPRESS MIM
+*)
+
+
+SCHEMA Interconnect_module_to_assembly_module_relationship_mim;
+	USE FROM Interconnect_module_connection_routing_mim;	-- ISO/TS 10303-1684
+	USE FROM Layered_interconnect_module_design_mim;	-- ISO/TS 10303-1698
+
+TYPE imtamr_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+     (shape_aspect_relationship);
+END_TYPE;
+
+TYPE imtamr_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+     (component_definition,
+      component_feature,
+      descriptive_representation_item,
+      representation,
+      physical_component_interface_terminal,
+      component_terminal,
+      laminate_component_interface_terminal);
+END_TYPE;
+
+RULE component_feature_to_layout_feature_relationship_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'component feature to layout feature')
+       AND NOT(SIZEOF(
+       [
+       'INTERCONNECT_MODULE_TO_ASSEMBLY_MODULE_RELATIONSHIP_MIM.'
+       + 'PHYSICAL_COMPONENT_INTERFACE_TERMINAL',
+       'INTERCONNECT_MODULE_TO_ASSEMBLY_MODULE_RELATIONSHIP_MIM.'
+       + 'COMPONENT_TERMINAL']
+       * TYPEOF(sar.relating_shape_aspect)) > 0)
+       )) = 0;
+  WR2: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'component feature to layout feature')
+       AND NOT(SIZEOF(
+       [
+       'INTERCONNECT_MODULE_TO_ASSEMBLY_MODULE_RELATIONSHIP_MIM.'
+       + 'STRATUM_FEATURE']
+       * TYPEOF(sar.related_shape_aspect)) > 0)
+       )) = 0;
+END_RULE;
+	
+END_SCHEMA;
+
+

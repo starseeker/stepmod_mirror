@@ -1,0 +1,590 @@
+(* Genenerated from: 10303-108.exp *)
+
+SCHEMA sketch_schema;
+
+REFERENCE FROM product_property_representation_schema -- ISO 10303-41
+  (shape_representation);
+
+REFERENCE FROM support_resource_schema                -- ISO 10303-41
+  (bag_to_set);
+
+REFERENCE FROM geometry_schema;                       -- ISO 10303-42
+
+REFERENCE FROM topology_schema                        -- ISO 10303-42
+  (edge_curve,
+   edge_loop,
+   face_surface,
+   oriented_edge,
+   poly_loop,
+   vertex_loop,
+   vertex_point);
+
+REFERENCE FROM geometric_model_schema;                -- ISO 10303-42
+
+REFERENCE FROM representation_schema                  -- ISO 10303-43
+  (mapped_item,
+   representation,
+   representation_relationship);
+
+REFERENCE FROM parameterization_schema;               -- ISO 10303-108
+
+REFERENCE FROM explicit_constraint_schema;            -- ISO 10303-108
+
+REFERENCE FROM variational_representation_schema;     -- ISO 10303-108
+
+REFERENCE FROM explicit_geometric_constraint_schema;  -- ISO 10303-108
+
+REFERENCE FROM ISO13584_generic_expressions_schema    -- ISO 13584-20
+  (used_variables);
+
+REFERENCE FROM ISO13584_expressions_schema;           -- ISO 13584-20
+
+TYPE implicit_imported_element = SELECT
+  (implicit_point_on_plane,
+   implicit_planar_curve);
+END_TYPE;
+
+TYPE surface_or_solid_model = SELECT
+  (surface_model,
+   solid_model); 
+END_TYPE;
+
+TYPE neutral_sketch_select = SELECT
+  (neutral_sketch_representation,
+   variational_neutral_sketch_representation);
+END_TYPE;
+
+TYPE sketch_basis_select = SELECT
+  (planar_curve,
+   planar_face_surface,
+   repositioned_neutral_sketch);
+END_TYPE;
+
+ENTITY planar_curve
+  SUPERTYPE OF (ONEOF(variational_planar_curve,
+                      implicit_planar_curve))
+  SUBTYPE OF (curve);
+  curve_plane : plane;
+END_ENTITY;
+
+ENTITY planar_face_surface
+  SUPERTYPE OF (variational_planar_face_surface)
+  SUBTYPE OF (face_surface);
+WHERE
+  WR1: 'GEOMETRY_SCHEMA.PLANE' IN 
+    TYPEOF(SELF\face_surface.face_geometry);
+END_ENTITY;
+
+ENTITY implicit_point_on_plane
+  ABSTRACT SUPERTYPE OF (ONEOF
+    (implicit_planar_intersection_point,
+     implicit_planar_projection_point))
+  SUBTYPE OF (point, auxiliary_geometric_representation_item);
+  using_sketch   : variational_positioned_sketch_representation;
+  computed_representation 
+                 : cartesian_point;
+DERIVE
+  plane_of_point : 
+    plane := get_plane_of_implicit_geometry(using_sketch);
+WHERE
+  WR1: (plane_of_point\elementary_surface.position.location = 
+    computed_representation) XOR
+    (dot_product(plane_of_point\elementary_surface.position.p[3],
+    get_relative_direction_2points
+    (plane_of_point\elementary_surface.position.location, 
+    computed_representation)) = 0);
+END_ENTITY;
+
+ENTITY implicit_planar_intersection_point
+  SUBTYPE OF (implicit_point_on_plane);
+  external_curve : curve;
+END_ENTITY;
+
+ENTITY implicit_planar_projection_point
+  SUBTYPE OF (implicit_point_on_plane);
+  external_point       : point;
+  projection_direction : direction;
+END_ENTITY;
+
+ENTITY implicit_planar_curve
+  ABSTRACT SUPERTYPE OF (ONEOF
+    (implicit_intersection_curve,
+     implicit_projected_curve,
+     implicit_model_intersection_curve,
+     implicit_silhouette_curve))
+  SUBTYPE OF (planar_curve, auxiliary_geometric_representation_item);
+  using_sketch            : variational_positioned_sketch_representation;
+  computed_representation : planar_curve;
+WHERE
+  WR1: SELF\planar_curve.curve_plane 
+    :=: get_plane_of_implicit_geometry(using_sketch);
+END_ENTITY;
+
+ENTITY implicit_intersection_curve
+  SUBTYPE of (implicit_planar_curve);
+  external_surface : surface;
+END_ENTITY;
+
+ENTITY implicit_projected_curve
+  SUBTYPE of (implicit_planar_curve);
+  external_curve       : curve;
+  projection_direction : direction;
+END_ENTITY;
+
+ENTITY implicit_model_intersection_curve
+  SUBTYPE of (implicit_planar_curve);
+  intersected_model : surface_or_solid_model;
+END_ENTITY;
+
+ENTITY implicit_silhouette_curve
+  SUBTYPE of (implicit_planar_curve);
+  silhouetted_model : surface_or_solid_model;
+  view_direction    : direction;
+END_ENTITY;
+
+ENTITY variational_planar_curve
+  SUBTYPE OF (planar_curve);
+  variational_elements : SET[1:?] OF variational_representation_item;
+WHERE
+  WR1: SIZEOF(QUERY(q <* variational_elements | 
+    ('PARAMETERIZATION_SCHEMA.BOUND_MODEL_PARAMETER' IN TYPEOF(q)) 
+    AND NOT (q.interpretation.semantics.owning_instance 
+    IN unpack_composite_curve(SELF\planar_curve)))) = 0;
+  WR2: SIZEOF(QUERY(q <* variational_elements | 
+    ('PARAMETERIZATION_SCHEMA.UNBOUND_MODEL_PARAMETER' IN TYPEOF(q)) 
+    AND (SIZEOF(QUERY(r <* variational_elements |
+    ('EXPLICIT_CONSTRAINT_SCHEMA.FREE_FORM_CONSTRAINT' IN TYPEOF(r))
+    AND (q IN used_variables(r.constraining_expression)))) = 0))) = 0;
+  WR3: SIZEOF(QUERY(q <* variational_elements | 
+    ('PARAMETERIZATION_SCHEMA.FIXED_INSTANCE_ATTRIBUTE_SET' IN TYPEOF(q))
+    AND (SIZEOF(QUERY(r <* q.fixed_attributes | NOT (r.owning_instance 
+    IN unpack_composite_curve(SELF\planar_curve)))) = 0))) = 0;
+  WR4: SIZEOF(QUERY(q <* variational_elements |
+    ('EXPLICIT_CONSTRAINT_SCHEMA.EXPLICIT_CONSTRAINT' IN TYPEOF(q)) AND
+    (SIZEOF(QUERY(r <* (q.constrained_elements + q.reference_elements) | 
+    NOT (r IN unpack_composite_curve(SELF\planar_curve)))) = 0))) = 0;
+  WR5: SIZEOF(QUERY(q <* variational_elements |
+    'EXPLICIT_CONSTRAINT_SCHEMA.AUXILIARY_GEOMETRIC_REPRESENTATION_ITEM'
+    IN TYPEOF(q))) = 0;
+END_ENTITY;
+
+ENTITY variational_planar_face_surface
+  SUBTYPE OF (planar_face_surface);
+  variational_elements : SET[1:?] OF variational_representation_item;
+WHERE
+  WR1: SIZEOF(QUERY(q <* variational_elements | 
+    ('PARAMETERIZATION_SCHEMA.BOUND_MODEL_PARAMETER' IN TYPEOF(q)) 
+    AND NOT (q.interpretation.semantics.owning_instance 
+    IN unpack_face_bounds(SELF\face)))) = 0;
+  WR2: SIZEOF(QUERY(q <* variational_elements | 
+    ('PARAMETERIZATION_SCHEMA.UNBOUND_MODEL_PARAMETER' IN TYPEOF(q))
+    AND (SIZEOF(QUERY(r <* variational_elements |
+    ('EXPLICIT_CONSTRAINT_SCHEMA.FREE_FORM_CONSTRAINT' IN TYPEOF(r))
+    AND (q IN used_variables(r.constraining_expression)))) = 0))) = 0;
+  WR3: SIZEOF(QUERY(q <* variational_elements | 
+    ('PARAMETERIZATION_SCHEMA.FIXED_INSTANCE_ATTRIBUTE_SET' IN TYPEOF(q))
+    AND (SIZEOF(QUERY(r <* q.fixed_attributes | NOT
+    (r.owning_instance IN unpack_face_bounds(SELF\face)))) = 0))) = 0;
+  WR4: SIZEOF(QUERY(q <* variational_elements |
+    ('EXPLICIT_CONSTRAINT_SCHEMA.EXPLICIT_CONSTRAINT' IN TYPEOF(q)) AND
+    (SIZEOF(QUERY(r <* (q.constrained_elements + q.reference_elements) |
+    NOT (r IN unpack_face_bounds(SELF\face)))) = 0))) = 0;
+  WR5: SIZEOF(QUERY(q <* variational_elements |
+    'EXPLICIT_CONSTRAINT_SCHEMA.AUXILIARY_GEOMETRIC_REPRESENTATION_ITEM'
+    IN TYPEOF(q))) = 0;
+END_ENTITY;
+
+ENTITY sketch_representation
+  ABSTRACT SUPERTYPE OF 
+    (ONEOF(neutral_sketch_representation,
+           positioned_sketch_representation,
+           variational_neutral_sketch_representation,
+           variational_positioned_sketch_representation,
+           (subsketch AND neutral_sketch_representation),
+           (subsketch AND positioned_sketch_representation)))
+  SUBTYPE OF (shape_representation);
+WHERE
+  WR1: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT' 
+    IN TYPEOF(SELF\representation.context_of_items);
+END_ENTITY;
+
+ENTITY neutral_sketch_representation
+  SUBTYPE OF (sketch_representation);
+  sketch_geometry : geometric_curve_set;
+DERIVE
+  SELF\representation.items : SET[1:?] OF geometric_representation_item
+    := sketch_geometry.elements;
+WHERE
+  WR1: SIZEOF(QUERY(q <* SELF\representation.items | q.dim <> 2)) = 0;
+END_ENTITY;
+
+ENTITY variational_neutral_sketch_representation
+  SUBTYPE OF (sketch_representation, 
+              variational_representation);
+  variational_data : SET[1:?] OF variational_representation_item;
+DERIVE
+  SELF\representation.items : SET[1:?] OF representation_item :=
+  SELF\variational_representation.cm_link.rep_2.sketch_geometry.elements 
+  + variational_data;
+WHERE
+  WR1: 'SKETCH_SCHEMA.NEUTRAL_SKETCH_REPRESENTATION' IN
+    TYPEOF(SELF\variational_representation.cm_link.rep_2);
+  WR2: SIZEOF(QUERY(q <* variational_data | 
+    ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(q)) 
+    AND (q.dim <> 2))) = 0;
+  WR3: SIZEOF(QUERY(q <* variational_data | 
+    ('EXPLICIT_CONSTRAINT_SCHEMA.EXPLICIT_CONSTRAINT' IN TYPEOF(q)) AND
+    (SIZEOF(QUERY(r <* (q\explicit_constraint.constrained_elements +
+    q\explicit_constraint.reference_elements) | 
+    NOT (r IN unpack_curve_set(
+    SELF\variational_representation.cm_link.rep_2.sketch_geometry 
+    )))) <> 0))) = 0;
+END_ENTITY;
+
+ENTITY repositioned_neutral_sketch
+  SUBTYPE OF (mapped_item, geometric_representation_item);
+DERIVE
+  map : representation_map 
+        := SELF\mapped_item.mapping_source;
+WHERE
+  WR1 : 'SKETCH_SCHEMA.NEUTRAL_SKETCH_SELECT'
+    IN TYPEOF(map.mapped_representation);
+  WR2 : 'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_2D' IN 
+    TYPEOF(map.mapping_origin);
+  WR3 : 'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_3D' IN 
+    TYPEOF(SELF\mapped_item.mapping_target);
+END_ENTITY;
+
+ENTITY repositioned_variational_data
+  SUBTYPE OF (mapped_item, variational_representation_item);
+  sketch_geometry 
+      : repositioned_neutral_sketch;
+DERIVE
+  map : representation_map 
+        := SELF\mapped_item.mapping_source;
+WHERE
+  WR1: 'SKETCH_SCHEMA.VARIATIONAL_NEUTRAL_SKETCH_REPRESENTATION'
+    IN TYPEOF(map.mapped_representation);
+  WR2: (map.mapped_representation :=: 
+    sketch_geometry.map.mapped_representation)
+    AND (map.mapping_origin :=:
+    sketch_geometry.map.mapping_origin)
+    AND (SELF\mapped_item.mapping_target :=:
+    sketch_geometry\mapped_item.mapping_target);
+  WR3: sketch_geometry.map.mapped_representation
+    :=: map.mapped_representation\variational_representation.cm_link.rep_2;
+  WR4: (SIZEOF(QUERY(q <* 
+    map.mapped_representation.variational_data
+    | ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(q)))) = 0)
+    XOR ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(SELF));
+END_ENTITY;
+
+ENTITY positioned_sketch_representation
+  SUBTYPE OF (sketch_representation);
+  sketch_basis              : sketch_basis_select;
+DERIVE
+  SELF\representation.items : SET[1:?] OF geometric_representation_item
+    := collect_geometric_sketch_items(SELF);
+END_ENTITY;
+
+ENTITY variational_positioned_sketch_representation
+  SUBTYPE OF (sketch_representation,
+              variational_representation);
+  sketch_basis      : sketch_basis_select;
+  imported_geometry : SET[0:?] OF implicit_imported_element;
+  imported_variational_elements 
+                    : SET[0:?] OF variational_representation_item;
+DERIVE
+  SELF\representation.items     
+                    : SET[1:?] OF representation_item
+                      := collect_all_sketch_items(SELF);
+WHERE
+  WR1: SIZEOF(QUERY(q <* imported_variational_elements | 
+    ('GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(q))
+    AND (q\geometric_representation_item.dim <> 3))) = 0;
+  WR2: (SIZEOF(imported_geometry) > 0) OR
+    ((SIZEOF(TYPEOF(sketch_basis) *
+    ['SKETCH_SCHEMA.VARIATIONAL_PLANAR_CURVE',
+     'SKETCH_SCHEMA.VARIATIONAL_PLANAR_FACE_SURFACE']) = 1) XOR
+    (('SKETCH_SCHEMA.REPOSITIONED_NEUTRAL_SKETCH' 
+    IN TYPEOF(sketch_basis)) AND 
+    ('SKETCH_SCHEMA.VARIATIONAL_NEUTRAL_SKETCH_REPRESENTATION' 
+    IN TYPEOF(sketch_basis.map.mapped_representation))));
+  WR3: ('SKETCH_SCHEMA.POSITIONED_SKETCH_REPRESENTATION' IN TYPEOF(
+    SELF\variational_representation.cm_link.rep_2))
+    AND (sketch_basis :=: 
+    SELF\variational_representation.cm_link.rep_2.sketch_basis);
+  WR4: (SIZEOF(imported_geometry) = 0) XOR
+    (SIZEOF(QUERY(q <* imported_geometry |
+    SIZEOF(QUERY(r <* imported_variational_elements |
+    ('EXPLICIT_CONSTRAINT_SCHEMA.EXPLICIT_CONSTRAINT' IN TYPEOF(r))
+    AND NOT (q IN r\explicit_constraint.reference_elements))) = 0)) = 0);
+  WR5: (SIZEOF(imported_geometry) = 0) XOR
+    (SIZEOF(QUERY(q <* imported_geometry |
+    SIZEOF(QUERY(r <* imported_variational_elements |
+    ('EXPLICIT_CONSTRAINT_SCHEMA.EXPLICIT_CONSTRAINT' IN TYPEOF(r))
+    AND (q IN r\explicit_constraint.constrained_elements))) > 0)) = 0);
+END_ENTITY;
+
+ENTITY subsketch
+SUBTYPE OF (sketch_representation); 
+  subsketch_elements : geometric_curve_set; 
+  owning_sketch      : sketch_representation;
+WHERE
+  WR1: SELF\representation.context_of_items :=: 
+    owning_sketch\representation.context_of_items;
+  WR2: SIZEOF(USEDIN(SELF,
+    'REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP.REP_2') *
+    USEDIN(SELF.owning_sketch,
+    'REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP.REP_1')) = 1;
+  WR3: SIZEOF(QUERY(q <* subsketch_elements\geometric_set.elements | 
+    NOT (q IN owning_sketch\representation.items))) = 0;
+END_ENTITY;
+
+ENTITY rigid_subsketch
+  SUBTYPE OF (subsketch); 
+END_ENTITY;
+
+FUNCTION get_relative_direction_2points 
+           (cp1, cp2 : cartesian_point) : direction;
+
+  LOCAL
+    d1, d2, d3, magnitude : real;
+    result                : direction := ?;  
+  END_LOCAL;
+
+  -- check that input points are three-dimensional
+
+  IF ((cp1.dim <> 3) OR (cp2.dim <> 3)) THEN 
+    RETURN(result);
+  ELSE
+
+    -- construct components of vector and compute its magnitude
+
+    BEGIN
+      d1 := cp2.coordinates[1] - cp1.coordinates[1];
+      d2 := cp2.coordinates[2] - cp1.coordinates[2];
+      d3 := cp2.coordinates[3] - cp1.coordinates[3];
+      magnitude := sqrt(d1*d1 + d2*d2 + d3*d3);
+      IF (magnitude = 0) THEN 
+        return(result); -- direction is indeterminate in this case
+      END_IF;
+      result := dummy_gri || direction([d1, d2, d3]);
+    END;
+  END_IF;
+  RETURN(result);
+
+END_FUNCTION;
+
+FUNCTION get_plane_of_implicit_geometry
+         (psr : positioned_sketch_representation) : plane;
+
+  LOCAL
+    sb     : sketch_basis_select := psr.sketch_basis;
+    result : plane := ?;
+  END_LOCAL;
+
+  -- determine plane of implicit geometry from the underlying entity data
+  -- type of its owning instance of positioned_sketch_representation
+
+  IF ('SKETCH_SCHEMA.PLANAR_FACE_SURFACE' IN TYPEOF(sb)) THEN 
+    result := sb\face_surface.face_geometry;
+  ELSE
+    IF ('SKETCH_SCHEMA.PLANAR_CURVE' IN TYPEOF(sb)) THEN
+      result := sb.curve_plane;
+    END_IF;
+  END_IF;
+  RETURN(result);
+
+END_FUNCTION;
+
+FUNCTION unpack_curve_set(gcs : geometric_curve_set) 
+                              : SET[1:?] OF geometric_set_select;
+
+  LOCAL
+    element : geometric_set_select;
+    gss_bag : BAG[0:?] OF geometric_set_select := [];
+    i,j     : INTEGER;
+  END_LOCAL;
+
+  -- examine each member of the geometric_curve_set instance, putting
+  -- it into the gss_set if it is a simple point or curve, and the 
+  -- underlying curves of its segments if it is a composite_curve
+
+  REPEAT i := 1 TO SIZEOF(gcs\geometric_set.elements);
+    element := gcs\geometric_set.elements[i];
+    IF ('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF(element)) THEN
+      REPEAT j := 1 TO element.n_segments;
+        gss_bag := gss_bag + element.segments[j];
+      END_REPEAT;
+    ELSE 
+      IF (('GEOMETRY_SCHEMA.CURVE' IN TYPEOF(element)) OR 
+          ('GEOMETRY_SCHEMA.POINT' IN TYPEOF(element))) THEN
+        gss_bag := gss_bag + element;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+
+  -- convert gss_bag into a set of unique elements  
+
+  RETURN(bag_to_set(gss_bag));
+
+END_FUNCTION;
+
+FUNCTION unpack_composite_curve (cur : curve) 
+                                     : SET[1:?] OF geometric_set_select;
+
+  LOCAL
+    gss_bag : BAG[0:?] OF curve := [];
+    i       : INTEGER;
+  END_LOCAL;
+
+  -- examine each segment of the input curve instance, if it is composite,
+  -- and put its underlying curve into the gss_bag; if it is not composite,
+  -- put the curve itself into the gss_bag
+
+  IF ('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF(cur)) THEN
+    REPEAT i := 1 TO cur.n_segments;
+      gss_bag := gss_bag + cur.segments[i];
+    END_REPEAT;
+  ELSE 
+    gss_bag := gss_bag + cur;
+  END_IF;
+  
+  -- convert gss_bag into a set of unique elements
+
+  RETURN(bag_to_set(gss_bag));
+
+END_FUNCTION;
+
+FUNCTION unpack_face_bounds(f : face) : SET[1:?] OF geometric_set_select;
+
+  LOCAL
+    fbb     : loop;
+    oe      : oriented_edge;
+    gss_bag : BAG[0:?] OF geometric_set_select := [];
+    i,j     : INTEGER;
+  END_LOCAL;
+  
+  -- cycle through all the bounds of the face, putting underlying points
+  -- of all vertices and underlying curves of all edges into the gss_bag,
+  -- unpacking composite curves into simple components where necessary
+
+  REPEAT i := 1 TO SIZEOF(f.bounds);
+    fbb := f.bounds[i].bound;
+    IF ('TOPOLOGY_SCHEMA.VERTEX_LOOP' IN TYPEOF(fbb)) THEN
+      IF ('TOPOLOGY_SCHEMA.VERTEX_POINT' IN TYPEOF(fbb.loop_vertex)) THEN
+        gss_bag := gss_bag + fbb.loop_vertex.vertex_geometry;
+      END_IF;
+    END_IF; 
+    IF ('TOPOLOGY_SCHEMA.EDGE_LOOP' IN TYPEOF(fbb)) THEN
+      REPEAT j := 1 TO fbb.ne;
+        BEGIN
+          oe := fbb\path.edge_list[j];
+          IF ('TOPOLOGY_SCHEMA.EDGE_CURVE' IN TYPEOF(oe)) THEN
+            gss_bag := gss_bag 
+              + unpack_composite_curve(oe.edge_element.edge_geometry);
+          END_IF;
+          IF ('TOPOLOGY_SCHEMA.VERTEX_POINT' IN TYPEOF(oe.edge_start)) THEN
+            gss_bag := gss_bag + oe.edge_start.vertex_geometry;
+          END_IF; 
+          IF ('TOPOLOGY_SCHEMA.VERTEX_POINT' IN TYPEOF(oe.edge_end)) THEN
+            gss_bag := gss_bag + oe.edge_end.vertex_geometry;
+          END_IF; 
+        END;
+      END_REPEAT;
+    END_IF;
+    IF ('TOPOLOGY_SCHEMA.POLY_LOOP' IN TYPEOF(fbb)) THEN
+      REPEAT j := 1 TO HIINDEX(fbb.polygon);
+        gss_bag := gss_bag + fbb.polygon[j];
+      END_REPEAT;
+    END_IF;
+  END_REPEAT;
+
+  -- convert gss_bag into a set of unique elements
+
+  RETURN(bag_to_set(gss_bag));
+
+END_FUNCTION;
+
+FUNCTION collect_geometric_sketch_items 
+  (psr : positioned_sketch_representation) :  
+    SET[1:?] OF geometric_representation_item;
+
+  LOCAL
+    sb     : sketch_basis_select := psr.sketch_basis;
+    result : SET[1:?] OF geometric_representation_item;  
+  END_LOCAL;
+
+  -- collect defining geometric_representation_items appropriate to 
+  -- type of sketch basis
+
+  IF ('SKETCH_SCHEMA.PLANAR_CURVE' IN TYPEOF(sb)) 
+  THEN
+      result := unpack_composite_curve(sb);
+  ELSE
+    IF ('SKETCH_SCHEMA.PLANAR_FACE_SURFACE' IN TYPEOF(sb)) 
+    THEN 
+      result := unpack_face_bounds(sb);
+    ELSE -- sketch basis is a repositioned neutral sketch
+	result := [sb]; -- a single mapped item
+    END_IF;
+  END_IF;
+  RETURN(result);
+
+END_FUNCTION;
+
+FUNCTION collect_all_sketch_items 
+  (vpsr : variational_positioned_sketch_representation) :  
+    SET[1:?] OF representation_item;
+
+  LOCAL
+    sb     : sketch_basis_select 
+               := vpsr\positioned_sketch_representation.sketch_basis;
+    result : SET[1:?] OF representation_item;  
+  END_LOCAL;
+
+  -- collect defining representation items appropriate to type of 
+  -- sketch basis
+
+  IF ('SKETCH_SCHEMA.PLANAR_CURVE' IN TYPEOF(sb)) 
+  THEN
+    IF NOT ('SKETCH_SCHEMA.VARIATIONAL_PLANAR_CURVE' IN TYPEOF(sb))
+    THEN
+      result := [sb] +
+      vpsr.imported_geometry + vpsr.imported_variational_elements;
+    ELSE 
+      result := [sb] + sb.variational_elements +
+      vpsr.imported_geometry + vpsr.imported_variational_elements;
+    END_IF;
+  ELSE
+    IF ('SKETCH_SCHEMA.PLANAR_FACE_SURFACE' IN TYPEOF(sb)) 
+    THEN 
+      IF NOT ('SKETCH_SCHEMA.VARIATIONAL_PLANAR_FACE_SURFACE' 
+        IN TYPEOF(sb))
+      THEN 
+        result := unpack_face_bounds(sb) + 
+        vpsr.imported_geometry + vpsr.imported_variational_elements;
+      ELSE 
+        result := unpack_face_bounds(sb) + sb.variational_elements + 
+        vpsr.imported_geometry + vpsr.imported_variational_elements;
+      END_IF;
+    ELSE -- sketch basis is a repositioned neutral sketch
+      IF NOT ('SKETCH_SCHEMA.VARIATIONAL_NEUTRAL_SKETCH_REPRESENTATION'
+        IN TYPEOF(sb.map.mapped_representation))
+      THEN
+        result := [sb]; -- a single mapped item
+      ELSE -- the neutral sketch is variational
+        result := [sb] +  bag_to_set(USEDIN(sb,
+        'SKETCH_SCHEMA.REPOSITIONED_VARIATIONAL_DATA.SKETCH_GEOMETRY')); 
+      -- two mapped items (the relationship between a repositioned 
+      -- neutral sketch and its variational data is unique, and USEDIN 
+      -- will therefore return a set with only one member).
+      END_IF;
+    END_IF;
+  END_IF;
+  RETURN(result);
+
+END_FUNCTION;
+
+END_SCHEMA; -- sketch_schema

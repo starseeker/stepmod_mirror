@@ -1,0 +1,125 @@
+(*
+   $Id: mim.exp,v 1.19 2005/02/25 16:28:05 liutkus Exp $
+   ISO TC184/SC4/WG12 N3322 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS MIM
+*)
+SCHEMA Characteristic_mim;
+
+	USE FROM Document_assignment_mim;	-- ISO/TS 10303-1122
+	USE FROM Extended_measure_representation_mim;	-- ISO/TS 10303-1106
+	USE FROM Value_with_unit_extension_mim;	-- ISO/TS 10303-1753
+
+USE FROM Group_schema(group);
+
+USE FROM Qualified_measure_schema
+	(expanded_uncertainty,
+	qualitative_uncertainty,
+	measure_qualification);
+
+TYPE c_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+     (coordinated_representation_item);
+END_TYPE;
+
+
+ENTITY characteristic_type
+  SUBTYPE OF (group);
+WHERE
+  WR1: SELF\group.name IN [
+       'string property',
+       'logical property',
+       'boolean property',
+       'numeric property',
+       'physical property',
+       'externally defined property',
+       'polar complex numeric property',
+       'compound characteristic'
+        ];
+
+END_ENTITY;
+
+ENTITY coordinated_representation_item
+  SUBTYPE OF (representation, representation_item);
+WHERE
+  WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'CHARACTERISTIC_MIM.' + 
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       SIZEOF (USEDIN (pdr, 
+       'CHARACTERISTIC_MIM.' +
+       'DATA_ENVIRONMENT.ELEMENTS')) <= 1)) <= 1;
+  WR2: SIZEOF (USEDIN (SELF, 
+       'CHARACTERISTIC_MIM.' + 
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 1;
+  WR3: (NOT (SELF\representation_item.name = 'tolerance')) OR
+       (SIZEOF (QUERY (it <* SELF.items |
+       'CHARACTERISTIC_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM' IN 
+       TYPEOF (it))) >= 1); 
+  WR4: (NOT (SELF\representation_item.name = 'plus minus tolerance')) OR
+       (SIZEOF (QUERY (it <* SELF.items |
+       'CHARACTERISTIC_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM' IN 
+       TYPEOF (it))) = 3); 
+  WR5: (NOT (SELF\representation_item.name = 'symmetrical tolerance')) OR
+       (SIZEOF (QUERY (it <* SELF.items |
+       'CHARACTERISTIC_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM' IN 
+       TYPEOF (it))) = 2); 
+  WR6: (NOT (SELF\representation_item.name = 'plus minus tolerance'))
+       OR
+       (
+        (SIZEOF (QUERY (it <* SELF.items
+         | ('CHARACTERISTIC_MIM.' +
+            'MEASURE_REPRESENTATION_ITEM' IN TYPEOF (it)) 
+           AND 
+            (it\representation_item.name = 'basic value'))
+        ) = 1)
+       AND
+        (SIZEOF (QUERY (it <* SELF.items
+         | ('CHARACTERISTIC_MIM.' +
+            'MEASURE_REPRESENTATION_ITEM' IN TYPEOF (it)) 
+           AND 
+            (it\representation_item.name = 'plus value'))
+        ) = 1)
+       AND
+        (SIZEOF (QUERY (it <* SELF.items 
+         | ('CHARACTERISTIC_MIM.' +
+            'MEASURE_REPRESENTATION_ITEM' IN TYPEOF (it)) 
+           AND 
+            (it\representation_item.name = 'minus value'))
+        ) = 1)
+       );
+
+  WR7: (NOT (SELF\representation_item.name = 'symmetrical tolerance')) OR
+       ((SIZEOF (QUERY (it <* SELF.items |
+       ('CHARACTERISTIC_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM' IN 
+       TYPEOF (it)) AND (it\representation_item.name = 'basic value'))
+                        ) = 1)
+       AND
+       (SIZEOF (QUERY (it <* SELF.items |
+       ('CHARACTERISTIC_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM' IN 
+       TYPEOF (it)) AND ( it\representation_item.name = 'deviation value'))
+                        ) = 1)
+       ); 
+END_ENTITY;
+
+ENTITY parameter_type
+  SUBTYPE OF (group);
+WHERE
+  WR1: SELF\group.name IN ['string property type','logical property type',
+       'physical property type','boolean property type'];
+END_ENTITY;
+
+ENTITY table_representation_item
+  SUBTYPE OF (compound_representation_item);
+WHERE
+  WR1: SIZEOF (USEDIN (SELF, 
+       'CHARACTERISTIC_MIM.' +
+       'APPLIED_GROUP_ASSIGNMENT.ITEMS')) > 0;
+  WR2: 'CHARACTERISTIC_MIM.' +
+       'LIST_REPRESENTATION_ITEM'
+       IN TYPEOF(SELF\compound_representation_item.item_element);
+END_ENTITY; 
+
+END_SCHEMA;
+

@@ -1,0 +1,34 @@
+(*
+   $Id: mim.exp,v 1.10 2005/04/04 10:25:57 liutkus Exp $
+   ISO TC184/SC4/WG12 N3544 - ISO/CD-TS 10303-1733 Planned characteristic - EXPRESS MIM
+*)
+
+
+SCHEMA Planned_characteristic_mim;
+	USE FROM Product_rule_mim;	-- ISO/TS 10303-1739
+	USE FROM Requirement_assignment_mim;	-- ISO/TS 10303-1233
+	
+	USE FROM Representation_schema(representation_relationship_with_transformation);
+	
+ENTITY evaluated_characteristic
+  SUBTYPE OF (representation, representation_relationship);
+UNIQUE
+  UR1: SELF\representation_relationship.rep_1, SELF\representation_relationship.rep_2;
+WHERE
+  WR1: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation ||
+       SELF\representation_relationship || 
+       SELF\representation_relationship_with_transformation || 
+       SELF\evaluated_characteristic))) = 0;
+  WR2: SELF\representation_relationship.rep_1 <> 
+       SELF\representation_relationship.rep_2;
+  WR3: SELF\representation_relationship.name = '';
+  WR4: SELF\representation.name = '';
+  WR5: SELF\representation_relationship.rep_1.name = 'planned characteristic';
+END_ENTITY; 
+
+ENTITY evaluation_product_definition
+ SUBTYPE OF (product_definition);
+END_ENTITY;
+	
+END_SCHEMA;
+

@@ -1,0 +1,85 @@
+(*
+   $Id: mim.exp,v 1.7 2005/02/04 16:14:34 budreckytej Exp $
+   ISO TC184/SC4/WG12 N3616 - ISO/CD-TS 10303-1748 Stratum non planar shape - EXPRESS MIM
+*)
+
+
+SCHEMA Stratum_non_planar_shape_mim;
+	USE FROM Layered_interconnect_module_design_mim;	-- ISO/TS 10303-1698
+	USE FROM Manifold_surface_mim;	-- ISO/TS 10303-1509
+
+RULE stratum_average_surface_shape_constraint FOR 
+( manifold_surface_shape_representation );
+WHERE
+  WR1: SIZEOF(QUERY(mssr <* manifold_surface_shape_representation |
+       (mssr\representation.name = 'stratum average surface shape')
+       AND NOT (
+       SIZEOF(QUERY(pdr <* USEDIN(mssr,
+       'STRATUM_NON_PLANAR_SHAPE_MIM.'
+        + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('STRATUM_NON_PLANAR_SHAPE_MIM.'
+        + 'STRATUM_SURFACE' IN TYPEOF(pdr.definition.definition))
+       AND (pdr.definition.definition\shape_aspect.description = 
+                                            'average surface'))) = 1
+       ))) = 0;
+
+END_RULE;
+
+RULE stratum_feature_non_planar_2d_shape_constraint FOR 
+( manifold_surface_shape_representation );
+WHERE
+  WR1: SIZEOF(QUERY(mssr <* manifold_surface_shape_representation |
+       (mssr\representation.name = 'stratum feature non planar 2d shape')
+       AND NOT (
+       SIZEOF(QUERY(pdr <* USEDIN(mssr,
+       'STRATUM_NON_PLANAR_SHAPE_MIM.'
+        + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('STRATUM_NON_PLANAR_SHAPE_MIM.'
+        + 'STRATUM_FEATURE' IN TYPEOF(pdr.definition.definition))
+       )) = 1
+       ))) = 0;
+END_RULE;
+
+RULE 
+stratum_feature_shape_stratum_average_surface_shape_relationship_constraint
+ FOR 
+( representation_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(rr <* representation_relationship |
+       (rr\representation_relationship.name = 
+'stratum feature shape stratum average surface shape relationship')
+       AND NOT(('STRATUM_NON_PLANAR_SHAPE_MIM.'
+       + 'MANIFOLD_SURFACE_SHAPE_REPRESENTATION' IN TYPEOF(rr.rep_2))
+       AND (rr.rep_2\representation.name = 'stratum feature non planar 2d shape')
+       ))) = 0;
+  WR2: SIZEOF(QUERY(rr <* representation_relationship |
+       (rr\representation_relationship.name = 
+'stratum feature shape stratum average surface shape relationship')
+       AND NOT(('STRATUM_NON_PLANAR_SHAPE_MIM.'
+       + 'MANIFOLD_SURFACE_SHAPE_REPRESENTATION' IN TYPEOF(rr.rep_1))
+       AND (rr.rep_1\representation.name = 'stratum average surface shape')
+       ))) = 0;
+END_RULE;
+
+RULE stratum_feature_shape_stratum_surface_shape_relationship_constraint FOR
+( representation_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(rr <* representation_relationship |
+       (rr\representation_relationship.name = 
+        'stratum feature shape stratum surface shape relationship')
+       AND NOT(('STRATUM_NON_PLANAR_SHAPE_MIM.'
+       + 'MANIFOLD_SURFACE_SHAPE_REPRESENTATION' IN TYPEOF(rr.rep_2))
+       AND (rr.rep_2\representation.name = 'stratum feature non planar 2d shape')
+       ))) = 0;
+  WR2: SIZEOF(QUERY(rr <* representation_relationship |
+       (rr\representation_relationship.name = 
+            'stratum feature shape stratum surface shape relationship')
+       AND NOT(('STRATUM_NON_PLANAR_SHAPE_MIM.'
+       + 'MANIFOLD_SURFACE_SHAPE_REPRESENTATION' IN TYPEOF(rr.rep_1))
+       AND (rr.rep_1\representation.name = 'stratum surface shape')
+       ))) = 0;
+END_RULE;
+	
+END_SCHEMA;
+
+

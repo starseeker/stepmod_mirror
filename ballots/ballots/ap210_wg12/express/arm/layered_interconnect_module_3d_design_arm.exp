@@ -1,0 +1,49 @@
+(*
+   $Id: arm.exp,v 1.10 2005/04/04 10:08:53 liutkus Exp $
+   ISO TC184/SC4/WG12 N3480 - ISO/CD-TS 10303-1696 Layered interconnect module 3d design - EXPRESS ARM
+*)
+
+SCHEMA Layered_interconnect_module_3d_design_arm;
+
+	USE FROM Stratum_non_planar_shape_arm;	-- ISO/TS 10303-1748
+
+  TYPE stratum_feature_3d_shape_select = SELECT
+    (Stratum_feature_non_planar_2d_shape,
+     Stratum_feature_3d_shape);
+  END_TYPE;
+
+  ENTITY Stratum_3d_shape
+    SUBTYPE OF (Feature_shape_definition);
+      shape_characterized_stratum : Stratum;
+    WHERE
+      WR1 : NOT ('LAYERED_INTERCONNECT_MODULE_3D_DESIGN_ARM.PLANAR_SHAPE' IN TYPEOF(SELF));
+  END_ENTITY;
+
+  ENTITY Stratum_feature_3d_shape
+    SUBTYPE OF (Feature_shape_definition);
+      represented_stratum_feature : Stratum_feature;
+  END_ENTITY;
+
+  ENTITY Stratum_feature_in_stratum_3d_position;
+      stratum_shape  : Stratum_3d_shape;
+      transformation : Axis_placement_3d;
+      feature_shape  : stratum_feature_3d_shape_select;
+  END_ENTITY;
+
+  ENTITY Stratum_interconnect_module_3d_position;
+      stratum_component         : Interconnect_module_stratum_assembly_relationship;
+      stratum_shape             : Stratum_3d_shape;
+      interconnect_module_shape : Physical_unit_3d_shape;
+      transformation            : Axis_placement_3d;
+   UNIQUE
+   	UR1 : stratum_component;
+  END_ENTITY;
+
+  ENTITY Stratum_surface_in_stratum_3d_position;
+      stratum_shape  : Stratum_3d_shape;
+      transformation : Axis_placement_3d;
+      surface_shape  : stratum_surface_shape_select;
+  END_ENTITY;
+
+END_SCHEMA;
+

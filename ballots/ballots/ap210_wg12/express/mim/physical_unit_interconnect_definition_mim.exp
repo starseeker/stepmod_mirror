@@ -1,0 +1,79 @@
+(*
+   $Id: mim.exp,v 1.11 2005/04/04 10:26:05 liutkus Exp $
+   ISO TC184/SC4/WG12 N3571 - ISO/CD-TS 10303-1729 Physical unit interconnect definition - EXPRESS MIM
+*)
+
+
+SCHEMA Physical_unit_interconnect_definition_mim;
+	USE FROM Part_occurrence_mim;	-- ISO/TS 10303-1715
+
+	USE FROM Date_time_schema
+		(date_time_role,
+		date_role);
+	USE FROM Document_schema(document_type);
+	USE FROM Person_organization_schema
+		(person_and_organization_role,
+		organization_role);	
+	USE FROM Product_definition_schema(product_definition_with_associated_documents);	
+	USE FROM Product_property_definition_schema(property_definition);
+			
+ENTITY connector_based_interconnect_definition
+  SUBTYPE OF (property_definition);
+UNIQUE
+  UR1: SELF\property_definition.name,SELF\property_definition.definition;
+WHERE
+  WR1: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
+       'PHYSICAL_INTERCONNECT_DEFINITION' IN 
+        TYPEOF(SELF\property_definition.definition);
+END_ENTITY;
+
+ENTITY physical_interconnection_definition
+  SUBTYPE OF (property_definition);
+UNIQUE
+  UR1: SELF\property_definition.name,SELF\property_definition.definition;
+WHERE
+  WR1: 'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION' IN 
+        TYPEOF(SELF\property_definition.definition);
+END_ENTITY;
+
+ENTITY physical_unit_interconnect_definition
+ SUBTYPE OF (product_definition);
+WHERE
+  WR1: (NOT ('PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
+       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
+       TYPEOF (SELF))) OR
+       (SIZEOF (QUERY (docs <* 
+       SELF\product_definition_with_associated_documents.
+        documentation_ids |
+       docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
+  WR2: SIZEOF (QUERY (adta <* USEDIN (SELF, 
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 
+       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
+       adta.role\date_time_role.name = 'creation date')) + 
+       SIZEOF (QUERY (ada <* USEDIN (SELF, 
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' + 
+       'APPLIED_DATE_ASSIGNMENT.ITEMS') |
+       ada.role\date_role.name = 'creation date')) = 1;
+  WR3: SIZEOF (USEDIN (SELF, 
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
+       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1;
+  WR4: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
+       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\person_and_organization_role.name = 'creator')) +
+       SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
+       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\organization_role.name = 'creator')) >= 1;
+  WR5: SIZEOF (USEDIN (SELF, 
+       'PHYSICAL_UNIT_INTERCONNECT_DEFINITION_MIM.' +
+       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
+  WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||
+       SELF\physical_unit_interconnect_definition))) = 0;
+  WR7: SELF.frame_of_reference.name IN ['physical interconnect design'];
+END_ENTITY;
+	
+END_SCHEMA;
+
+

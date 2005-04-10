@@ -1,0 +1,29 @@
+(*
+   $Id: mim.exp,v 1.12 2005/04/04 10:09:07 liutkus Exp $
+   ISO TC184/SC4/WG12 N3469 - ISO/CD-TS 10303-1693 Layered 2d shape - EXPRESS MIM
+*)
+
+
+SCHEMA Layered_2d_shape_mim;
+	USE FROM Constructive_solid_geometry_2d_mim;	-- ISO/TS 10303-1731
+--	USE FROM Part_template_2d_shape_mim;	-- ISO/TS 10303-1716
+--	USE FROM Physical_unit_2d_shape_mim;	-- ISO/TS 10303-1726
+	USE FROM Wireframe_2d_mim; 	-- ISO/TS 10303-1347	
+
+RULE planar_curve_constraint FOR ( shape_representation );
+WHERE
+WR1: SIZEOF (QUERY (sr <* shape_representation | 
+(
+NOT(NOT ( sr\representation.name IN ['planar projected shape',
+       'bevel edge feature shape',
+       'step edge feature shape',
+       'radius edge feature shape']) OR
+(sr\representation.
+context_of_items\geometric_representation_context.
+coordinate_space_dimension = 2)
+))
+)) = 0;
+END_RULE;
+	
+END_SCHEMA;
+

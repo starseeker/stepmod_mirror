@@ -1,0 +1,31 @@
+(*
+   $Id: arm.exp,v 1.9 2005/04/04 10:09:10 liutkus Exp $
+   ISO TC184/SC4/WG12 N3456 - ISO/CD-TS 10303-1689 Interconnect physical requirement allocation - EXPRESS ARM
+*)
+
+ SCHEMA Interconnect_physical_requirement_allocation_arm;
+
+	USE FROM Fabrication_technology_arm;	-- ISO/TS 10303-1670
+
+	SUBTYPE_CONSTRAINT material_removal_feature_template_subtypes FOR Material_removal_feature_template; 
+	    (ONEOF (Electrical_isolation_removal_template,
+	 	Thermal_isolation_removal_template));
+	END_SUBTYPE_CONSTRAINT;
+
+ 	TYPE thermal_isolation_removal_structure_or_template = EXTENSIBLE GENERIC_ENTITY SELECT
+ 		(Thermal_isolation_removal_template);
+	END_TYPE;
+		
+  ENTITY Thermal_isolation_removal_template
+    SUBTYPE OF (Material_removal_feature_template);
+  END_ENTITY;
+
+  ENTITY Thermal_isolation_requirement
+  	SUBTYPE OF (Requirement_view_definition);
+  	INVERSE
+			thermal_isolation_spacing_requirement		: Layout_spacing_requirement_occurrence FOR associated_definition;  	
+      effective_current_capacity_requirement 	: Requirement_definition_property FOR associated_definition;
+      angular_orientation_requirement        	: Requirement_definition_property FOR associated_definition;
+  END_ENTITY;
+  
+ END_SCHEMA;

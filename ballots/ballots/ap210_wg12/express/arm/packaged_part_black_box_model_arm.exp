@@ -1,0 +1,65 @@
+(*
+   $Id: arm.exp,v 1.19 2005/04/04 10:22:50 liutkus Exp $
+   ISO TC184/SC4/WG12 N3345 - ISO/CD-TS 10303-1710 Packaged part black box model - EXPRESS ARM
+*)
+
+SCHEMA Packaged_part_black_box_model_arm;
+
+	USE FROM Functional_assignment_to_part_arm;	-- ISO/TS 10303-1674
+	USE FROM Network_functional_usage_view_arm;	-- ISO/TS 10303-1705
+	USE FROM Package_arm;	-- ISO/TS 10303-1707
+	USE FROM Part_external_reference_arm;	-- ISO/TS 10303-1711
+
+	TYPE package_or_package_external_reference = SELECT
+  		(Package,
+   		package_external_reference);
+	END_TYPE;
+
+	TYPE ppbbm_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
+		(Packaged_part);
+	END_TYPE;
+
+  ENTITY Packaged_part
+    SUBTYPE OF (Part_usage_view);
+      used_package         : SET[1:?] OF package_or_package_external_reference;
+      implemented_function : OPTIONAL Functional_unit_usage_view;
+    INVERSE
+      access_mechanisms : SET[0:?] OF packaged_part_terminal FOR associated_definition;
+    WHERE
+      WR1 : NOT (EXISTS(implemented_function) XOR (SIZEOF(access_mechanisms) > 0));
+      WR2 : single_package_version(SELF);
+  END_ENTITY;
+
+  ENTITY Packaged_part_join_terminal
+    SUBTYPE OF (Packaged_part_terminal);
+  END_ENTITY;
+
+  ENTITY Packaged_part_terminal
+  	ABSTRACT SUPERTYPE
+    SUBTYPE OF (Part_terminal);
+      terminal_of_package                     : SET[1:?] OF Package_terminal;
+      SELF\Part_feature.associated_definition : Packaged_part;
+    WHERE
+      WR1 : disjoint_package_terminals(SELF);
+      WR2 : NOT EXISTS(SELF\Part_feature.precedent_feature);
+  END_ENTITY;
+
+  FUNCTION disjoint_package_terminals(
+    input : Packaged_part_terminal
+  ) : BOOLEAN;
+(*
+Each member of package referenced by self\Part_feature.associated_definition.used_package
+shall be referenced by no more than one member of terminal_of_package with
+the attribute associated_definition.
+*)
+    RETURN(TRUE);
+  END_FUNCTION;
+
+  FUNCTION single_package_version(
+    input : Packaged_part
+  ) : BOOLEAN;
+
+    RETURN(TRUE);
+  END_FUNCTION;
+
+END_SCHEMA;

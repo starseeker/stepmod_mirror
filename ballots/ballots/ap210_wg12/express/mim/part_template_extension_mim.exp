@@ -1,0 +1,97 @@
+(*
+   $Id: mim.exp,v 1.11 2005/03/23 08:03:55 liutkus Exp $
+   ISO TC184/SC4/WG12 N3526 - ISO/CD-TS 10303-1718 Part template extension - EXPRESS MIM
+*)
+
+
+SCHEMA Part_template_extension_mim;
+	USE FROM Fabrication_technology_mim;	-- ISO/TS 10303-1670
+	USE FROM Layered_interconnect_module_design_mim;	-- ISO/TS 10303-1698
+	USE FROM Styled_curve_mim;	-- ISO/TS 10303-1749
+	USE FROM Styled_text_mim;	-- ISO/TS 10303-1750
+	
+	USE FROM Presentation_definition_schema(text_literal);
+
+ENTITY part_text_template_definition
+  SUBTYPE OF (part_template_definition);
+WHERE
+  WR1: (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'TEXT_LITERAL' IN
+       TYPEOF (it))) = 1)) = 1))) = 0);
+  WR2: (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       (SIZEOF (
+       ['PART_TEMPLATE_EXTENSION_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] * 
+       TYPEOF (it)) = 2) AND (it\representation_item.name = 
+         'maximum font vertical extent'))) = 1
+       )) = 1))) = 0);
+  WR3: (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       SIZEOF (QUERY (it <* pdr.used_representation.items |
+       (SIZEOF (
+       ['PART_TEMPLATE_EXTENSION_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM',
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'LENGTH_MEASURE_WITH_UNIT'] * 
+       TYPEOF (it)) = 2) AND (it\representation_item.name = 
+         'maximum font horizontal extent'))) = 1
+       )) = 1))) = 0);
+END_ENTITY;
+
+ENTITY reference_packaged_part_interconnect_implementation
+ SUBTYPE OF (physical_unit);
+WHERE
+  WR1: EXISTS(SELF\product_definition.name);
+  WR2: (SIZEOF (QUERY (prpc <*
+       USEDIN (SELF.formation.of_product,
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |
+       prpc\product_category.name = 'template model')) >= 1) AND
+       (SELF\product_definition.name = 'interconnect module');
+  WR3: SIZEOF (QUERY (du <* QUERY (pdr <* USEDIN (SELF,
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.' +
+       'RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'design usage') |
+       (SIZEOF (['PART_TEMPLATE_EXTENSION_MIM.' +
+       'PHYSICAL_UNIT', 
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'EXTERNALLY_DEFINED_PHYSICAL_UNIT', 
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'LIBRARY_DEFINED_PHYSICAL_UNIT'] *
+       TYPEOF (du.relating_product_definition)) = 1) AND
+       (du.relating_product_definition.frame_of_reference.name = 
+       'physical design usage') AND
+       (du.relating_product_definition\product_definition.name =
+       'interconnect module') AND
+       (SIZEOF (QUERY (prpc <*
+       USEDIN (du.relating_product_definition.formation.of_product,
+       'PART_TEMPLATE_EXTENSION_MIM.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |
+       prpc\product_category.name = 'template model')) >= 1) 
+       )) <= 1;
+  WR4: SELF.frame_of_reference.name = 'physical design';
+END_ENTITY;
+	
+END_SCHEMA;
+
+

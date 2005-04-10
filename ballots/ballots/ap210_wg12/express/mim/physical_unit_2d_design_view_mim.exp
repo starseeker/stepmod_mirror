@@ -1,0 +1,943 @@
+(*
+   $Id: mim.exp,v 1.16 2005/04/04 10:26:05 liutkus Exp $
+   ISO TC184/SC4/WG12 N3547 - ISO/CD-TS 10303-1724 Physical unit 2d design view - EXPRESS MIM
+*)
+
+
+SCHEMA Physical_unit_2d_design_view_mim;
+	USE FROM Assembly_module_with_interconnect_component_mim;	-- ISO/TS 10303-1643
+	USE FROM Physical_unit_2d_shape_mim;	-- ISO/TS 10303-1726
+REFERENCE FROM Physical_unit_usage_view_mim   	
+  (is_laminate_component); -- ISO/TS 10303-1732
+REFERENCE FROM Physical_unit_design_view_mim   
+  (is_interconnect_module_occurrence); 	-- ISO/TS 10303-1728
+REFERENCE FROM support_resource_schema   -- ISO 10303-41
+  (bag_to_set); 
+	
+	
+ENTITY component_2d_location
+  SUBTYPE OF (context_dependent_shape_representation, shape_representation_relationship, representation_relationship_with_transformation, definitional_representation_relationship);
+(* NEED to re-write !!!  
+WHERE
+  WR1: SIZEOF (QUERY (it <* SELF.items |
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM'
+       IN TYPEOF (it)) AND
+       (it\representation_item.name = 'placement fixed') AND 
+       ((it\descriptive_representation_item.description = 'true') OR
+       (it\descriptive_representation_item.description = 'false')))) = 1;
+  WR2: SIZEOF (QUERY (it <* SELF.items |
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM'
+       IN TYPEOF (it)))) = 1;
+  WR3: (NOT 
+       (SELF.context_of_items\geometric_representation_context.
+       coordinate_space_dimension
+       = 2)) OR (SIZEOF (QUERY (it <* SELF.items |
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (it))) = 1);
+  WR4: (NOT 
+       (SELF.context_of_items\geometric_representation_context.
+       coordinate_space_dimension
+        = 3)) OR (SIZEOF (QUERY (it <* SELF.items |
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'AXIS2_PLACEMENT_3D' IN TYPEOF (it))) = 1);
+  WR5: SIZEOF (QUERY (it <* SELF.items |
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'MAPPED_ITEM'
+       IN TYPEOF (it)) 
+       )) = 1;
+  WR6: NOT (SIZEOF (QUERY (it <* SELF.items |
+        'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (it))) = 1)
+        OR
+        (SIZEOF (QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D'
+        IN TYPEOF (cto2d)) AND
+        (SIZEOF (QUERY (mi <* USEDIN (cto2d,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'MAPPED_ITEM.MAPPING_TARGET') | (
+       (SIZEOF (QUERY (cl <* USEDIN (mi,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'REPRESENTATION.ITEMS') |(cl = SELF))) = 1)))) >= 1)
+        )) = 1);
+  WR7: NOT (SIZEOF (QUERY (it <* SELF.items |
+        'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'AXIS2_PLACEMENT_3D' IN TYPEOF (it))) = 1)
+      OR
+       (SIZEOF (QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'AXIS2_PLACEMENT_3D'
+        IN TYPEOF (cto2d)) AND
+        (SIZEOF (QUERY (mi <* USEDIN (cto2d,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'MAPPED_ITEM.MAPPING_TARGET') | (
+       (SIZEOF (QUERY (cl <* USEDIN (mi,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'REPRESENTATION.ITEMS') |(cl = SELF))) = 1)))) = 1)
+        )) = 1);
+  WR8:NOT((SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2) AND 
+          (SELF.context_of_items.context_type = 'component surface') AND
+        (( SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       (
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (pdr.definition.definition)) AND
+       (pdr.name = 'mounting surface assembly joint') AND
+       (pdr.definition.definition.relating_shape_aspect\shape_aspect.description =
+         'interconnect module component surface feature') AND
+       (SIZEOF(QUERY ( sar <* USEDIN (pdr.definition.definition.relating_shape_aspect,
+        'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+        ((sar.relating_shape_aspect\shape_aspect.description =
+         'interconnect module primary surface') OR
+        (sar.relating_shape_aspect\shape_aspect.description =
+         'interconnect module edge surface') OR
+        (sar.relating_shape_aspect\shape_aspect.description =
+         'interconnect module edge segment surface')))) = 1)
+       )
+       )) = 1)))
+       OR
+       (SIZEOF(QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (cto2d)) AND
+      (cto2d_determinant_test(cto2d,1.0,0.001 )))) = 1);
+  WR9:NOT((SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2) AND 
+          (SELF.context_of_items.context_type = 'component surface') AND
+         (( SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       (
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (pdr.definition.definition)) AND
+       (pdr.name = 'mounting surface assembly joint') AND
+       (pdr.definition.definition.relating_shape_aspect\shape_aspect.description =
+         'interconnect module component surface feature') AND
+       (SIZEOF(QUERY ( sar <* USEDIN (pdr.definition.definition.relating_shape_aspect,
+        'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+        sar.relating_shape_aspect\shape_aspect.description =
+         'interconnect module secondary surface')) = 1)
+       ))) = 1)))
+       OR
+    (SIZEOF(QUERY( cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (cto2d)) AND
+      (cto2d_determinant_test(cto2d,-1.0,0.001 )))) = 1);
+  WR10: (NOT(is_laminate_component_location(SELF))) OR
+      (SIZEOF(QUERY( pdr <* USEDIN (SELF,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (pdr.definition.definition)) AND
+      (pdr.definition.definition.relating_shape_aspect\shape_aspect.description =
+        'interconnect module component surface feature'))) = 0);
+  WR11: (NOT(is_laminate_component_location(SELF) AND
+         (SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2)))
+         OR
+         (SIZEOF(QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (cto2d)) AND
+      (cto2d_determinant_test(cto2d,1.0,0.001 )))) = 1);
+  WR12: SIZEOF(QUERY( pdr <* USEDIN (SELF,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'SHAPE_ASPECT' IN TYPEOF (pdr.definition.definition)) AND
+       (pdr.definition.definition\shape_aspect.description =
+        'interconnect module component surface feature'))) = 0;
+  WR13: (NOT((SELF.context_of_items\geometric_representation_context.
+        coordinate_space_dimension = 2) AND
+        (SELF.context_of_items.context_type = 'component stacked')))
+        OR 
+      (SIZEOF(QUERY( pdr <* USEDIN (SELF,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (pdr.definition.definition)) AND
+      (pdr.definition.definition.relating_shape_aspect\shape_aspect.description =
+        'interconnect module component surface feature'))) = 0);
+ WR14: NOT((SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2)
+          AND
+         (SELF.context_of_items.context_type = 'component edge'))
+       OR
+        ((NOT(is_laminate_component_location(SELF)))
+          AND
+       (( SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       (
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (pdr.definition.definition)) AND
+       (pdr.name = 'reference terminal assembly joint') AND
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'COMPONENT_TERMINAL' IN 
+                      TYPEOF (pdr.definition.definition.related_shape_aspect)) 
+         AND
+       (pdr.definition.definition.related_shape_aspect\shape_aspect.description IN
+       ['packaged component join terminal',
+       'package terminal occurrence'])
+         AND
+       (SIZEOF(QUERY ( sar <* USEDIN 
+                          (pdr.definition.definition.related_shape_aspect,
+        'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+        (sar\shape_aspect_relationship.name = 'instantiated feature')
+           AND
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'PRIMARY_REFERENCE_TERMINAL' IN TYPEOF (sar.relating_shape_aspect))
+         )) = 1)
+         AND
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'COMPONENT_DEFINITION' IN
+         TYPEOF (pdr.definition.definition.related_shape_aspect.of_shape.definition))
+         AND
+       (component_definition_located_by_component_location(SELF) =
+                 pdr.definition.definition.related_shape_aspect.of_shape.definition) 
+       ))) = 1))
+         AND
+       (( SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       (
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (pdr.definition.definition)) AND
+       (pdr.name = 'mounting surface assembly joint') AND
+       (pdr.definition.definition.relating_shape_aspect\shape_aspect.description =
+         'interconnect module component surface feature') AND
+       (SIZEOF(QUERY ( sar <* USEDIN (pdr.definition.definition.relating_shape_aspect,
+        'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+        (sar.relating_shape_aspect\shape_aspect.description =
+         'interconnect module edge surface') OR
+        (sar.relating_shape_aspect\shape_aspect.description =
+         'interconnect module edge segment surface'))) = 1)
+         AND
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'COMPONENT_MOUNTING_FEATURE' IN 
+                      TYPEOF (pdr.definition.definition.related_shape_aspect)) 
+         AND
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'COMPONENT_DEFINITION' IN
+         TYPEOF (pdr.definition.definition.related_shape_aspect.of_shape.definition))
+         AND
+       (component_definition_located_by_component_location(SELF) =
+                 pdr.definition.definition.related_shape_aspect.of_shape.definition) 
+       ))) = 1))
+      );
+ WR15: NOT((SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2)
+          AND
+         (SELF.context_of_items.context_type = 'component stacked'))
+       OR
+        ((NOT(is_laminate_component_location(SELF)))
+          AND
+       (( SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       (
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (pdr.definition.definition))
+         AND
+       ('mounting joint' = pdr.name)
+         AND
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'COMPONENT_MOUNTING_FEATURE' IN
+                      TYPEOF (pdr.definition.definition.related_shape_aspect))
+         AND
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'COMPONENT_DEFINITION' IN
+         TYPEOF (pdr.definition.definition.related_shape_aspect.of_shape.definition))
+         AND
+       (component_definition_located_by_component_location(SELF) :=:
+                 pdr.definition.definition.related_shape_aspect.of_shape.definition)    
+         AND
+       (component_definition_located_by_component_location(SELF) :<>: 
+                 pdr.definition.definition.relating_shape_aspect.of_shape.definition)    
+       )
+      )) = 1))
+        );
+ WR16: (NOT(is_interconnect_module_component_location(SELF))) OR
+      (SIZEOF(QUERY( pdr <* USEDIN (SELF,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'ASSEMBLY_JOINT' IN TYPEOF (pdr.definition.definition)) AND
+      (pdr.definition.definition.relating_shape_aspect\shape_aspect.description =
+        'interconnect module component surface feature'))) = 0);
+ WR17: NOT((SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2)
+          AND
+         (SELF.context_of_items.context_type = 'component stacked'))
+       OR
+       (SIZEOF(QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (cto2d)) AND
+      ((cto2d_determinant_test(cto2d,1.0,0.001 )) OR
+      (cto2d_determinant_test(cto2d,-1.0,0.001 )))
+      )) = 1);
+ WR18 : SIZEOF (QUERY (it <* SELF\representation.items| NOT
+     (SIZEOF(
+    ['PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+     'CARTESIAN_TRANSFORMATION_OPERATOR_2D', 
+     'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+     'MAPPED_ITEM', 
+     'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+     'DESCRIPTIVE_REPRESENTATION_ITEM', 
+     'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+     'AXIS2_PLACEMENT_3D'] 
+     * TYPEOF(it)) = 1 ))) = 0;
+ WR19: SIZEOF (QUERY (it <* SELF.items |
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'AXIS2_PLACEMENT_3D'
+       IN TYPEOF (it)) AND
+       (it\representation_item.name = 'origin') 
+       )) = 0;
+ WR20: SIZEOF (QUERY (it <* SELF.items |
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'MAPPED_ITEM'
+       IN TYPEOF (it))
+       AND NOT
+       (((it\representation_item.name = 'component assembly 2d position')
+        OR
+       (it\representation_item.name = 'component assembly 3d position'))
+       AND
+       (it.mapping_source.mapping_origin\representation_item.name = 'origin')
+       AND
+       (('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'AXIS2_PLACEMENT_2D' IN TYPEOF (it.mapping_source.mapping_origin))
+        OR
+       ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+       'AXIS2_PLACEMENT_3D' IN TYPEOF (it.mapping_source.mapping_origin))))
+       )) = 0;
+ WR21: SIZEOF(QUERY(pdr <* USEDIN (SELF,
+       'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.'
+       + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.'
+       + 'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN 
+            TYPEOF(pdr.definition.definition))
+       )) = 1;
+ WR22: (NOT(is_top_footprint_occurrence_location(SELF) AND
+         (SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2)))
+         OR
+         (SIZEOF(QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (cto2d)) AND
+      (cto2d_determinant_test(cto2d,1.0,0.001 )))) = 1);
+ WR23: (NOT(is_bottom_footprint_occurrence_location(SELF) AND
+         (SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2)))
+         OR
+         (SIZEOF(QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (cto2d)) AND
+      (cto2d_determinant_test(cto2d,-1.0,0.001 )))) = 1);
+ WR24: (NOT(is_symmetrical_footprint_occurrence_location(SELF) AND
+         (SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2)))
+         OR
+         (SIZEOF(QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (cto2d)) AND
+      (cto2d_determinant_test(cto2d,1.0,0.001 )))) = 1);
+ WR25: (NOT(is_top_padstack_occurrence_location(SELF) AND
+         (SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2)))
+         OR
+         (SIZEOF(QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (cto2d)) AND
+      (cto2d_determinant_test(cto2d,1.0,0.001 )))) = 1);
+ WR26: (NOT(is_bottom_padstack_occurrence_location(SELF) AND
+         (SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2)))
+         OR
+         (SIZEOF(QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (cto2d)) AND
+      (cto2d_determinant_test(cto2d,-1.0,0.001 )))) = 1);
+ WR27: (NOT(is_symmetrical_padstack_occurrence_location(SELF) AND
+         (SELF.context_of_items\geometric_representation_context.coordinate_space_dimension
+         = 2)))
+         OR
+         (SIZEOF(QUERY (cto2d <* SELF.items |
+        ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+        'CARTESIAN_TRANSFORMATION_OPERATOR_2D' IN TYPEOF (cto2d)) AND
+      (cto2d_determinant_test(cto2d,1.0,0.001 )))) = 1);*)
+END_ENTITY;
+	
+RULE component_part_2d_geometric_representation_relationship_constraint FOR 
+( shape_representation_relationship );
+LOCAL
+ rr: SET OF representation_relationship :=
+      QUERY ( srr <* shape_representation_relationship |
+       srr\representation_relationship.name = 
+                            'component part planar shape');
+ pass: BOOLEAN := TRUE;
+ grc1: Geometric_representation_context := ?;
+ grc2: Geometric_representation_context := ?;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(rr) by 1;
+  grc1 := rr[i].rep_1.context_of_items;
+  grc2 := rr[i].rep_2.context_of_items;
+IF ((grc1.coordinate_space_dimension) <>
+          (grc2.coordinate_space_dimension))
+THEN
+  pass := FALSE;
+END_IF;
+END_REPEAT;
+WHERE
+ WR1: pass;
+END_RULE;
+	
+
+FUNCTION component_definition_located_by_component_location 
+                   (cl : component_2d_location) : component_definition; 
+LOCAL
+  pdr : BAG OF property_definition_representation := USEDIN (cl,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION');
+  pd : property_definition := ?;
+END_LOCAL;
+   REPEAT i := 1 TO HIINDEX(pdr) BY 1;
+    IF('PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+        'PROPERTY_DEFINITION' IN 
+                                  TYPEOF (pdr[i].definition))
+      THEN                            
+        pd := pdr[i].definition;
+        IF(('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+          'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN 
+                                    TYPEOF (pd.definition))
+          AND
+          ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+           'COMPONENT_DEFINITION' IN 
+           TYPEOF (pd.definition\product_definition_relationship.
+                                                  related_product_definition)))
+        THEN 
+          RETURN(pd.definition\product_definition_relationship.
+                                                   related_product_definition);
+      END_IF;                                               
+    END_IF;
+   END_REPEAT;
+ RETURN (?);
+END_FUNCTION;
+
+FUNCTION cto2d_determinant_test (cto2d: cartesian_transformation_operator_2d;
+                             expected_value: REAL; delta: REAL ) : BOOLEAN;
+
+LOCAL
+  det : REAL := 0.0;
+  DRs : LIST [4:4] OF REAL := [];
+END_LOCAL;
+     DRs[1] := cto2d.u[1].direction_ratios[1];
+     DRs[2] := cto2d.u[1].direction_ratios[2];
+     DRs[3] := cto2d.u[2].direction_ratios[1];
+     DRs[4] := cto2d.u[2].direction_ratios[2];
+     det  :=  (DRs[1] * DRs[4]) - (DRs[2] * DRs[3]);
+IF (Abs(expected_value - det) < Abs(delta) ) THEN
+    RETURN (TRUE);
+ELSE
+    RETURN (FALSE);
+END_IF;
+END_FUNCTION;
+
+FUNCTION is_bottom_footprint_occurrence ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION.DEFINITION'));
+   fo : SET OF shape_aspect :=  [];
+  sar : SET OF shape_aspect_relationship := [];
+  dri : SET OF descriptive_representation_item := [];
+  pdr : SET OF property_definition_representation := [];
+ pass : BOOLEAN := FALSE;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(pds) by 1;
+      fo := fo + BAG_TO_SET(QUERY( sa <* (USEDIN(pds[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT.OF_SHAPE')) |
+     'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'FOOTPRINT_OCCURRENCE' IN TYPEOF(sa)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(fo) by 1;
+      sar := sar + BAG_TO_SET(QUERY( sar <* (USEDIN ( fo[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) | 
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' + 
+  'FOOTPRINT_DEFINITION' IN 
+      TYPEOF(sar.relating_shape_aspect.of_shape.definition)) AND
+  ('usage definition' = sar\shape_aspect_relationship.name)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(sar) by 1;
+      pdr := pdr + BAG_TO_SET(QUERY( pdr <* (
+          USEDIN (sar[i].relating_shape_aspect.of_shape.definition,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'REPRESENTATION' IN TYPEOF(pdr.used_representation)) AND
+  (pdr.used_representation\representation.name = 'product definition context description')));
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pdr) by 1;
+      dri := dri + (QUERY( dri <* pdr[i].used_representation.items |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND
+   (dri\representation_item.name = 'text') AND
+   (dri.description = 'bottom')));
+END_REPEAT;
+
+IF (SIZEOF(dri) = 1) THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+FUNCTION is_bottom_footprint_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
+LOCAL
+  pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+END_LOCAL;
+IF sizeof (pdrs) = 1 THEN
+  IF (('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF 
+     (pdrs[1].definition.definition)) AND
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF 
+     (pdrs[1].definition.definition.related_product_definition)) AND
+   is_bottom_footprint_occurrence(pdrs[1].definition.definition.related_product_definition)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+ELSE
+    RETURN (FALSE);
+END_IF;
+END_FUNCTION;
+
+FUNCTION is_bottom_padstack_occurrence ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION.DEFINITION'));
+   fo : SET OF shape_aspect :=  [];
+  sar : SET OF shape_aspect_relationship := [];
+  dri : SET OF descriptive_representation_item := [];
+  pdr : SET OF property_definition_representation := [];
+ pass : BOOLEAN := FALSE;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(pds) by 1;
+      fo := fo + BAG_TO_SET(QUERY( sa <* (USEDIN(pds[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT.OF_SHAPE')) |
+     'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PADSTACK_OCCURRENCE' IN TYPEOF(sa)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(fo) by 1;
+      sar := sar + BAG_TO_SET(QUERY( sar <* (USEDIN ( fo[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) | 
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' + 
+  'PADSTACK_DEFINITION' IN 
+      TYPEOF(sar.relating_shape_aspect.of_shape.definition)) AND
+  ('usage definition' = sar\shape_aspect_relationship.name)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(sar) by 1;
+      pdr := pdr + BAG_TO_SET(QUERY( pdr <* (
+          USEDIN (sar[i].relating_shape_aspect.of_shape.definition,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'REPRESENTATION' IN TYPEOF(pdr.used_representation)) AND
+  (pdr.used_representation\representation.name = 'product definition context description')));
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pdr) by 1;
+      dri := dri + (QUERY( dri <* pdr[i].used_representation.items |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND
+   (dri\representation_item.name = 'text') AND
+   (dri.description = 'bottom')));
+END_REPEAT;
+
+IF (SIZEOF(dri) = 1) THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+FUNCTION is_bottom_padstack_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
+LOCAL
+  pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+END_LOCAL;
+IF sizeof (pdrs) = 1 THEN
+  IF (('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF 
+     (pdrs[1].definition.definition)) AND
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF 
+     (pdrs[1].definition.definition.related_product_definition)) AND
+   is_bottom_padstack_occurrence(pdrs[1].definition.definition.related_product_definition)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+ELSE
+    RETURN (FALSE);
+END_IF;
+END_FUNCTION;
+
+FUNCTION is_interconnect_module_component_location ( cl: component_2d_location) : BOOLEAN; 
+LOCAL
+  pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+END_LOCAL;
+IF sizeof (pdrs) = 1 THEN
+  IF (('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF 
+     (pdrs[1].definition.definition)) AND
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'COMPONENT_DEFINITION' IN TYPEOF 
+     (pdrs[1].definition.definition.related_product_definition)) AND
+   is_interconnect_module_occurrence(pdrs[1].definition.definition.related_product_definition)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+ELSE
+    RETURN (FALSE);
+END_IF;
+END_FUNCTION;
+
+FUNCTION is_laminate_component_location ( cl: component_2d_location) : BOOLEAN; 
+LOCAL
+  pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+END_LOCAL;
+IF sizeof (pdrs) = 1 THEN
+  IF (('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF 
+     (pdrs[1].definition.definition)) AND
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'COMPONENT_DEFINITION' IN TYPEOF 
+     (pdrs[1].definition.definition.related_product_definition)) AND
+   is_laminate_component(pdrs[1].definition.definition.related_product_definition)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+ELSE
+    RETURN (FALSE);
+END_IF;
+END_FUNCTION;
+
+FUNCTION is_symmetrical_footprint_occurrence ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION.DEFINITION'));
+   fo : SET OF shape_aspect :=  [];
+  sar : SET OF shape_aspect_relationship := [];
+  dri : SET OF descriptive_representation_item := [];
+  pdr : SET OF property_definition_representation := [];
+ pass : BOOLEAN := FALSE;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(pds) by 1;
+      fo := fo + BAG_TO_SET(QUERY( sa <* (USEDIN ( pds[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT.OF_SHAPE')) |
+     'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'FOOTPRINT_OCCURRENCE' IN TYPEOF(sa)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(fo) by 1;
+      sar := sar + BAG_TO_SET(QUERY( sar <* (USEDIN ( fo[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) | 
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' + 
+  'FOOTPRINT_DEFINITION' IN 
+      TYPEOF(sar.relating_shape_aspect.of_shape.definition)) AND
+  ('usage definition' = sar\shape_aspect_relationship.name)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(sar) by 1;
+      pdr := pdr + BAG_TO_SET(QUERY( pdr <* (
+          USEDIN (sar[i].relating_shape_aspect.of_shape.definition,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'REPRESENTATION' IN TYPEOF(pdr.used_representation)) AND
+  (pdr.used_representation\representation.name = 'product definition context description')));
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pdr) by 1;
+      dri := dri + (QUERY( dri <* pdr[i].used_representation.items |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND
+   (dri\representation_item.name = 'text') AND
+   (dri.description = 'symmetrical')));
+END_REPEAT;
+
+IF (SIZEOF(dri) = 1) THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+FUNCTION is_symmetrical_footprint_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
+LOCAL
+  pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+END_LOCAL;
+IF sizeof (pdrs) = 1 THEN
+  IF (('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF 
+     (pdrs[1].definition.definition)) AND
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF 
+     (pdrs[1].definition.definition.related_product_definition)) AND
+   is_symmetrical_footprint_occurrence(pdrs[1].definition.definition.related_product_definition)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+ELSE
+    RETURN (FALSE);
+END_IF;
+END_FUNCTION;
+
+FUNCTION is_symmetrical_padstack_occurrence ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION.DEFINITION'));
+   fo : SET OF shape_aspect :=  [];
+  sar : SET OF shape_aspect_relationship := [];
+  dri : SET OF descriptive_representation_item := [];
+  pdr : SET OF property_definition_representation := [];
+ pass : BOOLEAN := FALSE;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(pds) by 1;
+      fo := fo + BAG_TO_SET(QUERY( sa <* (USEDIN ( pds[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT.OF_SHAPE')) |
+     'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PADSTACK_OCCURRENCE' IN TYPEOF(sa)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(fo) by 1;
+      sar := sar + BAG_TO_SET(QUERY( sar <* (USEDIN ( fo[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) | 
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' + 
+  'PADSTACK_DEFINITION' IN 
+      TYPEOF(sar.relating_shape_aspect.of_shape.definition)) AND
+  ('usage definition' = sar\shape_aspect_relationship.name)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(sar) by 1;
+      pdr := pdr + BAG_TO_SET(QUERY( pdr <* (
+          USEDIN (sar[i].relating_shape_aspect.of_shape.definition,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'REPRESENTATION' IN TYPEOF(pdr.used_representation)) AND
+  (pdr.used_representation\representation.name = 'product definition context description')));
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pdr) by 1;
+      dri := dri + (QUERY( dri <* pdr[i].used_representation.items |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND
+   (dri\representation_item.name = 'text') AND
+   (dri.description = 'symmetrical')));
+END_REPEAT;
+
+IF (SIZEOF(dri) = 1) THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+FUNCTION is_symmetrical_padstack_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
+LOCAL
+  pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+END_LOCAL;
+IF sizeof (pdrs) = 1 THEN
+  IF (('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF 
+     (pdrs[1].definition.definition)) AND
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF 
+     (pdrs[1].definition.definition.related_product_definition)) AND
+   is_symmetrical_padstack_occurrence(pdrs[1].definition.definition.related_product_definition)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+ELSE
+    RETURN (FALSE);
+END_IF;
+END_FUNCTION;
+
+FUNCTION is_top_footprint_occurrence ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION.DEFINITION'));
+   fo : SET OF shape_aspect :=  [];
+  sar : SET OF shape_aspect_relationship := [];
+  dri : SET OF descriptive_representation_item := [];
+  pdr : SET OF property_definition_representation := [];
+ pass : BOOLEAN := FALSE;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(pds) by 1;
+      fo := fo + BAG_TO_SET(QUERY( sa <* (USEDIN ( pds[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT.OF_SHAPE')) |
+     'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'FOOTPRINT_OCCURRENCE' IN TYPEOF(sa)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(fo) by 1;
+      sar := sar + BAG_TO_SET(QUERY( sar <* (USEDIN ( fo[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) | 
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' + 
+  'FOOTPRINT_DEFINITION' IN 
+      TYPEOF(sar.relating_shape_aspect.of_shape.definition)) AND
+  ('usage definition' = sar\shape_aspect_relationship.name)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(sar) by 1;
+      pdr := pdr + BAG_TO_SET(QUERY( pdr <* (
+          USEDIN (sar[i].relating_shape_aspect.of_shape.definition,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'REPRESENTATION' IN TYPEOF(pdr.used_representation)) AND
+  (pdr.used_representation\representation.name = 'product definition context description')));
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pdr) by 1;
+      dri := dri + (QUERY( dri <* pdr[i].used_representation.items |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND
+   (dri\representation_item.name = 'text') AND
+   (dri.description = 'top')));
+END_REPEAT;
+
+IF (SIZEOF(dri) = 1) THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+FUNCTION is_top_footprint_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
+LOCAL
+  pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+END_LOCAL;
+IF sizeof (pdrs) = 1 THEN
+  IF (('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF 
+     (pdrs[1].definition.definition)) AND
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF 
+     (pdrs[1].definition.definition.related_product_definition)) AND
+   is_top_footprint_occurrence(pdrs[1].definition.definition.related_product_definition)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+ELSE
+    RETURN (FALSE);
+END_IF;
+END_FUNCTION;
+
+FUNCTION is_top_padstack_occurrence ( pd : product_definition) : BOOLEAN; 
+LOCAL
+  pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION.DEFINITION'));
+   fo : SET OF shape_aspect :=  [];
+  sar : SET OF shape_aspect_relationship := [];
+  dri : SET OF descriptive_representation_item := [];
+  pdr : SET OF property_definition_representation := [];
+ pass : BOOLEAN := FALSE;
+END_LOCAL;
+REPEAT i := 1 to SIZEOF(pds) by 1;
+      fo := fo + BAG_TO_SET(QUERY( sa <* (USEDIN ( pds[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT.OF_SHAPE')) |
+     'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PADSTACK_OCCURRENCE' IN TYPEOF(sa)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(fo) by 1;
+      sar := sar + BAG_TO_SET(QUERY( sar <* (USEDIN ( fo[i],
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) | 
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' + 
+  'PADSTACK_DEFINITION' IN 
+      TYPEOF(sar.relating_shape_aspect.of_shape.definition)) AND
+  ('usage definition' = sar\shape_aspect_relationship.name)));
+END_REPEAT;
+REPEAT i := 1 to SIZEOF(sar) by 1;
+      pdr := pdr + BAG_TO_SET(QUERY( pdr <* (
+          USEDIN (sar[i].relating_shape_aspect.of_shape.definition,
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'REPRESENTATION' IN TYPEOF(pdr.used_representation)) AND
+  (pdr.used_representation\representation.name = 'product definition context description')));
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pdr) by 1;
+      dri := dri + (QUERY( dri <* pdr[i].used_representation.items |
+     ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF(dri)) AND
+   (dri\representation_item.name = 'text') AND
+   (dri.description = 'top')));
+END_REPEAT;
+
+IF (SIZEOF(dri) = 1) THEN
+    RETURN (TRUE);
+END_IF;
+RETURN (pass);
+END_FUNCTION;
+
+FUNCTION is_top_padstack_occurrence_location ( cl: component_2d_location) : BOOLEAN; 
+LOCAL
+  pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
+  'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
+END_LOCAL;
+IF sizeof (pdrs) = 1 THEN
+  IF (('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'NEXT_ASSEMBLY_USAGE_OCCURRENCE' IN TYPEOF 
+     (pdrs[1].definition.definition)) AND
+  ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
+  'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF 
+     (pdrs[1].definition.definition.related_product_definition)) AND
+   is_top_padstack_occurrence(pdrs[1].definition.definition.related_product_definition)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+ELSE
+    RETURN (FALSE);
+END_IF;
+END_FUNCTION;
+	
+END_SCHEMA;
+
+

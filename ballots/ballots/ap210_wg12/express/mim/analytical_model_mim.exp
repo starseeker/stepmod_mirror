@@ -1,0 +1,341 @@
+(*
+   $Id: mim.exp,v 1.23 2005/04/04 09:01:07 liutkus Exp $
+   ISO TC184/SC4/WG12 N3289 - ISO/CD-TS 10303-1603 Analytical model - EXPRESS MIM
+*)
+
+
+SCHEMA Analytical_model_mim;
+
+	USE FROM Model_parameter_mim;	-- ISO/TS 10303-1703
+	USE FROM Product_identification_mim;	-- ISO/TS 10303-1017
+	USE FROM Software_mim;	-- ISO/TS 10303-1746
+	USE FROM Specification_document_mim;	-- ISO/TS 10303-1747
+	USE FROM Document_structure_mim;	-- ISO/TS 10303-1124
+
+USE FROM Date_time_schema
+	(date_time_role,
+	date_role);
+	USE FROM Group_mim;	-- ISO/TS 10303-1113
+	
+TYPE am_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
+     (digital_analytical_model_vector_port);
+END_TYPE;
+	
+ENTITY across_port_variable
+  SUBTYPE OF (port_variable);
+END_ENTITY;
+
+ENTITY analog_analytical_model_port
+  SUBTYPE OF (analytical_model_port);
+END_ENTITY;
+
+ENTITY analog_port_variable 
+	SUBTYPE OF (representation, representation_item);
+END_ENTITY;
+
+ENTITY analytical_model
+  SUBTYPE OF (representation);
+UNIQUE
+  UR1: SELF\representation.name;
+WHERE
+  WR1: SIZEOF (USEDIN (SELF, 
+       'ANALYTICAL_MODEL_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 2;
+  WR2: SIZEOF (QUERY (dr <* USEDIN (SELF, 
+       'ANALYTICAL_MODEL_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       dr.assigned_document.kind\document_type.product_data_type = 
+       'language reference manual')) = 1;
+  WR3: SIZEOF (QUERY (it <* SELF.items |
+       NOT ('ANALYTICAL_MODEL_MIM.' +
+       'MODEL_PARAMETER' IN 
+       TYPEOF (it)))) = 0;
+  WR4: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'ANALYTICAL_MODEL_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_1') |
+       (rr\representation_relationship.name = 'access mechanism') AND
+       ('ANALYTICAL_MODEL_MIM.' +
+       'ANALYTICAL_MODEL_PORT' IN
+       TYPEOF (rr.rep_2)))) >= 1;
+END_ENTITY;
+
+ENTITY analytical_model_definition
+ SUBTYPE OF (product_definition);
+WHERE
+  WR1: (NOT ('ANALYTICAL_MODEL_MIM.' +
+       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
+       TYPEOF (SELF))) OR
+       (SIZEOF (QUERY (docs <* 
+       SELF\product_definition_with_associated_documents.
+        documentation_ids |
+       docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
+  WR2: SIZEOF (QUERY (adta <* USEDIN (SELF, 
+       'ANALYTICAL_MODEL_MIM.' + 
+       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
+       adta.role\date_time_role.name = 'creation date')) + 
+       SIZEOF (QUERY (ada <* USEDIN (SELF, 
+       'ANALYTICAL_MODEL_MIM.' + 
+       'APPLIED_DATE_ASSIGNMENT.ITEMS') |
+       ada.role\date_role.name = 'creation date')) = 1;
+  WR3: SIZEOF (USEDIN (SELF, 
+       'ANALYTICAL_MODEL_MIM.' +
+       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1;
+  WR4: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'ANALYTICAL_MODEL_MIM.' +
+       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\person_and_organization_role.name = 'creator')) +
+       SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'ANALYTICAL_MODEL_MIM.' +
+       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\organization_role.name = 'creator')) >= 1;
+  WR5: SIZEOF (USEDIN (SELF, 
+       'ANALYTICAL_MODEL_MIM.' +
+       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
+  WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||
+       SELF\analytical_model_definition))) = 0;
+END_ENTITY;
+
+ENTITY analytical_model_make_from_relationship
+  SUBTYPE OF (representation, representation_relationship);
+UNIQUE
+  UR1: SELF\representation_relationship.rep_1, SELF\representation_relationship.rep_2;
+WHERE
+  WR1: SIZEOF (['ANALYTICAL_MODEL_MIM.' +
+       'ANALYTICAL_MODEL'] *
+       TYPEOF (SELF.rep_1)) = 1;
+  WR2: SIZEOF (['ANALYTICAL_MODEL_MIM.' +
+       'ANALYTICAL_MODEL'] *
+       TYPEOF (SELF.rep_2)) = 1;
+  WR3: SIZEOF( QUERY(rr <* USEDIN(SELF,
+       'ANALYTICAL_MODEL_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_1') |NOT(
+       ('ANALYTICAL_MODEL_MIM.' +
+       'MAKE_FROM_MODEL_PORT_RELATIONSHIP' IN TYPEOF(rr.rep_2))))) = 0;
+  WR4: SIZEOF( QUERY(rr <* USEDIN(SELF,
+       'ANALYTICAL_MODEL_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_1') |NOT(
+       (rr\representation_relationship.name = 'associated make from') AND
+       ('ANALYTICAL_MODEL_MIM.' +
+       'MAKE_FROM_MODEL_PORT_RELATIONSHIP' IN TYPEOF(rr.rep_2))))) = 0;
+  WR5: SIZEOF (['ANALYTICAL_MODEL_MIM.' +
+       'ANALYTICAL_MODEL'] *
+       TYPEOF (SELF)) = 0;
+  WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation ||
+       SELF\representation_relationship || 
+       SELF\analytical_model_make_from_relationship))) = 0;
+END_ENTITY; 
+
+ENTITY analytical_model_parameter 
+ SUBTYPE OF (model_parameter);
+WHERE
+  WR1: SIZEOF (QUERY (cri <* USEDIN (SELF,
+       'ANALYTICAL_MODEL_MIM.' +
+       'REPRESENTATION.ITEMS') |
+       ('ANALYTICAL_MODEL_MIM.' +
+       'ANALYTICAL_MODEL' IN TYPEOF(cri)) 
+       )) = 1;
+END_ENTITY;
+
+ENTITY analytical_model_port
+  SUPERTYPE OF (analytical_model_vector_port ANDOR (ONEOF(
+   analog_analytical_model_port, digital_analytical_model_port)))
+  SUBTYPE OF (representation);
+  WHERE
+  WR1: SIZEOF (QUERY (am <* QUERY (rr <* USEDIN (SELF,
+       'ANALYTICAL_MODEL_MIM.' + 
+       'REPRESENTATION_RELATIONSHIP.REP_2') |
+       rr\representation_relationship.name = 'access mechanism') |
+       'ANALYTICAL_MODEL_MIM.' +
+       'ANALYTICAL_MODEL' IN 
+       TYPEOF (am.rep_1))) = 1;
+END_ENTITY;
+
+ENTITY analytical_model_port_assignment
+  SUBTYPE OF (property_definition_representation, representation_relationship);
+END_ENTITY;
+
+ENTITY analytical_model_scalar_port
+  SUBTYPE OF (analytical_model_vector_port);
+WHERE
+  WR1: SIZEOF (QUERY (it <* SELF.items |
+       ('ANALYTICAL_MODEL_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM'
+       IN TYPEOF (it)) AND
+       (it\representation_item.name = 'size') AND
+       ('ANALYTICAL_MODEL_MIM.' +
+       'COUNT_MEASURE' IN
+       TYPEOF (it\measure_with_unit.value_component)) AND
+       (it\measure_with_unit.value_component = 1))) = 1;
+END_ENTITY;
+
+ENTITY analytical_model_vector_port
+  SUBTYPE OF (analytical_model_port, compound_representation_item);
+WHERE
+  WR1: (SIZEOF (QUERY (it <* SELF.items |
+       ('ANALYTICAL_MODEL_MIM.' +
+       'MEASURE_REPRESENTATION_ITEM'
+       IN TYPEOF (it)) AND
+       (it\representation_item.name = 'size') AND
+       ('ANALYTICAL_MODEL_MIM.' +
+       'COUNT_MEASURE' IN
+       TYPEOF (it\measure_with_unit.value_component)) AND
+       ('ANALYTICAL_MODEL_MIM.' +
+       'CONTEXT_DEPENDENT_UNIT' IN
+       TYPEOF (it\measure_with_unit.unit_component)))) = 1);
+END_ENTITY;
+
+ENTITY analytical_representation
+  SUBTYPE OF (representation);
+UNIQUE
+  UR1: SELF\representation.name;
+WHERE
+  WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'ANALYTICAL_MODEL_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_1') |
+       'ANALYTICAL_MODEL_MIM.' +
+       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN
+       TYPEOF (rr.rep_2))) >= 1;
+  WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'ANALYTICAL_MODEL_MIM.' + 
+       'REPRESENTATION_RELATIONSHIP.REP_2') | 
+       'ANALYTICAL_MODEL_MIM.' +
+       'ANALYTICAL_MODEL' IN TYPEOF (rr.rep_1))) = 1;
+END_ENTITY;
+
+ENTITY digital_analytical_model_port
+  SUBTYPE OF (analytical_model_port);
+WHERE
+  WR2: SIZEOF (QUERY (it <* SELF.items |
+       ('ANALYTICAL_MODEL_MIM.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM'
+       IN TYPEOF (it)) AND
+       (it\representation_item.name = 'nominal signal flow direction') AND
+       (it\descriptive_representation_item.description IN 
+       ['input direction',
+       'output direction', 'bidirectional', 'unknown direction']))) = 1;
+  WR3: SIZEOF (QUERY (it <* SELF.items |
+       ('ANALYTICAL_MODEL_MIM.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM'
+       IN TYPEOF (it)) AND
+       (it\representation_item.name = 'port type') AND
+       (it\descriptive_representation_item.description IN 
+       ['string property type',
+       'logical property type',
+       'boolean property type']))) = 1;
+END_ENTITY;
+
+ENTITY digital_analytical_model_scalar_port
+  SUBTYPE OF (digital_analytical_model_vector_port, analytical_model_scalar_port);
+END_ENTITY;
+
+ENTITY digital_analytical_model_vector_port
+  SUBTYPE OF (analytical_model_vector_port);
+END_ENTITY;
+
+ENTITY make_from_model_port_relationship
+ SUBTYPE OF (representation, representation_relationship);
+UNIQUE
+  UR1: SELF\representation_relationship.rep_1, 
+       SELF\representation_relationship.rep_2;
+WHERE
+  WR1: SIZEOF (['ANALYTICAL_MODEL_MIM.' +
+       'ANALYTICAL_MODEL_PORT'] *
+       TYPEOF (SELF.rep_1)) = 1;
+  WR2: SIZEOF (['ANALYTICAL_MODEL_MIM.' +
+       'ANALYTICAL_MODEL_PORT'] *
+       TYPEOF (SELF.rep_2)) = 1;
+  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
+       SELF\representation_relationship ||
+       SELF\make_from_model_port_relationship)) = 0;
+  WR4: rep_1 :<>: rep_2;
+  WR5: SIZEOF(QUERY( rr1 <* USEDIN(SELF.rep_1,
+       'ANALYTICAL_MODEL_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_2') |
+        (SIZEOF(QUERY(rr2 <* USEDIN(SELF.rep_2,
+       'ANALYTICAL_MODEL_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_2') | 
+        (rr1.rep_1 :=: rr2.rep_1)
+        )) = 0))) = 1;
+  WR6: SIZEOF (QUERY( rr <* USEDIN(SELF,
+       'ANALYTICAL_MODEL_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_2') | 
+       (('ANALYTICAL_MODEL_MIM.' +
+       'ANALYTICAL_MODEL_MAKE_FROM_RELATIONSHIP') IN TYPEOF (rr.rep_1))
+       )) = 1; 
+       
+END_ENTITY;
+
+ENTITY port_variable
+  SUPERTYPE OF (ONEOF(across_port_variable, through_port_variable, transform_port_variable))
+  SUBTYPE OF (representation, representation_item);
+END_ENTITY;
+
+ENTITY through_port_variable
+  SUBTYPE OF (port_variable);
+END_ENTITY;
+	
+ENTITY transform_port_variable
+  SUBTYPE OF (port_variable);
+WHERE
+  WR1: (SIZEOF (QUERY (it <* SELF.items |
+       ('ANALYTICAL_MODEL_MIM.' +
+       'DESCRIPTIVE_REPRESENTATION_ITEM'
+       IN TYPEOF (it)) AND
+       (it\representation_item.name = 'nominal signal flow direction') AND
+       (it\descriptive_representation_item.description IN 
+       ['input direction',
+       'output direction', 'unknown direction'])))) = 1;
+END_ENTITY;
+
+RULE analytical_model_port_unique_constraint FOR
+ ( analytical_model_port );
+LOCAL
+  name_bag : BAG OF STRING := [];
+  amp_bag : BAG OF analytical_model_port;
+  rr_bag : BAG OF representation_relationship;
+  pass : BOOLEAN := TRUE;
+  am_bag : BAG OF analytical_model;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(analytical_model_port) by 1;
+  IF EXISTS( analytical_model_port[i]\representation.name ) THEN
+    IF( NOT( analytical_model_port[i]\representation.name IN name_bag ) ) THEN
+      name_bag := name_bag + analytical_model_port[i]\representation.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  amp_bag := QUERY( amp <* analytical_model_port | 
+          (amp\representation.name = name_bag[i]) );
+  am_bag := [];
+  REPEAT j := 1 to SIZEOF(amp_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    rr_bag := QUERY( rr <* USEDIN( amp_bag[j], 
+               'ANALYTICAL_MODEL_MIM.'
++ 'REPRESENTATION_RELATIONSHIP.REP_2' ) | ((rr\representation_relationship.name = 'access mechanism') 
+ AND
+('ANALYTICAL_MODEL_MIM.'
++ 'ANALYTICAL_MODEL' IN TYPEOF(rr.rep_1))) );
+    REPEAT k := 1 to SIZEOF(rr_bag) by 1;
+      IF EXISTS( rr_bag[k].rep_1 ) THEN
+        IF ( rr_bag[k].rep_1 IN am_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          am_bag := am_bag + rr_bag[k].rep_1;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+END_SCHEMA;
+
+

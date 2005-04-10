@@ -1,0 +1,249 @@
+(*
+   $Id: arm.exp,v 1.28 2005/04/07 17:38:51 thomasrthurman Exp $
+   ISO TC184/SC4/WG12 N3588 - ISO/CD-TS 10303-1739 Product rule - EXPRESS ARM
+*)
+
+SCHEMA Product_rule_arm;
+
+REFERENCE FROM product_identification_arm(          -- ISO/TS 10303-1017 
+        types_of_product 
+); 
+
+	USE FROM Model_parameter_arm;	-- ISO/TS 10303-1703
+	USE FROM Specification_document_arm;    --  ISO/CD-TS 10303-1747
+	USE FROM Software_arm;	-- ISO/TS 10303-1746
+
+	USE FROM Date_time_assignment_arm; -- ISO/TS 10303-1014
+	USE FROM Activity_arm; -- ISO/TS 10303-1047
+
+REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
+
+	TYPE pr_assigned_name_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON assigned_name_select WITH 
+	   (Rule_set);
+	END_TYPE; 
+
+   	TYPE parameter_assignment_or_rule_general_clause = SELECT
+		(Parameter_assignment,
+     	Rule_general_clause);
+	END_TYPE;
+
+	TYPE pr_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
+	   (Rule_function);
+	END_TYPE; 
+
+  TYPE rule_complex_or_simple = SELECT
+    (Rule_complex_clause,
+     Rule_simple_clause);
+  END_TYPE;
+
+  ENTITY Rule_action
+    ABSTRACT SUPERTYPE OF (ONEOF (Rule_submission,
+ Rule_adoption,
+ Rule_rejection,
+ Rule_supersedence,
+ Rule_creation,
+ Rule_expiration,
+ Rule_change_request,
+ Rule_request,
+ Rule_modification));
+      subject_rule              : Rule_version;
+	DERIVE
+  		subject_action_assignment: SET[0:?] OF Organization_or_person_in_organization_assignment :=
+         QUERY(temp <* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+
+         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |
+                         (temp.role = 'subject action assignment') );
+    UNIQUE
+      UR1 : subject_rule,
+ subject_action_assignment;
+	WHERE
+   		WR1 : EXISTS (subject_action_assignment) AND sizeof(subject_action_assignment) = 1;
+  END_ENTITY;
+
+  ENTITY Rule_adoption
+    SUBTYPE OF (Rule_action);
+  END_ENTITY;
+
+  ENTITY Rule_boolean_function
+    SUBTYPE OF (Rule_function);
+    WHERE
+      WR1 : SIZEOF(SELF\Rule_function.range_parameter) = 1;
+  END_ENTITY;
+
+  ENTITY Rule_change_request
+    SUBTYPE OF (Rule_action);
+      change_reason : STRING;
+  END_ENTITY;
+
+  ENTITY Rule_complex_clause;
+      identifier          : STRING;  
+      conjunctive_content : SET[1:?] OF Rule_simple_clause;
+    UNIQUE
+      UR1 : identifier;
+  END_ENTITY;
+
+  ENTITY Rule_conclusion_definition;
+      identifier          : STRING;  
+      rule_definition     : Rule_definition;
+      conjunctive_content : SET[1:?] OF Rule_simple_clause;
+    UNIQUE
+      UR1 : Rule_definition,
+ identifier;
+  END_ENTITY;
+
+  ENTITY Rule_creation
+    SUBTYPE OF (Rule_action);
+  END_ENTITY;
+
+  ENTITY Rule_definition
+    SUBTYPE OF (Rule_software_definition);
+    INVERSE
+      premise    : rule_premise_definition FOR rule_definition;
+      conclusion : rule_conclusion_definition FOR rule_definition;
+  END_ENTITY;
+
+  ENTITY Rule_expiration
+    SUBTYPE OF (Rule_action);
+      expiration_rationale : STRING;
+  END_ENTITY;
+
+  ENTITY Rule_function
+    SUPERTYPE OF (Rule_boolean_function);
+      identifier              : STRING;
+      representation_language : Language_reference_manual;
+	DERIVE
+		source_code: SET[0:?] OF Specification_definition :=
+  			get_document_definition(SELF, 'source code', 
+  			'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION');
+    INVERSE
+      domain_parameter : SET[1:?] OF rule_function_domain_parameter FOR accessed_rule_function;
+      range_parameter  : SET[1:?] OF rule_function_range_parameter FOR accessed_rule_function;
+	  reference_document : document_assignment FOR is_assigned_to;    	
+    UNIQUE
+      UR1 : identifier,
+ reference_document;
+ 	WHERE
+   		WR1 : EXISTS (source_code) AND SIZEOF(source_code) = 1;
+   END_ENTITY;
+
+  ENTITY Rule_function_domain_parameter
+    SUBTYPE OF (Model_parameter);
+      accessed_rule_function : Rule_function;
+    UNIQUE
+      UR1 : SELF\Independent_property.id,
+ accessed_rule_function;
+  END_ENTITY;
+
+  ENTITY Rule_function_range_parameter
+    SUBTYPE OF (Model_parameter);
+      accessed_rule_function : Rule_function;
+    UNIQUE
+      UR1 : SELF\Independent_property.id,
+ accessed_rule_function;
+  END_ENTITY;
+
+  ENTITY Rule_general_clause;
+      rule_function : Rule_function;
+      parameter     : SET[1:?] OF parameter_assignment_or_rule_general_clause;
+  END_ENTITY;
+
+  ENTITY Rule_justification
+  	SUBTYPE OF (Rule_action);
+      justified_action        : Rule_action;
+      justification_rationale : STRING;
+    WHERE
+	  WR1: SELF <> justified_action;  
+  END_ENTITY;
+
+  ENTITY Rule_modification
+    SUBTYPE OF (Rule_action);
+      modification_rationale : Rule_change_request;
+  END_ENTITY;
+
+  ENTITY Rule_premise_definition;
+      identifier          : STRING;  
+      rule_definition     : Rule_definition;
+      disjunctive_content : SET[1:?] OF rule_complex_or_simple;
+    UNIQUE
+      UR1 : Rule_definition,
+ identifier;
+  END_ENTITY;
+
+  ENTITY Rule_priority;
+      priority         : INTEGER;
+      prioritized_rule : Rule_definition;
+    WHERE
+      WR1 : priority >= 0;
+  END_ENTITY;
+  
+  ENTITY Rule_product
+  	SUBTYPE OF (Software);
+  	WHERE 
+  		WR1 : SIZEOF([ 'rule' ] * types_of_product(SELF))= 1 ;
+  END_ENTITY;
+
+  ENTITY Rule_rejection
+    SUBTYPE OF (Rule_action);
+      rejection_reason : STRING;
+  END_ENTITY;
+
+  ENTITY Rule_request
+    SUBTYPE OF (Rule_action);
+  END_ENTITY;
+
+  ENTITY Rule_set
+    SUBTYPE OF (Rule_software_definition);
+      rule_member : SET[1:?] OF Rule_priority;
+    INVERSE
+      purpose : Name_assignment FOR items;
+    WHERE
+      WR1 : purpose.role = 'purpose';
+  END_ENTITY;
+
+  ENTITY Rule_set_group
+    SUBTYPE OF (Rule_software_definition);
+      elements : SET[2:?] OF Rule_set;
+  END_ENTITY;
+
+  ENTITY Rule_simple_clause;
+      rule_function : Rule_boolean_function;
+      parameter     : SET[1:?] OF parameter_assignment_or_rule_general_clause;
+  END_ENTITY;
+
+  ENTITY Rule_software_definition 
+    SUPERTYPE OF (ONEOF (Rule_definition,
+ 			Rule_set_group, Rule_set))
+    SUBTYPE OF (Software_definition); 			
+    SELF\Product_view_definition.defined_version : Rule_version;
+  END_ENTITY;
+
+  ENTITY Rule_submission
+    SUBTYPE OF (Rule_action);
+      submission_rationale : STRING;
+  END_ENTITY;
+
+  ENTITY Rule_supersedence
+    SUBTYPE OF (Rule_action);
+      superseded_rule : Rule_version;
+  END_ENTITY;
+
+  ENTITY Rule_version
+    SUBTYPE OF (Software_version);
+			SELF\Product_version.of_product : Rule_product;    
+    INVERSE
+      management_action		: SET[1:?] OF rule_action FOR subject_rule;
+      product_definition	: SET[1:?] OF rule_definition FOR defined_version;
+  END_ENTITY;
+
+RULE rule_version_constraint FOR 
+(Product_version);
+WHERE
+  WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'PRODUCT_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'PRODUCT_RULE_ARM.' + 'RULE_PRODUCT' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
+END_RULE; 
+
+RULE rule_software_definition_constraint FOR 
+(Product_view_definition);
+WHERE
+  WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'PRODUCT_RULE_ARM.' + 'RULE_SOFTWARE_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'PRODUCT_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
+END_RULE; 
+
+END_SCHEMA; 

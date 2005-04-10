@@ -1,0 +1,144 @@
+(*
+   $Id: mim.exp,v 1.10 2005/02/04 16:11:22 budreckytej Exp $
+   ISO TC184/SC4/WG12 N3598 - ISO/CD-TS 10303-1742 Shape composition - EXPRESS MIM
+*)
+
+
+SCHEMA Shape_composition_mim;
+	USE FROM Shape_property_assignment_mim;	-- ISO/TS 10303-1032
+	
+	USE FROM Shape_aspect_definition_schema(composite_shape_aspect);
+--	USE FROM Product_property_definition_schema;
+	USE FROM Shape_dimension_schema (dimensional_location);
+	
+ENTITY composite_group_shape_aspect
+  SUBTYPE OF (composite_shape_aspect);
+END_ENTITY;
+
+ENTITY composite_unit_shape_aspect
+  SUBTYPE OF (composite_shape_aspect);
+END_ENTITY;
+
+RULE composite_shape_element_constraint FOR
+  (composite_shape_aspect);
+WHERE
+  WR1: SIZEOF(QUERY(csa <* composite_shape_aspect |
+        SIZEOF(QUERY(sar <* USEDIN(csa,
+       'SHAPE_COMPOSITION_MIM.'
+        + 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+        (sar\shape_aspect_relationship.name = 'composing')
+        )) < 2)) = 0;
+  WR2: SIZEOF(QUERY(csa <* composite_shape_aspect |
+        NOT ((SIZEOF(TYPEOF(csa)) > 2) OR 
+        (csa\shape_aspect.description <> '') OR 
+        (csa\shape_aspect.name <> ''))
+        )) = 0;
+END_RULE;
+
+RULE shape_element_composing_relationship_constraint FOR
+  (shape_aspect_relationship);
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'composing') AND
+       ('SHAPE_COMPOSITION_MIM.'
+       + 'COMPOSITE_SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+       )) = 0;
+END_RULE;
+
+RULE shape_element_constituent_relationship_unique_constraint FOR
+ ( shape_aspect_relationship );
+LOCAL
+  sar : BAG OF shape_aspect_relationship := 
+QUERY( r <* shape_aspect_relationship | (r\shape_aspect_relationship.name IN [
+'constituent', 'composing', 
+'bare die terminal surface constituent relationship',
+'interconnect module terminal surface constituent relationship',
+'package terminal surface constituent relationship'] ) );
+  sa_bag : BAG OF shape_aspect := [];
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  rsa_bag : BAG OF shape_aspect;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(sar) by 1;
+  IF EXISTS( sar[i].relating_shape_aspect ) THEN
+    IF( NOT( sar[i].relating_shape_aspect IN sa_bag ) ) THEN
+      sa_bag := sa_bag + sar[i].relating_shape_aspect;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(sa_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sar_bag := QUERY( r <* sar | (r\shape_aspect_relationship.relating_shape_aspect :=: sa_bag[i]) );
+  rsa_bag := [];
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
+      IF ( sar_bag[j].related_shape_aspect IN rsa_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        rsa_bag := rsa_bag + sar_bag[j].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE shape_element_locating_relationship_unique_constraint FOR
+ ( dimensional_location );
+LOCAL
+  sa_bag : BAG OF shape_aspect := [];
+  dl_bag : BAG OF dimensional_location;
+  pass : BOOLEAN := TRUE;
+  rsa_bag : BAG OF shape_aspect;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(dimensional_location) by 1;
+  IF EXISTS( dimensional_location[i].relating_shape_aspect ) THEN
+    IF( NOT( dimensional_location[i].relating_shape_aspect IN sa_bag ) )
+                                                              THEN
+      sa_bag := sa_bag + dimensional_location[i].relating_shape_aspect;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(sa_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  dl_bag := QUERY( r <* dimensional_location | 
+                    (r.relating_shape_aspect :=: sa_bag[i]) );
+  rsa_bag := [];
+  REPEAT j := 1 to SIZEOF(dl_bag) by 1;
+    IF EXISTS( dl_bag[j].related_shape_aspect ) THEN
+      IF ( dl_bag[j].related_shape_aspect IN rsa_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        rsa_bag := rsa_bag + dl_bag[j].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE subtype_mandatory_composite_shape_aspect FOR
+  (composite_shape_aspect);
+WHERE  
+  WR1: SIZEOF (QUERY (csa <* composite_shape_aspect |
+       NOT (SIZEOF
+       (['SHAPE_COMPOSITION_MIM.' +
+       'COMPOSITE_GROUP_SHAPE_ASPECT',
+       'SHAPE_COMPOSITION_MIM.' +
+       'COMPOSITE_UNIT_SHAPE_ASPECT']
+       * TYPEOF(csa)) = 1))) = 0;
+END_RULE;
+	
+END_SCHEMA;
+
+

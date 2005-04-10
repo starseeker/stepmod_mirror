@@ -1,0 +1,70 @@
+(*
+   $Id: mim.exp,v 1.10 2005/04/04 10:22:51 liutkus Exp $
+   ISO TC184/SC4/WG12 N3514 - ISO/CD-TS 10303-1713 Part feature grouping - EXPRESS MIM
+*)
+
+
+SCHEMA Part_feature_grouping_mim;
+	USE FROM Physical_unit_usage_view_mim;	-- ISO/TS 10303-1732
+--	USE FROM Value_with_unit_extension_mim;	-- ISO/TS 10303-1753
+	USE FROM Shape_aspect_definition_schema(composite_shape_aspect);
+	
+ENTITY composite_array_shape_aspect
+  SUPERTYPE OF (ONEOF( linear_composite_array_shape_aspect,
+                 rectangular_composite_array_shape_aspect))
+  SUBTYPE OF (composite_shape_aspect);
+END_ENTITY;
+
+ENTITY composite_array_shape_aspect_link
+  SUBTYPE OF (shape_aspect,shape_aspect_relationship);
+WHERE
+  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
+       SELF\shape_aspect_relationship.relating_shape_aspect;
+  WR2: 'PART_FEATURE_GROUPING_MIM.' +
+       'SHAPE_ASPECT' IN
+       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
+  WR3: 'PART_FEATURE_GROUPING_MIM.' +
+       'SHAPE_ASPECT' IN
+       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\shape_aspect_relationship ||
+       SELF\composite_array_shape_aspect_link)) = 0;
+  WR5: SELF\shape_aspect.name = '';
+  WR6: SELF\shape_aspect_relationship.name = '';
+  WR7: SIZEOF(USEDIN(SELF, 
+             'PART_FEATURE_GROUPING_MIM.' +
+             'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) = 1;
+END_ENTITY; 
+
+ENTITY linear_composite_array_shape_aspect
+  SUBTYPE OF (composite_array_shape_aspect);
+END_ENTITY;
+
+ENTITY linear_composite_array_shape_aspect_link
+  SUBTYPE OF (shape_aspect,shape_aspect_relationship);
+WHERE
+  WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
+       SELF\shape_aspect_relationship.relating_shape_aspect;
+  WR2: 'PART_FEATURE_GROUPING_MIM.' +
+       'LINEAR_COMPOSITE_ARRAY_SHAPE_ASPECT' IN
+       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
+  WR3: 'PART_FEATURE_GROUPING_MIM.' +
+       'LINEAR_COMPOSITE_ARRAY_SHAPE_ASPECT' IN
+       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+       SELF\shape_aspect_relationship ||
+       SELF\linear_composite_array_shape_aspect_link)) = 0;
+  WR5: SELF\shape_aspect.name = '';
+  WR6: SELF\shape_aspect_relationship.name = '';
+  WR7: SIZEOF(USEDIN(SELF, 
+             'PART_FEATURE_GROUPING_MIM.' +
+             'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) = 1;
+END_ENTITY; 
+
+ENTITY rectangular_composite_array_shape_aspect
+  SUBTYPE OF (composite_array_shape_aspect);
+END_ENTITY;
+	
+END_SCHEMA;
+
+

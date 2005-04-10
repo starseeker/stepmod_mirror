@@ -1,0 +1,39 @@
+(*
+   $Id: mim.exp,v 1.7 2005/04/04 10:08:33 liutkus Exp $
+   ISO TC184/SC4/WG12 N3418 - ISO/CD-TS 10303-1675 Functional decomposition to assembly design - EXPRESS MIM
+*)
+
+
+SCHEMA Functional_decomposition_to_assembly_design_mim;
+	USE FROM Assembly_technology_mim;	-- ISO/TS 10303-1649
+
+RULE
+design_functional_unit_allocation_to_assembly_joint_unique_constraint FOR
+ ( product_definition_relationship );
+LOCAL
+  dfuataj : BAG OF product_definition_relationship := 
+      QUERY( pdr <* product_definition_relationship |
+(pdr\product_definition_relationship.name = 'design functional unit allocation to assembly joint') );
+  pass : BOOLEAN := TRUE;
+  pd_bag : BAG OF product_definition := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(dfuataj) by 1;
+  IF EXISTS( dfuataj[i].relating_product_definition ) THEN
+    IF ( dfuataj[i].relating_product_definition.id = 
+                         'design composition path' ) THEN
+      IF ( dfuataj[i].relating_product_definition IN pd_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        pd_bag := pd_bag + dfuataj[i].relating_product_definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+	
+END_SCHEMA;
+

@@ -1,0 +1,44 @@
+(*
+   $Id: arm.exp,v 1.8 2005/04/04 10:08:56 liutkus Exp $
+   ISO TC184/SC4/WG12 N3414 - ISO/CD-TS 10303-1673 Form features - EXPRESS ARM
+*)
+
+SCHEMA Form_features_arm;
+
+	USE FROM Layered_2d_shape_arm;	-- ISO/TS 10303-1693
+
+  ENTITY Bevel_edge_feature_shape
+    SUBTYPE OF (Edge_shape);
+      minimum_bevel_width : Length_data_element;
+      minimum_bevel_angle : Angle_data_element;
+      maximum_bevel_width : Length_data_element;
+      maximum_bevel_angle : Angle_data_element;
+  END_ENTITY;
+
+  ENTITY Edge_shape
+    ABSTRACT SUPERTYPE OF (ONEOF (Bevel_edge_feature_shape,
+ Step_edge_feature_shape,
+ Radius_edge_feature_shape))
+    SUBTYPE OF (Planar_shape,
+ Feature_shape_definition);
+    WHERE
+      WR1 : SIZEOF(QUERY(escss <* USEDIN(SELF,
+ 'FORM_FEATURES_ARM.SHAPE_DEFINITION_3D_INTERSECTION.SURFACE_INTERSECTION_RESULT') | NOT ('FORM_FEATURES_ARM.EDGE_SEGMENT_CROSS_SECTION' IN TYPEOF(escss)))) = 0;
+  END_ENTITY;
+
+  ENTITY Radius_edge_feature_shape
+    SUBTYPE OF (Edge_shape);
+      minimum_radius_length : Length_data_element;
+      maximum_radius_length : Length_data_element;
+  END_ENTITY;
+
+  ENTITY Step_edge_feature_shape
+    SUBTYPE OF (Edge_shape);
+      minimum_step_width : Length_data_element;
+      maximum_step_width : Length_data_element;
+      maximum_step_depth : Length_data_element;
+      minimum_step_depth : Length_data_element;
+  END_ENTITY;
+
+END_SCHEMA;
+

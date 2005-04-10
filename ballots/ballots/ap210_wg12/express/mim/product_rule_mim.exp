@@ -1,0 +1,449 @@
+(*
+   $Id: mim.exp,v 1.22 2005/04/04 10:32:45 liutkus Exp $
+   ISO TC184/SC4/WG12 N3589 - ISO/CD-TS 10303-1739 Product rule - EXPRESS MIM
+*)
+
+
+SCHEMA Product_rule_mim;
+	USE FROM Model_parameter_mim;	-- ISO/TS 10303-1703
+	USE FROM Specification_document_mim;    --  ISO/CD-TS 10303-1747
+	USE FROM Software_mim;	-- ISO/TS 10303-1746
+	USE FROM Product_identification_mim; -- ISO/TS 10303-1017
+	
+	USE FROM Date_time_assignment_mim; -- ISO/TS 10303-1014
+	USE FROM Activity_mim; -- ISO/TS 10303-1047
+	
+	USE FROM Product_definition_schema(product_definition_relationship);
+
+TYPE pr_name_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON name_item WITH 
+     (rule_set);
+END_TYPE; 
+
+TYPE pr_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH 
+     (product_definition_formation);
+END_TYPE; 
+
+TYPE pr_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and_time_item WITH 
+     (rule_action);
+END_TYPE; 
+
+TYPE pr_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+   (rule_function_definition,
+   representation);
+END_TYPE; 
+
+TYPE rule_superseded_item = SELECT
+     (product_definition_formation);
+END_TYPE;
+
+ENTITY rule_action
+  SUBTYPE OF (action);
+WHERE
+  WR1: SIZEOF (QUERY (aaa <* QUERY (aa <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' + 
+       'ACTION_ASSIGNMENT.ASSIGNED_ACTION') |
+       'PRODUCT_RULE_MIM.' +
+       'APPLIED_ACTION_ASSIGNMENT' IN
+       TYPEOF (aa)) |
+       SIZEOF (QUERY (it <* aaa.items |
+       (('PRODUCT_RULE_MIM.' +
+       'PRODUCT_DEFINITION_FORMATION' IN 
+       TYPEOF (it))
+AND (it\product_definition_formation.description = 'rule version'))
+)) = 1)) = 1;
+  WR2: SIZEOF (QUERY (adta <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
+       adta.role\date_time_role.name = 'participant date and time')) +
+       SIZEOF (QUERY (ada <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'APPLIED_DATE_ASSIGNMENT.ITEMS') |
+       ada.role\date_role.name = 'participant date')) = 1;
+  WR3: (NOT (SELF\action.name = 'rule justification')) OR
+       (SIZEOF (QUERY (ja <* QUERY (ar <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'ACTION_RELATIONSHIP.RELATED_ACTION') |
+       ar\action_relationship.name = 'justified action') |
+       'PRODUCT_RULE_MIM.' +
+       'RULE_ACTION' IN
+       TYPEOF (ja.relating_action))) = 1);
+  WR4: (NOT (SELF\action.name = 'rule modification')) OR
+       (SIZEOF (QUERY (mr <* QUERY (ar <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'ACTION_RELATIONSHIP.RELATED_ACTION') |
+       ar\action_relationship.name = 'modification rationale') |
+       ('PRODUCT_RULE_MIM.' +
+       'RULE_ACTION' IN
+       TYPEOF (mr.relating_action)) AND
+       (mr.relating_action\action.name = 'rule change request'))) = 1);
+END_ENTITY;
+
+ENTITY rule_boolean_function_definition 
+ SUBTYPE OF (rule_function_definition);
+ WHERE
+  WR1: SIZEOF (QUERY (it <* SELF.items |
+       'PRODUCT_RULE_MIM.' +
+       'MODEL_PARAMETER' IN
+       TYPEOF (it))) >= 1;
+END_ENTITY;
+
+ENTITY rule_complex_clause 
+ SUBTYPE OF (representation);
+UNIQUE
+ UR1: SELF\representation.name;
+WHERE
+  WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' + 
+       'REPRESENTATION_RELATIONSHIP.REP_2') | 
+       'PRODUCT_RULE_MIM.' +
+       'RULE_SIMPLE_CLAUSE' IN TYPEOF (rr.rep_1))) >= 1;
+  WR2: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
+       SELF\rule_complex_clause)) = 0;
+END_ENTITY;
+
+ENTITY rule_conclusion_definition 
+ SUBTYPE OF (representation);
+WHERE
+  WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+        'PRODUCT_RULE_MIM.' +
+        'RULE_DEFINITION' IN TYPEOF
+       (pdr.definition.definition))) = 1;
+  WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_2') |
+        'PRODUCT_RULE_MIM.' +
+        'RULE_SIMPLE_CLAUSE' IN TYPEOF 
+       (rr\representation_relationship.rep_1))) >= 1;
+
+  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
+       SELF\rule_conclusion_definition)) = 0;
+END_ENTITY;
+
+ENTITY rule_definition 
+ SUBTYPE OF (rule_software_definition);
+WHERE
+  WR1: SELF\product_definition.formation.description = 'rule version';
+END_ENTITY;
+
+ENTITY rule_function_definition 
+ SUPERTYPE OF (rule_boolean_function_definition)
+ SUBTYPE OF (representation);
+WHERE
+  WR1: SIZEOF (QUERY (it <* SELF.items |
+       'PRODUCT_RULE_MIM.' +
+       'MODEL_PARAMETER' IN
+       TYPEOF (it))) >= 1;
+  WR2: SIZEOF(QUERY(adf <* USEDIN(SELF,
+       'PRODUCT_RULE_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       (adf\document_reference.assigned_document.kind\document_type.product_data_type
+       = 'reference document') AND
+       (SIZEOF(['PRODUCT_RULE_MIM.' +
+       'EE_SPECIFICATION', 
+       'PRODUCT_RULE_MIM.' +
+       'DOCUMENT'] * 
+        TYPEOF(adf\document_reference.assigned_document))>=1))) = 1;
+  WR3: SIZEOF(QUERY(adf <* USEDIN(SELF,
+       'PRODUCT_RULE_MIM.' +
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       (adf\document_reference.assigned_document.kind\document_type.product_data_type =
+       'source code') AND
+       ('PRODUCT_RULE_MIM.' +
+       'EE_SPECIFICATION' IN 
+        TYPEOF(adf\document_reference.assigned_document)))) = 1;
+END_ENTITY;
+
+ENTITY rule_function_domain_parameter 
+ SUBTYPE OF (model_parameter);
+WHERE
+  WR1: SIZEOF (QUERY (cri <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'REPRESENTATION.ITEMS') |
+       ('PRODUCT_RULE_MIM.' +
+       'RULE_FUNCTION_DEFINITION' IN TYPEOF(cri)) 
+       )) = 1;
+END_ENTITY;
+
+ENTITY rule_function_range_parameter 
+ SUBTYPE OF (model_parameter);
+WHERE
+  WR1: SIZEOF (QUERY (cri <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'REPRESENTATION.ITEMS') |
+       ('PRODUCT_RULE_MIM.' +
+       'RULE_FUNCTION_DEFINITION' IN TYPEOF(cri)) 
+       )) = 1;
+END_ENTITY;
+
+ENTITY rule_general_clause 
+ SUBTYPE OF (representation);
+UNIQUE
+ UR1: SELF\representation.name;
+WHERE
+  WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_1') |
+       'PRODUCT_RULE_MIM.' +
+       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN
+       TYPEOF (rr.rep_2))) >= 1;
+  WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' + 
+       'REPRESENTATION_RELATIONSHIP.REP_2') | 
+       'PRODUCT_RULE_MIM.' +
+       'RULE_FUNCTION_DEFINITION' IN TYPEOF (rr.rep_1))) = 1;
+  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
+       SELF\rule_general_clause)) = 0;
+END_ENTITY;
+
+ENTITY rule_premise_definition 
+ SUBTYPE OF (representation);
+WHERE
+  WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+        'PRODUCT_RULE_MIM.' +
+        'RULE_DEFINITION' IN TYPEOF
+       (pdr.definition.definition))) = 1;
+
+  WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_2') |
+        'PRODUCT_RULE_MIM.' +
+        'RULE_COMPLEX_CLAUSE' IN TYPEOF 
+       (rr\representation_relationship.rep_1))) >= 1;
+
+  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
+       SELF\rule_premise_definition)) = 0;
+END_ENTITY;
+
+ENTITY rule_superseded_assignment
+ SUBTYPE OF (action_assignment);
+     items : SET [1:?] OF rule_superseded_item;
+END_ENTITY;
+
+ENTITY rule_set 
+ SUBTYPE OF (rule_software_definition);
+END_ENTITY;
+
+ENTITY rule_software_definition 
+ SUBTYPE OF (product_definition);
+END_ENTITY;
+
+ENTITY rule_set_group
+SUBTYPE OF (rule_software_definition);
+WHERE
+  WR1: SIZEOF (QUERY (rsge <* QUERY (gr <* USEDIN (SELF, 
+       'PRODUCT_RULE_MIM.' + 
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       gr\product_definition_relationship.name = 'rule set group element') |
+       'PRODUCT_RULE_MIM.' +
+       'RULE_SET' IN
+       TYPEOF (rsge.related_product_definition))) >= 1;
+END_ENTITY;
+
+ENTITY rule_simple_clause 
+ SUBTYPE OF (representation);
+UNIQUE
+ UR1: SELF\representation.name;
+WHERE
+  WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_1') |
+       'PRODUCT_RULE_MIM.' +
+       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN
+       TYPEOF (rr.rep_2))) >= 1;
+  WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'PRODUCT_RULE_MIM.' + 
+       'REPRESENTATION_RELATIONSHIP.REP_2') | 
+       'PRODUCT_RULE_MIM.' +
+       'RULE_BOOLEAN_FUNCTION_DEFINITION' IN TYPEOF (rr.rep_1))) = 1;
+  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
+       SELF\rule_simple_clause)) = 0;
+END_ENTITY;
+
+  ENTITY rule_supersedence
+    SUBTYPE OF (rule_action);
+  END_ENTITY;
+
+RULE rule_action_unique_constraint FOR
+ ( rule_action );
+LOCAL
+  adta : BAG OF applied_date_and_time_assignment;
+  adta_bag : BAG OF applied_date_and_time_assignment := [];
+  ra_bag : BAG OF rule_action;
+  aaa_bag : BAG OF applied_action_assignment;
+  pass : BOOLEAN := TRUE;
+  rd_bag : BAG OF product_definition_formation;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(rule_action) by 1;
+  adta := USEDIN( rule_action[i], 
+'PRODUCT_RULE_MIM.' +
+'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS' );
+  REPEAT j := 1 to SIZEOF(adta) by 1;
+    IF EXISTS( adta[j] ) THEN
+      IF( NOT( adta[j] IN adta_bag ) ) THEN
+        adta_bag := adta_bag + adta[j];
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(adta_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  ra_bag := QUERY( r <* rule_action | (r IN adta_bag[i].items) );
+  rd_bag := [];
+  REPEAT j := 1 to SIZEOF(ra_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    aaa_bag := QUERY( aa <* USEDIN( ra_bag[j], 
+'PRODUCT_RULE_MIM.' +
+'ACTION_ASSIGNMENT.ASSIGNED_ACTION' ) | 
+(('PRODUCT_RULE_MIM.' +
+'APPLIED_ACTION_ASSIGNMENT') IN TYPEOF(aa) ) );
+    REPEAT k := 1 to SIZEOF(aaa_bag) by 1;
+      IF ( NOT pass ) THEN ESCAPE;
+      END_IF;
+      REPEAT l := 1 to SIZEOF(aaa_bag[k].items) by 1;
+        IF EXISTS( aaa_bag[k].items[l] ) THEN
+          IF ( ('PRODUCT_RULE_MIM.' +
+'PRODUCT_DEFINITION_FORMATION'  IN TYPEOF(aaa_bag[k].items[l])) AND
+(aaa_bag[k].items[l]\product_definition_formation.description = 'rule version') ) THEN
+            IF ( aaa_bag[k].items[l] IN rd_bag ) THEN
+              pass := FALSE;
+              ESCAPE;
+            ELSE
+              rd_bag := rd_bag + aaa_bag[k].items[l];
+            END_IF;
+          END_IF;
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE rule_conclusion_definition_unique_constraint FOR 
+(rule_conclusion_definition,
+representation,representation_relationship);
+LOCAL
+r : BAG of representation := 
+           QUERY (r <* representation | r\representation.name = 
+                                             'rule definition');
+rr : BAG OF representation_relationship := [];
+pass : BOOLEAN := TRUE;
+count : INTEGER := 0;
+name_bag : BAG OF string := [];
+END_LOCAL;
+  REPEAT i := 1 to SIZEOF (r) by 1;
+   count := 0;
+   name_bag := [];
+   IF NOT pass THEN ESCAPE;
+   END_IF;
+   rr := USEDIN(r[i],
+ 'PRODUCT_RULE_MIM.' +
+        'REPRESENTATION_RELATIONSHIP.REP_1');
+   REPEAT j := 1 to SIZEOF (rr) by 1;
+    IF 'PRODUCT_RULE_MIM.' +
+       'RULE_CONCLUSION_DEFINITION' IN
+       TYPEOF (rr[j].rep_2)
+    THEN
+      IF EXISTS( rr[j].rep_2\representation.name ) THEN
+        IF rr[j].rep_2\representation.name IN name_bag
+        THEN
+         pass := FALSE;
+        ELSE
+         name_bag := name_bag + rr[j].rep_2\representation.name;
+        END_IF;
+      END_IF;
+    END_IF;
+   END_REPEAT;
+  END_REPEAT;
+WHERE
+ WR1: pass;
+END_RULE;
+
+RULE rule_function_unique_constraint FOR
+ ( rule_function_definition );
+LOCAL
+  name_bag : BAG OF STRING := [];
+  rfd_bag : BAG OF rule_function_definition;
+  adr_bag : BAG OF applied_document_reference;
+  pass : BOOLEAN := TRUE;
+  doc_bag : BAG OF document;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(rule_function_definition) by 1;
+  IF EXISTS( rule_function_definition[i]\representation.name ) THEN
+    IF( NOT( rule_function_definition[i]\representation.name IN name_bag ) ) THEN
+      name_bag := name_bag + rule_function_definition[i]\representation.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  doc_bag := [];
+  rfd_bag := QUERY( am <* rule_function_definition | 
+               (am\representation.name = name_bag[i]) );
+  REPEAT j := 1 to SIZEOF(rfd_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    adr_bag := QUERY( adr <* USEDIN( rfd_bag[j],
+'PRODUCT_RULE_MIM.'
++ 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) |
+(adr.assigned_document.kind\document_type.product_data_type = 'reference document') );
+    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
+      IF EXISTS( adr_bag[k].assigned_document ) THEN
+        IF ( adr_bag[k].assigned_document IN doc_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          doc_bag := doc_bag + adr_bag[k].assigned_document;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE rule_premise_definition_unique_constraint FOR (rule_premise_definition,
+representation,representation_relationship);
+local
+rr : BAG OF representation_relationship := [];
+rpd : BAG OF rule_premise_definition := [];
+pass : BOOLEAN := TRUE;
+count : INTEGER := 0;
+END_LOCAL;
+  REPEAT i := 1 to SIZEOF (rule_premise_definition) by 1;
+   count := 0;
+   IF NOT pass THEN ESCAPE;
+   END_IF;
+   rr :=
+USEDIN(rule_premise_definition[i],'REPRESENTATION_SCHEMA.REPRESENTATION_RELATIONSHIP.REP_2');
+    REPEAT j := 1 to SIZEOF (rr) by 1;
+     IF NOT pass THEN ESCAPE;
+     END_IF;
+     IF (rr[j]\representation_relationship.rep_1\representation.description IN
+              ['rule definition']) THEN
+     count := count + 1;
+     END_IF;
+     IF count = 2 THEN pass := FALSE;
+     END_IF;
+    END_REPEAT;
+  END_REPEAT;
+WHERE
+ WR1: pass;
+END_RULE;
+	
+END_SCHEMA;
+
+

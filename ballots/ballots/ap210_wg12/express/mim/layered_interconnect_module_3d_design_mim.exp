@@ -1,0 +1,31 @@
+(*
+   $Id: mim.exp,v 1.8 2005/04/04 10:08:54 liutkus Exp $
+   ISO TC184/SC4/WG12 N3481 - ISO/CD-TS 10303-1696 Layered interconnect module 3d design - EXPRESS MIM
+*)
+
+
+SCHEMA Layered_interconnect_module_3d_design_mim;
+	USE FROM Stratum_non_planar_shape_mim;	-- ISO/TS 10303-1748
+
+RULE stratum_interconnect_module_3d_position_constraint FOR (mapped_item);
+WHERE
+  WR1: SIZEOF(QUERY(mi <* mapped_item |
+       (mi\representation_item.name = '3d positioned stratum shape in interconnect module')
+       AND NOT('LAYERED_INTERCONNECT_MODULE_3D_DESIGN_MIM.'
+       + 'AXIS2_PLACEMENT_3D' IN TYPEOF(mi.mapping_target))
+       )) = 0;
+END_RULE;
+
+RULE stratum_surface_in_stratum_3d_position_constraint FOR 
+( mapped_item );
+WHERE
+  WR1: SIZEOF(QUERY(mi <* mapped_item |
+       (mi\representation_item.name = 'stratum surface in stratum 3d position')
+       AND NOT('LAYERED_INTERCONNECT_MODULE_3D_DESIGN_MIM.'
+       + 'AXIS2_PLACEMENT_3D' IN TYPEOF(mi.mapping_target))
+       )) = 0;
+END_RULE;
+	
+END_SCHEMA;
+
+

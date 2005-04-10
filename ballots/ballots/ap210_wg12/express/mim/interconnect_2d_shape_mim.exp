@@ -1,0 +1,37 @@
+(*
+   $Id: mim.exp,v 1.8 2005/02/04 15:35:33 budreckytej Exp $
+   ISO TC184/SC4/WG12 N3436 - ISO/CD-TS 10303-1682 Interconnect 2d shape - EXPRESS MIM
+*)
+
+
+SCHEMA Interconnect_2d_shape_mim;
+	USE FROM Fabrication_joint_mim;	-- ISO/TS 10303-1668
+	USE FROM Layered_interconnect_module_with_design_intent_modifications_mim;	-- ISO/TS 10303-1699
+	USE FROM Physical_unit_2d_design_view_mim;	-- ISO/TS 10303-1724
+
+RULE design_intent_modification_planar_position_constraint FOR
+( mapped_item );
+WHERE
+ WR1: SIZEOF(QUERY(mi <* mapped_item |
+     (mi\representation_item.name = 'design intent modification planar position')
+     AND NOT('INTERCONNECT_2D_SHAPE_MIM.'
+       + 'AXIS2_PLACEMENT_2D' IN TYPEOF(mi.mapping_target)))) = 0;
+ WR2: SIZEOF(QUERY(mi <* mapped_item |
+    (mi\representation_item.name = 'design intent modification planar position')
+       AND (SIZEOF(QUERY(rep <* USEDIN(mi,       
+       'INTERCONNECT_2D_SHAPE_MIM.'
+       + 'REPRESENTATION.ITEMS') |
+       SIZEOF(USEDIN(rep,
+       'INTERCONNECT_2D_SHAPE_MIM.'
+     + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION')) = 0
+       )) = 0))) = 0;
+ WR3: SIZEOF(QUERY(mi <* mapped_item |
+    (mi\representation_item.name = 'design intent modification planar position')
+     AND NOT('INTERCONNECT_2D_SHAPE_MIM.'
+       + 'AXIS2_PLACEMENT_2D' IN
+      TYPEOF(mi.mapping_source.mapped_representation)))) = 0;
+END_RULE;
+	
+END_SCHEMA;
+
+

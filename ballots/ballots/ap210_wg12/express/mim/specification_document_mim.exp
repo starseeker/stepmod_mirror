@@ -1,0 +1,227 @@
+(*
+   $Id: mim.exp,v 1.18 2005/04/04 10:35:36 liutkus Exp $
+   ISO TC184/SC4/WG12 N3613 - ISO/CD-TS 10303-1747 Specification document - EXPRESS MIM
+*)
+
+
+SCHEMA Specification_document_mim;
+	USE FROM Characteristic_mim;	-- ISO/TS 10303-1654
+	USE FROM Configuration_item_mim;	-- ISO/TS 10303-1056
+	USE FROM Encoded_text_representation_mim; -- ISO/TS 10303-1366
+	USE FROM Person_organization_assignment_mim;	-- ISO/TS 10303-1013
+	USE FROM Person_organization_mim;	-- ISO/TS 10303-1011
+
+	USE FROM Document_schema (document_type);
+	USE FROM Management_resources_schema(group_assignment);
+	USE FROM Date_time_schema(date_time_role);
+	
+	USE FROM Product_definition_schema(product_definition_formation_relationship);
+
+
+TYPE document_identifier_assigned_item = SELECT
+     (document);
+END_TYPE;
+
+TYPE sd_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
+	(configuration_item,
+	product,
+    product_definition,
+    product_definition_formation);
+END_TYPE;
+	
+ENTITY document_identifier
+  SUBTYPE OF (group);
+UNIQUE
+  UR1: SELF\group.name, SELF\group.description;
+WHERE
+  WR1: SIZEOF (USEDIN(SELF,
+                     'SPECIFICATION_DOCUMENT_MIM.' +
+                     'DOCUMENT_IDENTIFIER_ASSIGNMENT.ITEMS')) > 0;
+END_ENTITY;
+
+ENTITY document_identifier_assignment
+ SUBTYPE OF (group_assignment);
+   SELF\group_assignment.assigned_group : document_identifier;
+     items : SET [1:?] OF document_identifier_assigned_item;
+END_ENTITY;
+
+ENTITY ee_specification 
+ SUBTYPE OF (document);
+WHERE
+  WR1: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'SPECIFICATION_DOCUMENT_MIM.' +
+       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\person_and_organization_role.name = 'document source')) +
+       SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'SPECIFICATION_DOCUMENT_MIM.' +
+       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\organization_role.name = 'document source')) >= 1;
+  WR2: SELF\document.kind\document_type.product_data_type IN 
+       ['assembly technology specification',
+       'design specification', 'fabrication technology specification',
+       'interface specification', 'language reference manual',
+       'lead form specification', 'material specification',
+       'reference document', 'source code',
+       'font registration document',
+       'process specification', 'surface finish specification',
+       'test specification'];
+END_ENTITY;
+
+ENTITY structured_text_representation_context
+  SUBTYPE OF (representation_context);
+WHERE
+  WR1: SIZEOF (QUERY (rep <* USEDIN (SELF,
+       'SPECIFICATION_DOCUMENT_MIM.' +
+       'REPRESENTATION.CONTEXT_OF_ITEMS') | NOT (
+       'SPECIFICATION_DOCUMENT_MIM.' +
+       'STRUCTURED_TEXT_REPRESENTATION_ITEM' IN
+       TYPEOF (rep)))) = 0;
+END_ENTITY;
+
+ENTITY structured_text_representation_item
+  SUBTYPE OF (representation, descriptive_representation_item);
+WHERE
+  WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
+       'SPECIFICATION_DOCUMENT_MIM.' +
+       'REPRESENTATION_RELATIONSHIP.REP_2') |
+       'SPECIFICATION_DOCUMENT_MIM.' +
+       'STRUCTURED_TEXT_REPRESENTATION_ITEM' IN
+       TYPEOF (rr.rep_1) ))<= 1;
+  WR2: SIZEOF (USEDIN (SELF, 
+        'SPECIFICATION_DOCUMENT_MIM.' + 
+       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) >= 1;
+  WR3: (SIZEOF (QUERY (it <* SELF\representation.items |
+       'SPECIFICATION_DOCUMENT_MIM.' +
+       'EXTERNALLY_DEFINED_REPRESENTATION_ITEM' IN 
+       TYPEOF (it))) = 1); 
+END_ENTITY;
+
+RULE product_association_constraint FOR 
+( product_definition_formation_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdfr <* product_definition_formation_relationship |
+       (pdfr\product_definition_formation_relationship.name = 'product association')
+       AND (SIZEOF(QUERY(adr <* USEDIN(pdfr,
+       'SPECIFICATION_DOCUMENT_MIM.'
+       + 'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       ('SPECIFICATION_DOCUMENT_MIM.'
+       + 'EE_SPECIFICATION' IN TYPEOF(adr.assigned_document))
+       )) = 0))) = 0;
+END_RULE;
+
+RULE ee_document_constraint FOR ( document );
+WHERE
+  WR1: SIZEOF(QUERY(doc <* document |
+       (SIZEOF(QUERY(adata <* USEDIN(doc,
+       'SPECIFICATION_DOCUMENT_MIM.'
+       + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS')
+       | (adata.role\date_time_role.name = 'creation date')
+       )) = 0))) = 0;
+  WR2: SIZEOF(QUERY(doc <* document |
+       NOT ((SIZEOF(QUERY(aoa <* USEDIN(doc,
+       'SPECIFICATION_DOCUMENT_MIM.'
+       + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')
+       | (aoa.role\organization_role.name = 'publisher')
+       )) = 1) OR 
+       (SIZEOF(QUERY(apaoa <* USEDIN(doc,
+       'SPECIFICATION_DOCUMENT_MIM.'
+       + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS')
+       | (apaoa.role\person_and_organization_role.name = 'publisher')
+       )) = 1)))) = 0;
+  WR3: SIZEOF(QUERY(doc <* document |
+       NOT (SIZEOF(USEDIN(doc,
+       'SPECIFICATION_DOCUMENT_MIM.'
+       + 'DOCUMENT_IDENTIFIER_ASSIGNMENT.ITEMS')) = 1)
+       )) = 0;
+END_RULE;
+
+RULE ee_document_unique_constraint FOR
+ ( document, document_identifier_assignment );
+LOCAL
+  pass : BOOLEAN := TRUE;
+  rev_exists_bag : BAG OF document := [];
+  dia_bag : BAG OF document_identifier_assignment := [];
+  desc_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(document) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  IF NOT(EXISTS( document[i].description )) THEN
+   pass := FALSE;
+  END_IF;
+END_REPEAT;
+
+
+REPEAT i := 1 to SIZEOF(document_identifier_assignment) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  desc_bag := [];
+  REPEAT j := 1 to SIZEOF(document_identifier_assignment[i].items) by 1;
+     desc_bag := desc_bag + document_identifier_assignment[i].items[j]\document.description;
+  END_REPEAT;
+  IF NOT(value_unique(desc_bag)) THEN
+    pass := FALSE;
+  END_IF;
+END_REPEAT;
+
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE product_association_unique_constraint FOR
+ ( product_definition_formation_relationship );
+LOCAL
+  pdfr : BAG OF product_definition_formation_relationship := QUERY( r <*
+product_definition_formation_relationship | 
+  (r\product_definition_formation_relationship.name = 'product association' ) );
+  pdf_bag : BAG OF product_definition_formation := [];
+  pdfr_bag : BAG OF product_definition_formation_relationship;
+  pass : BOOLEAN := TRUE;
+  adr_bag : BAG OF applied_document_reference;
+  es_bag : BAG OF ee_specification;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(pdfr) by 1;
+  IF EXISTS( pdfr[i].relating_product_definition_formation ) THEN
+    IF( NOT( pdfr[i].relating_product_definition_formation IN pdf_bag ) )
+                                                              THEN
+      pdf_bag := pdf_bag + pdfr[i].
+                 relating_product_definition_formation;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pdf_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  pdfr_bag := QUERY( r <* pdfr | 
+             (r.relating_product_definition_formation :=: pdf_bag[i]) );
+  es_bag := [];
+  REPEAT j := 1 to SIZEOF(pdfr_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    adr_bag := QUERY( adr <* USEDIN( pdfr_bag[j], 
+('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
++ 'APPLIED_DOCUMENT_REFERENCE.ITEMS')) | 
+(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'EE_SPECIFICATION') IN TYPEOF(adr.assigned_document)) );
+    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
+      IF EXISTS( adr_bag[k].assigned_document ) THEN
+        IF ( adr_bag[k].assigned_document IN es_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          es_bag := es_bag + adr_bag[k].assigned_document;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+	
+END_SCHEMA;
+
+

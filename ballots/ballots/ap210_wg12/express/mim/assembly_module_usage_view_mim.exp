@@ -1,0 +1,132 @@
+(*
+   $Id: mim.exp,v 1.13 2005/04/04 09:13:39 liutkus Exp $
+   ISO TC184/SC4/WG12 N3301 - ISO/CD-TS 10303-1642 Assembly module usage view - EXPRESS MIM
+*)
+SCHEMA Assembly_module_usage_view_mim;
+
+--	USE FROM Functional_assignment_to_part_mim;	-- ISO/TS 10303-1674
+	USE FROM Network_functional_usage_view_mim;	-- ISO/TS 10303-1705
+	USE FROM Packaged_connector_model_mim;	-- ISO/TS 10303-1708
+
+ENTITY assembly_definition
+ SUBTYPE OF (physical_unit);
+WHERE
+  WR1: EXISTS(SELF\product_definition.name);
+  WR2: NOT EXISTS(SELF\product_definition.name) OR 
+        (SELF\product_definition.name = 'assembly module');
+  WR3: (NOT (SELF.frame_of_reference.name = 'physical design')) OR
+       (SIZEOF (QUERY (du <* QUERY (pdr <* USEDIN (SELF,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.' +
+       'RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'design usage') |
+       (SIZEOF (['ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'ASSEMBLY_DEFINITION', 
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'EXTERNALLY_DEFINED_ASSEMBLY_DEFINITION', 
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'LIBRARY_DEFINED_ASSEMBLY_DEFINITION'] *
+       TYPEOF (du.relating_product_definition)) = 1) AND
+       (du.relating_product_definition.frame_of_reference.name = 
+       'physical design usage') AND
+       (du.relating_product_definition\product_definition.name = 'assembly module')
+        )) = 1);
+  WR4: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'ASSEMBLY_MODULE_TERMINAL' IN
+       TYPEOF (sa)) AND
+       (sa\shape_aspect.description = 'pca terminal'))) >= 2))) = 0);
+END_ENTITY;
+
+ENTITY assembly_module_interface_terminal
+  SUBTYPE OF (assembly_module_terminal);
+END_ENTITY;
+
+ENTITY assembly_module_terminal
+  SUPERTYPE OF (assembly_module_interface_terminal)
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: EXISTS(SELF.of_shape.definition\product_definition.name);
+  WR2: NOT EXISTS(SELF.of_shape.definition\product_definition.name) OR
+      (SELF.of_shape.definition\product_definition.name = 'assembly module');
+  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (SELF,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'SHAPE_REPRESENTATION' IN
+       TYPEOF (pdr.used_representation))) >= 1))) = 0;
+  WR4: SIZEOF (QUERY (mct <* QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'member connected terminal') |
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'PART_CONNECTED_TERMINALS_DEFINITION'
+       IN TYPEOF (mct.relating_shape_aspect))) <= 1;
+  WR5: (NOT (SELF\shape_aspect.description = 'pca terminal')) OR
+       ((SIZEOF(TYPEOF (SELF.of_shape.definition) *
+       ['ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'ASSEMBLY_DEFINITION',
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'EXTERNALLY_DEFINED_ASSEMBLY_DEFINITION',
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'LIBRARY_DEFINED_ASSEMBLY_DEFINITION']) >=1)
+       AND (SELF.of_shape.definition\product_definition.
+       frame_of_reference.name = 'physical design usage'));
+  WR6: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar.related_shape_aspect\shape_aspect.description = 'connection zone')) = 1;
+  WR7: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar.related_shape_aspect\shape_aspect.description = 'interface terminal')) <= 1;
+END_ENTITY;
+(**
+ENTITY externally_defined_assembly_definition
+ SUBTYPE OF (externally_defined_physical_unit);
+WHERE
+  WR1: EXISTS(SELF\product_definition.name);
+  WR2: NOT EXISTS(SELF\product_definition.name) OR
+       (SELF\product_definition.name = 'assembly module');
+  WR3: (NOT (SELF.frame_of_reference\application_context_element.name = 'physical design usage')) 
+        OR (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'ASSEMBLY_MODULE_TERMINAL' IN
+       TYPEOF (sa)) AND
+       (sa\shape_aspect.description = 'pca terminal'))) >= 2))) = 0);
+END_ENTITY;
+
+ENTITY library_defined_assembly_definition
+ SUBTYPE OF (library_defined_physical_unit);
+WHERE
+  WR1: EXISTS(SELF\product_definition.name);
+  WR2: SELF\product_definition.name = 'assembly module';
+  WR3: (NOT (SELF.frame_of_reference.name = 'physical design usage')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('ASSEMBLY_MODULE_USAGE_VIEW_MIM.' +
+       'ASSEMBLY_MODULE_TERMINAL' IN
+       TYPEOF (sa)) AND
+       (sa\shape_aspect.description = 'pca terminal'))) >= 2))) = 0);
+END_ENTITY;
+*)
+END_SCHEMA;
+

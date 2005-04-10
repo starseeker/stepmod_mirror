@@ -1,0 +1,33 @@
+(*
+   $Id: arm.exp,v 1.13 2005/03/24 15:21:53 liutkus Exp $
+   ISO TC184/SC4/WG12 N3516 - ISO/CD-TS 10303-1714 Part feature location - EXPRESS ARM
+*)
+
+SCHEMA Part_feature_location_arm;
+
+	USE FROM Extended_elemental_geometric_shape_arm;	-- ISO/TS 10303-1667
+	
+--	USE FROM Non_feature_shape_element_arm; 	-- ISO/TS 10303-1706
+
+	TYPE feature_or_non_feature_usage = EXTENSIBLE GENERIC_ENTITY SELECT
+		(part_template_or_physical_unit_shape_select);
+	END_TYPE;
+
+ 	TYPE part_template_or_physical_unit_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+	TYPE usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT;
+	END_TYPE;
+
+  ENTITY Usage_concept_usage_relationship;
+      associating_usage_shape     : feature_or_non_feature_usage;
+      associated_usage            : usage_concept;
+      associated_shape_definition : Geometric_model;
+      associated_usage_placement  : axis_placement_or_cto2d;
+    WHERE
+      WR1 : (('PART_FEATURE_LOCATION_ARM.NON_FEATURE_SHAPE_DEFINITION' IN TYPEOF(associated_shape_definition)) AND ('PART_FEATURE_LOCATION_ARM.NON_FEATURE_SHAPE_DEFINITION' IN TYPEOF(associating_usage_shape))) OR (('PART_FEATURE_LOCATION_ARM.FEATURE_SHAPE_DEFINITION' IN TYPEOF(associated_shape_definition)) AND ('PART_FEATURE_LOCATION_ARM.FEATURE_SHAPE_DEFINITION' IN TYPEOF(associating_usage_shape)));
+      WR2 : NOT ('PART_FEATURE_LOCATION_ARM.cartesian_transformation_2d' IN TYPEOF(associated_usage_placement)) OR ('PART_FEATURE_LOCATION_ARM.NON_FEATURE_SHAPE_DEFINITION' IN TYPEOF(associating_usage_shape));
+  END_ENTITY;
+
+END_SCHEMA;
+

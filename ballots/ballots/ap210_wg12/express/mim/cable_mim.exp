@@ -1,0 +1,33 @@
+(*
+   $Id: mim.exp,v 1.13 2005/04/04 09:39:07 liutkus Exp $
+   ISO TC184/SC4/WG12 N3319 - ISO/CD-TS 10303-1653 Cable - EXPRESS MIM
+*)
+SCHEMA Cable_mim;
+
+	USE FROM Assembly_module_with_packaged_connector_component_mim;	-- ISO/TS 10303-1645
+
+ENTITY cable_terminal
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: 'CABLE_MIM.' +
+       'CABLE_USAGE_VIEW' IN 
+       TYPEOF (SELF.of_shape.definition);
+END_ENTITY;
+
+ENTITY cable_usage_view
+ SUBTYPE OF (physical_unit);
+WHERE
+  WR1: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'CABLE_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'CABLE_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'CABLE_MIM.' +
+       'CABLE_TERMINAL' IN 
+       TYPEOF (sa))) >= 1))) = 0;
+  WR2: SELF.frame_of_reference.name IN ['physical design usage'];
+END_ENTITY;
+
+END_SCHEMA;
+

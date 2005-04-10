@@ -1,0 +1,76 @@
+(*
+   $Id: arm.exp,v 1.18 2005/04/04 10:22:52 liutkus Exp $
+   ISO TC184/SC4/WG12 N3495 - ISO/CD-TS 10303-1706 Non feature shape element - EXPRESS ARM
+*)
+
+SCHEMA Non_feature_shape_element_arm; 
+
+	USE FROM Part_feature_location_arm;	-- ISO/TS 10303-1714
+  
+  TYPE ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE;
+
+	TYPE nfse_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
+		(Non_feature_shape_element);
+	END_TYPE;
+
+    TYPE nfse_feature_or_non_feature_usage = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON feature_or_non_feature_usage WITH 
+		(View_level_non_feature_shape_definition);
+	END_TYPE;
+	
+  TYPE view_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE;
+  
+  ENTITY Non_feature_shape_composition_relationship
+    SUBTYPE OF (Geometric_model_relationship);
+      related_feature_shape_placement : OPTIONAL axis_placement_or_cto2d;
+      SELF\Geometric_model_relationship.rep_1 RENAMED related_feature_shape   : Non_feature_shape_definition;
+      SELF\Geometric_model_relationship.rep_2 RENAMED resultant_feature_shape : Non_feature_shape_definition;
+    WHERE
+      WR1 : EXISTS(related_feature_shape_placement) OR (related_feature_shape\Representation.context_of_items :=: resultant_feature_shape\Representation.context_of_items);
+  END_ENTITY;
+
+  ENTITY Non_feature_shape_definition
+    SUBTYPE OF (Geometric_model);
+      associated_element : Non_feature_shape_element;
+      model_shape        : OPTIONAL Feature_shape_definition;
+  END_ENTITY;
+
+  ENTITY Non_feature_shape_element
+    SUBTYPE OF (Shape_element);
+      SELF\Shape_element.containing_shape RENAMED scope : ee_product_definition_with_annotation_elements;
+    INVERSE
+      element_shape            : SET[0:?] OF non_feature_shape_definition FOR associated_element;
+      associated_usage_concept : SET[0:?] OF usage_concept_usage_relationship FOR associated_usage;
+    UNIQUE
+      UR1 : SELF\Shape_element.element_name,
+ scope;
+    WHERE
+      WR1 : (NOT (SIZEOF(associated_usage_concept) > 0)) OR (SIZEOF(element_shape) > 0);
+  END_ENTITY;
+
+  ENTITY Non_feature_shape_element_relationship
+    SUBTYPE OF (Shape_element_relationship);
+      SELF\Shape_element_relationship.relating : Non_feature_shape_element;    
+      SELF\Shape_element_relationship.related : Non_feature_shape_element;
+    UNIQUE
+      UR1 : SELF\Shape_element_relationship.related,
+ SELF\Shape_element_relationship.relating;
+  END_ENTITY;
+
+   ENTITY Reference_graphic_registration_mark
+    SUBTYPE OF (Non_feature_shape_element);
+  END_ENTITY;
+
+  ENTITY Seating_plane
+    SUBTYPE OF (Non_feature_shape_element);
+  END_ENTITY;
+
+  ENTITY View_level_non_feature_shape_definition
+    SUBTYPE OF (Non_feature_shape_definition);
+      SELF\Non_feature_shape_definition.model_shape : view_shape_select;
+    WHERE
+      WR1 : SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_definition.model_shape\Geometric_model.context_of_items;
+  END_ENTITY;
+
+END_SCHEMA;

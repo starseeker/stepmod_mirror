@@ -1,0 +1,134 @@
+(*
+   $Id: arm.exp,v 1.12 2005/04/04 10:08:47 liutkus Exp $
+   ISO TC184/SC4/WG12 N3447 - ISO/CD-TS 10303-1686 Interconnect module usage view - EXPRESS ARM
+*)
+
+SCHEMA Interconnect_module_usage_view_arm;
+
+	USE FROM Extended_geometric_tolerance_arm;	-- ISO/TS 10303-1666
+	USE FROM Functional_assignment_to_part_arm;	-- ISO/TS 10303-1674
+	USE FROM Network_functional_usage_view_arm;	-- ISO/TS 10303-1705
+
+  ENTITY Interconnect_module_cavity_surface
+    SUBTYPE OF (Interconnect_module_surface_feature);
+      reference_surface : Interconnect_module_surface_feature;
+    WHERE
+      WR1 : SELF :<>: reference_surface;
+  END_ENTITY;
+
+  ENTITY Interconnect_module_cutout_segment_surface
+    SUBTYPE OF (Interconnect_module_surface_feature);
+      composed_surface : Interconnect_module_cutout_surface;
+      start_vertex     : Edge_segment_vertex;
+      end_vertex       : Edge_segment_vertex;
+    WHERE
+      WR1 : start_vertex :<>: end_vertex;
+  END_ENTITY;
+
+  ENTITY Interconnect_module_cutout_surface
+    SUBTYPE OF (Interconnect_module_surface_feature);
+  END_ENTITY;
+
+  ENTITY Interconnect_module_edge_segment_surface
+    SUBTYPE OF (Interconnect_module_surface_feature);
+      composed_surface : Interconnect_module_edge_surface;
+      start_vertex     : Edge_segment_vertex;
+      end_vertex       : Edge_segment_vertex;
+    WHERE
+      WR1 : start_vertex :<>: end_vertex;
+  END_ENTITY;
+
+  ENTITY Interconnect_module_edge_surface
+    SUBTYPE OF (Interconnect_module_surface_feature);
+  END_ENTITY;
+
+  ENTITY Interconnect_module_interface_terminal
+    SUBTYPE OF (Interconnect_module_terminal);
+  END_ENTITY;
+
+  ENTITY Interconnect_module_primary_surface
+    SUBTYPE OF (Interconnect_module_surface_feature);
+  END_ENTITY;
+
+  ENTITY Interconnect_module_secondary_surface
+    SUBTYPE OF (Interconnect_module_surface_feature);
+  END_ENTITY;
+
+  ENTITY Interconnect_module_surface_feature
+    ABSTRACT SUPERTYPE OF (ONEOF (Interconnect_module_cavity_surface,
+ Interconnect_module_cutout_segment_surface,
+ Interconnect_module_cutout_surface,
+ Interconnect_module_secondary_surface,
+ Interconnect_module_primary_surface,
+ Interconnect_module_edge_surface,
+ Interconnect_module_edge_segment_surface))
+    SUBTYPE OF (Part_feature);
+      SELF\Part_feature.associated_definition : Interconnect_module_usage_view;
+  END_ENTITY;
+
+  ENTITY Interconnect_module_terminal
+    SUBTYPE OF (Part_terminal);
+      terminal_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
+      SELF\Part_feature.associated_definition : Interconnect_module_usage_view;
+    INVERSE
+      SELF\Part_feature.feature_shape : SET[1:?] OF usage_concept_usage_relationship FOR associated_usage;
+  END_ENTITY;
+
+  ENTITY Interconnect_module_terminal_surface_constituent_relationship
+    SUBTYPE OF (Shape_element_constituent_relationship);
+      SELF\Shape_element_relationship.relating : Interconnect_module_surface_feature;
+      SELF\Shape_element_relationship.related  : Interconnect_module_terminal;
+  END_ENTITY;
+
+  ENTITY Interconnect_module_usage_view
+    SUPERTYPE OF (Pcb_usage_view)
+    SUBTYPE OF (Part_usage_view);
+      minimum_thickness_over_metal_requirement      : OPTIONAL Length_data_element;
+      maximum_thickness_over_metal_requirement      : OPTIONAL Length_data_element;
+      minimum_thickness_over_dielectric_requirement : OPTIONAL Length_data_element;
+      maximum_thickness_over_dielectric_requirement : OPTIONAL Length_data_element;
+      measurement_condition                         : OPTIONAL Restraint_condition;
+      located_thickness_requirement                 : OPTIONAL SET[1:?] OF Located_interconnect_module_thickness_requirement;
+      implemented_function                          : OPTIONAL Functional_unit_usage_view;
+    WHERE
+      WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
+ 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(pf)))) <= 1;
+      WR2 : SIZEOF(QUERY(pf <* USEDIN(SELF,
+ 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(pf)))) <= 1;
+      WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
+ 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
+      WR4 : EXISTS(maximum_thickness_over_metal_requirement) OR EXISTS(maximum_thickness_over_dielectric_requirement);
+      WR5 : NOT (EXISTS(minimum_thickness_over_metal_requirement)) OR (minimum_thickness_over_metal_requirement\Value_with_unit.value_component > 0.0);
+      WR6 : NOT (EXISTS(maximum_thickness_over_metal_requirement)) OR (maximum_thickness_over_metal_requirement\Value_with_unit.value_component > 0.0);
+      WR7 : NOT (EXISTS(minimum_thickness_over_dielectric_requirement)) OR (minimum_thickness_over_dielectric_requirement\Value_with_unit.value_component > 0.0);
+      WR8 : NOT (EXISTS(maximum_thickness_over_dielectric_requirement)) OR (maximum_thickness_over_dielectric_requirement\Value_with_unit.value_component > 0.0);
+      WR9 : magnitude_of(minimum_thickness_over_metal_requirement) < magnitude_of(maximum_thickness_over_metal_requirement);
+     WR10 : magnitude_of(minimum_thickness_over_dielectric_requirement) < magnitude_of(maximum_thickness_over_dielectric_requirement);
+     WR11 : magnitude_of(minimum_thickness_over_dielectric_requirement) < magnitude_of(minimum_thickness_over_metal_requirement);
+     WR12 : magnitude_of(maximum_thickness_over_dielectric_requirement) < magnitude_of(maximum_thickness_over_metal_requirement);     
+  END_ENTITY;
+
+  ENTITY Located_interconnect_module_thickness_requirement;
+      reference_location            : Axis_placement;
+      maximum_thickness_requirement : Length_data_element;
+      minimum_thickness_requirement : Length_data_element;
+    INVERSE
+      design : SET[1:?] OF interconnect_module_usage_view FOR located_thickness_requirement;
+    UNIQUE
+      UR1 : design,
+ reference_location;
+  END_ENTITY;
+
+  ENTITY Pcb_usage_view
+    SUBTYPE OF (Interconnect_module_usage_view);
+  END_ENTITY;
+
+  FUNCTION magnitude_of(input : length_data_element) : REAL;
+  --purpose of this function is to return the normalized real number that is the magnitude of the length unit
+  --including conversion of the prefix values to the exponent of the real number.
+  --e.g., 10 u inches --> 1e-5
+  --initial input just return the value component and not the exponent.
+  RETURN(input\Value_with_unit.value_component);
+  END_FUNCTION;
+END_SCHEMA;
+

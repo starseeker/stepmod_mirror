@@ -1,0 +1,37 @@
+(*
+   $Id: arm.exp,v 1.11 2005/04/07 17:46:58 liutkus Exp $
+   ISO TC184/SC4/WG12 N3621 - ISO/CD-TS 10303-1750 Styled text - EXPRESS ARM
+*)
+
+SCHEMA Styled_text_arm;
+
+	USE FROM Elemental_geometric_shape_arm;	-- ISO/TS 10303-1004
+	USE FROM Specification_document_arm;	-- ISO/TS 10303-1747
+
+  TYPE font_select = SELECT
+    (Registered_font,
+     Font_definition);
+  END_TYPE;
+
+  TYPE st_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
+   (Registered_font);
+  END_TYPE; 
+
+  ENTITY Font_definition;
+  END_ENTITY;
+
+  ENTITY Registered_font;
+      font_code             : STRING;
+    INVERSE
+	  registration_document : document_assignment FOR is_assigned_to;    	
+    UNIQUE
+      UR1 : font_code,
+ registration_document;
+  END_ENTITY;
+
+  ENTITY Styled_text
+    SUBTYPE OF (Detailed_geometric_model_element);
+      text_font : font_select;
+  END_ENTITY;
+
+END_SCHEMA;

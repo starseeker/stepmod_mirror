@@ -1,0 +1,162 @@
+(*
+   $Id: mim.exp,v 1.10 2005/03/25 14:32:54 budreckytej Exp $
+   ISO TC184/SC4/WG12 N3487 - ISO/CD-TS 10303-1700 Layered interconnect module with printed component design - EXPRESS MIM
+*)
+
+
+SCHEMA Layered_interconnect_module_with_printed_component_design_mim;
+	USE FROM Layered_interconnect_module_design_mim;	-- ISO/TS 10303-1698
+	
+TYPE limwpcd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
+     (printed_component);
+END_TYPE; 
+	
+ENTITY printed_component
+  SUBTYPE OF (assembly_component);
+WHERE
+  WR1: SELF.frame_of_reference.name = 'layout occurrence';
+  WR2: SELF\product_definition.description = 'printed component';
+(* invalid csa  
+  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pt_occ <* QUERY (sa <* USEDIN (pd,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       sa\shape_aspect.description = 'part template occurrence') |
+       SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (pt_occ,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |  
+       ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PART_TEMPLATE_DEFINITION' IN
+       TYPEOF (it.relating_shape_aspect)) AND
+       (it.relating_shape_aspect\shape_aspect.description IN ['printed part template', 
+       'printed part cross section template', 
+       'printed connector template']))) = 1)) = 1))) = 0; *)
+  WR4: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (sa)) AND
+       (sa\shape_aspect.description = 'printed component join terminal'))) >= 1))) = 0;
+  WR5: (NOT (SELF\product_definition.description = 'printed connector component')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'LAMINATE_COMPONENT_INTERFACE_TERMINAL' IN
+       TYPEOF (sa)) AND
+       (sa\shape_aspect.description = 
+       'printed connector component interface terminal'))) >= 1))) = 0);
+(* invalid csa       
+  WR6: (NOT (SELF\product_definition.description = 'printed connector component')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pt_occ <* QUERY (sa <* USEDIN (pd,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       sa\shape_aspect.description = 'part template occurrence') |
+       SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (pt_occ,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated template') |  
+       ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PART_TEMPLATE_DEFINITION' IN
+       TYPEOF (it.relating_shape_aspect)) AND
+       (it.relating_shape_aspect\shape_aspect.description = 
+       'printed connector template'))) = 1)) = 1))) = 0); *)
+(* invalid csa
+  WR7: SIZEOF(QUERY(pd <* USEDIN(SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |  
+        SIZEOF(QUERY(sa <* USEDIN(pd, 
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') | 
+        SIZEOF(QUERY(sar <* USEDIN(sa, 
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+        (('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+         'COMPONENT_SHAPE_ASPECT' IN TYPEOF(sar.relating_shape_aspect))
+        AND (sar\shape_aspect_relationship.name = 'stratum feature implementation')
+        AND (sar.relating_shape_aspect.description = 'stratum feature template component'))
+        )) >= 1
+        )) >= 1 
+        )) >= 1;*)
+END_ENTITY;	
+
+ENTITY printed_component_link
+  SUBTYPE OF (product_definition,product_definition_relationship);
+WHERE
+  WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
+  WR2: 'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.related_product_definition);
+  WR3: 'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'COMPONENT_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.relating_product_definition);
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\product_definition ||
+       SELF\product_definition_relationship ||
+       SELF\printed_component_link)) = 0;
+  WR5: EXISTS(SELF\product_definition.name);
+  WR6: SELF\product_definition.name = '';
+  WR7: SELF\product_definition_relationship.name = '';
+  WR8: SIZEOF(USEDIN(SELF, 
+             'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+             'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')) = 1;
+END_ENTITY; 
+
+ENTITY routed_printed_component
+ SUBTYPE OF (printed_component);
+(* invalid csa
+WHERE
+  WR1: SIZEOF(QUERY(pd <* USEDIN(SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       (SIZEOF(QUERY(sa <* USEDIN(pd, 
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       (SIZEOF(QUERY(sar <* USEDIN(sa,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+        ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+         'PART_TEMPLATE_DEFINITION' IN TYPEOF(sar.relating_shape_aspect))
+        AND (sar.relating_shape_aspect\shape_aspect.description = 
+            'printed part cross section template')
+        AND (sar\shape_aspect_relationship.name = 'instantiated template')
+          )) = 1)
+         )) = 1)
+        )) = 1; *)
+(* invalid csa
+  WR2: SIZEOF(QUERY(csa <* USEDIN(SELF,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+         'COMPONENT_SHAPE_ASPECT' IN TYPEOF(csa))      
+         AND (SIZEOF(QUERY(sar <* USEDIN(csa, 
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+        (SIZEOF(QUERY(pdr <* USEDIN(sar,
+       'LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_MIM.' +
+         'PRODUCT_DEFINITION_RELATIONSHIP' IN TYPEOF(pdr)) AND
+        (pdr\product_definition_relationship.name = 'inter stratum extent')      
+        )) = 1)
+        AND (sar\shape_aspect_relationship.name = 'component extent')
+        )) = 1)
+        )) = 1; *)
+END_ENTITY;
+	
+END_SCHEMA;
+
+

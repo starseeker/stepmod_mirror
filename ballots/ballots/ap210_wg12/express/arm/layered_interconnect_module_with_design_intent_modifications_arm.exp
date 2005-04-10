@@ -1,0 +1,87 @@
+(*
+   $Id: arm.exp,v 1.9 2005/02/04 17:47:32 budreckytej Exp $
+   ISO TC184/SC4/WG12 N3660 - ISO/CD-TS 10303-1699 Layered interconnect module with design intent modifications - EXPRESS ARM
+*)
+
+SCHEMA Layered_interconnect_module_with_design_intent_modifications_arm;
+
+	USE FROM Assembly_component_placement_requirements_arm;	-- ISO/TS 10303-1634
+	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
+
+REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
+
+
+	TYPE design_intent_modification_or_material_removal_component = SELECT 
+		(Design_intent_modification,
+		Material_removal_laminate_component);
+	END_TYPE;
+
+	TYPE limwdim_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+	    (Electrical_isolation_removal_structure,
+		thermal_isolation_removal_structure_or_template);
+	END_TYPE; 
+
+	TYPE limwdim_restriction_basis_item = EXTENSIBLE SELECT BASED_ON restriction_basis_item WITH 
+	   (stratum_concept,
+	   Stratum);
+	END_TYPE; 
+
+ 	TYPE sf_thermal_isolation_removal_structure_or_template = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON thermal_isolation_removal_structure_or_template WITH  
+		(Thermal_isolation_removal_structure);
+  END_TYPE;
+
+  ENTITY Design_intent_modification
+    SUPERTYPE OF (ONEOF (Material_removal_feature,
+ Material_addition_feature,
+ Material_shape_modification));
+      design_intent            : stratum_feature_or_stratum_feature_template_component;
+      modification_causal_item : restriction_basis_item;
+  END_ENTITY;
+
+  ENTITY Design_intent_modification_sequence;
+      precedent_modification  : design_intent_modification_or_material_removal_component;
+      subsequent_modification : design_intent_modification_or_material_removal_component;
+    UNIQUE
+      UR1 : precedent_modification,
+ subsequent_modification;
+  END_ENTITY;
+
+  ENTITY Electrical_isolation_removal_structure
+    SUBTYPE OF (Filled_area_material_removal_structure);
+	DERIVE
+  		electrical_isolation_spacing_requirement: SET[0:?] OF Requirement_view_definition :=
+		get_rvd(SELF, 'electrical isolation spacing requirement');
+	WHERE
+   		WR1 : EXISTS (electrical_isolation_spacing_requirement) AND SIZEOF(electrical_isolation_spacing_requirement) = 1;
+  END_ENTITY;
+
+  ENTITY Filled_area_material_removal_structure
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF (Material_removal_feature);
+      SELF\Design_intent_modification.design_intent : Conductive_filled_area;
+  END_ENTITY;
+
+  ENTITY Material_addition_feature
+    SUBTYPE OF (Design_intent_modification);
+      material_addition_shape : Material_addition_feature_template;
+  END_ENTITY;
+
+  ENTITY Material_removal_feature
+    SUPERTYPE OF (Filled_area_material_removal_structure)
+    SUBTYPE OF (Design_intent_modification);
+      material_removal_shape : Material_removal_feature_template;
+  END_ENTITY;
+
+  ENTITY Material_shape_modification
+    SUBTYPE OF (Design_intent_modification);
+  END_ENTITY;
+
+  ENTITY Thermal_isolation_removal_structure
+    SUBTYPE OF (Filled_area_material_removal_structure);
+(** I think this is inverse is lost after recent changes    
+    INVERSE
+      thermal_isolation_spacing_requirement : thermal_isolation_requirement FOR resulting_structure;
+*)      
+  END_ENTITY;
+
+END_SCHEMA;

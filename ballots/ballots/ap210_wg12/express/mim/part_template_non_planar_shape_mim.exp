@@ -1,0 +1,25 @@
+(*
+   $Id: mim.exp,v 1.8 2005/04/04 10:22:51 liutkus Exp $
+   ISO TC184/SC4/WG12 N3529 - ISO/CD-TS 10303-1719 Part template non planar shape - EXPRESS MIM
+*)
+
+
+SCHEMA Part_template_non_planar_shape_mim;
+	USE FROM Layered_3d_shape_mim;	-- ISO/TS 10303-1694
+	USE FROM Manifold_surface_mim;	-- ISO/TS 10303-1509
+
+RULE part_template_non_planar_2d_shape_constraint FOR 
+( manifold_surface_shape_representation );
+WHERE
+  WR1: SIZEOF(QUERY(mssr <* manifold_surface_shape_representation |
+       (mssr\representation.name = 'part template non planar 2d shape')
+       AND NOT(SIZEOF(QUERY(a2p3d <* mssr.items |
+       ('PART_TEMPLATE_NON_PLANAR_SHAPE_MIM.'
+       + 'AXIS2_PLACEMENT_3D' IN TYPEOF(a2p3d))
+       )) = 1)
+       )) = 0;
+END_RULE;
+	
+END_SCHEMA;
+
+

@@ -1,0 +1,227 @@
+(*
+   $Id: mim.exp,v 1.16 2005/04/04 09:13:41 liutkus Exp $
+   ISO TC184/SC4/WG12 N3313 - ISO/CD-TS 10303-1649 Assembly technology - EXPRESS MIM
+*)
+SCHEMA Assembly_technology_mim;
+	USE FROM Assembly_module_design_mim;	-- ISO/TS 10303-1636
+	USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
+	USE FROM Product_identification_extension_mim;	-- ISO/TS 10303-1738
+
+REFERENCE FROM Physical_unit_usage_view_mim 	-- ISO/TS 10303-1732
+  (is_assembly_module_design);
+
+REFERENCE FROM product_property_definition_schema -- ISO 10303-41
+  (acyclic_shape_aspect_relationship);
+
+TYPE at_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+     (assembly_joint);
+END_TYPE;
+
+TYPE at_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
+     (assembly_bond_definition);
+END_TYPE;
+
+ENTITY assembly_bond_definition
+  SUBTYPE OF (shape_aspect);
+UNIQUE
+  UR1: SELF\shape_aspect.name;
+WHERE
+  WR1: SIZEOF (USEDIN (SELF, 
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1;
+  WR2: SIZEOF (QUERY (aga <* USEDIN (SELF,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'APPLIED_GROUP_ASSIGNMENT.ITEMS') |
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'BOND_CATEGORY' IN
+       TYPEOF (aga.assigned_group))) = 1;
+  WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name  = 'bonded feature 1' ))  = 1;
+  WR4: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name  = 'bonded feature 2' ))  = 1;
+  WR5: (('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'EXTERNALLY_DEFINED_PRODUCT_DEFINITION' IN
+        TYPEOF (SELF.of_shape.definition))
+       AND
+       (SIZEOF (QUERY (prpc <* USEDIN (SELF.of_shape.definition.formation.of_product,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.' +
+       'PRODUCTS') |
+       prpc\product_category.name = 'technology specific model')) >= 1));
+  WR6: ('ASSEMBLY_TECHNOLOGY_MIM.' +
+        'EXTERNALLY_DEFINED_PRODUCT_DEFINITION' IN TYPEOF (SELF.of_shape.definition)) AND
+        (SELF.of_shape.definition\product_definition.name='assembly bond model');
+END_ENTITY;
+
+ENTITY assembly_joint
+  SUBTYPE OF (shape_aspect_relationship, shape_aspect);
+WHERE
+  WR1: (('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (SELF.relating_shape_aspect)) AND
+       (SELF.relating_shape_aspect\shape_aspect.description IN 
+       ['assembly module component terminal', 
+       'bare die component terminal',
+       'interconnect component join terminal', 
+       'interconnect module component terminal',  
+       'package terminal occurrence', 
+       'packaged component join terminal'])) OR
+       ('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE' IN
+       TYPEOF (SELF.relating_shape_aspect)) OR
+       ('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'PHYSICAL_COMPONENT_INTERFACE_TERMINAL' IN
+       TYPEOF (SELF.relating_shape_aspect)) OR
+       ('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'COMPONENT_MOUNTING_FEATURE' IN
+       TYPEOF (SELF.relating_shape_aspect));
+  WR2: (('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (SELF.related_shape_aspect)) AND
+       (SELF.related_shape_aspect\shape_aspect.description IN 
+       ['assembly module component terminal', 
+       'bare die component terminal', 
+       'interconnect component join terminal', 
+       'interconnect module component terminal',  
+       'package terminal occurrence', 
+       'packaged component join terminal'])) OR
+       ('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE' IN
+       TYPEOF (SELF.relating_shape_aspect)) OR
+       ('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'PHYSICAL_COMPONENT_INTERFACE_TERMINAL' IN
+       TYPEOF (SELF.related_shape_aspect)) OR
+       ('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'COMPONENT_MOUNTING_FEATURE' IN
+       TYPEOF (SELF.relating_shape_aspect));
+  WR3: (NOT (SELF\shape_aspect_relationship.name = 
+       'assembled with bonding')) OR
+       (SIZEOF (QUERY (ddu <* QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'default definition usage') |
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'ASSEMBLY_BOND_DEFINITION' IN
+       TYPEOF (ddu.relating_shape_aspect))) = 1);
+  WR4: (NOT (SELF\shape_aspect_relationship.name = 
+       'assembled with bonding')) OR
+       (SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       (pdr.used_representation\representation.name = 'bond assembly position') AND
+       (SIZEOF (QUERY (it <* pdr.used_representation.items |
+       ('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'MAPPED_ITEM' IN TYPEOF (it)) AND
+       (it\representation_item.name = 'assembly position'))) = 1))) = 1)) <= 1);
+  WR5: (NOT (SELF\shape_aspect_relationship.name = 
+       'assembled with fasteners')) OR
+       ('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN
+       TYPEOF (SELF.of_shape.definition));
+  WR6: ('ASSEMBLY_TECHNOLOGY_MIM.' +
+       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN
+       TYPEOF (SELF.of_shape.definition)) OR
+       is_assembly_module_design(SELF.of_shape.definition); 
+  WR7: (NOT (SELF\shape_aspect_relationship.name =
+       'assembled with bonding')) OR
+       (SIZEOF (QUERY (ddu <* QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'default definition usage') |
+       ('ASSEMBLY_TECHNOLOGY_MIM.' +
+        'ASSEMBLY_BOND_DEFINITION' IN
+       TYPEOF (ddu.relating_shape_aspect)) AND
+       (SIZEOF (QUERY (sar <* USEDIN (ddu.relating_shape_aspect,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name  = 'bonded feature 1' ))  = 1)
+       AND (SIZEOF (QUERY (sar <* USEDIN (ddu.relating_shape_aspect,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name  = 'bonded feature 1' ))  = 1)
+       )) = 1);
+  WR8: acyclic_shape_aspect_relationship(SELF,
+       [SELF\shape_aspect_relationship.related_shape_aspect],
+       'ASSEMBLY_TECHNOLOGY_MIM.'+
+       'ASSEMBLY_JOINT');
+END_ENTITY;
+
+ENTITY component_mating_constraint_condition
+  SUBTYPE OF (shape_aspect);
+UNIQUE
+  UR1: SELF\shape_aspect.name, SELF\shape_aspect.of_shape;
+END_ENTITY;
+
+RULE default_assembly_bond_shape_constraint FOR ( shape_representation );
+WHERE
+  WR1: SIZEOF(QUERY(sr <* shape_representation |
+       (sr\representation.name = 'default assembly bond shape')
+       AND NOT(SIZEOF(QUERY(pdr <* USEDIN(sr,
+       'ASSEMBLY_TECHNOLOGY_MIM.'
+       + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
+       ('ASSEMBLY_TECHNOLOGY_MIM.'
+       + 'SHAPE_ASPECT'
+       IN TYPEOF(pdr.definition.definition)))) = 1))) = 0;
+END_RULE;
+
+ENTITY connection_zone_based_assembly_joint
+  SUBTYPE OF (assembly_joint);
+WHERE
+  WR1: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'zone 1')) = 1;
+  WR2: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'zone 2')) = 1;
+  WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar.relating_shape_aspect\shape_aspect.description = 'connection zone')) = 2;
+
+END_ENTITY;
+
+ENTITY reference_packaged_part_assembly_implementation
+ SUBTYPE OF (physical_unit);
+WHERE
+  WR1: (SIZEOF (QUERY (prpc <* 
+       USEDIN (SELF.formation.of_product,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |
+       prpc\product_category.name = 'template model')) >= 1) AND
+       (SELF\product_definition.name = 'assembly module');
+  WR2: (NOT (SELF.frame_of_reference.name = 'physical design')) OR
+       (SIZEOF (QUERY (du <* QUERY (pdr <* USEDIN (SELF,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.' +
+       'RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'design usage') |
+       (SIZEOF (['ASSEMBLY_TECHNOLOGY_MIM.' +
+       'ASSEMBLY_DEFINITION', 
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'EXTERNALLY_DEFINED_ASSEMBLY_DEFINITION', 
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'LIBRARY_DEFINED_ASSEMBLY_DEFINITION'] *
+       TYPEOF (du.relating_product_definition)) = 1) AND
+       (du.relating_product_definition.frame_of_reference.name = 
+       'physical design usage') AND
+       (du.relating_product_definition\product_definition.name =
+       'assembly module') AND
+       (SIZEOF (QUERY (prpc <*
+       USEDIN (du.relating_product_definition.formation.of_product,
+       'ASSEMBLY_TECHNOLOGY_MIM.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |
+       prpc\product_category.name = 'template model')) >= 1)
+       )) = 1);
+END_ENTITY;
+
+END_SCHEMA;
+

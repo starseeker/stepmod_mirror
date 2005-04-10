@@ -1,0 +1,75 @@
+(*
+   $Id: mim.exp,v 1.7 2005/04/04 10:36:04 liutkus Exp $
+   ISO TC184/SC4/WG12 N3622 - ISO/CD-TS 10303-1750 Styled text - EXPRESS MIM
+*)
+
+
+SCHEMA Styled_text_mim;
+	USE FROM Elemental_geometric_shape_mim;	-- ISO/TS 10303-1004
+	USE FROM Specification_document_mim;	-- ISO/TS 10303-1747
+	
+	USE FROM External_reference_schema(externally_defined_item);
+	USE FROM Presentation_definition_schema(text_literal);
+	USE FROM Presentation_resource_schema(
+		externally_defined_text_font,
+		font_select);	
+
+RULE registered_font_constraint FOR ( externally_defined_text_font );
+WHERE
+  WR1: SIZEOF(QUERY(edtf <* externally_defined_text_font |
+       (SIZEOF(QUERY(adr <* USEDIN(edtf,
+       'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.'
+       + 'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
+       (adr.assigned_document.kind\document_type.product_data_type =
+                     'font registration document')
+       )) = 0))) = 0;
+END_RULE; -- registered_font_constraint
+
+RULE registered_font_unique_constraint FOR
+ ( externally_defined_text_font );
+LOCAL
+  ii_bag : BAG OF STRING := [];
+  edtf_bag : BAG OF externally_defined_text_font;
+  adr_bag : BAG OF applied_document_reference;
+  pass : BOOLEAN := TRUE;
+  es_bag : BAG OF ee_specification;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(externally_defined_text_font) by 1;
+  IF EXISTS( externally_defined_text_font[i].item_id ) THEN
+    IF ( NOT ( externally_defined_text_font[i].item_id IN ii_bag ) ) THEN
+      ii_bag := ii_bag + externally_defined_text_font[i].item_id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(ii_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  edtf_bag := QUERY( edtf <* externally_defined_text_font |
+            (edtf.item_id = ii_bag[i]) );
+  REPEAT j := 1 to SIZEOF(edtf_bag) by 1;
+    adr_bag := QUERY( adr <* USEDIN( edtf_bag[j],
+'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) |
+         (adr.assigned_document.kind\document_type.product_data_type =
+'font registration document') );
+    es_bag := [];
+    REPEAT k := 1 to SIZEOF(adr_bag) by 1;
+      IF EXISTS( adr_bag[k].assigned_document ) THEN
+        IF ( adr_bag[k].assigned_document IN es_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          es_bag := es_bag + adr_bag[k].assigned_document;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; -- registered_font_unique_constraint
+	
+END_SCHEMA;
+

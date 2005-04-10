@@ -1,0 +1,69 @@
+(*
+   $Id: arm.exp,v 1.14 2005/02/04 17:55:14 budreckytej Exp $
+   ISO TC184/SC4/WG12 N3648 - ISO/CD-TS 10303-1715 Part occurrence - EXPRESS ARM
+*)
+
+SCHEMA Part_occurrence_arm;
+
+	USE FROM Assembly_structure_arm;	-- ISO/TS 10303-1026
+	USE FROM Extended_measure_representation_arm;	-- ISO/TS 10303-1106
+	USE FROM Measure_representation_arm;	-- ISO/TS 10303-1118
+	USE FROM Part_view_definition_arm;	-- ISO/TS 10303-1023
+	USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
+	USE FROM Value_with_unit_arm;	-- ISO/TS 10303-1054
+
+TYPE extended_value_with_unit = SELECT (
+     Value_with_unit, 
+     Value_limit, 
+     Value_range);
+END_TYPE;
+
+TYPE part_occurrence_select = EXTENSIBLE SELECT(Definition_based_part_occurrence);
+END_TYPE;
+
+ENTITY Definition_based_part_occurrence
+SUBTYPE OF (Definition_based_product_occurrence);
+  SELF\Definition_based_product_occurrence.derived_from: Part_view_definition;
+END_ENTITY;
+
+	ENTITY Definition_based_product_occurrence
+		ABSTRACT SUPERTYPE OF (Definition_based_part_occurrence)
+		SUBTYPE OF (Product_occurrence);
+  		derived_from: Product_view_definition;
+  	WHERE
+			WR1: SELF\Product_view_definition.defined_version = derived_from.defined_version;
+	END_ENTITY;
+
+ENTITY Part_occurrence_definition_relationship
+SUBTYPE OF (View_definition_relationship);
+  SELF\View_definition_relationship.relating_view : Part_view_definition ;
+  SELF\View_definition_relationship.related_view : part_occurrence_select ;
+DERIVE
+  SELF\View_definition_relationship.id : STRING := SELF\View_definition_relationship.related_view\Product_view_definition.id;
+WHERE
+WR1: NOT (('ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(SELF))AND (EXISTS(SELF\Assembly_component_relationship.quantity)));
+END_ENTITY;
+
+ENTITY Product_occurrence
+ABSTRACT SUPERTYPE OF (ONEOF (Single_instance, Quantified_instance))
+SUBTYPE OF (Product_view_definition);
+  occurrence_quantity : OPTIONAL extended_value_with_unit;
+  quantity_criterion : OPTIONAL STRING;
+INVERSE
+  occurrence_contexts: SET[1:?] OF View_definition_relationship FOR related_view;
+END_ENTITY;
+
+ENTITY Quantified_instance
+SUBTYPE OF (Product_occurrence);
+  SELF\Product_occurrence.occurrence_quantity : Value_with_unit ;
+WHERE
+WR1: NOT (EXISTS(SELF\Product_occurrence.quantity_criterion));
+END_ENTITY;
+
+ENTITY Single_instance
+SUBTYPE OF (Product_occurrence);
+WHERE
+WR1: NOT (EXISTS(SELF\Product_occurrence.occurrence_quantity) OR EXISTS(SELF\Product_occurrence.quantity_criterion));
+END_ENTITY;
+
+END_SCHEMA; 

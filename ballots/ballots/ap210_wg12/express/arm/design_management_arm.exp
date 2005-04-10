@@ -1,0 +1,86 @@
+(*
+   $Id: arm.exp,v 1.11 2005/04/04 09:40:21 liutkus Exp $
+   ISO TC184/SC4/WG12 N3387 - ISO/CD-TS 10303-1661 Design management - EXPRESS ARM
+*)
+
+SCHEMA Design_management_arm;
+
+	USE FROM Approval_arm;	-- ISO/TS 10303-1012
+	USE FROM Product_view_definition_arm;	-- ISO/TS 10303-1019
+	USE FROM Work_order_arm;	-- ISO/TS 10303-1043
+
+	TYPE design_object_management_relationship_item = SELECT (
+                Work_request,
+                Work_order);
+  	END_TYPE;
+
+    TYPE dm_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH
+   		(Frozen_assignment);
+    END_TYPE;
+
+    TYPE managed_design_object = EXTENSIBLE SELECT;
+    END_TYPE;
+
+  	ENTITY Add_design_object_management_relationship
+      SUBTYPE OF (Design_object_management_relationship);
+    	current_design_object : managed_design_object;
+      DERIVE
+    	SELF\Activity.name : STRING := 'add';
+      UNIQUE
+        UR1 : current_design_object;
+      WHERE
+        WR1 : EXISTS(SELF\Activity.name);
+	END_ENTITY;
+
+  	ENTITY Change_design_object_management_relationship
+      SUBTYPE OF (Design_object_management_relationship);
+    	current_design_object  : managed_design_object;
+      	previous_design_object : OPTIONAL managed_design_object;
+      	attribute_name : OPTIONAL STRING;
+      DERIVE
+    	SELF\Activity.name : STRING := 'change';
+      WHERE
+      	WR1: TYPEOF(current_design_object) = TYPEOF(previous_design_object);
+       	WR2: current_design_object <> previous_design_object;
+        WR3 : EXISTS(SELF\Activity.name);
+  	END_ENTITY;
+
+  	ENTITY Delete_design_object_management_relationship
+      SUBTYPE OF (Design_object_management_relationship);
+      	previous_design_object : managed_design_object;
+      DERIVE
+    	SELF\Activity.name : STRING := 'delete';
+      UNIQUE
+      	UR1 : previous_design_object;
+      WHERE
+        WR1 : EXISTS(SELF\Activity.name);
+  	END_ENTITY;
+
+  	ENTITY Design_object_management_relationship
+   	  ABSTRACT SUPERTYPE OF (ONEOF
+		(Change_design_object_management_relationship,
+       	Delete_design_object_management_relationship,
+		Add_design_object_management_relationship)ANDOR
+		(View_dependent_design_object_management_relationship))
+      SUBTYPE OF (Activity);
+  	END_ENTITY;
+
+
+  	ENTITY Frozen_assignment;
+    	frozen_item       : SET[1:?] OF managed_design_object;
+		(** Need a global rule to capture cardinality
+	      assigned_approval : Approval;
+		*)
+  	END_ENTITY;
+
+  	ENTITY View_dependent_design_object_management_relationship
+      SUBTYPE OF (Design_object_management_relationship);
+      	previous_design : Product_view_definition;
+      	current_design  : Product_view_definition;
+      DERIVE
+    	SELF\Activity.name : STRING := 'design dependent';
+      WHERE
+        WR1 : EXISTS(SELF\Activity.name);
+  	END_ENTITY;
+
+END_SCHEMA;

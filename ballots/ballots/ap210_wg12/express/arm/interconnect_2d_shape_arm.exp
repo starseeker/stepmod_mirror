@@ -1,0 +1,51 @@
+(*
+   $Id: arm.exp,v 1.11 2005/03/30 12:49:34 liutkus Exp $
+   ISO TC184/SC4/WG12 N3435 - ISO/CD-TS 10303-1682 Interconnect 2d shape - EXPRESS ARM
+*)
+
+SCHEMA Interconnect_2d_shape_arm;
+
+	USE FROM Fabrication_joint_arm;	-- ISO/TS 10303-1668
+	USE FROM Layered_interconnect_module_with_design_intent_modifications_arm;	-- ISO/TS 10303-1699
+	USE FROM Physical_unit_2d_design_view_arm;	-- ISO/TS 10303-1724
+
+  TYPE design_intent_modification_planar_shape_select = SELECT
+    (Design_intent_modification_styled_area_representation,
+     Design_intent_modification_planar_shape);
+  END_TYPE;
+
+  ENTITY Component_2d_embedded_location
+    SUBTYPE OF (Component_2d_location);
+      precedent_surface  : Adjacent_stratum_surface_embedded_component_surface_definition;
+      subsequent_surface : Adjacent_stratum_surface_embedded_component_surface_definition;
+      reference_terminal : Fabrication_joint;
+    UNIQUE
+      UR1 : precedent_surface,
+ reference_terminal,
+ subsequent_surface;
+    WHERE
+      WR1 : precedent_surface <> subsequent_surface;
+      WR2 : SELF\Component_2d_location.substrate_location = FALSE;
+  END_ENTITY;
+
+  ENTITY Design_intent_modification_planar_position;
+      design_shape   : Physical_unit_planar_shape;
+      transformation : Axis_placement_2d;
+      feature_shape  : design_intent_modification_planar_shape_select;
+  END_ENTITY;
+
+  ENTITY Design_intent_modification_planar_shape
+    SUBTYPE OF (Planar_projected_shape);
+      represented_design_intent_modification : Design_intent_modification;
+		WHERE
+			WR1 : (SIZEOF(USEDIN(SELF,
+ 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
+  END_ENTITY;
+
+  ENTITY Design_intent_modification_styled_area_representation;
+      derived_planar_shape                   : OPTIONAL SET[1:?] OF Design_intent_modification_planar_shape;
+      represented_design_intent_modification : Design_intent_modification;
+      shape_styled_area_representation       : Fill_area;
+  END_ENTITY;
+
+END_SCHEMA;

@@ -1,0 +1,25 @@
+(*
+   $Id: arm.exp,v 1.9 2005/04/04 10:09:08 liutkus Exp $
+   ISO TC184/SC4/WG12 N3450 - ISO/CD-TS 10303-1687 Interconnect module with macros - EXPRESS ARM
+*)
+
+SCHEMA Interconnect_module_with_macros_arm;
+
+	USE FROM Assembly_module_with_interconnect_component_arm;	-- ISO/TS 10303-1643
+	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
+
+  ENTITY Interconnect_module_macro_component
+    SUBTYPE OF (Interconnect_module_component);
+      design_definition : Interconnect_module;
+    INVERSE
+      join_access_mechanisms : SET[1:?] OF interconnect_module_macro_component_join_terminal FOR associated_component;
+    WHERE
+      WR1 : SIZEOF(QUERY(immcjt <* join_access_mechanisms | immcjt\Component_feature.definition\Shape_element.containing_shape :<>: design_definition\Part_design_view.usage_view)) = 0;
+  END_ENTITY;
+
+  ENTITY Interconnect_module_macro_component_join_terminal
+    SUBTYPE OF (Interconnect_module_component_terminal);
+      SELF\Component_feature.definition           : Interconnect_module_join_terminal;
+      SELF\Component_feature.associated_component : Interconnect_module_macro_component;
+  END_ENTITY;
+END_SCHEMA;

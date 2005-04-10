@@ -1,0 +1,93 @@
+(*
+   $Id: arm.exp,v 1.18 2005/04/07 17:51:21 liutkus Exp $
+   ISO TC184/SC4/WG12 N3558 - ISO/CD-TS 10303-1726 Physical unit 2d shape - EXPRESS ARM
+*)
+
+SCHEMA Physical_unit_2d_shape_arm;
+
+	USE FROM Non_feature_shape_element_arm;	-- ISO/TS 10303-1706
+	USE FROM Physical_unit_shape_with_parameters_arm;	-- ISO/TS 10303-1730
+	USE FROM Layered_2d_shape_arm; -- ISO/TS 10303-1693
+
+REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
+
+
+	SUBTYPE_CONSTRAINT planar_shape_subtypes FOR Planar_shape;  
+		(ONEOF (Planar_projected_shape,
+		Physical_unit_planar_keepout_shape));
+	END_SUBTYPE_CONSTRAINT; 
+
+ 	TYPE pu2ds_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Physical_unit_planar_shape);
+	END_TYPE;
+
+	TYPE pu2ds_physical_unit_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_shape_select WITH 
+	    (Physical_unit_planar_shape);
+  	END_TYPE; 
+
+	TYPE pu2ds_part_template_or_physical_unit_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_shape_select WITH 
+ 		(part_template_or_physical_unit_2d_shape_select);
+	END_TYPE;
+
+	TYPE pu2ds_view_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON view_shape_select WITH 
+	    (Physical_unit_shape);
+	END_TYPE; 
+
+  	TYPE pu2ds_part_template_or_physical_unit_2d_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_2d_shape_select WITH 
+    	(Physical_unit_planar_shape);
+  	END_TYPE;
+
+
+  TYPE predefined_planar_purpose = ENUMERATION OF
+    (analysis_input,
+     analysis_output,
+     shock_analysis_input,
+     shock_analysis_output,
+     assembly_symbol,
+     design,
+     design_profile,
+     vibration_analysis_input,
+     vibration_analysis_output,
+     electromagnetic_compatibility_analysis_input,
+     electromagnetic_compatibility_analysis_output,
+     physical_extent,
+     thermal_analysis_input,
+     thermal_analysis_output);
+  END_TYPE;
+
+  TYPE shape_location = ENUMERATION OF
+    (above,
+     below,
+     congruent);
+  END_TYPE;
+
+  ENTITY Physical_unit_planar_keepout_shape
+    SUBTYPE OF (Planar_shape,
+ 			View_level_non_feature_shape_definition,
+ 			Physical_unit_keepout_shape);
+      shape_distance_from_seating_plane            : OPTIONAL Length_data_element;
+      shape_location_with_respect_to_seating_plane : shape_location;
+	DERIVE
+  		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
+		get_rvd(SELF, 'application technology constraint');
+    WHERE
+      WR1 : NOT ((congruent = shape_location_with_respect_to_seating_plane) AND (EXISTS(shape_distance_from_seating_plane)));
+   	  WR2 : NOT EXISTS (application_technology_constraint) OR SIZEOF(application_technology_constraint) = 1;
+  END_ENTITY;
+
+  ENTITY Physical_unit_planar_shape
+    SUBTYPE OF (Planar_projected_shape, Physical_unit_shape);
+      shape_distance_from_seating_plane            : OPTIONAL Length_data_element;
+      shape_location_with_respect_to_seating_plane : shape_location;
+      shape_purpose                                : OPTIONAL predefined_planar_purpose;
+	DERIVE
+  		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
+		get_rvd(SELF, 'application technology constraint');
+    INVERSE
+	  external_shape_purpose : SET [0:1] OF External_source_identification FOR item;      
+	WHERE
+	  WR1: (EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1);
+   	  WR2 : NOT EXISTS (application_technology_constraint) OR SIZEOF(application_technology_constraint) = 1;	  
+  END_ENTITY;
+
+END_SCHEMA;

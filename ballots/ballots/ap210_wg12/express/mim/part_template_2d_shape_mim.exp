@@ -1,0 +1,110 @@
+(*
+   $Id: mim.exp,v 1.11 2005/04/04 10:10:22 liutkus Exp $
+   ISO TC184/SC4/WG12 N3520 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS MIM
+*)
+
+
+SCHEMA Part_template_2d_shape_mim;
+	USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
+	USE FROM Package_mim;	-- ISO/TS 10303-1707
+	USE FROM Part_template_extension_mim;	-- ISO/TS 10303-1718
+	USE FROM Printed_physical_layout_template_mim;	-- ISO/TS 10303-1737
+	USE FROM Requirement_decomposition_mim;	-- ISO/TS 10303-1740
+	
+ENTITY design_layer_type_specific_padstack_definition 
+ SUBTYPE OF (padstack_definition);
+END_ENTITY; 
+
+ENTITY footprint_definition
+ SUBTYPE OF (part_template_definition);
+WHERE
+  WR1: (NOT ('PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
+       TYPEOF (SELF))) OR
+       (SIZEOF (QUERY (docs <* 
+       SELF\product_definition_with_associated_documents.
+        documentation_ids |
+       docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
+  WR2: SIZEOF (QUERY (adta <* USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' + 
+       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
+       adta.role\date_time_role.name = 'creation date')) + 
+       SIZEOF (QUERY (ada <* USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' + 
+       'APPLIED_DATE_ASSIGNMENT.ITEMS') |
+       ada.role\date_role.name = 'creation date')) = 1;
+  WR3: SIZEOF (USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1;
+  WR4: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\person_and_organization_role.name = 'creator')) +
+       SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\organization_role.name = 'creator')) >= 1;
+  WR5: SIZEOF (USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
+  WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||
+       SELF\footprint_definition))) = 0;
+  WR7: SELF.frame_of_reference.name IN ['layout design usage' ];
+  WR8: SIZEOF (QUERY (prpc <* USEDIN (SELF.formation.of_product,
+       'PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.' +
+       'PRODUCTS') |
+       prpc\product_category.name = 'template model')) = 1;
+END_ENTITY;
+
+ENTITY padstack_definition
+ SUPERTYPE OF (ONEOF( design_layer_type_specific_padstack_definition,
+               stratum_type_independent_padstack_definition))
+ SUBTYPE OF (part_template_definition);
+WHERE
+  WR1: (NOT ('PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
+       TYPEOF (SELF))) OR
+       (SIZEOF (QUERY (docs <* 
+       SELF\product_definition_with_associated_documents.
+        documentation_ids |
+       docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
+  WR2: SIZEOF (QUERY (adta <* USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' + 
+       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
+       adta.role\date_time_role.name = 'creation date')) + 
+       SIZEOF (QUERY (ada <* USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' + 
+       'APPLIED_DATE_ASSIGNMENT.ITEMS') |
+       ada.role\date_role.name = 'creation date')) = 1;
+  WR3: SIZEOF (USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1;
+  WR4: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\person_and_organization_role.name = 'creator')) +
+       SIZEOF (QUERY (apoa <* USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
+       apoa.role\organization_role.name = 'creator')) >= 1;
+  WR5: SIZEOF (USEDIN (SELF, 
+       'PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
+  WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||
+       SELF\padstack_definition))) = 0;
+  WR7: SELF.frame_of_reference.name IN ['layout design usage' ];
+  WR9: SIZEOF (QUERY (prpc <* USEDIN (SELF.formation.of_product,
+       'PART_TEMPLATE_2D_SHAPE_MIM.' +
+       'PRODUCT_RELATED_PRODUCT_CATEGORY.' +
+       'PRODUCTS') |
+       prpc\product_category.name = 'template model')) = 1;
+END_ENTITY;
+
+ENTITY stratum_type_independent_padstack_definition 
+ SUBTYPE OF (padstack_definition);
+END_ENTITY; 
+	
+END_SCHEMA;
+
+

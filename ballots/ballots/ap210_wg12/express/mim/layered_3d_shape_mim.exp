@@ -1,0 +1,47 @@
+(*
+   $Id: mim.exp,v 1.14 2005/04/04 10:08:52 liutkus Exp $
+   ISO TC184/SC4/WG12 N3472 - ISO/CD-TS 10303-1694 Layered 3d shape - EXPRESS MIM
+*)
+
+
+SCHEMA Layered_3d_shape_mim;
+	USE FROM Advanced_boundary_representation_mim;	-- ISO/TS 10303-1514
+	USE FROM Curve_swept_solid_mim;	-- ISO/TS 10303-1659
+	USE FROM Geometrically_bounded_surface_mim;	-- ISO/TS 10303-1507
+	USE FROM Part_template_3d_shape_mim;	-- ISO/TS 10303-1717
+--	USE FROM Part_template_non_planar_shape_mim;	-- ISO/TS 10303-1719
+    USE FROM Layered_2d_shape_mim; -- -- ISO/TS 10303-1693
+	USE FROM Physical_unit_3d_shape_mim;	-- ISO/TS 10303-1727
+	
+	USE FROM Representation_schema(representation_relationship_with_transformation);
+
+ENTITY shape_definition_3d_intersection
+  SUBTYPE OF (representation, 
+              shape_representation_relationship, 
+              representation_relationship_with_transformation);
+UNIQUE
+  UR1: SELF\representation_relationship.rep_1, SELF\representation_relationship.rep_2;
+WHERE
+  WR1: SELF\representation_relationship.rep_1 :<>: SELF\representation_relationship.rep_2;
+  WR2: (SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation ||
+       SELF\representation_relationship || 
+       SELF\shape_representation_relationship || 
+       SELF\representation_relationship_with_transformation || 
+       SELF\shape_definition_3d_intersection))) = 0)  OR
+       ('LAYERED_3D_SHAPE_MIM.' +
+       'EDGE_SEGMENT_CROSS_SECTION' IN TYPEOF (SELF)) OR
+       ('LAYERED_3D_SHAPE_MIM.' +
+       'PRE_DEFINED_PARALLEL_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP' IN TYPEOF (SELF)) OR
+       ('LAYERED_3D_SHAPE_MIM.' +
+       'PRE_DEFINED_PERPENDICULAR_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP' IN TYPEOF (SELF)) OR
+       ('LAYERED_3D_SHAPE_MIM.' +
+       'PRE_DEFINED_PERPENDICULAR_DATUM_PLANE_SYMBOL_3D_2D_RELATIONSHIP' IN TYPEOF (SELF));
+  WR3: 'LAYERED_3D_SHAPE_MIM.' +
+       'ITEM_DEFINED_TRANSFORMATION' IN TYPEOF 
+       (SELF\representation_relationship_with_transformation.transformation_operator);
+
+END_ENTITY; 
+	
+END_SCHEMA;
+
+

@@ -1,0 +1,70 @@
+(*
+   $Id: arm.exp,v 1.15 2005/04/04 10:35:35 liutkus Exp $
+   ISO TC184/SC4/WG12 N3603 - ISO/CD-TS 10303-1744 Shield - EXPRESS ARM
+*)
+
+SCHEMA Shield_arm; 
+
+	USE FROM Assembly_component_placement_requirements_arm;	-- ISO/TS 10303-1634
+	USE FROM Layered_interconnect_module_with_printed_component_design_arm;	-- ISO/TS 10303-1700
+
+
+ TYPE physical_shieldable_item = SELECT 
+    (shieldable_item, 
+    Placement_group); 
+ END_TYPE; 
+
+ TYPE shieldable_item = SELECT 
+    (Assembly_component, 
+    Component_feature, 
+    Physical_connectivity_definition); 
+ END_TYPE; 
+
+ TYPE laminate_shieldable_item = SELECT 
+    (Component_external_reference, 
+    Component_feature, 
+    Component_feature_external_reference,
+   	Component_group_external_reference, 
+   	Generic_physical_network,
+  	Physical_connectivity_definition, 
+  	Physical_connectivity_definition_external_reference, 
+  	Stratum_feature_template_component); 
+ END_TYPE; 
+ 
+ TYPE shield = SELECT
+ 	(Routed_shield,
+	Integral_shield,
+	Physical_shield);
+  END_TYPE; 
+  
+ ENTITY Component_group_external_reference; 
+	name					: STRING;
+	associated_definition	: STRING;
+	UNIQUE
+		UR1: name, associated_definition; 
+ END_ENTITY; 
+
+  ENTITY Integral_shield 
+    SUBTYPE OF (Laminate_component); 
+      shielded_item : SET[1:?] OF laminate_shieldable_item; 
+  END_ENTITY; 
+ 
+ ENTITY Physical_connectivity_definition_external_reference; 
+	  name					: STRING;
+	  associated_definition	: STRING;
+	UNIQUE
+	  UR1: name, associated_definition;
+ END_ENTITY; 
+
+  ENTITY Physical_shield 
+    SUBTYPE OF (Physical_component); 
+      shielded_item : SET[1:?] OF physical_shieldable_item; 
+  END_ENTITY; 
+ 
+  ENTITY Routed_shield 
+    SUBTYPE OF (Routed_printed_component); 
+      shielded_item : SET[1:?] OF laminate_shieldable_item; 
+  END_ENTITY; 
+  
+END_SCHEMA; 
+

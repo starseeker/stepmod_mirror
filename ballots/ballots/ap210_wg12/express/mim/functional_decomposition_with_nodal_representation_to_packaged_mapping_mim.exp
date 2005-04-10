@@ -1,0 +1,37 @@
+(*
+   $Id: mim.exp,v 1.8 2005/04/04 10:08:50 liutkus Exp $
+   ISO TC184/SC4/WG12 N3430 - ISO/CD-TS 10303-1678 Functional decomposition with nodal representation to packaged mapping - EXPRESS MIM
+*)
+
+
+SCHEMA Functional_decomposition_with_nodal_representation_to_packaged_mapping_mim;
+	USE FROM Physical_connectivity_definition_mim;	-- ISO/TS 10303-1755
+
+RULE aggregate_connectivity_requirement_unique_constraint FOR
+ ( product_definition_relationship );
+LOCAL
+  acr : BAG OF product_definition_relationship := 
+                     QUERY( pdr <* product_definition_relationship |
+                     (pdr\product_definition_relationship.name = 'aggregate connectivity requirement') );
+  pass : BOOLEAN := TRUE;
+  pd_bag : BAG OF product_definition := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(acr) by 1;
+  IF EXISTS( acr[i].related_product_definition ) THEN
+    IF ( acr[i].id = 'design composition path' ) THEN
+      IF ( acr[i].related_product_definition IN pd_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        pd_bag := pd_bag + acr[i].related_product_definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+END_SCHEMA;
+

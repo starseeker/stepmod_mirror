@@ -1,0 +1,30 @@
+(*
+   $Id: arm.exp,v 1.12 2005/04/04 10:26:10 liutkus Exp $
+   ISO TC184/SC4/WG12 N3561 - ISO/CD-TS 10303-1725 Physical unit 3d design view - EXPRESS ARM
+*)
+
+SCHEMA Physical_unit_3d_design_view_arm;
+  
+	USE FROM Layered_3d_shape_arm;	-- ISO/TS 10303-1694
+  
+  ENTITY Assembly_component_3d_shape
+    SUBTYPE OF (Feature_shape_definition);
+      shape_characterized_component : SET[1:?] OF Assembly_component;
+  END_ENTITY;
+
+  ENTITY Component_3d_location
+    SUBTYPE OF (Product_definition_usage_based_contextual_shape_representation_relationship, Geometric_model_relationship, Definitional_representation_relationship);
+      transformation  : Cartesian_transformation_3d;
+      placement_fixed : BOOLEAN;
+      SELF\Geometric_model_relationship.rep_1 RENAMED component_model : Assembly_component_3d_shape;
+      SELF\Geometric_model_relationship.rep_2 RENAMED assembly_model : Physical_unit_3d_shape;
+      component : Next_assembly_usage;
+  END_ENTITY;
+
+  ENTITY Component_part_3d_geometric_representation_relationship
+    SUBTYPE OF (Geometric_model_relationship);
+		SELF\Geometric_model_relationship.rep_1 RENAMED part_shape      : part_template_or_physical_unit_3d_shape_select;
+	    SELF\Geometric_model_relationship.rep_2 RENAMED component_shape : Assembly_component_3d_shape;
+  END_ENTITY;
+
+END_SCHEMA;

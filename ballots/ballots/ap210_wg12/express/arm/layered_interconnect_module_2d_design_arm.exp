@@ -1,0 +1,54 @@
+(*
+   $Id: arm.exp,v 1.10 2005/03/30 12:52:11 liutkus Exp $
+   ISO TC184/SC4/WG12 N3477 - ISO/CD-TS 10303-1695 Layered interconnect module 2d design - EXPRESS ARM
+*)
+SCHEMA Layered_interconnect_module_2d_design_arm;
+
+	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
+	USE FROM Physical_unit_2d_shape_arm;	-- ISO/TS 10303-1726
+
+  TYPE stratum_feature_planar_representation_select = SELECT
+    (Stratum_feature_styled_area_representation,
+     Stratum_feature_planar_shape);
+  END_TYPE;
+
+  ENTITY Stratum_feature_in_stratum_planar_position;
+      stratum_shape  : Stratum_planar_shape;
+      transformation : Axis_placement_2d;
+      feature_shape  : stratum_feature_planar_representation_select;
+  END_ENTITY;
+
+  ENTITY Stratum_feature_planar_shape
+    SUBTYPE OF (Planar_projected_shape);
+      represented_stratum_feature : Stratum_feature;
+		WHERE
+			WR1 : (SIZEOF(USEDIN(SELF,
+ 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
+  END_ENTITY;
+
+  ENTITY Stratum_feature_styled_area_representation;
+      derived_planar_shape             : OPTIONAL SET[1:?] OF Stratum_feature_planar_shape;
+      shape_styled_area_representation : Fill_area;
+      represented_stratum_feature      : Stratum_feature;
+  END_ENTITY;
+
+  ENTITY Stratum_interconnect_module_planar_position;
+      stratum_component         : Interconnect_module_stratum_assembly_relationship;
+      stratum_shape             : Stratum_planar_shape;
+      interconnect_module_shape : Physical_unit_planar_shape;
+      transformation            : Axis_placement_2d;
+   UNIQUE
+   	UR1 : stratum_component;
+  END_ENTITY;
+
+  ENTITY Stratum_planar_shape
+    SUBTYPE OF (Planar_projected_shape);
+      shape_characterized_stratum : Stratum;
+    UNIQUE
+    	UR1 : shape_characterized_stratum;
+		WHERE
+			WR1 : (SIZEOF(USEDIN(SELF,
+ 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
+  END_ENTITY;
+
+END_SCHEMA;

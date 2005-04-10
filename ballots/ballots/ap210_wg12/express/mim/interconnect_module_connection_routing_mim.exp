@@ -1,0 +1,242 @@
+(*
+   $Id: mim.exp,v 1.12 2005/04/04 10:08:49 liutkus Exp $
+   ISO TC184/SC4/WG12 N3442 - ISO/CD-TS 10303-1684 Interconnect module connection routing - EXPRESS MIM
+*)
+
+
+SCHEMA Interconnect_module_connection_routing_mim;
+	USE FROM Fabrication_joint_mim;	-- ISO/TS 10303-1668
+	USE FROM Interconnect_module_with_macros_mim;	-- ISO/TS 10303-1687
+	USE FROM Layered_interconnect_module_with_design_intent_modifications_mim;	-- ISO/TS 10303-1699
+	
+ENTITY direct_stratum_component_join_implementation
+  SUBTYPE OF (shape_aspect_relationship);
+WHERE
+  WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect_relationship ||
+SELF\direct_stratum_component_join_implementation)) = 0;
+END_ENTITY;
+
+ENTITY indirect_stratum_component_join_implementation
+  SUBTYPE OF (plated_inter_stratum_feature);
+END_ENTITY;
+
+RULE junction_vertex_allocation_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'junction vertex allocation')
+       AND NOT ((('INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.'
+        + 'LAYER_CONNECTION_POINT' IN TYPEOF(sar.related_shape_aspect))
+       AND (sar.related_shape_aspect\shape_aspect.description = 'explicitly located')) OR
+       (('INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.'
+        + 'JOIN_SHAPE_ASPECT' IN TYPEOF(sar.related_shape_aspect))
+       AND (sar.related_shape_aspect\shape_aspect.name = 'inter stratum join'))
+       ))) = 0;
+  WR2: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'junction vertex allocation') AND
+       NOT (sar.relating_shape_aspect\shape_aspect.description = 
+                        'topological junction'))) = 0;
+END_RULE;
+
+RULE junction_vertex_allocation_unique_constraint FOR
+ ( shape_aspect_relationship );
+LOCAL
+  jva : BAG OF shape_aspect_relationship := QUERY( sar <*
+shape_aspect_relationship | (sar\shape_aspect_relationship.name = 'junction vertex allocation') );
+  pass : BOOLEAN := TRUE;
+  sa_bag : BAG OF shape_aspect := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(jva) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  IF EXISTS( jva[i].relating_shape_aspect ) THEN
+    IF ( jva[i].relating_shape_aspect\shape_aspect.description = 
+                       'topological junction' ) THEN
+      IF ( jva[i].relating_shape_aspect IN sa_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        sa_bag := sa_bag + jva[i].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+(* invalid csa	
+RULE physical_connectivity_abstraction_map_unique_constraint FOR
+ ( shape_aspect_relationship );
+LOCAL
+  pcam : BAG OF shape_aspect_relationship := 
+        QUERY( r <* shape_aspect_relationship |
+(r\shape_aspect_relationship.name = 'physical to topological abstraction map') );
+  pce_bag : BAG OF physical_connectivity_element := [];
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  csa_bag : BAG OF component_shape_aspect;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(pcam) by 1;
+  IF EXISTS( pcam[i].related_shape_aspect ) THEN
+    IF ( 'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
+'PHYSICAL_CONNECTIVITY_ELEMENT' IN 
+TYPEOF(pcam[i].related_shape_aspect) ) THEN
+      IF ( NOT ( pcam[i].related_shape_aspect IN pce_bag )) THEN
+        pce_bag := pce_bag + pcam[i].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(pce_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  csa_bag := [];
+  sar_bag := QUERY( sar <* pcam | (sar.related_shape_aspect :=: 
+                 pce_bag[i]) );
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    IF ( (
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
+'COMPONENT_SHAPE_ASPECT' IN 
+TYPEOF(sar_bag[j].relating_shape_aspect))
+AND (sar_bag[j].relating_shape_aspect\shape_aspect.description IN [
+'conductive interconnect element with pre defined transitions',
+'conductive interconnect element with user defined single transition']) )
+                                                      THEN
+      IF EXISTS( sar_bag[j].relating_shape_aspect ) THEN
+        IF ( sar_bag[j].relating_shape_aspect IN csa_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          csa_bag := csa_bag + sar_bag[j].relating_shape_aspect;
+        END_IF;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+*)
+RULE topological_junction_unique_constraint FOR
+ ( shape_aspect );
+LOCAL
+  tj : BAG OF shape_aspect := 
+   QUERY( r <* shape_aspect | (r\shape_aspect.description = 'topological junction'));
+  sar_bag : BAG OF shape_aspect_relationship;
+  s_bag : BAG OF shape_aspect := [];
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF STRING;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(tj) by 1;
+  sar_bag := QUERY( sar <* USEDIN( tj[i], 
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | 
+((sar\shape_aspect_relationship.name = 'topological junction scope') AND
+(('INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' + 
+'PHYSICAL_CONNECTIVITY_DEFINITION') IN
+TYPEOF(sar.relating_shape_aspect)) ) );
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].relating_shape_aspect ) THEN
+      IF ( NOT ( sar_bag[j].relating_shape_aspect IN s_bag ) ) THEN
+        s_bag := s_bag + sar_bag[j].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(s_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sar_bag := QUERY( sar <* USEDIN( s_bag[i], 
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
+'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT' ) | 
+(sar\shape_aspect_relationship.name = 'topological junction scope') );
+  name_bag := [];
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF EXISTS( sar_bag[j].related_shape_aspect\shape_aspect.name ) THEN
+      IF ( sar_bag[j].related_shape_aspect\shape_aspect.name IN name_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        name_bag := name_bag + sar_bag[j].related_shape_aspect\shape_aspect.name;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE explicitly_located_layer_connection_point_unique_constraint FOR
+ ( layer_connection_point );
+LOCAL
+  ellcp : BAG OF layer_connection_point := 
+   QUERY( lcp <* layer_connection_point
+| (lcp\shape_aspect.description = 'explicitly located') );
+  s_bag : BAG OF stratum := [];
+  lcp_bag : BAG OF layer_connection_point;
+  pd_bag : BAG OF property_definition;
+  pdr_bag : BAG OF property_definition_representation;
+  pass : BOOLEAN := TRUE;
+  cp_bag : BAG OF cartesian_point;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(ellcp) by 1;
+  IF EXISTS( ellcp[i].of_shape.definition ) THEN
+    IF( 'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
+'STRATUM' IN TYPEOF(ellcp[i].of_shape.definition) ) THEN
+      IF( NOT( ellcp[i].of_shape.definition IN s_bag ) ) THEN
+        s_bag := s_bag + ellcp[i].of_shape.definition;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(s_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  cp_bag := [];
+  lcp_bag := 
+    QUERY( lcp <* ellcp | (lcp.of_shape.definition :=: s_bag[i]) );
+  REPEAT j := 1 to SIZEOF(lcp_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    pd_bag := USEDIN( lcp_bag[j], 
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.'
++ 'PROPERTY_DEFINITION.DEFINITION');
+    REPEAT k := 1 to SIZEOF(pd_bag) by 1;
+      IF ( NOT pass ) THEN ESCAPE;
+      END_IF;
+      pdr_bag := QUERY( pdr <* USEDIN( pd_bag[k],
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
+'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
+((pdr.used_representation\representation.name =
+'connection point location') AND (
+'INTERCONNECT_MODULE_CONNECTION_ROUTING_MIM.' +
+'CARTESIAN_POINT' IN TYPEOF(pdr.used_representation.items[1]))) );
+      REPEAT l := 1 to SIZEOF(pdr_bag) by 1;
+        IF EXISTS( pdr_bag[l].used_representation.items[1] ) THEN
+          IF ( pdr_bag[l].used_representation.items[1] IN cp_bag ) THEN
+            pass := FALSE;
+            ESCAPE;
+          ELSE
+            cp_bag := cp_bag + pdr_bag[l].used_representation.items[1];
+          END_IF;
+        END_IF;
+      END_REPEAT;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+	
+END_SCHEMA;
+
+

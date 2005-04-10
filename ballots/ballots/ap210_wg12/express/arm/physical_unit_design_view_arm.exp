@@ -1,0 +1,104 @@
+(*
+   $Id: arm.exp,v 1.22 2005/04/04 10:26:06 liutkus Exp $
+   ISO TC184/SC4/WG12 N3567 - ISO/CD-TS 10303-1728 Physical unit design view - EXPRESS ARM
+*)
+
+SCHEMA Physical_unit_design_view_arm;
+
+	USE FROM Physical_unit_usage_view_arm;	-- ISO/TS 10303-1732
+
+	TYPE physical_unit = SELECT(
+	   part_usage_view,
+	   part_design_view);
+	END_TYPE;   
+
+	SUBTYPE_CONSTRAINT pudv_connection_zone_subtypes FOR Connection_zone;     
+		 ONEOF (Connection_zone_in_usage_view,
+		 Connection_zone_in_design_view);
+	END_SUBTYPE_CONSTRAINT;
+
+	TYPE pudv_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+    	(Assembly_item_number,
+    	 Assembly_component_relationship);
+	END_TYPE;
+	
+	TYPE physical_unit_or_part_template_or_fp_or_pd = 
+		EXTENSIBLE GENERIC_ENTITY SELECT (Part_view_definition);
+	END_TYPE;
+
+  ENTITY Assembly_alternate_product
+    SUBTYPE OF (Alternate_product_relationship);
+      basis_context : Part_design_view;
+  END_ENTITY;
+
+  ENTITY Assembly_component
+   SUBTYPE OF (Definition_based_product_occurrence, Item_shape);
+	SELF\Definition_based_product_occurrence.derived_from : physical_unit_or_part_template_or_fp_or_pd;
+    DERIVE
+    	SELF\Item_shape.described_element : shapeable_item := SELF;
+    INVERSE
+      SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF assembly_component_relationship FOR related_view;
+(** Need to encode it as Global rules TODO for Tom
+      component_2d_shape         : SET[0:1] OF assembly_component_2d_shape FOR shape_characterized_component;
+      component_3d_shape         : SET[0:1] OF assembly_component_3d_shape FOR shape_characterized_component;
+      component_non_planar_shape : SET[0:1] OF assembly_component_non_planar_shape FOR shape_characterized_component;
+*)      
+    WHERE
+      WR1 : NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from)) OR ((('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))));
+  END_ENTITY;
+
+  ENTITY Assembly_item_number;
+      assembly_usage : SET[1:?] OF Assembly_component_relationship; --Part_occurrence_definition_relationship;
+      item_number    : STRING; --ee_name;
+    DERIVE
+      assembly : part_design_view := assembly_usage[1].related_view;
+      part     : product:= assembly_usage[1].relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product;
+    UNIQUE
+      UR1 : assembly,
+ item_number;
+    WHERE
+      WR1 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0;
+      WR2 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.related_view = assembly))) = 0;
+  END_ENTITY;
+
+  ENTITY Component_make_from_relationship
+		SUBTYPE OF (View_definition_relationship);  
+      SELF\View_definition_relationship.relating_view RENAMED reusable_component	: Assembly_component;
+      SELF\View_definition_relationship.related_view RENAMED resultant_component	: Assembly_component;
+    WHERE
+      WR1 : resultant_component <> reusable_component;
+  END_ENTITY;
+
+  ENTITY Component_to_physical_usage_view_assignment
+  	SUBTYPE OF (View_definition_relationship);
+      SELF\View_definition_relationship.relating_view RENAMED design_view_component : Assembly_component;  	
+      SELF\View_definition_relationship.related_view RENAMED usage_view_component  	: Assembly_component;
+    WHERE
+      WR1 : design_view_component <> usage_view_component;
+  END_ENTITY;
+
+  ENTITY Connection_zone_in_design_view
+  	SUBTYPE OF (Connection_zone);
+  	DERIVE
+  		associated_definition : Part_design_view := containing_shape.described_element;
+  END_ENTITY; 
+
+  ENTITY Part_design_view
+    SUBTYPE OF (Item_shape, Part_view_definition);
+      usage_view : OPTIONAL Part_usage_view;
+    DERIVE
+    	SELF\Item_shape.described_element : shapeable_item := SELF;
+    WHERE
+      WR1 : ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF)) OR EXISTS(usage_view);
+  END_ENTITY;
+
+  ENTITY Physical_component
+    SUBTYPE OF (Assembly_component, Definition_based_part_occurrence);
+  END_ENTITY;
+
+  ENTITY Thermal_component
+    SUBTYPE OF (Assembly_component);
+  END_ENTITY;
+
+END_SCHEMA;
+

@@ -1,0 +1,78 @@
+(*
+   $Id: mim.exp,v 1.11 2005/02/10 13:15:17 liutkus Exp $
+   ISO TC184/SC4/WG12 N3403 - ISO/CD-TS 10303-1668 Fabrication joint - EXPRESS MIM
+*)
+
+
+SCHEMA Fabrication_joint_mim;
+	USE FROM Land_mim;	-- ISO/TS 10303-1692
+	USE FROM Layered_interconnect_module_with_printed_component_design_mim;	-- ISO/TS 10303-1700
+	USE FROM Sequential_laminate_assembly_design_mim;	-- ISO/TS 10303-1741
+	
+REFERENCE FROM product_property_definition_schema -- ISO 10303-41
+  (acyclic_shape_aspect_relationship);
+	
+	
+ENTITY connection_zone_based_fabrication_joint
+  SUBTYPE OF (fabrication_joint);
+WHERE
+  WR1: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_JOINT_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'zone 1')) = 1;
+  WR2: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_JOINT_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'zone 2')) = 1;
+  WR3: SIZEOF (QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_JOINT_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar.relating_shape_aspect\shape_aspect.description = 'connection zone')) = 2;
+
+END_ENTITY;
+
+ENTITY fabrication_joint
+  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+WHERE
+  WR1: (('FABRICATION_JOINT_MIM.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (SELF.related_shape_aspect)) AND
+       (SELF.related_shape_aspect\shape_aspect.description IN
+       ['via terminal', 'printed component join terminal',
+       'non functional land join terminal',
+       'land join terminal', 'conductive interconnect element terminal',
+       'component termination passage join terminal']));
+  WR2: (('FABRICATION_JOINT_MIM.' +
+       'COMPONENT_TERMINAL' IN
+       TYPEOF (SELF.relating_shape_aspect)) AND
+       (SELF.relating_shape_aspect\shape_aspect.description IN
+       ['via terminal', 'printed component join terminal',
+       'non functional land join terminal',
+       'land join terminal', 'conductive interconnect element terminal',
+       'component termination passage join terminal']));
+(* invalid csa 
+  WR3: SIZEOF (QUERY (ajm <* QUERY (sar <* USEDIN (SELF,
+       'FABRICATION_JOINT_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'auxiliary joint material') |
+       ('FABRICATION_JOINT_MIM.' +
+       'LAND' IN
+       TYPEOF (ajm.related_shape_aspect)) OR
+       (('FABRICATION_JOINT_MIM.' +
+       'COMPONENT_SHAPE_ASPECT' IN
+       TYPEOF (ajm.related_shape_aspect)) AND
+       (ajm.related_shape_aspect\shape_aspect.description =
+       'stratum feature template component')))) <= 1; *)
+  WR4: acyclic_shape_aspect_relationship(SELF,
+       [SELF\shape_aspect_relationship.related_shape_aspect],
+       'FABRICATION_JOINT_MIM.'+
+       'FABRICATION_JOINT');
+END_ENTITY;
+
+ENTITY passage_terminal_based_fabrication_joint_link
+  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+END_ENTITY;
+
+END_SCHEMA;
+
+

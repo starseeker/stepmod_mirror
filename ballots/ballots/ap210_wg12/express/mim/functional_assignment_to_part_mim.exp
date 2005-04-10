@@ -1,0 +1,114 @@
+(*
+   $Id: mim.exp,v 1.4 2005/02/04 15:29:17 budreckytej Exp $
+   ISO TC184/SC4/WG12 N3670 - ISO/CD-TS 10303-1674 Functional assignment to part - EXPRESS MIM
+*)
+
+
+SCHEMA Functional_assignment_to_part_mim;
+	USE FROM Network_functional_usage_view_mim;	-- ISO/TS 10303-1705
+	USE FROM Physical_unit_usage_view_mim;	-- ISO/TS 10303-1732
+	
+ENTITY part_connected_terminals_definition
+  SUBTYPE OF (shape_aspect);
+UNIQUE
+  UR1: SELF\shape_aspect.name;
+WHERE
+  WR1: SIZEOF (QUERY (mct <* QUERY (sar <* USEDIN (SELF,
+       'FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'member connected terminal') |
+       SIZEOF (['FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.' +
+       'ASSEMBLY_MODULE_TERMINAL',
+       'FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.' +
+       'BARE_DIE_TERMINAL',
+       'FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.' +
+       'INTERCONNECT_MODULE_TERMINAL',
+       'FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.' +
+       'PACKAGE_TERMINAL',
+       'FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.' +
+       'PACKAGED_PART_TERMINAL'] *
+       TYPEOF (mct.related_shape_aspect)) = 1)) >= 2;
+END_ENTITY;
+
+RULE functional_usage_view_to_part_terminal_assignment_constraint FOR 
+( shape_aspect_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'functional terminal allocation')
+       AND NOT(('FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.'
+       + 'FUNCTIONAL_UNIT_TERMINAL_DEFINITION' IN
+       TYPEOF(sar.relating_shape_aspect)) AND
+       (sar.relating_shape_aspect\shape_aspect.description = 'scalar terminal')
+       ))) = 0;
+  WR2: SIZEOF(QUERY(sar <* shape_aspect_relationship |
+       (sar\shape_aspect_relationship.name = 'functional terminal allocation')
+       AND NOT(('FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.'
+       + 'ASSEMBLY_MODULE_TERMINAL' IN
+       TYPEOF(sar.related_shape_aspect)) OR
+       ('FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.'
+       + 'BARE_DIE_TERMINAL' IN
+       TYPEOF(sar.related_shape_aspect)) OR
+       ('FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.'
+       + 'INTERCONNECT_MODULE_TERMINAL' IN
+       TYPEOF(sar.related_shape_aspect)) OR
+       ('FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.'
+       + 'PACKAGED_PART_TERMINAL' IN
+       TYPEOF(sar.related_shape_aspect))
+       ))) = 0;
+END_RULE;
+
+RULE functional_usage_view_to_part_terminal_assignment_unique_constraint FOR
+ ( shape_aspect_relationship );
+LOCAL
+  fuvtpta : BAG OF shape_aspect_relationship := 
+QUERY( r <* shape_aspect_relationship |
+(r\shape_aspect_relationship.name = 'functional terminal allocation'));
+  futd_bag : BAG OF functional_unit_terminal_definition := [];
+  sar_bag : BAG OF shape_aspect_relationship;
+  pass : BOOLEAN := TRUE;
+  sa_bag : BAG OF shape_aspect;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(fuvtpta) by 1;
+  IF EXISTS( fuvtpta[i].relating_shape_aspect ) THEN
+    IF ( fuvtpta[i].relating_shape_aspect\shape_aspect.description = 
+                                             'scalar terminal' ) THEN
+      IF ( NOT ( fuvtpta[i].relating_shape_aspect IN futd_bag ) ) THEN
+        futd_bag := futd_bag + fuvtpta[i].relating_shape_aspect;
+      END_IF;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(futd_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  sar_bag := QUERY( sar <* fuvtpta | 
+        ((sar.relating_shape_aspect :=: futd_bag[i]) AND
+(SIZEOF(['FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.' +
+'ASSEMBLY_MODULE_TERMINAL',
+'FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.' +
+'BARE_DIE_TERMINAL',
+'FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.' +
+'INTERCONNECT_MODULE_TERMINAL',
+'FUNCTIONAL_ASSIGNMENT_TO_PART_MIM.' +
+'PACKAGED_PART_TERMINAL'] * TYPEOF(sar.related_shape_aspect))>0)) );
+  sa_bag := [];
+  REPEAT j := 1 to SIZEOF(sar_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    IF EXISTS( sar_bag[j].related_shape_aspect ) THEN
+      IF ( sar_bag[j].related_shape_aspect IN sa_bag ) THEN
+        pass := FALSE;
+        ESCAPE;
+      ELSE
+        sa_bag := sa_bag + sar_bag[j].related_shape_aspect;
+      END_IF;
+    END_IF;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+	
+END_SCHEMA;

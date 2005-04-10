@@ -1,0 +1,371 @@
+(*
+   $Id: mim.exp,v 1.17 2005/04/04 10:22:51 liutkus Exp $
+   ISO TC184/SC4/WG12 N3340 - ISO/CD-TS 10303-1704 Network functional design view - EXPRESS MIM
+*)
+SCHEMA Network_functional_design_view_mim;
+
+	USE FROM Network_functional_usage_view_mim;	-- ISO/TS 10303-1705
+	USE FROM Part_occurrence_mim;	-- ISO/TS 10303-1715
+	USE FROM Requirement_assignment_mim;	-- ISO/TS 10303-1233
+
+USE FROM Material_property_definition_schema (property_definition_relationship);
+
+REFERENCE FROM support_resource_schema   -- ISO 10303-41
+  (bag_to_set); 
+
+TYPE nfdv_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+     (component_functional_unit);
+END_TYPE; 
+
+ENTITY bus_element_link
+  SUBTYPE OF (product_definition,product_definition_relationship);
+UNIQUE
+  UR1: SELF\product_definition_relationship.related_product_definition,
+       SELF\product_definition_relationship.relating_product_definition;
+WHERE
+  WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
+  WR2: ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'BUS_STRUCTURAL_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.related_product_definition)) OR
+       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'NETWORK_NODE_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.related_product_definition));
+  WR3: ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'BUS_STRUCTURAL_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.relating_product_definition)) OR
+       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'NETWORK_NODE_DEFINITION' IN
+       TYPEOF (SELF\product_definition_relationship.relating_product_definition));
+  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\product_definition ||
+       SELF\product_definition_relationship ||
+       SELF\bus_element_link)) = 0;
+  WR5: NOT EXISTS(SELF\product_definition.name) OR 
+        (SELF\product_definition.name = '');
+  WR6: SELF\product_definition_relationship.name = '';
+  WR7: SIZEOF(USEDIN(SELF, 
+             'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+             'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION')) >= 1;
+END_ENTITY; 
+
+ENTITY bus_structural_definition
+ SUBTYPE OF (product_definition);
+WHERE
+  WR1: SIZEOF (QUERY (bce <* QUERY (pdr <* USEDIN (SELF,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'bus composition') |
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'BUS_ELEMENT_LINK' IN
+       TYPEOF (bce.related_product_definition))) >= 1;
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (pdr <* USEDIN (pd, 
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 
+       'functional unit network terminal definition bus assignment')) 
+       <= 1)) <= 1;
+  WR3: consistent_bus_structural_definition(bag_to_set(QUERY( pdr <* USEDIN(SELF,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'BUS_ELEMENT_LINK' IN TYPEOF(pdr.related_product_definition))));
+END_ENTITY;
+
+ENTITY component_functional_terminal
+  SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: 'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'COMPONENT_FUNCTIONAL_UNIT' IN
+       TYPEOF (SELF.of_shape.definition);
+  WR2: SIZEOF (QUERY (it <* QUERY (sar <* USEDIN (SELF,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'instantiated terminal') |
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION'
+       IN TYPEOF (it.relating_shape_aspect))) = 1;
+  WR3: SIZEOF (QUERY (futba <* QUERY (pdr <* USEDIN (SELF,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'functional unit terminal bus assignment') |
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'BUS_STRUCTURAL_DEFINITION' IN 
+       TYPEOF (futba.relating_property_definition.definition))) <= 1;
+  WR4: SIZEOF (QUERY (futna <* QUERY (pdr <* USEDIN (SELF,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name = 'functional unit terminal node assignment') |
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'NETWORK_NODE_DEFINITION' IN 
+       TYPEOF (futna.relating_property_definition.definition))) <= 1;
+END_ENTITY;
+
+ENTITY component_functional_unit
+  SUBTYPE OF (product_definition);
+WHERE
+  WR1: SELF.frame_of_reference.name = 'functional occurrence';
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (sa <* USEDIN (pd,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'COMPONENT_FUNCTIONAL_TERMINAL' IN
+       TYPEOF (sa))) >= 1)) >= 1;
+  WR3: SIZEOF (QUERY (ifu <* QUERY (pdr <* USEDIN (SELF,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'instantiated functional unit') |
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'FUNCTIONAL_UNIT' IN 
+       TYPEOF (ifu.relating_product_definition))) = 1;
+  WR4: SIZEOF (QUERY (nc <* QUERY (pdr <* USEDIN (SELF,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'network composition') |
+       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'FUNCTIONAL_UNIT' IN 
+       TYPEOF (nc.relating_product_definition)) AND
+       (nc.relating_product_definition.frame_of_reference.name =
+       'functional network design'))) = 1;
+END_ENTITY;
+
+ENTITY network_node_definition
+  SUBTYPE OF (product_definition);
+WHERE
+  WR1: SELF.frame_of_reference.name = 'functional network design';
+  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       SIZEOF (QUERY (funtdna <* QUERY (pdr <* USEDIN (pd,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATING_PROPERTY_DEFINITION') |
+       pdr\property_definition_relationship.name =
+       'functional unit network terminal definition node assignment') |
+       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PRODUCT_DEFINITION_SHAPE' IN 
+       TYPEOF (funtdna.related_property_definition)) AND
+       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' + 
+       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION' IN 
+       TYPEOF 
+       (funtdna.related_property_definition.definition)))) <= 1)) <= 1;
+  WR3: SIZEOF (QUERY (funn <* USEDIN (SELF, 
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'FUNCTIONAL_UNIT' IN 
+       TYPEOF (funn.relating_product_definition)) AND
+       (funn.relating_product_definition.frame_of_reference.name =
+       'functional network design'))) = 1;
+END_ENTITY;
+
+RULE bus_structural_definition_unique_constraint FOR 
+(bus_structural_definition, product_definition_formation, product);
+
+LOCAL
+  pass : BOOLEAN := TRUE;
+  name_bag : BAG OF STRING := [];
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(bus_structural_definition) by 1;
+  IF EXISTS( bus_structural_definition[i].formation.of_product.name ) THEN
+    IF (bus_structural_definition[i].formation.of_product.name IN 
+                                                       name_bag) THEN
+      pass := FALSE;
+      ESCAPE;
+    ELSE
+      name_bag := name_bag + 
+bus_structural_definition[i]\product_definition.formation.of_product.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+WHERE
+WR1: pass;
+END_RULE;
+
+RULE functional_unit_network_terminal_definition_bus_assignment_constraint
+FOR ( property_definition_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdr <* property_definition_relationship |
+  (pdr\property_definition_relationship.name = 'functional unit network terminal definition bus assignment')
+       AND NOT('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'BUS_STRUCTURAL_DEFINITION' IN
+       TYPEOF(pdr.relating_property_definition.definition))
+       )) = 0;
+  WR2: SIZEOF(QUERY(pdr <* property_definition_relationship |
+  (pdr\property_definition_relationship.name = 'functional unit network terminal definition bus assignment')
+       AND NOT(('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'PRODUCT_DEFINITION_SHAPE' IN
+       TYPEOF(pdr.related_property_definition.definition))
+       AND (SIZEOF(QUERY(futd <* 
+                       USEDIN(pdr.related_property_definition.definition,
+       'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION.OF_SHAPE' IN TYPEOF(futd))
+       )) > 0)))) = 0;
+END_RULE;
+
+RULE functional_unit_terminal_bus_assignment_constraint FOR
+( property_definition_relationship );
+WHERE
+  WR1: SIZEOF(QUERY(pdr <* property_definition_relationship |
+       (pdr\property_definition_relationship.name = 'functional unit terminal bus assignment')
+       AND NOT('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.'
+       + 'BUS_STRUCTURAL_DEFINITION'
+       IN TYPEOF(pdr.relating_property_definition.definition))
+       )) = 0;
+END_RULE;
+
+RULE functional_unit_network_node_definition_unique_constraint FOR
+ ( network_node_definition );
+LOCAL
+  funnd : BAG OF network_node_definition := 
+ QUERY( nnd <* network_node_definition
+| (nnd.frame_of_reference.name = 'functional network design') );
+  name_bag : BAG OF STRING := [];
+  nnd_bag : BAG OF network_node_definition;
+  pdr_bag : BAG OF product_definition_relationship;
+  pass : BOOLEAN := TRUE;
+  fu_bag : BAG OF functional_unit;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(funnd) by 1;
+  IF EXISTS( funnd[i]\product_definition.name ) THEN
+    IF( NOT( funnd[i]\product_definition.name IN name_bag ) ) THEN
+      name_bag := name_bag + funnd[i]\product_definition.name;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(name_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  fu_bag := [];
+  nnd_bag := QUERY( nnd <* funnd | (nnd\product_definition.name = 
+          name_bag[i]) );
+  REPEAT j := 1 to SIZEOF(nnd_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    pdr_bag := QUERY( pdr <* USEDIN( nnd_bag[j], 
+'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.'
++ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | 
+(('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' +
+'FUNCTIONAL_UNIT' IN TYPEOF(pdr.relating_product_definition)) AND 
+                  (pdr\product_definition_relationship.name = 'functional unit network node')) );
+    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
+      IF EXISTS( pdr_bag[k].relating_product_definition ) THEN
+        IF ( pdr_bag[k].relating_product_definition IN fu_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          fu_bag := fu_bag + pdr_bag[k].relating_product_definition;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+RULE functional_unit_unique_constraint FOR
+ ( component_functional_unit );
+LOCAL
+  fu : BAG OF component_functional_unit := 
+QUERY( cfu <* component_functional_unit
+| (cfu.frame_of_reference.name = 'functional occurrence') );
+  id_bag : BAG OF STRING := [];
+  cfu_bag : BAG OF component_functional_unit;
+  pdr_bag : BAG OF product_definition_relationship;
+  pass : BOOLEAN := TRUE;
+  fu_bag : BAG OF functional_unit;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(fu) by 1;
+  IF EXISTS( fu[i].id ) THEN
+    IF( NOT( fu[i].id IN id_bag ) ) THEN
+      id_bag := id_bag + fu[i].id;
+    END_IF;
+  END_IF;
+END_REPEAT;
+
+REPEAT i := 1 to SIZEOF(id_bag) by 1;
+  IF ( NOT pass ) THEN ESCAPE;
+  END_IF;
+  fu_bag := [];
+  cfu_bag := QUERY( cfu <* fu | (cfu.id = id_bag[i]) );
+  REPEAT j := 1 to SIZEOF(cfu_bag) by 1;
+    IF ( NOT pass ) THEN ESCAPE;
+    END_IF;
+    pdr_bag := QUERY( pdr <* USEDIN( cfu_bag[j], 
+'NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.'
++ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') | 
+((pdr\product_definition_relationship.name = 'network composition')
+AND ('NETWORK_FUNCTIONAL_DESIGN_VIEW_MIM.' + 
+'FUNCTIONAL_UNIT'
+IN TYPEOF(pdr.relating_product_definition)) AND 
+      (pdr.relating_product_definition.frame_of_reference.name =
+       'functional network design')) );
+    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
+      IF EXISTS( pdr_bag[k].relating_product_definition ) THEN
+        IF ( pdr_bag[k].relating_product_definition IN fu_bag ) THEN
+          pass := FALSE;
+          ESCAPE;
+        ELSE
+          fu_bag := fu_bag + pdr_bag[k].relating_product_definition;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE;
+
+FUNCTION consistent_bus_structural_definition
+     (input_rel : SET [1:?] OF product_definition_relationship) : BOOLEAN;    
+
+LOCAL  
+        input : SET OF product_definition := [];
+       vertex : SET OF product_definition := []; 
+         edge : INTEGER := SIZEOF(input);
+           vc : INTEGER := 0;
+vertex_degree : INTEGER := 0;    
+END_LOCAL;    
+REPEAT i := 1 to SIZEOF(input_rel) BY 1;
+      input := input + input_rel[i].related_product_definition;
+END_REPEAT;
+
+REPEAT i := 1 TO SIZEOF(input) BY 1;
+      vertex := vertex + input[i]\product_definition_relationship.relating_product_definition;
+      vertex := vertex + input[i]\product_definition_relationship.related_product_definition;
+END_REPEAT;
+     vc := SIZEOF(vertex);
+    IF ( vc <> ( edge + 1 )) THEN 
+      RETURN(FALSE);
+    END_IF;
+REPEAT i := 1 TO vc BY 1;
+      vertex_degree := 0;
+      REPEAT j := 1 to SIZEOF(input) BY 1;
+        IF input[j]\product_definition_relationship.relating_product_definition = vertex[i] THEN 
+          vertex_degree := vertex_degree + 1;
+        END_IF;
+        IF input[j]\product_definition_relationship.related_product_definition = vertex[i] THEN 
+          vertex_degree := vertex_degree + 1;
+        END_IF;
+      END_REPEAT;
+      IF (vertex_degree > 2) THEN
+        RETURN(FALSE);
+      END_IF;
+END_REPEAT;    
+RETURN(TRUE);  
+END_FUNCTION;
+
+END_SCHEMA;
+

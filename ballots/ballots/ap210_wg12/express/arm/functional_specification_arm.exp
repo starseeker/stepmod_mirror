@@ -1,0 +1,41 @@
+(*
+   $Id: arm.exp,v 1.7 2005/04/04 10:08:33 liutkus Exp $
+   ISO TC184/SC4/WG12 N3426 - ISO/CD-TS 10303-1679 Functional specification - EXPRESS ARM
+*)
+
+SCHEMA Functional_specification_arm;
+
+	USE FROM Signal_arm;	-- ISO/TS 10303-1745
+	USE FROM Network_functional_usage_view_arm;	-- ISO/TS 10303-1705	
+
+ 	TYPE fs_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+		(Functional_specification);
+	END_TYPE;
+
+  ENTITY Functional_specification;
+      associated_definition          	: Functional_specification_definition;
+      reference_signal               	: Signal_specification;
+      characterizing_functional_unit 	: Functional_unit;
+      characterizing_signal          	: Signal_specification;
+    INVERSE
+      characteristic_category					: External_source_identification FOR item;
+    WHERE
+      WR1 : characterizing_functional_unit.composed_network = associated_definition;
+  END_ENTITY;
+
+  ENTITY Functional_specification_definition
+    SUBTYPE OF (Functional_unit_network_definition);
+    INVERSE
+      composing_specification : SET[1:?] OF functional_specification FOR associated_definition;
+  END_ENTITY;
+
+  ENTITY Signal_specification;
+      measurement_condition        : Test_specification;
+      measurement_access_mechanism : Functional_unit_terminal;
+      reference_access_mechanism   : OPTIONAL Functional_unit_terminal;
+      minimum_characteristic       : Signal_property;
+      maximum_characteristic       : Signal_property;
+      characterization_network     : Functional_unit_network_definition;
+  END_ENTITY;
+
+END_SCHEMA;

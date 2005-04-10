@@ -1,0 +1,159 @@
+(*
+   $Id: mim.exp,v 1.15 2005/04/04 10:22:50 liutkus Exp $
+   ISO TC184/SC4/WG12 N3346 - ISO/CD-TS 10303-1710 Packaged part black box model - EXPRESS MIM
+*)
+SCHEMA Packaged_part_black_box_model_mim;
+
+	USE FROM Functional_assignment_to_part_mim;	-- ISO/TS 10303-1674
+	USE FROM Network_functional_usage_view_mim;	-- ISO/TS 10303-1705
+	USE FROM Package_mim;	-- ISO/TS 10303-1707
+	USE FROM Part_external_reference_mim;	-- ISO/TS 10303-1711
+
+ENTITY packaged_part
+ SUBTYPE OF (physical_unit);
+WHERE 
+  WR1: SIZEOF (QUERY (pd <* USEDIN (SELF, 
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'SHAPE_ASPECT.OF_SHAPE') |
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PACKAGED_PART_TERMINAL' IN 
+       TYPEOF (sa))) >= 0))) = 0;
+  WR2: SIZEOF (USEDIN (SELF, 
+        'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'MATERIAL_DESIGNATION.DEFINITIONS')) <= 1;
+  WR3: SIZEOF (QUERY (ifu <* QUERY (pdr <* USEDIN (SELF,
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'implemented function') |
+       ('PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'FUNCTIONAL_UNIT' IN
+       TYPEOF (ifu.relating_product_definition)) AND
+       (ifu.relating_product_definition.frame_of_reference.name =
+       'functional design usage'))) <= 1;
+  WR4: NOT(EXISTS(SELF\product_definition.description)) OR
+       ((NOT (SELF\product_definition.description = 'altered packaged part')) OR
+       (SIZEOF (QUERY (bpp <* QUERY (pdr <* USEDIN (SELF,
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'base packaged part') |
+       (SIZEOF (['PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PACKAGED_PART',
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'EXTERNALLY_DEFINED_PACKAGED_PART',
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'LIBRARY_DEFINED_PACKAGED_PART'] * 
+       TYPEOF (bpp.relating_product_definition)) = 1) AND
+       (bpp.relating_product_definition.frame_of_reference.name =
+       'physical design usage'))) >= 1));
+  WR5: SIZEOF (QUERY (upkg <* QUERY (pdr <* USEDIN (SELF,
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
+       pdr\product_definition_relationship.name = 'used package') |
+       SIZEOF (['PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PACKAGE',
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'EXTERNALLY_DEFINED_PACKAGE',
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'LIBRARY_DEFINED_PACKAGE'] * 
+       TYPEOF (upkg.relating_product_definition)) = 1)) >= 1;
+  WR6: SELF.frame_of_reference.name = 'physical design usage';
+END_ENTITY;
+
+ENTITY packaged_part_terminal
+ SUBTYPE OF (shape_aspect);
+WHERE
+  WR1: SELF\shape_aspect.description IN ['interface terminal', 
+       'join terminal'];
+  WR2: (SIZEOF (TYPEOF (SELF.of_shape.definition) *
+       ['PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PACKAGED_PART',
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'EXTERNALLY_DEFINED_PACKAGED_PART',
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'LIBRARY_DEFINED_PACKAGED_PART']) 
+       = 1) AND
+  (SELF.of_shape.definition\product_definition.frame_of_reference.name = 
+       'physical design usage');
+  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF,
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PROPERTY_DEFINITION.DEFINITION') |
+       NOT (SIZEOF (QUERY (pdr <* USEDIN (pd,
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'SHAPE_REPRESENTATION' IN
+       TYPEOF (pdr.used_representation))) >= 1))) = 0;
+  WR4: SIZEOF (QUERY (top <* QUERY (sar <* USEDIN (SELF,
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'terminal of package') |
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PACKAGE_TERMINAL' IN
+       TYPEOF (top.related_shape_aspect))) >= 1;
+  WR5: SIZEOF (QUERY (mct <* QUERY (sar <* USEDIN (SELF,
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       sar\shape_aspect_relationship.name = 'member connected terminal') |
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PART_CONNECTED_TERMINALS_DEFINITION'
+       IN TYPEOF (mct.relating_shape_aspect))) <= 1;
+  WR6: (NOT(SELF\shape_aspect.description = 'interface terminal')) OR
+       (SIZEOF(QUERY (sar <* USEDIN (SELF,
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       ('PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' IN TYPEOF(sar))
+       AND (sar.relating_shape_aspect\shape_aspect.description = 
+       'join terminal'))) >= 1);
+  WR7: (NOT(SELF\shape_aspect.description = 'join terminal')) OR
+       (SIZEOF(QUERY (sar <* USEDIN (SELF,
+       'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       ('PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+       'PACKAGED_CONNECTOR_TERMINAL_RELATIONSHIP' IN TYPEOF(sar))
+       AND (sar.relating_shape_aspect\shape_aspect.description = 
+        'interface terminal'))) <= 1);
+END_ENTITY;
+
+RULE packaged_part_unique_constraint FOR
+ ( packaged_part); --, externally_defined_packaged_part, library_defined_packaged_part);
+LOCAL
+  pp : SET OF physical_unit := packaged_part; -- + externally_defined_packaged_part + library_defined_packaged_part;
+  pdr_bag : BAG OF product_definition_relationship;
+  pdf_bag : BAG OF product_definition_formation := [];
+  pass : BOOLEAN := TRUE;
+END_LOCAL;
+
+REPEAT i := 1 to SIZEOF(pp) by 1;
+  IF ( NOT pass ) THEN ESCAPE; END_IF;
+    pdf_bag := [];
+    pdr_bag := QUERY( pdr <* USEDIN( pp[i], 
+'PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | 
+((pdr\product_definition_relationship.name = 'used package')
+AND (('PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+'PACKAGE' IN TYPEOF(pdr.relating_product_definition)) (** OR
+('PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+'EXTERNALLY_DEFINED_PACKAGE' IN TYPEOF(pdr.relating_product_definition)) OR
+('PACKAGED_PART_BLACK_BOX_MODEL_MIM.' +
+'LIBRARY_DEFINED_PACKAGE' IN TYPEOF(pdr.relating_product_definition))  *)
+) ) );
+    pdf_bag := pdf_bag + pdr_bag[1].relating_product_definition.formation;
+    REPEAT k := 1 to SIZEOF(pdr_bag) by 1;
+     IF ( NOT pass ) THEN ESCAPE; END_IF;
+      IF EXISTS( pdr_bag[k].relating_product_definition.formation ) THEN
+        IF NOT( pdr_bag[k].relating_product_definition.formation IN pdf_bag ) THEN
+          pass := FALSE;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+END_REPEAT;
+WHERE
+  WR1: pass;
+END_RULE; 
+
+END_SCHEMA;
+

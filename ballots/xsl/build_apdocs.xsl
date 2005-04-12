@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.37 2005/04/07 18:41:38 thendrix Exp $
+$Id: build_apdocs.xsl,v 1.38 2005/04/07 19:01:46 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -8936,6 +8936,11 @@ $Id: build_apdocs.xsl,v 1.37 2005/04/07 18:41:38 thendrix Exp $
           <xsl:value-of select="concat('../../data/resources/',$this-schema,'/',$this-schema,'.xml')"/>
         </xsl:otherwise>
       </xsl:choose>
+<!--
+          <xsl:message>
+            Found <xsl:value-of select="$this-schema"/> .
+          </xsl:message>
+-->
     </xsl:variable>
 
     <xsl:if test="not(contains($done,concat(' ',$this-schema,' ')))">

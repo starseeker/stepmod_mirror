@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.38 2005/04/07 19:01:46 thendrix Exp $
+$Id: build_apdocs.xsl,v 1.39 2005/04/12 15:36:21 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -284,10 +284,18 @@ $Id: build_apdocs.xsl,v 1.38 2005/04/07 19:01:46 thendrix Exp $
       <xsl:value-of select="concat('ballots/isohtml/',@name,'/abstracts')"/>
     </xsl:attribute>
   </xsl:element>
+
   <xsl:element name="property">
     <xsl:attribute name="name">EXPRESSDIR</xsl:attribute>
     <xsl:attribute name="value">
       <xsl:value-of select="concat('ballots/isohtml/',@name,'/express')"/>
+    </xsl:attribute>
+  </xsl:element>
+
+  <xsl:element name="property">
+    <xsl:attribute name="name">CONCATEXPRESSDIR</xsl:attribute>
+    <xsl:attribute name="value">
+      <xsl:value-of select="concat('ballots/isohtml/',@name,'/concat_express')"/>
     </xsl:attribute>
   </xsl:element>
 
@@ -9288,9 +9296,15 @@ $Id: build_apdocs.xsl,v 1.38 2005/04/07 19:01:46 thendrix Exp $
      name="concat_express" 
      depends="init" 
      description="concatenate ballot express, used for building long forms.">
+     <xsl:element name="mkdir">
+       <xsl:attribute name="dir">
+	 <xsl:value-of select="'${CONCATEXPRESSDIR}'"/>
+       </xsl:attribute>          
+     </xsl:element>
+
     <xsl:element name="concat">
       <xsl:attribute name="destfile">
-	<xsl:value-of select="concat('${BALLOTDIR}','/', 'arm_','${DATE}','v1.exp')" />
+	<xsl:value-of select="concat('${CONCATEXPRESSDIR}','/', 'arm_','${DATE}','v1.exp')" />
       </xsl:attribute>
       <xsl:element name="filelist">
 	<xsl:attribute name="dir">
@@ -9310,9 +9324,11 @@ $Id: build_apdocs.xsl,v 1.38 2005/04/07 19:01:46 thendrix Exp $
       </xsl:element>
     </xsl:element>
 
+ 
+
    <xsl:element name="concat">
       <xsl:attribute name="destfile">
-	<xsl:value-of select="concat('${BALLOTDIR}','/', 'mim_resources_','${DATE}','v1.exp')" />
+	<xsl:value-of select="concat('${CONCATEXPRESSDIR}','/', 'mim_resources_','${DATE}','v1.exp')" />
       </xsl:attribute>
       <xsl:element name="filelist">
 	<xsl:attribute name="dir">

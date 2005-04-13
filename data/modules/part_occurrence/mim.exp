@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.14 2005/02/02 14:44:27 budreckytej Exp $
+   $Id: mim.exp,v 1.15 2005/04/13 09:41:59 liutkus Exp $
    ISO TC184/SC4/WG12 N3649 - ISO/CD-TS 10303-1715 Part occurrence - EXPRESS MIM
 *)
 
@@ -76,7 +76,7 @@ END_LOCAL;
 		pd.frame_of_reference.name = 'part occurrence'));
 WHERE
 WR1: SIZEOF( QUERY( pd <* part_occurrences | 
-(SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PRODUCT_OCCURRENCE_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
+(SIZEOF( QUERY( prpc <* USEDIN(pd.formation.of_product, 'PART_OCCURRENCE_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
   prpc.name IN ['part','raw material','tool'] )) = 0 ) )) = 0;
 END_RULE;
 	
@@ -108,13 +108,13 @@ LOCAL
   selected_representation: representation;
 END_LOCAL;
 
-properties :=QUERY( prd<* USEDIN ( pd ,'PRODUCT_OCCURRENCE_MIM.PROPERTY_DEFINITION.DEFINITION' ) | 
+properties :=QUERY( prd<* USEDIN ( pd ,'PART_OCCURRENCE_MIM.PROPERTY_DEFINITION.DEFINITION' ) | 
  (prd.name = 'occurrence selection' ));
 IF (SIZEOF( properties)<>1) THEN
 	RETURN(FALSE);
 END_IF;
 
-property_definition_representations := QUERY ( pdr <* USEDIN ( properties[1] , 'PRODUCT_OCCURRENCE_MIM.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
+property_definition_representations := QUERY ( pdr <* USEDIN ( properties[1] , 'PART_OCCURRENCE_MIM.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
 	( pdr.used_representation.name = 'selection criteria' ));
 IF (SIZEOF(property_definition_representations)<>1) THEN
 	RETURN(FALSE);
@@ -127,24 +127,24 @@ IF (SIZEOF(selected_representation.items) <1) OR (SIZEOF(selected_representation
 END_IF;
 
 IF (SIZEOF ( QUERY ( i <* selected_representation.used_representation.items |
-	( SIZEOF (['PRODUCT_OCCURRENCE_MIM.MEASURE_REPRESENTATION_ITEM' ,
-			'PRODUCT_OCCURRENCE_MIM.VALUE_RANGE']* TYPEOF ( i ) ) = 1) AND
+	( SIZEOF (['PART_OCCURRENCE_MIM.MEASURE_REPRESENTATION_ITEM' ,
+			'PART_OCCURRENCE_MIM.VALUE_RANGE']* TYPEOF ( i ) ) = 1) AND
  	( i.name = 'selection quantity' ))) <> 1 ) THEN
 	RETURN(FALSE);
 END_IF;
 
 IF (SIZEOF ( QUERY ( i <* selected_representation.used_representation.items |
-	( 'PRODUCT_OCCURRENCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND
+	( 'PART_OCCURRENCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND
  	( i.name = 'selection control' )))> 1) THEN
 	RETURN(FALSE);
 END_IF; --the selection control is not specified then the quantity shall be a qualified_representation_item or a value_range
 IF (SIZEOF ( QUERY ( i <* selected_representation.used_representation.items |
-	( 'PRODUCT_OCCURRENCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF( i ) ) AND
+	( 'PART_OCCURRENCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF( i ) ) AND
  	( i.name = 'selection control' ) ))= 0) AND 
    (SIZEOF ( QUERY ( i <* selected_representation.used_representation.items |
       ( i.name = 'selection quantity' ) AND  
-      ( SIZEOF(['PRODUCT_OCCURRENCE_MIM.QUALIFIED_REPRESENTATION_ITEM' ,
-		'PRODUCT_OCCURRENCE_MIM.VALUE_RANGE']* TYPEOF ( i ) ) =0 ))) > 0 ) THEN
+      ( SIZEOF(['PART_OCCURRENCE_MIM.QUALIFIED_REPRESENTATION_ITEM' ,
+		'PART_OCCURRENCE_MIM.VALUE_RANGE']* TYPEOF ( i ) ) =0 ))) > 0 ) THEN
 	RETURN(FALSE);
 END_IF;
 	

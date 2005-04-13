@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-11T18:40:56" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-13T13:56:52" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_mim schema_instance"/>
    <schema name="Layered_interconnect_module_design_mim">
       <interface kind="use" schema="Form_features_mim"/>
@@ -35,11 +35,11 @@
       </entity>
       <entity name="connected_area_component" supertypes="assembly_component">
          <where label="WR3" expression=" SELF \ product_definition . description = 'stratum feature template component' "/>
-         <where label="WR4" expression=" SIZEOF ( TYPEOF ( SELF ) - TYPEOF ( SELF \ shape_aspect || SELF \ component_definition || SELF \ connected_area_component ) ) = 0 "/>
+         <where label="WR4" expression=" SIZEOF ( TYPEOF ( SELF ) - TYPEOF ( SELF \ product_definition || SELF \ component_definition || SELF \ connected_area_component ) ) = 0 "/>
       </entity>
       <entity name="electrical_isolation_component_definition" supertypes="filled_area_material_removal_component_definition"/>
       <entity name="fiducial" supertypes="assembly_component">
-         <where label="WR1" expression=" ( description = 'laminate component' ) "/>
+         <where label="WR1" expression=" ( SELF \ product_definition . description = 'laminate component' ) "/>
       </entity>
       <entity name="fiducial_stratum_feature" supertypes="stratum_feature"/>
       <entity name="filled_area_material_removal_component_definition" supertypes="material_removal_component_definition"/>
@@ -164,7 +164,7 @@
          <where label="WR6" expression=" ( NOT ( SELF \ product_definition . description IN [ 'bonded conductive base blind via' , 'buried via' , 'interfacial connection' , 'non conductive base blind via' , 'plated conductive base blind via' ] ) ) OR ( SIZEOF ( QUERY ( it &lt;* QUERY ( pdr &lt;* USEDIN ( SELF , 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | pdr \ product_definition_relationship . name = 'instantiated template' ) | ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'PART_TEMPLATE_DEFINITION' IN TYPEOF ( it . relating_product_definition ) ) AND ( it . relating_product_definition \ product_definition . description = 'via template' ) ) ) = 1 ) "/>
       </entity>
       <entity name="probe_access_area" supertypes="assembly_component">
-         <where label="WR1" expression=" EXISTS ( SELF . of_shape . definition \ product_definition . name ) "/>
+         <where label="WR1" expression=" EXISTS ( SELF \ product_definition . name ) "/>
       </entity>
       <entity name="stratum" supertypes="product_definition">
          <unique label="UR1">
@@ -220,10 +220,6 @@
          <where label="WR1" expression=" pass1 "/>
          <where label="WR2" expression=" pass2 "/>
       </rule>
-      <rule name="default_passage_based_land_physical_template_unique_constraint" appliesto="land_physical_template">
-         <algorithm> LOCAL dpblpt : BAG OF land_physical_template := QUERY ( lpt &lt;* land_physical_template | ( lpt \ shape_aspect . description IN [ 'default via based' , 'default attachment size and via based' , 'default unsupported passage based' , 'default component termination passage based' , 'default attachment size and component termination passage based' ] ) ) ; sar_bag : BAG OF shape_aspect_relationship ; pt_bag : BAG OF passage_technology := [ ] ; pdr_bag : BAG OF property_definition_relationship ; pass : BOOLEAN := TRUE ; st_bag : BAG OF stratum_technology ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( dpblpt ) by 1 ; sar_bag := QUERY ( sar &lt;* USEDIN ( dpblpt [ i ] , 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT' ) | ( ( sar \ shape_aspect_relationship . name = 'technology usage' ) AND ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'PASSAGE_TECHNOLOGY' IN TYPEOF ( sar . related_shape_aspect ) ) ) ) ; REPEAT j := 1 to SIZEOF ( sar_bag ) by 1 ; IF EXISTS ( sar_bag [ j ] . related_shape_aspect ) THEN IF ( NOT ( sar_bag [ j ] . related_shape_aspect IN pt_bag ) ) THEN pt_bag := pt_bag + sar_bag [ j ] . related_shape_aspect ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pt_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; st_bag := [ ] ; sar_bag := QUERY ( sar &lt;* USEDIN ( pt_bag [ i ] , 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | ( ( sar \ shape_aspect_relationship . name = 'technology usage' ) AND ( sar . relating_shape_aspect IN dpblpt ) ) ) ; REPEAT j := 1 to SIZEOF ( sar_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pdr_bag := QUERY ( pdr &lt;* USEDIN ( sar_bag [ j ] . relating_shape_aspect \ shape_aspect . of_shape , 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION' ) | ( ( pdr \ property_definition_relationship . name = 'technology usage' ) AND ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'STRATUM_TECHNOLOGY' IN TYPEOF ( pdr . relating_property_definition . definition ) ) ) ) ; REPEAT k := 1 to SIZEOF ( pdr_bag ) by 1 ; IF EXISTS ( pdr_bag [ k ] . relating_property_definition . definition ) THEN IF ( pdr_bag [ k ] . relating_property_definition . definition IN st_bag ) THEN pass := FALSE ; ESCAPE ; ELSE st_bag := st_bag + pdr_bag [ k ] . relating_property_definition . definition ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
-      </rule>
       <rule name="inter_stratum_extent_constraint" appliesto="product_definition_relationship">
          <where label="WR1" expression=" SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship | ( pdr \ product_definition_relationship . name = 'inter stratum extent' ) AND NOT ( ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'STRATUM' IN TYPEOF ( pdr . related_product_definition ) ) AND ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'STRATUM' IN TYPEOF ( pdr . relating_product_definition ) ) ) ) ) = 0 "/>
       </rule>
@@ -233,10 +229,6 @@
       </rule>
       <rule name="interconnect_module_stratum_assembly_relationship_unique_constraint" appliesto="assembly_component_usage">
          <algorithm> LOCAL imsar : BAG OF assembly_component_usage := QUERY ( acu &lt;* assembly_component_usage | ( acu \ product_definition_relationship . name = 'interconnect module stratum assembly relationship' ) ) ; pu_bag : BAG OF physical_unit := [ ] ; acu_bag : BAG OF assembly_component_usage ; pass : BOOLEAN := TRUE ; refdes_bag : BAG OF STRING ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( imsar ) by 1 ; IF EXISTS ( imsar [ i ] . relating_product_definition ) THEN IF ( ( imsar [ i ] . relating_product_definition . frame_of_reference . name = 'physical design' ) AND ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'PHYSICAL_UNIT' IN TYPEOF ( imsar [ i ] . relating_product_definition ) ) ) THEN IF ( NOT ( imsar [ i ] . relating_product_definition IN pu_bag ) ) THEN pu_bag := pu_bag + imsar [ i ] . relating_product_definition ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( pu_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; refdes_bag := [ ] ; acu_bag := QUERY ( acu &lt;* imsar | ( acu . relating_product_definition :=: pu_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( acu_bag ) by 1 ; IF EXISTS ( acu_bag [ j ] . reference_designator ) THEN IF ( acu_bag [ j ] . reference_designator IN refdes_bag ) THEN pass := FALSE ; ESCAPE ; ELSE refdes_bag := refdes_bag + acu_bag [ j ] . reference_designator ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
-      </rule>
-      <rule name="internal_stratum_access_unique_constraint" appliesto="shape_aspect_relationship">
-         <algorithm> LOCAL isa : BAG OF shape_aspect_relationship := QUERY ( r &lt;* shape_aspect_relationship | ( r \ shape_aspect_relationship . name = 'internal stratum access' ) ) ; paa_bag : BAG OF probe_access_area := [ ] ; sar_bag : BAG OF shape_aspect_relationship ; pass : BOOLEAN := TRUE ; pp_bag : BAG OF plated_passage ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( isa ) by 1 ; IF EXISTS ( isa [ i ] . relating_shape_aspect ) THEN IF ( ( isa [ i ] . relating_shape_aspect \ shape_aspect . description = 'internal probe access area' ) AND ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'PROBE_ACCESS_AREA' IN TYPEOF ( isa [ i ] . relating_shape_aspect ) ) ) THEN IF ( NOT ( isa [ i ] . relating_shape_aspect IN paa_bag ) ) THEN paa_bag := paa_bag + isa [ i ] . relating_shape_aspect ; END_IF ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( paa_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; pp_bag := [ ] ; sar_bag := QUERY ( sar &lt;* isa | ( ( sar . relating_shape_aspect :=: paa_bag [ i ] ) AND ( 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' + 'PLATED_PASSAGE' IN TYPEOF ( sar . related_shape_aspect ) ) AND ( sar . related_shape_aspect \ shape_aspect . description IN [ 'bonded conductive base blind via' , 'buried via' , 'interfacial connection' , 'non conductive base blind via' , 'plated conductive base blind via' ] ) ) ) ; REPEAT j := 1 to SIZEOF ( sar_bag ) by 1 ; IF EXISTS ( sar_bag [ j ] . related_shape_aspect ) THEN IF ( sar_bag [ j ] . related_shape_aspect IN pp_bag ) THEN pass := FALSE ; ESCAPE ; ELSE pp_bag := pp_bag + sar_bag [ j ] . related_shape_aspect ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; </algorithm>
          <where label="WR1" expression=" pass "/>
       </rule>
       <rule name="stratum_feature_unique_constraint" appliesto="stratum_feature">

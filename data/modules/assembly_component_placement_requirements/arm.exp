@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.17 2005/02/04 17:23:58 budreckytej Exp $
+   $Id: arm.exp,v 1.18 2005/04/04 09:13:39 liutkus Exp $
    ISO TC184/SC4/WG12 N3291 - ISO/CD-TS 10303-1634 Assembly component placement requirements - EXPRESS ARM
 *)
 
@@ -18,6 +18,74 @@ TYPE acpr_requirement_assignment_item = EXTENSIBLE SELECT BASED_ON requirement_a
     (restriction_basis_item,
   	Placement_group);
 END_TYPE; 
+
+TYPE assembly_product_design_object_category = ENUMERATION OF
+    (assembly_component_category,
+     assembly_module_component_category,
+     assembly_module_component_terminal_category,
+     assembly_module_macro_component_category,
+     assembly_module_macro_component_join_terminal_category,
+     bare_die_component_category,
+     bare_die_component_terminal_category,
+     buried_via_category,
+     cable_component_category,
+     component_feature_category,
+     component_termination_passage_category,
+     conductive_interconnect_element_with_pre_defined_transitions_category,
+     cutout_category,
+     cutout_edge_segment_category,
+     dielectric_material_passage_category,
+     embedded_component_terminal_category,
+     fiducial_category,
+     fill_area_category,
+     inter_stratum_feature_category,
+     interconnect_component_interface_terminal_category,
+     interconnect_component_join_terminal_category,
+     interconnect_module_component_category,
+     interconnect_module_component_stratum_based_terminal_category,
+     interconnect_module_component_surface_feature_category,
+     interconnect_module_component_terminal_category,
+     interconnect_module_edge_category,
+     interconnect_module_edge_segment_category,
+     interconnect_module_macro_component_category,
+     interconnect_module_macro_component_join_terminal_category,
+     interface_access_material_removal_laminate_component_category,
+     interface_access_stratum_feature_template_component_category,
+     interface_component_category,
+     interfacial_connection_category,
+     internal_probe_access_area_category,
+     laminate_component_category,
+     minimally_defined_component_terminal_category,
+     packaged_component_category,
+     packaged_component_join_terminal_category,
+     packaged_connector_component_category,
+     packaged_connector_component_interface_terminal_category,
+     physical_component_category,
+     plated_passage_or_unsupported_passage_category,
+     routed_interconnect_component_category,
+     routed_physical_component_category,
+     stratum_feature_category,
+     via_category);
+END_TYPE;
+
+TYPE assembly_spacing_type = ENUMERATION OF
+    (nearest_boundary,
+     centroid,
+     furthest_boundary);
+END_TYPE;
+
+  ENTITY Assembly_spacing_requirement_occurrence
+    SUBTYPE OF (Requirement_definition_property);
+      reference_design_object_category                                   : assembly_product_design_object_category;
+      dependent_design_object_category                                   : assembly_product_design_object_category;
+      SELF\Requirement_definition_property.required_coordinated_characteristic : SET[1:1] OF Tolerance_characteristic;
+      of_spacing_type                                                    : assembly_spacing_type;
+    UNIQUE
+      UR1 : reference_design_object_category,
+ dependent_design_object_category;
+    WHERE
+      WR1 : 'ASSEMBLY_TECHNOLOGY_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Requirement_definition_property.required_coordinated_characteristic[1].items[1]);
+  END_ENTITY;
 
   ENTITY Component_group_assignment;
       associated_group   : Placement_group;

@@ -1,13 +1,11 @@
 ================== AP210 =================
 NOTE: look for dated comments (1-25) or (2005-01-xx)
 
----------------------------------------------------------
-module ==> altered_part
-issue against: 
-<description>
-For Tom
-Need to add Programmed_packaged_part which references software_definition to this module. Maybe model it with a programming relationship in order to keep the stepmod style. The subtype is not an Altered_package_part subtype.  Ok to leave the altered_packaged_part subtype alone since we are using it in production.  Otherwise will have to remove the redeclared attribute from altered_packaged_part (should not make it optional.) and have to make altered_packaged_part ABS.
-  </description>
+
+here is regex to look for open issues.xml
+
+\<issue.*\n\s.*id.*\n\s.*type.*\n\s.*linkend.*\n\s.*status="open
+
 
 ---------------------------------------------------------
 module ==> assembly_component_placement_requirements
@@ -19,13 +17,15 @@ The IPs need to be imported from the sgml source
 module ==> assembly_component_placement_requirements
 issue against: 
 <description>
-For Lothar
-This module appears to be incomplete.  
-There is no reference to Layout_spacing_requirement_occurrence that I can see and acpr_requirement_assignment_item does not appear to be used.  If this module is intended to use Lsro, then when that is added, the intro and scope will need to be updated to reflect category to category relationships
-looks like the Layout_spacing_requirement_occurrence needs to be cloned
-and the pca_product_design_object_category needs to be cloned.
-maybe put pca_product_design_object_category clone in assembly_technology.
-  </description>
+For Giedrius
+Added Assembly_spacing_requirement_occurrence
+mapping from  fabrication_technology will need to be cloned.
+
+also arm.xml and descriptions.xml need to be updated, based on clone from
+Layout_spacing_requirement_occurrence except for name change,
+and not all categories are used.
+
+ </description>
 
 ---------------------------------------------------------
 
@@ -37,105 +37,6 @@ For Jurgita/Darla
 The IPs need to be imported from the sgml
 
 ---------------------------------------------------------
-module ==> chemical_substance
-issue against: 
-<description>
-For Lothar
-
-  <p>
-    ENTITY Substance_composition_relationship 
-    SUBTYPE OF (View_definition_relationship);
-      SELF\View_definition_relationship.related_view RENAMED constituent                : Substance_view_definition; 
-      SELF\View_definition_relationship.relating_view RENAMED whole                     : Substance_view_definition; 
-      composition_basis : Substance_composition_basis;
-      determination_method : STRING; 
-      amount : SET[1:?] OF Value_with_unit; 
-      (** unit shall be ratio, representing the fraction of 
-  WHERE 
-       WR1: ; --  unit shall be ratio *)
-  END_ENTITY; 
-</p>
-<p>
-    This AO is a copy of product_material_composition_relationship from part 45.
-    I know of no application in electrical design where we have an explicit tolerance
-    on bulk material in a bom.  suggest a subtype of Scr with a amount: SET[1:1]
-    to support that case.
-    also, need an ip that states that the members of amount (when there are more than
-    one) need to be different complex instances of Value_with_unit and qualified_measure_schema AOs.
-      I don't know where the requirement that Value_with_unit shall only be a ratio.
-    </p>
-  </description>
-
-2005-02-14 email with Lothar:
-
-most of this makes sense.
-One remaining problem.
-
-From the module:
-
-An Substance_composition_relationship is a type of Assembly_component_relationship. An Substance_composition_relationship is the association between a Part_design_view and Material_identification for the purpose of bulk material callout. 
-NOTE    This application object is intended solely to support raw material callout whose shape is not explicitly modeled in the product model. 
-EXAMPLE    Solder identified as a bonding agent may be aggregated for the assembly using this Application Object. 
-
-The above description indicates that the reason for the AO is to include it in a design view.  However, the definition of the attributes
-
-constituent: specifies the Substance for which the ratio given by quantity applies to. 
-whole: specifies the Substance that serves as 100% for the ratio given by quantity. 
-composition_basis: specifies the kind of ratio given by quantity. 
-determination_method: specifies the LOGICAL type for the Substance_composition_relationship. This type permits a user to specify that the quantity of material to be supplied with the product may be determined at assembly on an item by item basis, where the item referred to is a real product delivered to a customer. 
-
-indicate that the AO is actually specifying a composite material (e.g., the composition of solder).
-So the question now is:
-How to specify the bill of material relationship of solder to a design view?
-Tom
-
-Lothar Klein <lothar.klein@lksoft.com> 
-02/13/2005 05:22 AM
-Please respond to
-Lothar Klein <lothar.klein@lksoft.com>
-	
-To
-Tom Thurman <trthurma@rockwellcollins.com>
-cc
-
-Subject
-Issue on chemical_substance/Substance_composition_relationship
-	
-
-	
-
-
-module:chemical_substance
-ENTITY Substance_composition_relationship
-
-> This AO is a copy of product_material_composition_relationship from part 45.
-
-Yes
-
-> I know of no application in electrical design where we have an explicit tolerance
-> on bulk material in a bom.  suggest a subtype of Scr with a amount: SET[1:1]
-> to support that case.
-
-Meanwhile this entity is a subtype of Assembly_component_relationship
-and this has a quantity attribute so that old attribute amount got
-removed.
-
-> also, need an ip that states that the members of amount (when there are more than
-> one) need to be different complex instances of Value_with_unit and qualified_measure_schema AOs.
-
-Assembly_component_relationship.quantity is not a SET
-
-> I don't know where the requirement that Value_with_unit shall only be a ratio.
-
-Simply because "whole" is 100%. A Substance_view_definition can not
-have a weight or volume. One may buy a bottle Bourbon of a given
-volume - this is a part. But the chemical_substance alcohol has no
-volume.
-
-Please have a look to attribute determination_method. I can't remember
-where this comes from. maybe it can be removed.
-
-Lothar
 
 ---------------------------------------------------------
 module ==> Characteristic
@@ -240,22 +141,6 @@ need final review of logic
   </description>
 
 ---------------------------------------------------------
-module ==> package
-issue against: Package_body, Package_terminal
-<description>
-2005-02-06 For Giedrius--mapping,
-for Lothar, express g,
-for Jurgita/Vitkoras:
-arm.xml needs updating,
-arm_description needs copying from Stratum_technology.stratum_material with name change
-and rule
-need package_body.body_material and added rule
-need package_terminal.terminal_core_material, terminal_surface_material, and added three rules
-  </description>
-
-
-
----------------------------------------------------------
 module ==> Packaged_part
 2005-02-19
 issue against: Packaged_part IPs
@@ -263,15 +148,6 @@ For Jurgita/Darla
 The description of the IPs from the sgml source need to be imported.
 
 ---------------------------------------------------------
-module ==> packaged_part_black_box_model
-issue against: Packaged_part_black_box_model_arm.Packaged_part
-<description>
-2005-01-26---still not moved.
-2005-01-29---still not moved.
-For Jurgita
-Figure 1 does not belong in this module.  It belongs in packaged_part_white_box_model
-  </description>
-
 ---------------------------------------------------------
 module ==> part_template_extension
 issue against: Part_template_extension_arm.Trace_template
@@ -281,22 +157,7 @@ Figure 1 does not belong here.  (There is too much detail in the figure that is 
   </description>
 
 ---------------------------------------------------------
-module ==> physical_connectivity_definition
-issue against: 
-<description>
-For Tom
-A formal definition is needed for "tree structure" and for Steiner tree.
-  </description>
-
 ---------------------------------------------------------
-module ==> physical_connectivity_definition
-issue against: 
-<description>
-For Tom
-A bibliographical entry for Steiner tree is needed.
-  </description>
-
-
 ---------------------------------------------------------
 module ==> printed_physical_layout_template
 2005-02-19
@@ -346,21 +207,7 @@ Whith the change proposed in issue TRT-1, it is no longer valid for one of the r
  </description>
 
 ---------------------------------------------------------
-module ==> shield
-<description>
-2005-02-06
-For Tom
-need descriptions
 ---------------------------------------------------------
-module ==> specification_document
-issue against: Specification_document_arm.Structured_text.content_markup
-<description>
-For Lothar
-There seems to be a mismatch between the text and the ARM, but I am not too sure
-how to adjust it. It appears the attributes of External_source_identification have
-changed significantly from whatever the original ARM attributes were.
-</description>
-
 ---------------------------------------------------------
 module ==> test_requirement_allocation
 issue against: Test_requirement_allocation_arm.Test_requirement_allocation.wr:WR1

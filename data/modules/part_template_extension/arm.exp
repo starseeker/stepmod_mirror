@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.1 2005/03/23 10:19:04 giedrius Exp $
+   $Id: arm.exp,v 1.19 2005/03/30 12:56:42 liutkus Exp $
    ISO TC184/SC4/WG12 N3525 - ISO/CD-TS 10303-1718 Part template extension - EXPRESS ARM
 *)
 
@@ -7,7 +7,7 @@ SCHEMA Part_template_extension_arm;
 
 	USE FROM Fabrication_technology_arm;	-- ISO/TS 10303-1670
 	USE FROM Styled_text_arm;	-- ISO/TS 10303-1750
-	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
+	USE FROM Layered_interconnect_module_3d_shape_arm;	-- ISO/TS 10303-1697
 
   TYPE extend_or_chord_2_extend_or_truncate_or_round = ENUMERATION OF
     (truncate,
@@ -21,6 +21,14 @@ SCHEMA Part_template_extension_arm;
      extend);
   END_TYPE;
 
+	SUBTYPE_CONSTRAINT inter_stratum_feature_template_subtypes FOR Inter_stratum_feature_template;         
+	    (ONEOF (Component_termination_passage_template,
+		 Via_template,
+		 Unsupported_passage_template,
+		 Inter_stratum_feature_edge_segment_template,
+		 Inter_stratum_feature_edge_template));
+	END_SUBTYPE_CONSTRAINT;        
+
   TYPE square_or_round = ENUMERATION OF
     (square,
      round);
@@ -32,9 +40,44 @@ SCHEMA Part_template_extension_arm;
 		 Teardrop_by_length_template));
 	END_SUBTYPE_CONSTRAINT; 
 
+  ENTITY Curve_style_parameters;
+      name              : STRING;
+      corner_style      : extend_or_chord_2_extend_or_truncate_or_round;
+      curve_width       : Length_data_element;
+      end_extension     : extend_or_truncate;
+      end_style         : square_or_round;
+      width_uncertainty : Length_data_element;
+    UNIQUE
+      UR1 : name;
+  END_ENTITY;
+
   ENTITY Default_trace_template
     SUBTYPE OF (Trace_template);
       of_stratum_technology : Stratum_technology;
+  END_ENTITY;
+
+  ENTITY Inter_stratum_feature_edge_segment_template
+    SUBTYPE OF (Inter_stratum_feature_template);
+      composed_edge  : Inter_stratum_feature_edge_template;
+      start_vertex   : Edge_segment_vertex;
+      end_vertex     : Edge_segment_vertex;
+      reference_path : Trimmed_curve;
+      cross_section  : OPTIONAL Edge_segment_cross_section;
+    WHERE
+      WR1 : EXISTS(cross_section) XOR (SIZEOF(USEDIN(SELF,
+ 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) > 0);
+      WR2 : EXISTS(reference_path.start_point) AND EXISTS(reference_path.end_point);
+      WR3 : NOT (EXISTS(start_vertex\Datum_point.location_in_2d)) OR (reference_path.start_point :=: start_vertex\Datum_point.location_in_2d);
+      WR4 : NOT (EXISTS(start_vertex\Datum_point.location_in_3d)) OR (reference_path.start_point :=: start_vertex\Datum_point.location_in_3d);
+      WR5 : NOT (EXISTS(end_vertex\Datum_point.location_in_2d)) OR (reference_path.end_point :=: end_vertex\Datum_point.location_in_2d);
+      WR6 : NOT (EXISTS(end_vertex\Datum_point.location_in_3d)) OR (reference_path.end_point :=: end_vertex\Datum_point.location_in_3d);
+      WR7 : start_vertex :<>: end_vertex;
+  END_ENTITY;
+
+  ENTITY Inter_stratum_feature_edge_template
+    SUBTYPE OF (Inter_stratum_feature_template);
+    INVERSE
+      edges : SET[2:?] OF inter_stratum_feature_edge_segment_template FOR composed_edge;
   END_ENTITY;
 
   ENTITY Part_text_template
@@ -102,17 +145,6 @@ SCHEMA Part_template_extension_arm;
     SUPERTYPE OF (Default_trace_template)
     SUBTYPE OF (Template_definition);
       trace_style : Curve_style_parameters;
-  END_ENTITY;
-
-  ENTITY Curve_style_parameters;
-      name              : STRING;
-      corner_style      : extend_or_chord_2_extend_or_truncate_or_round;
-      curve_width       : Length_data_element;
-      end_extension     : extend_or_truncate;
-      end_style         : square_or_round;
-      width_uncertainty : Length_data_element;
-    UNIQUE
-      UR1 : name;
   END_ENTITY;
 
 END_SCHEMA;

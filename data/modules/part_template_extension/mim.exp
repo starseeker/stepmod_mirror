@@ -12,6 +12,38 @@ SCHEMA Part_template_extension_mim;
 	
 	USE FROM Presentation_definition_schema(text_literal);
 
+ENTITY inter_stratum_feature_edge_segment_template
+  SUBTYPE OF (part_template_definition,shape_aspect_relationship);
+WHERE
+  WR1: (SIZEOF (QUERY (ce <* USEDIN (SELF,
+       'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
+       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
+       ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
+       'INTER_STRATUM_FEATURE_EDGE_TEMPLATE' IN
+       TYPEOF (ce.relating_shape_aspect)) 
+       )) = 1);
+  WR2: 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
+       'EDGE_SEGMENT_VERTEX' IN
+       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
+  WR3: 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
+       'EDGE_SEGMENT_VERTEX' IN
+       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
+  WR4: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
+       SELF\shape_aspect_relationship.related_shape_aspect;
+  WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\part_template_definition ||
+       SELF\shape_aspect_relationship ||
+       SELF\inter_stratum_feature_edge_segment_template)) = 0;
+END_ENTITY;
+
+ENTITY inter_stratum_feature_edge_template
+  SUBTYPE OF (part_template_definition);
+WHERE
+  WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\part_template_definition ||
+       SELF\inter_stratum_feature_edge_template)) = 0;
+  WR2: SELF\product_definition.description = 
+       'inter stratum feature edge template';
+END_ENTITY;
+
 ENTITY part_text_template_definition
   SUBTYPE OF (part_template_definition);
 WHERE

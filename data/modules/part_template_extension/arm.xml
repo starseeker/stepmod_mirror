@@ -2,12 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-08T16:22:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-18T16:09:44" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_extension_arm schema_instance"/>
    <schema name="Part_template_extension_arm">
       <interface kind="use" schema="Fabrication_technology_arm"/>
       <interface kind="use" schema="Styled_text_arm"/>
-      <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
+      <interface kind="use" schema="Layered_interconnect_module_3d_shape_arm"/>
       <type name="extend_or_chord_2_extend_or_truncate_or_round">
          <enumeration items="truncate chord_2_extend round extend"/>
       </type>
@@ -44,6 +44,35 @@
          <explicit name="of_stratum_technology">
             <typename name="Stratum_technology"/>
          </explicit>
+      </entity>
+      <entity name="Inter_stratum_feature_edge_segment_template" supertypes="Inter_stratum_feature_template">
+         <explicit name="composed_edge">
+            <typename name="Inter_stratum_feature_edge_template"/>
+         </explicit>
+         <explicit name="start_vertex">
+            <typename name="Edge_segment_vertex"/>
+         </explicit>
+         <explicit name="end_vertex">
+            <typename name="Edge_segment_vertex"/>
+         </explicit>
+         <explicit name="reference_path">
+            <typename name="Trimmed_curve"/>
+         </explicit>
+         <explicit name="cross_section" optional="YES">
+            <typename name="Edge_segment_cross_section"/>
+         </explicit>
+         <where label="WR1" expression=" EXISTS ( cross_section ) XOR ( SIZEOF ( USEDIN ( SELF , 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE' ) ) &gt; 0 ) "/>
+         <where label="WR2" expression=" EXISTS ( reference_path . start_point ) AND EXISTS ( reference_path . end_point ) "/>
+         <where label="WR3" expression=" NOT ( EXISTS ( start_vertex \ Datum_point . location_in_2d ) ) OR ( reference_path . start_point :=: start_vertex \ Datum_point . location_in_2d ) "/>
+         <where label="WR4" expression=" NOT ( EXISTS ( start_vertex \ Datum_point . location_in_3d ) ) OR ( reference_path . start_point :=: start_vertex \ Datum_point . location_in_3d ) "/>
+         <where label="WR5" expression=" NOT ( EXISTS ( end_vertex \ Datum_point . location_in_2d ) ) OR ( reference_path . end_point :=: end_vertex \ Datum_point . location_in_2d ) "/>
+         <where label="WR6" expression=" NOT ( EXISTS ( end_vertex \ Datum_point . location_in_3d ) ) OR ( reference_path . end_point :=: end_vertex \ Datum_point . location_in_3d ) "/>
+         <where label="WR7" expression=" start_vertex :&lt;&gt;: end_vertex "/>
+      </entity>
+      <entity name="Inter_stratum_feature_edge_template" supertypes="Inter_stratum_feature_template">
+         <inverse name="edges" entity="Inter_stratum_feature_edge_segment_template" attribute="composed_edge">
+            <inverse.aggregate type="SET" lower="2" upper="?"/>
+         </inverse>
       </entity>
       <entity name="Part_text_template" supertypes="Template_definition">
          <explicit name="font" optional="YES">
@@ -123,6 +152,7 @@
             <typename name="Curve_style_parameters"/>
          </explicit>
       </entity>
+      <subtype.constraint name="inter_stratum_feature_template_subtypes" entity="Inter_stratum_feature_template" super.expression="ONEOF (Component_termination_passage_template, Via_template, Unsupported_passage_template, Inter_stratum_feature_edge_segment_template, Inter_stratum_feature_edge_template)"/>
       <subtype.constraint name="material_addition_feature_template_subtypes" entity="Material_addition_feature_template" super.expression="ONEOF (Snowball_template, Teardrop_by_angle_template, Teardrop_by_length_template)"/>
    </schema>
 </express>

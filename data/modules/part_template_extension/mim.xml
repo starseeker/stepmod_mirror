@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-13T13:56:54" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-18T16:00:25" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_extension_mim schema_instance"/>
    <schema name="Part_template_extension_mim">
       <interface kind="use" schema="Fabrication_technology_mim"/>
@@ -12,6 +12,17 @@
       <interface kind="use" schema="presentation_definition_schema">
          <interfaced.item name="text_literal"/>
       </interface>
+      <entity name="inter_stratum_feature_edge_segment_template" supertypes="part_template_definition shape_aspect_relationship">
+         <where label="WR1" expression=" ( SIZEOF ( QUERY ( ce &lt;* USEDIN ( SELF , 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' + 'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT' ) | ( 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' + 'INTER_STRATUM_FEATURE_EDGE_TEMPLATE' IN TYPEOF ( ce . relating_shape_aspect ) ) ) ) = 1 ) "/>
+         <where label="WR2" expression=" 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' + 'EDGE_SEGMENT_VERTEX' IN TYPEOF ( SELF \ shape_aspect_relationship . related_shape_aspect ) "/>
+         <where label="WR3" expression=" 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' + 'EDGE_SEGMENT_VERTEX' IN TYPEOF ( SELF \ shape_aspect_relationship . relating_shape_aspect ) "/>
+         <where label="WR4" expression=" SELF \ shape_aspect_relationship . relating_shape_aspect :&lt;&gt;: SELF \ shape_aspect_relationship . related_shape_aspect "/>
+         <where label="WR5" expression=" SIZEOF ( TYPEOF ( SELF ) - TYPEOF ( SELF \ part_template_definition || SELF \ shape_aspect_relationship || SELF \ inter_stratum_feature_edge_segment_template ) ) = 0 "/>
+      </entity>
+      <entity name="inter_stratum_feature_edge_template" supertypes="part_template_definition">
+         <where label="WR1" expression=" SIZEOF ( TYPEOF ( SELF ) - TYPEOF ( SELF \ part_template_definition || SELF \ inter_stratum_feature_edge_template ) ) = 0 "/>
+         <where label="WR2" expression=" SELF \ product_definition . description = 'inter stratum feature edge template' "/>
+      </entity>
       <entity name="part_text_template_definition" supertypes="part_template_definition">
          <where label="WR1" expression=" ( SIZEOF ( QUERY ( pd &lt;* USEDIN ( SELF , 'PART_TEMPLATE_EXTENSION_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' ) | NOT ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd , 'PART_TEMPLATE_EXTENSION_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | SIZEOF ( QUERY ( it &lt;* pdr . used_representation . items | 'PART_TEMPLATE_EXTENSION_MIM.' + 'TEXT_LITERAL' IN TYPEOF ( it ) ) ) = 1 ) ) = 1 ) ) ) = 0 ) "/>
          <where label="WR2" expression=" ( SIZEOF ( QUERY ( pd &lt;* USEDIN ( SELF , 'PART_TEMPLATE_EXTENSION_MIM.' + 'PROPERTY_DEFINITION.DEFINITION' ) | NOT ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd , 'PART_TEMPLATE_EXTENSION_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | SIZEOF ( QUERY ( it &lt;* pdr . used_representation . items | ( SIZEOF ( [ 'PART_TEMPLATE_EXTENSION_MIM.' + 'MEASURE_REPRESENTATION_ITEM' , 'PART_TEMPLATE_EXTENSION_MIM.' + 'LENGTH_MEASURE_WITH_UNIT' ] * TYPEOF ( it ) ) = 2 ) AND ( it \ representation_item . name = 'maximum font vertical extent' ) ) ) = 1 ) ) = 1 ) ) ) = 0 ) "/>

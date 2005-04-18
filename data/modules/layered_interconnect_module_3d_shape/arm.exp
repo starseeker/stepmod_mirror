@@ -1,56 +1,11 @@
 (*
-   $Id: arm.exp,v 1.17 2005/02/04 17:47:45 budreckytej Exp $
+   $Id: arm.exp,v 1.18 2005/04/04 10:08:54 liutkus Exp $
    ISO TC184/SC4/WG12 N3645 - ISO/CD-TS 10303-1697 Layered interconnect module 3d shape - EXPRESS ARM
 *)
 
 SCHEMA Layered_interconnect_module_3d_shape_arm;
 
 	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
-
-	SUBTYPE_CONSTRAINT inter_stratum_feature_template_subtypes FOR Inter_stratum_feature_template;         
-	    (ONEOF (Component_termination_passage_template,
-		 Via_template,
-		 Unsupported_passage_template,
-		 Inter_stratum_feature_edge_segment_template,
-		 Inter_stratum_feature_edge_template));
-	END_SUBTYPE_CONSTRAINT;        
-
-	SUBTYPE_CONSTRAINT plated_inter_stratum_feature_subtypes FOR Plated_inter_stratum_feature;  
-		 (ONEOF (Plated_cutout,
-		 Plated_interconnect_module_edge,
-		 Plated_cutout_edge_segment,
-		 Plated_interconnect_module_edge_segment,
-		 Plated_passage));
-	END_SUBTYPE_CONSTRAINT; 
-
- 	TYPE material_or_specification = SELECT
- 		(Requirement_definition_property,
-     	Material_identification);
-	END_TYPE;
-
-  ENTITY Cutout
-    SUPERTYPE OF (ONEOF (Physical_connectivity_interrupting_cutout,
- Plated_cutout,
- Partially_plated_cutout))
-    SUBTYPE OF (Inter_stratum_feature);
-  END_ENTITY;
-
-  ENTITY Cutout_edge_segment
-    SUPERTYPE OF (Plated_cutout_edge_segment)
-    SUBTYPE OF (Inter_stratum_feature);
-      composed_cutout                             : Cutout;
-      start_vertex                                : Edge_segment_vertex;
-      end_vertex                                  : Edge_segment_vertex;
-      SELF\Inter_stratum_feature.derived_from : Inter_stratum_feature_edge_segment_template;
-    WHERE
-      WR1 : start_vertex :<>: end_vertex;
-  END_ENTITY;
-
-  ENTITY Dielectric_material_passage
-    SUBTYPE OF (Inter_stratum_feature);
-      feature_material  : OPTIONAL material_or_specification;
-      precedent_passage : Cutout;
-  END_ENTITY;
 
   ENTITY Edge_segment_cross_section
     SUBTYPE OF (Shape_definition_3d_intersection);
@@ -63,88 +18,6 @@ SCHEMA Layered_interconnect_module_3d_shape_arm;
       referencing_template : inter_stratum_feature_edge_segment_template FOR cross_section;
     WHERE
       WR1 : associated_template :=: referencing_template;
-  END_ENTITY;
-
-  ENTITY Inter_stratum_feature_edge_segment_template
-    SUBTYPE OF (Inter_stratum_feature_template);
-      composed_edge  : Inter_stratum_feature_edge_template;
-      start_vertex   : Edge_segment_vertex;
-      end_vertex     : Edge_segment_vertex;
-      reference_path : Trimmed_curve;
-      cross_section  : OPTIONAL Edge_segment_cross_section;
-    WHERE
-      WR1 : EXISTS(cross_section) XOR (SIZEOF(USEDIN(SELF,
- 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) > 0);
-      WR2 : EXISTS(reference_path.start_point) AND EXISTS(reference_path.end_point);
-      WR3 : NOT (EXISTS(start_vertex\Datum_point.location_in_2d)) OR (reference_path.start_point :=: start_vertex\Datum_point.location_in_2d);
-      WR4 : NOT (EXISTS(start_vertex\Datum_point.location_in_3d)) OR (reference_path.start_point :=: start_vertex\Datum_point.location_in_3d);
-      WR5 : NOT (EXISTS(end_vertex\Datum_point.location_in_2d)) OR (reference_path.end_point :=: end_vertex\Datum_point.location_in_2d);
-      WR6 : NOT (EXISTS(end_vertex\Datum_point.location_in_3d)) OR (reference_path.end_point :=: end_vertex\Datum_point.location_in_3d);
-      WR7 : start_vertex :<>: end_vertex;
-  END_ENTITY;
-
-  ENTITY Inter_stratum_feature_edge_template
-    SUBTYPE OF (Inter_stratum_feature_template);
-    INVERSE
-      edges : SET[2:?] OF inter_stratum_feature_edge_segment_template FOR composed_edge;
-  END_ENTITY;
-
-  ENTITY Interconnect_module_edge
-    SUPERTYPE OF (ONEOF (Partially_plated_interconnect_module_edge,
- Plated_interconnect_module_edge))
-    SUBTYPE OF (Inter_stratum_feature);
-  END_ENTITY;
-
-  ENTITY Interconnect_module_edge_segment
-    SUPERTYPE OF (Plated_interconnect_module_edge_segment)
-    SUBTYPE OF (Inter_stratum_feature);
-      composed_edge                               : Interconnect_module_edge;
-      start_vertex                                : Edge_segment_vertex;
-      end_vertex                                  : Edge_segment_vertex;
-      SELF\Inter_stratum_feature.derived_from : Inter_stratum_feature_edge_segment_template;
-    WHERE
-      WR1 : start_vertex :<>: end_vertex;
-  END_ENTITY;
-
-  ENTITY Partially_plated_cutout
-    SUBTYPE OF (Cutout);
-    INVERSE
-      plated_segment   : SET[1:?] OF cutout_edge_segment FOR composed_cutout;
-      unplated_segment : SET[1:?] OF cutout_edge_segment FOR composed_cutout;
-  END_ENTITY;
-  
-  ENTITY Partially_plated_interconnect_module_edge
-    SUBTYPE OF (Interconnect_module_edge);
-    INVERSE
-      plated_segment   : SET[1:?] OF interconnect_module_edge_segment FOR composed_edge;
-      unplated_segment : SET[1:?] OF interconnect_module_edge_segment FOR composed_edge;
-  END_ENTITY;
-
-  ENTITY Physical_connectivity_interrupting_cutout
-    SUBTYPE OF (Cutout);
-      interrupted_connectivity_element : SET[1:?] OF Conductive_interconnect_element;
-  END_ENTITY;
-
-  ENTITY Plated_cutout
-    SUBTYPE OF (Cutout,
- Plated_inter_stratum_feature);
-  END_ENTITY;
-
-  ENTITY Plated_cutout_edge_segment
-    SUBTYPE OF (Cutout_edge_segment,
- Plated_inter_stratum_feature);
-      SELF\Cutout_edge_segment.composed_cutout : Partially_plated_cutout;
-  END_ENTITY;
-
-  ENTITY Plated_interconnect_module_edge
-    SUBTYPE OF (Interconnect_module_edge,
- Plated_inter_stratum_feature);
-  END_ENTITY;
-
-  ENTITY Plated_interconnect_module_edge_segment
-    SUBTYPE OF (Plated_inter_stratum_feature,
- Interconnect_module_edge_segment);
-      SELF\Interconnect_module_edge_segment.composed_edge : Partially_plated_interconnect_module_edge;
   END_ENTITY;
 
 END_SCHEMA;

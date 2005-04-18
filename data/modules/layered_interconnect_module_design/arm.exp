@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.51 2005/04/04 10:08:27 liutkus Exp $
+   $Id: arm.exp,v 1.52 2005/04/07 17:54:10 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -135,6 +135,19 @@ SCHEMA Layered_interconnect_module_design_arm;
 		(Component_termination_passage_template_terminal,
 	     Via_template_terminal);
 	END_TYPE;
+
+ 	TYPE material_or_specification = SELECT
+ 		(Requirement_definition_property,
+     	Material_identification);
+	END_TYPE;
+
+	SUBTYPE_CONSTRAINT plated_inter_stratum_feature_subtypes FOR Plated_inter_stratum_feature;  
+		 (ONEOF (Plated_cutout,
+		 Plated_interconnect_module_edge,
+		 Plated_cutout_edge_segment,
+		 Plated_interconnect_module_edge_segment,
+		 Plated_passage));
+	END_SUBTYPE_CONSTRAINT; 
 
   TYPE printed_part_template_or_printed_part_cross_section_template = SELECT
     (Printed_part_template,
@@ -332,7 +345,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       implementation_requirement            : Intra_stratum_join_relationship;
   END_ENTITY;
 
-
   ENTITY Counterbore_passage_template
     SUBTYPE OF (Unsupported_passage_template);
       smaller_passage : Unsupported_passage_template;
@@ -343,6 +355,24 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Unsupported_passage_template);
       constant_diameter_passage : Unsupported_passage_template;
       tapered_passage           : Blind_passage_template;
+  END_ENTITY;
+
+  ENTITY Cutout
+    SUPERTYPE OF (ONEOF (Physical_connectivity_interrupting_cutout,
+ Plated_cutout,
+ Partially_plated_cutout))
+    SUBTYPE OF (Inter_stratum_feature);
+  END_ENTITY;
+
+  ENTITY Cutout_edge_segment
+    SUPERTYPE OF (Plated_cutout_edge_segment)
+    SUBTYPE OF (Inter_stratum_feature);
+      composed_cutout                             : Cutout;
+      start_vertex                                : Edge_segment_vertex;
+      end_vertex                                  : Edge_segment_vertex;
+      SELF\Inter_stratum_feature.derived_from : Inter_stratum_feature_edge_segment_template;
+    WHERE
+      WR1 : start_vertex :<>: end_vertex;
   END_ENTITY;
 
   ENTITY Default_attachment_size_and_component_termination_passage_based_land_physical_template
@@ -455,6 +485,12 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : (NOT (primary_design_layer_stratum) AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 0)) OR ((primary_design_layer_stratum) AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 1));
+  END_ENTITY;
+
+  ENTITY Dielectric_material_passage
+    SUBTYPE OF (Inter_stratum_feature);
+      feature_material  : OPTIONAL material_or_specification;
+      precedent_passage : Cutout;
   END_ENTITY;
 
   ENTITY Documentation_layer_stratum
@@ -585,6 +621,23 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : SIZEOF(QUERY(ftr <* of_fabrication_thickness_requirement | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF(ftr\Requirement_assignment.assigned_requirement)))) = 0;
       WR2 : SIZEOF(QUERY(imsar <* USEDIN(SELF,
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1;
+  END_ENTITY;
+
+  ENTITY Interconnect_module_edge
+    SUPERTYPE OF (ONEOF (Partially_plated_interconnect_module_edge,
+ Plated_interconnect_module_edge))
+    SUBTYPE OF (Inter_stratum_feature);
+  END_ENTITY;
+
+  ENTITY Interconnect_module_edge_segment
+    SUPERTYPE OF (Plated_interconnect_module_edge_segment)
+    SUBTYPE OF (Inter_stratum_feature);
+      composed_edge                               : Interconnect_module_edge;
+      start_vertex                                : Edge_segment_vertex;
+      end_vertex                                  : Edge_segment_vertex;
+      SELF\Inter_stratum_feature.derived_from : Inter_stratum_feature_edge_segment_template;
+    WHERE
+      WR1 : start_vertex :<>: end_vertex;
   END_ENTITY;
 
   ENTITY Interconnect_module_join_terminal
@@ -830,6 +883,20 @@ SCHEMA Layered_interconnect_module_design_arm;
  related_view; --related_component;
   END_ENTITY;
 
+  ENTITY Partially_plated_cutout
+    SUBTYPE OF (Cutout);
+    INVERSE
+      plated_segment   : SET[1:?] OF cutout_edge_segment FOR composed_cutout;
+      unplated_segment : SET[1:?] OF cutout_edge_segment FOR composed_cutout;
+  END_ENTITY;
+  
+  ENTITY Partially_plated_interconnect_module_edge
+    SUBTYPE OF (Interconnect_module_edge);
+    INVERSE
+      plated_segment   : SET[1:?] OF interconnect_module_edge_segment FOR composed_edge;
+      unplated_segment : SET[1:?] OF interconnect_module_edge_segment FOR composed_edge;
+  END_ENTITY;
+
   ENTITY Passage_padstack_definition
     SUBTYPE OF (Padstack_definition);
       technology_reference : Passage_technology;
@@ -871,9 +938,36 @@ It is a summary of all vertical elements of particular kind, similar like stratu
       SELF\Part_design_view.usage_view : OPTIONAL Pcb_usage_view;
   END_ENTITY;
 
+  ENTITY Physical_connectivity_interrupting_cutout
+    SUBTYPE OF (Cutout);
+      interrupted_connectivity_element : SET[1:?] OF Conductive_interconnect_element;
+  END_ENTITY;
+
+  ENTITY Plated_cutout
+    SUBTYPE OF (Cutout,
+ Plated_inter_stratum_feature);
+  END_ENTITY;
+
+  ENTITY Plated_cutout_edge_segment
+    SUBTYPE OF (Cutout_edge_segment,
+ Plated_inter_stratum_feature);
+      SELF\Cutout_edge_segment.composed_cutout : Partially_plated_cutout;
+  END_ENTITY;
+
   ENTITY Plated_inter_stratum_feature
     ABSTRACT SUPERTYPE 
     SUBTYPE OF (Inter_stratum_feature);
+  END_ENTITY;
+
+  ENTITY Plated_interconnect_module_edge
+    SUBTYPE OF (Interconnect_module_edge,
+ Plated_inter_stratum_feature);
+  END_ENTITY;
+
+  ENTITY Plated_interconnect_module_edge_segment
+    SUBTYPE OF (Plated_inter_stratum_feature,
+ Interconnect_module_edge_segment);
+      SELF\Interconnect_module_edge_segment.composed_edge : Partially_plated_interconnect_module_edge;
   END_ENTITY;
 
   ENTITY Plated_passage
@@ -911,13 +1005,14 @@ It is a summary of all vertical elements of particular kind, similar like stratu
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.VIA_AND_CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0;
       WR2 : SIZEOF(QUERY(cre <* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.NON_FUNCTIONAL_LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_AND_' + 'CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'VIA_AND_CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND']) = 1)))) = 0;      
+      WR3: reference_connected_terminals.associated_definition = SELF\Generic_physical_network.current_associated_definition\Part_design_view.usage_view;
   END_ENTITY; 
 
   ENTITY Special_symbol_laminate_component
     SUPERTYPE OF (Primary_stratum_indicator_symbol)
     SUBTYPE OF (Laminate_component);
       SELF\Definition_based_product_occurrence.derived_from : Special_symbol_part_template;
-      stratum_feature_implementation           							: Stratum_feature;
+      stratum_feature_implementation           				: Stratum_feature;
   END_ENTITY;
 
   ENTITY Stratum

@@ -1,43 +1,11 @@
 (*
-   $Id: mim.exp,v 1.11 2005/02/10 13:32:15 liutkus Exp $
+   $Id: mim.exp,v 1.12 2005/04/04 10:08:54 liutkus Exp $
    ISO TC184/SC4/WG12 N3646 - ISO/CD-TS 10303-1697 Layered interconnect module 3d shape - EXPRESS MIM
 *)
 
 
 SCHEMA Layered_interconnect_module_3d_shape_mim;
 	USE FROM Layered_interconnect_module_design_mim;	-- ISO/TS 10303-1698
-
-SUBTYPE_CONSTRAINT plated_inter_stratum_feature_subtypes FOR plated_inter_stratum_feature;         
-  (ONEOF(plated_passage,plated_cutout_edge_segment, 
- plated_interconnect_module_edge_segment));
-END_SUBTYPE_CONSTRAINT;        
-
-ENTITY cutout_edge_segment
-  SUPERTYPE OF (plated_cutout_edge_segment)
-  SUBTYPE OF (inter_stratum_feature,shape_aspect_relationship);
-WHERE
-  WR1: SELF\product_definition.description IN [
-       'plated cutout edge segment',
-       'cutout edge segment'];
-  WR2: SIZEOF (QUERY (cc <* QUERY (pdr <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |
-       pdr\product_definition_relationship.name = 'composed cutout') |(
-       ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'INTER_STRATUM_FEATURE' IN
-       TYPEOF (cc.relating_product_definition)) AND 
-	(cc.relating_product_definition\product_definition.description  IN ['cutout',
-         'physical connectivity interrupting cutout', 'plated cutout']))
-       )) = 1;
-  WR3: ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'EDGE_SEGMENT_VERTEX' IN
-       TYPEOF (SELF\product_definition_relationship.relating_product_definition));
-  WR4: ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'EDGE_SEGMENT_VERTEX' IN
-       TYPEOF (SELF\product_definition_relationship.related_product_definition));
-  WR5: SELF\product_definition_relationship.related_product_definition :<>:
-       SELF\product_definition_relationship.relating_product_definition;
-END_ENTITY;
 
 ENTITY edge_segment_cross_section
   SUBTYPE OF (shape_definition_3d_intersection);
@@ -48,136 +16,6 @@ WHERE
        SELF\shape_definition_3d_intersection || 
        SELF\edge_segment_cross_section))) = 0;
 END_ENTITY; 
-
-ENTITY interconnect_module_edge_segment
-  SUBTYPE OF (inter_stratum_feature,shape_aspect_relationship);
-WHERE
-  WR1: SELF\shape_aspect.description IN [
-       'plated interconnect module edge segment', 
-       'interconnect module edge segment'];
-  WR2: SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'join implementation') |
-       ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'JOIN_SHAPE_ASPECT' IN
-       TYPEOF (ji.relating_shape_aspect)) AND
-       (ji.relating_shape_aspect\shape_aspect.name =
-       'inter stratum join'))) <= 1;
-  WR3: (NOT (SELF\shape_aspect.description = 
-       'plated interconnect module edge segment')) OR
-       (SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'composed edge') |
-       ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'PLATED_INTER_STRATUM_FEATURE' IN
-       TYPEOF (ce.relating_shape_aspect)) AND
-       (ce.relating_shape_aspect\shape_aspect.description =
-       'plated interconnect module edge'))) = 1);
-  WR4: (NOT (SELF\shape_aspect.description = 'interconnect module edge segment')) OR
-       (SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'composed edge') |
-       ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'INTER_STRATUM_FEATURE' IN
-       TYPEOF (ce.relating_shape_aspect)) AND
-       (ce.relating_shape_aspect\shape_aspect.description =
-       'interconnect module edge'))) = 1);
-  WR5: 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'EDGE_SEGMENT_VERTEX' IN
-       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
-  WR6: 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'EDGE_SEGMENT_VERTEX' IN
-       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
-  WR7: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
-       SELF\shape_aspect_relationship.related_shape_aspect;
-END_ENTITY;
-
-ENTITY inter_stratum_feature_edge_segment_template
-  SUBTYPE OF (part_template_definition,shape_aspect_relationship);
-WHERE
-  WR1: (SIZEOF (QUERY (ce <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'INTER_STRATUM_FEATURE_EDGE_TEMPLATE' IN
-       TYPEOF (ce.relating_shape_aspect)) 
-       )) = 1);
-  WR2: 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'EDGE_SEGMENT_VERTEX' IN
-       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
-  WR3: 'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'EDGE_SEGMENT_VERTEX' IN
-       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
-  WR4: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
-       SELF\shape_aspect_relationship.related_shape_aspect;
-  WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\part_template_definition ||
-       SELF\shape_aspect_relationship ||
-       SELF\inter_stratum_feature_edge_segment_template)) = 0;
-END_ENTITY;
-
-ENTITY inter_stratum_feature_edge_template
-  SUBTYPE OF (part_template_definition);
-WHERE
-  WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\part_template_definition ||
-       SELF\inter_stratum_feature_edge_template)) = 0;
-  WR2: SELF\product_definition.description = 
-       'inter stratum feature edge template';
-END_ENTITY;
-
-ENTITY plated_cutout_edge_segment
-  SUBTYPE OF (cutout_edge_segment,plated_inter_stratum_feature);
-WHERE
-  WR1: SELF\shape_aspect.description IN ['plated cutout edge segment'];
-  WR2: SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'join implementation') |
-       ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'JOIN_SHAPE_ASPECT' IN
-       TYPEOF (ji.relating_shape_aspect)) AND
-       (ji.relating_shape_aspect\shape_aspect.name =
-       'inter stratum join'))) <= 1;
-  WR3: (NOT (SELF\shape_aspect.description = 'plated cutout edge segment')) OR
-       (SIZEOF (QUERY (cc <* QUERY (sar <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'composed cutout') |
-       ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'PLATED_INTER_STRATUM_FEATURE' IN
-       TYPEOF (cc.relating_shape_aspect)) AND
-       (cc.relating_shape_aspect\shape_aspect.description =
-       'plated cutout'))) = 1);
-END_ENTITY;
-
-ENTITY plated_interconnect_module_edge_segment
-  SUBTYPE OF (interconnect_module_edge_segment,
-              plated_inter_stratum_feature);
-WHERE
-  WR1: SELF\shape_aspect.description IN ['plated interconnect module edge segment'];
-  WR2: SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'join implementation') |
-       ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'JOIN_SHAPE_ASPECT' IN
-       TYPEOF (ji.relating_shape_aspect)) AND
-       (ji.relating_shape_aspect\shape_aspect.name =
-       'inter stratum join'))) <= 1;
-  WR3: (NOT (SELF\shape_aspect.description = 
-          'plated interconnect module edge segment')) OR
-       (SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'composed edge') |
-       ('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +
-       'PLATED_INTER_STRATUM_FEATURE' IN
-       TYPEOF (ce.relating_shape_aspect)) AND
-       (ce.relating_shape_aspect\shape_aspect.description =
-       'plated interconnect module edge'))) = 1);
-END_ENTITY;
 
 END_SCHEMA;
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-08T16:22:05" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-18T16:38:16" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_component_placement_requirements_arm schema_instance"/>
    <schema name="Assembly_component_placement_requirements_arm">
       <interface kind="use" schema="Assembly_module_with_interconnect_component_arm"/>
@@ -12,9 +12,36 @@
       <type name="acpr_requirement_assignment_item">
          <select extensible="YES" basedon="requirement_assignment_item" selectitems="restriction_basis_item Placement_group"/>
       </type>
+      <type name="assembly_product_design_object_category">
+         <enumeration items="assembly_component_category assembly_module_component_category assembly_module_component_terminal_category assembly_module_macro_component_category assembly_module_macro_component_join_terminal_category bare_die_component_category bare_die_component_terminal_category buried_via_category cable_component_category component_feature_category component_termination_passage_category conductive_interconnect_element_with_pre_defined_transitions_category cutout_category cutout_edge_segment_category dielectric_material_passage_category embedded_component_terminal_category fiducial_category fill_area_category inter_stratum_feature_category interconnect_component_interface_terminal_category interconnect_component_join_terminal_category interconnect_module_component_category interconnect_module_component_stratum_based_terminal_category interconnect_module_component_surface_feature_category interconnect_module_component_terminal_category interconnect_module_edge_category interconnect_module_edge_segment_category interconnect_module_macro_component_category interconnect_module_macro_component_join_terminal_category interface_access_material_removal_laminate_component_category interface_access_stratum_feature_template_component_category interface_component_category interfacial_connection_category internal_probe_access_area_category laminate_component_category minimally_defined_component_terminal_category packaged_component_category packaged_component_join_terminal_category packaged_connector_component_category packaged_connector_component_interface_terminal_category physical_component_category plated_passage_or_unsupported_passage_category routed_interconnect_component_category routed_physical_component_category stratum_feature_category via_category"/>
+      </type>
+      <type name="assembly_spacing_type">
+         <enumeration items="nearest_boundary centroid furthest_boundary"/>
+      </type>
       <type name="restriction_basis_item">
          <select extensible="YES" selectitems="Requirement_definition_property Part_feature"/>
       </type>
+      <entity name="Assembly_spacing_requirement_occurrence" supertypes="Requirement_definition_property">
+         <explicit name="reference_design_object_category">
+            <typename name="assembly_product_design_object_category"/>
+         </explicit>
+         <explicit name="dependent_design_object_category">
+            <typename name="assembly_product_design_object_category"/>
+         </explicit>
+         <explicit name="required_coordinated_characteristic">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Tolerance_characteristic"/>
+            <redeclaration entity-ref="Requirement_definition_property"/>
+         </explicit>
+         <explicit name="of_spacing_type">
+            <typename name="assembly_spacing_type"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Assembly_spacing_requirement_occurrence" attribute="reference_design_object_category"/>
+            <unique.attribute entity-ref="Assembly_spacing_requirement_occurrence" attribute="dependent_design_object_category"/>
+         </unique>
+         <where label="WR1" expression=" 'ASSEMBLY_TECHNOLOGY_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF ( SELF \ Requirement_definition_property . required_coordinated_characteristic [ 1 ] . items [ 1 ] ) "/>
+      </entity>
       <entity name="Component_group_assignment">
          <explicit name="associated_group">
             <typename name="Placement_group"/>

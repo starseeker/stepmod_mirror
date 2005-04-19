@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.19 2005/03/30 12:56:42 liutkus Exp $
+   $Id: arm.exp,v 1.20 2005/04/18 13:31:19 liutkus Exp $
    ISO TC184/SC4/WG12 N3525 - ISO/CD-TS 10303-1718 Part template extension - EXPRESS ARM
 *)
 
@@ -40,7 +40,16 @@ SCHEMA Part_template_extension_arm;
 		 Teardrop_by_length_template));
 	END_SUBTYPE_CONSTRAINT; 
 
-  ENTITY Curve_style_parameters;
+  ENTITY Curve_style_parameters
+  	ABSTRACT SUPERTYPE OF(ONEOF(Closed_curve_style_parameters, Curve_style_parameters_with_ends));
+  END_ENTITY;
+
+  ENTITY Closed_curve_style_parameters
+    SUBTYPE OF (Curve_style_parameters);
+  END_ENTITY;
+
+  ENTITY Curve_style_parameters_with_ends
+    SUBTYPE OF (Curve_style_parameters);
       name              : STRING;
       corner_style      : extend_or_chord_2_extend_or_truncate_or_round;
       curve_width       : Length_data_element;
@@ -54,6 +63,13 @@ SCHEMA Part_template_extension_arm;
   ENTITY Default_trace_template
     SUBTYPE OF (Trace_template);
       of_stratum_technology : Stratum_technology;
+  END_ENTITY;
+
+  ENTITY Fill_area_template
+   SUBTYPE OF (Template_definition);
+    fill_area_style : fill_area_style_select;
+    outer_boundary_style : Closed_curve_style_parameters;
+    inner_boundary_style : Closed_curve_style_parameters;
   END_ENTITY;
 
   ENTITY Inter_stratum_feature_edge_segment_template

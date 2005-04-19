@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-18T16:38:19" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-19T13:24:16" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_extension_arm schema_instance"/>
    <schema name="Part_template_extension_arm">
       <interface kind="use" schema="Fabrication_technology_arm"/>
@@ -17,7 +17,9 @@
       <type name="square_or_round">
          <enumeration items="square round"/>
       </type>
-      <entity name="Curve_style_parameters">
+      <entity name="Closed_curve_style_parameters" supertypes="Curve_style_parameters"/>
+      <entity name="Curve_style_parameters" abstract.supertype="YES" super.expression="ONEOF (Closed_curve_style_parameters, Curve_style_parameters_with_ends)"/>
+      <entity name="Curve_style_parameters_with_ends" supertypes="Curve_style_parameters">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
@@ -37,12 +39,23 @@
             <typename name="Length_data_element"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Curve_style_parameters" attribute="name"/>
+            <unique.attribute entity-ref="Curve_style_parameters_with_ends" attribute="name"/>
          </unique>
       </entity>
       <entity name="Default_trace_template" supertypes="Trace_template">
          <explicit name="of_stratum_technology">
             <typename name="Stratum_technology"/>
+         </explicit>
+      </entity>
+      <entity name="Fill_area_template" supertypes="Template_definition">
+         <explicit name="fill_area_style">
+            <typename name="fill_area_style_select"/>
+         </explicit>
+         <explicit name="outer_boundary_style">
+            <typename name="Closed_curve_style_parameters"/>
+         </explicit>
+         <explicit name="inner_boundary_style">
+            <typename name="Closed_curve_style_parameters"/>
          </explicit>
       </entity>
       <entity name="Inter_stratum_feature_edge_segment_template" supertypes="Inter_stratum_feature_template">

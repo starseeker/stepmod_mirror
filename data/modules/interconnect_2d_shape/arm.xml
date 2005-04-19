@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-18T16:38:18" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-19T13:24:14" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_2d_shape_arm schema_instance"/>
    <schema name="Interconnect_2d_shape_arm">
       <interface kind="use" schema="Fabrication_joint_arm"/>
@@ -28,6 +28,13 @@
          </unique>
          <where label="WR1" expression=" precedent_surface &lt;&gt; subsequent_surface "/>
          <where label="WR2" expression=" SELF \ Component_2d_location . substrate_location = FALSE "/>
+      </entity>
+      <entity name="Connected_assembly_component_2d_shape" supertypes="Assembly_component_2d_shape">
+         <explicit name="shape_characterized_component">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Connected_area_component"/>
+            <redeclaration entity-ref="Assembly_component_2d_shape"/>
+         </explicit>
       </entity>
       <entity name="Design_intent_modification_planar_position">
          <explicit name="design_shape">
@@ -55,7 +62,24 @@
             <typename name="Design_intent_modification"/>
          </explicit>
          <explicit name="shape_styled_area_representation">
-            <typename name="Fill_area"/>
+            <typename name="fill_area_style_select"/>
+         </explicit>
+      </entity>
+      <entity name="Disconnected_area_component" supertypes="Laminate_component">
+         <explicit name="derived_from">
+            <typename name="Fill_area_template"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
+         <explicit name="stratum_feature_implementation">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Stratum_feature"/>
+         </explicit>
+      </entity>
+      <entity name="Disconnected_assembly_component_2d_shape" supertypes="Assembly_component_2d_shape">
+         <explicit name="shape_characterized_component">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Disconnected_area_component"/>
+            <redeclaration entity-ref="Assembly_component_2d_shape"/>
          </explicit>
       </entity>
    </schema>

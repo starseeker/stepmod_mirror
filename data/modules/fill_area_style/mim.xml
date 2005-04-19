@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2004/10/11 20:17:49 $"
-   rcs.revision="$Revision: 1.41 $">
-  <schema name="Fill_area_style_mim">
-  </schema>
+
+<express language_version="2" rcs.date="2005-04-18T16:34:27" rcs.revision="1.0" description.file="mim_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fill_area_mim schema_instance"/>
+   <schema name="Fill_area_mim">
+      <interface kind="use" schema="Basic_curve_mim"/>
+      <interface kind="use" schema="Styled_curve_mim"/>
+      <interface kind="use" schema="Value_with_unit_extension_mim"/>
+      <interface kind="use" schema="Associative_text_mim"/>
+      <interface kind="use" schema="Extended_elemental_geometric_shape_mim"/>
+      <interface kind="use" schema="presentation_definition_schema">
+         <interfaced.item name="annotation_fill_area"/>
+         <interfaced.item name="annotation_fill_area_occurrence"/>
+      </interface>
+      <interface kind="use" schema="presentation_appearance_schema">
+         <interfaced.item name="fill_area_style"/>
+      </interface>
+      <rule name="fill_area_occurrence_constraint" appliesto="annotation_fill_area_occurrence">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( afao &lt;* annotation_fill_area_occurrence | NOT ( 'FILL_AREA_MIM.' + 'ANNOTATION_FILL_AREA' IN TYPEOF ( afao . item ) ) ) ) = 0 "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( afao &lt;* annotation_fill_area_occurrence | NOT ( 'FILL_AREA_MIM.' + 'CARTESIAN_POINT' IN TYPEOF ( afao . fill_style_target ) ) ) ) = 0 "/>
+         <where label="WR3" expression=" SIZEOF ( QUERY ( afao &lt;* annotation_fill_area_occurrence | SIZEOF ( QUERY ( psa &lt;* afao . styles | SIZEOF ( QUERY ( cs &lt;* psa . styles | ( 'FILL_AREA_MIM.' + 'CURVE_STYLE' IN TYPEOF ( cs ) ) ) ) = 0 ) ) = 0 ) ) = 0 "/>
+      </rule>
+      <rule name="fill_area_style_constraint" appliesto="fill_area_style">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( fas &lt;* fill_area_style | NOT ( SIZEOF ( fas . fill_styles ) = 1 ) ) ) = 0 "/>
+      </rule>
+      <rule name="fill_area_style_unique_constraint" appliesto="fill_area_style">
+         <algorithm> LOCAL r : BAG OF fill_area_style := QUERY ( r &lt;* fill_area_style | TRUE ) ; pass : BOOLEAN := TRUE ; name_bag : BAG OF string := [ ] ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( r ) by 1 ; IF EXISTS ( r [ i ] \ fill_area_style . name ) THEN IF ( r [ i ] \ fill_area_style . name IN name_bag ) THEN pass := FALSE ; ESCAPE ; ELSE name_bag := name_bag + r [ i ] \ fill_area_style . name ; END_IF ; END_IF ; END_REPEAT ; </algorithm>
+         <where label="WR1" expression=" pass "/>
+      </rule>
+   </schema>
 </express>

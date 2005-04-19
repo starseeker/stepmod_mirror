@@ -1,12 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2004/10/11 20:17:49 $"
-   rcs.revision="$Revision: 1.41 $">
-  <schema name="Fill_area_style_arm">
-  </schema>
+
+<express language_version="2" rcs.date="2005-04-18T16:38:18" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fill_area_arm schema_instance"/>
+   <schema name="Fill_area_arm">
+      <interface kind="use" schema="Basic_curve_arm"/>
+      <interface kind="use" schema="Styled_curve_arm"/>
+      <interface kind="use" schema="Value_with_unit_extension_arm"/>
+      <interface kind="use" schema="Associative_text_arm"/>
+      <interface kind="use" schema="Extended_elemental_geometric_shape_arm"/>
+      <type name="fill_area_appearance_select">
+         <select basedon="appearance_select" selectitems="Hatch_style Solid_fill_area Tile_style"/>
+      </type>
+      <entity name="Externally_defined_hatch_style" supertypes="Hatch_style"/>
+      <entity name="Externally_defined_tile_style" supertypes="Tile_style"/>
+      <entity name="Fill_area" supertypes="Annotation_element">
+         <explicit name="boundary">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Annotation_curve"/>
+         </explicit>
+         <explicit name="reference_point">
+            <typename name="point_select"/>
+         </explicit>
+      </entity>
+      <entity name="Hatch_style" abstract.supertype="YES" supertypes="Detailed_geometric_model_element" super.expression="ONEOF (Externally_defined_hatch_style, User_defined_hatch_style)"/>
+      <entity name="Solid_fill_area"/>
+      <entity name="Tile_style" abstract.supertype="YES" supertypes="Detailed_geometric_model_element" super.expression="ONEOF (Externally_defined_tile_style, User_defined_tile_style)"/>
+      <entity name="User_defined_hatch_style" supertypes="Hatch_style">
+         <explicit name="hatch_line_appearance">
+            <typename name="Curve_appearance"/>
+         </explicit>
+         <explicit name="start_of_next_hatch_line">
+            <typename name="Vector"/>
+         </explicit>
+         <explicit name="point_of_reference_hatch_line">
+            <typename name="Cartesian_point"/>
+         </explicit>
+         <explicit name="pattern_start">
+            <typename name="Cartesian_point"/>
+         </explicit>
+         <explicit name="hatch_line_angle">
+            <typename name="Angle_data_element"/>
+         </explicit>
+         <where label="WR1" expression=" 'STYLED_CURVE_ARM.SOLID_CURVE_FONT' IN TYPEOF ( SELF . hatch_line_appearance . font ) "/>
+      </entity>
+      <entity name="User_defined_tile_style" supertypes="Tile_style">
+         <explicit name="first_direction_repeat_factor">
+            <typename name="Vector"/>
+         </explicit>
+         <explicit name="second_direction_repeat_factor">
+            <typename name="Vector"/>
+         </explicit>
+         <explicit name="tiling_scale">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+   </schema>
 </express>

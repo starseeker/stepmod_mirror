@@ -1,6 +1,73 @@
 (*
-   $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $
-   N - ISO/CD-TS - 10303- fill_area_style - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
-SCHEMA Fill_area_style_arm;
+   $Id: arm.exp,v 1.15 2005/03/30 12:48:19 liutkus Exp $
+   ISO TC184/SC4/WG12 N3411 - ISO/CD-TS 10303-1672 Fill area - EXPRESS ARM
+*)
+
+SCHEMA Fill_area_arm;
+
+	USE FROM Basic_curve_arm;	-- ISO/TS 10303-1651
+	USE FROM Styled_curve_arm;	-- ISO/TS 10303-1749
+	USE FROM Value_with_unit_extension_arm;	-- ISO/TS 10303-1753
+--	USE FROM Annotated_presentation_arm;
+	USE FROM Associative_text_arm;    -- ISO/TS 10303-1132 -- This is here for getting Annotation_element and Annotation_curve, but those entities have to be moved somewhere else.
+
+USE FROM Extended_elemental_geometric_shape_arm; 	-- ISO/TS 10303-1667 
+(** Layered_shape_arm is referenced just for the vector *)
+
+-- Moved from annotated_presentation
+	TYPE fill_area_appearance_select = SELECT BASED_ON appearance_select WITH 
+	   (Hatch_style, 
+	    Solid_fill_area, 
+	--    Surface_appearance_wireframe, 
+	    Tile_style);
+	END_TYPE; 
+
+	ENTITY Fill_area
+	  SUBTYPE OF (Annotation_element);
+	  boundary : SET[1:?] OF Annotation_curve;
+	  reference_point : point_select;
+	END_ENTITY;
+
+  ENTITY Hatch_style
+    ABSTRACT SUPERTYPE OF (ONEOF(Externally_defined_hatch_style, User_defined_hatch_style))
+    SUBTYPE OF (Detailed_geometric_model_element);
+  END_ENTITY;
+
+  ENTITY Externally_defined_hatch_style -- mapps to Externally_defined_hatch_style 
+    SUBTYPE OF (Hatch_style); 
+  END_ENTITY;
+
+  ENTITY User_defined_hatch_style -- mapps to Fill_area_style_hatching
+    SUBTYPE OF (Hatch_style);
+      hatch_line_appearance         : Curve_appearance;
+      start_of_next_hatch_line      : Vector;
+      point_of_reference_hatch_line : Cartesian_point;
+      pattern_start                 : Cartesian_point;
+      hatch_line_angle              : Angle_data_element;
+    WHERE
+     WR1 : 'STYLED_CURVE_ARM.SOLID_CURVE_FONT' IN TYPEOF(SELF.hatch_line_appearance.font);
+  END_ENTITY;
+
+	ENTITY Solid_fill_area;
+	END_ENTITY;
+
+	ENTITY Tile_style
+	  ABSTRACT SUPERTYPE OF (ONEOF(Externally_defined_tile_style, User_defined_tile_style))
+	  SUBTYPE OF (Detailed_geometric_model_element);
+	END_ENTITY;
+
+  ENTITY Externally_defined_tile_style -- mapps to Externally_defined_tile_style
+    SUBTYPE OF (Tile_style); 
+  END_ENTITY;
+
+-- This entity specifies the shape of the tile and how it is repeated. Details are defined in part 46.
+  ENTITY User_defined_tile_style -- mapps to Fill_area_style_tiles
+    SUBTYPE OF (Tile_style);
+      first_direction_repeat_factor  : Vector;
+      second_direction_repeat_factor : Vector;
+--      tile                           : Tile_shape;
+      tiling_scale                   : INTEGER; -- positive_ratio_measure;
+  END_ENTITY;
+  (* Similar like Tiling - could be subtype of Tiling *)
+
 END_SCHEMA;

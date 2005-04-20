@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.27 2005/02/24 12:19:17 liutkus Exp $
+   $Id: arm.exp,v 1.28 2005/04/04 10:35:34 liutkus Exp $
    ISO TC184/SC4/WG12 N3591 - ISO/CD-TS 10303-1740 Requirement decomposition - EXPRESS ARM
 *)
 
@@ -21,6 +21,10 @@ SCHEMA Requirement_decomposition_arm;
 		(Requirement_definition_property);
 	END_TYPE;
 
+	TYPE rd_property_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH
+		(Requirement_view_definition);
+	END_TYPE;
+
 	SUBTYPE_CONSTRAINT rd_model_parameter_subtypes FOR Model_parameter; 
 		 ONEOF (Analytical_model_parameter,
 		 Category_model_parameter,
@@ -28,13 +32,16 @@ SCHEMA Requirement_decomposition_arm;
 		 Rule_function_range_parameter);
 	END_SUBTYPE_CONSTRAINT;
 
-  TYPE relationship_operation = ENUMERATION OF
-    (and_operation,
-     derived_from,
-     or_operation,
-     precedence,
-     supplemental);
-  END_TYPE;
+	TYPE relationship_operation = ENUMERATION OF
+    	(and_operation,
+		or_operation);
+	END_TYPE;
+
+	TYPE requirement_view_relationship_type = ENUMERATION OF
+    	(derived_from,
+	     precedence,
+    	 supplemental);
+	END_TYPE;
 
   ENTITY Constraint_occurrence
     SUPERTYPE OF (View_based_constraint_occurrence)
@@ -80,12 +87,14 @@ SCHEMA Requirement_decomposition_arm;
     SUBTYPE OF (Requirement_definition_property);
   END_ENTITY;
 
-  ENTITY Operational_requirement_occurrence_relationship;
-      relationship_type               : relationship_operation;
-      relating_requirement_occurrence : Requirement_view_definition;
-      related_requirement_occurrence  : Requirement_view_definition;
+  ENTITY Operational_requirement_occurrence_relationship
+     SUBTYPE OF (Assigned_property, View_definition_relationship);
+       SELF\View_definition_relationship.relating_view RENAMED operand_1 : Requirement_view_definition;
+       SELF\View_definition_relationship.related_view RENAMED operand_2  : Requirement_view_definition;
+       SELF\Assigned_property.described_element RENAMED result           : Requirement_view_definition;
+       relationship_type                                                 : relationship_operation;
     WHERE
-      WR1 : relating_requirement_occurrence :<>: related_requirement_occurrence;
+      WR1 : operand_1 :<>: operand_2;
   END_ENTITY;
 
   ENTITY Purpose_occurrence
@@ -120,9 +129,14 @@ SCHEMA Requirement_decomposition_arm;
             ('CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (required_material));
   END_ENTITY;
 
-
-
-
+  ENTITY Requirement_view_definition_relationship
+     SUBTYPE OF (View_definition_relationship);
+       SELF\View_definition_relationship.relating_view RENAMED primary  : Requirement_view_definition;
+       SELF\View_definition_relationship.related_view RENAMED secondary : Requirement_view_definition;
+       relationship_type                                                : requirement_view_relationship_type;
+     WHERE
+       WR1 : primary :<>: secondary;
+  END_ENTITY;
 
   ENTITY Shape_and_view_based_constraint_occurrence
     SUBTYPE OF (View_based_constraint_occurrence);

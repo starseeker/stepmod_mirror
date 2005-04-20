@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-19T18:23:22" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-20T17:34:07" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="requirement_decomposition_arm schema_instance"/>
    <schema name="Requirement_decomposition_arm">
       <interface kind="use" schema="Conductivity_material_aspects_arm"/>
@@ -15,8 +15,14 @@
       <type name="rd_material_item_select">
          <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Requirement_definition_property"/>
       </type>
+      <type name="rd_property_assignment_select">
+         <select extensible="YES" genericentity="YES" basedon="property_assignment_select" selectitems="Requirement_view_definition"/>
+      </type>
       <type name="relationship_operation">
-         <enumeration items="and_operation derived_from or_operation precedence supplemental"/>
+         <enumeration items="and_operation or_operation"/>
+      </type>
+      <type name="requirement_view_relationship_type">
+         <enumeration items="derived_from precedence supplemental"/>
       </type>
       <entity name="Constraint_occurrence" supertypes="Requirement_definition_property" super.expression="View_based_constraint_occurrence">
          <explicit name="logical_relation" optional="YES">
@@ -35,17 +41,23 @@
          </explicit>
       </entity>
       <entity name="Mechanical_requirement_occurrence" supertypes="Requirement_definition_property"/>
-      <entity name="Operational_requirement_occurrence_relationship">
+      <entity name="Operational_requirement_occurrence_relationship" supertypes="Assigned_property View_definition_relationship">
+         <explicit name="operand_1">
+            <typename name="Requirement_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+         </explicit>
+         <explicit name="operand_2">
+            <typename name="Requirement_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+         </explicit>
+         <explicit name="result">
+            <typename name="Requirement_view_definition"/>
+            <redeclaration entity-ref="Assigned_property" old_name="described_element"/>
+         </explicit>
          <explicit name="relationship_type">
             <typename name="relationship_operation"/>
          </explicit>
-         <explicit name="relating_requirement_occurrence">
-            <typename name="Requirement_view_definition"/>
-         </explicit>
-         <explicit name="related_requirement_occurrence">
-            <typename name="Requirement_view_definition"/>
-         </explicit>
-         <where label="WR1" expression=" relating_requirement_occurrence :&lt;&gt;: related_requirement_occurrence "/>
+         <where label="WR1" expression=" operand_1 :&lt;&gt;: operand_2 "/>
       </entity>
       <entity name="Purpose_occurrence" supertypes="Requirement_definition_property"/>
       <entity name="Requirement_definition_property" super.expression="ONEOF (Thermal_requirement_occurrence, Electromagnetic_requirement_occurrence, Electrical_requirement_occurrence, Mechanical_requirement_occurrence) ANDOR ONEOF (Design_requirement_occurrence, Inspection_requirement_occurrence, Test_requirement_occurrence, Purpose_occurrence, Constraint_occurrence, Design_characteristic_occurrence)">
@@ -86,6 +98,20 @@
             <unique.attribute entity-ref="Requirement_definition_property" attribute="associated_definition"/>
          </unique>
          <where label="WR1" expression=" NOT ( SIZEOF ( required_material ) = 1 ) OR ( 'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF ( required_material ) ) "/>
+      </entity>
+      <entity name="Requirement_view_definition_relationship" supertypes="View_definition_relationship">
+         <explicit name="primary">
+            <typename name="Requirement_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+         </explicit>
+         <explicit name="secondary">
+            <typename name="Requirement_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+         </explicit>
+         <explicit name="relationship_type">
+            <typename name="requirement_view_relationship_type"/>
+         </explicit>
+         <where label="WR1" expression=" primary :&lt;&gt;: secondary "/>
       </entity>
       <entity name="Shape_and_view_based_constraint_occurrence" supertypes="View_based_constraint_occurrence">
          <explicit name="constraining_shape">

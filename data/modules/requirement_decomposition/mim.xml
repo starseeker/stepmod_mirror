@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-19T18:19:27" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-20T17:35:34" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="requirement_decomposition_mim schema_instance"/>
    <schema name="Requirement_decomposition_mim">
       <interface kind="use" schema="Conductivity_material_aspects_mim"/>
@@ -24,6 +24,7 @@
       <entity name="material_electrical_conductivity_category" supertypes="group">
          <where label="WR1" expression=" SELF \ group . name IN [ 'conductive' , 'non conductive' , 'resistive' , 'semi conductive' ] "/>
       </entity>
+      <entity name="operational_requirement_occurence_relationship" supertypes="property_definition product_definition_relationship"/>
       <entity name="requirement_allocation_group" supertypes="group property_definition_relationship">
          <where label="WR1" expression=" ( SIZEOF ( QUERY ( aga &lt;* QUERY ( ga &lt;* USEDIN ( SELF , 'REQUIREMENT_DECOMPOSITION_MIM.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) | 'REQUIREMENT_DECOMPOSITION_MIM.' + 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF ( ga ) ) | ( SIZEOF ( [ 'REQUIREMENT_DECOMPOSITION_MIM.' + 'PRODUCT' , 'REQUIREMENT_DECOMPOSITION_MIM.' + 'PRODUCT_DEFINITION_FORMATION' , 'REQUIREMENT_DECOMPOSITION_MIM.' + 'CONFIGURATION_ITEM' ] * TYPEOF ( aga . items ) ) = 1 ) ) ) = 1 ) "/>
          <where label="WR2" expression=" 'REQUIREMENT_DECOMPOSITION_MIM.' + 'REQUIREMENTS_PROPERTY' IN TYPEOF ( SELF \ property_definition_relationship . relating_property_definition ) "/>
@@ -38,6 +39,7 @@
          <where label="WR6" expression=" SIZEOF ( TYPEOF ( SELF ) - ( TYPEOF ( SELF \ product_definition || SELF \ requirement_definition ) ) ) = 0 "/>
          <where label="WR7" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF . formation . of_product , 'REQUIREMENT_DECOMPOSITION_MIM.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.' + 'PRODUCTS' ) | prpc \ product_category . name = 'requirements model' ) ) &gt;= 1 "/>
       </entity>
+      <entity name="requirement_view_definition_relationship" supertypes="product_definition_relationship"/>
       <entity name="requirements_property" supertypes="property_definition">
          <where label="WR1" expression=" SIZEOF ( QUERY ( pdr &lt;* USEDIN ( SELF , 'REQUIREMENT_DECOMPOSITION_MIM.' + 'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION' ) | pdr \ property_definition_relationship . name = 'requirements property composition' ) ) &lt;= 1 "/>
          <where label="WR2" expression=" SIZEOF ( QUERY ( pdr &lt;* USEDIN ( SELF , 'REQUIREMENT_DECOMPOSITION_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | SIZEOF ( QUERY ( it &lt;* pdr . used_representation . items | ( 'REQUIREMENT_DECOMPOSITION_MIM.' + 'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( it ) ) AND ( it \ representation_item . name = 'requirements description' ) ) ) = 1 ) ) &lt;= 1 "/>

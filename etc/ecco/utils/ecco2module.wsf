@@ -1,0 +1,80 @@
+<?xml version="1.0" standalone="yes"?>
+<!--
+$Id: ecco2module.wsf,v 1.7 2005/01/08 01:03:01 thendrix Exp $
+  Author: Rob Bodington, Eurostep Limited
+  Owner:  Developed by Eurostep 
+  Purpose:  WSF Script to copy all the express files from the repository to module
+-->
+
+
+<job>
+  <script language="VBScript">
+    <![CDATA[
+      Function ShowInputBox(str, title, default)
+          ShowInputBox = InputBox(str, title, default)
+      End Function
+      ]]>
+  </script>
+
+   <script language="jscript" src="ecco2moduleMain.js">
+        function getEccoDir(initVal) {
+	    var retVal = 0;
+	    var sMsg;
+	    sMsg = "Enter directory where ECCO has published XML:";
+	    var eccoDir = ShowInputBox(sMsg, "ECCO directory",initVal);
+	    if (typeof(eccoDir) != 'undefined') {
+		if (checkEccoDir(eccoDir) != 0) {
+		    // Invalid
+		    retVal = getEccoDir(eccoDir);
+		} else {
+		    retVal = eccoDir;
+		}
+	    } else {
+		retVal = -1;
+	    }
+	    return(retVal);
+	}
+
+    
+
+	function extractSchema(schemaName) {
+	    sMsg="Enter schema to extract from model.xml:";
+	    schemaName = ShowInputBox(sMsg, "Schema name",schemaName);
+	    if (typeof(schemaName) != 'undefined') {
+		if (checkSchema(eccoDir, schemaName) == 0) {
+		    convertSchema(eccoDir, schemaName);
+		    var modPath = getModulePath(schemaName);
+		    var yes_no = yesOrNo("Extracted module XML for schema: "+
+				     schemaName+"\nto: "+eccoDir+"\\module\n\nDo you want the XML copied to the module directory?\n"+modPath);
+		    if (yes_no == "yes") { 
+			copyToModuleDir(eccoDir, schemaName);
+		     } else {
+		        popupInform("Extracted module XML for schema: "+
+				     schemaName+"\nto: "+eccoDir+"\\module"
+				     +"\nCopy these to the module.");
+		     }
+
+		} else {
+		    extractSchema(schemaName);
+		}
+	    }
+	}
+
+
+        // Disable the output of user messages
+        outputUsermessage = 0;    
+//        var initVal = "c:\\document\\1export";
+//       var initVal = "C:\\Repository\\production\\models\\temp"
+       var initVal = "T:\\pdtec"
+        var eccoDir = getEccoDir(initVal);
+        if (eccoDir != -1) {
+	    var schemaName1 = String(getSchemaNameFromXML(eccoDir));
+	    if (schemaName1 != "") {
+	  	extractSchema(schemaName1);
+           }
+	}
+
+   </script>
+
+
+</job>

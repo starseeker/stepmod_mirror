@@ -2,27 +2,25 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-22T14:22:31" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-22T18:31:06" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="text_representation_mim schema_instance"/>
    <schema name="Text_representation_mim">
       <interface kind="use" schema="Elemental_geometric_shape_mim"/>
-      <interface kind="use" schema="Specification_document_mim"/>
-      <interface kind="use" schema="external_reference_schema">
-         <interfaced.item name="externally_defined_item"/>
-      </interface>
+      <interface kind="use" schema="Text_appearance_mim"/>
       <interface kind="use" schema="presentation_definition_schema">
          <interfaced.item name="text_literal"/>
       </interface>
       <interface kind="use" schema="presentation_resource_schema">
-         <interfaced.item name="externally_defined_text_font"/>
+         <interfaced.item name="character_glyph_font_usage"/>
+         <interfaced.item name="character_glyph_symbol"/>
+         <interfaced.item name="character_glyph_symbol_outline"/>
+         <interfaced.item name="character_glyph_symbol_stroke"/>
+         <interfaced.item name="draughting_pre_defined_text_font"/>
          <interfaced.item name="font_select"/>
+         <interfaced.item name="externally_defined_text_font"/>
+         <interfaced.item name="text_font"/>
+         <interfaced.item name="text_font_family"/>
+         <interfaced.item name="text_font_in_family"/>
       </interface>
-      <rule name="registered_font_constraint" appliesto="externally_defined_text_font">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( edtf &lt;* externally_defined_text_font | ( SIZEOF ( QUERY ( adr &lt;* USEDIN ( edtf , 'DOCUMENT_ASSIGNMENT_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) | ( adr . assigned_document . kind \ document_type . product_data_type = 'font registration document' ) ) ) = 0 ) ) ) = 0 "/>
-      </rule>
-      <rule name="registered_font_unique_constraint" appliesto="externally_defined_text_font">
-         <algorithm> LOCAL ii_bag : BAG OF STRING := [ ] ; edtf_bag : BAG OF externally_defined_text_font ; adr_bag : BAG OF applied_document_reference ; pass : BOOLEAN := TRUE ; es_bag : BAG OF ee_specification ; END_LOCAL ; REPEAT i := 1 to SIZEOF ( externally_defined_text_font ) by 1 ; IF EXISTS ( externally_defined_text_font [ i ] . item_id ) THEN IF ( NOT ( externally_defined_text_font [ i ] . item_id IN ii_bag ) ) THEN ii_bag := ii_bag + externally_defined_text_font [ i ] . item_id ; END_IF ; END_IF ; END_REPEAT ; REPEAT i := 1 to SIZEOF ( ii_bag ) by 1 ; IF ( NOT pass ) THEN ESCAPE ; END_IF ; edtf_bag := QUERY ( edtf &lt;* externally_defined_text_font | ( edtf . item_id = ii_bag [ i ] ) ) ; REPEAT j := 1 to SIZEOF ( edtf_bag ) by 1 ; adr_bag := QUERY ( adr &lt;* USEDIN ( edtf_bag [ j ] , 'DOCUMENT_ASSIGNMENT_MIM.' + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) | ( adr . assigned_document . kind \ document_type . product_data_type = 'font registration document' ) ) ; es_bag := [ ] ; REPEAT k := 1 to SIZEOF ( adr_bag ) by 1 ; IF EXISTS ( adr_bag [ k ] . assigned_document ) THEN IF ( adr_bag [ k ] . assigned_document IN es_bag ) THEN pass := FALSE ; ESCAPE ; ELSE es_bag := es_bag + adr_bag [ k ] . assigned_document ; END_IF ; END_IF ; END_REPEAT ; END_REPEAT ; END_REPEAT ; </algorithm>
-         <where label="WR1" expression=" pass "/>
-      </rule>
    </schema>
 </express>

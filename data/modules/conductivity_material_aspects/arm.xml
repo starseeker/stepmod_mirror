@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-20T17:34:01" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-22T14:18:40" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="conductivity_material_aspects_arm schema_instance"/>
    <schema name="Conductivity_material_aspects_arm">
       <interface kind="use" schema="Classification_assignment_arm"/>
@@ -16,8 +16,11 @@
       </type>
       <entity name="Conductivity_material_property_class" abstract.supertype="YES" supertypes="Class" super.expression="ONEOF (Material_electrical_conductivity_class, Material_thermal_conductivity_class, Material_optical_conductivity_class, Material_magnetic_conductivity_class)">
          <where label="WR1" expression=" SELF \ Class . name IN [ 'conductive' , 'non conductive' , 'resistive' , 'semi conductive' , 'super conductive' ] "/>
+         <where label="WR2" expression=" SELF \ Class . description IN [ 'magnetic conductivity' , 'optical conductivity' , 'thermal conductivity' , 'electrical conductivity' ] "/>
       </entity>
-      <entity name="Material_electrical_conductivity_class" supertypes="Conductivity_material_property_class"/>
+      <entity name="Material_electrical_conductivity_class" supertypes="Conductivity_material_property_class">
+         <where label="WR1" expression=" SELF \ Class . description IN [ 'electrical conductivity' ] "/>
+      </entity>
       <entity name="Material_identification_with_conductivity_classification" supertypes="Material_identification">
          <derived name="electrical_conductivity_classification" expression=" get_cond_class ( SELF , 'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' ) ">
             <builtintype type="STRING"/>
@@ -36,9 +39,15 @@
          <where label="WR3" expression=" ( SIZEOF ( QUERY ( ca &lt;* USEDIN ( SELF , 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS' IN TYPEOF ( ca . assigned_class ) ) ) ) &lt;= 1 ) "/>
          <where label="WR4" expression=" ( SIZEOF ( QUERY ( ca &lt;* USEDIN ( SELF , 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS' ) | ( 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.' + 'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS' IN TYPEOF ( ca . assigned_class ) ) ) ) &lt;= 1 ) "/>
       </entity>
-      <entity name="Material_magnetic_conductivity_class" supertypes="Conductivity_material_property_class"/>
-      <entity name="Material_optical_conductivity_class" supertypes="Conductivity_material_property_class"/>
-      <entity name="Material_thermal_conductivity_class" supertypes="Conductivity_material_property_class"/>
+      <entity name="Material_magnetic_conductivity_class" supertypes="Conductivity_material_property_class">
+         <where label="WR1" expression=" SELF \ Class . description IN [ 'magnetic conductivity' ] "/>
+      </entity>
+      <entity name="Material_optical_conductivity_class" supertypes="Conductivity_material_property_class">
+         <where label="WR1" expression=" SELF \ Class . description IN [ 'optical conductivity' ] "/>
+      </entity>
+      <entity name="Material_thermal_conductivity_class" supertypes="Conductivity_material_property_class">
+         <where label="WR1" expression=" SELF \ Class . description IN [ 'thermal conductivity' ] "/>
+      </entity>
       <function name="get_cond_class">
          <parameter name="input1">
             <typename name="Material_identification_with_conductivity_classification"/>

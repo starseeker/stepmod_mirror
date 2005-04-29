@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-04-26T19:01:06" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-04-29T08:53:33" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_technology_mim schema_instance"/>
    <schema name="Assembly_technology_mim">
       <interface kind="use" schema="Assembly_module_design_mim"/>
@@ -56,6 +56,7 @@
          <where label="WR1" expression=" ( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF . formation . of_product , 'ASSEMBLY_TECHNOLOGY_MIM.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | prpc \ product_category . name = 'template model' ) ) &gt;= 1 ) AND ( SELF \ product_definition . name = 'assembly module' ) "/>
          <where label="WR2" expression=" ( NOT ( SELF . frame_of_reference . name = 'physical design' ) ) OR ( SIZEOF ( QUERY ( du &lt;* QUERY ( pdr &lt;* USEDIN ( SELF , 'ASSEMBLY_TECHNOLOGY_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.' + 'RELATED_PRODUCT_DEFINITION' ) | pdr \ product_definition_relationship . name = 'design usage' ) | ( SIZEOF ( [ 'ASSEMBLY_TECHNOLOGY_MIM.' + 'ASSEMBLY_DEFINITION' , 'ASSEMBLY_TECHNOLOGY_MIM.' + 'EXTERNALLY_DEFINED_ASSEMBLY_DEFINITION' , 'ASSEMBLY_TECHNOLOGY_MIM.' + 'LIBRARY_DEFINED_ASSEMBLY_DEFINITION' ] * TYPEOF ( du . relating_product_definition ) ) = 1 ) AND ( du . relating_product_definition . frame_of_reference . name = 'physical design usage' ) AND ( du . relating_product_definition \ product_definition . name = 'assembly module' ) AND ( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( du . relating_product_definition . formation . of_product , 'ASSEMBLY_TECHNOLOGY_MIM.' + 'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS' ) | prpc \ product_category . name = 'template model' ) ) &gt;= 1 ) ) ) = 1 ) "/>
       </entity>
+      <subtype.constraint name="assembly_module_subtypes" entity="physical_unit" super.expression="ONEOF (assembly_definition, reference_packaged_part_assembly_implementation)"/>
       <rule name="default_assembly_bond_shape_constraint" appliesto="shape_representation">
          <where label="WR1" expression=" SIZEOF ( QUERY ( sr &lt;* shape_representation | ( sr \ representation . name = 'default assembly bond shape' ) AND NOT ( SIZEOF ( QUERY ( pdr &lt;* USEDIN ( sr , 'ASSEMBLY_TECHNOLOGY_MIM.' + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION' ) | ( 'ASSEMBLY_TECHNOLOGY_MIM.' + 'SHAPE_ASPECT' IN TYPEOF ( pdr . definition . definition ) ) ) ) = 1 ) ) ) = 0 "/>
       </rule>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.22 2005/04/04 09:39:07 liutkus Exp $
+   $Id: arm.exp,v 1.23 2005/04/16 16:18:12 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3372 - ISO/CD-TS 10303-1655 Chemical substance - EXPRESS ARM
 *)
 
@@ -154,7 +154,6 @@ CONSTANT
     SUBTYPE OF (Substance); 
   WHERE 
      WR1: SIZEOF([ 'chemical element' ] * types_of_product(SELF))= 1 ; 
-     WR2: SELF/Product.name in chemical_elements; 
   END_ENTITY; 
    
  
@@ -209,6 +208,17 @@ RULE substance_view_definition_constraint FOR
 (Product_view_definition);
 WHERE
   WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
+END_RULE; 
+
+RULE chemical_element_constraint FOR 
+(Product);
+WHERE
+  WR1: SIZEOF ( QUERY ( p <* Product | 
+               (('CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE' IN TYPEOF (p) ) AND ((p\Product.name) IN chemical_elements) ) 
+                OR
+               (NOT('CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE' IN TYPEOF (p) ) AND NOT((p\Product.name) IN chemical_elements) )
+       )) =
+       SIZEOF ( Product);
 END_RULE; 
 
  

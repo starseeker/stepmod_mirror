@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.59 2005/05/04 17:40:09 thomasrthurman Exp $
+   $Id: arm.exp,v 1.60 2005/05/04 21:25:26 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -736,9 +736,9 @@ SCHEMA Layered_interconnect_module_design_arm;
     WHERE
       WR1 : SIZEOF(padstack_occurrence_assembly) + SIZEOF(footprint_occurrence_assembly) < 2;
       WR2 : NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR 
-            	padstack_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1];
+            	(padstack_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1]);
       WR3 : NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR 
-            	footprint_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1];            	
+            	(footprint_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1]);            	
   END_ENTITY;
 
   ENTITY Laminate_component_feature
@@ -768,8 +768,10 @@ SCHEMA Layered_interconnect_module_design_arm;
       SELF\Component_make_from_relationship.resultant_component : Assembly_group_component;
       stratum_mapping                                           : SET[1:?] OF Part_definition_relationship; --stratum_make_from_relationship;
     WHERE
-      WR1 : SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.reusable_component.assembly | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_component)))) = 0;
-      WR2 : SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.resultant_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_component)))) = 0;
+      WR1 : SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.reusable_component.components | 
+            NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_view)))) = 0;
+      WR2 : SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.resultant_component.components | 
+            NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar.related_view)))) = 0;
   END_ENTITY;
 
   ENTITY Laminate_layer;
@@ -792,7 +794,8 @@ SCHEMA Layered_interconnect_module_design_arm;
  Laminate_component);
       message_contents            : Text_literal_with_extent;
     WHERE
-      WR1 : SIZEOF(QUERY(sar <* SELF\Assembly_group_component.components | TYPEOF(sar.related_component) <> 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_TEXT_COMPONENT')) = 0;
+      WR1 : SIZEOF(QUERY(sar <* SELF\Assembly_group_component.components | 
+            TYPEOF(sar.related_view) <> 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_TEXT_COMPONENT')) = 0;
   END_ENTITY;
 
   ENTITY Layer_connection_point
@@ -920,14 +923,14 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 	  WR1 : NOT (SIZEOF(deposition_material) = 1) OR
             ('CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1]));
       WR2: NOT (of_technology.plated_passage) OR (SIZEOF(deposition_material) = 1);
-      WR3: NOT (of_technology.maximum_as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
-      WR4: NOT (of_technology.minimum_as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
+      WR3: NOT EXISTS(of_technology.maximum_as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
+      WR4: NOT EXISTS(of_technology.minimum_as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
       WR5: NOT (of_technology.plated_passage) OR
-           SIZEOF([deposition_material[1].electrical_conductivity_classification,
+           (SIZEOF([deposition_material[1].electrical_conductivity_classification,
                    deposition_material[1].magnetic_conductivity_classification, 
                    deposition_material[1].optical_conductivity_classification,  
                    deposition_material[1].thermal_conductivity_classification] *
-                  ['conductive']) >= 1;
+                  ['conductive']) >= 1);
 	END_ENTITY;
 
   ENTITY Pcb
@@ -1045,7 +1048,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
       terminal_to_be_connected : SET[1:?] OF Embedded_component_terminal;
       point_to_be_connected    : SET[1:?] OF Layer_connection_point;
     DERIVE
-      associated_component : assembly_component := terminal_to_be_connected[1]\Component_feature.associated_component;
+      associated_component : Assembly_component := terminal_to_be_connected[1]\Component_feature.associated_component;
     WHERE
       WR1 : SIZEOF(QUERY(t <* terminal_to_be_connected | t.associated_component <> associated_component)) = 0;
   END_ENTITY;
@@ -1073,7 +1076,8 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     WHERE
       WR1 : SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_ADDITION_FEATURE_TEMPLATE',
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(SELF\Part_template_location_in_padstack_definition.Template.associated_template_occurrence)) = 1;
+ 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * 
+ TYPEOF(SELF\Part_template_location_in_padstack_definition.template)) = 1;
   END_ENTITY;
 
   ENTITY Stratum_surface;

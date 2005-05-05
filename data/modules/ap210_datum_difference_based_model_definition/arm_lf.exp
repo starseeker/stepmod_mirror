@@ -1,4 +1,4 @@
-SCHEMA ap210_device_functional_and_physical_characterization_arm_lf;
+SCHEMA ap210_datum_difference_based_model_definition_arm_lf;
 TYPE activity_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE; -- activity_item
 
@@ -284,7 +284,7 @@ END_TYPE; -- geometric_tolerance_qualifiers
 
 TYPE groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 WHERE
-	WR1 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.GROUP' IN TYPEOF(SELF));
+	WR1 :  NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.GROUP' IN TYPEOF(SELF));
 END_TYPE; -- groupable_item
 
 TYPE hour_in_day = INTEGER;
@@ -403,11 +403,6 @@ WHERE
 	WR1 :  { 1 <= SELF <= 12 } ;
 END_TYPE; -- month_in_year_number
 
-TYPE mounting_technology_type = ENUMERATION OF (
-	surface_mount,
-	through_hole );
-END_TYPE; -- mounting_technology_type
-
 TYPE mp_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH (
 Model_parameter);END_TYPE; -- mp_documented_element_select
 
@@ -457,18 +452,6 @@ Organization,Person_in_organization);END_TYPE; -- organization_or_person_in_orga
 
 TYPE orientation_select = SELECT (
 Datum_axis_related_orientation,Viewing_plane_based_orientation,Datum_based_vector_orientation);END_TYPE; -- orientation_select
-
-TYPE pa_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH (
-Package);END_TYPE; -- pa_ee_product_definition_with_annotation_elements
-
-TYPE pa_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH (
-Package);END_TYPE; -- pa_external_identification_item
-
-TYPE pa_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH (
-Package_body,Package_terminal);END_TYPE; -- pa_material_item_select
-
-TYPE package_or_package_external_reference = SELECT (
-Package,Package_external_reference);END_TYPE; -- package_or_package_external_reference
 
 TYPE parameter_assignment_or_rule_general_clause = SELECT (
 Parameter_assignment,Rule_general_clause);END_TYPE; -- parameter_assignment_or_rule_general_clause
@@ -539,9 +522,6 @@ Datum_feature);END_TYPE; -- physical_feature_or_part_template
 TYPE physical_unit = SELECT (
 Part_usage_view,Part_design_view);END_TYPE; -- physical_unit
 
-TYPE physical_unit_or_part_template = SELECT (
-Template_definition,Part_view_definition);END_TYPE; -- physical_unit_or_part_template
-
 TYPE physical_unit_or_part_template_or_fp_or_pd = EXTENSIBLE GENERIC_ENTITY SELECT (
 Part_view_definition);END_TYPE; -- physical_unit_or_part_template_or_fp_or_pd
 
@@ -559,9 +539,6 @@ Template_definition);END_TYPE; -- plt_physical_unit_or_part_template_or_fp_or_pd
 
 TYPE point_select = EXTENSIBLE GENERIC_ENTITY SELECT (
 Cartesian_point,Point_on_curve,Point_on_surface);END_TYPE; -- point_select
-
-TYPE ppbbm_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH (
-Packaged_part);END_TYPE; -- ppbbm_material_item_select
 
 TYPE pr_assigned_name_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON assigned_name_select WITH (
 Rule_set);END_TYPE; -- pr_assigned_name_select
@@ -590,16 +567,6 @@ TYPE predefined_keepout_purpose = ENUMERATION OF (
 	vibration,
 	electromagnetic_compatibility );
 END_TYPE; -- predefined_keepout_purpose
-
-TYPE predefined_lead_form = ENUMERATION OF (
-	gull_wing,
-	j_lead,
-	reversed_j_lead,
-	integral_terminal,
-	undefined,
-	ball,
-	straight );
-END_TYPE; -- predefined_lead_form
 
 TYPE product_property_assignment = EXTENSIBLE SELECT BASED_ON property_assignment_select WITH (
 Product_view_definition,View_definition_relationship);END_TYPE; -- product_property_assignment
@@ -700,12 +667,6 @@ Composite_signal_property_relationship,Signal_property,Signal);END_TYPE; -- s_ex
 TYPE scalar_or_coordinated_characteristics = SELECT (
 coordinated_characteristic,characteristic);END_TYPE; -- scalar_or_coordinated_characteristics
 
-TYPE seating_plane_intersection_type = ENUMERATION OF (
-	surface_intersection,
-	through_intersection,
-	does_not_intersect );
-END_TYPE; -- seating_plane_intersection_type
-
 TYPE second_in_minute = REAL;
 WHERE
 	WR1 :  { 0 <= SELF <= 60.0 } ;
@@ -768,13 +729,6 @@ Part_view_definition);END_TYPE; -- spr_product_property_assignment
 
 TYPE string_select = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE; -- string_select
-
-TYPE substance_composition_basis = ENUMERATION OF (
-	VOLUME,
-	MASS,
-	MOLES,
-	ATOMS );
-END_TYPE; -- substance_composition_basis
 
 TYPE template_instance = SELECT (
 Mapping_based_template_instance,Transformation_based_template_instance);END_TYPE; -- template_instance
@@ -944,7 +898,7 @@ ENTITY Alias_identification
 DERIVE
 	SELF\Identification_assignment.role : STRING :=  'alias' ;
 WHERE
-	WR1 :  SIZEOF(QUERY(item <* SELF \ Identification_assignment.items | NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item))))= 0 ;
+	WR1 :  SIZEOF(QUERY(item <* SELF \ Identification_assignment.items | NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item))))= 0 ;
 END_ENTITY; -- Alias_identification
 
 
@@ -1221,7 +1175,7 @@ DERIVE
 INVERSE
 	SELF\Product_occurrence.occurrence_contexts: SET [1:?] OF Assembly_component_relationship FOR related_view;
 WHERE
-	WR1 :  NOT(EXISTS(SELF  \ Definition_based_product_occurrence.derived_from))OR((('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.FOOTPRINT_OCCURRENCE' IN  TYPEOF(SELF))AND('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.FOOTPRINT_DEFINITION' IN  TYPEOF(derived_from)))OR(NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.FOOTPRINT_OCCURRENCE' IN  TYPEOF(SELF))AND  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.FOOTPRINT_DEFINITION' IN  TYPEOF(SELF  \ Definition_based_product_occurrence.derived_from)))OR(('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PADSTACK_OCCURRENCE' IN  TYPEOF(SELF))AND('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PADSTACK_DEFINITION' IN  TYPEOF(SELF  \ Definition_based_product_occurrence.derived_from)))OR(NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PADSTACK_OCCURRENCE' IN  TYPEOF(SELF))AND NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PADSTACK_DEFINITION' IN TYPEOF(SELF \ Definition_based_product_occurrence.derived_from))));
+	WR1 :  NOT(EXISTS(SELF  \ Definition_based_product_occurrence.derived_from))OR((('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.FOOTPRINT_OCCURRENCE' IN  TYPEOF(SELF))AND('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.FOOTPRINT_DEFINITION' IN  TYPEOF(derived_from)))OR(NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.FOOTPRINT_OCCURRENCE' IN  TYPEOF(SELF))AND  NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.FOOTPRINT_DEFINITION' IN  TYPEOF(SELF  \ Definition_based_product_occurrence.derived_from)))OR(('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PADSTACK_OCCURRENCE' IN  TYPEOF(SELF))AND('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PADSTACK_DEFINITION' IN  TYPEOF(SELF  \ Definition_based_product_occurrence.derived_from)))OR(NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PADSTACK_OCCURRENCE' IN  TYPEOF(SELF))AND NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PADSTACK_DEFINITION' IN TYPEOF(SELF \ Definition_based_product_occurrence.derived_from))));
 END_ENTITY; -- Assembly_component
 
 
@@ -1277,7 +1231,7 @@ DERIVE
 UNIQUE
 	UR1 : described_element;
 WHERE
-	WR1 :  SIZEOF([ 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.DOCUMENT_DEFINITION', 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.FILE' ] * TYPEOF(SELF \ Assigned_property.described_element))= 1 ;
+	WR1 :  SIZEOF([ 'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.DOCUMENT_DEFINITION', 'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.FILE' ] * TYPEOF(SELF \ Assigned_property.described_element))= 1 ;
 END_ENTITY; -- Assigned_document_property
 
 
@@ -1345,10 +1299,10 @@ ENTITY Boundary_curve
 INVERSE
 	mapping_function: External_source_identification FOR item;
 WHERE
-	WR1 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.BOUNDARY_CURVE' IN TYPEOF(basis_curve));
-	WR2 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.CLOSED_CURVE' IN TYPEOF(SELF));
-	WR3 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.COMPOSITE_CURVE' IN TYPEOF(basis_curve));
-	WR4 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.CLOSED_CURVE' IN TYPEOF(basis_curve));
+	WR1 :  NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.BOUNDARY_CURVE' IN TYPEOF(basis_curve));
+	WR2 :  NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.CLOSED_CURVE' IN TYPEOF(SELF));
+	WR3 :  NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.COMPOSITE_CURVE' IN TYPEOF(basis_curve));
+	WR4 :  NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.CLOSED_CURVE' IN TYPEOF(basis_curve));
 END_ENTITY; -- Boundary_curve
 
 
@@ -1498,23 +1452,6 @@ ENTITY Characterizable_object;
 END_ENTITY; -- Characterizable_object
 
 
-ENTITY Chemical_compound
-	SUBTYPE OF (Substance);
-DERIVE
-	id_owner : SET [0:?] OF Organization_or_person_in_organization_assignment :=  QUERY(temp <* USEDIN(SELF, 'PERSON_ORGANIZATION_ASSIGNMENT_ARM.' + 'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS')|(temp.role = 'id owner'));
-WHERE
-	WR1 :  SIZEOF([ 'chemical compound' ] * types_of_product(SELF))= 1 ;
-	WR2 :  EXISTS(id_owner)AND(SIZEOF(id_owner)= 1);
-END_ENTITY; -- Chemical_compound
-
-
-ENTITY Chemical_element
-	SUBTYPE OF (Substance);
-WHERE
-	WR1 :  SIZEOF([ 'chemical element' ] * types_of_product(SELF))= 1 ;
-END_ENTITY; -- Chemical_element
-
-
 ENTITY Circular_area
 	SUBTYPE OF (Primitive_2d);
 	centre : Cartesian_point;
@@ -1574,8 +1511,8 @@ ENTITY Classification_association
 	definitional : LOGICAL;
 	SELF\Classification_assignment.assigned_class : Class_with_attributes;
 WHERE
-	WR1 :  SIZEOF(QUERY(it <* SELF \ Classification_assignment.items | NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.DEFINABLE_OBJECTS' IN TYPEOF(it))AND definitional))= 0 ;
-	WR2 :  SIZEOF(QUERY(it <* SELF \ Classification_assignment.items | NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF(it))))= 0 ;
+	WR1 :  SIZEOF(QUERY(it <* SELF \ Classification_assignment.items | NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.DEFINABLE_OBJECTS' IN TYPEOF(it))AND definitional))= 0 ;
+	WR2 :  SIZEOF(QUERY(it <* SELF \ Classification_assignment.items | NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF(it))))= 0 ;
 END_ENTITY; -- Classification_association
 
 
@@ -1647,7 +1584,7 @@ WHERE
 	WR2 :  SELF \ View_definition_relationship.relating_view :=: upper_assembly_relationship \ View_definition_relationship.relating_view ;
 	WR3 :  SELF \ View_definition_relationship.related_view :=: sub_assembly_relationship \ View_definition_relationship.related_view ;
 	WR4 : (upper_assembly_relationship \ View_definition_relationship.related_view :=: sub_assembly_relationship \ View_definition_relationship.relating_view)OR(SIZEOF(QUERY(pdr <* USEDIN(upper_assembly_relationship \ View_definition_relationship.related_view, 'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW')| pdr.relating_view :=: sub_assembly_relationship \ View_definition_relationship.relating_view))= 1);
-	WR5 :  SIZEOF([ 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.NEXT_ASSEMBLY_USAGE', 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.COMPONENT_UPPER_LEVEL_IDENTIFICATION' ] * TYPEOF(upper_assembly_relationship))= 1 ;
+	WR5 :  SIZEOF([ 'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.NEXT_ASSEMBLY_USAGE', 'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.COMPONENT_UPPER_LEVEL_IDENTIFICATION' ] * TYPEOF(upper_assembly_relationship))= 1 ;
 END_ENTITY; -- Component_upper_level_identification
 
 
@@ -1794,26 +1731,12 @@ WHERE
 END_ENTITY; -- Connection_zone_map_identification
 
 
-ENTITY Connection_zone_package_interface_plane_relationship;
-	interface_plane : Seating_plane;
-	mating_zone : Connection_zone_in_usage_view;
-	derived_zone : Connection_zone_in_usage_view;
-	derived_zone_shape_class : STRING;
-INVERSE
-	associated_package_terminal: SET [0:1] OF Package_terminal FOR seating_plane_zone;
-UNIQUE
-	UR1 : interface_plane, mating_zone;
-WHERE
-	WR1 :  derived_zone_shape_class IN [ 'area', 'edge' ] ;
-END_ENTITY; -- Connection_zone_package_interface_plane_relationship
-
-
 ENTITY Constraint_occurrence
 	SUPERTYPE OF (View_based_constraint_occurrence)
 	SUBTYPE OF (Requirement_definition_property);
 	logical_relation : OPTIONAL Rule_complex_clause;
 WHERE
-	WR1 : (('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.' + 'VIEW_BASED_CONSTRAINT_OCCURRENCE')IN TYPEOF(SELF))OR EXISTS(logical_relation);
+	WR1 : (('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.' + 'VIEW_BASED_CONSTRAINT_OCCURRENCE')IN TYPEOF(SELF))OR EXISTS(logical_relation);
 END_ENTITY; -- Constraint_occurrence
 
 
@@ -1998,6 +1921,18 @@ ENTITY Datum_difference_based_characteristic
 	SUBTYPE OF (Representation_item);
 	of_datum_difference : Datum_difference;
 END_ENTITY; -- Datum_difference_based_characteristic
+
+
+ENTITY Datum_difference_based_model_parameter
+	SUBTYPE OF (Model_parameter);
+	of_datum_difference : Datum_difference;
+END_ENTITY; -- Datum_difference_based_model_parameter
+
+
+ENTITY Datum_difference_functional_unit_usage_view_terminal_assignment;
+	assigned_functional_terminal_definition : Functional_unit_usage_view_terminal_definition;
+	assigned_datum_difference : Datum_difference;
+END_ENTITY; -- Datum_difference_functional_unit_usage_view_terminal_assignment
 
 
 ENTITY Datum_feature
@@ -2356,7 +2291,7 @@ END_ENTITY; -- Document_definition_relationship
 ENTITY Document_location_identification
 	SUBTYPE OF (External_source_identification);
 WHERE
-	WR1 :  'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.DOCUMENT_DEFINITION' IN TYPEOF(SELF \ External_source_identification.item);
+	WR1 :  'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.DOCUMENT_DEFINITION' IN TYPEOF(SELF \ External_source_identification.item);
 END_ENTITY; -- Document_location_identification
 
 
@@ -2364,7 +2299,7 @@ ENTITY Document_property_representation
 	SUBTYPE OF (Representation);
 	SELF\Representation.items : SET [1:?] OF descriptive_or_numerical;
 WHERE
-	WR1 :  SIZEOF(QUERY(pr <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_REPRESENTATION.REP')| 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.ASSIGNED_PROPERTY' IN TYPEOF(pr.property)))> 0 ;
+	WR1 :  SIZEOF(QUERY(pr <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_REPRESENTATION.REP')| 'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.ASSIGNED_PROPERTY' IN TYPEOF(pr.property)))> 0 ;
 	WR2 :  SELF \ Representation.context_of_items.kind = 'document parameters' ;
 	WR3 :  valid_document_property_representation(SELF);
 	WR4 :  SIZEOF(QUERY(it1 <* SELF  \ Representation.items | SIZEOF(QUERY(it2 <* SELF \ Representation.items | it1.name = it2.name))> 1))= 0 ;
@@ -2385,7 +2320,7 @@ END_ENTITY; -- Dose_equivalent_data_element
 ENTITY Duration
 	SUBTYPE OF (Value_with_unit);
 WHERE
-	WR1 :  'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.' + 'TIME_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
+	WR1 :  'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.' + 'TIME_UNIT' IN TYPEOF(SELF \ Value_with_unit.unit);
 END_ENTITY; -- Duration
 
 
@@ -2586,11 +2521,6 @@ ENTITY Feature_shape_definition
 END_ENTITY; -- Feature_shape_definition
 
 
-ENTITY Fiducial_part_feature
-	SUBTYPE OF (Part_tooling_feature);
-END_ENTITY; -- Fiducial_part_feature
-
-
 ENTITY File
 	ABSTRACT SUPERTYPE OF (ONEOF (Digital_file, Hardcopy));
 	id : STRING;
@@ -2602,7 +2532,7 @@ END_ENTITY; -- File
 ENTITY File_location_identification
 	SUBTYPE OF (External_item_identification);
 WHERE
-	WR1 :  'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.FILE' IN TYPEOF(SELF \ External_source_identification.item);
+	WR1 :  'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.FILE' IN TYPEOF(SELF \ External_source_identification.item);
 END_ENTITY; -- File_location_identification
 
 
@@ -2634,13 +2564,6 @@ END_ENTITY; -- Frequency_data_element
 ENTITY Frozen_assignment;
 	frozen_item : SET [1:?] OF managed_design_object;
 END_ENTITY; -- Frozen_assignment
-
-
-ENTITY Functional_orientation_feature
-	SUBTYPE OF (Part_feature);
-	associated_body_vertical_extent : OPTIONAL SET [1:2] OF Package_body_surface;
-	associated_terminal : Primary_reference_terminal;
-END_ENTITY; -- Functional_orientation_feature
 
 
 ENTITY Functional_specification;
@@ -2794,14 +2717,6 @@ WHERE
 END_ENTITY; -- Functional_unit_usage_view_terminal_definition_make_from_relationship
 
 
-ENTITY Functional_usage_view_to_part_terminal_assignment;
-	physical_usage_view_terminal : Part_terminal;
-	functional_usage_view_terminal : Scalar_terminal_definition;
-UNIQUE
-	UR1 : functional_usage_view_terminal, physical_usage_view_terminal;
-END_ENTITY; -- Functional_usage_view_to_part_terminal_assignment
-
-
 ENTITY Gate_path_swap_specification
 	SUBTYPE OF (Change_design_object_management_relationship);
 	SELF\Change_design_object_management_relationship.current_design_object : Design_functional_unit_allocation_to_reference_functional_unit;
@@ -2877,8 +2792,8 @@ ENTITY Geometric_tolerance
 	tolerance_value : Value_with_unit;
 	value_determination : OPTIONAL STRING;
 WHERE
-	WR1 : (NOT(EXISTS(segment_size)))OR('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.LENGTH_MEASURE' IN TYPEOF(segment_size.value_component));
-	WR2 : (NOT(EXISTS(tolerance_value)))OR('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.LENGTH_MEASURE' IN TYPEOF(tolerance_value.value_component));
+	WR1 : (NOT(EXISTS(segment_size)))OR('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.LENGTH_MEASURE' IN TYPEOF(segment_size.value_component));
+	WR2 : (NOT(EXISTS(tolerance_value)))OR('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.LENGTH_MEASURE' IN TYPEOF(tolerance_value.value_component));
 	WR3 : (NOT(EXISTS(significant_digits)))OR(significant_digits > 0);
 END_ENTITY; -- Geometric_tolerance
 
@@ -2937,11 +2852,6 @@ ENTITY Group_relationship;
 END_ENTITY; -- Group_relationship
 
 
-ENTITY Guided_wave_terminal
-	SUBTYPE OF (Package_terminal);
-END_ENTITY; -- Guided_wave_terminal
-
-
 ENTITY Hardcopy
 	SUBTYPE OF (File);
 END_ENTITY; -- Hardcopy
@@ -2969,7 +2879,7 @@ END_ENTITY; -- Illuminance_data_element
 ENTITY Incomplete_reference_marking
 	SUBTYPE OF (Classification_assignment);
 WHERE
-	WR1 :  SIZEOF(QUERY(item <* SELF \ Classification_assignment.items | NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.IDRM_MARKED_ITEM' IN TYPEOF(item))))= 0 ;
+	WR1 :  SIZEOF(QUERY(item <* SELF \ Classification_assignment.items | NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.IDRM_MARKED_ITEM' IN TYPEOF(item))))= 0 ;
 	WR2 :  SELF \ Classification_assignment.assigned_class.id = 'reference' ;
 END_ENTITY; -- Incomplete_reference_marking
 
@@ -3227,10 +3137,10 @@ DERIVE
 	optical_conductivity_classification : STRING :=  get_cond_class(SELF, 'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS');
 	thermal_conductivity_classification : STRING :=  get_cond_class(SELF, 'MATERIAL_THERMAL_CONDUCTIVITY_CLASS');
 WHERE
-	WR1 : (SIZEOF(QUERY(ca <* USEDIN(SELF, 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.' + 'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' IN TYPEOF(ca.assigned_class))))= 1);
-	WR2 : (SIZEOF(QUERY(ca <* USEDIN(SELF, 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.' + 'MATERIAL_THERMAL_CONDUCTIVITY_CLASS' IN TYPEOF(ca.assigned_class))))<= 1);
-	WR3 : (SIZEOF(QUERY(ca <* USEDIN(SELF, 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.' + 'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS' IN TYPEOF(ca.assigned_class))))<= 1);
-	WR4 : (SIZEOF(QUERY(ca <* USEDIN(SELF, 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.' + 'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS' IN TYPEOF(ca.assigned_class))))<= 1);
+	WR1 : (SIZEOF(QUERY(ca <* USEDIN(SELF, 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.' + 'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' IN TYPEOF(ca.assigned_class))))= 1);
+	WR2 : (SIZEOF(QUERY(ca <* USEDIN(SELF, 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.' + 'MATERIAL_THERMAL_CONDUCTIVITY_CLASS' IN TYPEOF(ca.assigned_class))))<= 1);
+	WR3 : (SIZEOF(QUERY(ca <* USEDIN(SELF, 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.' + 'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS' IN TYPEOF(ca.assigned_class))))<= 1);
+	WR4 : (SIZEOF(QUERY(ca <* USEDIN(SELF, 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.' + 'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS' IN TYPEOF(ca.assigned_class))))<= 1);
 END_ENTITY; -- Material_identification_with_conductivity_classification
 
 
@@ -3423,7 +3333,7 @@ ENTITY Numerical_item_with_global_unit
 	SUBTYPE OF (Measure_item);
 	value_component : measure_value;
 WHERE
-	WR1 :  SIZEOF(QUERY(pvr <* QUERY(r <* USEDIN(SELF, 'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS')| 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PROPERTY_VALUE_REPRESENTATION' IN TYPEOF(r))| EXISTS(pvr.context_of_items.units)))> 0 ;
+	WR1 :  SIZEOF(QUERY(pvr <* QUERY(r <* USEDIN(SELF, 'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS')| 'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PROPERTY_VALUE_REPRESENTATION' IN TYPEOF(r))| EXISTS(pvr.context_of_items.units)))> 0 ;
 END_ENTITY; -- Numerical_item_with_global_unit
 
 
@@ -3483,187 +3393,6 @@ ENTITY Organization_relationship;
 END_ENTITY; -- Organization_relationship
 
 
-ENTITY Package
-	SUBTYPE OF (Part_usage_view);
-	mounting_technology : mounting_technology_type;
-	maximum_seating_plane_installation_offset : OPTIONAL Length_data_element;
-	surface_mount_lead_form : OPTIONAL predefined_lead_form;
-	nominal_mounting_lead_pitch : OPTIONAL Length_data_element;
-	nominal_mounting_lead_span : OPTIONAL Length_data_element;
-	maximum_body_height_above_seating_plane : Length_data_element;
-	maximum_body_height_below_seating_plane : OPTIONAL Length_data_element;
-	maximum_body_clearance_above_seating_plane : OPTIONAL Length_data_element;
-	maximum_body_clearance_below_seating_plane : OPTIONAL Length_data_element;
-	minimum_body_clearance_above_seating_plane : OPTIONAL Length_data_element;
-	minimum_body_clearance_below_seating_plane : OPTIONAL Length_data_element;
-	maximum_lead_length_below_seating_plane : OPTIONAL Length_data_element;
-	least_lead_length_below_seating_plane : OPTIONAL Length_data_element;
-DERIVE
-	cutout_required : BOOLEAN := (maximum_body_height_below_seating_plane \ Value_with_unit.value_component > 0.0);
-	maximum_installed_height : Length_data_element :=  add_data_element(maximum_body_height_above_seating_plane, maximum_seating_plane_installation_offset);
-	maximum_package_total_vertical_extent : Length_data_element :=  max_data_element(add_data_element(maximum_body_height_above_seating_plane, maximum_body_height_below_seating_plane), add_data_element(maximum_body_height_above_seating_plane, maximum_lead_length_below_seating_plane));
-INVERSE
-	body: SET [0:1] OF Package_body FOR associated_definition;
-	external_surface_mount_lead_form: SET [0:1] OF External_source_identification FOR item;
-	interface_plane: SET [0:?] OF Non_feature_shape_element FOR scope;
-	package_accesses: SET [0:?] OF Package_terminal FOR associated_definition;
-	package_polarity_indication: SET [0:1] OF Shape_element FOR containing_shape;
-	package_primary_orientation_feature: SET [0:1] OF Shape_element FOR containing_shape;
-	package_seating_plane: Non_feature_shape_element FOR scope;
-	package_secondary_orientation_feature: SET [0:1] OF Shape_element FOR containing_shape;
-	package_tertiary_orientation_feature: SET [0:1] OF Shape_element FOR containing_shape;
-WHERE
-	WR1 :  NOT(SIZEOF(package_primary_orientation_feature)> 0)OR('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(package_primary_orientation_feature [ 1 ]));
-	WR2 :  NOT(SIZEOF(package_secondary_orientation_feature)> 0)OR('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(package_secondary_orientation_feature [ 1 ]));
-	WR3 :  NOT(SIZEOF(package_tertiary_orientation_feature)> 0)OR('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(package_tertiary_orientation_feature [ 1 ]));
-	WR4 :  'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.SEATING_PLANE' IN TYPEOF(package_seating_plane);
-	WR5 :  'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.SEATING_PLANE' IN TYPEOF(interface_plane);
-	WR6 :  NOT(mounting_technology = surface_mount)OR(NOT(EXISTS(maximum_lead_length_below_seating_plane)OR EXISTS(least_lead_length_below_seating_plane)));
-	WR7 :  NOT(EXISTS(maximum_lead_length_below_seating_plane))OR(maximum_lead_length_below_seating_plane \ Value_with_unit.value_component > 0.0);
-	WR8 :  NOT(EXISTS(least_lead_length_below_seating_plane))OR(least_lead_length_below_seating_plane \ Value_with_unit.value_component > 0.0);
-	WR9 : (NOT(mounting_technology = surface_mount)AND  NOT(EXISTS(surface_mount_lead_form)))OR((mounting_technology = surface_mount)AND(EXISTS(surface_mount_lead_form)));
-	WR10 :  package_seating_plane \ Shape_element.element_name = 'package seating plane' ;
-	WR11 :  NOT(SIZEOF(interface_plane)> 0)OR(SIZEOF(QUERY(ip <* interface_plane | NOT(ip \ Shape_element.element_name = 'interface plane')))= 0);
-	WR12 :  NOT(SIZEOF(interface_plane)> 0)OR(SIZEOF(QUERY(ip <* interface_plane | NOT(package_seating_plane <> ip)))= 0);
-	WR13 :  SIZEOF(QUERY(prpc <* USEDIN(SELF \ Product_view_definition.defined_version.of_product, 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS')|(prpc.category \ Product_category.name = 'package')))> 0 ;
-	WR14 :  SIZEOF(QUERY(pa <* package_accesses | 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa)))= 1 ;
-	WR15 : (EXISTS(surface_mount_lead_form))XOR((SIZEOF(external_surface_mount_lead_form))= 1);
-END_ENTITY; -- Package
-
-
-ENTITY Package_body
-	SUBTYPE OF (Part_feature);
-	SELF\Part_feature.associated_definition : Package;
-INVERSE
-	body_material: Material_identification FOR items;
-WHERE
-	WR1 :  SIZEOF(QUERY(pf <* USEDIN(SELF, 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION')|('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.' + 'PACKAGE_BODY_TOP_SURFACE' IN TYPEOF(pf))))<= 1 ;
-	WR2 :  SIZEOF(QUERY(pf <* USEDIN(SELF, 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION')|('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.' + 'PACKAGE_BODY_BOTTOM_SURFACE' IN TYPEOF(pf))))<= 1 ;
-	WR3 :  SIZEOF(QUERY(pf <* USEDIN(SELF, 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGE_BODY_SURFACE.ASSOCIATED_DEFINITION')|('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF(pf))))<= 1 ;
-	WR4 :  'CONDUCTIVITY_MATERIAL_ASPECTS.' + 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF(body_material);
-END_ENTITY; -- Package_body
-
-
-ENTITY Package_body_bottom_surface
-	SUBTYPE OF (Package_body_surface);
-END_ENTITY; -- Package_body_bottom_surface
-
-
-ENTITY Package_body_edge_segment_surface
-	SUBTYPE OF (Package_body_surface);
-	composed_surface : Package_body_edge_surface;
-	start_vertex : Edge_segment_vertex;
-	end_vertex : Edge_segment_vertex;
-WHERE
-	WR1 :  start_vertex :<>: end_vertex ;
-END_ENTITY; -- Package_body_edge_segment_surface
-
-
-ENTITY Package_body_edge_surface
-	SUBTYPE OF (Package_body_surface);
-END_ENTITY; -- Package_body_edge_surface
-
-
-ENTITY Package_body_surface
-	ABSTRACT SUPERTYPE OF (ONEOF (Package_body_bottom_surface, Package_body_top_surface, Package_body_edge_segment_surface, Package_body_edge_surface))
-	SUBTYPE OF (Part_feature);
-	associated_package_body : Package_body;
-END_ENTITY; -- Package_body_surface
-
-
-ENTITY Package_body_top_surface
-	SUBTYPE OF (Package_body_surface);
-END_ENTITY; -- Package_body_top_surface
-
-
-ENTITY Package_external_reference;
-	design_owner : STRING;
-	part_number : STRING;
-	revision_code : STRING;
-	product_definition_id : STRING;
-END_ENTITY; -- Package_external_reference
-
-
-ENTITY Package_orientation_feature
-	ABSTRACT SUPERTYPE OF (ONEOF (Primary_orientation_feature, Secondary_orientation_feature, Tertiary_orientation_feature))
-	SUBTYPE OF (Part_feature, Datum_feature);
-	associated_body_vertical_extent : OPTIONAL SET [1:2] OF Package_body_surface;
-END_ENTITY; -- Package_orientation_feature
-
-
-ENTITY Package_terminal
-	SUBTYPE OF (Part_feature);
-	external_connection_zone : OPTIONAL SET [1:?] OF Connection_zone_in_usage_view;
-	internal_connection_zone : OPTIONAL SET [1:?] OF Connection_zone_in_usage_view;
-	seating_plane_intersection : seating_plane_intersection_type;
-	terminal_characteristic : OPTIONAL SET [1:?] OF characteristic;
-	minimum_terminal_diametrical_extent : OPTIONAL Length_data_element;
-	maximum_terminal_diametrical_extent : OPTIONAL Length_data_element;
-	seating_plane_zone : OPTIONAL Connection_zone_package_interface_plane_relationship;
-	SELF\Part_feature.associated_definition : Package;
-DERIVE
-	mates_with_substrate : BOOLEAN := (EXISTS(seating_plane_zone))AND(associated_definition.package_seating_plane :=: seating_plane_zone.interface_plane);
-	terminal_core_material : SET [0:1] OF Material_identification :=  QUERY(temp <* USEDIN(SELF, 'PACKAGE_ARM.MATERIAL_IDENTIFICATION.ITEMS')|(SIZEOF(QUERY(cla <* USEDIN(temp, 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')| cla.role = 'terminal core material'))= 1));
-	terminal_surface_material : SET [1:1] OF Material_identification :=  QUERY(temp <* USEDIN(SELF, 'PACKAGE_ARM.MATERIAL_IDENTIFICATION.ITEMS')|(SIZEOF(QUERY(cla <* USEDIN(temp, 'CLASSIFICATION_ASSIGNMENT_ARM.' + 'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')| cla.role = 'terminal surface material'))= 1));
-INVERSE
-	SELF\Part_feature.feature_shape: SET [1:?] OF Usage_concept_usage_relationship FOR associated_usage;
-WHERE
-	WR1 :  NOT EXISTS(seating_plane_zone)OR(SIZEOF(QUERY(cz <* external_connection_zone |(seating_plane_zone.derived_zone = cz)))= 1);
-	WR2 :  NOT EXISTS(seating_plane_zone)OR(SIZEOF(QUERY(cz <* external_connection_zone |(seating_plane_zone.mating_zone = cz)))= 1);
-	WR3 :  NOT EXISTS(seating_plane_zone)OR((associated_definition.package_seating_plane :=: seating_plane_zone.interface_plane)OR(associated_definition.interface_plane [ 1 ] :=: seating_plane_zone.interface_plane));
-	WR4 :  NOT EXISTS(seating_plane_zone)OR((seating_plane_intersection = surface_intersection)OR(seating_plane_intersection = through_intersection));
-	WR5 :  NOT((seating_plane_intersection = does_not_intersect)AND(EXISTS(seating_plane_zone)));
-	WR6 :  SIZEOF(QUERY(eca <* external_connection_zone | NOT(eca \ Shape_element.containing_shape.described_element = SELF \ Part_feature.associated_definition)))= 0 ;
-	WR7 :  SIZEOF(QUERY(ica <* internal_connection_zone | NOT(ica \ Shape_element.containing_shape.described_element = SELF \ Part_feature.associated_definition)))= 0 ;
-	WR8 :  NOT(SIZEOF(terminal_core_material)= 1)OR('CONDUCTIVITY_MATERIAL_ASPECTS.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF(terminal_core_material [ 1 ]));
-	WR9 :  EXISTS(terminal_core_material);
-	WR10 :  NOT EXISTS(terminal_surface_material)OR('CONDUCTIVITY_MATERIAL_ASPECTS.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF(terminal_surface_material [ 1 ]));
-END_ENTITY; -- Package_terminal
-
-
-ENTITY Package_terminal_external_reference;
-	name : STRING;
-	associated_definition : Package_external_reference;
-UNIQUE
-	UR1 : associated_definition, name;
-END_ENTITY; -- Package_terminal_external_reference
-
-
-ENTITY Package_terminal_surface_constituent_relationship
-	SUBTYPE OF (Shape_element_constituent_relationship);
-	SELF\Shape_element_relationship.related : Package_terminal;
-	SELF\Shape_element_relationship.relating : Package_body_surface;
-END_ENTITY; -- Package_terminal_surface_constituent_relationship
-
-
-ENTITY Packaged_part
-	SUBTYPE OF (Part_usage_view);
-	used_package : SET [1:?] OF package_or_package_external_reference;
-	implemented_function : OPTIONAL Functional_unit_usage_view;
-INVERSE
-	access_mechanisms: SET [0:?] OF Packaged_part_terminal FOR associated_definition;
-WHERE
-	WR1 :  NOT(EXISTS(implemented_function)XOR(SIZEOF(access_mechanisms)> 0));
-	WR2 :  single_package_version(SELF);
-END_ENTITY; -- Packaged_part
-
-
-ENTITY Packaged_part_join_terminal
-	SUBTYPE OF (Packaged_part_terminal);
-END_ENTITY; -- Packaged_part_join_terminal
-
-
-ENTITY Packaged_part_terminal
-	ABSTRACT SUPERTYPE
-	SUBTYPE OF (Part_terminal);
-	terminal_of_package : SET [1:?] OF Package_terminal;
-	SELF\Part_feature.associated_definition : Packaged_part;
-WHERE
-	WR1 :  disjoint_package_terminals(SELF);
-	WR2 :  NOT EXISTS(SELF \ Part_feature.precedent_feature);
-END_ENTITY; -- Packaged_part_terminal
-
-
 ENTITY Parallel_shape_element_relationship
 	SUBTYPE OF (Shape_element_relationship);
 END_ENTITY; -- Parallel_shape_element_relationship
@@ -3695,23 +3424,6 @@ WHERE
 END_ENTITY; -- Part
 
 
-ENTITY Part_array_feature
-	ABSTRACT SUPERTYPE OF (ONEOF (Part_linear_array_feature, Part_rectangular_array_feature))
-	SUBTYPE OF (Part_group_feature);
-END_ENTITY; -- Part_array_feature
-
-
-ENTITY Part_connected_terminals_definition;
-	name : STRING;
-	associated_definition : Part_usage_view;
-	connected_terminals : SET [2:?] OF Part_terminal;
-UNIQUE
-	UR1 : name, associated_definition;
-WHERE
-	WR1 :  SIZEOF(QUERY(ct <* connected_terminals | NOT(associated_definition = ct \ Shape_element.containing_shape)))= 0 ;
-END_ENTITY; -- Part_connected_terminals_definition
-
-
 ENTITY Part_definition_relationship
 	SUBTYPE OF (View_definition_relationship);
 	SELF\View_definition_relationship.related_view : Part_view_definition;
@@ -3725,7 +3437,7 @@ ENTITY Part_design_view
 DERIVE
 	SELF\Item_shape.described_element : shapeable_item :=  SELF ;
 WHERE
-	WR1 : ('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF))OR EXISTS(usage_view);
+	WR1 : ('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF))OR EXISTS(usage_view);
 END_ENTITY; -- Part_design_view
 
 
@@ -3754,20 +3466,12 @@ WHERE
 END_ENTITY; -- Part_feature_make_from_relationship
 
 
-ENTITY Part_feature_placement_link;
-	precedent_element : Part_feature;
-	subsequent_element : Part_feature;
-INVERSE
-	referenced_by: Part_linear_array_feature FOR element;
-END_ENTITY; -- Part_feature_placement_link
-
-
 ENTITY Part_feature_template_definition
 	SUBTYPE OF (Product_view_definition);
 INVERSE
 	shape: Part_feature_template_shape_definition FOR shape_characterized_template;
 WHERE
-	WR1 :  SIZEOF(QUERY(prpc <* USEDIN(SELF \ Product_view_definition.defined_version.of_product, 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS')|(prpc.category \ Product_category.name = 'template model')))> 0 ;
+	WR1 :  SIZEOF(QUERY(prpc <* USEDIN(SELF \ Product_view_definition.defined_version.of_product, 'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS')|(prpc.category \ Product_category.name = 'template model')))> 0 ;
 END_ENTITY; -- Part_feature_template_definition
 
 
@@ -3775,65 +3479,8 @@ ENTITY Part_feature_template_shape_definition
 	SUBTYPE OF (Feature_shape_definition);
 	shape_characterized_template : Part_feature_template_definition;
 WHERE
-	WR1 :  NOT(SIZEOF(USEDIN(SELF , ''))= 0)OR(SIZEOF(QUERY(foo <* USEDIN(SELF, '')| NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF(foo))))= 0);
+	WR1 :  NOT(SIZEOF(USEDIN(SELF , ''))= 0)OR(SIZEOF(QUERY(foo <* USEDIN(SELF, '')| NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF(foo))))= 0);
 END_ENTITY; -- Part_feature_template_shape_definition
-
-
-ENTITY Part_group_feature
-	SUPERTYPE OF (Part_array_feature)
-	SUBTYPE OF (Part_feature, Composite_shape_element);
-END_ENTITY; -- Part_group_feature
-
-
-ENTITY Part_interface_access_feature
-	SUBTYPE OF (Part_feature);
-	accessed_interface : Part_feature;
-	interface_access_area : OPTIONAL SET [1:?] OF Connection_zone_in_usage_view;
-WHERE
-	WR1 :  SELF \ Part_feature.material_state_change = material_removal ;
-	WR2 :  SELF <> accessed_interface ;
-	WR3 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PART_TERMINAL' IN TYPEOF(SELF));
-	WR4 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGE_BODY' IN TYPEOF(SELF));
-	WR5 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PART_MOUNTING_FEATURE' IN TYPEOF(SELF));
-	WR6 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF));
-	WR7 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGE_TERMINAL' IN TYPEOF(SELF));
-	WR8 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGE_BODY_SURFACE' IN TYPEOF(SELF));
-	WR9 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.POLARITY_INDICATION_FEATURE' IN TYPEOF(SELF));
-END_ENTITY; -- Part_interface_access_feature
-
-
-ENTITY Part_linear_array_feature
-	SUBTYPE OF (Part_array_feature);
-	element : SET [1:?] OF Part_feature_placement_link;
-	initial_node_positive_x_displacement : Length_data_element;
-	terminus_node_positive_x_displacement : Length_data_element;
-	location_uncertainty : Length_data_element;
-END_ENTITY; -- Part_linear_array_feature
-
-
-ENTITY Part_linear_array_feature_link;
-	precedent_element : Part_linear_array_feature;
-	subsequent_element : Part_linear_array_feature;
-INVERSE
-	referenced_by: Part_rectangular_array_feature FOR element;
-END_ENTITY; -- Part_linear_array_feature_link
-
-
-ENTITY Part_mating_feature
-	SUBTYPE OF (Part_feature);
-	mating_area : OPTIONAL SET [1:?] OF Connection_zone_in_usage_view;
-WHERE
-	WR1 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PART_MOUNTING_FEATURE' IN TYPEOF(SELF));
-	WR2 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF));
-	WR3 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGE_TERMINAL' IN TYPEOF(SELF));
-	WR4 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PART_TERMINAL' IN TYPEOF(SELF));
-END_ENTITY; -- Part_mating_feature
-
-
-ENTITY Part_mounting_feature
-	SUBTYPE OF (Part_feature);
-	mounting_area : OPTIONAL SET [1:?] OF Connection_zone_in_usage_view;
-END_ENTITY; -- Part_mounting_feature
 
 
 ENTITY Part_occurrence_definition_relationship
@@ -3845,15 +3492,6 @@ DERIVE
 WHERE
 	WR1 :  NOT(('ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(SELF))AND(EXISTS(SELF \ Assembly_component_relationship.quantity)));
 END_ENTITY; -- Part_occurrence_definition_relationship
-
-
-ENTITY Part_rectangular_array_feature
-	SUBTYPE OF (Part_array_feature);
-	element : SET [1:?] OF Part_linear_array_feature_link;
-	initial_row_positive_y_displacement : Length_data_element;
-	terminus_row_positive_y_displacement : Length_data_element;
-	location_uncertainty : Length_data_element;
-END_ENTITY; -- Part_rectangular_array_feature
 
 
 ENTITY Part_template_3d_keepout_shape
@@ -3917,36 +3555,12 @@ ENTITY Part_template_shape
 END_ENTITY; -- Part_template_shape
 
 
-ENTITY Part_terminal
-	ABSTRACT SUPERTYPE
-	SUBTYPE OF (Part_feature);
-INVERSE
-	connection_requirement: SET [0:1] OF Part_connected_terminals_definition FOR connected_terminals;
-	functional_usage_view_terminal: SET [0:1] OF Functional_usage_view_to_part_terminal_assignment FOR physical_usage_view_terminal;
-END_ENTITY; -- Part_terminal
-
-
-ENTITY Part_terminal_external_reference;
-	associated_definition : physical_unit_or_part_template;
-	feature_name : STRING;
-	feature_type : STRING;
-UNIQUE
-	UR1 : associated_definition, feature_name, feature_type;
-END_ENTITY; -- Part_terminal_external_reference
-
-
-ENTITY Part_tooling_feature
-	SUPERTYPE OF ((ONEOF (Fiducial_part_feature, Tool_registration_mark) ANDOR Test_point_part_feature))
-	SUBTYPE OF (Part_feature);
-END_ENTITY; -- Part_tooling_feature
-
-
 ENTITY Part_usage_view
 	SUBTYPE OF (Part_view_definition, Item_shape);
 DERIVE
 	SELF\Item_shape.described_element : shapeable_item :=  SELF ;
 WHERE
-	WR1 :  SIZEOF(QUERY(acr <* USEDIN(SELF, 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW')| NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF(acr.related_view))))= 0 ;
+	WR1 :  SIZEOF(QUERY(acr <* USEDIN(SELF, 'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW')| NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF(acr.related_view))))= 0 ;
 END_ENTITY; -- Part_usage_view
 
 
@@ -4020,13 +3634,6 @@ ENTITY Physical_document_definition
 END_ENTITY; -- Physical_document_definition
 
 
-ENTITY Physical_particle
-	SUBTYPE OF (Substance);
-WHERE
-	WR1 :  SIZEOF([ 'physical particle' ] * types_of_product(SELF))= 1 ;
-END_ENTITY; -- Physical_particle
-
-
 ENTITY Physical_unit_3d_keepout_shape
 	SUBTYPE OF (View_level_non_feature_shape_definition, Physical_unit_keepout_shape);
 	shape_classification : shape_class;
@@ -4078,7 +3685,7 @@ ENTITY Physical_unit_shape
 	shape_approximation_level : shape_approximation_level;
 	mass_property_quality : mass_property_quality;
 WHERE
-	WR1 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGED_PART' IN TYPEOF(shape_characterized_physical_unit));
+	WR1 :  NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PACKAGED_PART' IN TYPEOF(shape_characterized_physical_unit));
 END_ENTITY; -- Physical_unit_shape
 
 
@@ -4149,13 +3756,6 @@ ENTITY Point_on_surface
 	SUBTYPE OF (Detailed_geometric_model_element);
 	supporting_surface : Surface;
 END_ENTITY; -- Point_on_surface
-
-
-ENTITY Polarity_indication_feature
-	SUBTYPE OF (Part_feature);
-	associated_body_vertical_extent : OPTIONAL SET [1:2] OF Package_body_surface;
-	associated_terminal : Package_terminal;
-END_ENTITY; -- Polarity_indication_feature
 
 
 ENTITY Polygonal_area
@@ -4306,18 +3906,6 @@ END_ENTITY; -- Precision_qualifier
 ENTITY Pressure_data_element
 	SUBTYPE OF (Value_with_unit);
 END_ENTITY; -- Pressure_data_element
-
-
-ENTITY Primary_orientation_feature
-	SUBTYPE OF (Package_orientation_feature);
-END_ENTITY; -- Primary_orientation_feature
-
-
-ENTITY Primary_reference_terminal
-	SUBTYPE OF (Package_terminal);
-WHERE
-	WR1 :  NOT(EXISTS(SELF \ Part_feature.precedent_feature));
-END_ENTITY; -- Primary_reference_terminal
 
 
 ENTITY Primitive_2d
@@ -4575,13 +4163,6 @@ END_ENTITY; -- Ratio_data_element
 ENTITY Ratio_unit
 	SUBTYPE OF (Unit);
 END_ENTITY; -- Ratio_unit
-
-
-ENTITY Raw_material_definition_relationship
-	SUBTYPE OF (View_definition_usage);
-	SELF\View_definition_relationship.related_view RENAMED application : Part_view_definition;
-	SELF\View_definition_relationship.relating_view RENAMED definition : Substance_view_definition;
-END_ENTITY; -- Raw_material_definition_relationship
 
 
 ENTITY Rectangular_area
@@ -5045,11 +4626,6 @@ ENTITY Seating_plane
 END_ENTITY; -- Seating_plane
 
 
-ENTITY Secondary_orientation_feature
-	SUBTYPE OF (Package_orientation_feature);
-END_ENTITY; -- Secondary_orientation_feature
-
-
 ENTITY Security_classification;
 	classification_level : STRING;
 	description : OPTIONAL STRING;
@@ -5089,7 +4665,7 @@ ENTITY Shape_definition_3d_intersection
 	SELF\Geometric_model_relationship.rep_2 RENAMED projected_volume : Geometric_model;
 	SELF\Geometric_model_relationship.rep_1 RENAMED surface_intersection_result : Planar_shape;
 WHERE
-	WR1 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PLANAR_SHAPE' IN TYPEOF(projected_volume));
+	WR1 :  NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PLANAR_SHAPE' IN TYPEOF(projected_volume));
 END_ENTITY; -- Shape_definition_3d_intersection
 
 
@@ -5100,7 +4676,7 @@ ENTITY Shape_definition_3d_plane_projection
 	SELF\Geometric_model_relationship.rep_2 RENAMED projected_volume : Geometric_model;
 	SELF\Geometric_model_relationship.rep_1 RENAMED surface_projection_result : Planar_shape;
 WHERE
-	WR1 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PLANAR_SHAPE' IN TYPEOF(projected_volume));
+	WR1 :  NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PLANAR_SHAPE' IN TYPEOF(projected_volume));
 END_ENTITY; -- Shape_definition_3d_plane_projection
 
 
@@ -5381,38 +4957,6 @@ ENTITY String_representation_item_sequence
 END_ENTITY; -- String_representation_item_sequence
 
 
-ENTITY Substance
-	SUPERTYPE OF (ONEOF (Chemical_element, Chemical_compound, Physical_particle))
-	SUBTYPE OF (Product);
-WHERE
-	WR1 :  SIZEOF([ 'substance' ] * types_of_product(SELF))= 1 ;
-END_ENTITY; -- Substance
-
-
-ENTITY Substance_composition_relationship
-	SUBTYPE OF (View_definition_relationship);
-	composition_basis : substance_composition_basis;
-	determination_method : STRING;
-	amount : Value_with_unit;
-	SELF\View_definition_relationship.related_view RENAMED constituent : Substance_view_definition;
-	SELF\View_definition_relationship.relating_view RENAMED whole : Substance_view_definition;
-WHERE
-	WR1 :  'VALUE_WITH_UNIT_ARM.RATIO_UNIT' IN TYPEOF(amount.unit);
-END_ENTITY; -- Substance_composition_relationship
-
-
-ENTITY Substance_version
-	SUBTYPE OF (Product_version);
-	SELF\Product_version.of_product : Substance;
-END_ENTITY; -- Substance_version
-
-
-ENTITY Substance_view_definition
-	SUBTYPE OF (Product_view_definition);
-	SELF\Product_view_definition.defined_version : Substance_version;
-END_ENTITY; -- Substance_view_definition
-
-
 ENTITY Supplied_part_relationship
 	SUBTYPE OF (Product_version_relationship);
 WHERE
@@ -5502,7 +5046,7 @@ ENTITY Template_definition
 DERIVE
 	SELF\Item_shape.described_element : Template_definition :=  SELF ;
 WHERE
-	WR1 :  SIZEOF(QUERY(prpc <* USEDIN(SELF \ Product_view_definition.defined_version.of_product, 'AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS')|(prpc.category \ Product_category.name = 'template model')))> 0 ;
+	WR1 :  SIZEOF(QUERY(prpc <* USEDIN(SELF \ Product_view_definition.defined_version.of_product, 'AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS')|(prpc.category \ Product_category.name = 'template model')))> 0 ;
 END_ENTITY; -- Template_definition
 
 
@@ -5532,16 +5076,6 @@ ENTITY Terminal_swap_specification
 	SELF\Change_design_object_management_relationship.current_design_object : Functional_unit_terminal_node_assignment;
 	SELF\Change_design_object_management_relationship.previous_design_object : Functional_unit_terminal_node_assignment;
 END_ENTITY; -- Terminal_swap_specification
-
-
-ENTITY Tertiary_orientation_feature
-	SUBTYPE OF (Package_orientation_feature);
-END_ENTITY; -- Tertiary_orientation_feature
-
-
-ENTITY Test_point_part_feature
-	SUBTYPE OF (Part_tooling_feature);
-END_ENTITY; -- Test_point_part_feature
 
 
 ENTITY Test_requirement_occurrence
@@ -5576,11 +5110,6 @@ END_ENTITY; -- Theoretically_exact_dimension_representation
 ENTITY Thermal_component
 	SUBTYPE OF (Assembly_component);
 END_ENTITY; -- Thermal_component
-
-
-ENTITY Thermal_feature
-	SUBTYPE OF (Part_feature);
-END_ENTITY; -- Thermal_feature
 
 
 ENTITY Thermal_requirement_occurrence
@@ -5798,11 +5327,6 @@ INVERSE
 END_ENTITY; -- Tolerance_zone_per_unit_size_specification
 
 
-ENTITY Tool_registration_mark
-	SUBTYPE OF (Part_tooling_feature);
-END_ENTITY; -- Tool_registration_mark
-
-
 ENTITY Total_runout_tolerance
 	SUBTYPE OF (Geometric_tolerance);
 	angle : REAL;
@@ -5897,8 +5421,8 @@ ENTITY Usage_concept_usage_relationship;
 	associated_shape_definition : Geometric_model;
 	associated_usage_placement : axis_placement_or_cto2d;
 WHERE
-	WR1 : (('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.NON_FEATURE_SHAPE_DEFINITION' IN  TYPEOF(associated_shape_definition))AND('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.NON_FEATURE_SHAPE_DEFINITION' IN  TYPEOF(associating_usage_shape)))OR(('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.FEATURE_SHAPE_DEFINITION' IN  TYPEOF(associated_shape_definition))AND('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.FEATURE_SHAPE_DEFINITION' IN TYPEOF(associating_usage_shape)));
-	WR2 :  NOT('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.CARTESIAN_TRANSFORMATION_2D' IN  TYPEOF(associated_usage_placement))OR('AP210_DEVICE_FUNCTIONAL_AND_PHYSICAL_CHARACTERIZATION_ARM_LF.NON_FEATURE_SHAPE_DEFINITION' IN TYPEOF(associating_usage_shape));
+	WR1 : (('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.NON_FEATURE_SHAPE_DEFINITION' IN  TYPEOF(associated_shape_definition))AND('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.NON_FEATURE_SHAPE_DEFINITION' IN  TYPEOF(associating_usage_shape)))OR(('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.FEATURE_SHAPE_DEFINITION' IN  TYPEOF(associated_shape_definition))AND('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.FEATURE_SHAPE_DEFINITION' IN TYPEOF(associating_usage_shape)));
+	WR2 :  NOT('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.CARTESIAN_TRANSFORMATION_2D' IN  TYPEOF(associated_usage_placement))OR('AP210_DATUM_DIFFERENCE_BASED_MODEL_DEFINITION_ARM_LF.NON_FEATURE_SHAPE_DEFINITION' IN TYPEOF(associating_usage_shape));
 END_ENTITY; -- Usage_concept_usage_relationship
 
 
@@ -6068,14 +5592,6 @@ ENTITY Width_size_dimension
 END_ENTITY; -- Width_size_dimension
 
 
-ENTITY Wire_terminal
-	SUBTYPE OF (Package_terminal);
-	maximum_wire_terminal_length : Length_data_element;
-	minimum_wire_terminal_length : Length_data_element;
-	SELF\Package_terminal.internal_connection_zone : SET [1:?] OF Connection_zone_in_usage_view;
-END_ENTITY; -- Wire_terminal
-
-
 ENTITY Work_order;
 	name : STRING;
 	description : OPTIONAL STRING;
@@ -6097,5 +5613,5 @@ ENTITY Work_request_status;
 END_ENTITY; -- Work_request_status
 
 
-END_SCHEMA; --ap210_device_functional_and_physical_characterization_arm_lf
+END_SCHEMA; --ap210_datum_difference_based_model_definition_arm_lf
 

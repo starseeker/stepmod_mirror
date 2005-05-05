@@ -9,6 +9,10 @@ SCHEMA Part_template_2d_shape_arm;
 	USE FROM Package_arm;	-- ISO/TS 10303-1707
 	USE FROM Part_template_extension_arm;	-- ISO/TS 10303-1718
 	USE FROM Printed_physical_layout_template_arm;	-- ISO/TS 10303-1737
+	USE FROM Part_template_2d_shape_arm; -- ISO/TS 10303-1716
+	USE FROM Part_template_3d_shape_arm; -- ISO/TS 10303-1717
+	USE FROM Physical_unit_2d_shape_arm; -- ISO/TS 10303-1726
+	USE FROM Physical_unit_3d_shape_arm; -- ISO/TS 10303-1728
 
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	
@@ -85,13 +89,17 @@ a subtype of layout_template_definition *)
     	UR1 : shape_characterized_footprint_definition;
     WHERE
       WR1 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE',
- 'PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR (shape_characterized_footprint_definition.reference_package :=: reference_shape.shape_characterized_physical_unit);
+                         'PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR 
+ (shape_characterized_footprint_definition.reference_package :=: reference_shape\Physical_unit_shape.shape_characterized_physical_unit);
       WR2 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE',
- 'PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR ('PART_TEMPLATE_2D_SHAPE_ARM.PACKAGE' IN TYPEOF(reference_shape.shape_characterized_physical_unit));
+                         'PART_TEMPLATE_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR 
+ ('PART_TEMPLATE_2D_SHAPE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape.shape_characterized_physical_unit));
       WR3 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE',
- 'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR (shape_characterized_footprint_definition.reference_package :=: reference_shape.shape_characterized_part_template);
+                         'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR 
+ (shape_characterized_footprint_definition.reference_package :=: reference_shape\Part_template_shape.shape_characterized_part_template);
       WR4 : NOT (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE',
- 'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape.shape_characterized_part_template));
+                         'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE'] * TYPEOF(reference_shape)) = 1) OR 
+ ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape\Part_template_shape.shape_characterized_part_template));
 			WR5 : (SIZEOF(USEDIN(SELF,
  'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
   END_ENTITY;

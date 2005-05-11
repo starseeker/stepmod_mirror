@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.12 2005/05/10 16:12:44 thomasrthurman Exp $ -->
+<!-- $Id: issues.xml,v 1.13 2005/05/11 23:14:10 thomasrthurman Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="layered_interconnect_module_design">
@@ -496,5 +496,55 @@ DERIVE
  </description>
  </issue>
 
+<issue
+  id="17"
+  type="arm"
+  linkend="Layered_interconnect_module_design_arm.Laminate_component.wr:WR2"
+  category="major_technical"
+  by="T. Thurman"
+  date="2005-05-10"
+  status="open"
+  seds="no">
+  <description>
+<p>error report from eep on arm shortform file</p>
+TYPE ERROR: at line 9183 Operand types for = are incompatible
+TYPE ERROR: at line 9183 Expression will not return a logical value
+TYPE ERROR: at line 9185 Operand types for = are incompatible
+TYPE ERROR: at line 9185 Expression will not return a logical value
+
+ </description>
+<comment
+   by="T.Thurman" 
+   date="2005-05-10">
+<description>
+<p>proposed solution</p>
+padstack_occurrence_sub_assembly_relationship should be a subtype of Next_assembly_usage which is a subtype of Assembly_component_relationship.
+footprint_occurrence_sub_assembly_relationship should be a subtype of Next_assembly_usage which is a subtype of Assembly_component_relationship.
+
+Laminate_component.padstack_occurrence_assembly needs to be revised to be derived from Assembly_component.occurrence_contexts : SET[1:?] OF Assembly_component_relationship FOR related_view;
+Laminate_component.footprint_occurence_assembly needs to be revised.
+<p>results proposed for attributes:</p>
+DERIVE
+Laminate_component.padstack_occurrence_assembly : Padstack_occurrence_sub_assembly_relationship := SELF\Assembly_component.occurrence_contexts[1];
+Laminate_component.footprint_occurrence_assembly : Footprint_occurrence_sub_assembly_relationship := SELF\Assembly_component.occurrence_contexts[1];
+</description>
+</comment>
+<comment
+   by="T.Thurman" 
+   date="2005-05-10">
+<description>
+same issue for WR3
+</description>
+</comment>
+<comment
+   by="T.Thurman" 
+   date="2005-05-10">
+<description>
+better solution is to not have footprint_occurrence and padstack_occurrence be subtypes of Assembly_group_component at all.
+That would eliminate these rules.  This proposal would require adding terminals to Footprint_occurrence and Padstack_occurrence directly rather than relying
+on the indirect terminals of the Laminate_components they are composed of.
+</description>
+</comment>
+ </issue>
  
 </issues>

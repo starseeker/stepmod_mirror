@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_c_exp_schema.xsl,v 1.4 2004/11/06 20:36:50 thendrix Exp $
+$Id: sect_c_exp_schema.xsl,v 1.5 2004/11/18 17:06:37 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Display the ARM short form express 
@@ -145,7 +145,7 @@ $Id: sect_c_exp_schema.xsl,v 1.4 2004/11/06 20:36:50 thendrix Exp $
   <xsl:param name="pos" />
   <!-- debug <xsl:value-of select="$global_xref_list"/> -->
   <xsl:call-template name="clause_header">
-    <xsl:with-param name="heading" select="'Annex C - EXPRESS'"/>
+    <xsl:with-param name="heading" select="''"/>
     <xsl:with-param name="aname" select="'annexc-express'"/>
   </xsl:call-template>
   

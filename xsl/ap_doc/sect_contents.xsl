@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_contents.xsl,v 1.44 2004/12/22 19:50:38 thendrix Exp $
+$Id: sect_contents.xsl,v 1.45 2005/03/02 10:47:35 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -170,6 +170,7 @@ $Id: sect_contents.xsl,v 1.44 2004/12/22 19:50:38 thendrix Exp $
     <a href="./annex_obj_reg{$FILE_EXT}" target="{$target}">
       Annex E Information object registration
     </a><br/>
+<!--
     &#160;&#160;&#160;&#160;&#160;<A HREF="./annex_obj_reg{$FILE_EXT}#e1" target="{$target}">E.1 Document identification</A><br/>
     &#160;&#160;&#160;&#160;&#160;<A HREF="./annex_obj_reg{$FILE_EXT}#e2" target="{$target}">E.2 Schema identification</A><br/>
     <xsl:if test="$short='no'">
@@ -190,6 +191,7 @@ $Id: sect_contents.xsl,v 1.44 2004/12/22 19:50:38 thendrix Exp $
         <A HREF="./annex_obj_reg{$FILE_EXT}#e24" target="{$target}">E.2.4 <xsl:value-of select="$mim_schema_lf"/> schema identification</A><br/>       
       </xsl:if>
     </xsl:if>
+-->
     <a href="./annex_aam{$FILE_EXT}" target="{$target}">
       Annex F Application activity model
     </a>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_obj_reg.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
+$Id: sect_annex_obj_reg.xsl,v 1.4 2004/11/02 11:33:46 robbod Exp $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -34,17 +34,21 @@ $Id: sect_annex_obj_reg.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
         <xsl:with-param name="application_protocol" select="@name"/>
       </xsl:call-template>
     </xsl:variable>
+<!--
     <xsl:variable name="arm_xml" select="concat($ap_module_dir,'/arm.xml')"/>
     <xsl:variable name="aim_xml" select="concat($ap_module_dir,'/mim.xml')"/>
     <xsl:variable name="schema_name" select="document($arm_xml)/express/schema/@name"/>
-    <xsl:variable name="object_reg" select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
     <xsl:variable name="module_xml" select="document(concat($ap_module_dir,'/module.xml'))"/>		
+-->
+    <xsl:variable name="object_reg" select="concat('{ iso standard 10303 part(',@part,') version(',@version,')')"/>
 
+<!--
     <h2>
       <a name="e1">
         E.1 Document identification
       </a>
     </h2>
+-->
     <p>
       To provide for unambiguous identification of an information object in
       an open system, the object identifier
@@ -56,7 +60,7 @@ $Id: sect_annex_obj_reg.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
       is assigned to this part of ISO 10303. The meaning of this value is
       defined in ISO/IEC 8824-1, and is described in ISO 10303-1.
     </p>
-
+<!--
     <h2>
       <a name="e2">
         E.2 Schema identification
@@ -107,8 +111,7 @@ $Id: sect_annex_obj_reg.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
     </p>
 
   <xsl:if test="$module_xml//arm_lf">
-    <!-- get the name of the ARM_LF schema from the express -->
-    <xsl:variable name="arm_lf_xml" select="concat($ap_module_dir,'/arm_lf.xml')"/>
+   <xsl:variable name="arm_lf_xml" select="concat($ap_module_dir,'/arm_lf.xml')"/>
     <xsl:variable name="arm_schema_lf" select="document($arm_lf_xml)/express/schema/@name"/>
     <xsl:variable name="arm_schema_lf_reg" select="translate($arm_schema_lf,$UPPER, $LOWER)"/>
 
@@ -135,8 +138,7 @@ $Id: sect_annex_obj_reg.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
   </xsl:if>
 
   <xsl:if test="$module_xml//mim_lf">
-    <!-- get the name of the MIM_LF schema from the express -->
-    <xsl:variable name="mim_lf_xml" select="concat($ap_module_dir,'/mim_lf.xml')"/>
+   <xsl:variable name="mim_lf_xml" select="concat($ap_module_dir,'/mim_lf.xml')"/>
     <xsl:variable name="mim_schema_lf"  select="document($mim_lf_xml)/express/schema/@name"/>
     <xsl:variable name="mim_schema_lf_reg"  select="translate($mim_schema_lf,$UPPER, $LOWER)"/>
     
@@ -162,7 +164,7 @@ $Id: sect_annex_obj_reg.xsl,v 1.3 2003/06/11 08:26:54 robbod Exp $
     </p>
   </xsl:if>
 
-
+-->
   </xsl:template>
 	
 </xsl:stylesheet>

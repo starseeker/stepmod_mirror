@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: extract_schema.xsl,v 1.1 2005/04/21 18:00:19 thendrix Exp $
+$Id: extract_schema.xsl,v 1.2 2005/05/18 15:00:34 thendrix Exp $
 
 Author: Tom Hendrix, adapted from GE version.
 Owner:  sourceforge stepmod
@@ -65,16 +65,16 @@ Extract a schema from a ECCO pseudo p28 pdts file
 	<xsl:value-of select="'ISO 10303-'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.date">
-	<xsl:value-of select="'$Date: 2005/04/21 18:00:19 $'"/>
+	<xsl:value-of select="'$Date: 2005/05/18 15:00:34 $'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.revision">
-	<xsl:value-of select="'$Revision: 1.1 $'"/>
+	<xsl:value-of select="'$Revision: 1.2 $'"/>
       </xsl:attribute>
       <application
 	  name="ecco2module.js"
 	  owner="stepmod"
 	  url="http://stepmod.sourceforge.net"
-	  version="'$Revision: 1.1 $'"
+	  version="'$Revision: 1.2 $'"
 	  source="FIX../data/resources/topology_schema/topology_schema.exp"/>
       <xsl:element name="schema">
 	<xsl:attribute name="name"><xsl:value-of select="./schema_id"/></xsl:attribute>
@@ -121,6 +121,15 @@ Extract a schema from a ECCO pseudo p28 pdts file
     <xsl:attribute name="name" ><xsl:value-of select="."/></xsl:attribute>
   </xsl:template>
 
+  <xsl:template match="agregate_source">
+    <xsl:apply-templates />
+  </xsl:template>
+
+  <xsl:template match="algorithm_head | statement_block ">
+    <xsl:apply-templates />
+  </xsl:template>
+
+
   <xsl:template match="binary | boolean | integer | logical | number | real | string">
     <xsl:element name="builtintype">
       <xsl:attribute name="type">
@@ -131,7 +140,7 @@ Extract a schema from a ECCO pseudo p28 pdts file
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="base_type/entity_ref | base_type/type_ref">
+  <xsl:template match="base_type/entity_ref | base_type/type_ref |formal_parameter/entity_ref">
     <xsl:element name="typename">
       <xsl:attribute name="name" ><xsl:value-of select="."/></xsl:attribute>
     </xsl:element>
@@ -154,6 +163,10 @@ Extract a schema from a ECCO pseudo p28 pdts file
 
   <xsl:template match="type_id">
     <xsl:attribute name="name"><xsl:value-of select="."/></xsl:attribute>
+  </xsl:template>
+
+  <xsl:template match="type_label_id">
+    <xsl:attribute name="typelabel"><xsl:value-of select="."/></xsl:attribute>
   </xsl:template>
 
   <xsl:template match="entity_decl">
@@ -455,14 +468,22 @@ Extract a schema from a ECCO pseudo p28 pdts file
     <xsl:value-of select="concat(' ',$literal,' ')"/>
   </xsl:template>
 
-  <xsl:template match="self|sizeof|not|exists|typeof">
+  <xsl:template match="self">
     <xsl:variable name="literal">
-	<xsl:call-template name="toupper">
-	  <xsl:with-param name="string" select="name(.)"/>
-	</xsl:call-template>
+      <xsl:call-template name="toupper">
+	<xsl:with-param name="string" select="name(.)"/>
+      </xsl:call-template>
     </xsl:variable>
-    <xsl:value-of select="concat(' ',$literal,' ')"/>
-    <xsl:apply-templates />
+   <xsl:value-of select="$literal"/>
+ </xsl:template>
+
+  <xsl:template match="sizeof|not|exists|typeof">
+    <xsl:variable name="literal">
+      <xsl:call-template name="toupper">
+	<xsl:with-param name="string" select="name(.)"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="$literal"/>
   </xsl:template>
 
 
@@ -509,35 +530,58 @@ Extract a schema from a ECCO pseudo p28 pdts file
     <xsl:value-of select="')'"/>
 </xsl:template>
 
-<xsl:template match="function_id">
-      <xsl:apply-templates />
+<xsl:template match="function_id| parameter_id">
+  <xsl:attribute name="name"><xsl:value-of select="."/></xsl:attribute>
 </xsl:template>
+
 <xsl:template match="function_import">
       <xsl:apply-templates />
 </xsl:template>
+
 <xsl:template match="function_return_type">
       <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="general__type">
+<xsl:template match="general_type">
       <xsl:apply-templates />
 </xsl:template>
 
+
+
 <xsl:template match="general_array_type">
-      <xsl:apply-templates />
+    <xsl:element name="aggregate">
+      <xsl:attribute name="type">ARRAY</xsl:attribute>
+      <xsl:attribute name="lower">0</xsl:attribute>
+      <xsl:attribute name="upper">?</xsl:attribute>
+    </xsl:element>
 </xsl:template>
 
 <xsl:template match="general_bag_type">
+    <xsl:element name="aggregate">
+      <xsl:attribute name="type">BAG</xsl:attribute>
+      <xsl:attribute name="lower">0</xsl:attribute>
+      <xsl:attribute name="upper">?</xsl:attribute>
+    </xsl:element>
       <xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="general_list_type">
+    <xsl:element name="aggregate">
+      <xsl:attribute name="type">LIST</xsl:attribute>
+      <xsl:attribute name="lower">0</xsl:attribute>
+      <xsl:attribute name="upper">?</xsl:attribute>
+    </xsl:element>
       <xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="general_set_type">
-      <xsl:apply-templates />
-</xsl:template>
+    <xsl:element name="aggregate">
+      <xsl:attribute name="type">SET</xsl:attribute>
+      <xsl:apply-templates select="bound_spec" />
+    </xsl:element>
+    <xsl:apply-templates select="*[name(.) != 'bound_spec']"/>
+  </xsl:template>
+
 
 
 <xsl:template match="true">
@@ -545,8 +589,13 @@ Extract a schema from a ECCO pseudo p28 pdts file
 </xsl:template>
 
 <xsl:template match="generic_type">
-      <xsl:apply-templates />
-</xsl:template>
+    <xsl:element name="builtintype">
+      <xsl:attribute name="type">
+	<xsl:value-of select="'GENERIC'"/>
+      </xsl:attribute>
+      <xsl:apply-templates select="type_label_id"/>
+    </xsl:element>
+  </xsl:template>
 
 <xsl:template match="greater_than">
       <xsl:value-of select="' &gt; '" />
@@ -599,10 +648,17 @@ Extract a schema from a ECCO pseudo p28 pdts file
       <xsl:value-of select="' :&lt;&gt;: '" />
 </xsl:template>
 
-<xsl:template match="qualified_factor|qualified_attribute">
+<xsl:template match="qualified_attribute">
+  <xsl:attribute name="name">
+      <xsl:apply-templates select="attribute_ref"/>
+  </xsl:attribute>
+</xsl:template>
+
+<xsl:template match="qualified_factor">
       <xsl:apply-templates select="attribute_ref|entity_ref|parameter_ref|variable_ref|self"/>
       <xsl:apply-templates select="qualifier"/>
 </xsl:template>
+
 
 <xsl:template match="qualifier">
   <xsl:for-each select="child::node()">
@@ -650,6 +706,7 @@ Extract a schema from a ECCO pseudo p28 pdts file
       <xsl:apply-templates />
 </xsl:element>
 </xsl:template>
+
 <xsl:template match="label">
     <xsl:attribute name="label" ><xsl:value-of select="."/></xsl:attribute>
 </xsl:template>
@@ -709,7 +766,10 @@ Extract a schema from a ECCO pseudo p28 pdts file
 </xsl:template>
 
 <xsl:template match="unary_op">
-      <xsl:apply-templates />
+      <xsl:apply-templates select="*[1]"/>
+    <xsl:value-of select="'('"/>
+      <xsl:apply-templates select="*[2]"/>
+    <xsl:value-of select="')'"/>
 </xsl:template>
 
 <xsl:template match="complex_entity_constructor">
@@ -736,8 +796,16 @@ Extract a schema from a ECCO pseudo p28 pdts file
       <xsl:apply-templates />
 </xsl:template>
 <xsl:template match="function_decl">
-      <xsl:apply-templates />
-</xsl:template>
+   <xsl:element name="function">
+      <xsl:apply-templates select="function_id"/>
+      <xsl:apply-templates select="formal_parameter_block"/>
+      <xsl:apply-templates select="function_return_type"/>
+    <xsl:element name="algorithm">
+      <xsl:apply-templates select="algorithm_head|statement_block"/>
+    </xsl:element>
+    </xsl:element>
+  </xsl:template>
+
 <xsl:template match="procedure_decl">
       <xsl:apply-templates />
 </xsl:template>
@@ -753,11 +821,18 @@ Extract a schema from a ECCO pseudo p28 pdts file
       <xsl:apply-templates select="*[name(.) != 'attribute_id' and name(.) != 'qualified_attribute']"/>
     </xsl:attribute> 
     <xsl:apply-templates select="base_type"/>
+    <xsl:if test="qualified_attribute">
+      <xsl:element name="redeclaration">
+	<xsl:attribute name="entity-ref">
+	<xsl:value-of select="./qualified_attribute/entity_ref"/>
+	</xsl:attribute>
+      </xsl:element>
+    </xsl:if>
   </xsl:element>
 </xsl:template>
 
 
-<xsl:template match="aggregate_initializer">
+<xsl:template match="aggregate_initializer| population">
       <xsl:apply-templates />
 </xsl:template>
 <xsl:template match="entity_constructor">
@@ -777,9 +852,16 @@ Extract a schema from a ECCO pseudo p28 pdts file
 </xsl:template>
 
 
+
+<xsl:template match="alias_stmt | assignment_stmt | case_stmt | statement_block | escape_stmt | if_stmt | null_stmt | procedure_call_stmt | repeat_stmt | return_stmt | skip_stmt">
+      <xsl:apply-templates />
+</xsl:template>
+
+
 <xsl:template match="escape_stmt">
       <xsl:apply-templates />
 </xsl:template>
+
 
 <xsl:template match="exp">
       <xsl:apply-templates />
@@ -832,8 +914,21 @@ Extract a schema from a ECCO pseudo p28 pdts file
 <xsl:template match="inverse_clause">
       <xsl:apply-templates />
 </xsl:template>
+
 <xsl:template match="query">
-      <xsl:apply-templates />
+    <xsl:variable name="literal">
+      <xsl:call-template name="toupper">
+	<xsl:with-param name="string" select="name(.)"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:value-of select="$literal"/>
+    <xsl:value-of select="'('"/>
+    <xsl:apply-templates select="variable_id"/>
+    <xsl:value-of select="' &gt;* '"/>
+    <xsl:apply-templates select="aggregate_source"/>
+    <xsl:value-of select="'|'"/>
+    <xsl:apply-templates select="logical_expression"/>
+
 </xsl:template>
 
 <xsl:template match="binary_literal">
@@ -861,15 +956,17 @@ Extract a schema from a ECCO pseudo p28 pdts file
 </xsl:template>
 
 <xsl:template match="formal_parameter">
+    <xsl:element name="parameter">
+      <xsl:apply-templates select="parameter_id"/>
+      <xsl:apply-templates select="*[position() > 1]"/>
+    </xsl:element>
+ 
       <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="formal_parameter">
-      <xsl:apply-templates />
-</xsl:template>
 
 <xsl:template match="formal_parameter_block">
-      <xsl:apply-templates />
+    <xsl:apply-templates />
 </xsl:template>
 
 <xsl:template match="format">

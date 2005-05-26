@@ -17,11 +17,71 @@ ERROR  : Line  2898: Unresolved attribute domain reference.
          Attribute : ITEMS
          Domain reference: ACTIVITY_METHOD_ITEM
 
+==========================================================================================
 ERROR  : Line  3141: Entity used as INVERSE attribute domain does not define
          a direct relationship to the current entity by an explict attribute.
          INVERSE attribute: ACCESS_MECHANISMS
          Line  3144 Related entity: ASSEMBLY_MODULE_COMPONENT_TERMINAL
 
+
+--valid 
+short to long converted P11-2003:
+ENTITY Assembly_module_component
+  SUBTYPE OF (Physical_component);
+  SELF\Definition_based_product_occurrence.derived_from : Assembly_module_usage_view;
+INVERSE
+  access_mechanisms : SET[2:?] OF Assembly_module_component_terminal FOR associated_component;<<<'3141'
+END_ENTITY;
+ENTITY Assembly_module_component_terminal<<<<'3144'
+  SUBTYPE OF (Physical_component_terminal);
+  SELF\Component_feature.definition : Assembly_module_terminal;
+  SELF\Component_feature.associated_component : Assembly_module_component;
+END_ENTITY;
+ENTITY Component_feature
+  ABSTRACT SUPERTYPE 
+  SUBTYPE OF (Shape_element);
+  definition : OPTIONAL part_feature_or_template_feature;
+  SELF\Shape_element.containing_shape RENAMED associated_component : Assembly_component;
+UNIQUE
+  UR1: SELF\Component_feature.definition, SELF\Component_feature.associated_component;
+END_ENTITY;
+///////////////////////////////////////////////////////
+to P11-1994:
+
+  ENTITY Assembly_module_component
+--    SUPERTYPE OF (Assembly_module_macro_component)
+    SUBTYPE OF (Physical_component);
+      SELF\Definition_based_product_occurrence.derived_from : Assembly_module_usage_view;
+    INVERSE
+      access_mechanisms : SET[2:?] OF assembly_module_component_terminal FOR associated_component;
+  END_ENTITY;
+
+  ENTITY Assembly_module_component_terminal
+    SUBTYPE OF (Physical_component_terminal);
+
+      SELF\Component_feature.definition           : Assembly_module_terminal;
+
+      SELF\Shape_element.containing_shape : Assembly_module_component;-- This ATTRIBUTE was RENAMED in a supertype, henmce name converted back to original name (TimKing Mode)
+
+  END_ENTITY;
+
+  ENTITY Component_feature
+      SUPERTYPE OF (ONEOF (
+               PHYSICAL_COMPONENT_FEATURE,
+               LAMINATE_COMPONENT_FEATURE) ) 
+ SUBTYPE OF (Shape_element);
+      definition           : OPTIONAL part_feature_or_template_feature;
+
+      SELF\Shape_element.containing_shape : Assembly_component;  -- associated_component : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, an attribute with the new name is in the DERIVE clause
+    DERIVE
+      associated_component : ASSEMBLY_COMPONENT := SELF\Shape_element.containing_shape;  -- CONTAINING_SHAPE : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
+
+    UNIQUE
+      UR1 : definition,
+ associated_component;
+  END_ENTITY;
+
+==========================================================================================
 ERROR  : Line  3174: Entity used as INVERSE attribute domain does not define
          a direct relationship to the current entity by an explict attribute.
          INVERSE attribute: JOIN_ACCESS_MECHANISMS
@@ -72,45 +132,6 @@ ERROR  : Line  4325: Entity used as INVERSE attribute domain does not define
          INVERSE attribute: ACCESS_MECHANISMS
          Line  4328 Related entity: CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL
 
-WARNING: Line  4559: Incorrect use of group qualifier, attribute not declared in specified entity in WHERE clause.
-         Expected  : \VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW
-         Actual    : \VIEW_DEFINITION_USAGE.RELATED_VIEW
-
-WARNING: Line  4561: Incorrect use of group qualifier, attribute not declared in specified entity in WHERE clause.
-         Expected  : \VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW
-         Actual    : \VIEW_DEFINITION_USAGE.RELATED_VIEW
-
-ERROR  : Line  4938: Illegal attribute redeclaration.
-         Redeclaring attribute: DEFAULT_COMPONENT_TERMINATION_PASSAGE_DEFINITION.DEPOSITION_MATERIAL in line: 4938
-         Redeclared  attribute: PASSAGE_TECHNOLOGY.DEPOSITION_MATERIAL in line: 8753
-         Redeclaration is no specialisation.
-
-WARNING: Line  4999: Incorrect use of group qualifier, attribute not declared in specified entity in DERIVE clause.
-         Expected  : \DEFAULT_VIA_DEFINITION.MINIMUM_AS_FINISHED_PASSAGE_EXTENT
-         Actual    : \PASSAGE_TECHNOLOGY.MINIMUM_AS_FINISHED_PASSAGE_EXTENT
-
-ERROR  : Line  5017: Illegal attribute redeclaration.
-         Redeclaring attribute: DEFAULT_VIA_DEFINITION.DEPOSITION_MATERIAL in line: 5017
-         Redeclared  attribute: PASSAGE_TECHNOLOGY.DEPOSITION_MATERIAL in line: 8753
-         Redeclaration is no specialisation.
-
-ERROR  : Line  5541: Conflicting implicit attribute redeclaration in entity: EDGE_SEGMENT_CROSS_SECTION
-         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
-         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
-         Redeclaration is no specialisation.
-
-WARNING: Line  5547: Incorrect use of group qualifier, attribute not declared in specified entity in DERIVE clause.
-         Expected  : \PART_TEMPLATE_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
-         Actual    : \PART_TEMPLATE_3D_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
-
-WARNING: Line  5549: Incorrect use of group qualifier, attribute not declared in specified entity in DERIVE clause.
-         Expected  : \PART_TEMPLATE_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
-         Actual    : \PART_TEMPLATE_3D_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
-
-ERROR  : Line  6337: Unresolved attribute domain reference.
-         Attribute : ELEMENTS
-         Domain reference: GROUPABLE_ITEM
-
 ERROR  : Line  6667: Entity used as INVERSE attribute domain does not define
          a direct relationship to the current entity by an explict attribute.
          INVERSE attribute: JOIN_ACCESS_MECHANISMS
@@ -120,32 +141,6 @@ ERROR  : Line  6791: Entity used as INVERSE attribute domain does not define
          a direct relationship to the current entity by an explict attribute.
          INVERSE attribute: ACCESS_MECHANISM
          Line  8879 Related entity: PHYSICAL_COMPONENT_INTERFACE_TERMINAL
-
-ERROR  : Line  6899: Unresolved attribute domain reference.
-         Attribute : IMPLEMENTATION_POINT
-         Domain reference: TRACE_JUNCTION_OR_VIA
-
-ERROR  : Line  6925: Conflicting NAMED_TYPEs in WHERE clause.
-         Expected  : PADSTACK_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP
-         Actual    : ASSEMBLY_COMPONENT_RELATIONSHIP
-
-ERROR  : Line  6927: Conflicting NAMED_TYPEs in WHERE clause.
-         Expected  : FOOTPRINT_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP
-         Actual    : ASSEMBLY_COMPONENT_RELATIONSHIP
-
-ERROR  : Line  7020: Entity used as INVERSE attribute domain does not define
-         a direct relationship to the current entity by an explict attribute.
-         INVERSE attribute: ACCESS_MECHANISM
-         Line  7036 Related entity: LAND_JOIN_TERMINAL
-
-WARNING: Line  7408: Conflicting types in DERIVE clause.
-         Expected  : Entity: SPECIFICATION_DEFINITION
-         Actual    : Entity: DOCUMENT_DEFINITION
-
-ERROR  : Line  7830: Illegal attribute redeclaration.
-         Redeclaring attribute: NON_FEATURE_SHAPE_ELEMENT.CONTAINING_SHAPE in line: 7830
-         Redeclared  attribute: SHAPE_ELEMENT.CONTAINING_SHAPE in line: 10749
-         Redeclaration from ITEM_SHAPE to EE_PRODUCT_DEFINITION_WITH_ANNOTATION_ELEMENTS
 
 ERROR  : Line  7864: Entity used as INVERSE attribute domain does not define
          a direct relationship to the current entity by an explict attribute.
@@ -171,6 +166,126 @@ ERROR  : Line  7984: Entity used as INVERSE attribute domain does not define
          a direct relationship to the current entity by an explict attribute.
          INVERSE attribute: PACKAGE_ACCESSES
          Line  8073 Related entity: PACKAGE_TERMINAL
+
+ERROR  : Line  8148: Entity used as INVERSE attribute domain does not define
+         a direct relationship to the current entity by an explict attribute.
+         INVERSE attribute: ACCESS_MECHANISM
+         Line  8151 Related entity: PACKAGED_COMPONENT_JOIN_TERMINAL
+
+ERROR  : Line  8171: Entity used as INVERSE attribute domain does not define
+         a direct relationship to the current entity by an explict attribute.
+         INVERSE attribute: INTERFACE_ACCESS_MECHANISM
+         Line  8174 Related entity: PACKAGED_CONNECTOR_COMPONENT_INTERFACE_TERMINAL
+
+ERROR  : Line  8203: Entity used as INVERSE attribute domain does not define
+         a direct relationship to the current entity by an explict attribute.
+         INVERSE attribute: ACCESS_MECHANISMS
+         Line  8219 Related entity: PACKAGED_PART_TERMINAL
+
+ERROR  : Line  9533: Entity used as INVERSE attribute domain does not define
+         a direct relationship to the current entity by an explict attribute.
+         INVERSE attribute: RAW_ACCESS_MECHANISM
+         Line  9552 Related entity: PRINTED_COMPONENT_JOIN_TERMINAL
+
+ERROR  : Line  9580: Entity used as INVERSE attribute domain does not define
+         a direct relationship to the current entity by an explict attribute.
+         INVERSE attribute: INTERFACE_ACCESS_MECHANISM
+         Line  9583 Related entity: PRINTED_CONNECTOR_COMPONENT_INTERFACE_TERMINAL
+
+ERROR  : Line  7020: Entity used as INVERSE attribute domain does not define
+         a direct relationship to the current entity by an explict attribute.
+         INVERSE attribute: ACCESS_MECHANISM
+         Line  7036 Related entity: LAND_JOIN_TERMINAL
+
+ERROR  : Line 12196: Entity used as INVERSE attribute domain does not define
+         a direct relationship to the current entity by an explict attribute.
+         INVERSE attribute: INTERFACE_ACCESS_MECHANISM
+         Line  7023 Related entity: LAND_INTERFACE_TERMINAL
+
+ERROR  : Line 12204: Entity used as INVERSE attribute domain does not define
+         a direct relationship to the current entity by an explict attribute.
+         INVERSE attribute: INTERFACE_ACCESS_MECHANISM
+         Line  7867 Related entity: NON_FUNCTIONAL_LAND_INTERFACE_TERMINAL
+
+================================================================================
+--valid
+WARNING: Line  4559: Incorrect use of group qualifier, attribute not declared in specified entity in WHERE clause.
+         Expected  : \VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW
+         Actual    : \VIEW_DEFINITION_USAGE.RELATED_VIEW
+--valid
+WARNING: Line  4561: Incorrect use of group qualifier, attribute not declared in specified entity in WHERE clause.
+         Expected  : \VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW
+         Actual    : \VIEW_DEFINITION_USAGE.RELATED_VIEW
+
+--epm bug accepted
+ERROR  : Line  4938: Illegal attribute redeclaration.
+         Redeclaring attribute: DEFAULT_COMPONENT_TERMINATION_PASSAGE_DEFINITION.DEPOSITION_MATERIAL in line: 4938
+         Redeclared  attribute: PASSAGE_TECHNOLOGY.DEPOSITION_MATERIAL in line: 8753
+         Redeclaration is no specialisation.
+ERROR  : Line  5017: Illegal attribute redeclaration.
+         Redeclaring attribute: DEFAULT_VIA_DEFINITION.DEPOSITION_MATERIAL in line: 5017
+         Redeclared  attribute: PASSAGE_TECHNOLOGY.DEPOSITION_MATERIAL in line: 8753
+         Redeclaration is no specialisation.
+
+
+WARNING: Line  4999: Incorrect use of group qualifier, attribute not declared in specified entity in DERIVE clause.
+         Expected  : \DEFAULT_VIA_DEFINITION.MINIMUM_AS_FINISHED_PASSAGE_EXTENT
+         Actual    : \PASSAGE_TECHNOLOGY.MINIMUM_AS_FINISHED_PASSAGE_EXTENT
+
+ERROR  : Line  5541: Conflicting implicit attribute redeclaration in entity: EDGE_SEGMENT_CROSS_SECTION
+         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
+         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
+         Redeclaration is no specialisation.
+
+WARNING: Line  5547: Incorrect use of group qualifier, attribute not declared in specified entity in DERIVE clause.
+         Expected  : \PART_TEMPLATE_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
+         Actual    : \PART_TEMPLATE_3D_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
+
+WARNING: Line  5549: Incorrect use of group qualifier, attribute not declared in specified entity in DERIVE clause.
+         Expected  : \PART_TEMPLATE_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
+         Actual    : \PART_TEMPLATE_3D_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
+
+ERROR  : Line  6337: Unresolved attribute domain reference.
+         Attribute : ELEMENTS
+         Domain reference: GROUPABLE_ITEM
+ERROR  : Line  6899: Unresolved attribute domain reference.
+         Attribute : IMPLEMENTATION_POINT
+         Domain reference: TRACE_JUNCTION_OR_VIA
+
+ERROR  : Line  6925: Conflicting NAMED_TYPEs in WHERE clause.
+         Expected  : PADSTACK_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP
+         Actual    : ASSEMBLY_COMPONENT_RELATIONSHIP
+
+ERROR  : Line  6927: Conflicting NAMED_TYPEs in WHERE clause.
+         Expected  : FOOTPRINT_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP
+         Actual    : ASSEMBLY_COMPONENT_RELATIONSHIP
+
+WARNING: Line  7408: Conflicting types in DERIVE clause.
+         Expected  : Entity: SPECIFICATION_DEFINITION
+         Actual    : Entity: DOCUMENT_DEFINITION
+
+--valid??
+ERROR  : Line  7830: Illegal attribute redeclaration.
+         Redeclaring attribute: NON_FEATURE_SHAPE_ELEMENT.CONTAINING_SHAPE in line: 7830
+         Redeclared  attribute: SHAPE_ELEMENT.CONTAINING_SHAPE in line: 10749
+         Redeclaration from ITEM_SHAPE to EE_PRODUCT_DEFINITION_WITH_ANNOTATION_ELEMENTS
+ERROR  : Line 10698: Illegal attribute redeclaration.
+         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
+         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
+         Redeclaration is no specialisation.
+
+ERROR  : Line 10715: Illegal attribute redeclaration.
+         Redeclaring attribute: SHAPE_DEFINITION_3D_PLANE_PROJECTION.REP_2 in line: 10715
+         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
+         Redeclaration is no specialisation.
+
+ERROR  : Line 12284: Illegal attribute redeclaration.
+         Redeclaring attribute: VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 12284
+         Redeclared  attribute: NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 7802
+         Redeclaration from FEATURE_SHAPE_DEFINITION to VIEW_SHAPE_SELECT
+
+=================================================================================
+--epm bug??
 
 WARNING: Line  8093: Unresolved SCHEMA name in call or return from predefined function USEDIN.
          Argument 2 in USEDIN call
@@ -232,31 +347,6 @@ WARNING: Line  8101: Unresolved SCHEMA name in DERIVE clause.
          Attribute qualification: 
          CLASSIFICATION_ASSIGNMENT_ARM.CLASSIFICATION_ASSIGNMENT.ITEMS
 
-ERROR  : Line  8148: Entity used as INVERSE attribute domain does not define
-         a direct relationship to the current entity by an explict attribute.
-         INVERSE attribute: ACCESS_MECHANISM
-         Line  8151 Related entity: PACKAGED_COMPONENT_JOIN_TERMINAL
-
-ERROR  : Line  8171: Entity used as INVERSE attribute domain does not define
-         a direct relationship to the current entity by an explict attribute.
-         INVERSE attribute: INTERFACE_ACCESS_MECHANISM
-         Line  8174 Related entity: PACKAGED_CONNECTOR_COMPONENT_INTERFACE_TERMINAL
-
-ERROR  : Line  8203: Entity used as INVERSE attribute domain does not define
-         a direct relationship to the current entity by an explict attribute.
-         INVERSE attribute: ACCESS_MECHANISMS
-         Line  8219 Related entity: PACKAGED_PART_TERMINAL
-
-ERROR  : Line  9004: Conflicting implicit attribute redeclaration in entity: PHYSICAL_UNIT_3D_KEEPOUT_SHAPE
-         Redeclaring attribute: VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 12284
-         Redeclared  attribute: NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 7802
-         Redeclaration from FEATURE_SHAPE_DEFINITION to VIEW_SHAPE_SELECT
-
-ERROR  : Line  9065: Conflicting implicit attribute redeclaration in entity: PHYSICAL_UNIT_PLANAR_KEEPOUT_SHAPE
-         Redeclaring attribute: VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 12284
-         Redeclared  attribute: NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 7802
-         Redeclaration from FEATURE_SHAPE_DEFINITION to VIEW_SHAPE_SELECT
-
 ERROR  : Line  9350: Unresolved qualified reference in WHERE clause.
          Reference : ADDRESS_ASSIGNMENT.ADDRESS_TYPE
          Unresolved reference: ADDRESS_ASSIGNMENT.ADDRESS_TYPE
@@ -277,21 +367,6 @@ ERROR  : Line  9418: Unresolved qualified reference in WHERE clause.
          Reference : ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ROLE
          Unresolved reference: ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ROLE
 
-ERROR  : Line  9425: Conflicting implicit attribute redeclaration in entity: PRE_DEFINED_PARALLEL_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP
-         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
-         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
-         Redeclaration is no specialisation.
-
-ERROR  : Line  9437: Conflicting implicit attribute redeclaration in entity: PRE_DEFINED_PERPENDICULAR_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP
-         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
-         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
-         Redeclaration is no specialisation.
-
-ERROR  : Line  9449: Conflicting implicit attribute redeclaration in entity: PRE_DEFINED_PERPENDICULAR_DATUM_PLANE_SYMBOL_3D_2D_RELATIONSHIP
-         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
-         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
-         Redeclaration is no specialisation.
-
 ERROR  : Line  9460: Unresolved qualified reference in WHERE clause.
          Reference : SECURITY_CLASSIFICATION.CLASSIFICATION_LEVEL
          Unresolved reference: SECURITY_CLASSIFICATION.CLASSIFICATION_LEVEL
@@ -304,15 +379,139 @@ ERROR  : Line  9472: Unresolved qualified reference in WHERE clause.
          Reference : WORK_REQUEST_STATUS.STATUS
          Unresolved reference: WORK_REQUEST_STATUS.STATUS
 
-ERROR  : Line  9533: Entity used as INVERSE attribute domain does not define
-         a direct relationship to the current entity by an explict attribute.
-         INVERSE attribute: RAW_ACCESS_MECHANISM
-         Line  9552 Related entity: PRINTED_COMPONENT_JOIN_TERMINAL
+ERROR  : Line 10007: Unresolved qualified reference in argument in calling predefined function.
+         Reference : \REQUIREMENT_ASSIGNMENT.ASSIGNED_REQUIREMENT\INTERFACE_REQUIREMENT_OCCURRENCE.REFERENCE_PROTOCOL
+         Unresolved reference: \REQUIREMENT_ASSIGNMENT.ASSIGNED_REQUIREMENT\INTERFACE_REQUIREMENT_OCCURRENCE.REFERENCE_PROTOCOL
 
-ERROR  : Line  9580: Entity used as INVERSE attribute domain does not define
-         a direct relationship to the current entity by an explict attribute.
-         INVERSE attribute: INTERFACE_ACCESS_MECHANISM
-         Line  9583 Related entity: PRINTED_CONNECTOR_COMPONENT_INTERFACE_TERMINAL
+ERROR  : Line 10008: Unresolved qualified reference in WHERE clause.
+         Reference : \REQUIREMENT_ASSIGNMENT.ASSIGNED_REQUIREMENT\INTERFACE_REQUIREMENT_OCCURRENCE.REFERENCE_PROTOCOL.HOST_FUNCTIONAL_DEFINITION\FUNCTIONAL_UNIT_USAGE_VIEW.ACCESS_MECHANISM
+         Unresolved reference: \REQUIREMENT_ASSIGNMENT.ASSIGNED_REQUIREMENT\INTERFACE_REQUIREMENT_OCCURRENCE.REFERENCE_PROTOCOL
+
+WARNING: Line 12619: Unresolved ENTITY name in call or return from predefined function USEDIN.
+         Argument 2 in USEDIN call
+         Attribute qualification: 
+         AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.REQUIREMENT_DEFINTION_PROPERTY.ASSOCIATED_DEFINITION
+
+WARNING: Line 12619: Unresolved ENTITY name in Assignment statement 
+         (argument 1 in BAG_TO_SET() )..
+         Argument 2 in USEDIN call
+         Attribute qualification: 
+         AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.REQUIREMENT_DEFINTION_PROPERTY.ASSOCIATED_DEFINITION
+
+ERROR  : Line 10263: Unresolved attribute domain reference.
+         Attribute : SOURCE
+         Domain reference: REQUIREMENT_SOURCE_ITEM
+
+=================================================================================
+--????
+ERROR  : Line  9004: Conflicting implicit attribute redeclaration in entity: PHYSICAL_UNIT_3D_KEEPOUT_SHAPE
+  ENTITY Physical_unit_3d_keepout_shape   <<<9004
+    SUBTYPE OF (View_level_non_feature_shape_definition, Physical_unit_keepout_shape);
+      shape_classification               : shape_class;
+	DERIVE
+  		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
+  		get_rvd(SELF, 'application technology constraint');
+	WHERE
+   		WR1 : NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1);
+  END_ENTITY;
+
+TYPE pu3ds_view_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON view_shape_select WITH <<<is this the problem?
+   (Physical_unit_shape);
+END_TYPE; 
+(* 
+
+         Redeclaring attribute: VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 12284
+  ENTITY View_level_non_feature_shape_definition
+    SUBTYPE OF (Non_feature_shape_definition);
+      SELF\Non_feature_shape_definition.model_shape : view_shape_select;<<<12284
+    WHERE
+      WR1 : SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_definition.model_shape\Geometric_model.context_of_items;
+  END_ENTITY;
+
+         Redeclared  attribute: NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 7802
+  ENTITY Non_feature_shape_definition
+      SUPERTYPE OF ( ( (ONEOF (
+               PRE_DEFINED_DATUM_AXIS_3D_SYMBOL,
+               PRE_DEFINED_DATUM_PLANE_3D_SYMBOL,
+               PRE_DEFINED_DATUM_2D_SYMBOL,
+               VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION)) )ANDOR( (ONEOF (
+               PRE_DEFINED_DATUM_AXIS_3D_SYMBOL,
+               PRE_DEFINED_DATUM_PLANE_3D_SYMBOL)) )  ) 
+      SUBTYPE OF (Geometric_model);
+      associated_element : Non_feature_shape_element;
+      model_shape        : OPTIONAL Feature_shape_definition;<<<<<<7802
+  END_ENTITY;         
+         Redeclaration from FEATURE_SHAPE_DEFINITION to VIEW_SHAPE_SELECT
+
+ERROR  : Line  9065: Conflicting implicit attribute redeclaration in entity: PHYSICAL_UNIT_PLANAR_KEEPOUT_SHAPE
+         Redeclaring attribute: VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 12284
+         Redeclared  attribute: NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 7802
+         Redeclaration from FEATURE_SHAPE_DEFINITION to VIEW_SHAPE_SELECT
+
+==========================================================================================
+problem with E2 to E1 conversion???
+ERROR  : Line  9425: Conflicting implicit attribute redeclaration in entity: PRE_DEFINED_PARALLEL_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP
+  ENTITY Pre_defined_parallel_datum_axis_symbol_3d_2d_relationship
+    SUBTYPE OF (Shape_definition_3d_intersection);
+		SELF\Geometric_model_relationship.rep_1 : Pre_defined_parallel_datum_axis_2d_symbol;-- This ATTRIBUTE was RENAMED in a supertype, henmce name converted back to original name (TimKing Mode)
+		SELF\Geometric_model_relationship.rep_2 : Pre_defined_datum_axis_3d_symbol;-- This ATTRIBUTE was RENAMED in a supertype, henmce name converted back to original name (TimKing Mode)
+  END_ENTITY;
+
+         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
+  ENTITY Shape_definition_3d_intersection
+      SUPERTYPE OF ( ( (ONEOF (
+               EDGE_SEGMENT_CROSS_SECTION,
+               PRE_DEFINED_PERPENDICULAR_DATUM_PLANE_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PERPENDICULAR_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PARALLEL_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP)) )ANDOR( (ONEOF (
+               PRE_DEFINED_PERPENDICULAR_DATUM_PLANE_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PERPENDICULAR_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PARALLEL_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP)) )  ) 
+      SUBTYPE OF (Geometric_model_relationship);
+      orientation_intersection_plane : Axis_placement_3d;
+
+      planar_shape_origin            : Axis_placement_2d;
+
+      SELF\Geometric_model_relationship.rep_1 : Planar_shape;  -- surface_intersection_result : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, an attribute with the new name is in the DERIVE clause
+10698>>>>>      SELF\Geometric_model_relationship.rep_2 : Geometric_model;  -- projected_volume : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, an attribute with the new name is in the DERIVE clause
+    DERIVE
+      projected_volume : GEOMETRIC_MODEL := SELF\Geometric_model_relationship.rep_2;  -- REP_2 : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
+      surface_intersection_result : PLANAR_SHAPE := SELF\Geometric_model_relationship.rep_1;  -- REP_1 : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
+ WHERE
+      WR1 : NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PLANAR_SHAPE' IN TYPEOF(projected_volume));
+  END_ENTITY;
+
+         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
+  ENTITY Geometric_model_relationship
+     SUPERTYPE OF ( ( (ONEOF (
+               NON_FEATURE_SHAPE_COMPOSITION_RELATIONSHIP,
+               REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP,
+               COMPONENT_PART_2D_GEOMETRIC_REPRESENTATION_RELATIONSHIP,
+               COMPONENT_PART_2D_NON_PLANAR_GEOMETRIC_REPRESENTATION_RELATIONSHIP,
+               COMPONENT_PART_3D_GEOMETRIC_REPRESENTATION_RELATIONSHIP,
+               SHAPE_DEFINITION_3D_INTERSECTION,
+               SHAPE_DEFINITION_3D_PLANE_PROJECTION)) )ANDOR( (ONEOF (
+               SHAPE_DEFINITION_3D_INTERSECTION,
+               SHAPE_DEFINITION_3D_PLANE_PROJECTION)) )  ) 
+      SUBTYPE OF (Representation_relationship);
+      SELF\Representation_relationship.rep_1 : Geometric_model;
+      SELF\Representation_relationship.rep_2 : Geometric_model;<<<<6263
+    WHERE
+      WR1 : rep_1 <> rep_2;
+  END_ENTITY;
+
+         Redeclaration is no specialisation.
+
+ERROR  : Line  9437: Conflicting implicit attribute redeclaration in entity: PRE_DEFINED_PERPENDICULAR_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP
+         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
+         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
+         Redeclaration is no specialisation.
+
+ERROR  : Line  9449: Conflicting implicit attribute redeclaration in entity: PRE_DEFINED_PERPENDICULAR_DATUM_PLANE_SYMBOL_3D_2D_RELATIONSHIP
+         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
+         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
+         Redeclaration is no specialisation.
+==============================================================================
 
 ERROR  : Line  9979: Conflicting types in DERIVE clause.
          Expected  : Entity: FUNCTIONAL_SPECIFICATION_DEFINITION
@@ -326,53 +525,6 @@ ERROR  : Line  9987: Conflicting types in DERIVE clause.
          Expected  : Entity: FUNCTIONAL_SPECIFICATION_DEFINITION
          Actual    : Entity: DOCUMENT_DEFINITION
 
-ERROR  : Line 10007: Unresolved qualified reference in argument in calling predefined function.
-         Reference : \REQUIREMENT_ASSIGNMENT.ASSIGNED_REQUIREMENT\INTERFACE_REQUIREMENT_OCCURRENCE.REFERENCE_PROTOCOL
-         Unresolved reference: \REQUIREMENT_ASSIGNMENT.ASSIGNED_REQUIREMENT\INTERFACE_REQUIREMENT_OCCURRENCE.REFERENCE_PROTOCOL
-
-ERROR  : Line 10008: Unresolved qualified reference in WHERE clause.
-         Reference : \REQUIREMENT_ASSIGNMENT.ASSIGNED_REQUIREMENT\INTERFACE_REQUIREMENT_OCCURRENCE.REFERENCE_PROTOCOL.HOST_FUNCTIONAL_DEFINITION\FUNCTIONAL_UNIT_USAGE_VIEW.ACCESS_MECHANISM
-         Unresolved reference: \REQUIREMENT_ASSIGNMENT.ASSIGNED_REQUIREMENT\INTERFACE_REQUIREMENT_OCCURRENCE.REFERENCE_PROTOCOL
-
-ERROR  : Line 10263: Unresolved attribute domain reference.
-         Attribute : SOURCE
-         Domain reference: REQUIREMENT_SOURCE_ITEM
-
-ERROR  : Line 10698: Illegal attribute redeclaration.
-         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
-         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
-         Redeclaration is no specialisation.
-
-ERROR  : Line 10715: Illegal attribute redeclaration.
-         Redeclaring attribute: SHAPE_DEFINITION_3D_PLANE_PROJECTION.REP_2 in line: 10715
-         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
-         Redeclaration is no specialisation.
-
-ERROR  : Line 12196: Entity used as INVERSE attribute domain does not define
-         a direct relationship to the current entity by an explict attribute.
-         INVERSE attribute: INTERFACE_ACCESS_MECHANISM
-         Line  7023 Related entity: LAND_INTERFACE_TERMINAL
-
-ERROR  : Line 12204: Entity used as INVERSE attribute domain does not define
-         a direct relationship to the current entity by an explict attribute.
-         INVERSE attribute: INTERFACE_ACCESS_MECHANISM
-         Line  7867 Related entity: NON_FUNCTIONAL_LAND_INTERFACE_TERMINAL
-
-ERROR  : Line 12284: Illegal attribute redeclaration.
-         Redeclaring attribute: VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 12284
-         Redeclared  attribute: NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 7802
-         Redeclaration from FEATURE_SHAPE_DEFINITION to VIEW_SHAPE_SELECT
-
-WARNING: Line 12619: Unresolved ENTITY name in call or return from predefined function USEDIN.
-         Argument 2 in USEDIN call
-         Attribute qualification: 
-         AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.REQUIREMENT_DEFINTION_PROPERTY.ASSOCIATED_DEFINITION
-
-WARNING: Line 12619: Unresolved ENTITY name in Assignment statement 
-         (argument 1 in BAG_TO_SET() )..
-         Argument 2 in USEDIN call
-         Attribute qualification: 
-         AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.REQUIREMENT_DEFINTION_PROPERTY.ASSOCIATED_DEFINITION
 
 
    20 WARNINGS detected.

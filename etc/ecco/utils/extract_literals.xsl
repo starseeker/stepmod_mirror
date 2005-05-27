@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: extract_literals.xsl,v 1.1 2005/05/23 23:34:35 thendrix Exp $
+$Id: extract_literals.xsl,v 1.2 2005/05/27 00:24:30 thendrix Exp $
 
 Author: Tom Hendrix, adapted from GE version.
 Owner:  sourceforge stepmod
@@ -64,16 +64,16 @@ Extract a schema from a ECCO pseudo p28 pdts file
 	<xsl:value-of select="'ISO 10303-'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.date">
-	<xsl:value-of select="'$Date: 2005/05/23 23:34:35 $'"/>
+	<xsl:value-of select="'$Date: 2005/05/27 00:24:30 $'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.revision">
-	<xsl:value-of select="'$Revision: 1.1 $'"/>
+	<xsl:value-of select="'$Revision: 1.2 $'"/>
       </xsl:attribute>
       <application
 	  name="ecco2module.js"
 	  owner="stepmod"
 	  url="http://stepmod.sourceforge.net"
-	  version="'$Revision: 1.1 $'"
+	  version="'$Revision: 1.2 $'"
 	  source="FIX../data/resources/topology_schema/topology_schema.exp"/>
       <xsl:element name="schema">
 	<xsl:attribute name="name"><xsl:value-of select="./schema_id"/></xsl:attribute>
@@ -112,7 +112,22 @@ Extract a schema from a ECCO pseudo p28 pdts file
   </xsl:template>
 
 
-  <xsl:template match="algorithm_head | statement_block"  mode="literal">
+  <xsl:template match="algorithm_head"  mode="literal">
+    <xsl:apply-templates mode="literal"/>
+  </xsl:template>
+
+  <xsl:template match="statement_block/statement_block"  mode="literal">
+    <xsl:call-template name="indent"/>
+    <xsl:value-of select="'BEGIN
+'"/>
+    <xsl:apply-templates mode="literal"/>
+    <xsl:call-template name="indent"/>
+    <xsl:value-of select="'END;
+'"/>
+
+  </xsl:template>
+
+  <xsl:template match="statement_block"  mode="literal">
     <xsl:apply-templates mode="literal"/>
   </xsl:template>
 
@@ -469,8 +484,8 @@ mode="literal">
 	  <xsl:with-param name="string" select="name(.)"/>
 	</xsl:call-template>
     </xsl:variable>
-    <xsl:value-of select="concat(' ',$literal,' 
-')"/>
+    <xsl:value-of select="concat(' ',$literal)"/>
+    <xsl:call-template name="indent"/>
   </xsl:template>
 
   <xsl:template match="self" mode="literal">
@@ -590,21 +605,19 @@ mode="literal">
       <xsl:apply-templates />
 </xsl:template>
 <xsl:template match="if_stmt" mode="literal">
+  <xsl:call-template name="indent"/>
   <xsl:value-of select="'IF '" />
       <xsl:apply-templates select="logical_expression" mode="literal"/>
-  <xsl:value-of select="' THEN
-'" />
+  <xsl:value-of select="' THEN'" />
       <xsl:apply-templates select="statement_block[1]"  mode="literal" />
       <xsl:variable name="else" select="statement_block[2]"/>
       <xsl:if test="$else">
-  <xsl:value-of select="'
-ELSE
-'" />
-  <xsl:apply-templates select="statement_block[2]"   mode="literal"/>
-</xsl:if>
-  <xsl:value-of select="'END_IF;
-
-'"/>
+	<xsl:call-template name="indent"/>
+	<xsl:value-of select="'ELSE'" />
+	<xsl:apply-templates select="statement_block[2]"   mode="literal"/>
+      </xsl:if>
+      <xsl:call-template name="indent"/>
+      <xsl:value-of select="'END_IF;'"/>
 </xsl:template>
 
 
@@ -720,16 +733,14 @@ ELSE
 </xsl:template>
 
 <xsl:template match="local_variable_block" mode="literal">
-  <xsl:value-of select="'
-LOCAL
-'"/>
+  <xsl:value-of select="'LOCAL'"/>
       <xsl:apply-templates  mode="literal"/>
-  <xsl:value-of select="'END_LOCAL;
-
-'"/>
+  <xsl:value-of select="'
+END_LOCAL;'"/>
 </xsl:template>
 
 <xsl:template match="local_variable_decl" mode="literal">
+  <xsl:call-template name="indent"/>
       <xsl:apply-templates select="variable_id" mode="literal"/>
       <xsl:value-of select="' : '" />
       <xsl:apply-templates select="*[2]" mode="literal"/>
@@ -737,8 +748,7 @@ LOCAL
 	<xsl:value-of select="' := '" /> 
 	<xsl:apply-templates select="*[3]" mode="literal" />
       </xsl:if>
-      <xsl:value-of select="';
-'" />
+      <xsl:value-of select="';'" />
 </xsl:template>
 
 <xsl:template match="log"   mode="literal">
@@ -769,8 +779,8 @@ LOCAL
 </xsl:template>
 
 <xsl:template match="complex_entity_constructor" mode="literal">
-    <xsl:value-of select="' || 
-'"/>
+    <xsl:value-of select="' ||'"/>
+    <xsl:call-template name="indent"/>
 </xsl:template>
 
   <xsl:template match="*">
@@ -788,7 +798,12 @@ LOCAL
 <xsl:template match="tail_remark" mode="literal">
       <xsl:apply-templates />
 </xsl:template>
+
 <xsl:template match="function_decl" mode="literal">
+      <xsl:apply-templates mode="literal"/>
+  </xsl:template>
+
+<xsl:template match="rule_decl" mode="literal">
       <xsl:apply-templates mode="literal"/>
   </xsl:template>
 
@@ -829,12 +844,12 @@ LOCAL
 </xsl:template>
 
 <xsl:template match="assignment_stmt"   mode="literal">
-      <xsl:apply-templates select="*[1]"  mode="literal"/>
-      <xsl:apply-templates select="qualifier"  mode="literal"/>
-      <xsl:value-of select="' := '"/>
-      <xsl:apply-templates select="*[position()=last()]" mode="literal"/>
-      <xsl:value-of select="';
-'"/>
+  <xsl:call-template name="indent"/>
+  <xsl:apply-templates select="*[1]"  mode="literal"/>
+  <xsl:apply-templates select="qualifier"  mode="literal"/>
+  <xsl:value-of select="' := '"/>
+  <xsl:apply-templates select="*[position()=last()]" mode="literal"/>
+  <xsl:value-of select="';'"/>
 </xsl:template>
 
 
@@ -855,21 +870,20 @@ LOCAL
 </xsl:template>
 
 <xsl:template match="return_stmt" mode="literal">
+  <xsl:call-template name="indent"/>
  <xsl:value-of select="'RETURN('"/>
  <xsl:apply-templates  mode="literal" />
- <xsl:value-of select="');
-'"/>
+ <xsl:value-of select="');'"/>
 </xsl:template>
 
 <xsl:template match="repeat_stmt"   mode="literal">
- <xsl:value-of select="'REPEAT '"/>
- <xsl:apply-templates  select="repeat_control" mode="literal" />
- <xsl:value-of select="';
-'"/>
-<xsl:apply-templates  select="statement_block" mode="literal" />
- <xsl:value-of select="'END_REPEAT;
-
-'"/>
+  <xsl:call-template name="indent"/>
+  <xsl:value-of select="'REPEAT '"/>
+  <xsl:apply-templates  select="repeat_control" mode="literal" />
+  <xsl:value-of select="';'"/>
+  <xsl:apply-templates  select="statement_block" mode="literal" />
+  <xsl:call-template name="indent"/>
+ <xsl:value-of select="'END_REPEAT;'"/>
 </xsl:template>
 
 <xsl:template match="repeat_control"   mode="literal">
@@ -1005,5 +1019,38 @@ LOCAL
 <xsl:param name="string"/>
         <xsl:value-of select="translate($string,$LOWER,$UPPER)"/>
 </xsl:template>
- 
+
+<xsl:template name="indent">
+  <xsl:variable name="indent_level">
+<xsl:value-of select="2*(count(ancestor::if_stmt) +
+		      count(ancestor::case_stmt) + 
+		      count(ancestor::function_decl) + 
+		      count(ancestor::statement_block[./child::statement_block]) + 
+		      count(ancestor::rule_decl) + 
+		      count(ancestor::procedure_decl) + 
+		      count(ancestor::repeat_stmt))" />
+
+  </xsl:variable>
+  <xsl:variable name="spaces">
+  <xsl:call-template name="recurse-indent" >
+    <xsl:with-param name="count" select="$indent_level"/>
+  </xsl:call-template>
+  </xsl:variable>
+  <xsl:value-of select="'
+'" />
+  <xsl:value-of select="$spaces"/>
+</xsl:template>
+
+<xsl:template name="recurse-indent">
+  <xsl:param name="count"/>
+<xsl:choose>
+<xsl:when test="$count > 0" >
+  <xsl:value-of select="' '"/>
+  <xsl:call-template name="recurse-indent">
+    <xsl:with-param name="count" select="$count - 1"/>
+  </xsl:call-template>
+</xsl:when>
+</xsl:choose>
+</xsl:template> 
+
 </xsl:stylesheet>

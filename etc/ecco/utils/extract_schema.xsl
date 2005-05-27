@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: extract_schema.xsl,v 1.2 2005/05/18 15:00:34 thendrix Exp $
+$Id: extract_schema.xsl,v 1.4 2005/05/23 23:34:36 thendrix Exp $
 
 Author: Tom Hendrix, adapted from GE version.
 Owner:  sourceforge stepmod
@@ -65,16 +65,16 @@ Extract a schema from a ECCO pseudo p28 pdts file
 	<xsl:value-of select="'ISO 10303-'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.date">
-	<xsl:value-of select="'$Date: 2005/05/18 15:00:34 $'"/>
+	<xsl:value-of select="'$Date: 2005/05/23 23:34:36 $'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.revision">
-	<xsl:value-of select="'$Revision: 1.2 $'"/>
+	<xsl:value-of select="'$Revision: 1.4 $'"/>
       </xsl:attribute>
       <application
 	  name="ecco2module.js"
 	  owner="stepmod"
 	  url="http://stepmod.sourceforge.net"
-	  version="'$Revision: 1.2 $'"
+	  version="'$Revision: 1.4 $'"
 	  source="FIX../data/resources/topology_schema/topology_schema.exp"/>
       <xsl:element name="schema">
 	<xsl:attribute name="name"><xsl:value-of select="./schema_id"/></xsl:attribute>
@@ -116,11 +116,7 @@ Extract a schema from a ECCO pseudo p28 pdts file
     <xsl:attribute name="name" ><xsl:value-of select="."/></xsl:attribute>
   </xsl:template>
 
-  <xsl:template match="agregate_source">
-    <xsl:apply-templates />
-  </xsl:template>
-
-  <xsl:template match="algorithm_head | statement_block ">
+  <xsl:template match="aggregate_source">
     <xsl:apply-templates />
   </xsl:template>
 
@@ -207,9 +203,6 @@ Extract a schema from a ECCO pseudo p28 pdts file
 <xsl:attribute name="optional">YES</xsl:attribute>
 </xsl:template>
 
-  <xsl:template match="underlying_type">
-    <xsl:apply-templates />
-  </xsl:template>
 
   <xsl:template match="list_type">
     <xsl:element name="aggregate">
@@ -351,7 +344,6 @@ Extract a schema from a ECCO pseudo p28 pdts file
     <xsl:apply-templates/>
   </xsl:template>
 
-
   <xsl:template match="select">
     <xsl:element name="select">
       <xsl:apply-templates select="extensible"/>
@@ -370,6 +362,25 @@ Extract a schema from a ECCO pseudo p28 pdts file
       </xsl:attribute>
     </xsl:if>
   </xsl:template>
+
+  <xsl:template match="enumeration">
+    <xsl:element name="enumeration">
+      <xsl:apply-templates select="extensible"/>
+      <xsl:apply-templates select="based_on"/>
+      <xsl:apply-templates select="." mode="refs"/>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="enumeration" mode="refs">
+    <xsl:if test="./enumeration_id">
+      <xsl:attribute name="items">
+	<xsl:for-each select="enumeration_id" >
+	  <xsl:value-of select="concat(string(.),' ')"/>
+	</xsl:for-each>
+      </xsl:attribute>
+    </xsl:if>
+  </xsl:template>
+
 
   <xsl:template match="extensible">
     <xsl:attribute name="extensible">YES</xsl:attribute>
@@ -449,12 +460,7 @@ Extract a schema from a ECCO pseudo p28 pdts file
 
 
   <xsl:template match="or|and">
-    <xsl:variable name="literal">
-	<xsl:call-template name="toupper">
-	  <xsl:with-param name="string" select="name(.)"/>
-	</xsl:call-template>
-    </xsl:variable>
-    <xsl:value-of select="concat(' ',$literal,' ')"/>
+   <xsl:apply-templates select="." mode="literal"/>
   </xsl:template>
 
   <xsl:template match="self">
@@ -590,15 +596,15 @@ Extract a schema from a ECCO pseudo p28 pdts file
 <xsl:template match="greater_than_or_equal">
       <xsl:value-of select="' &gt;= '" />
 </xsl:template>
+
 <xsl:template match="hibound">
       <xsl:apply-templates />
 </xsl:template>
-<xsl:template match="high_index">
-      <xsl:apply-templates />
-</xsl:template>
+
 <xsl:template match="hiindex">
       <xsl:apply-templates />
 </xsl:template>
+
 <xsl:template match="if_stmt">
   <xsl:value-of select="'IF '" />
       <xsl:apply-templates select="logical_expression" />
@@ -622,6 +628,7 @@ ELSE
 <xsl:template match="increment_control">
       <xsl:apply-templates />
 </xsl:template>
+
 <xsl:template match="index_qualifier">
       <xsl:value-of select="'['" />
       <xsl:apply-templates />
@@ -630,9 +637,11 @@ ELSE
 <xsl:template match="index_spec">
       <xsl:apply-templates />
 </xsl:template>
+
 <xsl:template match="inherited_attribute_instance">
       <xsl:apply-templates />
 </xsl:template>
+
 <xsl:template match="insert">
       <xsl:apply-templates />
 </xsl:template>
@@ -671,24 +680,7 @@ ELSE
       <xsl:when test="self::index_qualifier">
 	<xsl:apply-templates select="."/>
       </xsl:when>
-
-<!--
-      <xsl:when test="name(.)='entity_ref' and name(./following-sibling::node())='attribute_ref'">
-	<xsl:apply-templates select="."/>
-	<xsl:value-of select="'.'"/>
-      </xsl:when>
-      <xsl:when test="name(./following-sibling::node())='attribute_ref'">
-	<xsl:apply-templates select="."/>
-	<xsl:value-of select="'\'"/>
-      </xsl:when>
-      <xsl:when test="self::attribute_ref">
-	<xsl:apply-templates select="."/>
-      </xsl:when>
-      <xsl:when test="position()=last()">
-	<xsl:apply-templates select="."/>
-      </xsl:when>
--->
-      <xsl:otherwise>
+    <xsl:otherwise>
 	<xsl:value-of select="':did not find:'"/>
 	<xsl:apply-templates select="."/>
 	<xsl:value-of select="':'"/>
@@ -747,9 +739,7 @@ ELSE
 <xsl:template match="loindex">
       <xsl:apply-templates />
 </xsl:template>
-<xsl:template match="low_index">
-      <xsl:apply-templates />
-</xsl:template>
+
 
 <xsl:template match="domain_rule/logical_expression">
   <xsl:attribute name="expression">
@@ -810,7 +800,7 @@ ELSE
   <xsl:element name="derived">
     <xsl:apply-templates select="attribute_id|qualified_attribute"/> 
     <xsl:attribute name="expression">
-      <xsl:apply-templates select="*[name(.) != 'attribute_id' and name(.) != 'qualified_attribute']"/>
+      <xsl:apply-templates select="*[name(.) != 'attribute_id' and name(.) != 'qualified_attribute' and name(.) != 'base_type']" mode="literal"/>
     </xsl:attribute> 
     <xsl:apply-templates select="base_type"/>
     <xsl:if test="qualified_attribute">
@@ -835,17 +825,13 @@ ELSE
       <xsl:apply-templates />
 </xsl:template>
 
-<xsl:template match="enumeration">
-      <xsl:apply-templates />
-</xsl:template>
-
 <xsl:template match="equal">
       <xsl:value-of select="'='" />
 </xsl:template>
 
 
 
-<xsl:template match="alias_stmt | assignment_stmt | case_stmt | statement_block | escape_stmt | null_stmt | procedure_call_stmt | repeat_stmt | return_stmt | skip_stmt">
+<xsl:template match="alias_stmt | assignment_stmt | case_stmt | escape_stmt | null_stmt | procedure_call_stmt | repeat_stmt | return_stmt | skip_stmt">
       <xsl:apply-templates />
 </xsl:template>
 
@@ -947,5 +933,10 @@ ELSE
         <xsl:value-of select="translate($string,$LOWER,$UPPER)"/>
 </xsl:template>
  
+<xsl:template match="plus|add|subtract|or|xor" >
+      <xsl:apply-templates select="." mode="literal"/>
+</xsl:template>
+
+
 </xsl:stylesheet>
 

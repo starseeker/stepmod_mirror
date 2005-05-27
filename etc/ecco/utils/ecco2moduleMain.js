@@ -1,4 +1,4 @@
-//$Id: ge2moduleMain.js,v 1.6 2005/01/08 01:03:01 thendrix Exp $
+//$Id: ecco2moduleMain.js,v 1.1 2005/04/21 18:00:19 thendrix Exp $
 //  Author: Tom Hendrix, Boeing
 //  Purpose:  JScript to convert ECCO pseudo part 28 PDTS to XML for repository
 
@@ -498,15 +498,8 @@ function convertImgFile(imgFile, newImgFile, schemaName) {
     
 }
 
-
-
-
-// Extract the schema page
+// Extract the schema page - not used
 function convertSchemaPage(eccoDir,schemaName) {
-    //passed schema name in as a parameter instead
-    //var schemaName = getSchemaNameFromXML(eccoDir);
-    //userMessage(schemaName);
-    // setup the schema directory
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     var modDir = eccoDir+"/modules";
     var schDir  = modDir+"/schemaPage";
@@ -521,19 +514,6 @@ function convertSchemaPage(eccoDir,schemaName) {
 	fso.CreateFolder(modDir);
 	schFldr = fso.CreateFolder(schDir);
     }
-
-/*     var graphicsXmlFile = fso.GetFolder(eccoDir).Path.toString()+"\\graphics1.xml"; */
-/*     var graphicsXmlFileTmp = schFldr.Path.toString()+"\\graphics1.xml"; */
-/*     fso.CopyFile(graphicsXmlFile,graphicsXmlFileTmp); */
-    
-/*     var mimArm = getArmMimXml(schemaName)+"expg1.xml"; */
-/*     var newGraphicsXml = schFldr.Path.toString()+"\\"+mimArm; */
-
-/*     convertImgFile(graphicsXmlFileTmp, newGraphicsXml, schemaName); */
-
-/*     var graphicsGifFile = graphicsXmlFile.replace(".xml",".gif"); */
-/*     var graphicsGifFileTmp = newGraphicsXml.replace(".xml",".gif"); */
-/*     fso.CopyFile(graphicsGifFile,graphicsGifFileTmp); */
 
 }
 
@@ -567,16 +547,6 @@ function extractSchemaFromXML(eccoDir,expr) {
     var stylesheet = new ActiveXObject("Msxml2.DOMDocument.3.0");
     stylesheet.async = false;
     stylesheet.load(xsl);
-
-   //get  source file name
-  
-    //    var applicationNodes = xml.selectNodes("/express/application");
-    // var node = applicationNodes(0);
-    // sourceFile = node.attributes.getNamedItem("source").nodeValue;
-
-
-    // Get the schema out of model.xml
-    //    ErrorMessage("expr in extractschemafromxml  "+expr);
     var schemaNodes = xml.selectNodes(expr);
     var members = schemaNodes.length;
     for (var i = 0; i < members; i++) {	
@@ -626,8 +596,6 @@ function convertSchema(eccoDir,schemaName) {
 
 // Extract all schema from model.xml file
 function convertAll(eccoDir) {
-    Errormessage("Cannot convert all yet");
-    return(-1);
     var fso = new ActiveXObject("Scripting.FileSystemObject");
     if (checkEccoDir(eccoDir) == 0) {
 	var dstDir = eccoDir+"/modules";

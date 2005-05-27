@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: extract_schema.xsl,v 1.2 2005/05/18 15:00:34 thendrix Exp $
+$Id: extract_literals.xsl,v 1.1 2005/05/23 23:34:35 thendrix Exp $
 
 Author: Tom Hendrix, adapted from GE version.
 Owner:  sourceforge stepmod
@@ -64,16 +64,16 @@ Extract a schema from a ECCO pseudo p28 pdts file
 	<xsl:value-of select="'ISO 10303-'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.date">
-	<xsl:value-of select="'$Date: 2005/05/18 15:00:34 $'"/>
+	<xsl:value-of select="'$Date: 2005/05/23 23:34:35 $'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.revision">
-	<xsl:value-of select="'$Revision: 1.2 $'"/>
+	<xsl:value-of select="'$Revision: 1.1 $'"/>
       </xsl:attribute>
       <application
 	  name="ecco2module.js"
 	  owner="stepmod"
 	  url="http://stepmod.sourceforge.net"
-	  version="'$Revision: 1.2 $'"
+	  version="'$Revision: 1.1 $'"
 	  source="FIX../data/resources/topology_schema/topology_schema.exp"/>
       <xsl:element name="schema">
 	<xsl:attribute name="name"><xsl:value-of select="./schema_id"/></xsl:attribute>
@@ -154,6 +154,7 @@ mode="literal">
   </xsl:template>
 
   <xsl:template match="type_label_id" mode="literal">
+    <xsl:value-of select="' : '" />
     <xsl:value-of select="." />
   </xsl:template>
 
@@ -168,7 +169,6 @@ mode="literal">
   <xsl:template match="underlying_type"  mode="literal">
     <xsl:apply-templates mode="literal"/>
   </xsl:template>
-
 
   <xsl:template match="subtype_of">
     <xsl:attribute name="supertypes">
@@ -212,8 +212,6 @@ mode="literal">
 
   </xsl:template>
 
-
-
   <xsl:template match="bag_type|general_bag_type" mode="literal">
        <xsl:value-of select="'BAG'" />
        <xsl:apply-templates select="bound_spec" mode="literal" />
@@ -231,14 +229,12 @@ mode="literal">
    </xsl:template>
 
   <xsl:template match="set_type|general_set_type"  mode="literal">
-    <xsl:value-of select="'SET '" />
+    <xsl:value-of select="'SET'" />
        <xsl:apply-templates select="bound_spec" mode="literal" />
        <xsl:value-of select="' OF '" />
        <xsl:apply-templates select="bound_spec" mode="literal" />
        <xsl:apply-templates select="*[not(self::bound_spec)]"  mode="literal" />
   </xsl:template>
-
-
 
   <xsl:template match="bound_spec"  mode="literal">
     <xsl:value-of select="'['"/> 
@@ -246,7 +242,6 @@ mode="literal">
     <xsl:value-of select="':'"/> 
      <xsl:apply-templates select="upper_bound"  mode="literal"/>
     <xsl:value-of select="']'"/> 
-    <xsl:apply-templates mode="literal"/>
   </xsl:template>
 
   <xsl:template match="lower_bound"  mode="literal">
@@ -254,10 +249,8 @@ mode="literal">
   </xsl:template>
 
   <xsl:template match="upper_bound"  mode="literal">
-    <xsl:attribute name="upper">
-      <xsl:apply-templates   mode="literal"/>
-    </xsl:attribute>
-  </xsl:template>
+     <xsl:apply-templates   mode="literal"/>
+    </xsl:template>
 
  <xsl:template match="index_spec"    mode="literal">
     <xsl:apply-templates />
@@ -271,114 +264,119 @@ mode="literal">
       <xsl:apply-templates />
   </xsl:template>
 
-  <xsl:template match="unset">
+ 
+  <xsl:template match="unset" mode="literal">
     <xsl:value-of select="'?'"/>
   </xsl:template>
 
-  <xsl:template match="const_e">
+  <xsl:template match="asin" mode="literal">
+    <xsl:value-of select="'ASIN'"/>
+  </xsl:template>
+
+  <xsl:template match="acos" mode="literal">
+    <xsl:value-of select="'ACOS'"/>
+  </xsl:template>
+
+  <xsl:template match="atan" mode="literal">
+    <xsl:value-of select="'ATAN'"/>
+  </xsl:template>
+
+  <xsl:template match="sin" mode="literal">
+    <xsl:value-of select="'SIN'"/>
+  </xsl:template>
+
+
+  <xsl:template match="cos" mode="literal">
+    <xsl:value-of select="'COS'"/>
+  </xsl:template>
+
+  <xsl:template match="tan" mode="literal">
+    <xsl:value-of select="'TAN'"/>
+  </xsl:template>
+
+
+  <xsl:template match="const_e" mode="literal">
     <xsl:value-of select="'E'"/>
   </xsl:template>
 
-  <xsl:template match="pi">
+
+
+  <xsl:template match="pi" mode="literal">
     <xsl:value-of select="'PI'"/>
-  </xsl:template>
- <xsl:template match="rule_decl">
-   <xsl:apply-templates />
-  </xsl:template>
- <xsl:template match="rule_id">
-   <xsl:apply-templates />
   </xsl:template>
 
   <xsl:template match="parameter_ref"  mode="literal">
     <xsl:value-of select="."/>
   </xsl:template>
 
-  <xsl:template match="unique">
-    <xsl:apply-templates />
+  <xsl:template match="unique"   mode="literal">
+    <xsl:apply-templates   mode="literal"/>
   </xsl:template>
-  <xsl:template match="unique_clause">
-    <xsl:apply-templates />
+  <xsl:template match="unique_clause"   mode="literal">
+    <xsl:apply-templates   mode="literal"/>
   </xsl:template>
-  <xsl:template match="unique_rule">
-    <xsl:apply-templates />
+  <xsl:template match="unique_rule"  mode="literal">
+    <xsl:apply-templates   mode="literal"/>
   </xsl:template>
-  <xsl:template match="unknown">
+
+  <xsl:template match="unknown"  mode="literal">
     <xsl:apply-templates />
  </xsl:template>
-  <xsl:template match="until">
-    <xsl:apply-templates />
+
+  <xsl:template match="until"  mode="literal">
+    <xsl:apply-templates   mode="literal"/>
   </xsl:template>
-  <xsl:template match="usedin">
-    <xsl:apply-templates />
+  <xsl:template match="usedin"   mode="literal">
+    <xsl:apply-templates   mode="literal"/>
   </xsl:template>
 
-  <xsl:template match="value">
-    <xsl:apply-templates />
+  <xsl:template match="value"  mode="literal">
+    <xsl:apply-templates   mode="literal"/>
   </xsl:template>
-  <xsl:template match="value_in">
-    <xsl:apply-templates />
+  <xsl:template match="value_in"  mode="literal">
+    <xsl:apply-templates   mode="literal"/>
   </xsl:template>
-  <xsl:template match="value_unique">
-    <xsl:apply-templates />
-  </xsl:template>
-  <xsl:template match="variable_id">
-    <xsl:apply-templates />
+  <xsl:template match="value_unique"  mode="literal">
+    <xsl:apply-templates   mode="literal"/>
   </xsl:template>
 
-  <xsl:template match="variable_ref">
+  <xsl:template match="variable_id"  mode="literal">
+    <xsl:apply-templates   mode="literal"/>
+  </xsl:template>
+
+  <xsl:template match="variable_ref"  mode="literal">
     <xsl:value-of select="."/>
   </xsl:template>
  
- <xsl:template match="var_formal_parameter">
+ <xsl:template match="var_formal_parameter"  mode="literal">
     <xsl:value-of select="."/>
   </xsl:template>
-<xsl:template match="where_clause">
-  <xsl:apply-templates/>
+
+<xsl:template match="where_clause"  mode="literal">
+  <xsl:apply-templates  mode="literal"/>
   </xsl:template>
  
-<xsl:template match="where_clause_parameter">
-  <xsl:apply-templates/>
+<xsl:template match="where_clause_parameter"  mode="literal">
+  <xsl:apply-templates  mode="literal"/>
   </xsl:template>
 
- <xsl:template match="while">
- <xsl:apply-templates/>
+ <xsl:template match="while"  mode="literal">
+ <xsl:apply-templates  mode="literal"/>
   </xsl:template>
 
-  <xsl:template match="width_spec">
-  <xsl:apply-templates/>
-  </xsl:template>
- <xsl:template match="xor">
-    <xsl:apply-templates/>
+  <xsl:template match="width_spec"  mode="literal">
+  <xsl:apply-templates  mode="literal"/>
   </xsl:template>
 
-
-  <xsl:template match="select">
-    <xsl:element name="select">
-      <xsl:apply-templates select="extensible"/>
-      <xsl:apply-templates select="generic_entity"/>
-      <xsl:apply-templates select="based_on"/>
-      <xsl:apply-templates select="." mode="refs"/>
-    </xsl:element>
+  <xsl:template match="select" mode="literal">
+      <xsl:apply-templates select="." mode="literal"/>
   </xsl:template>
 
-  <xsl:template match="select" mode="refs">
-    <xsl:if test="./entity_ref or ./type_ref">
-      <xsl:attribute name="selectitems">
-	<xsl:for-each select="entity_ref|type_ref" >
-	  <xsl:value-of select="concat(string(.),' ')"/>
-	</xsl:for-each>
-      </xsl:attribute>
-    </xsl:if>
+  <xsl:template match="extensible"   mode="literal">
   </xsl:template>
 
-  <xsl:template match="extensible">
-    <xsl:attribute name="extensible">YES</xsl:attribute>
-  </xsl:template>
-
-  <xsl:template match="based_on">
-    <xsl:attribute name="name">
-      <xsl:apply-templates />
-    </xsl:attribute>
+  <xsl:template match="based_on" mode="literal">
+      <xsl:apply-templates mode="literal"/>
   </xsl:template>
 
 <xsl:template match="term" mode="literal">
@@ -387,80 +385,92 @@ mode="literal">
   <xsl:apply-templates select="*[3]"   mode="literal"/>
 </xsl:template>
 
-<xsl:template match="population">
-      <xsl:apply-templates />
+<xsl:template match="element_item"  mode="literal">
+  <!-- this does not work the way I thought 
+  <xsl:if test=". != ../element_item[1]">
+    <xsl:value-of select="', '"/>
+  </xsl:if>
+  -->
+      <xsl:apply-templates  mode="literal"/>
 </xsl:template>
 
-<xsl:template match="element_item">
-      <xsl:apply-templates />
+<xsl:template match="entity_instance"  mode="literal">
+      <xsl:apply-templates   mode="literal"/>
 </xsl:template>
 
-<xsl:template match="entity_instance">
-      <xsl:apply-templates />
+<xsl:template match="entity_instance_as_group"  mode="literal">
+      <xsl:apply-templates   mode="literal"/>
 </xsl:template>
 
-<xsl:template match="entity_instance_as_group">
-      <xsl:apply-templates />
+<xsl:template match="entity_instance_ref"  mode="literal">
+      <xsl:apply-templates   mode="literal"/>
 </xsl:template>
 
-<xsl:template match="entity_instance_ref">
-      <xsl:apply-templates />
-</xsl:template>
-
-
-<xsl:template match="element_list">
-      <xsl:apply-templates />
-</xsl:template>
-
-
-<xsl:template match="factor">
-      <xsl:apply-templates />
+<xsl:template match="element_list"  mode="literal">
+  <xsl:for-each select="element_item" >
+    <xsl:if test="position()!=1">
+      <xsl:value-of select="', '"/>
+    </xsl:if>
+    <xsl:apply-templates   mode="literal"/>
+  </xsl:for-each>
 </xsl:template>
 
 
-<xsl:template match="integer_divide">
-      <xsl:apply-templates />
+<xsl:template match="factor"  mode="literal">
+      <xsl:apply-templates   mode="literal"/>
 </xsl:template>
 
-<xsl:template match="mod">
-      <xsl:apply-templates />
-</xsl:template>
-<xsl:template match="multiply">
-      <xsl:apply-templates />
-</xsl:template>
-<xsl:template match="negate">
-      <xsl:apply-templates />
-</xsl:template>
-<xsl:template match="not_equal">
-      <xsl:apply-templates />
-</xsl:template>
-<xsl:template match="null_stmt">
-      <xsl:apply-templates />
+
+<xsl:template match="integer_divide"  mode="literal">
+      <xsl:apply-templates  mode="literal" />
 </xsl:template>
 
-<xsl:template match="real_divide">
-      <xsl:apply-templates />
+<xsl:template match="mod"  mode="literal">
+      <xsl:value-of select="' MOD '" />
+</xsl:template>
+
+<xsl:template match="multiply"  mode="literal">
+      <xsl:value-of select="'*'" />
+</xsl:template>
+
+<xsl:template match="negate"  mode="literal">
+       <xsl:value-of select="'-'" />
+</xsl:template>
+
+<xsl:template match="not_equal"  mode="literal">
+      <xsl:value-of select="' &lt;&gt; '" />
+
+</xsl:template>
+
+<xsl:template match="null_stmt"  mode="literal">
+      <xsl:apply-templates   mode="literal"/>
+</xsl:template>
+
+<xsl:template match="real_divide"  mode="literal">
+      <xsl:apply-templates   mode="literal"/>
 </xsl:template>
 
 <xsl:template match="numeric_expression" mode="literal">
       <xsl:apply-templates mode="literal"/>
 </xsl:template>
 
-<xsl:template match="nvl">
-      <xsl:apply-templates />
+<xsl:template match="nvl"  mode="literal">
+      <xsl:apply-templates   mode="literal"/>
 </xsl:template>
-<xsl:template match="odd">
-      <xsl:apply-templates />
+
+<xsl:template match="odd"  mode="literal">
+      <xsl:apply-templates   mode="literal"/>
 </xsl:template>
 
 
-  <xsl:template match="or|and">
+  <xsl:template match="or|and" mode="literal">
     <xsl:variable name="literal">
 	<xsl:call-template name="toupper">
 	  <xsl:with-param name="string" select="name(.)"/>
 	</xsl:call-template>
     </xsl:variable>
-    <xsl:value-of select="concat(' ',$literal,' ')"/>
+    <xsl:value-of select="concat(' ',$literal,' 
+')"/>
   </xsl:template>
 
   <xsl:template match="self" mode="literal">
@@ -483,6 +493,7 @@ mode="literal">
 
 
 <xsl:template match="otherwise"  mode="literal">
+  <xsl:value-of select="'OTHERWISE :'"/>
       <xsl:apply-templates  mode="literal"/>
 </xsl:template>
 
@@ -494,9 +505,23 @@ mode="literal">
 <xsl:template match="partial_entity_instance" mode="literal">
       <xsl:apply-templates  mode="literal"/>
 </xsl:template>
-<xsl:template match="plus" mode="literal">
+
+<xsl:template match="plus|add" mode="literal">
       <xsl:value-of select="' + '" />
 </xsl:template>
+
+<xsl:template match="subtract" mode="literal">
+      <xsl:value-of select="' - '" />
+</xsl:template>
+
+<xsl:template match="or" mode="literal">
+      <xsl:value-of select="' OR '" />
+</xsl:template>
+
+<xsl:template match="xor" mode="literal">
+      <xsl:value-of select="' XOR '" />
+</xsl:template>
+
 
 <xsl:template match="relation_expression|simple_expression" mode="literal">
       <xsl:apply-templates select="*[2]"  mode="literal"/>
@@ -508,7 +533,7 @@ mode="literal">
     <xsl:value-of select="' IN '"  />
 </xsl:template>
 
-<xsl:template match="function_call" mode="literal">
+<xsl:template match="function_call|entity_constructor" mode="literal">
     <xsl:for-each select="child::node()">
       <xsl:choose>
 	<xsl:when test="position()=1">
@@ -539,38 +564,29 @@ mode="literal">
       <xsl:apply-templates mode="literal"/>
 </xsl:template>
 
-<xsl:template match="general_type" mode="literal">
-      <xsl:apply-templates mode="literal"/>
+<xsl:template match="true" mode="literal">
+  <xsl:value-of select="'TRUE'"/>
 </xsl:template>
 
-
-<xsl:template match="true">
-      <xsl:apply-templates />
-</xsl:template>
-
-<xsl:template match="generic_type">
-    <xsl:element name="builtintype">
-      <xsl:attribute name="type">
+<xsl:template match="generic_type" mode="literal">
 	<xsl:value-of select="'GENERIC'"/>
-      </xsl:attribute>
-      <xsl:apply-templates select="type_label_id"/>
-    </xsl:element>
+      <xsl:apply-templates select="type_label_id" mode="literal"/>
   </xsl:template>
 
-<xsl:template match="greater_than">
+<xsl:template match="greater_than" mode="literal">
       <xsl:value-of select="' &gt; '" />
 </xsl:template>
 
-<xsl:template match="greater_than_or_equal">
+<xsl:template match="greater_than_or_equal" mode="literal">
       <xsl:value-of select="' &gt;= '" />
 </xsl:template>
-<xsl:template match="hibound">
+<xsl:template match="hibound" mode="literal">
       <xsl:apply-templates />
 </xsl:template>
-<xsl:template match="high_index">
+<xsl:template match="high_index" mode="literal">
       <xsl:apply-templates />
 </xsl:template>
-<xsl:template match="hiindex">
+<xsl:template match="hiindex" mode="literal">
       <xsl:apply-templates />
 </xsl:template>
 <xsl:template match="if_stmt" mode="literal">
@@ -587,18 +603,27 @@ ELSE
   <xsl:apply-templates select="statement_block[2]"   mode="literal"/>
 </xsl:if>
   <xsl:value-of select="'END_IF;
+
 '"/>
 </xsl:template>
 
 
-<xsl:template match="import_all">
-      <xsl:apply-templates />
+<xsl:template match="import_all"  mode="literal">
+      <xsl:apply-templates  mode="literal"/>
 </xsl:template>
+
 <xsl:template match="increment"  mode="literal">
-      <xsl:apply-templates />
+      <xsl:value-of select="' BY '" />
+      <xsl:apply-templates   mode="literal"/>
 </xsl:template>
+
 <xsl:template match="increment_control"  mode="literal">
-      <xsl:apply-templates />
+      <xsl:apply-templates   select="variable_id" mode="literal"/>
+      <xsl:value-of select="' := '" />
+      <xsl:apply-templates   select="lower_bound" mode="literal"/>
+      <xsl:value-of select="' TO '" />
+      <xsl:apply-templates select="upper_bound" mode="literal"/>
+      <xsl:apply-templates select="increment" mode="literal"/>
 </xsl:template>
 
 <xsl:template match="index_qualifier" mode="literal">
@@ -606,6 +631,7 @@ ELSE
       <xsl:apply-templates mode="literal"/>
       <xsl:value-of select="']'" />
 </xsl:template>
+
 <xsl:template match="index_spec" mode="literal">
       <xsl:apply-templates  mode="literal"/>
 </xsl:template>
@@ -631,7 +657,7 @@ ELSE
 </xsl:template>
 
 <xsl:template match="qualified_factor" mode="literal">
-      <xsl:apply-templates select="attribute_ref|entity_ref|parameter_ref|variable_ref|self"/>
+      <xsl:apply-templates select="*[1]"/>
       <xsl:apply-templates select="qualifier" mode="literal"/>
 </xsl:template>
 
@@ -648,16 +674,9 @@ ELSE
 	<xsl:apply-templates select="."  mode="literal"/>
       </xsl:when>
       <xsl:when test="self::index_qualifier" >
-	<xsl:apply-templates select="." mode="literal"/>
+	<xsl:apply-templates select="."  mode="literal"/>
       </xsl:when>
-
-      <xsl:otherwise>
-	<xsl:value-of select="':did not find:'"/>
-	<xsl:apply-templates select="." mode="literal"/>
-	<xsl:value-of select="':'"/>
-		<xsl:value-of select="':name-of-folsib:'"/> <xsl:value-of select="name(./following-sibling::node())" />
-      </xsl:otherwise>
-    </xsl:choose>
+  </xsl:choose>
   </xsl:for-each>
 </xsl:template>
 
@@ -678,29 +697,35 @@ ELSE
 <xsl:template match="less_than"   mode="literal">
       <xsl:value-of select="' &lt; '" />
 </xsl:template>
+
 <xsl:template match="less_than_or_equal"  mode="literal">
       <xsl:value-of select="' &lt;= '" />
       <xsl:apply-templates  mode="literal"/>
 </xsl:template>
+
 <xsl:template match="like"  mode="literal">
       <xsl:apply-templates mode="literal"/>
 </xsl:template>
+
 <xsl:template match="list_literal" mode="literal">
       <xsl:apply-templates  mode="literal"/>
 </xsl:template>
+
 <xsl:template match="lobound" mode="literal">
       <xsl:apply-templates  mode="literal"/>
 </xsl:template>
+
 <xsl:template match="length" mode="literal">
       <xsl:apply-templates  mode="literal"/>
 </xsl:template>
+
 <xsl:template match="local_variable_block" mode="literal">
   <xsl:value-of select="'
 LOCAL
 '"/>
       <xsl:apply-templates  mode="literal"/>
-  <xsl:value-of select="'
-END_LOCAL;
+  <xsl:value-of select="'END_LOCAL;
+
 '"/>
 </xsl:template>
 
@@ -731,9 +756,6 @@ END_LOCAL;
 <xsl:template match="loindex" mode="literal">
       <xsl:apply-templates  mode="literal"/>
 </xsl:template>
-<xsl:template match="low_index" mode="literal">
-      <xsl:apply-templates  mode="literal"/>
-</xsl:template>
 
 <xsl:template match="logical_expression" mode="literal">
     <xsl:apply-templates  mode="literal"/>
@@ -747,14 +769,8 @@ END_LOCAL;
 </xsl:template>
 
 <xsl:template match="complex_entity_constructor" mode="literal">
-    <xsl:value-of select="' || '"/>
-</xsl:template>
-
-<xsl:template match="entity_constructor" mode="literal">
-      <xsl:apply-templates  select="entity_ref" mode="literal"/>
-      <xsl:value-of select="'('"/>
-      <xsl:apply-templates  select="*[not(self::entity_ref)]" mode="literal"/>
-      <xsl:value-of select="')'"/>
+    <xsl:value-of select="' || 
+'"/>
 </xsl:template>
 
   <xsl:template match="*">
@@ -795,9 +811,6 @@ END_LOCAL;
       <xsl:apply-templates mode="literal"/>
 </xsl:template>
 
-<xsl:template match="entity_constructor"  mode="literal">
-      <xsl:apply-templates  mode="literal" />
-</xsl:template>
 
 <xsl:template match="enumeration_reference"  mode="literal">
       <xsl:apply-templates  mode="literal"/>
@@ -808,20 +821,37 @@ END_LOCAL;
 </xsl:template>
 
 <xsl:template match="equal"  mode="literal">
-      <xsl:value-of select="'='" />
+      <xsl:value-of select="' = '" />
 </xsl:template>
 
-<xsl:template match="alias_stmt | case_stmt | escape_stmt | null_stmt | procedure_call_stmt | skip_stmt"   mode="literal">
+<xsl:template match="alias_stmt | escape_stmt | null_stmt | procedure_call_stmt | skip_stmt"   mode="literal">
       <xsl:apply-templates  mode="literal" />
 </xsl:template>
 
 <xsl:template match="assignment_stmt"   mode="literal">
       <xsl:apply-templates select="*[1]"  mode="literal"/>
-      <xsl:value-of select="' := '"/>
-      <xsl:apply-templates select="*[last()]" mode="literal"/>
       <xsl:apply-templates select="qualifier"  mode="literal"/>
+      <xsl:value-of select="' := '"/>
+      <xsl:apply-templates select="*[position()=last()]" mode="literal"/>
       <xsl:value-of select="';
 '"/>
+</xsl:template>
+
+
+
+  <xsl:template match="case_stmt" mode="literal">
+      <xsl:value-of select="'CASE '" />
+      <xsl:apply-templates select="*[1]"  mode="literal"/>
+       <xsl:value-of select="' OF
+'" />
+       <xsl:apply-templates select="case_action" mode="literal" />
+       <xsl:apply-templates select="otherwise" mode="literal" />
+  </xsl:template>
+
+<xsl:template match="case_action" mode="literal"  >
+   <xsl:apply-templates  select="case_label" mode="literal" />
+   <xsl:value-of select="' : '"/>
+   <xsl:apply-templates  select="*[last()]" mode="literal" />
 </xsl:template>
 
 <xsl:template match="return_stmt" mode="literal">
@@ -833,12 +863,23 @@ END_LOCAL;
 
 <xsl:template match="repeat_stmt"   mode="literal">
  <xsl:value-of select="'REPEAT '"/>
- <xsl:apply-templates  select="repreat_control" mode="literal" />
+ <xsl:apply-templates  select="repeat_control" mode="literal" />
  <xsl:value-of select="';
 '"/>
- <xsl:apply-templates  select="statement_block" mode="literal" />
+<xsl:apply-templates  select="statement_block" mode="literal" />
  <xsl:value-of select="'END_REPEAT;
+
 '"/>
+</xsl:template>
+
+<xsl:template match="repeat_control"   mode="literal">
+  <xsl:apply-templates  mode="literal" />
+</xsl:template>
+
+
+<xsl:template match="repetition"   mode="literal">
+  <xsl:value-of select="' : '" />
+  <xsl:apply-templates  mode="literal" />
 </xsl:template>
 
 
@@ -867,40 +908,38 @@ END_LOCAL;
       <xsl:value-of select="' &lt; '" />
       <xsl:apply-templates mode="literal"/>
 </xsl:template>
+
 <xsl:template match="interval_item" mode="literal">
       <xsl:apply-templates mode="literal"/>
 </xsl:template>
+
 <xsl:template match="interval_low_exclusive" mode="literal">
       <xsl:apply-templates mode="literal"/>
       <xsl:value-of select="' &gt; '" />
 </xsl:template>
 
-<xsl:template match="interval_low_inclusive">
-      <xsl:apply-templates />
+<xsl:template match="interval_low_inclusive" mode="literal">
+      <xsl:apply-templates  mode="literal"/>
       <xsl:value-of select="' &gt;= '" />
 </xsl:template>
 
 
-<xsl:template match="inverse_attr">
-      <xsl:apply-templates />
+<xsl:template match="inverse_attr" mode="literal">
+      <xsl:apply-templates  mode="literal"/>
 </xsl:template>
 
-<xsl:template match="inverse_bag">
-      <xsl:apply-templates />
+<xsl:template match="inverse_bag" mode="literal">
+      <xsl:apply-templates  mode="literal"/>
 </xsl:template>
 
-<xsl:template match="inverse_clause">
-      <xsl:apply-templates />
+<xsl:template match="inverse_clause" mode="literal">
+      <xsl:apply-templates  mode="literal"/>
 </xsl:template>
-<xsl:template match="inverse_clause">
-      <xsl:apply-templates />
+
+<xsl:template match="inverse_set" mode="literal">
+      <xsl:apply-templates  mode="literal"/>
 </xsl:template>
-<xsl:template match="inverse_set">
-      <xsl:apply-templates />
-</xsl:template>
-<xsl:template match="inverse_clause">
-      <xsl:apply-templates />
-</xsl:template>
+
 
 <xsl:template match="query" mode="literal">
     <xsl:variable name="literal">
@@ -911,27 +950,27 @@ END_LOCAL;
     <xsl:value-of select="$literal"/>
     <xsl:value-of select="'('"/>
     <xsl:apply-templates select="variable_id" mode="literal"/>
-    <xsl:value-of select="' &gt;* '"/>
+    <xsl:value-of select="' *&gt; '"/>
     <xsl:apply-templates select="aggregate_source" mode="literal"/>
-    <xsl:value-of select="'|'"/>
+    <xsl:value-of select="' | '"/>
     <xsl:apply-templates select="logical_expression" mode="literal"/>
-
+    <xsl:value-of select="')'"/>
 </xsl:template>
 
 <xsl:template match="aggregate_source" mode="literal">
       <xsl:apply-templates mode="literal" />
 </xsl:template>
 
-<xsl:template match="binary_literal">
-      <xsl:apply-templates />
+<xsl:template match="binary_literal" mode="literal">
+      <xsl:apply-templates  mode="literal"/>
 </xsl:template>
 
-<xsl:template match="boolean_literal">
-      <xsl:apply-templates />
+<xsl:template match="integer_literal" mode="literal">
+      <xsl:apply-templates  mode="literal" />
 </xsl:template>
 
-<xsl:template match="real_literal">
-      <xsl:apply-templates />
+<xsl:template match="real_literal" mode="literal">
+      <xsl:apply-templates  mode="literal"/>
 </xsl:template>
 
 <xsl:template match="string_literal" mode="literal">
@@ -940,28 +979,26 @@ END_LOCAL;
   <xsl:value-of select='string("&apos;")'/>
 </xsl:template>
 
-<xsl:template match="false">
-      <xsl:apply-templates />
+<xsl:template match="false" mode="literal">
+  <xsl:value-of select="'FALSE'"/>
 </xsl:template>
 
-<xsl:template match="fixed">
-      <xsl:apply-templates />
+<xsl:template match="fixed" mode="literal">
+      <xsl:apply-templates  mode="literal"/>
 </xsl:template>
 
-<xsl:template match="formal_parameter">
-    <xsl:element name="parameter">
-      <xsl:apply-templates select="parameter_id"/>
-      <xsl:apply-templates select="*[position() > 1]"/>
-    </xsl:element> 
+<xsl:template match="formal_parameter" mode="literal">
+      <xsl:apply-templates select="parameter_id"  mode="literal"/>
+      <xsl:apply-templates select="*[position() > 1] " mode="literal"/>
 </xsl:template>
 
 
-<xsl:template match="formal_parameter_block">
-    <xsl:apply-templates />
+<xsl:template match="formal_parameter_block"  mode="literal">
+    <xsl:apply-templates  mode="literal"/>
 </xsl:template>
 
-<xsl:template match="format">
-      <xsl:apply-templates />
+<xsl:template match="format" mode="literal">
+      <xsl:apply-templates  mode="literal"/>
 </xsl:template>
 
 <xsl:template name="toupper">

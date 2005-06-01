@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: extract_schema.xsl,v 1.4 2005/05/23 23:34:36 thendrix Exp $
+$Id: extract_schema.xsl,v 1.5 2005/05/27 00:24:30 thendrix Exp $
 
 Author: Tom Hendrix, adapted from GE version.
 Owner:  sourceforge stepmod
@@ -65,16 +65,16 @@ Extract a schema from a ECCO pseudo p28 pdts file
 	<xsl:value-of select="'ISO 10303-'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.date">
-	<xsl:value-of select="'$Date: 2005/05/23 23:34:36 $'"/>
+	<xsl:value-of select="'$Date: 2005/05/27 00:24:30 $'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.revision">
-	<xsl:value-of select="'$Revision: 1.4 $'"/>
+	<xsl:value-of select="'$Revision: 1.5 $'"/>
       </xsl:attribute>
       <application
 	  name="ecco2module.js"
 	  owner="stepmod"
 	  url="http://stepmod.sourceforge.net"
-	  version="'$Revision: 1.4 $'"
+	  version="'$Revision: 1.5 $'"
 	  source="FIX../data/resources/topology_schema/topology_schema.exp"/>
       <xsl:element name="schema">
 	<xsl:attribute name="name"><xsl:value-of select="./schema_id"/></xsl:attribute>
@@ -275,12 +275,15 @@ Extract a schema from a ECCO pseudo p28 pdts file
   <xsl:template match="pi">
     <xsl:value-of select="'PI'"/>
   </xsl:template>
- <xsl:template match="rule_decl">
-   <xsl:apply-templates />
+
+<xsl:template match="rule_decl">
+   <xsl:element name="rule">
+      <xsl:apply-templates select="rule_id"/>
+      <xsl:apply-templates select="applies_to_entities"/>
+      <xsl:apply-templates select="where_clause"/>
+    </xsl:element>
   </xsl:template>
- <xsl:template match="rule_id">
-   <xsl:apply-templates />
-  </xsl:template>
+
 
   <xsl:template match="parameter_ref">
     <xsl:value-of select="."/>
@@ -325,13 +328,14 @@ Extract a schema from a ECCO pseudo p28 pdts file
  <xsl:template match="var_formal_parameter">
     <xsl:value-of select="."/>
   </xsl:template>
+
 <xsl:template match="where_clause">
   <xsl:apply-templates/>
-  </xsl:template>
+</xsl:template>
  
 <xsl:template match="where_clause_parameter">
   <xsl:apply-templates/>
-  </xsl:template>
+</xsl:template>
 
  <xsl:template match="while">
  <xsl:apply-templates/>
@@ -525,9 +529,21 @@ Extract a schema from a ECCO pseudo p28 pdts file
     <xsl:value-of select="')'"/>
 </xsl:template>
 
-<xsl:template match="function_id| parameter_id">
+<xsl:template match="function_id | parameter_id | rule_id">
   <xsl:attribute name="name"><xsl:value-of select="."/></xsl:attribute>
 </xsl:template>
+
+<xsl:template match="applies_to_entities">
+  <xsl:attribute name="appliesto">
+	<xsl:for-each select="entity_ref" >
+	  <xsl:if test="position() > 1">
+	    <xsl:value-of select="' '"/>
+	  </xsl:if>
+	  <xsl:apply-templates select="."/>
+	</xsl:for-each>
+</xsl:attribute>
+</xsl:template>
+
 
 <xsl:template match="function_import">
       <xsl:apply-templates />
@@ -740,7 +756,6 @@ ELSE
       <xsl:apply-templates />
 </xsl:template>
 
-
 <xsl:template match="domain_rule/logical_expression">
   <xsl:attribute name="expression">
     <xsl:apply-templates mode="literal"/>
@@ -771,12 +786,15 @@ ELSE
 <xsl:template match="declaration_block">
       <xsl:apply-templates />
 </xsl:template>
+
 <xsl:template match="embedded_remark">
       <xsl:apply-templates />
 </xsl:template>
+
 <xsl:template match="tail_remark">
       <xsl:apply-templates />
 </xsl:template>
+
 <xsl:template match="function_decl">
    <xsl:element name="function">
       <xsl:apply-templates select="function_id"/>

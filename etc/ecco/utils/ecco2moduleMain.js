@@ -1,4 +1,4 @@
-//$Id: ecco2moduleMain.js,v 1.1 2005/04/21 18:00:19 thendrix Exp $
+//$Id: ecco2moduleMain.js,v 1.2 2005/05/27 00:24:30 thendrix Exp $
 //  Author: Tom Hendrix, Boeing
 //  Purpose:  JScript to convert ECCO pseudo part 28 PDTS to XML for repository
 
@@ -143,7 +143,6 @@ function getArmMimXml(schemaName) {
     if (pos > 1) {
 	return('mim_lf');
     }
-    return(module);
     pos = schemaName.lastIndexOf('_arm');
     if (pos > 1) {
 	return('arm');

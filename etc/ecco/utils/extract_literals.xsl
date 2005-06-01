@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: extract_literals.xsl,v 1.2 2005/05/27 00:24:30 thendrix Exp $
+$Id: extract_literals.xsl,v 1.3 2005/05/27 23:38:21 thendrix Exp $
 
 Author: Tom Hendrix, adapted from GE version.
 Owner:  sourceforge stepmod
@@ -64,16 +64,16 @@ Extract a schema from a ECCO pseudo p28 pdts file
 	<xsl:value-of select="'ISO 10303-'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.date">
-	<xsl:value-of select="'$Date: 2005/05/27 00:24:30 $'"/>
+	<xsl:value-of select="'$Date: 2005/05/27 23:38:21 $'"/>
       </xsl:attribute>
       <xsl:attribute name="rcs.revision">
-	<xsl:value-of select="'$Revision: 1.2 $'"/>
+	<xsl:value-of select="'$Revision: 1.3 $'"/>
       </xsl:attribute>
       <application
 	  name="ecco2module.js"
 	  owner="stepmod"
 	  url="http://stepmod.sourceforge.net"
-	  version="'$Revision: 1.2 $'"
+	  version="'$Revision: 1.3 $'"
 	  source="FIX../data/resources/topology_schema/topology_schema.exp"/>
       <xsl:element name="schema">
 	<xsl:attribute name="name"><xsl:value-of select="./schema_id"/></xsl:attribute>
@@ -118,14 +118,22 @@ Extract a schema from a ECCO pseudo p28 pdts file
 
   <xsl:template match="statement_block/statement_block"  mode="literal">
     <xsl:call-template name="indent"/>
-    <xsl:value-of select="'BEGIN
-'"/>
+    <xsl:value-of select="'BEGIN'"/>
     <xsl:apply-templates mode="literal"/>
-    <xsl:call-template name="indent"/>
-    <xsl:value-of select="'END;
-'"/>
-
+    <xsl:call-template name="indent" />
+    <xsl:value-of select="'END;'"/>
   </xsl:template>
+
+
+  <xsl:template match="case_action/statement_block"  mode="literal">
+    <xsl:call-template name="indent"/>
+    <xsl:value-of select="'BEGIN'"/>
+    <xsl:apply-templates mode="literal"/>
+    <xsl:call-template name="indent2" />
+    <xsl:value-of select="'END;'"/>
+  </xsl:template>
+
+
 
   <xsl:template match="statement_block"  mode="literal">
     <xsl:apply-templates mode="literal"/>
@@ -767,6 +775,11 @@ END_LOCAL;'"/>
       <xsl:apply-templates  mode="literal"/>
 </xsl:template>
 
+<xsl:template match="query/logical_expression" mode="literal">
+  <xsl:call-template name="indent"/>
+    <xsl:apply-templates  mode="literal"/>
+</xsl:template>
+
 <xsl:template match="logical_expression" mode="literal">
     <xsl:apply-templates  mode="literal"/>
 </xsl:template>
@@ -855,18 +868,21 @@ END_LOCAL;'"/>
 
 
   <xsl:template match="case_stmt" mode="literal">
+    <xsl:call-template name="indent"/>
       <xsl:value-of select="'CASE '" />
       <xsl:apply-templates select="*[1]"  mode="literal"/>
-       <xsl:value-of select="' OF
-'" />
+       <xsl:value-of select="' OF'" />
        <xsl:apply-templates select="case_action" mode="literal" />
        <xsl:apply-templates select="otherwise" mode="literal" />
+       <xsl:call-template name="indent"/>
+       <xsl:value-of select="'END_CASE;'" />
   </xsl:template>
 
 <xsl:template match="case_action" mode="literal"  >
-   <xsl:apply-templates  select="case_label" mode="literal" />
-   <xsl:value-of select="' : '"/>
-   <xsl:apply-templates  select="*[last()]" mode="literal" />
+  <xsl:call-template name="indent"/>
+  <xsl:apply-templates  select="case_label" mode="literal" />
+  <xsl:value-of select="' : '"/>
+  <xsl:apply-templates  select="*[last()]" mode="literal" />
 </xsl:template>
 
 <xsl:template match="return_stmt" mode="literal">
@@ -919,7 +935,7 @@ END_LOCAL;'"/>
 </xsl:template>
 
 <xsl:template match="interval_high_inclusive"  mode="literal">
-      <xsl:value-of select="' &lt; '" />
+      <xsl:value-of select="' &lt;=  '" />
       <xsl:apply-templates mode="literal"/>
 </xsl:template>
 
@@ -934,7 +950,7 @@ END_LOCAL;'"/>
 
 <xsl:template match="interval_low_inclusive" mode="literal">
       <xsl:apply-templates  mode="literal"/>
-      <xsl:value-of select="' &gt;= '" />
+      <xsl:value-of select="' &lt;= '" />
 </xsl:template>
 
 
@@ -1022,23 +1038,29 @@ END_LOCAL;'"/>
 
 <xsl:template name="indent">
   <xsl:variable name="indent_level">
-<xsl:value-of select="2*(count(ancestor::if_stmt) +
-		      count(ancestor::case_stmt) + 
-		      count(ancestor::function_decl) + 
-		      count(ancestor::statement_block[./child::statement_block]) + 
-		      count(ancestor::rule_decl) + 
-		      count(ancestor::procedure_decl) + 
-		      count(ancestor::repeat_stmt))" />
+    <xsl:value-of select="2*(count(ancestor::if_stmt) +
+			  count(ancestor::case_stmt) + 
+			  3*count(ancestor::case_action) + 
+			  count(ancestor::function_decl) + 
+			  count(ancestor::statement_block[./parent::statement_block]) + 
+			  count(ancestor::rule_decl) + 
+			  count(ancestor::query) + 
+			  count(ancestor::procedure_decl) + 
+			  count(ancestor::repeat_stmt))" />
 
   </xsl:variable>
+
   <xsl:variable name="spaces">
-  <xsl:call-template name="recurse-indent" >
-    <xsl:with-param name="count" select="$indent_level"/>
-  </xsl:call-template>
+    <xsl:call-template name="recurse-indent" >
+      <xsl:with-param name="count" select="$indent_level"/>
+    </xsl:call-template>
   </xsl:variable>
+
+<xsl:if test="not(parent::case_action)" >
   <xsl:value-of select="'
-'" />
+'" /> 
   <xsl:value-of select="$spaces"/>
+</xsl:if>
 </xsl:template>
 
 <xsl:template name="recurse-indent">
@@ -1052,5 +1074,28 @@ END_LOCAL;'"/>
 </xsl:when>
 </xsl:choose>
 </xsl:template> 
+
+
+<xsl:template name="indent2">
+  <xsl:variable name="indent_level">
+    <xsl:value-of select="2*(count(ancestor::if_stmt) +
+			  count(ancestor::case_stmt) + 
+			  2*count(ancestor::case_action) + 
+			  count(ancestor::function_decl) + 
+			  count(ancestor::statement_block[./parent::statement_block]) + 
+			  count(ancestor::rule_decl) + 
+			  count(ancestor::query) + 
+			  count(ancestor::procedure_decl) + 
+			  count(ancestor::repeat_stmt))" />
+  </xsl:variable>
+  <xsl:variable name="spaces">
+    <xsl:call-template name="recurse-indent" >
+      <xsl:with-param name="count" select="$indent_level"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:value-of select="'
+'" /> 
+  <xsl:value-of select="$spaces"/>
+</xsl:template>
 
 </xsl:stylesheet>

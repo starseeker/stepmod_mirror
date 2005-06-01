@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.187 2005/03/03 09:53:17 robbod Exp $
+$Id: module.xsl,v 1.188 2005/03/03 12:16:10 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -176,9 +176,11 @@ $Id: module.xsl,v 1.187 2005/03/03 09:53:17 robbod Exp $
           </h3>
 
           <xsl:variable name="test_wg_number_supersedes">
+	    <xsl:if test="not(contains(./@wg.number.supersedes,'ISO'))">
             <xsl:call-template name="test_wg_number">
               <xsl:with-param name="wgnumber" select="./@wg.number.supersedes"/>
             </xsl:call-template>
+	    </xsl:if>
           </xsl:variable>
           <xsl:if test="contains($test_wg_number_supersedes,'Error')">
             <tr>

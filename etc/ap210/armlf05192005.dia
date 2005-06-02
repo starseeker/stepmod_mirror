@@ -12,19 +12,19 @@ Compilation result of
     EXPRESS Schema   : AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF
     in source file   : C:\workspace\stepmod\etc\ap210\armlf05192005.exp
 ==========================================================================================
---valid
+--valid sedszilla #1383
 ERROR  : Line  2898: Unresolved attribute domain reference.
          Attribute : ITEMS
          Domain reference: ACTIVITY_METHOD_ITEM
 
 ==========================================================================================
+--valid sedszilla #1377
 ERROR  : Line  3141: Entity used as INVERSE attribute domain does not define
          a direct relationship to the current entity by an explict attribute.
          INVERSE attribute: ACCESS_MECHANISMS
          Line  3144 Related entity: ASSEMBLY_MODULE_COMPONENT_TERMINAL
 
 
---valid 
 short to long converted P11-2003:
 ENTITY Assembly_module_component
   SUBTYPE OF (Physical_component);
@@ -81,7 +81,6 @@ to P11-1994:
  associated_component;
   END_ENTITY;
 
-==========================================================================================
 ERROR  : Line  3174: Entity used as INVERSE attribute domain does not define
          a direct relationship to the current entity by an explict attribute.
          INVERSE attribute: JOIN_ACCESS_MECHANISMS
@@ -208,16 +207,24 @@ ERROR  : Line 12204: Entity used as INVERSE attribute domain does not define
          Line  7867 Related entity: NON_FUNCTIONAL_LAND_INTERFACE_TERMINAL
 
 ================================================================================
---valid
+--valid sedszilla #1384
 WARNING: Line  4559: Incorrect use of group qualifier, attribute not declared in specified entity in WHERE clause.
          Expected  : \VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW
          Actual    : \VIEW_DEFINITION_USAGE.RELATED_VIEW
---valid
+
 WARNING: Line  4561: Incorrect use of group qualifier, attribute not declared in specified entity in WHERE clause.
          Expected  : \VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW
          Actual    : \VIEW_DEFINITION_USAGE.RELATED_VIEW
 
---epm bug accepted
+================================================================================
+--valid sedszilla #1394
+WARNING: Line  4999: Incorrect use of group qualifier, attribute not declared in specified entity in DERIVE clause.
+         Expected  : \DEFAULT_VIA_DEFINITION.MINIMUM_AS_FINISHED_PASSAGE_EXTENT
+         Actual    : \PASSAGE_TECHNOLOGY.MINIMUM_AS_FINISHED_PASSAGE_EXTENT
+
+================================================================================
+
+--epm bug accepted--sedszilla #1385
 ERROR  : Line  4938: Illegal attribute redeclaration.
          Redeclaring attribute: DEFAULT_COMPONENT_TERMINATION_PASSAGE_DEFINITION.DEPOSITION_MATERIAL in line: 4938
          Redeclared  attribute: PASSAGE_TECHNOLOGY.DEPOSITION_MATERIAL in line: 8753
@@ -228,15 +235,12 @@ ERROR  : Line  5017: Illegal attribute redeclaration.
          Redeclaration is no specialisation.
 
 
-WARNING: Line  4999: Incorrect use of group qualifier, attribute not declared in specified entity in DERIVE clause.
-         Expected  : \DEFAULT_VIA_DEFINITION.MINIMUM_AS_FINISHED_PASSAGE_EXTENT
-         Actual    : \PASSAGE_TECHNOLOGY.MINIMUM_AS_FINISHED_PASSAGE_EXTENT
-
 ERROR  : Line  5541: Conflicting implicit attribute redeclaration in entity: EDGE_SEGMENT_CROSS_SECTION
          Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
          Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
          Redeclaration is no specialisation.
-
+================================================================================
+--valid error--sedsszilla 1390
 WARNING: Line  5547: Incorrect use of group qualifier, attribute not declared in specified entity in DERIVE clause.
          Expected  : \PART_TEMPLATE_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
          Actual    : \PART_TEMPLATE_3D_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
@@ -244,48 +248,170 @@ WARNING: Line  5547: Incorrect use of group qualifier, attribute not declared in
 WARNING: Line  5549: Incorrect use of group qualifier, attribute not declared in specified entity in DERIVE clause.
          Expected  : \PART_TEMPLATE_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
          Actual    : \PART_TEMPLATE_3D_SHAPE.SHAPE_CHARACTERIZED_PART_TEMPLATE
+  ENTITY Edge_segment_cross_section
+    SUBTYPE OF (Shape_definition_3d_intersection);
 
+      SELF\Geometric_model_relationship.rep_1 : Edge_shape;-- This ATTRIBUTE was RENAMED in a supertype, henmce name converted back to original name (TimKing Mode)
+      SELF\Geometric_model_relationship.rep_2 : Part_template_3d_shape;-- This ATTRIBUTE was RENAMED in a supertype, henmce name converted back to original name (TimKing Mode)
+    DERIVE
+      cross_section_reference                                           : edge_segment_vertex := SELF\Shape_definition_3d_intersection.projected_volume\Part_template_3d_shape.shape_characterized_part_template\Inter_stratum_feature_edge_segment_template.start_vertex;<<<should be part_template_shape!!!
+
+      associated_template                                               : inter_stratum_feature_edge_segment_template := SELF\Shape_definition_3d_intersection.projected_volume\Part_template_3d_shape.shape_characterized_part_template;<<<should be part_template_shape!!!
+
+ INVERSE
+      referencing_template : inter_stratum_feature_edge_segment_template FOR cross_section;
+    WHERE
+      WR1 : associated_template :=: referencing_template;
+  END_ENTITY;
+
+  ENTITY Shape_definition_3d_intersection
+      SUPERTYPE OF ( ( (ONEOF (
+               EDGE_SEGMENT_CROSS_SECTION,
+               PRE_DEFINED_PERPENDICULAR_DATUM_PLANE_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PERPENDICULAR_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PARALLEL_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP)) )ANDOR( (ONEOF (
+               PRE_DEFINED_PERPENDICULAR_DATUM_PLANE_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PERPENDICULAR_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PARALLEL_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP)) )  ) 
+      SUBTYPE OF (Geometric_model_relationship);
+      orientation_intersection_plane : Axis_placement_3d;
+
+      planar_shape_origin            : Axis_placement_2d;
+
+      SELF\Geometric_model_relationship.rep_1 : Planar_shape;  -- surface_intersection_result : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, an attribute with the new name is in the DERIVE clause
+      SELF\Geometric_model_relationship.rep_2 : Geometric_model;  -- projected_volume : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, an attribute with the new name is in the DERIVE clause
+    DERIVE
+      projected_volume : GEOMETRIC_MODEL := SELF\Geometric_model_relationship.rep_2;  -- REP_2 : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
+      surface_intersection_result : PLANAR_SHAPE := SELF\Geometric_model_relationship.rep_1;  -- REP_1 : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
+ WHERE
+      WR1 : NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PLANAR_SHAPE' IN TYPEOF(projected_volume));
+
+  END_ENTITY;
+
+=================================================================================
+valid --sedszilla #1395
 ERROR  : Line  6337: Unresolved attribute domain reference.
          Attribute : ELEMENTS
          Domain reference: GROUPABLE_ITEM
+=================================================================================
+valid --sedszilla #1396
+
 ERROR  : Line  6899: Unresolved attribute domain reference.
          Attribute : IMPLEMENTATION_POINT
          Domain reference: TRACE_JUNCTION_OR_VIA
-
+=================================================================================
+valid --sedszilla #1397
 ERROR  : Line  6925: Conflicting NAMED_TYPEs in WHERE clause.
          Expected  : PADSTACK_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP
          Actual    : ASSEMBLY_COMPONENT_RELATIONSHIP
+  ENTITY Laminate_component
+		SUPERTYPE OF (ONEOF (
+              CONDUCTIVE_INTERCONNECT_ELEMENT,
+              MATERIAL_REMOVAL_LAMINATE_COMPONENT,
+              STRATUM_FEATURE_TEMPLATE_COMPONENT,
+              PROBE_ACCESS_AREA,
+              INTER_STRATUM_FEATURE,
+              SPECIAL_SYMBOL_LAMINATE_COMPONENT,
+              LAMINATE_TEXT_COMPONENT,
+              LAMINATE_TEXT_STRING_COMPONENT)
+              ANDOR 
+              FIDUCIAL)
+  SUBTYPE OF (Assembly_component);
+      SELF\Definition_based_product_occurrence.derived_from : Template_definition;
+    INVERSE
+      padstack_occurrence_assembly  : SET[0:1] OF padstack_occurrence_sub_assembly_relationship FOR related_view; --related_component;      
+      footprint_occurrence_assembly : SET[0:1] OF footprint_occurrence_sub_assembly_relationship FOR related_view;
+	  cad_layer						: SET[0:1] OF External_source_identification FOR item;      	  
+    WHERE
+      WR1 : SIZEOF(padstack_occurrence_assembly) + SIZEOF(footprint_occurrence_assembly) < 2;
+      WR2 : NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR 
+            	(padstack_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1]);
+      WR3 : NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR 
+            	(footprint_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1]);            	
+  END_ENTITY;
+  ENTITY Assembly_component
+     SUPERTYPE OF ( ( (ONEOF (
+               PHYSICAL_COMPONENT,
+               LAMINATE_COMPONENT)) )ANDOR( (ONEOF (
+               PHYSICAL_COMPONENT,
+               PRINTED_COMPONENT,
+               LAMINATE_COMPONENT)) )  ) 
+      SUBTYPE OF (Definition_based_product_occurrence, Item_shape);
+	SELF\Definition_based_product_occurrence.derived_from : physical_unit_or_part_template_or_fp_or_pd;
+    DERIVE
+    	SELF\Item_shape.described_element : shapeable_item := SELF;
+    INVERSE
+      SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF assembly_component_relationship FOR related_view;
+(** Need to encode it as Global rules TODO for Tom
+      component_2d_shape         : SET[0:1] OF assembly_component_2d_shape FOR shape_characterized_component;
+      component_3d_shape         : SET[0:1] OF assembly_component_3d_shape FOR shape_characterized_component;
+      component_non_planar_shape : SET[0:1] OF assembly_component_non_planar_shape FOR shape_characterized_component;
+*)      
+    WHERE
+      WR1 : NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from)) OR 
+((('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND 
+('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR 
+(NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT 
+('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND 
+('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT 
+('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))));
+
+  END_ENTITY;
+
 
 ERROR  : Line  6927: Conflicting NAMED_TYPEs in WHERE clause.
          Expected  : FOOTPRINT_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP
          Actual    : ASSEMBLY_COMPONENT_RELATIONSHIP
 
-WARNING: Line  7408: Conflicting types in DERIVE clause.
-         Expected  : Entity: SPECIFICATION_DEFINITION
-         Actual    : Entity: DOCUMENT_DEFINITION
 
---valid??
+=================================================================================
+--valid?? sedszilla #1392
 ERROR  : Line  7830: Illegal attribute redeclaration.
          Redeclaring attribute: NON_FEATURE_SHAPE_ELEMENT.CONTAINING_SHAPE in line: 7830
          Redeclared  attribute: SHAPE_ELEMENT.CONTAINING_SHAPE in line: 10749
          Redeclaration from ITEM_SHAPE to EE_PRODUCT_DEFINITION_WITH_ANNOTATION_ELEMENTS
-ERROR  : Line 10698: Illegal attribute redeclaration.
-         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
-         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
-         Redeclaration is no specialisation.
-
-ERROR  : Line 10715: Illegal attribute redeclaration.
-         Redeclaring attribute: SHAPE_DEFINITION_3D_PLANE_PROJECTION.REP_2 in line: 10715
-         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
-         Redeclaration is no specialisation.
-
 ERROR  : Line 12284: Illegal attribute redeclaration.
          Redeclaring attribute: VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 12284
          Redeclared  attribute: NON_FEATURE_SHAPE_DEFINITION.MODEL_SHAPE in line: 7802
          Redeclaration from FEATURE_SHAPE_DEFINITION to VIEW_SHAPE_SELECT
 
 =================================================================================
---epm bug??
+EPM shtolo error: sedszilla #1393
+ERROR  : Line 10698: Illegal attribute redeclaration.
+         Redeclaring attribute: SHAPE_DEFINITION_3D_INTERSECTION.REP_2 in line: 10698
+         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
+         Redeclaration is no specialisation.
+  ENTITY Shape_definition_3d_intersection
+      SUPERTYPE OF ( ( (ONEOF (
+               EDGE_SEGMENT_CROSS_SECTION,
+               PRE_DEFINED_PERPENDICULAR_DATUM_PLANE_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PERPENDICULAR_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PARALLEL_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP)) )ANDOR( (ONEOF (
+               PRE_DEFINED_PERPENDICULAR_DATUM_PLANE_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PERPENDICULAR_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP,
+               PRE_DEFINED_PARALLEL_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP)) )  ) 
+      SUBTYPE OF (Geometric_model_relationship);
+      orientation_intersection_plane : Axis_placement_3d;
+
+      planar_shape_origin            : Axis_placement_2d;
+
+      SELF\Geometric_model_relationship.rep_1 : Planar_shape;  -- surface_intersection_result : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, an attribute with the new name is in the DERIVE clause
+      SELF\Geometric_model_relationship.rep_2 : Geometric_model;  -- projected_volume : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, an attribute with the new name is in the DERIVE clause
+    DERIVE
+      projected_volume : GEOMETRIC_MODEL := SELF\Geometric_model_relationship.rep_2;  -- REP_2 : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
+      surface_intersection_result : PLANAR_SHAPE := SELF\Geometric_model_relationship.rep_1;  -- REP_1 : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
+ WHERE
+      WR1 : NOT ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.PLANAR_SHAPE' IN TYPEOF(projected_volume));
+
+  END_ENTITY;
+
+ERROR  : Line 10715: Illegal attribute redeclaration.
+         Redeclaring attribute: SHAPE_DEFINITION_3D_PLANE_PROJECTION.REP_2 in line: 10715
+         Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
+         Redeclaration is no specialisation.
+
+=================================================================================
+--epm bug--sedszilla #1389
 
 WARNING: Line  8093: Unresolved SCHEMA name in call or return from predefined function USEDIN.
          Argument 2 in USEDIN call
@@ -403,7 +529,7 @@ ERROR  : Line 10263: Unresolved attribute domain reference.
          Domain reference: REQUIREMENT_SOURCE_ITEM
 
 =================================================================================
---????
+--epm shtolo error sedszilla #1391
 ERROR  : Line  9004: Conflicting implicit attribute redeclaration in entity: PHYSICAL_UNIT_3D_KEEPOUT_SHAPE
   ENTITY Physical_unit_3d_keepout_shape   <<<9004
     SUBTYPE OF (View_level_non_feature_shape_definition, Physical_unit_keepout_shape);
@@ -449,7 +575,7 @@ ERROR  : Line  9065: Conflicting implicit attribute redeclaration in entity: PHY
          Redeclaration from FEATURE_SHAPE_DEFINITION to VIEW_SHAPE_SELECT
 
 ==========================================================================================
-problem with E2 to E1 conversion???
+problem with E2 to E1 conversion???--sedszilla #1387
 ERROR  : Line  9425: Conflicting implicit attribute redeclaration in entity: PRE_DEFINED_PARALLEL_DATUM_AXIS_SYMBOL_3D_2D_RELATIONSHIP
   ENTITY Pre_defined_parallel_datum_axis_symbol_3d_2d_relationship
     SUBTYPE OF (Shape_definition_3d_intersection);
@@ -512,7 +638,7 @@ ERROR  : Line  9449: Conflicting implicit attribute redeclaration in entity: PRE
          Redeclared  attribute: GEOMETRIC_MODEL_RELATIONSHIP.REP_2 in line: 6263
          Redeclaration is no specialisation.
 ==============================================================================
-
+--valid sedszilla #1388
 ERROR  : Line  9979: Conflicting types in DERIVE clause.
          Expected  : Entity: FUNCTIONAL_SPECIFICATION_DEFINITION
          Actual    : Entity: DOCUMENT_DEFINITION
@@ -525,6 +651,9 @@ ERROR  : Line  9987: Conflicting types in DERIVE clause.
          Expected  : Entity: FUNCTIONAL_SPECIFICATION_DEFINITION
          Actual    : Entity: DOCUMENT_DEFINITION
 
+WARNING: Line  7408: Conflicting types in DERIVE clause.
+         Expected  : Entity: SPECIFICATION_DEFINITION
+         Actual    : Entity: DOCUMENT_DEFINITION
 
 
    20 WARNINGS detected.

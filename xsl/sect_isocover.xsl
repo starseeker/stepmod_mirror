@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.10 2004/11/15 14:30:01 robbod Exp $
+$Id: sect_isocover.xsl,v 1.11 2004/12/31 13:23:14 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -627,7 +627,7 @@ $Id: sect_isocover.xsl,v 1.10 2004/11/15 14:30:01 robbod Exp $
   <xsl:template match="application_protocol" mode="display_name">
     Application protocol: 
     <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="@name"/>
+      <xsl:with-param name="module" select="@title"/>
     </xsl:call-template>
   </xsl:template>
 

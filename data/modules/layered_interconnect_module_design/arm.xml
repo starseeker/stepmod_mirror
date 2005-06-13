@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-05-05T13:50:55" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-06-13T11:34:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Edge_shape_feature_arm"/>
@@ -125,7 +125,7 @@
             <typename name="Component_termination_passage_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <inverse name="access_mechanism" entity="Component_termination_passage_join_terminal" attribute="associated_component">
+         <inverse name="access_mechanism" entity="Component_termination_passage_join_terminal" attribute="containing_shape">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <inverse name="interface_access_mechanism" entity="Component_termination_passage_interface_terminal" attribute="associated_component"/>
@@ -169,6 +169,7 @@
       <entity name="Component_termination_passage_template_terminal" abstract.supertype="YES" supertypes="Shape_element" super.expression="ONEOF (Component_termination_passage_template_interface_terminal, Component_termination_passage_template_join_terminal)">
          <explicit name="associated_definition">
             <typename name="Component_termination_passage_template"/>
+            <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
          <explicit name="terminal_connection_zone" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -506,8 +507,6 @@
          </unique>
          <where label="WR1" expression=" NOT ( EXISTS ( prior_associated_definition ) ) OR NOT ( current_associated_definition IN prior_associated_definition ) "/>
          <where label="IP1"/>
-         <where label="IP2"/>
-         <where label="IP3"/>
       </entity>
       <entity name="Inter_stratum_extent">
          <explicit name="from_stratum">
@@ -965,7 +964,7 @@
             <typename name="Stratum_feature"/>
          </explicit>
       </entity>
-      <entity name="Stratum" supertypes="Part_view_definition" super.expression="ONEOF (Documentation_layer_stratum, Design_layer_stratum)">
+      <entity name="Stratum" supertypes="Part_view_definition Item_shape" super.expression="ONEOF (Documentation_layer_stratum, Design_layer_stratum)">
          <explicit name="of_technology">
             <typename name="Stratum_technology"/>
          </explicit>
@@ -1012,6 +1011,7 @@
       <entity name="Stratum_feature" supertypes="Shape_element" super.expression="ONEOF (Conductor, Conductive_filled_area) ANDOR Fiducial_stratum_feature">
          <explicit name="resident_stratum">
             <typename name="Stratum"/>
+            <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
          <explicit name="feature_of_size">
             <builtintype type="BOOLEAN"/>
@@ -1116,6 +1116,7 @@
       <entity name="Via_template_terminal" supertypes="Shape_element">
          <explicit name="associated_definition">
             <typename name="Via_template"/>
+            <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
          <explicit name="disallowed_inter_stratum_extent" optional="YES">
             <typename name="Inter_stratum_extent"/>

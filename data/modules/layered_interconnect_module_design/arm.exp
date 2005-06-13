@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.61 2005/05/04 23:18:55 thomasrthurman Exp $
+   $Id: arm.exp,v 1.62 2005/05/05 09:13:27 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -222,7 +222,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Plated_passage);
       SELF\Definition_based_product_occurrence.derived_from : Component_termination_passage_template;
     INVERSE
-      access_mechanism           : SET[1:?] OF component_termination_passage_join_terminal FOR associated_component;
+      access_mechanism           : SET[1:?] OF component_termination_passage_join_terminal FOR containing_shape;
       interface_access_mechanism : component_termination_passage_interface_terminal FOR associated_component;
   END_ENTITY;
 
@@ -258,7 +258,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     ABSTRACT SUPERTYPE OF (ONEOF (Component_termination_passage_template_interface_terminal,
  Component_termination_passage_template_join_terminal))
     SUBTYPE OF (Shape_element);
-      associated_definition    : Component_termination_passage_template;
+      SELF\Shape_element.containing_shape RENAMED associated_definition    : Component_termination_passage_template;
       terminal_connection_zone : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
     INVERSE
       terminal_shape : SET[0:1] OF usage_concept_usage_relationship FOR associated_usage;
@@ -1018,7 +1018,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
   ENTITY Stratum
     SUPERTYPE OF (ONEOF (Documentation_layer_stratum,
  Design_layer_stratum))
-    SUBTYPE OF (Part_view_definition);
+    SUBTYPE OF (Part_view_definition, Item_shape);
       of_technology 												: Stratum_technology;
     DERIVE
       of_average_surface 	: SET[0:1] OF stratum_average_surface := bag_to_set(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE.OF_STRATUM'));
@@ -1057,8 +1057,8 @@ It is a summary of all vertical elements of particular kind, similar like stratu
 		SUPERTYPE OF (ONEOF (Conductor,
  			Conductive_filled_area) ANDOR (Fiducial_stratum_feature))    
 		SUBTYPE OF (Shape_element); 			
-      resident_stratum        : Stratum;
-      feature_of_size         : BOOLEAN;
+      SELF\Shape_element.containing_shape RENAMED resident_stratum  : Stratum;
+      feature_of_size                                               : BOOLEAN;
     UNIQUE
       UR1 : SELF\Shape_element.element_name,
  resident_stratum;
@@ -1141,14 +1141,14 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     SUBTYPE OF (Inter_stratum_feature_template);
       SELF\Inter_stratum_feature_template.of_passage_technology : Default_via_definition;
     INVERSE
-      access_mechanisms : SET[2:?] OF via_template_terminal FOR associated_definition;
+      access_mechanisms : SET[2:?] OF via_template_terminal FOR containing_shape;
   END_ENTITY;
 
   ENTITY Via_template_terminal
     SUBTYPE OF (Shape_element);
-      associated_definition           : Via_template;
-      disallowed_inter_stratum_extent : OPTIONAL Inter_stratum_extent;
-      terminal_connection_zone        : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
+      SELF\Shape_element.containing_shape RENAMED associated_definition : Via_template;
+      disallowed_inter_stratum_extent                                   : OPTIONAL Inter_stratum_extent;
+      terminal_connection_zone                                          : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
     INVERSE
       terminal_shape : SET[0:1] OF usage_concept_usage_relationship FOR associated_usage;
     UNIQUE

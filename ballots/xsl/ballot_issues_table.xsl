@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_issues_table.xsl,v 1.6 2004/10/12 23:15:37 thendrix Exp $
+$Id: ballot_issues_table.xsl,v 1.7 2005/02/17 02:20:32 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: 
@@ -239,6 +239,8 @@ $Id: ballot_issues_table.xsl,v 1.6 2004/10/12 23:15:37 thendrix Exp $
             select="concat('../../data/modules/',$module/@name,'/',$module/@development.folder,'/issues.xml')"/>
           
           <xsl:variable name="issues"  select="document($issues_file)"/>
+
+
           <xsl:apply-templates select="$issues/issues/issue" mode="filter">
             <xsl:with-param name="number" select="$module/@part"/>
             <xsl:with-param name="module" select="@name"/>
@@ -525,6 +527,17 @@ $Id: ballot_issues_table.xsl,v 1.6 2004/10/12 23:15:37 thendrix Exp $
     </xsl:choose>
   </xsl:variable>
 
+<!--
+
+       (<xsl:value-of select="@id"/>)
+        F:country:<xsl:value-of select="concat($country, '=', $filter_country)"/><br/>
+        F:seds:<xsl:value-of select="concat($seds, '=', $filter_seds)"/><br/>
+        F:status:<xsl:value-of select="concat($status, '=', $filter_status1)"/><br/>
+        F:resolution:<xsl:value-of select="concat($resolution, '=', $filter_resolution)"/><br/>
+        F:ballot_comment:<xsl:value-of select="concat($ballot_comment, '=', $filter_ballot_comment)"/><br/>
+	F:ballot:<xsl:value-of select="concat($ballot,' = ',$filter_ballot)"/><br/>
+	F:by:<xsl:value-of select="concat($by,' = ',$filter_by)"/><br/>
+   -->
 
   <!-- end THX added -->
 
@@ -553,15 +566,7 @@ $Id: ballot_issues_table.xsl,v 1.6 2004/10/12 23:15:37 thendrix Exp $
           </xsl:otherwise>
         </xsl:choose>
 
-        <!--
-        (<xsl:value-of select="@id"/>)
-        F:country:<xsl:value-of select="concat($country, '=', $filter_country)"/><br/>
-        F:seds<xsl:value-of select="concat($seds, '=', $filter_seds)"/><br/>
-        F:status<xsl:value-of select="concat($status, '=', $filter_status1)"/><br/>
-        F:resolution<xsl:value-of select="concat($resolution, '=', $filter_resolution)"/><br/>
-        F:ballot_comment<xsl:value-of select="concat($ballot_comment, '=', $filter_ballot_comment)"/><br/>
-             -->
-      </td>
+   </td>
            
       <!-- SC4 part no -->
       <td valign="top" align="left">

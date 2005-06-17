@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.54 2004/11/09 01:21:09 thendrix Exp $ -->
+<!-- $Id: build.xml,v 1.55 2005/03/31 22:58:38 thendrix Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -133,6 +133,10 @@ generates all the navigation indices for the repository
 
 "ant ballots" 
 generates HTML for ballot indices
+
+"ant -DBALLOTS=ballots/ballots/[ballot-name] ballot_issues_form" 
+generates all HTML  for a single resource documents
+
 
 "ant tgz" 
 creates a GNU-compatible .tar.gz file, suitable for distribution,
@@ -936,6 +940,7 @@ tar.gz format)
     </style>
   </target>
 
+
   <target name="clean_ballots" depends="init" 
     description="delete generated files">
     <delete>
@@ -958,7 +963,7 @@ tar.gz format)
       <param name="stepmodhome" expression="."/>
     </style>
 
-    <style includes="${BALLOTS}/ballot_checklist.xml" 
+   <style includes="${BALLOTS}/ballot_checklist.xml" 
       destdir="." extension=".htm"
       style="${BALLOTSTYLES}/ballot_checklist.xsl">
       <param name="output_type" expression="HTM"/>
@@ -989,6 +994,38 @@ tar.gz format)
     <style includes="${BALLOTS}/start.xml" 
       destdir="." extension=".htm"
       style="${BALLOTSTYLES}/ballot_start.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="stepmodhome" expression="."/>
+    </style>
+
+  </target>
+
+
+  <target name="ballot_issues_form" depends="init, ballot_index"
+    description="Create HTML for all ballot indices">
+    <dependset>
+      <srcfileset dir="${BALLOTDTDDIR}" includes="**/*.dtd, **/*.ent"/>
+      <srcfileset dir="${BALLOTSTYLES}" includes="**/*.xsl"/>
+      <targetfileset dir="." includes="${BALLOTS}/*.htm*"/>
+    </dependset>
+    
+    <style includes="${BALLOTS}/ballot_issues_form_query.xml" 
+      destdir="." extension=".htm"
+      style="${BALLOTSTYLES}/ballot_issues_table.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="stepmodhome" expression="."/>
+    </style>
+
+    <style includes="${BALLOTS}/ballot_issues_form_open.xml" 
+      destdir="." extension=".htm"
+      style="${BALLOTSTYLES}/ballot_issues_table.xsl">
+      <param name="output_type" expression="HTM"/>
+      <param name="stepmodhome" expression="."/>
+    </style>
+
+    <style includes="${BALLOTS}/ballot_issues_form_all.xml" 
+      destdir="." extension=".htm"
+      style="${BALLOTSTYLES}/ballot_issues_table.xsl">
       <param name="output_type" expression="HTM"/>
       <param name="stepmodhome" expression="."/>
     </style>

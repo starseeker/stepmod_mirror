@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: issues.xml,v 1.33 2005/01/19 22:20:08 thendrix Exp $ -->
+<!-- $Id: issues.xml,v 1.34 2005/01/20 22:18:35 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../../xsl/projmg/issues_file.xsl"?>
 <!DOCTYPE issues SYSTEM "../../../../dtd/projmg/issues.dtd">
 <issues module="geometric_tolerance">
@@ -1684,6 +1684,239 @@ Source: ISO 10303-47
 Fixed as proposed.
 </description>
 </comment>
+</issue>
+
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<issue
+   id="THX-16"
+   type="arm"
+   linkend="Geometric_tolerance_arm.Target_straight_line"
+   status="open"
+   category="technical"
+   by="Tom Hendrix"
+   date="2005-06-15"
+   seds="yes"
+   ballot_comment="no"
+   member_body="US"
+   resolution="accept">
+<description>
+Clause 4.2.31  missing attribute target_length.
+</description>
+</issue>
+
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<issue
+   id="THX-17"
+   type="arm"
+   linkend="Geometric_tolerance_arm"
+   status="open"
+   category="technical"
+   by="Tom Hendrix"
+   date="2005-06-15"
+   seds="yes"
+   ballot_comment="no"
+   member_body="US"
+   resolution="accept">
+<description>
+Need additional specializations of Placed_target.
+1. Target_cylinder, a cylindrical annulus.
+2. Target_annulus, a flat annulus, specified with two diameters.
+
+The need for these arose during implementation of ISO/TS 10303-203
+</description>
+
+<comment
+   by="Tom Hendrix"
+   date="2005-06-21">
+<description>
+Detailed proposal:
+
+Create two new specializations of arm Placed_target.  Modify mim function valid_datum_target_parameters to permit the additional two cases in accordance with the proposed mappings.
+
+ENTITY Target_cylinder
+  SUBTYPE OF (Placed_target);
+  diameter : Numerical_item_with_unit;
+  target_length : Numerical_item_with_unit;
+END_ENTITY;
+
+ENTITY Target_annulus
+  SUBTYPE OF (Placed_target);
+  outer_diameter : Numerical_item_with_unit;
+  inner_diameter : Numerical_item_with_unit;
+END_ENTITY;
+
+Mappings:
+
+Target_cylinder
+
+MIM element: placed_datum_target_feature 
+Source: ISO 10303-1051 
+Reference path:   placed_datum_target_feature &lt;= 
+datum_target
+{datum_target &lt;= 
+shape_aspect 
+shape_aspect.description = 'cylinder'}
+
+Target_circle to Numerical_item_with_unit (as diameter) 
+
+
+MIM element: PATH 
+Reference path:   placed_datum_target_feature &lt;= 
+datum_target &lt;= 
+shape_aspect 
+shape_definition = shape_aspect
+shape_definition 
+characterized_definition = shape_definition 
+characterized_definition &lt;-
+property_definition.definition property_definition
+represented_definition = property_definition
+represented_definition &lt;-
+property_definition_representation.definition
+{property_definition_representation => 
+shape_definition_representation} 
+property_definition_representation
+property_definition_representation.used_representation ->
+{representation => 
+shape_representation => 
+shape_representation_with_parameters} 
+representation representation.items[i] -> 
+representation_item
+{representation_item.name = 'target diameter'} 
+representation_item => measure_representation_item
+{measure_representation_item &lt;= 
+measure_with_unit => 
+length_measure_with_unit} 
+ 
+
+Target_circle to Numerical_item_with_unit (as target_length) 
+
+
+placed_datum_target_feature &lt;=
+datum_target &lt;=
+shape_aspect
+shape_definition = shape_aspect
+shape_definition
+characterized_definition = shape_definition
+characterized_definition &lt;&lt;
+property_definition.definition
+property_definition
+represented_definition = property_definition
+represented_definition &lt;-
+property_definition_representation.definition
+{property_definition_representation =>
+shape_definition_representation}
+property_definition_representation
+property_definition_representation.used_representation ->
+{representation =>
+shape_representation =>
+shape_representation_with_parameters}
+representation
+representation.items[i] ->
+representation_item =>
+{representation_item.name = 'target length'}
+measure_representation_item
+{measure_representation_item &lt;=
+measure_with_unit =>
+length_measure_with_unit}
+
+Target_annulus 
+
+
+MIM element: placed_datum_target_feature 
+Source: ISO 10303-1051 
+Reference path:   placed_datum_target_feature &lt;= 
+datum_target
+{datum_target &lt;= 
+shape_aspect 
+shape_aspect.description = 'annulus'}
+
+Target_annulus to Numerical_item_with_unit (as outer_diameter) 
+
+
+MIM element: PATH 
+Reference path:   placed_datum_target_feature &lt;= 
+datum_target &lt;= 
+shape_aspect 
+shape_definition = shape_aspect
+shape_definition 
+characterized_definition = shape_definition 
+characterized_definition &lt;-
+property_definition.definition property_definition
+represented_definition = property_definition
+represented_definition &lt;-
+property_definition_representation.definition
+{property_definition_representation => 
+shape_definition_representation} 
+property_definition_representation
+property_definition_representation.used_representation ->
+{representation => 
+shape_representation => 
+shape_representation_with_parameters} 
+representation representation.items[i] -> 
+representation_item
+{representation_item.name = 'target outer diameter'} 
+representation_item => measure_representation_item
+{measure_representation_item &lt;= 
+measure_with_unit => 
+length_measure_with_unit} 
+ 
+Target_annulus to Numerical_item_with_unit (as inner_diameter) 
+
+
+MIM element: PATH 
+Reference path:   placed_datum_target_feature &lt;= 
+datum_target &lt;= 
+shape_aspect 
+shape_definition = shape_aspect
+shape_definition 
+characterized_definition = shape_definition 
+characterized_definition &lt;-
+property_definition.definition property_definition
+represented_definition = property_definition
+represented_definition &lt;-
+property_definition_representation.definition
+{property_definition_representation => 
+shape_definition_representation} 
+property_definition_representation
+property_definition_representation.used_representation ->
+{representation => 
+shape_representation => 
+shape_representation_with_parameters} 
+representation representation.items[i] -> 
+representation_item
+{representation_item.name = 'target inner diameter'} 
+representation_item => measure_representation_item
+{measure_representation_item &lt;= 
+measure_with_unit => 
+length_measure_with_unit} 
+ 
+</description>
+</comment>
+</issue>
+
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<issue
+   id="THX-18"
+   type="mim"
+   linkend="Geometric_tolerance_mim"
+   status="open"
+   category="minor_technical"
+   by="Tom Hendrix"
+   date="2005-06-21"
+   seds="no"
+   ballot_comment="no"
+   member_body="US"
+   resolution="accept">
+<description>
+
+Target circle ambiguity: In industrial application  a datum target may be specified as a circular curve element of the surface of a cylindrical feature.    Currently in 1051, the Target_circle is defined to be either a circle (curve) or a disk (area), depending on context. In 214 it is not stated, but probably area is intended. 
+Proposed solution: 
+
+Represent the curve case with new application object Target_cylinder (ref  thx-17 ) and  target_length = 0 .  Revise Target_circle definition  to only mean the area case.
+</description>
 </issue>
 
 </issues>

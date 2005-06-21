@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 
 <!--
-     $Id: repository_dependencies.xsl,v 1.1 2002/09/10 09:42:40 nigelshaw Exp $
+     $Id: repository_dependencies.xsl,v 1.2 2002/12/09 11:00:30 nigelshaw Exp $
 
   Author: Nigel Shaw and Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -202,7 +202,7 @@
 	<TD valign="top">
 	    <font size="-1">
 
-		<a name="#{$schema-name}"/>
+		<a name="{$schema-name}"/>
 		<xsl:apply-templates select="$arm_node//schema/interface" mode="depends-on" />
 	    </font>
 	    <hr/>

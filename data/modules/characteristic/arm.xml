@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-05-04T14:20:02" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-06-22T13:45:14" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="characteristic_arm schema_instance"/>
    <schema name="Characteristic_arm">
       <interface kind="use" schema="Document_assignment_arm"/>
@@ -71,13 +71,35 @@
             <redeclaration entity-ref="Representation"/>
          </explicit>
       </entity>
-      <entity name="Nominal_tolerance_characteristic" supertypes="Tolerance_characteristic"/>
+      <entity name="Nominal_tolerance_characteristic" supertypes="Tolerance_characteristic">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Numerical_item_with_unit"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+      </entity>
       <entity name="Plus_minus_tolerance_characteristic" supertypes="Tolerance_characteristic">
          <explicit name="items">
             <aggregate type="SET" lower="3" upper="3"/>
             <typename name="Numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
+         <derived name="minimum_value" expression=" get_value ( 'minimum' , SELF \ representation . items ) ">
+            <typename name="Numerical_item_with_unit"/>
+         </derived>
+         <derived name="nominal_value" expression=" get_value ( 'nominal' , SELF \ representation . items ) ">
+            <typename name="Numerical_item_with_unit"/>
+         </derived>
+         <derived name="maximum_value" expression=" get_value ( 'maximum' , SELF \ representation . items ) ">
+            <typename name="Numerical_item_with_unit"/>
+         </derived>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( ri &lt;* SELF \ representation . items | ri . name = 'minimum' ) ) = 1 "/>
+         <where label="WR2" expression=" SIZEOF ( QUERY ( ri &lt;* SELF \ representation . items | ri . name = 'nominal' ) ) = 1 "/>
+         <where label="WR3" expression=" SIZEOF ( QUERY ( ri &lt;* SELF \ representation . items | ri . name = 'maximum' ) ) = 1 "/>
+         <where label="WR4" expression=" valid_relationship ( minimum_value , nominal_value ) "/>
+         <where label="WR5" expression=" valid_relationship ( nominal_value , maximum_value ) "/>
+         <where label="WR6" expression=" TYPEOF ( minimum_value ) = TYPEOF ( nominal_value ) "/>
+         <where label="WR7" expression=" TYPEOF ( nominal_value ) = TYPEOF ( maximum_value ) "/>
       </entity>
       <entity name="Precision_qualifier">
          <explicit name="precision_value">
@@ -117,6 +139,7 @@
             <typename name="Numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
+         <where label="WR1" expression=" SIZEOF ( QUERY ( ri &lt;* SELF \ representation . items | 'VALUE_WITH_UNIT_EXTENSION.RATIO_DATA_ELEMENT' IN TYPEOF ( ri ) ) ) = 1 "/>
       </entity>
       <entity name="Text_representation_item" supertypes="String_representation_item">
          <derived name="name" expression=" 'text' ">
@@ -144,7 +167,28 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
+      <function name="get_value">
+         <parameter name="input1">
+            <builtintype type="STRING"/>
+         </parameter>
+         <parameter name="np">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Representation_item"/>
+         </parameter>
+         <typename name="Numerical_item_with_unit"/>
+         <algorithm> REPEAT i := 1 to SIZEOF ( np ) by 1 ; IF input1 = np [ i ] \ Representation_item . name THEN RETURN ( np [ i ] ) ; END_IF ; END_REPEAT ; RETURN ( ? ) ; </algorithm>
+      </function>
       <function name="valid_range">
+         <parameter name="input1">
+            <typename name="Numerical_item_with_unit"/>
+         </parameter>
+         <parameter name="input2">
+            <typename name="Numerical_item_with_unit"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm> RETURN ( TRUE ) ; </algorithm>
+      </function>
+      <function name="valid_relationship">
          <parameter name="input1">
             <typename name="Numerical_item_with_unit"/>
          </parameter>

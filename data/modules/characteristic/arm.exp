@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.19 2005/04/07 18:04:49 liutkus Exp $
+   $Id: arm.exp,v 1.20 2005/05/19 02:56:30 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3321 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
 *)
 
@@ -85,6 +85,21 @@ SCHEMA Characteristic_arm;
   ENTITY Plus_minus_tolerance_characteristic
     SUBTYPE OF (Tolerance_characteristic);
       SELF\Representation.items : SET[3:3] OF Numerical_item_with_unit;
+	DERIVE
+      minimum_value : Numerical_item_with_unit := get_value('minimum',SELF\representation.items);
+      nominal_value : Numerical_item_with_unit := get_value('nominal',SELF\representation.items);
+      maximum_value : Numerical_item_with_unit := get_value('maximum',SELF\representation.items);      
+    WHERE
+      WR1: SIZEOF(QUERY( ri <* 
+         SELF\representation.items | ri.name = 'minimum')) = 1;
+      WR2: SIZEOF(QUERY( ri <* 
+         SELF\representation.items | ri.name = 'nominal')) = 1;
+      WR3: SIZEOF(QUERY( ri <* 
+         SELF\representation.items | ri.name = 'maximum')) = 1;
+      WR4: valid_relationship(minimum_value,nominal_value);
+      WR5: valid_relationship(nominal_value,maximum_value);                                                               
+      WR6: TYPEOF(minimum_value) = TYPEOF(nominal_value);
+      WR7: TYPEOF(nominal_value) = TYPEOF(maximum_value); 
   END_ENTITY;
 
   ENTITY Precision_qualifier;
@@ -122,6 +137,10 @@ SCHEMA Characteristic_arm;
   ENTITY Symmetrical_tolerance_characteristic
     SUBTYPE OF (Tolerance_characteristic);
       SELF\Representation.items : SET[2:2] OF Numerical_item_with_unit;
+    WHERE
+      WR1: SIZEOF(QUERY( ri <* 
+         SELF\representation.items |
+        'VALUE_WITH_UNIT_EXTENSION.RATIO_DATA_ELEMENT' IN TYPEOF(ri))) = 1;
   END_ENTITY;
 
   ENTITY Text_representation_item
@@ -152,10 +171,30 @@ SCHEMA Characteristic_arm;
       description  : STRING; --text;
   END_ENTITY;
 
+FUNCTION get_value (
+         input1 : string;
+         np : SET OF Representation_item) : Numerical_item_with_unit;
+REPEAT i := 1 to SIZEOF(np) by 1;
+  IF input1 = np[i]\Representation_item.name THEN
+       RETURN(np[i]);
+  END_IF;
+END_REPEAT;
+  RETURN(?);
+END_FUNCTION; -- get_value
+
   FUNCTION valid_range(input1 : Numerical_item_with_unit;
                        input2 : Numerical_item_with_unit) : BOOLEAN;
 --This function returns true if input1 is less than input2 e.g,. on the real number line                       
 --comment only for now.
    RETURN(TRUE);
   END_FUNCTION; 
+  
+FUNCTION valid_relationship (
+         input1 : Numerical_item_with_unit;
+         input2 : Numerical_item_with_unit) : BOOLEAN;
+--This is a dummy function to support the rule that input1 shall
+--be less than input2, including effects of prefixes.
+  RETURN(TRUE);
+END_FUNCTION; -- valid_relationship
+  
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.31 2005/05/05 03:03:06 thomasrthurman Exp $
+   $Id: arm.exp,v 1.32 2005/05/12 08:44:24 liutkus Exp $
    ISO TC184/SC4/WG12 N3591 - ISO/CD-TS 10303-1740 Requirement decomposition - EXPRESS ARM
 *)
 
@@ -9,6 +9,10 @@ SCHEMA Requirement_decomposition_arm;
 	USE FROM Elemental_geometric_shape_arm;	-- ISO/TS 10303-1004
 	USE FROM Functional_specification_arm;	-- ISO/TS 10303-1679
 	USE FROM Product_rule_arm;	-- ISO/TS 10303-1739
+
+	REFERENCE FROM support_resource_schema   -- ISO 10303-41
+  		(bag_to_set);
+
  
   TYPE material_conductivity_classification = ENUMERATION OF
     (conductive,
@@ -205,8 +209,8 @@ LOCAL
 	rvd : SET[0:?] OF Requirement_view_definition := [];  --this gives us access to the information base
 	ra : SET[0:?] OF Requirement_assignment :=[];
 END_LOCAL;
-	ra := (QUERY(rai <* USEDIN (input, 'REQUIREMENT_ASSIGNMENT_ARM.'+
-	'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') | (rai.id = id)));
+	ra := bag_to_set((QUERY(rai <* USEDIN (input, 'REQUIREMENT_ASSIGNMENT_ARM.'+
+	'REQUIREMENT_ASSIGNMENT.ASSIGNED_TO') | (rai.id = id))));
 
 	-- iterate over ra
 	REPEAT i := 1 to SIZEOF(ra) by 1;

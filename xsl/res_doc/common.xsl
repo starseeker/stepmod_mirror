@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.25 2005/03/02 19:50:26 thendrix Exp $
+$Id: common.xsl,v 1.26 2005/07/11 17:46:00 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2255,7 +2255,23 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     <xsl:value-of
       select="document(concat($resdoc_dir,'/resource.xml'))/resource/@status"/>
   </xsl:variable>
-  <xsl:value-of select="concat('ISO/',$status,'&#160;10303-',$part)"/>
+
+    <xsl:variable name="orgname" select="'ISO'"/>
+
+    <xsl:variable name="stdnumber">
+      <xsl:choose>
+        <xsl:when test="$status='IS'">
+          <xsl:value-of 
+            select="concat($orgname,' 10303-',$part)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part)"/>          
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:value-of select="$stdnumber"/>
 </xsl:template>
 
 

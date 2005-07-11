@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_1_scope.xsl,v 1.2 2003/03/16 01:26:38 thendrix Exp $
+$Id: sect_1_scope.xsl,v 1.3 2003/08/24 22:10:35 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -45,6 +45,9 @@ $Id: sect_1_scope.xsl,v 1.2 2003/03/16 01:26:38 thendrix Exp $
       </xsl:when>
       <xsl:when test="@status='CD-TS'">
         <xsl:value-of select="concat('ISO/CD TS 10303-',@part)"/>
+      </xsl:when>
+      <xsl:when test="@status='IS'">
+        <xsl:value-of select="concat('ISO',' 10303-',@part,':',@publication.year,'(',@language,')')"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="concat('ISO/',@status,' 10303-',@part,':',@publication.year,'(',@language,')')"/>

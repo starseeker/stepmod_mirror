@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.53 2005/03/03 22:46:44 thendrix Exp $
+$Id: resource.xsl,v 1.54 2005/03/11 00:12:17 thendrix Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -710,21 +710,16 @@ Purpose:
 
   <!-- Outputs the foreword -->
   <xsl:template match="resource" mode="foreword">
-	<xsl:variable name="status" select="string(@status)"/>
-	<xsl:variable name="part_no">
-	  <xsl:choose>
-		<xsl:when test="string-length(@part)>0">
-		  <xsl:value-of select="concat('ISO/',$status,' 10303-',@part)"/>
-		</xsl:when>
-		<xsl:otherwise>
-		  <xsl:value-of select="concat('ISO/',$status,' 10303-','XXXX')"/>
-		</xsl:otherwise>
-	  </xsl:choose>
-	</xsl:variable>
+    <xsl:variable name="status" select="string(@status)"/>
+    <xsl:variable name="part_no">
+      <xsl:call-template name="get_resdoc_iso_number">
+	<xsl:with-param name="resdoc" select="./@name"/>
+      </xsl:call-template>
+    </xsl:variable>
 
-	<h2>
-	  <a name="foreword">
-		Foreword
+    <h2>
+      <a name="foreword">
+	Foreword
 	  </a>
 	</h2>
 	<p>

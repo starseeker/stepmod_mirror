@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_1_scope.xsl,v 1.5 2003/03/13 19:17:01 robbod Exp $
+$Id: sect_1_scope.xsl,v 1.6 2003/07/15 14:02:51 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -20,6 +20,7 @@ $Id: sect_1_scope.xsl,v 1.5 2003/03/13 19:17:01 robbod Exp $
 
 
   <xsl:output method="html"/>
+
 
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="module">
@@ -42,13 +43,16 @@ $Id: sect_1_scope.xsl,v 1.5 2003/03/13 19:17:01 robbod Exp $
   <xsl:variable name="right">
     <xsl:choose>
       <xsl:when test="@status='WD' or @status='CD' or @status='DIS'">
-        <xsl:value-of select="concat('ISO/',@status,' 10303-',@part)"/>
+        <xsl:value-of select="concat('ISO','/',@status,' 10303-',@part)"/>
       </xsl:when>
       <xsl:when test="@status='CD-TS'">
         <xsl:value-of select="concat('ISO/CD TS 10303-',@part)"/>
       </xsl:when>
+      <xsl:when test="@status='IS'">
+        <xsl:value-of select="concat('ISO',' 10303-',@part,':',@publication.year,'(',@language,')')"/>
+      </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="concat('ISO/',@status,' 10303-',@part,':',@publication.year,'(',@language,')')"/>
+        <xsl:value-of select="concat('ISO','/',@status,' 10303-',@part,':',@publication.year,'(',@language,')')"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.154 2005/03/03 16:34:27 robbod Exp $
+$Id: common.xsl,v 1.155 2005/07/11 17:46:00 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2822,9 +2822,13 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
     <xsl:variable name="stdnumber">
       <xsl:choose>
-        <xsl:when test="$status='IS' or $status='TS'">
+        <xsl:when test="$status='FDIS' or $status='TS'">
           <xsl:value-of 
             select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+        </xsl:when>
+        <xsl:when test="$status='IS'">
+          <xsl:value-of 
+            select="concat($orgname,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of 

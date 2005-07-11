@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.26 2005/07/11 17:46:00 thendrix Exp $
+$Id: common.xsl,v 1.27 2005/07/11 19:51:47 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -93,13 +93,16 @@ $Id: common.xsl,v 1.26 2005/07/11 17:46:00 thendrix Exp $
     </xsl:call-template>
   </xsl:variable>
 
+<!-- should not be in title according to sc4n1548
   <xsl:variable name="resdoc_name">
     <xsl:call-template name="res_display_name">
       <xsl:with-param name="res" select="@name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:value-of select="concat($stdnumber,' ',$resdoc_name)"/>
 
+  <xsl:value-of select="concat($stdnumber,' ',$resdoc_name)"/>
+-->
+  <xsl:value-of select="$stdnumber"/>
 
 </xsl:template>
 

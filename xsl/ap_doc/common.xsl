@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.40 2005/03/02 10:47:35 robbod Exp $
+$Id: common.xsl,v 1.41 2005/03/29 20:57:53 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -726,19 +726,20 @@ $Id: common.xsl,v 1.40 2005/03/02 10:47:35 robbod Exp $
        file content or the ap module file content -->
   
   <xsl:template match="application_protocol" mode="title">
-    <xsl:variable name="lpart">
+<!-- not used  
+   <xsl:variable name="lpart">
       <xsl:choose>
         <xsl:when test="string-length(@part)>0">
           <xsl:value-of select="@part"/>
         </xsl:when>
         <xsl:otherwise>
-          XXXX
+          &lt;part&gt;
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-
+-->
     <xsl:variable name="stdnumber">
-      <xsl:call-template name="get_protocol_stdnumber">
+      <xsl:call-template name="get_protocol_pageheader">
         <xsl:with-param name="application_protocol" select="."/>
       </xsl:call-template>
     </xsl:variable>

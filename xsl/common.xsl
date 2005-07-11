@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.155 2005/07/11 17:46:00 thendrix Exp $
+$Id: common.xsl,v 1.156 2005/07/11 19:51:51 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2641,38 +2641,23 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       </xsl:choose>
     </xsl:variable>
 
-    <!-- 
-         Note, if the standard has a status of CD or CD-TS it has not been
-         published - so overide what ever is the @publication.year 
-         -->
-    <xsl:variable name="pub_year">
-      <xsl:choose>
-        <xsl:when test="$status='CD' or $status='CD-TS'">&#8212;</xsl:when>
-        <xsl:when test="string-length($application_protocol/@publication.year)">
-          <xsl:value-of select="$application_protocol/@publication.year"/>
-        </xsl:when>
-        <xsl:otherwise>
-          &lt;publication.year&gt;
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:variable name="language">
-      <xsl:choose>
-        <xsl:when test="string-length($application_protocol/@language)">
-          <xsl:value-of select="$application_protocol/@language"/>
-        </xsl:when>
-        <xsl:otherwise>
-          E
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
     <xsl:variable name="orgname" select="'ISO'"/>
+ 
+   <xsl:variable name="stdnumber">
+      <xsl:choose>
+        <xsl:when test="$status='IS'">
+          <xsl:value-of 
+            select="concat($orgname,' 10303-',$part)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part)"/>          
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
 
-    <xsl:value-of 
-      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
-			
+    <xsl:value-of select="$stdnumber"/>
+
 </xsl:template>
 
 <!-- the number of the document for display as a page heaer.

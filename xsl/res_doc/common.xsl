@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.24 2004/12/07 01:00:29 thendrix Exp $
+$Id: common.xsl,v 1.25 2005/03/02 19:50:26 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2042,6 +2042,17 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       </xsl:choose>
     </xsl:variable>
 
+    <xsl:variable name="language">
+      <xsl:choose>
+        <xsl:when test="string-length($resdoc/@language)">
+          <xsl:value-of select="$resdoc/@language"/>
+        </xsl:when>
+        <xsl:otherwise>
+          E
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
 
     <!-- 
          Note, if the standard has a status of CD or CD-TS it has not been
@@ -2060,9 +2071,24 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     </xsl:variable>
     <xsl:variable name="orgname" select="'ISO'"/>
 
-    <xsl:value-of 
-      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
+    <xsl:variable name="stdnumber">
+      <xsl:choose>
+        <xsl:when test="$status='IS'">
+          <xsl:value-of 
+            select="concat($orgname,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+        </xsl:when>
+        <xsl:when test="$status='TS' or $status='FDIS'">
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part)"/>          
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
 
+    <xsl:value-of select="$stdnumber"/>
 
 </xsl:template>
 
@@ -2125,7 +2151,15 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
     <xsl:variable name="stdnumber">
       <xsl:choose>
-        <xsl:when test="$status='IS' or $status='TS'">
+        <xsl:when test="$status='IS'">
+          <xsl:value-of 
+            select="concat($orgname,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+        </xsl:when>
+        <xsl:when test="$status='TS'">
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+        </xsl:when>
+        <xsl:when test="$status='FDIS'">
           <xsl:value-of 
             select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
         </xsl:when>
@@ -2168,7 +2202,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   </xsl:if>
 </xsl:template>
 
-
+<!-- apparently never called 
 <xsl:template name="get_resource_iso_number">
   <xsl:param name="resdoc"/>
   <xsl:variable name="resdoc_dir">
@@ -2184,9 +2218,27 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     <xsl:value-of
       select="document(concat($resdoc_dir,'/resource.xml'))/resource/@status"/>
   </xsl:variable>
-  <xsl:value-of select="concat('ISO/',$status,'&#160;10303-',$part)"/>
-</xsl:template>
 
+    <xsl:variable name="stdnumber">
+      <xsl:choose>
+        <xsl:when test="$status='IS'">
+          <xsl:value-of 
+            select="concat($orgname,' 10303-',$part)"/>
+        </xsl:when>
+        <xsl:when test="$status='TS'">
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part)"/>          
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+  <xsl:value-of select="$stdnumber"/>
+</xsl:template>
+-->
 
 <xsl:template name="get_resdoc_iso_number">
   <xsl:param name="resdoc"/>

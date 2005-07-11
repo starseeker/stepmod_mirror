@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: sect_isocover.xsl,v 1.11 2004/12/31 13:23:14 robbod Exp $
+$Id: sect_isocover.xsl,v 1.12 2005/06/06 15:37:53 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -703,10 +703,24 @@ $Id: sect_isocover.xsl,v 1.11 2004/12/31 13:23:14 robbod Exp $
     </xsl:variable>
     
     <xsl:variable name="orgname" select="'ISO'"/>
-    
-    <xsl:value-of 
-      select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
-    
+    <xsl:choose>
+        <xsl:when test="$status='IS'">
+          <xsl:value-of 
+            select="concat($orgname,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+        </xsl:when>
+        <xsl:when test="$status='TS'">
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+        </xsl:when>
+        <xsl:when test="$status='FDIS'">
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year,'(',$language,') ')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of 
+            select="concat($orgname,'/',$status,' 10303-',$part)"/>          
+        </xsl:otherwise>
+      </xsl:choose>    
   </xsl:template>
 
 

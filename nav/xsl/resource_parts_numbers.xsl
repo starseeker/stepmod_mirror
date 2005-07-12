@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: resource_parts_numbers.xsl,v 1.5 2002/09/11 17:10:57 robbod Exp $
+$Id: resource_parts_numbers.xsl,v 1.1 2005/03/11 00:22:11 thendrix Exp $
   Author: Tom Hendrix, Boeing.
   Purpose: Display an index of resource parts ordered by part number
 -->
@@ -18,7 +18,7 @@ $Id: resource_parts_numbers.xsl,v 1.5 2002/09/11 17:10:57 robbod Exp $
 <xsl:template match="resource_docs">
   <xsl:apply-templates select="resource_doc">
     <xsl:with-param name="part_no" select="'yes'"/>
-    <xsl:sort select="@part"/>
+    <xsl:sort select="@part" data-type="number"/>
   </xsl:apply-templates>
 </xsl:template>
 

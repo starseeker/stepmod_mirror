@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: modules_numbers.xsl,v 1.5 2002/09/11 17:10:57 robbod Exp $
+$Id: resources_numbers.xsl,v 1.1 2004/05/19 15:39:28 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display an index of modules ordered by part number
@@ -19,7 +19,7 @@ $Id: modules_numbers.xsl,v 1.5 2002/09/11 17:10:57 robbod Exp $
 <xsl:template match="resources">
   <xsl:apply-templates select="resource">
     <xsl:with-param name="part_no" select="'yes'"/>
-    <xsl:sort select="@part"/>
+    <xsl:sort select="@part" data-type="number"/>
   </xsl:apply-templates>
 </xsl:template>
 

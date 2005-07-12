@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
+$Id: ap_numbers.xsl,v 1.1 2005/03/31 22:29:29 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display an alphabetical list of application_protocols.
@@ -37,7 +38,7 @@ $Id: ap_alpha.xsl,v 1.1 2002/09/13 12:08:39 robbod Exp $
         name="application_protocols-node-set" 
         select="msxsl:node-set($application_protocol_nodes)"/>
       <xsl:for-each select="$application_protocols-node-set/application_protocols/application_protocol">
-	<xsl:sort select="@part" />
+	<xsl:sort select="@part" data-type="number"/>
         <xsl:variable name="letter" 
           select="translate(substring(@name,1,1), $lower, $upper)"/>
         

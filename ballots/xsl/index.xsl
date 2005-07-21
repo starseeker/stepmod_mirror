@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: index.xsl,v 1.4 2002/08/16 14:05:23 robbod Exp $
+$Id: index.xsl,v 1.5 2002/08/29 07:01:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the ballot packages
@@ -29,9 +30,9 @@ $Id: index.xsl,v 1.4 2002/08/16 14:05:23 robbod Exp $
       </head>
       <body>
         <h2>Module ballots</h2>
-        <xsl:call-template name="output_menubar">
-          <xsl:with-param name="module_root" select="'./pdm_ballot_072002/'"/>
-          <xsl:with-param name="module_name" select="@name"/>
+       <xsl:call-template name="output_menubar">
+	  <xsl:with-param name="new_menubar_file" select="'ballots/menubar_ballot_index.xml'" />
+          <xsl:with-param name="module_root" select="'..'"/>
         </xsl:call-template>
         <hr/>
 

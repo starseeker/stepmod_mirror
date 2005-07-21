@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="./document_xsl.xsl" ?>
+
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 <!--
-$Id: document_xsl.xsl,v 1.6 2003/06/27 06:07:07 thendrix Exp $
+$Id: document_xsl.xsl,v 1.7 2003/07/08 18:06:40 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
      Purpose: To display the import/includes in stylesheets
               Derived from XSL progammers reference, M.Kay
 -->
-
-<?xml-stylesheet 
-  type="text/xsl" 
-  href="./document_xsl.xsl" ?>
 
 <xsl:template match="/">
   <html><body>
@@ -72,8 +72,40 @@ $Id: document_xsl.xsl,v 1.6 2003/06/27 06:07:07 thendrix Exp $
   </body></html>
 </xsl:template>
 
+<xsl:template name="get_dirname">
+  <xsl:param name="path" />
+  <xsl:choose>
+    <xsl:when test="contains($path, '/')" >
+      <xsl:value-of select="concat(substring-before($path,'/'),'/')"/> 
+      <xsl:call-template name="get_dirname">
+	<xsl:with-param name="path"  select="substring-after($path,'/')" />
+      </xsl:call-template>
+      </xsl:when>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="get_basename">
+  <xsl:param name="path" />
+  <xsl:choose>
+    <xsl:when test="contains($path, '/')" >
+      <xsl:call-template name="get_basename">
+	<xsl:with-param name="path"  select="substring-after($path,'/')" />
+      </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:value-of select="$path"/> 
+      </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 <xsl:template match="xsl:include | xsl:import">
-    <xsl:variable name="href" select="@href"/>
+  <xsl:param name="path"/>
+    <xsl:variable name="href" select="concat($path,@href)"/>
+    <xsl:variable name="dirname">
+      <xsl:call-template name="get_dirname">
+	<xsl:with-param name="path" select="$href"/>
+      </xsl:call-template>
+    </xsl:variable>
     <li>
       <xsl:value-of select="concat(local-name(),'s ')"/>
       <a href="{$href}">
@@ -82,7 +114,9 @@ $Id: document_xsl.xsl,v 1.6 2003/06/27 06:07:07 thendrix Exp $
     <xsl:variable name="module" select="document(@href)"/>
     <ul>
 
-        <xsl:apply-templates select="$module/*/xsl:include | $module/*/xsl:import"/>
+        <xsl:apply-templates select="$module/*/xsl:include | $module/*/xsl:import">
+	  <xsl:with-param name="path" select="$dirname"/>
+	</xsl:apply-templates>
     </ul>
     </li>
 </xsl:template>

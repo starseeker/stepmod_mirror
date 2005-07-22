@@ -14,7 +14,7 @@ $ Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
   
   <xsl:output method="text"/>
   <xsl:param name="date" select="'&lt;DATE>'" />
-  <xsl:template match="publication_index">This directory comprises a set of parts (modules, resource and
+  <xsl:template match="publication_index">This directory comprises a set of parts (modules, resource parts or 
 application protocol documents) that have been compiled for publication.
 
 Each part is stored in a separate directory.

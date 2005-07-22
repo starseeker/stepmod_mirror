@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: publication_summary.xsl,v 1.7 2004/11/05 05:36:19 thendrix Exp $
+$Id: publication_summary.xsl,v 1.8 2004/12/01 09:29:08 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a publication package
 
 -->
-
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
@@ -384,7 +383,7 @@ $Id: publication_summary.xsl,v 1.7 2004/11/05 05:36:19 thendrix Exp $
           <xsl:value-of select="@name"/>
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
-              <xsl:value-of select="concat('Error ballot1: ', $module_ok)"/>
+              <xsl:value-of select="concat('Error publication1: ', $module_ok)"/>
             </xsl:with-param>
           </xsl:call-template>
         </td>
@@ -572,7 +571,7 @@ $Id: publication_summary.xsl,v 1.7 2004/11/05 05:36:19 thendrix Exp $
           <xsl:value-of select="@name"/>
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
-              <xsl:value-of select="concat('Error ballot1: ', $resdoc_ok)"/>
+              <xsl:value-of select="concat('Error publication2: ', $resdoc_ok)"/>
             </xsl:with-param>
           </xsl:call-template>
         </td>
@@ -732,7 +731,7 @@ $Id: publication_summary.xsl,v 1.7 2004/11/05 05:36:19 thendrix Exp $
           <xsl:value-of select="@name"/>
           <xsl:call-template name="error_message">
             <xsl:with-param name="message">
-              <xsl:value-of select="concat('Error ballot1: ', $apdoc_ok)"/>
+              <xsl:value-of select="concat('Error publication3: ', $apdoc_ok)"/>
             </xsl:with-param>
           </xsl:call-template>
         </td>

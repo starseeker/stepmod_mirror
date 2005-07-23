@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: build.xsl,v 1.9 2003/02/26 02:12:17 thendrix Exp $
+$Id: pub_readme.xsl,v 1.6 2005/02/08 22:46:29 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the readme file for a published module.
@@ -53,6 +53,22 @@ NOTE - if you already purchased other Application modules, then unzip the
 file into the same directory as the other modules.
 If asked when unzipping the file, you should overwrite any file in the images directory.
 
+<!-- No  express dir within the module so dont refer to it in the pub_readme
+The  EXPRESS listings that are referenced in this  part are collected in the express folder.
+
+The ARM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$arm_exp"/>
+      <xsl:if test="./arm_lf">        
+        <xsl:variable name="armlf_exp" select="concat('express/',$prefix,@wg.number.arm_lf,'arm_lf.exp')"/>
+The ARM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$armlf_exp"/>
+      </xsl:if>
+      <xsl:variable name="mim_exp" select="concat('express/',$prefix,@wg.number.mim,'mim.exp')"/>
+The MIM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mim_exp"/>
+      <xsl:if test="./mim_lf">        
+        <xsl:variable name="mimlf_exp" select="concat('express/',$prefix,@wg.number.mim_lf,'mim_lf.exp')"/>
+The MIM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mimlf_exp"/>
+      </xsl:if>
+-->
+
 The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
 
 NOTE
@@ -96,19 +112,8 @@ file into the same directory as the other modules.
 If asked when unzipping the file, you should overwrite any file in the images directory.
       <xsl:variable name="prefix" select="concat('part',@part,@status,'_wg',@wg,'n')"/>
       <xsl:variable name="arm_exp" select="concat('express/',$prefix,@wg.number.arm,'arm.exp')"/>
-The  EXPRESS listings that are referenced in this  part are collected in the express folder.
 
-The ARM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$arm_exp"/>
-      <xsl:if test="./arm_lf">        
-        <xsl:variable name="armlf_exp" select="concat('express/',$prefix,@wg.number.arm_lf,'arm_lf.exp')"/>
-The ARM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$armlf_exp"/>
-      </xsl:if>
-      <xsl:variable name="mim_exp" select="concat('express/',$prefix,@wg.number.mim,'mim.exp')"/>
-The MIM EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mim_exp"/>
-      <xsl:if test="./mim_lf">        
-        <xsl:variable name="mimlf_exp" select="concat('express/',$prefix,@wg.number.mim_lf,'mim_lf.exp')"/>
-The MIM long form EXPRESS listing for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="$mimlf_exp"/>
-      </xsl:if>
+The  EXPRESS listings that are referenced in this  part are collected in the express folder.
 
 The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
 

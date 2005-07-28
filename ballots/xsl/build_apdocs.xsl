@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.39 2005/04/12 15:36:21 thendrix Exp $
+$Id: build_apdocs.xsl,v 1.40 2005/04/12 16:26:46 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -9146,49 +9146,52 @@ $Id: build_apdocs.xsl,v 1.39 2005/04/12 15:36:21 thendrix Exp $
 
   <xsl:for-each select="$schemas-node-set//x">
     <xsl:sort/>
-    <xsl:choose>
-      <xsl:when test="substring-before(.,'/mim.xml')">
-        <xsl:variable name="module" select="substring-after(substring-before(.,'/mim'),'modules/')"/>
-        <xsl:variable name="module_ok">
-          <xsl:call-template name="check_module_exists">
-            <xsl:with-param name="module" select="$module"/>
-          </xsl:call-template>
-        </xsl:variable>
-        <xsl:choose>
-          <xsl:when test="$module_ok='true'">
-            <xsl:variable name="mod_schema">
-              <xsl:call-template name="schema_name">
-                <xsl:with-param name="module_name" select="$module"/>
-                <xsl:with-param name="arm_mim" select="'mim'"/>
-              </xsl:call-template>
-            </xsl:variable>
-            <xsl:if test="not(contains($modules,concat(' ',$mod_schema,' ')))">
-              <module>
-                <xsl:attribute name="name">
-                  <xsl:value-of select="$module"/>
-                </xsl:attribute>
-              </module>
-            </xsl:if>
-          </xsl:when>
-          <xsl:otherwise>
-            <error>
-              <xsl:value-of select="$module"/>
-            </error>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:otherwise>
-		<xsl:variable name="resource" 
-					  select="substring-after(substring-before(.,'.xml'),'../../data/resources/')"/>
-		<xsl:if test="not(contains($resdocs,concat(' ',substring-after($resource,'/'),' ')))">
-		  <resource>
-			<xsl:attribute name="name">
-			  <xsl:value-of select="$resource"/>
-			</xsl:attribute>
-		  </resource>
-		</xsl:if>
-	  </xsl:otherwise>
-	</xsl:choose>
+    <!-- thx kludge to skip duplicates -->
+    <xsl:if test="not(self::*/text() = preceding-sibling::*/text())" >
+      <xsl:choose>
+	<xsl:when test="substring-before(.,'/mim.xml')">
+	  <xsl:variable name="module" select="substring-after(substring-before(.,'/mim'),'modules/')"/>
+	  <xsl:variable name="module_ok">
+	    <xsl:call-template name="check_module_exists">
+	      <xsl:with-param name="module" select="$module"/>
+	    </xsl:call-template>
+	  </xsl:variable>
+	  <xsl:choose>
+	    <xsl:when test="$module_ok='true'">
+	      <xsl:variable name="mod_schema">
+		<xsl:call-template name="schema_name">
+		  <xsl:with-param name="module_name" select="$module"/>
+		  <xsl:with-param name="arm_mim" select="'mim'"/>
+		</xsl:call-template>
+	      </xsl:variable>
+	      <xsl:if test="not(contains($modules,concat(' ',$mod_schema,' ')))">
+		<module>
+		  <xsl:attribute name="name">
+		    <xsl:value-of select="$module"/>
+		  </xsl:attribute>
+		</module>
+	      </xsl:if>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <error>
+		<xsl:value-of select="$module"/>
+	      </error>
+	    </xsl:otherwise>
+	  </xsl:choose>
+	</xsl:when>
+	<xsl:otherwise>
+	  <xsl:variable name="resource" 
+			select="substring-after(substring-before(.,'.xml'),'../../data/resources/')"/>
+	  <xsl:if test="not(contains($resdocs,concat(' ',substring-after($resource,'/'),' ')))">
+	    <resource>
+	      <xsl:attribute name="name">
+		<xsl:value-of select="$resource"/>
+	      </xsl:attribute>
+	    </resource>
+	  </xsl:if>
+	</xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
   </xsl:for-each>
 
 </xsl:template>

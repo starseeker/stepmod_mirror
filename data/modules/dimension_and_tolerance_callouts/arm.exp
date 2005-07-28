@@ -1,6 +1,64 @@
 (*
-   $Id: mkmodule.js,v 1.43 2004/11/12 07:49:20 robbod Exp $
-   N - ISO/CD-TS - 10303- dimension_and_tolerance_callouts - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+ $Id: arm.exp,v 1.1 2005/06/28 20:37:12 thendrix Exp $
+ ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Dimension and tolerance callouts - EXPRESS ARM
+*) 
+
 SCHEMA Dimension_and_tolerance_callouts_arm;
-END_SCHEMA;
+
+USE FROM Annotated_presentation_arm;    -- ISO/CD-TS 10303-xxxx
+
+USE FROM Associative_text_arm;    -- ISO/TS 10303-1132
+
+USE FROM Curve_appearance_arm;    -- ISO/TS 10303-1003
+
+USE FROM Dimension_tolerance_arm;    -- ISO/TS 10303-1050
+
+
+TYPE dimension_callout_select = SELECT
+   (Dimension_symbol, 
+    Text);
+END_TYPE; 
+
+ENTITY Datum_feature_callout
+  SUBTYPE OF (Draughting_callout);
+END_ENTITY;
+
+ENTITY Datum_target_callout
+  SUBTYPE OF (Draughting_callout);
+END_ENTITY;
+
+ENTITY Dimension
+  SUBTYPE OF (Draughting_callout);
+  id : STRING;
+  primary_callout : Dimension_callout;
+  secondary_callout : OPTIONAL Dimension_callout;
+END_ENTITY;
+
+ENTITY Dimension_callout;
+  callout_element : SET[1:?] OF dimension_callout_select;
+  is_displaying : OPTIONAL Geometric_dimension;
+END_ENTITY;
+
+ENTITY Dimension_curve
+  SUBTYPE OF (Annotation_curve);
+  terminator : SET[0:2] OF Terminator;
+END_ENTITY;
+
+ENTITY Dimension_sequence_pair;
+  predecessor : Dimension;
+  successor : Dimension;
+END_ENTITY;
+
+ENTITY Geometric_tolerance_callout
+  SUBTYPE OF (Draughting_callout);
+END_ENTITY;
+
+ENTITY Projection_curve
+  SUBTYPE OF (Annotation_curve);
+END_ENTITY;
+
+ENTITY Surface_condition_callout
+  SUBTYPE OF (Draughting_callout);
+END_ENTITY;
+
+END_SCHEMA;  -- Dimension_and_tolerance_callouts_arm

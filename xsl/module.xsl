@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.188 2005/03/03 12:16:10 robbod Exp $
+$Id: module.xsl,v 1.189 2005/06/01 21:16:20 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4388,9 +4388,28 @@ $module_ok,' Check the normatives references')"/>
 </xsl:template>
 
 <xsl:template match="ulink">
-<xsl:text>Available from the World Wide Web: </xsl:text>
-  <xsl:variable name="href" select="."/>
-  <br/><a href="{$href}"><xsl:value-of select="$href"/></a>
+  <xsl:choose>
+    <xsl:when test="string-length(@url)=0">
+      <xsl:call-template name="error_message">
+        <xsl:with-param name="message" select="'No URL provided'"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:variable name="href" select="@url"/>
+      <br/>
+      <a href="{@url}" target="_blank">
+        <xsl:apply-templates/>
+        <xsl:choose>
+          <xsl:when test="string-length(text()) > 0" >
+            (<xsl:value-of select="@url"/>)
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="@url"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </a>      
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 

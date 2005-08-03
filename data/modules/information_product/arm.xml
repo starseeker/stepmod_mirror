@@ -1,12 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2004/10/11 20:17:49 $"
-   rcs.revision="$Revision: 1.41 $">
-  <schema name="Information_product_arm">
-  </schema>
+
+<express language_version="2" rcs.date="2005-08-03T12:38:20" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="information_product_arm schema_instance"/>
+   <schema name="INFORMATION_PRODUCT_ARM">
+      <interface kind="use" schema="PRODUCT_VIEW_DEFINITION_ARM">
+         <interfaced.item name="product_view_definition"/>
+      </interface>
+      <interface kind="use" schema="PRODUCT_IDENTIFICATION_ARM"/>
+      <interface kind="use" schema="PRODUCT_VERSION_ARM"/>
+      <interface kind="use" schema="FILE_IDENTIFICATION_ARM"/>
+      <entity name="digital_information_product_definition" supertypes="information_product_definition">
+         <explicit name="files">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="digital_file"/>
+         </explicit>
+      </entity>
+      <entity name="information_product" abstract.supertype="YES" supertypes="product"/>
+      <entity name="information_product_definition" supertypes="product_view_definition">
+         <explicit name="defined_version">
+            <typename name="information_product_version"/>
+            <redeclaration entity-ref="product_view_definition"/>
+         </explicit>
+      </entity>
+      <entity name="information_product_version" supertypes="product_version">
+         <explicit name="of_product">
+            <typename name="information_product"/>
+            <redeclaration entity-ref="product_version"/>
+         </explicit>
+      </entity>
+      <rule name="information_product_version_constraint" appliesto="product_version">
+         <where label="wr1" expression=" sizeof ( query ( pv &lt;* product_version | ( not ( 'information_product_arm.' + 'information_product_version' in typeof ( pv ) ) ) and ( 'information_product_arm.' + 'information_product' in typeof ( pv . of_product ) ) ) ) = 0 "/>
+      </rule>
+   </schema>
 </express>

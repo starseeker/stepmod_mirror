@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-06-22T13:45:14" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-08-03T16:26:50" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="characteristic_arm schema_instance"/>
    <schema name="Characteristic_arm">
       <interface kind="use" schema="Document_assignment_arm"/>
@@ -84,22 +84,22 @@
             <typename name="Numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <derived name="minimum_value" expression=" get_value ( 'minimum' , SELF \ representation . items ) ">
+         <derived name="minimum_value" expression="get_value('minimum',SELF\representation.items)">
             <typename name="Numerical_item_with_unit"/>
          </derived>
-         <derived name="nominal_value" expression=" get_value ( 'nominal' , SELF \ representation . items ) ">
+         <derived name="nominal_value" expression="get_value('nominal',SELF\representation.items)">
             <typename name="Numerical_item_with_unit"/>
          </derived>
-         <derived name="maximum_value" expression=" get_value ( 'maximum' , SELF \ representation . items ) ">
+         <derived name="maximum_value" expression="get_value('maximum',SELF\representation.items)">
             <typename name="Numerical_item_with_unit"/>
          </derived>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ri &lt;* SELF \ representation . items | ri . name = 'minimum' ) ) = 1 "/>
-         <where label="WR2" expression=" SIZEOF ( QUERY ( ri &lt;* SELF \ representation . items | ri . name = 'nominal' ) ) = 1 "/>
-         <where label="WR3" expression=" SIZEOF ( QUERY ( ri &lt;* SELF \ representation . items | ri . name = 'maximum' ) ) = 1 "/>
-         <where label="WR4" expression=" valid_relationship ( minimum_value , nominal_value ) "/>
-         <where label="WR5" expression=" valid_relationship ( nominal_value , maximum_value ) "/>
-         <where label="WR6" expression=" TYPEOF ( minimum_value ) = TYPEOF ( nominal_value ) "/>
-         <where label="WR7" expression=" TYPEOF ( nominal_value ) = TYPEOF ( maximum_value ) "/>
+         <where label="WR1" expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items | ri.name = 'minimum')) = 1"/>
+         <where label="WR2" expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items | ri.name = 'nominal')) = 1"/>
+         <where label="WR3" expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items | ri.name = 'maximum')) = 1"/>
+         <where label="WR4" expression="valid_relationship(minimum_value,nominal_value)"/>
+         <where label="WR5" expression="valid_relationship(nominal_value,maximum_value)"/>
+         <where label="WR6" expression="TYPEOF(minimum_value) = TYPEOF(nominal_value)"/>
+         <where label="WR7" expression="TYPEOF(nominal_value) = TYPEOF(maximum_value)"/>
       </entity>
       <entity name="Precision_qualifier">
          <explicit name="precision_value">
@@ -120,9 +120,9 @@
          <explicit name="range_type">
             <typename name="range_class"/>
          </explicit>
-         <where label="WR1" expression=" TYPEOF ( SELF \ Representation . items [ 1 ] ) = TYPEOF ( SELF \ Representation . items [ 2 ] ) "/>
-         <where label="WR2" expression=" TYPEOF ( SELF \ Representation . items [ 1 ] \ Value_with_unit . unit ) = TYPEOF ( SELF \ Representation . items [ 2 ] \ Value_with_unit . unit ) "/>
-         <where label="WR3" expression=" valid_range ( SELF \ Representation . items [ 1 ] , SELF \ Representation . items [ 2 ] ) "/>
+         <where label="WR1" expression="TYPEOF(SELF\Representation.items[1]) =&#10;          TYPEOF(SELF\Representation.items[2])"/>
+         <where label="WR2" expression="TYPEOF(SELF\Representation.items[1]\Value_with_unit.unit) =&#10;          TYPEOF(SELF\Representation.items[2]\Value_with_unit.unit)"/>
+         <where label="WR3" expression="valid_range(SELF\Representation.items[1],&#10;                      SELF\Representation.items[2])"/>
       </entity>
       <entity name="Standard_uncertainty" supertypes="Uncertainty_qualifier" super.expression="Expanded_uncertainty">
          <explicit name="uncertainty_value">
@@ -139,10 +139,10 @@
             <typename name="Numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( ri &lt;* SELF \ representation . items | 'VALUE_WITH_UNIT_EXTENSION.RATIO_DATA_ELEMENT' IN TYPEOF ( ri ) ) ) = 1 "/>
+         <where label="WR1" expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items |&#10;        'VALUE_WITH_UNIT_EXTENSION.RATIO_DATA_ELEMENT' IN TYPEOF(ri))) = 1"/>
       </entity>
       <entity name="Text_representation_item" supertypes="String_representation_item">
-         <derived name="name" expression=" 'text' ">
+         <derived name="name" expression="'text'">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Representation_item"/>
          </derived>
@@ -153,6 +153,7 @@
             <typename name="Numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
+         <where label="WR1" expression="SELF\Representation.context_of_items\Representation_context.id = 'tolerance values'"/>
       </entity>
       <entity name="Type_qualifier">
          <explicit name="name">
@@ -176,7 +177,12 @@
             <typename name="Representation_item"/>
          </parameter>
          <typename name="Numerical_item_with_unit"/>
-         <algorithm> REPEAT i := 1 to SIZEOF ( np ) by 1 ; IF input1 = np [ i ] \ Representation_item . name THEN RETURN ( np [ i ] ) ; END_IF ; END_REPEAT ; RETURN ( ? ) ; </algorithm>
+         <algorithm>REPEAT i := 1 to SIZEOF(np) by 1;
+  IF input1 = np[i]\Representation_item.name THEN
+       RETURN(np[i]);
+  END_IF;
+END_REPEAT;
+  RETURN(?);</algorithm>
       </function>
       <function name="valid_range">
          <parameter name="input1">
@@ -186,7 +192,7 @@
             <typename name="Numerical_item_with_unit"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm> RETURN ( TRUE ) ; </algorithm>
+         <algorithm>RETURN(TRUE);</algorithm>
       </function>
       <function name="valid_relationship">
          <parameter name="input1">
@@ -196,7 +202,7 @@
             <typename name="Numerical_item_with_unit"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm> RETURN ( TRUE ) ; </algorithm>
+         <algorithm>RETURN(TRUE);</algorithm>
       </function>
    </schema>
 </express>

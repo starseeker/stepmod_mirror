@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.33 2005/04/22 06:45:22 liutkus Exp $
+   $Id: arm.exp,v 1.34 2005/08/03 11:47:49 budreckytej Exp $
    ISO TC184/SC4/WG12 N3288 - ISO/CD-TS 10303-1603 Analytical model - EXPRESS ARM
 *)
 
@@ -76,11 +76,12 @@ SCHEMA Analytical_model_arm;
       UR1 : SELF\Representation.name;
   END_ENTITY;
 
+  (* the model itself must be present, e.g. a VHDL model *)
   ENTITY Analytical_model_definition
-    SUBTYPE OF (Information_product_definition);
+    SUBTYPE OF (Information_definition_with_digital_file);
       SELF\Product_view_definition.defined_version 	: Analytical_model_version;
       representation_language 						: Language_reference_manual;
-      source_code             						: Software_definition;
+      SELF\Information_definition_with_digital_file.files RENAMED source_code : SET [1:1] OF Digital_file_with_content;
     INVERSE
       access_mechanism : SET[1:?] OF analytical_model_port FOR accessed_analytical_model;
       parameter        : SET[1:?] OF analytical_model_parameter FOR accessed_analytical_model;
@@ -156,7 +157,7 @@ SCHEMA Analytical_model_arm;
   END_ENTITY;
   
   ENTITY Analytical_model_version
-  	SUBTYPE OF (Information_product_version);
+  	SUBTYPE OF (Information_version);
   		SELF\Product_version.of_product : Analytical_model;
   END_ENTITY; 
 

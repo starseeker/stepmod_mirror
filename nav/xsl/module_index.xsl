@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: module_index.xsl,v 1.6 2003/07/28 07:29:58 robbod Exp $
+$Id: module_index.xsl,v 1.7 2003/12/20 08:28:08 panetto Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Set up a banner plus menus in the top frame
@@ -1466,6 +1466,18 @@ Modified by Hervé Panetto, UHP Nancy I, with MIM objects
   <xsl:choose>
     <xsl:when test="function-available('msxsl:node-set')">
       <xsl:variable name="schemas-node-set" select="msxsl:node-set($schemas)"/>
+      <xsl:for-each select="$schemas-node-set//x">
+        <xsl:sort select="."/>
+        <xsl:variable name="href" select="concat('../../',.,'/sys/introduction',$FILE_EXT)"/>
+        <p class="menuitem1">
+          <a href="{$href}" target="content">
+            <xsl:value-of select="."/>
+          </a>
+        </p>
+      </xsl:for-each> 
+    </xsl:when>
+    <xsl:when test="function-available('exslt:node-set')">
+      <xsl:variable name="schemas-node-set" select="exslt:node-set($schemas)"/>
       <xsl:for-each select="$schemas-node-set//x">
         <xsl:sort select="."/>
         <xsl:variable name="href" select="concat('../../',.,'/sys/introduction',$FILE_EXT)"/>

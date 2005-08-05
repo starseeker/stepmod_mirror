@@ -1,0 +1,1365 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- This software and related documentation are proprietary to       -->
+<!-- Unigraphics Solutions Inc. (c) 2001. Unigraphics Solutions Inc.  -->
+<!-- All Rights Reserved.                                             -->
+<!--                                                                  -->
+<!-- Restricted Rights Legend: This commercial computer software and  -->
+<!-- related documentation are provided with restricted rights. Use,  -->
+<!-- duplication or disclosure by the U.S. Government is subject to   -->
+<!-- the protections and restrictions as set forth in the Unigraphics -->
+<!-- Solutions Inc. commercial license for the software and/or        -->
+<!-- documentation as prescribed in DOD FAR 227-7202-3(a), or for     -->
+<!-- Civilian agencies, in FAR 27.404(b)(2)(i), and any successor or  -->
+<!-- similar regulation, as applicable.                               -->
+<!--                                                                  -->
+<!--  Unigraphics Solutions Inc., 13736 Riverport Drive,              -->
+<!--  Maryland Heights, MO 63043-4826.                                -->
+<xsd:schema targetNamespace="http://www.plmxml.org/Schemas/PLMXMLSchema" 
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+            xmlns:plm="http://www.plmxml.org/Schemas/PLMXMLSchema" 
+            elementFormDefault="qualified" attributeFormDefault="unqualified" xml:lang="en">
+
+  <xsd:include schemaLocation="PLMXMLSchema.xsd" />
+  <xsd:include schemaLocation="PLMXMLAnnotationSchema.xsd" />
+
+  <!-- Element for the migration of user and system attributes -->
+  <xsd:complexType name="MigUserDataElementType">
+    <xsd:annotation>
+     <xsd:documentation>
+     In addition to the UserValue elements
+     Attributes:
+
+       systemTitle - System defined name for the attribute.
+
+     Elements:
+         EntityRef - Reference to associated entity that determines the value of this 
+                     user data element. The value of the user data element reflects a
+                     cached value of the refrenced entity.
+
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="plm:UserDataElementType">
+        <xsd:sequence>
+          <xsd:element ref="plm:EntityRef" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+        <xsd:attribute name="systemTitle" type="xsd:string" use="optional"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="MigUserDataType">
+   <xsd:annotation>
+    <xsd:documentation>
+    Similar to UserValue elements except that the element includes MigUserValue elements.
+    </xsd:documentation>
+   </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="plm:AttributeBase">
+        <xsd:choice>
+          <xsd:element name="MigUserValue" type="plm:MigUserDataElementType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:choice>
+        <xsd:attribute name="type" type="xsd:string" use="optional"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="MigUserData" type="plm:MigUserDataType" substitutionGroup="plm:Attribute"/>
+
+
+  <!-- Group element for migration of groups -->
+  <xsd:complexType name="DesignGroupType">
+   <xsd:annotation>
+     <xsd:documentation>
+     DesignGroup definition for migration
+ 
+     Attributes:
+       isSignificant - User defined field to indicate importance of design group
+           isVisible - True if design group is made available to user
+     highlightColour - Colour to highlight group when selected.       
+             isValid - True if all the elements in the DesignGroup are present
+              number - User assigned number to group.
+
+     Elements:
+         EntityRef - Reference to associated entities for the group.
+
+    </xsd:documentation>
+   </xsd:annotation>
+     <xsd:complexContent>
+      <xsd:extension base="plm:AttribOwnerBase">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+          <xsd:element ref="plm:EntityRef"/>
+        </xsd:choice>
+        <xsd:attribute name="isSignificant"     type="xsd:boolean" default="false"/>
+        <xsd:attribute name="isVisible"         type="xsd:boolean" default="true"/>
+        <xsd:attribute name="highlightColour"   type="plm:RGBType" default="1.0 0.0 0.0"/>
+        <xsd:attribute name="isValid"           type="xsd:boolean" default="true"/>
+        <xsd:attribute name="number"            type="xsd:int"     use="optional"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="DesignGroup" type="plm:DesignGroupType" 
+               substitutionGroup="plm:AttribOwner"/>
+
+
+<!-- *** Migration PMI Display Filters  -->
+<xsd:complexType name="MigPMIDisplayFilterType">
+  <xsd:annotation>
+    <xsd:documentation>
+    Attributes:
+
+    annotationVisible              - Visibility of all annotation types
+    FCFVisible                     - Visibility of Feature Control Frames
+    FCFLabelVisible                - Visibility of labels for Feature Control Frames
+    DFSVisible                     - Visibility of Datum Feature Symbols
+    DFSLabelVisible                - Visibility of labels for Datum Feature Symbols
+    datumTargetVisible             - Visibility of Datum Targets
+    datumTargetLabelVisible        - Visibility of labels for Datum Targets
+    viewIndicatorVisible           - Visibility of View Indicators
+    viewIndicatorLabelVisible      - Visibility of labels for View Indicators
+    keyDimensionVisible            - Visibility of Key Dimensions
+    keyDimensionLabelVisible       - Visibility of labels for Key Dimensions
+    referenceDimensionVisible      - Visibility of Reference Dimensions
+    referenceDimensionLabelVisible - Visibility of labels for Reference Dimensions
+    noteVisible                    - Visibility of Notes
+    noteLabelVisible               - Visibility of labels for Notes
+    lineWeldVisible                - Visibility of Line Welds
+    lineWeldLabelVisible           - Visibility of labels for Line Welds
+    spotWeldVisible                - Visibility of Spot Welds
+    spotWeldLabelVisible           - Visibility of labels for Spot Welds
+    surfaceFinishVisible           - Visibility of Surface Finish Symbols
+    surfaceFinishLabelVisible      - Visibility of labels for Surface Finish Symbols
+    locatorVisible                 - Visibility of Locators
+    locatorLabelVisible            - Visibility of labels for Locators
+    measurementPointVisible        - Visibility of Measurement Points
+    measurementPointLabelVisible   - Visibility of labels for Measurement Points
+    balloonVisible                 - Visibility of Balloons
+    balloonLabelVisible            - Visibility of labels for Balloons
+    fastenerVisible                - Visibility of Fasteners
+    fastenerLabelVisible           - Visibility of labels for Fasteners
+    userDefinedSymbolVisible       - Visibility of User Defined Symbols
+    userDefinedSymbolLabelVisible  - Visibility of labels for User Defined Symbols
+    circleCentreVisible            - Visibility of Circle Centres
+    circleCentreLabelVisible       - Visibility of labels for Circle Centres
+    crosshatchVisible              - Visibility of Crosshatches
+    crosshatchLabelVisible         - Visibility of labels for Crosshatches
+    cuttingPlaneSymbolVisible      - Visibility of Cutting Plane Symbols
+    cuttingPlaneSymbolLabelVisible - Visibility of labels for Cutting Plane Symbols
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:attribute name="annotationVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="fcfVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="fcfLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="dfsVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="dfsLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="datumTargetVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="datumTargetLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="viewIndicatorVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="viewIndicatorLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="keyDimensionVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="keyDimensionLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="referenceDimensionVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="referenceDimensionLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="noteVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="noteLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="lineWeldVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="lineWeldLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="spotWeldVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="spotWeldLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="surfaceFinishVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="surfaceFinishLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="locatorVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="locatorLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="measurementPointVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="measurementPointLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="balloonVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="balloonLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="fastenerVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="fastenerLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="userDefinedSymbolVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="userDefinedSymbolLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="circleCentreVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="circleCentreLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="crosshatchVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="crosshatchLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="cuttingPlaneSymbolVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="cuttingPlaneSymbolLabelVisible" type="xsd:boolean" default="true"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- *** Solid Geometry Display Filters  -->
+<!-- -->
+<xsd:complexType name="MigSolidGeometryDisplayFilterType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+    vertexLabelVisible          - Visibility of vertex labels
+    edgeLabelVisible            - Visibility of edge labels
+    faceLabelVisible            - Visibility of face labels
+    regionLabelVisible          - Visibility of region labels
+    parameterSpaceEdgeVisible   - Visibility of parameter space edges
+    solidVisible                - Visibility of solid
+    isolineVisible              - Visibility of isolines
+    isolineTrimVisible          - Visibility of unbounded isolines
+    tangentEdgeVisible          - Visibility of tangent edges
+    seamEdgeVisible             - Visibility of seam edges
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:attribute name="vertexLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="edgeLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="faceLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="regionLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="parameterSpaceEdgeVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="solidVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="isolineVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="isolineTrimVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="tangentEdgeVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="seamEdgeVisible" type="xsd:boolean" default="true"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- *** Wireframe Display Filters  -->
+<!-- -->
+<xsd:complexType name="MigWireframeDisplayFilterType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+    dimensionVisible              - Visibility of Dimension for wireframe
+    dimensionLabelVisible         - Visibility of Dimension label for wireframe
+    pointVisible                  - Visibility of wireframe points
+    pointLabelVisible             - Visibility of labels for wireframe points
+    curveVisible                  - Visibility of wireframe curves
+    curveLabelVisible             - Visibility of labels for wireframe curves
+    curveConnectorLabelVisible    - Visibility of wireframe curve connector labels
+    ghostCurveVisible             - Visibility of ghost wireframe curves
+    sectionVisible                - Visibility of wireframe sections
+    sectionPointVisible           - Visibility of wireframe section points
+    sectionLabelVisible           - Visibility of labels for wireframe sections
+    sectionLoopLabelVisible       - Visibility of labels for wireframe section loops
+    sectionPanelVisible           - Visibility of wireframe section panels
+    sectionBendVisible            - Visibility of wireframe section bends
+    sectionPanelBendOffsetVisible - Visibility of wireframe section panel/bend offsets
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:attribute name="dimensionVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="dimensionLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="pointVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="pointLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="curveVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="curveLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="curveConnectorLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="ghostCurveVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="sectionVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="sectionPointVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="sectionLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="sectionLoopLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="sectionPanelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="sectionBendVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="sectionPanelBendOffsetVisible" type="xsd:boolean" default="true"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+<!-- -->
+
+<!-- *** Reference Geometry Display Filters  -->
+<!-- -->
+<xsd:complexType name="MigReferenceGeometryDisplayFilterType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+    pointVisible               - Visibility of reference points
+    pointLabelVisible          - Visibility of reference point labels
+    axisVisible                - Visibility of reference axis (lines)
+    axisLabelVisible           - Visibility of reference axis labels
+    planeVisible               - Visibility of reference planes
+    planeLabelVisible          - Visibility of reference plane labels
+    triadVisible               - Visibility of reference triads
+    triadLabelVisible          - Visibility of reference triad labels
+    referenceCurveVisible      - Visibility of reference curves
+    referenceCurveLabelVisible - Visibility of reference curve labels
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:attribute name="pointVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="pointLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="axisVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="axisLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="planeVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="planeLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="triadVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="triadLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="referenceCurveVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="referenceCurveLabelVisible" type="xsd:boolean" default="true"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- *** Centre Geometry Display Filters  -->
+<!-- -->
+<xsd:complexType name="MigCentreGeometryDisplayFilterType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+    centreLineVisible        - Visibility of centre lines
+    centreLineLabelVisible   - Visibility of centre line labels name
+    centrePointVisible       - Visibility of centre points
+    centrePointLabelVisible  - Visibility of centre point labels name
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:attribute name="centreLineVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="centreLineLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="centrePointVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="centrePointLabelVisible" type="xsd:boolean" default="true"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- *** Part Harness Display Filters  -->
+<!-- -->
+<xsd:complexType name="MigPartHarnessDisplayFilterType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+    generalAttachPointVisible      - Visibility of general attach points
+    generalAttachPointLabelVisible - Visibility of general attach point labels
+    pinAttachPointVisible          - Visibility of pin attach points
+    pinAttachPointLabelVisible     - Visibility of pin attach point labels
+    dressingVisible                - Visibility of harness dressings
+    bundleSegmentVisible           - Visibility of harness bundle segments
+    bundleSegmentLabelVisible      - Visibility of harness bundle segment labels
+    pathVisible                    - Visibility of harness paths
+    pathLabelVisible               - Visibility of harness path labels
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:attribute name="generalAttachPointVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="generalAttachPointLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="pinAttachPointVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="pinAttachPointLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="dressingVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="bundleSegmentVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="bundleSegmentLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="pathVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="pathLabelVisible" type="xsd:boolean" default="true"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- *** Assembly Harness Display Filters  -->
+<!-- -->
+<xsd:complexType name="MigAssemblyHarnessDisplayFilterType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+    nonElectricalVisible        - Visibility of non-electrical harness elements
+    nonElectricalLabelVisible   - Visibility of non-electrical harness element labels
+    connectorVisible            - Visibility of connectors
+    connectorLabelVisible       - Visibility of connector labels
+    spliceBnTermVisible         - Visibility of Bundle Terminator splices
+    spliceBnTermLabelVisible    - Visibility of Bundle Terminator splice labels
+    spliceBnNonTermVisible      - Visibility of Bundle Non Terminator splices
+    spliceBnNonTermLabelVisible - Visibility of Bundle Non Terminator splice labels
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:attribute name="nonElectricalVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="nonElectricalLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="connectorVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="connectorLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="spliceBnTermVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="spliceBnTermLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="spliceBnNonTermVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="spliceBnNonTermLabelVisible" type="xsd:boolean" default="true"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- *** Part Display Filters  -->
+<!-- -->
+<xsd:complexType name="MigPartDisplayFilterType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+    nameVisible                 - Visibility of entity name
+    localOriginTriadVisible     - Visibility of local origin triad
+    principleAxesVisible        - Visibility of principle axes
+    systemReferenceTriadVisible - Visibility of the system reference triad
+    NCReferenceTriadVisible     - Visibility of NC reference triad
+    FEMReferenceTriadVisible    - Visibility of FEM reference triad
+    2DConstraintVisible         - Visibility of 2D constraints
+    2DConstraintLabelVisible    - Visibility of 3D constraint labels
+    3DConstraintVisible         - Visibility of 3D constraints
+    3DConstraintLabelVisible    - Visibility of 3D constraint labels
+    massPropertiesVisible       - Visibility of mass properties
+
+    Elements:
+
+    AnnotationVisibility        - Visibility of annotation
+    SolidGeometryVisibility     - Visibility of solid geometry
+    WireframeVisibility         - Visibility of wireframe geometry
+    ReferenceGeometryVisibility - Visibility of reference geometry
+    CentreGeometryVisibility    - Visibility of centre geometry
+    HarnessVisibility           - Visibility of harness geometry
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:sequence>
+         <xsd:element name="AnnotationVisibility"        type="plm:MigPMIDisplayFilterType" 
+                      minOccurs="0" maxOccurs="1"/>
+         <xsd:element name="SolidGeometryVisibility"     type="plm:MigSolidGeometryDisplayFilterType"
+                      minOccurs="0" maxOccurs="1"/>
+         <xsd:element name="WireframeVisibility"         type="plm:MigWireframeDisplayFilterType"
+                      minOccurs="0" maxOccurs="1"/>
+         <xsd:element name="ReferenceGeometryVisibility" type="plm:MigReferenceGeometryDisplayFilterType"
+                      minOccurs="0" maxOccurs="1"/>
+         <xsd:element name="CentreGeometryVisibility"    type="plm:MigCentreGeometryDisplayFilterType"
+                      minOccurs="0" maxOccurs="1"/>
+         <xsd:element name="HarnessVisibility"           type="plm:MigPartHarnessDisplayFilterType"
+                      minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="nameVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="localOriginTriadVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="principleAxesVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="systemReferenceTriadVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="ncReferenceTriadVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="femReferenceTriadVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="constraint2DVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="constraint2DLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="constraint3DVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="constraint3DLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="massPropertiesVisible" type="xsd:boolean" default="true"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- *** Assembly Display Filters  -->
+<!-- -->
+<xsd:complexType name="MigAssemblyDisplayFilterType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+    nameVisible                 - Visibility of entity name
+    localOriginTriadVisible     - Visibility of local origin triad
+    principleAxesVisible        - Visibility of principle axes
+    partInstanceVisible         - Visibility of part instances
+    partInstanceLabelVisible    - Visibility of part instance labels
+    assemblyInstanceVisible      - Visibility of assembly instances
+    assemblyInstanceLabelVisible - Visibility of assembly instance labels
+    harnessInstanceVisible      - Visibility of harness instances
+    harnessInstanceLabelVisible - Visibility of harness instance labels
+    partInstanceTriadVisible     - Visibility of part instance triads
+    assemblyInstanceTriadVisible - Visibility of assembly instance triads
+    triadTopAssemblyVisible     - Visibility of triad for top assembly
+
+    Elements:
+
+    AnnotationVisibility        - Visibility of annotation
+    WireframeVisibility         - Visibility of wireframe geometry
+    ReferenceGeometryVisibility - Visibility of reference geometry
+    CentreGeometryVisibility    - Visibility of centre geometry
+    HarnessVisibility           - Visibility of harness geometry
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:sequence>
+         <xsd:element name="AnnotationVisibility"        type="plm:MigPMIDisplayFilterType" 
+                      minOccurs="0" maxOccurs="1"/>
+         <xsd:element name="WireframeVisibility"         type="plm:MigWireframeDisplayFilterType"
+                      minOccurs="0" maxOccurs="1"/>
+         <xsd:element name="ReferenceGeometryVisibility" type="plm:MigReferenceGeometryDisplayFilterType"
+                      minOccurs="0" maxOccurs="1"/>
+         <xsd:element name="CentreGeometryVisibility"     type="plm:MigCentreGeometryDisplayFilterType"
+                      minOccurs="0" maxOccurs="1"/>
+         <xsd:element name="HarnessVisibility"           type="plm:MigPartHarnessDisplayFilterType"
+                      minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="nameVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="localOriginTriadVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="principleAxesVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="partInstanceVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="partInstanceLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="assemblyInstanceVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="assemblyInstanceLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="harnessInstanceVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="harnessInstanceLabelVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="partInstanceTriadVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="assemblyInstanceTriadVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="triadTopAssemblyVisible" type="xsd:boolean" default="true"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- -->
+<!-- 3D Display Filters definition -->
+<xsd:complexType name="MigDisplayFiltersType">
+  <xsd:annotation>
+    <xsd:documentation>
+    Attributes:
+
+        workplaneVisible     - Visibility of the workplane
+        wireframeVisible     - Visibility of wireframe geometry
+        partVisible          - Visibility of part geometry
+        assemblyVisible      - Visibility of assembly geometry
+        drawingLayoutVisible - Visibility of drawing layout geometry
+        NCVisible            - Visibility of NC geometry
+        sheetMetalVisible    - Visibility of sheet metal geometry
+        harnessVisible       - Visibility of harness geometry
+
+    Elements:
+        PartFilter     - Visibility settings for Parts
+        AssemblyFilter - Visibility settings for Assemblies
+   </xsd:documentation>
+   </xsd:annotation>
+   <xsd:complexContent>
+      <xsd:extension base="xsd:anyType">
+         <xsd:sequence>
+            <xsd:element name="PartFilter"     type="plm:MigPartDisplayFilterType"
+                         minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="AssemblyFilter" type="plm:MigAssemblyDisplayFilterType"
+                         minOccurs="0" maxOccurs="1"/>
+         </xsd:sequence>
+      <xsd:attribute name="workplaneVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="wireframeVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="partVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="assemblyVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="drawingLayoutVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="ncVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="sheetMetalVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="harnessVisible" type="xsd:boolean" default="true"/>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+
+<!-- *** Display Option Enumeration  -->
+<!-- -->
+<xsd:simpleType name="MigHiddenLineStyle">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="removed"/>
+    <xsd:enumeration value="solid"/>
+    <xsd:enumeration value="dashed"/>
+    <xsd:enumeration value="visible"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigHiddenLineMethod">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="normal"/>
+    <xsd:enumeration value="fixed"/>
+    <xsd:enumeration value="faded"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigLineWeight">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="thin"/>
+    <xsd:enumeration value="medium"/>
+    <xsd:enumeration value="thick"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigFiniteElementCull">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="noFacesRemoved"/>
+    <xsd:enumeration value="solidFEFacesRemoved"/>
+    <xsd:enumeration value="allFEFacesRemoved"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigLineQuality">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="sketch"/>
+    <xsd:enumeration value="coarse"/>
+    <xsd:enumeration value="normal"/>
+    <xsd:enumeration value="fine"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigInterferenceStyle">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="wireframe"/>
+    <xsd:enumeration value="solid"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigClipDisplay">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="transparent"/>
+    <xsd:enumeration value="translucent"/>
+    <xsd:enumeration value="wireframe"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigClipMotionSpace">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="screenSpace"/>
+    <xsd:enumeration value="modelSpace"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigAntiAliasingLevel">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="onePerPixelNoAntiAliasing"/>
+    <xsd:enumeration value="fourPerPixelFixedAntiAlias"/>
+    <xsd:enumeration value="adaptiveAntiAliasLimit40"/>
+    <xsd:enumeration value="adaptiveAntiAliasLimit128"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigLocalShading">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="deviceHardware"/>
+    <xsd:enumeration value="watkins"/>
+    <xsd:enumeration value="pathTrace"/>
+    <xsd:enumeration value="preciseHiddenLine"/>
+    <xsd:enumeration value="fastHiddenLine"/>
+    <xsd:enumeration value="hiddenDisplayGeneratorDescriptorFile"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigCurrentDisplayType">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="draw"/>
+    <xsd:enumeration value="wireframe"/>
+    <xsd:enumeration value="hiddenLine"/>
+    <xsd:enumeration value="shadedImage"/>
+    <xsd:enumeration value="plot"/>
+    <xsd:enumeration value="applicationSpecific"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigDepthCueCoefficientType">
+  <xsd:restriction base="xsd:double">
+    <xsd:minInclusive value="0.0"/>
+    <xsd:maxInclusive value="1.0"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigNumberOfReflectionsType">
+  <xsd:restriction base="xsd:integer">
+    <xsd:minInclusive value="1"/>
+    <xsd:maxInclusive value="9"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigAmbientLightCoefficientType">
+  <xsd:restriction base="xsd:double">
+    <xsd:minInclusive value="0.0"/>
+    <xsd:maxInclusive value="1.0"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigImageLightMultiplierType">
+  <xsd:restriction base="xsd:double">
+    <xsd:minInclusive value="0.0"/>
+    <xsd:maxInclusive value="1.000"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigModelSizeRelativeScaleType">
+  <xsd:restriction base="xsd:double">
+    <xsd:minInclusive value="0.0"/>
+    <xsd:maxInclusive value="1.0"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigLabelSizeMultiplierType">
+  <xsd:restriction base="xsd:double">
+    <xsd:minInclusive value="0.1"/>
+    <xsd:maxInclusive value="10.0"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigDitheringLevelType">
+  <xsd:restriction base="xsd:integer">
+    <xsd:minInclusive value="1"/>
+    <xsd:maxInclusive value="4"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigPixelGridType">
+  <xsd:restriction base="xsd:integer">
+    <xsd:minInclusive value="1"/>
+    <xsd:maxInclusive value="128"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+
+<!-- *** Display Options  -->
+<!-- -->
+<xsd:complexType name="MigDisplayOptionsType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+    ------------------------
+    Multi-purpose parameters
+    ------------------------
+    outline                       - Flag indicating whether or not outlines are displayed for
+                                    shaded displays.
+    outlineColour                 - Colour used to for outlines in a shaded display.
+                                    Default white.
+    backgroundColour              - Colour used to draw the background.
+                                    Default black.
+    showViewportOutline           - Flag indicating whether or not viewport outlines are shown
+    showViewportNumber            - Flag indicating whether or not viewport numbers are shown
+    showCoordinateSystem          - Flag indicating whether or not coordinate systems are shown
+    showOrigin                    - Flag indicating whether or not the world coordinate origin is shown
+    backfaceCull                  - Flag indicating whether or not backface culling is performed.
+                                    Applies also to polygons. Backfacing polygons are removed.
+    cullFacingReverse             - Flag indicating whether or not the sense of the backfaceCull
+                                    flag is reversed. true would mean that front facing polygons
+                                    are culled instead of backwards facing polygons.
+    lineQuality                   - Indicates the level of curve discretization for hidden line
+                                    display
+    partTranslucency              - Flag indicating whether or not part translucency is enabled.
+                                    Translucency controls the amount of light an object allows to pass
+                                    through it.
+    partPrecedence                - Flag indicating whether or not part precedence is enabled.
+                                    Precedence controls X-Ray effects for an object.
+    assemblyTranslucency          - Flag indicating whether or not assembly translucency is enabled
+                                    Translucency controls the amount of light an object allows to pass
+                                    through it.
+    assemblyPrecedence            - Flag indicating whether or not assembly precedence is enabled
+                                    Precedence controls X-Ray effects for an object.
+    enableContour                 - Flag indicating whether or not the display of contour lines is enabled
+    contourLabelDisplay           - Flag indicating whether of not the display of labels for contour
+                                    lines is enabled
+    enableFringe                  - Flag indicating whether or not fringe display is enabled
+    discreteFringeColour          - Flag indicating whether or not vertices within a contour band
+                                    are displayed with the start colour of the contour band.
+    fringeIntensity               - Flag indicating whether or not fringe intensity is enabled. If
+                                    enabled, fringe colours are displayed at full intensity and all
+                                    lighting effects are ignored.
+    silhouetteVisible             - Flag indicating whether or not silhouettes are visible.
+                                    Only applicable to wireframe displays.
+    surfaceLighting               - Flag indicating whether or not surface lighting is enabled
+    depthCue                      - Flag indicating whether or not depth cueing is enable
+    depthCueCoefficient           - Controls the intensity at the back of an object when depth cueing is on.
+                                    0.0 = Maximum depth cueing
+                                    1.0 = No depth cueing
+    mixedModeDisplay              - Flag indicating whether or not mixed mode display is enabled
+    revertToWireframe             - Flag indicating whether or not to revert to wireframe display
+                                    during model motion
+    hardwareBackfaces             - Flag indicating whether or not hardware backfaces are used if the
+                                    platform supports this capability.
+    hardwareBacklighting          - Flag indicating whether or not hardware backlighting is used if
+                                    the platform supports this capability
+    hiddenGeometryStyle           - Line style for hidden geometry
+    hiddenGeometryMethod          - Method used to display hidden geometry
+    hiddenGeometryFixedColour     - Colour used to display hidden geometry when a fixed colour is specified
+    hiddenAnnoSameAsGeometry      - Flag indicating attributes for hidden annotation are the same as
+                                    the geometry settings. Overrides settings for hidden line style, method
+                                    and colour.
+    hiddenAnnotationStlye         - Line style for hidden annotation
+    hiddenAnnotationMethod        - Method used to display hidden annotation
+    hiddenAnnotationFixedColour   - Colour used to display hidden annotation when a fixed colour is specified
+    hiddenGeometryLineWeight      - Line weight for hidden geometry lines
+    visibleGeometryLineWeight     - Line weight for visible geometry lines
+    boundaryGeometryLineWeight    - Line weight for boundary geometry lines
+    hiddenAnnotationLineWeight    - Line weight for hidden annotation lines
+    visibleAnnotationLineWeight   - Line weight for visible annotation lines
+    textureEnabled                - Flag indicating whether or not texture is enabled
+    advancedLighting              - Flag indicating whether or not advanced lighting is enabled
+    ambientLightCoefficient       - A coefficient applied for ambient lighting indicating the percent
+                                    of the surface colour displayed
+    imageLightMultiplier          - Multiplier applied to the total light contribution at the image.
+                                    Light contribution includes ambient light and light sources.
+    modelSizeRelativeScale        - Scale factor for model size relative graphics
+                                    0.0 - All MSR coordinates collpase to MSR origin
+                                    1.0 - Full MSR is used
+    labelSizeMultiplier           - Scale factor for all 3D text
+    localShading                  - Indicates the type of local shading applied
+    currentDisplayType            - Indicates the type of display currently in use
+    autoDraw                      - Flag indicating whether or not the autodraw facility is enabled.
+    tangentEdgesVisible           - Flag indicating whether or not tangent edges are visible
+    isolinesVisible               - Flag indicating whether or not isolines are visible
+    showUnboundedSurfaces         - Flag indicating whether or not unbounded surfaces are shown
+    seamsVisible                  - Flag indicating whether or not seams are visible
+    dynamicViewing                - Flag indicating whether or not dynamic viewing is enabled
+
+    -------------------------
+    Finite Element Parameters
+    -------------------------
+    finiteElementCull             - Indicates type of finite element culling performed.
+                                    backfaceCull flag must be TRUE for culling to take place.
+    internalFace                  - Flag indicating whether or not internal faces are removed from
+                                    Finite Element pictures. This gives a free face display.
+    featureAngle                  - Flag indicating whether or not FE feature lines are removed from
+                                    an FE display. The feature angle is stored elsewhere.
+    2DShrink                      - Flag indicating whether or not shrinking is performed for 2D FE elements
+    3DShrink                      - Flag indicating whether or not shrinking is performed for 3D FE elements
+    enableDeformationDisplay      - Enable or disable deformation display
+    imaginaryPartDeformation      - Display real or imaginary part deformation
+                                    0 = display real part deformation
+                                    1 = display imaginary part deformation
+    deformationScaleRealPart      - Multiplied by all deformation to produce deflections for
+                                    real valued deformations.
+    deformationScaleImaginaryPart - Multiplied by all deformation to produce deflections for
+                                    real valued deformations.
+
+    ----------------------
+    Ray Tracing Parameters
+    ----------------------
+    dithering                     - Flag indicating whether or not dithering is enabled
+    ditheringLevel                - Level applied during dithering
+    shadows                       - Flag indicating whether or not shadows are enabled during ray tracing
+                                    display
+    shadowsAndReflections         - Flag indicating both shadows and reflections are enabled during ray
+                                    tracing display
+    numberOfReflections           - Number of reflections
+    pixelGrid                     - Size of the image in pixels
+    antiAliasingLevel             - Indicates level of anti-aliasing applied during ray tracing
+    antiAliasingHardwareLines     - Flag indicating whether or not hardware anti-aliasing lines are
+                                    used if they are available
+
+    -------------------
+    Clipping Parameters
+    -------------------
+    clipping                      - Flag indicating whether or not clipping is enabled
+    displayPlaneAB                - Flag indicating whether or not clipping plane AB is displayed
+    displayPlaneAC                - Flag indicating whether or not clipping plane AC is displayed
+    displayPlaneBC                - Flag indicating whether or not clipping plane BC is displayed
+    invertPlaneAB                 - Flag indicating whether or not clipping plane AB is inverted
+    invertPlaneAC                 - Flag indicating whether or not clipping plane AC is inverted
+    invertPlaneBC                 - Flag indicating whether or not clipping plane BC is inverted
+    normalTriad                   - Flag indicating whether or not the normal triad is displayed for
+                                    clipping
+    dynamicClippingDisplayType    - Indicates how clipping is displayed
+    dynamicClippingMotion         - Indicates the space for dynamic motion applied during clipping
+    clippingPlaneOrigin           - Coordinates for the origin of the clipping plane
+    axisA3DClipPoint              - Clip point on axis A. The vector from the clippingPlaneOrigin
+                                    to this point defines the 3D world direction vector for the
+                                    dynamic clip point on the X axis.
+    axisC3DClipPoint              - Clip point on axis C. The vector from the clippingPlaneOrigin
+                                    to this point defines the 3D world direction vector for the
+                                    dynamic clip point on the Y axis.
+    checkInterference             - Flag indicating whether or not interference check is enabled
+    interferenceStyle             - Indicates the style of interference check performed
+    interferenceColour            - Colour used to show interference
+    capping                       - Flag indicating whether or not capping is performed
+    cappingColour                 - Colour applied for capping
+
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:attribute name="outline" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="outlineColour" type="plm:RGBAType" use="optional"/>
+      <xsd:attribute name="backgroundColour" type="plm:RGBAType" use="optional"/>
+      <xsd:attribute name="showViewportOutline" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="showViewportNumber" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="showCoordinateSystem" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="showOrigin" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="backfaceCull" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="cullFacingReverse" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="lineQuality" type="plm:MigLineQuality" default="normal"/>
+      <xsd:attribute name="partTranslucency" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="partPrecedence" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="assemblyTranslucency" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="assemblyPrecedence" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="enableContour" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="contourLabelDisplay" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="enableFringe" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="discreteFringeColour" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="fringeIntensity" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="silhouetteVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="surfaceLighting" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="depthCue" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="depthCueCoefficient" type="plm:MigDepthCueCoefficientType" default="0.5"/>
+      <xsd:attribute name="mixedModeDisplay" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="revertToWireframe" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="hardwareBackfaces" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="hardwareBacklighting" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="hiddenGeometryStyle" type="plm:MigHiddenLineStyle" default="solid"/>
+      <xsd:attribute name="hiddenGeometryMethod" type="plm:MigHiddenLineMethod" default="faded"/>
+      <xsd:attribute name="hiddenGeometryFixedColour" type="plm:RGBAType" use="optional"/>
+      <xsd:attribute name="hiddenAnnoSameAsGeometry" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="hiddenAnnotationStyle" type="plm:MigHiddenLineStyle" default="solid"/>
+      <xsd:attribute name="hiddenAnnotationMethod" type="plm:MigHiddenLineMethod" default="faded"/>
+      <xsd:attribute name="hiddenAnnotationFixedColour" type="plm:RGBAType" use="optional"/>
+      <xsd:attribute name="hiddenGeometryLineWeight" type="plm:MigLineWeight" default="thin"/>
+      <xsd:attribute name="visibleGeometryLineWeight" type="plm:MigLineWeight" default="thin"/>
+      <xsd:attribute name="boundaryGeometryLineWeight" type="plm:MigLineWeight" default="thin"/>
+      <xsd:attribute name="hiddenAnnotationLineWeight" type="plm:MigLineWeight" default="thin"/>
+      <xsd:attribute name="visibleAnnotationLineWeight" type="plm:MigLineWeight" default="thin"/>
+      <xsd:attribute name="textureEnabled" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="advancedLighting" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="ambientLightCoefficient" type="plm:MigAmbientLightCoefficientType" default = "0.15"/>
+      <xsd:attribute name="imageLightMultiplier" type="plm:MigImageLightMultiplierType" default="1.0"/>
+      <xsd:attribute name="modelSizeRelativeScale" type="plm:MigModelSizeRelativeScaleType" default="1.0"/>
+      <xsd:attribute name="labelSizeMultiplier" type="plm:MigLabelSizeMultiplierType" default="1.0"/>
+      <xsd:attribute name="localShading" type="plm:MigLocalShading" default="deviceHardware"/>
+      <xsd:attribute name="currentDisplayType" type="plm:MigCurrentDisplayType" default="hiddenLine"/>
+      <xsd:attribute name="autoDraw" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="tangentEdgesVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="isolinesVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="showUnboundedSurfaces" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="seamsVisible" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="dynamicViewing" type="xsd:boolean" default="true"/>
+
+      <xsd:attribute name="finiteElementCull" type="plm:MigFiniteElementCull" default="noFacesRemoved"/>
+      <xsd:attribute name="internalFace" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="featureAngle" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="shrink2D" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="shrink3D" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="enableDeformationDisplay" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="imaginaryPartDeformation" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="deformationScaleRealPart" type="xsd:double" default="0.0"/>
+      <xsd:attribute name="deformationScaleImaginaryPart" type="xsd:double" default="0.0"/>
+
+      <xsd:attribute name="dithering" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="ditheringLevel" type="plm:MigDitheringLevelType" default="1"/>
+      <xsd:attribute name="shadows" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="shadowsAndReflections" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="numberOfReflections" type="plm:MigNumberOfReflectionsType" default="1"/>
+      <xsd:attribute name="pixelGrid" type="plm:MigPixelGridType" default="1"/>
+      <xsd:attribute name="antiAliasingLevel" type="plm:MigAntiAliasingLevel" default="onePerPixelNoAntiAliasing"/>
+      <xsd:attribute name="antiAliasingHardwareLines" type="xsd:boolean" default="false"/>
+
+      <xsd:attribute name="clipping" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="displayPlaneAB" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="displayPlaneAC" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="displayPlaneBC" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="invertPlaneAB" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="invertPlaneAC" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="invertPlaneBC" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="normalTriad" type="xsd:boolean" default="true"/>
+      <xsd:attribute name="dynamicClippingDisplayType" type="plm:MigClipDisplay" default="transparent"/>
+      <xsd:attribute name="dynamicClippingMotion" type="plm:MigClipMotionSpace" default="screenSpace"/>
+      <xsd:attribute name="clippingPlaneOrigin" type="plm:VectorType" default="0.0 0.0 0.0"/>
+      <xsd:attribute name="axisA3DClipPoint" type="plm:VectorType" default="1.0 0.0 0.0"/>
+      <xsd:attribute name="axisC3DClipPoint" type="plm:VectorType" default="0.0 0.0 1.0"/>
+      <xsd:attribute name="checkInterference" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="interferenceStyle" type="plm:MigInterferenceStyle" default="wireframe"/>
+      <xsd:attribute name="interferenceColour" type="plm:RGBAType" use="optional"/>
+      <xsd:attribute name="capping" type="xsd:boolean" default="false"/>
+      <xsd:attribute name="cappingColour" type="plm:RGBAType" use="optional"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- Migration display options for Model View Display -->
+<xsd:complexType name="MigDisplayConfigurationType">
+   <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+    Elements:
+     Options - Display options 
+     Filters - All the display filters
+
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:complexContent>
+      <xsd:extension base="plm:AttribOwnerBase">
+        <xsd:sequence>
+          <xsd:element name="Options" type="plm:MigDisplayOptionsType" 
+                       minOccurs="0" maxOccurs="1" />
+          <xsd:element name="Filters" type="plm:MigDisplayFiltersType"
+                       minOccurs="0" maxOccurs="1" />
+        </xsd:sequence>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+<xsd:element name="MigDisplayConfiguration" type="plm:MigDisplayConfigurationType" 
+                                            substitutionGroup="plm:AttribOwner" />
+
+<!-- Migration Model View Folder Organisation -->
+<xsd:complexType name="MigModelViewFolderType">
+   <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+              name - Name of the Folder
+     modelViewRefs - References to all the model views organised in this folder.
+
+    Elements:
+
+
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:complexContent>
+      <xsd:extension base="xsd:anyType">
+        <xsd:attribute name="name"           type="xsd:string"  use="required"/>
+        <xsd:attribute name="modelViewRefs"  type="plm:uriReferenceListType"  use="optional"/>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<!-- Migration Model View Compound Organisation -->
+<xsd:complexType name="MigModelViewCompoundType">
+   <xsd:annotation>
+    <xsd:documentation>
+    Collection of ModelViews that were selected by the user for simulataneous display.
+
+    Attributes:
+     modelViewRefs - References to all the model views organised in this compound view
+
+    Elements:
+
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:complexContent>
+      <xsd:extension base="xsd:anyType">
+        <xsd:attribute name="modelViewRefs"  type="plm:uriReferenceListType"  use="optional"/>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="MigModelViewContextType">
+   <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+     productViewRef - Reference to the assembly context for this suite of model views.
+
+    Elements:
+          Folder - Folder elements into which Model views are organised.
+    CompoundView - Collection of ModelViews that were selected by the user
+                   for simulataneous display.
+
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:complexContent>
+      <xsd:extension base="plm:AttribOwnerBase">
+        <xsd:sequence>
+          <xsd:element name="Folder"       type="plm:MigModelViewFolderType"
+                       minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="CompoundView" type="plm:MigModelViewCompoundType"
+                       minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="productViewRef"     type="plm:anyURIType"   use="required"/>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+<xsd:element name="MigModelViewContext" type="plm:MigModelViewContextType" 
+                                        substitutionGroup="plm:AttribOwner" />
+
+
+<!-- Linked annotation group -->
+<xsd:complexType name="MigLinkedAnn3DInstanceGroupType">
+   <xsd:annotation>
+    <xsd:documentation>
+
+    Elements:
+         EntityRef - References to Ann3DInstances that are linked tothe model view.
+
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:complexContent>
+      <xsd:extension base="xsd:anyType">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+          <xsd:element ref="plm:EntityRef"/>
+        </xsd:choice>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+<!-- Alternate Ann3DInstance -->
+  <xsd:complexType name="MigAlternateAnn3DInstanceType">
+    <xsd:annotation>
+      <xsd:documentation>
+      An alternate Instance of an Annotation3D.
+
+      Attributes:
+      
+      alternativeOfRef:       Reference to a source Ann3DInstance for which this 
+                              instance is an alternative
+      displayRef:             A reference to an element, derived from Ann3DDisplayType,
+                              which specifies how this instance is to be displayed.
+                              
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:complexContent>
+      <xsd:extension base="plm:GDEInstanceType">
+        <xsd:attribute name="alternativeOfRef" type="plm:anyURIType" use="required"/>
+        <xsd:attribute name="displayRef"       type="plm:anyURIType" use="optional"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="MigAlternateAnn3DInstance" type="plm:MigAlternateAnn3DInstanceType" 
+               substitutionGroup="plm:GDEInstance"/>
+
+<!-- Base Model View definition -->
+<xsd:complexType name="MigModelViewBase">
+   <xsd:annotation>
+    <xsd:documentation>
+    Attributes:
+        active           - Flag indicating whether or not the Model View is the active View.
+        angle            - Rotation angles about the X, Y and Z axes
+        eyeDirection     - Eye direction and angle
+        eyePosition      - XYZ position for the eye of the viewer
+        target           - XYZ on model where the viewer is "looking" on the model
+        viewportDiameter - Diameter of the view. Indicates how close to or far from the model
+                           the view is.
+        clipping         - Flag indicating whether or not clipping is enabled
+        clipThickness    - Distance between the front and back clipping planes
+        viewIndicator    - Reference to the item that depicts this Model View
+                           (PMI reference)
+        viewGeometryRefs - References to geometry that provides the associated view 
+                           direction information
+        viewGeometryUpRefs- References to 'up' vector when view geometry reference is used.
+        designGroupRef   - Reference to the Design Group used by this Model View
+        displayConfigRef - Reference to the display options and filters
+
+    Elements:
+        LinkedAnnotationGroup    - Annotation that is visible in this Model View
+        UnlinkedAnnotationGroup  - Annotation that is visible in this Model View and
+                              has View specific attributes. Note that this annotation
+                              will be written to the PLMXML file with the View specific
+                              attributes.
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:complexContent>
+      <xsd:extension base="plm:AttribOwnerBase">
+         <xsd:sequence>
+            <xsd:element name="LinkedAnnotationGroup" type="plm:MigLinkedAnn3DInstanceGroupType"
+                         minOccurs="0" maxOccurs="1" />
+            <xsd:element name="UnlinkedAnnotationGroup" type="plm:Ann3DInstanceGroupType"
+                         minOccurs="0" maxOccurs="1" />
+         </xsd:sequence>
+         <xsd:attribute name="active"            type="xsd:boolean" default="false" />
+         <xsd:attribute name="angle"             type="plm:VectorType" use="optional"/>
+         <xsd:attribute name="eyeDirection"      type="plm:VectorType" use="optional"/>
+         <xsd:attribute name="eyePosition"       type="plm:VectorType" use="optional"/>
+         <xsd:attribute name="target"            type="plm:VectorType" use="optional"/>
+         <xsd:attribute name="viewportDiameter"  type="xsd:double"     use="optional"/>
+         <xsd:attribute name="clipping"          type="xsd:boolean"    default="false" />
+         <xsd:attribute name="clipThickness"     type="xsd:double"     use="optional"/>
+         <xsd:attribute name="viewIndicatorRef"  type="plm:anyURIType" use="optional"/>
+         <xsd:attribute name="viewGeometryRefs"   type="plm:uriReferenceListType" use="optional"/>
+         <xsd:attribute name="viewGeometryUpRefs" type="plm:uriReferenceListType" use="optional"/>
+         <xsd:attribute name="designGroupRef"   type="plm:anyURIType" use="optional"/>
+         <xsd:attribute name="displayConfigRef" type="plm:anyURIType" use="optional"/>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+<xsd:element name="MigModelView" type="plm:MigModelViewBase" substitutionGroup="plm:AttribOwner" />
+
+
+<xsd:simpleType name="MigSectionViewResult">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="solid"/>
+    <xsd:enumeration value="plane"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigSectionViewExcludeType">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="drafting"/>
+    <xsd:enumeration value="cutOnly"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="MigSectionViewResultOfCut">
+  <xsd:restriction base="xsd:NMTOKEN">
+    <xsd:enumeration value="deleted"/>
+    <xsd:enumeration value="fullResult"/>
+    <xsd:enumeration value="cutResult"/>
+    <xsd:enumeration value="nullResult"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<!-- *** Section View Cut Data -->
+<xsd:complexType name="MigSectionViewCutType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+       occurrenceRef  - Hierarchy entity within an Assembly that identifies the specific 
+                        occurrence being cut. Empty for Parts.
+       resultOfCut    - Indicates the geometric result of attempting to cut the instance
+                        deleted    - Instance has been deleted from the Assembly
+                        fullResult - The full part remained after the cut (missed)
+                        cutResult  - The part was cut
+                        nullResult - The cut resulted in a null output (nothing left)
+       geometryRefs   - References to the cut geometry.
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:attribute name="occurrenceRef"  type="plm:anyURIType"                use="optional"/>
+      <xsd:attribute name="resultOfCut"    type="plm:MigSectionViewResultOfCut" default="nullResult"/>
+      <xsd:attribute name="geometryRefs"   type="plm:uriReferenceListType"      use="optional"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<!-- *** Section View Exclusion Data -->
+<xsd:complexType name="MigSectionViewExclusionType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+       exclusionType   - Indicates the type of exclusion list
+       exclusionRefs   - references to instances or occurrences excluded from the Cut
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+  <xsd:complexContent>
+    <xsd:extension base="xsd:anyType">
+      <xsd:attribute name="exclusionType"  type="plm:MigSectionViewExcludeType"   default="drafting"/>
+      <xsd:attribute name="exclusionRefs"  type="plm:uriReferenceListType"   use="optional"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+
+<!-- Dependent annotation group -->
+<xsd:complexType name="MigDependentAnnotationGroupType">
+   <xsd:annotation>
+    <xsd:documentation>
+
+    Elements:
+         EntityRef - References to Ann3D elements on which this section view is dependent.
+
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:complexContent>
+      <xsd:extension base="xsd:anyType">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+          <xsd:element ref="plm:EntityRef"/>
+        </xsd:choice>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+
+
+<!-- Section View definition -->
+<xsd:complexType name="MigSectionViewType">
+   <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+
+       cuttingPlaneSymbol  - Reference to the Cutting Plane Symbol used to define this Section View
+       result              - Indicates the type of the result from the Section
+       unfold              - Indicates whether or not the section cut is to be unfolded
+       crosshatch          - Indicates whether or not crosshatch is to be applied to the resulting cut
+                             The following are the values applied to crossahtches created as a side-effect
+                             of the Section View creation.
+       rotate              - Indicates whether or not the crosshatch pattern is rotated
+       pattern             - The pattern used for the Crosshatch
+       spacing             - The spacing between the lines in the Crosshatch
+       angle               - The angle of the lines in the crosshatch from the X direction for the symbol
+       orientToCut         - Flag indicating whether or not the Section View is oriented to the cut geometry
+
+    Elements:
+       CutGeometry         - For each instance with a result of cutResult, the geometry of the resulting
+                             part will be output.
+       Excluded            - Instances or occurrences to be excluded from section
+       DependentAnnotationGroup - Annotation that is dependent on this section.
+
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:complexContent>
+      <xsd:extension base="plm:MigModelViewBase">
+         <xsd:sequence>
+            <xsd:element name="CutGeometry"              type="plm:MigSectionViewCutType" 
+                         minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="Excluded"                 type="plm:MigSectionViewExclusionType"
+                         minOccurs="0" maxOccurs="1" />
+            <xsd:element name="DependentAnnotationGroup" type="plm:MigDependentAnnotationGroupType"
+                         minOccurs="0" maxOccurs="1" />
+         </xsd:sequence>
+
+         <xsd:attribute name="cuttingPlaneSymbolRef" type="plm:anyURIType" use="optional"/>
+         <xsd:attribute name="result" type="plm:MigSectionViewResult" default="solid"/>
+         <xsd:attribute name="unfold"             type="xsd:boolean" default="false" />
+         <xsd:attribute name="crosshatch"         type="xsd:boolean" default="false" />
+         <xsd:attribute name="crosshatchRotate"   type="xsd:boolean" default="false"/>
+         <xsd:attribute name="crosshatchPattern"  type="plm:Ann3DCrosshatchPattern" default="iron"/>
+         <xsd:attribute name="crosshatchSpacing"  type="xsd:double"  use="optional"/>
+         <xsd:attribute name="crosshatchAngle"    type="xsd:double"  use="optional"/>
+         <xsd:attribute name="orientToCut"        type="xsd:boolean" default="false" />
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+<xsd:element name="MigSectionView" type="plm:MigSectionViewType" substitutionGroup="plm:AttribOwner" />
+
+<!-- Explicit Section View definition -->
+<xsd:complexType name="MigExplicitSectionViewType">
+  <xsd:annotation>
+    <xsd:documentation>
+
+    Attributes:
+       parentViewRef  - Reference to the Parent of this Explicit Section VIew
+
+    Elements:
+
+    </xsd:documentation>
+  </xsd:annotation>
+   <xsd:complexContent>
+      <xsd:extension base="plm:MigModelViewBase">
+         <xsd:attribute name="parentViewRef" type="plm:anyURIType" use="required"/>
+      </xsd:extension>
+   </xsd:complexContent>
+</xsd:complexType>
+<xsd:element name="MigExplicitSectionView" type="plm:MigExplicitSectionViewType" substitutionGroup="plm:AttribOwner" />
+
+</xsd:schema>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2005-08-08T15:26:20" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="generic_product_occurrence_arm schema_instance"/>
+   <schema name="Generic_product_occurrence_arm">
+      <interface kind="use" schema="Assembly_structure_arm"/>
+      <interface kind="use" schema="Extended_measure_representation_arm"/>
+      <interface kind="use" schema="Measure_representation_arm"/>
+      <interface kind="use" schema="Product_view_definition_relationship_arm"/>
+      <interface kind="use" schema="Value_with_unit_arm"/>
+      <type name="extended_value_with_unit">
+         <select selectitems="Value_with_unit Value_limit Value_range"/>
+      </type>
+      <entity name="Definition_based_product_occurrence" abstract.supertype="YES" supertypes="Product_occurrence">
+         <explicit name="derived_from">
+            <typename name="Product_view_definition"/>
+         </explicit>
+         <where label="WR1" expression="SELF\Product_view_definition.defined_version = derived_from.defined_version"/>
+      </entity>
+      <entity name="Product_occurrence" abstract.supertype="YES" supertypes="Product_view_definition" super.expression="ONEOF (Single_instance, Quantified_instance)">
+         <explicit name="occurrence_quantity" optional="YES">
+            <typename name="extended_value_with_unit"/>
+         </explicit>
+         <explicit name="quantity_criterion" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <inverse name="occurrence_contexts" entity="View_definition_relationship" attribute="related_view">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="Quantified_instance" supertypes="Product_occurrence">
+         <explicit name="occurrence_quantity">
+            <typename name="Value_with_unit"/>
+            <redeclaration entity-ref="Product_occurrence"/>
+         </explicit>
+         <where label="WR1" expression="NOT (EXISTS(SELF\Product_occurrence.quantity_criterion))"/>
+      </entity>
+      <entity name="Single_instance" supertypes="Product_occurrence">
+         <where label="WR1" expression="NOT (EXISTS(SELF\Product_occurrence.occurrence_quantity) OR EXISTS(SELF\Product_occurrence.quantity_criterion))"/>
+      </entity>
+   </schema>
+</express>

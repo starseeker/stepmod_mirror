@@ -67,35 +67,6 @@ WHERE
        'test specification'];
 END_ENTITY;
 
-ENTITY structured_text_representation_context
-  SUBTYPE OF (representation_context);
-WHERE
-  WR1: SIZEOF (QUERY (rep <* USEDIN (SELF,
-       'SPECIFICATION_DOCUMENT_MIM.' +
-       'REPRESENTATION.CONTEXT_OF_ITEMS') | NOT (
-       'SPECIFICATION_DOCUMENT_MIM.' +
-       'STRUCTURED_TEXT_REPRESENTATION_ITEM' IN
-       TYPEOF (rep)))) = 0;
-END_ENTITY;
-
-ENTITY structured_text_representation_item
-  SUBTYPE OF (representation, descriptive_representation_item);
-WHERE
-  WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'SPECIFICATION_DOCUMENT_MIM.' +
-       'REPRESENTATION_RELATIONSHIP.REP_2') |
-       'SPECIFICATION_DOCUMENT_MIM.' +
-       'STRUCTURED_TEXT_REPRESENTATION_ITEM' IN
-       TYPEOF (rr.rep_1) ))<= 1;
-  WR2: SIZEOF (USEDIN (SELF, 
-        'SPECIFICATION_DOCUMENT_MIM.' + 
-       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) >= 1;
-  WR3: (SIZEOF (QUERY (it <* SELF\representation.items |
-       'SPECIFICATION_DOCUMENT_MIM.' +
-       'EXTERNALLY_DEFINED_REPRESENTATION_ITEM' IN 
-       TYPEOF (it))) = 1); 
-END_ENTITY;
-
 RULE product_association_constraint FOR 
 ( product_definition_formation_relationship );
 WHERE

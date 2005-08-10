@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.15 2005/08/10 09:27:20 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.16 2005/08/10 10:02:20 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -97,9 +97,26 @@
 	<!--	<xsl:apply-templates select="orgname"/> 
     <xsl:apply-templates select="orgname"/>   -->
     <xsl:apply-templates select="stdnumber"/>
+    <xsl:if test="stdtitle">
+      <xsl:text>, </xsl:text>
+    </xsl:if>
     <xsl:apply-templates select="stdtitle"/>
-    <xsl:apply-templates select="subtitle"/><xsl:apply-templates select="pubdate"/>
+
+    <xsl:if test="subtitle">
+      <xsl:text>, </xsl:text>
+    </xsl:if>
+    <xsl:apply-templates select="subtitle"/>
+
+    <xsl:if test="pubdate">
+      <xsl:text>, </xsl:text>
+    </xsl:if>
+    <xsl:apply-templates select="pubdate"/>
+
+    <xsl:if test="ulink">
+      <xsl:text>, </xsl:text>
+    </xsl:if>
     <xsl:apply-templates select="ulink"/>
+    <xsl:text>.</xsl:text>
   </p>
 </xsl:template>
 
@@ -131,7 +148,7 @@
 </xsl:template>
 
 <xsl:template match="orgname">
-<xsl:value-of select="."/>,
+<xsl:value-of select="."/>
 </xsl:template>
 
 <xsl:template match="stdnumber">
@@ -141,38 +158,20 @@
       &#160;<a href="#tobepub">1</a><xsl:text>)</xsl:text>
     </sup>
   </xsl:if>
-  <xsl:choose>
-    <xsl:when test="count(following-sibling::*)=0">
-      <xsl:text>.</xsl:text>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:text>, </xsl:text>
-    </xsl:otherwise>
-  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="stdtitle">
 <i>
 <xsl:value-of select="normalize-space(.)"/>
 </i>
-
-<xsl:if test="count(following-sibling::*)=0">
-  <xsl:text>.</xsl:text>
-</xsl:if>
 </xsl:template>
 
 <xsl:template match="subtitle">
-<xsl:text>, </xsl:text>
 <xsl:value-of select="normalize-space(.)"/>
-<xsl:if test="count(following-sibling::*)=0">
-  <xsl:text>.</xsl:text>
-</xsl:if>
 </xsl:template>
 
 <xsl:template match="pubdate">
-<xsl:text>, </xsl:text>
 <xsl:value-of select="normalize-space(.)"/>
-<xsl:text>.</xsl:text>
 </xsl:template>
 
 <xsl:template match="ulink">

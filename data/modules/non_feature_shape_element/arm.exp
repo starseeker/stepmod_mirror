@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.18 2005/04/04 10:22:52 liutkus Exp $
+   $Id: arm.exp,v 1.19 2005/07/05 10:34:44 liutkus Exp $
    ISO TC184/SC4/WG12 N3495 - ISO/CD-TS 10303-1706 Non feature shape element - EXPRESS ARM
 *)
 
@@ -72,5 +72,22 @@ SCHEMA Non_feature_shape_element_arm;
     WHERE
       WR1 : SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_definition.model_shape\Geometric_model.context_of_items;
   END_ENTITY;
+
+  ENTITY View_level_non_feature_shape_element
+    SUBTYPE OF (Non_feature_shape_element);
+     WHERE
+      WR1: NOT(SIZEOF(SELF/Non_feature_shape_element.element_shape) = 0) OR
+      valid_es('SCHEMA_NAME.VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION',
+      (SELF/Non_feature_shape_element.element_shape));
+  END_ENTITY;
+  
+  FUNCTION valid_es(input1 : STRING;
+                  input2 : SET OF NON_FEATURE_SHAPE_DEFINITION) : SET OF STRING;
+   REPEAT i := 1 to HIINDEX(input2);
+    IF NOT (input1 IN TYPEOF(input2)) THEN RETURN(FALSE);
+    END_IF;
+   END_REPEAT;
+    RETURN(TRUE);
+  END_FUNCTION;
 
 END_SCHEMA;

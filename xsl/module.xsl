@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.191 2005/08/10 10:44:03 robbod Exp $
+$Id: module.xsl,v 1.192 2005/08/10 13:13:12 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4339,7 +4339,10 @@ $module_ok,' Check the normatives references')"/>
     </xsl:if>
     <xsl:apply-templates select="subtitle"/>
 
-    <xsl:if test="pubdate">
+    <xsl:if test="pubdate and not(starts-with(stdnumber,'ISO'))">
+      <!-- only going to use pubdate if NON ISO standard, 
+           ISO standard will have date in stdnumber - see stdnumber
+           template -->
       <xsl:text>, </xsl:text>
     </xsl:if>
     <xsl:apply-templates select="pubdate"/>
@@ -4474,7 +4477,37 @@ $module_ok,' Check the normatives references')"/>
 </xsl:template>
 
 <xsl:template match="stdnumber">
-  <xsl:value-of select="."/>
+  <!-- 
+       ISO documents should be date referenced and have the stdnumber form
+       ISO 10303-41:2000
+       People are inconsistent as to whether they included the date in the stdnumber
+       <stdnumber>ISO 10303-41:2000</stdnumber>
+       or <pubdate> -->
+  <xsl:variable name="stdnumber" select="normalize-space(.)"/>
+  <xsl:choose>
+    <xsl:when test="starts-with($stdnumber,'ISO')">
+      <xsl:choose>
+        <!-- date in the stdnumber -->
+        <xsl:when test="contains($stdnumber,':')">
+          <xsl:value-of select="$stdnumber"/>
+        </xsl:when>
+        <!-- date in the pubdate -->
+        <xsl:when test="../pubdate">
+          <xsl:value-of select="concat($stdnumber,':',../pubdate)"/>
+        </xsl:when>
+        <!-- no date provided -->
+        <xsl:otherwise>
+          <xsl:value-of select="$stdnumber"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:when>
+
+    <!-- a non ISO standard -->
+    <xsl:otherwise>
+      <xsl:value-of select="$stdnumber"/>
+    </xsl:otherwise>
+  </xsl:choose>
+
   <xsl:if test="../@published='n'">
     <sup>
       &#160;<a href="#tobepub">1</a><xsl:text>)</xsl:text>
@@ -4493,7 +4526,12 @@ $module_ok,' Check the normatives references')"/>
 </xsl:template>
 
 <xsl:template match="pubdate">
-<xsl:value-of select="normalize-space(.)"/>
+  <!-- If  an ISO standard then the pub date should already be in the
+       stdnumber, so do not output it -->
+  <xsl:variable name="stdnumber" select="normalize-space(../stdnumber)"/>
+  <xsl:if test="not(starts-with($stdnumber,'ISO'))">
+    <xsl:value-of select="normalize-space(.)"/>
+  </xsl:if>
 </xsl:template>
 
 <xsl:template match="ulink">

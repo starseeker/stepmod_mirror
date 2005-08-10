@@ -4,4 +4,74 @@
 *)
 
 SCHEMA Tagged_text_representation_arm;
+
+USE FROM Class_arm;    --  ISO/TS 10303-1070
+USE FROM Document_definition_arm;    --  ISO/TS 10303-1123
+USE FROM Foundation_representation_arm;    --  ISO/TS 10303-1006
+
+TYPE string_representation_item_select = SELECT(
+    String_representation_item, 
+    Included_text_block,
+    Structured_text_composition);
+END_TYPE; 
+
+TYPE string_representation_item_list = LIST[1:?] OF
+string_representation_item_select;
+END_TYPE;
+
+TYPE string_representation_item_set = SET[1:?] OF string_representation_item_select;
+END_TYPE;
+
+TYPE string_representation_item_list_or_set =
+ SELECT(string_representation_item_list, string_representation_item_set); 
+END_TYPE;
+
+TYPE template_specification_item = EXTENSIBLE SELECT
+   (Document_definition, 
+    String_representation_item, 
+    Uniform_resource_indicator);
+END_TYPE; 
+
+ENTITY Included_text_block
+  SUBTYPE OF (Representation_item);
+  source : Structured_text_representation;
+END_ENTITY;
+
+ENTITY Tagged_text_format
+  SUBTYPE OF (Class, Representation_context);
+  version_identifier : STRING;
+END_ENTITY;
+
+ENTITY Structured_text_representation
+  SUBTYPE OF (Representation);
+  SELF\Representation.items : SET [1:?] OF string_representation_item_select; 
+WHERE
+-- This is already enforced by redeclared attribute
+--  wr1: -- only representation_item (this supertype) or 
+-- Encoded_text_representation_item or String_representation_item_relationship are
+-- allowed as items
+
+--  there must be exactly one Encoded_text_representation_item or one String_representation_item_relationship instance
+  WR1: (('TAGGED_TEXT_REPRESENTATION_ARM.ENCODED_TEXT_REPRESENTATION_ITEM' IN  TYPEOF (items)) = 1) OR
+  (('TAGGED_TEXT_REPRESENTATION_ARM.STRING_REPRESENTATION_ITEM' IN  TYPEOF (items)) = 1);
+END_ENTITY;
+
+ENTITY Encoded_text_representation_item
+  SUBTYPE OF (String_representation_item);
+WHERE
+  WR1: SIZEOF (QUERY (using_rep <* using_representations (SELF) |
+  NOT ('TAGGED_TEXT_REPRESENTATION_ARM.TAGGED_TEXT_FORMAT' IN
+  TYPEOF (using_rep.context_of_items)))) = 0;
+END_ENTITY;
+-- WR1: The context of any representation referencing a
+-- geometric_representation_item shall be a Tagged_text_format.
+
+ENTITY Structured_text_composition;
+  content: string_representation_item_list_or_set;
+END_ENTITY;
+
+ENTITY Uniform_resource_indicator
+  SUBTYPE OF (String_representation_item);
+END_ENTITY;
+
 END_SCHEMA;

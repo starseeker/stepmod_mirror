@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.190 2005/07/29 14:15:03 robbod Exp $
+$Id: module.xsl,v 1.191 2005/08/10 10:44:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4326,9 +4326,10 @@ $module_ok,' Check the normatives references')"/>
     [<xsl:value-of select="$number_start+$number"/>] 
 	<!--	<xsl:apply-templates select="orgname"/> 
     <xsl:apply-templates select="orgname"/>   -->
-    <xsl:apply-templates select="stdnumber"/>
 
-    <xsl:if test="stdtitle">
+
+    <xsl:apply-templates select="stdnumber"/>
+    <xsl:if test="stdtitle and stdnumber">
       <xsl:text>, </xsl:text>
     </xsl:if>
     <xsl:apply-templates select="stdtitle"/>

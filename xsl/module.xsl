@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.189 2005/06/01 21:16:20 thendrix Exp $
+$Id: module.xsl,v 1.190 2005/07/29 14:15:03 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4327,9 +4327,28 @@ $module_ok,' Check the normatives references')"/>
 	<!--	<xsl:apply-templates select="orgname"/> 
     <xsl:apply-templates select="orgname"/>   -->
     <xsl:apply-templates select="stdnumber"/>
+
+    <xsl:if test="stdtitle">
+      <xsl:text>, </xsl:text>
+    </xsl:if>
     <xsl:apply-templates select="stdtitle"/>
-    <xsl:apply-templates select="subtitle"/><xsl:apply-templates select="pubdate"/>
+
+    <xsl:if test="subtitle">
+      <xsl:text>, </xsl:text>
+    </xsl:if>
+    <xsl:apply-templates select="subtitle"/>
+
+    <xsl:if test="pubdate">
+      <xsl:text>, </xsl:text>
+    </xsl:if>
+    <xsl:apply-templates select="pubdate"/>
+
+    <xsl:if test="ulink">
+      <xsl:text>, </xsl:text>
+    </xsl:if>
     <xsl:apply-templates select="ulink"/>
+
+    <xsl:text>.</xsl:text>
   </p>
 </xsl:template>
 
@@ -4361,13 +4380,105 @@ $module_ok,' Check the normatives references')"/>
   <xsl:apply-templates />
 </xsl:template>
 
+<!-- check that all bibitems have been published, if not output
+     footnote -->
+<xsl:template match="bibliography" mode="unpublished_bibitems_footnote">
+  <!-- collect up all bibitems -->
+  <xsl:variable name="bibitems">
+    <bibitems>
+      <!-- collect up the defaults -->
+      <xsl:apply-templates
+        select="document('../data/basic/bibliography_default.xml')/bibliography" 
+        mode="collect_bibitems"/>
+      
+      <!-- collect up the documents -->
+      <xsl:apply-templates
+        select="." 
+        mode="collect_bibitems"/>
+    </bibitems>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="function-available('msxsl:node-set')">
+      <xsl:variable name="bibitem_nodes"
+        select="msxsl:node-set($bibitems)"/>
+      <xsl:if test="$bibitem_nodes//bibitem[@published='n']">
+        <table width="200">
+          <tr>
+            <td><hr/></td>
+          </tr>
+          <tr>
+            <td>
+              <a name="tobepub">
+                <sup>1)</sup> To be published.
+              </a>
+            </td>
+          </tr>
+        </table>
+      </xsl:if>
+    </xsl:when>
+    <xsl:when test="function-available('exslt:node-set')">
+      <xsl:variable name="bibitem_nodes"
+        select="exslt:node-set($bibitems)"/>
+      <xsl:if test="$bibitem_nodes//bibitem[@published='n']">
+        <table width="200">
+          <tr>
+            <td><hr/></td>
+          </tr>
+          <tr>
+            <td>
+              <a name="tobepub">
+                <sup>1)</sup> To be published.
+              </a>
+            </td>
+          </tr>
+        </table>
+      </xsl:if>
+    </xsl:when>
+  </xsl:choose>
+  
+</xsl:template>
+
+<!-- collect up all bibitems in order to check for unpublished bib items -->
+<xsl:template match="bibliography"  mode="collect_bibitems">
+  <xsl:variable name="bibitem_list" 
+    select="document('../data/basic/bibliography.xml')/bibitem.list"/>
+
+  <xsl:for-each select="bibitem">
+    <xsl:element name="bibitem">
+      <xsl:if test="@published='n'">
+        <xsl:attribute name="published">
+          <xsl:value-of select="'n'"/>
+        </xsl:attribute>
+      </xsl:if>
+    </xsl:element>
+  </xsl:for-each>
+  <xsl:for-each select="bibitem.inc">
+    <xsl:variable name="ref" select="@ref"/>
+    <xsl:variable name="bibitem_inc" select="$bibitem_list/bibitem[@id=$ref]"/>
+    <xsl:element name="bibitem">
+      <xsl:if test="$bibitem_inc/@published='n'">
+        <xsl:attribute name="published">
+          <xsl:value-of select="'n'"/>
+        </xsl:attribute>
+      </xsl:if>
+    </xsl:element>
+  </xsl:for-each>
+</xsl:template>
+
+
+
 <xsl:template match="orgname">
-<xsl:value-of select="."/>,
+<xsl:value-of select="."/>
 </xsl:template>
 
 <xsl:template match="stdnumber">
-<xsl:value-of select="."/>
-<xsl:text>, </xsl:text>
+  <xsl:value-of select="."/>
+  <xsl:if test="../@published='n'">
+    <sup>
+      &#160;<a href="#tobepub">1</a><xsl:text>)</xsl:text>
+    </sup>
+  </xsl:if>
 </xsl:template>
 
 <xsl:template match="stdtitle">
@@ -4377,14 +4488,11 @@ $module_ok,' Check the normatives references')"/>
 </xsl:template>
 
 <xsl:template match="subtitle">
-<xsl:text>, </xsl:text>
 <xsl:value-of select="normalize-space(.)"/>
 </xsl:template>
 
 <xsl:template match="pubdate">
-<xsl:text>, </xsl:text>
 <xsl:value-of select="normalize-space(.)"/>
-<xsl:text>.</xsl:text>
 </xsl:template>
 
 <xsl:template match="ulink">

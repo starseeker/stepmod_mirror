@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_biblio.xsl,v 1.7 2002/09/13 08:33:25 robbod Exp $
+$Id: sect_biblio.xsl,v 1.8 2003/03/13 19:17:11 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -46,7 +46,9 @@ $Id: sect_biblio.xsl,v 1.7 2002/09/13 08:33:25 robbod Exp $
         select="document('../data/basic/bibliography_default.xml')/bibliography/bibitem.inc"/>      
     </xsl:otherwise>
   </xsl:choose>
-
+  <!-- check that all bibitems have been published, if not output
+       footnote -->
+  <xsl:apply-templates select="./bibliography" mode="unpublished_bibitems_footnote"/>    
 </xsl:template>
   
 </xsl:stylesheet>

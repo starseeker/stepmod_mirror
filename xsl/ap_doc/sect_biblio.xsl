@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.14 2005/01/15 00:49:53 thendrix Exp $
+	$Id: sect_biblio.xsl,v 1.15 2005/08/10 09:27:20 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -222,7 +222,20 @@
     <xsl:when test="function-available('exslt:node-set')">
       <xsl:variable name="bibitem_nodes"
         select="exslt:node-set($bibitems)"/>
-
+      <xsl:if test="$bibitem_nodes//bibitem[@published='n']">
+        <table width="200">
+          <tr>
+            <td><hr/></td>
+          </tr>
+          <tr>
+            <td>
+              <a name="tobepub">
+                <sup>1)</sup> To be published.
+              </a>
+            </td>
+          </tr>
+        </table>
+      </xsl:if>
     </xsl:when>
   </xsl:choose>
   

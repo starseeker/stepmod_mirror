@@ -1,12 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2004/10/11 20:17:49 $"
-   rcs.revision="$Revision: 1.41 $">
-  <schema name="Tagged_text_representation_arm">
-  </schema>
+
+<express language_version="2" rcs.date="2005-08-10T17:27:35" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="tagged_text_representation_arm schema_instance"/>
+   <schema name="Tagged_text_representation_arm">
+      <interface kind="use" schema="Class_arm"/>
+      <interface kind="use" schema="Document_definition_arm"/>
+      <interface kind="use" schema="Foundation_representation_arm"/>
+      <type name="string_representation_item_list">
+         <aggregate type="LIST" lower="1" upper="?"/>
+         <typename name="string_representation_item_select"/>
+      </type>
+      <type name="string_representation_item_list_or_set">
+         <select selectitems="string_representation_item_list string_representation_item_set"/>
+      </type>
+      <type name="string_representation_item_select">
+         <select selectitems="String_representation_item Included_text_block Structured_text_composition"/>
+      </type>
+      <type name="string_representation_item_set">
+         <aggregate type="SET" lower="1" upper="?"/>
+         <typename name="string_representation_item_select"/>
+      </type>
+      <type name="template_specification_item">
+         <select extensible="YES" selectitems="Document_definition String_representation_item Uniform_resource_indicator"/>
+      </type>
+      <entity name="Encoded_text_representation_item" supertypes="String_representation_item">
+         <where label="WR1" expression=" SIZEOF ( QUERY ( using_rep &lt;* using_representations ( SELF ) | NOT ( 'TAGGED_TEXT_REPRESENTATION_ARM.TAGGED_TEXT_FORMAT' IN TYPEOF ( using_rep . context_of_items ) ) ) ) = 0 "/>
+      </entity>
+      <entity name="Included_text_block" supertypes="Representation_item">
+         <explicit name="source">
+            <typename name="Structured_text_representation"/>
+         </explicit>
+      </entity>
+      <entity name="Structured_text_composition">
+         <explicit name="content">
+            <typename name="string_representation_item_list_or_set"/>
+         </explicit>
+      </entity>
+      <entity name="Structured_text_representation" supertypes="Representation">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="string_representation_item_select"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <where label="WR1" expression=" ( ( 'TAGGED_TEXT_REPRESENTATION_ARM.ENCODED_TEXT_REPRESENTATION_ITEM' IN TYPEOF ( items ) ) = 1 ) OR ( ( 'TAGGED_TEXT_REPRESENTATION_ARM.STRING_REPRESENTATION_ITEM' IN TYPEOF ( items ) ) = 1 ) "/>
+      </entity>
+      <entity name="Tagged_text_format" supertypes="Class Representation_context">
+         <explicit name="version_identifier">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Uniform_resource_indicator" supertypes="String_representation_item"/>
+   </schema>
 </express>

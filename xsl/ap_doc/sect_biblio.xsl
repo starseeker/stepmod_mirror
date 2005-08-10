@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.13 2004/11/01 15:38:33 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.14 2005/01/15 00:49:53 thendrix Exp $
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  xmlns:exslt="http://exslt.org/common"
+  exclude-result-prefixes="msxsl exslt"
+  version="1.0">
+
   <xsl:import href="application_protocol.xsl"/>
   <xsl:import href="application_protocol_clause.xsl"/>
   
@@ -26,6 +31,10 @@
         <xsl:apply-templates select="document('../../data/basic/ap_doc/bibliography_default.xml')/bibliography/bibitem.inc"/>
       </xsl:otherwise>
     </xsl:choose>
+
+    <!-- check that all bibitems have been published, if not output
+         footnote -->
+    <xsl:apply-templates select="./bibliography" mode="unpublished_bibitems_footnote"/>    
   </xsl:template>
 
 
@@ -126,19 +135,38 @@
 </xsl:template>
 
 <xsl:template match="stdnumber">
-<xsl:value-of select="."/>
-<xsl:text>, </xsl:text>
+  <xsl:value-of select="."/>
+  <xsl:if test="../@published='n'">
+    <sup>
+      &#160;<a href="#tobepub">1</a><xsl:text>)</xsl:text>
+    </sup>
+  </xsl:if>
+  <xsl:choose>
+    <xsl:when test="count(following-sibling::*)=0">
+      <xsl:text>.</xsl:text>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:text>, </xsl:text>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="stdtitle">
 <i>
 <xsl:value-of select="normalize-space(.)"/>
 </i>
+
+<xsl:if test="count(following-sibling::*)=0">
+  <xsl:text>.</xsl:text>
+</xsl:if>
 </xsl:template>
 
 <xsl:template match="subtitle">
 <xsl:text>, </xsl:text>
 <xsl:value-of select="normalize-space(.)"/>
+<xsl:if test="count(following-sibling::*)=0">
+  <xsl:text>.</xsl:text>
+</xsl:if>
 </xsl:template>
 
 <xsl:template match="pubdate">
@@ -152,5 +180,81 @@
   <xsl:variable name="href" select="."/>
   <br/><a href="{$href}"><xsl:value-of select="$href"/></a>
 </xsl:template>
+
+
+<!-- check that all bibitems have been published, if not output
+     footnote -->
+<xsl:template match="bibliography" mode="unpublished_bibitems_footnote">
+  <!-- collect up all bibitems -->
+  <xsl:variable name="bibitems">
+    <bibitems>
+      <!-- collect up the defaults -->
+      <xsl:apply-templates
+        select="document('../../data/basic/bibliography_default.xml')/bibliography" 
+        mode="collect_bibitems"/>
+      
+      <!-- collect up the documents -->
+      <xsl:apply-templates
+        select="." 
+        mode="collect_bibitems"/>
+    </bibitems>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="function-available('msxsl:node-set')">
+      <xsl:variable name="bibitem_nodes"
+        select="msxsl:node-set($bibitems)"/>
+      <xsl:if test="$bibitem_nodes//bibitem[@published='n']">
+        <table width="200">
+          <tr>
+            <td><hr/></td>
+          </tr>
+          <tr>
+            <td>
+              <a name="tobepub">
+                <sup>1)</sup> To be published.
+              </a>
+            </td>
+          </tr>
+        </table>
+      </xsl:if>
+    </xsl:when>
+    <xsl:when test="function-available('exslt:node-set')">
+      <xsl:variable name="bibitem_nodes"
+        select="exslt:node-set($bibitems)"/>
+
+    </xsl:when>
+  </xsl:choose>
+  
+</xsl:template>
+
+<!-- collect up all bibitems in order to check for unpublished bib items -->
+<xsl:template match="bibliography"  mode="collect_bibitems">
+  <xsl:variable name="bibitem_list" 
+    select="document('../../data/basic/bibliography.xml')/bibitem.list"/>
+
+  <xsl:for-each select="bibitem">
+    <xsl:element name="bibitem">
+      <xsl:if test="@published='n'">
+        <xsl:attribute name="published">
+          <xsl:value-of select="'n'"/>
+        </xsl:attribute>
+      </xsl:if>
+    </xsl:element>
+  </xsl:for-each>
+  <xsl:for-each select="bibitem.inc">
+    <xsl:variable name="ref" select="@ref"/>
+    <xsl:variable name="bibitem_inc" select="$bibitem_list/bibitem[@id=$ref]"/>
+    <xsl:element name="bibitem">
+      <xsl:if test="$bibitem_inc/@published='n'">
+        <xsl:attribute name="published">
+          <xsl:value-of select="'n'"/>
+        </xsl:attribute>
+      </xsl:if>
+    </xsl:element>
+  </xsl:for-each>
+</xsl:template>
+
+
 
 </xsl:stylesheet>

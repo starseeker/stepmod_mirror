@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: sect_biblio.xsl,v 1.16 2005/08/10 10:02:20 robbod Exp $
+	$Id: sect_biblio.xsl,v 1.17 2005/08/10 10:43:21 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
@@ -97,7 +97,7 @@
 	<!--	<xsl:apply-templates select="orgname"/> 
     <xsl:apply-templates select="orgname"/>   -->
     <xsl:apply-templates select="stdnumber"/>
-    <xsl:if test="stdtitle">
+    <xsl:if test="stdtitle and stdnumber">
       <xsl:text>, </xsl:text>
     </xsl:if>
     <xsl:apply-templates select="stdtitle"/>

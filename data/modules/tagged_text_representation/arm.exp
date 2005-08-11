@@ -32,14 +32,23 @@ TYPE template_specification_item = EXTENSIBLE SELECT
     Uniform_resource_indicator);
 END_TYPE; 
 
+ENTITY Encoded_text_representation_item
+  SUBTYPE OF (String_representation_item);
+WHERE
+  WR1: SIZEOF (QUERY (using_rep <* using_representations (SELF) |
+  NOT ('TAGGED_TEXT_REPRESENTATION_ARM.TAGGED_TEXT_FORMAT' IN
+  TYPEOF (using_rep.context_of_items)))) = 0;
+END_ENTITY;
+-- WR1: The context of any representation referencing a
+-- geometric_representation_item shall be a Tagged_text_format.
+
 ENTITY Included_text_block
   SUBTYPE OF (Representation_item);
   source : Structured_text_representation;
 END_ENTITY;
 
-ENTITY Tagged_text_format
-  SUBTYPE OF (Class, Representation_context);
-  version_identifier : STRING;
+ENTITY Structured_text_composition;
+  content: string_representation_item_list_or_set;
 END_ENTITY;
 
 ENTITY Structured_text_representation
@@ -56,18 +65,9 @@ WHERE
   (('TAGGED_TEXT_REPRESENTATION_ARM.STRING_REPRESENTATION_ITEM' IN  TYPEOF (items)) = 1);
 END_ENTITY;
 
-ENTITY Encoded_text_representation_item
-  SUBTYPE OF (String_representation_item);
-WHERE
-  WR1: SIZEOF (QUERY (using_rep <* using_representations (SELF) |
-  NOT ('TAGGED_TEXT_REPRESENTATION_ARM.TAGGED_TEXT_FORMAT' IN
-  TYPEOF (using_rep.context_of_items)))) = 0;
-END_ENTITY;
--- WR1: The context of any representation referencing a
--- geometric_representation_item shall be a Tagged_text_format.
-
-ENTITY Structured_text_composition;
-  content: string_representation_item_list_or_set;
+ENTITY Tagged_text_format
+  SUBTYPE OF (Class, Representation_context);
+  version_identifier : STRING;
 END_ENTITY;
 
 ENTITY Uniform_resource_indicator

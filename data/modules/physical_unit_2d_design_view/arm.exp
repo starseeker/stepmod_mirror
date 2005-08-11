@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.20 2005/05/05 09:13:26 liutkus Exp $
+   $Id: arm.exp,v 1.21 2005/05/23 08:14:28 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3546 - ISO/CD-TS 10303-1724 Physical unit 2d design view - EXPRESS ARM
 *)
 
@@ -23,16 +23,16 @@ SCHEMA Physical_unit_2d_design_view_arm;
   END_ENTITY;
 
   ENTITY Component_2d_location
-   SUBTYPE OF (Product_definition_usage_based_contextual_shape_representation_relationship, Geometric_model_relationship, Definitional_representation_relationship);
+   SUBTYPE OF (Contextual_shape_representation, Geometric_composition_with_operator_transformation);
      placement_fixed : BOOLEAN;
-     transformation : Cartesian_transformation_2d; -- enforce rep_rel_w_trans by mapping
+     SELF\Geometric_relationship_with_operator_transformation.transformation : Cartesian_transformation_2d; -- enforce rep_rel_w_trans by mapping
      SELF\Geometric_model_relationship.rep_2 RENAMED assembly_model : Physical_unit_planar_shape;  -- CHANGED
      SELF\Geometric_model_relationship.rep_1 RENAMED component_model : Assembly_component_2d_shape; -- CHANGED
      component : Next_assembly_usage;
    DERIVE
      substrate_location : BOOLEAN := substrate_in_assembly(SELF);
      the_context : Geometric_coordinate_space := assembly_model\geometric_model\Representation.context_of_items;
-     SELF\Contextual_shape_representation_relationship.representing_relationship : Geometric_model_relationship := SELF;   -- NEW
+     SELF\Contextual_shape_representation.representing_relationship : Geometric_model_relationship := SELF;   -- NEW
      SELF\Representation_relationship.relation_type : STRING := 'component 2d location';
 (*   WHERE
      WR1 : NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.LAMINATE_COMPONENT' IN TYPEOF(component.relating_view)) OR (transformation.mirror = FALSE);

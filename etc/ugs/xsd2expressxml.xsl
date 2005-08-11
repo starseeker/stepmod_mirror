@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: xsd2expressxml.xsl,v 1.1 2005/08/05 23:50:18 thendrix Exp $
+$Id: xsd2expressxml.xsl,v 1.2 2005/08/11 00:29:18 thendrix Exp $
 
 Author: Tom Hendrix
 Owner:  sourceforge stepmod
@@ -18,8 +18,7 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
     exclude-result-prefixes="msxsl exslt"
     version="1.0">
 
-  <xsl:output method="xml"/>
-
+  <xsl:output method="xml" indent="yes" />
   <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
   <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'"/>
 
@@ -70,8 +69,8 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
 	</xsl:attribute>
 	<xsl:apply-templates select="xsd:annotation/xsd:documentation"/>
 	<xsl:apply-templates select="xsd:include"/>
-	<xsl:apply-templates select="xsd:element[@name]" mode="entity" />
-	<xsl:apply-templates select="//xsd:complexType//xsd:choice[not(@maxOccurrs)]" mode="select" />
+<!--	<xsl:apply-templates select="xsd:element[@name]" mode="entity" /> -->
+	<xsl:apply-templates select="//xsd:complexType//xsd:choice[not(@maxOccurs)]" mode="select" />
 	<xsl:apply-templates select="//xsd:complexType" mode="entity"/>
 	<xsl:apply-templates select="*[not(self::xsd:annotation) and  not(self::xsd:include)]"/>
       </xsl:element>
@@ -201,8 +200,8 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
     <xsl:apply-templates />
   </xsl:template>
 
+<!-- dont think we want this 
   <xsl:template match="xsd:element" mode="entity">
-    <!--  <xsl:template match="xsd:element"> -->
    <xsl:element name="entity">
       <xsl:attribute name="name">
 	<xsl:call-template name="toexpid">
@@ -213,22 +212,25 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
       <xsl:apply-templates select="//xsd:complexType[@name=$type][@abstract='true']" mode="abstract" />
     </xsl:element> 
   </xsl:template>
-
-  <xsl:template match="xsd:complexType" mode="abstract">
+-->
+<xsl:template match="xsd:complexType" mode="abstract">
+  <xsl:if test="@abstract='true'">
     <xsl:attribute name="abstract.supertype">YES</xsl:attribute>
-  </xsl:template>
+  </xsl:if>
+</xsl:template>
 
 
   <xsl:template match="xsd:complexType" mode="entity">
     <xsl:element name="entity">
-    <xsl:attribute name="name">@name</xsl:attribute>
+    <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
+    <xsl:apply-templates  select="." mode="abstract"/>
+    <xsl:apply-templates  select=".//xsd:element[@name]" mode="name"/>
+    <xsl:apply-templates  select=".//xsd:element[@ref]" mode="ref"/>
+    <xsl:apply-templates  select=".//xsd:attribute" mode="name"/>
     </xsl:element>
-    <xsl:apply-templates  select=".//xsd:element" mode="attr"/>
-    <xsl:apply-templates  select=".//xsd:attribute" mode="attr"/>
-    <xsl:attribute name="abstract.supertype">YES</xsl:attribute>
   </xsl:template>
 
-  <xsl:template match="xsd:element|xsd:attribute" mode="attr">
+  <xsl:template match="xsd:element|xsd:attribute" mode="name">
    <xsl:element name="explicit">
       <xsl:attribute name="name">
 	<xsl:call-template name="toexpid">
@@ -243,6 +245,24 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
 	  <xsl:call-template name="toexpid">
 	    <xsl:with-param name="string" select="@type"/>
 	  </xsl:call-template>
+	</xsl:attribute>
+      </xsl:element>
+      <xsl:apply-templates />
+    </xsl:element> 
+  </xsl:template>
+
+  <xsl:template match="xsd:element" mode="ref">
+   <xsl:element name="explicit">
+      <xsl:attribute name="name">
+	<xsl:call-template name="toexpid">
+	  <xsl:with-param name="string" select="@ref"/>
+	</xsl:call-template>
+      </xsl:attribute>
+      <xsl:element name="typename">
+	<xsl:attribute name="name">
+	  <xsl:variable name="ref"><xsl:value-of select="@ref"/></xsl:variable>
+	  <xsl:apply-templates select="//simpleType[@name=//entity[@name=$ref]/@type]" mode="typeref"/>
+	  <xsl:apply-templates select="//complexType[@name=//entity[@name=$ref]/@type]" mode="typeref"/>
 	</xsl:attribute>
       </xsl:element>
       <xsl:apply-templates />

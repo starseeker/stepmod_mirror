@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-05-05T13:50:56" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-08-11T18:01:18" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_arm schema_instance"/>
    <schema name="Physical_unit_2d_design_view_arm">
       <interface kind="use" schema="Assembly_module_with_interconnect_component_arm"/>
@@ -15,14 +15,15 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Assembly_component"/>
          </explicit>
-         <where label="WR1" expression=" ( SIZEOF ( USEDIN ( SELF , 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE' ) ) = 0 ) "/>
+         <where label="WR1" expression="(SIZEOF(USEDIN(SELF,&#10; 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0)"/>
       </entity>
-      <entity name="Component_2d_location" supertypes="Product_definition_usage_based_contextual_shape_representation_relationship Geometric_model_relationship Definitional_representation_relationship">
+      <entity name="Component_2d_location" supertypes="Contextual_shape_representation Geometric_composition_with_operator_transformation">
          <explicit name="placement_fixed">
             <builtintype type="BOOLEAN"/>
          </explicit>
          <explicit name="transformation">
             <typename name="Cartesian_transformation_2d"/>
+            <redeclaration entity-ref="Geometric_relationship_with_operator_transformation"/>
          </explicit>
          <explicit name="assembly_model">
             <typename name="Physical_unit_planar_shape"/>
@@ -35,15 +36,19 @@
          <explicit name="component">
             <typename name="Next_assembly_usage"/>
          </explicit>
-         <derived name="substrate_location" expression=" substrate_in_assembly ( SELF ) ">
+         <derived name="substrate_location" expression="substrate_in_assembly(SELF)">
             <builtintype type="BOOLEAN"/>
          </derived>
-         <derived name="the_context" expression=" assembly_model \ geometric_model \ Representation . context_of_items ">
+         <derived name="the_context" expression="assembly_model\geometric_model\Representation.context_of_items">
             <typename name="Geometric_coordinate_space"/>
          </derived>
-         <derived name="representing_relationship" expression=" SELF ">
+         <derived name="representing_relationship" expression="SELF">
             <typename name="Geometric_model_relationship"/>
-            <redeclaration entity-ref="Contextual_shape_representation_relationship"/>
+            <redeclaration entity-ref="Contextual_shape_representation"/>
+         </derived>
+         <derived name="relation_type" expression="'component 2d location'">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Representation_relationship"/>
          </derived>
          <where label="IP1"/>
          <where label="IP2"/>
@@ -77,7 +82,7 @@
             <typename name="Component_2d_location"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm> RETURN ( TRUE ) ; </algorithm>
+         <algorithm>RETURN(TRUE);</algorithm>
       </function>
    </schema>
 </express>

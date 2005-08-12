@@ -7,23 +7,41 @@ SCHEMA Part_occurrence_arm;
 
 	USE FROM Generic_product_occurrence_arm;	-- ISO/TS 10303-xxxx
 	USE FROM Part_view_definition_arm;	-- ISO/TS 10303-1023
-
-TYPE part_occurrence_select = EXTENSIBLE SELECT(Definition_based_part_occurrence);
-END_TYPE;
+	USE FROM Specified_product_arm;    --  ISO/TS 10303-1104	
 
 ENTITY Definition_based_part_occurrence
-SUBTYPE OF (Definition_based_product_occurrence);
-  SELF\Definition_based_product_occurrence.derived_from: Part_view_definition;
+  SUBTYPE OF (Definition_based_product_occurrence, Part_occurrence);
+  SELF\Definition_based_product_occurrence.derived_from : Part_view_definition;
 END_ENTITY;
 
+(* ================= *)
+
+-- this is introduced to replace part_occurrence_select and avoid having specification here
+ENTITY Part_occurrence
+  ABSTRACT SUPERTYPE
+  SUBTYPE OF (Product_occurrence);
+  SELF\Product_view_definition.defined_version : Part_version;
+END_ENTITY;
+
+(* Slightly modified only *)
 ENTITY Part_occurrence_definition_relationship
-SUBTYPE OF (View_definition_relationship);
-  SELF\View_definition_relationship.relating_view : Part_view_definition ;
-  SELF\View_definition_relationship.related_view : part_occurrence_select ;
+  SUBTYPE OF (View_definition_relationship);
+  SELF\View_definition_relationship.relating_view : Part_view_definition;
+  SELF\View_definition_relationship.related_view : Part_occurrence;
 DERIVE
-  SELF\View_definition_relationship.id : STRING := SELF\View_definition_relationship.related_view\Product_view_definition.id;
+  SELF\View_definition_relationship.id : STRING :=
+SELF\View_definition_relationship.related_view\Product_view_definition.id;
 WHERE
-WR1: NOT (('ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(SELF))AND (EXISTS(SELF\Assembly_component_relationship.quantity)));
+  WR1: NOT (('ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN
+TYPEOF(SELF))AND (EXISTS(SELF\Assembly_component_relationship.quantity)));
+END_ENTITY;
+
+ENTITY Specification_based_part_occurrence
+  SUBTYPE OF (Specification_based_product_occurrence, Part_occurrence);
+  SELF\Product_view_definition.defined_version : Specification_based_product_version;
+WHERE
+  WR1: 'PRODUCT_OCCURRENCE_ARM.PART_VERSION' IN
+TYPEOF(SELF\Product_view_definition.defined_version);
 END_ENTITY;
 
 END_SCHEMA; 

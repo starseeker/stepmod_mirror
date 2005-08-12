@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: xsd2expressxml.xsl,v 1.4 2005/08/12 00:34:16 thendrix Exp $
+$Id: xsd2expressxml.xsl,v 1.5 2005/08/12 21:54:28 thendrix Exp $
 
 Author: Tom Hendrix
 Owner:  sourceforge stepmod
@@ -256,10 +256,7 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
  </xsl:template>
 
   <xsl:template match="xsd:extension">
-    <xsl:attribute name="supertypes">
-      <xsl:value-of select="substring-after(@base,':')"/>
-    </xsl:attribute>
-    <xsl:apply-templates />
+    <xsl:attribute name="supertypes"><xsl:value-of select="substring-after(@base,':')"/></xsl:attribute>
   </xsl:template>
 
   <xsl:template match="xsd:sequence">
@@ -277,9 +274,9 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
     <xsl:element name="entity">
       <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
       <xsl:apply-templates select="." mode="abstract"/>
-      <xsl:apply-templates select="xsd:complexContent"/>
-      <xsl:apply-templates select="xsd:simpleContent"/>
-<!--      <xsl:apply-templates  select="xsd:extension"/> -->
+      <!--      <xsl:apply-templates select="xsd:complexContent"/>
+	   <xsl:apply-templates select="xsd:simpleContent"/> -->
+      <xsl:apply-templates  select="xsd:complexContent/xsd:extension"/>
       <xsl:apply-templates  select=".//xsd:element[@name]" mode="name"/>
       <xsl:apply-templates  select=".//xsd:element[@ref]" mode="ref"/>
       <xsl:apply-templates  select=".//xsd:attribute" mode="name"/>

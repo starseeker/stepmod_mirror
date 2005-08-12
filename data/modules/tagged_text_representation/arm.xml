@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-10T17:27:35" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-08-12T14:05:30" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="tagged_text_representation_arm schema_instance"/>
    <schema name="Tagged_text_representation_arm">
       <interface kind="use" schema="Class_arm"/>
@@ -25,15 +25,12 @@
       <type name="template_specification_item">
          <select extensible="YES" selectitems="Document_definition String_representation_item Uniform_resource_indicator"/>
       </type>
-      <entity name="Encoded_text_representation_item" supertypes="String_representation_item">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( using_rep &lt;* using_representations ( SELF ) | NOT ( 'TAGGED_TEXT_REPRESENTATION_ARM.TAGGED_TEXT_FORMAT' IN TYPEOF ( using_rep . context_of_items ) ) ) ) = 0 "/>
-      </entity>
       <entity name="Included_text_block" supertypes="Representation_item">
          <explicit name="source">
             <typename name="Structured_text_representation"/>
          </explicit>
       </entity>
-      <entity name="Structured_text_composition">
+      <entity name="Structured_text_composition" supertypes="Representation_item">
          <explicit name="content">
             <typename name="string_representation_item_list_or_set"/>
          </explicit>
@@ -44,13 +41,16 @@
             <typename name="string_representation_item_select"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression=" ( ( 'TAGGED_TEXT_REPRESENTATION_ARM.ENCODED_TEXT_REPRESENTATION_ITEM' IN TYPEOF ( items ) ) = 1 ) OR ( ( 'TAGGED_TEXT_REPRESENTATION_ARM.STRING_REPRESENTATION_ITEM' IN TYPEOF ( items ) ) = 1 ) "/>
+         <where label="WR1" expression="(('TAGGED_TEXT_REPRESENTATION_ARM.TAGGED_TEXT' IN  TYPEOF (items)) = 1) OR&#10;  (('TAGGED_TEXT_REPRESENTATION_ARM.STRING_REPRESENTATION_ITEM' IN  TYPEOF (items)) = 1)"/>
       </entity>
+      <entity name="Tagged_text" supertypes="String_representation_item"/>
       <entity name="Tagged_text_format" supertypes="Class Representation_context">
          <explicit name="version_identifier">
             <builtintype type="STRING"/>
+            <redeclaration entity-ref="Class" old_name="id"/>
          </explicit>
       </entity>
       <entity name="Uniform_resource_indicator" supertypes="String_representation_item"/>
+      <subtype.constraint name="ttr_string_representation_item_subtypes" entity="String_representation_item" super.expression="ONEOF (Tagged_text, Uniform_resource_indicator)"/>
    </schema>
 </express>

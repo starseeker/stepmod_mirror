@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: xsd2expressxml.xsl,v 1.2 2005/08/11 00:29:18 thendrix Exp $
+$Id: xsd2expressxml.xsl,v 1.3 2005/08/11 17:44:44 thendrix Exp $
 
 Author: Tom Hendrix
 Owner:  sourceforge stepmod
 Purpose: 
 Convert an xsd schema to stepmod express xml. 
 Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
+
+Sorry, this does not invert the mapping in stepmod
 -->
 <xsl:stylesheet 
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -28,9 +30,11 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
 
 
   <xsl:template name="toexpid">
-    <!-- for now keep the qualifier. -->
+    <!-- need to check for qualifier and maybe remove, then . for now qualifiers are removed elsewhere -->
     <xsl:param name="string"/>
-    <xsl:value-of select="translate($string,$XSDID,$EXPID)"/>
+    <!-- for now retain the camelCase identifiers of xsd
+	 <xsl:value-of select="translate($string,$XSDID,$EXPID)"/> -->
+    <xsl:value-of select="$string"/>
   </xsl:template>
 
   <xsl:template match="xsd:appinfo" mode="source">
@@ -70,7 +74,9 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
 	<xsl:apply-templates select="xsd:annotation/xsd:documentation"/>
 	<xsl:apply-templates select="xsd:include"/>
 <!--	<xsl:apply-templates select="xsd:element[@name]" mode="entity" /> -->
-	<xsl:apply-templates select="//xsd:complexType//xsd:choice[not(@maxOccurs)]" mode="select" />
+<!--	<xsl:apply-templates select="//xsd:complexType//xsd:choice[not(@maxOccurs)]" mode="select" /> -->
+	<xsl:apply-templates select="//xsd:complexType//xsd:choice[count(xsd:element)>1]" mode="select" />
+	<xsl:apply-templates select="xsd:simpleType"/>
 	<xsl:apply-templates select="//xsd:complexType" mode="entity"/>
 	<xsl:apply-templates select="*[not(self::xsd:annotation) and  not(self::xsd:include)]"/>
       </xsl:element>
@@ -87,14 +93,14 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
 
 
   <xsl:template match="xsd:simpleType">
-    <xsl:apply-templates select="xsd:list"/>
-	<xsl:element name="type">
-	  <xsl:attribute name="name">
-	    <xsl:value-of select="@name"/>
-	  </xsl:attribute>
-	  <xsl:apply-templates/>
-	</xsl:element>
+   <xsl:element name="type">
+      <xsl:attribute name="name">
+	<xsl:value-of select="@name"/>
+      </xsl:attribute>
+      <xsl:apply-templates/>
+    </xsl:element>
   </xsl:template>
+
   <xsl:template match="xsd:restriction">
     <xsl:choose>
       <xsl:when test="@base='xsd:NMTOKEN'">
@@ -104,35 +110,38 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
 	  </xsl:attribute>
 	</xsl:element>
       </xsl:when>
-      <xsl:when test="@base='xsd:string'">
+      <xsl:when test="contains(@base,'xsd:')">
 	<xsl:element name="builtintype">
-	  <xsl:attribute name="type"><xsl:value-of select="'STRING'"/>
+	  <xsl:attribute name="type"><xsl:value-of select="translate(substring-after(@base,':'),$LOWER,$UPPER)"/>
 	  </xsl:attribute>
 	</xsl:element>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:element name="typename">
+	  <xsl:attribute name="name"><xsl:value-of select="substring-after(@base,':')"/>
+	  </xsl:attribute>
+	</xsl:element>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:if test="child::node()[not(text())] and count(xsd:enumeration) &lt; 2">
 	<xsl:element name="where">
 	  <xsl:attribute name="label">
 	    <xsl:value-of select="'WR1'"/>
 	  </xsl:attribute>
 	  <xsl:attribute name="expression">
-	    <xsl:apply-templates/>
+	    <xsl:apply-templates mode="where"/>
 	  </xsl:attribute>
 	</xsl:element>
-      </xsl:when>
-    </xsl:choose>
+    </xsl:if>
+  </xsl:template>
+  <xsl:template match="*" mode="where">
+    <xsl:value-of select="concat(' ',substring-after(name(.),':'),'=',@value,' AND ')"/> 
   </xsl:template>
 
   <xsl:template match="xsd:enumeration">
     <xsl:value-of select="concat(@value,' ')"/>
   </xsl:template>
 
-  <xsl:template match="xsd:list">
-    <xsl:element name="aggregate">
-      <xsl:attribute name="type">LIST</xsl:attribute>
-      <xsl:variable name="itemtype"><xsl:value-of select="@itemType"/></xsl:variable>
-      <xsl:apply-templates select="//simpleType[@name=$itemtype]" mode="typeref"/>
-      <xsl:apply-templates select="//complexType[@name=$itemtype]" mode="typeref"/>
-    </xsl:element>
-  </xsl:template>
 <xsl:template match="simpleType" mode="typeref">
   <xsl:element name="builtintype">
     <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
@@ -145,27 +154,63 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
   </xsl:element>
 </xsl:template>
 
-  <xsl:template match="xsd:list" mode="typeref">
+<!--
+  
+<xsl:template match="xsd:list">
+  <xsl:element name="aggregate">
+    <xsl:attribute name="type">LIST</xsl:attribute>
+  </xsl:element>
+</xsl:template>
+-->
+
+  <xsl:template match="xsd:list">
     <xsl:element name="aggregate">
       <xsl:attribute name="type">LIST</xsl:attribute>
-	<xsl:value-of select="@itemType"/>
-      <xsl:apply-templates select="." mode="typeref"/>
     </xsl:element>
+      <xsl:choose>
+      <xsl:when test="contains(@itemType,'xsd:')">
+	<xsl:element name="builtintype">
+	  <xsl:attribute name="type"><xsl:value-of select="translate(substring-after(@itemType,':'),$LOWER,$UPPER)"/>
+	  </xsl:attribute>
+	</xsl:element>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:element name="typename">
+	  <xsl:attribute name="name"><xsl:value-of select="substring-after(@itemType,':')"/>
+	  </xsl:attribute>
+	</xsl:element>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 
-  <xsl:template match="xsd:element" mode="listname">
+  <xsl:template match="*" mode="listname">
     <xsl:value-of select="concat(@name,' ')"/>
   </xsl:template>
 
+
+  <xsl:template match="*" mode="listtype">
+    <xsl:value-of select="concat(substring-after(@type,':'),' ')"/>
+  </xsl:template>
+
+
+  <xsl:template match="*" mode="listreftype">
+    <xsl:variable name="ref"><xsl:value-of select="substring-after(@ref,':')"/></xsl:variable>
+    <xsl:value-of select="concat(substring-after(//xsd:element[@name=$ref]/@type,':'),' ')"/>
+  </xsl:template>
+
   <xsl:template match="xsd:choice" mode="select">
+<!-- create a select type -->
     <xsl:element name="type">
       <xsl:attribute name="name">
-	<xsl:value-of select="concat(../../../@name,'_select')"/>
+	<xsl:value-of select="concat(ancestor::node()/@name,'_select')"/>
       </xsl:attribute>
       <xsl:element name="select">
 	<xsl:attribute name="selectitems">
-	  <xsl:apply-templates select="xsd:element" mode="listname"/>
+	  <xsl:for-each select="xsd:element">
+	    <xsl:apply-templates select="self::node()[@type]" mode="listtype"/>
+	    <xsl:apply-templates select="self::node()[@ref]" mode="listreftype"/>
+	  </xsl:for-each>
 	</xsl:attribute>
       </xsl:element>
     </xsl:element>
@@ -223,7 +268,7 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
   <xsl:template match="xsd:complexType" mode="entity">
     <xsl:element name="entity">
     <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
-    <xsl:apply-templates  select="." mode="abstract"/>
+    <xsl:apply-templates  select="xsd:extension"/>
     <xsl:apply-templates  select=".//xsd:element[@name]" mode="name"/>
     <xsl:apply-templates  select=".//xsd:element[@ref]" mode="ref"/>
     <xsl:apply-templates  select=".//xsd:attribute" mode="name"/>
@@ -242,9 +287,7 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
       </xsl:if>
       <xsl:element name="typename">
 	<xsl:attribute name="name">
-	  <xsl:call-template name="toexpid">
-	    <xsl:with-param name="string" select="@type"/>
-	  </xsl:call-template>
+	    <xsl:value-of select="substring-after(@type,':')"/>
 	</xsl:attribute>
       </xsl:element>
       <xsl:apply-templates />
@@ -254,15 +297,29 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
   <xsl:template match="xsd:element" mode="ref">
    <xsl:element name="explicit">
       <xsl:attribute name="name">
-	<xsl:call-template name="toexpid">
-	  <xsl:with-param name="string" select="@ref"/>
-	</xsl:call-template>
+	<xsl:value-of  select="substring-after(@ref,':')"/>
       </xsl:attribute>
       <xsl:element name="typename">
 	<xsl:attribute name="name">
-	  <xsl:variable name="ref"><xsl:value-of select="@ref"/></xsl:variable>
-	  <xsl:apply-templates select="//simpleType[@name=//entity[@name=$ref]/@type]" mode="typeref"/>
-	  <xsl:apply-templates select="//complexType[@name=//entity[@name=$ref]/@type]" mode="typeref"/>
+	  <xsl:variable name="ref"><xsl:value-of select="substring-after(@ref,':')"/></xsl:variable>
+	  <xsl:apply-templates select="//simpleType[@name=//xsd:element[@name=$ref]/@type]" mode="typeref"/>
+	  <xsl:apply-templates select="//complexType[@name=//xsd:element[@name=$ref]/@type]" mode="typeref"/>
+	</xsl:attribute>
+      </xsl:element>
+      <xsl:apply-templates />
+    </xsl:element> 
+  </xsl:template>
+
+  <xsl:template match="xsd:element" mode="type">
+   <xsl:element name="explicit">
+      <xsl:attribute name="name">
+	<xsl:value-of  select="substring-after(@ref,':')"/>
+      </xsl:attribute>
+      <xsl:element name="typename">
+	<xsl:attribute name="name">
+	  <xsl:variable name="ref"><xsl:value-of select="substring-after(@ref,':')"/></xsl:variable>
+	  <xsl:apply-templates select="//simpleType[@name=substring-after(//xsd:element[@name=$ref]/@type,':')]" mode="typeref"/>
+	  <xsl:apply-templates select="//complexType[@name=substring-after(//xsd:element[@name=$ref]/@type,':')]" mode="typeref"/>
 	</xsl:attribute>
       </xsl:element>
       <xsl:apply-templates />
@@ -274,7 +331,7 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
     <xsl:element name="explicit">
       <xsl:attribute name="name">
 	<xsl:call-template name="toexpid">
-	  <xsl:with-param name="string" select="name()"/>
+	  <xsl:with-param name="string" select="name(.)"/>
 	</xsl:call-template>
       </xsl:attribute>
       <xsl:if test="@use='optional'">
@@ -282,9 +339,7 @@ Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
       </xsl:if>
       <xsl:element name="typename">
 	<xsl:attribute name="name">
-	  <xsl:call-template name="toexpid">
-	    <xsl:with-param name="string" select="@ref"/>
-	  </xsl:call-template>
+	    <xsl:value-of select="substring-after(@ref,':')"/>
 	</xsl:attribute>
       </xsl:element>
       <xsl:apply-templates />

@@ -10,7 +10,17 @@ SCHEMA Generic_product_occurrence_arm;
 	USE FROM Measure_representation_arm;	-- ISO/TS 10303-1118
 	USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
 	USE FROM Value_with_unit_arm;	-- ISO/TS 10303-1054
+	USE FROM Specified_product_arm;	-- ISO/TS 10303-1104
 
+
+SUBTYPE_CONSTRAINT alternate_product_instance FOR Product_occurrence;
+  ONEOF (Single_instance,
+         Quantified_instance,
+         Selected_instance) 
+  AND
+  ONEOF (Definition_based_product_occurrence,
+         Specification_based_product_occurrence);
+END_SUBTYPE_CONSTRAINT;
 
 TYPE extended_value_with_unit = SELECT (
      Value_with_unit, 
@@ -29,17 +39,24 @@ END_TYPE;
 ENTITY Product_occurrence
 ABSTRACT SUPERTYPE OF (ONEOF (Single_instance, Quantified_instance))
 SUBTYPE OF (Product_view_definition);
-  occurrence_quantity : OPTIONAL extended_value_with_unit;
-  quantity_criterion : OPTIONAL STRING;
 INVERSE
   occurrence_contexts: SET[1:?] OF View_definition_relationship FOR related_view;
 END_ENTITY;
 
+ENTITY Product_occurrence_with_quantity
+  ABSTRACT SUPERTYPE 
+  SUBTYPE OF (Product_occurrence);
+  occurrence_quantity : OPTIONAL extended_value_with_unit;
+END_ENTITY;
+
 ENTITY Quantified_instance
-SUBTYPE OF (Product_occurrence);
-  SELF\Product_occurrence.occurrence_quantity : Value_with_unit ;
-WHERE
-WR1: NOT (EXISTS(SELF\Product_occurrence.quantity_criterion));
+  SUBTYPE OF (Product_occurrence_with_quantity);
+  SELF\Product_occurrence_with_quantity.occurrence_quantity : Value_with_unit;
+END_ENTITY;
+
+ENTITY Selected_instance
+  SUBTYPE OF (Product_occurrence_with_quantity);
+  quantity_criterion : OPTIONAL STRING;
 END_ENTITY;
 
 ENTITY Single_instance
@@ -47,5 +64,12 @@ SUBTYPE OF (Product_occurrence);
 WHERE
 WR1: NOT (EXISTS(SELF\Product_occurrence.occurrence_quantity) OR EXISTS(SELF\Product_occurrence.quantity_criterion));
 END_ENTITY;
+
+ENTITY Specification_based_product_occurrence
+  ABSTRACT SUPERTYPE 
+  SUBTYPE OF (Product_occurrence);
+  SELF\Product_view_definition.defined_version : Specification_based_product_version;
+END_ENTITY;
+-- IP1: further specializations of this entity have to ensure that:
 
 END_SCHEMA;

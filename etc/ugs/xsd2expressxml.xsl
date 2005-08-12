@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: xsd2expressxml.xsl,v 1.3 2005/08/11 17:44:44 thendrix Exp $
+$Id: xsd2expressxml.xsl,v 1.4 2005/08/12 00:34:16 thendrix Exp $
 
 Author: Tom Hendrix
 Owner:  sourceforge stepmod
@@ -9,7 +9,7 @@ Purpose:
 Convert an xsd schema to stepmod express xml. 
 Adapted from  stepmod/etc/ecco/utils/extract_schema.xsl
 
-Sorry, this does not invert the mapping in stepmod
+Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
 -->
 <xsl:stylesheet 
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -73,8 +73,6 @@ Sorry, this does not invert the mapping in stepmod
 	</xsl:attribute>
 	<xsl:apply-templates select="xsd:annotation/xsd:documentation"/>
 	<xsl:apply-templates select="xsd:include"/>
-<!--	<xsl:apply-templates select="xsd:element[@name]" mode="entity" /> -->
-<!--	<xsl:apply-templates select="//xsd:complexType//xsd:choice[not(@maxOccurs)]" mode="select" /> -->
 	<xsl:apply-templates select="//xsd:complexType//xsd:choice[count(xsd:element)>1]" mode="select" />
 	<xsl:apply-templates select="xsd:simpleType"/>
 	<xsl:apply-templates select="//xsd:complexType" mode="entity"/>
@@ -101,6 +99,62 @@ Sorry, this does not invert the mapping in stepmod
     </xsl:element>
   </xsl:template>
 
+  <xsl:template match="xsd:element|xsd:attribute|xsd:restriction|xsd:list" mode="type">
+<!-- can you believe this kludge ? -->
+    <xsl:variable name="ref" select="substring-after(@ref,':')"/>
+    <xsl:variable name="type" select="concat(@base,@type,@itemType,//xsd:element[@name=$ref]/@type)"/>
+    <xsl:choose>
+      <xsl:when test="$type='xsd:ID' or $type='xsd:IDREF'">
+	<xsl:element name="typename">
+	  <xsl:attribute name="name">identifier</xsl:attribute>
+	</xsl:element>
+      </xsl:when>
+      <xsl:when test="$type='xsd:IDREFS'">
+	<xsl:element name="aggregate">
+	  <xsl:attribute name="type">LIST</xsl:attribute>
+	</xsl:element>
+	<xsl:element name="typename">
+	  <xsl:attribute name="name">identifier</xsl:attribute>
+	</xsl:element>
+      </xsl:when>
+      <xsl:when test="contains($type,'xsd:')">
+	<xsl:element name="builtintype">
+	  <xsl:attribute name="type">
+	    <xsl:choose>
+	      <xsl:when test="$type='xsd:string'">STRING</xsl:when>
+	      <xsl:when test="$type='xsd:integer'">INTEGER</xsl:when>
+	      <xsl:when test="$type='xsd:nonNegativeInteger'">INTEGER</xsl:when>
+	      <xsl:when test="$type='xsd:positiveInteger'">INTEGER</xsl:when>
+	      <xsl:when test="$type='xsd:float'">REAL</xsl:when>
+	      <xsl:when test="$type='xsd:double'">REAL</xsl:when>
+	      <xsl:when test="$type='xsd:boolean'">BOOLEAN</xsl:when>
+	      <xsl:when test="$type='xsd:logical'">LOGICAL</xsl:when>
+	      <xsl:when test="$type='xsd:time'">STRING</xsl:when>
+	      <xsl:when test="$type='xsd:date'">STRING</xsl:when>
+	      <xsl:when test="$type='xsd:dateTime'">STRING</xsl:when>
+	      <xsl:when test="$type='xsd:decimal'">STRING</xsl:when>
+	      <xsl:when test="$type='xsd:language'">STRING</xsl:when>
+	    </xsl:choose>
+	  </xsl:attribute>
+	</xsl:element>
+      </xsl:when>
+      <xsl:otherwise>
+	<xsl:element name="typename">
+	  <xsl:attribute name="name">
+	    <xsl:choose>
+	      <xsl:when test="contains($type,':')" >
+		<xsl:value-of select="substring-after($type,':')"/>
+	      </xsl:when>
+	      <xsl:otherwise>
+		<xsl:value-of select="'UNDEFINED'"/>
+	      </xsl:otherwise>
+	    </xsl:choose>
+	  </xsl:attribute>
+	</xsl:element>
+      </xsl:otherwise>
+    </xsl:choose>
+ </xsl:template>
+
   <xsl:template match="xsd:restriction">
     <xsl:choose>
       <xsl:when test="@base='xsd:NMTOKEN'">
@@ -110,18 +164,9 @@ Sorry, this does not invert the mapping in stepmod
 	  </xsl:attribute>
 	</xsl:element>
       </xsl:when>
-      <xsl:when test="contains(@base,'xsd:')">
-	<xsl:element name="builtintype">
-	  <xsl:attribute name="type"><xsl:value-of select="translate(substring-after(@base,':'),$LOWER,$UPPER)"/>
-	  </xsl:attribute>
-	</xsl:element>
-      </xsl:when>
-      <xsl:otherwise>
-	<xsl:element name="typename">
-	  <xsl:attribute name="name"><xsl:value-of select="substring-after(@base,':')"/>
-	  </xsl:attribute>
-	</xsl:element>
-      </xsl:otherwise>
+     <xsl:otherwise>
+       <xsl:apply-templates select="." mode="type"/>
+     </xsl:otherwise>
     </xsl:choose>
     <xsl:if test="child::node()[not(text())] and count(xsd:enumeration) &lt; 2">
 	<xsl:element name="where">
@@ -134,6 +179,7 @@ Sorry, this does not invert the mapping in stepmod
 	</xsl:element>
     </xsl:if>
   </xsl:template>
+
   <xsl:template match="*" mode="where">
     <xsl:value-of select="concat(' ',substring-after(name(.),':'),'=',@value,' AND ')"/> 
   </xsl:template>
@@ -154,33 +200,12 @@ Sorry, this does not invert the mapping in stepmod
   </xsl:element>
 </xsl:template>
 
-<!--
-  
-<xsl:template match="xsd:list">
-  <xsl:element name="aggregate">
-    <xsl:attribute name="type">LIST</xsl:attribute>
-  </xsl:element>
-</xsl:template>
--->
 
   <xsl:template match="xsd:list">
     <xsl:element name="aggregate">
       <xsl:attribute name="type">LIST</xsl:attribute>
     </xsl:element>
-      <xsl:choose>
-      <xsl:when test="contains(@itemType,'xsd:')">
-	<xsl:element name="builtintype">
-	  <xsl:attribute name="type"><xsl:value-of select="translate(substring-after(@itemType,':'),$LOWER,$UPPER)"/>
-	  </xsl:attribute>
-	</xsl:element>
-      </xsl:when>
-      <xsl:otherwise>
-	<xsl:element name="typename">
-	  <xsl:attribute name="name"><xsl:value-of select="substring-after(@itemType,':')"/>
-	  </xsl:attribute>
-	</xsl:element>
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:apply-templates select="." mode="type"/>
   </xsl:template>
 
 
@@ -230,13 +255,9 @@ Sorry, this does not invert the mapping in stepmod
       <xsl:apply-templates />
  </xsl:template>
 
-
-
   <xsl:template match="xsd:extension">
     <xsl:attribute name="supertypes">
-      <xsl:call-template name="toexpid">
-	<xsl:with-param name="string" select="@base"/>
-      </xsl:call-template>
+      <xsl:value-of select="substring-after(@base,':')"/>
     </xsl:attribute>
     <xsl:apply-templates />
   </xsl:template>
@@ -245,19 +266,6 @@ Sorry, this does not invert the mapping in stepmod
     <xsl:apply-templates />
   </xsl:template>
 
-<!-- dont think we want this 
-  <xsl:template match="xsd:element" mode="entity">
-   <xsl:element name="entity">
-      <xsl:attribute name="name">
-	<xsl:call-template name="toexpid">
-	  <xsl:with-param name="string" select="@name"/>
-	</xsl:call-template>
-      </xsl:attribute>
-      <xsl:variable name="type" select="substring-after(@type,':')"/>
-      <xsl:apply-templates select="//xsd:complexType[@name=$type][@abstract='true']" mode="abstract" />
-    </xsl:element> 
-  </xsl:template>
--->
 <xsl:template match="xsd:complexType" mode="abstract">
   <xsl:if test="@abstract='true'">
     <xsl:attribute name="abstract.supertype">YES</xsl:attribute>
@@ -267,11 +275,14 @@ Sorry, this does not invert the mapping in stepmod
 
   <xsl:template match="xsd:complexType" mode="entity">
     <xsl:element name="entity">
-    <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
-    <xsl:apply-templates  select="xsd:extension"/>
-    <xsl:apply-templates  select=".//xsd:element[@name]" mode="name"/>
-    <xsl:apply-templates  select=".//xsd:element[@ref]" mode="ref"/>
-    <xsl:apply-templates  select=".//xsd:attribute" mode="name"/>
+      <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
+      <xsl:apply-templates select="." mode="abstract"/>
+      <xsl:apply-templates select="xsd:complexContent"/>
+      <xsl:apply-templates select="xsd:simpleContent"/>
+<!--      <xsl:apply-templates  select="xsd:extension"/> -->
+      <xsl:apply-templates  select=".//xsd:element[@name]" mode="name"/>
+      <xsl:apply-templates  select=".//xsd:element[@ref]" mode="ref"/>
+      <xsl:apply-templates  select=".//xsd:attribute" mode="name"/>
     </xsl:element>
   </xsl:template>
 
@@ -285,11 +296,7 @@ Sorry, this does not invert the mapping in stepmod
       <xsl:if test="@use='optional'">
 	<xsl:attribute name="optional">YES</xsl:attribute>
       </xsl:if>
-      <xsl:element name="typename">
-	<xsl:attribute name="name">
-	    <xsl:value-of select="substring-after(@type,':')"/>
-	</xsl:attribute>
-      </xsl:element>
+      <xsl:apply-templates select="." mode="type"/>
       <xsl:apply-templates />
     </xsl:element> 
   </xsl:template>
@@ -299,29 +306,7 @@ Sorry, this does not invert the mapping in stepmod
       <xsl:attribute name="name">
 	<xsl:value-of  select="substring-after(@ref,':')"/>
       </xsl:attribute>
-      <xsl:element name="typename">
-	<xsl:attribute name="name">
-	  <xsl:variable name="ref"><xsl:value-of select="substring-after(@ref,':')"/></xsl:variable>
-	  <xsl:apply-templates select="//simpleType[@name=//xsd:element[@name=$ref]/@type]" mode="typeref"/>
-	  <xsl:apply-templates select="//complexType[@name=//xsd:element[@name=$ref]/@type]" mode="typeref"/>
-	</xsl:attribute>
-      </xsl:element>
-      <xsl:apply-templates />
-    </xsl:element> 
-  </xsl:template>
-
-  <xsl:template match="xsd:element" mode="type">
-   <xsl:element name="explicit">
-      <xsl:attribute name="name">
-	<xsl:value-of  select="substring-after(@ref,':')"/>
-      </xsl:attribute>
-      <xsl:element name="typename">
-	<xsl:attribute name="name">
-	  <xsl:variable name="ref"><xsl:value-of select="substring-after(@ref,':')"/></xsl:variable>
-	  <xsl:apply-templates select="//simpleType[@name=substring-after(//xsd:element[@name=$ref]/@type,':')]" mode="typeref"/>
-	  <xsl:apply-templates select="//complexType[@name=substring-after(//xsd:element[@name=$ref]/@type,':')]" mode="typeref"/>
-	</xsl:attribute>
-      </xsl:element>
+      <xsl:apply-templates select="." mode="type"/>
       <xsl:apply-templates />
     </xsl:element> 
   </xsl:template>

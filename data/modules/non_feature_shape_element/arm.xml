@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-03T16:42:23" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-08-12T16:51:27" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="non_feature_shape_element_arm schema_instance"/>
    <schema name="Non_feature_shape_element_arm">
       <interface kind="use" schema="Part_feature_location_arm"/>
@@ -81,5 +81,24 @@
          </explicit>
          <where label="WR1" expression="SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_definition.model_shape\Geometric_model.context_of_items"/>
       </entity>
+      <entity name="View_level_non_feature_shape_element" supertypes="Non_feature_shape_element">
+         <where label="WR1" expression="NOT(SIZEOF(SELF/Non_feature_shape_element.element_shape) = 0) OR&#10;      valid_es('NON_FEATURE_SHAPE_ELEMENT_ARM.VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION',&#10;      (SELF/Non_feature_shape_element.element_shape))"/>
+      </entity>
+      <function name="valid_es">
+         <parameter name="input1">
+            <builtintype type="STRING"/>
+         </parameter>
+         <parameter name="input2">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Non_feature_shape_definition"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+         <algorithm>REPEAT i := 1 to HIINDEX(input2);
+    IF NOT (input1 IN TYPEOF(input2)) THEN RETURN(FALSE);
+    END_IF;
+   END_REPEAT;
+    RETURN(TRUE);</algorithm>
+      </function>
    </schema>
 </express>

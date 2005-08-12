@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.60 2004/10/27 18:24:16 thendrix Exp $
+     $Id: express_code.xsl,v 1.61 2005/01/31 11:24:52 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -357,14 +357,14 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
 
 <!-- empty template to prevent the description element being output along
      with the code -->
-<xsl:template match="description" mode="underlying"/>
+<xsl:template match="description" mode="underlying"/> 
 
 
 <xsl:template match="typename" mode="underlying">
   <xsl:call-template name="link_object">
     <xsl:with-param name="object_name" select="@name"/>
     <xsl:with-param name="object_used_in_schema_name" 
-      select="../../../@name"/>
+      select="../../@name"/>
     <xsl:with-param name="clause" select="'annexe'"/>
   </xsl:call-template>
 </xsl:template>

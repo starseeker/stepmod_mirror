@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_code.xsl,v 1.61 2005/01/31 11:24:52 robbod Exp $
+     $Id: express_code.xsl,v 1.62 2005/08/12 23:27:34 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -360,6 +360,15 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
 <xsl:template match="description" mode="underlying"/> 
 
 
+<xsl:template match="explicit/typename" mode="underlying">
+  <xsl:call-template name="link_object">
+    <xsl:with-param name="object_name" select="@name"/>
+    <xsl:with-param name="object_used_in_schema_name" 
+      select="../../../@name"/>
+    <xsl:with-param name="clause" select="'annexe'"/>
+  </xsl:call-template>
+</xsl:template>
+
 <xsl:template match="typename" mode="underlying">
   <xsl:call-template name="link_object">
     <xsl:with-param name="object_name" select="@name"/>
@@ -368,8 +377,6 @@ data/resources/',$lmodule,'/',$lmodule,'.xml.')"/>
     <xsl:with-param name="clause" select="'annexe'"/>
   </xsl:call-template>
 </xsl:template>
-
-
 
 <xsl:template match="builtintype" mode="underlying">
 	<xsl:value-of select="@type" />

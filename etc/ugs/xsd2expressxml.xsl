@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: xsd2expressxml.xsl,v 1.5 2005/08/12 21:54:28 thendrix Exp $
+$Id: xsd2expressxml.xsl,v 1.6 2005/08/12 23:45:22 thendrix Exp $
 
 Author: Tom Hendrix
 Owner:  sourceforge stepmod
@@ -73,10 +73,11 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
 	</xsl:attribute>
 	<xsl:apply-templates select="xsd:annotation/xsd:documentation"/>
 	<xsl:apply-templates select="xsd:include"/>
-	<xsl:apply-templates select="//xsd:complexType//xsd:choice[count(xsd:element)>1]" mode="select" />
+	<xsl:apply-templates select=".//xsd:complexType//xsd:choice[count(xsd:element)>1]" mode="select" />
 	<xsl:apply-templates select="xsd:simpleType"/>
-	<xsl:apply-templates select="//xsd:complexType" mode="entity"/>
-	<xsl:apply-templates select="*[not(self::xsd:annotation) and  not(self::xsd:include)]"/>
+	<xsl:apply-templates select="xsd:attributeGroup" mode="entity"/>
+	<xsl:apply-templates select=".//xsd:complexType" mode="entity"/>
+<!--	<xsl:apply-templates select="*[not(self::xsd:annotation) and  not(self::xsd:include)]"/> -->
       </xsl:element>
     </xsl:element>
   </xsl:template>
@@ -255,9 +256,16 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
       <xsl:apply-templates />
  </xsl:template>
 
-  <xsl:template match="xsd:extension">
-    <xsl:attribute name="supertypes"><xsl:value-of select="substring-after(@base,':')"/></xsl:attribute>
+  <xsl:template match="xsd:extension"  mode="supertype">
+    <xsl:value-of select="concat(substring-after(@base,':'),' ')"/>
   </xsl:template>
+
+
+  <xsl:template match="xsd:attributeGroup"  mode="supertype">
+    <xsl:value-of select="concat(substring-after(@ref,':'),' ')"/>
+  </xsl:template>
+
+
 
   <xsl:template match="xsd:sequence">
     <xsl:apply-templates />
@@ -274,14 +282,47 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
     <xsl:element name="entity">
       <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
       <xsl:apply-templates select="." mode="abstract"/>
-      <!--      <xsl:apply-templates select="xsd:complexContent"/>
-	   <xsl:apply-templates select="xsd:simpleContent"/> -->
-      <xsl:apply-templates  select="xsd:complexContent/xsd:extension"/>
+      <xsl:if test="xsd:complexContent/xsd:extension or .//xsd:attributeGroup/@ref">
+	<xsl:attribute name="supertypes">
+	  <xsl:apply-templates select="xsd:complexContent/xsd:extension" mode="supertype"/>
+	  <xsl:apply-templates select=".//xsd:attributeGroup[@ref]" mode="supertype"/>
+	</xsl:attribute>
+
+      </xsl:if>
       <xsl:apply-templates  select=".//xsd:element[@name]" mode="name"/>
-      <xsl:apply-templates  select=".//xsd:element[@ref]" mode="ref"/>
+      <xsl:apply-templates  select=".//xsd:element[@ref and  not(ancestor::node()/xsd:choice[count(xsd:element)>1])]" mode="ref"/>
+	<xsl:apply-templates select=".//xsd:choice[count(xsd:element)>1]" mode="selectref" />
+
       <xsl:apply-templates  select=".//xsd:attribute" mode="name"/>
     </xsl:element>
   </xsl:template>
+
+  <xsl:template match="xsd:choice" mode="selectref" >
+    <xsl:element name="explicit">
+      <xsl:variable name="indexer">
+	<xsl:choose>
+	  <xsl:when test="count(../choice) > 1 ">
+	    <xsl:value-of select="concat('_',position())"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:value-of select="''"/>
+	  </xsl:otherwise>
+	</xsl:choose>
+      </xsl:variable>
+      <xsl:attribute name="name">
+	<xsl:call-template name="toexpid">
+	  <xsl:with-param name="string" select="concat(ancestor::node()/@name,$indexer,'_items')"/>
+	</xsl:call-template>
+      </xsl:attribute>
+      <xsl:element name="typename">
+      <xsl:attribute name="name">
+	<xsl:value-of select="concat(ancestor::node()/@name,'_select')"/>
+      </xsl:attribute>
+      </xsl:element>
+    </xsl:element> 
+
+
+</xsl:template>
 
   <xsl:template match="xsd:element|xsd:attribute" mode="name">
    <xsl:element name="explicit">
@@ -301,7 +342,9 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
   <xsl:template match="xsd:element" mode="ref">
    <xsl:element name="explicit">
       <xsl:attribute name="name">
-	<xsl:value-of  select="substring-after(@ref,':')"/>
+	<xsl:call-template name="toexpid">
+	  <xsl:with-param name="string" select="substring-after(@ref,':')"/>
+	</xsl:call-template>
       </xsl:attribute>
       <xsl:apply-templates select="." mode="type"/>
       <xsl:apply-templates />
@@ -327,6 +370,19 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
       <xsl:apply-templates />
     </xsl:element> 
   </xsl:template>
+
+
+  
+<xsl:template match="xsd:schema/xsd:attributeGroup" mode="entity">
+  <xsl:element name="entity" >
+      <xsl:attribute name="name">
+	  <xsl:value-of select="@name"/>
+      </xsl:attribute>
+      <xsl:attribute name="abstract.supertype">YES</xsl:attribute>
+      <xsl:apply-templates  select=".//xsd:attribute" mode="name"/>
+  </xsl:element>
+  </xsl:template>
+
 
   <xsl:template match="xsd:annotation">
     <xsl:apply-templates />

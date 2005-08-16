@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-05-05T13:50:56" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-08-16T15:28:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_shape_with_parameters_arm schema_instance"/>
    <schema name="Physical_unit_shape_with_parameters_arm">
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
@@ -11,10 +11,10 @@
          <enumeration items="high medium low is_unknown"/>
       </type>
       <type name="puswp_external_identification_item">
-         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Physical_unit_keepout_shape"/>
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Physical_unit_keepout_shape_model"/>
       </type>
       <type name="puswp_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Physical_unit_keepout_shape Physical_unit_shape"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Physical_unit_keepout_shape_model Physical_unit_shape_model"/>
       </type>
       <type name="shape_approximation_level">
          <enumeration items="coarse detailed is_unknown"/>
@@ -22,12 +22,13 @@
       <type name="shape_extent">
          <enumeration items="envelope over_body over_lands over_breakout"/>
       </type>
-      <entity name="Physical_unit_keepout_shape" abstract.supertype="YES">
+      <entity name="Physical_unit_keepout_shape_model" abstract.supertype="YES" supertypes="Geometric_model Shape_description_association">
          <explicit name="constrained_design_object_category">
             <typename name="keepout_product_design_object_category"/>
          </explicit>
          <explicit name="shape_characterized_physical_unit">
             <typename name="physical_unit"/>
+            <redeclaration entity-ref="Shape_description_association" old_name="represented_characteristic"/>
          </explicit>
          <explicit name="shape_material_condition">
             <typename name="material_condition"/>
@@ -47,14 +48,19 @@
          <explicit name="centroid_location" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
+         <derived name="representation" expression="SELF">
+            <typename name="shape_model"/>
+            <redeclaration entity-ref="Shape_description_association"/>
+         </derived>
          <inverse name="external_shape_purpose" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <where label="WR1" expression=" ( EXISTS ( shape_purpose ) ) XOR ( ( SIZEOF ( external_shape_purpose ) ) = 1 ) "/>
+         <where label="WR1" expression="(EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1)"/>
       </entity>
-      <entity name="Physical_unit_shape" abstract.supertype="YES">
+      <entity name="Physical_unit_shape_model" abstract.supertype="YES" supertypes="Geometric_model Shape_description_association">
          <explicit name="shape_characterized_physical_unit">
             <typename name="physical_unit"/>
+            <redeclaration entity-ref="Shape_description_association" old_name="represented_characteristic"/>
          </explicit>
          <explicit name="shape_material_condition">
             <typename name="material_condition"/>
@@ -74,7 +80,11 @@
          <explicit name="mass_property_quality">
             <typename name="mass_property_quality"/>
          </explicit>
-         <where label="WR1" expression=" NOT ( 'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PACKAGED_PART' IN TYPEOF ( shape_characterized_physical_unit ) ) "/>
+         <derived name="representation" expression="SELF">
+            <typename name="shape_model"/>
+            <redeclaration entity-ref="Shape_description_association"/>
+         </derived>
+         <where label="WR1" expression="NOT ('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PACKAGED_PART' IN TYPEOF(shape_characterized_physical_unit))"/>
       </entity>
    </schema>
 </express>

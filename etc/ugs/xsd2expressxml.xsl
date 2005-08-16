@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: xsd2expressxml.xsl,v 1.8 2005/08/16 19:29:38 thendrix Exp $
+$Id: xsd2expressxml.xsl,v 1.9 2005/08/16 20:14:08 thendrix Exp $
 
 Author: Tom Hendrix
 Owner:  sourceforge stepmod
@@ -246,9 +246,6 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
       <xsl:variable name="index">
 	<xsl:apply-templates select="." mode="selectindex"/>
       </xsl:variable>
-      <xsl:variable name="sequence">
-	<xsl:apply-templates select="xsd:sequence" mode="seqindex"/>
-      </xsl:variable>
       <xsl:message>
 	TYPENAME:<xsl:value-of select="ancestor::node()/@name"/>
 	COUNT:<xsl:value-of select="count(child::node()[not(text())])"/>
@@ -261,7 +258,7 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
 	  <xsl:variable name="selectitems">
 	    <xsl:apply-templates select="xsd:element" mode="listname"/>
 	    <xsl:apply-templates select="xsd:choice[count(child::node())>1]" mode="selectitem"/>
-	    <xsl:value-of select="concat(ancestor::node()/@name,$sequence,'_seq',' ')"/>
+	    <xsl:apply-templates select="xsd:sequence" mode="selectitem"/>
 	    <xsl:for-each select="node()">
 <!--	      CHILD_NAMES:<xsl:value-of select="name(.)"/> -->
 <!--	      <xsl:apply-templates select="self::node()[@type]" mode="listtype"/> -->
@@ -440,6 +437,15 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
       </xsl:variable>
       <xsl:value-of select="concat($typename,' ')"/>
   </xsl:template>
+
+
+  <xsl:template match="xsd:sequence" mode="selectitem" >
+      <xsl:variable name="sequence">
+	<xsl:apply-templates select="." mode="seqindex"/>
+      </xsl:variable>
+      <xsl:value-of select="concat(ancestor::node()/@name,$sequence,'_seq',' ')"/>
+  </xsl:template>
+
 
   <xsl:template match="xsd:element|xsd:attribute" mode="name">
    <xsl:element name="explicit">

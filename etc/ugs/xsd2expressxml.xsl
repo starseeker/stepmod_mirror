@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: xsd2expressxml.xsl,v 1.6 2005/08/12 23:45:22 thendrix Exp $
+$Id: xsd2expressxml.xsl,v 1.7 2005/08/15 20:53:53 thendrix Exp $
 
 Author: Tom Hendrix
 Owner:  sourceforge stepmod
@@ -73,11 +73,15 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
 	</xsl:attribute>
 	<xsl:apply-templates select="xsd:annotation/xsd:documentation"/>
 	<xsl:apply-templates select="xsd:include"/>
-	<xsl:apply-templates select=".//xsd:complexType//xsd:choice[count(xsd:element)>1]" mode="select" />
+	<!-- create select types -->
+	<xsl:apply-templates select=".//xsd:complexType//xsd:choice" mode="select" />
+	<!-- create simple types -->
 	<xsl:apply-templates select="xsd:simpleType"/>
+	<!-- create entities -->
 	<xsl:apply-templates select="xsd:attributeGroup" mode="entity"/>
 	<xsl:apply-templates select=".//xsd:complexType" mode="entity"/>
-<!--	<xsl:apply-templates select="*[not(self::xsd:annotation) and  not(self::xsd:include)]"/> -->
+	<xsl:apply-templates select=".//xsd:complexType//xsd:sequence//xsd:sequence" mode="entity"/>
+	<xsl:apply-templates select=".//xsd:complexType//xsd:choice/xsd:element[@type]" mode="entity" />
       </xsl:element>
     </xsl:element>
   </xsl:template>
@@ -169,7 +173,9 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
        <xsl:apply-templates select="." mode="type"/>
      </xsl:otherwise>
     </xsl:choose>
-    <xsl:if test="child::node()[not(text())] and count(xsd:enumeration) &lt; 2">
+    <xsl:if test="count(xsd:enumeration) &lt; 2">
+      <xsl:apply-templates select="*[not(text())]" mode="where"/>
+<!--
 	<xsl:element name="where">
 	  <xsl:attribute name="label">
 	    <xsl:value-of select="'WR1'"/>
@@ -178,11 +184,21 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
 	    <xsl:apply-templates mode="where"/>
 	  </xsl:attribute>
 	</xsl:element>
+-->
     </xsl:if>
   </xsl:template>
 
   <xsl:template match="*" mode="where">
-    <xsl:value-of select="concat(' ',substring-after(name(.),':'),'=',@value,' AND ')"/> 
+	<xsl:element name="where">
+	  <xsl:attribute name="label">
+	    <xsl:value-of select="concat('WR',count(preceding-sibling::node()))"/>
+	  </xsl:attribute>
+	  <xsl:attribute name="expression">
+	    <xsl:value-of select="concat(' ',substring-after(name(.),':'),'=',@value)"/>
+	    <xsl:apply-templates mode="where"/>
+	  </xsl:attribute>
+	</xsl:element>
+<!--    <xsl:value-of select="concat(' ',substring-after(name(.),':'),'=',@value,' AND ')"/> -->
   </xsl:template>
 
   <xsl:template match="xsd:enumeration">
@@ -215,31 +231,44 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
   </xsl:template>
 
 
-  <xsl:template match="*" mode="listtype">
+  <xsl:template match="xsd:element" mode="listtype">
     <xsl:value-of select="concat(substring-after(@type,':'),' ')"/>
   </xsl:template>
 
-
-  <xsl:template match="*" mode="listreftype">
+ <xsl:template match="xsd:element" mode="listreftype">
     <xsl:variable name="ref"><xsl:value-of select="substring-after(@ref,':')"/></xsl:variable>
     <xsl:value-of select="concat(substring-after(//xsd:element[@name=$ref]/@type,':'),' ')"/>
   </xsl:template>
 
   <xsl:template match="xsd:choice" mode="select">
-<!-- create a select type -->
-    <xsl:element name="type">
-      <xsl:attribute name="name">
-	<xsl:value-of select="concat(ancestor::node()/@name,'_select')"/>
-      </xsl:attribute>
-      <xsl:element name="select">
-	<xsl:attribute name="selectitems">
-	  <xsl:for-each select="xsd:element">
-	    <xsl:apply-templates select="self::node()[@type]" mode="listtype"/>
-	    <xsl:apply-templates select="self::node()[@ref]" mode="listreftype"/>
-	  </xsl:for-each>
-	</xsl:attribute>
+    <!-- create a select type -->
+    <xsl:if test="count(child::node()[not(text())])>1">
+      <xsl:variable name="index">
+	<xsl:apply-templates select="." mode="selectindex"/>
+      </xsl:variable>
+      <xsl:message>
+	TYPENAME:<xsl:value-of select="ancestor::node()/@name"/>
+	COUNT:<xsl:value-of select="count(child::node()[not(text())])"/>
+	INDEX:<xsl:value-of select="$index"/>
+      </xsl:message>
+      <xsl:element name="type">
+	<xsl:attribute name="name">
+	  <xsl:value-of select="concat(ancestor::node()/@name,$index,'_select')"/>	</xsl:attribute>
+	  <xsl:element name="select">
+	  <xsl:variable name="selectitems">
+	    <xsl:apply-templates select="xsd:element" mode="listname"/>
+	    <xsl:apply-templates select="xsd:choice[count(child::node())>1]" mode="selectitem"/>
+	    <xsl:for-each select="node()">
+<!--	      CHILD_NAMES:<xsl:value-of select="name(.)"/> -->
+<!--	      <xsl:apply-templates select="self::node()[@type]" mode="listtype"/> -->
+	      <xsl:apply-templates select="self::node()[@ref]" mode="listreftype"/>
+<!--	      <xsl:apply-templates select="*" mode="listreftype"/> -->
+	    </xsl:for-each>
+	  </xsl:variable>
+	  <xsl:attribute name="selectitems"><xsl:value-of select="$selectitems"/></xsl:attribute>
+	</xsl:element>
       </xsl:element>
-    </xsl:element>
+    </xsl:if>
   </xsl:template>
 
 
@@ -256,15 +285,18 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
       <xsl:apply-templates />
  </xsl:template>
 
-  <xsl:template match="xsd:extension"  mode="supertype">
+  <xsl:template match="xsd:extension|xsd:restriction"  mode="supertype">
     <xsl:value-of select="concat(substring-after(@base,':'),' ')"/>
+  </xsl:template>
+
+  <xsl:template match="xsd:element"  mode="supertype">
+    <xsl:value-of select="concat(substring-after(@type,':'),' ')"/>
   </xsl:template>
 
 
   <xsl:template match="xsd:attributeGroup"  mode="supertype">
     <xsl:value-of select="concat(substring-after(@ref,':'),' ')"/>
   </xsl:template>
-
 
 
   <xsl:template match="xsd:sequence">
@@ -278,40 +310,111 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
 </xsl:template>
 
 
+
   <xsl:template match="xsd:complexType" mode="entity">
     <xsl:element name="entity">
       <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
       <xsl:apply-templates select="." mode="abstract"/>
-      <xsl:if test="xsd:complexContent/xsd:extension or .//xsd:attributeGroup/@ref">
+      <xsl:if test="xsd:complexContent/xsd:extension or .//xsd:attributeGroup/@ref or ./xsd:simpleContent/xsd:restriction">
 	<xsl:attribute name="supertypes">
-	  <xsl:apply-templates select="xsd:complexContent/xsd:extension" mode="supertype"/>
+	  <xsl:apply-templates select="xsd:complexContent/xsd:extension|xsd:simpleContent/xsd:extension" mode="supertype"/>
 	  <xsl:apply-templates select=".//xsd:attributeGroup[@ref]" mode="supertype"/>
+	  <xsl:apply-templates select="./xsd:simpleContent/xsd:restriction" mode="supertype"/>
 	</xsl:attribute>
 
       </xsl:if>
-      <xsl:apply-templates  select=".//xsd:element[@name]" mode="name"/>
+      <xsl:apply-templates  select=".//xsd:element[@name and  not(ancestor::node()/xsd:choice[count(xsd:element)>1])]" mode="name"/>
       <xsl:apply-templates  select=".//xsd:element[@ref and  not(ancestor::node()/xsd:choice[count(xsd:element)>1])]" mode="ref"/>
-	<xsl:apply-templates select=".//xsd:choice[count(xsd:element)>1]" mode="selectref" />
-
+      <!-- an attribute that is a select type -->
+      <xsl:apply-templates select=".//xsd:choice[count(child::node())>1 and not(ancestor::xsd:choice)]" mode="selectref" />
       <xsl:apply-templates  select=".//xsd:attribute" mode="name"/>
     </xsl:element>
   </xsl:template>
 
-  <xsl:template match="xsd:choice" mode="selectref" >
-    <xsl:element name="explicit">
-      <xsl:variable name="indexer">
+
+  <xsl:template match="xsd:sequence" mode="seqindex">
+      <xsl:variable name="index_dep">
 	<xsl:choose>
-	  <xsl:when test="count(../choice) > 1 ">
-	    <xsl:value-of select="concat('_',position())"/>
+	  <xsl:when test="count(ancestor::xsd:sequence) > 0 ">
+	    <xsl:value-of select="concat('_',count(ancestor::xsd:choice))"/>
 	  </xsl:when>
 	  <xsl:otherwise>
 	    <xsl:value-of select="''"/>
 	  </xsl:otherwise>
 	</xsl:choose>
       </xsl:variable>
+      <xsl:value-of select="$index_dep"/>
+  </xsl:template>
+
+
+  <xsl:template match="xsd:sequence" mode="entity">
+      <xsl:variable name="index">
+	<xsl:apply-templates select="." mode="seqindex"/>
+      </xsl:variable>
+      <xsl:message>
+	ENTNAME:<xsl:value-of select="ancestor::node()/@name"/>
+	COUNT:<xsl:value-of select="count(ancestor::node()[xsd:sequence])"/>
+	INDEX:<xsl:value-of select="$index"/>
+      </xsl:message>
+
+      <xsl:element name="entity">
+            <xsl:attribute name="name">
+	<xsl:value-of select="concat(ancestor::node()/@name,$index,'_seq')"/>	
+      </xsl:attribute>
+      <xsl:apply-templates  select=".//xsd:element[@name and  not(ancestor::node()/xsd:choice[count(xsd:element)>1])]" mode="name"/>
+      <xsl:apply-templates  select=".//xsd:element[@ref and  not(ancestor::node()/xsd:choice[count(xsd:element)>1])]" mode="ref"/>
+      <!-- an attribute that is a select type -->
+      <xsl:apply-templates select=".//xsd:choice[count(child::node())>1]" mode="selectref" />
+<!--      <xsl:apply-templates  select=".//xsd:attribute" mode="name"/> -->
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="xsd:element" mode="entity">
+      <xsl:element name="entity">
+            <xsl:attribute name="name">
+	<xsl:value-of select="@name"/>	
+      </xsl:attribute>
+	<xsl:attribute name="supertypes">
+	  <xsl:apply-templates select="." mode="supertype"/>
+	</xsl:attribute>
+    </xsl:element>
+  </xsl:template>
+
+
+
+  <xsl:template match="xsd:choice" mode="selectindex">
+      <xsl:variable name="index_seq">
+	<xsl:variable name="sibs" select="count(preceding-sibling::xsd:choice) + count(following-sibling::xsd:choice)"/>
+	<xsl:choose>
+	  <xsl:when test="$sibs > 0 ">
+	    <xsl:value-of select="concat('_',count(preceding-sibling::xsd:choice))"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:value-of select="''"/>
+	  </xsl:otherwise>
+	</xsl:choose>
+      </xsl:variable>
+      <xsl:variable name="index_dep">
+	<xsl:choose>
+	  <xsl:when test="count(ancestor::xsd:choice) > 0 ">
+	    <xsl:value-of select="concat('_',count(ancestor::xsd:choice))"/>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:value-of select="''"/>
+	  </xsl:otherwise>
+	</xsl:choose>
+      </xsl:variable>
+      <xsl:value-of select="concat($index_seq,$index_dep)"/>
+  </xsl:template>
+
+  <xsl:template match="xsd:choice" mode="selectref" >
+    <xsl:element name="explicit">
+      <xsl:variable name="index">
+	<xsl:apply-templates select="." mode="selectindex"/>
+      </xsl:variable>
       <xsl:attribute name="name">
 	<xsl:call-template name="toexpid">
-	  <xsl:with-param name="string" select="concat(ancestor::node()/@name,$indexer,'_items')"/>
+	  <xsl:with-param name="string" select="concat(ancestor::node()/@name,$index,'_items')"/>
 	</xsl:call-template>
       </xsl:attribute>
       <xsl:element name="typename">
@@ -320,9 +423,17 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
       </xsl:attribute>
       </xsl:element>
     </xsl:element> 
+  </xsl:template>
 
-
-</xsl:template>
+  <xsl:template match="xsd:choice" mode="selectitem" >
+      <xsl:variable name="index">
+	<xsl:apply-templates select="." mode="selectindex"/>
+      </xsl:variable>
+      <xsl:variable   name="typename">
+	<xsl:value-of select="concat(ancestor::node()/@name,$index,'_select')"/>
+      </xsl:variable>
+      <xsl:value-of select="concat($typename,' ')"/>
+  </xsl:template>
 
   <xsl:template match="xsd:element|xsd:attribute" mode="name">
    <xsl:element name="explicit">
@@ -336,7 +447,7 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
       </xsl:if>
       <xsl:apply-templates select="." mode="type"/>
       <xsl:apply-templates />
-    </xsl:element> 
+    </xsl:element>
   </xsl:template>
 
   <xsl:template match="xsd:element" mode="ref">
@@ -399,6 +510,7 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
     <xsl:variable name="doc_node" select="document(concat('xsd','/',@schema,'.xsd'))"/>
     <xsl:apply-templates select="$doc_node"/>
   </xsl:template>
+
   <xsl:template match="*">
 		<xsl:message>
 		<xsl:value-of select="name(.)" />  not matched:

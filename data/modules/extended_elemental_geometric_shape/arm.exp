@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.6 2005/02/10 13:04:02 liutkus Exp $
+   $Id: arm.exp,v 1.7 2005/08/11 15:25:47 liutkus Exp $
    ISO TC184/SC4/WG12 N3672 - ISO/CD-TS 10303-1667 Extended elemental geometric shape - EXPRESS ARM
 *)
 
@@ -7,6 +7,7 @@ SCHEMA Extended_elemental_geometric_shape_arm;
 
 	USE FROM Basic_geometry_arm;	-- ISO/TS 10303-1652
 	USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
+	USE FROM Contextual_shape_positioning_arm;
 
   	TYPE axis_placement_or_cto2d = SELECT
     	(Axis_placement,
@@ -35,6 +36,24 @@ SCHEMA Extended_elemental_geometric_shape_arm;
   ENTITY Feature_shape_definition
     SUBTYPE OF (Geometric_model);
   END_ENTITY;
+
+ENTITY Geometric_model_constituent_relationship
+  ABSTRACT SUPERTYPE
+  SUBTYPE OF (Geometric_placement_operation, Geometric_placement_model,
+Shape_description_association);
+  composed_model : Geometric_model;
+  constituent_element : Shape_element;
+  constituent_model : Geometric_model;
+  placement : axis_placement_or_cto2d;
+DERIVE
+  SELF\Geometric_placement_model.items :SET[1:1] OF Geometric_placement_operation := (SELF);
+  SELF\Shape_description_association.representation : Geometric_placement_model := SELF;
+(*
+WHERE
+  WR1: -- update for new structure
+  WR2: -- update for new structure
+  WR3: -- new: Target shall be at 0.0.0 with no roation *)
+END_ENTITY;
 
   ENTITY Geometric_model_relationship
    SUBTYPE OF (Representation_relationship);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: xsd2expressxml.xsl,v 1.7 2005/08/15 20:53:53 thendrix Exp $
+$Id: xsd2expressxml.xsl,v 1.8 2005/08/16 19:29:38 thendrix Exp $
 
 Author: Tom Hendrix
 Owner:  sourceforge stepmod
@@ -246,6 +246,9 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
       <xsl:variable name="index">
 	<xsl:apply-templates select="." mode="selectindex"/>
       </xsl:variable>
+      <xsl:variable name="sequence">
+	<xsl:apply-templates select="xsd:sequence" mode="seqindex"/>
+      </xsl:variable>
       <xsl:message>
 	TYPENAME:<xsl:value-of select="ancestor::node()/@name"/>
 	COUNT:<xsl:value-of select="count(child::node()[not(text())])"/>
@@ -258,6 +261,7 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
 	  <xsl:variable name="selectitems">
 	    <xsl:apply-templates select="xsd:element" mode="listname"/>
 	    <xsl:apply-templates select="xsd:choice[count(child::node())>1]" mode="selectitem"/>
+	    <xsl:value-of select="concat(ancestor::node()/@name,$sequence,'_seq',' ')"/>
 	    <xsl:for-each select="node()">
 <!--	      CHILD_NAMES:<xsl:value-of select="name(.)"/> -->
 <!--	      <xsl:apply-templates select="self::node()[@type]" mode="listtype"/> -->
@@ -361,8 +365,8 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
             <xsl:attribute name="name">
 	<xsl:value-of select="concat(ancestor::node()/@name,$index,'_seq')"/>	
       </xsl:attribute>
-      <xsl:apply-templates  select=".//xsd:element[@name and  not(ancestor::node()/xsd:choice[count(xsd:element)>1])]" mode="name"/>
-      <xsl:apply-templates  select=".//xsd:element[@ref and  not(ancestor::node()/xsd:choice[count(xsd:element)>1])]" mode="ref"/>
+      <xsl:apply-templates  select="./xsd:element[@name]" mode="name"/>
+      <xsl:apply-templates  select="./xsd:element[@ref]" mode="ref"/>
       <!-- an attribute that is a select type -->
       <xsl:apply-templates select=".//xsd:choice[count(child::node())>1]" mode="selectref" />
 <!--      <xsl:apply-templates  select=".//xsd:attribute" mode="name"/> -->
@@ -377,6 +381,8 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
 	<xsl:attribute name="supertypes">
 	  <xsl:apply-templates select="." mode="supertype"/>
 	</xsl:attribute>
+      <xsl:apply-templates  select="./xsd:element[@name]" mode="name"/>
+      <xsl:apply-templates  select="./xsd:element[@ref]" mode="ref"/>
     </xsl:element>
   </xsl:template>
 

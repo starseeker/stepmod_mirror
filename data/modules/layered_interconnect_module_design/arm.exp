@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.68 2005/07/12 13:11:45 liutkus Exp $
+   $Id: arm.exp,v 1.69 2005/08/01 13:37:23 budreckytej Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -123,7 +123,8 @@ SCHEMA Layered_interconnect_module_design_arm;
 	END_TYPE;
 
 	TYPE limd_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
-	    (Stratum_concept_relationship,
+	    (Stratum_feature_conductive_join,
+	     Dielectric_crossover_area,
 	    Interconnect_module);
 	END_TYPE; 
 
@@ -266,7 +267,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       SELF\Shape_element.containing_shape RENAMED associated_definition    : Component_termination_passage_template;
       terminal_connection_zone : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
     INVERSE
-      terminal_shape : SET[0:1] OF usage_concept_usage_relationship FOR associated_usage;
+      terminal_shape : SET[0:1] OF geometric_model_constituent_relationship FOR constituent_element;
     UNIQUE
       UR1 : SELF\Shape_element.element_name,
  associated_definition;
@@ -1041,14 +1042,14 @@ It is a summary of all vertical elements of particular kind, similar like stratu
    WHERE
     WR1 : SELF\Stratum_surface.name = stratum_surface_designation.average_surface;
   END_ENTITY;
-
+(*
   ENTITY Stratum_concept_relationship
     ABSTRACT SUPERTYPE;
       resulting_shape        : OPTIONAL Feature_shape_definition;
     INVERSE
 	  technology_requirement : SET[1:?] OF requirement_assignment FOR assigned_to;
   END_ENTITY;
-
+*)
   ENTITY Stratum_embedded_component_join_relationship
     SUBTYPE OF (Join_relationship);
       terminal_to_be_connected : SET[1:?] OF Embedded_component_terminal;
@@ -1156,7 +1157,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
       disallowed_inter_stratum_extent                                   : OPTIONAL Inter_stratum_extent;
       terminal_connection_zone                                          : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
     INVERSE
-      terminal_shape : SET[0:1] OF usage_concept_usage_relationship FOR associated_usage;
+      terminal_shape : SET[0:1] OF geometric_model_constituent_relationship FOR constituent_element;
     UNIQUE
       UR1 : SELF\Shape_element.element_name,
  associated_definition;

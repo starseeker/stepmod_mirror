@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.20 2005/07/05 08:42:01 liutkus Exp $
+   $Id: arm.exp,v 1.21 2005/08/01 13:26:12 budreckytej Exp $
    ISO TC184/SC4/WG12 N3441 - ISO/CD-TS 10303-1684 Interconnect module connection routing - EXPRESS ARM
 *)
 
@@ -43,11 +43,14 @@ SCHEMA Interconnect_module_connection_routing_arm;
       		reference_zone           : OPTIONAL Connection_zone_in_design_view;
   	END_ENTITY; 
 
-  	ENTITY Dielectric_crossover_area
-    	SUBTYPE OF (Stratum_concept_relationship);
-      		relating_concept               : Stratum_feature;    
-      		related_concept                : Stratum_feature;
-      		resulting_dielectric_crossover : Stratum_feature;
+  	ENTITY Dielectric_crossover_area;
+--    	SUBTYPE OF (Stratum_concept_relationship);
+      	relating_concept               : Stratum_feature;    
+      	related_concept                : Stratum_feature;
+      	resulting_dielectric_crossover : Stratum_feature;
+        resulting_shape        : OPTIONAL Feature_shape_definition;
+      INVERSE
+	    technology_requirement : SET[1:?] OF requirement_assignment FOR assigned_to;
   	END_ENTITY; 
 
   	ENTITY Direct_stratum_component_join_implementation;
@@ -106,17 +109,15 @@ SCHEMA Interconnect_module_connection_routing_arm;
   	END_ENTITY; 
 
   	ENTITY Stratum_feature_conductive_join
-    	SUPERTYPE OF (Physical_network_supporting_stratum_feature_conductive_join)
-    	SUBTYPE OF (Stratum_concept_relationship);
-      		relating_concept : Stratum_feature_template_component;    
-      		related_concept  : Stratum_feature_template_component;
+    	SUPERTYPE OF (Physical_network_supporting_stratum_feature_conductive_join);
+--    	SUBTYPE OF (Stratum_concept_relationship);
+      	relating_concept : Stratum_feature_template_component;    
+      	related_concept  : Stratum_feature_template_component;
+        resulting_shape        : OPTIONAL Feature_shape_definition;
+      INVERSE
+	    technology_requirement : SET[1:?] OF requirement_assignment FOR assigned_to;
     WHERE
       WR1 : related_concept.stratum_feature_implementation.resident_stratum :<>: relating_concept.stratum_feature_implementation.resident_stratum;
 	END_ENTITY; 
-
-	SUBTYPE_CONSTRAINT Stratum_concept_relationship_subtypes FOR Stratum_concept_relationship;     
-  		(ONEOF (Stratum_feature_conductive_join,
-  		Dielectric_crossover_area));
-	END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

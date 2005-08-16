@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-03T15:32:36" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-08-16T15:28:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_usage_view_arm schema_instance"/>
    <schema name="Physical_unit_usage_view_arm">
       <interface kind="use" schema="Analytical_model_arm"/>
@@ -24,7 +24,7 @@
          <select extensible="YES" genericentity="YES" basedon="specification_product_object_select" selectitems="Part_feature"/>
       </type>
       <entity name="Connection_zone_in_usage_view" supertypes="Connection_zone">
-         <derived name="associated_definition" expression=" containing_shape . described_element ">
+         <derived name="associated_definition" expression="containing_shape.described_element">
             <typename name="Part_usage_view"/>
          </derived>
       </entity>
@@ -39,8 +39,8 @@
             <unique.attribute entity-ref="Connection_zone_map_identification" attribute="reference_connection_zone_shape"/>
             <unique.attribute entity-ref="Connection_zone_map_identification" attribute="mapped_connection_zone_shape"/>
          </unique>
-         <where label="WR1" expression=" reference_connection_zone_shape &lt;&gt; mapped_connection_zone_shape "/>
-         <where label="WR2" expression=" reference_connection_zone_shape . associated_connection_zone_shape_definition &lt;&gt; mapped_connection_zone_shape . associated_connection_zone_shape_definition "/>
+         <where label="WR1" expression="reference_connection_zone_shape &lt;&gt; mapped_connection_zone_shape"/>
+         <where label="WR2" expression="reference_connection_zone_shape.associated_connection_zone_shape_definition &lt;&gt; mapped_connection_zone_shape.associated_connection_zone_shape_definition"/>
       </entity>
       <entity name="Part_feature" supertypes="Shape_feature">
          <explicit name="associated_definition">
@@ -53,7 +53,7 @@
          <explicit name="precedent_feature" optional="YES">
             <typename name="Part_feature"/>
          </explicit>
-         <inverse name="feature_shape" entity="Usage_concept_usage_relationship" attribute="associated_usage">
+         <inverse name="feature_shape" entity="Geometric_model_constituent_relationship" attribute="constituent_element">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <unique label="UR1">
@@ -77,25 +77,25 @@
             <unique.attribute entity-ref="Part_feature_make_from_relationship" attribute="reusable_feature"/>
             <unique.attribute entity-ref="Part_feature_make_from_relationship" attribute="resultant_feature"/>
          </unique>
-         <where label="WR1" expression=" reusable_feature :&lt;&gt;: resultant_feature "/>
-         <where label="WR2" expression=" reusable_feature . associated_definition :&lt;&gt;: resultant_feature . associated_definition "/>
+         <where label="WR1" expression="reusable_feature :&lt;&gt;: resultant_feature"/>
+         <where label="WR2" expression="reusable_feature.associated_definition :&lt;&gt;: resultant_feature.associated_definition"/>
       </entity>
       <entity name="Part_feature_template_definition" supertypes="Product_view_definition">
          <inverse name="shape" entity="Part_feature_template_shape_definition" attribute="shape_characterized_template"/>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( prpc &lt;* USEDIN ( SELF \ Product_view_definition . defined_version . of_product , 'PHYSICAL_UNIT_USAGE_VIEW_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS' ) | ( prpc . category \ Product_category . name = 'template model' ) ) ) &gt; 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(prpc &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product,&#10; 'PHYSICAL_UNIT_USAGE_VIEW_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'template model'))) &gt; 0"/>
       </entity>
       <entity name="Part_feature_template_shape_definition" supertypes="Feature_shape_definition">
          <explicit name="shape_characterized_template">
             <typename name="Part_feature_template_definition"/>
          </explicit>
-         <where label="WR1" expression=" NOT ( SIZEOF ( USEDIN ( SELF , '' ) ) = 0 ) OR ( SIZEOF ( QUERY ( foo &lt;* USEDIN ( SELF , '' ) | NOT ( 'PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF ( foo ) ) ) ) = 0 ) "/>
+         <where label="WR1" expression="NOT (SIZEOF(USEDIN(SELF,&#10; '')) = 0) OR (SIZEOF(QUERY(foo &lt;* USEDIN(SELF,&#10; '') | NOT ('PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF(foo)))) = 0)"/>
       </entity>
       <entity name="Part_usage_view" supertypes="Part_view_definition Item_shape">
-         <derived name="described_element" expression=" SELF ">
+         <derived name="described_element" expression="SELF">
             <typename name="shapeable_item"/>
             <redeclaration entity-ref="Item_shape"/>
          </derived>
-         <where label="WR1" expression=" SIZEOF ( QUERY ( acr &lt;* USEDIN ( SELF , 'PHYSICAL_UNIT_USAGE_VIEW_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW' ) | NOT ( 'PHYSICAL_UNIT_USAGE_VIEW_ARM.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF ( acr . related_view ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY(acr &lt;* USEDIN(SELF,&#10; 'PHYSICAL_UNIT_USAGE_VIEW_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW') | NOT ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF(acr.related_view)))) = 0"/>
       </entity>
       <entity name="Usage_view_connection_zone_terminal_shape_relationship">
          <explicit name="associating_terminal_shape">
@@ -110,7 +110,7 @@
          <explicit name="associated_usage_placement">
             <typename name="Axis_placement"/>
          </explicit>
-         <where label="WR1" expression=" associating_terminal_shape :&lt;&gt;: associated_connection_zone_shape_definition "/>
+         <where label="WR1" expression="associating_terminal_shape :&lt;&gt;: associated_connection_zone_shape_definition"/>
       </entity>
    </schema>
 </express>

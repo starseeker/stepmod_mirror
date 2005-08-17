@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: pub_readme.xsl,v 1.6 2005/02/08 22:46:29 thendrix Exp $
+$Id: pub_readme.xsl,v 1.7 2005/07/23 00:44:48 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the readme file for a published module.
@@ -37,7 +37,7 @@ $Id: pub_readme.xsl,v 1.6 2005/02/08 22:46:29 thendrix Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-ISO/TS 10303-<xsl:value-of select="@part"/>
+    <xsl:text/>ISO 10303-<xsl:value-of select="@part"/>
 TC 184/SC 4
 
 To access the <xsl:value-of select="concat($standard_type,' ',$module_full_no)"/>
@@ -113,9 +113,16 @@ If asked when unzipping the file, you should overwrite any file in the images di
       <xsl:variable name="prefix" select="concat('part',@part,@status,'_wg',@wg,'n')"/>
       <xsl:variable name="arm_exp" select="concat('express/',$prefix,@wg.number.arm,'arm.exp')"/>
 
+      <!-- RBN
 The  EXPRESS listings that are referenced in this  part are collected in the express folder.
 
-The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
+The abstract for part <xsl:value-of select="@part"/> is contained in file:
+<xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
+-->
+
+The EXPRESS listings that are normatively referenced in this part are
+collected in the  express folder in the Electronic_inserts.
+
 
   </xsl:template>
 

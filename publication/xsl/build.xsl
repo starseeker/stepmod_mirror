@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.23 2005/02/04 21:02:11 thendrix Exp $
+<!--  $Id: build.xsl,v 1.25 2005/07/22 22:43:54 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -5125,6 +5125,36 @@
 
   <xsl:template match="ap_doc" mode="copy_express">
     <xsl:param name="express_dir"/>
+
+    <!-- the readme -->
+    <xsl:element name="style">
+      <xsl:attribute name="in">
+        <xsl:value-of select="concat('data/application_protocols/',@name,'/application_protocol.xml')"/>
+      </xsl:attribute>
+      <xsl:attribute name="out">
+        <xsl:value-of select="concat($express_dir,'readme.txt')"/>
+      </xsl:attribute>
+      <xsl:attribute name="style">
+        <xsl:value-of select="'${STEPMODSTYLES}/publication/pub_express_readme.xsl'"/>
+      </xsl:attribute>        
+      <xsl:attribute name="destdir">
+        <xsl:value-of select="$express_dir"/>
+      </xsl:attribute>
+    </xsl:element>
+
+    <!-- make sure that the CR/LF are windows for the readme -->
+    <xsl:element name="fixcrlf">
+      <xsl:attribute name="srcdir">
+        <xsl:value-of select="$express_dir"/>
+      </xsl:attribute>
+      <xsl:attribute name="includes">
+        <xsl:value-of select="'readme.txt'"/>
+      </xsl:attribute>
+      <xsl:attribute name="eol">
+        <xsl:value-of select="'crlf'"/>
+      </xsl:attribute>
+    </xsl:element>
+
     <xsl:apply-templates select="$mim_modules_node_set/module"
       mode="copy_express">
       <xsl:with-param name="express_dir" select="$express_dir"/>
@@ -5133,6 +5163,28 @@
       mode="copy_express">
       <xsl:with-param name="express_dir" select="$express_dir"/>
     </xsl:apply-templates>
+
+    <!-- copy the resources -->
+    <xsl:element name="copy">
+      <xsl:attribute name="todir">
+        <xsl:value-of select="$express_dir"/>
+      </xsl:attribute>
+      <xsl:attribute name="flatten">
+        <xsl:value-of select="'true'"/>
+      </xsl:attribute>
+      <xsl:element name="fileset">
+        <xsl:attribute name="dir">
+          <xsl:value-of select="'${TMPDIR}/data/resources'"/>
+        </xsl:attribute>
+        <xsl:element name="include">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'**/*.exp'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+    </xsl:element>
+
+
   </xsl:template>
 
   <xsl:template match="module" mode="copy_express">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: pub_readme.xsl,v 1.7 2005/07/23 00:44:48 thendrix Exp $
+$Id: pub_readme.xsl,v 1.8 2005/08/17 17:48:28 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the readme file for a published module.
@@ -37,7 +37,18 @@ $Id: pub_readme.xsl,v 1.7 2005/07/23 00:44:48 thendrix Exp $
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:text/>ISO 10303-<xsl:value-of select="@part"/>
+
+    <xsl:variable name="standard_no">
+      <xsl:choose>
+        <xsl:when test="@status='TS'">
+          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat('ISO 10303-',@part)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:text/><xsl:value-of select="$standard_no"/>
 TC 184/SC 4
 
 To access the <xsl:value-of select="concat($standard_type,' ',$module_full_no)"/>
@@ -95,7 +106,17 @@ references in Clause 2.
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-ISO/TS 10303-<xsl:value-of select="@part"/>
+    <xsl:variable name="standard_no">
+      <xsl:choose>
+        <xsl:when test="@status='TS'">
+          <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="concat('ISO 10303-',@part)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:text/><xsl:value-of select="$standard_no"/>
 TC 184/SC 4
 
 To access the <xsl:value-of select="concat($standard_type,' ',$ap_full_no)"/>
@@ -119,10 +140,8 @@ The  EXPRESS listings that are referenced in this  part are collected in the exp
 The abstract for part <xsl:value-of select="@part"/> is contained in file:
 <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
 -->
-
 The EXPRESS listings that are normatively referenced in this part are
 collected in the  express folder in the Electronic_inserts.
-
 
   </xsl:template>
 

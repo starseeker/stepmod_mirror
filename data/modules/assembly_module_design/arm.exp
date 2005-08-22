@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.22 2005/05/03 22:49:35 thomasrthurman Exp $
+   $Id: arm.exp,v 1.23 2005/08/19 13:35:43 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3297 - ISO/CD-TS 10303-1636 Assembly module design - EXPRESS ARM
 *)
 
@@ -49,6 +49,8 @@ SCHEMA Assembly_module_design_arm;
     SUBTYPE OF (Physical_component_terminal);
       SELF\Component_feature.definition           : Bare_die_terminal;
       SELF\Component_feature.associated_component : Bare_die_component;
+    DERIVE
+      SELF\Shape_element.description : STRING := 'bare die component terminal';
   END_ENTITY;
 
   ENTITY Component_external_reference;
@@ -88,12 +90,16 @@ SCHEMA Assembly_module_design_arm;
   ENTITY Minimally_defined_component_terminal
     SUBTYPE OF (Physical_component_terminal);
       SELF\Component_feature.definition : Part_terminal_external_reference;
+    DERIVE
+      SELF\Shape_element.description : STRING := 'minimally defined component terminal';
   END_ENTITY;
 
   ENTITY Movable_packaged_component_join_terminal
     SUBTYPE OF (Packaged_component_join_terminal);
       maximum_wire_terminal_length : Length_data_element;
       minimum_wire_terminal_length : Length_data_element;
+    DERIVE
+      SELF\Shape_element.description : STRING := 'movable packaged component join terminal';
     WHERE
       WR1 : SIZEOF(QUERY(pt <* SELF\Component_feature.definition\Packaged_part_terminal.terminal_of_package | 
             NOT('PACKAGE_ARM.WIRE_TERMINAL' IN TYPEOF (pt)))) = 0;
@@ -116,6 +122,9 @@ SCHEMA Assembly_module_design_arm;
     SUBTYPE OF (Physical_component_terminal);
       SELF\Component_feature.definition           : Packaged_part_join_terminal;
       SELF\Component_feature.associated_component : Packaged_component;
+    WHERE
+      WR1: (SELF\Shape_element.description = 'packaged component join terminal') OR
+        (SELF\Shape_element.description = 'movable packaged component join terminal');
   END_ENTITY;
 
   ENTITY Pca

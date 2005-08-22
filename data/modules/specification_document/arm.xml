@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-10T18:02:11" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-08-22T13:38:41" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
    <schema name="Specification_document_arm">
       <interface kind="use" schema="Characteristic_arm"/>
@@ -12,38 +12,38 @@
       <type name="specification_product_object_select">
          <select extensible="YES" selectitems="Product_configuration Product_view_definition Product_version Product"/>
       </type>
-      <entity name="Design_specification" supertypes="Specification_definition" super.expression="Interface_specification">
-         <derived name="additional_characterization" expression=" 'design specification' ">
+      <entity name="Design_specification" supertypes="Specification_definition" super.expression="Interface_specification_definition">
+         <derived name="additional_characterization" expression="'design specification'">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
       </entity>
       <entity name="Fabrication_technology_specification" supertypes="Process_specification">
-         <derived name="additional_characterization" expression=" 'fabrication technology specification' ">
+         <derived name="additional_characterization" expression="'fabrication technology specification'">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
       </entity>
-      <entity name="Interface_specification" supertypes="Design_specification">
-         <derived name="additional_characterization" expression=" 'interface specification' ">
+      <entity name="Interface_specification_definition" supertypes="Design_specification">
+         <derived name="additional_characterization" expression="'interface specification'">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
       </entity>
       <entity name="Language_reference_manual" supertypes="Specification_definition">
-         <derived name="additional_characterization" expression=" 'language reference manual' ">
+         <derived name="additional_characterization" expression="'language reference manual'">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
       </entity>
       <entity name="Material_specification" supertypes="Specification_definition">
-         <derived name="additional_characterization" expression=" 'material specification' ">
+         <derived name="additional_characterization" expression="'material specification'">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
       </entity>
       <entity name="Process_specification" supertypes="Specification_definition">
-         <derived name="additional_characterization" expression=" 'process specification' ">
+         <derived name="additional_characterization" expression="'process specification'">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
@@ -62,30 +62,30 @@
          <explicit name="identifier_in_target_context" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
-         <derived name="the_context" expression=" target_product_object [ 1 ] ">
+         <derived name="the_context" expression="target_product_object[1]">
             <typename name="specification_product_object_select"/>
          </derived>
          <unique label="UR1">
             <unique.attribute entity-ref="Specification_allocation" attribute="identifier_in_target_context"/>
             <unique.attribute entity-ref="Specification_allocation" attribute="the_context"/>
          </unique>
-         <where label="WR1" expression=" NOT EXISTS ( identifier_in_target_context ) OR ( SIZEOF ( target_product_object ) = 1 ) "/>
+         <where label="WR1" expression="NOT EXISTS(identifier_in_target_context) OR (SIZEOF(target_product_object) = 1)"/>
       </entity>
       <entity name="Specification_definition" supertypes="Document_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)">
-         <derived name="source" expression=" QUERY ( temp &lt;* USEDIN ( SELF , 'PERSON_ORGANIZATION_ASSIGNMENT_ARM.' + 'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS' ) | ( temp . role = 'document source' ) ) ">
+         <derived name="source" expression="QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'document source') )">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Organization_or_person_in_organization_assignment"/>
          </derived>
-         <where label="WR1" expression=" EXISTS ( source ) AND ( SIZEOF ( source ) = 1 ) "/>
+         <where label="WR1" expression="EXISTS (source) AND (SIZEOF(source) = 1)"/>
       </entity>
       <entity name="Surface_finish_specification" supertypes="Material_specification">
-         <derived name="additional_characterization" expression=" 'surface finish specification' ">
+         <derived name="additional_characterization" expression="'surface finish specification'">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
       </entity>
       <entity name="Test_specification" supertypes="Specification_definition">
-         <derived name="additional_characterization" expression=" 'test specification' ">
+         <derived name="additional_characterization" expression="'test specification'">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
@@ -102,7 +102,21 @@
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
          <typename name="Document_definition"/>
-         <algorithm> LOCAL dd : SET [ 0 : ? ] OF Document_definition := [ ] ; da : SET [ 0 : ? ] OF Document_assignment := [ ] ; END_LOCAL ; da := ( QUERY ( dr &lt;* USEDIN ( input , 'DOCUMENT_ASSIGNMENT_ARM.' + 'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO' ) | ( dr . role = role ) ) ) ; REPEAT i := 1 to SIZEOF ( da ) by 1 ; IF ( type_name IN TYPEOF ( da [ i ] . assigned_document ) ) THEN dd := dd + da [ i ] . assigned_document ; END_IF ; END_REPEAT ; RETURN ( dd ) ; </algorithm>
+         <algorithm>LOCAL
+	dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
+	da : SET[0:?] OF Document_assignment :=[];
+END_LOCAL;
+	da := (QUERY(dr &lt;* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
+	'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
+
+	-- iterate over da
+	REPEAT i := 1 to SIZEOF(da) by 1;
+		IF(type_name IN TYPEOF (da[i].assigned_document))THEN
+			dd := dd + da[i].assigned_document;
+		END_IF;
+	END_REPEAT;
+
+	RETURN(dd);</algorithm>
       </function>
    </schema>
 </express>

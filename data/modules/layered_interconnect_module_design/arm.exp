@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.72 2005/08/22 10:56:01 kovaliovas Exp $
+   $Id: arm.exp,v 1.73 2005/08/22 12:55:09 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -385,17 +385,23 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Default_attachment_size_and_component_termination_passage_based_land_physical_template
     SUBTYPE OF (Default_component_termination_passage_based_land_physical_template,
  Default_attachment_size_based_land_physical_template);
+    DERIVE
+      SELF\Product_view_definition.name : STRING := 'default attachment size and component termination passage based';
   END_ENTITY;
 
   ENTITY Default_attachment_size_and_via_based_land_physical_template
     SUBTYPE OF (Default_via_based_land_physical_template,
  Default_attachment_size_based_land_physical_template);
+    DERIVE
+      SELF\Product_view_definition.name : STRING := 'default attachment size and via based';
   END_ENTITY;
 
   ENTITY Default_component_termination_passage_based_land_physical_template
     SUPERTYPE OF (Default_attachment_size_and_component_termination_passage_based_land_physical_template)
     SUBTYPE OF (Default_passage_based_land_physical_template);
       SELF\Default_passage_based_land_physical_template.of_passage_technology : Default_component_termination_passage_definition;
+    WHERE
+      WR1: SELF\Product_view_definition.name IN ['default component termination passage based', 'default attachment size and component termination passage based'];
   END_ENTITY;
 
   ENTITY Default_component_termination_passage_definition
@@ -432,17 +438,25 @@ SCHEMA Layered_interconnect_module_design_arm;
     UNIQUE
       UR1 : of_passage_technology,
  SELF\Stratum_feature_template.of_stratum_technology;
+    WHERE
+      WR1: SELF\Product_view_definition.name IN ['default via based', 'default plated passage based',
+           'default attachment size and via based', 'default unsupported passage based', 'default component termination passage based',
+           'default attachment size and component termination passage based'];
   END_ENTITY;
 
 	ENTITY Default_plated_passage_based_land_physical_template
 	  SUBTYPE OF (Default_passage_based_land_physical_template);
 	 SELF\Default_passage_based_land_physical_template.of_passage_technology :
 		Default_via_definition;
+      DERIVE
+        SELF\Product_view_definition.name : STRING := 'default plated passage based'; 
 	END_ENTITY;
 
   ENTITY Default_unsupported_passage_based_land_physical_template
     SUBTYPE OF (Default_passage_based_land_physical_template);
       SELF\Default_passage_based_land_physical_template.of_passage_technology : Default_unsupported_passage_definition;
+    DERIVE
+      SELF\Product_view_definition.name : STRING := 'default unsupported passage based';
   END_ENTITY;
 
   ENTITY Default_unsupported_passage_definition
@@ -457,6 +471,8 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUPERTYPE OF (Default_attachment_size_and_via_based_land_physical_template)
     SUBTYPE OF (Default_passage_based_land_physical_template);
       SELF\Default_passage_based_land_physical_template.of_passage_technology : Default_via_definition;
+    WHERE
+      WR1: SELF\Product_view_definition.name IN ['default via based', 'default attachment size and via based'];
   END_ENTITY;
 
 

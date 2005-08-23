@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.33 2005/05/04 10:01:30 liutkus Exp $
+   $Id: arm.exp,v 1.34 2005/08/22 14:18:53 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3399 - ISO/CD-TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
 *)
 
@@ -135,6 +135,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Centre_axis
     SUBTYPE OF (Centre_of_symmetry);
+  DERIVE
+    SELF\Shape_element.description : STRING := 'axis';
   END_ENTITY;
 
   ENTITY Centre_of_symmetry
@@ -146,10 +148,14 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Centre_plane
     SUBTYPE OF (Centre_of_symmetry);
+  DERIVE
+    SELF\Shape_element.description : STRING := 'plane';
   END_ENTITY;
 
   ENTITY Centre_point
     SUBTYPE OF (Centre_of_symmetry);
+  DERIVE
+    SELF\Shape_element.description : STRING := 'point';
   END_ENTITY;
 
   ENTITY Composite_linear_profile_refinement_tolerance
@@ -168,6 +174,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Conical_tolerance_zone_boundary
     SUBTYPE OF (Tolerance_zone_boundary);
+    DERIVE
+      SELF\Shape_element.description : STRING := 'conical';
     INVERSE
       boundary_and_surface_relationships : SET[2:2] OF conical_tolerance_zone_boundary_and_surface_relationship FOR sized_tolerance_zone_boundary;
   END_ENTITY;
@@ -191,6 +199,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Datum_axis
     SUBTYPE OF (Datum_shape_element);
+    DERIVE
+      SELF\Shape_element.description : STRING := 'axis';
   END_ENTITY;
 
   ENTITY Datum_axis_and_tolerance_zone_orienting_relationship;
@@ -240,6 +250,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Datum_plane
     SUBTYPE OF (Datum_shape_element);
+    DERIVE
+      SELF\Shape_element.description : STRING := 'plane';
   END_ENTITY;
 
   ENTITY Datum_point
@@ -353,6 +365,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Edge_segment_vertex
     SUBTYPE OF (Single_datum,
  Datum_point);
+    DERIVE
+      SELF\Shape_element.element_name : STRING := 'single datum';
     UNIQUE
       UR1 : SELF\Single_datum.datum_name;
   END_ENTITY;
@@ -408,10 +422,14 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Parallel_shape_element_relationship
     SUBTYPE OF (Shape_element_relationship);
+    DERIVE
+      SELF\Shape_element_relationship.relation_type : STRING := 'parallel';
   END_ENTITY;
 
   ENTITY Perpendicular_shape_element_relationship
     SUBTYPE OF (Shape_element_relationship);
+    DERIVE
+      SELF\Shape_element_relationship.relation_type : STRING := 'perpendicular';
   END_ENTITY; 
 
   ENTITY Positional_boundary
@@ -421,8 +439,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     INVERSE
       boundary_definition : positional_boundary_definition FOR defined_positional_boundary;
     WHERE
-      WR1: (SELF\Shape_element.description = 'dimension related positional boundary')
-        OR (SELF\Shape_element.description = 'profile related positional boundary');
+      WR1: SELF\Shape_element.description IN ['dimension related positional boundary',
+           'profile related positional boundary'];
   END_ENTITY;
 
   ENTITY Positional_boundary_and_profile_boundary_member_relationship;
@@ -472,6 +490,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Profile_related_positional_boundary
     SUBTYPE OF (Positional_boundary);
+    DERIVE
+      SELF\Shape_element.description : STRING := 'profile related positional boundary';
     INVERSE
       associating_relationship : positional_boundary_and_profile_boundary_member_relationship FOR offset_positional_boundary;
   END_ENTITY;
@@ -589,6 +609,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Tangent_plane
     SUBTYPE OF (Tangent_shape_element);
+    DERIVE
+      SELF\Shape_element.description : STRING := 'plane';
   END_ENTITY;
 
   ENTITY Tangent_shape_element
@@ -624,6 +646,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Tolerance_zone_boundary_member
     SUBTYPE OF (Non_feature_shape_element);
+    DERIVE
+      SELF\Shape_element.description : STRING := 'tolerance zone boundary member';
     INVERSE
       explicit_opposing_boundary_set : tolerance_zone_explicit_opposing_boundary_set FOR boundary_members;
   END_ENTITY;
@@ -638,6 +662,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Tolerance_zone_circular_or_cylindrical_or_spherical_boundary
     SUBTYPE OF (Tolerance_zone_boundary);
+    DERIVE
+      SELF\Shape_element.description : STRING := 'circular or cylindrical or spherical';
     INVERSE
       size_characteristic : diametrical_boundary_size_characteristic FOR sized_boundary;
   END_ENTITY;
@@ -704,6 +730,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Viewing_plane
     SUBTYPE OF (Non_feature_shape_element);
+    DERIVE
+      SELF\Shape_element.description : STRING := 'affected plane';
     INVERSE
       viewing_plane_specification : viewing_plane_definition FOR defined_viewing_plane;
   END_ENTITY;

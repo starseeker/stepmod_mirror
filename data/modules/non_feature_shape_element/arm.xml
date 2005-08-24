@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-16T15:28:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-08-24T14:27:50" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="non_feature_shape_element_arm schema_instance"/>
    <schema name="Non_feature_shape_element_arm">
       <interface kind="use" schema="Part_feature_location_arm"/>
@@ -10,7 +10,7 @@
          <select extensible="YES" genericentity="YES"/>
       </type>
       <type name="nfse_feature_or_non_feature_usage">
-         <select extensible="YES" genericentity="YES" basedon="feature_or_non_feature_usage" selectitems="View_level_non_feature_shape_definition"/>
+         <select extensible="YES" genericentity="YES" basedon="feature_or_non_feature_usage" selectitems="Usage_view_level_non_feature_shape_definition"/>
       </type>
       <type name="nfse_usage_concept">
          <select extensible="YES" genericentity="YES" basedon="usage_concept" selectitems="Non_feature_shape_element"/>
@@ -18,6 +18,13 @@
       <type name="view_shape_select">
          <select extensible="YES" genericentity="YES"/>
       </type>
+      <entity name="Design_view_level_non_feature_shape_definition" supertypes="Non_feature_shape_definition">
+         <explicit name="model_shape">
+            <typename name="view_shape_select"/>
+            <redeclaration entity-ref="Non_feature_shape_definition"/>
+         </explicit>
+         <where label="WR1" expression="SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_definition.model_shape\Geometric_model.context_of_items"/>
+      </entity>
       <entity name="Non_feature_shape_composition_relationship" supertypes="Geometric_model_relationship">
          <explicit name="related_feature_shape_placement">
             <typename name="axis_placement_or_cto2d"/>
@@ -74,7 +81,7 @@
       </entity>
       <entity name="Reference_graphic_registration_mark" supertypes="Non_feature_shape_element"/>
       <entity name="Seating_plane" supertypes="Non_feature_shape_element"/>
-      <entity name="View_level_non_feature_shape_definition" supertypes="Non_feature_shape_definition">
+      <entity name="Usage_view_level_non_feature_shape_definition" abstract.supertype="YES" supertypes="Non_feature_shape_definition">
          <explicit name="model_shape">
             <typename name="view_shape_select"/>
             <redeclaration entity-ref="Non_feature_shape_definition"/>
@@ -82,7 +89,7 @@
          <where label="WR1" expression="SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_definition.model_shape\Geometric_model.context_of_items"/>
       </entity>
       <entity name="View_level_non_feature_shape_element" supertypes="Non_feature_shape_element">
-         <where label="WR1" expression="NOT(SIZEOF(SELF/Non_feature_shape_element.element_shape) > 0) OR&#10;      valid_es('NON_FEATURE_SHAPE_ELEMENT_ARM.VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION',&#10;      (SELF/Non_feature_shape_element.element_shape))"/>
+         <where label="WR1" expression="NOT(SIZEOF(SELF/Non_feature_shape_element.element_shape) &gt; 0) OR&#10;      valid_es('NON_FEATURE_SHAPE_ELEMENT_ARM.USAGE_VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION',&#10;      (SELF/Non_feature_shape_element.element_shape))"/>
       </entity>
       <function name="valid_es">
          <parameter name="input1">
@@ -92,8 +99,7 @@
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Non_feature_shape_definition"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <builtintype type="STRING"/>
+         <builtintype type="BOOLEAN"/>
          <algorithm>REPEAT i := 1 to HIINDEX(input2);
     IF NOT (input1 IN TYPEOF(input2)) THEN RETURN(FALSE);
     END_IF;

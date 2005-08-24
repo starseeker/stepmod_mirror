@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-16T15:28:50" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-08-24T14:27:48" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
    <schema name="Fabrication_technology_arm">
       <interface kind="use" schema="Physical_layout_template_arm"/>
@@ -44,6 +44,10 @@
          <explicit name="maximum_attachment_region_size" optional="YES">
             <typename name="Connection_zone_in_layout_template"/>
          </explicit>
+         <derived name="name" expression="'default attachment size based'">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Product_view_definition"/>
+         </derived>
          <inverse name="interface_access_mechanisms" entity="Land_template_interface_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
@@ -106,8 +110,17 @@
             <typename name="Default_attachment_size_based_land_physical_template"/>
             <redeclaration entity-ref="Land_template_terminal"/>
          </explicit>
+         <derived name="description" expression="'interface terminal'">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
       </entity>
-      <entity name="Land_template_join_terminal" supertypes="Land_template_terminal"/>
+      <entity name="Land_template_join_terminal" supertypes="Land_template_terminal">
+         <derived name="description" expression="'join terminal'">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
+      </entity>
       <entity name="Land_template_terminal" abstract.supertype="YES" supertypes="Shape_element" super.expression="ONEOF (Land_template_join_terminal, Land_template_interface_terminal)">
          <explicit name="associated_definition">
             <typename name="Land_physical_template"/>
@@ -130,6 +143,7 @@
          </unique>
          <where label="WR1" expression="NOT (EXISTS(terminal_connection_zone)) OR EXISTS(connection_zone_category)"/>
          <where label="WR2" expression="NOT (EXISTS(terminal_connection_zone)) OR (SIZEOF(terminal_connection_zone) = SIZEOF(connection_zone_category))"/>
+         <where label="WR3" expression="(SELF\Shape_element.description = 'interface terminal') OR (SELF\Shape_element.description = 'join terminal')"/>
       </entity>
       <entity name="Layout_spacing_requirement_occurrence" supertypes="Requirement_definition_property">
          <explicit name="reference_design_object_category">
@@ -152,12 +166,21 @@
          </unique>
          <where label="WR1" expression="'FABRICATION_TECHNOLOGY_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Requirement_definition_property.required_coordinated_characteristic[1].items[1])"/>
       </entity>
-      <entity name="Material_addition_feature_template" supertypes="Stratum_feature_template"/>
+      <entity name="Material_addition_feature_template" supertypes="Stratum_feature_template">
+         <derived name="name" expression="'material addition feature template'">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Product_view_definition"/>
+         </derived>
+      </entity>
       <entity name="Material_removal_feature_template" supertypes="Template_definition">
          <explicit name="of_stratum_technology" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Stratum_technology"/>
          </explicit>
+         <derived name="name" expression="'material removal feature template'">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Product_view_definition"/>
+         </derived>
       </entity>
       <entity name="Passage_technology_parameters">
          <explicit name="name">

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.33 2005/05/04 10:00:53 liutkus Exp $
+   $Id: arm.exp,v 1.34 2005/05/18 04:15:30 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3294 - ISO/CD-TS 10303-1635 Assembly functional interface requirement - EXPRESS ARM
 *)
 
@@ -34,24 +34,19 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
 		reference_document: SET[0:?] OF Document_definition :=
   			get_document_definition(SELF, 'reference document', 
   			'DOCUMENT_DEFINITION_ARM.DOCUMENT_DEFINITION');
-	
-		host_rcv_functional_characterization: SET[0:?] OF Functional_specification_definition :=
-  			get_document_definition(SELF, 'host rcv functional characterization', 
-  			'FUNCTIONAL_SPECIFICATION_ARM.FUNCTIONAL_SPECIFICATION_DEFINITION');
-
-		host_xmt_functional_characterization: SET[0:?] OF Functional_specification_definition :=
-  			get_document_definition(SELF, 'host xmt functional characterization', 
-  			'FUNCTIONAL_SPECIFICATION_ARM.FUNCTIONAL_SPECIFICATION_DEFINITION');
-
-		media_functional_characterization: SET[0:?] OF Functional_specification_definition :=
-  			get_document_definition(SELF, 'media functional characterization', 
-  			'FUNCTIONAL_SPECIFICATION_ARM.FUNCTIONAL_SPECIFICATION_DEFINITION');
 	WHERE
    		WR1 : EXISTS (reference_document) AND (SIZEOF(reference_document) = 1);
-   		WR2 : NOT EXISTS (host_rcv_functional_characterization) OR (SIZEOF(host_rcv_functional_characterization) = 1);
-		WR3 : NOT EXISTS (host_xmt_functional_characterization) OR (SIZEOF(host_xmt_functional_characterization) = 1);
-   		WR4 : NOT EXISTS (media_functional_characterization) OR (SIZEOF(media_functional_characterization) = 1);
-      	WR5 : EXISTS(host_functional_definition) OR EXISTS(media_functional_definition);
+      	WR2 : EXISTS(host_functional_definition) OR EXISTS(media_functional_definition);   		
   END_ENTITY;
+  
+  ENTITY Protocol_physical_layer_definition_with_characterization 
+    SUBTYPE OF (Protocol_physical_layer_definition);
+       host_rcv_functional_characterization : OPTIONAL SET[1:?] OF Functional_specification_definition;
+       host_xmt_functional_characterization : OPTIONAL SET[1:?] OF Functional_specification_definition;
+       media_functional_characterization    : OPTIONAL SET[1:?] OF Functional_specification_definition;
+	WHERE
+       WR1 : EXISTS (host_rcv_functional_characterization) OR EXISTS (host_xmt_functional_characterization) OR EXISTS(media_functional_characterization);	
+  END_ENTITY;
+
 END_SCHEMA;
 

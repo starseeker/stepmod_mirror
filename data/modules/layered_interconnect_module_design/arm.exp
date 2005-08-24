@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.76 2005/08/24 08:45:59 kovaliovas Exp $
+   $Id: arm.exp,v 1.77 2005/08/24 11:12:03 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -285,15 +285,13 @@ SCHEMA Layered_interconnect_module_design_arm;
     UNIQUE
       UR1 : SELF\Shape_element.element_name,
  associated_definition;
-    WHERE
-      WR1: SELF\Shape_element.description IN ['component termination passage template interface terminal', 'component termination passage template join terminal'];
   END_ENTITY;
 
   ENTITY Conductive_filled_area
     SUPERTYPE OF (Connected_filled_area)
     SUBTYPE OF (Stratum_feature);
-    WHERE
-      WR1: SELF\Shape_element.description IN ['conductive filled area', 'connected filled area'];
+    DERIVE
+      SELF\Shape_element.description : STRING := 'conductive filled area';
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element
@@ -303,9 +301,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       composed_conductor : OPTIONAL Stratum_feature;
     INVERSE
       access_mechanisms : SET[2:?] OF conductive_interconnect_element_terminal FOR associated_component;
-    WHERE
-      WR1: SELF\Product_view_definition.name IN ['conductive interconnect element with pre defined transitions',
-           'join 2 physical connectivity definition supporting', 'unrouted conductive interconnect element'];
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element_terminal
@@ -433,8 +428,8 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUPERTYPE OF (Default_attachment_size_and_component_termination_passage_based_land_physical_template)
     SUBTYPE OF (Default_passage_based_land_physical_template);
       SELF\Default_passage_based_land_physical_template.of_passage_technology : Default_component_termination_passage_definition;
-    WHERE
-      WR1: SELF\Product_view_definition.name IN ['default component termination passage based', 'default attachment size and component termination passage based'];
+    DERIVE
+      SELF\Product_view_definition.name : STRING := 'default component termination passage based';
   END_ENTITY;
 
   ENTITY Default_component_termination_passage_definition
@@ -471,10 +466,6 @@ SCHEMA Layered_interconnect_module_design_arm;
     UNIQUE
       UR1 : of_passage_technology,
  SELF\Stratum_feature_template.of_stratum_technology;
-    WHERE
-      WR1: SELF\Product_view_definition.name IN ['default via based', 'default plated passage based',
-           'default attachment size and via based', 'default unsupported passage based', 'default component termination passage based',
-           'default attachment size and component termination passage based'];
   END_ENTITY;
 
 	ENTITY Default_plated_passage_based_land_physical_template
@@ -504,8 +495,8 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUPERTYPE OF (Default_attachment_size_and_via_based_land_physical_template)
     SUBTYPE OF (Default_passage_based_land_physical_template);
       SELF\Default_passage_based_land_physical_template.of_passage_technology : Default_via_definition;
-    WHERE
-      WR1: SELF\Product_view_definition.name IN ['default via based', 'default attachment size and via based'];
+    DERIVE
+      SELF\Product_view_definition.name : STRING := 'default via based';
   END_ENTITY;
 
 
@@ -656,10 +647,8 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Inter_stratum_feature_template
     SUBTYPE OF (Template_definition);
       of_passage_technology : Passage_technology;
-    WHERE
-      WR1: SELF\Product_view_definition.name IN ['inter stratum feature template', 'via template',
-           'component termination passage template', 'unsupported passage template', 'counterbore passage template',
-           'countersunk passage template', 'blind passage template'];
+    DERIVE
+      SELF\Product_view_definition.name : STRING := 'inter stratum feature template';
   END_ENTITY;
 
   ENTITY Inter_stratum_join_relationship
@@ -1221,9 +1210,8 @@ It is a summary of all vertical elements of particular kind, similar like stratu
  Blind_passage_template))
     SUBTYPE OF (Inter_stratum_feature_template);
       SELF\Inter_stratum_feature_template.of_passage_technology : Default_unsupported_passage_definition;
-    WHERE
-      WR1: SELF\Product_view_definition.name IN ['unsupported passage template', 'counterbore passage template',
-           'countersunk passage template', 'blind passage template'];
+    DERIVE
+      SELF\Product_view_definition.name : STRING := 'unsupported passage template';
   END_ENTITY;
 
   ENTITY Via

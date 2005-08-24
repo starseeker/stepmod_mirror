@@ -1,0 +1,224 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  reference="10303-53"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml2.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.38"
+    source="../data/resources/product_analysis_schema/product_analysis_schema.exp"/>
+
+  <schema name="product_analysis_schema">
+
+    <interface
+      kind="reference"
+      schema="analysis_product_relationships_schema">
+      <interfaced.item
+        name="idealisation_relationship"/>
+    </interface>
+    <interface
+      kind="reference"
+      schema="product_property_definition_schema">
+      <interfaced.item
+        name="general_property"/>
+    </interface>
+    <interface
+      kind="reference"
+      schema="support_resource_schema">
+      <interfaced.item
+        name="bag_to_set"/>
+      <interfaced.item
+        name="identifier"/>
+      <interfaced.item
+        name="label"/>
+      <interfaced.item
+        name="text"/>
+    </interface>
+    <entity
+      name="behavioural_decomposition_of_temporal_spatial_domain">
+      <explicit
+        name="parts">
+        <aggregate
+          type="SET"
+          lower="2"
+          upper="?"/>
+        <typename
+          name="temporal_spatial_domain"/>
+      </explicit>
+      <explicit
+        name="whole">
+        <typename
+          name="temporal_spatial_domain"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="domain_property">
+      <explicit
+        name="domain">
+        <typename
+          name="temporal_spatial_domain"/>
+      </explicit>
+      <explicit
+        name="property_type">
+        <typename
+          name="general_property"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="physical_action_domain"
+      supertypes="temporal_spatial_domain">
+      <explicit
+        name="initial">
+        <typename
+          name="physical_state_domain"/>
+      </explicit>
+      <explicit
+        name="final">
+        <typename
+          name="physical_state_domain"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="physical_product_domain"
+      supertypes="temporal_spatial_domain">
+      <explicit
+        name="temporal_parts">
+        <aggregate
+          type="SET"/>
+        <typename
+          name="physical_action_domain"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="physical_state_domain"
+      supertypes="temporal_spatial_domain">
+    </entity>
+
+    <entity
+      name="spatial_decomposition_of_temporal_spatial_domain">
+      <explicit
+        name="parts">
+        <aggregate
+          type="SET"
+          lower="2"
+          upper="?"/>
+        <typename
+          name="temporal_spatial_domain"/>
+      </explicit>
+      <explicit
+        name="whole">
+        <typename
+          name="temporal_spatial_domain"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="temporal_decomposition_of_action_domain">
+      <explicit
+        name="parts">
+        <aggregate
+          type="LIST"
+          lower="2"
+          upper="?"/>
+        <typename
+          name="physical_action_domain"/>
+      </explicit>
+      <explicit
+        name="whole">
+        <typename
+          name="physical_action_domain"/>
+      </explicit>
+    </entity>
+
+    <entity
+      name="temporal_spatial_domain">
+      <explicit
+        name="description">
+        <typename
+          name="text"/>
+      </explicit>
+      <explicit
+        name="id">
+        <typename
+          name="identifier"/>
+      </explicit>
+      <explicit
+        name="name">
+        <typename
+          name="label"/>
+      </explicit>
+      <where
+        label="wr1"
+        expression="definition_for_temporal_spatial_domain(SELF)">
+      </where>
+    </entity>
+
+    <subtype.constraint name="sc1_temporal_spatial_domain"
+      entity="temporal_spatial_domain"
+      abstract.supertype="YES">
+    </subtype.constraint>
+    <function
+      name="definition_for_temporal_spatial_domain">
+      <parameter
+        name="domain">
+        <typename
+          name="temporal_spatial_domain"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+LOCAL
+spatial_set : SET OF
+spatial_decomposition_of_temporal_spatial_domain;
+behavioural_set : SET OF
+behavioural_decomposition_of_temporal_spatial_domain;
+domains : SET OF temporal_spatial_domain := [];
+idealising : BAG OF idealisation_relationship;
+spatial_bag : BAG OF spatial_decomposition_of_temporal_spatial_domain;
+behavioural_bag : BAG OF behavioural_decomposition_of_temporal_spatial_domain;
+END_LOCAL;
+idealising := USEDIN(domain,
+'ANALYSIS_PRODUCT_RELATIONSHIPS_SCHEMA.IDEALISATION_RELATIONSHIP.IDEALISATION');
+IF SIZEOF(idealising) &gt; 0 THEN
+RETURN(TRUE);
+END_IF;
+spatial_bag := USEDIN(domain,
+'PRODUCT_ANALYSIS_SCHEMA.SPATIAL_DECOMPOSITION_OF_TEMPORAL_SPATIAL_DOMAIN.PARTS');
+IF SIZEOF(spatial_bag) &gt; 0 THEN
+spatial_set := bag_to_set(spatial_bag);
+REPEAT i := 1 TO HIINDEX(spatial_set);
+domains := domains + spatial_set[i].whole;
+END_REPEAT;
+END_IF;
+behavioural_bag := USEDIN(domain,
+'PRODUCT_ANALYSIS_SCHEMA.BEHAVIOURAL_DECOMPOSITION_OF_TEMPORAL_SPATIAL_DOMAIN.PARTS');
+IF SIZEOF(behavioural_bag) &gt; 0 THEN
+behavioural_set := bag_to_set(behavioural_bag);
+REPEAT i := 1 TO HIINDEX(behavioural_set);
+domains := domains + behavioural_set[i].whole;
+END_REPEAT;
+END_IF;
+IF SIZEOF(domains) &gt; 0 THEN
+REPEAT i := 1 TO HIINDEX(domains);
+IF definition_for_temporal_spatial_domain(domains[i]) THEN
+RETURN(TRUE);
+END_IF;
+END_REPEAT;
+END_IF;
+RETURN(FALSE);
+      </algorithm>
+    </function>
+
+  </schema>
+</express>

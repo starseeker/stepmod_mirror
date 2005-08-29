@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.25 2005/07/22 22:43:54 thendrix Exp $
+<!--  $Id: build.xsl,v 1.26 2005/08/17 17:49:50 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To build the initial ANT publication file. 
@@ -621,6 +621,17 @@
         </xsl:attribute>
       </xsl:element>
       
+      <xsl:element name="property">
+        <xsl:attribute name="name">ARMLFEXPXML</xsl:attribute>
+        <xsl:attribute name="value">
+          <xsl:apply-templates select="modules/module" mode="list">
+            <xsl:with-param name="prefix" select="'data/modules/'"/>
+            <xsl:with-param name="suffix" select="'/arm_lf.xml'"/>
+          </xsl:apply-templates>
+        </xsl:attribute>
+      </xsl:element>
+      
+    
       
       <xsl:element name="property">
         <xsl:attribute name="name">MIMEXPXML</xsl:attribute>
@@ -628,6 +639,16 @@
           <xsl:apply-templates select="modules/module" mode="list">
             <xsl:with-param name="prefix" select="'data/modules/'"/>
             <xsl:with-param name="suffix" select="'/mim.xml'"/>
+          </xsl:apply-templates>
+        </xsl:attribute>
+      </xsl:element>
+
+      <xsl:element name="property">
+        <xsl:attribute name="name">MIMLFEXPXML</xsl:attribute>
+        <xsl:attribute name="value">
+          <xsl:apply-templates select="modules/module" mode="list">
+            <xsl:with-param name="prefix" select="'data/modules/'"/>
+            <xsl:with-param name="suffix" select="'/mim_lf.xml'"/>
           </xsl:apply-templates>
         </xsl:attribute>
       </xsl:element>
@@ -2418,7 +2439,7 @@
       
       <xsl:element name="style">
         <xsl:attribute name="includes">
-          <xsl:value-of select="'${ARMEXPXML}, ${MIMEXPXML}'"/>
+          <xsl:value-of select="'${ARMEXPXML}, ${MIMEXPXML},${ARMLFEXPXML}, ${MIMLFEXPXML}'"/>
         </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/express.xsl'"/>

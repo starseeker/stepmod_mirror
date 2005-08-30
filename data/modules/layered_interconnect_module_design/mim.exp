@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.28 2005/07/05 10:57:18 liutkus Exp $
+   $Id: mim.exp,v 1.29 2005/08/03 12:24:41 budreckytej Exp $
    ISO TC184/SC4/WG12 N3484 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS MIM
 *)
 
@@ -42,7 +42,8 @@ SUBTYPE_CONSTRAINT template_definition_subtypes FOR part_template_definition;
 END_SUBTYPE_CONSTRAINT;
 
 TYPE limd_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
-     (stratum_concept_relationship);
+     (stratum_feature_conductive_join,
+ 	  dielectric_crossover_area);
 END_TYPE; 
 
 TYPE limd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
@@ -1361,85 +1362,6 @@ WHERE
         (sar.relating_shape_aspect\shape_aspect.description =
        'interconnect module primary surface'))) >= 0)) >= 0)) = 0)));
 END_ENTITY;	
-
-ENTITY stratum_concept_relationship
-  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
-WHERE
-  WR1: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'REQUIREMENTS_PROPERTY' IN
-       TYPEOF (pd))) >= 1; 
-  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       SIZEOF (USEDIN (pd, 
-        'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) = 1)) = 1;
-  WR3: (NOT (SELF\shape_aspect_relationship.name = 
-       'dielectric crossover area')) OR
-       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'STRATUM_FEATURE' IN 
-       TYPEOF (SELF.relating_shape_aspect)) AND
-       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'STRATUM_FEATURE' IN
-       TYPEOF (SELF.related_shape_aspect)));
-  WR4: (NOT (SELF\shape_aspect_relationship.name = 
-       'dielectric crossover area')) OR
-       (SIZEOF (QUERY (rdc <* QUERY (sar <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'resulting dielectric crossover') |
-       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'STRATUM_FEATURE' IN
-       TYPEOF (rdc.relating_shape_aspect)))) = 1);
-(* invalid csa        
-  WR5: (NOT (SELF\shape_aspect_relationship.name = 
-       'stratum feature conductive join')) OR
-       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'LAND' IN 
-       TYPEOF (SELF.relating_shape_aspect)) OR
-       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'COMPONENT_SHAPE_ASPECT' IN
-       TYPEOF (SELF.relating_shape_aspect)) AND
-       (SELF.relating_shape_aspect\shape_aspect.description = 
-       'stratum feature template component')));
-  WR6: (NOT (SELF\shape_aspect_relationship.name = 
-       'stratum feature conductive join')) OR
-       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'LAND' IN 
-       TYPEOF (SELF.related_shape_aspect)) OR
-       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'COMPONENT_SHAPE_ASPECT' IN
-       TYPEOF (SELF.related_shape_aspect)) AND
-       (SELF.related_shape_aspect\shape_aspect.description = 
-       'stratum feature template component'))); *)
-  WR7: (NOT (SELF\shape_aspect_relationship.name =
-       'stratum feature conductive join')) OR
-       (SIZEOF (QUERY (fj <* QUERY (sar <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'features join') |
-       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'PLATED_PASSAGE' IN
-       TYPEOF (fj.related_shape_aspect)) AND
-       (fj.related_shape_aspect\shape_aspect.description =
-       'bonded conductive base blind via'))) <= 1);
-  WR8: (NOT ((SELF\shape_aspect.description =
-       'physical network supporting stratum feature conductive join') AND
-       (SELF\shape_aspect_relationship.name =
-       'stratum feature conductive join'))) OR
-       (SIZEOF (QUERY (ji <* QUERY (sar <* USEDIN (SELF,
-       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'join implementation') |
-       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
-       'JOIN_SHAPE_ASPECT' IN
-       TYPEOF (ji.relating_shape_aspect)) AND
-       (ji.relating_shape_aspect\shape_aspect.name =
-       'inter stratum join'))) = 1);
-END_ENTITY;
 
 ENTITY stratum_feature
   SUPERTYPE OF (fiducial_stratum_feature)

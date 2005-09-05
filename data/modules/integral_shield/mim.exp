@@ -3,4 +3,25 @@
    N - ISO/CD-TS - 10303- integral_shield - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Integral_shield_mim;
+
+USE FROM Layered_interconnect_module_with_printed_component_design_mim;	-- ISO/TS 10303-1700
+USE FROM Assembly_physical_requirement_allocation_mim;
+
+ENTITY integral_shield
+  SUBTYPE OF (assembly_component);
+WHERE
+  WR1: SIZEOF (QUERY(pdr <* USEDIN(SELF,
+       'SHIELD_MIM.' +
+       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
+       (('SHIELD_MIM.' +
+       'COMPONENT_DEFINITION' IN TYPEOF(pdr.relating_property_definition))
+       OR ('SHIELD_MIM.' +
+    'COMPONENT_DEFINITION' IN TYPEOF(pdr.relating_property_definition)))
+       AND (pdr\property_definition_relationship.name = 'shielded item'))) >=1;
+END_ENTITY;
+
+ENTITY routed_shield
+  SUBTYPE OF (routed_printed_component);
+END_ENTITY;
+
 END_SCHEMA;

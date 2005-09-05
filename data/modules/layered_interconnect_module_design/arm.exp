@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.78 2005/08/24 13:08:18 kovaliovas Exp $
+   $Id: arm.exp,v 1.79 2005/08/30 14:50:04 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -859,11 +859,11 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Layer_connection_point
-    ABSTRACT SUPERTYPE;
-      name                          : STRING;    
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF (Shape_element);
       location_2d                   : OPTIONAL Cartesian_point;
       location_3d                   : OPTIONAL Cartesian_point;
-      resident_design_layer_stratum : Design_layer_stratum;
+      SELF\Shape_element.containing_shape RENAMED resident_design_layer_stratum : Design_layer_stratum;
     DERIVE
       aggregate_join    : SET[1:?] OF join_relationship := make_aggregate_join(inter_join_path,
  intra_join_path,
@@ -874,7 +874,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       intra_join_path         : intra_stratum_join_relationship FOR points_to_be_connected;
       embedded_component_path : SET[0:?] OF stratum_embedded_component_join_relationship FOR point_to_be_connected;
     UNIQUE
-      UR1 : name,
+      UR1 : SELF\Shape_element.element_name,
  resident_design_layer_stratum;
     WHERE
       WR1 : EXISTS(location_2d) OR EXISTS(location_3d);

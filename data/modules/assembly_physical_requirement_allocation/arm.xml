@@ -2,17 +2,17 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-01T15:46:27" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-06T12:45:55" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_physical_requirement_allocation_arm schema_instance"/>
    <schema name="Assembly_physical_requirement_allocation_arm">
       <interface kind="use" schema="Assembly_physical_interface_requirement_arm"/>
       <interface kind="use" schema="Assembly_technology_arm"/>
-      <interface kind="use" schema="Shield_arm"/>
+      <interface kind="use" schema="Discrete_shield_arm"/>
       <interface kind="reference" schema="Requirement_decomposition_arm">
          <interfaced.item name="get_requirement_definition_property"/>
       </interface>
       <type name="apra_requirement_assignment_item">
-         <select extensible="YES" basedon="requirement_assignment_item" selectitems="component_or_feature shield"/>
+         <select extensible="YES" basedon="requirement_assignment_item" selectitems="component_or_feature Physical_shield"/>
       </type>
       <type name="component_or_feature">
          <select extensible="YES" genericentity="YES" selectitems="Assembly_component Assembly_joint Component_feature"/>
@@ -30,7 +30,16 @@
          </explicit>
          <where label="IP1"/>
       </entity>
-      <entity name="Electromagnetic_compatibility_requirement_allocation" supertypes="Assembly_requirement_allocation" super.expression="Shield_allocation"/>
+      <entity name="Assembly_shield_allocation" supertypes="Electromagnetic_compatibility_requirement_allocation">
+         <explicit name="assigned_to">
+            <typename name="Physical_shield"/>
+            <redeclaration entity-ref="Requirement_assignment"/>
+         </explicit>
+         <derived name="assigned_requirement_property" expression="get_requirement_definition_property(SELF,&#10;'ASSEMBLY_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.'+'ELECTROMAGNETIC_REQUIREMENT_OCCURRENCE')">
+            <typename name="Requirement_definition_property"/>
+         </derived>
+      </entity>
+      <entity name="Electromagnetic_compatibility_requirement_allocation" supertypes="Assembly_requirement_allocation" super.expression="Assembly_shield_allocation"/>
       <entity name="Interface_component_allocation">
          <explicit name="mating_solution">
             <typename name="Interface_component"/>
@@ -38,15 +47,6 @@
          <explicit name="mating_requirement">
             <typename name="Mating_connector_component"/>
          </explicit>
-      </entity>
-      <entity name="Shield_allocation" supertypes="Electromagnetic_compatibility_requirement_allocation">
-         <explicit name="assigned_to">
-            <typename name="shield"/>
-            <redeclaration entity-ref="Requirement_assignment"/>
-         </explicit>
-         <derived name="assigned_requirement_property" expression="get_requirement_definition_property(SELF, 'ASSEMBLY_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.'+'ELECTROMAGNETIC_REQUIREMENT_OCCURRENCE')">
-            <typename name="Requirement_definition_property"/>
-         </derived>
       </entity>
       <entity name="Thermal_requirement_allocation" supertypes="Assembly_requirement_allocation">
          <explicit name="assigned_to">

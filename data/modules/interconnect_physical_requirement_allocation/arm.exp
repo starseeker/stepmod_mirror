@@ -8,6 +8,9 @@
 	USE FROM Fabrication_technology_arm;	-- ISO/TS 10303-1670
 	
 	USE FROM Requirement_view_definition_relationship_arm; -- ISO/TS 10303-1142
+	
+	USE FROM Integral_shield_arm; -- ISO/TS 10303-xxxx
+	
 
 	SUBTYPE_CONSTRAINT material_removal_feature_template_subtypes FOR Material_removal_feature_template; 
 	    (ONEOF (Electrical_isolation_removal_template,
@@ -17,6 +20,15 @@
  	TYPE thermal_isolation_removal_structure_or_template = EXTENSIBLE GENERIC_ENTITY SELECT
  		(Thermal_isolation_removal_template);
 	END_TYPE;
+
+ENTITY Integral_shield_allocation
+    SUBTYPE OF (Requirement_assignment);
+      SELF\Requirement_assignment.assigned_to : i_shield;
+    DERIVE
+    	assigned_requirement_property :  requirement_definition_property :=
+get_requirement_definition_property(SELF,
+'INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.'+'ELECTROMAGNETIC_REQUIREMENT_OCCURRENCE');
+  END_ENTITY;
 		
   ENTITY Thermal_isolation_removal_template
     SUBTYPE OF (Material_removal_feature_template);

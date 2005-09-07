@@ -10,7 +10,7 @@ SCHEMA Specification_document_arm;
 	USE FROM Tagged_text_representation_arm; -- ISO/TS 10303-1366
 	USE FROM Person_organization_assignment_arm;	-- ISO/TS 10303-1013
 
-	TYPE specification_product_object_select = EXTENSIBLE SELECT(
+	TYPE sd_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH (
 		Product_configuration,
      	Product_view_definition,
      	Product_version,
@@ -54,18 +54,10 @@ SCHEMA Specification_document_arm;
       SELF\Product_view_definition.additional_characterization  : STRING := 'process specification';
   END_ENTITY;
 
-  ENTITY Specification_allocation;
-      allocated_specification      : Specification_definition;
-      target_product_object        : SET[1:?] OF specification_product_object_select;
-      purpose                      : STRING; --ee_name;
-      identifier_in_target_context : OPTIONAL STRING; --ee_name;
-    DERIVE
-      the_context : specification_product_object_select := target_product_object[1];
-    UNIQUE
-      UR1 : identifier_in_target_context,
- the_context;
-    WHERE
-      WR1 : NOT EXISTS(identifier_in_target_context) OR (SIZEOF(target_product_object) = 1);
+  ENTITY Specification_allocation
+  	SUBTYPE OF (Document_assignment);
+      SELF\Document_assignment.assigned_document RENAMED allocated_specification : Specification_definition;
+      purpose                      : STRING;
   END_ENTITY;
 
   ENTITY Specification_definition

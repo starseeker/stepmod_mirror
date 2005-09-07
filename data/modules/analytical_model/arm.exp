@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.37 2005/08/04 07:10:27 budreckytej Exp $
+   $Id: arm.exp,v 1.38 2005/08/04 08:34:26 budreckytej Exp $
    ISO TC184/SC4/WG12 N3288 - ISO/CD-TS 10303-1603 Analytical model - EXPRESS ARM
 *)
 
@@ -81,8 +81,11 @@ SCHEMA Analytical_model_arm;
   ENTITY Analytical_model_definition
     SUBTYPE OF (Information_definition_with_digital_file);
       SELF\Product_view_definition.defined_version 	: Analytical_model_version;
-      representation_language 						: Language_reference_manual;
       SELF\Information_definition_with_digital_file.files RENAMED source_code : SET [1:1] OF Digital_file_with_content;
+    DERIVE  
+		representation_language: SET[1:1] OF Document_definition :=
+  			get_document_definition(SELF, 'representation language', 
+  			'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL');
     INVERSE
       access_mechanism : SET[1:?] OF analytical_model_port FOR accessed_analytical_model;
       parameter        : SET[1:?] OF analytical_model_parameter FOR accessed_analytical_model;

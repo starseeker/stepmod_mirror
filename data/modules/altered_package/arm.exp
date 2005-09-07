@@ -1,11 +1,17 @@
 (*
-   $Id: arm.exp,v 1.13 2005/04/07 18:03:17 liutkus Exp $
+   $Id: arm.exp,v 1.14 2005/08/19 12:51:01 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3282 - ISO/CD-TS 10303-1601 Altered package - EXPRESS ARM
 *)
 
 SCHEMA Altered_package_arm;
 
 	USE FROM Package_arm;	-- ISO/TS 10303-1707
+
+	REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
+
+	TYPE ap_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
+	   (Surface_prepped_terminal);
+	END_TYPE; 
 
  	TYPE ap_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
 		(Altered_package);
@@ -52,7 +58,10 @@ SCHEMA Altered_package_arm;
 
   ENTITY Surface_prepped_terminal
     SUBTYPE OF (Altered_package_terminal);
-      surface_preparation : Surface_finish_specification;
+	DERIVE
+	  surface_preparation: SET[1:1] OF Document_definition :=
+  			get_document_definition(SELF, 'surface preparation', 
+  			'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION');
   END_ENTITY;
 
 END_SCHEMA;

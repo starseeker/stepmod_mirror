@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.20 2005/08/23 09:11:14 kovaliovas Exp $
+   $Id: arm.exp,v 1.21 2005/08/24 12:56:48 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -7,6 +7,13 @@ SCHEMA Fabrication_technology_arm;
 
 	USE FROM Physical_layout_template_arm;	-- ISO/TS 10303-1722
 	USE FROM Requirement_decomposition_arm;	-- ISO/TS 10303-1740
+
+	REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
+
+	TYPE ft_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
+	   (Passage_technology_parameters,
+	   Stratum_technology);
+	END_TYPE; 
 
   TYPE ft_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
 	(Stratum_technology);
@@ -296,7 +303,10 @@ SCHEMA Fabrication_technology_arm;
       maximum_as_finished_deposition_thickness : OPTIONAL Length_data_element;
       maximum_aspect_ratio                     : OPTIONAL REAL;
       minimum_as_finished_deposition_thickness : OPTIONAL Length_data_element;
-      specification                            : OPTIONAL Process_specification;
+	DERIVE
+		specification: SET[0:1] OF Document_definition :=
+  			get_document_definition(SELF, 'specification', 
+  			'SPECIFICATION_DOCUMENT_ARM.PROCESS_SPECIFICATION');
     UNIQUE
       UR1 : name;
   END_ENTITY;
@@ -318,8 +328,13 @@ SCHEMA Fabrication_technology_arm;
       laminate_stiffness_class         : OPTIONAL stiffness_class;
       minimum_finished_feature_spacing : OPTIONAL Length_data_element;
       maximum_feature_size_requirement : OPTIONAL Length_data_element;
-      specification                    : OPTIONAL Process_specification;
-      surface_specification            : OPTIONAL Surface_finish_specification;
+	DERIVE
+		specification: SET[0:1] OF Document_definition :=
+  			get_document_definition(SELF, 'specification', 
+  			'SPECIFICATION_DOCUMENT_ARM.PROCESS_SPECIFICATION');
+		surface_specification: SET[0:1] OF Document_definition :=
+  			get_document_definition(SELF, 'surface specification', 
+  			'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION');
    INVERSE
 	  stratum_material : material_identification FOR items;      
     UNIQUE

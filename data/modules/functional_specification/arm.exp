@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.7 2005/04/04 10:08:33 liutkus Exp $
+   $Id: arm.exp,v 1.8 2005/05/23 08:32:09 liutkus Exp $
    ISO TC184/SC4/WG12 N3426 - ISO/CD-TS 10303-1679 Functional specification - EXPRESS ARM
 *)
 
@@ -7,6 +7,12 @@ SCHEMA Functional_specification_arm;
 
 	USE FROM Signal_arm;	-- ISO/TS 10303-1745
 	USE FROM Network_functional_design_view_arm;	-- ISO/TS 10303-1704	
+
+	REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
+
+	TYPE fs_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
+	   (Signal_specification);
+	END_TYPE; 
 
  	TYPE fs_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
 		(Functional_specification);
@@ -30,12 +36,15 @@ SCHEMA Functional_specification_arm;
   END_ENTITY;
 
   ENTITY Signal_specification;
-      measurement_condition        : Test_specification;
       measurement_access_mechanism : Functional_unit_terminal;
       reference_access_mechanism   : OPTIONAL Functional_unit_terminal;
       minimum_characteristic       : Signal_property;
       maximum_characteristic       : Signal_property;
       characterization_network     : Functional_unit_network_definition;
+	DERIVE
+	  measurement_condition: SET[1:1] OF Document_definition :=
+  			get_document_definition(SELF, 'measurement condition', 
+  			'SPECIFICATION_DOCUMENT_ARM.TEST_SPECIFICATION');
   END_ENTITY;
 
 END_SCHEMA;

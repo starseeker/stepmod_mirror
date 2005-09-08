@@ -2,15 +2,15 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-01T15:46:34" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-08T13:30:33" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
    <schema name="Specification_document_arm">
       <interface kind="use" schema="Characteristic_arm"/>
       <interface kind="use" schema="Configuration_item_arm"/>
       <interface kind="use" schema="Tagged_text_representation_arm"/>
       <interface kind="use" schema="Person_organization_assignment_arm"/>
-      <type name="specification_product_object_select">
-         <select extensible="YES" selectitems="Product_configuration Product_view_definition Product_version Product"/>
+      <type name="sd_documented_element_select">
+         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Product_configuration Product_view_definition Product_version Product"/>
       </type>
       <entity name="Design_specification" supertypes="Specification_definition" super.expression="Interface_specification_document_definition">
          <derived name="additional_characterization" expression="'design specification'">
@@ -48,28 +48,14 @@
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
       </entity>
-      <entity name="Specification_allocation">
+      <entity name="Specification_allocation" supertypes="Document_assignment">
          <explicit name="allocated_specification">
             <typename name="Specification_definition"/>
-         </explicit>
-         <explicit name="target_product_object">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="specification_product_object_select"/>
+            <redeclaration entity-ref="Document_assignment" old_name="assigned_document"/>
          </explicit>
          <explicit name="purpose">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="identifier_in_target_context" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <derived name="the_context" expression="target_product_object[1]">
-            <typename name="specification_product_object_select"/>
-         </derived>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Specification_allocation" attribute="identifier_in_target_context"/>
-            <unique.attribute entity-ref="Specification_allocation" attribute="the_context"/>
-         </unique>
-         <where label="WR1" expression="NOT EXISTS(identifier_in_target_context) OR (SIZEOF(target_product_object) = 1)"/>
       </entity>
       <entity name="Specification_definition" supertypes="Document_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)">
          <derived name="source" expression="QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'document source') )">

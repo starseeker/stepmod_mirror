@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.7 2005/02/02 14:43:51 budreckytej Exp $
+   $Id: arm.exp,v 1.13 2005/09/08 20:42:02 liutkus Exp $
    ISO TC184/SC4/WG12 N3456 - ISO/CD-TS 10303-1689 Interconnect physical requirement allocation - EXPRESS ARM
 *)
 
@@ -79,19 +79,21 @@ FUNCTION get_specific_requirement_view_type_for_primary_rvd_relationship(
 ) : SET OF Requirement_view_definition; 
 
 LOCAL
-    rvdr : SET[0:?] OF Requirement_view_definition_relationship := [];
-    rvd : SET[0:?] OF Requirement_view_definition := [];  --this gives us access to the information base
+    rcr : SET[0:?] OF Requirement_collection_relationship := [];--this gives us access to the information base
+    rdp : SET[0:?] OF Requirement_definition_property :=[];
 END_LOCAL;
-	rvdr := (QUERY(rai <* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+
-	'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY') | 
-          (reqType IN TYPEOF(rai.primary))));
+    rcr := (QUERY(rai <* USEDIN (input, 'REQUIREMENT_VIEW_DEFINITION_ARM.'+
+	'REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') | 
+          (rai\View_definition_relationship.relation_type = id)));
 
-	-- iterate over rvdr
-	REPEAT i := 1 to SIZEOF(rvdr) by 1;
-		rvd := rvd + rvdr[i].primary;
-	END_REPEAT;
+	-- iterate over rcr 
+    REPEAT i := 1 to SIZEOF(rcr) by 1;
+        -- get rdp 
+      rdp := rdp + USEDIN (rcr[i].member, 'REQUIREMENT_DECOMPOSITION_ARM.'+
+        'REQUIREMENT_DEFINITION_PROPERTY.ASSOCIATED_DEFINITION');
+    END_REPEAT;
 
-	RETURN(rvd);
+	RETURN(rdp);
 END_FUNCTION;
   
  END_SCHEMA;

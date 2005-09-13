@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.1 2005/09/12 19:39:34 thomasrthurman Exp $
+   $Id: arm.exp,v 1.2 2005/09/13 08:10:49 liutkus Exp $
    ISO TC184/SC4/WG12 N3342 - ISO/CD-TS 10303-1705 Network functional usage view - EXPRESS ARM
 *)
 
@@ -37,7 +37,6 @@ SCHEMA Functional_usage_view_arm;
    ENTITY Functional_unit_definition
     ABSTRACT SUPERTYPE 
     SUBTYPE OF (Product_view_definition);
-      SELF\Product_view_definition.defined_version : Network_function_version;
   END_ENTITY;
 
 	ENTITY Functional_unit_make_from_relationship
@@ -73,17 +72,6 @@ SCHEMA Functional_usage_view_arm;
       WR2 : reusable_feature.associated_functional_unit_definition :<>: resultant_feature.associated_functional_unit_definition;
   END_ENTITY;
 
-  ENTITY Network_function
-  	SUBTYPE OF (Product);
-  	WHERE 
-  		WR1 : SIZEOF([ 'network function' ] * types_of_product(SELF))= 1 ;
-  END_ENTITY;
-  
-  ENTITY Network_function_version
-  	SUBTYPE OF (Product_version);
-  		SELF\Product_version.of_product : Network_function;
-  END_ENTITY;
-
   ENTITY Scalar_terminal_definition
     SUBTYPE OF (Functional_unit_usage_view_terminal_definition);
   END_ENTITY;
@@ -97,12 +85,6 @@ SCHEMA Functional_usage_view_arm;
     WHERE
       WR1 : precedent_terminal_definition :<>: subsequent_terminal_definition;
   END_ENTITY;
-
-RULE network_function_version_constraint FOR 
-(Product_version);
-WHERE
-  WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'NETWORK_FUNCTION_USAGE_VIEW_ARM.' + 'NETWORK_FUNCTION_VERSION' IN TYPEOF ( pv) ) ) AND ( 'NETWORK_FUNCTION_USAGE_VIEW_ARM.' + 'NETWORK_FUNCTION' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
-END_RULE; 
 
 RULE functional_unit_definition_constraint FOR 
 (Product_view_definition);

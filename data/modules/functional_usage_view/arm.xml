@@ -2,9 +2,9 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-01T15:46:32" rcs.revision="1.0" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="network_functional_usage_view_arm schema_instance"/>
-   <schema name="Network_functional_usage_view_arm">
+<express language_version="2" rcs.date="2005-09-13T14:53:14" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_usage_view_arm schema_instance"/>
+   <schema name="Functional_usage_view_arm">
       <interface kind="use" schema="Analytical_model_arm"/>
       <interface kind="use" schema="Product_view_definition_relationship_arm"/>
       <interface kind="reference" schema="Product_identification_arm">
@@ -50,12 +50,7 @@
             <typename name="Scalar_terminal_definition"/>
          </explicit>
       </entity>
-      <entity name="Functional_unit_definition" abstract.supertype="YES" supertypes="Product_view_definition">
-         <explicit name="defined_version">
-            <typename name="Network_function_version"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </explicit>
-      </entity>
+      <entity name="Functional_unit_definition" abstract.supertype="YES" supertypes="Product_view_definition"/>
       <entity name="Functional_unit_make_from_relationship" supertypes="View_definition_relationship">
          <explicit name="relating_view">
             <typename name="Functional_unit_usage_view"/>
@@ -100,15 +95,6 @@
          <where label="WR1" expression="reusable_feature :&lt;&gt;: resultant_feature"/>
          <where label="WR2" expression="reusable_feature.associated_functional_unit_definition :&lt;&gt;: resultant_feature.associated_functional_unit_definition"/>
       </entity>
-      <entity name="Network_function" supertypes="Product">
-         <where label="WR1" expression="SIZEOF([ 'network function' ] * types_of_product(SELF))= 1"/>
-      </entity>
-      <entity name="Network_function_version" supertypes="Product_version">
-         <explicit name="of_product">
-            <typename name="Network_function"/>
-            <redeclaration entity-ref="Product_version"/>
-         </explicit>
-      </entity>
       <entity name="Scalar_terminal_definition" supertypes="Functional_unit_usage_view_terminal_definition"/>
       <entity name="Scalar_terminal_definition_link">
          <explicit name="precedent_terminal_definition">
@@ -125,9 +111,6 @@
       </entity>
       <rule name="functional_unit_definition_constraint" appliesto="Product_view_definition">
          <where label="WR1" expression="SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'NETWORK_FUNCTION_USAGE_VIEW_ARM.' + 'FUNCTIONAL_UNIT_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'NETWORK_FUNCTION_USAGE_VIEW_ARM.' + 'NETWORK_FUNCTION_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0"/>
-      </rule>
-      <rule name="network_function_version_constraint" appliesto="Product_version">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'NETWORK_FUNCTION_USAGE_VIEW_ARM.' + 'NETWORK_FUNCTION_VERSION' IN TYPEOF ( pv) ) ) AND ( 'NETWORK_FUNCTION_USAGE_VIEW_ARM.' + 'NETWORK_FUNCTION' IN TYPEOF ( pv.of_product) ) ) ) =0"/>
       </rule>
    </schema>
 </express>

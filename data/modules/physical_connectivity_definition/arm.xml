@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-08T13:25:24" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-14T17:28:26" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_connectivity_definition_arm schema_instance"/>
    <schema name="Physical_connectivity_definition_arm">
       <interface kind="use" schema="Part_external_reference_arm"/>
@@ -21,16 +21,16 @@
          <select extensible="YES" genericentity="YES" selectitems="Component_terminal Topological_junction"/>
       </type>
       <entity name="Physical_connectivity_definition" supertypes="Shape_element" super.expression="Physical_connectivity_structure_definition">
-         <explicit name="associated_definition">
-            <typename name="Physical_unit_network_definition"/>
-         </explicit>
          <explicit name="associated_terminals">
             <aggregate type="SET" lower="2" upper="?"/>
             <typename name="Physical_component_terminal"/>
          </explicit>
+         <derived name="associated_definition" expression="SELF\Shape_element.containing_shape.described_element">
+            <typename name="Physical_unit_network_definition"/>
+         </derived>
          <unique label="UR1">
-            <unique.attribute entity-ref="Physical_connectivity_definition" attribute="element_name"/>
-            <unique.attribute entity-ref="Physical_connectivity_definition" attribute="associated_definition"/>
+            <unique.attribute entity-ref="Shape_element" attribute="element_name"/>
+            <unique.attribute attribute="associated_definition"/>
          </unique>
       </entity>
       <entity name="Physical_connectivity_definition_relationship">
@@ -60,8 +60,8 @@
             <typename name="Physical_connectivity_structure_definition"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Physical_connectivity_element" attribute="name"/>
-            <unique.attribute entity-ref="Physical_connectivity_element" attribute="connectivity_context"/>
+            <unique.attribute attribute="name"/>
+            <unique.attribute attribute="connectivity_context"/>
          </unique>
          <where label="WR1" expression="start_terminus &lt;&gt; end_terminus"/>
       </entity>
@@ -83,9 +83,6 @@
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Component_terminal"/>
          </derived>
-         <inverse name="connectivity_definitions" entity="Physical_connectivity_definition" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="0" upper="?"/>
-         </inverse>
          <where label="WR1" expression="NOT ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF)) OR &#10;                ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_DESIGN_VIEW' IN TYPEOF(SELF))"/>
          <where label="WR2" expression="NOT (SIZEOF(terminals) &gt; 1) OR&#10;           (SIZEOF(QUERY(t &lt;* terminals | NOT(SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + &#10;                          'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1))) = 0)"/>
       </entity>
@@ -97,8 +94,8 @@
             <typename name="Physical_connectivity_structure_definition"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Topological_junction" attribute="name"/>
-            <unique.attribute entity-ref="Topological_junction" attribute="scope"/>
+            <unique.attribute attribute="name"/>
+            <unique.attribute attribute="scope"/>
          </unique>
       </entity>
       <function name="get_terminals">

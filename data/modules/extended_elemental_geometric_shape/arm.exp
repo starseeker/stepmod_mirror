@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.10 2005/08/18 10:46:20 liutkus Exp $
+   $Id: arm.exp,v 1.11 2005/08/30 12:23:36 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3672 - ISO/CD-TS 10303-1667 Extended elemental geometric shape - EXPRESS ARM
 *)
 
@@ -24,6 +24,11 @@ SCHEMA Extended_elemental_geometric_shape_arm;
 
   ENTITY Definitional_representation_relationship
     SUBTYPE OF (Representation_relationship);
+   WHERE
+    WR1: acyclic_representation_relationship(SELF,
+       [SELF\representation_relationship.rep_2],
+       'FOUNDATION_REPRESENTATION_ARM.'+
+       'REPRESENTATION');
   END_ENTITY;  
 
   ENTITY Detailed_geometric_model_element_relationship;
@@ -42,16 +47,14 @@ SCHEMA Extended_elemental_geometric_shape_arm;
 ENTITY Geometric_model_constituent_relationship
   ABSTRACT SUPERTYPE
   SUBTYPE OF (Geometric_placement_operation);
-  composed_model : Geometric_model;
   constituent_element : Shape_element;
   SELF\Geometric_placement_operation.template_definition RENAMED constituent_model : Geometric_model;
-  placement : axis_placement_or_cto2d;
 INVERSE
-  shape : Geometric_placement_model FOR items;
-WHERE
-  WR1: SIZEOF(shape\Geometric_placement_model.items) = 1;
-(*  WR1: -- update for new structure
-  WR2: -- update for new structure
+  composed_model : SET[1:1] OF Geometric_model FOR items;
+WHERE  
+  WR1: ('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT' IN TYPEOF(SELF)) OR
+  ('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_OPERATOR_POSITIONING' IN TYPEOF(SELF));
+(*  WR2: -- update for new structure
   WR3: -- new: Target shall be at 0.0.0 with no roation *)
 END_ENTITY;
 
@@ -74,5 +77,24 @@ END_ENTITY;
     WHERE
       WR1 : magnitude >= 0.0 ;
  END_ENTITY;
+
+FUNCTION acyclic_representation_relationship
+ (relation : representation_relationship; relatives : SET[1:?] OF representation; specific_relation : STRING) : BOOLEAN; 
+ LOCAL
+      x : SET OF representation_relationship;
+    END_LOCAL;
+
+    IF relation.rep_1 IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(r <* bag_to_set(USEDIN(relation.rep_1, 'FOUNDATION_REPRESENTATION_ARM.' + 'REPRESENTATION_RELATIONSHIP.' + 'REP_2')) | specific_relation IN TYPEOF(r));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_representation_relationship(x[i], relatives + relation.rep_1, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+END_FUNCTION; 
+
 
 END_SCHEMA;

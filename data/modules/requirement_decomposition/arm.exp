@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.34 2005/07/05 19:08:04 liutkus Exp $
+   $Id: arm.exp,v 1.35 2005/09/07 14:38:15 liutkus Exp $
    ISO TC184/SC4/WG12 N3591 - ISO/CD-TS 10303-1740 Requirement decomposition - EXPRESS ARM
 *)
 
@@ -19,6 +19,11 @@ SCHEMA Requirement_decomposition_arm;
      semi_conductive,
      non_conductive);
   END_TYPE;
+
+	TYPE characteristic_select = SELECT
+	   (coordinated_characteristic,
+	   characteristic);
+	END_TYPE; 
 
 	TYPE rd_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
 	   (Requirement_definition_property);
@@ -123,8 +128,7 @@ SCHEMA Requirement_decomposition_arm;
       required_analytical_representation  : OPTIONAL SET[1:?] OF Analytical_model_application;
       required_functional_specification   : OPTIONAL SET[1:?] OF Functional_specification;
       required_part                       : OPTIONAL SET[1:?] OF Product;
-      required_coordinated_characteristic : OPTIONAL SET[1:?] OF coordinated_characteristic;
-      required_characteristic             : OPTIONAL SET[1:?] OF characteristic;
+      required_characteristic             : characteristic_select;
     DERIVE  
 		requirement_specification: SET[1:?] OF Document_definition :=
   			get_document_definition(SELF, 'requirement specification', 

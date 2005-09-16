@@ -98,7 +98,7 @@ LOCAL
 	dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
 	da : SET[0:?] OF Document_assignment :=[];
 END_LOCAL;
-	da := (QUERY(dr <* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
+	da := bag_to_set(QUERY(dr <* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
 	'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
 
 	-- iterate over da
@@ -107,8 +107,24 @@ END_LOCAL;
 			dd := dd + da[i].assigned_document;
 		END_IF;
 	END_REPEAT;
-
 	RETURN(dd);
+FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+END_FUNCTION;
+	
 END_FUNCTION;
 
 

@@ -51,8 +51,15 @@ WHERE
 -- allowed as items
 
 --  there must be exactly one Encoded_text_representation_item or one String_representation_item_relationship instance
-  WR1: (('TAGGED_TEXT_REPRESENTATION_ARM.TAGGED_TEXT_ITEM' IN  TYPEOF (items)) = 1) OR
-  (('TAGGED_TEXT_REPRESENTATION_ARM.STRING_REPRESENTATION_ITEM' IN  TYPEOF (items)) = 1);
+  WR1: (
+        SIZEOF(QUERY( tti <* SELF\Representation.items | ('TAGGED_TEXT_REPRESENTATION_ARM.TAGGED_TEXT_ITEM' IN  TYPEOF (tti)) 
+          ))
+       = 1)
+      OR
+       (
+        SIZEOF(QUERY( tti <* SELF\Representation.items | ('TAGGED_TEXT_REPRESENTATION_ARM.STRING_REPRESENTATION_ITEM' IN  TYPEOF (tti)) 
+          ))
+       = 1);
 END_ENTITY;
 
 ENTITY Tagged_text_item

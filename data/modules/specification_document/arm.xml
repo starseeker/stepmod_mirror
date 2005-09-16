@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-08T13:30:33" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-16T13:18:37" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
    <schema name="Specification_document_arm">
       <interface kind="use" schema="Characteristic_arm"/>
@@ -58,7 +58,7 @@
          </explicit>
       </entity>
       <entity name="Specification_definition" supertypes="Document_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)">
-         <derived name="source" expression="QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'document source') )">
+         <derived name="source" expression="bag_to_set(QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'document source') ))">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Organization_or_person_in_organization_assignment"/>
          </derived>
@@ -76,9 +76,28 @@
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
       </entity>
+      <function name="bag_to_set">
+         <parameter name="the_bag">
+            <aggregate type="BAG" lower="0" upper="?"/>
+            <builtintype type="GENERIC"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="GENERIC"/>
+         <algorithm>LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);</algorithm>
+      </function>
       <function name="get_document_definition">
          <parameter name="input">
-            <typename name="documented_element_select"/>
+            <builtintype type="GENERICENTITY"/>
          </parameter>
          <parameter name="role">
             <builtintype type="STRING"/>
@@ -92,7 +111,7 @@
 	dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
 	da : SET[0:?] OF Document_assignment :=[];
 END_LOCAL;
-	da := (QUERY(dr &lt;* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
+	da := bag_to_set(QUERY(dr &lt;* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
 	'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
 
 	-- iterate over da
@@ -101,7 +120,6 @@ END_LOCAL;
 			dd := dd + da[i].assigned_document;
 		END_IF;
 	END_REPEAT;
-
 	RETURN(dd);</algorithm>
       </function>
    </schema>

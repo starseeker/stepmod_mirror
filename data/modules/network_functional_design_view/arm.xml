@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-13T15:10:23" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-16T16:21:30" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="network_functional_design_view_arm schema_instance"/>
    <schema name="Network_functional_design_view_arm">
       <interface kind="use" schema="Generic_product_occurrence_arm"/>
@@ -22,8 +22,8 @@
             <typename name="bus_structural_definition_or_node"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Bus_element_link" attribute="precedent_element"/>
-            <unique.attribute entity-ref="Bus_element_link" attribute="subsequent_element"/>
+            <unique.attribute attribute="precedent_element"/>
+            <unique.attribute attribute="subsequent_element"/>
          </unique>
          <where label="WR1" expression="precedent_element &lt;&gt; subsequent_element"/>
       </entity>
@@ -39,7 +39,7 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <unique label="UR1">
-            <unique.attribute entity-ref="Bus_structural_definition" attribute="bus_name"/>
+            <unique.attribute attribute="bus_name"/>
          </unique>
          <where label="WR1" expression="consistent_bus_structural_definition(composition)"/>
       </entity>
@@ -67,8 +67,8 @@
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <unique label="UR1">
-            <unique.attribute entity-ref="Functional_unit" attribute="reference_designation"/>
-            <unique.attribute entity-ref="Functional_unit" attribute="composed_network"/>
+            <unique.attribute attribute="reference_designation"/>
+            <unique.attribute attribute="composed_network"/>
          </unique>
          <where label="WR1" expression="SIZEOF(SELF\Product_occurrence.occurrence_contexts) = 1"/>
          <where label="WR2" expression="EXISTS(composed_network)"/>
@@ -78,12 +78,13 @@
             <typename name="Functional_unit_usage_view"/>
          </explicit>
       </entity>
-      <entity name="Functional_unit_network_node_definition">
+      <entity name="Functional_unit_network_node_definition" supertypes="Product_view_definition">
          <explicit name="associated_functional_unit_definition">
             <typename name="Functional_unit_network_definition"/>
          </explicit>
          <explicit name="functional_unit_network_node_name">
             <builtintype type="STRING"/>
+            <redeclaration entity-ref="Product_view_definition" old_name="additional_characterization"/>
          </explicit>
          <derived name="valid_conservative_node" expression="( ( SIZEOF (USEDIN ( SELF ,&#10;        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ) )&#10;        + SIZEOF ( USEDIN ( SELF ,&#10;        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' )&#10;        ) + SIZEOF (USEDIN ( SELF ,&#10;        'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_TERMINAL_NODE_ASSIGNMENT.COMPOSED_NODE'&#10;        )) + SIZEOF ( external_node_access ) ) &gt; 1 )">
             <builtintype type="BOOLEAN"/>
@@ -92,8 +93,8 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <unique label="UR1">
-            <unique.attribute entity-ref="Functional_unit_network_node_definition" attribute="functional_unit_network_node_name"/>
-            <unique.attribute entity-ref="Functional_unit_network_node_definition" attribute="associated_functional_unit_definition"/>
+            <unique.attribute attribute="functional_unit_network_node_name"/>
+            <unique.attribute attribute="associated_functional_unit_definition"/>
          </unique>
          <where label="WR1" expression="EXISTS(valid_conservative_node)"/>
          <where label="IP1"/>
@@ -108,8 +109,8 @@
             <typename name="Functional_unit_usage_view_terminal_definition"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Functional_unit_network_terminal_definition_bus_assignment" attribute="connected_bus"/>
-            <unique.attribute entity-ref="Functional_unit_network_terminal_definition_bus_assignment" attribute="connected_terminal"/>
+            <unique.attribute attribute="connected_bus"/>
+            <unique.attribute attribute="connected_terminal"/>
          </unique>
       </entity>
       <entity name="Functional_unit_network_terminal_definition_node_assignment">
@@ -120,8 +121,8 @@
             <typename name="Functional_unit_usage_view_terminal_definition"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Functional_unit_network_terminal_definition_node_assignment" attribute="composed_node"/>
-            <unique.attribute entity-ref="Functional_unit_network_terminal_definition_node_assignment" attribute="connected_terminal"/>
+            <unique.attribute attribute="composed_node"/>
+            <unique.attribute attribute="connected_terminal"/>
          </unique>
       </entity>
       <entity name="Functional_unit_terminal">

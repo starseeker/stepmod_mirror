@@ -237,13 +237,16 @@
 					</xsl:call-template>
 				</xsl:variable>
 				<xsl:choose>
-					<xsl:when test="string-length(normalize-space($working_select_list)) = 0"/>
+					<xsl:when test="string-length(normalize-space($working_select_list)) = 0"></xsl:when>
 					<xsl:when test="contains(normalize-space($working_select_list), ' ')">
 						<xsl:comment>EXPRESS SELECT DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
 						</xsl:comment>
 						<xsl:text>&#xa;</xsl:text>
+						
 						<xs:complexType name="{$corrected_type_name}">
+						
 							<xs:group ref="{$namespace_prefix}{$corrected_type_name}"/>
+							
 						</xs:complexType>
 						<xsl:text>&#xa;</xsl:text>
 						<xsl:text>&#xa;</xsl:text>
@@ -462,11 +465,64 @@
 				<xsl:comment>EXPRESS DEFINED DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
 				</xsl:comment>
 				<xsl:text>&#xa;</xsl:text>
-				<xs:complexType name="{$corrected_type_name}">
-					<xs:complexContent>
-						<xs:restriction base="{$namespace_prefix}{$corrected_underlying_select_type_name}"/>
-					</xs:complexContent>
-				</xs:complexType>
+				<xsl:variable name="end_of_wr">&apos; IN TYPEOF</xsl:variable>
+				<xsl:variable name="list_of_items_for_underlying_select" select="//type[@name=$raw_select_type_name]/select/@selectitems"/>
+				
+				<xsl:variable name="working_select_list_for_underlying_select">
+					<xsl:call-template name="build_working_select_list">
+						<xsl:with-param name="list_of_items_param" select="$list_of_items_for_underlying_select"/>
+					</xsl:call-template>
+				</xsl:variable>
+				
+			<xsl:variable name="list_of_exclusions">
+				<xsl:for-each select="./where">
+					<xsl:value-of select="concat(substring-after(substring-before(./@expression, $end_of_wr), 'LF.'), ' ')"/>
+				</xsl:for-each>
+			</xsl:variable>
+			
+			
+		<xsl:variable name="lower_case_list_of_exclusions">
+			<xsl:call-template name="put_into_lower_case">
+				<xsl:with-param name="raw_item_name_param" select="concat(' ',$list_of_exclusions)"/>
+			</xsl:call-template>
+		</xsl:variable>
+	<xsl:variable name="pruned_select_list">
+									<xsl:call-template name="subtract-forbiden-word-list-from-main-word-list">
+										<xsl:with-param name="forbidden-list" select="$lower_case_list_of_exclusions"/>
+										<xsl:with-param name="main-list" select="$working_select_list_for_underlying_select"/>
+									</xsl:call-template>
+								</xsl:variable>
+				
+							
+								<xsl:choose>
+									<xsl:when test="string-length(normalize-space($pruned_select_list)) = 0"/>
+									<xsl:when test="contains(normalize-space($pruned_select_list), ' ')">
+										<xsl:comment>EXPRESS SELECT DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
+										</xsl:comment>
+										<xsl:text>&#xa;</xsl:text>
+										<xs:complexType name="{$corrected_type_name}">
+											<xs:group ref="{$namespace_prefix}{$corrected_type_name}"/>
+										</xs:complexType>
+										<xsl:text>&#xa;</xsl:text>
+										<xsl:text>&#xa;</xsl:text>
+										<xsl:comment>EXPRESS SELECT DATATYPE GROUP DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
+										</xsl:comment>
+										<xsl:text>&#xa;</xsl:text>
+										<xs:group name="{$corrected_type_name}">
+											<xs:choice>
+												<xsl:call-template name="construct_select_elements">
+													<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list"/>
+												</xsl:call-template>
+											</xs:choice>
+										</xs:group>
+										<xsl:text>&#xa;</xsl:text>
+										<xsl:text>&#xa;</xsl:text>
+									</xsl:when>
+									<xsl:otherwise>
+									</xsl:otherwise>
+								</xsl:choose>
+								
+						
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
 			</xsl:when>
@@ -1918,4 +1974,29 @@ THE WRAPPER BIT SEEMS TO BE AN ERROR IN THE P28 SPEC
 			</xsl:choose>
 		</xsl:for-each>
 	</xsl:template>
+	
+	<xsl:template name="subtract-forbiden-word-list-from-main-word-list" >
+	<xsl:param name="forbidden-list" />
+	<xsl:param name="main-list" />
+
+	<!-- outputs all words from main-word-list that are NOT in forbidden-list -->
+
+	<!-- get first item in list -->
+
+	<xsl:variable name="first" select="substring-before(concat(normalize-space($main-list),' '),' ')" />
+
+	<xsl:if test="$first" >
+
+		<xsl:if test="not(contains(concat(' ',$forbidden-list,' '),concat(' ',$first,' ')))" >
+			<xsl:value-of select="concat(' ',$first,' ')" /> 
+		</xsl:if>
+
+		<xsl:call-template name="subtract-forbiden-word-list-from-main-word-list">
+			<xsl:with-param name="forbidden-list" select="$forbidden-list" />
+			<xsl:with-param name="main-list" select="substring-after($main-list,$first)" />
+		</xsl:call-template>
+
+	</xsl:if>
+
+</xsl:template>
 </xsl:stylesheet>

@@ -236,9 +236,16 @@
 						<xsl:with-param name="list_of_items_param" select="$initial_list_of_items"/>
 					</xsl:call-template>
 				</xsl:variable>
+				
+				<xsl:variable name="working_select_list_no_duplicates">
+					<xsl:call-template name="filter-word-list-unique">
+						<xsl:with-param name="word-list" select="$working_select_list"/>
+					</xsl:call-template>
+				</xsl:variable>
+				
 				<xsl:choose>
-					<xsl:when test="string-length(normalize-space($working_select_list)) = 0"></xsl:when>
-					<xsl:when test="contains(normalize-space($working_select_list), ' ')">
+					<xsl:when test="string-length(normalize-space($working_select_list_no_duplicates)) = 0"></xsl:when>
+					<xsl:when test="contains(normalize-space($working_select_list_no_duplicates), ' ')">
 						<xsl:comment>EXPRESS SELECT DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
 						</xsl:comment>
 						<xsl:text>&#xa;</xsl:text>
@@ -256,7 +263,7 @@
 						<xs:group name="{$corrected_type_name}">
 							<xs:choice>
 								<xsl:call-template name="construct_select_elements">
-									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list"/>
+									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list_no_duplicates"/>
 								</xsl:call-template>
 							</xs:choice>
 						</xs:group>
@@ -492,11 +499,16 @@
 										<xsl:with-param name="main-list" select="$working_select_list_for_underlying_select"/>
 									</xsl:call-template>
 								</xsl:variable>
+							<xsl:variable name="pruned_select_list_no_duplicates">
+												<xsl:call-template name="filter-word-list-unique">
+						<xsl:with-param name="word-list" select="$pruned_select_list"/>
+					</xsl:call-template>
+							</xsl:variable>
 				
 							
 								<xsl:choose>
-									<xsl:when test="string-length(normalize-space($pruned_select_list)) = 0"/>
-									<xsl:when test="contains(normalize-space($pruned_select_list), ' ')">
+									<xsl:when test="string-length(normalize-space($pruned_select_list_no_duplicates)) = 0"/>
+									<xsl:when test="contains(normalize-space($pruned_select_list_no_duplicates), ' ')">
 										<xsl:comment>EXPRESS SELECT DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
 										</xsl:comment>
 										<xsl:text>&#xa;</xsl:text>
@@ -511,7 +523,7 @@
 										<xs:group name="{$corrected_type_name}">
 											<xs:choice>
 												<xsl:call-template name="construct_select_elements">
-													<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list"/>
+													<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list_no_duplicates"/>
 												</xsl:call-template>
 											</xs:choice>
 										</xs:group>
@@ -1997,6 +2009,30 @@ THE WRAPPER BIT SEEMS TO BE AN ERROR IN THE P28 SPEC
 		</xsl:call-template>
 
 	</xsl:if>
+	</xsl:template>
+	<xsl:template name="filter-word-list-unique" >
+	<xsl:param name="word-list" />
+
+	<!-- outputs all unique words from word-list -->
+
+	<!-- get first item in list -->
+
+	<xsl:variable name="first" select="substring-before(concat(normalize-space($word-list),' '),' ')" />
+	<xsl:variable name="rest" select="substring-after($word-list,$first)" />
+
+	<xsl:if test="$first" >
+
+		<xsl:if test="not( contains(concat(' ',$rest,' '),concat(' ',$first,' ')))" >
+			<xsl:value-of select="concat(' ',$first,' ')" /> 
+		</xsl:if>
+
+		<xsl:call-template name="filter-word-list-unique">
+			<xsl:with-param name="word-list" select="$rest" />
+		</xsl:call-template>
+
+	</xsl:if>
 
 </xsl:template>
+
+
 </xsl:stylesheet>

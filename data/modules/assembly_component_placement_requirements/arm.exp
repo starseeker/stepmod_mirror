@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.20 2005/05/03 17:46:28 thomasrthurman Exp $
+   $Id: arm.exp,v 1.21 2005/09/14 11:24:51 liutkus Exp $
    ISO TC184/SC4/WG12 N3291 - ISO/CD-TS 10303-1634 Assembly component placement requirements - EXPRESS ARM
 *)
 
@@ -16,7 +16,7 @@ SCHEMA Assembly_component_placement_requirements_arm;
 
 TYPE acpr_requirement_assignment_item = EXTENSIBLE SELECT BASED_ON requirement_assignment_item WITH 
     (restriction_basis_item,
-  	Placement_group);
+  	Placement_group_requirement_definition);
 END_TYPE; 
 
 TYPE assembly_product_design_object_category = ENUMERATION OF
@@ -88,7 +88,7 @@ END_TYPE;
   END_ENTITY;
 
   ENTITY Component_group_assignment;
-      associated_group   : Placement_group;
+      associated_group   : Placement_group_requirement_definition;
       assigned_component : Assembly_component;
   END_ENTITY;
 
@@ -128,22 +128,24 @@ END_TYPE;
       WR1 : 'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_ARM.THREE_DIMENSIONAL_SHAPE' IN TYPEOF(volume);
   END_ENTITY;
 
-  ENTITY Placement_group;
+  ENTITY Placement_group_requirement_definition
+    SUBTYPE OF (Requirement_view_definition);
       design_specific_usage : STRING; --ee_name;
 	DERIVE
   		requirement: SET[0:?] OF Requirement_view_definition :=
-  		get_rvd(SELF, 'requirement');
+  		bag_to_set((QUERY(rvdr <* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+
+	'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.PRIMARY') | (rvdr.relationship_type = DERIVED_FROM))));
 	WHERE
    		WR1 : EXISTS (requirement) AND (SIZEOF(requirement) >= 1);
   END_ENTITY;
 
   ENTITY Placement_group_area_assignment;
-      placed_group : Placement_group;
+      placed_group : Placement_group_requirement_definition;
       area         : Mounting_restriction_area;
   END_ENTITY;
 
   ENTITY Placement_group_volume_assignment;
-      placed_group : Placement_group;
+      placed_group : Placement_group_requirement_definition;
       volume       : Mounting_restriction_volume;
   END_ENTITY;
 

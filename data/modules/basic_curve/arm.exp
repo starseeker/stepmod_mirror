@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.11 2005/02/02 14:45:32 budreckytej Exp $
+   $Id: arm.exp,v 1.12 2005/02/04 17:29:38 budreckytej Exp $
    ISO TC184/SC4/WG12 N3366 - ISO/CD-TS 10303-1651 Basic curve - EXPRESS ARM
 *)
 
@@ -12,22 +12,6 @@ SCHEMA Basic_curve_arm;
 	    ONEOF (Composite_curve,
 		Trimmed_curve);    
 	END_SUBTYPE_CONSTRAINT;
-
- 	TYPE bc_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Boundary_curve);
-	END_TYPE;
-
-	ENTITY Boundary_curve
-	  SUBTYPE OF (Trimmed_curve);
-	    basis_curve				: Trimmed_curve;
-    INVERSE
-      mapping_function	: External_source_identification FOR item;
-	WHERE
-	 WR1: NOT('BASIC_CURVE_ARM.BOUNDARY_CURVE' IN TYPEOF(basis_curve));    
-	 WR2: NOT('BASIC_CURVE_ARM.CLOSED_CURVE' IN TYPEOF(SELF));  
-	 WR3: NOT('BASIC_CURVE_ARM.COMPOSITE_CURVE' IN TYPEOF(basis_curve));  
-	 WR4: NOT('BASIC_CURVE_ARM.CLOSED_CURVE' IN TYPEOF(basis_curve));  
-	END_ENTITY;
 
   ENTITY Closed_curve
     SUBTYPE OF (Curve);
@@ -50,7 +34,6 @@ SCHEMA Basic_curve_arm;
 	END_ENTITY;
 
 	ENTITY Trimmed_curve
-	  SUPERTYPE OF (Boundary_curve)
 	  SUBTYPE OF (Curve);
 	    start_point : Cartesian_point;
 	    end_point : Cartesian_point;

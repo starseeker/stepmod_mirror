@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.3 2005/09/13 10:23:42 liutkus Exp $
+   $Id: arm.exp,v 1.4 2005/09/14 11:38:34 liutkus Exp $
    ISO TC184/SC4/WG12 N3342 - ISO/CD-TS 10303-1705 Network functional usage view - EXPRESS ARM
 *)
 
@@ -10,6 +10,11 @@ SCHEMA Functional_usage_view_arm;
   REFERENCE FROM product_identification_arm(types_of_product); -- ISO/TS 10303-1017 
   
   USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
+  
+	TYPE fuuv_am_port_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_port_assignment_select WITH  
+		(Functional_unit_usage_view_terminal_definition);
+	END_TYPE;
+  
   
   ENTITY Equivalent_functional_terminals_assignment;
       name                 : STRING; --ee_name;  
@@ -47,8 +52,19 @@ SCHEMA Functional_usage_view_arm;
 
   ENTITY Functional_unit_usage_view
     SUBTYPE OF (Functional_unit_definition);
+     DERIVE analytical_model_application_reference : SET[0:?] OF Analytical_model_application := USEDIN(access_mechanism[1],
+      'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM');
     INVERSE
       access_mechanism : SET[1:?] OF functional_unit_usage_view_terminal_definition FOR associated_functional_unit_definition;
+    WHERE
+      WR1: SIZEOF(analytical_model_application_reference) <= 1;
+      WR2: NOT(SIZEOF(analytical_model_application_reference) = 1) OR
+        (SIZEOF(QUERY( am <* access_mechanism |
+           NOT((SIZEOF(USEDIN(am,'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM')) = 0) OR
+              (SIZEOF(QUERY( ampa <* USEDIN(am, 'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM') |
+                 NOT(analytical_model_application_reference[1] :=: ampa.associated_analytical_model_application) 
+                 )) = 0))
+        )) = 0);
   END_ENTITY;
 
   ENTITY Functional_unit_usage_view_terminal_definition

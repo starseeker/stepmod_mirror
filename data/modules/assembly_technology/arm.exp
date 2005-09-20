@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.30 2005/07/05 13:59:07 liutkus Exp $
+   $Id: arm.exp,v 1.31 2005/08/30 12:29:25 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3312 - ISO/CD-TS 10303-1649 Assembly technology - EXPRESS ARM
 *)
 
@@ -50,7 +50,8 @@ SCHEMA Assembly_technology_arm;
 
   ENTITY Assembled_with_fasteners
     SUBTYPE OF (Assembly_joint);
-      SELF\Assembly_joint.associated_assembly : Assembly_group_component;
+    WHERE
+      WR1 : 'COMPONENT_GROUPING_ARM.ASSEMBLY_GROUP_COMPONENT' in TYPEOF(SELF\Component_feature_joint.associated_definition);                   
   END_ENTITY;
 
   ENTITY Assembly_bond_definition;
@@ -72,16 +73,15 @@ SCHEMA Assembly_technology_arm;
   END_ENTITY;
 
   ENTITY Assembly_joint
-    SUPERTYPE OF (assembled_with_fasteners ANDOR
- Assembled_with_bonding);
-      name                : STRING; 
-      assembly_features_1 : assembled_feature_select;
-      assembly_features_2 : assembled_feature_select;
-      associated_assembly : assembly_module_or_assembly_group_component;
-      description         : OPTIONAL STRING;
+    SUPERTYPE OF (Assembled_with_fasteners ANDOR
+ Assembled_with_bonding)
+    SUBTYPE OF (Component_feature_joint);
+      SELF\Component_feature_joint.feature_1 RENAMED assembly_features_1 : assembled_feature_select;
+      SELF\Component_feature_joint.feature_2 RENAMED assembly_features_2 : assembled_feature_select;
+(* SELF\Component_feature_joint.associated_defintion is not explicit - so can't have UNIQUE rule      
     UNIQUE
-      UR1 : name,
- associated_assembly;
+      UR1 : SELF\Shape_element.element_name,
+        SELF\Component_feature_joint.associated_defintion; *)
     WHERE
       WR1 : assembly_features_1 :<>: assembly_features_2;
       WR2 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
@@ -90,6 +90,8 @@ SCHEMA Assembly_technology_arm;
       WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
              (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_2)) AND 
              (SIZEOF(QUERY(ay <* assembly_features_2\Component_feature.associated_component\Product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
+      WR4 : ['ASSEMBLY_MODULE_DESIGN_ARM.ASSEMBLY_MODULE', 
+        'COMPONENT_GROUPING_ARM.ASSEMBLY_GROUP_COMPONENT'] in TYPEOF(SELF\Component_feature_joint.associated_definition);                   
   END_ENTITY;
 
   ENTITY Assembly_technology_specification

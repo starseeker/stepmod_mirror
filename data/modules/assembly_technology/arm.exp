@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.32 2005/09/20 10:52:27 liutkus Exp $
+   $Id: arm.exp,v 1.33 2005/09/20 11:48:02 liutkus Exp $
    ISO TC184/SC4/WG12 N3312 - ISO/CD-TS 10303-1649 Assembly technology - EXPRESS ARM
 *)
 
@@ -44,8 +44,8 @@ SCHEMA Assembly_technology_arm;
     SUBTYPE OF (Assembly_joint);
       default_bond_definition : Assembly_bond_definition;
     WHERE
-      WR1 : SELF\Assembly_joint.assembly_features_1.definition :=: default_bond_definition.bonded_feature_1;
-      WR2 : SELF\Assembly_joint.assembly_features_2.definition :=: default_bond_definition.bonded_feature_2;
+      WR1 : SELF\Assembly_joint.assembly_feature_1.definition :=: default_bond_definition.bonded_feature_1;
+      WR2 : SELF\Assembly_joint.assembly_feature_2.definition :=: default_bond_definition.bonded_feature_2;
   END_ENTITY;
 
   ENTITY Assembled_with_fasteners
@@ -75,20 +75,20 @@ SCHEMA Assembly_technology_arm;
     SUPERTYPE OF (Assembled_with_fasteners ANDOR
  Assembled_with_bonding)
     SUBTYPE OF (Component_feature_joint);
-      SELF\Component_feature_joint.feature_1 RENAMED assembly_features_1             : assembled_feature_select;
-      SELF\Component_feature_joint.feature_2 RENAMED assembly_features_2             : assembled_feature_select;
+      SELF\Component_feature_joint.feature_1 RENAMED assembly_feature_1             : assembled_feature_select;
+      SELF\Component_feature_joint.feature_2 RENAMED assembly_feature_2             : assembled_feature_select;
       SELF\Component_feature_joint.associated_definition RENAMED associated_assembly : assembly_module_or_assembly_group_component;
     UNIQUE
       UR1 : SELF\Shape_element.element_name,
         associated_assembly;
     WHERE
-      WR1 : assembly_features_1 :<>: assembly_features_2;
+      WR1 : assembly_feature_1 :<>: assembly_feature_2;
       WR2 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
-             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_1)) AND 
-             (SIZEOF(QUERY(ay <* assembly_features_1\Component_feature.associated_component\Product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
+             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_1)) AND 
+             (SIZEOF(QUERY(ay <* assembly_feature_1\Component_feature.associated_component\Product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
       WR3 : ('ASSEMBLY_TECHNOLOGY_ARM.ASSEMBLED_WITH_FASTENERS' IN TYPEOF(SELF)) OR 
-             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_features_2)) AND 
-             (SIZEOF(QUERY(ay <* assembly_features_2\Component_feature.associated_component\Product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
+             (('ASSEMBLY_TECHNOLOGY_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2)) AND 
+             (SIZEOF(QUERY(ay <* assembly_feature_2\Component_feature.associated_component\Product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly)) = 0));
   END_ENTITY;
 
   ENTITY Assembly_technology_specification

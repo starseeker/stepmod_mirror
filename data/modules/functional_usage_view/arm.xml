@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-14T15:37:19" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-20T12:18:30" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_usage_view_arm schema_instance"/>
    <schema name="Functional_usage_view_arm">
       <interface kind="use" schema="Analytical_model_arm"/>
@@ -10,6 +10,9 @@
       <interface kind="reference" schema="Product_identification_arm">
          <interfaced.item name="types_of_product"/>
       </interface>
+      <type name="fuuv_am_port_assignment_select">
+         <select extensible="YES" genericentity="YES" basedon="analytical_model_port_assignment_select" selectitems="Functional_unit_usage_view_terminal_definition"/>
+      </type>
       <entity name="Equivalent_functional_terminals_assignment">
          <explicit name="name">
             <builtintype type="STRING"/>
@@ -39,7 +42,7 @@
             <builtintype type="STRING"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Functional_terminal_group" attribute="name"/>
+            <unique.attribute attribute="name"/>
          </unique>
       </entity>
       <entity name="Functional_terminal_group_assignment">
@@ -62,9 +65,15 @@
          </explicit>
       </entity>
       <entity name="Functional_unit_usage_view" supertypes="Functional_unit_definition">
+         <derived name="analytical_model_application_reference" expression="USEDIN(access_mechanism[1],&#10;      'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM')">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Analytical_model_application"/>
+         </derived>
          <inverse name="access_mechanism" entity="Functional_unit_usage_view_terminal_definition" attribute="associated_functional_unit_definition">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
+         <where label="WR1" expression="SIZEOF(analytical_model_application_reference) &lt;= 1"/>
+         <where label="WR2" expression="NOT(SIZEOF(analytical_model_application_reference) = 1) OR&#10;        (SIZEOF(QUERY( am &lt;* access_mechanism |&#10;           NOT((SIZEOF(USEDIN(am,'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM')) = 0) OR&#10;              (SIZEOF(QUERY( ampa &lt;* USEDIN(am, 'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM') |&#10;                 NOT(analytical_model_application_reference[1] :=: ampa.associated_analytical_model_application) &#10;                 )) = 0))&#10;        )) = 0)"/>
       </entity>
       <entity name="Functional_unit_usage_view_terminal_definition" super.expression="Scalar_terminal_definition">
          <explicit name="associated_functional_unit_definition">
@@ -74,8 +83,8 @@
             <builtintype type="STRING"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Functional_unit_usage_view_terminal_definition" attribute="signal_name"/>
-            <unique.attribute entity-ref="Functional_unit_usage_view_terminal_definition" attribute="associated_functional_unit_definition"/>
+            <unique.attribute attribute="signal_name"/>
+            <unique.attribute attribute="associated_functional_unit_definition"/>
          </unique>
       </entity>
       <entity name="Functional_unit_usage_view_terminal_definition_make_from_relationship">
@@ -89,8 +98,8 @@
             <typename name="Functional_unit_usage_view_terminal_definition"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Functional_unit_usage_view_terminal_definition_make_from_relationship" attribute="reusable_feature"/>
-            <unique.attribute entity-ref="Functional_unit_usage_view_terminal_definition_make_from_relationship" attribute="resultant_feature"/>
+            <unique.attribute attribute="reusable_feature"/>
+            <unique.attribute attribute="resultant_feature"/>
          </unique>
          <where label="WR1" expression="reusable_feature :&lt;&gt;: resultant_feature"/>
          <where label="WR2" expression="reusable_feature.associated_functional_unit_definition :&lt;&gt;: resultant_feature.associated_functional_unit_definition"/>
@@ -104,8 +113,8 @@
             <typename name="Scalar_terminal_definition"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Scalar_terminal_definition_link" attribute="precedent_terminal_definition"/>
-            <unique.attribute entity-ref="Scalar_terminal_definition_link" attribute="subsequent_terminal_definition"/>
+            <unique.attribute attribute="precedent_terminal_definition"/>
+            <unique.attribute attribute="subsequent_terminal_definition"/>
          </unique>
          <where label="WR1" expression="precedent_terminal_definition :&lt;&gt;: subsequent_terminal_definition"/>
       </entity>

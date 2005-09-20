@@ -154,7 +154,7 @@
 				<xsl:comment>EXPRESS ENTITY VALUED ATTRIBUTE WHERE TARGET HAS SUBTYPES KEYREF DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>
 				</xsl:comment>
 				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_target_name}-keysub">
-					<xs:selector xpath=".//{$namespace_prefix}{$corrected_target_name}/{$corrected_attribute_name}"/>
+					<xs:selector xpath=".//{$corrected_target_name}/{$corrected_attribute_name}"/>
 					<xs:field xpath="@ref"/>
 				</xs:keyref>
 				<xsl:text>&#xa;</xsl:text>
@@ -165,7 +165,7 @@
 				</xsl:comment>
 				<xsl:text>&#xa;</xsl:text>
 				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_target_name}-key">
-					<xs:selector xpath=".//{$namespace_prefix}{$corrected_target_name}/{$corrected_attribute_name}"/>
+					<xs:selector xpath=".//{$corrected_target_name}/{$corrected_attribute_name}"/>
 					<xs:field xpath="@ref"/>
 				</xs:keyref>
 				<xsl:text>&#xa;</xsl:text>
@@ -184,7 +184,7 @@
 		</xsl:comment>
 		<xsl:text>&#xa;</xsl:text>
 		<xs:key name="{$schema_name}___{$corrected_entity_name}-key">
-			<xs:selector xpath="{$namespace_prefix}{$corrected_entity_name}"/>
+			<xs:selector xpath="{$corrected_entity_name}"/>
 			<xs:field xpath="@id"/>
 		</xs:key>
 		<xsl:text>&#xa;</xsl:text>
@@ -193,7 +193,7 @@
 		</xsl:comment>
 		<xsl:text>&#xa;</xsl:text>
 		<xs:keyref name="{$schema_name}___{$corrected_entity_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_entity_name}-key">
-			<xs:selector xpath=".//{$namespace_prefix}{$corrected_entity_name}"/>
+			<xs:selector xpath=".//{$corrected_entity_name}"/>
 			<xs:field xpath="@ref"/>
 		</xs:keyref>
 		<xsl:text>&#xa;</xsl:text>
@@ -213,7 +213,7 @@
 						<xsl:with-param name="subtypes_list_param" select="$subtypes_list"/>
 					</xsl:call-template>
 				</xsl:variable>
-				<xs:selector xpath="{$namespace_prefix}{$corrected_entity_name}{$subtypes_xpath}"/>
+				<xs:selector xpath="{$corrected_entity_name}{$subtypes_xpath}"/>
 				<xs:field xpath="@id"/>
 			</xs:key>
 			<xsl:text>&#xa;</xsl:text>

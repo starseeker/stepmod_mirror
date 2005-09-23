@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.87 2005/09/23 07:57:40 liutkus Exp $
+   $Id: arm.exp,v 1.88 2005/09/23 08:54:54 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -555,8 +555,12 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Documentation_layer_stratum
     SUBTYPE OF (Stratum);
       SELF\Stratum.of_technology : Documentation_layer_technology;
-    INVERSE
-      library_definition : SET[0:1] OF view_definition_relationship FOR related_view;
+    DERIVE
+       library_definition : SET[0:1] OF Library_reference_view_definition_relationship :=
+        BAG_TO_SET(QUERY(vdr <* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' 
+        + 'LIBRARY_REFERENCE_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF (vdr)));
+    WHERE    
+      WR1: SIZEOF(library_definition) <= 1;
   END_ENTITY;
 
   ENTITY Electrical_isolation_laminate_component

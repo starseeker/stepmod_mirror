@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.85 2005/09/16 14:38:53 darla Exp $
+   $Id: arm.exp,v 1.86 2005/09/19 06:29:32 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -531,13 +531,17 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Stratum);
       primary_design_layer_stratum : BOOLEAN;
       SELF\Stratum.of_technology   : Design_layer_technology;
+    DERIVE
+       library_definition : SET[0:1] OF Library_reference_view_definition_relationship :=
+        BAG_TO_SET(QUERY(vdr <* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' 
+        + 'LIBRARY_REFERENCE_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF (vdr)));
     INVERSE
       existence_dependence : SET[1:?] OF layer_connection_point FOR resident_design_layer_stratum;
-      library_definition    : SET[0:1] OF view_definition_relationship FOR related_view;
     WHERE
       WR1 : (NOT (primary_design_layer_stratum) AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 0)) OR ((primary_design_layer_stratum) AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 1));
+      WR2: SIZEOF(library_definition) <= 1;
   END_ENTITY;
 
   ENTITY Dielectric_material_passage
@@ -905,6 +909,12 @@ SCHEMA Layered_interconnect_module_design_arm;
  net;
     WHERE
       WR1 : associated_definition :=: net.current_associated_definition;
+  END_ENTITY;
+
+  ENTITY Library_reference_view_definition_relationship
+    SUBTYPE OF (View_definition_relationship);
+    DERIVE
+     SELF\View_definition_relationship.relation_type : STRING := 'library definition';
   END_ENTITY;
 
   ENTITY Material_removal_laminate_component

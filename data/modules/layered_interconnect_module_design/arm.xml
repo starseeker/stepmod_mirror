@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-23T17:55:11" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-23T18:50:27" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Edge_shape_feature_arm"/>
@@ -519,9 +519,11 @@
             <typename name="Documentation_layer_technology"/>
             <redeclaration entity-ref="Stratum"/>
          </explicit>
-         <inverse name="library_definition" entity="View_definition_relationship" attribute="related_view">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
+         <derived name="library_definition" expression="BAG_TO_SET(QUERY(vdr &lt;* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' &#10;        + 'LIBRARY_REFERENCE_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF (vdr)))">
+            <aggregate type="SET" lower="0" upper="1"/>
+            <typename name="Library_reference_view_definition_relationship"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(library_definition) &lt;= 1"/>
          <where label="IP1"/>
       </entity>
       <entity name="Electrical_isolation_laminate_component" supertypes="Filled_area_material_removal_laminate_component">

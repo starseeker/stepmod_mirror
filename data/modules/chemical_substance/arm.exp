@@ -142,8 +142,8 @@ CONSTANT
     SUBTYPE OF (Substance); 
 	DERIVE
   		id_owner: SET[0:?] OF Organization_or_person_in_organization_assignment :=
-         QUERY(temp <* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+
-         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |
+         QUERY(temp <* bag_to_set(USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+
+         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS')) |
                          (temp.role = 'id owner') );
   WHERE 
      WR1: SIZEOF([ 'chemical compound' ] * types_of_product(SELF))= 1 ; 
@@ -224,6 +224,23 @@ WHERE
        )) =
        SIZEOF ( Product);
 END_RULE; 
+
+  FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+  END_FUNCTION;
 
  
 END_SCHEMA; 

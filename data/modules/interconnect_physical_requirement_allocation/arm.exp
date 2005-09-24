@@ -37,7 +37,7 @@ get_requirement_definition_property(SELF,
 		  get_rvd(SELF, 'thermal requirement');
 	WHERE
 	  WR1: SIZEOF(QUERY(tisr <* THERMAL_ISOLATION_SPACING_REQUIREMENT |
-       NOT(TYPEOF(tisr) = 'INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.THERMAL_ISOLATION_REQUIREMENT')
+       NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.THERMAL_ISOLATION_REQUIREMENT' IN TYPEOF(tisr))
        )) =0;
   END_ENTITY;
 
@@ -51,7 +51,7 @@ get_requirement_definition_property(SELF,
         get_specific_requirement_property_for_collector(SELF, 'angular orientation requirement');
  
       thermal_isolation_spacing_requirement : SET [1:1] OF layout_spacing_requirement_occurrence :=
-        get_specific_requirement_view_type_for_primary_rvd_relationship(SELF, 'thermal isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE');
+        get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'thermal isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE');
   END_ENTITY;
 
 FUNCTION get_specific_requirement_property_for_collector(
@@ -62,7 +62,7 @@ LOCAL
     rcr : SET[0:?] OF Requirement_collection_relationship := [];--this gives us access to the information base
     rdp : SET[0:?] OF Requirement_definition_property :=[];
 END_LOCAL;
-    rcr := (QUERY(rai <* USEDIN (input, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.'+
+    rcr := bag_to_set(QUERY(rai <* USEDIN (input, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.'+
 	'REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') | 
           (rai\View_definition_relationship.relation_type = id)));
 
@@ -76,26 +76,44 @@ END_LOCAL;
 	RETURN(rdp);
 END_FUNCTION;
 
-FUNCTION get_specific_requirement_view_type_for_primary_rvd_relationship(
+FUNCTION get_specific_requirement_type_for_primary_rvd_relationship(
 	input : Requirement_view_definition;
 	id : STRING;
     reqType : STRING
-) : SET OF Requirement_view_definition; 
+) : SET OF Requirement_definition_property; 
 
 LOCAL
     rvdr : SET[0:?] OF Requirement_view_definition_relationship := [];
-    rvd : SET[0:?] OF Requirement_view_definition := [];  --this gives us access to the information base
+    rdp : SET[0:?] OF Requirement_definition_property := [];  --this gives us access to the information base
 END_LOCAL;
-	rvdr := (QUERY(rai <* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+
-	'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY') | 
-          (reqType IN TYPEOF(rai.primary))));
-
+	rvdr := bag_to_set(QUERY(rvdre <* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY')|
+	                           (rvdre.name = id)
+                       ));
 	-- iterate over rvdr
 	REPEAT i := 1 to SIZEOF(rvdr) by 1;
-		rvd := rvd + rvdr[i].primary;
+      rdp := rdp + bag_to_set(QUERY(rdp <* USEDIN (rvdr[i].primary, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_DEFINITION_PROPERTY.ASSOCIATED_DEFINITION') |
+        (reqType IN TYPEOF(rdp))
+                             ));
 	END_REPEAT;
 
-	RETURN(rvd);
+	RETURN(rdp);
+END_FUNCTION;
+  
+FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
 END_FUNCTION;
   
  END_SCHEMA;

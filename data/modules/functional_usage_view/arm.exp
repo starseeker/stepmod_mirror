@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2005/09/14 11:38:34 liutkus Exp $
+   $Id: arm.exp,v 1.5 2005/09/20 10:51:02 liutkus Exp $
    ISO TC184/SC4/WG12 N3342 - ISO/CD-TS 10303-1705 Network functional usage view - EXPRESS ARM
 *)
 
@@ -52,8 +52,8 @@ SCHEMA Functional_usage_view_arm;
 
   ENTITY Functional_unit_usage_view
     SUBTYPE OF (Functional_unit_definition);
-     DERIVE analytical_model_application_reference : SET[0:?] OF Analytical_model_application := USEDIN(access_mechanism[1],
-      'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM');
+     DERIVE analytical_model_application_reference : SET[0:?] OF Analytical_model_application := 
+     bag_to_set(USEDIN(access_mechanism[1],'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM'));
     INVERSE
       access_mechanism : SET[1:?] OF functional_unit_usage_view_terminal_definition FOR associated_functional_unit_definition;
     WHERE
@@ -101,5 +101,23 @@ SCHEMA Functional_usage_view_arm;
     WHERE
       WR1 : precedent_terminal_definition :<>: subsequent_terminal_definition;
   END_ENTITY;
+
+  FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+  END_FUNCTION;
+
 
 END_SCHEMA;

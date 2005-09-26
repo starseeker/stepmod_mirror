@@ -108,9 +108,15 @@ SCHEMA Part_template_extension_arm;
   ENTITY Reference_packaged_part_interconnect_implementation
     SUBTYPE OF (Interconnect_module);
     WHERE
-      WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
- 'PART_TEMPLATE_EXTENSION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | NOT (SIZEOF(QUERY(epcr <* USEDIN(prpc,
- 'PART_TEMPLATE_EXTENSION_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY') | (epcr.sub_category\Product_category.name = 'template model'))) = 1))) = 0;
+      WR1 : SIZEOF
+(QUERY(pca <* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | 
+NOT (pca.category\Product_category.name IN ['template model','part']))) = 0;
+     WR2 : SIZEOF
+(QUERY(pca <* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | 
+(pca.category\Product_category.name = 'template model'))) = 1;
+     WR3 : SIZEOF
+(QUERY(pca <* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | 
+(pca.category\Product_category.name = 'part'))) = 1;
   END_ENTITY;
 
   ENTITY Snowball_template

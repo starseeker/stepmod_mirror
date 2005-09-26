@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-23T19:05:41" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-26T12:53:24" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Edge_shape_feature_arm"/>
@@ -556,13 +556,10 @@
             <typename name="Footprint_definition"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <inverse name="component" entity="Footprint_occurrence_sub_assembly_relationship" attribute="relating_view">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
-         </inverse>
          <where label="WR1" expression="SIZEOF(USEDIN(SELF,&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT')) &lt;= 1"/>
          <where label="WR2" expression="NOT (SIZEOF(USEDIN(SELF,&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT')) = 1) OR (SIZEOF(QUERY(cmfr &lt;* USEDIN(SELF,&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(cmfr.reusable_component))) = 1)"/>
          <where label="WR3" expression="SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0"/>
-         <where label="WR4" expression="(SIZEOF(components) = 0)"/>
+         <where label="WR4" expression="['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP']&#10;           IN TYPEOF(SELF\Assembly_group_component.components[i])"/>
       </entity>
       <entity name="Footprint_occurrence_sub_assembly_relationship" supertypes="Next_assembly_usage">
          <explicit name="relating_view">
@@ -837,7 +834,7 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Stratum_feature"/>
          </explicit>
-         <derived name="of_character" expression="SELF\laminate_text_component.usage_definition.of_character.character">
+         <derived name="of_character" expression="SELF\laminate_text_component.derived_from.of_character.character">
             <builtintype type="STRING"/>
          </derived>
          <derived name="name" expression="'laminate text component'">
@@ -948,11 +945,8 @@
             <typename name="Padstack_definition"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <inverse name="component" entity="Padstack_occurrence_sub_assembly_relationship" attribute="relating_view">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
-         </inverse>
          <where label="WR1" expression="SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0"/>
-         <where label="WR2" expression="(SIZEOF(components) = 0)"/>
+         <where label="WR2" expression="['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP']&#10;           IN TYPEOF(SELF\Assembly_group_component.components[i])"/>
       </entity>
       <entity name="Padstack_occurrence_sub_assembly_relationship" supertypes="Next_assembly_usage">
          <explicit name="relating_view">

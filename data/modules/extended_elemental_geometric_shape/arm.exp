@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2005/09/16 03:04:22 thomasrthurman Exp $
+   $Id: arm.exp,v 1.14 2005/09/24 15:13:50 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3672 - ISO/CD-TS 10303-1667 Extended elemental geometric shape - EXPRESS ARM
 *)
 
@@ -7,7 +7,7 @@ SCHEMA Extended_elemental_geometric_shape_arm;
 
 	USE FROM Basic_geometry_arm;	-- ISO/TS 10303-1652
 	USE FROM Shape_property_assignment_arm; -- ISO/TS 10303-1032
-	USE FROM Contextual_shape_positioning_arm;
+--	USE FROM Contextual_shape_positioning_arm;
 
   	TYPE axis_placement_or_cto2d = SELECT
     	(Axis_placement,
@@ -37,26 +37,6 @@ SCHEMA Extended_elemental_geometric_shape_arm;
    WHERE 
     WR1: item_1 <> item_2;
   END_ENTITY;
-
-  ENTITY Feature_shape_definition
-    SUBTYPE OF (Geometric_model);
-  DERIVE
-    SELF\Representation.id : STRING := 'fsd';
-  END_ENTITY;
-
-ENTITY Geometric_model_constituent_relationship
-  ABSTRACT SUPERTYPE
-  SUBTYPE OF (Geometric_placement_operation);
-  constituent_element : Shape_element;
-  SELF\Geometric_placement_operation.template_definition RENAMED constituent_model : Geometric_model;
-INVERSE
-  composed_model : SET[1:1] OF Geometric_model FOR items;
-WHERE  
-  WR1: ('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT' IN TYPEOF(SELF)) OR
-  ('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_OPERATOR_TRANSFORMATION' IN TYPEOF(SELF));
-(*  WR2: -- update for new structure
-  WR3: -- new: Target shall be at 0.0.0 with no roation *)
-END_ENTITY;
 
   ENTITY Geometric_model_relationship
    SUBTYPE OF (Representation_relationship);

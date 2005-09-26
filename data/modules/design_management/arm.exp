@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2005/08/24 12:59:50 kovaliovas Exp $
+   $Id: arm.exp,v 1.14 2005/09/16 10:50:13 liutkus Exp $
    ISO TC184/SC4/WG12 N3387 - ISO/CD-TS 10303-1661 Design management - EXPRESS ARM
 *)
 
@@ -19,12 +19,8 @@ SCHEMA Design_management_arm;
   	ENTITY Add_design_object_management_relationship
       SUBTYPE OF (Design_object_management_relationship);
     	current_design_object : managed_design_object;
-      DERIVE
-    	SELF\Activity.name : STRING := 'add';
       UNIQUE
         UR1 : current_design_object;
-      WHERE
-        WR1 : EXISTS(SELF\Activity.name);
 	END_ENTITY;
 
   	ENTITY Change_design_object_management_relationship
@@ -32,23 +28,16 @@ SCHEMA Design_management_arm;
     	current_design_object  : managed_design_object;
       	previous_design_object : OPTIONAL managed_design_object;
       	attribute_name : OPTIONAL STRING;
-      DERIVE
-    	SELF\Activity.name : STRING := 'change';
       WHERE
       	WR1: TYPEOF(current_design_object) = TYPEOF(previous_design_object);
        	WR2: current_design_object <> previous_design_object;
-        WR3 : EXISTS(SELF\Activity.name);
   	END_ENTITY;
 
   	ENTITY Delete_design_object_management_relationship
       SUBTYPE OF (Design_object_management_relationship);
       	previous_design_object : managed_design_object;
-      DERIVE
-    	SELF\Activity.name : STRING := 'delete';
       UNIQUE
       	UR1 : previous_design_object;
-      WHERE
-        WR1 : EXISTS(SELF\Activity.name);
   	END_ENTITY;
 
   	ENTITY Design_object_management_relationship
@@ -58,6 +47,8 @@ SCHEMA Design_management_arm;
 		Add_design_object_management_relationship)ANDOR
 		(View_dependent_design_object_management_relationship))
       SUBTYPE OF (Activity);
+      DERIVE
+    	SELF\Activity.name : STRING := '';
   	END_ENTITY;
 
 
@@ -72,10 +63,6 @@ SCHEMA Design_management_arm;
       SUBTYPE OF (Design_object_management_relationship);
       	previous_design : Product_view_definition;
       	current_design  : Product_view_definition;
-      DERIVE
-    	SELF\Activity.name : STRING := 'design dependent';
-      WHERE
-        WR1 : EXISTS(SELF\Activity.name);
   	END_ENTITY;
 
 END_SCHEMA;

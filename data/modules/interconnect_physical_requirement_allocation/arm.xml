@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-14T16:30:16" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-26T12:36:08" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_physical_requirement_allocation_arm schema_instance"/>
    <schema name="Interconnect_physical_requirement_allocation_arm">
       <interface kind="use" schema="Fabrication_technology_arm"/>
@@ -13,7 +13,7 @@
       </type>
       <entity name="Interconnect_shield_allocation" supertypes="Requirement_assignment">
          <explicit name="assigned_to">
-            <typename name="i_shield"/>
+            <typename name="integral_or_routed_shield"/>
             <redeclaration entity-ref="Requirement_assignment"/>
          </explicit>
          <derived name="assigned_requirement_property" expression="get_requirement_definition_property(SELF,&#10;'INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.'+'ELECTROMAGNETIC_REQUIREMENT_OCCURRENCE')">
@@ -25,7 +25,7 @@
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="Requirement_view_definition"/>
          </derived>
-         <where label="WR1" expression="SIZEOF(QUERY(tisr &lt;* THERMAL_ISOLATION_SPACING_REQUIREMENT |&#10;       NOT(TYPEOF(tisr) = 'INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.THERMAL_ISOLATION_REQUIREMENT')&#10;       )) =0"/>
+         <where label="WR1" expression="SIZEOF(QUERY(tisr &lt;* THERMAL_ISOLATION_SPACING_REQUIREMENT |&#10;       NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.THERMAL_ISOLATION_REQUIREMENT' IN TYPEOF(tisr))&#10;       )) =0"/>
       </entity>
       <entity name="Thermal_isolation_requirement" supertypes="Requirement_view_definition">
          <derived name="effective_current_capacity_requirement" expression="get_specific_requirement_property_for_collector(SELF, 'effective current capacity requirement')">
@@ -36,12 +36,31 @@
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="Requirement_definition_property"/>
          </derived>
-         <derived name="thermal_isolation_spacing_requirement" expression="get_specific_requirement_view_type_for_primary_rvd_relationship(SELF, 'thermal isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
+         <derived name="thermal_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'thermal isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="Layout_spacing_requirement_occurrence"/>
          </derived>
       </entity>
       <subtype.constraint name="material_removal_feature_template_subtypes" entity="Material_removal_feature_template" super.expression="ONEOF (Electrical_isolation_removal_template, Thermal_isolation_removal_template)"/>
+      <function name="bag_to_set">
+         <parameter name="the_bag">
+            <aggregate type="BAG" lower="0" upper="?"/>
+            <builtintype type="GENERIC"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="GENERIC"/>
+         <algorithm>LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);</algorithm>
+      </function>
       <function name="get_specific_requirement_property_for_collector">
          <parameter name="input">
             <typename name="Requirement_view_definition"/>
@@ -55,7 +74,7 @@
     rcr : SET[0:?] OF Requirement_collection_relationship := [];--this gives us access to the information base
     rdp : SET[0:?] OF Requirement_definition_property :=[];
 END_LOCAL;
-    rcr := (QUERY(rai &lt;* USEDIN (input, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.'+
+    rcr := bag_to_set(QUERY(rai &lt;* USEDIN (input, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.'+
 	'REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') | 
           (rai\View_definition_relationship.relation_type = id)));
 
@@ -68,7 +87,7 @@ END_LOCAL;
 
 	RETURN(rdp);</algorithm>
       </function>
-      <function name="get_specific_requirement_view_type_for_primary_rvd_relationship">
+      <function name="get_specific_requirement_type_for_primary_rvd_relationship">
          <parameter name="input">
             <typename name="Requirement_view_definition"/>
          </parameter>
@@ -79,21 +98,22 @@ END_LOCAL;
             <builtintype type="STRING"/>
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="Requirement_view_definition"/>
+         <typename name="Requirement_definition_property"/>
          <algorithm>LOCAL
     rvdr : SET[0:?] OF Requirement_view_definition_relationship := [];
-    rvd : SET[0:?] OF Requirement_view_definition := [];  --this gives us access to the information base
+    rdp : SET[0:?] OF Requirement_definition_property := [];  --this gives us access to the information base
 END_LOCAL;
-	rvdr := (QUERY(rai &lt;* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+
-	'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY') | 
-          (reqType IN TYPEOF(rai.primary))));
-
+	rvdr := bag_to_set(QUERY(rvdre &lt;* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY')|
+	                           (rvdre.name = id)
+                       ));
 	-- iterate over rvdr
 	REPEAT i := 1 to SIZEOF(rvdr) by 1;
-		rvd := rvd + rvdr[i].primary;
+      rdp := rdp + bag_to_set(QUERY(rdp &lt;* USEDIN (rvdr[i].primary, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_DEFINITION_PROPERTY.ASSOCIATED_DEFINITION') |
+        (reqType IN TYPEOF(rdp))
+                             ));
 	END_REPEAT;
 
-	RETURN(rvd);</algorithm>
+	RETURN(rdp);</algorithm>
       </function>
    </schema>
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-01T15:46:27" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-27T11:52:43" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="conductivity_material_aspects_arm schema_instance"/>
    <schema name="Conductivity_material_aspects_arm">
       <interface kind="use" schema="Classification_assignment_arm"/>
@@ -48,6 +48,25 @@
       <entity name="Material_thermal_conductivity_class" supertypes="Conductivity_material_property_class">
          <where label="WR1" expression="SELF\Class.description IN ['thermal conductivity']"/>
       </entity>
+      <function name="bag_to_set">
+         <parameter name="the_bag">
+            <aggregate type="BAG" lower="0" upper="?"/>
+            <builtintype type="GENERIC"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="GENERIC"/>
+         <algorithm>LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);</algorithm>
+      </function>
       <function name="get_cond_class">
          <parameter name="input1">
             <typename name="Material_identification_with_conductivity_classification"/>
@@ -59,9 +78,9 @@
          <algorithm>LOCAL
   car : SET OF Classification_assignment := [];
  END_LOCAL;
-  car := QUERY(ca &lt;* USEDIN(input1,
+  car := QUERY(ca &lt;* bag_to_set(USEDIN(input1,
 	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
-	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')) |
 	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
 	 	input2 IN TYPEOF (ca.assigned_class)));
  IF SIZEOF(car) = 1

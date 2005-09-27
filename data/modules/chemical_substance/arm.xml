@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-01T15:46:27" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-27T11:43:29" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="chemical_substance_arm schema_instance"/>
    <schema name="Chemical_substance_arm">
       <interface kind="use" schema="Assembly_structure_arm"/>
@@ -19,7 +19,7 @@
          <enumeration extensible="YES" items="VOLUME MASS MOLES ATOMS"/>
       </type>
       <entity name="Chemical_compound" supertypes="Substance">
-         <derived name="id_owner" expression="QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'id owner') )">
+         <derived name="id_owner" expression="QUERY(temp &lt;* bag_to_set(USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS')) |&#10;                         (temp.role = 'id owner') )">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Organization_or_person_in_organization_assignment"/>
          </derived>
@@ -41,7 +41,7 @@
             <typename name="Substance_view_definition"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
          </explicit>
-         <derived name="relation_type" expression="'raw material definition'">
+         <derived name="relation_type" expression="''">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </derived>
@@ -67,7 +67,7 @@
          <explicit name="amount">
             <typename name="Value_with_unit"/>
          </explicit>
-         <derived name="relation_type" expression="'assembly material composition'">
+         <derived name="relation_type" expression="''">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </derived>
@@ -94,5 +94,24 @@
       <rule name="substance_view_definition_constraint" appliesto="Product_view_definition">
          <where label="WR1" expression="SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0"/>
       </rule>
+      <function name="bag_to_set">
+         <parameter name="the_bag">
+            <aggregate type="BAG" lower="0" upper="?"/>
+            <builtintype type="GENERIC"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="GENERIC"/>
+         <algorithm>LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);</algorithm>
+      </function>
    </schema>
 </express>

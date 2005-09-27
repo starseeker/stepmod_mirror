@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.38 2005/09/27 06:58:26 kovaliovas Exp $
+   $Id: arm.exp,v 1.39 2005/09/27 09:47:22 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3498 - ISO/CD-TS 10303-1707 Package - EXPRESS ARM
 *)
 
@@ -53,7 +53,7 @@ SCHEMA Package_arm;
       derived_zone             : Connection_zone_in_usage_view;
       derived_zone_shape_class : STRING;
     INVERSE
-      associated_package_terminal  : SET[0:1] OF package_terminal FOR seating_plane_zone;
+      associated_package_terminal  : SET[0:1] OF package_terminal_template_definition FOR seating_plane_zone;
     UNIQUE
       UR1 : interface_plane, mating_zone;
     WHERE
@@ -173,8 +173,15 @@ INVERSE
   END_ENTITY;
 
   ENTITY Package_terminal
-    SUBTYPE OF (Part_feature);
-      SELF\Part_feature.associated_definition 		: Package;
+    SUBTYPE OF (Part_feature, Placed_feature);
+      SELF\Placed_feature.definition 		  : Package_terminal_template_definition;
+      SELF\Part_feature.associated_definition : Package;
+   INVERSE
+      SELF\Placed_feature.feature_shape : SET[1:?] OF geometric_model_constituent_relationship FOR constituent_element;
+  END_ENTITY;
+
+  ENTITY Package_terminal_template_definition
+    SUBTYPE OF (Part_feature_template_definition);
       external_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
       internal_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
       seating_plane_intersection              : seating_plane_intersection_type;
@@ -192,8 +199,6 @@ INVERSE
      'PACKAGE_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
      (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
  	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal surface material')) = 1));
-   INVERSE
-      SELF\Part_feature.feature_shape : SET[1:?] OF geometric_model_constituent_relationship FOR constituent_element;
     WHERE
       WR1 : NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.derived_zone = cz))) = 1);
       WR2 : NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.mating_zone = cz))) = 1);
@@ -249,8 +254,8 @@ INVERSE
   END_ENTITY;
 
   ENTITY Wire_terminal
-    SUBTYPE OF (Package_terminal);
-      SELF\Package_terminal.internal_connection_zone : SET[1:?] OF Connection_zone_in_usage_view;
+    SUBTYPE OF (Package_terminal_template_definition);
+      SELF\Package_terminal_template_definition.internal_connection_zone : SET[1:?] OF Connection_zone_in_usage_view;
       maximum_wire_terminal_length                   : Length_data_element;
       minimum_wire_terminal_length                   : Length_data_element;
   END_ENTITY;

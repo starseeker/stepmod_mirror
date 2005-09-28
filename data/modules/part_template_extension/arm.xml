@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-01T15:46:33" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-09-28T17:30:07" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_extension_arm schema_instance"/>
    <schema name="Part_template_extension_arm">
       <interface kind="use" schema="Fabrication_technology_arm"/>
@@ -39,17 +39,13 @@
             <typename name="Length_data_element"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Curve_style_parameters_with_ends" attribute="name"/>
+            <unique.attribute attribute="name"/>
          </unique>
       </entity>
       <entity name="Default_trace_template" supertypes="Trace_template">
          <explicit name="of_stratum_technology">
             <typename name="Stratum_technology"/>
          </explicit>
-         <derived name="name" expression="'default trace template'">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Trace_template"/>
-         </derived>
       </entity>
       <entity name="Fill_area_template" supertypes="Template_definition">
          <explicit name="fill_area_style" optional="YES">
@@ -87,10 +83,6 @@
          <where label="WR7" expression="start_vertex :&lt;&gt;: end_vertex"/>
       </entity>
       <entity name="Inter_stratum_feature_edge_template" supertypes="Inter_stratum_feature_template">
-         <derived name="name" expression="'inter stratum feature edge template'">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </derived>
          <inverse name="edges" entity="Inter_stratum_feature_edge_segment_template" attribute="composed_edge">
             <inverse.aggregate type="SET" lower="2" upper="?"/>
          </inverse>
@@ -101,7 +93,9 @@
          </explicit>
       </entity>
       <entity name="Reference_packaged_part_interconnect_implementation" supertypes="Interconnect_module">
-         <where label="WR1" expression="SIZEOF(QUERY(prpc &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product,&#10; 'PART_TEMPLATE_EXTENSION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | NOT (SIZEOF(QUERY(epcr &lt;* USEDIN(prpc,&#10; 'PART_TEMPLATE_EXTENSION_ARM.PRODUCT_CATEGORY_HIERARCHY.SUPER_CATEGORY') | (epcr.sub_category\Product_category.name = 'template model'))) = 1))) = 0"/>
+         <where label="WR1" expression="SIZEOF&#10;(QUERY(pca &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | &#10;NOT (pca.category\Product_category.name IN ['template model','part']))) = 0"/>
+         <where label="WR2" expression="SIZEOF&#10;(QUERY(pca &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | &#10;(pca.category\Product_category.name = 'template model'))) = 1"/>
+         <where label="WR3" expression="SIZEOF&#10;(QUERY(pca &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | &#10;(pca.category\Product_category.name = 'part'))) = 1"/>
       </entity>
       <entity name="Snowball_template" supertypes="Material_addition_feature_template">
          <explicit name="snowball_start_distance">
@@ -133,7 +127,7 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Stratum_technology"/>
          </explicit>
-         <derived name="name" expression="'special symbol part template'">
+         <derived name="name" expression="''">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
@@ -157,7 +151,7 @@
          <explicit name="trace_style">
             <typename name="Curve_style_parameters"/>
          </explicit>
-         <derived name="name" expression="'trace template'">
+         <derived name="name" expression="''">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>

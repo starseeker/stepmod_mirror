@@ -94,15 +94,15 @@ SCHEMA Package_arm;
       maximum_installed_height              : length_data_element := add_data_element(maximum_body_height_above_seating_plane,
  maximum_seating_plane_installation_offset);
     INVERSE
-      body                                  : SET[0:1] OF package_body FOR associated_definition;
+      body                                  : SET[0:1] OF Package_body FOR associated_definition;
 	  external_surface_mount_lead_form 		: SET[0:1] OF External_source_identification FOR item;            
       package_seating_plane                 : non_feature_shape_element FOR scope;
-      interface_plane                       : SET[0:?] OF non_feature_shape_element FOR scope;
-      package_accesses                      : SET[0:?] OF package_terminal FOR associated_definition;
+      interface_plane                       : SET[0:?] OF Non_feature_shape_element FOR scope;
+      package_accesses                      : SET[0:?] OF Package_terminal FOR associated_definition;
       package_polarity_indication           : SET[0:1] OF Shape_element FOR containing_shape;
-      package_primary_orientation_feature   : SET[0:1] OF Shape_element FOR containing_shape;
-      package_secondary_orientation_feature : SET[0:1] OF Shape_element FOR containing_shape;
-      package_tertiary_orientation_feature  : SET[0:1] OF Shape_element FOR containing_shape;
+      package_primary_orientation_feature   : SET[0:1] OF Primary_orientation_feature FOR containing_shape;
+      package_secondary_orientation_feature : SET[0:1] OF Secondary_orientation_feature FOR containing_shape;
+      package_tertiary_orientation_feature  : SET[0:1] OF Tertiary_orientation_feature FOR containing_shape;
     WHERE
       WR1  : NOT (SIZEOF(package_primary_orientation_feature) > 0) OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(package_primary_orientation_feature[1]));
       WR2  : NOT (SIZEOF(package_secondary_orientation_feature) > 0) OR ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(package_secondary_orientation_feature[1]));
@@ -190,37 +190,25 @@ INVERSE
       maximum_terminal_diametrical_extent     : OPTIONAL Length_data_element;
       seating_plane_zone                      : OPTIONAL Connection_zone_package_interface_plane_relationship;
     DERIVE
-      mates_with_substrate : BOOLEAN := (EXISTS(seating_plane_zone)) AND (associated_definition.package_seating_plane :=: seating_plane_zone.interface_plane);
-      terminal_core_material : SET [0:1] OF Material_identification := QUERY( temp <* USEDIN(SELF,
+      mates_with_substrate : BOOLEAN := (EXISTS(seating_plane_zone));
+      terminal_core_material : SET [0:1] OF Material_identification := bag_to_set(QUERY( temp <* USEDIN(SELF,
      'PACKAGE_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
      (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
- 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal core material')) = 1));
-      terminal_surface_material : SET [1:1] OF Material_identification := QUERY( temp <* USEDIN(SELF,
+ 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal core material')) = 1)));
+      terminal_surface_material : SET [1:1] OF Material_identification := bag_to_set(QUERY( temp <* USEDIN(SELF,
      'PACKAGE_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
      (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
- 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal surface material')) = 1));
+ 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal surface material')) = 1)));
     WHERE
       WR1 : NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.derived_zone = cz))) = 1);
       WR2 : NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.mating_zone = cz))) = 1);
-      WR3 : NOT EXISTS(seating_plane_zone) OR ((associated_definition.package_seating_plane :=: seating_plane_zone.interface_plane) OR (associated_definition.interface_plane[1] :=: seating_plane_zone.interface_plane));
       WR4 : NOT EXISTS(seating_plane_zone) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection));
       WR5 : NOT ((seating_plane_intersection = does_not_intersect) AND (EXISTS(seating_plane_zone)));
-      WR6 : SIZEOF(QUERY(eca <* external_connection_zone |
-                   NOT(eca\Shape_element.containing_shape.described_element = SELF\Part_feature.associated_definition)
-                  )) = 0;
-      WR7 : SIZEOF(QUERY(ica <* internal_connection_zone |
-                   NOT(ica\Shape_element.containing_shape.described_element = SELF\Part_feature.associated_definition)
-                   )) = 0;
       WR8 : NOT (SIZEOF(terminal_core_material) = 1) OR
                 ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_core_material[1]));
       WR9 : EXISTS(terminal_core_material);
      WR10 : NOT EXISTS(terminal_surface_material) OR
                 ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_surface_material[1]));
-     WR11: SIZEOF(QUERY(fs <* feature_shape | NOT ('PACKAGE_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF (fs.associating_usage_shape))
-                  )) = 0;
-     WR12: SIZEOF(QUERY(fs <* feature_shape | 
-                  NOT(associated_definition = fs.associating_usage_shape.shape_characterized_physical_unit)
-                  )) = 0;
   END_ENTITY;
 
   ENTITY Package_terminal_surface_constituent_relationship
@@ -266,6 +254,23 @@ INVERSE
   ) : Length_data_element;
 
     RETURN(input1);
+  END_FUNCTION;
+
+  FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
   END_FUNCTION;
 
   FUNCTION max_data_element(

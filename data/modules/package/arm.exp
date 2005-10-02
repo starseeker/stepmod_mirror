@@ -96,27 +96,32 @@ SCHEMA Package_arm;
     INVERSE
       body                                  : SET[0:1] OF Package_body FOR associated_definition;
 	  external_surface_mount_lead_form 		: SET[0:1] OF External_source_identification FOR item;            
-      package_seating_plane                 : non_feature_shape_element FOR scope;
-      interface_plane                       : SET[0:?] OF Non_feature_shape_element FOR scope;
+      package_seating_plane                 : Seating_plane FOR scope;
+      interface_plane                       : SET[0:?] OF Interface_plane FOR scope;
       package_accesses                      : SET[0:?] OF Package_terminal FOR associated_definition;
-      package_polarity_indication           : SET[0:1] OF Shape_element FOR containing_shape;
+      package_polarity_indication           : SET[0:1] OF Polarity_indication_feature FOR containing_shape;
       package_primary_orientation_feature   : SET[0:1] OF Primary_orientation_feature FOR containing_shape;
       package_secondary_orientation_feature : SET[0:1] OF Secondary_orientation_feature FOR containing_shape;
       package_tertiary_orientation_feature  : SET[0:1] OF Tertiary_orientation_feature FOR containing_shape;
     WHERE
-      WR1  : NOT (SIZEOF(package_primary_orientation_feature) > 0) OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(package_primary_orientation_feature[1]));
-      WR2  : NOT (SIZEOF(package_secondary_orientation_feature) > 0) OR ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(package_secondary_orientation_feature[1]));
-      WR3  : NOT (SIZEOF(package_tertiary_orientation_feature) > 0) OR ('PACKAGE_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(package_tertiary_orientation_feature[1]));
-      WR4  : 'PACKAGE_ARM.SEATING_PLANE' IN TYPEOF(package_seating_plane);
-      WR5  : 'PACKAGE_ARM.SEATING_PLANE' IN TYPEOF(interface_plane);
+--tt following five rules no longer needed
+--      WR1  : NOT (SIZEOF(package_primary_orientation_feature) > 0) OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(package_primary_orientation_feature[1]));
+--      WR2  : NOT (SIZEOF(package_secondary_orientation_feature) > 0) OR ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(package_secondary_orientation_feature[1]));
+--      WR3  : NOT (SIZEOF(package_tertiary_orientation_feature) > 0) OR ('PACKAGE_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(package_tertiary_orientation_feature[1]));
+--      WR4  : 'PACKAGE_ARM.SEATING_PLANE' IN TYPEOF(package_seating_plane);
+--      WR5  : 'PACKAGE_ARM.SEATING_PLANE' IN TYPEOF(interface_plane);
       WR6  : NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)));
       WR7  : NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\Value_with_unit.value_component > 0.0);
       WR8  : NOT (EXISTS(least_lead_length_below_seating_plane)) OR (least_lead_length_below_seating_plane\Value_with_unit.value_component > 0.0);
       WR9  : (NOT (mounting_technology = surface_mount) AND NOT (EXISTS(surface_mount_lead_form))) OR ((mounting_technology = surface_mount) AND (EXISTS(surface_mount_lead_form)));
       WR10 : package_seating_plane\Shape_element.element_name = 'package seating plane';
-      WR11 : NOT (SIZEOF(interface_plane) > 0) OR (SIZEOF(QUERY(ip <* interface_plane | NOT (ip\Shape_element.element_name = 'interface plane'))) = 0);
-      WR12 : NOT (SIZEOF(interface_plane) > 0) OR (SIZEOF(QUERY(ip <* interface_plane | NOT (package_seating_plane <> ip))) = 0);
-      WR13 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,'PACKAGE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'package'))) > 0;
+--tt following rule unneeded
+--    WR11 : NOT (SIZEOF(interface_plane) > 0) OR (SIZEOF(QUERY(ip <* interface_plane | NOT (ip\Shape_element.element_name = 'interface plane'))) = 0);
+--tt following rule unneeded
+--    WR12 : NOT (SIZEOF(interface_plane) > 0) OR (SIZEOF(QUERY(ip <* interface_plane | NOT (package_seating_plane <> ip))) = 0);
+--rewrote following rule:
+      WR13: 'package' IN types_of_product(SELF\Product_view_definition.defined_version.of_product);
+--    WR13 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,'PACKAGE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'package'))) > 0;
       WR14 : SIZEOF(QUERY(pa <* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1;
 	  WR15: (EXISTS (surface_mount_lead_form)) XOR ((SIZEOF(external_surface_mount_lead_form)) = 1);      
   END_ENTITY;
@@ -241,7 +246,7 @@ INVERSE
     SUBTYPE OF (Package_orientation_feature);
   END_ENTITY;
 
-  ENTITY Wire_terminal
+  ENTITY Wire_terminal_template_definition
     SUBTYPE OF (Package_terminal_template_definition);
       SELF\Package_terminal_template_definition.internal_connection_zone : SET[1:?] OF Connection_zone_in_usage_view;
       maximum_wire_terminal_length                   : Length_data_element;

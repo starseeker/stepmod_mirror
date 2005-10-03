@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.12 2005/09/07 15:59:27 liutkus Exp $
+   $Id: arm.exp,v 1.13 2005/09/14 11:06:34 liutkus Exp $
    ISO TC184/SC4/WG12 N3666 - ISO/CD-TS 10303-1755 Physical connectivity definition - EXPRESS ARM
 *)
 
@@ -71,7 +71,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Physical_unit_network_definition
     SUBTYPE OF (Product_view_definition);
     DERIVE
-      terminals : SET [0:?] OF Component_terminal := get_terminals(connectivity_definitions);
+      terminals : SET [0:?] OF Component_terminal := 
+      get_terminals(bag_to_set(USEDIN(SELF,'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_DEFINITION')));
     WHERE
       WR1 : NOT ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF)) OR 
                 ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_DESIGN_VIEW' IN TYPEOF(SELF));
@@ -97,4 +98,23 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_REPEAT;
   RETURN(ct);
   END_FUNCTION;
+  
+  FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+  END_FUNCTION;
+
+  
 END_SCHEMA;

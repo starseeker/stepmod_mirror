@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-08T15:29:46" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-10-03T16:51:32" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="package_mim schema_instance"/>
    <schema name="Package_mim">
       <interface kind="use" schema="Extended_geometric_tolerance_mim"/>
@@ -57,7 +57,7 @@
          <where label="WR3" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'PACKAGE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       (TYPEOF(sar\shape_aspect_relationship.relating_shape_aspect) = &#10;       ['PACKAGE_MIM.' +&#10;       'PACKAGE_BODY']))) = 1"/>
       </entity>
       <entity name="package_body_top_surface" supertypes="package_body_surface"/>
-      <entity name="package_terminal" supertypes="shape_aspect" super.expression="(guided_wave_terminal ANDOR wire_terminal) ANDOR primary_reference_terminal">
+      <entity name="package_terminal" supertypes="shape_aspect" super.expression="guided_wave_terminal ANDOR primary_reference_terminal">
          <where label="WR1" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PACKAGE_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       NOT (SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'PACKAGE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       'PACKAGE_MIM.' +&#10;       'SHAPE_REPRESENTATION' IN&#10;       TYPEOF (pdr.used_representation))) &gt;= 1))) = 0"/>
          <where label="WR2" expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *&#10;       ['PACKAGE_MIM.' +&#10;       'PACKAGE',&#10;       'PACKAGE_MIM.' +&#10;       'EXTERNALLY_DEFINED_PACKAGE',&#10;       'PACKAGE_MIM.' +&#10;       'LIBRARY_DEFINED_PACKAGE']) = 1"/>
          <where label="WR3" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF, &#10;       'PACKAGE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |(&#10;       'PACKAGE_MIM.' +&#10;       'PRODUCT_DEFINITION' IN TYPEOF (sar.relating_shape_aspect.of_shape.definition)) AND&#10;       (sar\shape_aspect_relationship.name = 'terminal core material') AND&#10;       (sar.relating_shape_aspect.of_shape.definition.&#10;        frame_of_reference\application_context_element.name = 'material definition') &#10;       )) &lt;= 1"/>
@@ -70,6 +70,7 @@
          <where label="WR10" expression="SIZEOF(QUERY ( sar &lt;* USEDIN (SELF,&#10;      'PACKAGE_MIM.' +&#10;      'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'precedent feaure' ))&#10;       &lt;= 1"/>
          <where label="WR11" expression="SIZEOF (QUERY (eca &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PACKAGE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'seating plane zone') |&#10;       'PACKAGE_MIM.' +&#10;       'CONNECTION_ZONE_INTERFACE_PLANE_RELATIONSHIP' IN&#10;       TYPEOF (eca.related_shape_aspect))) &lt;= 1"/>
       </entity>
+      <entity name="package_terminal_template_definition" supertypes="part_feature_template_definition"/>
       <entity name="primary_orientation_feature" supertypes="physical_unit_datum_feature">
          <where label="WR1" expression="SELF\shape_aspect.product_definitional = TRUE"/>
          <where label="WR2" expression="SIZEOF (QUERY (it &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PACKAGE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'associated body vertical extent') |&#10;       ('PACKAGE_MIM.' +&#10;       'PACKAGE_BODY_BOTTOM_SURFACE' IN&#10;       TYPEOF (it.relating_shape_aspect)) &#10;       )) &lt;= 1"/>
@@ -91,12 +92,7 @@
          <where label="WR3" expression="SIZEOF (QUERY (it &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PACKAGE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'associated body vertical extent') |&#10;       ('PACKAGE_MIM.' +&#10;       'PACKAGE_BODY_BOTTOM_SURFACE' IN&#10;       TYPEOF (it.relating_shape_aspect))&#10;       )) &lt;= 1"/>
          <where label="WR4" expression="SIZEOF (QUERY (it &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PACKAGE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'associated body vertical extent') |&#10;       ('PACKAGE_MIM.' +&#10;       'PACKAGE_BODY_TOP_SURFACE' IN&#10;       TYPEOF (it.relating_shape_aspect))&#10;       )) &lt;= 1"/>
       </entity>
-      <entity name="wire_terminal" supertypes="package_terminal">
-         <where label="WR1" expression="(SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PACKAGE_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       (NOT (SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'PACKAGE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       (SIZEOF (QUERY (it &lt;* pdr.used_representation.items |&#10;       (('PACKAGE_MIM.' +&#10;       'MEASURE_REPRESENTATION_ITEM') IN TYPEOF (it))&#10;       AND&#10;       (('PACKAGE_MIM.' +&#10;       'LENGTH_UNIT') IN&#10;   TYPEOF (it\measure_with_unit.unit_component)))) = 2))) = 1)) )) = 0)"/>
-         <where label="WR2" expression="(SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PACKAGE_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       (NOT (SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'PACKAGE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       (SIZEOF (QUERY (it &lt;* pdr.used_representation.items | (&#10;       'PACKAGE_MIM.' +&#10;       'MEASURE_REPRESENTATION_ITEM' IN TYPEOF (it)) AND&#10;       (it\representation_item.name = 'maximum wire terminal length')&#10;       AND&#10;       (('PACKAGE_MIM.' +&#10;       'LENGTH_UNIT') IN&#10;        TYPEOF (it\measure_with_unit.unit_component)))) = 1&#10;                                               ))) = 1)) )) = 0)"/>
-         <where label="WR3" expression="(SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'PACKAGE_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       (NOT (SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'PACKAGE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       (SIZEOF (QUERY (it &lt;* pdr.used_representation.items | (&#10;       'PACKAGE_MIM.' +&#10;       'MEASURE_REPRESENTATION_ITEM' IN TYPEOF (it)) AND&#10;       (it\representation_item.name = 'minimum wire terminal length')&#10;       AND&#10;       (('PACKAGE_MIM.' +&#10;       'LENGTH_UNIT') IN&#10;       TYPEOF (it\measure_with_unit.unit_component)))) = 1)))&#10;                                                     = 1)) )) = 0)"/>
-         <where label="WR4" expression="(SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'PACKAGE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       (sar\shape_aspect_relationship.name  = 'internal connection zone') AND&#10;       (sar.related_shape_aspect\shape_aspect.description = 'connection zone'))) = 1)"/>
-      </entity>
+      <entity name="wire_terminal_template_definition" supertypes="package_terminal_template_definition"/>
       <subtype.constraint name="package_part_feature_subtypes" entity="shape_aspect" super.expression="ONEOF (physical_unit_datum_feature, package_body)"/>
       <rule name="package_unique_constraint" appliesto="package">
          <algorithm>LOCAL

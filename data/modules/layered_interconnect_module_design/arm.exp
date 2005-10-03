@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.97 2005/09/29 21:16:52 thomasrthurman Exp $
+   $Id: arm.exp,v 1.98 2005/09/30 12:16:02 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -665,8 +665,11 @@ SCHEMA Layered_interconnect_module_design_arm;
       of_fabrication_thickness_requirement : SET[0:?] OF requirement_assignment FOR assigned_to;
     WHERE
       WR1 : SIZEOF(QUERY(ftr <* of_fabrication_thickness_requirement | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF(ftr\Requirement_assignment.assigned_requirement)))) = 0;
-      WR2 : SIZEOF(QUERY(imsar <* USEDIN(SELF,
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1;
+      WR2 : (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY')) = 0)
+      OR
+      (SIZEOF(QUERY(imsar <* USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | 
+              (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND 
+               (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1);
   END_ENTITY;
 
   ENTITY Interconnect_module_edge

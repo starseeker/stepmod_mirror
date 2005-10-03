@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.36 2005/09/26 15:51:38 thomasrthurman Exp $
+   $Id: arm.exp,v 1.37 2005/09/27 12:06:33 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3312 - ISO/CD-TS 10303-1649 Assembly technology - EXPRESS ARM
 *)
 
@@ -121,19 +121,19 @@ SCHEMA Assembly_technology_arm;
   END_ENTITY;
 
   ENTITY Reference_packaged_part_assembly_implementation
-    SUBTYPE OF (Assembly_module);
-
-    WHERE
-      WR1 : SIZEOF
-(QUERY(pca <* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | 
-NOT (pca.category\Product_category.name IN ['template model','part']))) = 0;
-     WR2 : SIZEOF
-(QUERY(pca <* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | 
-(pca.category\Product_category.name = 'template model'))) = 1;
-     WR3 : SIZEOF
-(QUERY(pca <* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | 
-(pca.category\Product_category.name = 'part'))) = 1;
+    SUBTYPE OF (Assembly_module, Template_definition);
+  SELF\Product_view_definition.defined_version : Reference_packaged_part_assembly_implementation_version;
   END_ENTITY;
+
+  ENTITY Reference_packaged_part_assembly_implementation_version
+   SUBTYPE OF (Part_version, Template_version);
+  SELF\Product_version.of_product : Reference_packaged_part_assembly;
+  END_ENTITY;
+
+  ENTITY Reference_packaged_part_assembly
+   SUBTYPE OF (Part, Template);
+  END_ENTITY;
+
 
 END_SCHEMA;
 

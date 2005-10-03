@@ -46,7 +46,6 @@ SCHEMA Physical_unit_design_view_arm;
 	SELF\Definition_based_product_occurrence.derived_from : physical_unit_or_part_template_or_fp_or_pd;
     DERIVE
     	SELF\Item_shape.described_element : shapeable_item := SELF;
-		SELF\Product_view_definition.defined_version : Product_version := SELF\Definition_based_product_occurrence.derived_from.defined_version;
     INVERSE
       SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF assembly_component_relationship FOR related_view;
 (** Need to encode it as Global rules TODO for Tom
@@ -56,6 +55,8 @@ SCHEMA Physical_unit_design_view_arm;
 *)      
     WHERE
       WR1 : NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from)) OR ((('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))));
+      WR2 : SELF\Product_view_definition.defined_version :=: SELF\Definition_based_product_occurrence.derived_from.defined_version;
+      WR3 : 'PRODUCT_VERSION_ARM.PRODUCT_VERSION' IN TYPEOF(SELF\Product_view_definition.defined_version);
   END_ENTITY;
 
   ENTITY Assembly_item_number;

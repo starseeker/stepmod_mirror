@@ -265,12 +265,12 @@
 		</xsl:variable>
 		<xsl:choose>
 			<xsl:when test="contains($subtypes_of_target_exist, 'YES')">
-				<xsl:comment>EXPRESS ENTITY VALUED ATTRIBUTE WHERE TARGET HAS SUBTYPES KEYREF DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>
+				<!-- xsl:comment>EXPRESS ENTITY VALUED ATTRIBUTE WHERE TARGET HAS SUBTYPES KEYREF DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>
 				</xsl:comment>
 				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_target_name}-keysub">
 					<xs:selector xpath=".//{$corrected_target_name}/{$corrected_attribute_name}"/>
 					<xs:field xpath="@ref"/>
-				</xs:keyref>
+				</xs:keyref -->
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
 			</xsl:when>
@@ -318,7 +318,7 @@
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:if test="string-length($subtypes_list)!=0">
-			<xsl:comment>EXPRESS ENTITY DATATYPE WITH SUBTYPES KEY DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>
+			<!-- xsl:comment>EXPRESS ENTITY DATATYPE WITH SUBTYPES KEY DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>
 			</xsl:comment>
 			<xsl:text>&#xa;</xsl:text>
 			<xs:key name="{$schema_name}___{$corrected_entity_name}-keysub">
@@ -329,7 +329,7 @@
 				</xsl:variable>
 				<xs:selector xpath="{$corrected_entity_name}{$subtypes_xpath}"/>
 				<xs:field xpath="@id"/>
-			</xs:key>
+			</xs:key -->
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
 		</xsl:if>

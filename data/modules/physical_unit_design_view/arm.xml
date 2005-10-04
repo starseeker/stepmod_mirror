@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-28T17:43:02" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-10-04T16:03:44" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_arm schema_instance"/>
    <schema name="Physical_unit_design_view_arm">
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
@@ -34,15 +34,13 @@
             <typename name="shapeable_item"/>
             <redeclaration entity-ref="Item_shape"/>
          </derived>
-         <derived name="defined_version" expression="SELF\Definition_based_product_occurrence.derived_from.defined_version">
-            <typename name="Product_version"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </derived>
          <inverse name="occurrence_contexts" entity="Assembly_component_relationship" attribute="related_view">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
             <redeclaration entity-ref="Product_occurrence"/>
          </inverse>
          <where label="WR1" expression="NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from)) OR ((('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))))"/>
+         <where label="WR2" expression="SELF\Product_view_definition.defined_version :=: SELF\Definition_based_product_occurrence.derived_from.defined_version"/>
+         <where label="WR3" expression="'PRODUCT_VERSION_ARM.PRODUCT_VERSION' IN TYPEOF(SELF\Product_view_definition.defined_version)"/>
       </entity>
       <entity name="Assembly_item_number">
          <explicit name="assembly_usage">

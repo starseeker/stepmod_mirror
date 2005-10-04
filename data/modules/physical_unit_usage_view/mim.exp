@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.20 2005/05/23 08:46:51 liutkus Exp $
+   $Id: mim.exp,v 1.21 2005/05/24 09:43:15 liutkus Exp $
    ISO TC184/SC4/WG12 N3580 - ISO/CD-TS 10303-1732 Physical unit usage view - EXPRESS MIM
 *)
 
@@ -97,8 +97,9 @@ WHERE
 END_ENTITY; 
 
 ENTITY part_feature_template_definition
- SUBTYPE OF (product_definition);
+ SUBTYPE OF (feature_definition);
 WHERE
+(* Became invalid - need review
   WR1: (NOT ('PHYSICAL_UNIT_USAGE_VIEW_MIM.' +
        'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
        TYPEOF (SELF))) OR
@@ -106,6 +107,7 @@ WHERE
        SELF\product_definition_with_associated_documents.
         documentation_ids |
        docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
+*)       
   WR2: SIZEOF (QUERY (adta <* USEDIN (SELF, 
        'PHYSICAL_UNIT_USAGE_VIEW_MIM.' + 
        'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
@@ -128,6 +130,7 @@ WHERE
   WR5: SIZEOF (USEDIN (SELF, 
        'PHYSICAL_UNIT_USAGE_VIEW_MIM.' +
        'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
+(* Became invalid - need review       
   WR6: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||
        SELF\part_feature_template_definition))) = 0;
   WR7: SIZEOF (QUERY (prpc <* USEDIN (SELF.formation.of_product,
@@ -135,6 +138,7 @@ WHERE
        'PRODUCT_RELATED_PRODUCT_CATEGORY.' +
        'PRODUCTS') |
        prpc\product_category.name = 'template model')) >= 1;
+*)       
 END_ENTITY;
 	
 ENTITY physical_unit

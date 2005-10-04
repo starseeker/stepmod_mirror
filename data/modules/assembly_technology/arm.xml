@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-28T15:41:57" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-10-03T19:02:35" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_technology_arm schema_instance"/>
    <schema name="Assembly_technology_arm">
       <interface kind="use" schema="Assembly_module_design_arm"/>
@@ -124,10 +124,18 @@
             <redeclaration entity-ref="Representation"/>
          </derived>
       </entity>
-      <entity name="Reference_packaged_part_assembly_implementation" supertypes="Assembly_module">
-         <where label="WR1" expression="SIZEOF&#10;(QUERY(pca &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | &#10;NOT (pca.category\Product_category.name IN ['template model','part']))) = 0"/>
-         <where label="WR2" expression="SIZEOF&#10;(QUERY(pca &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | &#10;(pca.category\Product_category.name = 'template model'))) = 1"/>
-         <where label="WR3" expression="SIZEOF&#10;(QUERY(pca &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product, 'ASSEMBLY_TECHNOLOGY_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | &#10;(pca.category\Product_category.name = 'part'))) = 1"/>
+      <entity name="Reference_packaged_part_assembly" supertypes="Part Template"/>
+      <entity name="Reference_packaged_part_assembly_implementation" supertypes="Assembly_module Template_definition">
+         <explicit name="defined_version">
+            <typename name="Reference_packaged_part_assembly_implementation_version"/>
+            <redeclaration entity-ref="Product_view_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Reference_packaged_part_assembly_implementation_version" supertypes="Part_version Template_version">
+         <explicit name="of_product">
+            <typename name="Reference_packaged_part_assembly"/>
+            <redeclaration entity-ref="Product_version"/>
+         </explicit>
       </entity>
       <subtype.constraint name="assembly_module_subtypes" entity="Assembly_module" super.expression="ONEOF (Pca, Reference_packaged_part_assembly_implementation)"/>
       <subtype.constraint name="process_specification_subtypes" entity="Process_specification" super.expression="ONEOF (Assembly_technology_specification, Fabrication_technology_specification)"/>

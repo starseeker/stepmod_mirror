@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.38 2005/10/04 03:57:54 thomasrthurman Exp $
+   $Id: arm.exp,v 1.39 2005/10/04 14:13:42 liutkus Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -138,6 +138,8 @@ a subtype of layout_template_definition *)
       reference_package_terminal : package_terminal_or_printed_part_template_terminal;
     INVERSE
       transform : padstack_location_in_footprint_definition_transform FOR reference_location;
+    UNIQUE
+      UR1: footprint, reference_package_terminal;
     WHERE
       WR1 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PART_FEATURE' IN TYPEOF(reference_package_terminal)) OR 
                 (reference_package_terminal\shape_element.containing_shape :=: footprint.reference_package);
@@ -167,6 +169,8 @@ a subtype of layout_template_definition *)
       reference_designation : STRING;
     INVERSE
       transform : SET[0:1] OF part_template_location_in_padstack_definition_transform FOR reference_location;
+    UNIQUE
+      UR1: padstack, reference_designation;
     WHERE
       WR1 : ((SIZEOF(transform) = 1) AND 
              (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
@@ -187,6 +191,9 @@ a subtype of layout_template_definition *)
       SELF\Geometric_placement.target RENAMED transform                             : Axis_placement_2d;
 		UNIQUE
 			UR1 : reference_location;
+	  WHERE
+        WR1: template_shape.shape_characterized_part_template = reference_location.template;
+        WR2: padstack_shape.shape_characterized_padstack_definition = reference_location.padstack;
   END_ENTITY;
 
   ENTITY Part_template_planar_keepout_shape_model

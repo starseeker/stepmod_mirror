@@ -532,15 +532,16 @@
 								</xsl:when>
 								<xsl:otherwise>
 								<!-- use 7.2.2.3	List-of-values form -->
+									<xsl:variable name="list_type_name">
+										<xsl:call-template name="get_list_type_name">
+												<xsl:with-param name="list_type_name_param" select="$base_datatype_name"/>
+										</xsl:call-template>
+									</xsl:variable>
+									<xsl:variable name="list_type_name_with_seq_prefix" select="concat('Seq-', $list_type_name)"/>
+									<xsl:variable name="list_type_name_with_list_prefix" select="concat('List-', $list_type_name)"/>
 									<xs:complexType name="{$corrected_type_name}">
 										<xs:simpleContent>
-											<xsl:variable name="list_type_name">
-												<xsl:call-template name="get_list_type_name">
-														<xsl:with-param name="list_type_name_param" select="$base_datatype_name"/>
-												</xsl:call-template>
-											</xsl:variable>
-											<xsl:variable name="list_type_name_with_seq_prefix" select="concat('Seq-', $list_type_name)"/>
-											<xsl:variable name="list_type_name_with_list_prefix" select="concat('List-', $list_type_name)"/>
+											
 											<xs:restriction base="{$namespace_prefix}{$list_type_name_with_seq_prefix}">
 												<xs:simpleType>
 													<xs:restriction base="{$namespace_prefix}{$list_type_name_with_list_prefix}">

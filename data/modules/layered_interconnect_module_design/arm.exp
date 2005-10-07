@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.102 2005/10/07 03:55:10 thomasrthurman Exp $
+   $Id: arm.exp,v 1.103 2005/10/07 15:35:41 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -1093,15 +1093,19 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     SUBTYPE OF (Part_view_definition, Item_shape);
       of_technology 												: Stratum_technology;
     DERIVE
-      of_average_surface 	: SET[0:1] OF stratum_average_surface := bag_to_set(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE.OF_STRATUM'));
+      of_average_surface 	: SET[0:1] OF stratum_average_surface := 
+        QUERY(tmp <* of_surface | 'PACKAGE_ARM.STRATUM_AVERAGE_SURFACE' IN TYPEOF(tmp));
+
       SELF\Item_shape.described_element : shapeable_item := SELF;
     INVERSE
-      of_surface         	: SET[1:2] OF stratum_surface FOR of_stratum;
+      of_surface         	: SET[1:3] OF stratum_surface FOR of_stratum;
       assembly           	: SET[1:?] OF interconnect_module_stratum_assembly_relationship FOR component;
 	  stratum_usage			: SET[0:1] OF External_source_identification FOR item;      
    WHERE
-    WR1: SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 0;
-  END_ENTITY;
+    WR1: SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) <= 1;
+    WR2: NOT(SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 1) OR
+            (SIZEOF(of_surface) < 3);    
+      END_ENTITY;
 
   ENTITY Stratum_average_surface
       SUBTYPE OF (Stratum_surface);

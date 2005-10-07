@@ -1,4 +1,4 @@
-//$Id: ge2moduleMain.js,v 1.5 2003/02/10 08:36:06 robbod Exp $
+//$Id: ge2moduleMain.js,v 1.6 2005/01/08 01:03:01 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -141,7 +141,7 @@ function getModuleName(schemaName) {
 
 
 // Given a schema name, work out if it is the schema for an arm 
-// or a mim and return 'arm' or 'mim' accordingly
+// or a mim, or neither, and return 'arm' or 'mim' or schema name accordingly
 function getArmMimXml(schemaName) {
     var pos = schemaName.lastIndexOf('_arm');
     schemaName = schemaName.toLowerCase();
@@ -479,8 +479,23 @@ function convertImgFile(imgFile, newImgFile, schemaName) {
 //module is module name or ir doc name
     objProcessor.addParameter("module",moduleName, "");
 //source is the GE file name
+    sourceFile = sourceFile.toLowerCase();
     objProcessor.addParameter("source",sourceFile, "");
+//armormmim is the kind of schema
+    var armOrMim = getArmMimXml(schemaName);
+    objProcessor.addParameter("armormim",armOrMim, "");
     objProcessor.transform();
+
+    //popupInform("file: "+newImgFileName+
+    //  "\nmodule:"+moduleName+
+    //	"\nsource: "+sourceFile+
+    //	"\narmormim: "+armOrMim);
+
+    //userMessage("file: "+newImgFileName);
+    //userMessage("module: "+moduleName);
+    //userMessage("source: "+sourceFile);
+    //userMessage("armormim: "+armOrMim);
+
 
     // The resulting XML
     var replace = true; var unicode = false; //output file properties
@@ -494,9 +509,6 @@ function convertImgFile(imgFile, newImgFile, schemaName) {
     fso.DeleteFile(imgFile);
     
 }
-
-
-
 
 // Extract the schema page
 function convertSchemaPage(geDir,schemaName) {

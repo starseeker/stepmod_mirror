@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: convert_imgfile.xsl,v 1.1 2002/10/22 08:12:32 robbod Exp $
+     $Id: convert_imgfile.xsl,v 1.2 2005/01/08 01:02:55 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -27,45 +27,52 @@
   <xsl:param name="file" select="'qqq'"/>
   <xsl:param name="module" select="'qqq'"/>
   <xsl:param name="source" select="'qqq'"/>
-
+  <xsl:param name="armormim" select="'qqq'"/>
   <xsl:variable name="xslhref">
     <xsl:choose >
-      <xsl:when test="contains($source, $module)">
-          <xsl:value-of select="'../../../xsl/imgfile.xsl'" />
+<!--      <xsl:when test="contains($source, $module)"> -->
+     <xsl:when test="$armormim='arm' or  $armormim='mim'">
+         <xsl:value-of select="'../../../xsl/imgfile.xsl'" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="'../../../xsl/res_doc/imgfile.xsl'" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  
-  <xsl:template match="/">
-        <xsl:processing-instruction name="xml-stylesheet">
-          type="text/xsl" 
-          <xsl:value-of select="concat('href=&quot;',$xslhref,'&quot;')"/>
-        </xsl:processing-instruction>
-    <xsl:text>
-
-    </xsl:text>
-    <xsl:apply-templates/>
-  </xsl:template>
-
-  <xsl:template match="imgfile.content">
-
-    <!--
-    <xsl:variable name="module">
-      <xsl:call-template name="module_name">
-        <xsl:with-param name="module" select="@schema"/>
-      </xsl:call-template>
+	</xsl:otherwise>
+      </xsl:choose>
     </xsl:variable>
--->
-    <xsl:element name="imgfile.content">
 
-    <xsl:choose>
-      <xsl:when test="contains($source,$module)">
-      <xsl:attribute name="module">
-        <xsl:value-of select="$module"/>
-      </xsl:attribute>
+    <xsl:template match="/">
+	  <xsl:processing-instruction name="xml-stylesheet">
+	    type="text/xsl" 
+	    <xsl:value-of select="concat('href=&quot;',$xslhref,'&quot;')"/>
+	  </xsl:processing-instruction>
+      <xsl:text>
+
+      </xsl:text>
+      <xsl:apply-templates/>
+<!-- debug	<xsl:comment>armormim:<xsl:value-of select="$armormim"/>:armormim</xsl:comment> -->
+    </xsl:template>
+
+    <xsl:template match="imgfile.content">
+
+      <!--
+      <xsl:variable name="module">
+	<xsl:call-template name="module_name">
+	  <xsl:with-param name="module" select="@schema"/>
+	</xsl:call-template>
+      </xsl:variable>
+  -->
+      <xsl:element name="imgfile.content">
+
+    <xsl:message>
+      armormim:<xsl:value-of select="$armormim"/>:armormim
+    </xsl:message>
+
+      <xsl:choose>
+  <!--       <xsl:when test="contains($source,$module)"> -->
+  <xsl:when test="$armormim='arm' or $armormim='mim'">
+    <xsl:attribute name="module">
+      <xsl:value-of select="$module"/>
+    </xsl:attribute>
       </xsl:when>
       <xsl:otherwise>
       <xsl:attribute name="module">

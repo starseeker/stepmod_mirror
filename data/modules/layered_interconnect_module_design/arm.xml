@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-10-10T11:55:07" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-10-10T15:40:44" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Edge_shape_feature_arm"/>
@@ -1056,7 +1056,7 @@
          <explicit name="of_technology">
             <typename name="Stratum_technology"/>
          </explicit>
-         <derived name="of_average_surface" expression="bag_to_set(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE.OF_STRATUM'))">
+         <derived name="of_average_surface" expression="QUERY(tmp &lt;* of_surface | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE' IN TYPEOF(tmp))">
             <aggregate type="SET" lower="0" upper="1"/>
             <typename name="Stratum_average_surface"/>
          </derived>
@@ -1065,7 +1065,7 @@
             <redeclaration entity-ref="Item_shape"/>
          </derived>
          <inverse name="of_surface" entity="Stratum_surface" attribute="of_stratum">
-            <inverse.aggregate type="SET" lower="1" upper="2"/>
+            <inverse.aggregate type="SET" lower="1" upper="3"/>
          </inverse>
          <inverse name="assembly" entity="Interconnect_module_stratum_assembly_relationship" attribute="component">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
@@ -1073,7 +1073,8 @@
          <inverse name="stratum_usage" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <where label="WR1" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 0"/>
+         <where label="WR1" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) &lt;= 1"/>
+         <where label="WR2" expression="NOT(SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 1) OR&#10;            (SIZEOF(of_surface) &lt; 3)"/>
       </entity>
       <entity name="Stratum_average_surface" supertypes="Stratum_surface">
          <where label="WR1" expression="SELF\Stratum_surface.name = stratum_surface_designation.average_surface"/>

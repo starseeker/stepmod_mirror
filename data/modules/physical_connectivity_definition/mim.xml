@@ -2,17 +2,17 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-31T14:04:10" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-10-11T18:15:46" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_connectivity_definition_mim schema_instance"/>
    <schema name="Physical_connectivity_definition_mim">
       <interface kind="use" schema="Part_external_reference_mim"/>
       <interface kind="use" schema="Physical_component_feature_mim"/>
       <interface kind="use" schema="Requirement_decomposition_mim"/>
-      <type name="fde_document_reference_item">
+      <type name="pcd_document_reference_item">
          <select extensible="YES" genericentity="YES" basedon="document_reference_item" selectitems="physical_connectivity_definition physical_connectivity_element"/>
       </type>
-      <type name="fde_requirement_assigned_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="shape_aspect_relationship physical_connectivity_definition physical_connectivity_element"/>
+      <type name="pcd_requirement_assigned_item">
+         <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="shape_aspect_relationship physical_connectivity_definition"/>
       </type>
       <entity name="make_from_connectivity_relationship" supertypes="shape_aspect_relationship">
          <where label="WR1" expression="'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +&#10;       'PHYSICAL_CONNECTIVITY_DEFINITION'&#10;       IN TYPEOF (SELF.relating_shape_aspect)"/>
@@ -20,8 +20,8 @@
       </entity>
       <entity name="physical_connectivity_definition" supertypes="shape_aspect">
          <unique label="UR1">
-            <unique.attribute entity-ref="physical_connectivity_definition" attribute="name"/>
-            <unique.attribute entity-ref="physical_connectivity_definition" attribute="of_shape"/>
+            <unique.attribute entity-ref="shape_aspect" attribute="name"/>
+            <unique.attribute entity-ref="shape_aspect" attribute="of_shape"/>
          </unique>
          <where label="WR1" expression="SIZEOF (QUERY (at &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'associated terminals') |&#10;       ('PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +&#10;       'COMPONENT_TERMINAL' IN&#10;       TYPEOF (at.related_shape_aspect)) AND&#10;((at.related_shape_aspect\shape_aspect.description = &#10;                 'assembly module component terminal') OR&#10;(at.related_shape_aspect\shape_aspect.description = &#10;                        'bare die component terminal') OR&#10;(at.related_shape_aspect\shape_aspect.description = &#10;               'interconnect component join terminal') OR&#10;(at.related_shape_aspect\shape_aspect.description = &#10;             'interconnect module component terminal') OR&#10;(at.related_shape_aspect\shape_aspect.description = &#10;              'minimally defined component terminal') OR&#10;(at.related_shape_aspect\shape_aspect.description = &#10;                     'packaged component join terminal'))&#10;       )) &gt; 1"/>
          <where label="WR2" expression="SIZEOF (QUERY( pd &lt;* USEDIN(SELF,&#10;       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;        (SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'PHYSICAL_CONNECTIVITY_DEFINITION_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name = 'connectivity allocation')) = 1)&#10;       ))&#10;       &lt;= 1"/>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-13T15:11:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-10-12T12:19:17" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="packaged_part_black_box_model_arm schema_instance"/>
    <schema name="Packaged_part_black_box_model_arm">
       <interface kind="use" schema="Functional_assignment_to_part_arm"/>
@@ -23,6 +23,10 @@
          <explicit name="implemented_function" optional="YES">
             <typename name="Functional_unit_usage_view"/>
          </explicit>
+         <derived name="potting_compound" expression="bag_to_set(QUERY( temp &lt;* USEDIN(SELF,&#10;		     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') | &#10;		     (SIZEOF( QUERY( cla &lt;* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;		 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'potting compound')) = 1)))">
+            <aggregate type="SET" lower="0" upper="1"/>
+            <typename name="Material_identification"/>
+         </derived>
          <inverse name="access_mechanisms" entity="Packaged_part_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
@@ -31,12 +35,7 @@
          <where label="IP1"/>
          <where label="IP2"/>
       </entity>
-      <entity name="Packaged_part_join_terminal" supertypes="Packaged_part_terminal">
-         <derived name="description" expression="'join terminal'">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Shape_element"/>
-         </derived>
-      </entity>
+      <entity name="Packaged_part_join_terminal" supertypes="Packaged_part_terminal"/>
       <entity name="Packaged_part_terminal" abstract.supertype="YES" supertypes="Part_terminal">
          <explicit name="terminal_of_package">
             <aggregate type="SET" lower="1" upper="?"/>

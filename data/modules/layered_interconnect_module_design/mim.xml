@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-31T14:04:08" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-10-11T15:57:15" rcs.revision="1.0" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_mim schema_instance"/>
    <schema name="Layered_interconnect_module_design_mim">
       <interface kind="use" schema="Edge_shape_feature_mim"/>
@@ -34,7 +34,7 @@
          <where label="WR9" expression="SELF\shape_aspect_relationship.relating_shape_aspect.description = 'conductive interconnect element terminal'"/>
          <where label="WR10" expression="SELF\shape_aspect.of_shape.definition\product_definition.description = 'laminate component'"/>
       </entity>
-      <entity name="connected_area_component" supertypes="assembly_component">
+      <entity name="connected_area_component" supertypes="laminate_component">
          <where label="WR3" expression="SELF\product_definition.description = 'stratum feature template component'"/>
          <where label="WR4" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\product_definition ||&#10;       SELF\component_definition||&#10;       SELF\connected_area_component)) = 0"/>
       </entity>
@@ -46,7 +46,7 @@
          <where label="WR5" expression="SELF\product_definition_relationship.related_product_definition :&lt;&gt;:&#10;       SELF\product_definition_relationship.relating_product_definition"/>
       </entity>
       <entity name="electrical_isolation_component_definition" supertypes="filled_area_material_removal_component_definition"/>
-      <entity name="fiducial" supertypes="assembly_component">
+      <entity name="fiducial" supertypes="laminate_component">
          <where label="WR1" expression="(SELF\product_definition.description = 'laminate component')"/>
       </entity>
       <entity name="fiducial_stratum_feature" supertypes="stratum_feature"/>
@@ -56,7 +56,7 @@
          <where label="WR1" expression="SELF\product_definition_relationship.related_product_definition :&lt;&gt;:&#10;       SELF\product_definition_relationship.relating_product_definition"/>
          <where label="WR2" expression="SELF\product_definition_relationship.name = 'footprint occurrence sub assembly relationship'"/>
       </entity>
-      <entity name="inter_stratum_feature" supertypes="assembly_component">
+      <entity name="inter_stratum_feature" supertypes="laminate_component">
          <where label="WR1" expression="SELF\product_definition.description IN ['bonded conductive base blind via', &#10;       'buried via', 'component termination passage', &#10;       'interfacial connection', 'non conductive base blind via', &#10;       'plated conductive base blind via', 'plated cutout', &#10;       'partially plated cutout', &#10;       'plated cutout edge segment', &#10;       'partially plated interconnect module edge', &#10;       'plated interconnect module edge segment', &#10;       'plated interconnect module edge', 'unsupported passage', 'cutout', &#10;       'physical connectivity interrupting cutout', &#10;       'dielectric material passage', 'cutout edge segment', &#10;       'interconnect module edge segment', 'interconnect module edge']"/>
          <where label="WR2" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       (SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       SIZEOF (QUERY (it &lt;* pdr.used_representation.items |&#10;       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'DESCRIPTIVE_REPRESENTATION_ITEM'&#10;       IN TYPEOF (it)) AND&#10;       (it\representation_item.name = 'feature of size') AND&#10;       (it\descriptive_representation_item.description IN ['true', 'false']))) = 1)) = 1))) = 1"/>
          <where label="WR3" expression="SIZEOF (QUERY (it &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'instantiated template') |&#10;       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'TEMPLATE_DEFINITION' IN&#10;       TYPEOF (it.relating_product_definition)) AND&#10;       (it.relating_product_definition\product_definition.description IN&#10;       ['inter stratum feature template',&#10;       'via template',&#10;       'component termination passage template',&#10;       'unsupported passage template']))) = 1"/>
@@ -81,7 +81,7 @@
          <where label="WR7" expression="SELF\shape_aspect_relationship.relating_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.related_shape_aspect"/>
       </entity>
       <entity name="interconnect_module_join_terminal" supertypes="interconnect_module_terminal"/>
-      <entity name="interface_access_component_definition" supertypes="assembly_component"/>
+      <entity name="interface_access_component_definition" supertypes="laminate_component"/>
       <entity name="interface_access_material_removal_component_definition" supertypes="material_removal_component_definition"/>
       <entity name="internal_probe_access_area" supertypes="probe_access_area"/>
       <entity name="join_shape_aspect" supertypes="shape_aspect">
@@ -92,6 +92,7 @@
          <where label="WR5" expression="(NOT (SELF\shape_aspect.name = 'inter stratum join')) OR&#10;       (SIZEOF (QUERY (ji &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'join implementation') |&#10;       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'STRATUM_CONCEPT_RELATIONSHIP' IN&#10;       TYPEOF (ji.related_shape_aspect)) AND&#10;       (ji.related_shape_aspect\shape_aspect.description = &#10;       'physical network supporting stratum feature conductive join')) OR&#10;       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PLATED_INTER_STRATUM_FEATURE' IN&#10;       TYPEOF (ji.related_shape_aspect)))) &lt;= 1)"/>
          <where label="WR6" expression="NOT(SELF\shape_aspect.name = 'unrouted join') OR&#10;       (SIZEOF (QUERY (cp &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'unrouted terminals') |&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'COMPONENT_TERMINAL' IN&#10;       TYPEOF (cp.related_shape_aspect))) &gt;= 2)"/>
       </entity>
+      <entity name="laminate_component" supertypes="assembly_component"/>
       <entity name="laminate_component_feature" supertypes="component_feature" super.expression="ONEOF (laminate_component_interface_terminal, laminate_component_join_terminal)"/>
       <entity name="laminate_component_interface_terminal" supertypes="laminate_component_feature">
          <where label="WR1" expression="(NOT (SELF\shape_aspect.description IN &#10;       ['component termination passage interface terminal', &#10;       'land interface terminal', &#10;       'printed connector component interface terminal',&#10;       'non functional land interface terminal'])) OR&#10;       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'COMPONENT_DEFINITION' IN&#10;       TYPEOF (SELF.of_shape.definition))"/>
@@ -112,15 +113,15 @@
       </entity>
       <entity name="layer" supertypes="shape_aspect">
          <unique label="UR1">
-            <unique.attribute entity-ref="layer" attribute="name"/>
+            <unique.attribute entity-ref="shape_aspect" attribute="name"/>
          </unique>
          <where label="WR1" expression="SIZEOF (QUERY (ada &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |&#10;       SIZEOF (QUERY (duc &lt;* USEDIN (ada.assigned_document,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'DOCUMENT_USAGE_CONSTRAINT.SOURCE') |&#10;       duc\document_usage_constraint.subject_element = 'layer definition')) = 1)) &lt;= 1"/>
          <where label="WR2" expression="('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP'&#10;       IN TYPEOF (SELF.of_shape.definition)) AND&#10;       (SELF.of_shape.definition\product_definition_relationship.name = &#10;                                    'inter stratum extent')"/>
       </entity>
       <entity name="layer_connection_point" supertypes="shape_aspect">
          <unique label="UR1">
-            <unique.attribute entity-ref="layer_connection_point" attribute="name"/>
-            <unique.attribute entity-ref="layer_connection_point" attribute="of_shape"/>
+            <unique.attribute entity-ref="shape_aspect" attribute="name"/>
+            <unique.attribute entity-ref="shape_aspect" attribute="of_shape"/>
          </unique>
          <where label="WR1" expression="SELF\shape_aspect.of_shape.definition\product_definition.&#10;       name = 'design layer'"/>
          <where label="WR2" expression="SIZEOF (QUERY (cp &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'connected point') |&#10;       (('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'JOIN_SHAPE_ASPECT' IN&#10;       TYPEOF (cp.relating_shape_aspect)) AND &#10;       (cp.relating_shape_aspect.name = 'inter stratum join')))) &lt;= 1"/>
@@ -133,8 +134,8 @@
          <where label="WR9" expression="(NOT (SELF\shape_aspect.description = 'dependently located')) OR&#10;       (SIZEOF (QUERY (ado &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'reference zone') |&#10;       (SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT'] *&#10;       TYPEOF (ado.relating_shape_aspect)) = 1) OR&#10;       ((SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT'] *&#10;       TYPEOF (ado.relating_shape_aspect)) = 1) AND&#10;       (ado.relating_shape_aspect.description IN ['connection zone']))&#10;       )) &lt;= 1)"/>
       </entity>
       <entity name="layout_junction" supertypes="shape_aspect"/>
-      <entity name="material_removal_component_definition" supertypes="assembly_component"/>
-      <entity name="multi_layer_component_definition" supertypes="assembly_component"/>
+      <entity name="material_removal_component_definition" supertypes="laminate_component"/>
+      <entity name="multi_layer_component_definition" supertypes="laminate_component"/>
       <entity name="multi_layer_material_removal_component_definition" supertypes="material_removal_component_definition"/>
       <entity name="multi_layer_stratum_feature" supertypes="stratum_feature"/>
       <entity name="padstack_occurrence" supertypes="assembly_group_component_definition"/>
@@ -146,8 +147,8 @@
       <entity name="passage_padstack_definition" supertypes="padstack_definition"/>
       <entity name="passage_technology" supertypes="shape_aspect">
          <unique label="UR1">
-            <unique.attribute entity-ref="passage_technology" attribute="name"/>
-            <unique.attribute entity-ref="passage_technology" attribute="of_shape"/>
+            <unique.attribute entity-ref="shape_aspect" attribute="name"/>
+            <unique.attribute entity-ref="shape_aspect" attribute="of_shape"/>
          </unique>
          <where label="WR1" expression="'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PRODUCT_DEFINITION' IN &#10;       TYPEOF (SELF.of_shape.definition)"/>
          <where label="WR2" expression="SIZEOF (USEDIN (SELF, &#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'MATERIAL_DESIGNATION.DEFINITIONS')) &lt;= 1"/>
@@ -190,13 +191,13 @@
          <where label="WR3" expression="(NOT (SELF\product_definition.description = 'component termination passage')) OR&#10;       (SIZEOF (QUERY (it &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION') |&#10;       pdr\product_definition_relationship.name = 'instantiated template') |&#10;       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION' IN&#10;       TYPEOF (it.relating_product_definition)) AND&#10;       (it.relating_product_definition\product_definition.description =&#10;       'component termination passage template'))) = 1)"/>
          <where label="WR6" expression="(NOT (SELF\product_definition.description IN&#10;       ['bonded conductive base blind via',&#10;       'buried via',&#10;       'interfacial connection',&#10;       'non conductive base blind via',&#10;       'plated conductive base blind via'])) OR&#10;       (SIZEOF (QUERY (it &lt;* QUERY (pdr &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       pdr\product_definition_relationship.name = 'instantiated template') |&#10;       ('LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PART_TEMPLATE_DEFINITION' IN&#10;       TYPEOF (it.relating_product_definition)) AND&#10;       (it.relating_product_definition\product_definition.description =&#10;       'via template'))) = 1)"/>
       </entity>
-      <entity name="probe_access_area" supertypes="assembly_component">
+      <entity name="probe_access_area" supertypes="laminate_component">
          <where label="WR1" expression="EXISTS(SELF\product_definition.name)"/>
       </entity>
       <entity name="stratum" supertypes="product_definition product_definition_shape">
          <unique label="UR1">
-            <unique.attribute entity-ref="stratum" attribute="id"/>
-            <unique.attribute entity-ref="stratum" attribute="formation"/>
+            <unique.attribute entity-ref="product_definition" attribute="id"/>
+            <unique.attribute entity-ref="product_definition" attribute="formation"/>
          </unique>
          <where label="WR1" expression="EXISTS(SELF\product_definition.name)"/>
          <where label="WR2" expression="SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       SIZEOF (QUERY (tu &lt;* QUERY (pdr &lt;* USEDIN (pd,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |&#10;       pdr\property_definition_relationship.name = 'technology usage') |&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'STRATUM_TECHNOLOGY' IN &#10;       TYPEOF (tu.relating_property_definition.definition))) = 1)) = 1"/>

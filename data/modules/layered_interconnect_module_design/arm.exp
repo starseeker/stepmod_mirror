@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.104 2005/10/07 23:07:42 thomasrthurman Exp $
+   $Id: arm.exp,v 1.105 2005/10/10 10:56:17 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -616,7 +616,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Inter_stratum_feature
 		ABSTRACT SUPERTYPE OF (ONEOF (Unsupported_passage,
-			plated_inter_stratum_feature
+			Plated_inter_stratum_feature
 --			,
 --			Cutout,
 --			Interconnect_module_edge,
@@ -671,7 +671,8 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Interconnect_module_edge_segment
-    SUPERTYPE OF (Plated_interconnect_module_edge_segment)
+    SUPERTYPE OF (ONEOF(Plated_interconnect_module_edge_segment,
+                        Unplated_interconnect_module_edge_segment)
     SUBTYPE OF (Inter_stratum_feature);
       composed_edge                               : Interconnect_module_edge;
       start_vertex                                : Edge_segment_vertex;
@@ -943,7 +944,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Cutout);
     INVERSE
       plated_segment   : SET[1:?] OF Plated_cutout_edge_segment FOR composed_cutout;
-      unplated_segment : SET[1:?] OF Cutout_edge_segment FOR composed_cutout;
+      unplated_segment : SET[1:?] OF Unplated_cutout_edge_segment FOR composed_cutout;
   END_ENTITY;
   
   ENTITY Partially_plated_interconnect_module_edge
@@ -952,11 +953,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       SELF\Product_view_definition.name : STRING := '';
     INVERSE
       plated_segment   : SET[1:?] OF Plated_interconnect_module_edge_segment FOR composed_edge;
-      unplated_segment : SET[1:?] OF Interconnect_module_edge_segment FOR composed_edge;
-WHERE
-  WR1 : SIZEOF(QUERY(us <* unplated_segment |
-        ('LAYERED_INTERCONNECT_DESIGN_ARM.PLATED_INTERCONNECT_MODULE_EDGE_SEGMENT' IN TYPEOF(us))
-        )) = 0;
+      unplated_segment : SET[1:?] OF Unplated_interconnect_module_edge_segment FOR composed_edge;
   END_ENTITY;
 
   ENTITY Passage_padstack_definition
@@ -1170,6 +1167,20 @@ It is a summary of all vertical elements of particular kind, similar like stratu
   ENTITY Thermal_isolation_laminate_component
     SUBTYPE OF (Filled_area_material_removal_laminate_component);
       SELF\Definition_based_product_occurrence.derived_from : Thermal_isolation_removal_template;
+  END_ENTITY;
+
+  ENTITY Unplated_cutout_edge_segment
+    SUBTYPE OF (Cutout_edge_segment);
+      SELF\Cutout_edge_segment.composed_cutout : Partially_plated_cutout;
+   WHERE
+    WR1 : NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PLATED_INTER_STRATUM_FEATURE' IN TYPEOF(SELF));
+  END_ENTITY;
+
+  ENTITY Unplated_interconnect_module_edge_segment
+    SUBTYPE OF (Interconnect_module_edge_segment);
+      SELF\Interconnect_module_edge_segment.composed_edge : Partially_plated_interconnect_module_edge;
+   WHERE
+    WR1 : NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PLATED_INTER_STRATUM_FEATURE' IN TYPEOF(SELF));
   END_ENTITY;
 
   ENTITY Unrouted_conductive_interconnect_element

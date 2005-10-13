@@ -1,11 +1,12 @@
 (*
-   $Id: arm.exp,v 1.17 2005/02/04 17:48:44 budreckytej Exp $
+   $Id: arm.exp,v 1.23 2005/09/08 11:04:44 liutkus Exp $
    ISO TC184/SC4/WG12 N3492 - ISO/CD-TS 10303-1703 Model parameter - EXPRESS ARM
 *)
 
 
 
 SCHEMA Model_parameter_arm;
+	USE FROM Activity_method_assignment_arm;	-- ISO/TS 10303-1249
 	USE FROM Characteristic_arm;	-- ISO/TS 10303-1654
 	USE FROM Classification_with_attributes_arm;	-- ISO/TS 10303-1111
 	USE FROM Independent_property_representation_arm;	-- ISO/TS 10303-1038
@@ -13,7 +14,10 @@ SCHEMA Model_parameter_arm;
 
 	REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
 
-	-- Dummy extension
+	TYPE mp_activity_method_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item WITH 
+	   (Test_method_based_parameter_assignment);
+	END_TYPE; 
+
 	TYPE mp_groupable_item = SELECT BASED_ON groupable_item WITH 
 	   (Group_relationship);
 	END_TYPE; 
@@ -42,11 +46,7 @@ SCHEMA Model_parameter_arm;
 
   ENTITY Parameter_assignment
     SUBTYPE OF (Independent_property_representation);
-   (** We may need further specification here *)
---      SELF\Independent_property_relationship.relating    	
---	parameter_value: scalar_or_coordinated_characteristics;
       SELF\Independent_property_representation.property: Model_parameter;
---	assigned_parameter: Model_parameter;
   END_ENTITY;
 
   ENTITY Parameter_assignment_override;
@@ -72,6 +72,12 @@ SCHEMA Model_parameter_arm;
       the_model_parameter : model_parameter := assigned_parameter\Independent_property_representation.property;
     UNIQUE
       UR1 : the_model_parameter, of_product;
+  END_ENTITY;
+
+  ENTITY Test_method_based_parameter_assignment
+    SUBTYPE OF (Parameter_assignment);
+   WHERE
+    WR1 : SIZEOF(USEDIN(SELF,'ACTIVITY_METHOD_ASSIGNMENT_ARM.ACTIVITY_METHOD_ASSIGNMENT.ITEMS')) = 1;
   END_ENTITY;
 
 END_SCHEMA;

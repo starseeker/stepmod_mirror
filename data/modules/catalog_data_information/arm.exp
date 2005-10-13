@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.14 2004/11/23 14:02:31 rocc Exp $
+   $Id: arm.exp,v 1.15 2005/03/30 09:57:34 rocc Exp $
    ISO/TC184/SC4 WG3N1303 - ISO/CD-TS 10303-1351 catalog_data_information - EXPRESS ARM
 *)
 
@@ -54,6 +54,7 @@ USE FROM Plib_class_reference_arm;
 USE FROM Product_breakdown_arm; 
 USE FROM Product_categorization_arm;
 USE FROM Product_class_arm; 
+USE FROM Product_data_management_arm;
 USE FROM Product_occurrence_arm;
 USE FROM Product_replacement_arm;
 USE FROM Product_view_definition_arm; 
@@ -73,19 +74,8 @@ CONSTANT
   schema_name : STRING := 'CATALOG_DATA_INFORMATION_ARM';
 END_CONSTANT;
  
-
-TYPE alias_select_236cc1 = EXTENSIBLE SELECT BASED_ON alias_identification_item WITH
-      (Organization,Approval_status,
-	Document,Document_version,Document_definition,
-	Specification,Specification_category,Product_class,
-	Part,Part_version,part_occurrence_select,Part_view_definition,
-      Geometric_model,Class_with_attributes,
-	complex_product_select, 
-      Classification_system,Independent_property,Classification_attribute);
-END_TYPE;
-
 TYPE approval_element_select_236cc1  = EXTENSIBLE SELECT BASED_ON approval_item WITH
-      (Document,Document_version,Document_definition,File,Geometric_model,
+      (Document_version,Document_definition,File,Geometric_model,
 	Specification_category,Class_category_association,
        Class_specification_association,Class_condition_association,
        Specification_expression,Specification_inclusion,Specification,
@@ -161,30 +151,6 @@ TYPE documented_element_select_236cc1  = EXTENSIBLE SELECT BASED_ON documented_e
       Independent_property, Applied_independent_property);
  END_TYPE;
 
- TYPE general_organizational_data_select_236cc1 = EXTENSIBLE SELECT BASED_ON organization_or_person_in_organization_item WITH
-      (Product_specification, Assembly_relationship_substitution,
-       Part_view_definition,
-       Class_category_association,Class_specification_association,
-       Class_condition_association,Class_inclusion_association,
-       Product_class,
-	Document, Document_version,Document_definition,File,
-	Configuration, Certification,
-	Classification_system,Classification_association,
-       Material_identification,
-       Breakdown_node_relationship, Solution_element,
-       Manufacturing_configuration,
-	complex_product_select,Class_breakdown_association,
-       Approval_status,
-	Contract,Class_with_attributes,
-       Geometric_model,Part_occurrence_definition_relationship,
-       Part_definition_relationship,Make_from_relationship,
-	part_occurrence_select,Part_occurrence_relationship,
-       Part,Part_version,Organization_relationship,
-       Person_in_organization,
-	Independent_property,Applied_independent_property,
-	Specification_category,Specification,
-       Specification_expression,Specification_inclusion);
-END_TYPE;
 
 TYPE identification_item_236cc1 = EXTENSIBLE SELECT BASED_ON identification_item WITH
       (Organization,Approval_status,
@@ -208,7 +174,7 @@ TYPE item_property_select_236cc1 = EXTENSIBLE SELECT BASED_ON property_assignmen
  END_TYPE;
 
  
-TYPE string_select_236cc1 = EXTENSIBLE SELECT BASED_ON string_select WITH
+TYPE furniture_propertis_select_236cc1 = EXTENSIBLE SELECT BASED_ON string_select WITH
   (Alias_identification,
    View_definition_context,
    Approval_relationship,
@@ -256,45 +222,7 @@ TYPE string_select_236cc1 = EXTENSIBLE SELECT BASED_ON string_select WITH
   
 
 
-SUBTYPE_CONSTRAINT exclusive_part_definitions_236cc1 FOR Part_view_definition;
-ONEOF (Assembly_definition, Collection_definition);
-END_SUBTYPE_CONSTRAINT;
 
-SUBTYPE_CONSTRAINT exclusive_product_definitions_236cc1 FOR Product_view_definition;
-ONEOF (Part_view_definition,
-	Functional_element_definition,
-	Physical_element_definition,
-	Design_constraint_definition,
-	Design_constraint_definition);
-END_SUBTYPE_CONSTRAINT;
-
- 
-
-RULE addresses_are_assigned FOR
-    (Address);
-WHERE
-WR1: SIZEOF ( QUERY ( a <* address | 
-	SIZEOF( USEDIN( a, schema_name + '.ADDRESS_ASSIGNMENT.ASSIGNED_ADDRESS')) =0
-     ))=0;
-END_RULE;
-
-RULE Person_requires_person_and_organization FOR (Person);
-WHERE
-WR1: SIZEOF ( QUERY ( p <* Person | 
-	SIZEOF ( USEDIN ( p ,schema_name + '.PERSON_IN_ORGANIZATION.CONCERNED_PERSON' )) =  0 )) =  0;
-END_RULE; 
-
-RULE Shape_requires_product_view FOR (Item_shape);
-WHERE
-WR1: SIZEOF(QUERY( is <* Item_shape |
-	NOT (schema_name + '.PRODUCT_VIEW_DEFINITION' IN TYPEOF(is.described_element))
-	))= 0;
-WR2: SIZEOF(QUERY( is <* Item_shape |
-	SIZEOF(TYPEOF(is.described_element)*
-	[schema_name + '.FUNCTIONAL_ELEMENT_DEFINITION',
-	schema_name + '.DESIGN_CONSTRAINT_DEFINITION'])>0
-	))= 0;
-END_RULE;
 
 
 END_SCHEMA;

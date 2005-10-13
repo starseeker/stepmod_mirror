@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.106 2005/10/12 22:56:27 thomasrthurman Exp $
+   $Id: arm.exp,v 1.107 2005/10/13 01:55:13 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -637,7 +637,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Inter_stratum_join_relationship
-    SUBTYPE OF (Join_relationship);
+    SUBTYPE OF (Routed_join_relationship);
       points_to_be_connected : SET[2:?] OF Layer_connection_point;
   END_ENTITY;
 
@@ -672,7 +672,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Interconnect_module_edge_segment
     SUPERTYPE OF (ONEOF(Plated_interconnect_module_edge_segment,
-                        Unplated_interconnect_module_edge_segment)
+                        Unplated_interconnect_module_edge_segment))
     SUBTYPE OF (Inter_stratum_feature);
       composed_edge                               : Interconnect_module_edge;
       start_vertex                                : Edge_segment_vertex;
@@ -730,7 +730,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Intra_stratum_join_relationship
-    SUBTYPE OF (Join_relationship);
+    SUBTYPE OF (Routed_join_relationship);
       points_to_be_connected : SET[2:?] OF Layer_connection_point;
     DERIVE
       associated_stratum : Design_layer_stratum := points_to_be_connected[1].resident_design_layer_stratum;
@@ -745,13 +745,9 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Join_relationship
-    ABSTRACT SUPERTYPE OF (ONEOF (Inter_stratum_join_relationship,
-		Intra_stratum_join_relationship,
-	 	Stratum_embedded_component_join_relationship,
+    ABSTRACT SUPERTYPE OF (ONEOF (Routed_join_relationship,
 	 	Unrouted_join_relationship));
       associated_layout : Interconnect_module;
-    INVERSE
-      network_topology : Routed_physical_network FOR routed_connectivity_requirement_element;
   END_ENTITY;
 
   ENTITY Join_two_physical_connectivity_definition_supporting_printed_component
@@ -1058,10 +1054,20 @@ It is a summary of all vertical elements of particular kind, similar like stratu
       network : Routed_physical_network FOR probe;
   END_ENTITY;
 
+  ENTITY Routed_join_relationship
+    ABSTRACT SUPERTYPE OF (ONEOF (
+        Inter_stratum_join_relationship,
+		Intra_stratum_join_relationship,
+	 	Stratum_embedded_component_join_relationship))
+    SUBTYPE OF (Join_relationship);
+    INVERSE
+      network_topology : Routed_physical_network FOR routed_connectivity_requirement_element;
+  END_ENTITY;
+
   ENTITY Routed_physical_network
     SUBTYPE OF (Generic_physical_network);
       reference_connected_terminals                	: OPTIONAL Part_connected_terminals_definition;    
-      routed_connectivity_requirement_element 			: SET[1:?] OF Join_relationship;
+      routed_connectivity_requirement_element 			: SET[1:?] OF Routed_join_relationship;
       unrouted_connectivity_requirement_element 		: OPTIONAL SET[1:?] OF Unrouted_join_relationship;      
       probe                                        	: OPTIONAL SET[1:?] OF Probe_access_area;
     DERIVE
@@ -1122,7 +1128,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
   END_ENTITY;
 *)
   ENTITY Stratum_embedded_component_join_relationship
-    SUBTYPE OF (Join_relationship);
+    SUBTYPE OF (Routed_join_relationship);
       terminal_to_be_connected : SET[1:?] OF Embedded_component_terminal;
       point_to_be_connected    : SET[1:?] OF Layer_connection_point;
     DERIVE

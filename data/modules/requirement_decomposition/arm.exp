@@ -49,6 +49,21 @@ SCHEMA Requirement_decomposition_arm;
     	 supplemental);
 	END_TYPE;
 
+    TYPE life_cycle_context_type = EXTENSIBLE ENUMERATION OF 
+         (design,
+          qualify,
+          inspect, 
+          test);  
+    END_TYPE; 
+ 
+    TYPE domain_context_type = EXTENSIBLE ENUMERATION OF 
+         (mechanical, 
+          thermal, 
+          electromechancial,
+          electromagnetic_compatibility, 
+          electrical); 
+    END_TYPE;
+
   ENTITY Constraint_occurrence
     SUPERTYPE OF (View_based_constraint_occurrence)
     SUBTYPE OF (Requirement_definition_property);
@@ -61,36 +76,15 @@ SCHEMA Requirement_decomposition_arm;
     SUBTYPE OF (Requirement_definition_property);
   END_ENTITY;
 
-  ENTITY Design_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
-  END_ENTITY;
-
   ENTITY View_based_constraint_occurrence
     SUPERTYPE OF (Shape_and_view_based_constraint_occurrence)
     SUBTYPE OF (Constraint_occurrence);
       constraining_part : Product_view_definition;
   END_ENTITY;
 
-  ENTITY Electrical_requirement_occurrence
-    SUPERTYPE OF (Material_electrical_conductivity_requirement_occurrence)
-    SUBTYPE OF (Requirement_definition_property);
-  END_ENTITY;
-
-  ENTITY Electromagnetic_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
-  END_ENTITY;
-
-  ENTITY Inspection_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
-  END_ENTITY;
-
   ENTITY Material_electrical_conductivity_requirement_occurrence
-    SUBTYPE OF (Electrical_requirement_occurrence);
-      electrical_conductivity_characteristic : material_conductivity_classification;
-  END_ENTITY;
-
-  ENTITY Mechanical_requirement_occurrence
     SUBTYPE OF (Requirement_definition_property);
+      electrical_conductivity_characteristic : material_conductivity_classification;
   END_ENTITY;
 
   ENTITY Operational_requirement_occurrence_relationship
@@ -104,21 +98,16 @@ SCHEMA Requirement_decomposition_arm;
   END_ENTITY;
 
   ENTITY Requirement_definition_property
-	SUPERTYPE OF((ONEOF (Thermal_requirement_occurrence,
-		 Electromagnetic_requirement_occurrence,
-		 Electrical_requirement_occurrence,
-		 Mechanical_requirement_occurrence) ANDOR
-		 ONEOF (Design_requirement_occurrence,
-		 Inspection_requirement_occurrence,
-		 Test_requirement_occurrence,
-		 Constraint_occurrence,
-		 Design_characteristic_occurrence)));
+	SUPERTYPE OF(ONEOF(Constraint_occurrence,
+		 Design_characteristic_occurrence));
       associated_definition               : Requirement_view_definition;
+      life_cycle_context                  : life_cycle_context_type; 
+      domain_context                      : domain_context_type; 
       required_analytical_representation  : OPTIONAL SET[1:?] OF Analytical_model_application;
       required_functional_specification   : OPTIONAL SET[1:?] OF Functional_specification;
       required_part                       : OPTIONAL SET[1:?] OF Product;
       required_characteristic             : OPTIONAL characteristic_select;
-    DERIVE  
+    DERIVE
 		requirement_specification: SET[1:?] OF Document_definition :=
   			get_document_definition(SELF, 'requirement specification', 
   			'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION');
@@ -149,16 +138,6 @@ SCHEMA Requirement_decomposition_arm;
     WHERE
       WR1 : valid_constraining_shape(constraining_shape,
  SELF\View_based_constraint_occurrence.constraining_part);
-  END_ENTITY;
-
-  ENTITY Test_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
-    WHERE
-      WR1 : SIZEOF(SELF\Requirement_definition_property.required_analytical_representation) + SIZEOF(SELF\Requirement_definition_property.required_functional_specification) > 0;
-  END_ENTITY;
-
-  ENTITY Thermal_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
   END_ENTITY;
 
   FUNCTION bag_to_set(

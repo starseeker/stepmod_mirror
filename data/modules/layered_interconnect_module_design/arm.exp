@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.107 2005/10/13 01:55:13 thomasrthurman Exp $
+   $Id: arm.exp,v 1.108 2005/10/13 19:05:01 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -196,7 +196,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR2 : subsequent_surface.name = stratum_surface_designation.primary_surface;
   END_ENTITY;
 
-  ENTITY Adjacent_stratum_surface_embedded_component_surface_definition;
+  ENTITY Adjacent_stratum_surface_embedded_physical_component_surface_definition;
       name            : STRING;
       precedent_item  : component_feature_or_stratum_surface;
       subsequent_item : component_feature_or_stratum_surface;
@@ -337,8 +337,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR3 : SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR',
             'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_FILLED_AREA'] *
             TYPEOF(SELF\Conductive_interconnect_element.composed_conductor)) = 1;
---for Jurgita:
---wr3 description: The composed_conductor shall be either a conductor or a conductive_filled_area.            
   END_ENTITY;
 
   ENTITY Conductor
@@ -423,13 +421,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
       WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
-(*
-	  WR3 : SIZEOF(QUERY(mi <* USEDIN(SELF,
-	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
-	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
-	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
-*)
   END_ENTITY;
 
   ENTITY Default_passage_based_land_physical_template
@@ -477,18 +468,12 @@ SCHEMA Layered_interconnect_module_design_arm;
     DERIVE
       minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_deposition_thickness;
       minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
+    INVERSE
+      SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
     WHERE
       WR1 : EXISTS(minimum_as_finished_deposition_thickness);
       WR2 : EXISTS(minimum_as_finished_passage_extent);
-      (** Deposition_material *)
---      WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
-(*
-	  WR3 : SIZEOF(QUERY(mi <* USEDIN(SELF,
-	 	'GENERIC_MATERIAL_ASPECTS_ARM.' + 
-	 	'MATERIAL_IDENTIFICATION.' + 'ITEMS') |
-	 	('CONDUCTIVITY_MATERIAL_ASPECTS.'+
-	 	'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (mi))) = 1);
-*)
+      WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
   END_ENTITY;
 
   ENTITY Design_layer_stratum
@@ -532,7 +517,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       SELF\Definition_based_product_occurrence.derived_from : Electrical_isolation_removal_template;
   END_ENTITY;
 
-  ENTITY Embedded_component_terminal
+  ENTITY Embedded_physical_component_terminal
     SUBTYPE OF (Laminate_component_join_terminal);
       SELF\Component_feature.definition           : bare_die_terminal_or_packaged_part_terminal;
       SELF\Component_feature.associated_component : bare_die_component_or_packaged_component;
@@ -849,12 +834,12 @@ SCHEMA Layered_interconnect_module_design_arm;
     DERIVE
       aggregate_join    : SET[1:?] OF join_relationship := make_aggregate_join(inter_join_path,
  intra_join_path,
- embedded_component_path);
+ embedded_physical_component_path);
       reference_network : Generic_physical_network := aggregate_join[1].network_topology;
     INVERSE
       inter_join_path         : SET[0:1] OF inter_stratum_join_relationship FOR points_to_be_connected;
       intra_join_path         : intra_stratum_join_relationship FOR points_to_be_connected;
-      embedded_component_path : SET[0:?] OF stratum_embedded_component_join_relationship FOR point_to_be_connected;
+      embedded_physical_component_path : SET[0:?] OF stratum_embedded_physical_component_join_relationship FOR point_to_be_connected;
     UNIQUE
       UR1 : SELF\Shape_element.element_name,
  resident_design_layer_stratum;
@@ -957,11 +942,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       technology_reference : Passage_technology;
   END_ENTITY;
 
-(* ------------------ END OF STRATUM -----------------------*)
-
-(** It should be mapped like Stratum, since it is on the same level.
-It is a summary of all vertical elements of particular kind, similar like stratum is a summay of all horizontal elements. *)
-
 	ENTITY Passage_technology
 		SUPERTYPE OF (ONEOF (Default_via_definition,
  			Default_component_termination_passage_definition,
@@ -1058,7 +1038,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
     ABSTRACT SUPERTYPE OF (ONEOF (
         Inter_stratum_join_relationship,
 		Intra_stratum_join_relationship,
-	 	Stratum_embedded_component_join_relationship))
+	 	Stratum_embedded_physical_component_join_relationship))
     SUBTYPE OF (Join_relationship);
     INVERSE
       network_topology : Routed_physical_network FOR routed_connectivity_requirement_element;
@@ -1119,17 +1099,10 @@ It is a summary of all vertical elements of particular kind, similar like stratu
    WHERE
     WR1 : SELF\Stratum_surface.name = stratum_surface_designation.average_surface;
   END_ENTITY;
-(*
-  ENTITY Stratum_concept_relationship
-    ABSTRACT SUPERTYPE;
-      resulting_shape        : OPTIONAL Feature_shape_definition;
-    INVERSE
-	  technology_requirement : SET[1:?] OF requirement_assignment FOR assigned_to;
-  END_ENTITY;
-*)
-  ENTITY Stratum_embedded_component_join_relationship
+
+  ENTITY Stratum_embedded_physical_component_join_relationship
     SUBTYPE OF (Routed_join_relationship);
-      terminal_to_be_connected : SET[1:?] OF Embedded_component_terminal;
+      terminal_to_be_connected : SET[1:?] OF Embedded_physical_component_terminal;
       point_to_be_connected    : SET[1:?] OF Layer_connection_point;
     DERIVE
       associated_component : Assembly_component := terminal_to_be_connected[1]\Component_feature.associated_component;
@@ -1289,7 +1262,7 @@ It is a summary of all vertical elements of particular kind, similar like stratu
   FUNCTION make_aggregate_join(
     input1 : SET OF Inter_stratum_join_relationship ;
     input2 : Intra_stratum_join_relationship ;
-    input3 : SET OF Stratum_embedded_component_join_relationship
+    input3 : SET OF Stratum_embedded_physical_component_join_relationship
   ) : SET OF Join_relationship;
 
     LOCAL

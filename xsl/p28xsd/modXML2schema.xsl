@@ -1399,7 +1399,7 @@
 											</xsl:otherwise>
 										</xsl:choose>
 									</xsl:when>
-									<xsl:otherwise><xs:element name="{$corrected_target_name}" type="{$namespace_prefix}{$corrected_target_name}"/></xsl:otherwise>
+									<xsl:otherwise><xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"/></xsl:otherwise>
 								</xsl:choose>
 							</xsl:when>
 							<xsl:when test="$attribute_node_param/builtintype">
@@ -1513,7 +1513,7 @@
 								</xsl:choose>
 							</xsl:when>
 							<xsl:otherwise>
-								<xs:element name="{$corrected_target_name}" type="{$namespace_prefix}{$corrected_target_name}"/>
+								<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"/>
 							</xsl:otherwise>
 						</xsl:choose>
 					</xsl:when>

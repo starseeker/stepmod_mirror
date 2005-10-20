@@ -44,34 +44,19 @@ END_ENTITY;
 ENTITY Structured_text_representation
   SUBTYPE OF (Representation);
   SELF\Representation.items : SET [1:?] OF string_representation_item_select; 
-WHERE
--- This is already enforced by redeclared attribute
---  wr1: -- only representation_item (this supertype) or 
--- Encoded_text_representation_item or String_representation_item_relationship are
--- allowed as items
-
---  there must be exactly one Encoded_text_representation_item or one String_representation_item_relationship instance
-  WR1: (
-        SIZEOF(QUERY( tti <* SELF\Representation.items | ('TAGGED_TEXT_REPRESENTATION_ARM.TAGGED_TEXT_ITEM' IN  TYPEOF (tti)) 
-          ))
-       = 1)
-      OR
-       (
-        SIZEOF(QUERY( tti <* SELF\Representation.items | ('TAGGED_TEXT_REPRESENTATION_ARM.STRING_REPRESENTATION_ITEM' IN  TYPEOF (tti)) 
-          ))
-       = 1);
 END_ENTITY;
 
 ENTITY Tagged_text_item
   SUBTYPE OF (String_representation_item);
-(*  
 WHERE
-  WR1: SIZEOF (QUERY (using_rep <* using_representations (SELF) |
+  WR1: SIZEOF (QUERY (using_rep <* USEDIN(SELF,
+       'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS') |
   NOT ('TAGGED_TEXT_REPRESENTATION_ARM.TAGGED_TEXT_FORMAT' IN
-  TYPEOF (using_rep.context_of_items)))) = 0; *)
+  TYPEOF (using_rep.context_of_items))
+       )) = 0;
 END_ENTITY;
 -- WR1: The context of any representation referencing a
--- geometric_representation_item shall be a Tagged_text_format.
+-- Tagged_text_item shall be a Tagged_text_format.
 
 ENTITY Tagged_text_format
   SUBTYPE OF (Class, Representation_context);

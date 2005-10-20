@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="2005-10-04T16:19:26" rcs.revision="1.0" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="product_rule_arm schema_instance"/>
+   <schema name="Product_rule_arm">
+      <interface kind="use" schema="Model_parameter_arm"/>
+      <interface kind="use" schema="Specification_document_arm"/>
+      <interface kind="use" schema="Software_arm"/>
+      <interface kind="use" schema="Date_time_assignment_arm"/>
+      <interface kind="use" schema="Activity_arm"/>
+      <interface kind="reference" schema="Product_identification_arm">
+         <interfaced.item name="types_of_product"/>
+      </interface>
+      <interface kind="reference" schema="Specification_document_arm">
+         <interfaced.item name="get_document_definition"/>
+      </interface>
+      <type name="parameter_assignment_or_rule_general_clause">
+         <select selectitems="Parameter_assignment Rule_general_clause"/>
+      </type>
+      <type name="pr_assigned_name_select">
+         <select extensible="YES" genericentity="YES" basedon="assigned_name_select" selectitems="Rule_set"/>
+      </type>
+      <type name="pr_documented_element_select">
+         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Rule_function"/>
+      </type>
+      <type name="rule_complex_or_simple">
+         <select selectitems="Rule_complex_clause Rule_simple_clause"/>
+      </type>
+      <entity name="Rule_action" abstract.supertype="YES" super.expression="ONEOF (Rule_submission, Rule_adoption, Rule_rejection, Rule_supersedence, Rule_creation, Rule_expiration, Rule_change_request, Rule_request, Rule_modification)">
+         <explicit name="subject_rule">
+            <typename name="Rule_version"/>
+         </explicit>
+         <derived name="subject_action_assignment" expression="bag_to_set(QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'subject action assignment') ))">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Organization_or_person_in_organization_assignment"/>
+         </derived>
+         <unique label="UR1">
+            <unique.attribute attribute="subject_rule"/>
+            <unique.attribute attribute="subject_action_assignment"/>
+         </unique>
+         <where label="WR1" expression="EXISTS (subject_action_assignment) AND (SIZEOF(subject_action_assignment) = 1)"/>
+      </entity>
+      <entity name="Rule_adoption" supertypes="Rule_action"/>
+      <entity name="Rule_boolean_function" supertypes="Rule_function">
+         <where label="WR1" expression="SIZEOF(SELF\Rule_function.range_parameter) = 1"/>
+      </entity>
+      <entity name="Rule_change_request" supertypes="Rule_action">
+         <explicit name="change_reason">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Rule_complex_clause">
+         <explicit name="identifier">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="conjunctive_content">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Rule_simple_clause"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="identifier"/>
+         </unique>
+      </entity>
+      <entity name="Rule_conclusion_definition">
+         <explicit name="identifier">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="rule_definition">
+            <typename name="Rule_definition"/>
+         </explicit>
+         <explicit name="conjunctive_content">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Rule_simple_clause"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="rule_definition"/>
+            <unique.attribute attribute="identifier"/>
+         </unique>
+      </entity>
+      <entity name="Rule_creation" supertypes="Rule_action"/>
+      <entity name="Rule_definition" supertypes="Rule_software_definition">
+         <inverse name="premise" entity="Rule_premise_definition" attribute="rule_definition"/>
+         <inverse name="conclusion" entity="Rule_conclusion_definition" attribute="rule_definition"/>
+      </entity>
+      <entity name="Rule_expiration" supertypes="Rule_action">
+         <explicit name="expiration_rationale">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Rule_function" super.expression="Rule_boolean_function">
+         <explicit name="identifier">
+            <builtintype type="STRING"/>
+         </explicit>
+         <derived name="source_code" expression="get_document_definition(SELF, 'source code', &#10;  			'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION')">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Document_definition"/>
+         </derived>
+         <derived name="representation_language" expression="get_document_definition(SELF, 'representation language', &#10;  			'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL')">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Document_definition"/>
+         </derived>
+         <inverse name="domain_parameter" entity="Rule_function_domain_parameter" attribute="accessed_rule_function">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+         <inverse name="range_parameter" entity="Rule_function_range_parameter" attribute="accessed_rule_function">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+         <inverse name="reference_document" entity="Document_assignment" attribute="is_assigned_to"/>
+         <unique label="UR1">
+            <unique.attribute attribute="identifier"/>
+            <unique.attribute attribute="reference_document"/>
+         </unique>
+         <where label="WR1" expression="EXISTS (source_code) AND (SIZEOF(source_code) = 1)"/>
+         <where label="WR2" expression="'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION' IN TYPEOF(source_code[1])"/>
+      </entity>
+      <entity name="Rule_function_domain_parameter" supertypes="Model_parameter">
+         <explicit name="accessed_rule_function">
+            <typename name="Rule_function"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Independent_property" attribute="id"/>
+            <unique.attribute attribute="accessed_rule_function"/>
+         </unique>
+      </entity>
+      <entity name="Rule_function_range_parameter" supertypes="Model_parameter">
+         <explicit name="accessed_rule_function">
+            <typename name="Rule_function"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute entity-ref="Independent_property" attribute="id"/>
+            <unique.attribute attribute="accessed_rule_function"/>
+         </unique>
+      </entity>
+      <entity name="Rule_general_clause">
+         <explicit name="rule_function">
+            <typename name="Rule_function"/>
+         </explicit>
+         <explicit name="parameter">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="parameter_assignment_or_rule_general_clause"/>
+         </explicit>
+      </entity>
+      <entity name="Rule_justification" supertypes="Rule_action">
+         <explicit name="justified_action">
+            <typename name="Rule_action"/>
+         </explicit>
+         <explicit name="justification_rationale">
+            <builtintype type="STRING"/>
+         </explicit>
+         <where label="WR1" expression="SELF &lt;&gt; justified_action"/>
+      </entity>
+      <entity name="Rule_modification" supertypes="Rule_action">
+         <explicit name="modification_rationale">
+            <typename name="Rule_change_request"/>
+         </explicit>
+      </entity>
+      <entity name="Rule_premise_definition">
+         <explicit name="identifier">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="rule_definition">
+            <typename name="Rule_definition"/>
+         </explicit>
+         <explicit name="disjunctive_content">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="rule_complex_or_simple"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="rule_definition"/>
+            <unique.attribute attribute="identifier"/>
+         </unique>
+      </entity>
+      <entity name="Rule_priority">
+         <explicit name="priority">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="prioritized_rule">
+            <typename name="Rule_definition"/>
+         </explicit>
+         <where label="WR1" expression="priority &gt;= 0"/>
+      </entity>
+      <entity name="Rule_product" supertypes="Software">
+         <where label="WR1" expression="'rule' IN types_of_product(SELF)"/>
+      </entity>
+      <entity name="Rule_rejection" supertypes="Rule_action">
+         <explicit name="rejection_reason">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Rule_request" supertypes="Rule_action"/>
+      <entity name="Rule_set" supertypes="Rule_software_definition">
+         <explicit name="rule_member">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Rule_priority"/>
+         </explicit>
+         <inverse name="purpose" entity="Name_assignment" attribute="items"/>
+         <where label="WR1" expression="purpose.role = 'purpose'"/>
+      </entity>
+      <entity name="Rule_set_group" supertypes="Rule_software_definition">
+         <explicit name="elements">
+            <aggregate type="SET" lower="2" upper="?"/>
+            <typename name="Rule_set"/>
+         </explicit>
+      </entity>
+      <entity name="Rule_simple_clause">
+         <explicit name="rule_function">
+            <typename name="Rule_boolean_function"/>
+         </explicit>
+         <explicit name="parameter">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="parameter_assignment_or_rule_general_clause"/>
+         </explicit>
+      </entity>
+      <entity name="Rule_software_definition" supertypes="Software_definition" super.expression="ONEOF (Rule_definition, Rule_set_group, Rule_set)">
+         <explicit name="defined_version">
+            <typename name="Rule_version"/>
+            <redeclaration entity-ref="Product_view_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Rule_submission" supertypes="Rule_action">
+         <explicit name="submission_rationale">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Rule_supersedence" supertypes="Rule_action">
+         <explicit name="superseded_rule">
+            <typename name="Rule_version"/>
+         </explicit>
+      </entity>
+      <entity name="Rule_version" supertypes="Software_version">
+         <explicit name="of_product">
+            <typename name="Rule_product"/>
+            <redeclaration entity-ref="Product_version"/>
+         </explicit>
+         <derived name="description" expression="''">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Product_version"/>
+         </derived>
+         <inverse name="management_action" entity="Rule_action" attribute="subject_rule">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+         <inverse name="product_definition" entity="Rule_software_definition" attribute="defined_version">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+      </entity>
+      <rule name="rule_software_definition_constraint" appliesto="Product_view_definition">
+         <where label="WR1" expression="SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'PRODUCT_RULE_ARM.' + 'RULE_SOFTWARE_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'PRODUCT_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0"/>
+      </rule>
+      <rule name="rule_version_constraint" appliesto="Product_version">
+         <where label="WR1" expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'PRODUCT_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'PRODUCT_RULE_ARM.' + 'RULE_PRODUCT' IN TYPEOF ( pv.of_product) ) ) ) =0"/>
+      </rule>
+      <function name="bag_to_set">
+         <parameter name="the_bag">
+            <aggregate type="BAG" lower="0" upper="?"/>
+            <builtintype type="GENERIC"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="GENERIC"/>
+         <algorithm>LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);</algorithm>
+      </function>
+   </schema>
+</express>

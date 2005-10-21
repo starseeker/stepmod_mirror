@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.16 2005/05/23 08:46:25 liutkus Exp $
+   $Id: mim.exp,v 1.17 2005/10/10 14:07:02 liutkus Exp $
    ISO TC184/SC4/WG12 N3568 - ISO/CD-TS 10303-1728 Physical unit design view - EXPRESS MIM
 *)
 
@@ -16,7 +16,7 @@ TYPE pudv_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON 
 END_TYPE; 
 	
 ENTITY component_definition
-  SUBTYPE OF (product_definition);
+  SUBTYPE OF (product_definition, product_definition_relationship);
 WHERE
   WR1: SIZEOF (QUERY (pd <* USEDIN (SELF,
        'PHYSICAL_UNIT_DESIGN_VIEW_MIM.' +
@@ -247,6 +247,13 @@ END_ENTITY;
 
 ENTITY assembly_component
   SUBTYPE OF (component_definition, product_definition_shape);
+END_ENTITY;
+
+ENTITY next_assembly_usage_occurence_relationship
+  SUBTYPE OF (next_assembly_usage_occurrence,
+    product_definition_occurrence_relationship);
+  DERIVE
+    SELF\product_definition_occurrence_relationship.occurrence_usage : next_assembly_usage_occurence_relationship := SELF;
 END_ENTITY;
 
 ENTITY physical_component

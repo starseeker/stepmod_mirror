@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-10-10T15:40:44" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-10-21T19:15:11" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Edge_shape_feature_arm"/>
@@ -90,7 +90,7 @@
          <where label="WR1" expression="precedent_surface.name = stratum_surface_designation.secondary_surface"/>
          <where label="WR2" expression="subsequent_surface.name = stratum_surface_designation.primary_surface"/>
       </entity>
-      <entity name="Adjacent_stratum_surface_embedded_component_surface_definition">
+      <entity name="Adjacent_stratum_surface_embedded_physical_component_surface_definition">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
@@ -420,8 +420,13 @@
          <derived name="minimum_as_finished_passage_extent" expression="SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent">
             <typename name="Length_data_element"/>
          </derived>
+         <inverse name="deposition_material" entity="Material_identification" attribute="items">
+            <inverse.aggregate type="SET" lower="1" upper="1"/>
+            <redeclaration entity-ref="Passage_technology"/>
+         </inverse>
          <where label="WR1" expression="EXISTS(minimum_as_finished_deposition_thickness)"/>
          <where label="WR2" expression="EXISTS(minimum_as_finished_passage_extent)"/>
+         <where label="WR3" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material)"/>
       </entity>
       <entity name="Design_layer_stratum" supertypes="Stratum">
          <explicit name="primary_design_layer_stratum">
@@ -472,7 +477,7 @@
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
       </entity>
-      <entity name="Embedded_component_terminal" supertypes="Laminate_component_join_terminal">
+      <entity name="Embedded_physical_component_terminal" supertypes="Laminate_component_join_terminal">
          <explicit name="definition">
             <typename name="bare_die_terminal_or_packaged_part_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
@@ -501,7 +506,7 @@
          <where label="WR3" expression="SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0"/>
          <where label="WR4" expression="SIZEOF(QUERY(agc &lt;* SELF\Assembly_group_component.components |&#10;      NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc))&#10;           )) = 0"/>
       </entity>
-      <entity name="Footprint_occurrence_sub_assembly_relationship" supertypes="Next_assembly_usage">
+      <entity name="Footprint_occurrence_sub_assembly_relationship" supertypes="Next_assembly_usage_occurence_relationship">
          <explicit name="relating_view">
             <typename name="Footprint_occurrence"/>
             <redeclaration entity-ref="View_definition_relationship"/>
@@ -583,7 +588,7 @@
             <redeclaration entity-ref="Product_view_definition"/>
          </derived>
       </entity>
-      <entity name="Inter_stratum_join_relationship" supertypes="Join_relationship">
+      <entity name="Inter_stratum_join_relationship" supertypes="Routed_join_relationship">
          <explicit name="points_to_be_connected">
             <aggregate type="SET" lower="2" upper="?"/>
             <typename name="Layer_connection_point"/>
@@ -614,7 +619,7 @@
          <where label="WR2" expression="(SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY')) = 0)&#10;      OR&#10;      (SIZEOF(QUERY(imsar &lt;* USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | &#10;              (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND &#10;               (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1)"/>
       </entity>
       <entity name="Interconnect_module_edge" supertypes="Inter_stratum_feature" super.expression="ONEOF (Partially_plated_interconnect_module_edge, Plated_interconnect_module_edge)"/>
-      <entity name="Interconnect_module_edge_segment" supertypes="Inter_stratum_feature" super.expression="Plated_interconnect_module_edge_segment">
+      <entity name="Interconnect_module_edge_segment" supertypes="Inter_stratum_feature" super.expression="ONEOF (Plated_interconnect_module_edge_segment, Unplated_interconnect_module_edge_segment)">
          <explicit name="composed_edge">
             <typename name="Interconnect_module_edge"/>
          </explicit>
@@ -677,7 +682,7 @@
             <unique.attribute attribute="inter_stratum_feature"/>
          </unique>
       </entity>
-      <entity name="Intra_stratum_join_relationship" supertypes="Join_relationship">
+      <entity name="Intra_stratum_join_relationship" supertypes="Routed_join_relationship">
          <explicit name="points_to_be_connected">
             <aggregate type="SET" lower="2" upper="?"/>
             <typename name="Layer_connection_point"/>
@@ -694,11 +699,10 @@
          <where label="WR1" expression="(EXISTS(ordered_implementation)) XOR (EXISTS(random_implementation))"/>
          <where label="WR2" expression="SIZEOF(QUERY(ptbc &lt;* points_to_be_connected |&#10;            NOT(ptbc.resident_design_layer_stratum = associated_stratum)&#10;              )) = 0"/>
       </entity>
-      <entity name="Join_relationship" abstract.supertype="YES" super.expression="ONEOF (Inter_stratum_join_relationship, Intra_stratum_join_relationship, Stratum_embedded_component_join_relationship, Unrouted_join_relationship)">
+      <entity name="Join_relationship" abstract.supertype="YES" super.expression="ONEOF (Routed_join_relationship, Unrouted_join_relationship)">
          <explicit name="associated_layout">
             <typename name="Interconnect_module"/>
          </explicit>
-         <inverse name="network_topology" entity="Routed_physical_network" attribute="routed_connectivity_requirement_element"/>
       </entity>
       <entity name="Join_two_physical_connectivity_definition_supporting_printed_component" supertypes="Conductive_interconnect_element_with_pre_defined_transitions">
          <explicit name="joined_definitions">
@@ -799,7 +803,7 @@
             <typename name="Design_layer_stratum"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
-         <derived name="aggregate_join" expression="make_aggregate_join(inter_join_path,&#10; intra_join_path,&#10; embedded_component_path)">
+         <derived name="aggregate_join" expression="make_aggregate_join(inter_join_path,&#10; intra_join_path,&#10; embedded_physical_component_path)">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Join_relationship"/>
          </derived>
@@ -810,7 +814,7 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <inverse name="intra_join_path" entity="Intra_stratum_join_relationship" attribute="points_to_be_connected"/>
-         <inverse name="embedded_component_path" entity="Stratum_embedded_component_join_relationship" attribute="point_to_be_connected">
+         <inverse name="embedded_physical_component_path" entity="Stratum_embedded_physical_component_join_relationship" attribute="point_to_be_connected">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <unique label="UR1">
@@ -884,7 +888,7 @@
          <where label="WR1" expression="SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0"/>
          <where label="WR2" expression="SIZEOF(QUERY(agc &lt;* SELF\Assembly_group_component.components |&#10;      NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc))&#10;           )) = 0"/>
       </entity>
-      <entity name="Padstack_occurrence_sub_assembly_relationship" supertypes="Next_assembly_usage">
+      <entity name="Padstack_occurrence_sub_assembly_relationship" supertypes="Next_assembly_usage_occurence_relationship">
          <explicit name="relating_view">
             <typename name="Padstack_occurrence"/>
             <redeclaration entity-ref="View_definition_relationship"/>
@@ -910,7 +914,7 @@
          <inverse name="plated_segment" entity="Plated_cutout_edge_segment" attribute="composed_cutout">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <inverse name="unplated_segment" entity="Cutout_edge_segment" attribute="composed_cutout">
+         <inverse name="unplated_segment" entity="Unplated_cutout_edge_segment" attribute="composed_cutout">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
@@ -922,10 +926,9 @@
          <inverse name="plated_segment" entity="Plated_interconnect_module_edge_segment" attribute="composed_edge">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <inverse name="unplated_segment" entity="Interconnect_module_edge_segment" attribute="composed_edge">
+         <inverse name="unplated_segment" entity="Unplated_interconnect_module_edge_segment" attribute="composed_edge">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <where label="WR1" expression="SIZEOF(QUERY(us &lt;* unplated_segment |&#10;        ('LAYERED_INTERCONNECT_DESIGN_ARM.PLATED_INTERCONNECT_MODULE_EDGE_SEGMENT' IN TYPEOF(us))&#10;        )) = 0"/>
       </entity>
       <entity name="Passage_padstack_definition" supertypes="Padstack_definition">
          <explicit name="technology_reference">
@@ -1013,13 +1016,16 @@
          </explicit>
          <inverse name="network" entity="Routed_physical_network" attribute="probe"/>
       </entity>
+      <entity name="Routed_join_relationship" abstract.supertype="YES" supertypes="Join_relationship" super.expression="ONEOF (Inter_stratum_join_relationship, Intra_stratum_join_relationship, Stratum_embedded_physical_component_join_relationship)">
+         <inverse name="network_topology" entity="Routed_physical_network" attribute="routed_connectivity_requirement_element"/>
+      </entity>
       <entity name="Routed_physical_network" supertypes="Generic_physical_network">
          <explicit name="reference_connected_terminals" optional="YES">
             <typename name="Part_connected_terminals_definition"/>
          </explicit>
          <explicit name="routed_connectivity_requirement_element">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Join_relationship"/>
+            <typename name="Routed_join_relationship"/>
          </explicit>
          <explicit name="unrouted_connectivity_requirement_element" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -1075,14 +1081,17 @@
          </inverse>
          <where label="WR1" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) &lt;= 1"/>
          <where label="WR2" expression="NOT(SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 1) OR&#10;            (SIZEOF(of_surface) &lt; 3)"/>
+         <where label="WR3" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) &lt;= 1"/>
+         <where label="WR4" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) &lt;= 1"/>
+         <where label="WR5" expression="NOT(SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) = 1) OR&#10;            (SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) = 1)"/>
       </entity>
       <entity name="Stratum_average_surface" supertypes="Stratum_surface">
          <where label="WR1" expression="SELF\Stratum_surface.name = stratum_surface_designation.average_surface"/>
       </entity>
-      <entity name="Stratum_embedded_component_join_relationship" supertypes="Join_relationship">
+      <entity name="Stratum_embedded_physical_component_join_relationship" supertypes="Routed_join_relationship">
          <explicit name="terminal_to_be_connected">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Embedded_component_terminal"/>
+            <typename name="Embedded_physical_component_terminal"/>
          </explicit>
          <explicit name="point_to_be_connected">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -1142,6 +1151,20 @@
             <typename name="Thermal_isolation_removal_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
+      </entity>
+      <entity name="Unplated_cutout_edge_segment" supertypes="Cutout_edge_segment">
+         <explicit name="composed_cutout">
+            <typename name="Partially_plated_cutout"/>
+            <redeclaration entity-ref="Cutout_edge_segment"/>
+         </explicit>
+         <where label="WR1" expression="NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PLATED_INTER_STRATUM_FEATURE' IN TYPEOF(SELF))"/>
+      </entity>
+      <entity name="Unplated_interconnect_module_edge_segment" supertypes="Interconnect_module_edge_segment">
+         <explicit name="composed_edge">
+            <typename name="Partially_plated_interconnect_module_edge"/>
+            <redeclaration entity-ref="Interconnect_module_edge_segment"/>
+         </explicit>
+         <where label="WR1" expression="NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PLATED_INTER_STRATUM_FEATURE' IN TYPEOF(SELF))"/>
       </entity>
       <entity name="Unrouted_conductive_interconnect_element" supertypes="Conductive_interconnect_element">
          <inverse name="connected_points" entity="Conductive_interconnect_element_terminal_link" attribute="associated_element">
@@ -1306,7 +1329,7 @@
          </parameter>
          <parameter name="input3">
             <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Stratum_embedded_component_join_relationship"/>
+            <typename name="Stratum_embedded_physical_component_join_relationship"/>
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
          <typename name="Join_relationship"/>

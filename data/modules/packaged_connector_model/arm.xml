@@ -2,10 +2,24 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-01T15:46:32" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-10-21T14:36:50" rcs.revision="1.0" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="packaged_connector_model_arm schema_instance"/>
    <schema name="Packaged_connector_model_arm">
       <interface kind="use" schema="Packaged_part_black_box_model_arm"/>
+      <entity name="Mating_connector_relationship" supertypes="Part_definition_relationship">
+         <explicit name="relating_view">
+            <typename name="Packaged_connector"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Packaged_connector"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <derived name="relation_type" expression="''">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </derived>
+      </entity>
       <entity name="Packaged_connector" supertypes="Packaged_part">
          <inverse name="characterized_connector_terminal_relationship" entity="Packaged_connector_terminal_relationship" attribute="connector">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
@@ -22,18 +36,14 @@
             <typename name="Packaged_part_interface_terminal"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Packaged_connector_terminal_relationship" attribute="join_terminal"/>
+            <unique.attribute attribute="join_terminal"/>
          </unique>
          <unique label="UR2">
-            <unique.attribute entity-ref="Packaged_connector_terminal_relationship" attribute="interface_terminal"/>
-            <unique.attribute entity-ref="Packaged_connector_terminal_relationship" attribute="connector"/>
+            <unique.attribute attribute="interface_terminal"/>
+            <unique.attribute attribute="connector"/>
          </unique>
       </entity>
       <entity name="Packaged_part_interface_terminal" supertypes="Packaged_part_terminal">
-         <derived name="description" expression="'interface terminal'">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Shape_element"/>
-         </derived>
          <inverse name="external_connector_function" entity="Packaged_connector_terminal_relationship" attribute="interface_terminal">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>

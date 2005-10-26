@@ -2,61 +2,63 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-31T14:04:09" rcs.revision="1.0" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="model_parameter_mim schema_instance"/>
-   <schema name="Model_parameter_mim">
-      <interface kind="use" schema="Characteristic_mim"/>
-      <interface kind="use" schema="Classification_with_attributes_mim"/>
-      <interface kind="use" schema="Independent_property_representation_mim"/>
-      <interface kind="use" schema="Group_mim"/>
-      <interface kind="use" schema="Specification_document_mim"/>
-      <type name="model_parameter_assigned_item">
-         <select selectitems="unit"/>
-      </type>
-      <type name="mp_document_reference_item">
-         <select extensible="YES" genericentity="YES" basedon="document_reference_item" selectitems="model_parameter"/>
-      </type>
-      <type name="mp_groupable_item">
-         <select extensible="YES" genericentity="YES" basedon="groupable_item" selectitems="representation_item"/>
-      </type>
-      <entity name="category_model_parameter" supertypes="model_parameter"/>
-      <entity name="model_parameter" supertypes="descriptive_representation_item group_assignment general_property">
-         <explicit name="items" optional="YES">
-            <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="model_parameter_assigned_item"/>
-         </explicit>
-         <where label="WR1" expression="SIZEOF (USEDIN (SELF, &#10;       'MODEL_PARAMETER_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 1"/>
-         <where label="WR2" expression="SIZEOF (QUERY (aga &lt;* USEDIN (SELF, &#10;       'MODEL_PARAMETER_MIM.' +&#10;       'APPLIED_GROUP_ASSIGNMENT.ITEMS') |&#10;       ('MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_TYPE' IN &#10;       TYPEOF (aga.assigned_group)) AND&#10;       (aga.assigned_group\group.name IN ['string property type', &#10;       'logical property type', 'physical property type', &#10;       'boolean property type']))) = 1"/>
-      </entity>
-      <entity name="parameter_assignment" supertypes="parameter_assignment_representation property_definition_representation"/>
-      <entity name="parameter_assignment_override" supertypes="representation representation_relationship">
-         <unique label="UR1">
-            <unique.attribute entity-ref="parameter_assignment_override" attribute="rep_1"/>
-            <unique.attribute entity-ref="parameter_assignment_override" attribute="rep_2"/>
-         </unique>
-         <where label="WR1" expression="SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation ||&#10;       SELF\representation_relationship || &#10;       SELF\parameter_assignment_override))) = 0"/>
-         <where label="WR2" expression="SELF\representation_relationship.rep_1 &lt;&gt; &#10;       SELF\representation_relationship.rep_2"/>
-         <where label="WR3" expression="SELF\representation_relationship.name = ''"/>
-         <where label="WR4" expression="SELF\representation.name = ''"/>
-         <where label="WR5" expression="'MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF(SELF\representation_relationship.rep_1)"/>
-         <where label="WR6" expression="'MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF(SELF\representation_relationship.rep_2)"/>
-      </entity>
-      <entity name="parameter_assignment_representation" supertypes="representation">
-         <where label="WR1" expression="SIZEOF (SELF.items) = 2"/>
-         <where label="WR2" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       (SIZEOF (TYPEOF (it) *&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'MODEL_PARAMETER']) &#10;       = 1))) = 1"/>
-         <where label="WR3" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       (SIZEOF (TYPEOF (it) *&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'COORDINATED_REPRESENTATION_ITEM']) &#10;       = 1))) &lt;= 1"/>
-         <where label="WR4" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;        (SIZEOF (QUERY(aga &lt;* USEDIN (it,&#10;        'MODEL_PARAMETER_MIM.' +&#10;        'APPLIED_GROUP_ASSIGNMENT.ITEMS') |&#10;             (SIZEOF (TYPEOF ( aga\group_assignment.assigned_group) *&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'CHARACTERISTIC_TYPE']) = 1))) &#10;       = 1))) &lt;= 1"/>
-         <where label="WR5" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\parameter_assignment_representation)) = 0"/>
-      </entity>
-      <entity name="product_specific_parameter_value_assignment" supertypes="characterized_object product_related_product_category">
-         <where label="WR1" expression="SIZEOF(SELF\product_related_product_category.products) = 1"/>
-         <where label="WR2" expression="SIZEOF(QUERY(pd &lt;* USEDIN(SELF,&#10;       'MODEL_PARAMETER_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       (pd\property_definition.description = &#10;                                'assigned parameter') AND&#10;       (SIZEOF(QUERY(pdr &lt;* USEDIN(pd,&#10;       'MODEL_PARAMETER_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       (SIZEOF (&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION'] *&#10;       TYPEOF (pdr.used_representation)) = 1))) = 1))) = 1"/>
-         <where label="WR3" expression="NOT ('MODEL_PARAMETER_MIM.' +&#10;       'CHARACTERIZED_PRODUCT_CATEGORY' IN&#10;       TYPEOF(SELF))"/>
-         <where label="WR4" expression="SELF\characterized_object.name = SELF\product_category.name"/>
-      </entity>
-      <entity name="schema_based_model_parameter" supertypes="model_parameter"/>
-      <rule name="model_parameter_unique_constraint" appliesto="model_parameter">
-         <algorithm>LOCAL
+<express language_version="2" rcs.date="2005-10-26T16:09:25" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="model_parameter_mim schema_instance"/>
+<schema name="Model_parameter_mim">
+<interface kind="use" schema="Activity_method_assignment_mim"/>
+<interface kind="use" schema="Characteristic_mim"/>
+<interface kind="use" schema="Classification_with_attributes_mim"/>
+<interface kind="use" schema="Independent_property_representation_mim"/>
+<interface kind="use" schema="Group_mim"/>
+<interface kind="use" schema="Specification_document_mim"/>
+<type name="model_parameter_assigned_item">
+<select selectitems="unit"/>
+</type>
+<type name="mp_document_reference_item">
+<select extensible="YES" genericentity="YES" basedon="document_reference_item" selectitems="model_parameter"/>
+</type>
+<type name="mp_groupable_item">
+<select extensible="YES" genericentity="YES" basedon="groupable_item" selectitems="representation_item"/>
+</type>
+<entity name="category_model_parameter" supertypes="model_parameter"/>
+<entity name="model_parameter" supertypes="descriptive_representation_item group_assignment general_property">
+<explicit name="items" optional="YES">
+<aggregate type="SET" lower="1" upper="1"/>
+<typename name="model_parameter_assigned_item"/>
+</explicit>
+<where label="WR1" expression="SIZEOF (USEDIN (SELF, &#10;       'MODEL_PARAMETER_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS')) = 1"/>
+<where label="WR2" expression="SIZEOF (QUERY (aga &lt;* USEDIN (SELF, &#10;       'MODEL_PARAMETER_MIM.' +&#10;       'APPLIED_GROUP_ASSIGNMENT.ITEMS') |&#10;       ('MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_TYPE' IN &#10;       TYPEOF (aga.assigned_group)) AND&#10;       (aga.assigned_group\group.name IN ['string property type', &#10;       'logical property type', 'physical property type', &#10;       'boolean property type']))) = 1"/>
+</entity>
+<entity name="parameter_assignment" supertypes="parameter_assignment_representation property_definition_representation"/>
+<entity name="parameter_assignment_override" supertypes="representation representation_relationship">
+<unique label="UR1">
+<unique.attribute entity-ref="representation_relationship" attribute="rep_1"/>
+<unique.attribute entity-ref="representation_relationship" attribute="rep_2"/>
+</unique>
+<where label="WR1" expression="SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation ||&#10;       SELF\representation_relationship || &#10;       SELF\parameter_assignment_override))) = 0"/>
+<where label="WR2" expression="SELF\representation_relationship.rep_1 &lt;&gt; &#10;       SELF\representation_relationship.rep_2"/>
+<where label="WR3" expression="SELF\representation_relationship.name = ''"/>
+<where label="WR4" expression="SELF\representation.name = ''"/>
+<where label="WR5" expression="'MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF(SELF\representation_relationship.rep_1)"/>
+<where label="WR6" expression="'MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN TYPEOF(SELF\representation_relationship.rep_2)"/>
+</entity>
+<entity name="parameter_assignment_representation" supertypes="representation">
+<where label="WR1" expression="SIZEOF (SELF.items) = 2"/>
+<where label="WR2" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       (SIZEOF (TYPEOF (it) *&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'MODEL_PARAMETER']) &#10;       = 1))) = 1"/>
+<where label="WR3" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       (SIZEOF (TYPEOF (it) *&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'COORDINATED_REPRESENTATION_ITEM']) &#10;       = 1))) &lt;= 1"/>
+<where label="WR4" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;        (SIZEOF (QUERY(aga &lt;* USEDIN (it,&#10;        'MODEL_PARAMETER_MIM.' +&#10;        'APPLIED_GROUP_ASSIGNMENT.ITEMS') |&#10;             (SIZEOF (TYPEOF ( aga\group_assignment.assigned_group) *&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'CHARACTERISTIC_TYPE']) = 1))) &#10;       = 1))) &lt;= 1"/>
+<where label="WR5" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\parameter_assignment_representation)) = 0"/>
+</entity>
+<entity name="product_specific_parameter_value_assignment" supertypes="characterized_object product_related_product_category">
+<where label="WR1" expression="SIZEOF(SELF\product_related_product_category.products) = 1"/>
+<where label="WR2" expression="SIZEOF(QUERY(pd &lt;* USEDIN(SELF,&#10;       'MODEL_PARAMETER_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       (pd\property_definition.description = &#10;                                'assigned parameter') AND&#10;       (SIZEOF(QUERY(pdr &lt;* USEDIN(pd,&#10;       'MODEL_PARAMETER_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       (SIZEOF (&#10;       ['MODEL_PARAMETER_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION'] *&#10;       TYPEOF (pdr.used_representation)) = 1))) = 1))) = 1"/>
+<where label="WR3" expression="NOT ('MODEL_PARAMETER_MIM.' +&#10;       'CHARACTERIZED_PRODUCT_CATEGORY' IN&#10;       TYPEOF(SELF))"/>
+<where label="WR4" expression="SELF\characterized_object.name = SELF\product_category.name"/>
+</entity>
+<entity name="schema_based_model_parameter" supertypes="model_parameter"/>
+<entity name="test_method_based_parameter_assignment" supertypes="parameter_assignment"/>
+<rule name="model_parameter_unique_constraint" appliesto="model_parameter">
+<algorithm>LOCAL
   name_bag : BAG OF STRING := [];
   mp_bag : BAG OF model_parameter;
   adr_bag : BAG OF applied_document_reference;
@@ -95,7 +97,7 @@ REPEAT i := 1 to SIZEOF(name_bag) by 1;
     END_REPEAT;
   END_REPEAT;
 END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
-      </rule>
-   </schema>
+<where label="WR1" expression="pass"/>
+</rule>
+</schema>
 </express>

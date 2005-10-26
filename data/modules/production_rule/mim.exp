@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.1 2005/10/20 18:19:26 thomasrthurman Exp $
+   $Id: mim.exp,v 1.2 2005/10/21 14:48:05 liutkus Exp $
    ISO TC184/SC4/WG12 N3589 - ISO/CD-TS 10303-1739 Product rule - EXPRESS MIM
 *)
 
@@ -40,39 +40,39 @@ ENTITY rule_action
   SUBTYPE OF (action);
 WHERE
   WR1: SIZEOF (QUERY (aaa <* QUERY (aa <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' + 
+       'PRODUCTION_RULE_MIM.' + 
        'ACTION_ASSIGNMENT.ASSIGNED_ACTION') |
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'APPLIED_ACTION_ASSIGNMENT' IN
        TYPEOF (aa)) |
        SIZEOF (QUERY (it <* aaa.items |
-       (('PRODUCT_RULE_MIM.' +
+       (('PRODUCTION_RULE_MIM.' +
        'PRODUCT_DEFINITION_FORMATION' IN 
        TYPEOF (it))
 AND (it\product_definition_formation.description = 'rule version'))
 )) = 1)) = 1;
   WR2: SIZEOF (QUERY (adta <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
        adta.role\date_time_role.name = 'participant date and time')) +
        SIZEOF (QUERY (ada <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'APPLIED_DATE_ASSIGNMENT.ITEMS') |
        ada.role\date_role.name = 'participant date')) = 1;
   WR3: (NOT (SELF\action.name = 'rule justification')) OR
        (SIZEOF (QUERY (ja <* QUERY (ar <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'ACTION_RELATIONSHIP.RELATED_ACTION') |
        ar\action_relationship.name = 'justified action') |
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'RULE_ACTION' IN
        TYPEOF (ja.relating_action))) = 1);
   WR4: (NOT (SELF\action.name = 'rule modification')) OR
        (SIZEOF (QUERY (mr <* QUERY (ar <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'ACTION_RELATIONSHIP.RELATED_ACTION') |
        ar\action_relationship.name = 'modification rationale') |
-       ('PRODUCT_RULE_MIM.' +
+       ('PRODUCTION_RULE_MIM.' +
        'RULE_ACTION' IN
        TYPEOF (mr.relating_action)) AND
        (mr.relating_action\action.name = 'rule change request'))) = 1);
@@ -82,7 +82,7 @@ ENTITY rule_boolean_function_definition
  SUBTYPE OF (rule_function_definition);
  WHERE
   WR1: SIZEOF (QUERY (it <* SELF.items |
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'MODEL_PARAMETER' IN
        TYPEOF (it))) >= 1;
 END_ENTITY;
@@ -93,9 +93,9 @@ UNIQUE
  UR1: SELF\representation.name;
 WHERE
   WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' + 
+       'PRODUCTION_RULE_MIM.' + 
        'REPRESENTATION_RELATIONSHIP.REP_2') | 
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'RULE_SIMPLE_CLAUSE' IN TYPEOF (rr.rep_1))) >= 1;
   WR2: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
        SELF\rule_complex_clause)) = 0;
@@ -105,15 +105,15 @@ ENTITY rule_conclusion_definition
  SUBTYPE OF (representation);
 WHERE
   WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
-        'PRODUCT_RULE_MIM.' +
+        'PRODUCTION_RULE_MIM.' +
         'RULE_DEFINITION' IN TYPEOF
        (pdr.definition.definition))) = 1;
   WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_2') |
-        'PRODUCT_RULE_MIM.' +
+        'PRODUCTION_RULE_MIM.' +
         'RULE_SIMPLE_CLAUSE' IN TYPEOF 
        (rr\representation_relationship.rep_1))) >= 1;
 
@@ -132,25 +132,25 @@ ENTITY rule_function_definition
  SUBTYPE OF (representation);
 WHERE
   WR1: SIZEOF (QUERY (it <* SELF.items |
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'MODEL_PARAMETER' IN
        TYPEOF (it))) >= 1;
   WR2: SIZEOF(QUERY(adf <* USEDIN(SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
        (adf\document_reference.assigned_document.kind\document_type.product_data_type
        = 'reference document') AND
-       (SIZEOF(['PRODUCT_RULE_MIM.' +
+       (SIZEOF(['PRODUCTION_RULE_MIM.' +
        'SPECIFICATION_DEFINITION', 
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'DOCUMENT'] * 
         TYPEOF(adf\document_reference.assigned_document))>=1))) = 1;
   WR3: SIZEOF(QUERY(adf <* USEDIN(SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'APPLIED_DOCUMENT_REFERENCE.ITEMS') |
        (adf\document_reference.assigned_document.kind\document_type.product_data_type =
        'source code') AND
-       ('PRODUCT_RULE_MIM.' +
+       ('PRODUCTION_RULE_MIM.' +
        'SPECIFICATION_DEFINITION' IN 
         TYPEOF(adf\document_reference.assigned_document)))) = 1;
 END_ENTITY;
@@ -159,9 +159,9 @@ ENTITY rule_function_domain_parameter
  SUBTYPE OF (model_parameter);
 WHERE
   WR1: SIZEOF (QUERY (cri <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'REPRESENTATION.ITEMS') |
-       ('PRODUCT_RULE_MIM.' +
+       ('PRODUCTION_RULE_MIM.' +
        'RULE_FUNCTION_DEFINITION' IN TYPEOF(cri)) 
        )) = 1;
 END_ENTITY;
@@ -170,9 +170,9 @@ ENTITY rule_function_range_parameter
  SUBTYPE OF (model_parameter);
 WHERE
   WR1: SIZEOF (QUERY (cri <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'REPRESENTATION.ITEMS') |
-       ('PRODUCT_RULE_MIM.' +
+       ('PRODUCTION_RULE_MIM.' +
        'RULE_FUNCTION_DEFINITION' IN TYPEOF(cri)) 
        )) = 1;
 END_ENTITY;
@@ -183,15 +183,15 @@ UNIQUE
  UR1: SELF\representation.name;
 WHERE
   WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_1') |
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'PARAMETER_ASSIGNMENT_REPRESENTATION' IN
        TYPEOF (rr.rep_2))) >= 1;
   WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' + 
+       'PRODUCTION_RULE_MIM.' + 
        'REPRESENTATION_RELATIONSHIP.REP_2') | 
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'RULE_FUNCTION_DEFINITION' IN TYPEOF (rr.rep_1))) = 1;
   WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
        SELF\rule_general_clause)) = 0;
@@ -201,16 +201,16 @@ ENTITY rule_premise_definition
  SUBTYPE OF (representation);
 WHERE
   WR1: SIZEOF (QUERY (pdr <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
-        'PRODUCT_RULE_MIM.' +
+        'PRODUCTION_RULE_MIM.' +
         'RULE_DEFINITION' IN TYPEOF
        (pdr.definition.definition))) = 1;
 
   WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_2') |
-        'PRODUCT_RULE_MIM.' +
+        'PRODUCTION_RULE_MIM.' +
         'RULE_COMPLEX_CLAUSE' IN TYPEOF 
        (rr\representation_relationship.rep_1))) >= 1;
 
@@ -235,10 +235,10 @@ ENTITY rule_set_group
 SUBTYPE OF (rule_software_definition);
 WHERE
   WR1: SIZEOF (QUERY (rsge <* QUERY (gr <* USEDIN (SELF, 
-       'PRODUCT_RULE_MIM.' + 
+       'PRODUCTION_RULE_MIM.' + 
        'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |
        gr\product_definition_relationship.name = 'rule set group element') |
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'RULE_SET' IN
        TYPEOF (rsge.related_product_definition))) >= 1;
 END_ENTITY;
@@ -249,15 +249,15 @@ UNIQUE
  UR1: SELF\representation.name;
 WHERE
   WR1: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'REPRESENTATION_RELATIONSHIP.REP_1') |
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'PARAMETER_ASSIGNMENT_REPRESENTATION' IN
        TYPEOF (rr.rep_2))) >= 1;
   WR2: SIZEOF (QUERY (rr <* USEDIN (SELF,
-       'PRODUCT_RULE_MIM.' + 
+       'PRODUCTION_RULE_MIM.' + 
        'REPRESENTATION_RELATIONSHIP.REP_2') | 
-       'PRODUCT_RULE_MIM.' +
+       'PRODUCTION_RULE_MIM.' +
        'RULE_BOOLEAN_FUNCTION_DEFINITION' IN TYPEOF (rr.rep_1))) = 1;
   WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||
        SELF\rule_simple_clause)) = 0;
@@ -280,7 +280,7 @@ END_LOCAL;
 
 REPEAT i := 1 to SIZEOF(rule_action) by 1;
   adta := USEDIN( rule_action[i], 
-'PRODUCT_RULE_MIM.' +
+'PRODUCTION_RULE_MIM.' +
 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS' );
   REPEAT j := 1 to SIZEOF(adta) by 1;
     IF EXISTS( adta[j] ) THEN
@@ -300,16 +300,16 @@ REPEAT i := 1 to SIZEOF(adta_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     aaa_bag := QUERY( aa <* USEDIN( ra_bag[j], 
-'PRODUCT_RULE_MIM.' +
+'PRODUCTION_RULE_MIM.' +
 'ACTION_ASSIGNMENT.ASSIGNED_ACTION' ) | 
-(('PRODUCT_RULE_MIM.' +
+(('PRODUCTION_RULE_MIM.' +
 'APPLIED_ACTION_ASSIGNMENT') IN TYPEOF(aa) ) );
     REPEAT k := 1 to SIZEOF(aaa_bag) by 1;
       IF ( NOT pass ) THEN ESCAPE;
       END_IF;
       REPEAT l := 1 to SIZEOF(aaa_bag[k].items) by 1;
         IF EXISTS( aaa_bag[k].items[l] ) THEN
-          IF ( ('PRODUCT_RULE_MIM.' +
+          IF ( ('PRODUCTION_RULE_MIM.' +
 'PRODUCT_DEFINITION_FORMATION'  IN TYPEOF(aaa_bag[k].items[l])) AND
 (aaa_bag[k].items[l]\product_definition_formation.description = 'rule version') ) THEN
             IF ( aaa_bag[k].items[l] IN rd_bag ) THEN
@@ -346,10 +346,10 @@ END_LOCAL;
    IF NOT pass THEN ESCAPE;
    END_IF;
    rr := USEDIN(r[i],
- 'PRODUCT_RULE_MIM.' +
+ 'PRODUCTION_RULE_MIM.' +
         'REPRESENTATION_RELATIONSHIP.REP_1');
    REPEAT j := 1 to SIZEOF (rr) by 1;
-    IF 'PRODUCT_RULE_MIM.' +
+    IF 'PRODUCTION_RULE_MIM.' +
        'RULE_CONCLUSION_DEFINITION' IN
        TYPEOF (rr[j].rep_2)
     THEN
@@ -396,7 +396,7 @@ REPEAT i := 1 to SIZEOF(name_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     adr_bag := QUERY( adr <* USEDIN( rfd_bag[j],
-'PRODUCT_RULE_MIM.'
+'PRODUCTION_RULE_MIM.'
 + 'APPLIED_DOCUMENT_REFERENCE.ITEMS' ) |
 (adr.assigned_document.kind\document_type.product_data_type = 'reference document') );
     REPEAT k := 1 to SIZEOF(adr_bag) by 1;

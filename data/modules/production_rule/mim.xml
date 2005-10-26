@@ -2,103 +2,103 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-31T14:04:11" rcs.revision="1.0" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="production_rule_mim schema_instance"/>
-   <schema name="production_rule_mim">
-      <interface kind="use" schema="Model_parameter_mim"/>
-      <interface kind="use" schema="Specification_document_mim"/>
-      <interface kind="use" schema="Software_mim"/>
-      <interface kind="use" schema="Product_identification_mim"/>
-      <interface kind="use" schema="Date_time_assignment_mim"/>
-      <interface kind="use" schema="Activity_mim"/>
-      <interface kind="use" schema="product_definition_schema">
-         <interfaced.item name="product_definition_relationship"/>
-      </interface>
-      <type name="pr_action_items">
-         <select extensible="YES" genericentity="YES" basedon="action_items" selectitems="product_definition_formation"/>
-      </type>
-      <type name="pr_date_and_time_item">
-         <select extensible="YES" genericentity="YES" basedon="date_and_time_item" selectitems="rule_action"/>
-      </type>
-      <type name="pr_document_reference_item">
-         <select extensible="YES" genericentity="YES" basedon="document_reference_item" selectitems="rule_function_definition representation"/>
-      </type>
-      <type name="pr_name_item">
-         <select extensible="YES" genericentity="YES" basedon="name_item" selectitems="rule_set"/>
-      </type>
-      <type name="rule_superseded_item">
-         <select selectitems="product_definition_formation"/>
-      </type>
-      <entity name="rule_action" supertypes="action">
-         <where label="WR1" expression="SIZEOF (QUERY (aaa &lt;* QUERY (aa &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' + &#10;       'ACTION_ASSIGNMENT.ASSIGNED_ACTION') |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'APPLIED_ACTION_ASSIGNMENT' IN&#10;       TYPEOF (aa)) |&#10;       SIZEOF (QUERY (it &lt;* aaa.items |&#10;       (('PRODUCTION_RULE_MIM.' +&#10;       'PRODUCT_DEFINITION_FORMATION' IN &#10;       TYPEOF (it))&#10;AND (it\product_definition_formation.description = 'rule version'))&#10;)) = 1)) = 1"/>
-         <where label="WR2" expression="SIZEOF (QUERY (adta &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |&#10;       adta.role\date_time_role.name = 'participant date and time')) +&#10;       SIZEOF (QUERY (ada &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'APPLIED_DATE_ASSIGNMENT.ITEMS') |&#10;       ada.role\date_role.name = 'participant date')) = 1"/>
-         <where label="WR3" expression="(NOT (SELF\action.name = 'rule justification')) OR&#10;       (SIZEOF (QUERY (ja &lt;* QUERY (ar &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'ACTION_RELATIONSHIP.RELATED_ACTION') |&#10;       ar\action_relationship.name = 'justified action') |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'RULE_ACTION' IN&#10;       TYPEOF (ja.relating_action))) = 1)"/>
-         <where label="WR4" expression="(NOT (SELF\action.name = 'rule modification')) OR&#10;       (SIZEOF (QUERY (mr &lt;* QUERY (ar &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'ACTION_RELATIONSHIP.RELATED_ACTION') |&#10;       ar\action_relationship.name = 'modification rationale') |&#10;       ('PRODUCTION_RULE_MIM.' +&#10;       'RULE_ACTION' IN&#10;       TYPEOF (mr.relating_action)) AND&#10;       (mr.relating_action\action.name = 'rule change request'))) = 1)"/>
-      </entity>
-      <entity name="rule_boolean_function_definition" supertypes="rule_function_definition">
-         <where label="WR1" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'MODEL_PARAMETER' IN&#10;       TYPEOF (it))) &gt;= 1"/>
-      </entity>
-      <entity name="rule_complex_clause" supertypes="representation">
-         <unique label="UR1">
-            <unique.attribute entity-ref="rule_complex_clause" attribute="name"/>
-         </unique>
-         <where label="WR1" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' + &#10;       'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;       'PRODUCTION_RULE_MIM.' +&#10;       'RULE_SIMPLE_CLAUSE' IN TYPEOF (rr.rep_1))) &gt;= 1"/>
-         <where label="WR2" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\rule_complex_clause)) = 0"/>
-      </entity>
-      <entity name="rule_conclusion_definition" supertypes="representation">
-         <where label="WR1" expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |&#10;        'PRODUCTION_RULE_MIM.' +&#10;        'RULE_DEFINITION' IN TYPEOF&#10;       (pdr.definition.definition))) = 1"/>
-         <where label="WR2" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_2') |&#10;        'PRODUCTION_RULE_MIM.' +&#10;        'RULE_SIMPLE_CLAUSE' IN TYPEOF &#10;       (rr\representation_relationship.rep_1))) &gt;= 1"/>
-         <where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\rule_conclusion_definition)) = 0"/>
-      </entity>
-      <entity name="rule_definition" supertypes="rule_software_definition">
-         <where label="WR1" expression="SELF\product_definition.formation.description = 'rule version'"/>
-      </entity>
-      <entity name="rule_function_definition" supertypes="representation" super.expression="rule_boolean_function_definition">
-         <where label="WR1" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'MODEL_PARAMETER' IN&#10;       TYPEOF (it))) &gt;= 1"/>
-         <where label="WR2" expression="SIZEOF(QUERY(adf &lt;* USEDIN(SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |&#10;       (adf\document_reference.assigned_document.kind\document_type.product_data_type&#10;       = 'reference document') AND&#10;       (SIZEOF(['PRODUCTION_RULE_MIM.' +&#10;       'SPECIFICATION_DEFINITION', &#10;       'PRODUCTION_RULE_MIM.' +&#10;       'DOCUMENT'] * &#10;        TYPEOF(adf\document_reference.assigned_document))&gt;=1))) = 1"/>
-         <where label="WR3" expression="SIZEOF(QUERY(adf &lt;* USEDIN(SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |&#10;       (adf\document_reference.assigned_document.kind\document_type.product_data_type =&#10;       'source code') AND&#10;       ('PRODUCTION_RULE_MIM.' +&#10;       'SPECIFICATION_DEFINITION' IN &#10;        TYPEOF(adf\document_reference.assigned_document)))) = 1"/>
-      </entity>
-      <entity name="rule_function_domain_parameter" supertypes="model_parameter">
-         <where label="WR1" expression="SIZEOF (QUERY (cri &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION.ITEMS') |&#10;       ('PRODUCTION_RULE_MIM.' +&#10;       'RULE_FUNCTION_DEFINITION' IN TYPEOF(cri)) &#10;       )) = 1"/>
-      </entity>
-      <entity name="rule_function_range_parameter" supertypes="model_parameter">
-         <where label="WR1" expression="SIZEOF (QUERY (cri &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION.ITEMS') |&#10;       ('PRODUCTION_RULE_MIM.' +&#10;       'RULE_FUNCTION_DEFINITION' IN TYPEOF(cri)) &#10;       )) = 1"/>
-      </entity>
-      <entity name="rule_general_clause" supertypes="representation">
-         <unique label="UR1">
-            <unique.attribute entity-ref="rule_general_clause" attribute="name"/>
-         </unique>
-         <where label="WR1" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_1') |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN&#10;       TYPEOF (rr.rep_2))) &gt;= 1"/>
-         <where label="WR2" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' + &#10;       'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;       'PRODUCTION_RULE_MIM.' +&#10;       'RULE_FUNCTION_DEFINITION' IN TYPEOF (rr.rep_1))) = 1"/>
-         <where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\rule_general_clause)) = 0"/>
-      </entity>
-      <entity name="rule_premise_definition" supertypes="representation">
-         <where label="WR1" expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |&#10;        'PRODUCTION_RULE_MIM.' +&#10;        'RULE_DEFINITION' IN TYPEOF&#10;       (pdr.definition.definition))) = 1"/>
-         <where label="WR2" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_2') |&#10;        'PRODUCTION_RULE_MIM.' +&#10;        'RULE_COMPLEX_CLAUSE' IN TYPEOF &#10;       (rr\representation_relationship.rep_1))) &gt;= 1"/>
-         <where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\rule_premise_definition)) = 0"/>
-      </entity>
-      <entity name="rule_set" supertypes="rule_software_definition"/>
-      <entity name="rule_set_group" supertypes="rule_software_definition">
-         <where label="WR1" expression="SIZEOF (QUERY (rsge &lt;* QUERY (gr &lt;* USEDIN (SELF, &#10;       'PRODUCTION_RULE_MIM.' + &#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |&#10;       gr\product_definition_relationship.name = 'rule set group element') |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'RULE_SET' IN&#10;       TYPEOF (rsge.related_product_definition))) &gt;= 1"/>
-      </entity>
-      <entity name="rule_simple_clause" supertypes="representation">
-         <unique label="UR1">
-            <unique.attribute entity-ref="rule_simple_clause" attribute="name"/>
-         </unique>
-         <where label="WR1" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_1') |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN&#10;       TYPEOF (rr.rep_2))) &gt;= 1"/>
-         <where label="WR2" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' + &#10;       'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;       'PRODUCTION_RULE_MIM.' +&#10;       'RULE_BOOLEAN_FUNCTION_DEFINITION' IN TYPEOF (rr.rep_1))) = 1"/>
-         <where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\rule_simple_clause)) = 0"/>
-      </entity>
-      <entity name="rule_software_definition" supertypes="product_definition"/>
-      <entity name="rule_superseded_assignment" supertypes="action_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="rule_superseded_item"/>
-         </explicit>
-      </entity>
-      <entity name="rule_supersedence" supertypes="rule_action"/>
-      <rule name="rule_action_unique_constraint" appliesto="rule_action">
-         <algorithm>LOCAL
+<express language_version="2" rcs.date="2005-10-26T15:28:21" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="production_rule_mim schema_instance"/>
+<schema name="Production_rule_mim">
+<interface kind="use" schema="Model_parameter_mim"/>
+<interface kind="use" schema="Specification_document_mim"/>
+<interface kind="use" schema="Software_mim"/>
+<interface kind="use" schema="Product_identification_mim"/>
+<interface kind="use" schema="Date_time_assignment_mim"/>
+<interface kind="use" schema="Activity_mim"/>
+<interface kind="use" schema="product_definition_schema">
+<interfaced.item name="product_definition_relationship"/>
+</interface>
+<type name="pr_action_items">
+<select extensible="YES" genericentity="YES" basedon="action_items" selectitems="product_definition_formation"/>
+</type>
+<type name="pr_date_and_time_item">
+<select extensible="YES" genericentity="YES" basedon="date_and_time_item" selectitems="rule_action"/>
+</type>
+<type name="pr_document_reference_item">
+<select extensible="YES" genericentity="YES" basedon="document_reference_item" selectitems="rule_function_definition representation"/>
+</type>
+<type name="pr_name_item">
+<select extensible="YES" genericentity="YES" basedon="name_item" selectitems="rule_set"/>
+</type>
+<type name="rule_superseded_item">
+<select selectitems="product_definition_formation"/>
+</type>
+<entity name="rule_action" supertypes="action">
+<where label="WR1" expression="SIZEOF (QUERY (aaa &lt;* QUERY (aa &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' + &#10;       'ACTION_ASSIGNMENT.ASSIGNED_ACTION') |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'APPLIED_ACTION_ASSIGNMENT' IN&#10;       TYPEOF (aa)) |&#10;       SIZEOF (QUERY (it &lt;* aaa.items |&#10;       (('PRODUCTION_RULE_MIM.' +&#10;       'PRODUCT_DEFINITION_FORMATION' IN &#10;       TYPEOF (it))&#10;AND (it\product_definition_formation.description = 'rule version'))&#10;)) = 1)) = 1"/>
+<where label="WR2" expression="SIZEOF (QUERY (adta &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |&#10;       adta.role\date_time_role.name = 'participant date and time')) +&#10;       SIZEOF (QUERY (ada &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'APPLIED_DATE_ASSIGNMENT.ITEMS') |&#10;       ada.role\date_role.name = 'participant date')) = 1"/>
+<where label="WR3" expression="(NOT (SELF\action.name = 'rule justification')) OR&#10;       (SIZEOF (QUERY (ja &lt;* QUERY (ar &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'ACTION_RELATIONSHIP.RELATED_ACTION') |&#10;       ar\action_relationship.name = 'justified action') |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'RULE_ACTION' IN&#10;       TYPEOF (ja.relating_action))) = 1)"/>
+<where label="WR4" expression="(NOT (SELF\action.name = 'rule modification')) OR&#10;       (SIZEOF (QUERY (mr &lt;* QUERY (ar &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'ACTION_RELATIONSHIP.RELATED_ACTION') |&#10;       ar\action_relationship.name = 'modification rationale') |&#10;       ('PRODUCTION_RULE_MIM.' +&#10;       'RULE_ACTION' IN&#10;       TYPEOF (mr.relating_action)) AND&#10;       (mr.relating_action\action.name = 'rule change request'))) = 1)"/>
+</entity>
+<entity name="rule_boolean_function_definition" supertypes="rule_function_definition">
+<where label="WR1" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'MODEL_PARAMETER' IN&#10;       TYPEOF (it))) &gt;= 1"/>
+</entity>
+<entity name="rule_complex_clause" supertypes="representation">
+<unique label="UR1">
+<unique.attribute entity-ref="representation" attribute="name"/>
+</unique>
+<where label="WR1" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' + &#10;       'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;       'PRODUCTION_RULE_MIM.' +&#10;       'RULE_SIMPLE_CLAUSE' IN TYPEOF (rr.rep_1))) &gt;= 1"/>
+<where label="WR2" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\rule_complex_clause)) = 0"/>
+</entity>
+<entity name="rule_conclusion_definition" supertypes="representation">
+<where label="WR1" expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |&#10;        'PRODUCTION_RULE_MIM.' +&#10;        'RULE_DEFINITION' IN TYPEOF&#10;       (pdr.definition.definition))) = 1"/>
+<where label="WR2" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_2') |&#10;        'PRODUCTION_RULE_MIM.' +&#10;        'RULE_SIMPLE_CLAUSE' IN TYPEOF &#10;       (rr\representation_relationship.rep_1))) &gt;= 1"/>
+<where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\rule_conclusion_definition)) = 0"/>
+</entity>
+<entity name="rule_definition" supertypes="rule_software_definition">
+<where label="WR1" expression="SELF\product_definition.formation.description = 'rule version'"/>
+</entity>
+<entity name="rule_function_definition" supertypes="representation" super.expression="rule_boolean_function_definition">
+<where label="WR1" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'MODEL_PARAMETER' IN&#10;       TYPEOF (it))) &gt;= 1"/>
+<where label="WR2" expression="SIZEOF(QUERY(adf &lt;* USEDIN(SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |&#10;       (adf\document_reference.assigned_document.kind\document_type.product_data_type&#10;       = 'reference document') AND&#10;       (SIZEOF(['PRODUCTION_RULE_MIM.' +&#10;       'SPECIFICATION_DEFINITION', &#10;       'PRODUCTION_RULE_MIM.' +&#10;       'DOCUMENT'] * &#10;        TYPEOF(adf\document_reference.assigned_document))&gt;=1))) = 1"/>
+<where label="WR3" expression="SIZEOF(QUERY(adf &lt;* USEDIN(SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'APPLIED_DOCUMENT_REFERENCE.ITEMS') |&#10;       (adf\document_reference.assigned_document.kind\document_type.product_data_type =&#10;       'source code') AND&#10;       ('PRODUCTION_RULE_MIM.' +&#10;       'SPECIFICATION_DEFINITION' IN &#10;        TYPEOF(adf\document_reference.assigned_document)))) = 1"/>
+</entity>
+<entity name="rule_function_domain_parameter" supertypes="model_parameter">
+<where label="WR1" expression="SIZEOF (QUERY (cri &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION.ITEMS') |&#10;       ('PRODUCTION_RULE_MIM.' +&#10;       'RULE_FUNCTION_DEFINITION' IN TYPEOF(cri)) &#10;       )) = 1"/>
+</entity>
+<entity name="rule_function_range_parameter" supertypes="model_parameter">
+<where label="WR1" expression="SIZEOF (QUERY (cri &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION.ITEMS') |&#10;       ('PRODUCTION_RULE_MIM.' +&#10;       'RULE_FUNCTION_DEFINITION' IN TYPEOF(cri)) &#10;       )) = 1"/>
+</entity>
+<entity name="rule_general_clause" supertypes="representation">
+<unique label="UR1">
+<unique.attribute entity-ref="representation" attribute="name"/>
+</unique>
+<where label="WR1" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_1') |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN&#10;       TYPEOF (rr.rep_2))) &gt;= 1"/>
+<where label="WR2" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' + &#10;       'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;       'PRODUCTION_RULE_MIM.' +&#10;       'RULE_FUNCTION_DEFINITION' IN TYPEOF (rr.rep_1))) = 1"/>
+<where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\rule_general_clause)) = 0"/>
+</entity>
+<entity name="rule_premise_definition" supertypes="representation">
+<where label="WR1" expression="SIZEOF (QUERY (pdr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |&#10;        'PRODUCTION_RULE_MIM.' +&#10;        'RULE_DEFINITION' IN TYPEOF&#10;       (pdr.definition.definition))) = 1"/>
+<where label="WR2" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_2') |&#10;        'PRODUCTION_RULE_MIM.' +&#10;        'RULE_COMPLEX_CLAUSE' IN TYPEOF &#10;       (rr\representation_relationship.rep_1))) &gt;= 1"/>
+<where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\rule_premise_definition)) = 0"/>
+</entity>
+<entity name="rule_set" supertypes="rule_software_definition"/>
+<entity name="rule_set_group" supertypes="rule_software_definition">
+<where label="WR1" expression="SIZEOF (QUERY (rsge &lt;* QUERY (gr &lt;* USEDIN (SELF, &#10;       'PRODUCTION_RULE_MIM.' + &#10;       'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION') |&#10;       gr\product_definition_relationship.name = 'rule set group element') |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'RULE_SET' IN&#10;       TYPEOF (rsge.related_product_definition))) &gt;= 1"/>
+</entity>
+<entity name="rule_simple_clause" supertypes="representation">
+<unique label="UR1">
+<unique.attribute entity-ref="representation" attribute="name"/>
+</unique>
+<where label="WR1" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'REPRESENTATION_RELATIONSHIP.REP_1') |&#10;       'PRODUCTION_RULE_MIM.' +&#10;       'PARAMETER_ASSIGNMENT_REPRESENTATION' IN&#10;       TYPEOF (rr.rep_2))) &gt;= 1"/>
+<where label="WR2" expression="SIZEOF (QUERY (rr &lt;* USEDIN (SELF,&#10;       'PRODUCTION_RULE_MIM.' + &#10;       'REPRESENTATION_RELATIONSHIP.REP_2') | &#10;       'PRODUCTION_RULE_MIM.' +&#10;       'RULE_BOOLEAN_FUNCTION_DEFINITION' IN TYPEOF (rr.rep_1))) = 1"/>
+<where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\representation ||&#10;       SELF\rule_simple_clause)) = 0"/>
+</entity>
+<entity name="rule_software_definition" supertypes="product_definition"/>
+<entity name="rule_superseded_assignment" supertypes="action_assignment">
+<explicit name="items">
+<aggregate type="SET" lower="1" upper="?"/>
+<typename name="rule_superseded_item"/>
+</explicit>
+</entity>
+<entity name="rule_supersedence" supertypes="rule_action"/>
+<rule name="rule_action_unique_constraint" appliesto="rule_action">
+<algorithm>LOCAL
   adta : BAG OF applied_date_and_time_assignment;
   adta_bag : BAG OF applied_date_and_time_assignment := [];
   ra_bag : BAG OF rule_action;
@@ -153,10 +153,10 @@ REPEAT i := 1 to SIZEOF(adta_bag) by 1;
     END_REPEAT;
   END_REPEAT;
 END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
-      </rule>
-      <rule name="rule_conclusion_definition_unique_constraint" appliesto="rule_conclusion_definition representation representation_relationship">
-         <algorithm>LOCAL
+<where label="WR1" expression="pass"/>
+</rule>
+<rule name="rule_conclusion_definition_unique_constraint" appliesto="rule_conclusion_definition representation representation_relationship">
+<algorithm>LOCAL
 r : BAG of representation := 
            QUERY (r &lt;* representation | r\representation.name = 
                                              'rule definition');
@@ -189,10 +189,10 @@ END_LOCAL;
     END_IF;
    END_REPEAT;
   END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
-      </rule>
-      <rule name="rule_function_unique_constraint" appliesto="rule_function_definition">
-         <algorithm>LOCAL
+<where label="WR1" expression="pass"/>
+</rule>
+<rule name="rule_function_unique_constraint" appliesto="rule_function_definition">
+<algorithm>LOCAL
   name_bag : BAG OF STRING := [];
   rfd_bag : BAG OF rule_function_definition;
   adr_bag : BAG OF applied_document_reference;
@@ -233,10 +233,10 @@ REPEAT i := 1 to SIZEOF(name_bag) by 1;
     END_REPEAT;
   END_REPEAT;
 END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
-      </rule>
-      <rule name="rule_premise_definition_unique_constraint" appliesto="rule_premise_definition representation representation_relationship">
-         <algorithm>local
+<where label="WR1" expression="pass"/>
+</rule>
+<rule name="rule_premise_definition_unique_constraint" appliesto="rule_premise_definition representation representation_relationship">
+<algorithm>local
 rr : BAG OF representation_relationship := [];
 rpd : BAG OF rule_premise_definition := [];
 pass : BOOLEAN := TRUE;
@@ -259,7 +259,7 @@ USEDIN(rule_premise_definition[i],'REPRESENTATION_SCHEMA.REPRESENTATION_RELATION
      END_IF;
     END_REPEAT;
   END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
-      </rule>
-   </schema>
+<where label="WR1" expression="pass"/>
+</rule>
+</schema>
 </express>

@@ -2,110 +2,120 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-10-04T18:31:22" rcs.revision="1.0" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_connectivity_definition_arm schema_instance"/>
-   <schema name="Physical_connectivity_definition_arm">
-      <interface kind="use" schema="Part_external_reference_arm"/>
-      <interface kind="use" schema="Physical_component_feature_arm"/>
-      <interface kind="use" schema="Requirement_decomposition_arm"/>
-      <interface kind="reference" schema="Requirement_decomposition_arm">
-         <interfaced.item name="get_rvd"/>
-      </interface>
-      <type name="pcd_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Physical_connectivity_element Physical_connectivity_definition"/>
-      </type>
-      <type name="pcd_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Physical_connectivity_element Physical_connectivity_definition Physical_connectivity_definition_relationship"/>
-      </type>
-      <type name="termination_or_junction">
-         <select extensible="YES" genericentity="YES" selectitems="Component_terminal Topological_junction"/>
-      </type>
-      <entity name="Physical_connectivity_definition" supertypes="Shape_element" super.expression="Physical_connectivity_structure_definition">
-         <explicit name="associated_terminals">
-            <aggregate type="SET" lower="2" upper="?"/>
-            <typename name="Physical_component_terminal"/>
-         </explicit>
-         <derived name="associated_definition" expression="SELF\Shape_element.containing_shape.described_element">
-            <typename name="Physical_unit_network_definition"/>
-         </derived>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Shape_element" attribute="element_name"/>
-            <unique.attribute attribute="associated_definition"/>
-         </unique>
-      </entity>
-      <entity name="Physical_connectivity_definition_relationship">
-         <explicit name="previous_definition">
-            <typename name="Physical_connectivity_definition"/>
-         </explicit>
-         <explicit name="current_definition">
-            <typename name="Physical_connectivity_definition"/>
-         </explicit>
-         <derived name="requirement" expression="get_rvd(SELF, 'requirement')">
-            <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="Requirement_view_definition"/>
-         </derived>
-         <where label="WR1" expression="EXISTS (requirement)"/>
-      </entity>
-      <entity name="Physical_connectivity_element">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="start_terminus">
-            <typename name="termination_or_junction"/>
-         </explicit>
-         <explicit name="end_terminus">
-            <typename name="termination_or_junction"/>
-         </explicit>
-         <explicit name="connectivity_context">
-            <typename name="Physical_connectivity_structure_definition"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="name"/>
-            <unique.attribute attribute="connectivity_context"/>
-         </unique>
-         <where label="WR1" expression="start_terminus &lt;&gt; end_terminus"/>
-      </entity>
-      <entity name="Physical_connectivity_make_from_relationship">
-         <explicit name="reusable_definition">
-            <typename name="Physical_connectivity_definition"/>
-         </explicit>
-         <explicit name="resultant_definition">
-            <typename name="Physical_connectivity_definition"/>
-         </explicit>
-      </entity>
-      <entity name="Physical_connectivity_structure_definition" supertypes="Physical_connectivity_definition">
-         <inverse name="structural_element" entity="Physical_connectivity_element" attribute="connectivity_context">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
-         </inverse>
-      </entity>
-      <entity name="Physical_unit_network_definition" supertypes="Product_view_definition">
-         <derived name="terminals" expression="get_terminals(bag_to_set(USEDIN(SELF,'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_DEFINITION')))">
-            <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Component_terminal"/>
-         </derived>
-         <where label="WR1" expression="NOT ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF)) OR &#10;                ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_DESIGN_VIEW' IN TYPEOF(SELF))"/>
-         <where label="WR2" expression="NOT (SIZEOF(terminals) &gt; 1) OR&#10;           (SIZEOF(QUERY(t &lt;* terminals | NOT(SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + &#10;                          'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1))) = 0)"/>
-      </entity>
-      <entity name="Topological_junction">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="scope">
-            <typename name="Physical_connectivity_structure_definition"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="name"/>
-            <unique.attribute attribute="scope"/>
-         </unique>
-      </entity>
-      <function name="bag_to_set">
-         <parameter name="the_bag">
-            <aggregate type="BAG" lower="0" upper="?"/>
-            <builtintype type="GENERIC"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <builtintype type="GENERIC"/>
-         <algorithm>LOCAL
+<express language_version="2" rcs.date="2005-10-27T10:33:11" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_connectivity_definition_arm schema_instance"/>
+<schema name="Physical_connectivity_definition_arm">
+<interface kind="use" schema="Part_external_reference_arm"/>
+<interface kind="use" schema="Physical_component_feature_arm"/>
+<interface kind="use" schema="Requirement_decomposition_arm"/>
+<interface kind="reference" schema="Requirement_decomposition_arm">
+<interfaced.item name="get_rvd"/>
+</interface>
+<type name="pcd_documented_element_select">
+<select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Physical_connectivity_element Physical_connectivity_definition"/>
+</type>
+<type name="pcd_requirement_assignment_item">
+<select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Physical_connectivity_element Physical_connectivity_definition Physical_connectivity_definition_relationship"/>
+</type>
+<type name="termination_or_junction">
+<select extensible="YES" genericentity="YES" selectitems="Component_terminal Topological_junction"/>
+</type>
+<entity name="Physical_connectivity_definition" supertypes="Shape_element" super.expression="Physical_connectivity_structure_definition">
+<explicit name="associated_terminals">
+<aggregate type="SET" lower="2" upper="?"/>
+<typename name="Physical_component_terminal"/>
+</explicit>
+<derived name="associated_definition" expression="SELF\Shape_element.containing_shape.described_element">
+<typename name="Physical_unit_network_definition"/>
+</derived>
+<unique label="UR1">
+<unique.attribute entity-ref="Shape_element" attribute="element_name"/>
+<unique.attribute attribute="associated_definition"/>
+</unique>
+</entity>
+<entity name="Physical_connectivity_definition_relationship">
+<explicit name="previous_definition">
+<typename name="Physical_connectivity_definition"/>
+</explicit>
+<explicit name="current_definition">
+<typename name="Physical_connectivity_definition"/>
+</explicit>
+<derived name="requirement" expression="get_rvd(SELF, 'requirement')">
+<aggregate type="SET" lower="1" upper="1"/>
+<typename name="Requirement_view_definition"/>
+</derived>
+<where label="WR1" expression="EXISTS (requirement)"/>
+</entity>
+<entity name="Physical_connectivity_element">
+<explicit name="name">
+<builtintype type="STRING"/>
+</explicit>
+<explicit name="start_terminus">
+<typename name="termination_or_junction"/>
+</explicit>
+<explicit name="end_terminus">
+<typename name="termination_or_junction"/>
+</explicit>
+<explicit name="connectivity_context">
+<typename name="Physical_connectivity_structure_definition"/>
+</explicit>
+<unique label="UR1">
+<unique.attribute attribute="name"/>
+<unique.attribute attribute="connectivity_context"/>
+</unique>
+<where label="WR1" expression="start_terminus &lt;&gt; end_terminus"/>
+</entity>
+<entity name="Physical_connectivity_make_from_relationship">
+<explicit name="reusable_definition">
+<typename name="Physical_connectivity_definition"/>
+</explicit>
+<explicit name="resultant_definition">
+<typename name="Physical_connectivity_definition"/>
+</explicit>
+</entity>
+<entity name="Physical_connectivity_structure_definition" supertypes="Physical_connectivity_definition">
+<derived name="structural_terminal_nodes" expression="QUERY( sn &lt;* structural_element |&#10;       (('COMPONENT_FEATURE_ARM.COMPONENT_TERMINAL' IN TYPEOF(sn.start_terminus))&#10;       OR&#10;        ('COMPONENT_FEATURE_ARM.COMPONENT_TERMINAL' IN TYPEOF(sn.end_terminus)))&#10;           )">
+<typename name="Component_terminal"/>
+</derived>
+<derived name="structural_junction_nodes" expression="QUERY( sn &lt;* structural_element |&#10;       (('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.TOPOLOGICAL_JUNCTION' IN TYPEOF(sn.start_terminus))&#10;       OR&#10;        ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.TOPOLOGICAL_JUNCTION' IN TYPEOF(sn.end_terminus)))&#10;           )">
+<typename name="Component_terminal"/>
+</derived>
+<derived name="tree_structure" expression="((SIZEOF(structural_terminal_nodes) + SIZEOF(structural_junction_nodes)) = (SIZEOF(structural_element) + 1))">
+<builtintype type="BOOLEAN"/>
+</derived>
+<inverse name="structural_element" entity="Physical_connectivity_element" attribute="connectivity_context">
+<inverse.aggregate type="SET" lower="1" upper="?"/>
+</inverse>
+<where label="WR1" expression="structural_terminal_nodes = SELF\Physical_connectivity_definition.associated_terminals"/>
+</entity>
+<entity name="Physical_unit_network_definition" supertypes="Product_view_definition">
+<derived name="terminals" expression="get_terminals(bag_to_set(USEDIN(SELF,'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_DEFINITION')))">
+<aggregate type="SET" lower="0" upper="?"/>
+<typename name="Component_terminal"/>
+</derived>
+<where label="WR1" expression="NOT ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_VIEW_DEFINITION' IN TYPEOF(SELF)) OR &#10;                ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PART_DESIGN_VIEW' IN TYPEOF(SELF))"/>
+<where label="WR2" expression="NOT (SIZEOF(terminals) &gt; 1) OR&#10;           (SIZEOF(QUERY(t &lt;* terminals | NOT(SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + &#10;                          'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1))) = 0)"/>
+</entity>
+<entity name="Topological_junction">
+<explicit name="name">
+<builtintype type="STRING"/>
+</explicit>
+<explicit name="scope">
+<typename name="Physical_connectivity_structure_definition"/>
+</explicit>
+<unique label="UR1">
+<unique.attribute attribute="name"/>
+<unique.attribute attribute="scope"/>
+</unique>
+</entity>
+<function name="bag_to_set">
+<parameter name="the_bag">
+<aggregate type="BAG" lower="0" upper="?"/>
+<builtintype type="GENERIC"/>
+</parameter>
+<aggregate type="SET" lower="0" upper="?"/>
+<builtintype type="GENERIC"/>
+<algorithm>LOCAL
       the_set : SET OF GENERIC : intype := [];
       i       : INTEGER;
     END_LOCAL;
@@ -116,15 +126,15 @@
       END_REPEAT;
     END_IF;
     RETURN(the_set);</algorithm>
-      </function>
-      <function name="get_terminals">
-         <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Physical_connectivity_definition"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="Component_terminal"/>
-         <algorithm>LOCAL
+</function>
+<function name="get_terminals">
+<parameter name="input">
+<aggregate type="SET" lower="0" upper="?"/>
+<typename name="Physical_connectivity_definition"/>
+</parameter>
+<aggregate type="SET" lower="0" upper="?"/>
+<typename name="Component_terminal"/>
+<algorithm>LOCAL
    ct : SET OF Component_terminal := [];
     i : INTEGER := 0;
   END_LOCAL;
@@ -132,6 +142,6 @@
    ct := ct + input[i].associated_terminals;
   END_REPEAT;
   RETURN(ct);</algorithm>
-      </function>
-   </schema>
+</function>
+</schema>
 </express>

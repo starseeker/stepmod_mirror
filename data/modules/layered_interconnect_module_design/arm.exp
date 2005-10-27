@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.111 2005/10/21 20:50:12 thomasrthurman Exp $
+   $Id: arm.exp,v 1.112 2005/10/24 21:54:15 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -825,17 +825,20 @@ SCHEMA Layered_interconnect_module_design_arm;
       location_3d                   : OPTIONAL Cartesian_point;
       SELF\Shape_element.containing_shape RENAMED resident_design_layer_stratum : Design_layer_stratum;
     DERIVE
-      aggregate_join    : SET[1:?] OF join_relationship := make_aggregate_join(inter_join_path,
- intra_join_path,
- embedded_physical_component_path);
+      aggregate_join    : SET[1:?] OF join_relationship := 
+           make_aggregate_join(
+               inter_join_path,
+               intra_join_path,
+               embedded_physical_component_path,
+               unrouted_join_path);
       reference_network : Generic_physical_network := aggregate_join[1].network_topology;
     INVERSE
-      inter_join_path         : SET[0:1] OF inter_stratum_join_relationship FOR points_to_be_connected;
-      intra_join_path         : intra_stratum_join_relationship FOR points_to_be_connected;
-      embedded_physical_component_path : SET[0:?] OF stratum_embedded_physical_component_join_relationship FOR point_to_be_connected;
+      inter_join_path         : SET[0:1] OF Inter_stratum_join_relationship FOR points_to_be_connected;
+      intra_join_path         : SET [0:1] OF Intra_stratum_join_relationship FOR points_to_be_connected;
+      embedded_physical_component_path : SET[0:?] OF Stratum_embedded_physical_component_join_relationship FOR point_to_be_connected;
+      unrouted_join_path         : SET [0:1] OF Unrouted_join_relationship FOR unrouted_lcp;
     UNIQUE
-      UR1 : SELF\Shape_element.element_name,
- resident_design_layer_stratum;
+      UR1 : SELF\Shape_element.element_name, resident_design_layer_stratum;
     WHERE
       WR1 : EXISTS(location_2d) OR EXISTS(location_3d);
       WR2 : NOT (EXISTS(location_2d)) OR ((SIZEOF(location_2d\Cartesian_point.coordinates)) = 2);
@@ -1256,16 +1259,15 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   FUNCTION make_aggregate_join(
     input1 : SET OF Inter_stratum_join_relationship ;
-    input2 : Intra_stratum_join_relationship ;
-    input3 : SET OF Stratum_embedded_physical_component_join_relationship
-  ) : SET OF Join_relationship;
+    input2 : SET OF Intra_stratum_join_relationship ;
+    input3 : SET OF Stratum_embedded_physical_component_join_relationship;
+    input4 : SET OF Unrouted_join_relationship) : SET OF Join_relationship;
 
     LOCAL
       v1 : SET OF join_relationship := input1;
     END_LOCAL;
 
-    v1 := v1 + input2;
-    v1 := v1 + input3;
+    v1 := v1 + input2 + input3 + input4;
     RETURN(v1);
   END_FUNCTION;
 

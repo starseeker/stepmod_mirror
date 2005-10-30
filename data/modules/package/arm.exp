@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.47 2005/10/07 21:20:49 thomasrthurman Exp $
+   $Id: arm.exp,v 1.48 2005/10/12 08:52:23 liutkus Exp $
    ISO TC184/SC4/WG12 N3498 - ISO/CD-TS 10303-1707 Package - EXPRESS ARM
 *)
 
@@ -104,26 +104,17 @@ SCHEMA Package_arm;
       package_secondary_orientation_feature : SET[0:1] OF Secondary_orientation_feature FOR containing_shape;
       package_tertiary_orientation_feature  : SET[0:1] OF Tertiary_orientation_feature FOR containing_shape;
     WHERE
---tt following five rules no longer needed
---      WR1  : NOT (SIZEOF(package_primary_orientation_feature) > 0) OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(package_primary_orientation_feature[1]));
---      WR2  : NOT (SIZEOF(package_secondary_orientation_feature) > 0) OR ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(package_secondary_orientation_feature[1]));
---      WR3  : NOT (SIZEOF(package_tertiary_orientation_feature) > 0) OR ('PACKAGE_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(package_tertiary_orientation_feature[1]));
---      WR4  : 'PACKAGE_ARM.SEATING_PLANE' IN TYPEOF(package_seating_plane);
---      WR5  : 'PACKAGE_ARM.SEATING_PLANE' IN TYPEOF(interface_plane);
-      WR6  : NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)));
-      WR7  : NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\Value_with_unit.value_component > 0.0);
-      WR8  : NOT (EXISTS(least_lead_length_below_seating_plane)) OR (least_lead_length_below_seating_plane\Value_with_unit.value_component > 0.0);
-      WR9  : (NOT (mounting_technology = surface_mount) AND NOT (EXISTS(surface_mount_lead_form))) OR ((mounting_technology = surface_mount) AND (EXISTS(surface_mount_lead_form)));
-      WR10 : package_seating_plane\Shape_element.element_name = 'package seating plane';
---tt following rule unneeded
---    WR11 : NOT (SIZEOF(interface_plane) > 0) OR (SIZEOF(QUERY(ip <* interface_plane | NOT (ip\Shape_element.element_name = 'interface plane'))) = 0);
---tt following rule unneeded
---    WR12 : NOT (SIZEOF(interface_plane) > 0) OR (SIZEOF(QUERY(ip <* interface_plane | NOT (package_seating_plane <> ip))) = 0);
---rewrote following rule:
-      WR13: 'package' IN types_of_product(SELF\Product_view_definition.defined_version.of_product);
---    WR13 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,'PACKAGE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'package'))) > 0;
-      WR14 : SIZEOF(QUERY(pa <* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1;
-	  WR15: (EXISTS (surface_mount_lead_form)) XOR ((SIZEOF(external_surface_mount_lead_form)) = 1);      
+      WR1  : NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)));
+      WR2  : NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\Value_with_unit.value_component > 0.0);
+      WR3  : NOT (EXISTS(least_lead_length_below_seating_plane)) OR (least_lead_length_below_seating_plane\Value_with_unit.value_component > 0.0);
+      WR4  : (NOT (mounting_technology = surface_mount) AND NOT (EXISTS(surface_mount_lead_form))) OR ((mounting_technology = surface_mount) AND (EXISTS(surface_mount_lead_form)));
+      WR5  : package_seating_plane\Shape_element.element_name = 'package seating plane';
+      WR6  : 'package' IN types_of_product(SELF\Product_view_definition.defined_version.of_product);
+      WR7  : SIZEOF(QUERY(pa <* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1;
+	  WR8  : (EXISTS (surface_mount_lead_form)) XOR ((SIZEOF(external_surface_mount_lead_form)) = 1);
+	  WR9  : SIZEOF(QUERY(nt <* package_accesses |
+	                      EXISTS(nt\Part_feature.precedent_feature)
+	               )) = (SIZEOF(package_accesses) - 1);
   END_ENTITY;
 
   ENTITY Package_body

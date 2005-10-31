@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.15 2005/10/26 05:09:47 thomasrthurman Exp $
+   $Id: arm.exp,v 1.16 2005/10/28 22:15:29 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3666 - ISO/CD-TS 10303-1755 Physical connectivity definition - EXPRESS ARM
 *)
 
@@ -65,23 +65,17 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Physical_connectivity_structure_definition
     SUBTYPE OF (Physical_connectivity_definition);
     DERIVE
-      structural_terminal_nodes : Component_terminal := 
-      QUERY( sn <* structural_element |
-       (('COMPONENT_FEATURE_ARM.COMPONENT_TERMINAL' IN TYPEOF(sn.start_terminus))
-       OR
-        ('COMPONENT_FEATURE_ARM.COMPONENT_TERMINAL' IN TYPEOF(sn.end_terminus)))
-           );       
-      structural_junction_nodes : Topological_junction := 
-      QUERY( sn <* structural_element |
-       (('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.TOPOLOGICAL_JUNCTION' IN TYPEOF(sn.start_terminus))
-       OR
-        ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.TOPOLOGICAL_JUNCTION' IN TYPEOF(sn.end_terminus)))
-           );       
+      structural_terminal_nodes : SET OF Physical_component_terminal := get_pct(structural_element);
+      structural_junction_nodes : SET OF Topological_junction := get_tj(structural_element);
       tree_structure : BOOLEAN := ((SIZEOF(structural_terminal_nodes) + SIZEOF(structural_junction_nodes)) = (SIZEOF(structural_element) + 1));
     INVERSE
-      structural_element : SET[1:?] OF physical_connectivity_element FOR connectivity_context;
+      structural_element : SET[1:?] OF Physical_connectivity_element FOR connectivity_context;
     WHERE
-      WR1 : structural_terminal_nodes = SELF\Physical_connectivity_definition.associated_terminals;
+      WR1 : SIZEOF(QUERY(stn <* structural_terminal_nodes |
+                   NOT(stn IN SELF\Physical_connectivity_definition.associated_terminals)
+                   )) = 0;
+      WR2 : SIZEOF(structural_terminal_nodes) = 
+            SIZEOF(SELF\Physical_connectivity_definition.associated_terminals);
   END_ENTITY;
 
   ENTITY Physical_unit_network_definition
@@ -115,6 +109,40 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   RETURN(ct);
   END_FUNCTION;
   
+  FUNCTION get_pct(input : SET OF Physical_connectivity_element) : SET OF Physical_component_terminal;
+  LOCAL
+   pct : SET OF Physical_component_terminal := [];
+    i : INTEGER := 0;
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   IF ('PHYSICAL_COMPONENT_FEATURE_ARM.PHYSICAL_COMPONENT_TERMINAL' IN TYPEOF(input[i].start_terminus)) THEN
+   pct := pct + input[i].start_terminus;
+   END_IF;
+   IF ('PHYSICAL_COMPONENT_FEATURE_ARM.PHYSICAL_COMPONENT_TERMINAL' IN TYPEOF(input[i].end_terminus)) THEN
+   pct := pct + input[i].end_terminus;
+   END_IF;
+  END_REPEAT;
+  RETURN(pct);
+  END_FUNCTION;
+
+
+  FUNCTION get_tj(input : SET OF Physical_connectivity_element) : SET OF Topological_junction;
+  LOCAL
+   tj : SET OF Topological_junction := [];
+    i : INTEGER := 0;
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   IF ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.TOPOLOGICAL_JUNCTION' IN TYPEOF(input[i].start_terminus)) THEN
+   tj := tj + input[i].start_terminus;
+   END_IF;
+   IF ('PHYSICAL_CONNECTIVITY_DEFINITION_ARM.TOPOLOGICAL_JUNCTION' IN TYPEOF(input[i].end_terminus)) THEN
+   tj := tj + input[i].end_terminus;
+   END_IF;
+  END_REPEAT;
+  RETURN(tj);
+  END_FUNCTION;
+
+
   FUNCTION bag_to_set(
     the_bag : BAG OF GENERIC : intype
   ) : SET OF GENERIC : intype;

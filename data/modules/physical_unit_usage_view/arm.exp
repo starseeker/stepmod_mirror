@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.36 2005/10/07 12:32:55 liutkus Exp $
+   $Id: arm.exp,v 1.38 2005/10/24 22:05:09 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3579 - ISO/CD-TS 10303-1732 Physical unit usage view - EXPRESS ARM
 *)
 
@@ -56,6 +56,11 @@ SCHEMA Physical_unit_usage_view_arm;
       precedent_feature       : OPTIONAL Part_feature;
     DERIVE
       SELF\Shape_element.description : STRING := '';
+    INVERSE
+      subsequent_feature      : SET [0:1] OF Part_feature for precedent_feature;
+    WHERE
+      WR1 : NOT EXISTS(precedent_feature) OR
+                NOT( precedent_feature IN subsequent_feature);    
   END_ENTITY;
 
   ENTITY Part_feature_make_from_relationship

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.20 2005/09/27 07:07:33 kovaliovas Exp $
+   $Id: arm.exp,v 1.21 2005/09/27 09:47:22 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3561 - ISO/CD-TS 10303-1725 Physical unit 3d design view - EXPRESS ARM
 *)
 
@@ -36,5 +36,34 @@ SCHEMA Physical_unit_3d_design_view_arm;
 	DERIVE
 	  SELF\Representation_relationship.relation_type : STRING := '';
   END_ENTITY;
+
+  RULE unique_assembly_component_3d_shape FOR (Assembly_component_3d_shape);
+   LOCAL
+     ac : BAG OF Assembly_component := [];
+   END_LOCAL;
+   REPEAT i := 1 to SIZEOF(Assembly_component_3d_shape) by 1;
+     ac  := ac + Assembly_component_3d_shape[i].shape_characterized_component;
+   END_REPEAT;  
+  WHERE
+   WR1 : SIZEOF(ac) = SIZEOF(bag_to_set(ac));
+  END_RULE;
+
+  FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+  END_FUNCTION;
+
 
 END_SCHEMA;

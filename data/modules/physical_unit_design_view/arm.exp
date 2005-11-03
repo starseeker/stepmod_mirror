@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.34 2005/10/21 14:21:53 liutkus Exp $
+   $Id: arm.exp,v 1.35 2005/11/02 11:17:14 liutkus Exp $
    ISO TC184/SC4/WG12 N3567 - ISO/CD-TS 10303-1728 Physical unit design view - EXPRESS ARM
 *)
 
@@ -48,25 +48,19 @@ SCHEMA Physical_unit_design_view_arm;
     	SELF\Item_shape.described_element : shapeable_item := SELF;
     INVERSE
       SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF assembly_component_relationship FOR related_view;
-(** Need to encode it as Global rules TODO for Tom
-      component_2d_shape         : SET[0:1] OF assembly_component_2d_shape FOR shape_characterized_component;
-      component_3d_shape         : SET[0:1] OF assembly_component_3d_shape FOR shape_characterized_component;
-      component_non_planar_shape : SET[0:1] OF assembly_component_non_planar_shape FOR shape_characterized_component;
-*)      
     WHERE
       WR1 : NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from)) OR ((('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))));
       WR2 : SELF\Product_view_definition.defined_version :=: SELF\Definition_based_product_occurrence.derived_from.defined_version;
   END_ENTITY;
 
   ENTITY Assembly_item_number;
-      assembly_usage : SET[1:?] OF Assembly_component_relationship; --Part_occurrence_definition_relationship;
-      item_number    : STRING; --ee_name;
+      assembly_usage : SET[1:?] OF Assembly_component_relationship;
+      item_number    : STRING;
     DERIVE
       assembly : Product_view_definition := assembly_usage[1].related_view;
       part     : Product := assembly_usage[1].relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product;
     UNIQUE
-      UR1 : assembly,
- item_number;
+      UR1 : assembly, item_number;
     WHERE
       WR1 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0;
       WR2 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.related_view = assembly))) = 0;
@@ -99,7 +93,10 @@ SCHEMA Physical_unit_design_view_arm;
 
   ENTITY Next_assembly_usage_occurence_relationship
     SUBTYPE OF (Next_assembly_usage);
-    SELF\View_definition_relationship.relating_view : Product_occurrence;
+    SELF\View_definition_relationship.related_view : Product_occurrence;
+  UNIQUE
+    UR1 : SELF\View_definition_relationship.relating_view, 
+          SELF\Next_assembly_usage.location_indicator;
   END_ENTITY;
 
   ENTITY Part_design_view
@@ -118,6 +115,47 @@ SCHEMA Physical_unit_design_view_arm;
   ENTITY Thermal_component
     SUBTYPE OF (Assembly_component);
   END_ENTITY;
+
+  RULE unique_assembly_item_number FOR (Assembly_item_number);
+   LOCAL
+     acr : BAG OF Assembly_component_relationship := [];
+   END_LOCAL;
+   REPEAT i := 1 to SIZEOF(Assembly_item_number) by 1;
+     acr  := acr + Assembly_item_number[i].assembly_usage;
+   END_REPEAT;  
+  WHERE
+   WR1 : SIZEOF(acr) = SIZEOF(bag_to_set(acr));
+  END_RULE;
+
+  RULE unique_assembly_component_relationship FOR (Assembly_component_relationship);
+   LOCAL
+     gee : SET OF GENERIC_ENTITY := [];
+     gei : SET OF GENERIC_ENTITY := [];
+   END_LOCAL;
+   REPEAT i := 1 to SIZEOF(Assembly_component_relationship) by 1;
+     gee  := gee + Assembly_component_relationship[i]\View_definition_relationship.related_view;
+     gei  := gei + Assembly_component_relationship[i]\View_definition_relationship.relating_view;
+   END_REPEAT;  
+  WHERE
+   WR1 : SIZEOF(gee) = SIZEOF(gei);
+  END_RULE;
+
+  FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+  END_FUNCTION;
 
 END_SCHEMA;
 

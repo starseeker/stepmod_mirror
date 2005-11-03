@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.38 2005/10/24 22:05:09 thomasrthurman Exp $
+   $Id: arm.exp,v 1.39 2005/11/01 05:55:43 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3579 - ISO/CD-TS 10303-1732 Physical unit usage view - EXPRESS ARM
 *)
 
@@ -78,12 +78,6 @@ SCHEMA Physical_unit_usage_view_arm;
 
   ENTITY Part_feature_template_definition
     SUBTYPE OF (Feature_definition);
-(** Need a WR to capture cardinality    
-      of_model         : OPTIONAL Analytical_model_application;
-*)      
-(** Too complex to implement in the mapping - remove for now
-      bound_parameters : OPTIONAL SET[1:?] OF Independent_property_relationship; --model_parameter_relationship;
-*)      
     INVERSE
       shape : part_feature_template_shape_definition FOR shape_characterized_template;
   END_ENTITY;
@@ -99,22 +93,6 @@ SCHEMA Physical_unit_usage_view_arm;
  '') | NOT ('PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF(foo)))) = 0);
   END_ENTITY;
 
-(** Need to capture attributes by some assignments 
-  ENTITY Physical_unit
-    ABSTRACT SUPERTYPE OF (ONEOF (Part_design_view,
- Part_usage_view))
-    SUBTYPE OF (Part_view_definition);
-      analytical_physical_unit_representation    : OPTIONAL SET[1:?] OF Analytical_model_application;
-      unit_technology                            : OPTIONAL Technology;
-      physical_device_characteristic             : OPTIONAL SET[1:?] OF characteristic;
-      physical_device_coordinated_characteristic : OPTIONAL SET[1:?] OF coordinated_characteristic;
-    WHERE
-      WR1 : NOT (SIZEOF(USEDIN(SELF,
- 'PHYSICAL_UNIT_USAGE_VIEW_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW')) <> 0) OR (SIZEOF(['PHYSICAL_UNIT_USAGE_VIEW_ARM.part_design_view',
- 'PHYSICAL_UNIT_USAGE_VIEW_ARM.ASSEMBLY_MODULE_USAGE_VIEW',
- 'PHYSICAL_UNIT_USAGE_VIEW_ARM.CABLE_USAGE_VIEW'] * TYPEOF(SELF)) = 1);
-  END_ENTITY;
-*)
   ENTITY Part_usage_view
     SUBTYPE OF (Part_view_definition, Item_shape);
     DERIVE
@@ -132,6 +110,21 @@ SCHEMA Physical_unit_usage_view_arm;
     WHERE
       WR1 : associating_terminal_shape :<>: associated_connection_zone_shape_definition;
   END_ENTITY;
+
+  RULE unique_assembly_component_relationship FOR (Assembly_component_relationship);
+   LOCAL
+     gee : SET OF GENERIC_ENTITY := [];
+     gei : SET OF GENERIC_ENTITY := [];
+   END_LOCAL;
+   REPEAT i := 1 to SIZEOF(Assembly_component_relationship) by 1;
+     gee  := gee + Assembly_component_relationship[i]\View_definition_relationship.related_view;
+     gei  := gei + Assembly_component_relationship[i]\View_definition_relationship.relating_view;
+   END_REPEAT;  
+  WHERE
+   WR1 : SIZEOF(gee) = SIZEOF(gei);
+  END_RULE;
+
+
 
 END_SCHEMA;
 

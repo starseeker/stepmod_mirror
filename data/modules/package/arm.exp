@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.49 2005/10/30 22:54:18 thomasrthurman Exp $
+   $Id: arm.exp,v 1.50 2005/11/01 05:54:44 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3498 - ISO/CD-TS 10303-1707 Package - EXPRESS ARM
 *)
 
@@ -47,10 +47,22 @@ SCHEMA Package_arm;
      does_not_intersect);
   END_TYPE;
 
+ 	TYPE interface_plane_or_seating_plane =  SELECT
+		(Seating_plane,
+		 Interface_plane);
+	END_TYPE;
+ 
+  ENTITY Connection_zone_in_part_feature_template_definition
+  	SUBTYPE OF (Connection_zone);
+  	DERIVE
+  		associated_definition : Part_feature_template_definition := containing_shape.described_element;
+  		SELF\Shape_element.element_name : STRING := '';
+  END_ENTITY; 
+
   ENTITY Connection_zone_package_interface_plane_relationship;
-      interface_plane          : Seating_plane;
-      mating_zone              : Connection_zone_in_usage_view;
-      derived_zone             : Connection_zone_in_usage_view;
+      interface_plane          : interface_plane_or_seating_plane;
+      mating_zone              : Connection_zone_in_part_feature_template_definition;
+      derived_zone             : Connection_zone_in_part_feature_template_definition;
       derived_zone_shape_class : STRING;
     INVERSE
       associated_package_terminal  : SET[0:1] OF package_terminal_template_definition FOR seating_plane_zone;
@@ -182,8 +194,8 @@ INVERSE
 
   ENTITY Package_terminal_template_definition
     SUBTYPE OF (Part_feature_template_definition);
-      external_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
-      internal_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;
+      external_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_part_feature_template_definition;
+      internal_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_part_feature_template_definition;
       seating_plane_intersection              : seating_plane_intersection_type;
       terminal_characteristic                 : OPTIONAL SET[1:?] OF characteristic;
       minimum_terminal_diametrical_extent     : OPTIONAL Length_data_element;

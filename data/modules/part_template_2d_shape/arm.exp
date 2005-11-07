@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.42 2005/10/06 22:20:11 thomasrthurman Exp $
+   $Id: arm.exp,v 1.44 2005/10/24 22:01:08 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -53,13 +53,18 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       design_layer_type_reference : Design_layer_technology;
   END_ENTITY;
 
+  ENTITY Design_specific_padstack_definition
+    SUBTYPE OF (Padstack_definition);
+  END_ENTITY;
+
   ENTITY Footprint_definition
     SUBTYPE OF (Template_definition);
-      reference_breakout : OPTIONAL SET[1:?] OF Assembly_group_component;
+--      reference_breakout : OPTIONAL SET[1:?] OF Assembly_group_component;
+      breakout_traces    : OPTIONAL SET[1:?] OF stratum_feature_template;
+      breakout_vias      : OPTIONAL SET[1:?] OF padstack_definition;
       reference_package  : package_or_printed_part_template;
     DERIVE
       footprint_location                : padstack_arrangement := get_padstack_arrangement(padstack);
-      padstack_reference_implementation : reference_packaged_part_interconnect_implementation := padstack[1].padstack.reference_implementation;
     INVERSE
     	shape    : footprint_definition_shape FOR shape_characterized_footprint_definition;
       padstack : SET[1:?] OF padstack_location_in_footprint_definition FOR footprint;
@@ -101,10 +106,15 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
  'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
   END_ENTITY;
 
+  ENTITY Library_padstack_definition
+    SUBTYPE OF (Padstack_definition);
+  END_ENTITY;
+
   ENTITY Padstack_definition
-    SUPERTYPE OF (ONEOF (Design_layer_type_specific_padstack_definition, Stratum_type_independent_padstack_definition))  
+    SUPERTYPE OF ((ONEOF (Design_layer_type_specific_padstack_definition, Stratum_type_independent_padstack_definition))
+    ANDOR library_padstack_definition
+    ANDOR design_specific_padstack_definition)  
     SUBTYPE OF (Template_definition);
-      reference_implementation : Reference_packaged_part_interconnect_implementation;
       padstack_location        : padstack_arrangement;
     INVERSE
   		shape : padstack_definition_shape FOR shape_characterized_padstack_definition;
@@ -162,6 +172,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Part_template_location_in_padstack_definition;
       padstack              : Padstack_definition;
       template              : Template_definition;
+      technology            : Stratum_technology;
       reference_designation : STRING;
     INVERSE
       transform : SET[0:1] OF part_template_location_in_padstack_definition_transform FOR reference_location;
@@ -177,6 +188,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
              (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
                       'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
                       'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(template)) = 1));
+      -- WR2: stratum_technology is the stratum_technology reference by the part_template.
+      -- WR3: each stratum_technology can be used only once in a padstack_definition through a part_template_location_in_padstack_definition
   END_ENTITY;
 
   ENTITY Part_template_location_in_padstack_definition_transform

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-10-25T14:05:21" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-07T11:45:50" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_arm schema_instance"/>
 <schema name="Physical_unit_design_view_arm">
 <interface kind="use" schema="Physical_unit_usage_view_arm"/>
@@ -13,8 +13,14 @@
 <type name="physical_unit_or_part_template_or_fp_or_pd">
 <select extensible="YES" genericentity="YES" selectitems="Part_view_definition"/>
 </type>
+<type name="pudv_extended_value_with_unit">
+<select extensible="YES" genericentity="YES" basedon="extended_value_with_unit" selectitems="textual_quantity_specification"/>
+</type>
 <type name="pudv_requirement_assignment_item">
 <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Assembly_item_number Assembly_component_relationship"/>
+</type>
+<type name="textual_quantity_specification">
+<builtintype type="STRING"/>
 </type>
 <entity name="Assembly_alternate_product" supertypes="Alternate_product_relationship">
 <explicit name="basis_context">
@@ -97,7 +103,16 @@
 <redeclaration entity-ref="Shape_element"/>
 </derived>
 </entity>
-<entity name="Next_assembly_usage_occurence_relationship" supertypes="Next_assembly_usage"/>
+<entity name="Next_assembly_usage_occurence_relationship" supertypes="Next_assembly_usage">
+<explicit name="related_view">
+<typename name="Product_occurrence"/>
+<redeclaration entity-ref="View_definition_relationship"/>
+</explicit>
+<unique label="UR1">
+<unique.attribute entity-ref="View_definition_relationship" attribute="relating_view"/>
+<unique.attribute entity-ref="Assembly_component_relationship" attribute="location_indicator"/>
+</unique>
+</entity>
 <entity name="Part_design_view" supertypes="Item_shape Part_view_definition">
 <explicit name="usage_view" optional="YES">
 <typename name="Part_usage_view"/>
@@ -112,5 +127,44 @@
 <entity name="Thermal_component" supertypes="Assembly_component"/>
 <subtype.constraint name="pudv_part_view_definition_subtypes" entity="Part_view_definition" super.expression="ONEOF (Part_usage_view, Part_design_view)"/>
 <subtype.constraint name="pudv_connection_zone_subtypes" entity="Connection_zone" super.expression="ONEOF (Connection_zone_in_usage_view, Connection_zone_in_design_view)"/>
+<rule name="unique_assembly_component_relationship" appliesto="Assembly_component_relationship">
+<algorithm>LOCAL
+     gee : SET OF GENERIC_ENTITY := [];
+     gei : SET OF GENERIC_ENTITY := [];
+   END_LOCAL;
+   REPEAT i := 1 to SIZEOF(Assembly_component_relationship) by 1;
+     gee  := gee + Assembly_component_relationship[i]\View_definition_relationship.related_view;
+     gei  := gei + Assembly_component_relationship[i]\View_definition_relationship.relating_view;
+   END_REPEAT;</algorithm>
+<where label="WR1" expression="SIZEOF(gee) = SIZEOF(gei)"/>
+</rule>
+<rule name="unique_assembly_item_number" appliesto="Assembly_item_number">
+<algorithm>LOCAL
+     acr : BAG OF Assembly_component_relationship := [];
+   END_LOCAL;
+   REPEAT i := 1 to SIZEOF(Assembly_item_number) by 1;
+     acr  := acr + Assembly_item_number[i].assembly_usage;
+   END_REPEAT;</algorithm>
+<where label="WR1" expression="SIZEOF(acr) = SIZEOF(bag_to_set(acr))"/>
+</rule>
+<function name="bag_to_set">
+<parameter name="the_bag">
+<aggregate type="BAG" lower="0" upper="?"/>
+<builtintype type="GENERIC"/>
+</parameter>
+<aggregate type="SET" lower="0" upper="?"/>
+<builtintype type="GENERIC"/>
+<algorithm>LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);</algorithm>
+</function>
 </schema>
 </express>

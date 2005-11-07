@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-10-25T17:10:57" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-07T18:03:31" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
 <schema name="Layered_interconnect_module_design_arm">
 <interface kind="use" schema="Edge_shape_feature_arm"/>
@@ -293,7 +293,6 @@
 <aggregate type="SET" lower="1" upper="?"/>
 <typename name="Layer_connection_point"/>
 </explicit>
-<where label="WR1" expression="NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from))"/>
 </entity>
 <entity name="Connected_filled_area" supertypes="Conductive_filled_area">
 <explicit name="resident_stratum">
@@ -471,12 +470,6 @@
 <where label="WR1" expression="SIZEOF(library_definition) &lt;= 1"/>
 <where label="IP1"/>
 </entity>
-<entity name="Electrical_isolation_laminate_component" supertypes="Filled_area_material_removal_laminate_component">
-<explicit name="derived_from">
-<typename name="Electrical_isolation_removal_template"/>
-<redeclaration entity-ref="Definition_based_product_occurrence"/>
-</explicit>
-</entity>
 <entity name="Embedded_physical_component_terminal" supertypes="Laminate_component_join_terminal">
 <explicit name="definition">
 <typename name="bare_die_terminal_or_packaged_part_terminal"/>
@@ -493,9 +486,6 @@
 </entity>
 <entity name="Fiducial" supertypes="Laminate_component"/>
 <entity name="Fiducial_stratum_feature" supertypes="Stratum_feature"/>
-<entity name="Filled_area_material_removal_laminate_component" supertypes="Material_removal_laminate_component" super.expression="ONEOF (Electrical_isolation_laminate_component, Thermal_isolation_laminate_component)">
-<where label="WR1" expression="NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR' IN TYPEOF(SELF\Material_removal_laminate_component.design_intent))"/>
-</entity>
 <entity name="Footprint_occurrence" supertypes="Assembly_group_component">
 <explicit name="derived_from">
 <typename name="Footprint_definition"/>
@@ -611,7 +601,7 @@
 <typename name="Interconnect_module"/>
 </explicit>
 </entity>
-<entity name="Interconnect_module" supertypes="Assembly_definition Part_design_view" super.expression="ONEOF (Pcb, Reference_packaged_part_interconnect_implementation)">
+<entity name="Interconnect_module" supertypes="Assembly_definition Part_design_view" super.expression="Pcb">
 <inverse name="of_fabrication_thickness_requirement" entity="Requirement_assignment" attribute="assigned_to">
 <inverse.aggregate type="SET" lower="0" upper="?"/>
 </inverse>
@@ -654,7 +644,7 @@
 <unique.attribute attribute="reference_designation"/>
 </unique>
 </entity>
-<entity name="Interface_access_material_removal_laminate_component" supertypes="Material_removal_laminate_component">
+<entity name="Interface_access_material_removal_feature" supertypes="Material_removal_feature">
 <explicit name="accessed_interface">
 <typename name="Laminate_component_interface_terminal"/>
 </explicit>
@@ -710,7 +700,7 @@
 <typename name="Physical_connectivity_definition"/>
 </explicit>
 </entity>
-<entity name="Laminate_component" supertypes="Assembly_component" super.expression="ONEOF (Conductive_interconnect_element, Material_removal_laminate_component, Stratum_feature_template_component, Probe_access_area, Inter_stratum_feature, Special_symbol_laminate_component, Laminate_text_component, Laminate_text_string_component) ANDOR Fiducial">
+<entity name="Laminate_component" supertypes="Assembly_component" super.expression="ONEOF (Conductive_interconnect_element, Stratum_feature_template_component, Probe_access_area, Inter_stratum_feature, Special_symbol_laminate_component, Laminate_text_component, Laminate_text_string_component) ANDOR Fiducial">
 <explicit name="derived_from">
 <typename name="Template_definition"/>
 <redeclaration entity-ref="Definition_based_product_occurrence"/>
@@ -803,7 +793,7 @@
 <typename name="Design_layer_stratum"/>
 <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
 </explicit>
-<derived name="aggregate_join" expression="make_aggregate_join(inter_join_path,&#10; intra_join_path,&#10; embedded_physical_component_path)">
+<derived name="aggregate_join" expression="make_aggregate_join(&#10;               inter_join_path,&#10;               intra_join_path,&#10;               embedded_physical_component_path,&#10;               unrouted_join_path)">
 <aggregate type="SET" lower="1" upper="?"/>
 <typename name="Join_relationship"/>
 </derived>
@@ -813,9 +803,14 @@
 <inverse name="inter_join_path" entity="Inter_stratum_join_relationship" attribute="points_to_be_connected">
 <inverse.aggregate type="SET" lower="0" upper="1"/>
 </inverse>
-<inverse name="intra_join_path" entity="Intra_stratum_join_relationship" attribute="points_to_be_connected"/>
+<inverse name="intra_join_path" entity="Intra_stratum_join_relationship" attribute="points_to_be_connected">
+<inverse.aggregate type="SET" lower="0" upper="1"/>
+</inverse>
 <inverse name="embedded_physical_component_path" entity="Stratum_embedded_physical_component_join_relationship" attribute="point_to_be_connected">
 <inverse.aggregate type="SET" lower="0" upper="?"/>
+</inverse>
+<inverse name="unrouted_join_path" entity="Unrouted_join_relationship" attribute="unrouted_lcp">
+<inverse.aggregate type="SET" lower="0" upper="1"/>
 </inverse>
 <unique label="UR1">
 <unique.attribute entity-ref="Shape_element" attribute="element_name"/>
@@ -856,16 +851,7 @@
 <redeclaration entity-ref="View_definition_relationship"/>
 </derived>
 </entity>
-<entity name="Material_removal_laminate_component" supertypes="Laminate_component" super.expression="Filled_area_material_removal_laminate_component">
-<explicit name="derived_from">
-<typename name="Material_removal_feature_template"/>
-<redeclaration entity-ref="Definition_based_product_occurrence"/>
-</explicit>
-<explicit name="design_intent">
-<typename name="stratum_feature_or_stratum_feature_template_component"/>
-</explicit>
-</entity>
-<entity name="Multi_layer_material_removal_laminate_component" supertypes="Material_removal_laminate_component">
+<entity name="Multi_layer_material_removal_feature" supertypes="Material_removal_feature">
 <explicit name="derived_layer_geometry">
 <typename name="Laminate_layer_stack"/>
 </explicit>
@@ -1146,12 +1132,6 @@
 <unique.attribute attribute="of_stratum"/>
 </unique>
 </entity>
-<entity name="Thermal_isolation_laminate_component" supertypes="Filled_area_material_removal_laminate_component">
-<explicit name="derived_from">
-<typename name="Thermal_isolation_removal_template"/>
-<redeclaration entity-ref="Definition_based_product_occurrence"/>
-</explicit>
-</entity>
 <entity name="Unplated_cutout_edge_segment" supertypes="Cutout_edge_segment">
 <explicit name="composed_cutout">
 <typename name="Partially_plated_cutout"/>
@@ -1326,11 +1306,16 @@
 <typename name="Inter_stratum_join_relationship"/>
 </parameter>
 <parameter name="input2">
+<aggregate type="SET" lower="0" upper="?"/>
 <typename name="Intra_stratum_join_relationship"/>
 </parameter>
 <parameter name="input3">
 <aggregate type="SET" lower="0" upper="?"/>
 <typename name="Stratum_embedded_physical_component_join_relationship"/>
+</parameter>
+<parameter name="input4">
+<aggregate type="SET" lower="0" upper="?"/>
+<typename name="Unrouted_join_relationship"/>
 </parameter>
 <aggregate type="SET" lower="0" upper="?"/>
 <typename name="Join_relationship"/>
@@ -1338,8 +1323,7 @@
       v1 : SET OF join_relationship := input1;
     END_LOCAL;
 
-    v1 := v1 + input2;
-    v1 := v1 + input3;
+    v1 := v1 + input2 + input3 + input4;
     RETURN(v1);</algorithm>
 </function>
 </schema>

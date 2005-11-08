@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.119 2005/11/07 14:06:18 liutkus Exp $
+   $Id: arm.exp,v 1.120 2005/11/08 12:22:22 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -64,7 +64,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 	END_SUBTYPE_CONSTRAINT; 
 
 	SUBTYPE_CONSTRAINT template_definition_subtypes FOR Template_definition; 
-	    (ONEOF (Footprint_definition,
+	    (ONEOF (Generic_footprint_definition,
 	    Padstack_definition,
 	    Inter_stratum_feature_template,
 		 Material_removal_feature_template,
@@ -528,7 +528,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Footprint_occurrence
     SUBTYPE OF (Assembly_group_component);
-      SELF\Definition_based_product_occurrence.derived_from : Footprint_definition;
+      SELF\Definition_based_product_occurrence.derived_from : Generic_footprint_definition;
     WHERE
       WR1 : SIZEOF(USEDIN(SELF,
  'PHYSICAL_UNIT_DESIGN_VIEW_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT')) <= 1;
@@ -547,7 +547,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 	SUBTYPE OF (Next_assembly_usage_occurence_relationship);  
       SELF\View_definition_relationship.relating_view                 : Footprint_occurrence;	
       SELF\View_definition_relationship.related_view                  : Laminate_component;
-      sub_assembly_reference_designation : Part_template_location_in_padstack_definition;
+      sub_assembly_reference_designation : Part_template_location_in_fd_or_pd;
       terminal_location                  : Padstack_location_in_footprint_definition;
     UNIQUE
       UR1 : sub_assembly_reference_designation,
@@ -881,7 +881,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 	SUBTYPE OF (Next_assembly_usage_occurence_relationship);  
       SELF\View_definition_relationship.relating_view                 : Padstack_occurrence;	
       SELF\View_definition_relationship.related_view                  : Laminate_component;
-      sub_assembly_reference_designation : Part_template_location_in_padstack_definition;
+      sub_assembly_reference_designation : Part_template_location_in_fd_or_pd;
     UNIQUE
       UR1 : sub_assembly_reference_designation,
  relating_view, --relating_component,
@@ -1102,13 +1102,13 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Stratum_specific_part_template_location_in_padstack_definition
-    SUBTYPE OF (Part_template_location_in_padstack_definition);
+    SUBTYPE OF (Part_template_location_in_fd_or_pd);
       bound_stratum : Stratum;
     WHERE
       WR1 : SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_ADDITION_FEATURE_TEMPLATE',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * 
- TYPEOF(SELF\Part_template_location_in_padstack_definition.template)) = 1;
+ TYPEOF(SELF\Part_template_location_in_fd_or_pd.template)) = 1;
   END_ENTITY;
 
   ENTITY Stratum_surface;

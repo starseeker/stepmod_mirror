@@ -1,4 +1,6 @@
-(* Genenerated from: 10303-108.exp *)
+(* THIS IS DOCUMENT ISO TC184/SC4/WG12 N2671, CONTAINING EXPRESS FOR *)
+(* ISO 10303-108, 'PARAMETERIZATION AND CONSTRAINTS FOR EXPLICIT     *)
+(* GEOMETRIC PRODUCT MODELS'                                         *)
 
 SCHEMA explicit_constraint_schema;
 
@@ -12,10 +14,12 @@ REFERENCE FROM representation_schema               -- ISO 10303-43
 
 REFERENCE FROM mathematical_functions_schema       -- ISO 10303-50
   (compatible_spaces,
+   maths_variable,
    values_space_of);
 
 REFERENCE FROM parameterization_schema             -- ISO 10303-108
   (bound_model_parameter,
+   model_parameter,
    unbound_model_parameter);
 
 REFERENCE FROM variational_representation_schema   -- ISO 10303-108
@@ -24,7 +28,9 @@ REFERENCE FROM variational_representation_schema   -- ISO 10303-108
 REFERENCE FROM ISO13584_generic_expressions_schema -- ISO 13584-20
   (used_variables);
 
-REFERENCE FROM ISO13584_expressions_schema;        -- ISO 13584-20
+REFERENCE FROM ISO13584_expressions_schema         -- ISO 13584-20
+  (boolean_expression,
+   expression);
 
 TYPE constraint_group_member = SELECT
   (explicit_constraint,
@@ -90,13 +96,14 @@ WHERE
   WR1: 'ISO13584_EXPRESSIONS_SCHEMA.BOOLEAN_EXPRESSION' IN TYPEOF
     (SELF\free_form_constraint.constraining_expression); 
   WR2: SIZEOF(QUERY(q <* (SELF\free_form_constraint.constrained_elements + 
-    SELF\free_form_constraint.reference_elements) | NOT (q IN used_variables
+    SELF\free_form_constraint.reference_elements) | 
+    NOT (q IN used_variables
     (SELF\free_form_constraint.constraining_expression)))) = 0; 
 END_ENTITY; 
 
 ENTITY simultaneous_constraint_group
   SUBTYPE OF (variational_representation_item);
-  constraint_group : SET[1:?] OF constraint_group_member;
+  constraint_group : SET[2:?] OF constraint_group_member;
 WHERE
   WR1: SIZEOF(QUERY(q <* using_representations(SELF) |
     SIZEOF(QUERY(r <* q.items | 

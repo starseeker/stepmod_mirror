@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.17 2005/04/28 17:01:31 liutkus Exp $
+   $Id: mim.exp,v 1.18 2005/09/20 10:52:27 liutkus Exp $
    ISO TC184/SC4/WG12 N3313 - ISO/CD-TS 10303-1649 Assembly technology - EXPRESS MIM
 *)
 SCHEMA Assembly_technology_mim;
@@ -14,8 +14,7 @@ REFERENCE FROM product_property_definition_schema -- ISO 10303-41
   (acyclic_shape_aspect_relationship);
 
 SUBTYPE_CONSTRAINT assembly_module_subtypes FOR physical_unit; 
-	(ONEOF (assembly_definition,
-	 reference_packaged_part_assembly_implementation));
+	(assembly_definition);
 END_SUBTYPE_CONSTRAINT;
 
 TYPE at_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
@@ -192,40 +191,6 @@ WHERE
        'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
        sar.relating_shape_aspect\shape_aspect.description = 'connection zone')) = 2;
 
-END_ENTITY;
-
-ENTITY reference_packaged_part_assembly_implementation
- SUBTYPE OF (physical_unit);
-WHERE
-  WR1: (SIZEOF (QUERY (prpc <* 
-       USEDIN (SELF.formation.of_product,
-       'ASSEMBLY_TECHNOLOGY_MIM.' +
-       'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |
-       prpc\product_category.name = 'template model')) >= 1) AND
-       (SELF\product_definition.name = 'assembly module');
-  WR2: (NOT (SELF.frame_of_reference.name = 'physical design')) OR
-       (SIZEOF (QUERY (du <* QUERY (pdr <* USEDIN (SELF,
-       'ASSEMBLY_TECHNOLOGY_MIM.' +
-       'PRODUCT_DEFINITION_RELATIONSHIP.' +
-       'RELATED_PRODUCT_DEFINITION') |
-       pdr\product_definition_relationship.name = 'design usage') |
-       (SIZEOF (['ASSEMBLY_TECHNOLOGY_MIM.' +
-       'ASSEMBLY_DEFINITION', 
-       'ASSEMBLY_TECHNOLOGY_MIM.' +
-       'EXTERNALLY_DEFINED_ASSEMBLY_DEFINITION', 
-       'ASSEMBLY_TECHNOLOGY_MIM.' +
-       'LIBRARY_DEFINED_ASSEMBLY_DEFINITION'] *
-       TYPEOF (du.relating_product_definition)) = 1) AND
-       (du.relating_product_definition.frame_of_reference.name = 
-       'physical design usage') AND
-       (du.relating_product_definition\product_definition.name =
-       'assembly module') AND
-       (SIZEOF (QUERY (prpc <*
-       USEDIN (du.relating_product_definition.formation.of_product,
-       'ASSEMBLY_TECHNOLOGY_MIM.' +
-       'PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |
-       prpc\product_category.name = 'template model')) >= 1)
-       )) = 1);
 END_ENTITY;
 
 END_SCHEMA;

@@ -2,11 +2,14 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-03T18:17:20" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-08T17:05:52" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="package_arm schema_instance"/>
 <schema name="Package_arm">
 <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
 <interface kind="use" schema="Part_feature_function_arm"/>
+<type name="interface_plane_or_seating_plane">
+<select selectitems="Seating_plane Interface_plane"/>
+</type>
 <type name="mounting_technology_type">
 <enumeration items="surface_mount through_hole"/>
 </type>
@@ -25,15 +28,24 @@
 <type name="seating_plane_intersection_type">
 <enumeration items="surface_intersection through_intersection does_not_intersect"/>
 </type>
+<entity name="Connection_zone_in_part_feature_template_definition" supertypes="Connection_zone">
+<derived name="associated_definition" expression="containing_shape.described_element">
+<typename name="Part_feature_template_definition"/>
+</derived>
+<derived name="element_name" expression="''">
+<builtintype type="STRING"/>
+<redeclaration entity-ref="Shape_element"/>
+</derived>
+</entity>
 <entity name="Connection_zone_package_interface_plane_relationship">
 <explicit name="interface_plane">
-<typename name="Seating_plane"/>
+<typename name="interface_plane_or_seating_plane"/>
 </explicit>
 <explicit name="mating_zone">
-<typename name="Connection_zone_in_usage_view"/>
+<typename name="Connection_zone_in_part_feature_template_definition"/>
 </explicit>
 <explicit name="derived_zone">
-<typename name="Connection_zone_in_usage_view"/>
+<typename name="Connection_zone_in_part_feature_template_definition"/>
 </explicit>
 <explicit name="derived_zone_shape_class">
 <builtintype type="STRING"/>
@@ -206,11 +218,11 @@
 <entity name="Package_terminal_template_definition" supertypes="Part_feature_template_definition">
 <explicit name="external_connection_zone" optional="YES">
 <aggregate type="SET" lower="1" upper="?"/>
-<typename name="Connection_zone_in_usage_view"/>
+<typename name="Connection_zone_in_part_feature_template_definition"/>
 </explicit>
 <explicit name="internal_connection_zone" optional="YES">
 <aggregate type="SET" lower="1" upper="?"/>
-<typename name="Connection_zone_in_usage_view"/>
+<typename name="Connection_zone_in_part_feature_template_definition"/>
 </explicit>
 <explicit name="seating_plane_intersection">
 <typename name="seating_plane_intersection_type"/>
@@ -268,7 +280,7 @@
 <entity name="Wire_terminal_template_definition" supertypes="Package_terminal_template_definition">
 <explicit name="internal_connection_zone">
 <aggregate type="SET" lower="1" upper="?"/>
-<typename name="Connection_zone_in_usage_view"/>
+<typename name="Connection_zone_in_part_feature_template_definition"/>
 <redeclaration entity-ref="Package_terminal_template_definition"/>
 </explicit>
 <explicit name="maximum_wire_terminal_length">

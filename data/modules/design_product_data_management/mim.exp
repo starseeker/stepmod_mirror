@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.2 2005/11/08 10:45:42 thomasrthurman Exp $
+   $Id: mim.exp,v 1.3 2005/11/08 10:47:20 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3349 - ISO/CD-TS 10303-1628 Ap210 product data management - EXPRESS MIM
 *)
 
@@ -464,7 +464,7 @@ REPEAT i := 1 to SIZEOF(id_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     cd_bag := USEDIN( ci_bag[j], 
-'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
 + 'CONFIGURATION_DESIGN.CONFIGURATION');
     REPEAT k := 1 to SIZEOF(cd_bag) by 1;
       IF EXISTS( cd_bag[k].design ) THEN
@@ -486,18 +486,18 @@ RULE ee_product_constraint FOR ( product );
 WHERE
   WR1: SIZEOF(QUERY(prod <* product |
        NOT ((SIZEOF(QUERY(aoa <* USEDIN(prod,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')
        | (aoa.role\organization_role.name = 'design owner')
        )) = 1) OR 
        (SIZEOF(QUERY(apaoa <* USEDIN(prod,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS')
        | (apaoa.role\person_and_organization_role.name = 'design owner')
        )) = 1)))) = 0;
   WR2: SIZEOF(QUERY(p <* product |
               SIZEOF(USEDIN(p,
-              'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+              'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
               + 'PRODUCT_DEFINITION_FORMATION.OF_PRODUCT')) = 0)) = 0;
 END_RULE;
 
@@ -507,18 +507,18 @@ WHERE
   WR1: SIZEOF(QUERY(pdwad <* product_definition_with_associated_documents |
        NOT(
        (SIZEOF(QUERY(adata <* USEDIN(pdwad,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS')
        | (adata.role\date_time_role.name = 'creation date')
        )) = 1)))) = 0;
   WR2: SIZEOF(QUERY(pdwad <* product_definition_with_associated_documents |
        NOT ((SIZEOF(QUERY(aoa <* USEDIN(pdwad,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS')
        | (aoa.role\organization_role.name = 'creator')
        )) = 1) OR 
        (SIZEOF(QUERY(apaoa <* USEDIN(pdwad,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS')
        | (apaoa.role\person_and_organization_role.name = 'creator')
        )) = 1))
@@ -526,7 +526,7 @@ WHERE
   WR3: SIZEOF(QUERY(pdwad <* product_definition_with_associated_documents |
        NOT(
        (SIZEOF(USEDIN(pdwad,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')
        ) = 1)
        )
@@ -534,7 +534,7 @@ WHERE
   WR4: SIZEOF(QUERY(pdwad <* product_definition_with_associated_documents |
        NOT(
        (SIZEOF(USEDIN(pdwad,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')
        ) = 1)
        )
@@ -594,9 +594,9 @@ REPEAT i := 1 to SIZEOF(id_bag) by 1;
     IF ( NOT pass ) THEN ESCAPE;
     END_IF;
     aoa_bag := QUERY( aoa <* USEDIN( p_bag[j], 
-'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
 + 'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') | 
-(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+(('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
 'ORGANIZATION' IN TYPEOF(aoa.assigned_organization)) AND 
 (aoa.role\organization_role.name = 'design owner')) );
     REPEAT k := 1 to SIZEOF(aoa_bag) by 1;
@@ -610,9 +610,9 @@ REPEAT i := 1 to SIZEOF(id_bag) by 1;
       END_IF;
     END_REPEAT;
     apaoa_bag := QUERY( apaoa <* USEDIN( p_bag[j], 
-'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
 + 'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') | 
-(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+(('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
 'PERSON_AND_ORGANIZATION' IN 
 TYPEOF(apaoa.assigned_person_and_organization)) 
 AND (apaoa.role\person_and_organization_role.name = 'design owner')) );
@@ -648,12 +648,12 @@ RULE next_higher_assembly_relationship_constraint FOR
 WHERE
   WR1: SIZEOF(QUERY(nauo <* next_assembly_usage_occurrence|
        NOT(SIZEOF(QUERY(pd <* USEDIN(nauo,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'PROPERTY_DEFINITION.DEFINITION') |
        ((SIZEOF(QUERY(pdr <* USEDIN(pd,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-        ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+        ('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'COMPONENT_LOCATION' IN TYPEOF(pdr.used_representation))
        AND 
        (pdr.used_representation.context_of_items\geometric_representation_context.
@@ -661,9 +661,9 @@ WHERE
        )) <= 1)
        AND
        (SIZEOF(QUERY(pdr <* USEDIN(pd,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
-        ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+        ('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'COMPONENT_LOCATION' IN TYPEOF(pdr.used_representation))
        AND 
        (pdr.used_representation.context_of_items\geometric_representation_context.
@@ -699,13 +699,13 @@ END_RULE;
 RULE planned_effectivity_constraint FOR ( configuration_effectivity );
 WHERE
   WR1: SIZEOF(QUERY(ce <* configuration_effectivity |
-       NOT(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       NOT(('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF(ce.usage))
        AND (ce.usage\product_definition_relationship.name = 'assembly composition'))
        )) = 0;
   WR2: SIZEOF(QUERY(ce <* configuration_effectivity |
        SIZEOF(USEDIN(ce,
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.'
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.'
        + 'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 0 
        )) = 0;
 
@@ -736,7 +736,7 @@ REPEAT i := 1 to SIZEOF(ci_bag) by 1;
   ce_bag := QUERY( r <* configuration_effectivity |
 ((r.configuration.configuration :=: ci_bag[i]) AND 
                               (r.usage\product_definition_relationship.name = 'assembly composition')
-AND ('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+AND ('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
 'ASSEMBLY_COMPONENT_USAGE' IN TYPEOF(r.usage)) ) );
   acu_bag := [];
   REPEAT j := 1 to SIZEOF(ce_bag) by 1;
@@ -769,7 +769,7 @@ RULE product_definition_formation_requires_person_organization FOR
   applied_organization_assignment);
 WHERE
   WR1: SIZEOF (QUERY (pd <* product_definition|
-       (NOT('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       (NOT('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
        'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN TYPEOF(pd))) AND
        (NOT ((SIZEOF (QUERY (apaoa <*
        applied_person_and_organization_assignment |
@@ -848,9 +848,9 @@ RULE subtype_exclusive_action_request_assignment FOR
 WHERE
   WR1: SIZEOF (QUERY (ara <* action_request_assignment |
        NOT (SIZEOF ([
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
        'CHANGE_REQUEST',
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
        'START_REQUEST']
        * TYPEOF(ara)) <= 1))) = 0;
 END_RULE;
@@ -860,9 +860,9 @@ RULE subtype_exclusive_property_definition_representation FOR
 WHERE
   WR1: SIZEOF (QUERY (pdr <* property_definition_representation |
        NOT (SIZEOF ([
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
        'SHAPE_DEFINITION_REPRESENTATION',   
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
        'MATERIAL_PROPERTY_REPRESENTATION']
        * TYPEOF(pdr)) <= 1))) = 0;
 END_RULE;
@@ -871,9 +871,9 @@ RULE subtype_mandatory_address FOR (address);
 WHERE
   WR1: SIZEOF (QUERY (add <* address |
        NOT (SIZEOF ([
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
        'PERSONAL_ADDRESS',
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
        'ORGANIZATIONAL_ADDRESS'] * 
        TYPEOF (add)) = 1))) = 0;
 END_RULE;
@@ -882,7 +882,7 @@ RULE subtype_mandatory_date FOR (date);
 WHERE
   WR1: SIZEOF (QUERY (d <* date |
        NOT (
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
        'CALENDAR_DATE'
        IN TYPEOF (d)))) = 0;
 END_RULE;
@@ -892,9 +892,9 @@ RULE subtype_mandatory_product_definition_usage FOR
 WHERE
   WR1: SIZEOF (QUERY (pdu <* product_definition_usage |
        NOT (SIZEOF([
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
        'ASSEMBLY_COMPONENT_USAGE',
-       'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+       'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
        'MAKE_FROM_USAGE_OPTION'] * 
        TYPEOF(pdu)) = 1))) = 0;
 END_RULE;
@@ -948,11 +948,11 @@ LOCAL
   r : BAG OF versioned_action_request := 
 QUERY( r <* versioned_action_request | 
 (SIZEOF(QUERY( ara <* USEDIN(r,
-'AP210_PRODUCT_DATA_MANAGEMENT_MIM.' +
+'DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' +
 'ACTION_REQUEST_ASSIGNMENT.ASSIGNED_ACTION_REQUEST' ) |
-((('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
+((('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' + 
 'CHANGE_REQUEST') IN TYPEOF(ara)) OR
-(('AP210_PRODUCT_DATA_MANAGEMENT_MIM.' + 
+(('DESIGN_PRODUCT_DATA_MANAGEMENT_MIM.' + 
 'START_REQUEST') IN TYPEOF(ara))))) > 0 ) );
   pass : BOOLEAN := TRUE;
   id_bag : BAG OF STRING := [];

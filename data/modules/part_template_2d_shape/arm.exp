@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.46 2005/11/07 16:31:36 thomasrthurman Exp $
+   $Id: arm.exp,v 1.47 2005/11/08 10:10:33 liutkus Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -64,7 +64,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Template_definition);
       reference_package  : footprint_definition_or_package_or_printed_part_template;
     DERIVE
-      footprint_location                : padstack_arrangement := get_padstack_arrangement(padstack);
+      footprint_location : padstack_arrangement := get_padstack_arrangement(padstack);
     INVERSE
       shape    : footprint_definition_shape FOR shape_characterized_footprint_definition;
       padstack : SET[1:?] OF padstack_location_in_footprint_definition FOR footprint;
@@ -91,14 +91,12 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       WR2: SIZEOF(QUERY(ps <* padstack | NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DEFAULT_VIA_DEFINITION' * TYPEOF(ps.padstack\Passage_padstack_definition.technology_reference)))) = 0;    
   END_ENTITY;
 
-  ENTITY Part_template_location_in_footprint_definition;
+  ENTITY Part_template_location_in_footprint_definition
+  	ABSTRACT SUPERTYPE;
       footprint  : Footprint_definition;
       template   : Template_definition;
-      technology : Stratum_technology;
     INVERSE
       transform : part_template_location_in_footprint_definition_transform FOR reference_location;
-    UNIQUE
-      UR1: footprint, reference_package_terminal;
     WHERE
     -- GL - do we need those WRs?
       WR1 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PART_FEATURE' IN TYPEOF(reference_package_terminal)) OR 
@@ -107,11 +105,31 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
                 (reference_package_terminal.associated_definition :=: footprint.reference_package);
       WR3 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_CONNECTOR_TEMPLATE' IN TYPEOF(footprint.reference_package)) OR 
                 ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE_INTERFACE_TERMINAL' IN TYPEOF(reference_package_terminal));
-      WR4: footprint.reference_package :=: reference_package_terminal.associated_definition;                
+  END_ENTITY;
+
+  ENTITY Stratum_specific_part_template_location_in_footprint_definition
+  	SUBTYPE OF (Part_template_location_in_footprint_definition);
+      technology : OPTIONAL Stratum_technology;
+      bound_stratum : OPTIONAL Stratum;
+    WHERE
+      WR1: EXISTS(technology) XOR EXISTS(bound_stratum);
+    -- WR2: constrain template to be stratum_feature_template or
+    --      material_removal_feature_template
+
+    -- if this is approved, we need to model same for
+    -- stratum_specific_part_template_location_int_padstack_definition
+  END_ENTITY;
+
+  ENTITY Inter_stratum_feature_template_location_in_footprint_definition
+  	SUBTYPE OF (Part_template_location_in_footprint_definition);
+      SELF\Part_template_location_in_padstack_definition.template : Inter_stratum_feature_template;
+    -- WR1: maybe we do not want template to be  Inter_stratum_feature_edge_segment_template, or
+    --      Inter_stratum_feature_edge_template
+    -- WR2: this can only be used for design specific footprint
   END_ENTITY;
 
   ENTITY Stratum_feature_template_location_in_breakout_footprint_definition
-    SUBTYPE OF (Part_template_location_in_footprint_definition);
+    SUBTYPE OF (Stratum_technology_specific_template_location_in_footprint_definition);
       SELF\Part_template_location_in_footprint_definition.footprint : Breakout_footprint_definition;
       SELF\Part_template_location_in_footprint_definition.template  : Stratum_feature_template;
       original_padstack : Padstack_location_in_footprint_definition;
@@ -123,6 +141,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       WR2: NOT('PART_TEMPLATE_2D_SHAPE_ARM.BREAKOUT_FOOTPRINT_DEFINITION'*TYPEOF(original_padstack.footprint));
     -- breakout_padstack must belong to Breakout_footprint_definition
       WR3: 'PART_TEMPLATE_2D_SHAPE_ARM.BREAKOUT_FOOTPRINT_DEFINITION'*TYPEOF(breakout_padstack.footprint);
+    -- WR4: breakout_padstack should be via padstack (passage_padstack_definition)
   END_ENTITY;
 
   ENTITY Part_template_location_in_footprint_definition_transform
@@ -230,10 +249,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       WR2: footprint_shape.shape_characterized_footprint_definition :=: reference_location.footprint;      
   END_ENTITY;
 
-  ENTITY Part_template_location_in_padstack_definition;
+(* NEW STUFF *)
+  ENTITY Part_template_location_in_padstack_definition
+  	ABSTRACT SUPERTYPE;
       padstack              : Padstack_definition;
       template              : Template_definition;
-      technology            : Stratum_technology;
       reference_designation : STRING;
     INVERSE
       transform : SET[0:1] OF part_template_location_in_padstack_definition_transform FOR reference_location;
@@ -252,6 +272,29 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       -- WR2: stratum_technology is the stratum_technology reference by the part_template.
       -- WR3: each stratum_technology can be used only once in a padstack_definition through a part_template_location_in_padstack_definition
   END_ENTITY;
+  
+  ENTITY Stratum_technology_specific_part_template_location_in_padstack_definition
+  	SUBTYPE OF (Part_template_location_in_padstack_definition);
+      technology : Stratum_technology;
+    -- WR1: constrain template to be stratum_feature_template or
+    --      material_removal_feature_template
+  END_ENTITY;
+  
+  ENTITY Inter_stratum_feature_template_location_in_padstack_definition
+  	SUBTYPE OF (Part_template_location_in_padstack_definition);
+      SELF\Part_template_location_in_padstack_definition.padstack : Passage_padstack_definition;
+      SELF\Part_template_location_in_padstack_definition.template : Inter_stratum_feature_template;
+    WHERE
+      WR1: padstack.technology_reference :=: template.of_passage_technology;
+    -- WR2: maybe we do not want template to be  Inter_stratum_feature_edge_segment_template, or
+    --      Inter_stratum_feature_edge_template
+    -- WR3: perhaps there should be a rule on padstack that states that there should be
+    --      only one Inter_stratum_feature_template_location_in_padstack_definition
+    --      for it; or no more then one Inter_stratum_feature_template_location_in_padstack_definition
+    --      for any kind of inter_stratum_feature_template
+    -- WR4: this can only be used for design specific padstack
+  END_ENTITY;
+(* END OF NEW STUFF *)
 
   ENTITY Part_template_location_in_padstack_definition_transform
   	SUBTYPE OF (Geometric_placement);

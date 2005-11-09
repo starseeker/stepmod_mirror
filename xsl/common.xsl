@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.157 2005/07/11 21:05:54 thendrix Exp $
+$Id: common.xsl,v 1.158 2005/11/09 00:36:24 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1383,9 +1383,33 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         <xsl:when test="contains($module_name2,' 3d ')">
           <xsl:value-of select="concat(substring-before($module_name2,' 3d '),' 3D ',substring-after($module_name2,' 3d '))"/>
         </xsl:when>
+        <xsl:when test="contains($module_name2,' 2d ')">
+          <xsl:value-of select="concat(substring-before($module_name2,' 2d '),' 2D ',substring-after($module_name2,' 2d '))"/>
+        </xsl:when>
+
+        <xsl:when test="contains($module_name2,' 3d') and string-length(substring-after($module_name2,' 3d'))=0">
+          <xsl:value-of select="concat(substring-before($module_name2,' 3d'),' 3D')"/>
+        </xsl:when>
+
+        <xsl:when test="contains($module_name2,' 2d') and string-length(substring-after($module_name2,' 2d'))=0">
+          <xsl:value-of select="concat(substring-before($module_name2,' 2d'),' 2D')"/>
+        </xsl:when>
+
+        <xsl:when test="contains($module_name2,'3d ') and string-length(substring-before($module_name2,'3d '))=0">
+          <xsl:value-of select="concat('3D ', substring-after($module_name2,'3d '))"/>
+        </xsl:when>
+
+        <xsl:when test="contains($module_name2,'2d ') and string-length(substring-before($module_name2,'2d '))=0">
+          <xsl:value-of select="concat('2D ', substring-after($module_name2,'2d '))"/>
+        </xsl:when>
+
+
         <xsl:otherwise>
           <xsl:value-of select="$module_name2"/>
         </xsl:otherwise>
+
+
+
       </xsl:choose>
     </xsl:variable>
 

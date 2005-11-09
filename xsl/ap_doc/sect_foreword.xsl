@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.19 2005/03/02 20:27:10 robbod Exp $
+$Id: sect_foreword.xsl,v 1.20 2005/03/17 22:19:10 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -321,13 +321,13 @@ $Id: sect_foreword.xsl,v 1.19 2005/03/02 20:27:10 robbod Exp $
   <xsl:template match="application_protocol" mode="foreword">
     <xsl:variable name="part_no">
       <xsl:call-template name="get_protocol_stdnumber">
-        <xsl:with-param name="application_protocol" select="."/>
+	<xsl:with-param name="application_protocol" select="."/>
       </xsl:call-template>
     </xsl:variable>
     
     <h2>
       <a name="foreword">
-        Foreword
+	Foreword
       </a>
     </h2>
     <p>
@@ -356,33 +356,33 @@ $Id: sect_foreword.xsl,v 1.19 2005/03/02 20:27:10 robbod Exp $
 
     <xsl:if test="@status='CD-TS' or @status='TS'">
       <p>
-        In other circumstances, particularly when there is an urgent market 
-        requirement for such documents, a technical committee may decide to publish 
-        other types of normative document: 
+	In other circumstances, particularly when there is an urgent market 
+	requirement for such documents, a technical committee may decide to publish 
+	other types of normative document: 
       </p>
       <ul>
-        <li>
-          an ISO Publicly Available Specification (ISO/PAS) represents an
-          agreement between technical experts in an ISO working group and  is
-          accepted for publication if it is approved by more than 50% 
-          of the members of the parent committee casting a vote;
-        </li>
+	<li>
+	  an ISO Publicly Available Specification (ISO/PAS) represents an
+	  agreement between technical experts in an ISO working group and  is
+	  accepted for publication if it is approved by more than 50% 
+	  of the members of the parent committee casting a vote;
+	</li>
       </ul>
       <ul>
-        <li>
-          an ISO Technical Specification (ISO/TS) represents an agreement between 
-          the members of a technical committee and is accepted for
-          publication if it is approved by 2/3 of the members of the committee
-          casting a vote. 
-        </li>
+	<li>
+	  an ISO Technical Specification (ISO/TS) represents an agreement between 
+	  the members of a technical committee and is accepted for
+	  publication if it is approved by 2/3 of the members of the committee
+	  casting a vote. 
+	</li>
       </ul>
       <p>
-        An ISO/PAS or ISO/TS is reviewed after three years in order to decide
-        whether it will be confirmed for a further three years, revised to become
-        an International Standard, or withdrawn.  If the ISO/PAS or ISO/TS is
-        confirmed, it is reviewed again after a further three years, at which time
-        it must either be transformed into an International Standard or be
-        withdrawn. 
+	An ISO/PAS or ISO/TS is reviewed after three years in order to decide
+	whether it will be confirmed for a further three years, revised to become
+	an International Standard, or withdrawn.  If the ISO/PAS or ISO/TS is
+	confirmed, it is reviewed again after a further three years, at which time
+	it must either be transformed into an International Standard or be
+	withdrawn. 
       </p>
     </xsl:if>
     <p>
@@ -392,108 +392,114 @@ $Id: sect_foreword.xsl,v 1.19 2005/03/02 20:27:10 robbod Exp $
     </p>
     <p>
       <xsl:choose>
-        <xsl:when test="string-length(@part)>0">
-          <xsl:choose>
-            <xsl:when test="@status='CD-TS' or  @status='TS'">
-              <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="concat('ISO 10303-',@part)"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:when>
-        <xsl:otherwise>
-          ISO/TS 10303-
-          <font color="#FF0000">
-            <b>
-              XXXX
-            </b>
-          </font>
-        </xsl:otherwise>
+	<xsl:when test="string-length(@part)>0">
+	  <xsl:choose>
+	    <xsl:when test="@status='CD-TS' or  @status='TS'">
+	      <xsl:value-of select="concat('ISO/TS 10303-',@part)"/>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <xsl:value-of select="concat('ISO 10303-',@part)"/>
+	    </xsl:otherwise>
+	  </xsl:choose>
+	</xsl:when>
+	<xsl:otherwise>
+	  ISO/TS 10303-
+	  <font color="#FF0000">
+	    <b>
+	      XXXX
+	    </b>
+	  </font>
+	</xsl:otherwise>
       </xsl:choose>
       was prepared by Technical Committee ISO/TC 184, 
       <i>Industrial automation systems and integration</i>,
       Subcommittee SC4, <i>Industrial data</i>.
     </p>
+    <xsl:choose>
+      <xsl:when test="not(./foreword)">
+	<xsl:if test="@version!='1'">
+	  <xsl:variable name="this_edition">
+	    <xsl:apply-templates select="." mode="this_edition"/>
+	  </xsl:variable>
 
-    <xsl:if test="@version!='1'">
-      <xsl:variable name="this_edition">
-        <xsl:apply-templates select="." mode="this_edition"/>
-      </xsl:variable>
+	  <xsl:variable name="prev_edition">
+	    <xsl:apply-templates select="." mode="previous_edition"/>
+	  </xsl:variable>
 
-      <xsl:variable name="prev_edition">
-        <xsl:apply-templates select="." mode="previous_edition"/>
-      </xsl:variable>
+	  <xsl:choose>
+	    <xsl:when test="@previous.revision.cancelled='NO'">
+	      This <xsl:value-of select="$this_edition"/> edition of  
+	      <xsl:value-of select="$part_no"/> 
+	      constitutes a technical revision of the
+	      <xsl:value-of select="$prev_edition"/> edition  
+	      (<xsl:value-of
+	      select="@previous.revision.number"/>),
+	      which is provisionally retained in order to support continued use
+	      and maintenance of implementations based on the
+	      <xsl:value-of select="$prev_edition"/> 
+	      edition and to satisfy the normative references of other parts of
+	      ISO 10303. 
+	      <xsl:choose>
+		<!-- only changed a section of the document -->
+		<xsl:when test="@revision.complete='NO'">
+		  <xsl:value-of select="@revision.scope"/>
+		  of the <xsl:value-of select="$prev_edition"/> 
+		  edition  
+		  <xsl:choose>
+		    <!-- will be Clauses/Figures/ etc so if contains 'es' 
+			 then must be plural-->
+		    <xsl:when test="contains(@revision.scope,'es')">
+		      have
+		    </xsl:when>
+		    <xsl:otherwise>
+		      has
+		    </xsl:otherwise>
+		  </xsl:choose>
+		  been technically revised.
+		</xsl:when>
+		<xsl:otherwise>
+		  <!-- complete revision so no extra text -->
+		</xsl:otherwise>
+	      </xsl:choose>
+	    </xsl:when>
 
-      <xsl:choose>
-        <xsl:when test="@previous.revision.cancelled='NO'">
-          This <xsl:value-of select="$this_edition"/> edition of  
-        <xsl:value-of select="$part_no"/> 
-        constitutes a technical revision of the
-        <xsl:value-of select="$prev_edition"/> edition  
-        (<xsl:value-of
-        select="@previous.revision.number"/>),
-        which is provisionally retained in order to support continued use
-        and maintenance of implementations based on the
-        <xsl:value-of select="$prev_edition"/> 
-        edition and to satisfy the normative references of other parts of
-        ISO 10303. 
-        <xsl:choose>
-          <!-- only changed a section of the document -->
-          <xsl:when test="@revision.complete='NO'">
-            <xsl:value-of select="@revision.scope"/>
-            of the <xsl:value-of select="$prev_edition"/> 
-            edition  
-            <xsl:choose>
-              <!-- will be Clauses/Figures/ etc so if contains 'es' 
-                   then must be plural-->
-              <xsl:when test="contains(@revision.scope,'es')">
-                have
-              </xsl:when>
-              <xsl:otherwise>
-                has
-              </xsl:otherwise>
-            </xsl:choose>
-            been technically revised.
-          </xsl:when>
-          <xsl:otherwise>
-            <!-- complete revision so no extra text -->
-          </xsl:otherwise>
-        </xsl:choose>
+	    <xsl:otherwise>
+	      <!-- cancelled -->
+	      This <xsl:value-of select="$this_edition"/> edition of 
+	      <xsl:value-of select="$part_no"/> cancels and replaces the
+	      <xsl:value-of select="@previous.revision.year"/> edition
+	      (<xsl:value-of
+	      select="@previous.revision.number"/>), 
+	      <xsl:choose>
+		<!-- only changed a section of the document -->
+		<xsl:when test="@revision.complete='NO'">
+		  of which 
+		  <xsl:value-of select="@revision.scope"/>
+		  <xsl:choose>
+		    <!-- will be Clauses/Figures/ etc so if contains 'es' 
+			 then must be plural-->
+		    <xsl:when test="contains(@revision.scope,'es')">
+		      have
+		    </xsl:when>
+		    <xsl:otherwise>
+		      has
+		    </xsl:otherwise>
+		  </xsl:choose>
+		  been technically revised.
+		</xsl:when>
+		<xsl:otherwise>
+		  of which it constitutes a technical revision.
+		</xsl:otherwise>
+	      </xsl:choose>
+	    </xsl:otherwise>
+	  </xsl:choose>
+	  <xsl:apply-templates select="./changes" mode="foreword"/>
+	</xsl:if>
       </xsl:when>
-
       <xsl:otherwise>
-        <!-- cancelled -->
-        This <xsl:value-of select="$this_edition"/> edition of 
-        <xsl:value-of select="$part_no"/> cancels and replaces the
-        <xsl:value-of select="@previous.revision.year"/> edition
-        (<xsl:value-of
-          select="@previous.revision.number"/>), 
-        <xsl:choose>
-          <!-- only changed a section of the document -->
-          <xsl:when test="@revision.complete='NO'">
-            of which 
-            <xsl:value-of select="@revision.scope"/>
-            <xsl:choose>
-            <!-- will be Clauses/Figures/ etc so if contains 'es' 
-                 then must be plural-->
-              <xsl:when test="contains(@revision.scope,'es')">
-                have
-              </xsl:when>
-              <xsl:otherwise>
-                has
-              </xsl:otherwise>
-            </xsl:choose>
-            been technically revised.
-          </xsl:when>
-          <xsl:otherwise>
-            of which it constitutes a technical revision.
-          </xsl:otherwise>
-        </xsl:choose>
+	<xsl:value-of select="./foreword"/>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:apply-templates select="./changes" mode="foreword"/>
-  </xsl:if>
 
   <p>
     ISO 10303 is organized as a series of parts, each published

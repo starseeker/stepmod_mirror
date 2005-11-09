@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.120 2005/11/08 12:22:22 kovaliovas Exp $
+   $Id: arm.exp,v 1.121 2005/11/08 21:15:00 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -530,16 +530,20 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Assembly_group_component);
       SELF\Definition_based_product_occurrence.derived_from : Generic_footprint_definition;
     WHERE
+(* no longer need wr1,wr2
       WR1 : SIZEOF(USEDIN(SELF,
  'PHYSICAL_UNIT_DESIGN_VIEW_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT')) <= 1;
       WR2 : NOT (SIZEOF(USEDIN(SELF,
  'PHYSICAL_UNIT_DESIGN_VIEW_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT')) = 1) OR (SIZEOF(QUERY(cmfr <* USEDIN(SELF,
  'PHYSICAL_UNIT_DESIGN_VIEW_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(cmfr.reusable_component))) = 1);
-      WR3 : SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',
+*)
+      WR1 : SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0;
-      WR4: SIZEOF(QUERY(agc <* SELF\Assembly_group_component.components |
-      NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc))
+ 
+--this rule had a typo.  it should have been fosar, not posar.  it has been corrected.
+      WR2: SIZEOF(QUERY(agc <* SELF\Assembly_group_component.components |
+      NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc))
            )) = 0;
   END_ENTITY;
 
@@ -551,7 +555,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       terminal_location                  : Padstack_location_in_footprint_definition;
     UNIQUE
       UR1 : sub_assembly_reference_designation,
- relating_view, --relating_component,
+ relating_view,
  terminal_location;
     WHERE
       WR1 : terminal_location.footprint :=: relating_view.derived_from;
@@ -765,7 +769,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Component_make_from_relationship);
       SELF\Component_make_from_relationship.reusable_component  : Assembly_group_component;
       SELF\Component_make_from_relationship.resultant_component : Assembly_group_component;
-      stratum_mapping                                           : SET[1:?] OF Part_definition_relationship; --stratum_make_from_relationship;
+      stratum_mapping                                           : SET[1:?] OF Part_definition_relationship;
     WHERE
      WR1: SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.reusable_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar\view_definition_relationship.related_view)))) = 0;
      WR2: SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.resultant_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar\view_definition_relationship.related_view)))) = 0;

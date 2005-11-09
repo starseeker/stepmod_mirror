@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.122 2005/11/09 04:39:00 thomasrthurman Exp $
+   $Id: arm.exp,v 1.123 2005/11/09 17:48:33 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -530,13 +530,6 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Assembly_group_component);
       SELF\Definition_based_product_occurrence.derived_from : Generic_footprint_definition;
     WHERE
-(* no longer need wr1,wr2
-      WR1 : SIZEOF(USEDIN(SELF,
- 'PHYSICAL_UNIT_DESIGN_VIEW_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT')) <= 1;
-      WR2 : NOT (SIZEOF(USEDIN(SELF,
- 'PHYSICAL_UNIT_DESIGN_VIEW_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT')) = 1) OR (SIZEOF(QUERY(cmfr <* USEDIN(SELF,
- 'PHYSICAL_UNIT_DESIGN_VIEW_ARM.COMPONENT_MAKE_FROM_RELATIONSHIP.RESULTANT_COMPONENT') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(cmfr.reusable_component))) = 1);
-*)
       WR1 : SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',
  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0;
@@ -561,15 +554,22 @@ SCHEMA Layered_interconnect_module_design_arm;
       SELF\View_definition_relationship.relating_view                 : Footprint_occurrence;	
       SELF\View_definition_relationship.related_view                  : Laminate_component;
       sub_assembly_reference_designation : Part_template_location_in_fd_or_pd;
-      terminal_location                  : Padstack_location_in_footprint_definition;
+--terminal location must be optional if item not related to lead      
+      terminal_location                  : OPTIONAL Padstack_location_in_footprint_definition;
     UNIQUE
       UR1 : sub_assembly_reference_designation,
  relating_view,
  terminal_location;
     WHERE
-      WR1 : terminal_location.footprint :=: relating_view.derived_from;
-      WR2 : sub_assembly_reference_designation.padstack :=: terminal_location.padstack;
-      WR3 : related_view\Definition_based_product_occurrence.derived_from :=: sub_assembly_reference_designation.template;
+--mod
+      WR1 : NOT EXISTS(terminal_location) OR
+               (terminal_location.footprint :=: relating_view.derived_from);
+--mod
+      WR2 : NOT EXISTS(terminal_location) OR
+             (NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(sub_assembly_reference_designation.assembly) OR
+               (sub_assembly_reference_designation.padstack :=: terminal_location.padstack));
+      WR3 : related_view\Definition_based_product_occurrence.derived_from :=: 
+            sub_assembly_reference_designation.template;
       WR4: NOT EXISTS(SELF\View_definition_relationship.relation_type);
       WR5: NOT EXISTS(SELF\View_definition_relationship.id);
       WR6: NOT EXISTS(SELF\Assembly_component_relationship.location_indicator);
@@ -904,6 +904,8 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR2: NOT EXISTS(SELF\View_definition_relationship.id);
       WR3: NOT EXISTS(SELF\Assembly_component_relationship.location_indicator);
       WR4: NOT EXISTS(SELF\Assembly_component_relationship.quantity);    
+--need to qualify the sard
+      WR5: 'PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(sub_assembly_reference_designation.assembly);
   END_ENTITY;
 
   ENTITY Partially_plated_cutout

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.156 2005/07/11 19:51:51 thendrix Exp $
+$Id: common.xsl,v 1.157 2005/07/11 21:05:54 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1367,13 +1367,24 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     <xsl:variable name="ap_sect2" select="translate(substring($module_name1,3,3),'0123456789','##########')"/>
 
 
-    <xsl:variable name="module_name">
+    <xsl:variable name="module_name2">
       <xsl:choose>
         <xsl:when test="$ap_sect2='###' and $ap_sect1 = 'Ap'">
           <xsl:value-of select="concat('AP',substring($module_name1,3))"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$module_name1"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="module_name">
+      <xsl:choose>
+        <xsl:when test="contains($module_name2,' 3d ')">
+          <xsl:value-of select="concat(substring-before($module_name2,' 3d '),' 3D ',substring-after($module_name2,' 3d '))"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="$module_name2"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>

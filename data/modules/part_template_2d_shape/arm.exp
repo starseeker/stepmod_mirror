@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.51 2005/11/09 04:39:40 thomasrthurman Exp $
+   $Id: arm.exp,v 1.52 2005/11/09 08:58:12 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -62,38 +62,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     Stratum_technology);
   END_TYPE;
 
-  ENTITY Design_layer_type_specific_padstack_definition
-    SUBTYPE OF (Padstack_definition);
-      design_layer_type_reference : Design_layer_technology;
-  END_ENTITY;
-
-  ENTITY Design_specific_padstack_definition
-    SUBTYPE OF (Padstack_definition);
-  END_ENTITY;
-
-  ENTITY Generic_footprint_definition
-    ABSTRACT SUPERTYPE OF (ONEOF (Footprint_definition, Breakout_footprint_definition))
-    SUBTYPE OF (Template_definition);
-    DERIVE
-      footprint_location : padstack_arrangement := get_padstack_arrangement(padstack);
-    INVERSE
-      shape    : footprint_definition_shape FOR shape_characterized_footprint_definition;
-      padstack : SET[1:?] OF padstack_location_in_footprint_definition FOR footprint;
-    WHERE
-      WR1 : SIZEOF(QUERY(ps <* padstack | ps.padstack.padstack_location <> footprint_location)) = 0;
-      WR2 : ((footprint_location = padstack_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR 
-            (NOT (footprint_location = padstack_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'));
-      WR3 : ((footprint_location = padstack_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR 
-            (NOT (footprint_location = padstack_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'));
-      WR4 : ((footprint_location = padstack_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR 
-            (NOT (footprint_location = padstack_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'));
-  END_ENTITY;
-
-  ENTITY Footprint_definition
-    SUBTYPE OF (Generic_footprint_definition);
-      reference_package  : package_or_printed_part_template;
-  END_ENTITY;
-
   ENTITY Breakout_footprint_definition
     SUBTYPE OF (Generic_footprint_definition);
       reference_footprint : Footprint_definition;
@@ -112,103 +80,18 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   -- Generic_footprint_definition
     END_ENTITY;
 
-  ENTITY Part_template_location_in_fd_or_pd
-  	ABSTRACT SUPERTYPE;
-      assembly   : generic_footprint_definition_or_padstack_definition;
-      template   : Template_definition;
-      reference_feature : OPTIONAL Part_feature;
-      reference_designation : STRING;
-    INVERSE
-      transform : SET [0:1] OF Part_template_location_in_fd_or_pd_transform FOR reference_location;
-    UNIQUE
-      UR1: assembly, reference_designation;
-    WHERE
-      WR1 : NOT EXISTS(reference_feature) OR 
-                (reference_feature\Shape_element.containing_shape :=: footprint.reference_package);
-      WR2 : NOT EXISTS(reference_feature) OR 
-                ('PART_TEMPLATE_2D_SHAPE_ARM.GENERIC_FOOTPRINT_DEFINITION' IN TYPEOF(assembly));
-      WR3 : ((SIZEOF(transform) = 1) AND 
-             (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
-                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
-                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * 
-              TYPEOF(transform[1].template_shape.shape_characterized_part_template)) = 0)) OR 
-            ((SIZEOF(transform) = 0) AND 
-             (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
-                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
-                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(template)) = 1));
+  ENTITY Design_layer_type_specific_padstack_definition
+    SUBTYPE OF (Padstack_definition);
+      design_layer_type_reference : Design_layer_technology;
   END_ENTITY;
 
-  ENTITY Stratum_specific_part_template_location_in_fd_or_pd
-  	SUBTYPE OF (Part_template_location_in_fd_or_pd);
-      bound_stratum : stratum_or_stratum_technology;
-    WHERE
-      WR1: SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE',
-                   'FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE',
-                   'PART_TEMPLATE_EXTENSION_ARM.SPECIAL_SYMBOL_PART_TEMPLATE'] * TYPEOF(template)) = 1;
-      WR2: NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1 OR
-             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR
-               (SIZEOF(QUERY(st <* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))
-              AND
-              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR
-               (SIZEOF(QUERY(st <* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)));
-      WR3: NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1 OR
-             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR
-               (SIZEOF(QUERY(st <* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))
-              AND
-              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR
-               (SIZEOF(QUERY(st <* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)));
-      WR4: NOT SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.SPECIAL_SYMBOL_PART_TEMPLATE'] * TYPEOF(template)) = 1 OR
-             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR
-               (SIZEOF(QUERY(st <* template\Special_symbol_part_template.of_stratum_technology | st :=: bound_stratum)) = 1))
-              AND
-              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR
-               (SIZEOF(QUERY(st <* template\Special_symbol_part_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)));
+  ENTITY Design_specific_padstack_definition
+    SUBTYPE OF (Padstack_definition);
   END_ENTITY;
 
-  ENTITY Inter_stratum_feature_template_location_in_fd_or_pd
-  	SUBTYPE OF (Part_template_location_in_fd_or_pd);
-      SELF\Part_template_location_in_fd_or_pd.template : Inter_stratum_feature_template;
-    WHERE
-      WR1: SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE',
-                   'PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_TEMPLATE'] * TYPEOF(template)) = 0;
-    -- Tom agrees. The board edge can't be part of the footprin_definition.
-    -- WR2: this can only be used for design specific footprint
-  END_ENTITY;
-
-  ENTITY Stratum_feature_template_location_in_breakout_footprint_definition
-    SUBTYPE OF (Stratum_specific_part_template_location_in_fd_or_pd);
-      SELF\Part_template_location_in_fd_or_pd.assembly : Breakout_footprint_definition;
-      SELF\Part_template_location_in_fd_or_pd.template  : Stratum_feature_template;
-      original_padstack : Padstack_location_in_footprint_definition;
-      breakout_padstack : Padstack_location_in_footprint_definition;
-    WHERE
-    -- Both padstacks must point to the same package_terminal
-      WR1: original_padstack.reference_package_terminal = breakout_padstack.reference_package_terminal;
-    -- original_padstack must belong to Footprint_definition
-      WR2: original_padstack.footprint :=: assembly.reference_footprint;
-    -- breakout_padstack must belong to Breakout_footprint_definition
-      WR3: breakout_padstack.footprint :=: assembly;
-    -- breakout padstack should be via padstack (passage_padstack_definition)
-    -- Padstack must be of type passage_padstack_definition
-    -- VK  WR4: SIZEOF(QUERY(ps <* breakout_padstack | NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(ps.padstack)))) = 0;
-    -- Passage_technology must be of type default_via_definition for Padstack_definition
-    -- VK  WR5: SIZEOF(QUERY(ps <* breakout_padstack | NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DEFAULT_VIA_DEFINITION' IN TYPEOF(ps.padstack\Passage_padstack_definition.technology_reference)))) = 0;    
-  END_ENTITY;
-
-  ENTITY Part_template_location_in_fd_or_pd_transform
-  	SUBTYPE OF (Geometric_placement);
-      SELF\Geometric_placement_operation.template_definition RENAMED template_shape : Part_template_planar_shape_model;
-      reference_location                                                            : Part_template_location_in_fd_or_pd;
-      assembly_shape                                                                : footprint_definition_shape_or_padstack_definition_shape;
-      SELF\Geometric_placement.target RENAMED transform                             : Axis_placement_2d;
-	 UNIQUE
-      UR1 : reference_location;
-	 WHERE
-        WR1: template_shape.shape_characterized_part_template :=: reference_location.template;
-        WR2: NOT('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE' IN TYPEOF(assembly_shape)) OR 
-           (assembly_shape\Footprint_definition_shape.shape_characterized_footprint_definition :=: reference_location.assembly);
-        WR3: NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION_SHAPE' IN TYPEOF(assembly_shape)) OR 
-           (assembly_shape\Padstack_definition_shape.shape_characterized_padstack_definition :=: reference_location.assembly);
+  ENTITY Footprint_definition
+    SUBTYPE OF (Generic_footprint_definition);
+      reference_package  : package_or_printed_part_template;
   END_ENTITY;
 
   ENTITY Footprint_definition_shape
@@ -236,6 +119,41 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
  ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_part_template));
 			WR5 : (SIZEOF(USEDIN(SELF,
  'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
+  END_ENTITY;
+
+  ENTITY Generic_footprint_definition
+    ABSTRACT SUPERTYPE OF (ONEOF (Footprint_definition, Breakout_footprint_definition))
+    SUBTYPE OF (Template_definition);
+    DERIVE
+      footprint_location : padstack_arrangement := get_padstack_arrangement(padstack);
+    INVERSE
+      shape    : footprint_definition_shape FOR shape_characterized_footprint_definition;
+      padstack : SET[1:?] OF padstack_location_in_footprint_definition FOR footprint;
+    WHERE
+      WR1 : SIZEOF(QUERY(ps <* padstack | ps.padstack.padstack_location <> footprint_location)) = 0;
+      WR2 : ((footprint_location = padstack_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR 
+            (NOT (footprint_location = padstack_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'));
+      WR3 : ((footprint_location = padstack_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR 
+            (NOT (footprint_location = padstack_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'));
+      WR4 : ((footprint_location = padstack_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR 
+            (NOT (footprint_location = padstack_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'));
+  END_ENTITY;
+
+  ENTITY Inter_stratum_feature_template_location_in_fd_or_pd
+  	SUBTYPE OF (Part_template_location_in_fd_or_pd);
+      SELF\Part_template_location_in_fd_or_pd.assembly : Passage_padstack_definition;  	
+      SELF\Part_template_location_in_fd_or_pd.template : Inter_stratum_feature_template;
+    WHERE
+      WR1: SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE',
+                   'PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_TEMPLATE'] * TYPEOF(template)) = 0;
+    -- Tom agrees. The board edge can't be part of the footprin_definition.
+    -- WR2: this can only be used for design specific footprint
+    -- WR3: perhaps there should be a rule on padstack that states that there should be
+    --      only one Inter_stratum_feature_template_location_in_padstack_definition
+    --      for it; or no more then one Inter_stratum_feature_template_location_in_padstack_definition
+    --      for any kind of inter_stratum_feature_template
+    -- What issue is this trying to address? option one sounds good to me anyway.
+    -- WR4: this can only be used for design specific padstack
   END_ENTITY;
 
   ENTITY Library_padstack_definition
@@ -301,28 +219,46 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       WR2: footprint_shape.shape_characterized_footprint_definition :=: reference_location.footprint;      
   END_ENTITY;
 
-  ENTITY Stratum_technology_specific_part_template_location_in_padstack_definition
-  	SUBTYPE OF (Part_template_location_in_fd_or_pd);
-      technology : Stratum_technology;
-    -- WR1: constrain template to be stratum_feature_template or
-    --      material_removal_feature_template
-  END_ENTITY;
-  
-  ENTITY Inter_stratum_feature_template_location_in_padstack_definition
-  	SUBTYPE OF (Part_template_location_in_fd_or_pd);
-      SELF\Part_template_location_in_fd_or_pd.assembly : Passage_padstack_definition;
-      SELF\Part_template_location_in_fd_or_pd.template : Inter_stratum_feature_template;
+  ENTITY Part_template_location_in_fd_or_pd
+  	ABSTRACT SUPERTYPE;
+      assembly   : generic_footprint_definition_or_padstack_definition;
+      template   : Template_definition;
+      reference_feature : OPTIONAL Part_feature;
+      reference_designation : STRING;
+    INVERSE
+      transform : SET [0:1] OF Part_template_location_in_fd_or_pd_transform FOR reference_location;
+    UNIQUE
+      UR1: assembly, reference_designation;
     WHERE
-      WR1: assembly\Passage_padstack_definition.technology_reference :=: template\Inter_stratum_feature_template.of_passage_technology;
-    -- WR2: maybe we do not want template to be  Inter_stratum_feature_edge_segment_template, or
-    --      Inter_stratum_feature_edge_template
-    --Tom agrees.
-    -- WR3: perhaps there should be a rule on padstack that states that there should be
-    --      only one Inter_stratum_feature_template_location_in_padstack_definition
-    --      for it; or no more then one Inter_stratum_feature_template_location_in_padstack_definition
-    --      for any kind of inter_stratum_feature_template
-    -- What issue is this trying to address? option one sounds good to me anyway.
-    -- WR4: this can only be used for design specific padstack
+      WR1 : NOT EXISTS(reference_feature) OR 
+                (reference_feature\Shape_element.containing_shape :=: footprint.reference_package);
+      WR2 : NOT EXISTS(reference_feature) OR 
+                ('PART_TEMPLATE_2D_SHAPE_ARM.GENERIC_FOOTPRINT_DEFINITION' IN TYPEOF(assembly));
+      WR3 : ((SIZEOF(transform) = 1) AND 
+             (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
+                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
+                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * 
+              TYPEOF(transform[1].template_shape.shape_characterized_part_template)) = 0)) OR 
+            ((SIZEOF(transform) = 0) AND 
+             (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
+                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
+                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(template)) = 1));
+  END_ENTITY;
+
+  ENTITY Part_template_location_in_fd_or_pd_transform
+  	SUBTYPE OF (Geometric_placement);
+      SELF\Geometric_placement_operation.template_definition RENAMED template_shape : Part_template_planar_shape_model;
+      reference_location                                                            : Part_template_location_in_fd_or_pd;
+      assembly_shape                                                                : footprint_definition_shape_or_padstack_definition_shape;
+      SELF\Geometric_placement.target RENAMED transform                             : Axis_placement_2d;
+	 UNIQUE
+      UR1 : reference_location;
+	 WHERE
+        WR1: template_shape.shape_characterized_part_template :=: reference_location.template;
+        WR2: NOT('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE' IN TYPEOF(assembly_shape)) OR 
+           (assembly_shape\Footprint_definition_shape.shape_characterized_footprint_definition :=: reference_location.assembly);
+        WR3: NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION_SHAPE' IN TYPEOF(assembly_shape)) OR 
+           (assembly_shape\Padstack_definition_shape.shape_characterized_padstack_definition :=: reference_location.assembly);
   END_ENTITY;
 
   ENTITY Part_template_planar_keepout_shape_model
@@ -341,6 +277,53 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Planar_projected_shape, Part_template_shape_model);
   DERIVE
     SELF\Representation.description : STRING := '';
+  END_ENTITY;
+
+  ENTITY Stratum_feature_template_location_in_breakout_footprint_definition
+    SUBTYPE OF (Stratum_specific_part_template_location_in_fd_or_pd);
+      SELF\Part_template_location_in_fd_or_pd.assembly : Breakout_footprint_definition;
+      SELF\Part_template_location_in_fd_or_pd.template  : Stratum_feature_template;
+      original_padstack : Padstack_location_in_footprint_definition;
+      breakout_padstack : Padstack_location_in_footprint_definition;
+    WHERE
+    -- Both padstacks must point to the same package_terminal
+      WR1: original_padstack.reference_package_terminal = breakout_padstack.reference_package_terminal;
+    -- original_padstack must belong to Footprint_definition
+      WR2: original_padstack.footprint :=: assembly.reference_footprint;
+    -- breakout_padstack must belong to Breakout_footprint_definition
+      WR3: breakout_padstack.footprint :=: assembly;
+    -- breakout padstack should be via padstack (passage_padstack_definition)
+    -- Padstack must be of type passage_padstack_definition
+    -- VK  WR4: SIZEOF(QUERY(ps <* breakout_padstack | NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(ps.padstack)))) = 0;
+    -- Passage_technology must be of type default_via_definition for Padstack_definition
+    -- VK  WR5: SIZEOF(QUERY(ps <* breakout_padstack | NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DEFAULT_VIA_DEFINITION' IN TYPEOF(ps.padstack\Passage_padstack_definition.technology_reference)))) = 0;    
+  END_ENTITY;
+
+  ENTITY Stratum_specific_part_template_location_in_fd_or_pd
+  	SUBTYPE OF (Part_template_location_in_fd_or_pd);
+      bound_stratum : stratum_or_stratum_technology;
+    WHERE
+      WR1: SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE',
+                   'FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE',
+                   'PART_TEMPLATE_EXTENSION_ARM.SPECIAL_SYMBOL_PART_TEMPLATE'] * TYPEOF(template)) = 1;
+      WR2: NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1 OR
+             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR
+               (SIZEOF(QUERY(st <* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))
+              AND
+              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR
+               (SIZEOF(QUERY(st <* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)));
+      WR3: NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1 OR
+             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR
+               (SIZEOF(QUERY(st <* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))
+              AND
+              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR
+               (SIZEOF(QUERY(st <* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)));
+      WR4: NOT SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.SPECIAL_SYMBOL_PART_TEMPLATE'] * TYPEOF(template)) = 1 OR
+             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR
+               (SIZEOF(QUERY(st <* template\Special_symbol_part_template.of_stratum_technology | st :=: bound_stratum)) = 1))
+              AND
+              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR
+               (SIZEOF(QUERY(st <* template\Special_symbol_part_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)));
   END_ENTITY;
 
   ENTITY Stratum_type_independent_padstack_definition

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.121 2005/11/08 21:15:00 liutkus Exp $
+   $Id: arm.exp,v 1.122 2005/11/09 04:39:00 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -545,6 +545,15 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR2: SIZEOF(QUERY(agc <* SELF\Assembly_group_component.components |
       NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc))
            )) = 0;
+  END_ENTITY;
+
+  ENTITY Breakout_occurrence
+    SUBTYPE OF (footprint_occurrence);
+      SELF\footprint_occurrence.derived_from : Breakout_footprint_definition;
+      associated_footprint : Footprint_occurrence;
+    WHERE
+      WR1: associated_footprint <> SELF;
+      WR2: derived_from.reference_footprint = associated_footprint.derived_from;
   END_ENTITY;
 
   ENTITY Footprint_occurrence_sub_assembly_relationship
@@ -1103,16 +1112,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       stratum_feature_implementation           : Stratum_feature;
     DERIVE
       SELF\Product_view_definition.name : STRING := '';
-  END_ENTITY;
-
-  ENTITY Stratum_specific_part_template_location_in_padstack_definition
-    SUBTYPE OF (Part_template_location_in_fd_or_pd);
-      bound_stratum : Stratum;
-    WHERE
-      WR1 : SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE',
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_ADDITION_FEATURE_TEMPLATE',
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * 
- TYPEOF(SELF\Part_template_location_in_fd_or_pd.template)) = 1;
   END_ENTITY;
 
   ENTITY Stratum_surface;

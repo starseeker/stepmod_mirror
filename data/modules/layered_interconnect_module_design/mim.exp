@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.34 2005/11/07 11:09:13 liutkus Exp $
+   $Id: mim.exp,v 1.35 2005/11/08 14:57:57 liutkus Exp $
    ISO TC184/SC4/WG12 N3484 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS MIM
 *)
 
@@ -35,7 +35,7 @@ SUBTYPE_CONSTRAINT component_terminal_subtypes FOR component_terminal;
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT template_definition_subtypes FOR part_template_definition; 
-	(ONEOF (footprint_definition,
+	(ONEOF (generic_footprint_definition,
 	 padstack_definition,
 	 inter_stratum_feature_edge_segment_template, 
 	 inter_stratum_feature_edge_template));
@@ -68,6 +68,10 @@ SUBTYPE_CONSTRAINT plated_inter_stratum_feature_subtypes FOR plated_inter_stratu
   (ONEOF(plated_passage,plated_cutout_edge_segment, 
  plated_interconnect_module_edge_segment));
 END_SUBTYPE_CONSTRAINT;        
+
+ENTITY breakout_occurrence
+  SUBTYPE OF (footprint_occurrence);
+END_ENTITY;
 
 ENTITY conductive_interconnect_element_terminal_link
   SUBTYPE OF (shape_aspect,shape_aspect_relationship);
@@ -1404,20 +1408,6 @@ WHERE
   WR6: (NOT(EXISTS(SELF\shape_aspect.description))) OR
        (NOT (SELF\shape_aspect.description = 'connected filled area') OR
        (SELF\shape_aspect.of_shape.definition.name = 'design layer'));
-END_ENTITY;
-
-ENTITY stratum_specific_part_template_location_in_padstack_definition
-  SUBTYPE OF (assembly_component_usage, property_definition);
-WHERE
-  WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\assembly_component_usage ||
-       SELF\product_definition_usage ||
-       SELF\product_definition_relationship ||
-       SELF\stratum_specific_part_template_location_in_padstack_definition || 
-       SELF\property_definition)) = 0;
-  WR2: SELF\property_definition.name = '';
-  WR3: SELF\property_definition.description = '';
-  WR4: SELF\product_definition_relationship.name = 'part template location in padstack definition';
-  WR5: SELF\product_definition_relationship.description = '';
 END_ENTITY;
 
 ENTITY stratum_surface

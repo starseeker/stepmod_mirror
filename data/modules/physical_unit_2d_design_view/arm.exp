@@ -41,13 +41,21 @@ SCHEMA Physical_unit_2d_design_view_arm;
 
   RULE unique_assembly_component_2d_shape FOR (Assembly_component_2d_shape);
    LOCAL
-     ac : BAG OF Assembly_component := [];
+     ac : SET OF Assembly_component := [];
+     pass : BOOLEAN := TRUE;
    END_LOCAL;
    REPEAT i := 1 to SIZEOF(Assembly_component_2d_shape) by 1;
      ac  := ac + Assembly_component_2d_shape[i].shape_characterized_component;
    END_REPEAT;  
+   REPEAT i := 1 to SIZEOF(ac) by 1;
+     IF (SIZEOF(USEDIN(ac[i],
+       'PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE.SHAPE_CHARACTERIZED_COMPONENT')) <> 1) THEN 
+       pass := FALSE;
+       ESCAPE;
+     END_IF;
+   END_REPEAT;  
   WHERE
-   WR1 : SIZEOF(ac) = SIZEOF(bag_to_set(ac));
+   WR1 : pass;
   END_RULE;
 
   FUNCTION substrate_in_assembly(

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-09T15:08:05" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-10T13:27:22" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
 <schema name="Layered_interconnect_module_design_arm">
 <interface kind="use" schema="Edge_shape_feature_arm"/>
@@ -123,6 +123,17 @@
 <typename name="Shape_dimension_representation"/>
 </explicit>
 <where label="IP1"/>
+</entity>
+<entity name="Breakout_occurrence" supertypes="Footprint_occurrence">
+<explicit name="derived_from">
+<typename name="Breakout_footprint_definition"/>
+<redeclaration entity-ref="Footprint_occurrence"/>
+</explicit>
+<explicit name="associated_footprint">
+<typename name="Footprint_occurrence"/>
+</explicit>
+<where label="WR1" expression="associated_footprint &lt;&gt; SELF"/>
+<where label="WR2" expression="derived_from.reference_footprint = associated_footprint.derived_from"/>
 </entity>
 <entity name="Component_termination_passage" supertypes="Plated_passage">
 <explicit name="derived_from">
@@ -506,7 +517,7 @@
 <explicit name="sub_assembly_reference_designation">
 <typename name="Part_template_location_in_fd_or_pd"/>
 </explicit>
-<explicit name="terminal_location">
+<explicit name="terminal_location" optional="YES">
 <typename name="Padstack_location_in_footprint_definition"/>
 </explicit>
 <unique label="UR1">
@@ -514,9 +525,9 @@
 <unique.attribute attribute="relating_view"/>
 <unique.attribute attribute="terminal_location"/>
 </unique>
-<where label="WR1" expression="terminal_location.footprint :=: relating_view.derived_from"/>
-<where label="WR2" expression="sub_assembly_reference_designation.padstack :=: terminal_location.padstack"/>
-<where label="WR3" expression="related_view\Definition_based_product_occurrence.derived_from :=: sub_assembly_reference_designation.template"/>
+<where label="WR1" expression="NOT EXISTS(terminal_location) OR&#10;               (terminal_location.footprint :=: relating_view.derived_from)"/>
+<where label="WR2" expression="NOT EXISTS(terminal_location) OR&#10;             (NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(sub_assembly_reference_designation.assembly) OR&#10;               (sub_assembly_reference_designation.padstack :=: terminal_location.padstack)))"/>
+<where label="WR3" expression="related_view\Definition_based_product_occurrence.derived_from :=: &#10;            sub_assembly_reference_designation.template"/>
 <where label="WR4" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
 <where label="WR5" expression="NOT EXISTS(SELF\View_definition_relationship.id)"/>
 <where label="WR6" expression="NOT EXISTS(SELF\Assembly_component_relationship.location_indicator)"/>
@@ -893,6 +904,7 @@
 <where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.id)"/>
 <where label="WR3" expression="NOT EXISTS(SELF\Assembly_component_relationship.location_indicator)"/>
 <where label="WR4" expression="NOT EXISTS(SELF\Assembly_component_relationship.quantity)"/>
+<where label="WR5" expression="'PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(sub_assembly_reference_designation.assembly)"/>
 </entity>
 <entity name="Partially_plated_cutout" supertypes="Cutout">
 <inverse name="plated_segment" entity="Plated_cutout_edge_segment" attribute="composed_cutout">
@@ -1111,12 +1123,6 @@
 <builtintype type="STRING"/>
 <redeclaration entity-ref="Product_view_definition"/>
 </derived>
-</entity>
-<entity name="Stratum_specific_part_template_location_in_padstack_definition" supertypes="Part_template_location_in_fd_or_pd">
-<explicit name="bound_stratum">
-<typename name="Stratum"/>
-</explicit>
-<where label="WR1" expression="SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_ADDITION_FEATURE_TEMPLATE',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * &#10; TYPEOF(SELF\Part_template_location_in_fd_or_pd.template)) = 1"/>
 </entity>
 <entity name="Stratum_surface">
 <explicit name="name">

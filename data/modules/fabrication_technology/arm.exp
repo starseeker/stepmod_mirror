@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.32 2005/11/07 12:30:19 liutkus Exp $
+   $Id: arm.exp,v 1.33 2005/11/10 05:26:06 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -361,6 +361,23 @@ SCHEMA Fabrication_technology_arm;
       WR1 : precedent_stratum_technology :<>: subsequent_stratum_technology;
       WR2 : NOT (EXISTS(precedent_stratum_technology_link)) OR (precedent_stratum_technology_link :<>: SELF);
       WR3 : NOT EXISTS(precedent_stratum_technology_link) OR (precedent_stratum_technology_link.subsequent_stratum_technology :=: precedent_stratum_technology);
+  END_ENTITY;
+
+  ENTITY Stratum_technology_swap_relationship;
+    primary_stratum_technology   : Stratum_technology;
+    secondary_stratum_technology : Stratum_technology;
+   UNIQUE
+    ur1: primary_stratum_technology;
+    ur2: secondary_stratum_technology;
+   WHERE 
+    WR1 : NOT ('FABRICATION_TECHNOLOGY_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN 
+          TYPEOF(primary_stratum_technology)) OR
+          (primary_stratum_technology.layer_purpose =
+           secondary_stratum_technology.layer_purpose);
+    WR2: TYPEOF(primary_stratum_technology) = TYPEOF(secondary_stratum_technology);
+    WR3: primary_stratum_technology\Stratum_technology.layer_position_type = primary;
+    WR4: secondary_stratum_technology\Stratum_technology.layer_position_type = secondary;
+    WR5: primary_stratum_technology <> secondary_stratum_technology;
   END_ENTITY;
 
 FUNCTION get_electrical_conductivity

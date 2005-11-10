@@ -2,23 +2,23 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-08-31T14:04:10" rcs.revision="1.0" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_mim schema_instance"/>
-   <schema name="Physical_unit_2d_design_view_mim">
-      <interface kind="use" schema="Assembly_module_with_interconnect_component_mim"/>
-      <interface kind="use" schema="Physical_unit_2d_shape_mim"/>
-      <interface kind="reference" schema="Physical_unit_usage_view_mim">
-         <interfaced.item name="is_laminate_component"/>
-      </interface>
-      <interface kind="reference" schema="Physical_unit_design_view_mim">
-         <interfaced.item name="is_interconnect_module_occurrence"/>
-      </interface>
-      <interface kind="reference" schema="support_resource_schema">
-         <interfaced.item name="bag_to_set"/>
-      </interface>
-      <entity name="component_2d_location" supertypes="context_dependent_shape_representation shape_representation_relationship representation_relationship_with_transformation definitional_representation_relationship"/>
-      <rule name="component_part_2d_geometric_representation_relationship_constraint" appliesto="shape_representation_relationship">
-         <algorithm>LOCAL
+<express language_version="2" rcs.date="2005-11-10T16:48:47" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_mim schema_instance"/>
+<schema name="Physical_unit_2d_design_view_mim">
+<interface kind="use" schema="Assembly_module_with_interconnect_component_mim"/>
+<interface kind="use" schema="Physical_unit_2d_shape_mim"/>
+<interface kind="reference" schema="Physical_unit_usage_view_mim">
+<interfaced.item name="is_laminate_component"/>
+</interface>
+<interface kind="reference" schema="Physical_unit_design_view_mim">
+<interfaced.item name="is_interconnect_module_occurrence"/>
+</interface>
+<interface kind="reference" schema="support_resource_schema">
+<interfaced.item name="bag_to_set"/>
+</interface>
+<entity name="component_2d_location" supertypes="context_dependent_shape_representation shape_representation_relationship representation_relationship_with_transformation definitional_representation_relationship"/>
+<rule name="component_part_2d_geometric_representation_relationship_constraint" appliesto="shape_representation_relationship">
+<algorithm>LOCAL
  rr: SET OF representation_relationship :=
       QUERY ( srr &lt;* shape_representation_relationship |
        srr\representation_relationship.name = 
@@ -36,14 +36,14 @@ THEN
   pass := FALSE;
 END_IF;
 END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
-      </rule>
-      <function name="component_definition_located_by_component_location">
-         <parameter name="cl">
-            <typename name="component_2d_location"/>
-         </parameter>
-         <typename name="component_definition"/>
-         <algorithm>LOCAL
+<where label="WR1" expression="pass"/>
+</rule>
+<function name="component_definition_located_by_component_location">
+<parameter name="cl">
+<typename name="component_2d_location"/>
+</parameter>
+<typename name="component_definition"/>
+<algorithm>LOCAL
   pdr : BAG OF property_definition_representation := USEDIN (cl,
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION');
@@ -70,19 +70,19 @@ END_LOCAL;
     END_IF;
    END_REPEAT;
  RETURN (?);</algorithm>
-      </function>
-      <function name="cto2d_determinant_test">
-         <parameter name="cto2d">
-            <typename name="cartesian_transformation_operator_2d"/>
-         </parameter>
-         <parameter name="expected_value">
-            <builtintype type="REAL"/>
-         </parameter>
-         <parameter name="delta">
-            <builtintype type="REAL"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="cto2d_determinant_test">
+<parameter name="cto2d">
+<typename name="cartesian_transformation_operator_2d"/>
+</parameter>
+<parameter name="expected_value">
+<builtintype type="REAL"/>
+</parameter>
+<parameter name="delta">
+<builtintype type="REAL"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   det : REAL := 0.0;
   DRs : LIST [4:4] OF REAL := [];
 END_LOCAL;
@@ -96,13 +96,13 @@ IF (Abs(expected_value - det) &lt; Abs(delta) ) THEN
 ELSE
     RETURN (FALSE);
 END_IF;</algorithm>
-      </function>
-      <function name="is_bottom_footprint_occurrence">
-         <parameter name="pd">
-            <typename name="product_definition"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_bottom_footprint_occurrence">
+<parameter name="pd">
+<typename name="product_definition"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION.DEFINITION'));
@@ -124,7 +124,7 @@ REPEAT i := 1 to SIZEOF(fo) by 1;
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) | 
   ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' + 
-  'FOOTPRINT_DEFINITION' IN 
+  'GENERIC_FOOTPRINT_DEFINITION' IN 
       TYPEOF(sar.relating_shape_aspect.of_shape.definition)) AND
   ('usage definition' = sar\shape_aspect_relationship.name)));
 END_REPEAT;
@@ -150,13 +150,13 @@ IF (SIZEOF(dri) = 1) THEN
     RETURN (TRUE);
 END_IF;
 RETURN (pass);</algorithm>
-      </function>
-      <function name="is_bottom_footprint_occurrence_location">
-         <parameter name="cl">
-            <typename name="component_2d_location"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_bottom_footprint_occurrence_location">
+<parameter name="cl">
+<typename name="component_2d_location"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
@@ -176,13 +176,13 @@ IF sizeof (pdrs) = 1 THEN
 ELSE
     RETURN (FALSE);
 END_IF;</algorithm>
-      </function>
-      <function name="is_bottom_padstack_occurrence">
-         <parameter name="pd">
-            <typename name="product_definition"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_bottom_padstack_occurrence">
+<parameter name="pd">
+<typename name="product_definition"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION.DEFINITION'));
@@ -230,13 +230,13 @@ IF (SIZEOF(dri) = 1) THEN
     RETURN (TRUE);
 END_IF;
 RETURN (pass);</algorithm>
-      </function>
-      <function name="is_bottom_padstack_occurrence_location">
-         <parameter name="cl">
-            <typename name="component_2d_location"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_bottom_padstack_occurrence_location">
+<parameter name="cl">
+<typename name="component_2d_location"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
@@ -256,13 +256,13 @@ IF sizeof (pdrs) = 1 THEN
 ELSE
     RETURN (FALSE);
 END_IF;</algorithm>
-      </function>
-      <function name="is_interconnect_module_component_location">
-         <parameter name="cl">
-            <typename name="component_2d_location"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_interconnect_module_component_location">
+<parameter name="cl">
+<typename name="component_2d_location"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
@@ -282,13 +282,13 @@ IF sizeof (pdrs) = 1 THEN
 ELSE
     RETURN (FALSE);
 END_IF;</algorithm>
-      </function>
-      <function name="is_laminate_component_location">
-         <parameter name="cl">
-            <typename name="component_2d_location"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_laminate_component_location">
+<parameter name="cl">
+<typename name="component_2d_location"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
@@ -308,13 +308,13 @@ IF sizeof (pdrs) = 1 THEN
 ELSE
     RETURN (FALSE);
 END_IF;</algorithm>
-      </function>
-      <function name="is_symmetrical_footprint_occurrence">
-         <parameter name="pd">
-            <typename name="product_definition"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_symmetrical_footprint_occurrence">
+<parameter name="pd">
+<typename name="product_definition"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION.DEFINITION'));
@@ -336,7 +336,7 @@ REPEAT i := 1 to SIZEOF(fo) by 1;
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) | 
   ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' + 
-  'FOOTPRINT_DEFINITION' IN 
+  'GENERIC_FOOTPRINT_DEFINITION' IN 
       TYPEOF(sar.relating_shape_aspect.of_shape.definition)) AND
   ('usage definition' = sar\shape_aspect_relationship.name)));
 END_REPEAT;
@@ -362,13 +362,13 @@ IF (SIZEOF(dri) = 1) THEN
     RETURN (TRUE);
 END_IF;
 RETURN (pass);</algorithm>
-      </function>
-      <function name="is_symmetrical_footprint_occurrence_location">
-         <parameter name="cl">
-            <typename name="component_2d_location"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_symmetrical_footprint_occurrence_location">
+<parameter name="cl">
+<typename name="component_2d_location"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
@@ -388,13 +388,13 @@ IF sizeof (pdrs) = 1 THEN
 ELSE
     RETURN (FALSE);
 END_IF;</algorithm>
-      </function>
-      <function name="is_symmetrical_padstack_occurrence">
-         <parameter name="pd">
-            <typename name="product_definition"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_symmetrical_padstack_occurrence">
+<parameter name="pd">
+<typename name="product_definition"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION.DEFINITION'));
@@ -442,13 +442,13 @@ IF (SIZEOF(dri) = 1) THEN
     RETURN (TRUE);
 END_IF;
 RETURN (pass);</algorithm>
-      </function>
-      <function name="is_symmetrical_padstack_occurrence_location">
-         <parameter name="cl">
-            <typename name="component_2d_location"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_symmetrical_padstack_occurrence_location">
+<parameter name="cl">
+<typename name="component_2d_location"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
@@ -468,13 +468,13 @@ IF sizeof (pdrs) = 1 THEN
 ELSE
     RETURN (FALSE);
 END_IF;</algorithm>
-      </function>
-      <function name="is_top_footprint_occurrence">
-         <parameter name="pd">
-            <typename name="product_definition"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_top_footprint_occurrence">
+<parameter name="pd">
+<typename name="product_definition"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION.DEFINITION'));
@@ -496,7 +496,7 @@ REPEAT i := 1 to SIZEOF(fo) by 1;
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT')) | 
   ('PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' + 
-  'FOOTPRINT_DEFINITION' IN 
+  'GENERIC_FOOTPRINT_DEFINITION' IN 
       TYPEOF(sar.relating_shape_aspect.of_shape.definition)) AND
   ('usage definition' = sar\shape_aspect_relationship.name)));
 END_REPEAT;
@@ -522,13 +522,13 @@ IF (SIZEOF(dri) = 1) THEN
     RETURN (TRUE);
 END_IF;
 RETURN (pass);</algorithm>
-      </function>
-      <function name="is_top_footprint_occurrence_location">
-         <parameter name="cl">
-            <typename name="component_2d_location"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_top_footprint_occurrence_location">
+<parameter name="cl">
+<typename name="component_2d_location"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
@@ -548,13 +548,13 @@ IF sizeof (pdrs) = 1 THEN
 ELSE
     RETURN (FALSE);
 END_IF;</algorithm>
-      </function>
-      <function name="is_top_padstack_occurrence">
-         <parameter name="pd">
-            <typename name="product_definition"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_top_padstack_occurrence">
+<parameter name="pd">
+<typename name="product_definition"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pds : SET OF property_definition := BAG_TO_SET(USEDIN ( pd,
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION.DEFINITION'));
@@ -602,13 +602,13 @@ IF (SIZEOF(dri) = 1) THEN
     RETURN (TRUE);
 END_IF;
 RETURN (pass);</algorithm>
-      </function>
-      <function name="is_top_padstack_occurrence_location">
-         <parameter name="cl">
-            <typename name="component_2d_location"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
+</function>
+<function name="is_top_padstack_occurrence_location">
+<parameter name="cl">
+<typename name="component_2d_location"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
   pdrs : SET OF property_definition_representation := BAG_TO_SET(USEDIN ( cl, 
   'PHYSICAL_UNIT_2D_DESIGN_VIEW_MIM.' +
   'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION'));
@@ -628,6 +628,6 @@ IF sizeof (pdrs) = 1 THEN
 ELSE
     RETURN (FALSE);
 END_IF;</algorithm>
-      </function>
-   </schema>
+</function>
+</schema>
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-09T15:34:43" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-10T11:39:42" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_2d_shape_arm schema_instance"/>
 <schema name="Part_template_2d_shape_arm">
 <interface kind="use" schema="Component_grouping_arm"/>
@@ -103,13 +103,6 @@
 <where label="WR4" expression="((footprint_location = padstack_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR &#10;            (NOT (footprint_location = padstack_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'))"/>
 </entity>
 <entity name="Inter_stratum_feature_template_location_in_fd_or_pd" supertypes="Part_template_location_in_fd_or_pd">
-<explicit name="template">
-<typename name="Inter_stratum_feature_template"/>
-<redeclaration entity-ref="Part_template_location_in_fd_or_pd"/>
-</explicit>
-<where label="WR1" expression="SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE',&#10;                   'PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_TEMPLATE'] * TYPEOF(template)) = 0"/>
-</entity>
-<entity name="Inter_stratum_feature_template_location_in_padstack_definition" supertypes="Part_template_location_in_fd_or_pd">
 <explicit name="assembly">
 <typename name="Passage_padstack_definition"/>
 <redeclaration entity-ref="Part_template_location_in_fd_or_pd"/>
@@ -118,7 +111,7 @@
 <typename name="Inter_stratum_feature_template"/>
 <redeclaration entity-ref="Part_template_location_in_fd_or_pd"/>
 </explicit>
-<where label="WR1" expression="assembly\Passage_padstack_definition.technology_reference :=: template\Inter_stratum_feature_template.of_passage_technology"/>
+<where label="WR1" expression="SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE',&#10;                   'PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_TEMPLATE'] * TYPEOF(template)) = 0"/>
 </entity>
 <entity name="Library_padstack_definition" supertypes="Padstack_definition"/>
 <entity name="Padstack_definition" supertypes="Template_definition" super.expression="ONEOF (Design_layer_type_specific_padstack_definition, Stratum_type_independent_padstack_definition) ANDOR Library_padstack_definition ANDOR Design_specific_padstack_definition">
@@ -191,7 +184,7 @@
 <where label="WR1" expression="padstack_shape.shape_characterized_padstack_definition :=: reference_location.padstack"/>
 <where label="WR2" expression="footprint_shape.shape_characterized_footprint_definition :=: reference_location.footprint"/>
 </entity>
-<entity name="Part_template_location_in_fd_or_pd" abstract.supertype="YES">
+<entity name="Part_template_location_in_fd_or_pd" abstract.supertype="YES" super.expression="ONEOF (Inter_stratum_feature_template_location_in_fd_or_pd, Stratum_specific_part_template_location_in_fd_or_pd)">
 <explicit name="assembly">
 <typename name="generic_footprint_definition_or_padstack_definition"/>
 </explicit>
@@ -281,11 +274,6 @@
 <where label="WR2" expression="NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1 OR&#10;             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))&#10;              AND&#10;              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)))"/>
 <where label="WR3" expression="NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1 OR&#10;             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))&#10;              AND&#10;              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)))"/>
 <where label="WR4" expression="NOT SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.SPECIAL_SYMBOL_PART_TEMPLATE'] * TYPEOF(template)) = 1 OR&#10;             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Special_symbol_part_template.of_stratum_technology | st :=: bound_stratum)) = 1))&#10;              AND&#10;              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Special_symbol_part_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)))"/>
-</entity>
-<entity name="Stratum_technology_specific_part_template_location_in_padstack_definition" supertypes="Part_template_location_in_fd_or_pd">
-<explicit name="technology">
-<typename name="Stratum_technology"/>
-</explicit>
 </entity>
 <entity name="Stratum_type_independent_padstack_definition" supertypes="Padstack_definition"/>
 <function name="get_padstack_arrangement">

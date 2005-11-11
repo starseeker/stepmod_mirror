@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.57 2005/11/10 11:25:57 liutkus Exp $
+   $Id: arm.exp,v 1.58 2005/11/10 16:24:00 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -107,18 +107,28 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     WHERE
       WR1 : NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',
                          'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
-(shape_characterized_footprint_definition.reference_package :=: reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit);
+            NOT ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit)) OR
+            NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(shape_characterized_footprint_definition)) OR      
+                 (shape_characterized_footprint_definition\Footprint_definition.reference_package :=: 
+                  reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit);
+
       WR2 : NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',
                          'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
- ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit));
+                ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit));
+
       WR3 : NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',
                          'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
- (shape_characterized_footprint_definition.reference_package :=: reference_shape\Part_template_shape_model.shape_characterized_part_template);
+            NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit)) OR
+            NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(shape_characterized_footprint_definition)) OR      
+                 (shape_characterized_footprint_definition.reference_package :=: 
+                  reference_shape\Part_template_shape_model.shape_characterized_part_template);
+
       WR4 : NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',
                          'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
- ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_part_template));
-			WR5 : (SIZEOF(USEDIN(SELF,
- 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0);       
+                ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' 
+                   IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_part_template));
+
+     WR5 : SIZEOF(USEDIN(SELF, 'LAYERED_2D_SHAPE_ARM.REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.RELATED_FEATURE_SHAPE')) = 0;       
   END_ENTITY;
 
   ENTITY Generic_footprint_definition
@@ -203,7 +213,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
                 (reference_package_terminal.associated_definition :=: footprint.reference_package);
       WR3 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_CONNECTOR_TEMPLATE' IN TYPEOF(footprint.reference_package)) OR 
                 ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE_INTERFACE_TERMINAL' IN TYPEOF(reference_package_terminal));
-      WR4: NOT('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION'*TYPEOF(footprint)) OR (footprint\Footprint_definition.reference_package = reference_package_terminal.associated_definition);                      
+      WR4 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(footprint)) OR 
+      (footprint\Footprint_definition.reference_package = reference_package_terminal.associated_definition);                      
   END_ENTITY;
 
   ENTITY Padstack_location_in_footprint_definition_transform

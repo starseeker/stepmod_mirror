@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.39 2005/11/01 05:55:43 thomasrthurman Exp $
+   $Id: arm.exp,v 1.40 2005/11/03 04:22:46 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3579 - ISO/CD-TS 10303-1732 Physical unit usage view - EXPRESS ARM
 *)
 
@@ -26,10 +26,22 @@ SCHEMA Physical_unit_usage_view_arm;
 		(Part_feature);
 	END_TYPE;
 
-	TYPE ap210_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
+	TYPE puuv_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
 		(Part_feature);
 	END_TYPE;
 	
+ENTITY Derived_part_view_definition_relationship
+  SUBTYPE OF(View_definition_relationship);
+ SELF\View_definition_relationship.relating_view : Part_view_definition;
+ SELF\View_definition_relationship.related_view  : Part_view_definition;
+WHERE
+  WR1: SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view)) > 0;
+  WR2: SIZEOF(QUERY(gdrse <* get_derived_shape_element(SELF\View_definition_relationship.related_view) |
+             (SIZEOF(QUERY(se <* gdrse.derived_from |
+              SELF\View_definition_relationship.relating_view <> se.containing_shape.described_element
+              )) = 0)
+             )) = SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view));
+END_ENTITY;
 
   ENTITY Connection_zone_in_usage_view
   	SUBTYPE OF (Connection_zone);
@@ -124,7 +136,31 @@ SCHEMA Physical_unit_usage_view_arm;
    WR1 : SIZEOF(gee) = SIZEOF(gei);
   END_RULE;
 
+FUNCTION get_derived_shape_element( input : Part_view_definition) : SET OF Derived_shape_element;
+LOCAL
+ is : SET OF Item_shape := bag_to_set(USEDIN(input, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE.DESCRIBED_ELEMENT'));
+ se : SET OF Shape_element := bag_to_set(USEDIN(is, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE'));
+END_LOCAL; 
 
+RETURN(QUERY(dse <* se | 'DERIVED_SHAPE_ELEMENT_ARM.DERIVED_SHAPE_ELEMENT' IN TYPEOF(se)));
+END_FUNCTION;
+
+  FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+  END_FUNCTION;
 
 END_SCHEMA;
 

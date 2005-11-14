@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-10T13:27:22" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-14T16:37:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
 <schema name="Layered_interconnect_module_design_arm">
 <interface kind="use" schema="Edge_shape_feature_arm"/>
@@ -244,7 +244,7 @@
 <redeclaration entity-ref="Shape_element"/>
 </derived>
 <unique label="UR1">
-<unique.attribute entity-ref="Shape_element" attribute="element_name"/>
+<unique.attribute entity-ref="Component_feature" attribute="element_name"/>
 <unique.attribute attribute="associated_component"/>
 </unique>
 <where label="WR1" expression="NOT (EXISTS(SELF\Component_feature.associated_component\Conductive_interconnect_element.composed_conductor)) OR (location.resident_design_layer_stratum = SELF\Component_feature.associated_component\Conductive_interconnect_element.composed_conductor.resident_stratum)"/>
@@ -405,6 +405,16 @@
 <redeclaration entity-ref="Default_passage_based_land_physical_template"/>
 </explicit>
 </entity>
+<entity name="Default_tapered_blind_via_definition" supertypes="Default_via_definition">
+<explicit name="maximum_as_finished_interior_passage_extent" optional="YES">
+<typename name="Length_data_element"/>
+</explicit>
+<explicit name="minimum_as_finished_interior_passage_extent">
+<typename name="Length_data_element"/>
+</explicit>
+<where label="WR1" expression="less(maximum_as_finished_interior_passage_extent,maximum_as_finished_passage_extent)"/>
+<where label="WR2" expression="less(minimum_as_finished_interior_passage_extent,minimum_as_finished_passage_extent)"/>
+</entity>
 <entity name="Default_unsupported_passage_based_land_physical_template" supertypes="Default_passage_based_land_physical_template">
 <explicit name="of_passage_technology">
 <typename name="Default_unsupported_passage_definition"/>
@@ -564,10 +574,8 @@
 <typename name="Stratum"/>
 <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
 </explicit>
-<derived name="relation_type" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="View_definition_relationship"/>
-</derived>
+<where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+<where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.description)"/>
 </entity>
 <entity name="Inter_stratum_feature" abstract.supertype="YES" supertypes="Laminate_component" super.expression="ONEOF (Unsupported_passage, Plated_inter_stratum_feature)">
 <explicit name="feature_of_size">
@@ -616,6 +624,9 @@
 </inverse>
 <where label="WR1" expression="SIZEOF(QUERY(ftr &lt;* of_fabrication_thickness_requirement | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF(ftr\Requirement_assignment.assigned_requirement)))) = 0"/>
 <where label="WR2" expression="(SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY')) = 0)&#10;      OR&#10;      (SIZEOF(QUERY(imsar &lt;* USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | &#10;              (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND &#10;               (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1)"/>
+<where label="WR3" expression="NOT EXISTS (SELF\Product_view_definition.id)"/>
+<where label="WR4" expression="NOT EXISTS (SELF\Product_view_definition.name)"/>
+<where label="WR5" expression="NOT EXISTS (SELF\Product_view_definition.additional_characterization)"/>
 </entity>
 <entity name="Interconnect_module_edge" supertypes="Inter_stratum_feature" super.expression="ONEOF (Partially_plated_interconnect_module_edge, Plated_interconnect_module_edge)"/>
 <entity name="Interconnect_module_edge_segment" supertypes="Inter_stratum_feature" super.expression="ONEOF (Plated_interconnect_module_edge_segment, Unplated_interconnect_module_edge_segment)">
@@ -636,7 +647,7 @@
 </entity>
 <entity name="Interconnect_module_join_terminal" supertypes="Interconnect_module_terminal">
 <inverse name="defining_terminal" entity="Component_feature_to_physical_usage_view_assignment" attribute="defined_part_feature"/>
-<where label="WR1" expression="SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.VIA_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT_JOIN_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.NON_FUNCTIONAL_LAND_JOIN_TERMINAL'] * TYPEOF(defining_terminal.assigned_design_object)) = 1"/>
+<where label="WR1" expression="SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.VIA_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT_JOIN_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL'] * TYPEOF(defining_terminal.assigned_design_object)) = 1"/>
 </entity>
 <entity name="Interconnect_module_stratum_assembly_relationship">
 <explicit name="assembly">
@@ -792,6 +803,10 @@
 <where label="WR1" expression="SIZEOF(QUERY(sar &lt;* SELF\Assembly_group_component.components | &#10;&#9;&#9;NOT  ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_TEXT_COMPONENT' IN  TYPEOF(sar.related_view)) )) = 0"/>
 </entity>
 <entity name="Layer_connection_point" abstract.supertype="YES" supertypes="Shape_element">
+<explicit name="element_name">
+<builtintype type="STRING"/>
+<redeclaration entity-ref="Shape_element"/>
+</explicit>
 <explicit name="location_2d" optional="YES">
 <typename name="Cartesian_point"/>
 </explicit>
@@ -822,7 +837,7 @@
 <inverse.aggregate type="SET" lower="0" upper="1"/>
 </inverse>
 <unique label="UR1">
-<unique.attribute entity-ref="Shape_element" attribute="element_name"/>
+<unique.attribute attribute="element_name"/>
 <unique.attribute attribute="resident_design_layer_stratum"/>
 </unique>
 <where label="WR1" expression="EXISTS(location_2d) OR EXISTS(location_3d)"/>
@@ -830,6 +845,7 @@
 <where label="WR3" expression="NOT (EXISTS(location_3d)) OR ((SIZEOF(location_3d\Cartesian_point.coordinates)) = 3)"/>
 <where label="WR4" expression="SIZEOF(QUERY(jr &lt;* aggregate_join | jr.network_topology &lt;&gt; reference_network)) = 0"/>
 <where label="WR5" expression="EXISTS(reference_network)"/>
+<where label="WR6" expression="NOT EXISTS (SELF\Shape_element.description)"/>
 </entity>
 <entity name="Layout_junction">
 <explicit name="name">
@@ -855,10 +871,8 @@
 <where label="WR1" expression="associated_definition :=: net.current_associated_definition"/>
 </entity>
 <entity name="Library_reference_view_definition_relationship" supertypes="View_definition_relationship">
-<derived name="relation_type" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="View_definition_relationship"/>
-</derived>
+<where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+<where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.description)"/>
 </entity>
 <entity name="Multi_layer_material_removal_feature" supertypes="Material_removal_feature">
 <explicit name="derived_layer_geometry">
@@ -1035,8 +1049,7 @@
 <builtintype type="BOOLEAN"/>
 </derived>
 <where label="WR1" expression="SIZEOF(QUERY(cre &lt;* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_AND_CONTACT_SIZE_DEPENDENT_LAND',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.VIA_AND_CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0"/>
-<where label="WR2" expression="SIZEOF(QUERY(cre &lt;* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.NON_FUNCTIONAL_LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_AND_' + 'CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'VIA_AND_CONTACT_SIZE_DEPENDENT_NON_FUNCTIONAL_LAND']) = 1)))) = 0"/>
-<where label="WR3" expression="reference_connected_terminals.associated_definition = SELF\Generic_physical_network.current_associated_definition\Part_design_view.usage_view"/>
+<where label="WR2" expression="reference_connected_terminals.associated_definition = SELF\Generic_physical_network.current_associated_definition\Part_design_view.usage_view"/>
 <where label="IP1"/>
 <where label="IP2"/>
 <where label="IP3"/>
@@ -1080,6 +1093,9 @@
 <where label="WR3" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) &lt;= 1"/>
 <where label="WR4" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) &lt;= 1"/>
 <where label="WR5" expression="NOT(SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) = 1) OR&#10;            (SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) = 1)"/>
+<where label="WR6" expression="NOT EXISTS (SELF\Product_view_definition.id)"/>
+<where label="WR7" expression="NOT EXISTS (SELF\Product_view_definition.name)"/>
+<where label="WR8" expression="NOT EXISTS (SELF\Product_view_definition.additional_characterization)"/>
 </entity>
 <entity name="Stratum_average_surface" supertypes="Stratum_surface">
 <where label="WR1" expression="SELF\Stratum_surface.name = stratum_surface_designation.average_surface"/>
@@ -1103,13 +1119,18 @@
 <typename name="Stratum"/>
 <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
 </explicit>
+<explicit name="element_name">
+<builtintype type="STRING"/>
+<redeclaration entity-ref="Shape_element"/>
+</explicit>
 <explicit name="feature_of_size">
 <builtintype type="BOOLEAN"/>
 </explicit>
 <unique label="UR1">
-<unique.attribute entity-ref="Shape_element" attribute="element_name"/>
+<unique.attribute attribute="element_name"/>
 <unique.attribute attribute="resident_stratum"/>
 </unique>
+<where label="WR1" expression="NOT EXISTS (SELF\Shape_element.description)"/>
 </entity>
 <entity name="Stratum_feature_template_component" supertypes="Laminate_component">
 <explicit name="derived_from">
@@ -1303,6 +1324,16 @@
     END_REPEAT;
     pass := (input1 = ciet);
     RETURN(pass);</algorithm>
+</function>
+<function name="less">
+<parameter name="input1">
+<typename name="Length_data_element"/>
+</parameter>
+<parameter name="input2">
+<typename name="Length_data_element"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>RETURN(TRUE);</algorithm>
 </function>
 <function name="make_aggregate_join">
 <parameter name="input1">

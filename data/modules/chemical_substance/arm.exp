@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.28 2005/09/26 15:41:17 kovaliovas Exp $
+   $Id: arm.exp,v 1.29 2005/11/14 09:59:27 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3372 - ISO/CD-TS 10303-1655 Chemical substance - EXPRESS ARM
 *)
 
@@ -167,8 +167,9 @@ CONSTANT
       SUBTYPE OF (View_definition_usage);
      		SELF\View_definition_relationship.related_view RENAMED application : Part_view_definition;
      		SELF\View_definition_relationship.relating_view RENAMED definition : Substance_view_definition;  
-   DERIVE
-     SELF\View_definition_relationship.relation_type : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
+      WR2 : NOT EXISTS(SELF\View_definition_relationship.description);
    END_ENTITY;
    
   ENTITY Substance
@@ -185,15 +186,17 @@ CONSTANT
       composition_basis                                                  : Substance_composition_basis;
       determination_method                                               : STRING; 
       amount 															 : Value_with_unit; 
-    DERIVE
-      SELF\View_definition_relationship.relation_type : STRING := '';
     WHERE
       WR1 : 'VALUE_WITH_UNIT_ARM.RATIO_UNIT' IN TYPEOF(amount.unit);      
+      WR2 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
+      WR3 : NOT EXISTS(SELF\View_definition_relationship.description);
   END_ENTITY; 
 
   ENTITY Substance_version 
     SUBTYPE OF (Product_version); 
     SELF\Product_version.of_product : Substance; 
+  WHERE
+    WR1 : NOT EXISTS(SELF\Product_version.description);
   END_ENTITY; 
  
   

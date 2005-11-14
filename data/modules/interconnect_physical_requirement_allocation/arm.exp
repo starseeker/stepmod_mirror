@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.21 2005/10/03 20:23:41 thomasrthurman Exp $
+   $Id: arm.exp,v 1.22 2005/10/07 07:57:38 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3456 - ISO/CD-TS 10303-1689 Interconnect physical requirement allocation - EXPRESS ARM
 *)
 
@@ -28,6 +28,8 @@ ENTITY Interconnect_shield_allocation
     	assigned_requirement_property :  requirement_definition_property :=
 get_requirement_definition_property(SELF,
 'INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.'+'ELECTROMAGNETIC_REQUIREMENT_OCCURRENCE');
+    WHERE
+      WR1 : NOT EXISTS (SELF\Requirement_assignment.description);
   END_ENTITY;
 		
   ENTITY Thermal_isolation_removal_template
@@ -54,6 +56,9 @@ get_requirement_definition_property(SELF,
         get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'thermal isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE');
    WHERE
     WR1 : 'FABRICATION_TECHNOLOGY_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(thermal_isolation_spacing_requirement[1]);
+    WR2: NOT EXISTS (SELF\Product_view_definition.id);
+    WR3: NOT EXISTS (SELF\Product_view_definition.name);
+    WR4: NOT EXISTS (SELF\Product_view_definition.additional_characterization);
   END_ENTITY;
 
 FUNCTION get_specific_requirement_property_for_collector(

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.12 2005/09/27 06:22:03 kovaliovas Exp $
+   $Id: arm.exp,v 1.13 2005/10/07 12:32:55 liutkus Exp $
    ISO TC184/SC4/WG12 N3408 - ISO/CD-TS 10303-1671 Feature and connection zone - EXPRESS ARM
 *)
 
@@ -16,17 +16,20 @@ SCHEMA Feature_and_connection_zone_arm;
   	ABSTRACT SUPERTYPE
        SUBTYPE OF (Shape_element);
    		connection_area : OPTIONAL SET[1:?] OF Connection_zone;
+   		SELF\Shape_element.element_name : STRING;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, 
       SELF\shape_element.containing_shape;
+    WHERE
+      WR1: NOT EXISTS (SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Connection_zone
   	ABSTRACT SUBTYPE OF (Shape_element);
-  	DERIVE
-  	  SELF\Shape_element.description : STRING := '';
     WHERE
       WR1 : SIZEOF(USEDIN(SELF, '')) > 0;
+      WR2 : NOT EXISTS (SELF\Shape_element.description);
+      WR3 : NOT EXISTS (SELF\Shape_element.element_name);
   END_ENTITY;
 
 END_SCHEMA;

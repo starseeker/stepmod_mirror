@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.126 2005/11/11 21:22:45 liutkus Exp $
+   $Id: arm.exp,v 1.125 2005/11/10 08:41:33 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -646,6 +646,9 @@ SCHEMA Layered_interconnect_module_design_arm;
       (SIZEOF(QUERY(imsar <* USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | 
               (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND 
                (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1);
+      WR3: NOT EXISTS (SELF\Product_view_definition.id);
+      WR4: NOT EXISTS (SELF\Product_view_definition.name);
+      WR5: NOT EXISTS (SELF\Product_view_definition.additional_characterization);
   END_ENTITY;
 
   ENTITY Interconnect_module_edge
@@ -825,6 +828,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Layer_connection_point
     ABSTRACT SUPERTYPE
     SUBTYPE OF (Shape_element);
+      SELF\Shape_element.element_name : STRING;
       location_2d                   : OPTIONAL Cartesian_point;
       location_3d                   : OPTIONAL Cartesian_point;
       SELF\Shape_element.containing_shape RENAMED resident_design_layer_stratum : Design_layer_stratum;
@@ -849,6 +853,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR3 : NOT (EXISTS(location_3d)) OR ((SIZEOF(location_3d\Cartesian_point.coordinates)) = 3);
       WR4 : SIZEOF(QUERY(jr <* aggregate_join | jr.network_topology <> reference_network)) = 0;
       WR5 : EXISTS(reference_network); 
+      WR6: NOT EXISTS (SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Layout_junction;
@@ -1085,7 +1090,10 @@ SCHEMA Layered_interconnect_module_design_arm;
     WR4: SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) <= 1;
     WR5: NOT(SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) = 1) OR
             (SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) = 1);
-      END_ENTITY;
+    WR6: NOT EXISTS (SELF\Product_view_definition.id);
+    WR7: NOT EXISTS (SELF\Product_view_definition.name);
+    WR8: NOT EXISTS (SELF\Product_view_definition.additional_characterization);
+  END_ENTITY;
 
   ENTITY Stratum_average_surface
       SUBTYPE OF (Stratum_surface);
@@ -1108,10 +1116,12 @@ SCHEMA Layered_interconnect_module_design_arm;
  			Conductive_filled_area) ANDOR (Fiducial_stratum_feature))    
 		SUBTYPE OF (Shape_element); 			
       SELF\Shape_element.containing_shape RENAMED resident_stratum  : Stratum;
+      SELF\Shape_element.element_name : STRING;
       feature_of_size                                               : BOOLEAN;
     UNIQUE
-      UR1 : SELF\Shape_element.element_name,
- resident_stratum;
+      UR1 : SELF\Shape_element.element_name, resident_stratum;
+    WHERE
+      WR1: NOT EXISTS (SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Stratum_feature_template_component

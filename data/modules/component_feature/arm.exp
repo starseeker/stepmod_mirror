@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.18 2005/09/20 11:48:02 liutkus Exp $
+   $Id: arm.exp,v 1.19 2005/10/07 12:49:26 liutkus Exp $
    ISO TC184/SC4/WG12 N3324 - ISO/CD-TS 10303-1657 Component feature - EXPRESS ARM
 *)
 
@@ -15,14 +15,18 @@ SCHEMA Component_feature_arm;
     ABSTRACT SUBTYPE OF (Shape_element);
       definition           : OPTIONAL feature_select;
       SELF\Shape_element.containing_shape RENAMED associated_component : Assembly_component;
+      SELF\Shape_element.element_name : STRING;
     UNIQUE
       UR1 : definition,
  associated_component;
+    WHERE
+      WR1 : NOT EXISTS (SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Component_feature_joint
      ABSTRACT SUPERTYPE
   SUBTYPE OF (Component_feature_relationship, Shape_element);
+    SELF\Shape_element.element_name : STRING;
     SELF\Shape_element_relationship.relating RENAMED feature_1 : Component_feature;
     SELF\Shape_element_relationship.related RENAMED feature_2 : Component_feature;
     SELF\Shape_element.containing_shape RENAMED associated_definition : Item_shape;
@@ -30,6 +34,7 @@ SCHEMA Component_feature_arm;
       WR1 : feature_1 <> feature_2;
       WR2 : 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION' in TYPEOF(associated_definition);
       WR3 : SELF\Shape_element.containing_shape\Item_shape.described_element = feature_1\Shape_element.containing_shape\Item_shape.described_element;      
+      WR4 : NOT EXISTS (SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Component_feature_make_from_relationship
@@ -44,6 +49,8 @@ SCHEMA Component_feature_arm;
   	SUBTYPE OF (Shape_element_relationship);
       SELF\Shape_element_relationship.relating : Component_feature;  	
       SELF\Shape_element_relationship.related  : Component_feature;
+    WHERE
+      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY;
 
   ENTITY Component_feature_to_physical_usage_view_assignment;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.14 2005/09/27 07:14:46 kovaliovas Exp $
+   $Id: arm.exp,v 1.15 2005/09/27 09:47:22 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3597 - ISO/CD-TS 10303-1742 Shape composition - EXPRESS ARM
 *)
 
@@ -17,6 +17,9 @@ SCHEMA Shape_composition_arm;
     SUBTYPE OF (Shape_element);
     INVERSE
       composing_relationships : SET[2:?] OF shape_element_composing_relationship FOR relating;
+    WHERE
+      WR1: NOT EXISTS (SELF\Shape_element.description);
+      WR2: NOT EXISTS (SELF\Shape_element.element_name);
   END_ENTITY;
 
   ENTITY Composite_unit_shape_element
@@ -27,6 +30,8 @@ SCHEMA Shape_composition_arm;
     SUBTYPE OF (Shape_element_relationship);
     DERIVE
       SELF\Shape_element_relationship.relation_type : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY;
 
   ENTITY Shape_element_composing_relationship
@@ -43,6 +48,7 @@ SCHEMA Shape_composition_arm;
       UR1 : related, relating;
     WHERE
       WR1 : SELF\Shape_element_relationship.related <> SELF\Shape_element_relationship.relating;
+      WR2 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY;
 
   ENTITY Shape_element_locating_relationship

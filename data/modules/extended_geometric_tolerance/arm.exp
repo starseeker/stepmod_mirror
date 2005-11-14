@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.41 2005/11/07 12:35:39 liutkus Exp $
+   $Id: arm.exp,v 1.42 2005/11/07 12:43:30 liutkus Exp $
    ISO TC184/SC4/WG12 N3399 - ISO/CD-TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
 *)
 
@@ -235,16 +235,23 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Shape_element_relationship);
       SELF\Shape_element_relationship.relating RENAMED precedent_datum : Datum_shape_element;
       SELF\Shape_element_relationship.related RENAMED subsequent_datum : Datum_shape_element;
+    WHERE
+      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY;
 
   ENTITY Datum_difference_based_characteristic
     SUBTYPE OF (Representation_item); --characteristic);
       of_datum_difference : Datum_difference;
+    WHERE
+      WR1: NOT EXISTS (SELF\Representation_item.name);
   END_ENTITY;
 
   ENTITY Datum_feature
     SUPERTYPE OF (Datum_target_set)
     SUBTYPE OF (Shape_element);
+  WHERE
+    WR1: NOT EXISTS (SELF\Shape_element.description);
+    WR2: NOT EXISTS (SELF\Shape_element.element_name);
   END_ENTITY;
 
   ENTITY Datum_plane
@@ -414,14 +421,16 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Parallel_shape_element_relationship
     SUBTYPE OF (Shape_element_relationship);
-    DERIVE
-      SELF\Shape_element_relationship.relation_type : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY;
 
   ENTITY Perpendicular_shape_element_relationship
     SUBTYPE OF (Shape_element_relationship);
     DERIVE
       SELF\Shape_element_relationship.relation_type : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY; 
 
   ENTITY Positional_boundary
@@ -552,6 +561,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     UNIQUE
       UR1 : SELF\Shape_element_relationship.related, 
  SELF\Shape_element_relationship.relating;
+    WHERE
+      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY;
 
   ENTITY Simultaneous_geometric_tolerance_requirement;

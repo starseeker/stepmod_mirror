@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.59 2005/11/11 06:08:56 thomasrthurman Exp $
+   $Id: arm.exp,v 1.60 2005/11/11 21:12:25 liutkus Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -271,6 +271,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
            (assembly_shape\Footprint_definition_shape.shape_characterized_footprint_definition :=: reference_location.assembly);
         WR3: NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION_SHAPE' IN TYPEOF(assembly_shape)) OR 
            (assembly_shape\Padstack_definition_shape.shape_characterized_padstack_definition :=: reference_location.assembly);
+        WR4: NOT EXISTS (SELF\Representation_item.name);
   END_ENTITY;
 
   ENTITY Part_template_planar_keepout_shape_model
@@ -336,14 +337,14 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
               AND
               (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR
                (SIZEOF(QUERY(st <* template\Special_symbol_part_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)));
-      WR5: (NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.DOCUMENTATION_STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1) OR
-               ((NOT EXISTS(bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose)) OR
-                   ((NOT (bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose = SOLDERMASK)) OR
-                   (SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1)));
-      WR6: (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(bound_stratum)) = 1) OR
-               ((NOT EXISTS(bound_stratum\Documentation_layer_stratum.of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose)) OR
-                   ((NOT (bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose = SOLDERMASK)) OR
-                   (SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1)));
+      WR5: NOT('FABRICATION_TECHNOLOGY_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(bound_stratum)) OR
+           NOT EXISTS(bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose) OR
+           NOT(bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
+          ('FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template));
+      WR6: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM' IN TYPEOF(bound_stratum)) OR
+           NOT EXISTS(bound_stratum\Documentation_layer_stratum.of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose) OR
+           NOT (bound_stratum\Documentation_layer_stratum.of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
+          ('FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template));
   END_ENTITY;
 
   ENTITY Stratum_type_independent_padstack_definition

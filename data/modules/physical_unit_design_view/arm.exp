@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.37 2005/11/03 16:57:14 thomasrthurman Exp $
+   $Id: arm.exp,v 1.38 2005/11/04 13:38:56 liutkus Exp $
    ISO TC184/SC4/WG12 N3567 - ISO/CD-TS 10303-1728 Physical unit design view - EXPRESS ARM
 *)
 
@@ -45,6 +45,8 @@ SCHEMA Physical_unit_design_view_arm;
       basis_context : Part_design_view;
     DERIVE
       SELF\Alternate_product_relationship.criteria : STRING := '';
+    WHERE
+      WR1: NOT EXISTS (SELF\Alternate_product_relationship.criteria);
   END_ENTITY;
 
   ENTITY Assembly_component
@@ -113,6 +115,9 @@ SCHEMA Physical_unit_design_view_arm;
     	SELF\Item_shape.described_element : shapeable_item := SELF;
     WHERE
       WR1 : ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF)) OR EXISTS(usage_view);
+      WR2: NOT EXISTS (SELF\Product_view_definition.id);
+      WR3: NOT EXISTS (SELF\Product_view_definition.name);
+      WR4: NOT EXISTS (SELF\Product_view_definition.additional_characterization);
   END_ENTITY;
 
   ENTITY Physical_component

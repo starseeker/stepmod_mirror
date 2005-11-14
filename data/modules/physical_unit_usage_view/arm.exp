@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.41 2005/11/13 22:53:17 thomasrthurman Exp $
+   $Id: arm.exp,v 1.42 2005/11/14 09:47:40 liutkus Exp $
    ISO TC184/SC4/WG12 N3579 - ISO/CD-TS 10303-1732 Physical unit usage view - EXPRESS ARM
 *)
 
@@ -87,6 +87,7 @@ END_ENTITY;
     WHERE
       WR1 : reusable_feature :<>: resultant_feature;
       WR2 : reusable_feature.associated_definition :<>: resultant_feature.associated_definition;
+      WR3 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY;
 
   ENTITY Part_feature_template_definition
@@ -113,6 +114,9 @@ END_ENTITY;
     WHERE
       WR1 : SIZEOF(QUERY(acr <* USEDIN(SELF,
  'PART_OCCURRENCE_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW') | NOT ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF(acr.related_view)))) = 0;
+      WR2: NOT EXISTS (SELF\Product_view_definition.id);
+      WR3: NOT EXISTS (SELF\Product_view_definition.name);
+      WR4: NOT EXISTS (SELF\Product_view_definition.additional_characterization);
   END_ENTITY;
 
   ENTITY Usage_view_connection_zone_terminal_shape_relationship;

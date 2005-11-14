@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.125 2005/11/10 08:41:33 liutkus Exp $
+   $Id: arm.exp,v 1.126 2005/11/11 21:22:45 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -440,6 +440,15 @@ SCHEMA Layered_interconnect_module_design_arm;
 	 SELF\Default_passage_based_land_physical_template.of_passage_technology :
 		Default_via_definition;
 	END_ENTITY;
+
+  ENTITY Default_tapered_blind_via_definition
+    SUBTYPE OF (Default_via_definition);
+      maximum_as_finished_interior_passage_extent : OPTIONAL Length_data_element;
+      minimum_as_finished_interior_passage_extent : Length_data_element;
+    WHERE
+      WR1: less(maximum_as_finished_interior_passage_extent,maximum_as_finished_passage_extent);
+      WR2: less(minimum_as_finished_interior_passage_extent,minimum_as_finished_passage_extent);
+  END_ENTITY;
 
   ENTITY Default_unsupported_passage_based_land_physical_template
     SUBTYPE OF (Default_passage_based_land_physical_template);
@@ -1259,6 +1268,11 @@ SCHEMA Layered_interconnect_module_design_arm;
       END_REPEAT;
     END_IF;
     RETURN(the_set);
+  END_FUNCTION;
+
+  FUNCTION less(input1 : Length_data_element;
+              input2 : Length_data_element) : BOOLEAN;
+    RETURN(TRUE);
   END_FUNCTION;
 
 END_SCHEMA;

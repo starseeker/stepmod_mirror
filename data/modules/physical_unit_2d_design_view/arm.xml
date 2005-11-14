@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-08T15:44:45" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-11T18:50:42" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_arm schema_instance"/>
 <schema name="Physical_unit_2d_design_view_arm">
 <interface kind="use" schema="Physical_unit_2d_shape_arm"/>
@@ -66,12 +66,20 @@
 </entity>
 <rule name="unique_assembly_component_2d_shape" appliesto="Assembly_component_2d_shape">
 <algorithm>LOCAL
-     ac : BAG OF Assembly_component := [];
+     ac : SET OF Assembly_component := [];
+     pass : BOOLEAN := TRUE;
    END_LOCAL;
    REPEAT i := 1 to SIZEOF(Assembly_component_2d_shape) by 1;
      ac  := ac + Assembly_component_2d_shape[i].shape_characterized_component;
+   END_REPEAT;  
+   REPEAT i := 1 to SIZEOF(ac) by 1;
+     IF (SIZEOF(USEDIN(ac[i],
+       'PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE.SHAPE_CHARACTERIZED_COMPONENT')) &lt;&gt; 1) THEN 
+       pass := FALSE;
+       ESCAPE;
+     END_IF;
    END_REPEAT;</algorithm>
-<where label="WR1" expression="SIZEOF(ac) = SIZEOF(bag_to_set(ac))"/>
+<where label="WR1" expression="pass"/>
 </rule>
 <function name="bag_to_set">
 <parameter name="the_bag">

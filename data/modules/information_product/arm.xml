@@ -2,28 +2,28 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-10-10T11:30:41" rcs.revision="1.0" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="information_product_arm schema_instance"/>
-   <schema name="Information_product_arm">
-      <interface kind="use" schema="Product_view_definition_arm"/>
-      <interface kind="use" schema="File_identification_arm"/>
-      <entity name="Information_definition" supertypes="Product_view_definition">
-         <explicit name="defined_version">
-            <typename name="Information_version"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </explicit>
-      </entity>
-      <entity name="Information_product" abstract.supertype="YES" supertypes="Product">
-         <where label="WR1" expression="'information' IN types_of_product(SELF)"/>
-      </entity>
-      <entity name="Information_version" supertypes="Product_version">
-         <explicit name="of_product">
-            <typename name="Information_product"/>
-            <redeclaration entity-ref="Product_version"/>
-         </explicit>
-      </entity>
-      <rule name="Information_product_version_constraint" appliesto="Product_version">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT (&#10;  'INFORMATION_PRODUCT_ARM.' + 'INFORMATION_VERSION' IN TYPEOF&#10;  ( pv) ) ) AND ( 'INFORMATION_PRODUCT_ARM.' + 'INFORMATION_PRODUCT' IN TYPEOF (&#10;pv.of_product) ) ) ) =0"/>
-      </rule>
-   </schema>
+<express language_version="2" rcs.date="2005-11-11T16:24:23" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="information_product_arm schema_instance"/>
+<schema name="Information_product_arm">
+<interface kind="use" schema="Product_view_definition_arm"/>
+<interface kind="use" schema="File_identification_arm"/>
+<entity name="Information_definition" supertypes="Product_view_definition">
+<explicit name="defined_version">
+<typename name="Information_version"/>
+<redeclaration entity-ref="Product_view_definition"/>
+</explicit>
+</entity>
+<entity name="Information_product" abstract.supertype="YES" supertypes="Product">
+<where label="WR1" expression="SIZEOF(['document', 'information'] * types_of_product(SELF)) = 0"/>
+</entity>
+<entity name="Information_version" supertypes="Product_version">
+<explicit name="of_product">
+<typename name="Information_product"/>
+<redeclaration entity-ref="Product_version"/>
+</explicit>
+</entity>
+<rule name="Information_product_version_constraint" appliesto="Product_version">
+<where label="WR1" expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT (&#10;  'INFORMATION_PRODUCT_ARM.' + 'INFORMATION_VERSION' IN TYPEOF&#10;  ( pv) ) ) AND ( 'INFORMATION_PRODUCT_ARM.' + 'INFORMATION_PRODUCT' IN TYPEOF (&#10;pv.of_product) ) ) ) =0"/>
+</rule>
+</schema>
 </express>

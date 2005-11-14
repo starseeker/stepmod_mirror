@@ -2,169 +2,166 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-10-10T15:32:08" rcs.revision="1.0" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_extension_arm schema_instance"/>
-   <schema name="Part_template_extension_arm">
-      <interface kind="use" schema="Fabrication_technology_arm"/>
-      <interface kind="use" schema="Text_representation_arm"/>
-      <interface kind="use" schema="Layered_interconnect_module_3d_shape_arm"/>
-      <type name="extend_or_chord_2_extend_or_truncate_or_round">
-         <enumeration items="truncate chord_2_extend round extend"/>
-      </type>
-      <type name="extend_or_truncate">
-         <enumeration items="truncate extend"/>
-      </type>
-      <type name="square_or_round">
-         <enumeration items="square round"/>
-      </type>
-      <entity name="Closed_curve_style_parameters" supertypes="Curve_style_parameters"/>
-      <entity name="Curve_style_parameters" abstract.supertype="YES" super.expression="ONEOF (Closed_curve_style_parameters, Curve_style_parameters_with_ends)"/>
-      <entity name="Curve_style_parameters_with_ends" supertypes="Curve_style_parameters">
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="corner_style">
-            <typename name="extend_or_chord_2_extend_or_truncate_or_round"/>
-         </explicit>
-         <explicit name="curve_width">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="end_extension">
-            <typename name="extend_or_truncate"/>
-         </explicit>
-         <explicit name="end_style">
-            <typename name="square_or_round"/>
-         </explicit>
-         <explicit name="width_uncertainty">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="name"/>
-         </unique>
-      </entity>
-      <entity name="Default_trace_template" supertypes="Trace_template">
-         <explicit name="of_stratum_technology">
-            <typename name="Stratum_technology"/>
-         </explicit>
-      </entity>
-      <entity name="Fill_area_template" supertypes="Template_definition">
-         <explicit name="fill_area_style" optional="YES">
-            <typename name="fill_area_style_select"/>
-         </explicit>
-         <explicit name="outer_boundary_style">
-            <typename name="Closed_curve_style_parameters"/>
-         </explicit>
-         <explicit name="inner_boundary_style">
-            <typename name="Closed_curve_style_parameters"/>
-         </explicit>
-      </entity>
-      <entity name="Inter_stratum_feature_edge_segment_template" supertypes="Inter_stratum_feature_template">
-         <explicit name="composed_edge">
-            <typename name="Inter_stratum_feature_edge_template"/>
-         </explicit>
-         <explicit name="start_vertex">
-            <typename name="Edge_segment_vertex"/>
-         </explicit>
-         <explicit name="end_vertex">
-            <typename name="Edge_segment_vertex"/>
-         </explicit>
-         <explicit name="reference_path">
-            <typename name="Trimmed_curve"/>
-         </explicit>
-         <explicit name="cross_section" optional="YES">
-            <typename name="Edge_segment_cross_section"/>
-         </explicit>
-         <where label="WR1" expression="EXISTS(cross_section) XOR (SIZEOF(USEDIN(SELF,&#10; 'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) &gt; 0)"/>
-         <where label="WR2" expression="EXISTS(reference_path.start_point) AND EXISTS(reference_path.end_point)"/>
-         <where label="WR3" expression="NOT (EXISTS(start_vertex\Datum_point.location_in_2d)) OR (reference_path.start_point :=: start_vertex\Datum_point.location_in_2d)"/>
-         <where label="WR4" expression="NOT (EXISTS(start_vertex\Datum_point.location_in_3d)) OR (reference_path.start_point :=: start_vertex\Datum_point.location_in_3d)"/>
-         <where label="WR5" expression="NOT (EXISTS(end_vertex\Datum_point.location_in_2d)) OR (reference_path.end_point :=: end_vertex\Datum_point.location_in_2d)"/>
-         <where label="WR6" expression="NOT (EXISTS(end_vertex\Datum_point.location_in_3d)) OR (reference_path.end_point :=: end_vertex\Datum_point.location_in_3d)"/>
-         <where label="WR7" expression="start_vertex :&lt;&gt;: end_vertex"/>
-      </entity>
-      <entity name="Inter_stratum_feature_edge_template" supertypes="Inter_stratum_feature_template">
-         <inverse name="edges" entity="Inter_stratum_feature_edge_segment_template" attribute="composed_edge">
-            <inverse.aggregate type="SET" lower="2" upper="?"/>
-         </inverse>
-      </entity>
-      <entity name="Part_text_template" supertypes="Template_definition">
-         <explicit name="of_character">
-            <typename name="Character_glyph_symbol"/>
-         </explicit>
-      </entity>
-      <entity name="Reference_packaged_part_interconnect" supertypes="Part Template"/>
-      <entity name="Reference_packaged_part_interconnect_implementation" supertypes="Interconnect_module Template_definition">
-         <explicit name="defined_version">
-            <typename name="Reference_packaged_part_interconnect_implementation_version"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </explicit>
-      </entity>
-      <entity name="Reference_packaged_part_interconnect_implementation_version" supertypes="Part_version Template_version">
-         <explicit name="of_product">
-            <typename name="Reference_packaged_part_interconnect"/>
-            <redeclaration entity-ref="Product_version"/>
-         </explicit>
-      </entity>
-      <entity name="Snowball_template" supertypes="Material_addition_feature_template">
-         <explicit name="snowball_start_distance">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="snowball_end_distance" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="snowball_initial_spacing" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="snowball_end_spacing" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="snowball_initial_radius">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="snowball_end_radius" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="snowball_quantity_per_trace">
-            <builtintype type="INTEGER"/>
-         </explicit>
-         <where label="WR1" expression="NOT (snowball_quantity_per_trace &gt; 1) OR (EXISTS(snowball_initial_spacing) AND EXISTS(snowball_end_spacing) AND EXISTS(snowball_end_distance) AND EXISTS(snowball_end_radius))"/>
-         <where label="WR2" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
-      </entity>
-      <entity name="Special_symbol_part_template" supertypes="Template_definition">
-         <explicit name="of_stratum_technology" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Stratum_technology"/>
-         </explicit>
-         <derived name="name" expression="''">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </derived>
-      </entity>
-      <entity name="Teardrop_by_angle_template" supertypes="Material_addition_feature_template">
-         <explicit name="teardrop_angle">
-            <typename name="Angle_data_element"/>
-         </explicit>
-         <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
-      </entity>
-      <entity name="Teardrop_by_length_template" supertypes="Material_addition_feature_template">
-         <explicit name="teardrop_taper_start_distance">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="teardrop_taper_end_distance">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
-      </entity>
-      <entity name="Trace_template" supertypes="Template_definition" super.expression="Default_trace_template">
-         <explicit name="trace_style">
-            <typename name="Curve_style_parameters"/>
-         </explicit>
-         <derived name="name" expression="''">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </derived>
-      </entity>
-      <subtype.constraint name="inter_stratum_feature_template_subtypes" entity="Inter_stratum_feature_template" super.expression="ONEOF (Component_termination_passage_template, Via_template, Unsupported_passage_template, Inter_stratum_feature_edge_segment_template, Inter_stratum_feature_edge_template)"/>
-      <subtype.constraint name="material_addition_feature_template_subtypes" entity="Material_addition_feature_template" super.expression="ONEOF (Snowball_template, Teardrop_by_angle_template, Teardrop_by_length_template)"/>
-   </schema>
+<express language_version="2" rcs.date="2005-11-11T14:33:13" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_extension_arm schema_instance"/>
+<schema name="Part_template_extension_arm">
+<interface kind="use" schema="Fabrication_technology_arm"/>
+<interface kind="use" schema="Text_representation_arm"/>
+<interface kind="use" schema="Layered_interconnect_module_3d_shape_arm"/>
+<type name="extend_or_chord_2_extend_or_truncate_or_round">
+<enumeration items="truncate chord_2_extend round extend"/>
+</type>
+<type name="extend_or_truncate">
+<enumeration items="truncate extend"/>
+</type>
+<type name="square_or_round">
+<enumeration items="square round"/>
+</type>
+<entity name="Closed_curve_style_parameters" supertypes="Curve_style_parameters"/>
+<entity name="Curve_style_parameters" abstract.supertype="YES" super.expression="ONEOF (Closed_curve_style_parameters, Curve_style_parameters_with_ends)"/>
+<entity name="Curve_style_parameters_with_ends" supertypes="Curve_style_parameters">
+<explicit name="name">
+<builtintype type="STRING"/>
+</explicit>
+<explicit name="corner_style">
+<typename name="extend_or_chord_2_extend_or_truncate_or_round"/>
+</explicit>
+<explicit name="curve_width">
+<typename name="Length_data_element"/>
+</explicit>
+<explicit name="end_extension">
+<typename name="extend_or_truncate"/>
+</explicit>
+<explicit name="end_style">
+<typename name="square_or_round"/>
+</explicit>
+<explicit name="width_uncertainty">
+<typename name="Length_data_element"/>
+</explicit>
+<unique label="UR1">
+<unique.attribute attribute="name"/>
+</unique>
+</entity>
+<entity name="Default_trace_template" supertypes="Trace_template">
+<explicit name="of_stratum_technology">
+<typename name="Stratum_technology"/>
+</explicit>
+</entity>
+<entity name="Fill_area_template" supertypes="Template_definition">
+<explicit name="fill_area_style" optional="YES">
+<typename name="fill_area_style_select"/>
+</explicit>
+<explicit name="outer_boundary_style">
+<typename name="Closed_curve_style_parameters"/>
+</explicit>
+<explicit name="inner_boundary_style">
+<typename name="Closed_curve_style_parameters"/>
+</explicit>
+</entity>
+<entity name="Inter_stratum_feature_edge_segment_template" supertypes="Inter_stratum_feature_template">
+<explicit name="composed_edge">
+<typename name="Inter_stratum_feature_edge_template"/>
+</explicit>
+<explicit name="start_vertex">
+<typename name="Edge_segment_vertex"/>
+</explicit>
+<explicit name="end_vertex">
+<typename name="Edge_segment_vertex"/>
+</explicit>
+<explicit name="reference_path">
+<typename name="Trimmed_curve"/>
+</explicit>
+<explicit name="cross_section" optional="YES">
+<typename name="Edge_segment_cross_section"/>
+</explicit>
+<where label="WR1" expression="EXISTS(cross_section) XOR (SIZEOF(USEDIN(SELF,&#10; 'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) &gt; 0)"/>
+<where label="WR2" expression="EXISTS(reference_path.start_point) AND EXISTS(reference_path.end_point)"/>
+<where label="WR3" expression="NOT (EXISTS(start_vertex\Datum_point.location_in_2d)) OR (reference_path.start_point :=: start_vertex\Datum_point.location_in_2d)"/>
+<where label="WR4" expression="NOT (EXISTS(start_vertex\Datum_point.location_in_3d)) OR (reference_path.start_point :=: start_vertex\Datum_point.location_in_3d)"/>
+<where label="WR5" expression="NOT (EXISTS(end_vertex\Datum_point.location_in_2d)) OR (reference_path.end_point :=: end_vertex\Datum_point.location_in_2d)"/>
+<where label="WR6" expression="NOT (EXISTS(end_vertex\Datum_point.location_in_3d)) OR (reference_path.end_point :=: end_vertex\Datum_point.location_in_3d)"/>
+<where label="WR7" expression="start_vertex :&lt;&gt;: end_vertex"/>
+</entity>
+<entity name="Inter_stratum_feature_edge_template" supertypes="Inter_stratum_feature_template">
+<inverse name="edges" entity="Inter_stratum_feature_edge_segment_template" attribute="composed_edge">
+<inverse.aggregate type="SET" lower="2" upper="?"/>
+</inverse>
+</entity>
+<entity name="Part_text_template" supertypes="Template_definition">
+<explicit name="of_character">
+<typename name="Character_glyph_symbol"/>
+</explicit>
+</entity>
+<entity name="Planar_path_shape_model_with_parameters" supertypes="Planar_projected_shape">
+<explicit name="parameters">
+<typename name="Trace_template"/>
+</explicit>
+<explicit name="items">
+<aggregate type="SET" lower="1" upper="1"/>
+<typename name="Curve"/>
+<redeclaration entity-ref="Representation"/>
+</explicit>
+</entity>
+<entity name="Snowball_template" supertypes="Material_addition_feature_template">
+<explicit name="snowball_start_distance">
+<typename name="Length_data_element"/>
+</explicit>
+<explicit name="snowball_end_distance" optional="YES">
+<typename name="Length_data_element"/>
+</explicit>
+<explicit name="snowball_initial_spacing" optional="YES">
+<typename name="Length_data_element"/>
+</explicit>
+<explicit name="snowball_end_spacing" optional="YES">
+<typename name="Length_data_element"/>
+</explicit>
+<explicit name="snowball_initial_radius">
+<typename name="Length_data_element"/>
+</explicit>
+<explicit name="snowball_end_radius" optional="YES">
+<typename name="Length_data_element"/>
+</explicit>
+<explicit name="snowball_quantity_per_trace">
+<builtintype type="INTEGER"/>
+</explicit>
+<where label="WR1" expression="NOT (snowball_quantity_per_trace &gt; 1) OR (EXISTS(snowball_initial_spacing) AND EXISTS(snowball_end_spacing) AND EXISTS(snowball_end_distance) AND EXISTS(snowball_end_radius))"/>
+<where label="WR2" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
+</entity>
+<entity name="Special_symbol_part_template" supertypes="Template_definition">
+<explicit name="of_stratum_technology" optional="YES">
+<aggregate type="SET" lower="1" upper="?"/>
+<typename name="Stratum_technology"/>
+</explicit>
+<derived name="name" expression="''">
+<builtintype type="STRING"/>
+<redeclaration entity-ref="Product_view_definition"/>
+</derived>
+</entity>
+<entity name="Teardrop_by_angle_template" supertypes="Material_addition_feature_template">
+<explicit name="teardrop_angle">
+<typename name="Angle_data_element"/>
+</explicit>
+<where label="WR1" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
+</entity>
+<entity name="Teardrop_by_length_template" supertypes="Material_addition_feature_template">
+<explicit name="teardrop_taper_start_distance">
+<typename name="Length_data_element"/>
+</explicit>
+<explicit name="teardrop_taper_end_distance">
+<typename name="Length_data_element"/>
+</explicit>
+<where label="WR1" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
+</entity>
+<entity name="Trace_template" supertypes="Template_definition" super.expression="Default_trace_template">
+<explicit name="trace_style">
+<typename name="Curve_style_parameters"/>
+</explicit>
+<derived name="name" expression="''">
+<builtintype type="STRING"/>
+<redeclaration entity-ref="Product_view_definition"/>
+</derived>
+</entity>
+<subtype.constraint name="inter_stratum_feature_template_subtypes" entity="Inter_stratum_feature_template" super.expression="ONEOF (Component_termination_passage_template, Via_template, Unsupported_passage_template, Inter_stratum_feature_edge_segment_template, Inter_stratum_feature_edge_template)"/>
+<subtype.constraint name="material_addition_feature_template_subtypes" entity="Material_addition_feature_template" super.expression="ONEOF (Snowball_template, Teardrop_by_angle_template, Teardrop_by_length_template)"/>
+</schema>
 </express>

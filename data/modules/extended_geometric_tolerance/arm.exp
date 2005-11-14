@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.42 2005/11/07 12:43:30 liutkus Exp $
+   $Id: arm.exp,v 1.43 2005/11/14 09:59:27 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3399 - ISO/CD-TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
 *)
 
@@ -161,15 +161,15 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Composite_linear_profile_refinement_tolerance
     SUBTYPE OF (Line_profile_tolerance);
       refined_control : locating_or_refinement_linear_profile_tolerance;
-    DERIVE
-      SELF\Geometric_tolerance.name : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\Geometric_tolerance.name);
   END_ENTITY;
 
   ENTITY Composite_surface_profile_refinement_tolerance
     SUBTYPE OF (Surface_profile_tolerance);
       refined_control : locating_or_refinement_surface_profile_tolerance;
-    DERIVE
-      SELF\Geometric_tolerance.name : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\Geometric_tolerance.name);
   END_ENTITY;
 
   ENTITY Conical_tolerance_zone_boundary
@@ -394,6 +394,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Geometric_tolerance_with_applied_material_condition_property
     SUBTYPE OF (Geometric_tolerance);
       applied_material_condition_property_name : material_condition_property_names;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Geometric_tolerance.name);
   END_ENTITY; 
   
   ENTITY Limit_dimension_representation
@@ -605,6 +607,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   		get_rvd(SELF, 'statistical control requirement');
 	WHERE
    		WR1 : EXISTS (statistical_control_requirement) AND (SIZEOF(statistical_control_requirement) = 1);
+   		WR2 : NOT EXISTS(SELF\Geometric_tolerance.name);
   END_ENTITY;
 
   ENTITY Tangent_plane

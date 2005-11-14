@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.34 2005/11/10 07:25:29 liutkus Exp $
+   $Id: arm.exp,v 1.35 2005/11/11 21:26:10 liutkus Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -315,6 +315,26 @@ SCHEMA Fabrication_technology_arm;
       SELF\Product_view_definition.name : STRING := '';
   END_ENTITY;
 
+  ENTITY Stratum_stack_model
+    SUBTYPE OF(Product_view_definition);
+   WHERE
+--    WR1: This is a template model...
+--description; Lothar to add in the line to make this a template model
+      WR2: SIZEOF(QUERY(sto <* USEDIN(SELF,
+       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE.SCOPE')|
+        (SIZEOF(USEDIN(sto,
+        'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK.PRECEDENT_STO') = 0))
+            )) = 1;
+   --desc: exactly one of the sto that reference this ssm shall not participate in a sto_link as a precedent_sto.
+     WR3: SIZEOF(QUERY(sto <* USEDIN(SELF,
+       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE.SCOPE')|
+        (SIZEOF(USEDIN(sto,
+       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK.SUBSEQUENT_STO')
+       = 0))
+       )) = 1;
+   --desc: exactly one of the sto that reference this ssm shall not participate in a sto_link as a subsequent_sto.
+  END_ENTITY;
+
   ENTITY Stratum_technology
     SUPERTYPE OF (ONEOF (Design_layer_technology,
  Documentation_layer_technology));
@@ -353,6 +373,29 @@ SCHEMA Fabrication_technology_arm;
       WR1 : precedent_stratum_technology :<>: subsequent_stratum_technology;
       WR2 : NOT (EXISTS(precedent_stratum_technology_link)) OR (precedent_stratum_technology_link :<>: SELF);
       WR3 : NOT EXISTS(precedent_stratum_technology_link) OR (precedent_stratum_technology_link.subsequent_stratum_technology :=: precedent_stratum_technology);
+  END_ENTITY;
+
+  ENTITY Stratum_technology_occurrence;
+    name         : STRING; 
+    definition   : Stratum_technology;
+    scope        : Stratum_stack_model;
+  UNIQUE
+    UR1: name, scope;--don't want to have definition in ur.
+   --also don't want to disallow multiple references to one stratum_technology!
+  WHERE
+    WR1: SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK.SUBSEQUENT_STO'))< 2;
+   --description: sto shall not be referenced by more than one link as a subsequent_sto
+    WR2:SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK.PRECEDENT_STO'))< 2;
+   --description: sto shall not be referenced by more than one link as a precedent_sto 
+  END_ENTITY;
+
+  ENTITY Stratum_technology_occurrence_link;
+    precedent_sto  : Stratum_technology_occurrence;
+    subsequent_sto : Stratum_technology_occurrence;
+  WHERE
+   WR1: precedent_sto <> subsequent_sto;
+--  IPs
+--  IP1: acyclic stos
   END_ENTITY;
 
   ENTITY Stratum_technology_swap_relationship;

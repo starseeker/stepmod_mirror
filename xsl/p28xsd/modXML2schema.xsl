@@ -14,7 +14,6 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>
-	
 	<xsl:variable name="long_form_file_name">
 		<xsl:choose>
 			<xsl:when test="string-length($dex_directory_name)>0">
@@ -25,7 +24,6 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:variable>
-	
 	<xsl:variable name="base_schema_location">
 		<xsl:choose>
 			<xsl:when test="string-length($dex_directory_name)>0">
@@ -35,15 +33,12 @@
 				<xsl:value-of select="string('../../../dtd/part28/exp.xsd')"/>
 			</xsl:otherwise>
 		</xsl:choose>
-	
 	</xsl:variable>
-		
 	<xsl:variable name="stepmod_namespace_file" select="document(concat($directory_path, '/stepmod_namespace.xml'))"/>
 	<xsl:variable name="schema_name" select="$stepmod_namespace_file//dummy/@schema_name"/>
 	<xsl:variable name="namespace_prefix" select="concat($stepmod_namespace_file//dummy/@ns_prefix_name, ':')"/>
-
 	<xsl:strip-space elements="xs:all"/>	
-	
+
 	<xsl:template match="/">
 		<xsl:apply-templates select="express"/>
 	</xsl:template>
@@ -53,7 +48,6 @@
 	</xsl:template>
 	
 	<xsl:template match="schema">
-		
 		<xsl:text>&#xa;</xsl:text>
 		<xsl:element name="xs:schema">
 			<xsl:copy-of select="document('../../dtd/part28/exp_namespace.xml')/*/namespace::exp"/>
@@ -76,25 +70,9 @@
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:apply-templates select="type"/>
-			<xsl:apply-templates select="entity" mode="elements_and_types"/>
-			<xs:element substitutionGroup="exp:uos" name="uos" type="{$namespace_prefix}uos">
-				<xsl:text>&#xa;</xsl:text>
-				<xsl:text>&#xa;</xsl:text>
-				<xsl:apply-templates select="entity" mode="keys"/>
-				<xsl:text>&#xa;</xsl:text>
-				<xsl:text>&#xa;</xsl:text>
-				<xsl:apply-templates select="entity/explicit[typename/@name = //entity/@name]" mode="keys"/>
-			</xs:element>
-			<xsl:text>&#xa;</xsl:text>
-			<xsl:text>&#xa;</xsl:text>
-			<xsl:text>&#xa;</xsl:text>
-			<xsl:text>&#xa;</xsl:text>
-			<!-- SYNTHETIC ENTITIES -->
-			<xsl:variable name="configuration" select="document(concat($directory_path, '/p28_config.xml'))"/>
 			<!-- Seq-types for list of elements aggregate form -->
-			
+			<!-- Go ahead each time if there is a simple data type of the specified sort that is referenced by aggregate that is not an optional array -->
 			<xsl:if test="//type[aggregate and not(aggregate/@type='ARRAY' and aggregate/@optional='YES')]/builtintype/@type='BOOLEAN'">
-				
 				<xs:complexType name="Seq-boolean">
 					<xs:simpleContent>
 						<xs:extension base="{$namespace_prefix}List-boolean">
@@ -105,8 +83,7 @@
 						</xs:extension>
 					</xs:simpleContent>
 				</xs:complexType>
-			</xsl:if>
-								
+			</xsl:if>		
 			<xsl:if test="//type[aggregate and not(aggregate/@type='ARRAY' and aggregate/@optional='YES')]/builtintype/@type='INTEGER'">
 				<xs:complexType name="Seq-long">
 					<xs:simpleContent>
@@ -118,144 +95,103 @@
 						</xs:extension>
 					</xs:simpleContent>
 				</xs:complexType>
-			</xsl:if>
-		
-			<!-- xsl:if test="//type[aggregate]/builtintype/@type='BINARY'">
-				<xs:complexType name="Seq-hexBinary">
+			</xsl:if>	
+			<xsl:if test="//type[aggregate and not(aggregate/@type='ARRAY' and aggregate/@optional='YES')]/builtintype/@type='LOGICAL'">
+				<xs:complexType name="Seq-logical">
 					<xs:simpleContent>
-						<xs:extension base="{$namespace_prefix}List-hexBinary">
+						<xs:extension base="{$namespace_prefix}List-logical">
 							<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
 							<xs:attribute ref="exp:arraySize" />
-							<xs:attribute ref="exp:itemType" fixed="xs:hexBinary" />
+							<xs:attribute ref="exp:itemType" fixed="xs:logical" />
 							<xs:attribute ref="exp:cType" />
 						</xs:extension>
 					</xs:simpleContent>
 				</xs:complexType>
-			</xsl:if -->
-					
-			<xsl:if test="//type[aggregate and not(aggregate/@type='ARRAY' and aggregate/@optional='YES')]/builtintype/@type='LOGICAL'">
-				<xs:complexType name="Seq-logical">
-						<xs:simpleContent>
-							<xs:extension base="{$namespace_prefix}List-logical">
-								<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
-								<xs:attribute ref="exp:arraySize" />
-								<xs:attribute ref="exp:itemType" fixed="xs:logical" />
-								<xs:attribute ref="exp:cType" />
-							</xs:extension>
-						</xs:simpleContent>
-					</xs:complexType>
+			</xsl:if>
+			<xsl:if test="//type[aggregate and not(aggregate/@type='ARRAY' and aggregate/@optional='YES')]/builtintype/@type='NUMBER'">
+				<xs:complexType name="Seq-decimal">
+					<xs:simpleContent>
+						<xs:extension base="{$namespace_prefix}List-decimal">
+							<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
+							<xs:attribute ref="exp:arraySize" />
+							<xs:attribute ref="exp:itemType" fixed="xs:decimal" />
+							<xs:attribute ref="exp:cType" />
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xsl:if>
+			<xsl:if test="//type[aggregate and not(aggregate/@type='ARRAY' and aggregate/@optional='YES')]/builtintype/@type='REAL'">
+				<xs:complexType name="Seq-double">
+					<xs:simpleContent>
+						<xs:extension base="{$namespace_prefix}List-double">
+							<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
+							<xs:attribute ref="exp:arraySize" />
+							<xs:attribute ref="exp:itemType" fixed="xs:double" />
+							<xs:attribute ref="exp:cType" />
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xsl:if>
+			<!-- consider each non-entity non-select express datatype in turn and go ahead each time if the type is referenced by aggregate that is not an optional array -->
+			<xsl:for-each select="//type[not(select)]/@name">
+				<xsl:variable name="name_of_aggregated_datatype" select="."/>
+				<xsl:if test="//type[aggregate and not(aggregate/@type='ARRAY' and aggregate/@optional='YES')]/typename[@name=$name_of_aggregated_datatype]">
+					<xsl:choose>
+						<!-- exclude types whose base type is STRING-->
+						<xsl:when test="//type[@name=$name_of_aggregated_datatype]/builtintype/@type='STRING'"></xsl:when>
+						<!-- exclude types whose base type is BINARY -->
+						<xsl:when test="//type[@name=$name_of_aggregated_datatype]/builtintype/@type='BINARY'"></xsl:when>
+						<xsl:otherwise>
+							<xsl:variable name="corrected_name_of_aggregated_datatype">
+								<xsl:call-template name="correct_express_name">
+									<xsl:with-param name="raw_express_name_param" select="$name_of_aggregated_datatype"/>
+								</xsl:call-template>
+							</xsl:variable>
+							<xs:complexType name="Seq-{$corrected_name_of_aggregated_datatype}">
+								<xs:simpleContent>
+									<xs:extension base="{$namespace_prefix}List-{$corrected_name_of_aggregated_datatype}">
+										<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
+										<xs:attribute ref="exp:arraySize" />
+										<xs:attribute ref="exp:itemType" fixed="{$namespace_prefix}{$corrected_name_of_aggregated_datatype}" />
+										<xs:attribute ref="exp:cType" />
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xsl:otherwise>
+					</xsl:choose>
 				</xsl:if>
-				
-				<xsl:if test="//type[aggregate and not(aggregate/@type='ARRAY' and aggregate/@optional='YES')]/builtintype/@type='NUMBER'">
-					<xs:complexType name="Seq-decimal">
-						<xs:simpleContent>
-							<xs:extension base="{$namespace_prefix}List-decimal">
-								<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
-								<xs:attribute ref="exp:arraySize" />
-								<xs:attribute ref="exp:itemType" fixed="xs:decimal" />
-								<xs:attribute ref="exp:cType" />
-							</xs:extension>
-						</xs:simpleContent>
-					</xs:complexType>
-				</xsl:if>
-				
-				<xsl:if test="//type[aggregate and not(aggregate/@type='ARRAY' and aggregate/@optional='YES')]/builtintype/@type='REAL'">
-					<xs:complexType name="Seq-double">
-						<xs:simpleContent>
-							<xs:extension base="{$namespace_prefix}List-double">
-								<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
-								<xs:attribute ref="exp:arraySize" />
-								<xs:attribute ref="exp:itemType" fixed="xs:double" />
-								<xs:attribute ref="exp:cType" />
-							</xs:extension>
-						</xs:simpleContent>
-					</xs:complexType>
-				</xsl:if>
-				
-				<!-- xsl:if test="//type[aggregate]/builtintype/@type='STRING'">
-					<xs:complexType name="Seq-normalizedString">
-						<xs:simpleContent>
-							<xs:extension base="{$namespace_prefix}List-normalizedString">
-								<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
-								<xs:attribute ref="exp:arraySize" />
-								<xs:attribute ref="exp:itemType" fixed="xs:normalizedString" />
-								<xs:attribute ref="exp:cType" />
-							</xs:extension>
-						</xs:simpleContent>
-					</xs:complexType>
-				</xsl:if -->
-				
-				
-				<xsl:for-each select="//type[not(select)]/@name">
-					<xsl:variable name="name_of_aggregated_datatype" select="."/>
-					<xsl:if test="//type[aggregate and not(aggregate/@type='ARRAY' and aggregate/@optional='YES')]/typename[@name=$name_of_aggregated_datatype]">
-					
-						<xsl:choose>
-							<xsl:when test="//type[@name=$name_of_aggregated_datatype]/builtintype/@type='STRING'"></xsl:when>
-							<xsl:when test="//type[@name=$name_of_aggregated_datatype]/builtintype/@type='BINARY'"></xsl:when>
-							<xsl:otherwise>
-								<xsl:variable name="corrected_name_of_aggregated_datatype">
-									<xsl:call-template name="put_into_lower_case">
-										<xsl:with-param name="raw_item_name_param" select="$name_of_aggregated_datatype"/>
-									</xsl:call-template>
-								</xsl:variable>
-								<xs:complexType name="Seq-{$corrected_name_of_aggregated_datatype}">
-									<xs:simpleContent>
-										<xs:extension base="{$namespace_prefix}List-{$corrected_name_of_aggregated_datatype}">
-											<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
-											<xs:attribute ref="exp:arraySize" />
-											<xs:attribute ref="exp:itemType" fixed="{$namespace_prefix}{$corrected_name_of_aggregated_datatype}" />
-											<xs:attribute ref="exp:cType" />
-										</xs:extension>
-									</xs:simpleContent>
-								</xs:complexType>
-							</xsl:otherwise>
-						</xsl:choose>
-						 
-						
-					</xsl:if>		
-				</xsl:for-each>
-			
-			
-			
-			<xsl:for-each select="$configuration//exp:entity">
-				<xsl:variable name="synthetic_entity_name" select="./@name"/>
-				<xsl:variable name="supertypes" select="./@select"/>
-					
-				
-				
-				<xsl:call-template name="inheritance-free_mapping">
-					<xsl:with-param name="raw_entity_name_param" select="$synthetic_entity_name"/>
-					<xsl:with-param name="corrected_entity_name_param" select="$synthetic_entity_name"/>
-					<xsl:with-param name="abstractness_param" select="'false'"/>
-					<xsl:with-param name="base_type_of_optional_array_param" select="'false'"/>
-					<xsl:with-param name="raw_supertype_name_param" select="$supertypes"/>
-				</xsl:call-template>
 			</xsl:for-each>
+			<xsl:apply-templates select="entity" mode="elements_and_types"/>
+			<xs:element substitutionGroup="exp:uos" name="uos" type="{$namespace_prefix}uos">
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:apply-templates select="entity" mode="keys"/>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:apply-templates select="entity/explicit[typename/@name = //entity/@name]" mode="keys"/>
+			</xs:element>
+			<xsl:text>&#xa;</xsl:text>
+			<xsl:text>&#xa;</xsl:text>
 		</xsl:element>
-		<xsl:text>&#xa;</xsl:text>
-		
 	</xsl:template>
-	
-
 	
 	<xsl:template match="explicit" mode="keys">
 		<xsl:variable name="raw_entity_name" select="../@name"/>
 		<xsl:variable name="raw_attribute_name" select="./@name"/>
 		<xsl:variable name="raw_target_name" select="./typename/@name"/>
 		<xsl:variable name="corrected_entity_name">
-			<xsl:call-template name="put_into_lower_case">
-				<xsl:with-param name="raw_item_name_param" select="$raw_entity_name"/>
+			<xsl:call-template name="correct_express_name">
+				<xsl:with-param name="raw_express_name_param" select="$raw_entity_name"/>
 			</xsl:call-template>
-		</xsl:variable>
+		</xsl:variable>	
 		<xsl:variable name="corrected_attribute_name">
-			<xsl:call-template name="put_into_lower_case">
-				<xsl:with-param name="raw_item_name_param" select="$raw_attribute_name"/>
+			<xsl:call-template name="correct_express_name">
+				<xsl:with-param name="raw_express_name_param" select="$raw_attribute_name"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="corrected_target_name">
-			<xsl:call-template name="put_into_lower_case">
-				<xsl:with-param name="raw_item_name_param" select="$raw_target_name"/>
+			<xsl:call-template name="correct_express_name">
+				<xsl:with-param name="raw_express_name_param" select="$raw_target_name"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="subtypes_of_target_exist">
@@ -264,19 +200,16 @@
 			</xsl:for-each>
 		</xsl:variable>
 		<xsl:choose>
+			<!-- test whether target has subtypes -->
 			<xsl:when test="contains($subtypes_of_target_exist, 'YES')">
-				<!-- xsl:comment>EXPRESS ENTITY VALUED ATTRIBUTE WHERE TARGET HAS SUBTYPES KEYREF DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>
-				</xsl:comment>
 				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_target_name}-keysub">
 					<xs:selector xpath=".//{$corrected_target_name}/{$corrected_attribute_name}"/>
 					<xs:field xpath="@ref"/>
-				</xs:keyref -->
+				</xs:keyref>
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:comment>EXPRESS ENTITY VALUED ATTRIBUTE WHERE TARGET HAS NO SUBTYPES KEYREF DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>
-				</xsl:comment>
 				<xsl:text>&#xa;</xsl:text>
 				<xs:keyref name="{$corrected_entity_name}___{$corrected_attribute_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_target_name}-key">
 					<xs:selector xpath=".//{$corrected_target_name}/{$corrected_attribute_name}"/>
@@ -287,24 +220,21 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
+	
 	<xsl:template match="entity" mode="keys">
 		<xsl:variable name="raw_entity_name" select="./@name"/>
 		<xsl:variable name="corrected_entity_name">
-			<xsl:call-template name="put_into_lower_case">
-				<xsl:with-param name="raw_item_name_param" select="$raw_entity_name"/>
+			<xsl:call-template name="correct_express_name">
+				<xsl:with-param name="raw_express_name_param" select="$raw_entity_name"/>
 			</xsl:call-template>
 		</xsl:variable>
-		<xsl:comment>EXPRESS ENTITY DATATYPE KEY DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>
-		</xsl:comment>
+		<xsl:text>&#xa;</xsl:text>
 		<xsl:text>&#xa;</xsl:text>
 		<xs:key name="{$schema_name}___{$corrected_entity_name}-key">
 			<xs:selector xpath="{$corrected_entity_name}"/>
 			<xs:field xpath="@id"/>
 		</xs:key>
 		<xsl:text>&#xa;</xsl:text>
-		<xsl:text>&#xa;</xsl:text>
-		<xsl:comment>EXPRESS ENTITY DATATYPE KEYREF DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>
-		</xsl:comment>
 		<xsl:text>&#xa;</xsl:text>
 		<xs:keyref name="{$schema_name}___{$corrected_entity_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_entity_name}-key">
 			<xs:selector xpath=".//{$corrected_entity_name}"/>
@@ -317,9 +247,9 @@
 				<xsl:with-param name="top_entity_name_param" select="$raw_entity_name"/>
 			</xsl:call-template>
 		</xsl:variable>
+		<!-- test whether end of recursion found -->
 		<xsl:if test="string-length($subtypes_list)!=0">
-			<!-- xsl:comment>EXPRESS ENTITY DATATYPE WITH SUBTYPES KEY DECLARATION FOR: <xsl:value-of select="$corrected_entity_name"/>
-			</xsl:comment>
+			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
 			<xs:key name="{$schema_name}___{$corrected_entity_name}-keysub">
 				<xsl:variable name="subtypes_xpath">
@@ -329,22 +259,25 @@
 				</xsl:variable>
 				<xs:selector xpath="{$corrected_entity_name}{$subtypes_xpath}"/>
 				<xs:field xpath="@id"/>
-			</xs:key -->
+			</xs:key>
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
 		</xsl:if>
 	</xsl:template>
+	
 	<!-- DEAL WITH NON-ENTITY EXPRESS DATATYPES -->
 	<xsl:template match="type">
 		<xsl:variable name="raw_type_name" select="./@name"/>
 		<xsl:variable name="corrected_type_name">
-			<xsl:call-template name="put_into_lower_case">
-				<xsl:with-param name="raw_item_name_param" select="$raw_type_name"/>
+			<xsl:call-template name="correct_express_name">
+				<xsl:with-param name="raw_express_name_param" select="$raw_type_name"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:choose>
+			<!-- test whether express type is a select type -->
 			<xsl:when test="./select">
 				<xsl:variable name="initial_list_of_items" select="./select/@selectitems"/>
+				
 				<xsl:variable name="working_select_list">
 					<xsl:call-template name="build_working_select_list">
 						<xsl:with-param name="list_of_items_param" select="$initial_list_of_items"/>
@@ -357,316 +290,97 @@
 					</xsl:call-template>
 				</xsl:variable>
 				
+				<xsl:variable name="working_select_list_no_duplicates_no_abstracts">
+					<xsl:call-template name="remove_names_of_abstract_entities_from_list">
+						<xsl:with-param name="list_of_selected_datatypes_param" select="$working_select_list_no_duplicates"/>
+					</xsl:call-template>
+				</xsl:variable>
+				
 				<xsl:choose>
-					<xsl:when test="string-length(normalize-space($working_select_list_no_duplicates)) = 0"></xsl:when>
-					<xsl:when test="contains(normalize-space($working_select_list_no_duplicates), ' ')">
-						<xsl:comment>EXPRESS SELECT DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
-						</xsl:comment>
+					<!-- check whether select list is empty -->
+					<xsl:when test="string-length(normalize-space($working_select_list_no_duplicates_no_abstracts)) = 0"></xsl:when>
+					<!-- check that select list contains at least two items -->
+					<xsl:when test="contains(normalize-space($working_select_list_no_duplicates_no_abstracts), ' ')">
 						<xsl:text>&#xa;</xsl:text>
-						
+						<xsl:text>&#xa;</xsl:text>
 						<xs:complexType name="{$corrected_type_name}">
-						
 							<xs:group ref="{$namespace_prefix}{$corrected_type_name}"/>
-							
 						</xs:complexType>
 						<xsl:text>&#xa;</xsl:text>
-						<xsl:text>&#xa;</xsl:text>
-						<xsl:comment>EXPRESS SELECT DATATYPE GROUP DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
-						</xsl:comment>
 						<xsl:text>&#xa;</xsl:text>
 						<xs:group name="{$corrected_type_name}">
 							<xs:choice>
 								<xsl:call-template name="construct_select_elements">
-									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list_no_duplicates"/>
+									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list_no_duplicates_no_abstracts"/>
 								</xsl:call-template>
 							</xs:choice>
 						</xs:group>
 						<xsl:text>&#xa;</xsl:text>
 						<xsl:text>&#xa;</xsl:text>
 					</xsl:when>
-					<xsl:otherwise>
-					</xsl:otherwise>
+					<xsl:otherwise><!-- add instruction for what to do if select list contains only one item --></xsl:otherwise>
 				</xsl:choose>
 			</xsl:when>
-			
+			<!-- test whether express type is an aggregate type -->
 			<xsl:when test="./aggregate">
-					<xsl:variable name="base_datatype"><!-- i.e. exp:string-wrapper or Tns:My_express_datatype_name -->
-					<xsl:call-template name="generate_base_datatype">
-						<xsl:with-param name="type" select="."/>
-					</xsl:call-template>
+				<xsl:variable name="express_name_of_aggregated_datatype">
+					<xsl:choose>
+						<xsl:when test="./aggregate/builtintype">
+							<xsl:value-of select="./aggregate/builtintype/@type"/>
+						</xsl:when>
+						<xsl:when test="./aggregate/typename">
+							<xsl:value-of select="./aggregate/typename/@name"/>
+						</xsl:when>
+					</xsl:choose>
 				</xsl:variable>
 				<xsl:variable name="fundamental_datatype">
 					<xsl:call-template name="generate_fundamental_datatype">
 						<xsl:with-param name="type" select="."/>
 					</xsl:call-template>
 				</xsl:variable>
-				<xsl:for-each select="./aggregate">
-					<xsl:variable name="next_datatype_down">
-						<xsl:value-of select="following-sibling::aggregate/@type"/>
-					</xsl:variable>
-					<xsl:variable name="lower_bound">
-						<xsl:call-template name="calculate_lower_bound">
-							<xsl:with-param name="aggregate" select="."/>
-						</xsl:call-template>
-					</xsl:variable>
-					<xsl:variable name="upper_bound">
-						<xsl:call-template name="calculate_upper_bound">
-							<xsl:with-param name="aggregate" select="."/>
-						</xsl:call-template>
-					</xsl:variable>
-					<xsl:variable name="optionality">
-						<xsl:choose>
-							<xsl:when test="not(./@type = 'ARRAY') or ./@optional = 'YES'">
-								<xsl:value-of select="string('optional')"/>
-							</xsl:when>
-							<xsl:otherwise>
-								<xsl:value-of select="string('required')"/>
-							</xsl:otherwise>
-						</xsl:choose>
-					</xsl:variable>
-					<xsl:variable name="current_aggregate_type">
-						<xsl:choose>
-							<xsl:when test="./@type = 'ARRAY'">
-								<xsl:value-of select="string('array')"/>
-							</xsl:when>
-							<xsl:when test="./@type = 'LIST'">
-								<xsl:value-of select="string('list')"/>
-							</xsl:when>
-							<xsl:when test="./@type = 'BAG'">
-								<xsl:value-of select="string('bag')"/>
-							</xsl:when>
-							<xsl:when test="./@type = 'SET'">
-								<xsl:value-of select="string('set')"/>
-							</xsl:when>
-							<xsl:otherwise/>
-						</xsl:choose>
-					</xsl:variable>
-					<xsl:variable name="seq_prefix">
-						<xsl:call-template name="generate_prefix">
-							<xsl:with-param name="position_param" select="last() - position() + 1"/>
-							<xsl:with-param name="prefix_param" select="string('')"/>
-						</xsl:call-template>
-					</xsl:variable>
-					<xsl:choose>
-						<xsl:when test="position()=1 and position()=last()">
-							<xsl:variable name="base_type_name" select="../typename/@name"/>
-							<xsl:comment>EXPRESS AGGREGATE DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
-							</xsl:comment>
-							<xsl:text>&#xa;</xsl:text>
-							<!-- xs:element substitutionGroup="exp:nonEntity" name="{$corrected_type_name}" nillable="true" -->
-							<xs:element name="{$corrected_type_name}" nillable="true">
-								<xs:complexType>
-									<xs:complexContent>
-										<xs:extension base="{$namespace_prefix}{$corrected_type_name}">
-											<xs:attributeGroup ref="exp:instanceAttributes"/>
-										</xs:extension>
-									</xs:complexContent>
-								</xs:complexType>
-							</xs:element>
-							<xsl:text>&#xa;</xsl:text>
-							<xsl:text>&#xa;</xsl:text>
-							<xsl:comment>EXPRESS AGGREGATE DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
-							</xsl:comment>
-							<xsl:text>&#xa;</xsl:text>
-							<xsl:variable name="base_datatype_name">
-								<xsl:choose>
-									<xsl:when test="../builtintype"><xsl:value-of select="../builtintype/@type"/></xsl:when>
-									<xsl:otherwise><xsl:value-of select="$base_type_name"/></xsl:otherwise>
-								</xsl:choose>
-							</xsl:variable>
-							<xsl:choose>
-								
-								<xsl:when test="$fundamental_datatype = 'string' or $fundamental_datatype = 'binary' or ($current_aggregate_type='array' and ./@optional='YES') or $fundamental_datatype = 'select' or $fundamental_datatype = 'entity'">
-								<!-- use 7.2.2.2	sequence-of-elements form -->
-									
-							<xs:complexType name="{$corrected_type_name}">
-								<xsl:choose>
-									<xsl:when test="$base_type_name=//type[select]/@name">
-										<xs:sequence>
-											<xs:group ref="{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
-										</xs:sequence>
-									</xsl:when>
-									<xsl:when test="$base_type_name=//entity/@name">
-										<xsl:variable name="subtypes_exist">
-											<xsl:call-template name="check_whether_subtypes_exist">
-												<xsl:with-param name="entity_name_param" select="$base_type_name"/>
-											</xsl:call-template>
-										</xsl:variable>
-										<!-- xsl:if test="string-length($subtypes_exist) &gt; 0" -->
-											<xs:sequence>
-												<xs:group ref="{$base_datatype}-group" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
-											</xs:sequence>
-										<!-- /xsl:if -->
-									</xsl:when>
-									<xsl:otherwise>
-										<xs:sequence>
-											<xs:element ref="{$base_datatype}">
-												<xsl:if test="$lower_bound!='NaN'">
-													<xsl:attribute name="minOccurs"><xsl:value-of select="$lower_bound"/></xsl:attribute>
-												</xsl:if>
-												<xsl:if test="$upper_bound!='NaN'">
-													<xsl:attribute name="maxOccurs"><xsl:value-of select="$upper_bound"/></xsl:attribute>
-												</xsl:if>
-											</xs:element>
-										</xs:sequence>
-									</xsl:otherwise>
-								</xsl:choose>
-								<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
-								<xsl:choose>
-									<xsl:when test="$current_aggregate_type='array' and (number($upper_bound)='NaN' or number($lower_bound='NaN'))">
-										<xs:attribute ref="exp:arraySize" use="required"/>
-									</xsl:when>
-									<xsl:when test="$current_aggregate_type='array' and not(number($upper_bound)='NaN' or number($lower_bound='NaN'))">
-										<xs:attribute ref="exp:arraySize" fixed="{$upper_bound}"/>
-									</xsl:when>
-									<xsl:otherwise>
-										<xs:attribute ref="exp:arraySize" use="optional"/>
-									</xsl:otherwise>
-								</xsl:choose>
-								<xs:attribute ref="exp:itemType" fixed="{$base_datatype}"/>
-								<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
-							</xs:complexType>
-							<xsl:text>&#xa;</xsl:text>
-							<xsl:text>&#xa;</xsl:text>
-
-								</xsl:when>
-								<xsl:otherwise>
-								<!-- use 7.2.2.3	List-of-values form -->
-									<xsl:variable name="list_type_name">
-										<xsl:call-template name="get_list_type_name">
-												<xsl:with-param name="list_type_name_param" select="$base_datatype_name"/>
-										</xsl:call-template>
-									</xsl:variable>
-									<xsl:variable name="list_type_name_with_seq_prefix" select="concat('Seq-', $list_type_name)"/>
-									<xsl:variable name="list_type_name_with_list_prefix" select="concat('List-', $list_type_name)"/>
-									<xs:complexType name="{$corrected_type_name}">
-										<xs:simpleContent>
-											
-											<xs:restriction base="{$namespace_prefix}{$list_type_name_with_seq_prefix}">
-												<xs:simpleType>
-													<xs:restriction base="{$namespace_prefix}{$list_type_name_with_list_prefix}">
-														<xsl:choose>
-															<xsl:when test="$lower_bound='NaN'"></xsl:when>
-															<xsl:otherwise><xs:minLength value="{$lower_bound}"/></xsl:otherwise>
-														</xsl:choose>
-														
-														<xsl:choose>
-															<!-- xsl:when test="$upper_bound='unbounded' and $current_aggregate_type='array'"></xsl:when -->
-															<!-- xsl:when test="$upper_bound='unbounded' and $current_aggregate_type!='array'" -->
-															<!-- xsl:when test="$upper_bound='unbounded'">
-																<xs:maxLength value="unbounded"/>
-															</xsl:when -->
-															<xsl:when test="$upper_bound='NaN'"></xsl:when>
-															<xsl:when test="$upper_bound='unbounded'"></xsl:when>
-															<xsl:otherwise>
-																<xs:maxLength value="{$upper_bound}"/>
-															</xsl:otherwise>
-														</xsl:choose>
-													</xs:restriction>
-												</xs:simpleType>
-												<xsl:choose>
-													<xsl:when test="$current_aggregate_type='array' and (number($upper_bound)='NaN' or number($lower_bound='NaN'))">
-														<xs:attribute ref="exp:arraySize" use="required"/>
-													</xsl:when>
-													<xsl:when test="$current_aggregate_type='array' and not(number($upper_bound)='NaN' or number($lower_bound='NaN'))">
-														<xs:attribute ref="exp:arraySize" fixed="{$upper_bound}"/>
-													</xsl:when>
-													<xsl:otherwise>
-														<xs:attribute ref="exp:arraySize" use="optional"/>
-													</xsl:otherwise>
-												</xsl:choose>
-												<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
-											</xs:restriction>
-										</xs:simpleContent>
-									</xs:complexType>
-									<xsl:variable name="list_type_name_with_xs_prefix" select="concat('xs:', $list_type_name)"/>
-									<xsl:variable name="list_type_name_with_ns_prefix" select="concat($namespace_prefix, $list_type_name)"/>
-									<xsl:choose>
-										<xsl:when test="../builtintype">
-											<xs:simpleType name="{$list_type_name_with_list_prefix}">
-												<xs:list itemType="{$list_type_name_with_xs_prefix}"/>
-											</xs:simpleType>
-										</xsl:when>
-										<xsl:when test="../typename">
-											
-											<xs:simpleType name="{$list_type_name_with_list_prefix}">
-												<xs:list itemType="{$list_type_name_with_ns_prefix}"/>
-											</xs:simpleType>
-										</xsl:when>
-									</xsl:choose>
-									
-								</xsl:otherwise>
-							</xsl:choose>
-							
-						</xsl:when>
-						<xsl:when test="position()=1 and position()!=last()">
-							<!-- xsl:comment>EXPRESS AGGREGATE DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
-							<xs:complexType name="{$corrected_type_name}">
-								<xs:sequence>
-									<xs:element 
-										ref="ap239:{$seq_prefix}{$base_datatype}" 
-										minOccurs="{$lower_bound}"
-										maxOccurs="{$upper_bound}"
-									/>
-								</xs:sequence>
-								<xs:attribute ref="exp:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-								<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
-								<xs:attribute ref="exp:arraySize" use="{$optionality}"/>
-							</xs:complexType>
-							<xsl:text>&#xa;</xsl:text>
-							<xsl:text>&#xa;</xsl:text>
-						</xsl:when>
-						<xsl:when test="position()!=1 and position()!=last()">
-					
-							<xsl:comment>EXPRESS AGGREGATE DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
-							
-								<xs:complexType name="{$seq_prefix}{$base_datatype}">
-									<xs:sequence>
-										<xs:element 
-											ref="ap239:{$seq_prefix}{$base_datatype}" 
-											minOccurs="{$lower_bound}"
-											maxOccurs="{$upper_bound}"
-										/>
-									</xs:sequence>
-									<xs:attribute ref="exp:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-									<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
-									<xs:attribute ref="exp:arraySize" use="{$optionality}"/>													</xs:complexType>
-						
-							
-							<xsl:text>&#xa;</xsl:text>
-							<xsl:text>&#xa;</xsl:text -->
-						</xsl:when>
-						<xsl:when test="position()=last()">
-							<!-- xsl:comment>EXPRESS AGGREGATE DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/></xsl:comment>
-							
-								<xs:complexType name="{$seq_prefix}{$base_datatype}">
-									<xs:sequence>
-										<xs:element 
-											ref="ap239:{$seq_prefix}{$base_datatype}" 
-											minOccurs="{$lower_bound}"
-											maxOccurs="{$upper_bound}"
-										/>
-									</xs:sequence>
-									<xs:attribute ref="exp:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-									<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
-									<xs:attribute ref="exp:arraySize" use="{$optionality}"/>
-								</xs:complexType>
-			
-							<xsl:text>&#xa;</xsl:text>
-							<xsl:text>&#xa;</xsl:text -->
-						</xsl:when>
-					</xsl:choose>
-				</xsl:for-each>
-			</xsl:when>
-			<xsl:when test="./typename/@name=//type[select]/@name">
-				<xsl:variable name="raw_select_type_name" select="./typename/@name"/>
-				<xsl:variable name="corrected_underlying_select_type_name">
-					<xsl:call-template name="put_into_lower_case">
-						<xsl:with-param name="raw_item_name_param" select="$raw_select_type_name"/>
+				<xsl:variable name="lower_bound">
+					<xsl:call-template name="calculate_lower_bound">
+						<xsl:with-param name="aggregate" select="."/>
 					</xsl:call-template>
 				</xsl:variable>
-				<xsl:comment>EXPRESS DEFINED DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
-				</xsl:comment>
+				<xsl:variable name="upper_bound">
+					<xsl:call-template name="calculate_upper_bound">
+						<xsl:with-param name="aggregate" select="."/>
+					</xsl:call-template>
+				</xsl:variable>
+				<xsl:variable name="optionality">
+					<xsl:choose>
+						<xsl:when test="not(./@type = 'ARRAY') or ./@optional = 'YES'">
+							<xsl:value-of select="string('optional')"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="string('required')"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</xsl:variable>
+				<xsl:variable name="current_aggregate_type">
+					<xsl:choose>
+						<xsl:when test="./@type = 'ARRAY'">
+							<xsl:value-of select="string('array')"/>
+						</xsl:when>
+						<xsl:when test="./@type = 'LIST'">
+							<xsl:value-of select="string('list')"/>
+						</xsl:when>
+						<xsl:when test="./@type = 'BAG'">
+							<xsl:value-of select="string('bag')"/>
+						</xsl:when>
+						<xsl:when test="./@type = 'SET'">
+							<xsl:value-of select="string('set')"/>
+						</xsl:when>
+						<xsl:otherwise/>
+					</xsl:choose>
+				</xsl:variable>
+				<xsl:variable name="immediate_base_datatype"><!-- i.e. exp:string-wrapper or Tns:My_express_datatype_name -->
+					<xsl:call-template name="generate_immediate_base_datatype">
+						<xsl:with-param name="type" select="."/>
+					</xsl:call-template>
+				</xsl:variable>
+				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
 				<xs:element name="{$corrected_type_name}" nillable="true">
 					<xs:complexType>
@@ -679,79 +393,205 @@
 				</xs:element>
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
-				<xsl:comment>EXPRESS DEFINED DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
-				</xsl:comment>
+				<xsl:choose>
+					<!-- test whether to use 7.2.2.2	sequence-of-elements form -->
+					<xsl:when test="$fundamental_datatype = 'string' or $fundamental_datatype = 'binary' or ($current_aggregate_type='array' and ./@optional='YES') or $fundamental_datatype = 'select' or $fundamental_datatype = 'entity'">
+						<xs:complexType name="{$corrected_type_name}">
+							<xsl:choose>
+								<!-- test whether aggregated datatype is a select -->
+								<xsl:when test="$express_name_of_aggregated_datatype=//type[select]/@name">
+									<xs:sequence>
+										<xs:group ref="{$immediate_base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
+									</xs:sequence>
+								</xsl:when>
+								<!-- test whether aggregated datatype is an entity -->
+								<xsl:when test="$express_name_of_aggregated_datatype=//entity/@name">
+									<xsl:variable name="subtypes_exist">
+										<xsl:call-template name="check_whether_subtypes_exist">
+											<xsl:with-param name="entity_name_param" select="$express_name_of_aggregated_datatype"/>
+										</xsl:call-template>
+									</xsl:variable>
+								</xsl:when>
+								<xsl:otherwise>
+									<xs:sequence>
+										<xs:element ref="{$immediate_base_datatype}">
+											<xsl:if test="$lower_bound!='NaN'">
+												<xsl:attribute name="minOccurs"><xsl:value-of select="$lower_bound"/></xsl:attribute>
+											</xsl:if>
+											<xsl:if test="$upper_bound!='NaN'">
+												<xsl:attribute name="maxOccurs"><xsl:value-of select="$upper_bound"/></xsl:attribute>
+											</xsl:if>
+										</xs:element>
+									</xs:sequence>
+								</xsl:otherwise>
+							</xsl:choose>
+							<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
+							<xsl:choose>
+								<!-- test whether aggregated datatype is an array AND has upper OR lower bounds that are NOT constants -->
+								<xsl:when test="$current_aggregate_type='array' and (number($upper_bound)='NaN' or number($lower_bound='NaN'))">
+									<xs:attribute ref="exp:arraySize" use="required"/>
+								</xsl:when>
+								<!-- test whether aggregated datatype is an array AND has constant upper AND lower bounds -->
+								<xsl:when test="$current_aggregate_type='array' and not(number($upper_bound)='NaN' or number($lower_bound='NaN'))">
+									<xs:attribute ref="exp:arraySize" fixed="{$upper_bound}"/>
+								</xsl:when>
+								<xsl:otherwise>
+									<xs:attribute ref="exp:arraySize" use="optional"/>
+								</xsl:otherwise>
+							</xsl:choose>
+							<xs:attribute ref="exp:itemType" fixed="{$immediate_base_datatype}"/>
+							<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+						</xs:complexType>
+						<xsl:text>&#xa;</xsl:text>
+						<xsl:text>&#xa;</xsl:text>
+					</xsl:when>
+					<xsl:otherwise>
+						<!-- use 7.2.2.3	List-of-values form -->
+						<xsl:variable name="express_name_of_immediate_datatype">
+								<xsl:choose>
+									<xsl:when test="../builtintype"><xsl:value-of select="../builtintype/@type"/></xsl:when>
+									<xsl:otherwise><xsl:value-of select="../typename/@name"/></xsl:otherwise>
+								</xsl:choose>
+							</xsl:variable>
+						<xsl:variable name="list_type_name">
+							<xsl:call-template name="get_list_type_name">
+								<xsl:with-param name="list_type_name_param" select="$express_name_of_immediate_datatype"/>
+							</xsl:call-template>
+						</xsl:variable>
+						<xsl:variable name="list_type_name_with_seq_prefix" select="concat('Seq-', $list_type_name)"/>
+						<xsl:variable name="list_type_name_with_list_prefix" select="concat('List-', $list_type_name)"/>
+						<xs:complexType name="{$corrected_type_name}">
+							<xs:simpleContent>
+								<xs:restriction base="{$namespace_prefix}{$list_type_name_with_seq_prefix}">
+									<xs:simpleType>
+										<xs:restriction base="{$namespace_prefix}{$list_type_name_with_list_prefix}">
+											<xsl:choose>
+												<!-- test whether lower bound is NOT a number -->
+												<xsl:when test="$lower_bound='NaN'"></xsl:when>
+												<xsl:otherwise><xs:minLength value="{$lower_bound}"/></xsl:otherwise>
+											</xsl:choose>
+											<xsl:choose>
+												<!-- test whether upper bound is NOT a number -->
+												<xsl:when test="$upper_bound='NaN'"></xsl:when>
+												<!-- test whether lower bound is NOT a number -->
+												<xsl:when test="$upper_bound='unbounded'"></xsl:when>
+												<xsl:otherwise>
+													<xs:maxLength value="{$upper_bound}"/>
+												</xsl:otherwise>
+											</xsl:choose>
+										</xs:restriction>
+									</xs:simpleType>
+									<xsl:choose>
+										<!-- test whether aggregated datatype is an array AND has upper OR lower bounds that are NOT constants -->
+										<xsl:when test="$current_aggregate_type='array' and (number($upper_bound)='NaN' or number($lower_bound='NaN'))">
+											<xs:attribute ref="exp:arraySize" use="required"/>
+										</xsl:when>
+										<!-- test whether aggregated datatype is an array AND has constant upper AND lower bounds -->
+										<xsl:when test="$current_aggregate_type='array' and not(number($upper_bound)='NaN' or number($lower_bound='NaN'))">
+											<xs:attribute ref="exp:arraySize" fixed="{$upper_bound}"/>
+										</xsl:when>
+										<xsl:otherwise>
+											<xs:attribute ref="exp:arraySize" use="optional"/>
+										</xsl:otherwise>
+									</xsl:choose>
+									<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+								</xs:restriction>
+							</xs:simpleContent>
+						</xs:complexType>
+						<xsl:variable name="list_type_name_with_xs_prefix" select="concat('xs:', $list_type_name)"/>
+						<xsl:variable name="list_type_name_with_ns_prefix" select="concat($namespace_prefix, $list_type_name)"/>
+						<xsl:choose>
+							<!-- test whether type based on simple type -->
+							<xsl:when test="../builtintype">
+								<xs:simpleType name="{$list_type_name_with_list_prefix}">
+									<xs:list itemType="{$list_type_name_with_xs_prefix}"/>
+								</xs:simpleType>
+							</xsl:when>
+							<!-- test whether type based on non-simple type -->
+							<xsl:when test="../typename">
+								<xs:simpleType name="{$list_type_name_with_list_prefix}">
+									<xs:list itemType="{$list_type_name_with_ns_prefix}"/>
+								</xs:simpleType>
+							</xsl:when>
+						</xsl:choose>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:when>
+			<!-- test whether express type is based on a select type -->
+			<xsl:when test="./typename/@name=//type[select]/@name">
+				<xsl:variable name="raw_select_type_name" select="./typename/@name"/>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+				<xs:element name="{$corrected_type_name}" nillable="true">
+					<xs:complexType>
+						<xs:complexContent>
+							<xs:extension base="{$namespace_prefix}{$corrected_type_name}">
+								<xs:attributeGroup ref="exp:instanceAttributes"/>
+							</xs:extension>
+						</xs:complexContent>
+					</xs:complexType>
+				</xs:element>
+				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:variable name="end_of_wr">&apos; IN TYPEOF</xsl:variable>
 				<xsl:variable name="list_of_items_for_underlying_select" select="//type[@name=$raw_select_type_name]/select/@selectitems"/>
-				
 				<xsl:variable name="working_select_list_for_underlying_select">
 					<xsl:call-template name="build_working_select_list">
 						<xsl:with-param name="list_of_items_param" select="$list_of_items_for_underlying_select"/>
 					</xsl:call-template>
 				</xsl:variable>
-				
-			<xsl:variable name="list_of_exclusions">
-				<xsl:for-each select="./where">
-					<xsl:value-of select="concat(substring-after(substring-before(./@expression, $end_of_wr), 'LF.'), ' ')"/>
-				</xsl:for-each>
-			</xsl:variable>
-			
-			
-		<xsl:variable name="lower_case_list_of_exclusions">
-			<xsl:call-template name="put_into_lower_case">
-				<xsl:with-param name="raw_item_name_param" select="concat(' ',$list_of_exclusions)"/>
-			</xsl:call-template>
-		</xsl:variable>
-	<xsl:variable name="pruned_select_list">
-									<xsl:call-template name="subtract-forbiden-word-list-from-main-word-list">
-										<xsl:with-param name="forbidden-list" select="$lower_case_list_of_exclusions"/>
-										<xsl:with-param name="main-list" select="$working_select_list_for_underlying_select"/>
-									</xsl:call-template>
-								</xsl:variable>
-							<xsl:variable name="pruned_select_list_no_duplicates">
-												<xsl:call-template name="filter-word-list-unique">
+				<xsl:variable name="list_of_exclusions">
+					<xsl:for-each select="./where">
+						<xsl:value-of select="concat(substring-after(substring-before(./@expression, $end_of_wr), 'LF.'), ' ')"/>
+					</xsl:for-each>
+				</xsl:variable>
+				<xsl:variable name="corrected_case_list_of_exclusions">
+					<xsl:call-template name="correct_express_names">
+						<xsl:with-param name="list_of_express_names_param" select="concat(' ',$list_of_exclusions)"/>
+					</xsl:call-template>
+				</xsl:variable>
+				<xsl:variable name="pruned_select_list">
+					<xsl:call-template name="subtract-forbiden-word-list-from-main-word-list">
+						<xsl:with-param name="forbidden-list" select="$corrected_case_list_of_exclusions"/>
+						<xsl:with-param name="main-list" select="$working_select_list_for_underlying_select"/>
+					</xsl:call-template>
+				</xsl:variable>
+				<xsl:variable name="pruned_select_list_no_duplicates">
+					<xsl:call-template name="filter-word-list-unique">
 						<xsl:with-param name="word-list" select="$pruned_select_list"/>
 					</xsl:call-template>
-							</xsl:variable>
-				
-							
-								<xsl:choose>
-									<xsl:when test="string-length(normalize-space($pruned_select_list_no_duplicates)) = 0"/>
-									<xsl:when test="contains(normalize-space($pruned_select_list_no_duplicates), ' ')">
-										<xsl:comment>EXPRESS SELECT DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
-										</xsl:comment>
-										<xsl:text>&#xa;</xsl:text>
-										<xs:complexType name="{$corrected_type_name}">
-											<xs:group ref="{$namespace_prefix}{$corrected_type_name}"/>
-										</xs:complexType>
-										<xsl:text>&#xa;</xsl:text>
-										<xsl:text>&#xa;</xsl:text>
-										<xsl:comment>EXPRESS SELECT DATATYPE GROUP DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
-										</xsl:comment>
-										<xsl:text>&#xa;</xsl:text>
-										<xs:group name="{$corrected_type_name}">
-											<xs:choice>
-												<xsl:call-template name="construct_select_elements">
-													<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list_no_duplicates"/>
-												</xsl:call-template>
-											</xs:choice>
-										</xs:group>
-										<xsl:text>&#xa;</xsl:text>
-										<xsl:text>&#xa;</xsl:text>
-									</xsl:when>
-									<xsl:otherwise>
-									</xsl:otherwise>
-								</xsl:choose>
-								
-						
-				<xsl:text>&#xa;</xsl:text>
-				<xsl:text>&#xa;</xsl:text>
+				</xsl:variable>
+				<xsl:variable name="pruned_select_list_no_duplicates_no_abstracts">
+					<xsl:call-template name="remove_names_of_abstract_entities_from_list">
+						<xsl:with-param name="list_of_selected_datatypes_param" select="$pruned_select_list_no_duplicates"/>
+					</xsl:call-template>
+				</xsl:variable>	
+				<xsl:choose>
+						<!-- test whether select list empty -->
+						<xsl:when test="string-length(normalize-space($pruned_select_list_no_duplicates_no_abstracts)) = 0"/>
+						<!-- test whether select list has at least two items -->		
+						<xsl:when test="contains(normalize-space($pruned_select_list_no_duplicates_no_abstracts), ' ')">
+							<xs:complexType name="{$corrected_type_name}">
+								<xs:group ref="{$namespace_prefix}{$corrected_type_name}"/>
+							</xs:complexType>
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:text>&#xa;</xsl:text>
+							<xs:group name="{$corrected_type_name}">
+								<xs:choice>
+									<xsl:call-template name="construct_select_elements">
+										<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list_no_duplicates_no_abstracts"/>
+									</xsl:call-template>
+								</xs:choice>
+							</xs:group>
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:text>&#xa;</xsl:text>
+						</xsl:when>
+						<xsl:otherwise><!-- need to add what to do if select list has one item --></xsl:otherwise>
+					</xsl:choose>
+					<xsl:text>&#xa;</xsl:text>
+					<xsl:text>&#xa;</xsl:text>			
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:comment>EXPRESS DEFINED DATATYPE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
-				</xsl:comment>
-				<xsl:text>&#xa;</xsl:text>
 				<xs:element name="{$corrected_type_name}" nillable="true">
 					<xs:complexType>
 						<xs:simpleContent>
@@ -762,9 +602,6 @@
 					</xs:complexType>
 				</xs:element>
 				<xsl:text>&#xa;</xsl:text>
-				<xsl:text>&#xa;</xsl:text>
-				<xsl:comment>EXPRESS DEFINED DATATYPE TYPE DECLARATION FOR: <xsl:value-of select="$corrected_type_name"/>
-				</xsl:comment>
 				<xsl:text>&#xa;</xsl:text>
 				<xs:simpleType name="{$corrected_type_name}">
 					<xsl:call-template name="generate_restriction">
@@ -781,8 +618,8 @@
 	<xsl:template match="entity" mode="elements_and_types">
 		<xsl:variable name="raw_entity_name" select="./@name"/>
 		<xsl:variable name="corrected_entity_name">
-			<xsl:call-template name="put_into_lower_case">
-				<xsl:with-param name="raw_item_name_param" select="$raw_entity_name"/>
+			<xsl:call-template name="correct_express_name">
+				<xsl:with-param name="raw_express_name_param" select="$raw_entity_name"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="raw_supertypes_list" select="./@supertypes"/>
@@ -798,86 +635,25 @@
 				<xsl:otherwise>
 					<xsl:choose>
 						<xsl:when test="./@abstract.supertype='YES'">true</xsl:when>
-						<xsl:when test="./@abstract.entity='YES'">true</xsl:when>
-						<xsl:when test="//subtype.constraint[@entity=$raw_entity_name and @abstract.supertype='YES']">true</xsl:when>
 						<xsl:otherwise>false</xsl:otherwise>
 					</xsl:choose>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
-		<xsl:variable name="part_of_multiple_inheritance_graph">
-			<xsl:call-template name="check_whether_part_of_multiple_inheritance_graph">
-				<xsl:with-param name="raw_entity_param" select="$raw_entity_name"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<!-- xsl:choose>
-			<xsl:when test="$part_of_multiple_inheritance_graph='true'" -->
-		<xsl:call-template name="inheritance-free_mapping">
-			<xsl:with-param name="raw_entity_name_param" select="$raw_entity_name"/>
-			<xsl:with-param name="corrected_entity_name_param" select="$corrected_entity_name"/>
-			<xsl:with-param name="abstractness_param" select="$abstractness"/>
-			<xsl:with-param name="base_type_of_optional_array_param" select="$base_type_of_optional_array"/>
-			<xsl:with-param name="raw_supertype_name_param" select="$raw_supertypes_list"/>
-		</xsl:call-template>
-		<!-- /xsl:when>
-			<xsl:otherwise>
-		
-				<xsl:call-template name="inheritance_mapping">
-					<xsl:with-param name="raw_entity_name_param" select="$raw_entity_name"/>
-					<xsl:with-param name="corrected_entity_name_param" select="$corrected_entity_name"/>
-					<xsl:with-param name="abstractness_param" select="$abstractness"/>
-					<xsl:with-param name="raw_supertype_name_param" select="$raw_supertypes_list"/>
-				</xsl:call-template>
-			</xsl:otherwise>
-		</xsl:choose -->
-	</xsl:template>
-	
-	<xsl:template name="inheritance-free_mapping">
-		<xsl:param name="raw_entity_name_param"/>
-		<xsl:param name="corrected_entity_name_param"/>
-		<xsl:param name="abstractness_param"/>
-		<xsl:param name="base_type_of_optional_array_param"/>
-		<xsl:param name="raw_supertype_name_param"/>
-		
-		<xsl:variable name="corrected_supertype_name">
-			<xsl:call-template name="put_into_lower_case">
-				<xsl:with-param name="raw_item_name_param" select="$raw_supertype_name_param"/>
-			</xsl:call-template>
-		</xsl:variable>
-		
-		<xsl:variable name="ext_base_sub_grp">
-			<xsl:choose>
-				<xsl:when test="$raw_supertype_name_param">
-					<xsl:value-of select="concat($namespace_prefix, $corrected_supertype_name)"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="string('exp:Entity')"/>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
-		
 		<xsl:choose>
-			<xsl:when test="$base_type_of_optional_array_param='true' or $abstractness_param='true'">
-			</xsl:when>
-			<xsl:when test="$base_type_of_optional_array_param='false'">
-				<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE-FREE MAPPING ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/>
-				</xsl:comment>
-				
-				<xs:element name="{$corrected_entity_name_param}" type="{$namespace_prefix}{$corrected_entity_name_param}" block="extension restriction" substitutionGroup="exp:Entity" nillable="true"/>
-				
-				
+			<xsl:when test="$base_type_of_optional_array='true' or $abstractness='true'"></xsl:when>
+			<xsl:when test="$base_type_of_optional_array='false'">
+				<xs:element name="{$corrected_entity_name}" type="{$namespace_prefix}{$corrected_entity_name}" block="extension restriction" substitutionGroup="exp:Entity" nillable="true"/>				
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
-				<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE-FREE MAPPING TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/>
-				</xsl:comment>
-				<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
+				<xs:complexType name="{$corrected_entity_name}" abstract="{$abstractness}">
 					<xs:complexContent>
 						<xs:extension base="exp:Entity">
 							<xs:all>
 								<xsl:call-template name="collect_attributes_from_supertypes_but_weed_those_redeclared_lower_down">
-									<xsl:with-param name="raw_entity_param" select="$raw_entity_name_param"/>
+									<xsl:with-param name="raw_entity_param" select="$raw_entity_name"/>
 									<xsl:with-param name="redeclared_attributes_param" select="string(' ')"/>
-									<xsl:with-param name="supertypes_list_param" select="$raw_supertype_name_param"/>
+									<xsl:with-param name="supertypes_list_param" select="$raw_supertypes_list"/>
 								</xsl:call-template>
 								<xsl:for-each select="./explicit">
 									<xsl:call-template name="deal_with_attributes">
@@ -892,28 +668,16 @@
 				<xsl:text>&#xa;</xsl:text>
 			</xsl:when>
 		</xsl:choose>
-		<xsl:variable name="subtypes_exist">
-			<xsl:call-template name="check_whether_subtypes_exist">
-				<xsl:with-param name="entity_name_param" select="$raw_entity_name_param"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<!-- xsl:choose>
-			<xsl:when test="contains($subtypes_exist, 'YES')" -->
-				<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE-FREE MAPPING GROUP DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/>
-				</xsl:comment>
-				<xs:group name="{$corrected_entity_name_param}-group">
-					<xs:choice>
-						<xsl:if test="not($abstractness_param='true')"><xs:element ref="{$namespace_prefix}{$corrected_entity_name_param}"/></xsl:if>
-						
-						<xsl:call-template name="get_immediate_subtypes">
-							<xsl:with-param name="raw_node_name_param" select="$raw_entity_name_param"/>
-						</xsl:call-template>
-					</xs:choice>
-				</xs:group>
-			<!-- /xsl:when>
-		</xsl:choose -->
+		<xs:group name="{$corrected_entity_name}-group">
+			<xs:choice>
+				<xsl:if test="not($abstractness='true')"><xs:element ref="{$namespace_prefix}{$corrected_entity_name}"/></xsl:if>
+				<xsl:call-template name="recurse_through_subtype_tree">
+					<xsl:with-param name="raw_node_name_param" select="$raw_entity_name"/>
+				</xsl:call-template>
+			</xs:choice>
+		</xs:group>
 	</xsl:template>
-	
+		
 	<xsl:template match="explicit">
 		<xsl:variable name="optionality">
 			<xsl:choose>
@@ -927,8 +691,8 @@
 		</xsl:variable>
 		<xsl:variable name="raw_attribute_name" select="./@name"/>
 		<xsl:variable name="corrected_attribute_name">
-			<xsl:call-template name="put_into_lower_case">
-				<xsl:with-param name="raw_item_name_param" select="$raw_attribute_name"/>
+			<xsl:call-template name="correct_express_name">
+				<xsl:with-param name="raw_express_name_param" select="$raw_attribute_name"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="current_node" select="."/>
@@ -936,7 +700,7 @@
 		<xsl:choose>
 			<xsl:when test="./aggregate">
 				<xsl:variable name="base_datatype">
-					<xsl:call-template name="generate_base_datatype">
+					<xsl:call-template name="generate_immediate_base_datatype">
 						<xsl:with-param name="type" select="$current_node"/>
 					</xsl:call-template>
 				</xsl:variable>
@@ -985,17 +749,13 @@
 				</xsl:variable>
 				<xsl:choose>
 					<xsl:when test="./aggregate[position()=1 and position()=last()]">
-						<xsl:comment>EXPRESS AGGREGATE ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/>
-						</xsl:comment>
 						<xsl:text>&#xa;</xsl:text>
 						<xsl:choose>
 							<xsl:when test="./typename">
-								<xsl:comment>EXPRESS ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/>
-								</xsl:comment>
 								<xsl:variable name="target" select="./typename/@name"/>
 								<xsl:variable name="corrected_target_name">
-									<xsl:call-template name="put_into_lower_case">
-										<xsl:with-param name="raw_item_name_param" select="$target"/>
+									<xsl:call-template name="correct_express_name">
+										<xsl:with-param name="raw_express_name_param" select="$target"/>
 									</xsl:call-template>
 								</xsl:variable>
 								<xsl:choose>
@@ -1032,8 +792,8 @@
 											</xsl:when>
 											<xsl:otherwise>
 												<xsl:variable name="corrected_target_select_target_name">
-													<xsl:call-template name="put_into_lower_case">
-														<xsl:with-param name="raw_item_name_param" select="$normalized_working_select_list"/>
+													<xsl:call-template name="correct_express_name">
+														<xsl:with-param name="raw_express_name_param" select="$normalized_working_select_list"/>
 													</xsl:call-template>
 												</xsl:variable>
 												<xs:element name="{$corrected_attribute_name}">
@@ -1082,11 +842,7 @@
 											</xsl:otherwise>
 										</xsl:choose>
 									</xsl:when>
-									<xsl:otherwise>
-										<!-- xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}" minOccurs="{$optionality}"/>
-								<xsl:text>&#xa;</xsl:text>
-								<xsl:text>&#xa;</xsl:text -->
-									</xsl:otherwise>
+									<xsl:otherwise></xsl:otherwise>
 								</xsl:choose>
 							</xsl:when>
 							<xsl:when test="./builtintype">
@@ -1100,30 +856,16 @@
 							</xsl:when>
 						</xsl:choose>
 					</xsl:when>
-					<xsl:when test="./aggregate[position()=1 and position()!=last()]">
-						<!-- xsl:comment>EXPRESS AGGREGATE attribute: xsd element declaration for <xsl:value-of select="$corrected_attribute_name"/></xsl:comment>
-						<xs:element name="{$corrected_attribute_name}"	>
-							<xs:complexType>
-								<xs:sequence>
-									<xs:element ref="ap239:{$seq_prefix}{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
-								</xs:sequence>
-								<xs:attribute ref="exp:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-								<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
-								<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
-							</xs:complexType>
-						</xs:element -->
-					</xsl:when>
+					<xsl:when test="./aggregate[position()=1 and position()!=last()]"></xsl:when>
 				</xsl:choose>
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:choose>
 					<xsl:when test="./typename">
-						<xsl:comment>EXPRESS ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/>
-						</xsl:comment>
 						<xsl:variable name="target" select="./typename/@name"/>
 						<xsl:variable name="corrected_target_name">
-							<xsl:call-template name="put_into_lower_case">
-								<xsl:with-param name="raw_item_name_param" select="$target"/>
+							<xsl:call-template name="correct_express_name">
+								<xsl:with-param name="raw_express_name_param" select="$target"/>
 							</xsl:call-template>
 						</xsl:variable>
 						<xsl:choose>
@@ -1148,8 +890,8 @@
 									</xsl:when>
 									<xsl:otherwise>
 										<xsl:variable name="corrected_target_select_target_name">
-											<xsl:call-template name="put_into_lower_case">
-												<xsl:with-param name="raw_item_name_param" select="$normalized_working_select_list"/>
+											<xsl:call-template name="correct_express_name">
+												<xsl:with-param name="raw_express_name_param" select="$normalized_working_select_list"/>
 											</xsl:call-template>
 										</xsl:variable>
 										<xsl:choose>
@@ -1209,11 +951,7 @@
 									</xsl:otherwise>
 								</xsl:choose>
 							</xsl:when>
-							<xsl:otherwise>
-								<!-- xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}" minOccurs="{$optionality}"/>
-								<xsl:text>&#xa;</xsl:text>
-								<xsl:text>&#xa;</xsl:text -->
-							</xsl:otherwise>
+							<xsl:otherwise></xsl:otherwise>
 						</xsl:choose>
 					</xsl:when>
 					<xsl:when test="./builtintype">
@@ -1232,6 +970,7 @@
 	
 	<!-- PROCEDURES -->
 	
+	<!-- USED -->
 	<xsl:template name="deal_with_attributes">
 		<xsl:param name="attribute_node_param"/>
 		<xsl:variable name="optionality">
@@ -1246,16 +985,17 @@
 		</xsl:variable>
 		<xsl:variable name="raw_attribute_name" select="$attribute_node_param/@name"/>
 		<xsl:variable name="corrected_attribute_name">
-			<xsl:call-template name="put_into_lower_case">
-				<xsl:with-param name="raw_item_name_param" select="$raw_attribute_name"/>
+			<xsl:call-template name="correct_express_name">
+				<xsl:with-param name="raw_express_name_param" select="$raw_attribute_name"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="current_node" select="$attribute_node_param"/>
 		<xsl:variable name="first_aggregate_node" select="$attribute_node_param/aggregate[position()=1]"/>
 		<xsl:choose>
+			<!-- test whether aggregate attribute -->
 			<xsl:when test="$attribute_node_param/aggregate">
 				<xsl:variable name="base_datatype">
-					<xsl:call-template name="generate_base_datatype">
+					<xsl:call-template name="generate_immediate_base_datatype">
 						<xsl:with-param name="type" select="$current_node"/>
 					</xsl:call-template>
 				</xsl:variable>
@@ -1303,69 +1043,86 @@
 					</xsl:call-template>
 				</xsl:variable>
 				<xsl:choose>
+					<!-- test whether single level aggregate -->
 					<xsl:when test="$attribute_node_param/aggregate[position()=1 and position()=last()]">
-						<xsl:comment>EXPRESS AGGREGATE ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/></xsl:comment>
-						<xsl:text>&#xa;</xsl:text>
 						<xsl:choose>
+							<!-- test if aggregate of non simple datatype -->
 							<xsl:when test="$attribute_node_param/typename">
-								<xsl:comment>EXPRESS ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/></xsl:comment>
 								<xsl:variable name="target" select="$attribute_node_param/typename/@name"/>
 								<xsl:variable name="corrected_target_name">
-									<xsl:call-template name="put_into_lower_case">
-										<xsl:with-param name="raw_item_name_param" select="$target"/>
+									<xsl:call-template name="correct_express_name">
+										<xsl:with-param name="raw_express_name_param" select="$target"/>
 									</xsl:call-template>
 								</xsl:variable>
 								<xsl:choose>
-									<xsl:when test="$target = //type[select]/@name">
-										<xsl:variable name="initial_list_of_items" select="//type[@name=$target]/select/@selectitems"/>
-										<xsl:variable name="working_select_list">
-											<xsl:call-template name="build_working_select_list">
-												<xsl:with-param name="list_of_items_param" select="$initial_list_of_items"/>
-											</xsl:call-template>
-										</xsl:variable>
-										<xsl:variable name="normalized_working_select_list" select="normalize-space($working_select_list)"/>
+									<!-- test whether aggregate of non simple non entity datatype -->
+									<xsl:when test="$target = //type/@name">
 										<xsl:choose>
-											<!-- test whether single item select -->
-											<xsl:when test="contains($normalized_working_select_list, ' ')">
-												<xs:element name="{$corrected_attribute_name}">
-													<xs:complexType>
-														<xs:sequence>
-															<xsl:choose>
-																<xsl:when test="$attribute_node_param/typename/@name=//type[select]/@name">
-																	<xs:group ref="{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
-																</xsl:when>
-																<xsl:otherwise>
-																	<xs:element ref="{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
-																</xsl:otherwise>
-															</xsl:choose>
-														</xs:sequence>
-														<xs:attribute ref="exp:itemType" fixed="{$base_datatype}"/>
-														<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
-														<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
-													</xs:complexType>
-												</xs:element>
-												<xsl:text>&#xa;</xsl:text>
-												<xsl:text>&#xa;</xsl:text>
-											</xsl:when>
+											<!-- test whether aggregate of select type -->
+											<xsl:when test="$target = //type[select]/@name">
+											<xsl:variable name="initial_list_of_items" select="//type[@name=$target]/select/@selectitems"/>
+											<xsl:variable name="working_select_list">
+												<xsl:call-template name="build_working_select_list">
+													<xsl:with-param name="list_of_items_param" select="$initial_list_of_items"/>
+												</xsl:call-template>
+											</xsl:variable>
+											<xsl:variable name="normalized_working_select_list" select="normalize-space($working_select_list)"/>
+											<xsl:choose>
+												<!-- test whether single item select -->
+												<xsl:when test="contains($normalized_working_select_list, ' ')">
+													<xs:element name="{$corrected_attribute_name}">
+														<xs:complexType>
+															<xs:sequence>
+																<xsl:choose>
+																	<xsl:when test="$attribute_node_param/typename/@name=//type[select]/@name">
+																		<xs:group ref="{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
+																	</xsl:when>
+																	<xsl:otherwise>
+																		<xs:element ref="{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
+																	</xsl:otherwise>
+																</xsl:choose>
+															</xs:sequence>
+															<xs:attribute ref="exp:itemType" fixed="{$base_datatype}"/>
+															<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+															<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
+														</xs:complexType>
+													</xs:element>
+													<xsl:text>&#xa;</xsl:text>
+													<xsl:text>&#xa;</xsl:text>
+												</xsl:when>
+												<xsl:otherwise>
+													<xsl:variable name="corrected_target_select_target_name">
+														<xsl:call-template name="correct_express_name">
+															<xsl:with-param name="raw_express_name_param" select="$normalized_working_select_list"/>
+														</xsl:call-template>
+													</xsl:variable>
+													<xs:element name="{$corrected_attribute_name}">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element ref="{$namespace_prefix}{$corrected_target_select_target_name}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
+															</xs:sequence>
+															<xs:attribute ref="exp:itemType" fixed="{$corrected_target_select_target_name}"/>
+															<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+															<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
+														</xs:complexType>
+													</xs:element>
+												</xsl:otherwise>
+											</xsl:choose>
+										</xsl:when>
+										
+											<!-- if aggregate of non simple non entity non select datatype -->
 											<xsl:otherwise>
-												<xsl:variable name="corrected_target_select_target_name">
-													<xsl:call-template name="put_into_lower_case">
-														<xsl:with-param name="raw_item_name_param" select="$normalized_working_select_list"/>
-													</xsl:call-template>
-												</xsl:variable>
 												<xs:element name="{$corrected_attribute_name}">
 													<xs:complexType>
 														<xs:sequence>
-															<xs:element ref="{$namespace_prefix}{$corrected_target_select_target_name}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
+															<xs:element ref="{$namespace_prefix}{$corrected_target_name}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
 														</xs:sequence>
-														<xs:attribute ref="exp:itemType" fixed="{$corrected_target_select_target_name}"/>
-														<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
-														<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
 													</xs:complexType>
 												</xs:element>
 											</xsl:otherwise>
 										</xsl:choose>
 									</xsl:when>
+									
 									<xsl:when test="$target = //entity/@name">
 										<xsl:variable name="subtypes_exist">
 											<xsl:call-template name="check_whether_subtypes_exist">
@@ -1399,9 +1156,11 @@
 											</xsl:otherwise>
 										</xsl:choose>
 									</xsl:when>
-									<xsl:otherwise><xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"/></xsl:otherwise>
+									
+									<xsl:otherwise><xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"></xs:element></xsl:otherwise>
 								</xsl:choose>
 							</xsl:when>
+							<!-- test if aggregate of simple datatype -->
 							<xsl:when test="$attribute_node_param/builtintype">
 								<xsl:call-template name="generate_attribute_to_simple_datatype">
 									<xsl:with-param name="type_param" select="$attribute_node_param"/>
@@ -1413,20 +1172,17 @@
 							</xsl:when>
 						</xsl:choose>
 					</xsl:when>
-					<xsl:when test="$attribute_node_param/aggregate[position()=1 and position()!=last()]">
-					
-					</xsl:when>
+					<!-- test whether multi level aggregate -->
+					<xsl:when test="$attribute_node_param/aggregate[position()=1 and position()!=last()]"></xsl:when>
 				</xsl:choose>
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:choose>
 					<xsl:when test="$attribute_node_param/typename">
-						<xsl:comment>EXPRESS ATTRIBUTE ELEMENT DECLARATION FOR: <xsl:value-of select="$corrected_attribute_name"/>
-						</xsl:comment>
 						<xsl:variable name="target" select="$attribute_node_param/typename/@name"/>
 						<xsl:variable name="corrected_target_name">
-							<xsl:call-template name="put_into_lower_case">
-								<xsl:with-param name="raw_item_name_param" select="$target"/>
+							<xsl:call-template name="correct_express_name">
+								<xsl:with-param name="raw_express_name_param" select="$target"/>
 							</xsl:call-template>
 						</xsl:variable>
 						<xsl:choose>
@@ -1451,8 +1207,8 @@
 									</xsl:when>
 									<xsl:otherwise>
 										<xsl:variable name="corrected_target_select_target_name">
-											<xsl:call-template name="put_into_lower_case">
-												<xsl:with-param name="raw_item_name_param" select="$normalized_working_select_list"/>
+											<xsl:call-template name="correct_express_name">
+												<xsl:with-param name="raw_express_name_param" select="$normalized_working_select_list"/>
 											</xsl:call-template>
 										</xsl:variable>
 										<xsl:choose>
@@ -1531,6 +1287,7 @@
 		</xsl:choose>
 	</xsl:template>
 	
+	<!-- USED -->
 	<xsl:template name="check_whether_subtypes_exist">
 		<xsl:param name="entity_name_param"/>
 		<xsl:for-each select="//entity/@supertypes">
@@ -1541,6 +1298,7 @@
 		</xsl:for-each>
 	</xsl:template>
 	
+	<!-- USED -->
 	<xsl:template name="collect_subtypes">
 		<xsl:param name="top_entity_name_param"/>
 		<xsl:for-each select="//entity/@supertypes">
@@ -1555,6 +1313,7 @@
 		</xsl:for-each>
 	</xsl:template>
 	
+	<!-- USED -->
 	<xsl:template name="generate_subtypes_xpath_for_key">
 		<xsl:param name="subtypes_list_param"/>
 		<xsl:variable name="wlist_of_subtypes" select="concat(normalize-space($subtypes_list_param), ' ')"/>
@@ -1563,8 +1322,8 @@
 				<xsl:variable name="first" select="substring-before($wlist_of_subtypes, ' ')"/>
 				<xsl:variable name="rest" select="substring-after($wlist_of_subtypes, ' ')"/>
 				<xsl:variable name="corrected_subtype_name">
-					<xsl:call-template name="put_into_lower_case">
-						<xsl:with-param name="raw_item_name_param" select="$first"/>
+					<xsl:call-template name="correct_express_name">
+						<xsl:with-param name="raw_express_name_param" select="$first"/>
 					</xsl:call-template>
 				</xsl:variable>
 				<xsl:value-of select="concat(' | ', $namespace_prefix, $corrected_subtype_name)"/>
@@ -1576,109 +1335,20 @@
 		</xsl:choose>
 	</xsl:template>
 	
-	<xsl:template name="check_whether_part_of_multiple_inheritance_graph">
-		<xsl:param name="raw_entity_param"/>
-		<xsl:variable name="result_of_looking_up">
-			<xsl:call-template name="look_up">
-				<xsl:with-param name="raw_entity_name_param" select="$raw_entity_param"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:variable name="result_of_looking_down">
-			<xsl:call-template name="look_down">
-				<xsl:with-param name="raw_entity_name_param" select="$raw_entity_param"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:choose>
-			<xsl:when test="contains($result_of_looking_up, 'YES')">true</xsl:when>
-			<xsl:when test="contains($result_of_looking_down, 'YES')">true</xsl:when>
-			<xsl:otherwise>false</xsl:otherwise>
-		</xsl:choose>
-		<!-- xsl:if test="contains($result_of_looking_up, 'YES') or contains($result_of_looking_down, 'YES')">
-			<xsl:comment>THIS ENTITY IS PART OF A TYPE GRAPH CONTAIINING MULTIPLE INHERITANCE AND IS DEALT WITH USING INHERITANCE-FREE MAPPING (UNDER CONSTRUCTION)</xsl:comment>
-		</xsl:if -->
-	</xsl:template>
-	
-	<xsl:template name="look_up">
-		<xsl:param name="raw_entity_name_param"/>
-		<xsl:variable name="entity_node" select="//entity[@name =$raw_entity_name_param]"/>
-		<xsl:choose>
-			<xsl:when test="$entity_node[@supertypes]">
-				<xsl:variable name="supertypes_list" select="$entity_node/@supertypes"/>
-				<xsl:choose>
-					<xsl:when test="contains($supertypes_list, ' ')">
-						<xsl:value-of select="string('YES')"/>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:call-template name="look_up">
-							<xsl:with-param name="raw_entity_name_param" select="$supertypes_list"/>
-						</xsl:call-template>
-					</xsl:otherwise>
-				</xsl:choose>
-			</xsl:when>
-			<xsl:otherwise/>
-		</xsl:choose>
-	</xsl:template>
-	<xsl:template name="look_down">
-		<xsl:param name="raw_entity_name_param"/>
-		<xsl:variable name="entity_node" select="//entity[@name =$raw_entity_name_param]"/>
-		<xsl:variable name="supertypes_list" select="$entity_node/@supertypes"/>
-		<xsl:choose>
-			<xsl:when test="contains($supertypes_list, ' ')">
-				<xsl:value-of select="string('YES')"/>
-			</xsl:when>
-			<xsl:otherwise>
-				<xsl:for-each select="//entity[contains(concat(' ', @supertypes, ' '), concat(' ', $raw_entity_name_param, ' '))]">
-					<xsl:variable name="subtype_name" select="./@name"/>
-					<xsl:choose>
-						<xsl:when test="$subtype_name">
-							<xsl:call-template name="look_down">
-								<xsl:with-param name="raw_entity_name_param" select="$subtype_name"/>
-							</xsl:call-template>
-						</xsl:when>
-						<xsl:otherwise/>
-					</xsl:choose>
-				</xsl:for-each>
-			</xsl:otherwise>
-		</xsl:choose>
-	</xsl:template>
-	
-	<xsl:template name="look_down_subtype_tree_for_redeclarations">
-		<xsl:param name="raw_entity_name_param"/>
-		<xsl:param name="raw_attribute_name_param"/>
-		<xsl:for-each select="//entity[@supertypes=$raw_entity_name_param]/explicit">
-			<xsl:choose>
-				<xsl:when test="./@name=$raw_attribute_name_param">
-					<xsl:value-of select="string('redeclaration')"/>
-				</xsl:when>
-				<xsl:when test="./redeclaration/@old_name=$raw_attribute_name_param">
-					<xsl:value-of select="string('redeclaration')"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:variable name="raw_subtype_name" select="../@name"/>
-					<xsl:call-template name="look_down_subtype_tree_for_redeclarations">
-						<xsl:with-param name="raw_entity_name_param" select="$raw_subtype_name"/>
-						<xsl:with-param name="raw_attribute_name_param" select="$raw_attribute_name_param"/>
-					</xsl:call-template>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:for-each>
-	</xsl:template>
-	
+		
+	<!-- USED -->
 	<xsl:template name="collect_attributes_from_supertypes_but_weed_those_redeclared_lower_down">
 		<xsl:param name="raw_entity_param"/>
 		<xsl:param name="redeclared_attributes_param"/>
 		<xsl:param name="supertypes_list_param"/>
-		
 		<xsl:variable name="long_form" select="document(concat($directory_path, '/', $long_form_file_name))"/>
 		<xsl:variable name="raw_entity_param_with_spaces" select="concat(' ', $raw_entity_param, ' ')"/>
 		<xsl:variable name="supertype_name_list_with_spaces" select="concat(' ', $supertypes_list_param, ' ')"/>
-
 		<xsl:variable name="next_supertype_name_list">
 			<xsl:for-each select="$long_form//entity[contains($supertype_name_list_with_spaces, concat(' ', ./@name, ' '))]">
 				<xsl:value-of select="concat(./@supertypes, ' ')"/>
 			</xsl:for-each>
 		</xsl:variable>
-		
 		<xsl:variable name="new_list_of_redeclared_attributes">
 			<xsl:for-each select="$long_form//entity[contains($raw_entity_param_with_spaces, concat(' ', @name, ' '))]/explicit/redeclaration">
 				<xsl:choose>
@@ -1689,9 +1359,7 @@
 				<xsl:value-of select="string(concat(' ', ../@name, ' '))"/>
 			</xsl:for-each>
 		</xsl:variable>
-
 		<xsl:variable name="extended_list_of_redeclared_attributes" select="concat(' ', normalize-space($redeclared_attributes_param), ' ', normalize-space($new_list_of_redeclared_attributes), ' ')"/>
-		
 		<xsl:for-each select="$long_form//entity[contains($supertype_name_list_with_spaces, concat(' ', @name, ' '))]/explicit">
 			<xsl:variable name="raw_attribute_name" select="./@name"/>
 			<xsl:variable name="normalized_raw_attribute_name_w_spaces" select="concat(' ', normalize-space($raw_attribute_name), ' ')"/>
@@ -1704,7 +1372,6 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:for-each>
-		
 		<xsl:if test="string-length($next_supertype_name_list) &gt; 0">
 			<xsl:call-template name="collect_attributes_from_supertypes_but_weed_those_redeclared_lower_down">
 				<xsl:with-param name="raw_entity_param" select="$supertypes_list_param"/>
@@ -1712,9 +1379,9 @@
 				<xsl:with-param name="supertypes_list_param" select="$next_supertype_name_list"/>
 			</xsl:call-template>
 		</xsl:if>
-		
 	</xsl:template>
 	
+	<!-- USED -->
 	<xsl:template name="collect_attributes_from_supertypes">
 		<xsl:param name="raw_supertype_param"/>
 		<xsl:param name="raw_entity_param"/>
@@ -1724,8 +1391,8 @@
 				<xsl:when test="$raw_attribute_name=//entity[@name=$raw_entity_param]/explicit/redeclaration/@old_name"/>
 				<xsl:otherwise>
 					<xsl:variable name="corrected_attribute_name">
-						<xsl:call-template name="put_into_lower_case">
-							<xsl:with-param name="raw_item_name_param" select="$raw_attribute_name"/>
+						<xsl:call-template name="correct_express_name">
+							<xsl:with-param name="raw_express_name_param" select="$raw_attribute_name"/>
 						</xsl:call-template>
 					</xsl:variable>
 					<xsl:variable name="optionality">
@@ -1742,8 +1409,8 @@
 						<xsl:when test="./typename">
 							<xsl:variable name="raw_type_name" select="./typename/@name"/>
 							<xsl:variable name="corrected_type_name">
-								<xsl:call-template name="put_into_lower_case">
-									<xsl:with-param name="raw_item_name_param" select="$raw_type_name"/>
+								<xsl:call-template name="correct_express_name">
+									<xsl:with-param name="raw_express_name_param" select="$raw_type_name"/>
 								</xsl:call-template>
 							</xsl:variable>
 							<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_type_name}" minOccurs="{$optionality}"/>
@@ -1767,6 +1434,8 @@
 			</xsl:call-template>
 		</xsl:if>
 	</xsl:template>
+	
+	<!-- USED -->
 	<xsl:template name="generate_attribute_to_simple_datatype">
 		<xsl:param name="type_param"/>
 		<xsl:param name="optionality_param"/>
@@ -1862,6 +1531,8 @@
 			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
+	
+	<!-- USED -->
 	<xsl:template name="generate_prefix">
 		<xsl:param name="position_param"/>
 		<xsl:param name="prefix_param"/>
@@ -1888,7 +1559,6 @@
 					<xsl:when test="$aggregate/@optional = 'YES'">
 						<xsl:value-of select="number(0)"/>
 					</xsl:when>
-					
 					<xsl:otherwise>
 						<xsl:variable name="array_size" select="$aggregate_upper_bound - $aggregate_lower_bound + 1"/>
 						<xsl:value-of select="$array_size"/>
@@ -1896,7 +1566,6 @@
 				</xsl:choose>
 			</xsl:when>
 			<xsl:otherwise>
-				
 				<xsl:choose>
 					<xsl:when test="string-length($aggregate_lower_bound) = 0">
 						<xsl:value-of select="number(0)"/>
@@ -1908,6 +1577,8 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
+	
+	<!-- USED -->
 	<xsl:template name="calculate_upper_bound">
 		<xsl:param name="aggregate"/>
 		<xsl:variable name="aggregate_upper_bound" select="$aggregate/@upper"/>
@@ -1923,10 +1594,8 @@
 						<xsl:value-of select="$array_size"/>
 					</xsl:otherwise>
 				</xsl:choose>
-				
 			</xsl:when>
 			<xsl:otherwise>
-				
 				<xsl:choose>
 					<xsl:when test="string-length($aggregate_upper_bound) = 0">
 						<xsl:value-of select="string('unbounded')"/>
@@ -1941,14 +1610,16 @@
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>
+	
+	<!-- USED -->
 	<xsl:template name="generate_restriction">
 		<xsl:param name="type"/>
 		<xsl:choose>
 			<xsl:when test="$type/typename">
 				<xsl:variable name="raw_type_name" select="$type/typename/@name"/>
 				<xsl:variable name="corrected_type_name">
-					<xsl:call-template name="put_into_lower_case">
-						<xsl:with-param name="raw_item_name_param" select="$raw_type_name"/>
+					<xsl:call-template name="correct_express_name">
+						<xsl:with-param name="raw_express_name_param" select="$raw_type_name"/>
 					</xsl:call-template>
 				</xsl:variable>
 				<xs:restriction base="{$namespace_prefix}{$corrected_type_name}"/>
@@ -2031,7 +1702,9 @@
 			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
-	<xsl:template name="generate_base_datatype">
+	
+	<!-- USED -->
+	<xsl:template name="generate_immediate_base_datatype">
 		<xsl:param name="type"/>
 		<xsl:choose>
 			<xsl:when test="$type/builtintype[@type='STRING']">
@@ -2057,10 +1730,9 @@
 			</xsl:when>
 			<xsl:when test="$type/typename">
 				<xsl:variable name="typename_name" select="$type/typename/@name"/>
-			
 				<xsl:variable name="corrected_type_name">
-					<xsl:call-template name="put_into_lower_case">
-						<xsl:with-param name="raw_item_name_param" select="$type/typename/@name"/>
+					<xsl:call-template name="correct_express_name">
+							<xsl:with-param name="raw_express_name_param" select="$type/typename/@name"/>
 					</xsl:call-template>
 				</xsl:variable>
 				<xsl:choose>
@@ -2070,14 +1742,12 @@
 					<xsl:when test="//entity[@name=$typename_name]">
 						<xsl:value-of select="concat($namespace_prefix, $corrected_type_name)"/>
 					</xsl:when>
-					<xsl:otherwise>
-						<xsl:value-of select="concat($namespace_prefix, $corrected_type_name, '-wrapper')"/>
-					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
 	
+	<!-- USED -->
 	<xsl:template name="generate_fundamental_datatype">
 		<xsl:param name="type"/>
 		<xsl:choose>
@@ -2137,39 +1807,82 @@
 					<xsl:when test="//entity[@name=$typename_name]">
 						<xsl:value-of select="string('entity')"/>
 					</xsl:when>
-					<xsl:otherwise>
-						<xsl:value-of select="$typename_name"/>
-					</xsl:otherwise>
+					<xsl:when test="//type[@name=$typename_name]/enumeration">
+						<xsl:value-of select="string('enumeration')"/>
+					</xsl:when>
+					<xsl:otherwise/>
 				</xsl:choose>
 			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
+	
+	<!-- USED -->
+	<xsl:template name="correct_express_names">
+		<xsl:param name="list_of_express_names_param"/>
+		<xsl:variable name="wlist_of_items" select="concat(normalize-space($list_of_express_names_param), ' ')"/>
+		<xsl:choose>
+			<xsl:when test="$wlist_of_items!=' '">
+				<xsl:variable name="first" select="substring-before($wlist_of_items, ' ')"/>
+				<xsl:variable name="rest" select="substring-after($wlist_of_items, ' ')"/>
+				<xsl:variable name="corrected_first">
+					<xsl:call-template name="correct_express_name">
+						<xsl:with-param name="raw_express_name_param" select="$first"/>
+					</xsl:call-template>
+				</xsl:variable>
+				<xsl:value-of select="concat($corrected_first, ' ')"/>
+				<xsl:call-template name="correct_express_names">
+					<xsl:with-param name="list_of_express_names_param" select="$rest"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise/>
+		</xsl:choose>
+	</xsl:template>
+	
+	
+	<!-- USED -->
+	<xsl:template name="correct_express_name">
+		<xsl:param name="raw_express_name_param"/>
+		<xsl:variable name="lc_item_name">
+			<xsl:call-template name="put_into_lower_case">
+				<xsl:with-param name="raw_item_name_param" select="$raw_express_name_param"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="lc_item_name_minus_xml_string">
+			<xsl:call-template name="replace_xml_string">
+				<xsl:with-param name="lower_case_item_name_param" select="$lc_item_name"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="fully_corrected_name">
+			<xsl:call-template name="put_first_letter_into_upper_case">
+				<xsl:with-param name="lower_case_item_name_minus_xml_param" select="$lc_item_name_minus_xml_string"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:value-of select="$fully_corrected_name"/>
+	</xsl:template>
+	
 	<!-- USED -->
 	<xsl:template name="put_into_lower_case">
 		<xsl:param name="raw_item_name_param"/>
 		<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
 		<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
 		<xsl:variable name="lower_case_item_name" select="translate($raw_item_name_param, $UPPER, $LOWER)"/>
-		<xsl:call-template name="replace_xml_string">
-			<xsl:with-param name="lower_case_item_name_param" select="$lower_case_item_name"/>
-		</xsl:call-template>
+		<xsl:value-of select="$lower_case_item_name"/>
 	</xsl:template>
+	
+	<!-- USED -->
 	<xsl:template name="replace_xml_string">
 		<xsl:param name="lower_case_item_name_param"/>
-		<xsl:variable name="lower_case_item_name_minus_xml_string">
-			<xsl:choose>
-				<xsl:when test="starts-with($lower_case_item_name_param, 'xml')">
-					<xsl:value-of select="concat('x-m-l', substring-after($lower_case_item_name_param, 'xml'))"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="$lower_case_item_name_param"/>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
-		<xsl:call-template name="put_first_letter_into_upper_case">
-			<xsl:with-param name="lower_case_item_name_minus_xml_param" select="$lower_case_item_name_minus_xml_string"/>
-		</xsl:call-template>
+		<xsl:choose>
+			<xsl:when test="starts-with($lower_case_item_name_param, 'xml')">
+				<xsl:value-of select="concat('x-m-l', substring-after($lower_case_item_name_param, 'xml'))"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$lower_case_item_name_param"/>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
+	
+	<!-- USED -->
 	<xsl:template name="put_first_letter_into_upper_case">
 		<xsl:param name="lower_case_item_name_minus_xml_param"/>
 		<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
@@ -2180,6 +1893,8 @@
 		<xsl:variable name="capitalized_initial_letter" select="translate($initial_letter, $LOWER, $UPPER)"/>
 		<xsl:value-of select="concat($capitalized_initial_letter, $rest_of_name)"/>
 	</xsl:template>
+	
+	<!-- USED -->
 	<xsl:template name="recurse_through_enumeration_items">
 		<xsl:param name="list_of_items_param"/>
 		<xsl:variable name="wlist_of_items" select="concat(normalize-space($list_of_items_param), ' ')"/>
@@ -2195,9 +1910,9 @@
 			<xsl:otherwise/>
 		</xsl:choose>
 	</xsl:template>
-	<!--                [contains(
-			concat(' ', normalize-space(/@supertypes), ' '), concat(' ', $raw_node_name_param, ' ')
-		)]                    -->
+	
+	
+	<!-- USED -->
 	<xsl:template name="recurse_through_subtype_tree">
 		<xsl:param name="raw_node_name_param"/>
 		<xsl:variable name="subtypes_still_exist">
@@ -2210,42 +1925,29 @@
 			<xsl:when test="contains($subtypes_still_exist, 'YES')">
 				<xsl:for-each select="//entity[contains(concat(' ', normalize-space(@supertypes), ' '), concat(' ', $raw_node_name_param, ' '))]/@name">
 					<xsl:variable name="raw_subtype_name" select="."/>
-					<xsl:variable name="corrected_subtype_name">
-						<xsl:call-template name="put_into_lower_case">
-							<xsl:with-param name="raw_item_name_param" select="$raw_subtype_name"/>
-						</xsl:call-template>
-					</xsl:variable>
-					<xs:group ref="{$namespace_prefix}{$corrected_subtype_name}-group"/>
-					<xsl:call-template name="recurse_through_subtype_tree">
-						<xsl:with-param name="raw_node_name_param" select="$raw_subtype_name"/>
-					</xsl:call-template>
+					<xsl:choose>
+						<xsl:when test="//entity[@name=$raw_subtype_name]/@abstract.supertype='YES'"></xsl:when>
+						<xsl:otherwise>
+							
+							<xsl:variable name="corrected_subtype_name">
+								<xsl:call-template name="correct_express_name">
+									<xsl:with-param name="raw_express_name_param" select="$raw_subtype_name"/>
+								</xsl:call-template>
+							</xsl:variable>
+							<xs:element ref="{$namespace_prefix}{$corrected_subtype_name}"/>
+							<xsl:call-template name="recurse_through_subtype_tree">
+								<xsl:with-param name="raw_node_name_param" select="$raw_subtype_name"/>
+							</xsl:call-template>
+						</xsl:otherwise>
+					</xsl:choose>
+					
 				</xsl:for-each>
 			</xsl:when>
 			<xsl:otherwise/>
 		</xsl:choose>
 	</xsl:template>
 	
-	<xsl:template name="get_immediate_subtypes">
-		<xsl:param name="raw_node_name_param"/>
-		<xsl:variable name="subtypes_still_exist">
-			<xsl:for-each select="//entity/@supertypes">
-				<xsl:if test="contains(concat(' ', normalize-space(.), ' '), concat(' ', $raw_node_name_param, ' '))">YES</xsl:if>
-			</xsl:for-each>
-		</xsl:variable>
-		
-		<xsl:if test="contains($subtypes_still_exist, 'YES')">
-			<xsl:for-each select="//entity[contains(concat(' ', normalize-space(@supertypes), ' '), concat(' ', $raw_node_name_param, ' '))]/@name">
-				<xsl:variable name="raw_subtype_name" select="."/>
-				<xsl:variable name="corrected_subtype_name">
-					<xsl:call-template name="put_into_lower_case">
-						<xsl:with-param name="raw_item_name_param" select="$raw_subtype_name"/>
-					</xsl:call-template>
-				</xsl:variable>
-				<xs:group ref="{$namespace_prefix}{$corrected_subtype_name}-group"/>
-			</xsl:for-each>
-		</xsl:if>
-	</xsl:template>
-	
+	<!-- USED -->
 	<xsl:template name="build_working_select_list">
 		<xsl:param name="list_of_items_param"/>
 		<xsl:variable name="wlist_of_items" select="concat(normalize-space($list_of_items_param), ' ')"/>
@@ -2277,6 +1979,7 @@
 		</xsl:choose>
 	</xsl:template>
 	
+	<!-- USED -->
 	<xsl:template name="construct_select_elements">
 		<xsl:param name="complete_list_of_items_param"/>
 		<xsl:variable name="wcomplete_list_of_items" select="concat(normalize-space($complete_list_of_items_param), ' ')"/>
@@ -2284,26 +1987,12 @@
 			<xsl:when test="$wcomplete_list_of_items!=' '">
 				<xsl:variable name="first" select="substring-before($wcomplete_list_of_items, ' ')"/>
 				<xsl:variable name="rest" select="substring-after($wcomplete_list_of_items, ' ')"/>
-				<xsl:if test="not(//entity[@name=$first]/@abstract.supertype='YES')">
 				<xsl:variable name="corrected_select_item_name">
-					<xsl:call-template name="put_into_lower_case">
-						<xsl:with-param name="raw_item_name_param" select="$first"/>
+					<xsl:call-template name="correct_express_name">
+						<xsl:with-param name="raw_express_name_param" select="$first"/>
 					</xsl:call-template>
 				</xsl:variable>
 				<xs:element ref="{$namespace_prefix}{$corrected_select_item_name}"/>
-				
-				</xsl:if>
-				
-				<!-- xsl:choose>
-THE WRAPPER BIT SEEMS TO BE AN ERROR IN THE P28 SPEC
-					<xsl:when test="//entity/@name = $first">
-						<xs:element ref="{$namespace_prefix}{$corrected_select_item_name}"/>
-					</xsl:when>
-					<xsl:otherwise>
-						<xsl:variable name="wrapper" select="string('-wrapper')"/>
-						<xs:element ref="{$namespace_prefix}{$corrected_select_item_name}{$wrapper}"/>
-					</xsl:otherwise>					
-				</xsl:choose -->
 				<xsl:call-template name="construct_select_elements">
 					<xsl:with-param name="complete_list_of_items_param" select="$rest"/>
 				</xsl:call-template>
@@ -2311,6 +2000,8 @@ THE WRAPPER BIT SEEMS TO BE AN ERROR IN THE P28 SPEC
 			<xsl:otherwise/>
 		</xsl:choose>
 	</xsl:template>
+	
+	<!-- USED -->
 	<xsl:template name="get_subtypes_in_select">
 		<xsl:param name="raw_entity_name_param"/>
 		<xsl:variable name="entity_node" select="//entity[@name =$raw_entity_name_param]"/>
@@ -2328,53 +2019,56 @@ THE WRAPPER BIT SEEMS TO BE AN ERROR IN THE P28 SPEC
 		</xsl:for-each>
 	</xsl:template>
 	
+	<!-- USED -->
 	<xsl:template name="subtract-forbiden-word-list-from-main-word-list" >
-	<xsl:param name="forbidden-list" />
-	<xsl:param name="main-list" />
-
-	<!-- outputs all words from main-word-list that are NOT in forbidden-list -->
-
-	<!-- get first item in list -->
-
-	<xsl:variable name="first" select="substring-before(concat(normalize-space($main-list),' '),' ')" />
-
-	<xsl:if test="$first" >
-
-		<xsl:if test="not(contains(concat(' ',$forbidden-list,' '),concat(' ',$first,' ')))" >
-			<xsl:value-of select="concat(' ',$first,' ')" /> 
+		<xsl:param name="forbidden-list" />
+		<xsl:param name="main-list" />
+		<!-- outputs all words from main-word-list that are NOT in forbidden-list -->
+		<!-- get first item in list -->
+		<xsl:variable name="first" select="substring-before(concat(normalize-space($main-list), ' '), ' ')"/>
+		<xsl:if test="$first">
+			<xsl:if test="not(contains(concat(' ', $forbidden-list, ' '),concat(' ', $first, ' ')))">
+				<xsl:value-of select="concat(' ',$first,' ')"/> 
+			</xsl:if>
+			<xsl:call-template name="subtract-forbiden-word-list-from-main-word-list">
+				<xsl:with-param name="forbidden-list" select="$forbidden-list"/>
+				<xsl:with-param name="main-list" select="substring-after($main-list, $first)"/>
+			</xsl:call-template>
 		</xsl:if>
-
-		<xsl:call-template name="subtract-forbiden-word-list-from-main-word-list">
-			<xsl:with-param name="forbidden-list" select="$forbidden-list" />
-			<xsl:with-param name="main-list" select="substring-after($main-list,$first)" />
-		</xsl:call-template>
-
-	</xsl:if>
 	</xsl:template>
+	
+	<!-- USED -->
 	<xsl:template name="filter-word-list-unique" >
-	<xsl:param name="word-list" />
-
-	<!-- outputs all unique words from word-list -->
-
-	<!-- get first item in list -->
-
-	<xsl:variable name="first" select="substring-before(concat(normalize-space($word-list),' '),' ')" />
-	<xsl:variable name="rest" select="substring-after($word-list,$first)" />
-
-	<xsl:if test="$first" >
-
-		<xsl:if test="not( contains(concat(' ',$rest,' '),concat(' ',$first,' ')))" >
-			<xsl:value-of select="concat(' ',$first,' ')" /> 
+		<xsl:param name="word-list" />
+		<xsl:variable name="first" select="substring-before(concat(normalize-space($word-list),' '),' ')" />
+		<xsl:variable name="rest" select="substring-after($word-list,$first)" />
+		<xsl:if test="$first" >
+			<xsl:if test="not( contains(concat(' ',$rest,' '),concat(' ',$first,' ')))" >
+				<xsl:value-of select="concat(' ',$first,' ')" /> 
+			</xsl:if>
+			<xsl:call-template name="filter-word-list-unique">
+				<xsl:with-param name="word-list" select="$rest" />
+			</xsl:call-template>
 		</xsl:if>
-
-		<xsl:call-template name="filter-word-list-unique">
-			<xsl:with-param name="word-list" select="$rest" />
-		</xsl:call-template>
-
-	</xsl:if>
-
-</xsl:template>
-<xsl:template name="get_list_type_name">
+	</xsl:template>
+	
+	<!-- USED -->
+	<xsl:template name="remove_names_of_abstract_entities_from_list">
+		<xsl:param name="list_of_selected_datatypes_param"/>
+		<xsl:variable name="first" select="substring-before(concat(normalize-space($list_of_selected_datatypes_param),' '),' ')" />
+		<xsl:variable name="rest" select="substring-after($list_of_selected_datatypes_param,$first)" />
+		<xsl:if test="$first">
+			<xsl:if test="not(//entity[@name=$first]/@abstract.supertype='YES')" >
+				<xsl:value-of select="concat(' ',$first,' ')" /> 
+			</xsl:if>
+			<xsl:call-template name="remove_names_of_abstract_entities_from_list">
+				<xsl:with-param name="list_of_selected_datatypes_param" select="$rest" />
+			</xsl:call-template>
+		</xsl:if>
+	</xsl:template>
+	
+	<!-- USED -->									
+	<xsl:template name="get_list_type_name">
 		<xsl:param name="list_type_name_param"/>
 		<xsl:choose>
 			<xsl:when test="$list_type_name_param='STRING'">
@@ -2399,9 +2093,9 @@ THE WRAPPER BIT SEEMS TO BE AN ERROR IN THE P28 SPEC
 				<xsl:value-of select="string('double')"/>
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:call-template name="put_into_lower_case">
-					<xsl:with-param name="raw_item_name_param" select="$list_type_name_param"/>
-				</xsl:call-template>
+				<xsl:call-template name="correct_express_name">
+						<xsl:with-param name="raw_express_name_param" select="$list_type_name_param"/>
+					</xsl:call-template>
 			</xsl:otherwise>
 		</xsl:choose>
 </xsl:template>

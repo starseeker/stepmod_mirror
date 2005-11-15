@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.130 2005/11/15 11:19:43 kovaliovas Exp $
+   $Id: arm.exp,v 1.131 2005/11/15 11:36:32 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -1155,12 +1155,28 @@ SCHEMA Layered_interconnect_module_design_arm;
       SELF\Product_view_definition.name : STRING := '';
   END_ENTITY;
 
+  ENTITY Stratum_stack_model_to_interconnect_assignment
+    SUBTYPE OF (View_definition_relationship);
+     SELF\View_definition_relationship.relating_view RENAMED concept : Stratum_stack_model;
+     SELF\View_definition_relationship.related_view RENAMED design   : Interconnect_module;
+    WHERE
+     WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
+  END_ENTITY;
+
   ENTITY Stratum_surface;
       name       : stratum_surface_designation;  
       of_stratum : Stratum;
     UNIQUE
       UR1 : name,
  of_stratum;
+  END_ENTITY;
+
+  ENTITY Stratum_technology_occurrence_to_stratum_mapping_relationship;
+    technology_occurrence : Stratum_technology_occurrence;
+    design_stratum : Stratum;
+    mapping_context : Stratum_stack_model_to_interconnect_assignment;
+   UNIQUE
+    UR1: mapping_context, technology_occurrence; 
   END_ENTITY;
 
   ENTITY Thermal_isolation_laminate_component

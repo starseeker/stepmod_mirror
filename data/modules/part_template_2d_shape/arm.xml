@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-14T14:27:05" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-15T18:36:35" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_2d_shape_arm schema_instance"/>
 <schema name="Part_template_2d_shape_arm">
 <interface kind="use" schema="Component_grouping_arm"/>
@@ -63,7 +63,7 @@
 <typename name="package_or_printed_part_template"/>
 </explicit>
 </entity>
-<entity name="Footprint_definition_shape" supertypes="Planar_projected_shape">
+<entity name="Footprint_definition_shape" supertypes="Planar_projected_shape_model">
 <explicit name="shape_characterized_footprint_definition">
 <typename name="Generic_footprint_definition"/>
 </explicit>
@@ -113,6 +113,13 @@
 </explicit>
 <where label="WR1" expression="SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE',&#10;                   'PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_TEMPLATE'] * TYPEOF(template)) = 0"/>
 </entity>
+<entity name="Layer_based_package_keepout_shape_model" supertypes="Physical_unit_planar_keepout_shape_model">
+<explicit name="kept_out_layers">
+<aggregate type="SET" lower="1" upper="?"/>
+<typename name="Stratum_technology"/>
+</explicit>
+<where label="WR1" expression="SELF\Physical_unit_keepout_shape_model.constrained_design_object_category&#10;       IN [keepout_product_design_object_category.interconnect_module_via,&#10;       keepout_product_design_object_category.interconnect_module_inter_stratum_feature,&#10;       keepout_product_design_object_category.interconnect_module_cutout,&#10;       keepout_product_design_object_category.interconnect_module_fill_area,&#10;       keepout_product_design_object_category.interconnect_module_stratum_feature]"/>
+</entity>
 <entity name="Library_padstack_definition" supertypes="Padstack_definition"/>
 <entity name="Padstack_definition" supertypes="Template_definition" super.expression="ONEOF (Design_layer_type_specific_padstack_definition, Stratum_type_independent_padstack_definition) ANDOR Library_padstack_definition ANDOR Design_specific_padstack_definition">
 <explicit name="padstack_location">
@@ -124,7 +131,7 @@
 </inverse>
 <where label="WR1" expression="SIZEOF(QUERY(prpc &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product,&#10; 'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'template model'))) &gt; 0"/>
 </entity>
-<entity name="Padstack_definition_shape" supertypes="Planar_projected_shape">
+<entity name="Padstack_definition_shape" supertypes="Planar_projected_shape_model">
 <explicit name="shape_characterized_padstack_definition">
 <typename name="Padstack_definition"/>
 </explicit>
@@ -242,7 +249,7 @@
 </derived>
 <where label="WR1" expression="NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1)"/>
 </entity>
-<entity name="Part_template_planar_shape_model" supertypes="Planar_projected_shape Part_template_shape_model">
+<entity name="Part_template_planar_shape_model" supertypes="Planar_projected_shape_model Part_template_shape_model">
 <derived name="description" expression="''">
 <builtintype type="STRING"/>
 <redeclaration entity-ref="Representation"/>

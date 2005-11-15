@@ -35,7 +35,7 @@ SUBTYPE_CONSTRAINT component_terminal_subtypes FOR component_terminal;
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT template_definition_subtypes FOR part_template_definition; 
-	(ONEOF (generic_footprint_definition,
+	(ONEOF (footprint_definition,
 	 padstack_definition,
 	 inter_stratum_feature_edge_segment_template, 
 	 inter_stratum_feature_edge_template));
@@ -68,10 +68,6 @@ SUBTYPE_CONSTRAINT plated_inter_stratum_feature_subtypes FOR plated_inter_stratu
   (ONEOF(plated_passage,plated_cutout_edge_segment, 
  plated_interconnect_module_edge_segment));
 END_SUBTYPE_CONSTRAINT;        
-
-ENTITY breakout_occurrence
-  SUBTYPE OF (footprint_occurrence);
-END_ENTITY;
 
 ENTITY conductive_interconnect_element_terminal_link
   SUBTYPE OF (shape_aspect,shape_aspect_relationship);
@@ -157,6 +153,10 @@ WHERE
        (SELF\product_definition.name = 'interconnect module');
 END_ENTITY;
 *)
+ENTITY electrical_isolation_component_definition
+  SUBTYPE OF (filled_area_material_removal_component_definition);
+END_ENTITY;
+
 ENTITY fiducial
   SUBTYPE OF (laminate_component);
 WHERE
@@ -165,6 +165,10 @@ END_ENTITY;
 
 ENTITY fiducial_stratum_feature
  SUBTYPE OF (stratum_feature);
+END_ENTITY;
+
+ENTITY filled_area_material_removal_component_definition
+  SUBTYPE OF (material_removal_component_definition);
 END_ENTITY;
 
 ENTITY footprint_occurrence
@@ -380,8 +384,8 @@ ENTITY interface_access_component_definition
   SUBTYPE OF (laminate_component);
 END_ENTITY;
 
-ENTITY interface_access_material_removal_feature
-  SUBTYPE OF (shape_modification);
+ENTITY interface_access_material_removal_component_definition
+  SUBTYPE OF (material_removal_component_definition);
 END_ENTITY;
 
 ENTITY internal_probe_access_area
@@ -730,12 +734,16 @@ ENTITY layout_junction
   SUBTYPE OF (shape_aspect);
 END_ENTITY;
 
+ENTITY material_removal_component_definition
+  SUBTYPE OF (laminate_component);
+END_ENTITY;
+
 ENTITY multi_layer_component_definition
   SUBTYPE OF (laminate_component);
 END_ENTITY;
 
-ENTITY multi_layer_material_removal_feature
-  SUBTYPE OF (shape_modification);
+ENTITY multi_layer_material_removal_component_definition
+  SUBTYPE OF (material_removal_component_definition);
 END_ENTITY;
 
 ENTITY multi_layer_stratum_feature
@@ -1410,6 +1418,20 @@ WHERE
        (SELF\shape_aspect.of_shape.definition.name = 'design layer'));
 END_ENTITY;
 
+ENTITY stratum_specific_part_template_location_in_padstack_definition
+  SUBTYPE OF (assembly_component_usage, property_definition);
+WHERE
+  WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\assembly_component_usage ||
+       SELF\product_definition_usage ||
+       SELF\product_definition_relationship ||
+       SELF\stratum_specific_part_template_location_in_padstack_definition || 
+       SELF\property_definition)) = 0;
+  WR2: SELF\property_definition.name = '';
+  WR3: SELF\property_definition.description = '';
+  WR4: SELF\product_definition_relationship.name = 'part template location in padstack definition';
+  WR5: SELF\product_definition_relationship.description = '';
+END_ENTITY;
+
 ENTITY stratum_surface
   SUBTYPE OF (shape_aspect);
 WHERE
@@ -1417,6 +1439,10 @@ WHERE
          'secondary surface', 'average surface']; 
     WR2: 'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +
          'STRATUM' IN TYPEOF(SELF\shape_aspect.of_shape.definition);
+END_ENTITY;
+
+ENTITY thermal_isolation_component_definition
+  SUBTYPE OF (filled_area_material_removal_component_definition);
 END_ENTITY;
 
 RULE adjacent_stratum_surface_definition_constraint FOR 

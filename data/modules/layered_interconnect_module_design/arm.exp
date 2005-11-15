@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.129 2005/11/14 11:33:29 kovaliovas Exp $
+   $Id: arm.exp,v 1.130 2005/11/15 11:19:43 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -519,6 +519,11 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1: SIZEOF(library_definition) <= 1;
   END_ENTITY;
 
+  ENTITY Electrical_isolation_laminate_component
+    SUBTYPE OF (Filled_area_material_removal_laminate_component);
+      SELF\Definition_based_product_occurrence.derived_from : Electrical_isolation_removal_template;
+  END_ENTITY;
+
   ENTITY Embedded_physical_component_terminal
     SUBTYPE OF (Laminate_component_join_terminal);
       SELF\Component_feature.definition           : bare_die_terminal_or_packaged_part_terminal;
@@ -533,6 +538,14 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Fiducial_stratum_feature
     SUBTYPE OF (Stratum_feature);
+  END_ENTITY;
+
+  ENTITY Filled_area_material_removal_laminate_component
+    SUPERTYPE OF (ONEOF (Electrical_isolation_laminate_component,
+ Thermal_isolation_laminate_component))
+    SUBTYPE OF (Material_removal_laminate_component);
+    WHERE
+      WR1 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR' IN TYPEOF(SELF\Material_removal_laminate_component.design_intent));
   END_ENTITY;
 
   ENTITY Footprint_occurrence
@@ -597,6 +610,11 @@ SCHEMA Layered_interconnect_module_design_arm;
  		WHERE
       WR1 : NOT (EXISTS(prior_associated_definition)) OR NOT (current_associated_definition IN prior_associated_definition); 
   END_ENTITY; 
+
+  ENTITY Interface_access_material_removal_laminate_component
+    SUBTYPE OF (Material_removal_laminate_component);
+      accessed_interface : Laminate_component_interface_terminal;
+  END_ENTITY;
 
   ENTITY Inter_stratum_extent
     SUBTYPE OF (Part_definition_relationship);
@@ -691,11 +709,6 @@ SCHEMA Layered_interconnect_module_design_arm;
  reference_designation;
   END_ENTITY;
 
-  ENTITY Interface_access_material_removal_feature
-    SUBTYPE OF (Material_removal_feature);
-      accessed_interface : Laminate_component_interface_terminal;
-  END_ENTITY;
-
   ENTITY Interface_access_stratum_feature_template_component
     SUBTYPE OF (Stratum_feature_template_component);
       accessed_interface : Laminate_component_interface_terminal;
@@ -744,6 +757,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Laminate_component
 		SUPERTYPE OF (ONEOF (Conductive_interconnect_element,
+		    Material_removal_laminate_component,
 			Stratum_feature_template_component,
 			Probe_access_area,
 			Inter_stratum_feature,
@@ -878,8 +892,15 @@ SCHEMA Layered_interconnect_module_design_arm;
     WR2 : NOT EXISTS(SELF\View_definition_relationship.description);
   END_ENTITY;
 
-  ENTITY Multi_layer_material_removal_feature
-    SUBTYPE OF (Material_removal_feature);
+  ENTITY Material_removal_laminate_component
+    SUPERTYPE OF (Filled_area_material_removal_laminate_component)
+    SUBTYPE OF (Laminate_component);
+      SELF\Definition_based_product_occurrence.derived_from : Material_removal_feature_template;
+      design_intent                                         : stratum_feature_or_stratum_feature_template_component;
+  END_ENTITY;
+
+  ENTITY Multi_layer_material_removal_laminate_component
+    SUBTYPE OF (Material_removal_laminate_component);
       derived_layer_geometry : Laminate_layer_stack;
   END_ENTITY;
 
@@ -1140,6 +1161,11 @@ SCHEMA Layered_interconnect_module_design_arm;
     UNIQUE
       UR1 : name,
  of_stratum;
+  END_ENTITY;
+
+  ENTITY Thermal_isolation_laminate_component
+    SUBTYPE OF (Filled_area_material_removal_laminate_component);
+      SELF\Definition_based_product_occurrence.derived_from : Thermal_isolation_removal_template;
   END_ENTITY;
 
   ENTITY Unplated_cutout_edge_segment

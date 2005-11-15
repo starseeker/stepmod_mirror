@@ -16,17 +16,51 @@ SCHEMA Conductivity_material_aspects_arm;
 	TYPE cma_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
 		(Part_view_definition);
 	END_TYPE;
+
+	SUBTYPE_CONSTRAINT cma_class_subtypes FOR Class; 
+	    (ONEOF (Conductivity_material_property_class,
+		 Relative_permeability_material_property_class,
+		 Relative_optical_insertion_loss_material_property_class,
+		 Relative_permittivity_material_property_class));
+	END_SUBTYPE_CONSTRAINT;
+
 	
  ENTITY Conductivity_material_property_class
 	ABSTRACT SUPERTYPE OF (ONEOF (Material_electrical_conductivity_class, 
-		Material_thermal_conductivity_class, 
-		Material_optical_conductivity_class, 
-		Material_magnetic_conductivity_class))
+		Material_thermal_conductivity_class))
   SUBTYPE OF (Class);
   WHERE
 	WR1: SELF\Class.name IN 
        ['conductive', 'non conductive', 'resistive', 'semi conductive', 'super conductive'];
-    WR2: NOT EXISTS(SELF\Class.description);
+    WR2: SELF\Class.description IN 
+       ['thermal conductivity', 'electrical conductivity'];
+ END_ENTITY;
+
+ ENTITY Relative_permeability_material_property_class
+  SUBTYPE OF (Class);
+  WHERE
+	WR1: SELF\Class.name IN 
+       ['free space permeabilty', 'low permeability', 'medium permeability', 'highly permeable'];
+    WR2: SELF\Class.description IN 
+       ['magnetic permeability'];
+ END_ENTITY;
+
+ ENTITY Relative_optical_insertion_loss_material_property_class
+  SUBTYPE OF (Class);
+  WHERE
+	WR1: SELF\Class.name IN 
+       ['vacuum', 'very low loss', 'low loss', 'medium loss', 'high loss'];
+    WR2: SELF\Class.description IN 
+       ['optical insertion loss'];
+ END_ENTITY;
+
+ ENTITY Relative_permittivity_material_property_class
+  SUBTYPE OF (Class);
+  WHERE
+	WR1: SELF\Class.name IN 
+       ['vacuum permittivity', 'low permittivity', 'medium permittivity', 'high permittivity'];
+    WR2: SELF\Class.description IN 
+       ['dielectric permittivity'];
  END_ENTITY;
 
 ENTITY Material_electrical_conductivity_class
@@ -41,25 +75,14 @@ ENTITY Material_thermal_conductivity_class
     WR1: SELF\Class.description IN ['thermal conductivity'];
 END_ENTITY;
 
-ENTITY Material_optical_conductivity_class
-  SUBTYPE OF (Conductivity_material_property_class);
-  WHERE
-    WR1: SELF\Class.description IN ['optical conductivity'];
-END_ENTITY;
-
-ENTITY Material_magnetic_conductivity_class
-  SUBTYPE OF (Conductivity_material_property_class);
-  WHERE
-    WR1: SELF\Class.description IN ['magnetic conductivity'];
-END_ENTITY;
-
  ENTITY Material_identification_with_conductivity_classification
   SUBTYPE OF (Material_identification);
   DERIVE
     electrical_conductivity_classification : STRING := get_cond_class(SELF,'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS');
-    magnetic_conductivity_classification   : STRING := get_cond_class(SELF,'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS');
-    optical_conductivity_classification    : STRING := get_cond_class(SELF,'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS');
+    magnetic_permeability_classification   : STRING := get_cond_class(SELF,'RELATIVE_PERMEABILITY_MATERIAL_PROPERTY_CLASS');
+    optical_insertion_loss_classification  : STRING := get_cond_class(SELF,'RELATIVE_OPTICAL_INSERTION_LOSS_MATERIAL_PROPERTY_CLASS');
     thermal_conductivity_classification    : STRING := get_cond_class(SELF,'MATERIAL_THERMAL_CONDUCTIVITY_CLASS');
+    dielectric_permittivity_classification : STRING := get_cond_class(SELF,'RELATIVE_PERMITTIVITY_MATERIAL_PROPERTY_CLASS');
   WHERE 	
   	WR1: (SIZEOF(QUERY(ca <* USEDIN(SELF,
 	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
@@ -75,12 +98,17 @@ END_ENTITY;
 	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
 	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
 	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
-	 	'MATERIAL_MAGNETIC_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
+	 	'RELATIVE_PERMEABILITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
   	WR4: (SIZEOF(QUERY(ca <* USEDIN(SELF,
 	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
 	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
 	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
-	 	'MATERIAL_OPTICAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
+	 	'RELATIVE_PERMITTIVITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
+  	WR4: (SIZEOF(QUERY(ca <* USEDIN(SELF,
+	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
+	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |
+	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+
+	 	'RELATIVE_OPTICAL_INSERTION_LOSS_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) <= 1);
  END_ENTITY;
  
  FUNCTION get_cond_class(input1 : Material_identification_with_conductivity_classification;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-14T16:37:09" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-16T10:38:39" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
 <schema name="Layered_interconnect_module_design_arm">
 <interface kind="use" schema="Edge_shape_feature_arm"/>
@@ -491,6 +491,12 @@
 <where label="WR1" expression="SIZEOF(library_definition) &lt;= 1"/>
 <where label="IP1"/>
 </entity>
+<entity name="Electrical_isolation_laminate_component" supertypes="Filled_area_material_removal_laminate_component">
+<explicit name="derived_from">
+<typename name="Electrical_isolation_removal_template"/>
+<redeclaration entity-ref="Definition_based_product_occurrence"/>
+</explicit>
+</entity>
 <entity name="Embedded_physical_component_terminal" supertypes="Laminate_component_join_terminal">
 <explicit name="definition">
 <typename name="bare_die_terminal_or_packaged_part_terminal"/>
@@ -507,6 +513,9 @@
 </entity>
 <entity name="Fiducial" supertypes="Laminate_component"/>
 <entity name="Fiducial_stratum_feature" supertypes="Stratum_feature"/>
+<entity name="Filled_area_material_removal_laminate_component" supertypes="Material_removal_laminate_component" super.expression="ONEOF (Electrical_isolation_laminate_component, Thermal_isolation_laminate_component)">
+<where label="WR1" expression="NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR' IN TYPEOF(SELF\Material_removal_laminate_component.design_intent))"/>
+</entity>
 <entity name="Footprint_occurrence" supertypes="Assembly_group_component">
 <explicit name="derived_from">
 <typename name="Generic_footprint_definition"/>
@@ -664,7 +673,7 @@
 <unique.attribute attribute="reference_designation"/>
 </unique>
 </entity>
-<entity name="Interface_access_material_removal_feature" supertypes="Material_removal_feature">
+<entity name="Interface_access_material_removal_laminate_component" supertypes="Material_removal_laminate_component">
 <explicit name="accessed_interface">
 <typename name="Laminate_component_interface_terminal"/>
 </explicit>
@@ -720,7 +729,7 @@
 <typename name="Physical_connectivity_definition"/>
 </explicit>
 </entity>
-<entity name="Laminate_component" supertypes="Assembly_component" super.expression="ONEOF (Conductive_interconnect_element, Stratum_feature_template_component, Probe_access_area, Inter_stratum_feature, Special_symbol_laminate_component, Laminate_text_component, Laminate_text_string_component) ANDOR Fiducial">
+<entity name="Laminate_component" supertypes="Assembly_component" super.expression="ONEOF (Conductive_interconnect_element, Material_removal_laminate_component, Stratum_feature_template_component, Probe_access_area, Inter_stratum_feature, Special_symbol_laminate_component, Laminate_text_component, Laminate_text_string_component) ANDOR Fiducial">
 <explicit name="derived_from">
 <typename name="Template_definition"/>
 <redeclaration entity-ref="Definition_based_product_occurrence"/>
@@ -874,7 +883,16 @@
 <where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
 <where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.description)"/>
 </entity>
-<entity name="Multi_layer_material_removal_feature" supertypes="Material_removal_feature">
+<entity name="Material_removal_laminate_component" supertypes="Laminate_component" super.expression="Filled_area_material_removal_laminate_component">
+<explicit name="derived_from">
+<typename name="Material_removal_feature_template"/>
+<redeclaration entity-ref="Definition_based_product_occurrence"/>
+</explicit>
+<explicit name="design_intent">
+<typename name="stratum_feature_or_stratum_feature_template_component"/>
+</explicit>
+</entity>
+<entity name="Multi_layer_material_removal_laminate_component" supertypes="Material_removal_laminate_component">
 <explicit name="derived_layer_geometry">
 <typename name="Laminate_layer_stack"/>
 </explicit>
@@ -1068,6 +1086,10 @@
 </derived>
 </entity>
 <entity name="Stratum" supertypes="Part_view_definition Item_shape" super.expression="ONEOF (Documentation_layer_stratum, Design_layer_stratum)">
+<explicit name="id">
+<builtintype type="STRING"/>
+<redeclaration entity-ref="Product_view_definition"/>
+</explicit>
 <explicit name="of_technology">
 <typename name="Stratum_technology"/>
 </explicit>
@@ -1093,7 +1115,6 @@
 <where label="WR3" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) &lt;= 1"/>
 <where label="WR4" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) &lt;= 1"/>
 <where label="WR5" expression="NOT(SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) = 1) OR&#10;            (SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) = 1)"/>
-<where label="WR6" expression="NOT EXISTS (SELF\Product_view_definition.id)"/>
 <where label="WR7" expression="NOT EXISTS (SELF\Product_view_definition.name)"/>
 <where label="WR8" expression="NOT EXISTS (SELF\Product_view_definition.additional_characterization)"/>
 </entity>
@@ -1145,6 +1166,17 @@
 <redeclaration entity-ref="Product_view_definition"/>
 </derived>
 </entity>
+<entity name="Stratum_stack_model_to_interconnect_assignment" supertypes="View_definition_relationship">
+<explicit name="concept">
+<typename name="Stratum_stack_model"/>
+<redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+</explicit>
+<explicit name="design">
+<typename name="Interconnect_module"/>
+<redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+</explicit>
+<where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+</entity>
 <entity name="Stratum_surface">
 <explicit name="name">
 <typename name="stratum_surface_designation"/>
@@ -1156,6 +1188,27 @@
 <unique.attribute attribute="name"/>
 <unique.attribute attribute="of_stratum"/>
 </unique>
+</entity>
+<entity name="Stratum_technology_occurrence_to_stratum_mapping_relationship">
+<explicit name="technology_occurrence">
+<typename name="Stratum_technology_occurrence"/>
+</explicit>
+<explicit name="design_stratum">
+<typename name="Stratum"/>
+</explicit>
+<explicit name="mapping_context">
+<typename name="Stratum_stack_model_to_interconnect_assignment"/>
+</explicit>
+<unique label="UR1">
+<unique.attribute attribute="mapping_context"/>
+<unique.attribute attribute="technology_occurrence"/>
+</unique>
+</entity>
+<entity name="Thermal_isolation_laminate_component" supertypes="Filled_area_material_removal_laminate_component">
+<explicit name="derived_from">
+<typename name="Thermal_isolation_removal_template"/>
+<redeclaration entity-ref="Definition_based_product_occurrence"/>
+</explicit>
 </entity>
 <entity name="Unplated_cutout_edge_segment" supertypes="Cutout_edge_segment">
 <explicit name="composed_cutout">

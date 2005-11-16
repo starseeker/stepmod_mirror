@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-15T17:46:37" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-16T15:20:26" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="non_feature_shape_element_arm schema_instance"/>
 <schema name="Non_feature_shape_element_arm">
 <interface kind="use" schema="Physical_unit_shape_with_parameters_arm"/>
@@ -35,11 +35,8 @@
 <explicit name="model_shape" optional="YES">
 <typename name="Geometric_model"/>
 </explicit>
-<derived name="id" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Representation"/>
-</derived>
 <where label="WR1" expression="TYPEOF(SELF) &lt;&gt; TYPEOF(model_shape)"/>
+<where label="WR2" expression="NOT EXISTS(SELF\Representation.id)"/>
 </entity>
 <entity name="Non_feature_shape_element" supertypes="Shape_element">
 <explicit name="element_name">
@@ -61,7 +58,6 @@
 <unique.attribute attribute="scope"/>
 </unique>
 <where label="WR1" expression="(NOT (SIZEOF(associated_usage_concept) &gt; 0)) OR (SIZEOF(SELF\Placed_feature.feature_shape) &gt; 0)"/>
-<where label="WR2" expression="NOT EXISTS (SELF\Shape_element.description)"/>
 <where label="IP1"/>
 </entity>
 <entity name="Non_feature_shape_element_relationship" supertypes="Shape_element_relationship">
@@ -73,10 +69,6 @@
 <typename name="Non_feature_shape_element"/>
 <redeclaration entity-ref="Shape_element_relationship"/>
 </explicit>
-<derived name="relation_type" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Shape_element_relationship"/>
-</derived>
 <unique label="UR1">
 <unique.attribute attribute="related"/>
 <unique.attribute attribute="relating"/>
@@ -93,11 +85,8 @@
 <where label="WR1" expression="SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_definition.model_shape\Geometric_model.context_of_items"/>
 </entity>
 <entity name="View_level_non_feature_shape_element" supertypes="Non_feature_shape_element">
-<derived name="description" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Shape_element"/>
-</derived>
 <where label="WR1" expression="NOT(SIZEOF(SELF\Non_feature_shape_element.element_shape) &gt; 0) OR&#10;      valid_es('NON_FEATURE_SHAPE_ELEMENT_ARM.USAGE_VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION',&#10;      (SELF\Non_feature_shape_element.element_shape))"/>
+<where label="WR2" expression="NOT EXISTS(SELF\Shape_element.description)"/>
 </entity>
 <function name="valid_es">
 <parameter name="input1">

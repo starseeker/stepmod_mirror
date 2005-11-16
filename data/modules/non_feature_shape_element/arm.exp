@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.41 2005/11/14 09:59:27 kovaliovas Exp $
+   $Id: arm.exp,v 1.42 2005/11/15 13:47:20 liutkus Exp $
    ISO TC184/SC4/WG12 N3495 - ISO/CD-TS 10303-1706 Non feature shape element - EXPRESS ARM
 *)
 
@@ -40,10 +40,9 @@ SCHEMA Non_feature_shape_element_arm;
     SUBTYPE OF (Geometric_model);
       associated_element : Non_feature_shape_element;
       model_shape        : OPTIONAL Geometric_model;
-    DERIVE
-      SELF\Representation.id : STRING := '';
     WHERE
       WR1 : TYPEOF(SELF) <> TYPEOF(model_shape);
+      WR2 : NOT EXISTS(SELF\Representation.id);
   END_ENTITY;
 
   ENTITY Non_feature_shape_element
@@ -58,15 +57,12 @@ SCHEMA Non_feature_shape_element_arm;
  scope;
     WHERE
       WR1 : (NOT (SIZEOF(associated_usage_concept) > 0)) OR (SIZEOF(SELF\Placed_feature.feature_shape) > 0);
-      WR2: NOT EXISTS (SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Non_feature_shape_element_relationship
     SUBTYPE OF (Shape_element_relationship);
       SELF\Shape_element_relationship.relating : Non_feature_shape_element;    
       SELF\Shape_element_relationship.related : Non_feature_shape_element;
-    DERIVE
-      SELF\Shape_element_relationship.relation_type : STRING := '';
     UNIQUE
       UR1 : SELF\Shape_element_relationship.related,
  SELF\Shape_element_relationship.relating;
@@ -92,12 +88,11 @@ SCHEMA Non_feature_shape_element_arm;
 
   ENTITY View_level_non_feature_shape_element
     SUBTYPE OF (Non_feature_shape_element);
-     DERIVE
-       SELF\Shape_element.description : STRING := '';
      WHERE
       WR1: NOT(SIZEOF(SELF\Non_feature_shape_element.element_shape) > 0) OR
       valid_es('NON_FEATURE_SHAPE_ELEMENT_ARM.USAGE_VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION',
       (SELF\Non_feature_shape_element.element_shape));
+      WR2 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
   
   FUNCTION valid_es(input1 : STRING;

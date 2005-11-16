@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.38 2005/11/15 11:36:32 liutkus Exp $
+   $Id: arm.exp,v 1.39 2005/11/15 22:08:51 liutkus Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -252,8 +252,6 @@ SCHEMA Fabrication_technology_arm;
       SELF\Shape_element.containing_shape RENAMED associated_definition : Land_physical_template;
       terminal_connection_zone                                          : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
       connection_zone_category                                          : OPTIONAL SET[1:?] OF land_template_terminal_class;
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
     INVERSE
       SELF\Placed_feature.feature_shape : SET[0:1] OF geometric_model_constituent_relationship FOR constituent_element;
     UNIQUE
@@ -262,6 +260,7 @@ SCHEMA Fabrication_technology_arm;
     WHERE
       WR1 : NOT (EXISTS(terminal_connection_zone)) OR EXISTS(connection_zone_category);
       WR2 : NOT (EXISTS(terminal_connection_zone)) OR (SIZEOF(terminal_connection_zone) = SIZEOF(connection_zone_category));
+      WR3 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Layout_spacing_requirement_occurrence
@@ -286,8 +285,8 @@ SCHEMA Fabrication_technology_arm;
      Electrical_isolation_removal_template)
     SUBTYPE OF (Template_definition);
       of_stratum_technology : OPTIONAL SET[1:?] OF Stratum_technology;
-    DERIVE
-      SELF\Product_view_definition.name : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
   ENTITY Passage_technology_parameters;
@@ -311,8 +310,8 @@ SCHEMA Fabrication_technology_arm;
  Material_addition_feature_template))
     SUBTYPE OF (Template_definition);
       of_stratum_technology : OPTIONAL SET[1:?] OF Stratum_technology;
-    DERIVE
-      SELF\Product_view_definition.name : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
   ENTITY Stratum_stack_model

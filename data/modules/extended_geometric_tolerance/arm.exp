@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.43 2005/11/14 09:59:27 kovaliovas Exp $
+   $Id: arm.exp,v 1.44 2005/11/14 10:59:21 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3399 - ISO/CD-TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
 *)
 
@@ -135,8 +135,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Centre_axis
     SUBTYPE OF (Centre_of_symmetry);
-  DERIVE
-    SELF\Shape_element.description : STRING := '';
+  WHERE
+    WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Centre_of_symmetry
@@ -148,14 +148,14 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Centre_plane
     SUBTYPE OF (Centre_of_symmetry);
-  DERIVE
-    SELF\Shape_element.description : STRING := '';
+  WHERE
+    WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Centre_point
     SUBTYPE OF (Centre_of_symmetry);
-  DERIVE
-    SELF\Shape_element.description : STRING := '';
+  WHERE
+    WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Composite_linear_profile_refinement_tolerance
@@ -174,10 +174,10 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Conical_tolerance_zone_boundary
     SUBTYPE OF (Tolerance_zone_boundary);
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
     INVERSE
       boundary_and_surface_relationships : SET[2:2] OF conical_tolerance_zone_boundary_and_surface_relationship FOR sized_tolerance_zone_boundary;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Conical_tolerance_zone_boundary_and_surface_relationship;
@@ -199,8 +199,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Datum_axis
     SUBTYPE OF (Datum_shape_element);
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Datum_axis_and_tolerance_zone_orienting_relationship;
@@ -235,29 +235,22 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Shape_element_relationship);
       SELF\Shape_element_relationship.relating RENAMED precedent_datum : Datum_shape_element;
       SELF\Shape_element_relationship.related RENAMED subsequent_datum : Datum_shape_element;
-    WHERE
-      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY;
 
   ENTITY Datum_difference_based_characteristic
     SUBTYPE OF (Representation_item); --characteristic);
       of_datum_difference : Datum_difference;
-    WHERE
-      WR1: NOT EXISTS (SELF\Representation_item.name);
   END_ENTITY;
 
   ENTITY Datum_feature
     SUPERTYPE OF (Datum_target_set)
     SUBTYPE OF (Shape_element);
-  WHERE
-    WR1: NOT EXISTS (SELF\Shape_element.description);
-    WR2: NOT EXISTS (SELF\Shape_element.element_name);
   END_ENTITY;
 
   ENTITY Datum_plane
     SUBTYPE OF (Datum_shape_element);
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Datum_point
@@ -265,12 +258,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       location_in_2d                   : OPTIONAL Cartesian_point;
       location_in_3d                   : OPTIONAL Cartesian_point;
       associated_3d_shape_intersection : OPTIONAL Shape_definition_3d_intersection;
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
     WHERE
       WR1 : NOT (EXISTS(location_in_2d) AND EXISTS(location_in_3d)) OR EXISTS(associated_3d_shape_intersection);
       WR2 : NOT (EXISTS(location_in_2d)) OR ((SIZEOF(location_in_2d\Cartesian_point.coordinates)) = 2);
       WR3 : NOT (EXISTS(location_in_3d)) OR ((SIZEOF(location_in_3d\Cartesian_point.coordinates)) = 3);
+      WR4 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
 	ENTITY Datum_shape_element
@@ -350,11 +342,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       axis_to_be_oriented : Centre_axis;
       start_shape_element : Shape_element;
       end_shape_element   : Shape_element;
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
     UNIQUE
       UR1 : axis_to_be_oriented,
  start_shape_element;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Direction_element;
@@ -394,8 +386,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Geometric_tolerance_with_applied_material_condition_property
     SUBTYPE OF (Geometric_tolerance);
       applied_material_condition_property_name : material_condition_property_names;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Geometric_tolerance.name);
   END_ENTITY; 
   
   ENTITY Limit_dimension_representation
@@ -429,8 +419,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Perpendicular_shape_element_relationship
     SUBTYPE OF (Shape_element_relationship);
-    DERIVE
-      SELF\Shape_element_relationship.relation_type : STRING := '';
     WHERE
       WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY; 
@@ -439,10 +427,10 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     ABSTRACT SUPERTYPE OF (ONEOF (Profile_related_positional_boundary,
  Dimension_related_positional_boundary))
     SUBTYPE OF (Non_feature_shape_element);
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
     INVERSE
       boundary_definition : positional_boundary_definition FOR defined_positional_boundary;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Positional_boundary_and_profile_boundary_member_relationship;
@@ -563,8 +551,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     UNIQUE
       UR1 : SELF\Shape_element_relationship.related, 
  SELF\Shape_element_relationship.relating;
-    WHERE
-      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
   END_ENTITY;
 
   ENTITY Simultaneous_geometric_tolerance_requirement;
@@ -607,13 +593,12 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   		get_rvd(SELF, 'statistical control requirement');
 	WHERE
    		WR1 : EXISTS (statistical_control_requirement) AND (SIZEOF(statistical_control_requirement) = 1);
-   		WR2 : NOT EXISTS(SELF\Geometric_tolerance.name);
   END_ENTITY;
 
   ENTITY Tangent_plane
     SUBTYPE OF (Tangent_shape_element);
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Tangent_shape_element
@@ -649,10 +634,10 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Tolerance_zone_boundary_member
     SUBTYPE OF (Non_feature_shape_element);
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
     INVERSE
       explicit_opposing_boundary_set : tolerance_zone_explicit_opposing_boundary_set FOR boundary_members;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Tolerance_zone_boundary_member_offset;
@@ -665,10 +650,10 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Tolerance_zone_circular_or_cylindrical_or_spherical_boundary
     SUBTYPE OF (Tolerance_zone_boundary);
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
     INVERSE
       size_characteristic : diametrical_boundary_size_characteristic FOR sized_boundary;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Tolerance_zone_definition_with_per_unit_size_specification
@@ -733,10 +718,10 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Viewing_plane
     SUBTYPE OF (Non_feature_shape_element);
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
     INVERSE
       viewing_plane_specification : viewing_plane_definition FOR defined_viewing_plane;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Viewing_plane_based_orientation;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.26 2005/09/27 07:04:55 kovaliovas Exp $
+   $Id: arm.exp,v 1.27 2005/11/15 08:23:09 liutkus Exp $
    ISO TC184/SC4/WG12 N3558 - ISO/CD-TS 10303-1726 Physical unit 2d shape - EXPRESS ARM
 *)
 
@@ -71,11 +71,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	DERIVE
   		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
 		  get_rvd(SELF, 'application technology constraint');
-		SELF\Representation.name : STRING := '';
-		SELF\Representation.description : STRING := '';
     WHERE
       WR1 : NOT ((congruent = shape_location_with_respect_to_seating_plane) AND (EXISTS(shape_distance_from_seating_plane)));
    	  WR2 : NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1);
+   	  WR3 : NOT EXISTS(SELF\Representation.name);
+   	  WR4 : NOT EXISTS(SELF\Representation.description);
   END_ENTITY;
 
   ENTITY Physical_unit_planar_shape_model
@@ -85,13 +85,13 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       shape_purpose                                : OPTIONAL predefined_planar_purpose;
 	DERIVE
   		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
-		get_rvd(SELF, 'application technology constraint');
-        SELF\Representation.description : STRING := '';
+                                           get_rvd(SELF, 'application technology constraint');
     INVERSE
 	  external_shape_purpose : SET [0:1] OF External_source_identification FOR item;      
 	WHERE
 	  WR1: (EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1);
    	  WR2 : NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1);	  
+   	  WR3 : NOT EXISTS(SELF\Representation.description);
   END_ENTITY;
 
 END_SCHEMA;

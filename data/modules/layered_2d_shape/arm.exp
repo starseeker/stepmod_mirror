@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.24 2005/10/24 21:52:38 thomasrthurman Exp $
+   $Id: arm.exp,v 1.25 2005/11/15 08:23:09 liutkus Exp $
    ISO TC184/SC4/WG12 N3468 - ISO/CD-TS 10303-1693 Layered 2d shape - EXPRESS ARM
 *)
 
@@ -18,20 +18,19 @@ SCHEMA Layered_2d_shape_arm;
   	SUBTYPE OF (Geometric_model_relationship);
       SELF\Geometric_model_relationship.rep_1 RENAMED principal_part_shape : part_template_or_physical_unit_2d_shape_select;
       SELF\Geometric_model_relationship.rep_2 RENAMED related_part_shape   : part_template_or_physical_unit_2d_shape_select;
-    DERIVE
-      SELF\Representation_relationship.relation_type : STRING := '';
     UNIQUE
       UR1 : principal_part_shape,
  related_part_shape;
     WHERE
       WR1 : principal_part_shape :<>: related_part_shape;
+      WR2 : NOT EXISTS(SELF\Representation_relationship.relation_type);
   END_ENTITY;
 
   ENTITY Planar_projected_shape_model
     SUBTYPE OF (Planar_shape,
  Feature_shape_definition);
-    DERIVE
-      SELF\Representation.name : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\Representation.name);
   END_ENTITY;
 
   ENTITY Planar_shape

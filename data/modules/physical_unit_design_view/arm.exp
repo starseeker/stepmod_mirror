@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.39 2005/11/14 09:59:27 kovaliovas Exp $
+   $Id: arm.exp,v 1.40 2005/11/14 11:33:29 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3567 - ISO/CD-TS 10303-1728 Physical unit design view - EXPRESS ARM
 *)
 
@@ -43,8 +43,6 @@ SCHEMA Physical_unit_design_view_arm;
   ENTITY Assembly_alternate_product
     SUBTYPE OF (Alternate_product_relationship);
       basis_context : Part_design_view;
-    DERIVE
-      SELF\Alternate_product_relationship.criteria : STRING := '';
     WHERE
       WR1: NOT EXISTS (SELF\Alternate_product_relationship.criteria);
   END_ENTITY;
@@ -81,27 +79,23 @@ SCHEMA Physical_unit_design_view_arm;
       SELF\View_definition_relationship.related_view RENAMED resultant_component	: Assembly_component;
     WHERE
       WR1 : resultant_component <> reusable_component;
-      WR2 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
-      WR3 : NOT EXISTS(SELF\View_definition_relationship.description);
   END_ENTITY;
 
   ENTITY Component_to_physical_usage_view_assignment
   	SUBTYPE OF (View_definition_relationship);
       SELF\View_definition_relationship.relating_view RENAMED design_view_component : Assembly_component;  	
       SELF\View_definition_relationship.related_view RENAMED usage_view_component  	: Assembly_component;
-    DERIVE
-      SELF\View_definition_relationship.relation_type : STRING := '';
     WHERE
       WR1 : design_view_component <> usage_view_component;
       WR2 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
-      WR3 : NOT EXISTS(SELF\View_definition_relationship.description);
   END_ENTITY;
 
   ENTITY Connection_zone_in_design_view
   	SUBTYPE OF (Connection_zone);
   	DERIVE
   		associated_definition : Part_design_view := SELF\Shape_element.containing_shape.described_element;
-  		SELF\Shape_element.element_name : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.element_name);
   END_ENTITY; 
 
   ENTITY Next_assembly_usage_occurence_relationship
@@ -110,9 +104,6 @@ SCHEMA Physical_unit_design_view_arm;
   UNIQUE
     UR1 : SELF\View_definition_relationship.relating_view, 
           SELF\Assembly_component_relationship.location_indicator;
-    WHERE
-      WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
-      WR2 : NOT EXISTS(SELF\View_definition_relationship.description);
   END_ENTITY;
 
   ENTITY Part_design_view
@@ -122,9 +113,6 @@ SCHEMA Physical_unit_design_view_arm;
     	SELF\Item_shape.described_element : shapeable_item := SELF;
     WHERE
       WR1 : ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF)) OR EXISTS(usage_view);
-      WR2: NOT EXISTS (SELF\Product_view_definition.id);
-      WR3: NOT EXISTS (SELF\Product_view_definition.name);
-      WR4: NOT EXISTS (SELF\Product_view_definition.additional_characterization);
   END_ENTITY;
 
   ENTITY Physical_component

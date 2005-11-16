@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2005/09/26 15:20:24 kovaliovas Exp $
+   $Id: arm.exp,v 1.14 2005/10/24 21:08:30 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3357 - ISO/CD-TS 10303-1641 Assembly module with subassembly - EXPRESS ARM
 *)
 
@@ -14,18 +14,18 @@ SCHEMA Assembly_module_with_subassembly_arm;
   ENTITY Assembly_module_component
     SUBTYPE OF (Physical_component);
       SELF\Definition_based_product_occurrence.derived_from : Assembly_module_usage_view;
-    DERIVE
-      SELF\Product_view_definition.name : STRING := '';
     INVERSE
       access_mechanisms : SET[2:?] OF assembly_module_component_terminal FOR associated_component;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
   ENTITY Assembly_module_component_terminal
     SUBTYPE OF (Physical_component_terminal);
       SELF\Component_feature.definition           : Assembly_module_terminal;
       SELF\Component_feature.associated_component : Assembly_module_component;
-    DERIVE
-      SELF\Shape_element.description : STRING := '';
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
 END_SCHEMA;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-10T16:55:07" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-16T13:22:27" rcs.revision="1.0" description.file="mim_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_mim schema_instance"/>
 <schema name="Layered_interconnect_module_design_mim">
 <interface kind="use" schema="Edge_shape_feature_mim"/>
@@ -22,7 +22,6 @@
 <type name="limd_requirement_assigned_item">
 <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="stratum_feature_conductive_join dielectric_crossover_area"/>
 </type>
-<entity name="breakout_occurrence" supertypes="footprint_occurrence"/>
 <entity name="conductive_interconnect_element_terminal_link" supertypes="shape_aspect shape_aspect_relationship">
 <where label="WR1" expression="SELF\shape_aspect_relationship.related_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.relating_shape_aspect"/>
 <where label="WR2" expression="'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'COMPONENT_TERMINAL' IN&#10;       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect)"/>
@@ -46,10 +45,12 @@
 <where label="WR4" expression="('LAYERED_INTERCONNECT_MODULE_3D_SHAPE_MIM.' +&#10;       'EDGE_SEGMENT_VERTEX' IN&#10;       TYPEOF (SELF\product_definition_relationship.related_product_definition))"/>
 <where label="WR5" expression="SELF\product_definition_relationship.related_product_definition :&lt;&gt;:&#10;       SELF\product_definition_relationship.relating_product_definition"/>
 </entity>
+<entity name="electrical_isolation_component_definition" supertypes="filled_area_material_removal_component_definition"/>
 <entity name="fiducial" supertypes="laminate_component">
 <where label="WR1" expression="(SELF\product_definition.description = 'laminate component')"/>
 </entity>
 <entity name="fiducial_stratum_feature" supertypes="stratum_feature"/>
+<entity name="filled_area_material_removal_component_definition" supertypes="material_removal_component_definition"/>
 <entity name="footprint_occurrence" supertypes="assembly_group_component_definition"/>
 <entity name="footprint_occurrence_product_definition_relationship" supertypes="next_assembly_usage_occurence_relationship">
 <where label="WR1" expression="SELF\product_definition_relationship.related_product_definition :&lt;&gt;:&#10;       SELF\product_definition_relationship.relating_product_definition"/>
@@ -81,7 +82,7 @@
 </entity>
 <entity name="interconnect_module_join_terminal" supertypes="interconnect_module_terminal"/>
 <entity name="interface_access_component_definition" supertypes="laminate_component"/>
-<entity name="interface_access_material_removal_feature" supertypes="shape_modification"/>
+<entity name="interface_access_material_removal_component_definition" supertypes="material_removal_component_definition"/>
 <entity name="internal_probe_access_area" supertypes="probe_access_area"/>
 <entity name="join_shape_aspect" supertypes="shape_aspect">
 <where label="WR1" expression="NOT(SELF\shape_aspect.name IN ['constrained intra layer join',&#10;       'inter stratum join', 'intra stratum join']) OR &#10;       (SIZEOF (QUERY (cp &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'connected point') |&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'LAYER_CONNECTION_POINT' IN&#10;       TYPEOF (cp.related_shape_aspect))) &gt;= 2)"/>
@@ -132,8 +133,9 @@
 <where label="WR9" expression="(NOT (SELF\shape_aspect.description = 'dependently located')) OR&#10;       (SIZEOF (QUERY (ado &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'reference zone') |&#10;       (SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT'] *&#10;       TYPEOF (ado.relating_shape_aspect)) = 1) OR&#10;       ((SIZEOF (['LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;       'SHAPE_ASPECT'] *&#10;       TYPEOF (ado.relating_shape_aspect)) = 1) AND&#10;       (ado.relating_shape_aspect.description IN ['connection zone']))&#10;       )) &lt;= 1)"/>
 </entity>
 <entity name="layout_junction" supertypes="shape_aspect"/>
+<entity name="material_removal_component_definition" supertypes="laminate_component"/>
 <entity name="multi_layer_component_definition" supertypes="laminate_component"/>
-<entity name="multi_layer_material_removal_feature" supertypes="shape_modification"/>
+<entity name="multi_layer_material_removal_component_definition" supertypes="material_removal_component_definition"/>
 <entity name="multi_layer_stratum_feature" supertypes="stratum_feature"/>
 <entity name="padstack_occurrence" supertypes="assembly_group_component_definition"/>
 <entity name="padstack_occurrence_product_definition_relationship" supertypes="property_definition next_assembly_usage_occurence_relationship">
@@ -215,15 +217,24 @@
 <where label="WR5" expression="(NOT(EXISTS(SELF\shape_aspect.description))) OR&#10;       (NOT (SELF\shape_aspect.description = 'conductor') OR&#10;       (SELF\shape_aspect.of_shape.definition.name = 'design layer'))"/>
 <where label="WR6" expression="(NOT(EXISTS(SELF\shape_aspect.description))) OR&#10;       (NOT (SELF\shape_aspect.description = 'connected filled area') OR&#10;       (SELF\shape_aspect.of_shape.definition.name = 'design layer'))"/>
 </entity>
+<entity name="stratum_specific_part_template_location_in_padstack_definition" supertypes="assembly_component_usage property_definition">
+<where label="WR1" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\assembly_component_usage ||&#10;       SELF\product_definition_usage ||&#10;       SELF\product_definition_relationship ||&#10;       SELF\stratum_specific_part_template_location_in_padstack_definition || &#10;       SELF\property_definition)) = 0"/>
+<where label="WR2" expression="SELF\property_definition.name = ''"/>
+<where label="WR3" expression="SELF\property_definition.description = ''"/>
+<where label="WR4" expression="SELF\product_definition_relationship.name = 'part template location in padstack definition'"/>
+<where label="WR5" expression="SELF\product_definition_relationship.description = ''"/>
+</entity>
 <entity name="stratum_surface" supertypes="shape_aspect">
 <where label="WR1" expression="SELF\shape_aspect.description IN ['primary surface',&#10;         'secondary surface', 'average surface']"/>
 <where label="WR2" expression="'LAYERED_INTERCONNECT_MODULE_DESIGN_MIM.' +&#10;         'STRATUM' IN TYPEOF(SELF\shape_aspect.of_shape.definition)"/>
 </entity>
+<entity name="stratum_technology_occurrence_to_stratum_mapping_relationship" supertypes="property_definition"/>
+<entity name="thermal_isolation_component_definition" supertypes="filled_area_material_removal_component_definition"/>
 <subtype.constraint name="assembly_group_component_subtypes" entity="assembly_group_component_definition" super.expression="ONEOF (footprint_occurrence, padstack_occurrence)"/>
 <subtype.constraint name="array_placement_group_subtypes" entity="array_placement_group_component_definition" super.expression="ONEOF (linear_array_placement_group_component_definition, rectangular_array_placement_group_component_definition)"/>
 <subtype.constraint name="component_feature_subtypes" entity="component_feature" super.expression="ONEOF (physical_component_feature, laminate_component_feature)"/>
 <subtype.constraint name="component_terminal_subtypes" entity="component_terminal" super.expression="ONEOF (physical_component_terminal, laminate_component_join_terminal)"/>
-<subtype.constraint name="template_definition_subtypes" entity="part_template_definition" super.expression="ONEOF (generic_footprint_definition, padstack_definition, inter_stratum_feature_edge_segment_template, inter_stratum_feature_edge_template)"/>
+<subtype.constraint name="template_definition_subtypes" entity="part_template_definition" super.expression="ONEOF (footprint_definition, padstack_definition, inter_stratum_feature_edge_segment_template, inter_stratum_feature_edge_template)"/>
 <subtype.constraint name="interconnect_module_terminal_subtypes" entity="interconnect_module_terminal" super.expression="ONEOF (interconnect_module_interface_terminal, interconnect_module_join_terminal)"/>
 <subtype.constraint name="plated_inter_stratum_feature_subtypes" entity="plated_inter_stratum_feature" super.expression="ONEOF (plated_passage, plated_cutout_edge_segment, plated_interconnect_module_edge_segment)"/>
 <rule name="adjacent_stratum_surface_definition_constraint" appliesto="shape_aspect_relationship">

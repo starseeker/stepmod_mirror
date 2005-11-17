@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-16T15:13:21" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-17T14:01:33" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_2d_shape_arm schema_instance"/>
 <schema name="Part_template_2d_shape_arm">
 <interface kind="use" schema="Component_grouping_arm"/>
@@ -76,10 +76,6 @@
 <explicit name="reference_shape">
 <typename name="physical_unit_shape_model_select"/>
 </explicit>
-<derived name="description" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Representation"/>
-</derived>
 <unique label="UR1">
 <unique.attribute attribute="shape_characterized_footprint_definition"/>
 </unique>
@@ -88,6 +84,7 @@
 <where label="WR3" expression="NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',&#10;                         'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR &#10;            NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit)) OR&#10;            NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(shape_characterized_footprint_definition)) OR      &#10;                 (shape_characterized_footprint_definition.reference_package :=: &#10;                  reference_shape\Part_template_shape_model.shape_characterized_part_template)"/>
 <where label="WR4" expression="NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',&#10;                         'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR &#10;                ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' &#10;                   IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_part_template))"/>
 <where label="WR5" expression="SIZEOF(USEDIN(SELF, 'LAYERED_2D_SHAPE_ARM.REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.RELATED_FEATURE_SHAPE')) = 0"/>
+<where label="WR6" expression="NOT EXISTS(SELF\Representation.description)"/>
 </entity>
 <entity name="Generic_footprint_definition" abstract.supertype="YES" supertypes="Template_definition" super.expression="ONEOF (Footprint_definition, Breakout_footprint_definition)">
 <derived name="footprint_location" expression="get_padstack_arrangement(padstack)">
@@ -141,14 +138,11 @@
 <explicit name="shape_material_condition">
 <typename name="material_condition"/>
 </explicit>
-<derived name="description" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Representation"/>
-</derived>
 <unique label="UR1">
 <unique.attribute attribute="shape_characterized_padstack_definition"/>
 </unique>
 <where label="WR1" expression="(SIZEOF(USEDIN(SELF,&#10; 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0)"/>
+<where label="WR2" expression="NOT EXISTS(SELF\Representation.description)"/>
 </entity>
 <entity name="Padstack_location_in_footprint_definition">
 <explicit name="padstack">
@@ -236,24 +230,17 @@
 <where label="WR1" expression="template_shape.shape_characterized_part_template :=: reference_location.template"/>
 <where label="WR2" expression="NOT('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE' IN TYPEOF(assembly_shape)) OR &#10;           (assembly_shape\Footprint_definition_shape.shape_characterized_footprint_definition :=: reference_location.assembly)"/>
 <where label="WR3" expression="NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION_SHAPE' IN TYPEOF(assembly_shape)) OR &#10;           (assembly_shape\Padstack_definition_shape.shape_characterized_padstack_definition :=: reference_location.assembly)"/>
-<where label="WR4" expression="NOT EXISTS (SELF\Representation_item.name)"/>
 </entity>
 <entity name="Part_template_planar_keepout_shape_model" supertypes="Planar_shape Non_feature_shape_definition Part_template_keepout_shape_model">
 <derived name="application_technology_constraint" expression="get_rvd(SELF, 'application technology constraint')">
 <aggregate type="SET" lower="0" upper="?"/>
 <typename name="Requirement_view_definition"/>
 </derived>
-<derived name="description" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Representation"/>
-</derived>
 <where label="WR1" expression="NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1)"/>
+<where label="WR2" expression="NOT EXISTS(SELF\Representation.description)"/>
 </entity>
 <entity name="Part_template_planar_shape_model" supertypes="Planar_projected_shape_model Part_template_shape_model">
-<derived name="description" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Representation"/>
-</derived>
+<where label="WR1" expression="NOT EXISTS(SELF\Representation.description)"/>
 </entity>
 <entity name="Stratum_feature_template_location_in_breakout_footprint_definition" supertypes="Stratum_specific_part_template_location_in_fd_or_pd">
 <explicit name="assembly">

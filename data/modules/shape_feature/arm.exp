@@ -1,0 +1,51 @@
+(*
+   $Id: arm.exp,v 1.9 2005/11/16 07:43:51 kovaliovas Exp $
+   N - ISO/CD-TS - 10303- shape_feature - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Shape_feature_arm;
+USE FROM Contextual_shape_positioning_arm;
+
+ENTITY Feature_definition -- see AP214 for mapping
+  ABSTRACT SUPERTYPE
+  SUBTYPE OF (Characterizable_object);
+END_ENTITY;
+
+  ENTITY Feature_shape_definition
+    SUBTYPE OF (Geometric_model);
+  DERIVE
+    characterised_feature_definition: Feature_definition := ?;
+  WHERE
+    WR1 : NOT EXISTS(SELF\Representation.id);
+  END_ENTITY;
+
+ENTITY Feature_occurrence  -- see AP214 for mapping
+  ABSTRACT SUPERTYPE OF (ONEOF (Included_feature, Placed_feature))
+  SUBTYPE OF (Shape_element);
+END_ENTITY;
+
+ENTITY Included_feature  -- see AP214 for mapping
+  SUBTYPE OF ( Feature_occurrence, Feature_definition);
+END_ENTITY;
+
+ENTITY Placed_feature  -- see AP214 for mapping
+  SUBTYPE OF ( Feature_occurrence);
+   definition : Feature_definition;
+  INVERSE
+   feature_shape : SET[0:?] OF geometric_model_constituent_relationship FOR constituent_element;
+END_ENTITY;
+
+ENTITY Geometric_model_constituent_relationship
+  ABSTRACT SUPERTYPE
+  SUBTYPE OF (Geometric_placement_operation);
+  constituent_element : Shape_element;
+  SELF\Geometric_placement_operation.template_definition RENAMED constituent_model : Geometric_model;
+INVERSE
+  composed_model : SET[1:1] OF Geometric_model FOR items;
+WHERE  
+  WR1: ('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT' IN TYPEOF(SELF)) OR
+  ('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_OPERATOR_TRANSFORMATION' IN TYPEOF(SELF));
+(*  WR2: -- update for new structure
+  WR3: -- new: Target shall be at 0.0.0 with no roation *)
+END_ENTITY;
+
+END_SCHEMA;

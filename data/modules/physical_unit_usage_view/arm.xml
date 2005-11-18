@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-15T15:03:08" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-18T11:41:46" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_usage_view_arm schema_instance"/>
 <schema name="Physical_unit_usage_view_arm">
 <interface kind="use" schema="Analytical_model_arm"/>
@@ -28,10 +28,7 @@
 <derived name="associated_definition" expression="containing_shape.described_element">
 <typename name="Part_usage_view"/>
 </derived>
-<derived name="element_name" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Shape_element"/>
-</derived>
+<where label="WR1" expression="NOT EXISTS(SELF\Shape_element.element_name)"/>
 </entity>
 <entity name="Connection_zone_map_identification">
 <explicit name="reference_connection_zone_shape">
@@ -58,9 +55,6 @@
 </explicit>
 <where label="WR1" expression="SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view)) &gt; 0"/>
 <where label="WR2" expression="SIZEOF(QUERY(gdrse &lt;* get_derived_shape_element(SELF\View_definition_relationship.related_view) |&#10;             (SIZEOF(QUERY(se &lt;* gdrse.derived_from |&#10;              SELF\View_definition_relationship.relating_view &lt;&gt; se.containing_shape.described_element&#10;              )) = 0)&#10;             )) = SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view))"/>
-<where label="WR3" expression="NOT EXISTS(SELF\View_definition_relationship.id)"/>
-<where label="WR4" expression="NOT EXISTS(SELF\View_definition_relationship.name)"/>
-<where label="WR5" expression="NOT EXISTS(SELF\View_definition_relationship.additional_characterization)"/>
 </entity>
 <entity name="Part_feature" supertypes="Shape_feature">
 <explicit name="associated_definition">
@@ -73,14 +67,11 @@
 <explicit name="precedent_feature" optional="YES">
 <typename name="Part_feature"/>
 </explicit>
-<derived name="description" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Shape_element"/>
-</derived>
 <inverse name="subsequent_feature" entity="Part_feature" attribute="precedent_feature">
 <inverse.aggregate type="SET" lower="0" upper="1"/>
 </inverse>
 <where label="WR1" expression="NOT EXISTS(precedent_feature) OR&#10;                NOT( precedent_feature IN subsequent_feature)"/>
+<where label="WR2" expression="NOT EXISTS(SELF\Shape_element.description)"/>
 <where label="IP1"/>
 </entity>
 <entity name="Part_feature_make_from_relationship" supertypes="Shape_element_relationship">
@@ -101,20 +92,16 @@
 </unique>
 <where label="WR1" expression="reusable_feature :&lt;&gt;: resultant_feature"/>
 <where label="WR2" expression="reusable_feature.associated_definition :&lt;&gt;: resultant_feature.associated_definition"/>
-<where label="WR3" expression="NOT EXISTS (SELF\Shape_element_relationship.relation_type)"/>
 </entity>
 <entity name="Part_feature_template_definition" supertypes="Feature_definition">
 <inverse name="shape" entity="Part_feature_template_shape_definition" attribute="shape_characterized_template"/>
 </entity>
-<entity name="Part_feature_template_shape_definition" supertypes="Feature_shape_definition">
+<entity name="Part_feature_template_shape_definition" supertypes="Geometric_model">
 <explicit name="shape_characterized_template">
 <typename name="Part_feature_template_definition"/>
 </explicit>
-<derived name="description" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Representation"/>
-</derived>
 <where label="WR1" expression="NOT (SIZEOF(USEDIN(SELF,&#10; '')) = 0) OR (SIZEOF(QUERY(foo &lt;* USEDIN(SELF,&#10; '') | NOT ('PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF(foo)))) = 0)"/>
+<where label="WR2" expression="NOT EXISTS(SELF\Representation.description)"/>
 </entity>
 <entity name="Part_usage_view" supertypes="Part_view_definition Item_shape">
 <derived name="described_element" expression="SELF">
@@ -122,9 +109,6 @@
 <redeclaration entity-ref="Item_shape"/>
 </derived>
 <where label="WR1" expression="SIZEOF(QUERY(acr &lt;* USEDIN(SELF,&#10; 'PART_OCCURRENCE_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW') | NOT ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF(acr.related_view)))) = 0"/>
-<where label="WR2" expression="NOT EXISTS (SELF\Product_view_definition.id)"/>
-<where label="WR3" expression="NOT EXISTS (SELF\Product_view_definition.name)"/>
-<where label="WR4" expression="NOT EXISTS (SELF\Product_view_definition.additional_characterization)"/>
 </entity>
 <entity name="Usage_view_connection_zone_terminal_shape_relationship">
 <explicit name="associating_terminal_shape">
@@ -134,7 +118,7 @@
 <typename name="Connection_zone_in_usage_view"/>
 </explicit>
 <explicit name="associated_connection_zone_shape_definition">
-<typename name="Feature_shape_definition"/>
+<typename name="Geometric_model"/>
 </explicit>
 <explicit name="associated_usage_placement">
 <typename name="Axis_placement"/>

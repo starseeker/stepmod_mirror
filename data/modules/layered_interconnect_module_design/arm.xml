@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-16T16:06:34" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-18T12:23:42" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
 <schema name="Layered_interconnect_module_design_arm">
 <interface kind="use" schema="Edge_shape_feature_arm"/>
@@ -21,9 +21,6 @@
 </type>
 <type name="component_feature_or_stratum_surface">
 <select extensible="YES" genericentity="YES" selectitems="Component_feature Stratum_surface"/>
-</type>
-<type name="horizontal_justification">
-<enumeration items="right centre left"/>
 </type>
 <type name="limd_documented_element_select">
 <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="stratum_concept Stratum"/>
@@ -66,9 +63,6 @@
 </type>
 <type name="stratum_surface_designation">
 <enumeration items="average_surface primary_surface secondary_surface"/>
-</type>
-<type name="vertical_justification">
-<enumeration items="centre top bottom"/>
 </type>
 <entity name="Adjacent_stratum_surface_definition">
 <explicit name="name">
@@ -328,14 +322,6 @@
 </explicit>
 <where label="WR1" expression="start_vertex :&lt;&gt;: end_vertex"/>
 </entity>
-<entity name="Default_attachment_size_and_component_termination_passage_based_land_physical_template" supertypes="Default_component_termination_passage_based_land_physical_template Default_attachment_size_based_land_physical_template"/>
-<entity name="Default_attachment_size_and_via_based_land_physical_template" supertypes="Default_via_based_land_physical_template Default_attachment_size_based_land_physical_template"/>
-<entity name="Default_component_termination_passage_based_land_physical_template" supertypes="Default_passage_based_land_physical_template" super.expression="Default_attachment_size_and_component_termination_passage_based_land_physical_template">
-<explicit name="of_passage_technology">
-<typename name="Default_component_termination_passage_definition"/>
-<redeclaration entity-ref="Default_passage_based_land_physical_template"/>
-</explicit>
-</entity>
 <entity name="Default_component_termination_passage_definition" supertypes="Passage_technology">
 <explicit name="minimum_allowed_component_terminal_extent">
 <typename name="Length_data_element"/>
@@ -357,7 +343,7 @@
 <where label="WR2" expression="EXISTS(minimum_as_finished_passage_extent)"/>
 <where label="WR3" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material)"/>
 </entity>
-<entity name="Default_passage_based_land_physical_template" abstract.supertype="YES" supertypes="Default_land_physical_template" super.expression="ONEOF (Default_via_based_land_physical_template, Default_component_termination_passage_based_land_physical_template, Default_unsupported_passage_based_land_physical_template)">
+<entity name="Default_passage_based_land_physical_template" abstract.supertype="YES" supertypes="Default_land_physical_template" super.expression="ONEOF (Default_plated_passage_based_land_physical_template, Default_unsupported_passage_based_land_physical_template)">
 <explicit name="minimum_fabrication_allowance">
 <typename name="Length_data_element"/>
 </explicit>
@@ -402,12 +388,6 @@
 <typename name="Length_data_element"/>
 </derived>
 <where label="WR1" expression="EXISTS(minimum_as_finished_passage_extent)"/>
-</entity>
-<entity name="Default_via_based_land_physical_template" supertypes="Default_passage_based_land_physical_template" super.expression="Default_attachment_size_and_via_based_land_physical_template">
-<explicit name="of_passage_technology">
-<typename name="Default_via_definition"/>
-<redeclaration entity-ref="Default_passage_based_land_physical_template"/>
-</explicit>
 </entity>
 <entity name="Default_via_definition" supertypes="Passage_technology">
 <derived name="minimum_as_finished_deposition_thickness" expression="SELF\Passage_technology.of_technology.minimum_as_finished_deposition_thickness">
@@ -578,13 +558,13 @@
 </entity>
 <entity name="Interconnect_connection_zone_position_relationship">
 <explicit name="associating_design_view_shape">
-<typename name="Feature_shape_definition"/>
+<typename name="Geometric_model"/>
 </explicit>
 <explicit name="associated_usage">
 <typename name="Connection_zone_in_design_view"/>
 </explicit>
 <explicit name="associated_connection_zone_shape_definition">
-<typename name="Feature_shape_definition"/>
+<typename name="Geometric_model"/>
 </explicit>
 <explicit name="associated_usage_placement">
 <typename name="Axis_placement"/>
@@ -1014,7 +994,7 @@
 <derived name="complete" expression="NOT EXISTS(unrouted_connectivity_requirement_element)">
 <builtintype type="BOOLEAN"/>
 </derived>
-<where label="WR1" expression="SIZEOF(QUERY(cre &lt;* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 'COMPONENT_TERMINATION_PASSAGE_AND_CONTACT_SIZE_DEPENDENT_LAND',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.VIA_AND_CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0"/>
+<where label="WR1" expression="SIZEOF(QUERY(cre &lt;* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0"/>
 <where label="WR2" expression="reference_connected_terminals.associated_definition = SELF\Generic_physical_network.current_associated_definition\Part_design_view.usage_view"/>
 <where label="IP1"/>
 <where label="IP2"/>
@@ -1264,7 +1244,6 @@
 <subtype.constraint name="component_feature_subtypes" entity="Component_feature" super.expression="ONEOF (Physical_component_feature, Laminate_component_feature)"/>
 <subtype.constraint name="component_terminal_subtypes" entity="Component_terminal" super.expression="ONEOF (Physical_component_terminal, Laminate_component_join_terminal)"/>
 <subtype.constraint name="default_land_physical_template_subtypes" entity="Default_land_physical_template" super.expression="ONEOF (Default_passage_based_land_physical_template, Default_attachment_size_based_land_physical_template)"/>
-<subtype.constraint name="Default_attachment_size_based_land_physical_template_subtypes" entity="Default_attachment_size_based_land_physical_template" super.expression="ONEOF (Default_attachment_size_and_component_termination_passage_based_land_physical_template, Default_attachment_size_and_via_based_land_physical_template)"/>
 <subtype.constraint name="interconnect_module_terminal_subtypes" entity="Interconnect_module_terminal" super.expression="ONEOF (Interconnect_module_interface_terminal, Interconnect_module_join_terminal)"/>
 <subtype.constraint name="limd_part_view_definition_subtypes" entity="Part_view_definition" super.expression="ONEOF (Part_usage_view, Part_design_view, Stratum)"/>
 <subtype.constraint name="template_definition_subtypes" entity="Template_definition" super.expression="(ONEOF (Generic_footprint_definition, Padstack_definition, Inter_stratum_feature_template, Material_removal_feature_template, Non_conductive_cross_section_template, Printed_part_cross_section_template, Printed_part_template, Special_symbol_part_template, Stratum_feature_template, Trace_template) ANDOR Part_text_template)"/>

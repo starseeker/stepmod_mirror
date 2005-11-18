@@ -2,30 +2,32 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-10-07T17:35:21" rcs.revision="1.0" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="feature_and_connection_zone_arm schema_instance"/>
-   <schema name="Feature_and_connection_zone_arm">
-      <interface kind="use" schema="Shape_property_assignment_arm"/>
-      <entity name="Connection_zone" abstract.entity="YES" abstract.supertype="YES" supertypes="Shape_element">
-         <derived name="description" expression="''">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Shape_element"/>
-         </derived>
-         <where label="WR1" expression="SIZEOF(USEDIN(SELF, '')) &gt; 0"/>
-         <where label="IP1"/>
-         <where label="IP2"/>
-         <where label="IP3"/>
-      </entity>
-      <entity name="Shape_feature" abstract.supertype="YES" supertypes="Shape_element">
-         <explicit name="connection_area" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Connection_zone"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Shape_element" attribute="element_name"/>
-            <unique.attribute entity-ref="Shape_element" attribute="containing_shape"/>
-         </unique>
-      </entity>
-      <subtype.constraint name="facz_shape_element_subtypes" entity="Shape_element" super.expression="ONEOF (Shape_feature, Connection_zone)"/>
-   </schema>
+<express language_version="2" rcs.date="2005-11-18T15:06:39" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="feature_and_connection_zone_arm schema_instance"/>
+<schema name="Feature_and_connection_zone_arm">
+<interface kind="use" schema="Shape_property_assignment_arm"/>
+<entity name="Connection_zone" abstract.entity="YES" abstract.supertype="YES" supertypes="Shape_element">
+<where label="WR1" expression="SIZEOF(USEDIN(SELF, '')) &gt; 0"/>
+<where label="WR2" expression="NOT EXISTS (SELF\Shape_element.description)"/>
+<where label="WR3" expression="NOT EXISTS (SELF\Shape_element.element_name)"/>
+<where label="IP1"/>
+<where label="IP2"/>
+<where label="IP3"/>
+</entity>
+<entity name="Shape_feature" abstract.supertype="YES" supertypes="Shape_element">
+<explicit name="connection_area" optional="YES">
+<aggregate type="SET" lower="1" upper="?"/>
+<typename name="Connection_zone"/>
+</explicit>
+<explicit name="element_name">
+<builtintype type="STRING"/>
+<redeclaration entity-ref="Shape_element"/>
+</explicit>
+<unique label="UR1">
+<unique.attribute attribute="element_name"/>
+<unique.attribute entity-ref="Shape_element" attribute="containing_shape"/>
+</unique>
+</entity>
+<subtype.constraint name="facz_shape_element_subtypes" entity="Shape_element" super.expression="ONEOF (Shape_feature, Connection_zone)"/>
+</schema>
 </express>

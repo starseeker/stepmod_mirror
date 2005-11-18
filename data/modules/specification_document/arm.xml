@@ -2,73 +2,58 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-09-28T18:06:24" rcs.revision="1.0" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
-   <schema name="Specification_document_arm">
-      <interface kind="use" schema="Characteristic_arm"/>
-      <interface kind="use" schema="Configuration_item_arm"/>
-      <interface kind="use" schema="Tagged_text_representation_arm"/>
-      <interface kind="use" schema="Person_organization_assignment_arm"/>
-      <type name="sd_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Product_configuration Product_view_definition Product_version Product"/>
-      </type>
-      <entity name="Design_specification" supertypes="Specification_definition" super.expression="Interface_specification_document_definition">
-         <derived name="additional_characterization" expression="''">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </derived>
-      </entity>
-      <entity name="Fabrication_technology_specification" supertypes="Process_specification"/>
-      <entity name="Interface_specification_document_definition" supertypes="Design_specification"/>
-      <entity name="Language_reference_manual" supertypes="Specification_definition">
-         <derived name="additional_characterization" expression="''">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </derived>
-      </entity>
-      <entity name="Material_specification" supertypes="Specification_definition">
-         <derived name="additional_characterization" expression="''">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </derived>
-      </entity>
-      <entity name="Process_specification" supertypes="Specification_definition">
-         <derived name="additional_characterization" expression="''">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </derived>
-      </entity>
-      <entity name="Specification_allocation" supertypes="Document_assignment">
-         <explicit name="allocated_specification">
-            <typename name="Specification_definition"/>
-            <redeclaration entity-ref="Document_assignment" old_name="assigned_document"/>
-         </explicit>
-         <explicit name="purpose">
-            <builtintype type="STRING"/>
-         </explicit>
-      </entity>
-      <entity name="Specification_definition" supertypes="Document_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)">
-         <derived name="source" expression="bag_to_set(QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'document source') ))">
-            <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Organization_or_person_in_organization_assignment"/>
-         </derived>
-         <where label="WR1" expression="EXISTS (source) AND (SIZEOF(source) = 1)"/>
-      </entity>
-      <entity name="Surface_finish_specification" supertypes="Material_specification"/>
-      <entity name="Test_specification" supertypes="Specification_definition">
-         <derived name="additional_characterization" expression="''">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="Product_view_definition"/>
-         </derived>
-      </entity>
-      <function name="bag_to_set">
-         <parameter name="the_bag">
-            <aggregate type="BAG" lower="0" upper="?"/>
-            <builtintype type="GENERIC"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <builtintype type="GENERIC"/>
-         <algorithm>LOCAL
+<express language_version="2" rcs.date="2005-11-18T14:06:45" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
+<schema name="Specification_document_arm">
+<interface kind="use" schema="Characteristic_arm"/>
+<interface kind="use" schema="Configuration_item_arm"/>
+<interface kind="use" schema="Tagged_text_representation_arm"/>
+<interface kind="use" schema="Person_organization_assignment_arm"/>
+<type name="sd_documented_element_select">
+<select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Product_configuration Product_view_definition Product_version Product"/>
+</type>
+<entity name="Design_specification" supertypes="Specification_definition" super.expression="Interface_specification_document_definition">
+<where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+</entity>
+<entity name="Fabrication_technology_specification" supertypes="Process_specification"/>
+<entity name="Interface_specification_document_definition" supertypes="Design_specification"/>
+<entity name="Language_reference_manual" supertypes="Specification_definition">
+<where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+</entity>
+<entity name="Material_specification" supertypes="Specification_definition">
+<where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+</entity>
+<entity name="Process_specification" supertypes="Specification_definition">
+<where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+</entity>
+<entity name="Specification_allocation" supertypes="Document_assignment">
+<explicit name="allocated_specification">
+<typename name="Specification_definition"/>
+<redeclaration entity-ref="Document_assignment" old_name="assigned_document"/>
+</explicit>
+<explicit name="purpose">
+<builtintype type="STRING"/>
+</explicit>
+</entity>
+<entity name="Specification_definition" supertypes="Document_definition" super.expression="ONEOF (Design_specification, Process_specification, Material_specification, Test_specification, Language_reference_manual)">
+<derived name="source" expression="bag_to_set(QUERY(temp &lt;* USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;                         (temp.role = 'document source') ))">
+<aggregate type="SET" lower="0" upper="?"/>
+<typename name="Organization_or_person_in_organization_assignment"/>
+</derived>
+<where label="WR1" expression="EXISTS (source) AND (SIZEOF(source) = 1)"/>
+</entity>
+<entity name="Surface_finish_specification" supertypes="Material_specification"/>
+<entity name="Test_specification" supertypes="Specification_definition">
+<where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+</entity>
+<function name="bag_to_set">
+<parameter name="the_bag">
+<aggregate type="BAG" lower="0" upper="?"/>
+<builtintype type="GENERIC"/>
+</parameter>
+<aggregate type="SET" lower="0" upper="?"/>
+<builtintype type="GENERIC"/>
+<algorithm>LOCAL
       the_set : SET OF GENERIC : intype := [];
       i       : INTEGER;
     END_LOCAL;
@@ -79,20 +64,20 @@
       END_REPEAT;
     END_IF;
     RETURN(the_set);</algorithm>
-      </function>
-      <function name="get_document_definition">
-         <parameter name="input">
-            <typename name="documented_element_select"/>
-         </parameter>
-         <parameter name="role">
-            <builtintype type="STRING"/>
-         </parameter>
-         <parameter name="type_name">
-            <builtintype type="STRING"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="Document_definition"/>
-         <algorithm>LOCAL
+</function>
+<function name="get_document_definition">
+<parameter name="input">
+<typename name="documented_element_select"/>
+</parameter>
+<parameter name="role">
+<builtintype type="STRING"/>
+</parameter>
+<parameter name="type_name">
+<builtintype type="STRING"/>
+</parameter>
+<aggregate type="SET" lower="0" upper="?"/>
+<typename name="Document_definition"/>
+<algorithm>LOCAL
 	dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
 	da : SET[0:?] OF Document_assignment :=[];
 END_LOCAL;
@@ -106,6 +91,6 @@ END_LOCAL;
 		END_IF;
 	END_REPEAT;
 	RETURN(dd);</algorithm>
-      </function>
-   </schema>
+</function>
+</schema>
 </express>

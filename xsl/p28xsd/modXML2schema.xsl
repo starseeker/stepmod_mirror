@@ -1162,11 +1162,29 @@
 							</xsl:when>
 							<!-- test if aggregate of simple datatype -->
 							<xsl:when test="$attribute_node_param/builtintype">
-								<xsl:call-template name="generate_attribute_to_simple_datatype">
+							
+								<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element ref="{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
+										</xs:sequence>
+										<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
+										<xs:attribute ref="exp:itemType" fixed="{$base_datatype}"/>
+										<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+										<xs:attribute ref="exp:arraySize" use="optional"/>
+									</xs:complexType>
+								</xs:element>
+								
+		
+
+	
+
+							
+								<!-- xsl:call-template name="generate_attribute_to_simple_datatype">
 									<xsl:with-param name="type_param" select="$attribute_node_param"/>
 									<xsl:with-param name="optionality_param" select="$optionality"/>
 									<xsl:with-param name="attribute_name_param" select="$corrected_attribute_name"/>
-								</xsl:call-template>
+								</xsl:call-template -->
 								<xsl:text>&#xa;</xsl:text>
 								<xsl:text>&#xa;</xsl:text>
 							</xsl:when>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-15T18:55:03" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-21T18:56:02" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_extension_arm schema_instance"/>
 <schema name="Part_template_extension_arm">
 <interface kind="use" schema="Fabrication_technology_arm"/>
@@ -126,22 +126,21 @@
 </explicit>
 <where label="WR1" expression="NOT (snowball_quantity_per_trace &gt; 1) OR (EXISTS(snowball_initial_spacing) AND EXISTS(snowball_end_spacing) AND EXISTS(snowball_end_distance) AND EXISTS(snowball_end_radius))"/>
 <where label="WR2" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
+<where label="WR3" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
 </entity>
 <entity name="Special_symbol_part_template" supertypes="Template_definition">
 <explicit name="of_stratum_technology" optional="YES">
 <aggregate type="SET" lower="1" upper="?"/>
 <typename name="Stratum_technology"/>
 </explicit>
-<derived name="name" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Product_view_definition"/>
-</derived>
+<where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
 </entity>
 <entity name="Teardrop_by_angle_template" supertypes="Material_addition_feature_template">
 <explicit name="teardrop_angle">
 <typename name="Angle_data_element"/>
 </explicit>
 <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
+<where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
 </entity>
 <entity name="Teardrop_by_length_template" supertypes="Material_addition_feature_template">
 <explicit name="teardrop_taper_start_distance">
@@ -151,15 +150,13 @@
 <typename name="Length_data_element"/>
 </explicit>
 <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) = 0)"/>
+<where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
 </entity>
 <entity name="Trace_template" supertypes="Template_definition" super.expression="Default_trace_template">
 <explicit name="trace_style">
 <typename name="Curve_style_parameters"/>
 </explicit>
-<derived name="name" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Product_view_definition"/>
-</derived>
+<where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
 </entity>
 <subtype.constraint name="inter_stratum_feature_template_subtypes" entity="Inter_stratum_feature_template" super.expression="ONEOF (Component_termination_passage_template, Via_template, Unsupported_passage_template, Inter_stratum_feature_edge_segment_template, Inter_stratum_feature_edge_template)"/>
 <subtype.constraint name="material_addition_feature_template_subtypes" entity="Material_addition_feature_template" super.expression="ONEOF (Snowball_template, Teardrop_by_angle_template, Teardrop_by_length_template)"/>

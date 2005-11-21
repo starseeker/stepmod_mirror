@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-15T17:11:51" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-21T15:46:15" rcs.revision="1.0" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_2d_shape_arm schema_instance"/>
 <schema name="Interconnect_2d_shape_arm">
 <interface kind="use" schema="Fabrication_joint_arm"/>
@@ -21,10 +21,6 @@
 <explicit name="reference_terminal">
 <typename name="Fabrication_joint"/>
 </explicit>
-<derived name="description" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Representation_relationship"/>
-</derived>
 <unique label="UR1">
 <unique.attribute attribute="precedent_surface"/>
 <unique.attribute attribute="reference_terminal"/>
@@ -32,6 +28,7 @@
 </unique>
 <where label="WR1" expression="precedent_surface &lt;&gt; subsequent_surface"/>
 <where label="WR2" expression="SELF\Component_2d_location.substrate_location = FALSE"/>
+<where label="WR3" expression="NOT EXISTS(SELF\Representation_relationship.description)"/>
 </entity>
 <entity name="Continuous_assembly_component_2d_shape" supertypes="Assembly_component_2d_shape">
 <explicit name="shape_characterized_component">
@@ -55,11 +52,8 @@
 <explicit name="represented_design_intent_modification">
 <typename name="Design_intent_modification"/>
 </explicit>
-<derived name="description" expression="''">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Representation"/>
-</derived>
-<where label="WR1" expression="(SIZEOF(USEDIN(SELF,&#10; 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0)"/>
+<where label="WR1" expression="(SIZEOF(USEDIN(SELF,&#10;            'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0)"/>
+<where label="WR2" expression="NOT EXISTS(SELF\Representation.description)"/>
 </entity>
 <entity name="Design_intent_modification_styled_area_representation">
 <explicit name="derived_planar_shape" optional="YES">

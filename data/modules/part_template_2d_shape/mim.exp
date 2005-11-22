@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.15 2005/11/21 14:58:01 liutkus Exp $
+   $Id: mim.exp,v 1.16 2005/11/21 21:12:28 liutkus Exp $
    ISO TC184/SC4/WG12 N3520 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS MIM
 *)
 
@@ -32,6 +32,7 @@ ENTITY footprint_definition
 END_ENTITY; 
 
 ENTITY generic_footprint_definition
+ ABSTRACT SUPERTYPE OF (ONEOF (footprint_definition, breakout_footprint_definition))
  SUBTYPE OF (part_template_definition);
 WHERE
   WR1: (NOT ('PART_TEMPLATE_2D_SHAPE_MIM.' +
@@ -78,8 +79,9 @@ ENTITY library_padstack_definition
 END_ENTITY;
 
 ENTITY padstack_definition
- SUPERTYPE OF (ONEOF( design_layer_type_specific_padstack_definition,
-               stratum_type_independent_padstack_definition))
+    SUPERTYPE OF ((ONEOF (design_layer_type_specific_padstack_definition, stratum_type_independent_padstack_definition))
+    ANDOR library_padstack_definition
+    ANDOR design_specific_padstack_definition)  
  SUBTYPE OF (part_template_definition);
 WHERE
   WR1: (NOT ('PART_TEMPLATE_2D_SHAPE_MIM.' +

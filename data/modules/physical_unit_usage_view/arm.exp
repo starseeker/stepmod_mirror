@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.45 2005/11/16 07:43:51 kovaliovas Exp $
+   $Id: arm.exp,v 1.46 2005/11/17 22:22:02 liutkus Exp $
    ISO TC184/SC4/WG12 N3579 - ISO/CD-TS 10303-1732 Physical unit usage view - EXPRESS ARM
 *)
 
@@ -31,18 +31,19 @@ SCHEMA Physical_unit_usage_view_arm;
 		(Part_feature);
 	END_TYPE;
 	
-ENTITY Derived_part_view_definition_relationship
-  SUBTYPE OF(View_definition_relationship);
- SELF\View_definition_relationship.relating_view : Part_view_definition;
- SELF\View_definition_relationship.related_view  : Part_view_definition;
-WHERE
-  WR1: SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view)) > 0;
-  WR2: SIZEOF(QUERY(gdrse <* get_derived_shape_element(SELF\View_definition_relationship.related_view) |
+  ENTITY Derived_part_view_definition_relationship
+    SUBTYPE OF(View_definition_relationship);
+     SELF\View_definition_relationship.relating_view : Part_view_definition;
+     SELF\View_definition_relationship.related_view  : Part_view_definition;
+    WHERE
+      WR1: SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view)) > 0;
+      WR2: SIZEOF(QUERY(gdrse <* get_derived_shape_element(SELF\View_definition_relationship.related_view) |
              (SIZEOF(QUERY(se <* gdrse.derived_from |
               SELF\View_definition_relationship.relating_view <> se.containing_shape.described_element
               )) = 0)
              )) = SIZEOF(get_derived_shape_element(SELF\View_definition_relationship.related_view));
-END_ENTITY;
+      WR3 : NOT EXISTS(SELF\View_definition_relationship.relation_type);             
+  END_ENTITY;
 
   ENTITY Connection_zone_in_usage_view
   	SUBTYPE OF (Connection_zone);

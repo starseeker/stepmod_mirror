@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.10 2005/04/04 09:51:09 liutkus Exp $
+   $Id: mim.exp,v 1.11 2005/04/08 18:15:28 liutkus Exp $
    ISO TC184/SC4/WG12 N3397 - ISO/CD-TS 10303-1664 Device marking - EXPRESS MIM
 *)
 
@@ -24,22 +24,5 @@ TYPE device_marking_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT B
      (representation);
 END_TYPE;
 
-RULE marking_constraint FOR ( representation );
-WHERE
-  WR1: SIZEOF(QUERY(rep <* representation |
-       ((rep\representation.name = 'marking')
-       AND (SIZEOF(QUERY(pdr <* USEDIN(rep,
-       'DEVICE_MARKING_MIM.'
-        + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |
-       ('DEVICE_MARKING_MIM.'
-        + 'SHAPE_ASPECT' IN TYPEOF(pdr.definition)))) > 0))
-       AND NOT (SIZEOF(QUERY(place <* rep.items |
-       (('DEVICE_MARKING_MIM.'
-        + 'PLACEMENT' IN TYPEOF (place))
-       AND (place\representation_item.name = 'marking location'))
-       )) = 1)
-       )) = 0;
-END_RULE;
-	
 END_SCHEMA;
 

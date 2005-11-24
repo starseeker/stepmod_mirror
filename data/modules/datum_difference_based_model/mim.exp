@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.10 2005/04/28 17:02:07 liutkus Exp $
+   $Id: mim.exp,v 1.11 2005/09/13 08:10:49 liutkus Exp $
    ISO TC184/SC4/WG12 N3385 - ISO/CD-TS 10303-1660 Datum difference based model - EXPRESS MIM
 *)
 
@@ -15,38 +15,12 @@ SCHEMA Datum_difference_based_model_mim;
 	
 ENTITY datum_difference_based_model_parameter
   SUBTYPE OF (model_parameter);
-WHERE
-      WR1: SIZEOF(QUERY ( r <* USEDIN(SELF,
-               'DATUM_DIFFERENCE_BASED_MODEL_MIM.' + 
-               'REPRESENTATION.ITEMS') | (SIZEOF(QUERY (prd2 <*
-                QUERY ( prd <* USEDIN(r,
-               'DATUM_DIFFERENCE_BASED_MODEL_MIM.' + 
-               'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') | 
-               ((('DATUM_DIFFERENCE_BASED_MODEL_MIM.' 
-               + 'PROPERTY_DEFINITION_REPRESENTATION') IN TYPEOF(prd)) AND 
-               (('DATUM_DIFFERENCE_BASED_MODEL_MIM.' +
-                'PROPERTY_DEFINITION') IN TYPEOF(prd\
-               property_definition_representation.definition))) ) |
-               ('DATUM_DIFFERENCE_BASED_MODEL_MIM.' +
-                'DATUM_DIFFERENCE' IN
-               TYPEOF(prd2\property_definition_representation.definition\
-                                        property_definition.definition))))
-                = 1) )) 
-               = 1;
 END_ENTITY;
 
 ENTITY datum_difference_functional_unit_usage_view_terminal_assignment
   SUBTYPE OF (shape_aspect_relationship);
-WHERE
-  WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect_relationship ||
-SELF\datum_difference_functional_unit_usage_view_terminal_assignment)) 
-                                                              = 0;
-  WR2: 'DATUM_DIFFERENCE_BASED_MODEL_MIM.' +
-       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION' IN TYPEOF 
-        (SELF\shape_aspect_relationship.related_shape_aspect);
-  WR3: 'DATUM_DIFFERENCE_BASED_MODEL_MIM.' +
-       'DATUM_DIFFERENCE' IN TYPEOF 
-        (SELF\shape_aspect_relationship.relating_shape_aspect);
+    SELF\shape_aspect_relationship.related_shape_aspect : functional_unit_terminal_definition;
+    SELF\shape_aspect_relationship.relating_shape_aspect : datum_difference;
 END_ENTITY;
 	
 END_SCHEMA;

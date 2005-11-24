@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.19 2005/10/03 12:04:09 liutkus Exp $
+   $Id: mim.exp,v 1.20 2005/10/05 10:48:31 liutkus Exp $
    ISO TC184/SC4/WG12 N3316 - ISO/CD-TS 10303-1650 Bare die - EXPRESS MIM
 *)
 SCHEMA Bare_die_mim;
@@ -11,75 +11,19 @@ SCHEMA Bare_die_mim;
 
 ENTITY bare_die
  SUBTYPE OF (physical_unit);
-WHERE
-  WR1: SIZEOF (QUERY (ifdu <* QUERY (pdr <* USEDIN (SELF,
-       'BARE_DIE_MIM.' +
-       'PRODUCT_DEFINITION_RELATIONSHIP.' +
-       'RELATED_PRODUCT_DEFINITION') |
-       pdr\property_definition_relationship.name = 'implemented function') |
-       ('BARE_DIE_MIM.' +
-       'FUNCTIONAL_UNIT' IN 
-       TYPEOF (ifdu.relating_product_definition)) AND
-       (ifdu.relating_product_definition.frame_of_reference.name = 
-       'functional design usage'))) = 1;
-  WR2: SIZEOF (QUERY (pd <* USEDIN (SELF,
-       'BARE_DIE_MIM.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       SIZEOF (QUERY (dut <* QUERY (pdr <* USEDIN (pd,
-       'BARE_DIE_MIM.' +
-       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
-       pdr\property_definition_relationship.name = 'device unit technology') |
-       dut.relating_property_definition\property_definition.name = 
-       'unit technology')) = 1)) = 1;
-  WR3: SIZEOF (QUERY (pd <* USEDIN (SELF, 
-       'BARE_DIE_MIM.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       NOT (SIZEOF (QUERY (sa <* USEDIN (pd,
-       'BARE_DIE_MIM.' +
-       'SHAPE_ASPECT.OF_SHAPE') |
-       'BARE_DIE_MIM.' +
-       'BARE_DIE_TERMINAL' IN 
-       TYPEOF (sa))) >= 2))) = 0;
 END_ENTITY;
 
 ENTITY bare_die_bottom_surface
  SUBTYPE OF (bare_die_surface);
-WHERE
-  WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
-       ['BARE_DIE_MIM.' +
-       'BARE_DIE',
-       'BARE_DIE_MIM.' +
-       'EXTERNALLY_DEFINED_BARE_DIE',
-       'BARE_DIE_MIM.' +
-       'LIBRARY_DEFINED_BARE_DIE']) = 1;
-  WR2: SELF\shape_aspect.product_definitional;
-  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
-       SELF\bare_die_bottom_surface ||
-       SELF\part_mounting_feature ||
-       SELF\bare_die_surface)) = 0;
 END_ENTITY;
 
 ENTITY bare_die_edge_segment_surface
   SUBTYPE OF (shape_aspect, shape_aspect_relationship);
+   SELF\shape_aspect_relationship.related_shape_aspect : edge_segment_vertex;
+   SELF\shape_aspect_relationship.relating_shape_aspect : edge_segment_vertex;
 WHERE
-  WR1: 'BARE_DIE_MIM.' +
-       'EDGE_SEGMENT_VERTEX' IN
-       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
-  WR2: 'BARE_DIE_MIM.' +
-       'EDGE_SEGMENT_VERTEX' IN
-       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
-  WR3: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
+  WR1: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
        SELF\shape_aspect_relationship.related_shape_aspect;
-  WR4: SIZEOF (QUERY (ce <* QUERY (sar <* USEDIN (SELF,
-       'BARE_DIE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'composed surface') |
-       ('BARE_DIE_MIM.' +
-       'BARE_DIE_EDGE_SURFACE' IN TYPEOF
-       (ce.relating_shape_aspect) ))) = 1;
-  WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
-       SELF\shape_aspect_relationship ||
-       SELF\bare_die_edge_segment_surface)) = 0;
 END_ENTITY;
 
 ENTITY bare_die_edge_surface

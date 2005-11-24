@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.1 2005/09/12 19:39:34 thomasrthurman Exp $
+   $Id: mim.exp,v 1.2 2005/09/13 08:10:49 liutkus Exp $
    ISO TC184/SC4/WG12 N3343 - ISO/CD-TS 10303-1705 Network functional usage view - EXPRESS MIM
 *)
 SCHEMA Functional_usage_view_mim;
@@ -29,48 +29,6 @@ END_ENTITY;
 
 ENTITY functional_unit
  SUBTYPE OF (product_definition);
-WHERE
-  WR1: SELF.frame_of_reference.name IN ['functional design usage', 
-       'functional network design'];
-  WR2: (NOT ('FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN 
-       TYPEOF (SELF))) OR
-       (SIZEOF (QUERY (docs <* 
-   SELF\product_definition_with_associated_documents.documentation_ids |
-       docs.kind\document_type.product_data_type = 'CAD filename')) <= 1);
-  WR3: SIZEOF (QUERY (adta <* USEDIN (SELF, 
-       'FUNCTIONAL_USAGE_VIEW_MIM.' + 
-       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |
-       adta.role\date_time_role.name = 'creation date')) = 1; 
-  WR4: SIZEOF (USEDIN (SELF, 
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1;
-  WR5: SIZEOF (QUERY (apoa <* USEDIN (SELF, 
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |
-       apoa.role\person_and_organization_role.name = 'creator')) +
-       SIZEOF (QUERY (apoa <* USEDIN (SELF, 
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |
-       apoa.role\organization_role.name = 'creator')) >= 1;
-  WR6: SIZEOF (USEDIN (SELF, 
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1;
-  WR7: (NOT (SELF.frame_of_reference.name = 
-                                 'functional network design')) OR
-       (SIZEOF (QUERY (du <* QUERY (pdr <* USEDIN (SELF,
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'PRODUCT_DEFINITION_RELATIONSHIP.' +
-       'RELATED_PRODUCT_DEFINITION') |
-       pdr\product_definition_relationship.name = 'design usage') |
-       du.relating_product_definition.frame_of_reference.name = 
-       'functional design usage')) = 1);
-  WR8: (NOT (SIZEOF([
-        'FUNCTIONAL_USAGE_VIEW_MIM.' +
-            'THERMAL_NETWORK',
-            'FUNCTIONAL_USAGE_VIEW_MIM.' +
-            'ELECTRICAL_NETWORK'] * TYPEOF(SELF)) = 1))
-        OR (SELF.frame_of_reference.name = 'functional network design');
 END_ENTITY;
 
 ENTITY functional_unit_terminal_definition
@@ -78,145 +36,29 @@ ENTITY functional_unit_terminal_definition
 WHERE
   WR1: ('FUNCTIONAL_USAGE_VIEW_MIM.' +
        'FUNCTIONAL_UNIT' IN
-       TYPEOF (SELF.of_shape.definition)) AND
-   (SELF.of_shape.definition\product_definition.frame_of_reference.name =
-       'functional design usage');
-  WR2: SIZEOF (QUERY (pd2 <* QUERY (pd <* USEDIN (SELF,
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'PROPERTY_DEFINITION' IN
-       TYPEOF (pd)) |
-       SIZEOF (QUERY (funtdba <* QUERY (pdr <* USEDIN (pd2,
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
-       pdr\property_definition_relationship.name = 
-       'functional unit network terminal definition bus assignment') |
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'BUS_STRUCTURAL_DEFINITION' IN 
-       TYPEOF 
-       (funtdba.relating_property_definition.definition))) <= 1)) <= 1;
-  WR3: SIZEOF (QUERY (pd2 <* QUERY (pd <* USEDIN (SELF,
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'PROPERTY_DEFINITION.DEFINITION') |
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'PROPERTY_DEFINITION' IN
-       TYPEOF (pd)) |
-       SIZEOF (QUERY (funtdna <* QUERY (pdr <* USEDIN (pd2,
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'PROPERTY_DEFINITION_RELATIONSHIP.RELATED_PROPERTY_DEFINITION') |
-       pdr\property_definition_relationship.name = 
-       'functional unit network terminal definition node assignment') |
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'NETWORK_NODE_DEFINITION' IN 
-       TYPEOF 
-       (funtdna.relating_property_definition.definition))) <= 1)) <= 1;
+       TYPEOF (SELF.of_shape.definition));
 END_ENTITY;
-(**
-ENTITY library_defined_functional_unit
- SUBTYPE OF (externally_defined_functional_unit);
-DERIVE
-  library : external_source := SELF\externally_defined_item.source;
-END_ENTITY;
-*)
+
 ENTITY make_from_functional_unit_terminal_definition_relationship
  SUBTYPE OF (shape_aspect, shape_aspect_relationship);
 UNIQUE
   UR1: SELF\shape_aspect_relationship.relating_shape_aspect, 
        SELF\shape_aspect_relationship.related_shape_aspect;
 WHERE
-  WR1: SIZEOF (['FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION'] *
-       TYPEOF (SELF.relating_shape_aspect)) = 1;
-  WR2: SIZEOF (['FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION'] *
-       TYPEOF (SELF.related_shape_aspect)) = 1;
-  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
-       SELF\shape_aspect_relationship ||
-    SELF\make_from_functional_unit_terminal_definition_relationship)) = 0;
-  WR4: relating_shape_aspect.of_shape :<>: 
+  WR1: relating_shape_aspect.of_shape :<>: 
        related_shape_aspect.of_shape;
-  WR5: SELF\shape_aspect.name = '';
-  WR6: SELF\shape_aspect.description = '';
-  WR7: SELF\shape_aspect.product_definitional = FALSE;
-  WR8: SIZEOF (USEDIN (SELF,
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'PROPERTY_DEFINITION.DEFINITION')) = 0;
-  WR9: SIZEOF (QUERY( sar <* USEDIN(SELF,
-       'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       (('FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'PRODUCT_DEFINITION_RELATIONSHIP') IN TYPEOF
-       (sar.of_shape\property_definition.definition))
-       )) = 1;
+  WR2: SELF\shape_aspect.product_definitional = FALSE;
 END_ENTITY;
 
 ENTITY scalar_terminal_definition_link
   SUBTYPE OF (shape_aspect,shape_aspect_relationship);
+   SELF\shape_aspect_relationship.relating_shape_aspect : functional_unit_terminal_definition;
 UNIQUE
   UR1: related_shape_aspect, relating_shape_aspect;
 WHERE
   WR1: SELF\shape_aspect_relationship.related_shape_aspect :<>:
        SELF\shape_aspect_relationship.relating_shape_aspect;
-  WR2: 'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION' IN
-       TYPEOF (SELF\shape_aspect_relationship.related_shape_aspect);
-  WR3: 'FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'FUNCTIONAL_UNIT_TERMINAL_DEFINITION' IN
-       TYPEOF (SELF\shape_aspect_relationship.relating_shape_aspect);
-  WR4: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
-       SELF\shape_aspect_relationship ||
-       SELF\scalar_terminal_definition_link)) = 0;
-  WR5: SELF\shape_aspect.name = '';
-  WR6: SELF\shape_aspect_relationship.name = '';
-  WR7: SELF\shape_aspect_relationship.relating_shape_aspect\shape_aspect.description = 'scalar terminal';
-  WR8: SELF\shape_aspect_relationship.related_shape_aspect\shape_aspect.description = 'scalar terminal';
 END_ENTITY; 
-
-RULE functional_unit_usage_view_terminal_definition_unique_constraint FOR
- ( functional_unit_terminal_definition );
-LOCAL
-  name_bag : BAG OF STRING := [];
-  futd_bag : BAG OF functional_unit_terminal_definition;
-  adr_bag : BAG OF applied_document_reference;
-  pass : BOOLEAN := TRUE;
-  fu_bag : BAG OF functional_unit;
-END_LOCAL;
-
-REPEAT i := 1 to SIZEOF(functional_unit_terminal_definition) by 1;
-  IF EXISTS( functional_unit_terminal_definition[i]\shape_aspect.name ) THEN
-    IF( NOT( functional_unit_terminal_definition[i]\shape_aspect.name IN 
-                                              name_bag ) ) THEN
-      name_bag := name_bag + 
-                    functional_unit_terminal_definition[i]\shape_aspect.name;
-    END_IF;
-  END_IF;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(name_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  fu_bag := [];
-  futd_bag := QUERY( futd <* functional_unit_terminal_definition |
-((futd\shape_aspect.name = name_bag[i]) AND
-('FUNCTIONAL_USAGE_VIEW_MIM.' +
-'FUNCTIONAL_UNIT' IN TYPEOF(futd.of_shape.definition)) AND
-(futd.of_shape.definition.frame_of_reference.name = 
-                                    'functional design usage')) );
-  REPEAT j := 1 to SIZEOF(futd_bag) by 1;
-    IF EXISTS( futd_bag[j].of_shape.definition ) THEN
-      IF ( futd_bag[j].of_shape.definition IN fu_bag ) THEN
-        pass := FALSE;
-        ESCAPE;
-      ELSE
-        fu_bag := fu_bag + futd_bag[j].of_shape.definition;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;
-WHERE
-  WR1: pass;
-END_RULE;
 
 END_SCHEMA;
 

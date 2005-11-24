@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.2 2005/10/19 23:10:25 thomasrthurman Exp $
+   $Id: mim.exp,v 1.3 2005/11/21 20:50:36 liutkus Exp $
    ISO TC184/SC4/WG12 N3673 - ISO/CD-TS 10303-1667 Extended elemental geometric shape - EXPRESS MIM
 *)
 
@@ -36,21 +36,8 @@ UNIQUE
 WHERE
   WR1: SELF\representation_item_relationship.relating_representation_item :<>: 
        SELF\representation_item_relationship.related_representation_item;
-  WR2: SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\representation_item ||
-       SELF\representation_item_relationship || 
-       SELF\geometric_model_element_relationship))) = 0;
 END_ENTITY; 
 
-RULE feature_shape_definition_constraint FOR (
-         shape_representation);
-WHERE
-  WR1: SIZEOF(QUERY(sr <* shape_representation |
-       (sr\representation.name = 'zone shape')
-       AND (sr.context_of_items.coordinate_space_dimension = 3)
-       AND NOT('EXTENDED_BASIC_GEOMETRY_MIM.'
-       + 'MANIFOLD_SUBSURFACE_SHAPE_REPRESENTATION' IN TYPEOF(sr)))) = 0;
-END_RULE;
-	
 FUNCTION acyclic_representation_relationship
  (relation : representation_relationship; relatives : SET[1:?] OF representation; specific_relation : STRING) : BOOLEAN; 
  LOCAL

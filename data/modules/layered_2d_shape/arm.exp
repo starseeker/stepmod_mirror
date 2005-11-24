@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.26 2005/11/16 07:43:51 kovaliovas Exp $
+   $Id: arm.exp,v 1.27 2005/11/17 22:22:02 liutkus Exp $
    ISO TC184/SC4/WG12 N3468 - ISO/CD-TS 10303-1693 Layered 2d shape - EXPRESS ARM
 *)
 
@@ -41,19 +41,10 @@ SCHEMA Layered_2d_shape_arm;
 
   ENTITY Reference_geometric_representation_relationship
     SUBTYPE OF (Geometric_model_relationship);
-      related_feature_shape_placement : axis_placement_or_cto2d;
-      SELF\Geometric_model_relationship.rep_1 RENAMED related_feature_shape   : Geometric_model;
-      SELF\Geometric_model_relationship.rep_2 RENAMED resultant_feature_shape : Geometric_model;
+      SELF\Geometric_model_relationship.rep_1 RENAMED referenced_shape   : Geometric_model;
+      SELF\Geometric_model_relationship.rep_2 RENAMED referencing_shape  : Geometric_model;
     WHERE
-      WR1 : EXISTS(related_feature_shape_placement) OR (related_feature_shape.context_of_items :=: resultant_feature_shape.context_of_items);
-(** TODO For Tom - convert WR3 into a global rule in Assembly_module_design 
-      WR3 : NOT ((SIZEOF(['LAYERED_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL',
- 'LAYERED_2D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL'] * TYPEOF(related_feature_shape)) = 1) AND ('LAYERED_2D_SHAPE_ARM.ASSEMBLY_MODULE' IN TYPEOF(related_feature_shape.shape_characterized_physical_unit))) OR NOT EXISTS(related_feature_shape_placement);
-*) 
-(** TODO For Tom - convert WR4 into a global rule in Interconnect_module_design 
-      WR4 : NOT ((SIZEOF(['LAYERED_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL',
- 'LAYERED_2D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL'] * TYPEOF(related_feature_shape)) = 1) AND ('LAYERED_2D_SHAPE_ARM.INTERCONNECT_MODULE' IN TYPEOF(related_feature_shape.shape_characterized_physical_unit))) OR NOT EXISTS(related_feature_shape_placement);
-*) 
+      WR1 : referenced_shape.context_of_items :=: referencing_shape.context_of_items;
   END_ENTITY;
 
 END_SCHEMA;

@@ -2,26 +2,135 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-10-10T12:50:46" rcs.revision="1.0" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="sequential_laminate_assembly_design_arm schema_instance"/>
-   <schema name="Sequential_laminate_assembly_design_arm">
-      <interface kind="use" schema="Assembly_module_with_interconnect_component_arm"/>
-      <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
-      <entity name="Interconnect_module_component_stratum_based_terminal" supertypes="Interconnect_module_component_terminal">
-         <explicit name="definition">
-            <typename name="Interconnect_module_stratum_based_terminal"/>
-            <redeclaration entity-ref="Component_feature"/>
-         </explicit>
-      </entity>
-      <entity name="Interconnect_module_product_assembly_view_fabrication_joint">
-         <explicit name="joined_terminal">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Interconnect_module_component_stratum_based_terminal"/>
-         </explicit>
-      </entity>
-      <entity name="Interconnect_module_stratum_based_terminal" supertypes="Interconnect_module_terminal">
-         <where label="WR1" expression="SIZEOF(QUERY(imtscr &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED') | NOT (SIZEOF(['SEQUENTIAL_LAMINATE_ASSEMBLY_DESIGN_ARM.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE',&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE'] * TYPEOF(imtscr.relating)) = 1))) = 0"/>
-         <where label="WR2" expression="SIZEOF(USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED')) = 1"/>
-      </entity>
-   </schema>
+<express language_version="2" rcs.date="2005-11-25T14:52:36" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="sequential_laminate_assembly_design_arm schema_instance"/>
+<schema name="Sequential_laminate_assembly_design_arm">
+<interface kind="use" schema="Assembly_module_with_interconnect_component_arm"/>
+<interface kind="use" schema="Layered_interconnect_module_design_arm"/>
+<type name="slad_groupable_item">
+<select basedon="groupable_item" selectitems="Group_relationship Interconnect_module_stratum_assembly_relationship"/>
+</type>
+<type name="slad_material_item_select">
+<select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Definition_based_part_occurrence"/>
+</type>
+<type name="slad_requirement_assignment_item">
+<select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Derived_laminate_assignment Sequential_laminate_assembly_relationship"/>
+</type>
+<entity name="Derived_laminate_assignment" supertypes="Group Requirement_view_definition Requirement_assignment">
+<explicit name="oem_requirement">
+<aggregate type="SET" lower="1" upper="?"/>
+<typename name="Interconnect_module_stratum_assembly_relationship"/>
+<redeclaration entity-ref="Group" old_name="elements"/>
+</explicit>
+<explicit name="solution_definition">
+<typename name="Sequential_laminate_assembly_relationship"/>
+<redeclaration entity-ref="Requirement_assignment" old_name="assigned_to"/>
+</explicit>
+<derived name="assigned_requirement" expression="SELF">
+<typename name="Derived_laminate_assignment"/>
+<redeclaration entity-ref="Requirement_assignment"/>
+</derived>
+<where label="WR2" expression="SIZEOF(QUERY( oer &lt;* oem_requirement | (oer.assembly = solution_definition.assembly))) = 0"/>
+<where label="WR3" expression="SIZEOF(QUERY( oer &lt;* oem_requirement | (oer.assembly &lt;&gt; reference_oem_assembly))) = 0"/>
+<where label="WR4" expression="valid_oem_stratum_references(SELF)"/>
+</entity>
+<entity name="Derived_stratum_relationship" supertypes="View_definition_relationship">
+<explicit name="requirement_definition">
+<typename name="Stratum"/>
+<redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+</explicit>
+<explicit name="solution_definition">
+<typename name="Sequential_laminate_stackup_component"/>
+<redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+</explicit>
+<where label="WR1" expression="SIZEOF(USEDIN(solution_definition\Definition_based_product_occurrence.derived_from,&#10;               'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS')) &gt; 0"/>
+<where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+</entity>
+<entity name="Interconnect_module_component_stratum_based_terminal" supertypes="Interconnect_module_component_terminal">
+<explicit name="definition">
+<typename name="Interconnect_module_stratum_based_terminal"/>
+<redeclaration entity-ref="Component_feature"/>
+</explicit>
+</entity>
+<entity name="Interconnect_module_product_assembly_view_fabrication_joint">
+<explicit name="joined_terminal">
+<aggregate type="SET" lower="1" upper="?"/>
+<typename name="Interconnect_module_component_stratum_based_terminal"/>
+</explicit>
+</entity>
+<entity name="Interconnect_module_stratum_based_terminal" supertypes="Interconnect_module_terminal">
+<where label="WR1" expression="SIZEOF(QUERY(imtscr &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED') | NOT (SIZEOF(['SEQUENTIAL_LAMINATE_ASSEMBLY_DESIGN_ARM.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE',&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE'] * TYPEOF(imtscr.relating)) = 1))) = 0"/>
+<where label="WR2" expression="SIZEOF(USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED')) = 1"/>
+</entity>
+<entity name="Sequential_laminate_assembly_relationship" supertypes="Next_assembly_usage">
+<explicit name="assembly">
+<typename name="Sequential_laminate_stackup_definition"/>
+<redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+</explicit>
+<explicit name="component">
+<typename name="Sequential_laminate_stackup_component"/>
+<redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+</explicit>
+<where label="WR1" expression="related_view\Definition_based_product_occurrence.derived_from &lt;&gt; relating_view"/>
+<where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+</entity>
+<entity name="Sequential_laminate_stackup_component" supertypes="Physical_component">
+<explicit name="derived_from">
+<typename name="Sequential_laminate_stackup_definition"/>
+<redeclaration entity-ref="Definition_based_product_occurrence"/>
+</explicit>
+<where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+</entity>
+<entity name="Sequential_laminate_stackup_definition" supertypes="Interconnect_module"/>
+<entity name="Stackup_requirement_to_design_relationship" supertypes="View_definition_relationship">
+<explicit name="relating_view">
+<typename name="Interconnect_module"/>
+<redeclaration entity-ref="View_definition_relationship"/>
+</explicit>
+<explicit name="related_view">
+<typename name="Sequential_laminate_stackup_definition"/>
+<redeclaration entity-ref="View_definition_relationship"/>
+</explicit>
+<where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+</entity>
+<function name="valid_oem_stratum_references">
+<parameter name="input">
+<typename name="Derived_laminate_assignment"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>LOCAL
+      imsa : SET OF Interconnect_module_stratum_assembly_relationship := input.oem_requirement;
+      s1 : SET OF Stratum := [];
+      ss : SET OF Stratum_surface := [];
+      ssp : SET OF Stratum := [];
+      sss : SET OF Stratum := [];
+      assd : SET OF Adjacent_stratum_surface_definition := [];
+      i       : INTEGER := 0;
+    END_LOCAL;
+
+    IF SIZEOF(imsa) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(imsa);
+        s1 := s1 + imsa[i].component;
+      END_REPEAT;
+      REPEAT i := 1 TO HIINDEX(s1);
+        ss := ss + USEDIN(s1[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE.OF_STRATUM');
+      END_REPEAT;
+      REPEAT i := 1 TO HIINDEX(ss);
+        IF ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE' IN TYPEOF(ss[i]))
+          THEN ss := ss - ss[i];
+        END_IF; 
+      END_REPEAT;  
+      REPEAT i := 1 TO HIINDEX(ss);
+         assd := assd + USEDIN(ss[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ADJACENT_STRATUM_SURFACE_DEFINITION');
+      END_REPEAT;
+      REPEAT i := 1 TO HIINDEX(assd);
+         ssp := ssp + assd[i].precedent_surface.of_stratum;
+         sss := sss + assd[i].subsequent_surface.of_stratum;
+      END_REPEAT;
+      IF ((SIZEOF(assd) + 1) = (SIZEOF(ssp) + SIZEOF(sss))) THEN
+       RETURN(TRUE);
+      END_IF; 
+    END_IF;</algorithm>
+</function>
+</schema>
 </express>

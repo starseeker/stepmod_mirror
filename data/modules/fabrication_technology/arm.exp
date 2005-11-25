@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.41 2005/11/17 14:21:25 liutkus Exp $
+   $Id: arm.exp,v 1.42 2005/11/24 17:02:31 liutkus Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -16,7 +16,8 @@ SCHEMA Fabrication_technology_arm;
 	END_TYPE; 
 
   TYPE ft_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
-	(Stratum_technology);
+	(Passage_technology,
+	Stratum_technology);
   END_TYPE;
 
 	SUBTYPE_CONSTRAINT ft_template_definition_subtypes FOR Template_definition; 
@@ -183,6 +184,77 @@ SCHEMA Fabrication_technology_arm;
       WR1 : NOT (EXISTS(minimum_attachment_region_size) AND EXISTS(maximum_attachment_region_size)) OR (minimum_attachment_region_size :<>: maximum_attachment_region_size);
   END_ENTITY;
 
+  ENTITY Default_component_termination_passage_definition
+    SUBTYPE OF (Passage_technology);
+      minimum_allowed_component_terminal_extent	: Length_data_element;
+      maximum_allowed_component_terminal_extent	: Length_data_element;
+    DERIVE
+      minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_deposition_thickness;
+      minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
+    INVERSE
+      SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
+    WHERE
+      WR1 : EXISTS(minimum_as_finished_deposition_thickness);
+      WR2 : EXISTS(minimum_as_finished_passage_extent);
+      WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
+  END_ENTITY;
+
+  ENTITY Default_passage_based_land_physical_template
+    ABSTRACT SUPERTYPE OF (ONEOF (Default_plated_passage_based_land_physical_template,
+    Default_unsupported_passage_based_land_physical_template))
+    SUBTYPE OF (Land_physical_template);
+      minimum_fabrication_allowance : Length_data_element;
+      of_passage_technology         : Passage_technology;
+      of_stratum_extent             : SET [1:?] OF Stratum_technology_occurrence_link;
+      minimum_annular_ring          : Length_data_element;
+    UNIQUE
+      UR1 : of_passage_technology, SELF\Stratum_feature_template.of_stratum_technology;
+    WHERE
+      WR1 : of_stratum_extent IN of_passage_technology.as_finished_inter_stratum_extent;
+  END_ENTITY;
+
+	ENTITY Default_plated_passage_based_land_physical_template
+	  SUBTYPE OF (Default_passage_based_land_physical_template);
+	   SELF\Default_passage_based_land_physical_template.of_passage_technology : Passage_technology;
+	 WHERE
+	   WR1 : of_passage_technology.of_technology.plated_passage = TRUE;
+	END_ENTITY;
+
+  ENTITY Default_tapered_blind_via_definition
+    SUBTYPE OF (Default_via_definition);
+      maximum_as_finished_interior_passage_extent : OPTIONAL Length_data_element;
+      minimum_as_finished_interior_passage_extent : Length_data_element;
+    WHERE
+      WR1: less(maximum_as_finished_interior_passage_extent,maximum_as_finished_passage_extent);
+      WR2: less(minimum_as_finished_interior_passage_extent,minimum_as_finished_passage_extent);
+  END_ENTITY;
+
+  ENTITY Default_unsupported_passage_based_land_physical_template
+    SUBTYPE OF (Default_passage_based_land_physical_template);
+      SELF\Default_passage_based_land_physical_template.of_passage_technology : Default_unsupported_passage_definition;
+  END_ENTITY;
+
+  ENTITY Default_unsupported_passage_definition
+    SUBTYPE OF (Passage_technology);
+    DERIVE
+      minimum_as_finished_passage_extent				: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
+    WHERE
+      WR1 : EXISTS(minimum_as_finished_passage_extent);
+  END_ENTITY;
+
+  ENTITY Default_via_definition
+    SUBTYPE OF (Passage_technology);
+    DERIVE
+      minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_deposition_thickness;
+      minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
+    INVERSE
+      SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
+    WHERE
+      WR1 : EXISTS(minimum_as_finished_deposition_thickness);
+      WR2 : EXISTS(minimum_as_finished_passage_extent);
+      WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
+  END_ENTITY;
+
   ENTITY Dependent_material_removal_feature_template
     SUBTYPE OF (Material_removal_feature_template);
       associated_template : Land_physical_template;
@@ -281,6 +353,35 @@ SCHEMA Fabrication_technology_arm;
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
+	ENTITY Passage_technology
+		SUPERTYPE OF (ONEOF (Default_via_definition,
+ 			Default_component_termination_passage_definition,
+ 			Default_unsupported_passage_definition));
+      name                              : STRING;
+	  of_technology						: Passage_technology_parameters;
+      as_finished_inter_stratum_extent	: Stratum_technology_occurrence_link;      
+   INVERSE
+	  deposition_material : SET [0:1] OF material_identification FOR items;      
+      UNIQUE
+       UR1 : name;
+	  WHERE
+	  WR1 : NOT (SIZEOF(deposition_material) = 1) OR
+            ('CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1]));
+      WR2: NOT (of_technology.plated_passage) OR (SIZEOF(deposition_material) = 1);
+      WR3: NOT EXISTS(of_technology.maximum_as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
+      WR4: NOT EXISTS(of_technology.minimum_as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
+      WR5: NOT (of_technology.plated_passage) OR
+           (SIZEOF([deposition_material[1].electrical_conductivity_classification,
+                   deposition_material[1].magnetic_conductivity_classification, 
+                   deposition_material[1].optical_conductivity_classification,  
+                   deposition_material[1].thermal_conductivity_classification] *
+                  ['conductive']) >= 1);
+      -- TODO for Tom            
+--      WR6: no vertex in as_finished_vertical_extent shall have degree greater than two;
+--      WR7: one vertex in as_finished_vertical_extent shall not have a precedent sto;
+--      WR8: one vertex in as_finished_vertical_extent shall not have a subsequent sto;
+	END_ENTITY;
+
   ENTITY Passage_technology_parameters;
       name                                     : STRING; 
       plated_passage                           : BOOLEAN;
@@ -308,22 +409,7 @@ SCHEMA Fabrication_technology_arm;
 
   ENTITY Stratum_stack_model
     SUBTYPE OF(Template_definition);
-   WHERE
---    WR1: This is a template model...
---description; Lothar to add in the line to make this a template model
-      WR2: SIZEOF(QUERY(sto <* USEDIN(SELF,
-       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE.SCOPE')|
-        (SIZEOF(USEDIN(sto,
-        'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK.PRECEDENT_STO') = 0))
-            )) = 1;
-   --desc: exactly one of the sto that reference this ssm shall not participate in a sto_link as a precedent_sto.
-     WR3: SIZEOF(QUERY(sto <* USEDIN(SELF,
-       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE.SCOPE')|
-        (SIZEOF(USEDIN(sto,
-       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK.SUBSEQUENT_STO')
-       = 0))
-       )) = 1;
-   --desc: exactly one of the sto that reference this ssm shall not participate in a sto_link as a subsequent_sto.
+      passages : SET [1:?] OF Passage_technology;
   END_ENTITY;
 
   ENTITY Stratum_technology
@@ -367,11 +453,11 @@ SCHEMA Fabrication_technology_arm;
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence;
-    name         : STRING; 
-    definition   : Stratum_technology;
-    scope        : Stratum_stack_model;
+    name       : STRING; 
+    definition : Stratum_technology;
+    scope      : Passage_technology;
   UNIQUE
-    UR1: name, scope;--don't want to have definition in ur.
+    UR1: name, scope;  
    --also don't want to disallow multiple references to one stratum_technology!
   WHERE
     WR1: SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK.SUBSEQUENT_STO'))< 2;

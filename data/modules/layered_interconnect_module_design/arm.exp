@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.137 2005/11/21 14:58:01 liutkus Exp $
+   $Id: arm.exp,v 1.138 2005/11/24 17:02:31 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -93,10 +93,6 @@ SCHEMA Layered_interconnect_module_design_arm;
 		(Laminate_layer_stack,
 		Stratum,
 		Laminate_component);
-	END_TYPE;
-
-	TYPE limd_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
-		(Passage_technology);
 	END_TYPE;
 
 	TYPE limd_feature_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON feature_select WITH 
@@ -370,76 +366,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : start_vertex :<>: end_vertex;
   END_ENTITY;
 
-  ENTITY Default_component_termination_passage_definition
-    SUBTYPE OF (Passage_technology);
-      minimum_allowed_component_terminal_extent	: Length_data_element;
-      maximum_allowed_component_terminal_extent	: Length_data_element;
-    DERIVE
-      minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_deposition_thickness;
-      minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
-    INVERSE
-      SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
-    WHERE
-      WR1 : EXISTS(minimum_as_finished_deposition_thickness);
-      WR2 : EXISTS(minimum_as_finished_passage_extent);
-      WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
-  END_ENTITY;
-
-  ENTITY Default_passage_based_land_physical_template
-    ABSTRACT SUPERTYPE OF (ONEOF (Default_plated_passage_based_land_physical_template,
-    Default_unsupported_passage_based_land_physical_template))
-    SUBTYPE OF (Land_physical_template);
-      minimum_fabrication_allowance : Length_data_element;
-      of_passage_technology         : Passage_technology;
-      of_stratum_extent             : Inter_stratum_extent;
-      minimum_annular_ring          : Length_data_element;
-    UNIQUE
-      UR1 : of_passage_technology,
- SELF\Stratum_feature_template.of_stratum_technology;
-  END_ENTITY;
-
-	ENTITY Default_plated_passage_based_land_physical_template
-	  SUBTYPE OF (Default_passage_based_land_physical_template);
-	   SELF\Default_passage_based_land_physical_template.of_passage_technology : Passage_technology;
-	 WHERE
-	   WR1 : of_passage_technology.of_technology.plated_passage = TRUE;
-	END_ENTITY;
-
-  ENTITY Default_tapered_blind_via_definition
-    SUBTYPE OF (Default_via_definition);
-      maximum_as_finished_interior_passage_extent : OPTIONAL Length_data_element;
-      minimum_as_finished_interior_passage_extent : Length_data_element;
-    WHERE
-      WR1: less(maximum_as_finished_interior_passage_extent,maximum_as_finished_passage_extent);
-      WR2: less(minimum_as_finished_interior_passage_extent,minimum_as_finished_passage_extent);
-  END_ENTITY;
-
-  ENTITY Default_unsupported_passage_based_land_physical_template
-    SUBTYPE OF (Default_passage_based_land_physical_template);
-      SELF\Default_passage_based_land_physical_template.of_passage_technology : Default_unsupported_passage_definition;
-  END_ENTITY;
-
-  ENTITY Default_unsupported_passage_definition
-    SUBTYPE OF (Passage_technology);
-    DERIVE
-      minimum_as_finished_passage_extent				: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
-    WHERE
-      WR1 : EXISTS(minimum_as_finished_passage_extent);
-  END_ENTITY;
-
-  ENTITY Default_via_definition
-    SUBTYPE OF (Passage_technology);
-    DERIVE
-      minimum_as_finished_deposition_thickness 	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_deposition_thickness;
-      minimum_as_finished_passage_extent       	: length_data_element := SELF\Passage_technology.of_technology.minimum_as_finished_passage_extent;
-    INVERSE
-      SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
-    WHERE
-      WR1 : EXISTS(minimum_as_finished_deposition_thickness);
-      WR2 : EXISTS(minimum_as_finished_passage_extent);
-      WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
-  END_ENTITY;
-
   ENTITY Design_layer_stratum
     SUBTYPE OF (Stratum);
       primary_design_layer_stratum : BOOLEAN;
@@ -540,10 +466,8 @@ SCHEMA Layered_interconnect_module_design_arm;
  relating_view,
  terminal_location;
     WHERE
---mod
       WR1 : NOT EXISTS(terminal_location) OR
                (terminal_location.footprint :=: relating_view.derived_from);
---mod
       WR2 : NOT EXISTS(terminal_location) OR
              (NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(sub_assembly_reference_designation.assembly) OR
                (sub_assembly_reference_designation.padstack :=: terminal_location.padstack)));
@@ -614,6 +538,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Assembly_definition, Part_design_view);
     INVERSE
       of_fabrication_thickness_requirement : SET[0:?] OF requirement_assignment FOR assigned_to;
+      stackup_model : SET[1:1] OF stratum_stack_model_to_interconnect_assignment FOR design;
     WHERE
       WR1 : SIZEOF(QUERY(ftr <* of_fabrication_thickness_requirement | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF(ftr\Requirement_assignment.assigned_requirement)))) = 0;
       WR2 : (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY')) = 0)
@@ -722,7 +647,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Assembly_component);
       SELF\Definition_based_product_occurrence.derived_from : Template_definition;
     INVERSE
-      padstack_occurrence_assembly  : SET[0:1] OF padstack_occurrence_sub_assembly_relationship FOR related_view; --related_component;      
+      padstack_occurrence_assembly  : SET[0:1] OF padstack_occurrence_sub_assembly_relationship FOR related_view;      
       footprint_occurrence_assembly : SET[0:1] OF footprint_occurrence_sub_assembly_relationship FOR related_view;
 	  cad_layer						: SET[0:1] OF External_source_identification FOR item;      	  
     WHERE
@@ -918,32 +843,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       technology_reference : Passage_technology_parameters;
   END_ENTITY;
 
-	ENTITY Passage_technology
-		SUPERTYPE OF (ONEOF (Default_via_definition,
- 			Default_component_termination_passage_definition,
- 			Default_unsupported_passage_definition));
-      name                              : STRING;
-	  of_technology						: Passage_technology_parameters;
-      associated_definition				: Interconnect_module;
-      as_finished_inter_stratum_extent	: Inter_stratum_extent;      
-   INVERSE
-	  deposition_material : SET [0:1] OF material_identification FOR items;      
-      UNIQUE
-       UR1 : name, associated_definition;
-	  WHERE
-	  WR1 : NOT (SIZEOF(deposition_material) = 1) OR
-            ('CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1]));
-      WR2: NOT (of_technology.plated_passage) OR (SIZEOF(deposition_material) = 1);
-      WR3: NOT EXISTS(of_technology.maximum_as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
-      WR4: NOT EXISTS(of_technology.minimum_as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
-      WR5: NOT (of_technology.plated_passage) OR
-           (SIZEOF([deposition_material[1].electrical_conductivity_classification,
-                   deposition_material[1].magnetic_conductivity_classification, 
-                   deposition_material[1].optical_conductivity_classification,  
-                   deposition_material[1].thermal_conductivity_classification] *
-                  ['conductive']) >= 1);
-	END_ENTITY;
-
   ENTITY Pcb
     SUBTYPE OF (Interconnect_module);
       SELF\Part_design_view.usage_view : OPTIONAL Pcb_usage_view;
@@ -1120,11 +1019,11 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence_to_stratum_mapping_relationship;
-    technology_occurrence : Stratum_technology_occurrence;
-    design_stratum : Stratum;
-    mapping_context : Stratum_stack_model_to_interconnect_assignment;
+    technology_occurrence_link : Stratum_technology_occurrence_link;
+    stratum_link               : Adjacent_stratum_surface_definition;
+    mapping_context            : Stratum_stack_model_to_interconnect_assignment;
    UNIQUE
-    UR1: mapping_context, technology_occurrence; 
+    UR1: mapping_context, technology_occurrence_link; 
   END_ENTITY;
 
   ENTITY Thermal_isolation_laminate_component

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-10T16:05:45" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-25T11:38:30" rcs.revision="1.0" description.file="mim_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_2d_shape_mim schema_instance"/>
 <schema name="Part_template_2d_shape_mim">
 <interface kind="use" schema="Component_grouping_mim"/>
@@ -15,34 +15,10 @@
 <entity name="design_layer_type_specific_padstack_definition" supertypes="padstack_definition"/>
 <entity name="design_specific_padstack_definition" supertypes="padstack_definition"/>
 <entity name="footprint_definition" supertypes="generic_footprint_definition"/>
-<entity name="generic_footprint_definition" supertypes="part_template_definition">
-<where label="WR1" expression="(NOT ('PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN &#10;       TYPEOF (SELF))) OR&#10;       (SIZEOF (QUERY (docs &lt;* &#10;       SELF\product_definition_with_associated_documents.&#10;        documentation_ids |&#10;       docs.kind\document_type.product_data_type = 'CAD filename')) &lt;= 1)"/>
-<where label="WR2" expression="SIZEOF (QUERY (adta &lt;* USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' + &#10;       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |&#10;       adta.role\date_time_role.name = 'creation date')) + &#10;       SIZEOF (QUERY (ada &lt;* USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' + &#10;       'APPLIED_DATE_ASSIGNMENT.ITEMS') |&#10;       ada.role\date_role.name = 'creation date')) = 1"/>
-<where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1"/>
-<where label="WR4" expression="SIZEOF (QUERY (apoa &lt;* USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;       apoa.role\person_and_organization_role.name = 'creator')) +&#10;       SIZEOF (QUERY (apoa &lt;* USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;       apoa.role\organization_role.name = 'creator')) &gt;= 1"/>
-<where label="WR5" expression="SIZEOF (USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1"/>
-<where label="WR6" expression="SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||&#10;       SELF\generic_footprint_definition))) = 0"/>
-<where label="WR7" expression="SELF.frame_of_reference.name IN ['layout design usage' ]"/>
-<where label="WR8" expression="SIZEOF (QUERY (prpc &lt;* USEDIN (SELF.formation.of_product,&#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'PRODUCT_RELATED_PRODUCT_CATEGORY.' +&#10;       'PRODUCTS') |&#10;       prpc\product_category.name = 'template model')) = 1"/>
-</entity>
+<entity name="generic_footprint_definition" abstract.supertype="YES" supertypes="part_template_definition" super.expression="ONEOF (footprint_definition, breakout_footprint_definition)"/>
 <entity name="library_padstack_definition" supertypes="padstack_definition"/>
-<entity name="padstack_definition" supertypes="part_template_definition" super.expression="ONEOF (design_layer_type_specific_padstack_definition, stratum_type_independent_padstack_definition)">
-<where label="WR1" expression="(NOT ('PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS' IN &#10;       TYPEOF (SELF))) OR&#10;       (SIZEOF (QUERY (docs &lt;* &#10;       SELF\product_definition_with_associated_documents.&#10;        documentation_ids |&#10;       docs.kind\document_type.product_data_type = 'CAD filename')) &lt;= 1)"/>
-<where label="WR2" expression="SIZEOF (QUERY (adta &lt;* USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' + &#10;       'APPLIED_DATE_AND_TIME_ASSIGNMENT.ITEMS') |&#10;       adta.role\date_time_role.name = 'creation date')) + &#10;       SIZEOF (QUERY (ada &lt;* USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' + &#10;       'APPLIED_DATE_ASSIGNMENT.ITEMS') |&#10;       ada.role\date_role.name = 'creation date')) = 1"/>
-<where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'APPLIED_APPROVAL_ASSIGNMENT.ITEMS')) = 1"/>
-<where label="WR4" expression="SIZEOF (QUERY (apoa &lt;* USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;       apoa.role\person_and_organization_role.name = 'creator')) +&#10;       SIZEOF (QUERY (apoa &lt;* USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'APPLIED_ORGANIZATION_ASSIGNMENT.ITEMS') |&#10;       apoa.role\organization_role.name = 'creator')) &gt;= 1"/>
-<where label="WR5" expression="SIZEOF (USEDIN (SELF, &#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT.ITEMS')) = 1"/>
-<where label="WR6" expression="SIZEOF(TYPEOF(SELF) - (TYPEOF(SELF\product_definition ||&#10;       SELF\padstack_definition))) = 0"/>
-<where label="WR7" expression="SELF.frame_of_reference.name IN ['layout design usage' ]"/>
-<where label="WR9" expression="SIZEOF (QUERY (prpc &lt;* USEDIN (SELF.formation.of_product,&#10;       'PART_TEMPLATE_2D_SHAPE_MIM.' +&#10;       'PRODUCT_RELATED_PRODUCT_CATEGORY.' +&#10;       'PRODUCTS') |&#10;       prpc\product_category.name = 'template model')) = 1"/>
-</entity>
-<entity name="stratum_specific_part_template_location_in_fd_or_pd" supertypes="assembly_component_usage property_definition">
-<where label="WR1" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\assembly_component_usage ||&#10;       SELF\product_definition_usage ||&#10;       SELF\product_definition_relationship ||&#10;       SELF\stratum_specific_part_template_location_in_fd_or_pd || &#10;       SELF\property_definition)) = 0"/>
-<where label="WR2" expression="SELF\property_definition.name = ''"/>
-<where label="WR3" expression="SELF\property_definition.description = ''"/>
-<where label="WR4" expression="SELF\product_definition_relationship.name = 'part template location in fd or pd'"/>
-<where label="WR5" expression="SELF\product_definition_relationship.description = ''"/>
-</entity>
+<entity name="padstack_definition" supertypes="part_template_definition" super.expression="ONEOF (design_layer_type_specific_padstack_definition, stratum_type_independent_padstack_definition) ANDOR library_padstack_definition ANDOR design_specific_padstack_definition"/>
+<entity name="stratum_specific_part_template_location_in_multi_layer_template_definition" supertypes="assembly_component_usage property_definition"/>
 <entity name="stratum_type_independent_padstack_definition" supertypes="padstack_definition"/>
 </schema>
 </express>

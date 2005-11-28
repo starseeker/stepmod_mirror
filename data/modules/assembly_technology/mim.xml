@@ -2,15 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-11T15:25:55" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="2005-11-28T15:14:12" rcs.revision="1.0" description.file="mim_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_technology_mim schema_instance"/>
 <schema name="Assembly_technology_mim">
 <interface kind="use" schema="Assembly_module_design_mim"/>
 <interface kind="use" schema="Component_grouping_mim"/>
 <interface kind="use" schema="Product_identification_extension_mim"/>
-<interface kind="reference" schema="Physical_unit_usage_view_mim">
-<interfaced.item name="is_assembly_module_design"/>
-</interface>
 <interface kind="reference" schema="product_property_definition_schema">
 <interfaced.item name="acyclic_shape_aspect_relationship"/>
 </interface>
@@ -24,22 +21,9 @@
 <unique label="UR1">
 <unique.attribute entity-ref="shape_aspect" attribute="name"/>
 </unique>
-<where label="WR1" expression="SIZEOF (USEDIN (SELF, &#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1"/>
-<where label="WR2" expression="SIZEOF (QUERY (aga &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'APPLIED_GROUP_ASSIGNMENT.ITEMS') |&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'BOND_CATEGORY' IN&#10;       TYPEOF (aga.assigned_group))) = 1"/>
-<where label="WR3" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name  = 'bonded feature 1' ))  = 1"/>
-<where label="WR4" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name  = 'bonded feature 2' ))  = 1"/>
-<where label="WR5" expression="(('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'EXTERNALLY_DEFINED_PRODUCT_DEFINITION' IN&#10;        TYPEOF (SELF.of_shape.definition))&#10;       AND&#10;       (SIZEOF (QUERY (prpc &lt;* USEDIN (SELF.of_shape.definition.formation.of_product,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'PRODUCT_RELATED_PRODUCT_CATEGORY.' +&#10;       'PRODUCTS') |&#10;       prpc\product_category.name = 'technology specific model')) &gt;= 1))"/>
-<where label="WR6" expression="('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;        'EXTERNALLY_DEFINED_PRODUCT_DEFINITION' IN TYPEOF (SELF.of_shape.definition)) AND&#10;        (SELF.of_shape.definition\product_definition.name='assembly bond model')"/>
 </entity>
 <entity name="assembly_joint" supertypes="component_feature_joint">
-<where label="WR1" expression="(('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'COMPONENT_TERMINAL' IN&#10;       TYPEOF (SELF.relating_shape_aspect)) AND&#10;       (SELF.relating_shape_aspect\shape_aspect.description IN &#10;       ['assembly module component terminal', &#10;       'bare die component terminal',&#10;       'interconnect component join terminal', &#10;       'interconnect module component terminal',  &#10;       'package terminal occurrence', &#10;       'packaged component join terminal'])) OR&#10;       ('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE' IN&#10;       TYPEOF (SELF.relating_shape_aspect)) OR&#10;       ('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'PHYSICAL_COMPONENT_INTERFACE_TERMINAL' IN&#10;       TYPEOF (SELF.relating_shape_aspect)) OR&#10;       ('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'COMPONENT_MOUNTING_FEATURE' IN&#10;       TYPEOF (SELF.relating_shape_aspect))"/>
-<where label="WR2" expression="(('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'COMPONENT_TERMINAL' IN&#10;       TYPEOF (SELF.related_shape_aspect)) AND&#10;       (SELF.related_shape_aspect\shape_aspect.description IN &#10;       ['assembly module component terminal', &#10;       'bare die component terminal', &#10;       'interconnect component join terminal', &#10;       'interconnect module component terminal',  &#10;       'package terminal occurrence', &#10;       'packaged component join terminal'])) OR&#10;       ('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE' IN&#10;       TYPEOF (SELF.relating_shape_aspect)) OR&#10;       ('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'PHYSICAL_COMPONENT_INTERFACE_TERMINAL' IN&#10;       TYPEOF (SELF.related_shape_aspect)) OR&#10;       ('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'COMPONENT_MOUNTING_FEATURE' IN&#10;       TYPEOF (SELF.relating_shape_aspect))"/>
-<where label="WR3" expression="(NOT (SELF\shape_aspect_relationship.name = &#10;       'assembled with bonding')) OR&#10;       (SIZEOF (QUERY (ddu &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'default definition usage') |&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'ASSEMBLY_BOND_DEFINITION' IN&#10;       TYPEOF (ddu.relating_shape_aspect))) = 1)"/>
-<where label="WR4" expression="(NOT (SELF\shape_aspect_relationship.name = &#10;       'assembled with bonding')) OR&#10;       (SIZEOF (QUERY (pd &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'PROPERTY_DEFINITION.DEFINITION') |&#10;       SIZEOF (QUERY (pdr &lt;* USEDIN (pd,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |&#10;       (pdr.used_representation\representation.name = 'bond assembly position') AND&#10;       (SIZEOF (QUERY (it &lt;* pdr.used_representation.items |&#10;       ('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'MAPPED_ITEM' IN TYPEOF (it)) AND&#10;       (it\representation_item.name = 'assembly position'))) = 1))) = 1)) &lt;= 1)"/>
-<where label="WR5" expression="(NOT (SELF\shape_aspect_relationship.name = &#10;       'assembled with fasteners')) OR&#10;       ('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN&#10;       TYPEOF (SELF.of_shape.definition))"/>
-<where label="WR6" expression="('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'ASSEMBLY_GROUP_COMPONENT_DEFINITION' IN&#10;       TYPEOF (SELF.of_shape.definition)) OR&#10;       is_assembly_module_design(SELF.of_shape.definition)"/>
-<where label="WR7" expression="(NOT (SELF\shape_aspect_relationship.name =&#10;       'assembled with bonding')) OR&#10;       (SIZEOF (QUERY (ddu &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'default definition usage') |&#10;       ('ASSEMBLY_TECHNOLOGY_MIM.' +&#10;        'ASSEMBLY_BOND_DEFINITION' IN&#10;       TYPEOF (ddu.relating_shape_aspect)) AND&#10;       (SIZEOF (QUERY (sar &lt;* USEDIN (ddu.relating_shape_aspect,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name  = 'bonded feature 1' ))  = 1)&#10;       AND (SIZEOF (QUERY (sar &lt;* USEDIN (ddu.relating_shape_aspect,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name  = 'bonded feature 1' ))  = 1)&#10;       )) = 1)"/>
-<where label="WR8" expression="acyclic_shape_aspect_relationship(SELF,&#10;       [SELF\shape_aspect_relationship.related_shape_aspect],&#10;       'ASSEMBLY_TECHNOLOGY_MIM.'+&#10;       'ASSEMBLY_JOINT')"/>
+<where label="WR1" expression="acyclic_shape_aspect_relationship(SELF,&#10;       [SELF\shape_aspect_relationship.related_shape_aspect],&#10;       'ASSEMBLY_TECHNOLOGY_MIM.'+&#10;       'ASSEMBLY_JOINT')"/>
 </entity>
 <entity name="component_mating_constraint_condition" supertypes="shape_aspect">
 <unique label="UR1">
@@ -47,14 +31,7 @@
 <unique.attribute entity-ref="shape_aspect" attribute="of_shape"/>
 </unique>
 </entity>
-<entity name="connection_zone_based_assembly_joint" supertypes="assembly_joint">
-<where label="WR1" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'zone 1')) = 1"/>
-<where label="WR2" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'zone 2')) = 1"/>
-<where label="WR3" expression="SIZEOF (QUERY (sar &lt;* USEDIN (SELF,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar.relating_shape_aspect\shape_aspect.description = 'connection zone')) = 2"/>
-</entity>
+<entity name="connection_zone_based_assembly_joint" supertypes="assembly_joint"/>
 <subtype.constraint name="assembly_module_subtypes" entity="physical_unit" super.expression="assembly_definition"/>
-<rule name="default_assembly_bond_shape_constraint" appliesto="shape_representation">
-<where label="WR1" expression="SIZEOF(QUERY(sr &lt;* shape_representation |&#10;       (sr\representation.name = 'default assembly bond shape')&#10;       AND NOT(SIZEOF(QUERY(pdr &lt;* USEDIN(sr,&#10;       'ASSEMBLY_TECHNOLOGY_MIM.'&#10;       + 'PROPERTY_DEFINITION_REPRESENTATION.USED_REPRESENTATION') |&#10;       ('ASSEMBLY_TECHNOLOGY_MIM.'&#10;       + 'SHAPE_ASPECT'&#10;       IN TYPEOF(pdr.definition.definition)))) = 1))) = 0"/>
-</rule>
 </schema>
 </express>

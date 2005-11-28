@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.138 2005/11/24 17:02:31 liutkus Exp $
+   $Id: arm.exp,v 1.139 2005/11/25 16:05:20 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -197,6 +197,15 @@ SCHEMA Layered_interconnect_module_design_arm;
       of_measure_orientation               : measure_orientation;
       datum_reference                      : Stratum_surface;
       bottom_distance_from_datum_reference : Shape_dimension_representation;
+  END_ENTITY;
+
+  ENTITY Breakout_occurrence
+    SUBTYPE OF (footprint_occurrence);
+      SELF\footprint_occurrence.derived_from : Breakout_footprint_definition;
+      associated_footprint : Footprint_occurrence;
+    WHERE
+      WR1: associated_footprint <> SELF;
+      WR2: derived_from.reference_footprint = associated_footprint.derived_from;
   END_ENTITY;
 
   ENTITY Component_termination_passage
@@ -432,51 +441,21 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Footprint_occurrence
-    SUBTYPE OF (Assembly_group_component);
+    SUBTYPE OF (Multi_layer_component);
       SELF\Definition_based_product_occurrence.derived_from : Generic_footprint_definition;
-    WHERE
-      WR1 : SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0;
- 
---this rule had a typo.  it should have been fosar, not posar.  it has been corrected.
-      WR2: SIZEOF(QUERY(agc <* SELF\Assembly_group_component.components |
-      NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc))
-           )) = 0;
-  END_ENTITY;
-
-  ENTITY Breakout_occurrence
-    SUBTYPE OF (footprint_occurrence);
-      SELF\footprint_occurrence.derived_from : Breakout_footprint_definition;
-      associated_footprint : Footprint_occurrence;
-    WHERE
-      WR1: associated_footprint <> SELF;
-      WR2: derived_from.reference_footprint = associated_footprint.derived_from;
   END_ENTITY;
 
   ENTITY Footprint_occurrence_sub_assembly_relationship
-	SUBTYPE OF (Next_assembly_usage_occurence_relationship);  
+	SUBTYPE OF (Multi_layer_component_sub_assembly_relationship);  
       SELF\View_definition_relationship.relating_view                 : Footprint_occurrence;	
-      SELF\View_definition_relationship.related_view                  : Laminate_component;
-      sub_assembly_reference_designation : Part_template_location_in_multi_layer_template_definition;
---terminal location must be optional if item not related to lead      
       terminal_location                  : OPTIONAL Padstack_location_in_footprint_definition;
     UNIQUE
       UR1 : sub_assembly_reference_designation,
- relating_view,
- terminal_location;
+       relating_view,
+       terminal_location;
     WHERE
-      WR1 : NOT EXISTS(terminal_location) OR
-               (terminal_location.footprint :=: relating_view.derived_from);
-      WR2 : NOT EXISTS(terminal_location) OR
-             (NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(sub_assembly_reference_designation.assembly) OR
-               (sub_assembly_reference_designation.padstack :=: terminal_location.padstack)));
-      WR3 : related_view\Definition_based_product_occurrence.derived_from :=: 
-            sub_assembly_reference_designation.template;
-      WR4: NOT EXISTS(SELF\View_definition_relationship.relation_type);
-      WR5: NOT EXISTS(SELF\View_definition_relationship.id);
-      WR6: NOT EXISTS(SELF\Assembly_component_relationship.location_indicator);
-      WR7: NOT EXISTS(SELF\Assembly_component_relationship.quantity);
+      WR1 : NOT EXISTS(terminal_location) OR (terminal_location.footprint :=: relating_view.derived_from);
+      WR2 : NOT EXISTS(terminal_location) OR (sub_assembly_reference_designation.assembly :=: terminal_location.padstack);
   END_ENTITY;
 
   ENTITY Generic_physical_network
@@ -777,6 +756,38 @@ SCHEMA Layered_interconnect_module_design_arm;
       design_intent                                         : stratum_feature_or_stratum_feature_template_component;
   END_ENTITY;
 
+  ENTITY Multi_layer_component
+    ABSTRACT SUPERTYPE OF (ONEOF (Padstack_occurrence, Footprint_occurrence,
+      Special_symbol_occurrence))
+    SUBTYPE OF (Assembly_group_component);
+      SELF\Definition_based_product_occurrence.derived_from : Multi_layer_template_definition;
+    WHERE
+      WR1 : SIZEOF(TYPEOF(SELF) *
+        ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',
+        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',
+        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0;
+      WR2: SIZEOF(QUERY(agc <* SELF\Assembly_group_component.components |
+        NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MULTI_LAYER_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc)))) = 0;
+  END_ENTITY;
+
+  ENTITY Multi_layer_component_sub_assembly_relationship
+    ABSTRACT SUPERTYPE OF (ONEOF (Padstack_occurrence_sub_assembly_relationship,
+      Footprint_occurrence_sub_assembly_relationship,
+      Special_symbol_occurrence_sub_assembly_relationship))
+    SUBTYPE OF (Next_assembly_usage_occurence_relationship);
+      SELF\View_definition_relationship.relating_view : Multi_layer_component;
+      SELF\View_definition_relationship.related_view : Laminate_component;
+      sub_assembly_reference_designation : Part_template_location_in_multi_layer_template_definition;
+    UNIQUE
+      UR1 : sub_assembly_reference_designation, relating_view, related_view;
+    WHERE
+     WR1: NOT EXISTS(SELF\View_definition_relationship.relation_type);
+     WR2: NOT EXISTS(SELF\View_definition_relationship.id);
+     WR3: NOT EXISTS(SELF\Assembly_component_relationship.location_indicator);
+     WR4: NOT EXISTS(SELF\Assembly_component_relationship.quantity);
+     WR5: SELF\View_definition_relationship.related_view\Assembly_component.derived_from :=: sub_assembly_reference_designation.template;
+  END_ENTITY;
+
   ENTITY Multi_layer_material_removal_laminate_component
     SUBTYPE OF (Material_removal_laminate_component);
       derived_layer_geometry : Laminate_layer_stack;
@@ -793,33 +804,16 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Padstack_occurrence
-    SUBTYPE OF (Assembly_group_component);
+    SUBTYPE OF (Multi_layer_component);
       SELF\Definition_based_product_occurrence.derived_from : Padstack_definition;
-    WHERE
-      WR1 : SIZEOF(TYPEOF(SELF) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',
- 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0;
-      WR2: SIZEOF(QUERY(agc <* SELF\Assembly_group_component.components |
-      NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc))
-           )) = 0;
   END_ENTITY;
 
   ENTITY Padstack_occurrence_sub_assembly_relationship
-	SUBTYPE OF (Next_assembly_usage_occurence_relationship);  
+	SUBTYPE OF (Multi_layer_component_sub_assembly_relationship);  
       SELF\View_definition_relationship.relating_view                 : Padstack_occurrence;	
-      SELF\View_definition_relationship.related_view                  : Laminate_component;
-      sub_assembly_reference_designation : Part_template_location_in_multi_layer_template_definition;
-    UNIQUE
-      UR1 : sub_assembly_reference_designation,
- relating_view, --relating_component,
- related_view; --related_component;
     WHERE
-      WR1: NOT EXISTS(SELF\View_definition_relationship.relation_type);
-      WR2: NOT EXISTS(SELF\View_definition_relationship.id);
-      WR3: NOT EXISTS(SELF\Assembly_component_relationship.location_indicator);
-      WR4: NOT EXISTS(SELF\Assembly_component_relationship.quantity);    
---need to qualify the sard
-      WR5: 'PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(sub_assembly_reference_designation.assembly);
+      WR1: 'PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(sub_assembly_reference_designation.assembly);
+      WR2: SELF\View_definition_relationship.relating_view\Assembly_component.derived_from:=: sub_assembly_reference_designation.assembly;
   END_ENTITY;
 
   ENTITY Partially_plated_cutout
@@ -939,6 +933,22 @@ SCHEMA Layered_interconnect_module_design_arm;
       stratum_feature_implementation           				: Stratum_feature;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
+  END_ENTITY;
+
+  ENTITY Special_symbol_occurrence
+    SUBTYPE OF (Multi_layer_component);
+      SELF\Multi_layer_component.derived_from : Special_symbol_definition;
+    WHERE
+      WR1: SIZEOF(QUERY(agc <* SELF\Assembly_group_component.components |
+        NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.SPECIAL_SYMBOL_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP'
+        IN TYPEOF(agc)))) = 0;
+  END_ENTITY;
+
+  ENTITY Special_symbol_occurrence_sub_assembly_relationship
+    SUBTYPE OF (Multi_layer_component_sub_assembly_relationship);
+      SELF\Multi_layer_component_sub_assembly_relationship.relating_view : Special_symbol_occurrence;
+    WHERE
+      WR1: SELF\View_definition_relationship.relating_view\Assembly_component.derived_from:=: sub_assembly_reference_designation.assembly;  
   END_ENTITY;
 
   ENTITY Stratum

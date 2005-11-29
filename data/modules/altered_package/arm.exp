@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.16 2005/09/26 14:59:24 kovaliovas Exp $
+   $Id: arm.exp,v 1.17 2005/11/16 07:43:51 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3282 - ISO/CD-TS 10303-1601 Altered package - EXPRESS ARM
 *)
 
@@ -47,8 +47,17 @@ SCHEMA Altered_package_arm;
 
   ENTITY Length_trimmed_terminal
     SUBTYPE OF (Altered_package_terminal);
-      maximum_trimmed_length : Length_data_element;
-      minimum_trimmed_length : Length_data_element;
+      trimmed_length : Tolerance_characteristic;
+    WHERE
+      WR1 : (TYPEOF(trimmed_length) = 'CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC') OR
+        (TYPEOF(trimmed_length) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* trimmed_length\Representation.items |
+          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(trimmed_length\Representation.items))
+         )) = 0);
+      WR2 : NOT(TYPEOF(trimmed_length) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* trimmed_length\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(trimmed_length\Representation.items))
+           )) = 1);
   END_ENTITY;
 
   ENTITY Shape_formed_terminal

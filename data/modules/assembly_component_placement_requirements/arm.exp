@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.28 2005/11/15 11:39:12 liutkus Exp $
+   $Id: arm.exp,v 1.29 2005/11/16 07:43:51 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3291 - ISO/CD-TS 10303-1634 Assembly component placement requirements - EXPRESS ARM
 *)
 
@@ -99,10 +99,18 @@ END_TYPE;
       volume                            : OPTIONAL Mounting_restriction_volume;
       requirement                       : Item_restricted_requirement_occurrence;
       components_permitted              : BOOLEAN;
-      maximum_mounting_clearance        : OPTIONAL Datum_based_length_measure;
-      minimum_mounting_clearance        : OPTIONAL Datum_based_length_measure;
+      mounting_clearance                : Tolerance_characteristic;
     WHERE
       WR1 : EXISTS(area) OR EXISTS(volume);
+      WR2 : (TYPEOF(mounting_clearance) = 'CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC') OR
+        (TYPEOF(mounting_clearance) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* mounting_clearance\Representation.items |
+          NOT('EXTENDED_GEOMETRIC_TOLERANCE_ARM.DATUM_BASED_LENGTH_MEASURE' IN TYPEOF(mounting_clearance\Representation.items))
+         )) = 0);
+      WR3 : NOT(TYPEOF(mounting_clearance) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* mounting_clearance\Representation.items |
+        ('EXTENDED_GEOMETRIC_TOLERANCE_ARM.DATUM_BASED_LENGTH_MEASURE' IN TYPEOF(mounting_clearance\Representation.items))
+           )) = 1);
   END_ENTITY;
 
   ENTITY Item_restricted_requirement_occurrence

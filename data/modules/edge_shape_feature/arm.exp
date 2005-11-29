@@ -1,19 +1,36 @@
 (*
-   $Id: arm.exp,v 1.8 2005/11/16 07:43:51 kovaliovas Exp $
+   $Id: arm.exp,v 1.9 2005/11/17 22:22:02 liutkus Exp $
    ISO TC184/SC4/WG12 N3414 - ISO/CD-TS 10303-1673 Edge shape feature - EXPRESS ARM
 *)
 
 SCHEMA Edge_shape_feature_arm;
 
 	USE FROM Layered_2d_shape_arm;	-- ISO/TS 10303-1693
-	USE FROM Value_with_unit_extension_arm;	-- ISO/TS 10303-1753	
+	USE FROM Characteristic_arm;	-- ISO/TS 10303-1654	
 
   ENTITY Bevel_edge_feature_shape
     SUBTYPE OF (Edge_shape);
-      minimum_bevel_width : Length_data_element;
-      minimum_bevel_angle : Angle_data_element;
-      maximum_bevel_width : Length_data_element;
-      maximum_bevel_angle : Angle_data_element;
+      bevel_width : Tolerance_characteristic;
+      bevel_angle : Tolerance_characteristic;
+    WHERE
+      WR1 : (TYPEOF(bevel_width) = 'CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC') OR
+        (TYPEOF(bevel_width) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* bevel_width\Representation.items |
+          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(bevel_width\Representation.items))
+         )) = 0);
+      WR2 : NOT(TYPEOF(bevel_width) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* bevel_width\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(bevel_width\Representation.items))
+           )) = 1);
+      WR3 : (TYPEOF(bevel_angle) = 'CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC') OR
+        (TYPEOF(bevel_angle) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* bevel_angle\Representation.items |
+          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(bevel_angle\Representation.items))
+         )) = 0);
+      WR4 : NOT(TYPEOF(bevel_angle) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* bevel_angle\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(bevel_angle\Representation.items))
+           )) = 1);
   END_ENTITY;
 
   ENTITY Edge_shape
@@ -29,16 +46,42 @@ SCHEMA Edge_shape_feature_arm;
 
   ENTITY Radius_edge_feature_shape
     SUBTYPE OF (Edge_shape);
-      minimum_radius_length : Length_data_element;
-      maximum_radius_length : Length_data_element;
+      radius_length : Tolerance_characteristic;
+    WHERE  
+      WR1 : (TYPEOF(radius_length) = 'CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC') OR
+        (TYPEOF(radius_length) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* radius_length\Representation.items |
+          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(radius_length\Representation.items))
+         )) = 0);
+      WR2 : NOT(TYPEOF(radius_length) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* radius_length\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(radius_length\Representation.items))
+           )) = 1);
   END_ENTITY;
 
   ENTITY Step_edge_feature_shape
     SUBTYPE OF (Edge_shape);
-      minimum_step_width : Length_data_element;
-      maximum_step_width : Length_data_element;
-      maximum_step_depth : Length_data_element;
-      minimum_step_depth : Length_data_element;
+      step_width : Tolerance_characteristic;
+      step_depth : Tolerance_characteristic;
+    WHERE  
+      WR1 : (TYPEOF(step_width) = 'CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC') OR
+        (TYPEOF(step_width) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* step_width\Representation.items |
+          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(step_width\Representation.items))
+         )) = 0);
+      WR2 : NOT(TYPEOF(step_width) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* step_width\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(step_width\Representation.items))
+           )) = 1);
+      WR3 : (TYPEOF(step_depth) = 'CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC') OR
+        (TYPEOF(step_depth) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* step_depth\Representation.items |
+          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(step_depth\Representation.items))
+         )) = 0);
+      WR4 : NOT(TYPEOF(step_depth) = 'CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC') OR
+        (SIZEOF(QUERY(it <* step_depth\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(step_depth\Representation.items))
+           )) = 1);
   END_ENTITY;
 
 END_SCHEMA;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-25T14:21:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2005/11/29 13:41:21 $" rcs.revision="$Revision: 1.21 $" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_2d_shape_arm schema_instance"/>
 <schema name="Part_template_2d_shape_arm">
 <interface kind="use" schema="Component_grouping_arm"/>
@@ -75,7 +75,7 @@
 <where label="WR2" expression="NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',&#10;                         'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR &#10;                ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit))"/>
 <where label="WR3" expression="NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',&#10;                         'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR &#10;            NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit)) OR&#10;            NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(shape_characterized_definition)) OR      &#10;                 (shape_characterized_definition\Footprint_definition.reference_package :=: &#10;                  reference_shape\Part_template_shape_model.shape_characterized_part_template)"/>
 <where label="WR4" expression="NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',&#10;                         'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR &#10;                ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' &#10;                   IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_part_template))"/>
-<where label="WR5" expression="SIZEOF(USEDIN(SELF, 'LAYERED_2D_SHAPE_ARM.REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.RELATED_FEATURE_SHAPE')) = 0"/>
+<where label="WR5" expression="SIZEOF(USEDIN(SELF, 'EXTENDED_BASIC_GEOMETRY_ARM.REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.RELATED_FEATURE_SHAPE')) = 0"/>
 <where label="WR6" expression="NOT EXISTS(SELF\Representation.description)"/>
 </entity>
 <entity name="Generic_footprint_definition" abstract.supertype="YES" supertypes="Multi_layer_template_definition" super.expression="ONEOF (Footprint_definition, Breakout_footprint_definition)">
@@ -131,7 +131,7 @@
 <unique label="UR1">
 <unique.attribute attribute="shape_characterized_definition"/>
 </unique>
-<where label="WR1" expression="(SIZEOF(USEDIN(SELF, 'LAYERED_2D_SHAPE_ARM.' +&#10;      'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0)"/>
+<where label="WR1" expression="(SIZEOF(USEDIN(SELF, 'EXTENDED_BASIC_GEOMETRY_ARM.' +&#10;      'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0)"/>
 </entity>
 <entity name="Padstack_definition" supertypes="Multi_layer_template_definition" super.expression="ONEOF (Design_layer_type_specific_padstack_definition, Stratum_type_independent_padstack_definition) ANDOR Library_padstack_definition ANDOR Design_specific_padstack_definition">
 <explicit name="padstack_location">
@@ -150,7 +150,7 @@
 <unique label="UR1">
 <unique.attribute attribute="shape_characterized_definition"/>
 </unique>
-<where label="WR1" expression="(SIZEOF(USEDIN(SELF,&#10; 'LAYERED_2D_SHAPE_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0)"/>
+<where label="WR1" expression="(SIZEOF(USEDIN(SELF,&#10; 'EXTENDED_BASIC_GEOMETRY_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0)"/>
 <where label="WR2" expression="NOT EXISTS(SELF\Representation.description)"/>
 </entity>
 <entity name="Padstack_location_in_footprint_definition">
@@ -289,7 +289,7 @@
 <typename name="stratum_technology_occurrence_or_stratum_technology"/>
 </explicit>
 <where label="WR1" expression="SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE',&#10;                   'FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE',&#10;                   'PART_TEMPLATE_2D_SHAPE_ARM.SPECIAL_SYMBOL_DEFINITION'] * TYPEOF(template)) = 1"/>
-<where label="WR2" expression="NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1 OR&#10;             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))&#10;              AND&#10;              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)))"/>
+<where label="WR2" expression="NOT(SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1) OR&#10;             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))&#10;              AND&#10;              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)))"/>
 <where label="WR3" expression="NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1 OR&#10;             ((NOT SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))&#10;              AND&#10;              (NOT SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM'] * TYPEOF(bound_stratum)) = 1 OR&#10;               (SIZEOF(QUERY(st &lt;* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum\Stratum.of_technology)) = 1)))"/>
 <where label="WR6" expression="NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM' IN TYPEOF(bound_stratum)) OR&#10;           NOT EXISTS(bound_stratum\Documentation_layer_stratum.of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose) OR&#10;           NOT (bound_stratum\Documentation_layer_stratum.of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR&#10;          ('FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))"/>
 </entity>

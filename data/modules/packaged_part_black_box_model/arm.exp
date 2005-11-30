@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.23 2005/09/27 09:47:22 kovaliovas Exp $
+   $Id: arm.exp,v 1.24 2005/10/12 08:52:23 liutkus Exp $
    ISO TC184/SC4/WG12 N3345 - ISO/CD-TS 10303-1710 Packaged part black box model - EXPRESS ARM
 *)
 
@@ -49,6 +49,23 @@ SCHEMA Packaged_part_black_box_model_arm;
       WR1 : disjoint_package_terminals(SELF);
       WR2 : NOT EXISTS(SELF\Part_feature.precedent_feature);
   END_ENTITY;
+
+  FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+  END_FUNCTION;
 
   FUNCTION disjoint_package_terminals(
     input : Packaged_part_terminal

@@ -1,7 +1,6 @@
 (*
-   $Id: checkModuleMain.js,v 1.16 2005/03/09 01:07:43 thendrix Exp $
- ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-1264 Risk - EXPRESS MIM
-*)
+ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-1264 Risk - EXPRESS MIM
+*) 
 
 
 SCHEMA Risk_mim;
@@ -20,11 +19,15 @@ USE FROM Condition_mim;    -- ISO/TS 10303-1253
 
 USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
 
+USE FROM Document_assignment_mim;    -- ISO/TS 10303-1122
+
 USE FROM Event_mim;    -- ISO/TS 10303-1064
 
 USE FROM Justification_mim;    -- ISO/TS 10303-1263
 
 USE FROM Person_organization_assignment_mim;    -- ISO/TS 10303-1013
+
+USE FROM Person_organization_mim;    -- ISO/TS 10303-1011
 
 USE FROM Probability_distribution_mim;    -- ISO/TS 10303-1274
 
@@ -40,7 +43,11 @@ USE FROM Property_assignment_mim;    -- ISO/TS 10303-1030
 USE FROM representation_schema   -- ISO 10303-43
   (representation); 
 
+USE FROM Resource_item_mim;    -- ISO/TS 10303-1268
+
 USE FROM risk_schema; 
+Error IF-3: The reference parameter for risk_schema has not been specified. Add @reference (e.g. ISO 10303-***) to data/resources/risk_schema/risk_schema.xml.
+
 
 USE FROM State_definition_mim;    -- ISO/TS 10303-1255
 
@@ -72,18 +79,23 @@ END_TYPE;
 TYPE risk_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and_time_item WITH 
    (applied_risk_classification_assignment, 
     risk, 
+    risk_analysis, 
+    risk_assessment, 
     risk_attitude, 
+    risk_communication, 
     risk_consequence, 
     risk_context, 
+    risk_control, 
     risk_criteria, 
     risk_criteria_assignment, 
     risk_evaluation, 
+    risk_evaluation, 
+    risk_identification, 
     risk_impact_assignment, 
     risk_perception, 
     risk_perception_relationship, 
     risk_probability, 
     risk_probability_assignment, 
-    risk_profile, 
     risk_reduction, 
     risk_relationship, 
     risk_source_assignment, 
@@ -94,23 +106,34 @@ END_TYPE;
 TYPE risk_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH 
    (applied_risk_classification_assignment, 
     risk, 
+    risk_analysis, 
+    risk_assessment, 
     risk_attitude, 
+    risk_communication, 
     risk_consequence, 
     risk_context, 
+    risk_control, 
     risk_criteria, 
     risk_criteria_assignment, 
     risk_evaluation, 
+    risk_evaluation, 
+    risk_identification, 
     risk_impact_assignment, 
     risk_perception, 
     risk_perception_relationship, 
     risk_probability, 
     risk_probability_assignment, 
-    risk_profile, 
     risk_reduction, 
     risk_relationship, 
     risk_source_assignment, 
     risk_status, 
     risk_treatment);
+END_TYPE; 
+
+TYPE risk_documented_element_select = SELECT BASED_ON documented_element_select WITH 
+   (risk, 
+    risk_criteria, 
+    risk_source_assignment);
 END_TYPE; 
 
 TYPE risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT;
@@ -123,18 +146,23 @@ END_TYPE;
 TYPE risk_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH 
    (applied_risk_classification_assignment, 
     risk, 
+    risk_analysis, 
+    risk_assessment, 
     risk_attitude, 
+    risk_communication, 
     risk_consequence, 
     risk_context, 
+    risk_control, 
     risk_criteria, 
     risk_criteria_assignment, 
     risk_evaluation, 
+    risk_evaluation, 
+    risk_identification, 
     risk_impact_assignment, 
     risk_perception, 
     risk_perception_relationship, 
     risk_probability, 
     risk_probability_assignment, 
-    risk_profile, 
     risk_reduction, 
     risk_relationship, 
     risk_source_assignment, 
@@ -145,22 +173,40 @@ END_TYPE;
 TYPE risk_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH 
    (applied_risk_classification_assignment, 
     risk, 
+    risk_analysis, 
+    risk_assessment, 
     risk_attitude, 
+    risk_communication, 
     risk_consequence, 
     risk_context, 
+    risk_control, 
     risk_criteria, 
     risk_criteria_assignment, 
     risk_evaluation, 
+    risk_evaluation, 
+    risk_identification, 
     risk_impact_assignment, 
     risk_perception, 
     risk_perception_relationship, 
     risk_probability, 
     risk_probability_assignment, 
-    risk_profile, 
     risk_reduction, 
     risk_relationship, 
     risk_source_assignment, 
     risk_status, 
+    risk_treatment);
+END_TYPE; 
+
+TYPE risk_resource_assignment_item = EXTENSIBLE SELECT BASED_ON resource_assignment_item WITH 
+   (applied_risk_source_assignment, 
+    risk_analysis, 
+    risk_assessment, 
+    risk_communication, 
+    risk_control, 
+    risk_estimation, 
+    risk_evaluation, 
+    risk_identification, 
+    risk_reduction, 
     risk_treatment);
 END_TYPE; 
 
@@ -183,8 +229,7 @@ ENTITY applied_risk_source_assignment
 END_ENTITY;
 
 ENTITY risk_attitude;
-  name : STRING;
-  description : OPTIONAL STRING;
+  criticality_factor : NUMBER;
 END_ENTITY;
 
 ENTITY risk_characterized_object
@@ -193,7 +238,7 @@ END_ENTITY;
 
 ENTITY risk_level
   SUBTYPE OF (risk_perception);
-  criticality_factor : risk_attitude;
+  risk_attitude : risk_attitude;
   risk_objective : risk_objective;
 END_ENTITY;
 
@@ -205,12 +250,6 @@ END_ENTITY;
 
 ENTITY risk_objective
   SUBTYPE OF (risk_context);
-END_ENTITY;
-
-ENTITY risk_profile;
-  name : STRING;
-  description : OPTIONAL STRING;
-  history : SET[2:?] OF risk_status;
 END_ENTITY;
 
 ENTITY risk_relationship_characterized_object

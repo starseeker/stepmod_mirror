@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2005/11/29 13:41:21 $" rcs.revision="$Revision: 1.21 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
 <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
 <schema name="Fabrication_technology_arm">
 <interface kind="use" schema="Physical_layout_template_arm"/>
@@ -43,6 +43,40 @@
 <type name="stiffness_class">
 <enumeration items="fluid_like conformal_coat stiff_laminate"/>
 </type>
+<entity name="Component_termination_passage_template" supertypes="Inter_stratum_feature_template">
+<explicit name="of_passage_technology">
+<typename name="Default_component_termination_passage_definition"/>
+<redeclaration entity-ref="Inter_stratum_feature_template"/>
+</explicit>
+<inverse name="access_mechanisms" entity="Component_termination_passage_template_terminal" attribute="associated_definition">
+<inverse.aggregate type="SET" lower="2" upper="?"/>
+</inverse>
+</entity>
+<entity name="Component_termination_passage_template_interface_terminal" supertypes="Component_termination_passage_template_terminal"/>
+<entity name="Component_termination_passage_template_join_terminal" supertypes="Component_termination_passage_template_terminal">
+<explicit name="disallowed_inter_stratum_extent" optional="YES">
+<aggregate type="SET" lower="1" upper="?"/>
+<typename name="Stratum_technology_occurrence_link"/>
+</explicit>
+</entity>
+<entity name="Component_termination_passage_template_terminal" abstract.supertype="YES" supertypes="Placed_feature" super.expression="ONEOF (Component_termination_passage_template_interface_terminal, Component_termination_passage_template_join_terminal)">
+<explicit name="associated_definition">
+<typename name="Component_termination_passage_template"/>
+<redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
+</explicit>
+<explicit name="terminal_connection_zone" optional="YES">
+<aggregate type="SET" lower="1" upper="?"/>
+<typename name="Connection_zone_in_layout_template"/>
+</explicit>
+<inverse name="terminal_shape" entity="Geometric_model_constituent_relationship" attribute="constituent_element">
+<inverse.aggregate type="SET" lower="0" upper="1"/>
+</inverse>
+<unique label="UR1">
+<unique.attribute entity-ref="Shape_element" attribute="element_name"/>
+<unique.attribute attribute="associated_definition"/>
+</unique>
+<where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
+</entity>
 <entity name="Default_attachment_size_based_land_physical_template" supertypes="Land_physical_template">
 <explicit name="minimum_attachment_region_size" optional="YES">
 <typename name="Connection_zone_in_layout_template"/>
@@ -171,6 +205,12 @@
 <typename name="Layout_spacing_requirement_occurrence"/>
 </explicit>
 </entity>
+<entity name="Inter_stratum_feature_template" supertypes="Template_definition">
+<explicit name="of_passage_technology">
+<typename name="Passage_technology"/>
+</explicit>
+<where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+</entity>
 <entity name="Land_physical_template" supertypes="Stratum_feature_template" super.expression="Default_attachment_size_based_land_physical_template">
 <explicit name="of_stratum_technology" optional="YES">
 <aggregate type="SET" lower="1" upper="?"/>
@@ -256,6 +296,7 @@
 <typename name="Tolerance_characteristic"/>
 </explicit>
 <explicit name="as_finished_inter_stratum_extent">
+<aggregate type="SET" lower="1" upper="?"/>
 <typename name="Stratum_technology_occurrence_link"/>
 </explicit>
 <explicit name="as_finished_passage_extent" optional="YES">
@@ -338,24 +379,6 @@
 <where label="WR2" expression="NOT (layer_position = layer_position_type.secondary) OR ('FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF))"/>
 <where label="WR3" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (stratum_material)"/>
 </entity>
-<entity name="Stratum_technology_link">
-<explicit name="precedent_stratum_technology">
-<typename name="Stratum_technology"/>
-</explicit>
-<explicit name="subsequent_stratum_technology">
-<typename name="Stratum_technology"/>
-</explicit>
-<explicit name="precedent_stratum_technology_link" optional="YES">
-<typename name="Stratum_technology_link"/>
-</explicit>
-<unique label="UR1">
-<unique.attribute attribute="precedent_stratum_technology"/>
-<unique.attribute attribute="subsequent_stratum_technology"/>
-</unique>
-<where label="WR1" expression="precedent_stratum_technology :&lt;&gt;: subsequent_stratum_technology"/>
-<where label="WR2" expression="NOT (EXISTS(precedent_stratum_technology_link)) OR (precedent_stratum_technology_link :&lt;&gt;: SELF)"/>
-<where label="WR3" expression="NOT EXISTS(precedent_stratum_technology_link) OR (precedent_stratum_technology_link.subsequent_stratum_technology :=: precedent_stratum_technology)"/>
-</entity>
 <entity name="Stratum_technology_occurrence">
 <explicit name="name">
 <builtintype type="STRING"/>
@@ -364,7 +387,7 @@
 <typename name="Stratum_technology"/>
 </explicit>
 <explicit name="scope">
-<typename name="Passage_technology"/>
+<typename name="Stratum_stack_model"/>
 </explicit>
 <unique label="UR1">
 <unique.attribute attribute="name"/>
@@ -380,7 +403,11 @@
 <explicit name="subsequent_sto">
 <typename name="Stratum_technology_occurrence"/>
 </explicit>
+<derived name="scope" expression="precedent_sto.scope">
+<typename name="Stratum_stack_model"/>
+</derived>
 <where label="WR1" expression="precedent_sto &lt;&gt; subsequent_sto"/>
+<where label="WR2" expression="precedent_sto.scope = subsequent_sto.scope"/>
 <where label="IP1"/>
 </entity>
 <entity name="Stratum_technology_swap_relationship">
@@ -402,6 +429,43 @@
 <where label="WR4" expression="secondary_stratum_technology\Stratum_technology.layer_position = secondary"/>
 <where label="WR5" expression="primary_stratum_technology &lt;&gt; secondary_stratum_technology"/>
 </entity>
+<entity name="Unsupported_passage_template" supertypes="Inter_stratum_feature_template">
+<explicit name="of_passage_technology">
+<typename name="Default_unsupported_passage_definition"/>
+<redeclaration entity-ref="Inter_stratum_feature_template"/>
+</explicit>
+</entity>
+<entity name="Via_template" supertypes="Inter_stratum_feature_template">
+<explicit name="of_passage_technology">
+<typename name="Default_via_definition"/>
+<redeclaration entity-ref="Inter_stratum_feature_template"/>
+</explicit>
+<inverse name="access_mechanisms" entity="Via_template_terminal" attribute="associated_definition">
+<inverse.aggregate type="SET" lower="2" upper="?"/>
+</inverse>
+</entity>
+<entity name="Via_template_terminal" supertypes="Placed_feature">
+<explicit name="associated_definition">
+<typename name="Via_template"/>
+<redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
+</explicit>
+<explicit name="disallowed_inter_stratum_extent" optional="YES">
+<typename name="Stratum_technology_occurrence_link"/>
+</explicit>
+<explicit name="terminal_connection_zone" optional="YES">
+<aggregate type="SET" lower="1" upper="?"/>
+<typename name="Connection_zone_in_layout_template"/>
+</explicit>
+<inverse name="feature_shape" entity="Geometric_model_constituent_relationship" attribute="constituent_element">
+<inverse.aggregate type="SET" lower="0" upper="1"/>
+<redeclaration entity-ref="Placed_feature"/>
+</inverse>
+<unique label="UR1">
+<unique.attribute entity-ref="Shape_element" attribute="element_name"/>
+<unique.attribute attribute="associated_definition"/>
+</unique>
+<where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
+</entity>
 <subtype.constraint name="ft_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Material_removal_feature_template, Stratum_feature_template)"/>
 <function name="get_electrical_conductivity">
 <parameter name="mi">
@@ -419,6 +483,16 @@
 	  END_IF;
 	END_REPEAT;
 	RETURN (FALSE);</algorithm>
+</function>
+<function name="less">
+<parameter name="input1">
+<typename name="Tolerance_characteristic"/>
+</parameter>
+<parameter name="input2">
+<typename name="Tolerance_characteristic"/>
+</parameter>
+<builtintype type="BOOLEAN"/>
+<algorithm>RETURN(TRUE);</algorithm>
 </function>
 </schema>
 </express>

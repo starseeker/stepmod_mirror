@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.44 2005/11/29 14:05:05 liutkus Exp $
+   $Id: arm.exp,v 1.45 2005/11/30 16:32:20 liutkus Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -174,6 +174,37 @@ SCHEMA Fabrication_technology_arm;
      stiff_laminate);
   END_TYPE;
 
+  ENTITY Component_termination_passage_template
+    SUBTYPE OF (Inter_stratum_feature_template);
+      SELF\Inter_stratum_feature_template.of_passage_technology : Default_component_termination_passage_definition;
+    INVERSE
+      access_mechanisms : SET[2:?] OF component_termination_passage_template_terminal FOR associated_definition;
+  END_ENTITY;
+
+  ENTITY Component_termination_passage_template_interface_terminal
+    SUBTYPE OF (Component_termination_passage_template_terminal);
+  END_ENTITY;
+
+  ENTITY Component_termination_passage_template_join_terminal
+    SUBTYPE OF (Component_termination_passage_template_terminal);
+      disallowed_inter_stratum_extent : OPTIONAL SET[1:?] OF Stratum_technology_occurrence_link;
+  END_ENTITY;
+
+  ENTITY Component_termination_passage_template_terminal
+    ABSTRACT SUPERTYPE OF (ONEOF (Component_termination_passage_template_interface_terminal,
+ Component_termination_passage_template_join_terminal))
+    SUBTYPE OF (Placed_feature);
+      SELF\Shape_element.containing_shape RENAMED associated_definition    : Component_termination_passage_template;
+      terminal_connection_zone : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
+    INVERSE
+      terminal_shape : SET[0:1] OF geometric_model_constituent_relationship FOR constituent_element;
+    UNIQUE
+      UR1 : SELF\Shape_element.element_name,
+ associated_definition;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
+  END_ENTITY;
+
   ENTITY Default_attachment_size_based_land_physical_template
     SUBTYPE OF (Land_physical_template);
       minimum_attachment_region_size : OPTIONAL Connection_zone_in_layout_template;
@@ -294,6 +325,13 @@ SCHEMA Fabrication_technology_arm;
       electrical_isolation_spacing_requirement : Layout_spacing_requirement_occurrence;
   END_ENTITY;
 
+  ENTITY Inter_stratum_feature_template
+    SUBTYPE OF (Template_definition);
+      of_passage_technology : Passage_technology;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Product_view_definition.name);
+  END_ENTITY;
+
   ENTITY Land_physical_template
     SUPERTYPE OF (Default_attachment_size_based_land_physical_template)
     SUBTYPE OF (Stratum_feature_template);
@@ -366,7 +404,7 @@ SCHEMA Fabrication_technology_arm;
  			Default_unsupported_passage_definition));
       name                              : STRING;
       as_finished_deposition_thickness  : OPTIONAL Tolerance_characteristic;
-      as_finished_inter_stratum_extent	: Stratum_technology_occurrence_link;      
+      as_finished_inter_stratum_extent	: SET[1:?] OF Stratum_technology_occurrence_link;      
       as_finished_passage_extent        : OPTIONAL Tolerance_characteristic;      
       maximum_aspect_ratio              : OPTIONAL REAL;      
       plated_passage                    : BOOLEAN;
@@ -455,23 +493,10 @@ SCHEMA Fabrication_technology_arm;
 	  WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (stratum_material);
   END_ENTITY;
 
-  ENTITY Stratum_technology_link;
-      precedent_stratum_technology      : Stratum_technology;
-      subsequent_stratum_technology     : Stratum_technology;
-      precedent_stratum_technology_link : OPTIONAL Stratum_technology_link;
-    UNIQUE
-      UR1 : precedent_stratum_technology,
- subsequent_stratum_technology;
-    WHERE
-      WR1 : precedent_stratum_technology :<>: subsequent_stratum_technology;
-      WR2 : NOT (EXISTS(precedent_stratum_technology_link)) OR (precedent_stratum_technology_link :<>: SELF);
-      WR3 : NOT EXISTS(precedent_stratum_technology_link) OR (precedent_stratum_technology_link.subsequent_stratum_technology :=: precedent_stratum_technology);
-  END_ENTITY;
-
   ENTITY Stratum_technology_occurrence;
     name       : STRING; 
     definition : Stratum_technology;
-    scope      : Passage_technology;
+    scope      : Stratum_stack_model;
   UNIQUE
     UR1: name, scope;  
    --also don't want to disallow multiple references to one stratum_technology!
@@ -485,8 +510,11 @@ SCHEMA Fabrication_technology_arm;
   ENTITY Stratum_technology_occurrence_link;
     precedent_sto  : Stratum_technology_occurrence;
     subsequent_sto : Stratum_technology_occurrence;
+  DERIVE  
+    scope          : Stratum_stack_model := precedent_sto.scope;
   WHERE
-   WR1: precedent_sto <> subsequent_sto;
+   WR1 : precedent_sto <> subsequent_sto;
+   WR2 : precedent_sto.scope = subsequent_sto.scope;
 --  IPs
 --  IP1: acyclic stos
   END_ENTITY;
@@ -506,6 +534,36 @@ SCHEMA Fabrication_technology_arm;
     WR3: primary_stratum_technology\Stratum_technology.layer_position = primary;
     WR4: secondary_stratum_technology\Stratum_technology.layer_position = secondary;
     WR5: primary_stratum_technology <> secondary_stratum_technology;
+  END_ENTITY;
+
+  ENTITY Unsupported_passage_template
+(*  
+    SUPERTYPE OF (ONEOF (Counterbore_passage_template,
+ Countersunk_passage_template,
+ Blind_passage_template)) *)
+    SUBTYPE OF (Inter_stratum_feature_template);
+      SELF\Inter_stratum_feature_template.of_passage_technology : Default_unsupported_passage_definition;
+  END_ENTITY;
+
+  ENTITY Via_template
+    SUBTYPE OF (Inter_stratum_feature_template);
+      SELF\Inter_stratum_feature_template.of_passage_technology : Default_via_definition;
+    INVERSE
+      access_mechanisms : SET[2:?] OF via_template_terminal FOR containing_shape;
+  END_ENTITY;
+
+  ENTITY Via_template_terminal
+    SUBTYPE OF (Placed_feature);
+      SELF\Shape_element.containing_shape RENAMED associated_definition : Via_template;
+      disallowed_inter_stratum_extent                                   : OPTIONAL SET [1:?] OF Stratum_technology_occurrence_link;
+      terminal_connection_zone                                          : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
+    INVERSE
+      SELF\Placed_feature.feature_shape : SET[0:1] OF geometric_model_constituent_relationship FOR constituent_element;
+    UNIQUE
+      UR1 : SELF\Shape_element.element_name,
+ associated_definition;
+    WHERE
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
 FUNCTION get_electrical_conductivity

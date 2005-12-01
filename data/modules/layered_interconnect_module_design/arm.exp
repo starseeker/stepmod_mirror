@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.141 2005/11/29 14:05:06 liutkus Exp $
+   $Id: arm.exp,v 1.142 2005/11/30 16:32:20 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -56,6 +56,12 @@ SCHEMA Layered_interconnect_module_design_arm;
 		(ONEOF (Part_usage_view,
 		Part_design_view,
 		Stratum));
+	END_SUBTYPE_CONSTRAINT; 
+
+	SUBTYPE_CONSTRAINT limd_unsupported_passage_template_subtypes FOR Unsupported_passage_template; 
+		(ONEOF (Counterbore_passage_template,
+ Countersunk_passage_template,
+ Blind_passage_template));
 	END_SUBTYPE_CONSTRAINT; 
 
 	SUBTYPE_CONSTRAINT template_definition_subtypes FOR Template_definition; 
@@ -228,37 +234,6 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Laminate_component_join_terminal);
       SELF\Component_feature.definition           : Component_termination_passage_template_join_terminal;
       SELF\Component_feature.associated_component : Component_termination_passage;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Shape_element.description);
-  END_ENTITY;
-
-  ENTITY Component_termination_passage_template
-    SUBTYPE OF (Inter_stratum_feature_template);
-      SELF\Inter_stratum_feature_template.of_passage_technology : Default_component_termination_passage_definition;
-    INVERSE
-      access_mechanisms : SET[2:?] OF component_termination_passage_template_terminal FOR associated_definition;
-  END_ENTITY;
-
-  ENTITY Component_termination_passage_template_interface_terminal
-    SUBTYPE OF (Component_termination_passage_template_terminal);
-  END_ENTITY;
-
-  ENTITY Component_termination_passage_template_join_terminal
-    SUBTYPE OF (Component_termination_passage_template_terminal);
-      disallowed_inter_stratum_extent : OPTIONAL SET[1:?] OF Inter_stratum_extent;
-  END_ENTITY;
-
-  ENTITY Component_termination_passage_template_terminal
-    ABSTRACT SUPERTYPE OF (ONEOF (Component_termination_passage_template_interface_terminal,
- Component_termination_passage_template_join_terminal))
-    SUBTYPE OF (Placed_feature);
-      SELF\Shape_element.containing_shape RENAMED associated_definition    : Component_termination_passage_template;
-      terminal_connection_zone : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
-    INVERSE
-      terminal_shape : SET[0:1] OF geometric_model_constituent_relationship FOR constituent_element;
-    UNIQUE
-      UR1 : SELF\Shape_element.element_name,
- associated_definition;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
@@ -490,13 +465,6 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Laminate_component);
       feature_of_size                          : BOOLEAN;
       SELF\Definition_based_product_occurrence.derived_from : Inter_stratum_feature_template;
-  END_ENTITY;
-
-  ENTITY Inter_stratum_feature_template
-    SUBTYPE OF (Template_definition);
-      of_passage_technology : Passage_technology;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
   ENTITY Inter_stratum_join_relationship
@@ -1089,39 +1057,10 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
-  ENTITY Unsupported_passage_template
-    SUPERTYPE OF (ONEOF (Counterbore_passage_template,
- Countersunk_passage_template,
- Blind_passage_template))
-    SUBTYPE OF (Inter_stratum_feature_template);
-      SELF\Inter_stratum_feature_template.of_passage_technology : Default_unsupported_passage_definition;
-  END_ENTITY;
-
   ENTITY Via
     ABSTRACT SUPERTYPE
     SUBTYPE OF (Plated_passage);
       SELF\Definition_based_product_occurrence.derived_from : Via_template;
-  END_ENTITY;
-
-  ENTITY Via_template
-    SUBTYPE OF (Inter_stratum_feature_template);
-      SELF\Inter_stratum_feature_template.of_passage_technology : Default_via_definition;
-    INVERSE
-      access_mechanisms : SET[2:?] OF via_template_terminal FOR containing_shape;
-  END_ENTITY;
-
-  ENTITY Via_template_terminal
-    SUBTYPE OF (Placed_feature);
-      SELF\Shape_element.containing_shape RENAMED associated_definition : Via_template;
-      disallowed_inter_stratum_extent                                   : OPTIONAL Inter_stratum_extent;
-      terminal_connection_zone                                          : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
-    INVERSE
-      SELF\Placed_feature.feature_shape : SET[0:1] OF geometric_model_constituent_relationship FOR constituent_element;
-    UNIQUE
-      UR1 : SELF\Shape_element.element_name,
- associated_definition;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Via_terminal

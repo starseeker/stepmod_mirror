@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.142 2005/11/30 16:32:20 liutkus Exp $
+   $Id: arm.exp,v 1.143 2005/12/01 11:55:45 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -188,14 +188,19 @@ SCHEMA Layered_interconnect_module_design_arm;
       UR2 : precedent_item,
  subsequent_item;
     WHERE
-      WR1 : TYPEOF(precedent_item) <> TYPEOF(subsequent_item);
-      WR2 : precedent_item <> subsequent_item;
-      WR3 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_FEATURE' IN TYPEOF(precedent_item)) OR 
+      WR1 : precedent_item <> subsequent_item;
+      WR2 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_FEATURE' IN TYPEOF(precedent_item)) OR 
         (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.BARE_DIE_SURFACE',
-               'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PACKAGE_BODY_SURFACE'] * TYPEOF(precedent_item.definition)) = 1);
-      WR4 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_FEATURE' IN TYPEOF(subsequent_item)) OR 
+               'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PACKAGE_BODY_SURFACE',
+               'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SECONDARY_SURFACE'] * TYPEOF(precedent_item.definition)) = 1);
+      WR3 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_FEATURE' IN TYPEOF(subsequent_item)) OR 
         (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.BARE_DIE_SURFACE',
-                 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PACKAGE_BODY_SURFACE'] * TYPEOF(subsequent_item.definition)) = 1);
+                 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PACKAGE_BODY_SURFACE',
+                 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE'] * TYPEOF(subsequent_item.definition)) = 1);
+      WR4 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(precedent_item)) OR 
+                (precedent_item.name = layered_interconnect_module_design_arm.stratum_surface_designation.secondary_surface);
+      WR5 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(subsequent_item)) OR 
+                (precedent_item.name = layered_interconnect_module_design_arm.stratum_surface_designation.primary_surface);                 
   END_ENTITY;
 
   ENTITY Blind_passage_template

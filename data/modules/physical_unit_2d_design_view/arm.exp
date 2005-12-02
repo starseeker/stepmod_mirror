@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.37 2005/11/23 12:54:01 liutkus Exp $
+   $Id: arm.exp,v 1.38 2005/11/28 09:30:07 liutkus Exp $
    ISO TC184/SC4/WG12 N3546 - ISO/CD-TS 10303-1724 Physical unit 2d design view - EXPRESS ARM
 *)
 
@@ -47,16 +47,9 @@ SCHEMA Physical_unit_2d_design_view_arm;
    END_LOCAL;
    REPEAT i := 1 to SIZEOF(Assembly_component_2d_shape) by 1;
      ac  := ac + Assembly_component_2d_shape[i].shape_characterized_component;
-   END_REPEAT;  
-   REPEAT i := 1 to SIZEOF(ac) by 1;
-     IF (SIZEOF(USEDIN(ac[i],
-       'PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE.SHAPE_CHARACTERIZED_COMPONENT')) <> 1) THEN 
-       pass := FALSE;
-       ESCAPE;
-     END_IF;
-   END_REPEAT;  
+   END_REPEAT;
   WHERE
-   WR1 : pass;
+   WR1 : SIZEOF(ac) = SIZEOF(bag_to_set(ac));
   END_RULE;
 
   FUNCTION substrate_in_assembly(

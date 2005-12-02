@@ -2,136 +2,153 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-18T17:25:48" rcs.revision="1.0" description.file="arm_descriptions.xml">
-<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_component_placement_requirements_arm schema_instance"/>
-<schema name="Assembly_component_placement_requirements_arm">
-<interface kind="use" schema="Assembly_module_with_interconnect_component_arm"/>
-<interface kind="reference" schema="Requirement_decomposition_arm">
-<interfaced.item name="get_rvd"/>
-</interface>
-<type name="acpr_requirement_assignment_item">
-<select extensible="YES" basedon="requirement_assignment_item" selectitems="restriction_basis_item Placement_group_requirement_definition"/>
-</type>
-<type name="assembly_product_design_object_category">
-<enumeration items="assembly_component_category assembly_module_component_category assembly_module_component_terminal_category assembly_module_macro_component_category assembly_module_macro_component_join_terminal_category bare_die_component_category bare_die_component_terminal_category buried_via_category cable_component_category component_feature_category component_termination_passage_category conductive_interconnect_element_with_pre_defined_transitions_category cutout_category cutout_edge_segment_category dielectric_material_passage_category embedded_physical_component_terminal_category fiducial_category fill_area_category inter_stratum_feature_category interconnect_component_interface_terminal_category interconnect_component_join_terminal_category interconnect_module_component_category interconnect_module_component_stratum_based_terminal_category interconnect_module_component_surface_feature_category interconnect_module_component_terminal_category interconnect_module_edge_category interconnect_module_edge_segment_category interconnect_module_macro_component_category interconnect_module_macro_component_join_terminal_category interface_access_material_removal_laminate_component_category interface_access_stratum_feature_template_component_category interface_component_category interfacial_connection_category internal_probe_access_area_category laminate_component_category minimally_defined_component_terminal_category packaged_component_category packaged_component_join_terminal_category packaged_connector_component_category packaged_connector_component_interface_terminal_category physical_component_category plated_passage_or_unsupported_passage_category routed_interconnect_component_category routed_physical_component_category stratum_feature_category via_category"/>
-</type>
-<type name="assembly_spacing_type">
-<enumeration items="nearest_boundary centroid furthest_boundary"/>
-</type>
-<type name="restriction_basis_item">
-<select extensible="YES" selectitems="Requirement_definition_property Part_feature"/>
-</type>
-<entity name="Assembly_spacing_requirement_occurrence" supertypes="Requirement_definition_property">
-<explicit name="reference_design_object_category">
-<typename name="assembly_product_design_object_category"/>
-</explicit>
-<explicit name="dependent_design_object_category">
-<typename name="assembly_product_design_object_category"/>
-</explicit>
-<explicit name="required_characteristic">
-<typename name="Tolerance_characteristic"/>
-<redeclaration entity-ref="Requirement_definition_property"/>
-</explicit>
-<explicit name="of_spacing_type">
-<typename name="assembly_spacing_type"/>
-</explicit>
-<unique label="UR1">
-<unique.attribute attribute="reference_design_object_category"/>
-<unique.attribute attribute="dependent_design_object_category"/>
-</unique>
-<where label="WR1" expression="'ASSEMBLY_TECHNOLOGY_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Requirement_definition_property.required_characteristic.items[1])"/>
-</entity>
-<entity name="Component_group_assignment">
-<explicit name="associated_group">
-<typename name="Placement_group_requirement_definition"/>
-</explicit>
-<explicit name="assigned_component">
-<typename name="Assembly_component"/>
-</explicit>
-</entity>
-<entity name="Component_placement_restriction_assignment">
-<explicit name="maximum_negative_component_height" optional="YES">
-<typename name="Datum_based_length_measure"/>
-</explicit>
-<explicit name="maximum_positive_component_height" optional="YES">
-<typename name="Datum_based_length_measure"/>
-</explicit>
-<explicit name="area" optional="YES">
-<typename name="Mounting_restriction_area"/>
-</explicit>
-<explicit name="volume" optional="YES">
-<typename name="Mounting_restriction_volume"/>
-</explicit>
-<explicit name="requirement">
-<typename name="Item_restricted_requirement_occurrence"/>
-</explicit>
-<explicit name="components_permitted">
-<builtintype type="BOOLEAN"/>
-</explicit>
-<explicit name="maximum_mounting_clearance" optional="YES">
-<typename name="Datum_based_length_measure"/>
-</explicit>
-<explicit name="minimum_mounting_clearance" optional="YES">
-<typename name="Datum_based_length_measure"/>
-</explicit>
-<where label="WR1" expression="EXISTS(area) OR EXISTS(volume)"/>
-<where label="IP1"/>
-<where label="IP2"/>
-<where label="IP3"/>
-<where label="IP4"/>
-</entity>
-<entity name="Item_restricted_requirement_occurrence" supertypes="Requirement_definition_property">
-<explicit name="basis">
-<typename name="restriction_basis_item"/>
-</explicit>
-</entity>
-<entity name="Mounting_restriction_area" supertypes="Non_feature_shape_element">
-<explicit name="mounting_surface">
-<typename name="Interconnect_module_component_surface_feature"/>
-</explicit>
-<explicit name="scope">
-<typename name="Assembly_module"/>
-<redeclaration entity-ref="Non_feature_shape_element"/>
-</explicit>
-<where label="WR1" expression="'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(SELF\Non_feature_shape_element.element_shape)"/>
-</entity>
-<entity name="Mounting_restriction_volume" supertypes="Non_feature_shape_element">
-<explicit name="mounting_surface">
-<typename name="Interconnect_module_component_surface_feature"/>
-</explicit>
-<explicit name="scope">
-<typename name="Assembly_module"/>
-<redeclaration entity-ref="Non_feature_shape_element"/>
-</explicit>
-<inverse name="volume" entity="Non_feature_shape_definition" attribute="associated_element"/>
-<where label="WR1" expression="'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_ARM.THREE_DIMENSIONAL_SHAPE' IN TYPEOF(volume)"/>
-</entity>
-<entity name="Placement_group_area_assignment">
-<explicit name="placed_group">
-<typename name="Placement_group_requirement_definition"/>
-</explicit>
-<explicit name="area">
-<typename name="Mounting_restriction_area"/>
-</explicit>
-</entity>
-<entity name="Placement_group_requirement_definition" supertypes="Requirement_view_definition">
-<explicit name="design_specific_usage">
-<builtintype type="STRING"/>
-</explicit>
-<derived name="requirement" expression="bag_to_set((QUERY(rvdr &lt;* USEDIN (SELF, 'REQUIREMENT_DECOMPOSITION_ARM.'+&#10;&#9;'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.PRIMARY') | (rvdr.relationship_type = DERIVED_FROM))))">
-<aggregate type="SET" lower="0" upper="?"/>
-<typename name="Requirement_view_definition"/>
-</derived>
-<where label="WR1" expression="EXISTS (requirement) AND (SIZEOF(requirement) &gt;= 1)"/>
-<where label="WR3" expression="NOT EXISTS (SELF\Product_view_definition.name)"/>
-</entity>
-<entity name="Placement_group_volume_assignment">
-<explicit name="placed_group">
-<typename name="Placement_group_requirement_definition"/>
-</explicit>
-<explicit name="volume">
-<typename name="Mounting_restriction_volume"/>
-</explicit>
-</entity>
-</schema>
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_component_placement_requirements_arm schema_instance"/>
+   <schema name="Assembly_component_placement_requirements_arm">
+      <interface kind="use" schema="Assembly_module_with_interconnect_component_arm"/>
+      <interface kind="reference" schema="Requirement_decomposition_arm">
+         <interfaced.item name="get_rvd"/>
+      </interface>
+      <type name="acpr_requirement_assignment_item">
+         <select extensible="YES" basedon="requirement_assignment_item" selectitems="restriction_basis_item Placement_group_requirement_definition" genericentity="NO"/>
+      </type>
+      <type name="assembly_product_design_object_category">
+         <enumeration items="assembly_component_category assembly_module_component_category assembly_module_component_terminal_category assembly_module_macro_component_category assembly_module_macro_component_join_terminal_category bare_die_component_category bare_die_component_terminal_category buried_via_category cable_component_category component_feature_category component_termination_passage_category conductive_interconnect_element_with_pre_defined_transitions_category cutout_category cutout_edge_segment_category dielectric_material_passage_category embedded_physical_component_terminal_category fiducial_category fill_area_category inter_stratum_feature_category interconnect_component_interface_terminal_category interconnect_component_join_terminal_category interconnect_module_component_category interconnect_module_component_stratum_based_terminal_category interconnect_module_component_surface_feature_category interconnect_module_component_terminal_category interconnect_module_edge_category interconnect_module_edge_segment_category interconnect_module_macro_component_category interconnect_module_macro_component_join_terminal_category interface_access_material_removal_laminate_component_category interface_access_stratum_feature_template_component_category interface_component_category interfacial_connection_category internal_probe_access_area_category laminate_component_category minimally_defined_component_terminal_category packaged_component_category packaged_component_join_terminal_category packaged_connector_component_category packaged_connector_component_interface_terminal_category physical_component_category plated_passage_or_unsupported_passage_category routed_interconnect_component_category routed_physical_component_category stratum_feature_category via_category" extensible="NO"/>
+      </type>
+      <type name="assembly_spacing_type">
+         <enumeration items="nearest_boundary centroid furthest_boundary" extensible="NO"/>
+      </type>
+      <type name="restriction_basis_item">
+         <select extensible="YES" selectitems="Requirement_definition_property Part_feature" genericentity="NO"/>
+      </type>
+      <entity name="Assembly_spacing_requirement_occurrence" supertypes="Requirement_definition_property" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="reference_design_object_category" optional="NO">
+            <typename name="assembly_product_design_object_category"/>
+         </explicit>
+         <explicit name="dependent_design_object_category" optional="NO">
+            <typename name="assembly_product_design_object_category"/>
+         </explicit>
+         <explicit name="required_characteristic" optional="NO">
+            <typename name="Tolerance_characteristic"/>
+            <redeclaration entity-ref="Requirement_definition_property"/>
+         </explicit>
+         <explicit name="of_spacing_type" optional="NO">
+            <typename name="assembly_spacing_type"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="reference_design_object_category"/>
+            <unique.attribute attribute="dependent_design_object_category"/>
+         </unique>
+         <where label="WR1" expression="'ASSEMBLY_TECHNOLOGY_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Requirement_definition_property.required_characteristic.items[1])"/>
+      </entity>
+      <entity name="Component_group_assignment" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="associated_group" optional="NO">
+            <typename name="Placement_group_requirement_definition"/>
+         </explicit>
+         <explicit name="assigned_component" optional="NO">
+            <typename name="Assembly_component"/>
+         </explicit>
+      </entity>
+      <entity name="Component_placement_restriction_assignment" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="maximum_negative_component_height" optional="YES">
+            <typename name="Datum_based_length_measure"/>
+         </explicit>
+         <explicit name="maximum_positive_component_height" optional="YES">
+            <typename name="Datum_based_length_measure"/>
+         </explicit>
+         <explicit name="area" optional="YES">
+            <typename name="Mounting_restriction_area"/>
+         </explicit>
+         <explicit name="volume" optional="YES">
+            <typename name="Mounting_restriction_volume"/>
+         </explicit>
+         <explicit name="requirement" optional="NO">
+            <typename name="Item_restricted_requirement_occurrence"/>
+         </explicit>
+         <explicit name="components_permitted" optional="NO">
+            <builtintype type="BOOLEAN" fixed="NO"/>
+         </explicit>
+         <explicit name="mounting_clearance" optional="NO">
+            <typename name="Tolerance_characteristic"/>
+         </explicit>
+         <where label="WR1" expression="EXISTS(area) OR EXISTS(volume)"/>
+         <where label="WR2" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(mounting_clearance)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(mounting_clearance)) OR&#10;        (SIZEOF(QUERY(it &lt;* mounting_clearance\Representation.items |&#10;          NOT('EXTENDED_GEOMETRIC_TOLERANCE_ARM.DATUM_BASED_LENGTH_MEASURE' IN TYPEOF(mounting_clearance\Representation.items))&#10;         )) = 0)"/>
+         <where label="WR3" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(mounting_clearance)) OR&#10;        (SIZEOF(QUERY(it &lt;* mounting_clearance\Representation.items |&#10;        ('EXTENDED_GEOMETRIC_TOLERANCE_ARM.DATUM_BASED_LENGTH_MEASURE' IN TYPEOF(mounting_clearance\Representation.items))&#10;           )) = 1)"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
+         <where label="IP3"/>
+      </entity>
+      <entity name="Item_restricted_requirement_occurrence" supertypes="Requirement_definition_property" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="basis" optional="NO">
+            <typename name="restriction_basis_item"/>
+         </explicit>
+      </entity>
+      <entity name="Mounting_restriction_area" supertypes="Non_feature_shape_element" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="mounting_surface" optional="NO">
+            <typename name="Interconnect_module_component_surface_feature"/>
+         </explicit>
+         <explicit name="scope" optional="NO">
+            <typename name="Assembly_module"/>
+            <redeclaration entity-ref="Non_feature_shape_element"/>
+         </explicit>
+         <where label="WR1" expression="'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(SELF\Non_feature_shape_element.element_shape)"/>
+      </entity>
+      <entity name="Mounting_restriction_volume" supertypes="Non_feature_shape_element" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="mounting_surface" optional="NO">
+            <typename name="Interconnect_module_component_surface_feature"/>
+         </explicit>
+         <explicit name="scope" optional="NO">
+            <typename name="Assembly_module"/>
+            <redeclaration entity-ref="Non_feature_shape_element"/>
+         </explicit>
+         <inverse name="volume" entity="Non_feature_shape_definition" attribute="associated_element"/>
+         <where label="WR1" expression="'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_ARM.THREE_DIMENSIONAL_SHAPE' IN TYPEOF(volume)"/>
+      </entity>
+      <entity name="Placement_group_area_assignment" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="placed_group" optional="NO">
+            <typename name="Placement_group_requirement_definition"/>
+         </explicit>
+         <explicit name="area" optional="NO">
+            <typename name="Mounting_restriction_area"/>
+         </explicit>
+      </entity>
+      <entity name="Placement_group_requirement_definition" supertypes="Requirement_view_definition" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="design_specific_usage" optional="NO">
+            <builtintype type="STRING" fixed="NO"/>
+         </explicit>
+         <derived name="requirement" expression="bag_to_set((QUERY(rvdr &lt;* USEDIN (SELF, 'REQUIREMENT_DECOMPOSITION_ARM.'+&#10; 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.PRIMARY') | (rvdr.relationship_type = DERIVED_FROM))))">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Requirement_view_definition"/>
+         </derived>
+         <where label="WR1" expression="EXISTS (requirement) AND (SIZEOF(requirement) &gt;= 1)"/>
+         <where label="WR3" expression="NOT EXISTS (SELF\Product_view_definition.name)"/>
+      </entity>
+      <entity name="Placement_group_volume_assignment" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="placed_group" optional="NO">
+            <typename name="Placement_group_requirement_definition"/>
+         </explicit>
+         <explicit name="volume" optional="NO">
+            <typename name="Mounting_restriction_volume"/>
+         </explicit>
+      </entity>
+      <function name="bag_to_set">
+         <parameter name="the_bag">
+            <aggregate type="BAG" lower="0" upper="?" unique="NO" optional="NO"/>
+            <builtintype type="GENERIC" fixed="NO"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <builtintype type="GENERIC" fixed="NO"/>
+         <algorithm>LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);</algorithm>
+      </function>
+   </schema>
 </express>

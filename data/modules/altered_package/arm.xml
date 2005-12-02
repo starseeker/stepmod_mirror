@@ -3,60 +3,59 @@
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="altered_package_arm schema_instance"/>
-<schema name="Altered_package_arm">
-<interface kind="use" schema="Package_arm"/>
-<interface kind="reference" schema="Specification_document_arm">
-<interfaced.item name="get_document_definition"/>
-</interface>
-<type name="ap_documented_element_select">
-<select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Surface_prepped_terminal"/>
-</type>
-<type name="ap_external_identification_item">
-<select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Altered_package"/>
-</type>
-<type name="predefined_geometric_status">
-<enumeration items="undefined standard_datum_condition perpendicular_primary_datum_axis perpendicular_primary_datum_plane"/>
-</type>
-<entity name="Altered_package" supertypes="Package">
-<explicit name="of_geometric_status" optional="YES">
-<typename name="predefined_geometric_status"/>
-</explicit>
-<explicit name="modified_terminal_separation" optional="YES">
-<typename name="Length_data_element"/>
-</explicit>
-<explicit name="package_to_be_altered">
-<typename name="Package"/>
-</explicit>
-<inverse name="of_external_geometric_status" entity="External_source_identification" attribute="item">
-<inverse.aggregate type="SET" lower="0" upper="1"/>
-</inverse>
-<where label="WR1" expression="(EXISTS (of_geometric_status)) XOR ((SIZEOF(of_external_geometric_status)) = 1)"/>
-<where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
-</entity>
-<entity name="Altered_package_terminal" abstract.supertype="YES" supertypes="Package_terminal" super.expression="(Shape_formed_terminal ANDOR Surface_prepped_terminal) ANDOR Length_trimmed_terminal">
-<explicit name="terminal_to_be_altered">
-<typename name="Package_terminal"/>
-</explicit>
-<explicit name="associated_definition">
-<typename name="Altered_package"/>
-<redeclaration entity-ref="Part_feature"/>
-</explicit>
-</entity>
-<entity name="Length_trimmed_terminal" supertypes="Altered_package_terminal">
-<explicit name="maximum_trimmed_length">
-<typename name="Length_data_element"/>
-</explicit>
-<explicit name="minimum_trimmed_length">
-<typename name="Length_data_element"/>
-</explicit>
-</entity>
-<entity name="Shape_formed_terminal" supertypes="Altered_package_terminal"/>
-<entity name="Surface_prepped_terminal" supertypes="Altered_package_terminal">
-<derived name="surface_preparation" expression="get_document_definition(SELF, 'surface preparation', &#10;  &#9;&#9;&#9;'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION')">
-<aggregate type="SET" lower="1" upper="1"/>
-<typename name="Document_definition"/>
-</derived>
-</entity>
-</schema>
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="altered_package_arm schema_instance"/>
+   <schema name="Altered_package_arm">
+      <interface kind="use" schema="Package_arm"/>
+      <interface kind="reference" schema="Specification_document_arm">
+         <interfaced.item name="get_document_definition"/>
+      </interface>
+      <type name="ap_documented_element_select">
+         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Surface_prepped_terminal"/>
+      </type>
+      <type name="ap_external_identification_item">
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Altered_package"/>
+      </type>
+      <type name="predefined_geometric_status">
+         <enumeration items="undefined standard_datum_condition perpendicular_primary_datum_axis perpendicular_primary_datum_plane"/>
+      </type>
+      <entity name="Altered_package" supertypes="Package">
+         <explicit name="of_geometric_status" optional="YES">
+            <typename name="predefined_geometric_status"/>
+         </explicit>
+         <explicit name="modified_terminal_separation" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="package_to_be_altered">
+            <typename name="Package"/>
+         </explicit>
+         <inverse name="of_external_geometric_status" entity="External_source_identification" attribute="item">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <where label="WR1" expression="(EXISTS (of_geometric_status)) XOR ((SIZEOF(of_external_geometric_status)) = 1)"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+      </entity>
+      <entity name="Altered_package_terminal" abstract.supertype="YES" supertypes="Package_terminal" super.expression="(Shape_formed_terminal ANDOR Surface_prepped_terminal) ANDOR Length_trimmed_terminal">
+         <explicit name="terminal_to_be_altered">
+            <typename name="Package_terminal"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <typename name="Altered_package"/>
+            <redeclaration entity-ref="Part_feature"/>
+         </explicit>
+      </entity>
+      <entity name="Length_trimmed_terminal" supertypes="Altered_package_terminal">
+         <explicit name="trimmed_length">
+            <typename name="Tolerance_characteristic"/>
+         </explicit>
+         <where label="WR1" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(trimmed_length)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(trimmed_length)) OR&#10;        (SIZEOF(QUERY(it &lt;* trimmed_length\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(trimmed_length\Representation.items))&#10;         )) = 0)"/>
+         <where label="WR2" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(trimmed_length)) OR&#10;        (SIZEOF(QUERY(it &lt;* trimmed_length\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(trimmed_length\Representation.items))&#10;           )) = 1)"/>
+      </entity>
+      <entity name="Shape_formed_terminal" supertypes="Altered_package_terminal"/>
+      <entity name="Surface_prepped_terminal" supertypes="Altered_package_terminal">
+         <derived name="surface_preparation" expression="get_document_definition(SELF, 'surface preparation', &#10;  			'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION')">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Document_definition"/>
+         </derived>
+      </entity>
+   </schema>
 </express>

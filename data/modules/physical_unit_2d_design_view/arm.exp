@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.40 2005/12/02 06:44:13 thomasrthurman Exp $
+   $Id: arm.exp,v 1.41 2005/12/02 12:46:28 liutkus Exp $
    ISO TC184/SC4/WG12 N3546 - ISO/CD-TS 10303-1724 Physical unit 2d design view - EXPRESS ARM
 *)
 
@@ -8,7 +8,7 @@ SCHEMA Physical_unit_2d_design_view_arm;
 	USE FROM Physical_unit_2d_shape_arm;	-- ISO/TS 10303-1726
 	USE FROM Physical_unit_design_view_arm;	-- ISO/TS 10303-1728
 
-  ENTITY Assembly_component_2d_shape
+  ENTITY Assembly_component_2d_shape_model
     SUBTYPE OF (Planar_projected_shape_model);
       shape_characterized_component : SET[1:?] OF Assembly_component;
 	WHERE
@@ -21,7 +21,7 @@ SCHEMA Physical_unit_2d_design_view_arm;
      placement_fixed : BOOLEAN;
      SELF\Geometric_relationship_with_operator_transformation.transformation : Cartesian_transformation_2d; -- enforce rep_rel_w_trans by mapping
      SELF\Geometric_model_relationship.rep_2 RENAMED assembly_model : Physical_unit_planar_shape_model;  -- CHANGED
-     SELF\Geometric_model_relationship.rep_1 RENAMED component_model : Assembly_component_2d_shape; -- CHANGED
+     SELF\Geometric_model_relationship.rep_1 RENAMED component_model : Assembly_component_2d_shape_model; -- CHANGED
    DERIVE
      component : Next_assembly_usage := SELF\Contextual_shape_representation.contextual_shape.described_element;
      substrate_location : BOOLEAN := substrate_in_assembly(SELF);
@@ -35,18 +35,18 @@ SCHEMA Physical_unit_2d_design_view_arm;
   ENTITY Component_part_2d_geometric_representation_relationship
     SUBTYPE OF (Geometric_model_relationship);
     	SELF\Geometric_model_relationship.rep_1 RENAMED part_shape  : part_template_or_physical_unit_2d_shape_select;
-    	SELF\Geometric_model_relationship.rep_2 RENAMED component_shape : Assembly_component_2d_shape;
+    	SELF\Geometric_model_relationship.rep_2 RENAMED component_shape : Assembly_component_2d_shape_model;
     WHERE
       WR1 : NOT EXISTS(SELF\Representation_relationship.relation_type);
   END_ENTITY;
 
-  RULE unique_assembly_component_2d_shape FOR (Assembly_component_2d_shape);
+  RULE unique_assembly_component_2d_shape_model FOR (Assembly_component_2d_shape_model);
    LOCAL
      ac : BAG OF Assembly_component := [];
      pass : BOOLEAN := TRUE;
    END_LOCAL;
-   REPEAT i := 1 to SIZEOF(Assembly_component_2d_shape) by 1;
-     ac  := ac + Assembly_component_2d_shape[i].shape_characterized_component;
+   REPEAT i := 1 to SIZEOF(Assembly_component_2d_shape_model) by 1;
+     ac  := ac + Assembly_component_2d_shape_model[i].shape_characterized_component;
    END_REPEAT;
   WHERE
    WR1 : SIZEOF(ac) = SIZEOF(bag_to_set(ac));

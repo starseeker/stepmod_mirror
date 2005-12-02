@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.71 2005/11/29 15:22:06 kovaliovas Exp $
+   $Id: arm.exp,v 1.72 2005/12/02 12:46:27 liutkus Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -13,9 +13,9 @@ SCHEMA Part_template_2d_shape_arm;
 
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
-    TYPE footprint_definition_shape_or_padstack_definition_shape = SELECT
-      (Footprint_definition_shape,
-      Padstack_definition_shape);
+    TYPE footprint_definition_shape_model_or_padstack_definition_shape_model = SELECT
+      (Footprint_definition_shape_model,
+      Padstack_definition_shape_model);
 	END_TYPE;
 
 	TYPE package_or_printed_part_template = SELECT
@@ -90,7 +90,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       reference_package  : package_or_printed_part_template;
   END_ENTITY;
 
-  ENTITY Footprint_definition_shape
+  ENTITY Footprint_definition_shape_model
     SUBTYPE OF (Multi_layer_template_definition_shape_model);
       SELF\Multi_layer_template_definition_shape_model.shape_characterized_definition : Generic_footprint_definition;
       reference_shape                          : physical_unit_shape_model_select;
@@ -130,7 +130,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     DERIVE
       footprint_location : padstack_arrangement := get_padstack_arrangement(padstack);
     INVERSE
-      SELF\Multi_layer_template_definition.shape    : footprint_definition_shape FOR shape_characterized_definition;
+      SELF\Multi_layer_template_definition.shape    : footprint_definition_shape_model FOR shape_characterized_definition;
       padstack : SET[1:?] OF padstack_location_in_footprint_definition FOR footprint;
     WHERE
       WR1 : SIZEOF(QUERY(ps <* padstack | ps.padstack.padstack_location <> footprint_location)) = 0;
@@ -185,8 +185,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Multi_layer_template_definition_shape_model
-    ABSTRACT SUPERTYPE OF (ONEOF (Padstack_definition_shape,
-      Footprint_definition_shape, Special_symbol_definition_shape))
+    ABSTRACT SUPERTYPE OF (ONEOF (Padstack_definition_shape_model,
+      Footprint_definition_shape_model, Special_symbol_definition_shape_model))
     SUBTYPE OF (Planar_projected_shape_model);
       shape_characterized_definition : Multi_layer_template_definition;
       shape_environment : OPTIONAL application_environment;
@@ -205,13 +205,13 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Multi_layer_template_definition);
       padstack_location        : padstack_arrangement;
     INVERSE
-	  SELF\Multi_layer_template_definition.shape    : padstack_definition_shape FOR shape_characterized_definition;
+	  SELF\Multi_layer_template_definition.shape    : padstack_definition_shape_model FOR shape_characterized_definition;
     WHERE
       WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
  'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'template model'))) > 0;
   END_ENTITY;
 
-  ENTITY Padstack_definition_shape
+  ENTITY Padstack_definition_shape_model
     SUBTYPE OF (Multi_layer_template_definition_shape_model);
       SELF\Multi_layer_template_definition_shape_model.shape_characterized_definition : Padstack_definition;
     UNIQUE
@@ -243,8 +243,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Padstack_location_in_footprint_definition_transform
   	SUBTYPE OF (Geometric_placement);
-      SELF\Geometric_placement_operation.template_definition RENAMED padstack_shape : Padstack_definition_shape;
-      footprint_shape                                                               : Footprint_definition_shape;
+      SELF\Geometric_placement_operation.template_definition RENAMED padstack_shape : Padstack_definition_shape_model;
+      footprint_shape                                                               : Footprint_definition_shape_model;
       reference_location                                                            : Padstack_location_in_footprint_definition;
       SELF\Geometric_placement.target RENAMED transform                             : Axis_placement_2d;
     UNIQUE 
@@ -300,10 +300,10 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       UR1 : reference_location;
 	WHERE
       WR1: template_shape.shape_characterized_part_template :=: reference_location.template;
-      WR2: NOT('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE' IN TYPEOF(assembly_shape)) OR 
-         (assembly_shape\Footprint_definition_shape.shape_characterized_definition :=: reference_location.assembly);
-      WR3: NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION_SHAPE' IN TYPEOF(assembly_shape)) OR 
-         (assembly_shape\Padstack_definition_shape.shape_characterized_definition :=: reference_location.assembly);
+      WR2: NOT('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(assembly_shape)) OR 
+         (assembly_shape\Footprint_definition_shape_model.shape_characterized_definition :=: reference_location.assembly);
+      WR3: NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION_SHAPE_MODEL' IN TYPEOF(assembly_shape)) OR 
+         (assembly_shape\Padstack_definition_shape_model.shape_characterized_definition :=: reference_location.assembly);
   END_ENTITY;
 
   ENTITY Part_template_planar_keepout_shape_model
@@ -330,7 +330,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
    -- WR1: all templates shall be stratum_specific_part....
   END_ENTITY;
 
-  ENTITY Special_symbol_definition_shape
+  ENTITY Special_symbol_definition_shape_model
     SUBTYPE OF (Multi_layer_template_definition_shape_model);
      SELF\Multi_layer_template_definition_shape_model.shape_characterized_definition : Special_symbol_definition;
   END_ENTITY;

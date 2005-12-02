@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.43 2005/11/16 07:43:51 kovaliovas Exp $
+   $Id: arm.exp,v 1.44 2005/11/23 09:54:56 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3495 - ISO/CD-TS 10303-1706 Non feature shape element - EXPRESS ARM
 *)
 
@@ -15,21 +15,21 @@ SCHEMA Non_feature_shape_element_arm;
 	END_TYPE;
 
     TYPE nfse_feature_or_non_feature_usage = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON feature_or_non_feature_usage WITH 
-		(Usage_view_level_non_feature_shape_definition);
+		(Usage_view_level_non_feature_shape_model);
 	END_TYPE;
 	
   TYPE view_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT;
   END_TYPE;
   
-  ENTITY Design_view_level_non_feature_shape_definition
-    SUBTYPE OF (Non_feature_shape_definition);
-      SELF\Non_feature_shape_definition.model_shape : Physical_unit_shape_model;
+  ENTITY Design_view_level_non_feature_shape_model
+    SUBTYPE OF (Non_feature_shape_model);
+      SELF\Non_feature_shape_model.model_shape : Physical_unit_shape_model;
     WHERE
-      WR1 : SELF\Geometric_model.context_of_items :=: SELF\Non_feature_shape_definition.model_shape\Geometric_model.context_of_items;
+      WR1 : SELF\Geometric_model.context_of_items :=: SELF\Non_feature_shape_model.model_shape\Geometric_model.context_of_items;
       WR2: SIZEOF(USEDIN(SELF, 'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2')) = 0;
       WR3: SIZEOF(USEDIN(SELF, 'CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT_OPERATION.TEMPLATE_DEFINITION')) = 0;
-      WR4: SELF\Non_feature_shape_definition.associated_element.scope :=:
-           SELF\Non_feature_shape_definition.model_shape\Physical_unit_shape_model.shape_characterized_physical_unit;
+      WR4: SELF\Non_feature_shape_model.associated_element.scope :=:
+           SELF\Non_feature_shape_model.model_shape\Physical_unit_shape_model.shape_characterized_physical_unit;
   END_ENTITY;
   
   ENTITY Interface_plane
@@ -38,9 +38,9 @@ SCHEMA Non_feature_shape_element_arm;
     WR1 : (SELF\Shape_element.element_name = 'interface plane');
   END_ENTITY;
 
-  ENTITY Non_feature_shape_definition
-  SUPERTYPE OF (ONEOF (Design_view_level_non_feature_shape_definition,
-	    Usage_view_level_non_feature_shape_definition))   
+  ENTITY Non_feature_shape_model
+  SUPERTYPE OF (ONEOF (Design_view_level_non_feature_shape_model,
+	    Usage_view_level_non_feature_shape_model))   
     SUBTYPE OF (Geometric_model);
       associated_element : Non_feature_shape_element;
       model_shape        : OPTIONAL Geometric_model;
@@ -54,7 +54,7 @@ SCHEMA Non_feature_shape_element_arm;
       SELF\Shape_element.element_name : STRING;
       SELF\Shape_element.containing_shape RENAMED scope : ee_product_definition_with_annotation_elements;
     INVERSE
-      element_shape            : SET[0:?] OF non_feature_shape_definition FOR associated_element;
+      element_shape            : SET[0:?] OF non_feature_shape_model FOR associated_element;
       associated_usage_concept : SET[0:?] OF geometric_model_constituent_relationship FOR constituent_element;
     UNIQUE
       UR1 : SELF\Shape_element.element_name,
@@ -82,25 +82,25 @@ SCHEMA Non_feature_shape_element_arm;
     SUBTYPE OF (Non_feature_shape_element);
   END_ENTITY;
 
-  ENTITY Usage_view_level_non_feature_shape_definition
+  ENTITY Usage_view_level_non_feature_shape_model
     ABSTRACT SUPERTYPE
-    SUBTYPE OF (Non_feature_shape_definition);
-      SELF\Non_feature_shape_definition.model_shape : view_shape_select;
+    SUBTYPE OF (Non_feature_shape_model);
+      SELF\Non_feature_shape_model.model_shape : view_shape_select;
     WHERE
-      WR1 : SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_definition.model_shape\Geometric_model.context_of_items;
+      WR1 : SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_model.model_shape\Geometric_model.context_of_items;
   END_ENTITY;
 
   ENTITY View_level_non_feature_shape_element
     SUBTYPE OF (Non_feature_shape_element);
      WHERE
       WR1: NOT(SIZEOF(SELF\Non_feature_shape_element.element_shape) > 0) OR
-      valid_es('NON_FEATURE_SHAPE_ELEMENT_ARM.USAGE_VIEW_LEVEL_NON_FEATURE_SHAPE_DEFINITION',
+      valid_es('NON_FEATURE_SHAPE_ELEMENT_ARM.USAGE_VIEW_LEVEL_NON_FEATURE_SHAPE_MODEL',
       (SELF\Non_feature_shape_element.element_shape));
       WR2 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
   
   FUNCTION valid_es(input1 : STRING;
-                  input2 : SET OF NON_FEATURE_SHAPE_DEFINITION) : BOOLEAN;
+                  input2 : SET OF NON_FEATURE_SHAPE_MODEL) : BOOLEAN;
    REPEAT i := 1 to HIINDEX(input2);
     IF NOT (input1 IN TYPEOF(input2)) THEN RETURN(FALSE);
     END_IF;

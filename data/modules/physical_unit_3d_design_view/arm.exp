@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.23 2005/11/16 07:43:51 kovaliovas Exp $
+   $Id: arm.exp,v 1.24 2005/11/17 22:22:02 liutkus Exp $
    ISO TC184/SC4/WG12 N3561 - ISO/CD-TS 10303-1725 Physical unit 3d design view - EXPRESS ARM
 *)
 
@@ -7,7 +7,7 @@ SCHEMA Physical_unit_3d_design_view_arm;
   
 	USE FROM Layered_3d_shape_arm;	-- ISO/TS 10303-1694
   
-  ENTITY Assembly_component_3d_shape
+  ENTITY Assembly_component_3d_shape_model
     SUBTYPE OF (Geometric_model);
       shape_characterized_component : SET[1:?] OF Assembly_component;
   WHERE
@@ -18,7 +18,7 @@ SCHEMA Physical_unit_3d_design_view_arm;
     SUBTYPE OF (Contextual_shape_representation, Geometric_composition_with_operator_transformation);
       SELF\Geometric_relationship_with_operator_transformation.transformation  : Cartesian_transformation_3d;
       placement_fixed : BOOLEAN;
-      SELF\Geometric_model_relationship.rep_1 RENAMED component_model : Assembly_component_3d_shape;
+      SELF\Geometric_model_relationship.rep_1 RENAMED component_model : Assembly_component_3d_shape_model;
       SELF\Geometric_model_relationship.rep_2 RENAMED assembly_model : Physical_unit_3d_shape_model;
     DERIVE
       component : Next_assembly_usage := SELF\Contextual_shape_representation.contextual_shape.described_element;
@@ -32,17 +32,17 @@ SCHEMA Physical_unit_3d_design_view_arm;
   ENTITY Component_part_3d_geometric_representation_relationship
     SUBTYPE OF (Geometric_model_relationship);
 		SELF\Geometric_model_relationship.rep_1 RENAMED part_shape      : part_template_or_physical_unit_3d_shape_model_select;
-	    SELF\Geometric_model_relationship.rep_2 RENAMED component_shape : Assembly_component_3d_shape;
+	    SELF\Geometric_model_relationship.rep_2 RENAMED component_shape : Assembly_component_3d_shape_model;
 	WHERE
 	  WR1 : NOT EXISTS(SELF\Representation_relationship.relation_type);
   END_ENTITY;
 
-  RULE unique_assembly_component_3d_shape FOR (Assembly_component_3d_shape);
+  RULE unique_assembly_component_3d_shape_model FOR (Assembly_component_3d_shape_model);
    LOCAL
      ac : BAG OF Assembly_component := [];
    END_LOCAL;
-   REPEAT i := 1 to SIZEOF(Assembly_component_3d_shape) by 1;
-     ac  := ac + Assembly_component_3d_shape[i].shape_characterized_component;
+   REPEAT i := 1 to SIZEOF(Assembly_component_3d_shape_model) by 1;
+     ac  := ac + Assembly_component_3d_shape_model[i].shape_characterized_component;
    END_REPEAT;  
   WHERE
    WR1 : SIZEOF(ac) = SIZEOF(bag_to_set(ac));

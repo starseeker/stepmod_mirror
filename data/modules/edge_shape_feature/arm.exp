@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.10 2005/11/29 14:05:05 liutkus Exp $
+   $Id: arm.exp,v 1.11 2005/12/01 15:39:31 liutkus Exp $
    ISO TC184/SC4/WG12 N3414 - ISO/CD-TS 10303-1673 Edge shape feature - EXPRESS ARM
 *)
 
@@ -8,8 +8,8 @@ SCHEMA Edge_shape_feature_arm;
 	USE FROM Layered_2d_shape_arm;	-- ISO/TS 10303-1693
 	USE FROM Characteristic_arm;	-- ISO/TS 10303-1654	
 
-  ENTITY Bevel_edge_feature_shape
-    SUBTYPE OF (Edge_shape);
+  ENTITY Bevel_edge_feature_shape_model
+    SUBTYPE OF (Edge_shape_model);
       bevel_width : Tolerance_characteristic;
       bevel_angle : Tolerance_characteristic;
     WHERE
@@ -33,19 +33,19 @@ SCHEMA Edge_shape_feature_arm;
            )) = 1);
   END_ENTITY;
 
-  ENTITY Edge_shape
-    ABSTRACT SUPERTYPE OF (ONEOF (Bevel_edge_feature_shape,
- Step_edge_feature_shape,
- Radius_edge_feature_shape))
-    SUBTYPE OF (Planar_shape);
+  ENTITY Edge_shape_model
+    ABSTRACT SUPERTYPE OF (ONEOF (Bevel_edge_feature_shape_model,
+ Step_edge_feature_shape_model,
+ Radius_edge_feature_shape_model))
+    SUBTYPE OF (Planar_shape_model);
     WHERE
       WR1 : SIZEOF(QUERY(escss <* USEDIN(SELF,
  'LAYERED_3D_SHAPE_ARM.SHAPE_DEFINITION_3D_INTERSECTION.SURFACE_INTERSECTION_RESULT') | NOT ('EDGE_SHAPE_FEATURE_ARM.EDGE_SEGMENT_CROSS_SECTION' IN TYPEOF(escss)))) = 0;
       WR2 : NOT EXISTS(SELF\Representation.name);
   END_ENTITY;
 
-  ENTITY Radius_edge_feature_shape
-    SUBTYPE OF (Edge_shape);
+  ENTITY Radius_edge_feature_shape_model
+    SUBTYPE OF (Edge_shape_model);
       radius_length : Tolerance_characteristic;
     WHERE  
       WR1 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(radius_length)) OR
@@ -59,8 +59,8 @@ SCHEMA Edge_shape_feature_arm;
            )) = 1);
   END_ENTITY;
 
-  ENTITY Step_edge_feature_shape
-    SUBTYPE OF (Edge_shape);
+  ENTITY Step_edge_feature_shape_model
+    SUBTYPE OF (Edge_shape_model);
       step_width : Tolerance_characteristic;
       step_depth : Tolerance_characteristic;
     WHERE  

@@ -3,90 +3,83 @@
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_arm schema_instance"/>
-<schema name="Physical_unit_2d_design_view_arm">
-<interface kind="use" schema="Physical_unit_2d_shape_arm"/>
-<interface kind="use" schema="Physical_unit_design_view_arm"/>
-<entity name="Assembly_component_2d_shape" supertypes="Planar_projected_shape_model">
-<explicit name="shape_characterized_component">
-<aggregate type="SET" lower="1" upper="?"/>
-<typename name="Assembly_component"/>
-</explicit>
-<where label="WR1" expression="(SIZEOF(USEDIN(SELF,&#10; 'EXTENDED_BASIC_GEOMETRY_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'RELATED_FEATURE_SHAPE')) = 0)"/>
-</entity>
-<entity name="Component_2d_location" supertypes="Contextual_shape_representation Geometric_composition_with_operator_transformation">
-<explicit name="placement_fixed">
-<builtintype type="BOOLEAN"/>
-</explicit>
-<explicit name="transformation">
-<typename name="Cartesian_transformation_2d"/>
-<redeclaration entity-ref="Geometric_relationship_with_operator_transformation"/>
-</explicit>
-<explicit name="assembly_model">
-<typename name="Physical_unit_planar_shape_model"/>
-<redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
-</explicit>
-<explicit name="component_model">
-<typename name="Assembly_component_2d_shape"/>
-<redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
-</explicit>
-<derived name="component" expression="SELF\Contextual_shape_representation.contextual_shape.described_element">
-<typename name="Next_assembly_usage"/>
-</derived>
-<derived name="substrate_location" expression="substrate_in_assembly(SELF)">
-<builtintype type="BOOLEAN"/>
-</derived>
-<derived name="the_context" expression="assembly_model\Representation.context_of_items">
-<typename name="Geometric_coordinate_space"/>
-</derived>
-<derived name="representing_relationship" expression="SELF">
-<typename name="Geometric_model_relationship"/>
-<redeclaration entity-ref="Contextual_shape_representation"/>
-</derived>
-<derived name="relation_type" expression="'component 2d location'">
-<builtintype type="STRING"/>
-<redeclaration entity-ref="Representation_relationship"/>
-</derived>
-<where label="WR1" expression="EXISTS (component)"/>
-<where label="IP1"/>
-<where label="IP2"/>
-</entity>
-<entity name="Component_part_2d_geometric_representation_relationship" supertypes="Geometric_model_relationship">
-<explicit name="part_shape">
-<typename name="part_template_or_physical_unit_2d_shape_select"/>
-<redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
-</explicit>
-<explicit name="component_shape">
-<typename name="Assembly_component_2d_shape"/>
-<redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
-</explicit>
-<where label="WR1" expression="NOT EXISTS(SELF\Representation_relationship.relation_type)"/>
-</entity>
-<rule name="unique_assembly_component_2d_shape" appliesto="">
-<algorithm>LOCAL
-     ac : SET OF Assembly_component := [];
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_arm schema_instance"/>
+   <schema name="Physical_unit_2d_design_view_arm">
+      <interface kind="use" schema="Physical_unit_2d_shape_arm"/>
+      <interface kind="use" schema="Physical_unit_design_view_arm"/>
+      <entity name="Assembly_component_2d_shape_model" supertypes="Planar_projected_shape_model" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="shape_characterized_component" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="Assembly_component"/>
+         </explicit>
+         <where label="WR1" expression="(SIZEOF(USEDIN(SELF,&#10; 'EXTENDED_BASIC_GEOMETRY_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'REFERENCED_SHAPE')) = 0)"/>
+      </entity>
+      <entity name="Component_2d_location" supertypes="Contextual_shape_representation Geometric_composition_with_operator_transformation" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="placement_fixed" optional="NO">
+            <builtintype type="BOOLEAN" fixed="NO"/>
+         </explicit>
+         <explicit name="transformation" optional="NO">
+            <typename name="Cartesian_transformation_2d"/>
+            <redeclaration entity-ref="Geometric_relationship_with_operator_transformation"/>
+         </explicit>
+         <explicit name="assembly_model" optional="NO">
+            <typename name="Physical_unit_planar_shape_model"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
+         </explicit>
+         <explicit name="component_model" optional="NO">
+            <typename name="Assembly_component_2d_shape_model"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
+         </explicit>
+         <derived name="component" expression="SELF\Contextual_shape_representation.contextual_shape.described_element">
+            <typename name="Next_assembly_usage"/>
+         </derived>
+         <derived name="substrate_location" expression="substrate_in_assembly(SELF)">
+            <builtintype type="BOOLEAN" fixed="NO"/>
+         </derived>
+         <derived name="the_context" expression="assembly_model\Representation.context_of_items">
+            <typename name="Geometric_coordinate_space"/>
+         </derived>
+         <derived name="representing_relationship" expression="SELF">
+            <typename name="Geometric_model_relationship"/>
+            <redeclaration entity-ref="Contextual_shape_representation"/>
+         </derived>
+         <derived name="relation_type" expression="'component 2d location'">
+            <builtintype type="STRING" fixed="NO"/>
+            <redeclaration entity-ref="Representation_relationship"/>
+         </derived>
+         <where label="WR1" expression="EXISTS (component)"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
+      </entity>
+      <entity name="Component_part_2d_geometric_representation_relationship" supertypes="Geometric_model_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="part_shape" optional="NO">
+            <typename name="part_template_or_physical_unit_2d_shape_select"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
+         </explicit>
+         <explicit name="component_shape" optional="NO">
+            <typename name="Assembly_component_2d_shape_model"/>
+            <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
+         </explicit>
+         <where label="WR1" expression="NOT EXISTS(SELF\Representation_relationship.relation_type)"/>
+      </entity>
+      <rule name="unique_assembly_component_2d_shape_model" appliesto="">
+         <algorithm>LOCAL
+     ac : BAG OF Assembly_component := [];
      pass : BOOLEAN := TRUE;
    END_LOCAL;
-   REPEAT i := 1 to SIZEOF(Assembly_component_2d_shape) by 1;
-     ac  := ac + Assembly_component_2d_shape[i].shape_characterized_component;
-   END_REPEAT;  
-   REPEAT i := 1 to SIZEOF(ac) by 1;
-     IF (SIZEOF(USEDIN(ac[i],
-       'PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE.SHAPE_CHARACTERIZED_COMPONENT')) &lt;&gt; 1) THEN 
-       pass := FALSE;
-       ESCAPE;
-     END_IF;
+   REPEAT i := 1 to SIZEOF(Assembly_component_2d_shape_model) by 1;
+     ac  := ac + Assembly_component_2d_shape_model[i].shape_characterized_component;
    END_REPEAT;</algorithm>
-<where label="WR1" expression="pass"/>
-</rule>
-<function name="bag_to_set">
-<parameter name="the_bag">
-<aggregate type="BAG" lower="0" upper="?"/>
-<builtintype type="GENERIC"/>
-</parameter>
-<aggregate type="SET" lower="0" upper="?"/>
-<builtintype type="GENERIC"/>
-<algorithm>LOCAL
+         <where label="WR1" expression="SIZEOF(ac) = SIZEOF(bag_to_set(ac))"/>
+      </rule>
+      <function name="bag_to_set">
+         <parameter name="the_bag">
+            <aggregate type="BAG" lower="0" upper="?" unique="NO" optional="NO"/>
+            <builtintype type="GENERIC" fixed="NO"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <builtintype type="GENERIC" fixed="NO"/>
+         <algorithm>LOCAL
       the_set : SET OF GENERIC : intype := [];
       i       : INTEGER;
     END_LOCAL;
@@ -97,13 +90,13 @@
       END_REPEAT;
     END_IF;
     RETURN(the_set);</algorithm>
-</function>
-<function name="substrate_in_assembly">
-<parameter name="c2dl">
-<typename name="Component_2d_location"/>
-</parameter>
-<builtintype type="BOOLEAN"/>
-<algorithm>RETURN(TRUE);</algorithm>
-</function>
-</schema>
+      </function>
+      <function name="substrate_in_assembly">
+         <parameter name="c2dl">
+            <typename name="Component_2d_location"/>
+         </parameter>
+         <builtintype type="BOOLEAN" fixed="NO"/>
+         <algorithm>RETURN(TRUE);</algorithm>
+      </function>
+   </schema>
 </express>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.25 2005/11/16 08:28:15 kovaliovas Exp $
+   $Id: arm.exp,v 1.26 2005/11/30 16:32:20 liutkus Exp $
    ISO TC184/SC4/WG12 N3456 - ISO/CD-TS 10303-1689 Interconnect physical requirement allocation - EXPRESS ARM
 *)
 
@@ -15,6 +15,10 @@ REFERENCE FROM Requirement_decomposition_arm (
   get_requirement_definition_property,
   get_rvd);	-- ISO/TS 10303-1740
 
+  TYPE electrical_isolation_removal_structure_or_template = EXTENSIBLE GENERIC_ENTITY SELECT
+    (Electrical_isolation_removal_template);
+  END_TYPE;
+
 	SUBTYPE_CONSTRAINT material_removal_feature_template_subtypes FOR Material_removal_feature_template; 
 	    (ONEOF (Electrical_isolation_removal_template,
 	 	Thermal_isolation_removal_template));
@@ -23,6 +27,29 @@ REFERENCE FROM Requirement_decomposition_arm (
  	TYPE thermal_isolation_removal_structure_or_template = EXTENSIBLE GENERIC_ENTITY SELECT
  		(Thermal_isolation_removal_template);
 	END_TYPE;
+
+  ENTITY Electrical_isolation_removal_template
+    SUBTYPE OF (Material_removal_feature_template);
+    DERIVE
+      electrical_isolation_spacing_requirement : SET[1:1] OF Requirement_view_definition := 
+        get_rvd(SELF, 'electrical requirement');
+    WHERE
+      WR1: SIZEOF(QUERY(eisr <* electrical_isolation_spacing_requirement |
+         NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.ELECTRICAL_ISOLATION_REQUIREMENT'
+        IN TYPEOF(eisr)) )) =0;
+  END_ENTITY;
+
+  ENTITY Electrical_isolation_requirement
+    SUBTYPE OF (Requirement_view_definition);
+    DERIVE
+      effective_voltage_withstand_capacity_requirement : SET[1:1] OF Requirement_definition_property := 
+        get_specific_requirement_property_for_collector(SELF, 'effective voltage withstand capacity requirement');
+      electrical_isolation_spacing_requirement : SET[1:1] OF Requirement_definition_property :=
+        get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'electrical isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE');
+    WHERE
+      WR1: 'FABRICATION_TECHNOLOGY_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(electrical_isolation_spacing_requirement[1]);
+      WR2: NOT EXISTS(SELF\Product_view_definition.additional_characterization);
+  END_ENTITY;
 
 ENTITY Interconnect_shield_allocation
     SUBTYPE OF (Requirement_assignment);

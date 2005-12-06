@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.143 2005/12/01 11:55:45 liutkus Exp $
+   $Id: arm.exp,v 1.144 2005/12/01 23:55:28 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -96,7 +96,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 	END_TYPE; 
 
  	TYPE limd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Laminate_layer_stack,
+		(Stratum_feature_based_pattern,
 		Stratum,
 		Laminate_component);
 	END_TYPE;
@@ -198,9 +198,9 @@ SCHEMA Layered_interconnect_module_design_arm;
                  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PACKAGE_BODY_SURFACE',
                  'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE'] * TYPEOF(subsequent_item.definition)) = 1);
       WR4 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(precedent_item)) OR 
-                (precedent_item.name = layered_interconnect_module_design_arm.stratum_surface_designation.secondary_surface);
+                (precedent_item.name = stratum_surface_designation.secondary_surface);
       WR5 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(subsequent_item)) OR 
-                (precedent_item.name = layered_interconnect_module_design_arm.stratum_surface_designation.primary_surface);                 
+                (precedent_item.name = stratum_surface_designation.primary_surface);                 
   END_ENTITY;
 
   ENTITY Blind_passage_template
@@ -355,6 +355,12 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : start_vertex :<>: end_vertex;
   END_ENTITY;
 
+  ENTITY Derived_stratum
+     SUBTYPE OF (Stratum);
+   WHERE
+     WR1: SIZEOF(USEDIN (SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE.RESIDENT_STRATUM')) = 1;
+  END_ENTITY;
+
   ENTITY Design_layer_stratum
     SUBTYPE OF (Stratum);
       primary_design_layer_stratum : BOOLEAN;
@@ -460,6 +466,8 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Part_definition_relationship);
       SELF\View_definition_relationship.relating_view RENAMED from_stratum : Stratum;
       SELF\View_definition_relationship.related_view RENAMED to_stratum    : Stratum;
+    DERIVE
+      included_stratum : SET [1:?] OF Stratum := get_included_stratum(SELF);
     WHERE
       WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
   END_ENTITY;
@@ -642,15 +650,6 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   END_ENTITY;
 
-  ENTITY Laminate_layer_stack;
-      name        : STRING;  
-      extent      : Inter_stratum_extent;
-    INVERSE
-      layer_usage	: SET[0:1] OF External_source_identification FOR item;
-    UNIQUE
-      UR1 : name;
-  END_ENTITY;
-
   ENTITY Laminate_text_component
     SUBTYPE OF (Laminate_component);
       SELF\Definition_based_product_occurrence.derived_from : Part_text_template;
@@ -763,17 +762,32 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Multi_layer_material_removal_laminate_component
     SUBTYPE OF (Material_removal_laminate_component);
-      derived_layer_geometry : Laminate_layer_stack;
+      derived_layer_geometry : Stratum_feature_based_derived_pattern;
+    WHERE
+      WR1: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN
+        TYPEOF(SELF\Material_removal_laminate_component.design_intent)) OR
+        (SELF\Material_removal_laminate_component.design_intent\Stratum_feature.resident_stratum = 
+             derived_layer_geometry.reference_stratum);
+      WR2: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT' IN
+        TYPEOF(SELF\Material_removal_laminate_component.design_intent)) OR
+        (SELF\Material_removal_laminate_component.design_intent\Stratum_feature_template_component.
+             stratum_feature_implementation\Stratum_feature.resident_stratum =
+        derived_layer_geometry.reference_stratum);
   END_ENTITY;
 
   ENTITY Multi_layer_stratum_feature
     SUBTYPE OF (Stratum_feature);
-      derived_layer_geometry : Laminate_layer_stack;
+      derived_layer_geometry : Stratum_feature_based_derived_pattern;
+    WHERE
+      WR1: SELF\Stratum_feature.resident_stratum = derived_layer_geometry.reference_stratum;
   END_ENTITY;
 
   ENTITY Multi_layer_stratum_feature_template_component
     SUBTYPE OF (Stratum_feature_template_component);
-      derived_layer_geometry : Laminate_layer_stack;
+      derived_layer_geometry : Stratum_feature_based_derived_pattern;
+    WHERE
+      WR1: SELF\Stratum_feature_template_component.stratum_feature_implementation\Stratum_feature.resident_stratum
+        = derived_layer_geometry.reference_stratum;
   END_ENTITY;
 
   ENTITY Padstack_occurrence
@@ -956,6 +970,16 @@ SCHEMA Layered_interconnect_module_design_arm;
     WR1 : SELF\Stratum_surface.name = stratum_surface_designation.average_surface;
   END_ENTITY;
 
+  ENTITY Stratum_based_pattern_inter_stratum_extent
+    SUBTYPE OF (Inter_stratum_extent);
+      reference_stratum : Stratum;
+    WHERE
+      WR1: reference_stratum IN SELF\Inter_stratum_extent.included_stratum;
+      (* Tom this rule does not compile - review it
+      WR2: SIZEOF(QUERY(rs <* SELF\Inter_stratum_extent.included_stratum | (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM','LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM] * TYPEOF(rs)) = 1)) = 1;
+      *)
+  END_ENTITY;
+
   ENTITY Stratum_embedded_physical_component_join_relationship
     SUBTYPE OF (Routed_join_relationship);
       terminal_to_be_connected : SET[1:?] OF Embedded_physical_component_terminal;
@@ -975,6 +999,31 @@ SCHEMA Layered_interconnect_module_design_arm;
       feature_of_size                                               : BOOLEAN;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, resident_stratum;
+  END_ENTITY;
+
+  ENTITY Stratum_feature_based_derived_pattern;
+      extent            : Inter_stratum_extent;
+      reference_stratum : Stratum;
+    INVERSE
+      layer_usage	: SET[0:1] OF External_source_identification FOR item;
+    WHERE
+      WR1: reference_stratum IN extent\Inter_stratum_extent.referenced_stratum;
+    (* Tom it is not compiling - review it
+      WR2: SIZEOF(QUERY(rs <* extent\Inter_stratum_extent.referenced_stratum |
+        (SIZEOF
+        (['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM','LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM] * TYPEOF
+         (rs)) = 1
+        )) = 1;
+    *)    
+  END_ENTITY;
+
+  ENTITY Stratum_feature_based_pattern;
+      name        : STRING;  
+      extent      : Inter_stratum_extent;
+    INVERSE
+      layer_usage	: SET[0:1] OF External_source_identification FOR item;
+    UNIQUE
+      UR1 : name;
   END_ENTITY;
 
   ENTITY Stratum_feature_template_component
@@ -1092,6 +1141,12 @@ SCHEMA Layered_interconnect_module_design_arm;
     END_REPEAT;
     pass := (input1 = ciet);
     RETURN(pass);
+  END_FUNCTION;
+
+  FUNCTION get_included_stratum(
+    input1 : Inter_stratum_extent
+  ) : SET OF Stratum;
+    RETURN (?);
   END_FUNCTION;
 
   FUNCTION make_aggregate_join(

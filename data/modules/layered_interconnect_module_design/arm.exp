@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.145 2005/12/06 10:08:37 liutkus Exp $
+   $Id: arm.exp,v 1.146 2005/12/06 21:56:16 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -467,7 +467,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       SELF\View_definition_relationship.relating_view RENAMED from_stratum : Stratum;
       SELF\View_definition_relationship.related_view RENAMED to_stratum    : Stratum;
     DERIVE
-      included_stratum : SET [1:?] OF Stratum := get_included_stratum(SELF);
+      included_stratum : SET [1:?] OF Stratum := get_included_stratum(from_stratum,to_stratum);
     WHERE
       WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
   END_ENTITY;
@@ -975,9 +975,11 @@ SCHEMA Layered_interconnect_module_design_arm;
       reference_stratum : Stratum;
     WHERE
       WR1: reference_stratum IN SELF\Inter_stratum_extent.included_stratum;
-      (* Tom this rule does not compile - review it
-      WR2: SIZEOF(QUERY(rs <* SELF\Inter_stratum_extent.included_stratum | (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM','LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM] * TYPEOF(rs)) = 1)) = 1;
-      *)
+
+      WR2: SIZEOF(QUERY(rs <* SELF\Inter_stratum_extent.included_stratum | 
+      (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',
+               'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(rs)) = 1)
+                  )) = 1;
   END_ENTITY;
 
   ENTITY Stratum_embedded_physical_component_join_relationship
@@ -1014,6 +1016,9 @@ SCHEMA Layered_interconnect_module_design_arm;
                   (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',
                            'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(s)) = 1)
                    )) = 1;
+      WR4: SIZEOF(QUERY(ds <* extent\Inter_Stratum_extent.included_stratum |
+             NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DERIVED_STRATUM' IN TYPEOF(ds))
+                 )) = 1;
   END_ENTITY;
 
   ENTITY Stratum_feature_based_pattern;
@@ -1143,7 +1148,8 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_FUNCTION;
 
   FUNCTION get_included_stratum(
-    input1 : Inter_stratum_extent
+    input1 : Stratum;
+    input2 : Stratum
   ) : SET OF Stratum;
     RETURN (?);
   END_FUNCTION;

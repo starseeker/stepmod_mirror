@@ -1,29 +1,22 @@
 (*
-   $Id: arm.exp,v 1.29 2005/11/16 07:43:50 kovaliovas Exp $
+   $Id: arm.exp,v 1.30 2005/12/07 07:34:23 liutkus Exp $
    ISO TC184/SC4/WG12 N3537 - ISO/CD-TS 10303-1722 Physical layout template - EXPRESS ARM
 *)
 
 SCHEMA Physical_layout_template_arm;
 
-	USE FROM Functional_decomposition_to_design_arm;	-- ISO/TS 10303-1676
+	USE FROM Analytical_model_arm;	-- ISO/TS 10303-1603
+
+	USE FROM Feature_and_connection_zone_arm;	-- ISO/TS 10303-1671
+   
+	USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032
 
 	REFERENCE FROM product_identification_arm(types_of_product); -- ISO/TS 10303-1017 
-
-
-	SUBTYPE_CONSTRAINT plt_connection_zone_subtypes FOR Connection_zone;     
-		 ONEOF (Connection_zone_in_usage_view,
-		 Connection_zone_in_design_view,
-		 Connection_zone_in_layout_template);
-	END_SUBTYPE_CONSTRAINT;
 
   TYPE correlated_or_independent = SELECT
     (Property_value_representation,
      characteristic);
   END_TYPE;
-
-	TYPE plt_physical_unit_or_part_template_or_fp_or_pd = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_or_part_template_or_fp_or_pd WITH 
-    	(Template_definition);
-	END_TYPE;
 
   ENTITY Connection_zone_in_layout_template
   	SUBTYPE OF (Connection_zone);
@@ -41,17 +34,6 @@ SCHEMA Physical_layout_template_arm;
  'PHYSICAL_LAYOUT_TEMPLATE_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'template model'))) > 0;
       WR2 : SELF\Shape_element.element_name = 'NULL';
   END_ENTITY; *)
-
-  ENTITY Reference_functional_unit_assignment_to_template;
-      functional_design_definition_path : Reference_composition_path;
-      implementation                    : Template_definition;
-      of_property                       : OPTIONAL SET[1:?] OF Property_value_representation;
-      path_alias                        : STRING; 
-      swap_code                         : OPTIONAL STRING;
-    UNIQUE
-      UR1 : implementation,
- path_alias;
-  END_ENTITY; 
 
 	ENTITY Reference_part_template_for_analytical_model ;
 		template					: Template_definition;

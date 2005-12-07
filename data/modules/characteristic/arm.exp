@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.26 2005/11/14 09:59:27 kovaliovas Exp $
+   $Id: arm.exp,v 1.27 2005/11/16 07:43:51 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3321 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
 *)
 
@@ -17,14 +17,9 @@ SCHEMA Characteristic_arm;
   END_TYPE;
 
 	TYPE c_documented_element_select = EXTENSIBLE SELECT BASED_ON documented_element_select WITH 
-	   (coordinated_characteristic);
+	   (Property_value_representation);
 	END_TYPE; 
   
-  TYPE coordinated_characteristic = SELECT
-    (Property_value_representation,
-    Characteristic_representation);
-  END_TYPE;
-
 	TYPE list_characteristic = LIST[1:?] OF characteristic;
 	END_TYPE; 
 
@@ -36,7 +31,7 @@ SCHEMA Characteristic_arm;
   END_TYPE;
 
   TYPE scalar_or_coordinated_characteristics = SELECT
-    (coordinated_characteristic,
+    (Property_value_representation,
      characteristic);
   END_TYPE;
 
@@ -51,10 +46,6 @@ SCHEMA Characteristic_arm;
         property_value : LIST[1:?] OF list_characteristic;
 	END_ENTITY;
 
-	ENTITY Characteristic_representation
-		SUBTYPE OF (Representation);
-	END_ENTITY;
-
   ENTITY Expanded_uncertainty
     SUBTYPE OF (Standard_uncertainty);
       coverage_factor : REAL;
@@ -62,7 +53,9 @@ SCHEMA Characteristic_arm;
 
   ENTITY Maximum_tolerance_characteristic
     SUBTYPE OF (Tolerance_characteristic);
-      SELF\Representation.items : SET[1:1] OF Numerical_item_with_unit;
+      SELF\Representation.items : SET [1:1] OF Value_limit;
+    WHERE
+      WR1: SELF\Representation.items[1]\Value_limit.limit_qualifier = limit_qualifier_list.maximum;
   END_ENTITY;
 
   ENTITY Measure_qualification;
@@ -74,7 +67,9 @@ SCHEMA Characteristic_arm;
 
   ENTITY Minimum_tolerance_characteristic
     SUBTYPE OF (Tolerance_characteristic);
-      SELF\Representation.items : SET[1:1] OF Numerical_item_with_unit;
+      SELF\Representation.items : SET [1:1] OF Value_limit;
+    WHERE
+      WR1: SELF\Representation.items[1]\Value_limit.limit_qualifier = limit_qualifier_list.minimum;
   END_ENTITY;
 
   ENTITY Nominal_tolerance_characteristic
@@ -112,8 +107,8 @@ SCHEMA Characteristic_arm;
   END_ENTITY;
 
   ENTITY Range_characteristic
-    SUBTYPE OF (Characteristic_representation);
-      SELF\Representation.items 	: SET[2:2] OF Numerical_item_with_unit;
+    SUBTYPE OF (Property_value_representation);
+      SELF\Representation.items : SET[2:2] OF Numerical_item_with_unit;
       range_type				: range_class;
   WHERE
     WR1 : TYPEOF(SELF\Representation.items[1]) =
@@ -132,6 +127,7 @@ SCHEMA Characteristic_arm;
 
   ENTITY Statistical_tolerance_characteristic
     SUBTYPE OF (Tolerance_characteristic);
+      SELF\Representation.items : SET [2:?] OF Numerical_item_with_unit;
   END_ENTITY;
 
   ENTITY Symmetrical_tolerance_characteristic
@@ -148,14 +144,13 @@ SCHEMA Characteristic_arm;
   END_ENTITY;
 
   ENTITY Tolerance_characteristic
-    SUPERTYPE OF (ONEOF (Minimum_tolerance_characteristic,
+    ABSTRACT SUPERTYPE OF (ONEOF (Minimum_tolerance_characteristic,
  Statistical_tolerance_characteristic,
  Symmetrical_tolerance_characteristic,
  Maximum_tolerance_characteristic,
  Plus_minus_tolerance_characteristic,
  Nominal_tolerance_characteristic))
-    SUBTYPE OF (Characteristic_representation);
-      SELF\Representation.items : SET[1:?] OF Numerical_item_with_unit;
+    SUBTYPE OF (Property_value_representation);
     WHERE
       WR1: SELF\Representation.context_of_items\Representation_context.id = 'tolerance values';
   END_ENTITY;
@@ -170,6 +165,11 @@ SCHEMA Characteristic_arm;
       measure_name : STRING; 
       description  : STRING; 
   END_ENTITY;
+
+SUBTYPE_CONSTRAINT exclusive_property_value_representation_characteristic FOR
+Property_value_representation;
+          ONEOF (Range_characteristic, Tolerance_characteristic);
+END_SUBTYPE_CONSTRAINT;
 
 FUNCTION get_value (
          input1 : string;

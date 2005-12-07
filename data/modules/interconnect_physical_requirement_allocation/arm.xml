@@ -12,9 +12,31 @@
          <interfaced.item name="get_requirement_definition_property"/>
          <interfaced.item name="get_rvd"/>
       </interface>
+      <type name="electrical_isolation_removal_structure_or_template">
+         <select extensible="YES" genericentity="YES" selectitems="Electrical_isolation_removal_template"/>
+      </type>
       <type name="thermal_isolation_removal_structure_or_template">
          <select extensible="YES" genericentity="YES" selectitems="Thermal_isolation_removal_template"/>
       </type>
+      <entity name="Electrical_isolation_removal_template" supertypes="Material_removal_feature_template">
+         <derived name="electrical_isolation_spacing_requirement" expression="get_rvd(SELF, 'electrical requirement')">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Requirement_view_definition"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(QUERY(eisr &lt;* electrical_isolation_spacing_requirement |&#10;         NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.ELECTRICAL_ISOLATION_REQUIREMENT'&#10;        IN TYPEOF(eisr)) )) =0"/>
+      </entity>
+      <entity name="Electrical_isolation_requirement" supertypes="Requirement_view_definition">
+         <derived name="effective_voltage_withstand_capacity_requirement" expression="get_specific_requirement_property_for_collector(SELF, 'effective voltage withstand capacity requirement')">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Requirement_definition_property"/>
+         </derived>
+         <derived name="electrical_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'electrical isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Requirement_definition_property"/>
+         </derived>
+         <where label="WR1" expression="'FABRICATION_TECHNOLOGY_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(electrical_isolation_spacing_requirement[1])"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+      </entity>
       <entity name="Interconnect_shield_allocation" supertypes="Requirement_assignment">
          <explicit name="assigned_to">
             <typename name="integral_or_routed_shield"/>

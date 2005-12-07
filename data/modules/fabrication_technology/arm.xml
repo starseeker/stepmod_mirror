@@ -5,6 +5,7 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
    <schema name="Fabrication_technology_arm">
+      <interface kind="use" schema="Part_feature_location_arm"/>
       <interface kind="use" schema="Physical_layout_template_arm"/>
       <interface kind="use" schema="Requirement_decomposition_arm"/>
       <interface kind="reference" schema="Specification_document_arm">
@@ -127,14 +128,14 @@
             <unique.attribute attribute="of_passage_technology"/>
             <unique.attribute entity-ref="Land_physical_template" attribute="of_stratum_technology"/>
          </unique>
-         <where label="WR1" expression="of_stratum_extent IN of_passage_technology.as_finished_inter_stratum_extent"/>
+         <where label="WR1" expression="SIZEOF(of_stratum_extent * of_passage_technology.as_finished_inter_stratum_extent)&#10;            = SIZEOF(of_stratum_extent)"/>
       </entity>
       <entity name="Default_plated_passage_based_land_physical_template" supertypes="Default_passage_based_land_physical_template" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="of_passage_technology" optional="NO">
             <typename name="Passage_technology"/>
             <redeclaration entity-ref="Default_passage_based_land_physical_template"/>
          </explicit>
-         <where label="WR1" expression="of_passage_technology.of_technology.plated_passage = TRUE"/>
+         <where label="WR1" expression="of_passage_technology.plated_passage = TRUE"/>
       </entity>
       <entity name="Default_tapered_blind_via_definition" supertypes="Default_via_definition" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="as_finished_interior_passage_extent" optional="NO">
@@ -199,11 +200,6 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression="(EXISTS (pre_defined_documentation_layer_purpose)) XOR ((SIZEOF(externally_defined_documentation_layer_purpose)) = 1)"/>
-      </entity>
-      <entity name="Electrical_isolation_removal_template" supertypes="Material_removal_feature_template" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="electrical_isolation_spacing_requirement" optional="NO">
-            <typename name="Layout_spacing_requirement_occurrence"/>
-         </explicit>
       </entity>
       <entity name="Inter_stratum_feature_template" supertypes="Template_definition" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="of_passage_technology" optional="NO">
@@ -281,7 +277,7 @@
          <where label="WR1" expression="'VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Requirement_definition_property.required_characteristic.items[1])"/>
       </entity>
       <entity name="Material_addition_feature_template" supertypes="Stratum_feature_template" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Material_removal_feature_template" supertypes="Template_definition" super.expression="Dependent_material_removal_feature_template ANDOR Electrical_isolation_removal_template" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Material_removal_feature_template" supertypes="Template_definition" super.expression="Dependent_material_removal_feature_template" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="of_stratum_technology" optional="YES">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Stratum_technology"/>

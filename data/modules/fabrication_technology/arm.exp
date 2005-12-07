@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.53 2005/12/07 17:35:03 liutkus Exp $
+   $Id: arm.exp,v 1.54 2005/12/07 17:57:07 liutkus Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -260,9 +260,8 @@ SCHEMA Fabrication_technology_arm;
 
 	ENTITY Default_plated_passage_based_land_physical_template
 	  SUBTYPE OF (Default_passage_based_land_physical_template);
-	   SELF\Default_passage_based_land_physical_template.of_passage_technology : Passage_technology;
 	 WHERE
-	   WR1 : of_passage_technology.plated_passage = TRUE;
+	   WR1 : SELF\Default_passage_based_land_physical_template.of_passage_technology.plated_passage = TRUE;
 	END_ENTITY;
 
   ENTITY Default_tapered_blind_via_definition
@@ -312,11 +311,11 @@ SCHEMA Fabrication_technology_arm;
       SELF\Stratum_technology.minimum_finished_feature_size    : Length_data_element;
       SELF\Stratum_technology.minimum_finished_feature_spacing : Length_data_element;
    WHERE
-	WR1 : SIZEOF([stratum_material.electrical_conductivity_classification,
-           stratum_material.magnetic_conductivity_classification, 
-           stratum_material.optical_conductivity_classification,  
-           stratum_material.thermal_conductivity_classification] *
-           ['conductive']) >= 1;
+	WR1 : (SIZEOF([SELF\Stratum_technology.stratum_material.electrical_conductivity_classification,
+           SELF\Stratum_technology.stratum_material.thermal_conductivity_classification] *
+           ['conductive']) >= 1) OR
+       (SELF\Stratum_technology.stratum_material.magnetic_permeability_classification IN ['highly permeable']) OR
+       (SELF\Stratum_technology.stratum_material.optical_insertion_loss_classification IN ['vacuum', 'very low loss', 'low loss']);
   END_ENTITY;
 
   ENTITY Documentation_layer_technology
@@ -429,10 +428,8 @@ SCHEMA Fabrication_technology_arm;
       WR4: NOT EXISTS(as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
       WR5: NOT (plated_passage) OR
            (SIZEOF([deposition_material[1].electrical_conductivity_classification,
-                   deposition_material[1].magnetic_conductivity_classification, 
-                   deposition_material[1].optical_conductivity_classification,  
-                   deposition_material[1].thermal_conductivity_classification] *
-                  ['conductive']) >= 1);
+                    deposition_material[1].thermal_conductivity_classification] *
+                   ['conductive']) >= 1);
       WR6 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_passage_extent)) OR
         ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_passage_extent)) OR
         (SIZEOF(QUERY(it <* as_finished_passage_extent\Representation.items |
@@ -451,10 +448,6 @@ SCHEMA Fabrication_technology_arm;
         (SIZEOF(QUERY(it <* as_finished_deposition_thickness\Representation.items |
         ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_deposition_thickness\Representation.items))
            )) = 1);
-      -- TODO for Tom            
---      WR6: no vertex in as_finished_vertical_extent shall have degree greater than two;
---      WR7: one vertex in as_finished_vertical_extent shall not have a precedent sto;
---      WR8: one vertex in as_finished_vertical_extent shall not have a subsequent sto;
 	END_ENTITY;
 
   ENTITY Stratum_feature_template

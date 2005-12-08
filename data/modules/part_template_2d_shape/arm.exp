@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.75 2005/12/06 21:22:47 thomasrthurman Exp $
+   $Id: arm.exp,v 1.76 2005/12/08 10:03:29 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -297,10 +297,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       UR1 : reference_location;
 	WHERE
       WR1: template_shape.shape_characterized_part_template :=: reference_location.template;
-      WR2: NOT('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(assembly_shape)) OR 
-         (assembly_shape\Footprint_definition_shape_model.shape_characterized_definition :=: reference_location.assembly);
-      WR3: NOT('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION_SHAPE_MODEL' IN TYPEOF(assembly_shape)) OR 
-         (assembly_shape\Padstack_definition_shape_model.shape_characterized_definition :=: reference_location.assembly);
+      WR2: assembly_shape.shape_characterized_definition :=: reference_location.assembly;
   END_ENTITY;
 
   ENTITY Part_template_planar_keepout_shape_model
@@ -340,7 +337,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       breakout_padstack : Padstack_location_in_footprint_definition;
     WHERE
     -- Both padstacks must point to the same package_terminal
-      WR1: original_padstack.reference_package_terminal = breakout_padstack.reference_package_terminal;
+      WR1: original_padstack.reference_package_terminal :=: breakout_padstack.reference_package_terminal;
     -- original_padstack must belong to Footprint_definition
       WR2: original_padstack.footprint :=: assembly.reference_footprint;
     -- breakout_padstack must belong to Breakout_footprint_definition
@@ -357,8 +354,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       bound_stratum : stratum_technology_occurrence_or_stratum_technology;
     WHERE
       WR1: SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE',
-                   'FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE',
-                   'PART_TEMPLATE_2D_SHAPE_ARM.SPECIAL_SYMBOL_DEFINITION'] * TYPEOF(template)) = 1;
+                   'FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1;
       WR2: NOT(SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1) OR
              ((NOT (SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1) OR
                (SIZEOF(QUERY(st <* template\Stratum_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.55 2005/12/07 23:22:00 thomasrthurman Exp $
+   $Id: arm.exp,v 1.56 2005/12/08 09:53:19 liutkus Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -339,6 +339,15 @@ SCHEMA Fabrication_technology_arm;
        (SELF\Stratum_technology.stratum_material.optical_insertion_loss_classification IN ['vacuum', 'very low loss', 'low loss']);
   END_ENTITY;
 
+  ENTITY Design_stack_model -- choose some of the Stratum_technology_occurrence
+    SUBTYPE OF(Stratum_stack_model);
+      passage: SET [1:?] OF Passage_technology_allocation_to_stack_model;
+      reference_model : OPTIONAL Library_stack_model; 
+    WHERE
+      WR1: NOT EXISTS(reference_model) OR (SELF\Stratum_stack_model.composing_occurrence IN
+        reference_model\Stratum_stack_model.composing_occurrence);
+  END_ENTITY;
+
   ENTITY Documentation_layer_technology
     SUBTYPE OF (Stratum_technology);
       pre_defined_documentation_layer_purpose : OPTIONAL predefined_documentation_layer_purpose;
@@ -411,6 +420,11 @@ SCHEMA Fabrication_technology_arm;
       WR1 : 'VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Requirement_definition_property.required_characteristic.items[1]);
   END_ENTITY;
 
+-- has many Stratum_technology_occurrence, more than may be actually used
+  ENTITY Library_stack_model 
+    SUBTYPE OF(Stratum_stack_model);
+  END_ENTITY;
+
   ENTITY Material_addition_feature_template
     SUBTYPE OF (Stratum_feature_template);
   END_ENTITY;
@@ -471,6 +485,20 @@ SCHEMA Fabrication_technology_arm;
            )) = 1);
 	END_ENTITY;
 
+  ENTITY Passage_technology_allocation_to_stack_model;
+      allocated_technology : Passage_technology;
+      from_stratum_technology_occurrence : Stratum_technology_occurrence;
+      to_stratum_technology_occurrence : Stratum_technology_occurrence;
+      stratum_technology_sequence : OPTIONAL SET[1:?] OF Stratum_technology_occurrence_link;
+    INVERSE
+      associated_stackup : Design_stack_model FOR passage;
+--wr1 desc: from_stratum_technology_occurrence and to_stratum_technology_occurrence shall be referenced by passage.
+--wr2 desc: if sts exists, then from_stratum_technology_occurrence and 
+-- to_stratum_technology_occurrence shall be referenced by sts
+-- as a terminus of the sequence of sto created by sto_link specified by the sts
+-- attribute.
+END_ENTITY;
+
   ENTITY Stratum_feature_template
     SUPERTYPE OF (ONEOF (Land_physical_template,
  Material_addition_feature_template))
@@ -481,8 +509,12 @@ SCHEMA Fabrication_technology_arm;
   END_ENTITY;
 
   ENTITY Stratum_stack_model
+    ABSTRACT SUPERTYPE OF(ONEOF(Library_stack_model,Design_stack_model))
     SUBTYPE OF(Template_definition);
-      passages : SET [1:?] OF Passage_technology;
+    DERIVE
+      composing_occurrence : SET [1:?] OF Stratum_technology_occurrence := get_stack(composing_link);
+    INVERSE
+      composing_link : SET[1:?] OF Stratum_technology_occurrence_link FOR scope;
   END_ENTITY;
 
   ENTITY Stratum_technology
@@ -515,25 +547,17 @@ SCHEMA Fabrication_technology_arm;
   ENTITY Stratum_technology_occurrence;
     name       : STRING; 
     definition : Stratum_technology;
-    scope      : Stratum_stack_model;
   UNIQUE
-    UR1: name, scope;  
+    UR1: name;  
    --also don't want to disallow multiple references to one stratum_technology!
-  WHERE
-    WR1: SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK.SUBSEQUENT_STO'))< 2;
-   --description: sto shall not be referenced by more than one link as a subsequent_sto
-    WR2:SIZEOF(USEDIN(SELF,'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK.PRECEDENT_STO'))< 2;
-   --description: sto shall not be referenced by more than one link as a precedent_sto 
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence_link;
     precedent_sto  : Stratum_technology_occurrence;
     subsequent_sto : Stratum_technology_occurrence;
-  DERIVE  
-    scope          : Stratum_stack_model := precedent_sto.scope;
+    scope          : Stratum_stack_model;
   WHERE
    WR1 : precedent_sto <> subsequent_sto;
-   WR2 : precedent_sto.scope = subsequent_sto.scope;
 --  IPs
 --  IP1: acyclic stos
   END_ENTITY;
@@ -585,7 +609,7 @@ SCHEMA Fabrication_technology_arm;
   END_ENTITY;
 
 FUNCTION get_electrical_conductivity
-  (mi : SET[0:?] OF material_identification) : BOOLEAN;
+  (mi : SET[0:?] OF Material_identification) : BOOLEAN;
 	REPEAT i := 1 to SIZEOF(mi) by 1;
 	  IF ('CONDUCTIVITY_MATERIAL_ASPECT.'+'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' 
 	  	IN TYPEOF (mi[i])) THEN
@@ -596,6 +620,11 @@ FUNCTION get_electrical_conductivity
 	  END_IF;
 	END_REPEAT;
 	RETURN (FALSE);
+END_FUNCTION;
+
+FUNCTION get_stack
+  (links : SET[1:?] OF Stratum_technology_occurrence_link) : SET[1:?] OF Stratum_technology_occurrence;
+   RETURN (?);
 END_FUNCTION;
 
   FUNCTION less(input1 : Tolerance_characteristic;

@@ -143,8 +143,11 @@ SCHEMA Physical_unit_usage_view_arm;
 FUNCTION get_derived_shape_element( input : Part_view_definition) : SET OF Derived_shape_element;
 LOCAL
  is : SET OF Item_shape := bag_to_set(USEDIN(input, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE.DESCRIBED_ELEMENT'));
- se : SET OF Shape_element := bag_to_set(USEDIN(is, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE'));
+ se : SET OF Shape_element := [];
 END_LOCAL; 
+REPEAT i := 1 to SIZEOF(is) by 1;
+   se  := se + bag_to_set(USEDIN(is[i], 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE'));
+END_REPEAT;  
 
 RETURN(QUERY(dse <* se | 'DERIVED_SHAPE_ELEMENT_ARM.DERIVED_SHAPE_ELEMENT' IN TYPEOF(se)));
 END_FUNCTION;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.149 2005/12/08 09:21:23 kovaliovas Exp $
+   $Id: arm.exp,v 1.150 2005/12/08 09:53:20 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -91,6 +91,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 
  	TYPE limd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
 		(Stratum_feature_based_pattern,
+		Stratum_feature_based_derived_pattern,
 		Stratum,
 		Laminate_component);
 	END_TYPE;
@@ -582,15 +583,18 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Assembly_component);
       SELF\Definition_based_product_occurrence.derived_from : Template_definition;
     INVERSE
-      padstack_occurrence_assembly  : SET[0:1] OF padstack_occurrence_sub_assembly_relationship FOR related_view;      
-      footprint_occurrence_assembly : SET[0:1] OF footprint_occurrence_sub_assembly_relationship FOR related_view;
 	  cad_layer						: SET[0:1] OF External_source_identification FOR item;      	  
     WHERE
-      WR1 : SIZEOF(padstack_occurrence_assembly) + SIZEOF(footprint_occurrence_assembly) < 2;
-      WR2 : NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR 
-            	(padstack_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1]);
-      WR3 : NOT (SIZEOF(padstack_occurrence_assembly) = 1) OR 
-            	(footprint_occurrence_assembly[1] = SELF\Assembly_component.occurrence_contexts[1]);            	
+    WR1: (NOT('ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1])) OR
+              ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN 
+               TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\View_definition_relationship.relating_view))
+          )
+         OR
+         ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MULTI_LAYER_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN 
+          TYPEOF(SELF\Assembly_component.occurrence_contexts[1]));
+    WR2: SIZEOF(QUERY(oc <* SELF\Assembly_component.occurrence_contexts |
+                NOT(TYPEOF(oc) = TYPEOF(SELF\Assembly_component.occurrence_contexts[1]))
+                )) = 0;
   END_ENTITY;
 
   ENTITY Laminate_component_feature

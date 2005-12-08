@@ -1,5 +1,5 @@
 (*
-	$Id: arm.exp,v 1.27 2005/11/17 14:21:25 liutkus Exp $
+	$Id: arm.exp,v 1.28 2005/11/24 17:02:31 liutkus Exp $
    ISO TC184/SC4/WG12 N3465 - ISO/CD-TS 10303-1692 Land - EXPRESS ARM
 *)
 
@@ -45,7 +45,11 @@ SCHEMA Land_arm;
       alternate_land_definition                             : OPTIONAL Land_physical_template;
       SELF\Definition_based_product_occurrence.derived_from : Land_physical_template;
     DERIVE
-      functional : BOOLEAN := is_functional_land(SELF);
+       functional: BOOLEAN :=
+        (SIZEOF(USEDIN(SELF\Stratum_feature_template_component.stratum_feature_implementation,
+         'LAYERED_INTERCONNECT_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT.COMPOSED_CONDUCTOR')) +
+         SIZEOF(USEDIN(SELF\Stratum_feature_template_component.stratum_feature_implementation,
+         'LAYERED_INTERCONNECT_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.STRATUM_FEATURE_IMPLEMENTATION')) > 1);
     INVERSE
       access_mechanism : SET[1:?] OF land_join_terminal FOR associated_component;
   END_ENTITY;
@@ -77,9 +81,5 @@ END_ENTITY;
       reference_passage                                     : Unsupported_passage;
       SELF\Definition_based_product_occurrence.derived_from : Default_unsupported_passage_based_land_physical_template;
   END_ENTITY;
-
-  FUNCTION is_functional_land(input : Land): BOOLEAN;
-    RETURN (TRUE);
-  END_FUNCTION;
 
 END_SCHEMA;

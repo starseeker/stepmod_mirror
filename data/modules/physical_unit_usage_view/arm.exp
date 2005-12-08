@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.49 2005/11/23 12:58:13 liutkus Exp $
+   $Id: arm.exp,v 1.51 2005/12/08 20:17:09 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3579 - ISO/CD-TS 10303-1732 Physical unit usage view - EXPRESS ARM
 *)
 
@@ -95,18 +95,24 @@ SCHEMA Physical_unit_usage_view_arm;
 
   ENTITY Part_feature_template_definition
     SUBTYPE OF (Feature_definition);
-    INVERSE
-      shape : part_feature_template_shape_model FOR shape_characterized_template;
+      id : STRING;
+      SELF\Feature_definition.feature_model : Part_feature_template_shape_model;
+    UNIQUE
+      UR1 : id; 
   END_ENTITY;
 
   ENTITY Part_feature_template_shape_model
     SUBTYPE OF (Geometric_model);
-      shape_characterized_template : Part_feature_template_definition;
+    INVERSE 
+      shape_characterized_template : Part_feature_template_definition FOR feature_model;
     WHERE
-      WR1 : NOT (SIZEOF(USEDIN(SELF,
- '')) = 0) OR (SIZEOF(QUERY(foo <* USEDIN(SELF,
- '') | NOT ('PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF(foo)))) = 0);
+      WR1 : NOT (SIZEOF(USEDIN(SELF, '')) > 1) OR 
+       (SIZEOF(QUERY(foo <* USEDIN(SELF,
+        '') | NOT(SIZEOF(['PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP','PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE_TEMPLATE_DEFINITION'] * TYPEOF(foo))= 1)) 
+        = 0));
+--DESC: If self is useding more than once (one for Part_feature_template_definition) then the other USEDIN shall be a UCUR.
       WR2 : NOT EXISTS(SELF\Representation.description);
+      WR3 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;            
   END_ENTITY;
 
   ENTITY Part_usage_view

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.146 2005/12/06 21:56:16 thomasrthurman Exp $
+   $Id: arm.exp,v 1.147 2005/12/06 23:49:06 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -949,6 +949,13 @@ SCHEMA Layered_interconnect_module_design_arm;
         QUERY(tmp <* of_surface | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE' IN TYPEOF(tmp));
 
       SELF\Item_shape.described_element : shapeable_item := SELF;
+      
+      of_product_version : SET [1:?] OF product_version := 
+          bag_to_set(QUERY(pv <* USEDIN(assembly[1].assembly.defined_version.of_product, 'PRODUCT_VERSION_ARM.PRODUCT_VERSION.OF_PRODUCT') | 
+                (SIZEOF(QUERY( pd <* USEDIN(pv, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.DEFINED_VERSION') |
+                     (SIZEOF(QUERY(nauo <* USEDIN(pd, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.ASSEMBLY') | (SELF = nauo.component))) = 1)
+                     )) = 1)
+               ));
     INVERSE
       of_surface         	: SET[1:3] OF stratum_surface FOR of_stratum;
       assembly           	: SET[1:?] OF interconnect_module_stratum_assembly_relationship FOR component;
@@ -962,6 +969,11 @@ SCHEMA Layered_interconnect_module_design_arm;
     WR5: NOT(SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) = 1) OR
             (SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) = 1);
     WR6: NOT EXISTS (SELF\Product_view_definition.additional_characterization);
+    WR7: SIZEOF(QUERY(asse <* assembly |
+                NOT(asse.assembly.defined_version.of_product = assembly[1].assembly.defined_version.of_product)
+         )) = 0;
+    WR8: SIZEOF(of_product_version) = SIZEOF(assembly);
+    WR9: SELF\Product_view_definition.defined_version IN of_product_version;
   END_ENTITY;
 
   ENTITY Stratum_average_surface

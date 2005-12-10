@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.59 2005/12/09 12:44:16 liutkus Exp $
+   $Id: arm.exp,v 1.60 2005/12/09 22:03:22 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -493,22 +493,20 @@ SCHEMA Fabrication_technology_arm;
       to_stratum_technology_occurrence : OPTIONAL Stratum_technology_occurrence;
       stratum_technology_sequence : OPTIONAL SET [1:?] OF Stratum_technology_occurrence_link;
       associated_stackup : SET [1:?] OF Design_stack_model;
---wr1 desc: if they exist, from_stratum_technology_occurrence and to_stratum_technology_occurrence shall be referenced by associated_stackup.
---wr2 desc: if sts exists, then from_stratum_technology_occurrence and 
--- to_stratum_technology_occurrence shall be referenced by sts
--- as a terminus of the sequence of sto created by sto_link specified by the sts
--- attribute.
---wr3 desc: if sts does not exist, then from_stratum_technology_occurrence and to_stratum_technology_occurrence shall reference the same sto.
---wr4 desc: NOT (from_stratum_technology_occurrence XOR to_stratum_technology_occurrence) -- from_stratum_technology_occurrence shall exist iff to_stratum_technology_occurrence exists
---wr5 desc: sts XOR from_stratum_technology_occurrence -- either sts or from_stratum_technology_occurrence shall exist but not both. 
---note: since wr4 requires to_stratum_technology_occurrence to exist if from_stratum_technology_occurrence does there is no need to include to_stratum_technology_occurrence in this rule
---wr6: each member of associated_stackup shall be for same product
---wr7: the number of versions of the product shall be the same as the size of associated_stackup.
---wr8: each member of versions of the product shall be referenced by no more than one member of the associated_stackup.
---wr9: sts shall be a list without breaks;
-END_ENTITY;
-
---(iff is if and only if)--(not(a) OR B)(Not(b) or a)==>(not(ab) + ab)=>not(a xor b)
+   WHERE 
+     WR1: (NOT EXISTS(from_stratum_technology_occurrence) OR
+               (from_stratum_technology_occurrence IN associated_stackup.composing_occurrence)) AND
+          (NOT EXISTS(to_stratum_technology_occurrence) OR
+               (to_stratum_technology_occurrence IN associated_stackup.composing_occurrence));
+     WR2: EXISTS(stratum_technology_sequence) OR
+               (from_stratum_technology_occurrence = to_stratum_technology_occurrence);
+     WR3: NOT (from_stratum_technology_occurrence XOR to_stratum_technology_occurrence);
+     WR4: stratum_technology_sequence XOR from_stratum_technology_occurrence;
+     WR5: SIZEOF(QUERY(ast <* associated_stackup | 
+               (SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(ast IN sts.scope))) = 0)
+               )) = 0;
+     WR6: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1);     
+  END_ENTITY;
 
   ENTITY Stratum_feature_template
     SUPERTYPE OF (ONEOF (Land_physical_template,
@@ -619,6 +617,23 @@ END_ENTITY;
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
+  FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+  END_FUNCTION;
+
 FUNCTION get_electrical_conductivity
   (mi : SET[0:?] OF Material_identification) : BOOLEAN;
 	REPEAT i := 1 to SIZEOF(mi) by 1;
@@ -633,10 +648,17 @@ FUNCTION get_electrical_conductivity
 	RETURN (FALSE);
 END_FUNCTION;
 
-FUNCTION get_stack
-  (links : SET[1:?] OF Stratum_technology_occurrence_link) : SET[1:?] OF Stratum_technology_occurrence;
-   RETURN (?);
-END_FUNCTION;
+ FUNCTION get_stack(input : SET OF Stratum_technology_occurrence_link) : SET OF Stratum_technology_occurrence;
+  LOCAL
+   sto : SET OF Stratum_technology_occurrence := [];
+    i : INTEGER := 0;
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   sto := sto + input[i].precedent_sto + input[i].subsequent_sto;
+  END_REPEAT;
+  RETURN(sto);
+  END_FUNCTION;
+
 
   FUNCTION less(input1 : Tolerance_characteristic;
               input2 : Tolerance_characteristic) : BOOLEAN;

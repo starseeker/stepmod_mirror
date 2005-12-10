@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.60 2005/12/09 22:03:22 thomasrthurman Exp $
+   $Id: arm.exp,v 1.61 2005/12/10 18:33:26 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -505,7 +505,8 @@ SCHEMA Fabrication_technology_arm;
      WR5: SIZEOF(QUERY(ast <* associated_stackup | 
                (SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(ast IN sts.scope))) = 0)
                )) = 0;
-     WR6: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1);     
+     WR6: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1); 
+     WR7: sts_vertex_degree_less_than_two(stratum_technology_sequence);
   END_ENTITY;
 
   ENTITY Stratum_feature_template
@@ -659,10 +660,40 @@ END_FUNCTION;
   RETURN(sto);
   END_FUNCTION;
 
-
   FUNCTION less(input1 : Tolerance_characteristic;
               input2 : Tolerance_characteristic) : BOOLEAN;
     RETURN(TRUE);
   END_FUNCTION;
+
+ FUNCTION sts_vertex_degree_less_than_two(input : SET OF Stratum_technology_occurrence_link) : BOOLEAN;
+ LOCAL
+   psto : BAG OF INTEGER := [];
+   ssto : BAG OF INTEGER := [];
+   sto : SET OF Stratum_technology_occurrence := get_stack(input);
+   i : INTEGER := 0;
+   j : INTEGER := 0;
+   pass : BOOLEAN := TRUE;
+ END_LOCAL;
+  REPEAT i := 1 TO SIZEOF(sto) BY 1;
+   REPEAT j := 1 TO SIZEOF(input) BY 1;
+     IF (input[j].precedent_sto IN sto[i]) THEN 
+      psto[i] := psto[i] + 1;
+      IF (psto[i] = 2) THEN 
+       pass := FALSE; 
+       ESCAPE; 
+      END_IF;
+     END_IF;  
+     IF (input[j].subsequent_sto IN sto[i]) THEN 
+      ssto[i] := ssto[i] + 1;  
+      IF (ssto[i] = 2) THEN 
+       pass := FALSE; 
+       ESCAPE; 
+      END_IF;
+     END_IF;  
+   END_REPEAT;                                     
+  END_REPEAT;                                     
+ RETURN(pass);
+ END_FUNCTION;                                 
+
 
 END_SCHEMA;

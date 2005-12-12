@@ -77,6 +77,7 @@
          <where label="WR1" expression="NOT EXISTS(precedent_feature) OR&#10;                NOT( precedent_feature IN subsequent_feature)"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       <where label="IP1"/>
+      <where label="IP1"/>
       </entity>
       <entity name="Part_feature_make_from_relationship" supertypes="Shape_element_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="associated_make_from" optional="NO">
@@ -98,16 +99,25 @@
          <where label="WR2" expression="reusable_feature.associated_definition :&lt;&gt;: resultant_feature.associated_definition"/>
       </entity>
       <entity name="Part_feature_template_definition" supertypes="Feature_definition" abstract.supertype="NO" abstract.entity="NO">
-         <inverse name="shape" entity="Part_feature_template_shape_model" attribute="shape_characterized_template"/>
+         <explicit name="id" optional="NO">
+            <builtintype type="STRING" fixed="NO"/>
+         </explicit>
+         <explicit name="feature_model" optional="NO">
+            <typename name="Part_feature_template_shape_model"/>
+            <redeclaration entity-ref="Feature_definition"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="id"/>
+         </unique>
       </entity>
       <entity name="Part_feature_template_shape_model" supertypes="Geometric_model" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="shape_characterized_template" optional="NO">
-            <typename name="Part_feature_template_definition"/>
-         </explicit>
-         <where label="WR1" expression="NOT (SIZEOF(USEDIN(SELF,&#10; '')) = 0) OR (SIZEOF(QUERY(foo &lt;* USEDIN(SELF,&#10; '') | NOT ('PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP' IN TYPEOF(foo)))) = 0)"/>
+         <inverse name="shape_characterized_template" entity="Part_feature_template_definition" attribute="feature_model"/>
+         <where label="WR1" expression="NOT (SIZEOF(USEDIN(SELF, '')) &gt; 1) OR &#10;       (SIZEOF(QUERY(foo &lt;* USEDIN(SELF,&#10;        '') | NOT(SIZEOF(['PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP','PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE_TEMPLATE_DEFINITION'] * TYPEOF(foo))= 1)) &#10;        = 0))"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Representation.description)"/>
+         <where label="WR3" expression="SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0"/>
       </entity>
       <entity name="Part_usage_view" supertypes="Part_view_definition Item_shape" abstract.supertype="NO" abstract.entity="NO">
+
          <derived name="described_element" expression="SELF">
             <typename name="shapeable_item"/>
             <redeclaration entity-ref="Item_shape"/>
@@ -167,8 +177,11 @@
          <typename name="Derived_shape_element"/>
          <algorithm>LOCAL
  is : SET OF Item_shape := bag_to_set(USEDIN(input, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE.DESCRIBED_ELEMENT'));
- se : SET OF Shape_element := bag_to_set(USEDIN(is, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE'));
+ se : SET OF Shape_element := [];
 END_LOCAL; 
+REPEAT i := 1 to SIZEOF(is) by 1;
+   se  := se + bag_to_set(USEDIN(is[i], 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE'));
+END_REPEAT;  
 
 RETURN(QUERY(dse &lt;* se | 'DERIVED_SHAPE_ELEMENT_ARM.DERIVED_SHAPE_ELEMENT' IN TYPEOF(se)));</algorithm>
       </function>

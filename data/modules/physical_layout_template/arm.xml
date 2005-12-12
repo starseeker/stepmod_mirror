@@ -2,46 +2,23 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-10-10T12:00:37" rcs.revision="1.0" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_layout_template_arm schema_instance"/>
    <schema name="Physical_layout_template_arm">
-      <interface kind="use" schema="Functional_decomposition_to_design_arm"/>
+      <interface kind="use" schema="Analytical_model_arm"/>
+      <interface kind="use" schema="Feature_and_connection_zone_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="reference" schema="Product_identification_arm">
          <interfaced.item name="types_of_product"/>
       </interface>
       <type name="correlated_or_independent">
-         <select selectitems="coordinated_characteristic characteristic"/>
-      </type>
-      <type name="plt_physical_unit_or_part_template_or_fp_or_pd">
-         <select extensible="YES" genericentity="YES" basedon="physical_unit_or_part_template_or_fp_or_pd" selectitems="Template_definition"/>
+         <select selectitems="Property_value_representation characteristic"/>
       </type>
       <entity name="Connection_zone_in_layout_template" supertypes="Connection_zone">
          <explicit name="containing_shape">
             <typename name="Template_definition"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
-      </entity>
-      <entity name="Reference_functional_unit_assignment_to_template">
-         <explicit name="functional_design_definition_path">
-            <typename name="Reference_composition_path"/>
-         </explicit>
-         <explicit name="implementation">
-            <typename name="Template_definition"/>
-         </explicit>
-         <explicit name="of_property" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="coordinated_characteristic"/>
-         </explicit>
-         <explicit name="path_alias">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="swap_code" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="implementation"/>
-            <unique.attribute attribute="path_alias"/>
-         </unique>
       </entity>
       <entity name="Reference_part_template_for_analytical_model">
          <explicit name="template">
@@ -78,11 +55,10 @@
             <redeclaration entity-ref="Product_version"/>
          </explicit>
       </entity>
-      <subtype.constraint name="plt_connection_zone_subtypes" entity="Connection_zone" super.expression="ONEOF (Connection_zone_in_usage_view, Connection_zone_in_design_view, Connection_zone_in_layout_template)"/>
-      <rule name="template_definition_constraint" appliesto="Product_view_definition">
+      <rule name="template_definition_constraint" appliesto="">
          <where label="WR1" expression="SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0"/>
       </rule>
-      <rule name="template_version_constraint" appliesto="Product_version">
+      <rule name="template_version_constraint" appliesto="">
          <where label="WR1" expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE' IN TYPEOF ( pv.of_product) ) ) ) =0"/>
       </rule>
    </schema>

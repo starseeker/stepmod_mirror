@@ -2,55 +2,55 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-29T12:01:44" rcs.revision="1.0" description.file="mim_descriptions.xml">
-<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="bare_die_mim schema_instance"/>
-<schema name="Bare_die_mim">
-<interface kind="use" schema="Extended_geometric_tolerance_mim"/>
-<interface kind="use" schema="Functional_assignment_to_part_mim"/>
-<interface kind="use" schema="Part_feature_function_mim"/>
-<interface kind="use" schema="Functional_usage_view_mim"/>
-<entity name="bare_die" supertypes="physical_unit"/>
-<entity name="bare_die_bottom_surface" supertypes="bare_die_surface"/>
-<entity name="bare_die_edge_segment_surface" supertypes="shape_aspect shape_aspect_relationship">
-<explicit name="relating_shape_aspect">
-<typename name="edge_segment_vertex"/>
-<redeclaration entity-ref="shape_aspect_relationship"/>
-</explicit>
-<explicit name="related_shape_aspect">
-<typename name="edge_segment_vertex"/>
-<redeclaration entity-ref="shape_aspect_relationship"/>
-</explicit>
-<where label="WR1" expression="SELF\shape_aspect_relationship.relating_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.related_shape_aspect"/>
-</entity>
-<entity name="bare_die_edge_surface" supertypes="bare_die_surface">
-<where label="WR1" expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *&#10;       ['BARE_DIE_MIM.' +&#10;       'BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'EXTERNALLY_DEFINED_BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'LIBRARY_DEFINED_BARE_DIE']) = 1"/>
-<where label="WR2" expression="SELF\shape_aspect.product_definitional"/>
-<where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||&#10;       SELF\part_mounting_feature ||&#10;       SELF\bare_die_edge_surface ||&#10;       SELF\bare_die_surface)) = 0"/>
-</entity>
-<entity name="bare_die_surface" abstract.supertype="YES" supertypes="part_mounting_feature" super.expression="ONEOF (bare_die_bottom_surface, bare_die_top_surface, bare_die_edge_surface)">
-<where label="WR1" expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *&#10;       ['BARE_DIE_MIM.' +&#10;       'BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'EXTERNALLY_DEFINED_BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'LIBRARY_DEFINED_BARE_DIE']) = 1"/>
-<where label="WR2" expression="SELF\shape_aspect.product_definitional"/>
-</entity>
-<entity name="bare_die_template_terminal" supertypes="part_feature_template_definition"/>
-<entity name="bare_die_terminal" supertypes="minimally_defined_bare_die_terminal placed_feature">
-<where label="WR1" expression="'BARE_DIE_MIM.' +&#10;       'BARE_DIE' IN &#10;       TYPEOF (SELF.of_shape.definition)"/>
-<where label="WR2" expression="SIZEOF (QUERY (eca &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'external connection area') |&#10;       eca.related_shape_aspect\shape_aspect.description = 'connection zone')) = 1"/>
-<where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'BARE_DIE_MIM.' +&#10;       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1"/>
-<where label="WR4" expression="SIZEOF (QUERY (eca &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'seating plane zone') |&#10;       'BARE_DIE_MIM.' +&#10;       'CONNECTION_ZONE_INTERFACE_PLANE_RELATIONSHIP' IN &#10;       TYPEOF (eca.related_shape_aspect))) &lt;= 1"/>
-</entity>
-<entity name="bare_die_top_surface" supertypes="bare_die_surface">
-<where label="WR1" expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *&#10;       ['BARE_DIE_MIM.' +&#10;       'BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'EXTERNALLY_DEFINED_BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'LIBRARY_DEFINED_BARE_DIE']) = 1"/>
-<where label="WR2" expression="SELF\shape_aspect.product_definitional"/>
-<where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||&#10;       SELF\part_mounting_feature ||&#10;       SELF\bare_die_top_surface ||&#10;       SELF\bare_die_surface)) = 0"/>
-</entity>
-<entity name="minimally_defined_bare_die_terminal" supertypes="shape_aspect" super.expression="bare_die_terminal">
-<where label="WR1" expression="'BARE_DIE_MIM.' +&#10;       'BARE_DIE' IN &#10;       TYPEOF (SELF.of_shape.definition)"/>
-<where label="WR2" expression="SIZEOF (QUERY (eca &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'external connection area') |&#10;       eca.related_shape_aspect\shape_aspect.description = 'connection zone')) &lt;= 1"/>
-<where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'BARE_DIE_MIM.' +&#10;       'MATERIAL_DESIGNATION.DEFINITIONS')) &lt;= 1"/>
-<where label="WR4" expression="SIZEOF (QUERY (mct &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'member connected terminal') |&#10;       'BARE_DIE_MIM.' +&#10;       'PART_CONNECTED_TERMINALS_DEFINITION'&#10;       IN TYPEOF (mct.relating_shape_aspect))) &lt;= 1"/>
-</entity>
-<rule name="bare_die_unique_constraint" appliesto="bare_die">
-<algorithm>LOCAL
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="bare_die_mim schema_instance"/>
+   <schema name="Bare_die_mim">
+      <interface kind="use" schema="Extended_geometric_tolerance_mim"/>
+      <interface kind="use" schema="Functional_assignment_to_part_mim"/>
+      <interface kind="use" schema="Part_feature_function_mim"/>
+      <interface kind="use" schema="Functional_usage_view_mim"/>
+      <entity name="bare_die" supertypes="physical_unit"/>
+      <entity name="bare_die_bottom_surface" supertypes="bare_die_surface"/>
+      <entity name="bare_die_edge_segment_surface" supertypes="shape_aspect shape_aspect_relationship">
+         <explicit name="relating_shape_aspect">
+            <typename name="edge_segment_vertex"/>
+            <redeclaration entity-ref="shape_aspect_relationship"/>
+         </explicit>
+         <explicit name="related_shape_aspect">
+            <typename name="edge_segment_vertex"/>
+            <redeclaration entity-ref="shape_aspect_relationship"/>
+         </explicit>
+         <where label="WR1" expression="SELF\shape_aspect_relationship.relating_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.related_shape_aspect"/>
+      </entity>
+      <entity name="bare_die_edge_surface" supertypes="bare_die_surface">
+         <where label="WR1" expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *&#10;       ['BARE_DIE_MIM.' +&#10;       'BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'EXTERNALLY_DEFINED_BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'LIBRARY_DEFINED_BARE_DIE']) = 1"/>
+         <where label="WR2" expression="SELF\shape_aspect.product_definitional"/>
+         <where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||&#10;       SELF\part_mounting_feature ||&#10;       SELF\bare_die_edge_surface ||&#10;       SELF\bare_die_surface)) = 0"/>
+      </entity>
+      <entity name="bare_die_surface" abstract.supertype="YES" supertypes="part_mounting_feature" super.expression="ONEOF (bare_die_bottom_surface, bare_die_top_surface, bare_die_edge_surface)">
+         <where label="WR1" expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *&#10;       ['BARE_DIE_MIM.' +&#10;       'BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'EXTERNALLY_DEFINED_BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'LIBRARY_DEFINED_BARE_DIE']) = 1"/>
+         <where label="WR2" expression="SELF\shape_aspect.product_definitional"/>
+      </entity>
+      <entity name="bare_die_template_terminal" supertypes="part_feature_template_definition"/>
+      <entity name="bare_die_terminal" supertypes="minimally_defined_bare_die_terminal placed_feature">
+         <where label="WR1" expression="'BARE_DIE_MIM.' +&#10;       'BARE_DIE' IN &#10;       TYPEOF (SELF.of_shape.definition)"/>
+         <where label="WR2" expression="SIZEOF (QUERY (eca &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'external connection area') |&#10;       eca.related_shape_aspect\shape_aspect.description = 'connection zone')) = 1"/>
+         <where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'BARE_DIE_MIM.' +&#10;       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1"/>
+         <where label="WR4" expression="SIZEOF (QUERY (eca &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'seating plane zone') |&#10;       'BARE_DIE_MIM.' +&#10;       'CONNECTION_ZONE_INTERFACE_PLANE_RELATIONSHIP' IN &#10;       TYPEOF (eca.related_shape_aspect))) &lt;= 1"/>
+      </entity>
+      <entity name="bare_die_top_surface" supertypes="bare_die_surface">
+         <where label="WR1" expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *&#10;       ['BARE_DIE_MIM.' +&#10;       'BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'EXTERNALLY_DEFINED_BARE_DIE',&#10;       'BARE_DIE_MIM.' +&#10;       'LIBRARY_DEFINED_BARE_DIE']) = 1"/>
+         <where label="WR2" expression="SELF\shape_aspect.product_definitional"/>
+         <where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||&#10;       SELF\part_mounting_feature ||&#10;       SELF\bare_die_top_surface ||&#10;       SELF\bare_die_surface)) = 0"/>
+      </entity>
+      <entity name="minimally_defined_bare_die_terminal" supertypes="shape_aspect" super.expression="bare_die_terminal">
+         <where label="WR1" expression="'BARE_DIE_MIM.' +&#10;       'BARE_DIE' IN &#10;       TYPEOF (SELF.of_shape.definition)"/>
+         <where label="WR2" expression="SIZEOF (QUERY (eca &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'external connection area') |&#10;       eca.related_shape_aspect\shape_aspect.description = 'connection zone')) &lt;= 1"/>
+         <where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'BARE_DIE_MIM.' +&#10;       'MATERIAL_DESIGNATION.DEFINITIONS')) &lt;= 1"/>
+         <where label="WR4" expression="SIZEOF (QUERY (mct &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'member connected terminal') |&#10;       'BARE_DIE_MIM.' +&#10;       'PART_CONNECTED_TERMINALS_DEFINITION'&#10;       IN TYPEOF (mct.relating_shape_aspect))) &lt;= 1"/>
+      </entity>
+      <rule name="bare_die_unique_constraint" appliesto="">
+         <algorithm>LOCAL
   bd : BAG OF physical_unit := QUERY( r &lt;* bare_die |
 (r.frame_of_reference.name = 'physical design usage') );
 (**  edbd : BAG OF physical_unit := QUERY( r &lt;* externally_defined_bare_die |
@@ -112,7 +112,7 @@ REPEAT i := 1 to SIZEOF(fu_bag) by 1;
     END_REPEAT;
   END_REPEAT;
 END_REPEAT;</algorithm>
-<where label="WR1" expression="pass"/>
-</rule>
-</schema>
+         <where label="WR1" expression="pass"/>
+      </rule>
+   </schema>
 </express>

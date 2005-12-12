@@ -16,6 +16,10 @@
       <type name="slad_requirement_assignment_item">
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Derived_laminate_assignment Sequential_laminate_assembly_relationship"/>
       </type>
+      <entity name="Adjacent_stratum_surface_embedded_sequential_laminate_surface_definition" supertypes="Adjacent_stratum_surface_embedded_physical_component_surface_definition">
+         <where label="WR1" expression="NOT ('COMPONENT_FEATURE_ARM.COMPONENT_FEATURE' IN TYPEOF(precedent_item)) OR &#10;                ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(precedent_item.definition))"/>
+         <where label="WR2" expression="NOT ('COMPONENT_FEATURE_ARM.COMPONENT_FEATURE' IN TYPEOF(subsequent_item)) OR &#10;                ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(subsequent_item.definition))"/>
+      </entity>
       <entity name="Derived_laminate_assignment" supertypes="Group Requirement_view_definition Requirement_assignment">
          <explicit name="oem_requirement">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -75,10 +79,11 @@
       </entity>
       <entity name="Sequential_laminate_stackup_component" supertypes="Physical_component">
          <explicit name="derived_from">
-            <typename name="Sequential_laminate_stackup_definition"/>
+            <typename name="Interconnect_module_usage_view"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+         <where label="WR2" expression="SIZEOF(USEDIN(derived_from, 'XXX_ARM.INTERCONNECT_MODULE.USAGE_VIEW')) &gt; 0"/>
       </entity>
       <entity name="Sequential_laminate_stackup_definition" supertypes="Interconnect_module"/>
       <entity name="Stackup_requirement_to_design_relationship" supertypes="View_definition_relationship">

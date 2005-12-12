@@ -2,67 +2,67 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-11-18T16:02:54" rcs.revision="1.0" description.file="arm_descriptions.xml">
-<application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="conductivity_material_aspects_arm schema_instance"/>
-<schema name="Conductivity_material_aspects_arm">
-<interface kind="use" schema="Classification_assignment_arm"/>
-<interface kind="use" schema="Generic_material_aspects_arm"/>
-<interface kind="use" schema="Part_view_definition_arm"/>
-<type name="cma_classification_item">
-<select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="Material_identification_with_conductivity_classification"/>
-</type>
-<type name="cma_material_item_select">
-<select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Part_view_definition"/>
-</type>
-<entity name="Conductivity_material_property_class" abstract.supertype="YES" supertypes="Class" super.expression="ONEOF (Material_electrical_conductivity_class, Material_thermal_conductivity_class)">
-<where label="WR1" expression="SELF\Class.name IN &#10;       ['conductive', 'non conductive', 'resistive', 'semi conductive', 'super conductive']"/>
-<where label="WR2" expression="NOT EXISTS(SELF\Class.description)"/>
-</entity>
-<entity name="Material_electrical_conductivity_class" supertypes="Conductivity_material_property_class"/>
-<entity name="Material_identification_with_conductivity_classification" supertypes="Material_identification">
-<derived name="electrical_conductivity_classification" expression="get_cond_class(SELF,'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS')">
-<builtintype type="STRING"/>
-</derived>
-<derived name="magnetic_permeability_classification" expression="get_cond_class(SELF,'RELATIVE_PERMEABILITY_MATERIAL_PROPERTY_CLASS')">
-<builtintype type="STRING"/>
-</derived>
-<derived name="optical_insertion_loss_classification" expression="get_cond_class(SELF,'RELATIVE_OPTICAL_INSERTION_LOSS_MATERIAL_PROPERTY_CLASS')">
-<builtintype type="STRING"/>
-</derived>
-<derived name="thermal_conductivity_classification" expression="get_cond_class(SELF,'MATERIAL_THERMAL_CONDUCTIVITY_CLASS')">
-<builtintype type="STRING"/>
-</derived>
-<derived name="dielectric_permittivity_classification" expression="get_cond_class(SELF,'RELATIVE_PERMITTIVITY_MATERIAL_PROPERTY_CLASS')">
-<builtintype type="STRING"/>
-</derived>
-<where label="WR1" expression="(SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;&#9; &#9;'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;&#9; &#9;'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;&#9; &#9;('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;&#9; &#9;'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) = 1)"/>
-<where label="WR2" expression="(SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;&#9; &#9;'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;&#9; &#9;'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;&#9; &#9;('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;&#9; &#9;'MATERIAL_THERMAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1)"/>
-<where label="WR3" expression="(SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;&#9; &#9;'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;&#9; &#9;'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;&#9; &#9;('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;&#9; &#9;'RELATIVE_PERMEABILITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1)"/>
-<where label="WR4" expression="(SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;&#9; &#9;'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;&#9; &#9;'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;&#9; &#9;('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;&#9; &#9;'RELATIVE_PERMITTIVITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1)"/>
-<where label="WR5" expression="(SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;&#9; &#9;'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;&#9; &#9;'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;&#9; &#9;('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;&#9; &#9;'RELATIVE_OPTICAL_INSERTION_LOSS_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1)"/>
-</entity>
-<entity name="Material_thermal_conductivity_class" supertypes="Conductivity_material_property_class"/>
-<entity name="Relative_optical_insertion_loss_material_property_class" supertypes="Class">
-<where label="WR1" expression="SELF\Class.name IN &#10;       ['vacuum', 'very low loss', 'low loss', 'medium loss', 'high loss']"/>
-<where label="WR2" expression="NOT EXISTS(SELF\Class.description)"/>
-</entity>
-<entity name="Relative_permeability_material_property_class" supertypes="Class">
-<where label="WR1" expression="SELF\Class.name IN &#10;       ['free space permeabilty', 'low permeability', 'medium permeability', 'highly permeable']"/>
-<where label="WR2" expression="NOT EXISTS(SELF\Class.description)"/>
-</entity>
-<entity name="Relative_permittivity_material_property_class" supertypes="Class">
-<where label="WR1" expression="SELF\Class.name IN &#10;       ['vacuum permittivity', 'low permittivity', 'medium permittivity', 'high permittivity']"/>
-<where label="WR2" expression="NOT EXISTS(SELF\Class.description)"/>
-</entity>
-<subtype.constraint name="cma_class_subtypes" entity="Class" super.expression="ONEOF (Conductivity_material_property_class, Relative_permeability_material_property_class, Relative_optical_insertion_loss_material_property_class, Relative_permittivity_material_property_class)"/>
-<function name="bag_to_set">
-<parameter name="the_bag">
-<aggregate type="BAG" lower="0" upper="?"/>
-<builtintype type="GENERIC"/>
-</parameter>
-<aggregate type="SET" lower="0" upper="?"/>
-<builtintype type="GENERIC"/>
-<algorithm>LOCAL
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="conductivity_material_aspects_arm schema_instance"/>
+   <schema name="Conductivity_material_aspects_arm">
+      <interface kind="use" schema="Classification_assignment_arm"/>
+      <interface kind="use" schema="Generic_material_aspects_arm"/>
+      <interface kind="use" schema="Part_view_definition_arm"/>
+      <type name="cma_classification_item">
+         <select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="Material_identification_with_conductivity_classification"/>
+      </type>
+      <type name="cma_material_item_select">
+         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Part_view_definition"/>
+      </type>
+      <entity name="Conductivity_material_property_class" abstract.supertype="YES" supertypes="Class" super.expression="ONEOF (Material_electrical_conductivity_class, Material_thermal_conductivity_class)">
+         <where label="WR1" expression="SELF\Class.name IN &#10;       ['conductive', 'non conductive', 'resistive', 'semi conductive', 'super conductive']"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Class.description)"/>
+      </entity>
+      <entity name="Material_electrical_conductivity_class" supertypes="Conductivity_material_property_class"/>
+      <entity name="Material_identification_with_conductivity_classification" supertypes="Material_identification">
+         <derived name="electrical_conductivity_classification" expression="get_cond_class(SELF,'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS')">
+            <builtintype type="STRING"/>
+         </derived>
+         <derived name="magnetic_permeability_classification" expression="get_cond_class(SELF,'RELATIVE_PERMEABILITY_MATERIAL_PROPERTY_CLASS')">
+            <builtintype type="STRING"/>
+         </derived>
+         <derived name="optical_insertion_loss_classification" expression="get_cond_class(SELF,'RELATIVE_OPTICAL_INSERTION_LOSS_MATERIAL_PROPERTY_CLASS')">
+            <builtintype type="STRING"/>
+         </derived>
+         <derived name="thermal_conductivity_classification" expression="get_cond_class(SELF,'MATERIAL_THERMAL_CONDUCTIVITY_CLASS')">
+            <builtintype type="STRING"/>
+         </derived>
+         <derived name="dielectric_permittivity_classification" expression="get_cond_class(SELF,'RELATIVE_PERMITTIVITY_MATERIAL_PROPERTY_CLASS')">
+            <builtintype type="STRING"/>
+         </derived>
+         <where label="WR1" expression="(SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;	 	'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) = 1)"/>
+         <where label="WR2" expression="(SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;	 	'MATERIAL_THERMAL_CONDUCTIVITY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1)"/>
+         <where label="WR3" expression="(SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;	 	'RELATIVE_PERMEABILITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1)"/>
+         <where label="WR4" expression="(SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;	 	'RELATIVE_PERMITTIVITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1)"/>
+         <where label="WR5" expression="(SIZEOF(QUERY(ca &lt;* USEDIN(SELF,&#10;	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + &#10;	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') |&#10;	 	('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+&#10;	 	'RELATIVE_OPTICAL_INSERTION_LOSS_MATERIAL_PROPERTY_CLASS' IN TYPEOF (ca.assigned_class)))) &lt;= 1)"/>
+      </entity>
+      <entity name="Material_thermal_conductivity_class" supertypes="Conductivity_material_property_class"/>
+      <entity name="Relative_optical_insertion_loss_material_property_class" supertypes="Class">
+         <where label="WR1" expression="SELF\Class.name IN &#10;       ['vacuum', 'very low loss', 'low loss', 'medium loss', 'high loss']"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Class.description)"/>
+      </entity>
+      <entity name="Relative_permeability_material_property_class" supertypes="Class">
+         <where label="WR1" expression="SELF\Class.name IN &#10;       ['free space permeabilty', 'low permeability', 'medium permeability', 'highly permeable']"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Class.description)"/>
+      </entity>
+      <entity name="Relative_permittivity_material_property_class" supertypes="Class">
+         <where label="WR1" expression="SELF\Class.name IN &#10;       ['vacuum permittivity', 'low permittivity', 'medium permittivity', 'high permittivity']"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Class.description)"/>
+      </entity>
+      <subtype.constraint name="cma_class_subtypes" entity="Class" super.expression="ONEOF (Conductivity_material_property_class, Relative_permeability_material_property_class, Relative_optical_insertion_loss_material_property_class, Relative_permittivity_material_property_class)"/>
+      <function name="bag_to_set">
+         <parameter name="the_bag">
+            <aggregate type="BAG" lower="0" upper="?"/>
+            <builtintype type="GENERIC"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="GENERIC"/>
+         <algorithm>LOCAL
       the_set : SET OF GENERIC : intype := [];
       i       : INTEGER;
     END_LOCAL;
@@ -73,16 +73,16 @@
       END_REPEAT;
     END_IF;
     RETURN(the_set);</algorithm>
-</function>
-<function name="get_cond_class">
-<parameter name="input1">
-<typename name="Material_identification_with_conductivity_classification"/>
-</parameter>
-<parameter name="input2">
-<builtintype type="STRING"/>
-</parameter>
-<builtintype type="STRING"/>
-<algorithm>LOCAL
+      </function>
+      <function name="get_cond_class">
+         <parameter name="input1">
+            <typename name="Material_identification_with_conductivity_classification"/>
+         </parameter>
+         <parameter name="input2">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="STRING"/>
+         <algorithm>LOCAL
   car : SET OF Classification_assignment := [];
  END_LOCAL;
   car := QUERY(ca &lt;* bag_to_set(USEDIN(input1,
@@ -96,6 +96,6 @@
   ELSE
     RETURN('?');
  END_IF;</algorithm>
-</function>
-</schema>
+      </function>
+   </schema>
 </express>

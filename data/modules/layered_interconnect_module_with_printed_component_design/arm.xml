@@ -23,7 +23,7 @@
             <typename name="Printed_component_link"/>
          </explicit>
          <explicit name="required_material_stack" optional="YES">
-            <typename name="Laminate_layer_stack"/>
+            <typename name="Stratum_feature_based_pattern"/>
          </explicit>
          <explicit name="footprint_implementation" optional="YES">
             <typename name="Footprint_occurrence"/>
@@ -45,9 +45,9 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression="NOT EXISTS(stratum_feature_implementation) OR same_stratum(stratum_feature_implementation)"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\Definition_based_product_occurrence.derived_from.of_stratum_technology) OR EXISTS(stratum_feature_implementation)"/>
-         <where label="WR3" expression="NOT EXISTS(SELF\Definition_based_product_occurrence.derived_from.material_stack) OR EXISTS(required_material_stack)"/>
-         <where label="WR4" expression="NOT EXISTS(SELF\Definition_based_product_occurrence.derived_from.printed_part_template_stack) OR EXISTS(printed_component_stack)"/>
+         <where label="WR2" expression="NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.SINGLE_STRATUM_PRINTED_PART_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)) OR EXISTS(stratum_feature_implementation)"/>
+         <where label="WR3" expression="NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.BASIC_MULTI_STRATUM_PRINTED_PART_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)) OR EXISTS(required_material_stack)"/>
+         <where label="WR4" expression="NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.COMPLEX_MULTI_STRATUM_PRINTED_PART_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)) OR EXISTS(printed_component_stack)"/>
          <where label="WR5" expression="NOT EXISTS(printed_component_stack) OR consistent_stack_definition(SELF\Definition_based_product_occurrence.derived_from,&#10; printed_component_stack)"/>
          <where label="WR6" expression="NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF)) OR ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))"/>
          <where label="WR7" expression="NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)) OR ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF))"/>
@@ -127,14 +127,13 @@
             <typename name="Printed_component_link"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-      pass : BOOLEAN := FALSE;
-    END_LOCAL;
-
-    REPEAT i := 1 TO SIZEOF(input2) BY 1;
-      pass := input2[i].definition.associated_printed_part_template :=: input1;
+         <algorithm>REPEAT i := 1 TO SIZEOF(input2) BY 1;
+      IF NOT (input2[i].associated_printed_component\Definition_based_product_occurrence.derived_from :=: input1) THEN
+        RETURN (FALSE);
+      END_IF;
     END_REPEAT;
-    RETURN(pass);</algorithm>
+
+    RETURN(TRUE);</algorithm>
       </function>
       <function name="printed_component_access_mechanisms">
          <parameter name="input">

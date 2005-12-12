@@ -6,12 +6,20 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_3d_shape_arm schema_instance"/>
    <schema name="Part_template_3d_shape_arm">
       <interface kind="use" schema="Part_template_shape_with_parameters_arm"/>
+      <interface kind="use" schema="Layered_interconnect_module_3d_shape_arm"/>
       <interface kind="reference" schema="Requirement_decomposition_arm">
          <interfaced.item name="get_rvd"/>
       </interface>
       <type name="pt3ds_physical_unit_shape_model_select">
          <select extensible="YES" genericentity="YES" basedon="physical_unit_shape_model_select" selectitems="Part_template_3d_shape_model"/>
       </type>
+      <entity name="Inter_stratum_feature_edge_segment_template_with_cross_section" supertypes="Inter_stratum_feature_edge_segment_template">
+         <explicit name="cross_section">
+            <typename name="Edge_segment_cross_section"/>
+         </explicit>
+         <where label="WR1" expression="NOT (EXISTS(SELF\Inter_stratum_feature_edge_segment_template.start_vertex\Datum_point.location_in_3d)) OR &#10;       (SELF\Inter_stratum_feature_edge_segment_template.reference_path.start_point :=: &#10;        SELF\Inter_stratum_feature_edge_segment_template.start_vertex\Datum_point.location_in_3d)"/>
+         <where label="WR2" expression="NOT (EXISTS (SELF\Inter_stratum_feature_edge_segment_template.end_vertex\Datum_point.location_in_3d)) OR &#10;       (SELF\Inter_stratum_feature_edge_segment_template.reference_path.end_point :=: &#10;        SELF\Inter_stratum_feature_edge_segment_template.end_vertex\Datum_point.location_in_3d)"/>
+      </entity>
       <entity name="Part_template_3d_keepout_shape_model" supertypes="Non_feature_shape_model Part_template_keepout_shape_model">
          <derived name="application_technology_constraint" expression="get_rvd(SELF, 'application technology constraint')">
             <aggregate type="SET" lower="0" upper="?"/>
@@ -22,9 +30,8 @@
          <where label="WR3" expression="NOT EXISTS(SELF\Representation.description)"/>
       </entity>
       <entity name="Part_template_3d_shape_model" supertypes="Part_template_shape_model">
-         <where label="WR1" expression="(SIZEOF(USEDIN(SELF,&#10; 'EXTENDED_BASIC_GEOMETRY_ARM.' + 'REFERENCE_GEOMETRIC_REPRESENTATION_RELATIONSHIP.' + 'REFERENCED_SHAPE')) = 0)"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\Representation.name)"/>
-         <where label="WR3" expression="NOT EXISTS(SELF\Representation.description)"/>
+         <where label="WR1" expression="NOT EXISTS(SELF\Representation.name)"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Representation.description)"/>
       </entity>
    </schema>
 </express>

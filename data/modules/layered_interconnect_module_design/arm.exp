@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.153 2005/12/09 12:44:15 liutkus Exp $
+   $Id: arm.exp,v 1.154 2005/12/09 21:59:17 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -11,9 +11,13 @@ SCHEMA Layered_interconnect_module_design_arm;
 	USE FROM Interconnect_physical_requirement_allocation_arm;	-- ISO/TS 10303-1689
 	USE FROM Part_template_2d_shape_arm;	-- ISO/TS 10303-1716
 	USE FROM Physical_connectivity_definition_arm;	-- ISO/TS 10303-1755
-	USE FROM Fill_area_style_arm; -- ISO/TS 10303-1672
 	USE FROM Part_template_extension_arm;	-- ISO/TS 10303-1718
 	USE FROM Interconnect_module_connection_routing_arm;
+
+	TYPE limd_physical_unit_or_part_template_or_fp_or_pd = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_or_part_template_or_fp_or_pd WITH 
+    (Generic_footprint_definition,
+     Padstack_definition);
+  END_TYPE;
 
 	SUBTYPE_CONSTRAINT limd_assembly_component_subtypes FOR Assembly_component; 
 	    (ONEOF (Physical_component,
@@ -793,11 +797,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       unplated_segment : SET[1:?] OF Unplated_interconnect_module_edge_segment FOR composed_edge;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
-  END_ENTITY;
-
-  ENTITY Passage_padstack_definition
-    SUBTYPE OF (Padstack_definition);
-      technology_reference : Passage_technology;
   END_ENTITY;
 
   ENTITY Pcb

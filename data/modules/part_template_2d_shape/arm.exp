@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.77 2005/12/08 13:32:11 kovaliovas Exp $
+   $Id: arm.exp,v 1.78 2005/12/09 10:22:46 liutkus Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -10,6 +10,7 @@ SCHEMA Part_template_2d_shape_arm;
 	USE FROM Part_template_extension_arm;	-- ISO/TS 10303-1718
 	USE FROM Printed_physical_layout_template_arm;	-- ISO/TS 10303-1737
 	USE FROM Physical_unit_2d_shape_arm; -- ISO/TS 10303-1726
+	USE FROM Part_template_shape_with_parameters_arm;	-- ISO/TS 10303-1720
 
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
@@ -36,11 +37,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   	TYPE pt2ds_part_template_or_physical_unit_2d_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_2d_shape_select WITH 
     	(Part_template_planar_shape_model);
   	END_TYPE;
-
-	TYPE pt2ds_physical_unit_or_part_template_or_fp_or_pd = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_or_part_template_or_fp_or_pd WITH 
-    (Generic_footprint_definition,
-     Padstack_definition);
-  END_TYPE;
 
 	TYPE pt2ds_physical_unit_shape_model_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_shape_model_select WITH 
 	    (Physical_unit_planar_shape_model);
@@ -316,6 +312,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Planar_projected_shape_model, Part_template_shape_model);
   WHERE
     WR1 : NOT EXISTS(SELF\Representation.description);
+  END_ENTITY;
+
+  ENTITY Passage_padstack_definition
+    SUBTYPE OF (Padstack_definition);
+      technology_reference : Passage_technology;
   END_ENTITY;
 
   ENTITY Special_symbol_definition

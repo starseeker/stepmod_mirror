@@ -1,13 +1,14 @@
 (*
-   $Id: arm.exp,v 1.40 2005/12/07 15:01:07 liutkus Exp $
+   $Id: arm.exp,v 1.41 2005/12/07 18:10:39 liutkus Exp $
    ISO TC184/SC4/WG12 N3525 - ISO/CD-TS 10303-1718 Part template extension - EXPRESS ARM
 *)
 
 SCHEMA Part_template_extension_arm;
 
+    USE FROM Layered_2d_shape_arm;	-- ISO/TS 10303-1693
+    USE FROM Fill_area_style_arm; -- ISO/TS 10303-1672
 	USE FROM Fabrication_technology_arm;	-- ISO/TS 10303-1670
 	USE FROM Text_representation_arm;	-- ISO/TS 10303-1750
-	USE FROM Layered_interconnect_module_3d_shape_arm;	-- ISO/TS 10303-1697
 
   TYPE extend_or_chord_2_extend_or_truncate_or_round = ENUMERATION OF
     (truncate,
@@ -84,16 +85,14 @@ SCHEMA Part_template_extension_arm;
       start_vertex   : Edge_segment_vertex;
       end_vertex     : Edge_segment_vertex;
       reference_path : Trimmed_curve;
-      cross_section  : OPTIONAL Edge_segment_cross_section;
     WHERE
-      WR1 : EXISTS(cross_section) XOR (SIZEOF(USEDIN(SELF,
- 'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_PART_TEMPLATE')) > 0);
-      WR2 : EXISTS(reference_path.start_point) AND EXISTS(reference_path.end_point);
-      WR3 : NOT (EXISTS(start_vertex\Datum_point.location_in_2d)) OR (reference_path.start_point :=: start_vertex\Datum_point.location_in_2d);
-      WR4 : NOT (EXISTS(start_vertex\Datum_point.location_in_3d)) OR (reference_path.start_point :=: start_vertex\Datum_point.location_in_3d);
-      WR5 : NOT (EXISTS(end_vertex\Datum_point.location_in_2d)) OR (reference_path.end_point :=: end_vertex\Datum_point.location_in_2d);
-      WR6 : NOT (EXISTS(end_vertex\Datum_point.location_in_3d)) OR (reference_path.end_point :=: end_vertex\Datum_point.location_in_3d);
-      WR7 : start_vertex :<>: end_vertex;
+      WR1 : EXISTS(reference_path.start_point) AND EXISTS
+(reference_path.end_point);
+      WR2 : NOT (EXISTS(start_vertex\Datum_point.location_in_2d)) OR 
+(reference_path.start_point :=: start_vertex\Datum_point.location_in_2d);
+      WR3 : NOT (EXISTS(end_vertex\Datum_point.location_in_2d)) OR 
+(reference_path.end_point :=: end_vertex\Datum_point.location_in_2d);
+      WR4 : start_vertex :<>: end_vertex;
   END_ENTITY;
 
   ENTITY Inter_stratum_feature_edge_template

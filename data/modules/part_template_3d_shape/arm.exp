@@ -1,11 +1,12 @@
 (*
-   $Id: arm.exp,v 1.24 2005/11/28 09:30:07 liutkus Exp $
+   $Id: arm.exp,v 1.25 2005/12/02 12:46:27 liutkus Exp $
    ISO TC184/SC4/WG12 N3522 - ISO/CD-TS 10303-1717 Part template 3d shape - EXPRESS ARM
 *)
 
 SCHEMA Part_template_3d_shape_arm;
 
 	USE FROM Part_template_shape_with_parameters_arm;	-- ISO/TS 10303-1720
+	USE FROM Layered_interconnect_module_3d_shape_arm;	-- ISO/TS 10303-1697
 
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
@@ -13,6 +14,18 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	TYPE pt3ds_physical_unit_shape_model_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_shape_model_select WITH 
 	    (Part_template_3d_shape_model);
   	END_TYPE; 
+
+  ENTITY Inter_stratum_feature_edge_segment_template_with_cross_section
+    SUBTYPE OF (Inter_stratum_feature_edge_segment_template);
+      cross_section  : Edge_segment_cross_section;
+    WHERE
+      WR1 : NOT (EXISTS(SELF\Inter_stratum_feature_edge_segment_template.start_vertex\Datum_point.location_in_3d)) OR 
+       (SELF\Inter_stratum_feature_edge_segment_template.reference_path.start_point :=: 
+        SELF\Inter_stratum_feature_edge_segment_template.start_vertex\Datum_point.location_in_3d);
+      WR2 : NOT (EXISTS (SELF\Inter_stratum_feature_edge_segment_template.end_vertex\Datum_point.location_in_3d)) OR 
+       (SELF\Inter_stratum_feature_edge_segment_template.reference_path.end_point :=: 
+        SELF\Inter_stratum_feature_edge_segment_template.end_vertex\Datum_point.location_in_3d);
+  END_ENTITY;
 
   ENTITY Part_template_3d_keepout_shape_model
     SUBTYPE OF (Non_feature_shape_model,

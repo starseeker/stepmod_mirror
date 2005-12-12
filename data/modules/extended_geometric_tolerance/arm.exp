@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.44 2005/11/14 10:59:21 kovaliovas Exp $
+   $Id: arm.exp,v 1.45 2005/11/16 07:43:51 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3399 - ISO/CD-TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
 *)
 
@@ -8,7 +8,7 @@ SCHEMA Extended_geometric_tolerance_arm;
 	USE FROM Default_tolerance_arm;	-- ISO/TS 10303-1052
 	USE FROM Dimension_tolerance_arm;	-- ISO/TS 10303-1050
 	USE FROM Geometric_tolerance_arm;	-- ISO/TS 10303-1051
-	USE FROM Layered_3d_shape_arm;	-- ISO/TS 10303-1694
+	USE FROM Non_feature_shape_element_arm;	-- ISO/TS 10303-1706
 
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	
@@ -115,11 +115,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
      physical_feature_or_part_template);
   END_TYPE;
 
-	TYPE true_profile_representations = SELECT(
+	TYPE true_profile_representations = EXTENSIBLE SELECT(
 		Dimension_set,
      	Document_definition,
-     	Rule_function,
-     	three_dimensional_shape);
+     	Rule_function);
+--     	three_dimensional_shape);
 	END_TYPE;
 
   ENTITY Apex
@@ -255,14 +255,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Datum_point
     SUBTYPE OF (Datum_shape_element);
-      location_in_2d                   : OPTIONAL Cartesian_point;
-      location_in_3d                   : OPTIONAL Cartesian_point;
-      associated_3d_shape_intersection : OPTIONAL Shape_definition_3d_intersection;
-    WHERE
-      WR1 : NOT (EXISTS(location_in_2d) AND EXISTS(location_in_3d)) OR EXISTS(associated_3d_shape_intersection);
-      WR2 : NOT (EXISTS(location_in_2d)) OR ((SIZEOF(location_in_2d\Cartesian_point.coordinates)) = 2);
-      WR3 : NOT (EXISTS(location_in_3d)) OR ((SIZEOF(location_in_3d\Cartesian_point.coordinates)) = 3);
-      WR4 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
 	ENTITY Datum_shape_element

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.37 2005/11/30 16:32:20 liutkus Exp $
+   $Id: arm.exp,v 1.38 2005/12/01 15:39:31 liutkus Exp $
    ISO TC184/SC4/WG12 N3582 - ISO/CD-TS 10303-1737 Printed physical layout template - EXPRESS ARM
 *)
 
@@ -34,7 +34,19 @@ REFERENCE FROM Requirement_decomposition_arm (get_requirement_definition_propert
     DERIVE
       access_mechanisms : SET [1:?] OF Printed_part_template_terminal := raw_access_mechanisms + complex_printed_part_template_access_mechanisms(decomposition);
     INVERSE
-      decomposition : SET[2:?] OF Single_complex_multi_stratum_part_template_composition_relationship FOR composition;
+      decomposition : SET[2:?] OF Complex_multi_stratum_printed_part_template_composition FOR composition;
+  END_ENTITY;
+
+  ENTITY Complex_multi_stratum_printed_part_template_composition
+    SUBTYPE OF (View_definition_relationship);
+     SELF\View_definition_relationship.relating_view RENAMED composition : Complex_multi_stratum_printed_part_template;
+     SELF\View_definition_relationship.related_view RENAMED element      : Single_stratum_printed_part_template;
+     position : Stratum_technology_occurrence;
+   UNIQUE
+     UR1 : composition, position;
+   WHERE
+    WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
+    WR2 : position.definition IN element.of_stratum_technology;
   END_ENTITY;
 
   ENTITY Functional_usage_view_to_printed_part_template_terminal_assignment;
@@ -227,17 +239,6 @@ REFERENCE FROM Requirement_decomposition_arm (get_requirement_definition_propert
       related_printed_part_terminal  : Printed_part_template_terminal;
   END_ENTITY;
 
-  ENTITY Single_complex_multi_stratum_part_template_composition_relationship
-    SUBTYPE OF (View_definition_relationship);
-     SELF\View_definition_relationship.relating_view RENAMED composition : Complex_multi_stratum_printed_part_template;
-     SELF\View_definition_relationship.related_view RENAMED element      : Single_stratum_printed_part_template;
-     position : Stratum_technology_occurrence;
-   UNIQUE
-     UR1 : composition, position; -- one pattern cannot show up more than once on a stratum
-   WHERE
-    WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
-  END_ENTITY;
-
   ENTITY Single_stratum_printed_part_template
     SUBTYPE OF (Printed_part_template);
      of_stratum_technology : SET [1:?] OF Stratum_technology;
@@ -259,9 +260,8 @@ REFERENCE FROM Requirement_decomposition_arm (get_requirement_definition_propert
   END_ENTITY;
 
 FUNCTION complex_printed_part_template_access_mechanisms
-          (input : SET [0:?] OF
-Single_complex_multi_stratum_part_template_composition_relationship) : SET [0:?]
-OF Printed_part_template_terminal;
+          (input : SET OF
+           Complex_multi_stratum_printed_part_template_composition) : SET OF Printed_part_template_terminal;
 
   LOCAL
       pptt : SET OF printed_part_template_terminal := [];

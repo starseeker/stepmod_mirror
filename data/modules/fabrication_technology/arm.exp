@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.65 2005/12/13 22:32:39 thomasrthurman Exp $
+   $Id: arm.exp,v 1.66 2005/12/13 22:35:36 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -246,22 +246,13 @@ SCHEMA Fabrication_technology_arm;
 
   ENTITY Default_component_termination_passage_definition
     SUBTYPE OF (Passage_technology);
-      allowed_component_terminal_extent                        : Tolerance_characteristic;
-      SELF\Passage_technology.as_finished_deposition_thickness : Tolerance_characteristic;
-      SELF\Passage_technology.as_finished_passage_extent       : Tolerance_characteristic;
+      allowed_component_terminal_extent                        : Length_tolerance_characteristic;
+      SELF\Passage_technology.as_finished_deposition_thickness : Length_tolerance_characteristic;
+      SELF\Passage_technology.as_finished_passage_extent       : Length_tolerance_characteristic;
     INVERSE
       SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
     WHERE
-      WR1 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(allowed_component_terminal_extent)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(allowed_component_terminal_extent)) OR
-        (SIZEOF(QUERY(it <* allowed_component_terminal_extent\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(allowed_component_terminal_extent\Representation.items))
-         )) = 0);
-      WR2 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(allowed_component_terminal_extent)) OR
-        (SIZEOF(QUERY(it <* allowed_component_terminal_extent\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(allowed_component_terminal_extent\Representation.items))
-           )) = 1);
-      WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
+      WR1 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
   END_ENTITY;
 
   ENTITY Default_passage_based_land_physical_template
@@ -284,18 +275,9 @@ SCHEMA Fabrication_technology_arm;
 
   ENTITY Default_tapered_blind_via_definition
     SUBTYPE OF (Default_via_definition);
-      as_finished_interior_passage_extent      : Tolerance_characteristic;
+      as_finished_interior_passage_extent      : Length_tolerance_characteristic;
     WHERE
       WR1: less(as_finished_interior_passage_extent,as_finished_passage_extent);
-      WR2 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_interior_passage_extent)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_interior_passage_extent)) OR
-        (SIZEOF(QUERY(it <* as_finished_interior_passage_extent\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_interior_passage_extent\Representation.items))
-         )) = 0);
-      WR3 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_interior_passage_extent)) OR
-        (SIZEOF(QUERY(it <* as_finished_interior_passage_extent\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_interior_passage_extent\Representation.items))
-           )) = 1);
   END_ENTITY;
 
   ENTITY Default_unsupported_passage_based_land_physical_template
@@ -305,13 +287,13 @@ SCHEMA Fabrication_technology_arm;
 
   ENTITY Default_unsupported_passage_definition
     SUBTYPE OF (Passage_technology);
-      SELF\Passage_technology.as_finished_passage_extent : Tolerance_characteristic;
+      SELF\Passage_technology.as_finished_passage_extent : Length_tolerance_characteristic;
   END_ENTITY;
 
   ENTITY Default_via_definition
     SUBTYPE OF (Passage_technology);
-      SELF\Passage_technology.as_finished_deposition_thickness : Tolerance_characteristic;
-      SELF\Passage_technology.as_finished_passage_extent       : Tolerance_characteristic;
+      SELF\Passage_technology.as_finished_deposition_thickness : Length_tolerance_characteristic;
+      SELF\Passage_technology.as_finished_passage_extent       : Length_tolerance_characteristic;
     INVERSE
       SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
     WHERE
@@ -442,8 +424,8 @@ SCHEMA Fabrication_technology_arm;
  			Default_component_termination_passage_definition,
  			Default_unsupported_passage_definition));
       name                              : STRING;
-      as_finished_deposition_thickness  : OPTIONAL Tolerance_characteristic;
-      as_finished_passage_extent        : OPTIONAL Tolerance_characteristic;      
+      as_finished_deposition_thickness  : OPTIONAL Length_tolerance_characteristic;
+      as_finished_passage_extent        : OPTIONAL Length_tolerance_characteristic;      
       maximum_aspect_ratio              : OPTIONAL REAL;      
       plated_passage                    : BOOLEAN;
 	 DERIVE
@@ -464,24 +446,6 @@ SCHEMA Fabrication_technology_arm;
            (SIZEOF([deposition_material[1].electrical_conductivity_classification,
                     deposition_material[1].thermal_conductivity_classification] *
                    ['conductive']) >= 1);
-      WR6 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_passage_extent)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_passage_extent)) OR
-        (SIZEOF(QUERY(it <* as_finished_passage_extent\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_passage_extent\Representation.items))
-         )) = 0);
-      WR7 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_passage_extent)) OR
-        (SIZEOF(QUERY(it <* as_finished_passage_extent\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_passage_extent\Representation.items))
-           )) = 1);
-      WR8 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_deposition_thickness)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_deposition_thickness)) OR
-        (SIZEOF(QUERY(it <* as_finished_deposition_thickness\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_deposition_thickness\Representation.items))
-         )) = 0);
-      WR9 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_deposition_thickness)) OR
-        (SIZEOF(QUERY(it <* as_finished_deposition_thickness\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_deposition_thickness\Representation.items))
-           )) = 1);
 	END_ENTITY;
 
   ENTITY Passage_technology_allocation_to_stack_model;
@@ -657,8 +621,8 @@ END_FUNCTION;
   RETURN(sto);
   END_FUNCTION;
 
-  FUNCTION less(input1 : Tolerance_characteristic;
-              input2 : Tolerance_characteristic) : BOOLEAN;
+  FUNCTION less(input1 : Length_tolerance_characteristic;
+              input2 : Length_tolerance_characteristic) : BOOLEAN;
     RETURN(TRUE);
   END_FUNCTION;
 

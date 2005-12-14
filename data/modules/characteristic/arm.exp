@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.28 2005/12/07 07:34:23 liutkus Exp $
+   $Id: arm.exp,v 1.29 2005/12/09 08:58:44 liutkus Exp $
    ISO TC184/SC4/WG12 N3321 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
 *)
 
@@ -49,6 +49,25 @@ SCHEMA Characteristic_arm;
   ENTITY Expanded_uncertainty
     SUBTYPE OF (Standard_uncertainty);
       coverage_factor : REAL;
+  END_ENTITY;
+
+  ENTITY Length_tolerance_characteristic
+    SUBTYPE OF(Tolerance_characteristic);
+    WHERE
+      WR1 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+        (SIZEOF(QUERY(it <* SELF\Representation.items |
+          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))
+         )) = 0);
+      WR2 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+        (SIZEOF(QUERY(it <* SELF\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))
+           )) = 1);
+      WR3 : NOT('CHARACTERISTIC_ARM.STASTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+        (SIZEOF(QUERY(it <* SELF\Representation.items |
+        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))
+           )) = 1);
+      WR4 : NOT EXISTS(SELF\Representation.description);
   END_ENTITY;
 
   ENTITY Maximum_tolerance_characteristic
@@ -129,15 +148,16 @@ SCHEMA Characteristic_arm;
   END_ENTITY;
 
   ENTITY Tolerance_characteristic
-    ABSTRACT SUPERTYPE OF (ONEOF (Minimum_tolerance_characteristic,
+    ABSTRACT SUPERTYPE OF ((ONEOF (Minimum_tolerance_characteristic,
  Statistical_tolerance_characteristic,
  Symmetrical_tolerance_characteristic,
  Maximum_tolerance_characteristic,
  Plus_minus_tolerance_characteristic,
- Nominal_tolerance_characteristic))
+ Nominal_tolerance_characteristic)) ANDOR Length_tolerance_characteristic)
     SUBTYPE OF (Property_value_representation);
     WHERE
       WR1: SELF\Representation.context_of_items\Representation_context.id = 'tolerance values';
+      WR2 : NOT EXISTS(SELF\Representation.name);
   END_ENTITY;
 
   ENTITY Type_qualifier;

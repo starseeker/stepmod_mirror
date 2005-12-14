@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.23 2005/12/01 16:50:56 liutkus Exp $
+   $Id: arm.exp,v 1.24 2005/12/14 12:21:38 liutkus Exp $
    ISO TC184/SC4/WG12 N3447 - ISO/CD-TS 10303-1686 Interconnect module usage view - EXPRESS ARM
 *)
 
@@ -89,8 +89,8 @@ SCHEMA Interconnect_module_usage_view_arm;
   ENTITY Interconnect_module_usage_view
     SUPERTYPE OF (Pcb_usage_view)
     SUBTYPE OF (Part_usage_view);
-      thickness_over_dielectric_requirement : OPTIONAL Tolerance_characteristic;
-      thickness_over_metal_requirement      : OPTIONAL Tolerance_characteristic;
+      thickness_over_dielectric_requirement : OPTIONAL Length_tolerance_characteristic;
+      thickness_over_metal_requirement      : OPTIONAL Length_tolerance_characteristic;
       measurement_condition                 : OPTIONAL Restraint_condition;
       located_thickness_requirement         : OPTIONAL SET[1:?] OF Located_interconnect_module_thickness_requirement;
       implemented_function                  : OPTIONAL Functional_unit_usage_view;
@@ -102,45 +102,17 @@ SCHEMA Interconnect_module_usage_view_arm;
       WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
  'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_EDGE_SURFACE' IN TYPEOF(pf)))) <= 1;
       WR4 : EXISTS(thickness_over_metal_requirement) OR EXISTS(thickness_over_dielectric_requirement);
-      WR5 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_dielectric_requirement)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_dielectric_requirement)) OR
-        (SIZEOF(QUERY(it <* thickness_over_dielectric_requirement\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_over_dielectric_requirement\Representation.items))
-         )) = 0);
-      WR6 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_dielectric_requirement)) OR
-        (SIZEOF(QUERY(it <* thickness_over_dielectric_requirement\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_over_dielectric_requirement\Representation.items))
-           )) = 1);
-      WR7 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_metal_requirement)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_metal_requirement)) OR
-        (SIZEOF(QUERY(it <* thickness_over_metal_requirement\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_over_metal_requirement\Representation.items))
-         )) = 0);
-      WR8 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_metal_requirement)) OR
-        (SIZEOF(QUERY(it <* thickness_over_metal_requirement\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_over_metal_requirement\Representation.items))
-           )) = 1);
-      WR9 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
+      WR5 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
   END_ENTITY;
 
   ENTITY Located_interconnect_module_thickness_requirement;
       reference_location    : Axis_placement;
-      thickness_requirement : Tolerance_characteristic;
+      thickness_requirement : Length_tolerance_characteristic;
     INVERSE
       design : SET[1:?] OF interconnect_module_usage_view FOR located_thickness_requirement;
     UNIQUE
       UR1 : design,
  reference_location;
-    WHERE
-      WR1 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_requirement)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_requirement)) OR
-        (SIZEOF(QUERY(it <* thickness_requirement\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_requirement\Representation.items))
-         )) = 0);
-      WR2 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_requirement)) OR
-        (SIZEOF(QUERY(it <* thickness_requirement\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_requirement\Representation.items))
-           )) = 1);
   END_ENTITY;
 
   ENTITY Pcb_usage_view

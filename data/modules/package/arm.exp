@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.55 2005/11/30 16:32:20 liutkus Exp $
+   $Id: arm.exp,v 1.56 2005/12/01 15:38:54 liutkus Exp $
    ISO TC184/SC4/WG12 N3498 - ISO/CD-TS 10303-1707 Package - EXPRESS ARM
 *)
 
@@ -94,8 +94,8 @@ SCHEMA Package_arm;
       nominal_mounting_lead_span                 : OPTIONAL Length_data_element;
       maximum_body_height_above_seating_plane    : Length_data_element;
       maximum_body_height_below_seating_plane    : OPTIONAL Length_data_element;
-      body_clearance_above_seating_plane         : OPTIONAL Tolerance_characteristic;
-      body_clearance_below_seating_plane         : OPTIONAL Tolerance_characteristic;
+      body_clearance_above_seating_plane         : OPTIONAL Length_tolerance_characteristic;
+      body_clearance_below_seating_plane         : OPTIONAL Length_tolerance_characteristic;
       maximum_lead_length_below_seating_plane    : OPTIONAL Length_data_element;
       least_lead_length_below_seating_plane      : OPTIONAL Length_data_element;
     DERIVE
@@ -131,24 +131,6 @@ SCHEMA Package_arm;
 	  WR10 : SIZEOF(QUERY(nt <* package_accesses |
 	                     (SIZEOF(nt\Part_feature.subsequent_feature) = 1)
 	               )) = (SIZEOF(package_accesses) - 1);
-      WR11 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(body_clearance_above_seating_plane)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(body_clearance_above_seating_plane)) OR
-        (SIZEOF(QUERY(it <* body_clearance_above_seating_plane\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(body_clearance_above_seating_plane\Representation.items))
-         )) = 0);
-      WR12 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(body_clearance_above_seating_plane)) OR
-        (SIZEOF(QUERY(it <* body_clearance_above_seating_plane\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(body_clearance_above_seating_plane\Representation.items))
-           )) = 1);
-      WR13 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(body_clearance_below_seating_plane)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(body_clearance_below_seating_plane)) OR
-        (SIZEOF(QUERY(it <* body_clearance_below_seating_plane\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(body_clearance_below_seating_plane\Representation.items))
-         )) = 0);
-      WR14 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(body_clearance_below_seating_plane)) OR
-        (SIZEOF(QUERY(it <* body_clearance_below_seating_plane\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(body_clearance_below_seating_plane\Representation.items))
-           )) = 1);
   END_ENTITY;
 
   ENTITY Package_body
@@ -216,7 +198,7 @@ INVERSE
       internal_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_part_feature_template_definition;
       seating_plane_intersection              : seating_plane_intersection_type;
       terminal_characteristic                 : OPTIONAL SET[1:?] OF characteristic;
-      terminal_diametrical_extent             : Tolerance_characteristic;
+      terminal_diametrical_extent             : Length_tolerance_characteristic;
       seating_plane_zone                      : OPTIONAL Connection_zone_package_interface_plane_relationship;
     DERIVE
       mates_with_substrate : BOOLEAN := (EXISTS(seating_plane_zone));
@@ -238,15 +220,6 @@ INVERSE
       WR9 : EXISTS(terminal_core_material);
       WR10 : NOT EXISTS(terminal_surface_material) OR
                 ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_surface_material[1]));
-      WR11 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(terminal_diametrical_extent)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(terminal_diametrical_extent)) OR
-        (SIZEOF(QUERY(it <* terminal_diametrical_extent\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(terminal_diametrical_extent\Representation.items))
-         )) = 0);
-      WR12 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(terminal_diametrical_extent)) OR
-        (SIZEOF(QUERY(it <* terminal_diametrical_extent\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(terminal_diametrical_extent\Representation.items))
-           )) = 1);
   END_ENTITY;
 
   ENTITY Package_terminal_surface_constituent_relationship
@@ -288,17 +261,7 @@ INVERSE
   ENTITY Wire_terminal_template_definition
     SUBTYPE OF (Package_terminal_template_definition);
       SELF\Package_terminal_template_definition.internal_connection_zone : SET[1:?] OF Connection_zone_in_part_feature_template_definition;
-      wire_terminal_length                                               : Tolerance_characteristic;
-    WHERE
-      WR1 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(wire_terminal_length)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(wire_terminal_length)) OR
-        (SIZEOF(QUERY(it <* wire_terminal_length\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(wire_terminal_length\Representation.items))
-         )) = 0);
-      WR2 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(wire_terminal_length)) OR
-        (SIZEOF(QUERY(it <* wire_terminal_length\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(wire_terminal_length\Representation.items))
-           )) = 1);
+      wire_terminal_length                                               : Length_tolerance_characteristic;
   END_ENTITY;
 
   FUNCTION add_data_element(

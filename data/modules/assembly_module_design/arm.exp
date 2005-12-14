@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.34 2005/11/29 14:05:06 liutkus Exp $
+   $Id: arm.exp,v 1.35 2005/12/01 15:39:31 liutkus Exp $
    ISO TC184/SC4/WG12 N3297 - ISO/CD-TS 10303-1636 Assembly module design - EXPRESS ARM
 *)
 
@@ -79,17 +79,7 @@ SCHEMA Assembly_module_design_arm;
 *)
   ENTITY Component_mounting_clearance_relationship;
       feature_relationship : Component_feature_relationship;
-      mounting_clearance   : Tolerance_characteristic;
-    WHERE
-      WR1 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(mounting_clearance)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(mounting_clearance)) OR
-        (SIZEOF(QUERY(it <* mounting_clearance\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(mounting_clearance\Representation.items))
-         )) = 0);
-      WR2 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(mounting_clearance)) OR
-        (SIZEOF(QUERY(it <* mounting_clearance\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(mounting_clearance\Representation.items))
-           )) = 1);
+      mounting_clearance   : Length_tolerance_characteristic;
   END_ENTITY;
 
   ENTITY Component_mounting_feature
@@ -100,17 +90,7 @@ SCHEMA Assembly_module_design_arm;
   ENTITY Component_overlap_relationship;
       previously_placed_component : Next_assembly_usage;
       current_component           : Next_assembly_usage;
-      added_clearance             : Tolerance_characteristic;
-    WHERE
-      WR1 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(added_clearance)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(added_clearance)) OR
-        (SIZEOF(QUERY(it <* added_clearance\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(added_clearance\Representation.items))
-         )) = 0);
-      WR2 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(added_clearance)) OR
-        (SIZEOF(QUERY(it <* added_clearance\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(added_clearance\Representation.items))
-           )) = 1);
+      added_clearance             : Length_tolerance_characteristic;
   END_ENTITY;
 
   ENTITY Minimally_defined_component_terminal
@@ -122,19 +102,10 @@ SCHEMA Assembly_module_design_arm;
 
   ENTITY Movable_packaged_component_join_terminal
     SUBTYPE OF (Packaged_component_join_terminal);
-      wire_terminal_length      : Tolerance_characteristic;
+      wire_terminal_length      : Length_tolerance_characteristic;
     WHERE
       WR1 : SIZEOF(QUERY(pt <* SELF\Component_feature.definition\Packaged_part_terminal.terminal_of_package | 
             NOT('PACKAGE_ARM.WIRE_TERMINAL' IN TYPEOF (pt)))) = 0;
-      WR2 : ('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(wire_terminal_length)) OR
-        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(wire_terminal_length)) OR
-        (SIZEOF(QUERY(it <* wire_terminal_length\Representation.items |
-          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(wire_terminal_length\Representation.items))
-         )) = 0);
-      WR3 : NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(wire_terminal_length)) OR
-        (SIZEOF(QUERY(it <* wire_terminal_length\Representation.items |
-        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(wire_terminal_length\Representation.items))
-           )) = 1);
   END_ENTITY;
 
   ENTITY Package_terminal_occurrence;

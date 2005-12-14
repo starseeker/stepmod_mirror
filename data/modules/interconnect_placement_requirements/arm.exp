@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.22 2005/12/13 12:21:03 liutkus Exp $
+   $Id: arm.exp,v 1.23 2005/12/14 12:01:08 liutkus Exp $
    ISO TC184/SC4/WG12 N3459 - ISO/CD-TS 10303-1690 Interconnect placement requirements - EXPRESS ARM
 *)
 
@@ -9,13 +9,13 @@ SCHEMA Interconnect_placement_requirements_arm;
 	USE FROM Land_arm;	-- ISO/TS 10303-1692
 	USE FROM Part_template_extension_arm;	-- ISO/TS 10303-1718
 
-	TYPE assembly_or_interconnect_design_object_select = SELECT
+	TYPE assembly_or_interconnect_design_object_select = EXTENSIBLE SELECT
     (Assembly_component,
      Component_feature,
      interconnect_module_design_object_select);
 	END_TYPE;
 
-	TYPE interconnect_module_design_object_select = SELECT 
+	TYPE interconnect_module_design_object_select = EXTENSIBLE SELECT 
     (Via,
      Cutout,
      Component_termination_passage,
@@ -27,7 +27,7 @@ SCHEMA Interconnect_placement_requirements_arm;
      Inter_stratum_feature);
   END_TYPE;
 
-  TYPE interconnect_module_design_object_category = ENUMERATION OF
+  TYPE interconnect_module_design_object_category = EXTENSIBLE ENUMERATION OF
     (interconnect_module_via,
      interconnect_module_inter_stratum_feature,
      interconnect_module_cutout,
@@ -38,6 +38,107 @@ SCHEMA Interconnect_placement_requirements_arm;
 	TYPE ipr_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
 	    (Interconnect_module_constraint_region);
 	END_TYPE; 
+
+  TYPE pca_product_design_object_category = ENUMERATION OF
+    (assembly_component_category,
+     assembly_module_category,
+     assembly_module_component_category,
+     assembly_module_component_terminal_category,
+     assembly_module_macro_component_category,
+     assembly_module_macro_component_join_terminal_category,
+     bare_die_component_category,
+     bare_die_component_terminal_category,
+     bonded_conductive_base_blind_via_category,
+     buried_via_category,
+     cable_component_category,
+     component_feature_category,
+     component_mounting_feature_category,
+     component_termination_passage_category,
+     component_termination_passage_and_contact_size_dependent_land_category,
+     component_termination_passage_interface_terminal_category,
+     component_termination_passage_join_terminal_category,
+     conductive_interconnect_element_terminal_category,
+     conductive_interconnect_element_with_pre_defined_transitions_category,
+     conductive_interconnect_element_with_user_defined_single_transition_category,
+     connected_area_component_category,
+     contact_size_dependent_land_category,
+     cutout_category,
+     cutout_edge_segment_category,
+     dielectric_material_passage_category,
+     electrical_isolation_laminate_component_category,
+     embedded_physical_component_terminal_category,
+     fiducial_category,
+     fill_area_category,
+     filled_area_material_removal_laminate_component_category,
+     inter_stratum_feature_category,
+     interconnect_component_interface_terminal_category,
+     interconnect_component_join_terminal_category,
+     interconnect_module_component_category,
+     interconnect_module_component_stratum_based_terminal_category,
+     interconnect_module_component_surface_feature_category,
+     interconnect_module_component_terminal_category,
+     interconnect_module_edge_category,
+     interconnect_module_edge_segment_category,
+     interconnect_module_macro_component_category,
+     interconnect_module_macro_component_join_terminal_category,
+     interface_access_material_removal_laminate_component_category,
+     interface_access_stratum_feature_template_component_category,
+     interface_component_category,
+     interfacial_connection_category,
+     internal_probe_access_area_category,
+     join_two_physical_connectivity_definition_supporting_inter_stratum_feature_category,
+     join_two_physical_connectivity_definition_supporting_printed_component_category,
+     laminate_component_category,
+     laminate_text_component_category,
+     laminate_text_string_component_category,
+     land_category,
+     land_interface_terminal_category,
+     land_join_terminal_category,
+     material_removal_laminate_component_category,
+     minimally_defined_component_terminal_category,
+     movable_packaged_component_join_terminal_category,
+     multi_layer_material_removal_laminate_component_category,
+     multi_layer_stratum_feature_template_component_category,
+     non_conductive_base_blind_via_category,
+     packaged_component_category,
+     packaged_component_join_terminal_category,
+     packaged_connector_component_category,
+     packaged_connector_component_interface_terminal_category,
+     partially_plated_cutout_category,
+     partially_plated_interconnect_module_edge_category,
+     physical_component_category,
+     physical_connectivity_interrupting_cutout_category,
+     physical_laminate_component_category,
+     physical_network_supporting_inter_stratum_feature_category,
+     plated_conductive_base_blind_via_category,
+     plated_cutout_category,
+     plated_cutout_edge_segment_category,
+     plated_interconnect_module_edge_category,
+     plated_interconnect_module_edge_segment_category,
+     plated_passage_category,
+     plated_passage_or_unsupported_passage_category,
+     primary_stratum_indicator_symbol_category,
+     printed_component_join_terminal_category,
+     printed_connector_component_interface_terminal_category,
+     probe_access_area_category,
+     routed_interconnect_component_category,
+     routed_physical_component_category,
+     special_symbol_laminate_component_category,
+     stratum_feature_category,
+     stratum_feature_template_component_category,
+     thermal_isolation_laminate_component_category,
+     unrouted_conductive_interconnect_element_category,
+     unsupported_passage_category,
+     unsupported_passage_dependent_land_category,
+     via_category,
+     via_terminal_category);
+  END_TYPE;
+
+  TYPE spacing_type = ENUMERATION OF
+    (nearest_boundary,
+     centroid,
+     furthest_boundary);
+  END_TYPE;
 
 	SUBTYPE_CONSTRAINT ipr_non_feature_shape_element_subtypes FOR Non_feature_shape_element; 
 	    (ONEOF (
@@ -80,6 +181,19 @@ SCHEMA Interconnect_placement_requirements_arm;
   ENTITY Layer_qualified_layout_spacing_requirement_occurrence
     SUBTYPE OF (Layout_spacing_requirement_occurrence);
       layer_context : SET[1:?] OF Inter_stratum_extent;
+  END_ENTITY;
+
+  ENTITY Layout_spacing_requirement_occurrence
+    SUBTYPE OF (Requirement_definition_property);
+      reference_design_object_category                                   : pca_product_design_object_category;
+      dependent_design_object_category                                   : pca_product_design_object_category;
+      SELF\Requirement_definition_property.required_characteristic       : Tolerance_characteristic;
+      of_spacing_type                                                    : spacing_type;
+    UNIQUE
+      UR1 : reference_design_object_category,
+ dependent_design_object_category;
+    WHERE
+      WR1 : 'VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Requirement_definition_property.required_characteristic.items[1]);
   END_ENTITY;
 
   ENTITY Layout_spacing_requirement_non_conforming_design_object;

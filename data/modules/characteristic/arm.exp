@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.29 2005/12/09 08:58:44 liutkus Exp $
+   $Id: arm.exp,v 1.30 2005/12/14 15:27:40 liutkus Exp $
    ISO TC184/SC4/WG12 N3321 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
 *)
 
@@ -41,10 +41,15 @@ SCHEMA Characteristic_arm;
      Uncertainty_qualifier);
   END_TYPE;
 
-	ENTITY Characteristic_data_table
-  	  SUBTYPE OF (Measure_item); 
-        property_value : LIST[1:?] OF list_characteristic;
-	END_ENTITY;
+  ENTITY Characteristic_data_table
+    SUBTYPE OF (Measure_item);
+      property_value : LIST[1:?] OF list_characteristic;
+      index_value    : LIST[1:?] OF INTEGER;
+    WHERE
+      WR1: SIZEOF(property_value) = SIZEOF(index_value);
+      -- TODO for Tom 
+      -- WR2: all members in  property_value must have the same size
+  END_ENTITY;
 
   ENTITY Expanded_uncertainty
     SUBTYPE OF (Standard_uncertainty);

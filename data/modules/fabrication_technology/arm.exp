@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.68 2005/12/14 16:54:26 thomasrthurman Exp $
+   $Id: arm.exp,v 1.69 2005/12/14 17:15:01 liutkus Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -436,13 +436,14 @@ SCHEMA Fabrication_technology_arm;
     UR1: primary_stratum_technology;
     UR2: secondary_stratum_technology;
    WHERE 
-    WR1 : NOT ('FABRICATION_TECHNOLOGY_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN 
-          TYPEOF(primary_stratum_technology)) OR
+    WR1 : NOT (('FABRICATION_TECHNOLOGY_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(primary_stratum_technology)) AND
+              EXISTS(primary_stratum_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose))
+          OR
           (primary_stratum_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose =
            secondary_stratum_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose);
     WR2: TYPEOF(primary_stratum_technology) = TYPEOF(secondary_stratum_technology);
-    WR3: primary_stratum_technology\Stratum_technology.layer_position = primary;
-    WR4: secondary_stratum_technology\Stratum_technology.layer_position = secondary;
+    WR3: primary_stratum_technology\Stratum_technology.layer_position = layer_position_type.primary;
+    WR4: secondary_stratum_technology\Stratum_technology.layer_position = layer_position_type.secondary;
     WR5: primary_stratum_technology <> secondary_stratum_technology;
   END_ENTITY;
 

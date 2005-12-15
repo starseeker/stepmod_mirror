@@ -5,7 +5,6 @@
 
 SCHEMA Part_template_2d_shape_arm;
 
---	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
 	USE FROM Package_arm;	-- ISO/TS 10303-1707
 	USE FROM Part_template_extension_arm;	-- ISO/TS 10303-1718
 	USE FROM Printed_physical_layout_template_arm;	-- ISO/TS 10303-1737
@@ -190,9 +189,9 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Padstack_definition
-    SUPERTYPE OF ((ONEOF (Design_layer_type_specific_padstack_definition, Stratum_type_independent_padstack_definition))
-    ANDOR Library_padstack_definition
-    ANDOR Design_specific_padstack_definition)  
+    ABSTRACT SUPERTYPE OF ((ONEOF (Stratum_stack_specific_padstack_definition,
+                                   Stratum_stack_independent_padstack_definition) 
+                            ANDOR Passage_padstack_definition)
     SUBTYPE OF (Multi_layer_template_definition);
       padstack_location        : padstack_arrangement;
     INVERSE
@@ -200,6 +199,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     WHERE
       WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
  'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'template model'))) > 0;
+      WR2: NOT(('PART_TEMPLATE_2D_SHAPE.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)) XOR 
+               ('PART_TEMPLATE_2D_SHAPE.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION_IN_MULTI_LAYER_TEMPLATE_DEFINITION' in SELF\Multi_layer_template_definition.templates))
   END_ENTITY;
 
   ENTITY Padstack_definition_shape_model
@@ -310,6 +311,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Passage_padstack_definition
     SUBTYPE OF (Padstack_definition);
       technology_reference : Passage_technology;
+    INVERSE
+      SELF\Multi_layer_template_definition.templates : SET [1:1] OF Inter_stratum_feature_template_location_in_multi_layer_template_definition FOR assembly;
   END_ENTITY;
 
   ENTITY Special_symbol_definition
@@ -384,6 +387,62 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
            (NOT (bound_stratum\Stratum_technology_occurrence.definition\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
           ('FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
   END_ENTITY;
+
+
+ENTITY Stratum_stack_independent_padstack_definition
+  SUBTYPE OF Padstack_definition;
+WHERE
+   WR1: SIZEOF(QUERY(temp <* SELF\Multi_layer_template_definition.templates |
+              NOT
+          (NOT('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_PART_TEMPLATE_LOCATION_IN_MULTI_LAYER_TEMPLATE_DEFINITION' 
+           IN TYPEOF(temp)) OR
+           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY' 
+           IN TYPEOF(temp\Stratum_specific_part_template_location_in_multi_layer_template_definition.bound_stratum))
+           )
+           )) = 0;
+(* desc
+  wr1 : all templates that are of type
+Stratum_specific_part_template_location_in_multi_layer_template_definition shall
+only have stratum_technology as bound_stratum;
+*)
+  WR2: ('PART_TEMPLATE_2D_SHAPE_ARM.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)) OR
+         (SIZEOF(QUERY(temp <* SELF\Multi_layer_template_definition.templates |
+           NOT
+           (NOT('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_PART_TEMPLATE_LOCATION_IN_MULTI_LAYER_TEMPLATE_DEFINITION' 
+           IN TYPEOF(temp)) OR
+           ((Fabrication_technology_arm.layer_position_type.primary =           
+           (temp\Stratum_specific_part_template_location_in_multi_layer_template_definition.bound_stratum\Stratum_technology.layer_position))
+           OR
+           (Fabrication_technology_arm.layer_position_type.secondary =            
+           (temp\Stratum_specific_part_template_location_in_multi_layer_template_definition.bound_stratum\Stratum_technology.layer_position))
+           )
+           )
+           )) = 0);        
+(* desc
+  wr2 : if self is not a passage_padstack_definition there shall be only
+primary/secondary stratum_technologies refered by templates as bound_stratum;
+Fabrication_technology_arm.layer_position_type.primary
+*)
+END_ENTITY;
+
+ENTITY Stratum_stack_specific_padstack_definition
+  SUBTYPE OF Padstack_definition;
+  stack : Library_stack_model;
+WHERE
+   WR1: SIZEOF(QUERY(temp <* SELF\Multi_layer_template_definition.templates |
+          NOT
+          (NOT('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_PART_TEMPLATE_LOCATION_IN_MULTI_LAYER_TEMPLATE_DEFINITION' 
+           IN TYPEOF(temp)) OR
+           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' 
+           IN TYPEOF(temp\Stratum_specific_part_template_location_in_multi_layer_template_definition.bound_stratum))
+           )
+           )) = 0;
+(*     wr1 description : all templates that are of type
+Stratum_specific_part_template_location_in_multi_layer_template_definition shall
+only have stratum_technology_occurrences as bound_stratum;
+*)
+
+END_ENTITY;
 
   ENTITY Stratum_type_independent_padstack_definition
     SUBTYPE OF (Padstack_definition);

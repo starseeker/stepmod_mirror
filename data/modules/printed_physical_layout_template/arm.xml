@@ -30,9 +30,28 @@
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Printed_part_template_terminal"/>
          </derived>
-         <inverse name="decomposition" entity="Single_complex_multi_stratum_part_template_composition_relationship" attribute="composition">
+         <inverse name="decomposition" entity="Complex_multi_stratum_printed_part_template_composition" attribute="composition">
             <inverse.aggregate type="SET" lower="2" upper="?"/>
          </inverse>
+      </entity>
+      <entity name="Complex_multi_stratum_printed_part_template_composition" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="composition" optional="NO">
+            <typename name="Complex_multi_stratum_printed_part_template"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
+         </explicit>
+         <explicit name="element" optional="NO">
+            <typename name="Single_stratum_printed_part_template"/>
+            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
+         </explicit>
+         <explicit name="position" optional="NO">
+            <typename name="Stratum_technology_occurrence"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="composition"/>
+            <unique.attribute attribute="position"/>
+         </unique>
+         <where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+         <where label="WR2" expression="position.definition IN element.of_stratum_technology"/>
       </entity>
       <entity name="Functional_usage_view_to_printed_part_template_terminal_assignment" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="physical_usage_view_terminal" optional="NO">
@@ -101,7 +120,7 @@
             <typename name="Analytical_model_application"/>
          </explicit>
          <explicit name="width" optional="NO">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </explicit>
          <explicit name="start_vertex" optional="NO">
             <typename name="Edge_segment_vertex"/>
@@ -119,8 +138,6 @@
          <where label="WR5" expression="horizontal_material_link :&lt;&gt;: vertical_material_link"/>
          <where label="WR6" expression="start_vertex :&lt;&gt;: end_vertex"/>
          <where label="WR7" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
-         <where label="WR8" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(width)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(width)) OR&#10;        (SIZEOF(QUERY(it &lt;* width\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(width\Representation.items))&#10;         )) = 0)"/>
-         <where label="WR9" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(width)) OR&#10;        (SIZEOF(QUERY(it &lt;* width\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(width\Representation.items))&#10;           )) = 1)"/>
       </entity>
       <entity name="Printed_part_cross_section_template_terminal" supertypes="Printed_part_template_terminal" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="cross_section_definition" optional="NO">
@@ -168,8 +185,6 @@
          <where label="WR3" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       <where label="IP1"/>
          <where label="IP2"/>
-      <where label="IP1"/>
-         <where label="IP2"/>
       </entity>
       <entity name="Printed_part_template_connected_terminals_definition" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="name" optional="NO">
@@ -199,7 +214,7 @@
       </entity>
       <entity name="Printed_part_template_material" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="width" optional="NO">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </explicit>
          <explicit name="required_material" optional="NO">
             <typename name="Stratum_technology"/>
@@ -211,8 +226,6 @@
          <where label="WR2" expression="SIZEOF(QUERY(temp &lt;* (USEDIN(SELF,&#10; 'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'bottom')) &lt;= 1"/>
          <where label="WR3" expression="SIZEOF(QUERY(temp &lt;* (USEDIN(SELF,&#10; 'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'left')) &lt;= 1"/>
          <where label="WR4" expression="SIZEOF(QUERY(temp &lt;* (USEDIN(SELF,&#10; 'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'right')) &lt;= 1"/>
-         <where label="WR5" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(width)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(width)) OR&#10;        (SIZEOF(QUERY(it &lt;* width\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(width\Representation.items))&#10;         )) = 0)"/>
-         <where label="WR6" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(width)) OR&#10;        (SIZEOF(QUERY(it &lt;* width\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(width\Representation.items))&#10;           )) = 1)"/>
       </entity>
       <entity name="Printed_part_template_material_link" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="precedent_material" optional="NO">
@@ -265,24 +278,6 @@
             <typename name="Printed_part_template_terminal"/>
          </explicit>
       </entity>
-      <entity name="Single_complex_multi_stratum_part_template_composition_relationship" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="composition" optional="NO">
-            <typename name="Complex_multi_stratum_printed_part_template"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
-         </explicit>
-         <explicit name="element" optional="NO">
-            <typename name="Single_stratum_printed_part_template"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
-         </explicit>
-         <explicit name="position" optional="NO">
-            <typename name="Stratum_technology_occurrence"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="composition"/>
-            <unique.attribute attribute="position"/>
-         </unique>
-         <where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
-      </entity>
       <entity name="Single_stratum_printed_part_template" supertypes="Printed_part_template" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="of_stratum_technology" optional="NO">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
@@ -306,7 +301,7 @@
       <function name="complex_printed_part_template_access_mechanisms">
          <parameter name="input">
             <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
-            <typename name="Single_complex_multi_stratum_part_template_composition_relationship"/>
+            <typename name="Complex_multi_stratum_printed_part_template_composition"/>
          </parameter>
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Printed_part_template_terminal"/>

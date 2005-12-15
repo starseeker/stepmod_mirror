@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2005/12/12 14:25:55 $" rcs.revision="$Revision: 1.56 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
    <schema name="Fabrication_technology_arm">
       <interface kind="use" schema="Part_feature_location_arm"/>
@@ -33,14 +33,8 @@
       <type name="mt_usage_concept">
          <select extensible="YES" genericentity="YES" basedon="usage_concept" selectitems="Land_template_terminal"/>
       </type>
-      <type name="pca_product_design_object_category">
-         <enumeration items="assembly_component_category assembly_module_category assembly_module_component_category assembly_module_component_terminal_category assembly_module_macro_component_category assembly_module_macro_component_join_terminal_category bare_die_component_category bare_die_component_terminal_category bonded_conductive_base_blind_via_category buried_via_category cable_component_category component_feature_category component_mounting_feature_category component_termination_passage_category component_termination_passage_and_contact_size_dependent_land_category component_termination_passage_interface_terminal_category component_termination_passage_join_terminal_category conductive_interconnect_element_terminal_category conductive_interconnect_element_with_pre_defined_transitions_category conductive_interconnect_element_with_user_defined_single_transition_category connected_area_component_category contact_size_dependent_land_category cutout_category cutout_edge_segment_category dielectric_material_passage_category electrical_isolation_laminate_component_category embedded_physical_component_terminal_category fiducial_category fill_area_category filled_area_material_removal_laminate_component_category inter_stratum_feature_category interconnect_component_interface_terminal_category interconnect_component_join_terminal_category interconnect_module_component_category interconnect_module_component_stratum_based_terminal_category interconnect_module_component_surface_feature_category interconnect_module_component_terminal_category interconnect_module_edge_category interconnect_module_edge_segment_category interconnect_module_macro_component_category interconnect_module_macro_component_join_terminal_category interface_access_material_removal_laminate_component_category interface_access_stratum_feature_template_component_category interface_component_category interfacial_connection_category internal_probe_access_area_category join_two_physical_connectivity_definition_supporting_inter_stratum_feature_category join_two_physical_connectivity_definition_supporting_printed_component_category laminate_component_category laminate_text_component_category laminate_text_string_component_category land_category land_interface_terminal_category land_join_terminal_category material_removal_laminate_component_category minimally_defined_component_terminal_category movable_packaged_component_join_terminal_category multi_layer_material_removal_laminate_component_category multi_layer_stratum_feature_template_component_category non_conductive_base_blind_via_category packaged_component_category packaged_component_join_terminal_category packaged_connector_component_category packaged_connector_component_interface_terminal_category partially_plated_cutout_category partially_plated_interconnect_module_edge_category physical_component_category physical_connectivity_interrupting_cutout_category physical_laminate_component_category physical_network_supporting_inter_stratum_feature_category plated_conductive_base_blind_via_category plated_cutout_category plated_cutout_edge_segment_category plated_interconnect_module_edge_category plated_interconnect_module_edge_segment_category plated_passage_category plated_passage_or_unsupported_passage_category primary_stratum_indicator_symbol_category printed_component_join_terminal_category printed_connector_component_interface_terminal_category probe_access_area_category routed_interconnect_component_category routed_physical_component_category special_symbol_laminate_component_category stratum_feature_category stratum_feature_template_component_category thermal_isolation_laminate_component_category unrouted_conductive_interconnect_element_category unsupported_passage_category unsupported_passage_dependent_land_category via_category via_terminal_category" extensible="NO"/>
-      </type>
       <type name="predefined_documentation_layer_purpose">
          <enumeration items="soldermask solderpaste silkscreen generic_layer glue gluemask pastemask" extensible="NO"/>
-      </type>
-      <type name="spacing_type">
-         <enumeration items="nearest_boundary centroid furthest_boundary" extensible="NO"/>
       </type>
       <type name="stiffness_class">
          <enumeration items="fluid_like conformal_coat stiff_laminate" extensible="NO"/>
@@ -123,23 +117,21 @@
       </entity>
       <entity name="Default_component_termination_passage_definition" supertypes="Passage_technology" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="allowed_component_terminal_extent" optional="NO">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </explicit>
          <explicit name="as_finished_deposition_thickness" optional="NO">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
          <explicit name="as_finished_passage_extent" optional="NO">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
          <inverse name="deposition_material" entity="Material_identification" attribute="items">
             <inverse.aggregate type="SET" lower="1" upper="1"/>
             <redeclaration entity-ref="Passage_technology"/>
          </inverse>
-         <where label="WR1" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(allowed_component_terminal_extent)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(allowed_component_terminal_extent)) OR&#10;        (SIZEOF(QUERY(it &lt;* allowed_component_terminal_extent\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(allowed_component_terminal_extent\Representation.items))&#10;         )) = 0)"/>
-         <where label="WR2" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(allowed_component_terminal_extent)) OR&#10;        (SIZEOF(QUERY(it &lt;* allowed_component_terminal_extent\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(allowed_component_terminal_extent\Representation.items))&#10;           )) = 1)"/>
-         <where label="WR3" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material)"/>
+         <where label="WR1" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material)"/>
       </entity>
       <entity name="Default_passage_based_land_physical_template" abstract.supertype="YES" supertypes="Land_physical_template" super.expression="ONEOF (Default_plated_passage_based_land_physical_template, Default_unsupported_passage_based_land_physical_template)" abstract.entity="NO">
          <explicit name="minimum_fabrication_allowance" optional="NO">
@@ -165,11 +157,9 @@
       </entity>
       <entity name="Default_tapered_blind_via_definition" supertypes="Default_via_definition" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="as_finished_interior_passage_extent" optional="NO">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </explicit>
          <where label="WR1" expression="less(as_finished_interior_passage_extent,as_finished_passage_extent)"/>
-         <where label="WR2" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_interior_passage_extent)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_interior_passage_extent)) OR&#10;        (SIZEOF(QUERY(it &lt;* as_finished_interior_passage_extent\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_interior_passage_extent\Representation.items))&#10;         )) = 0)"/>
-         <where label="WR3" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_interior_passage_extent)) OR&#10;        (SIZEOF(QUERY(it &lt;* as_finished_interior_passage_extent\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_interior_passage_extent\Representation.items))&#10;           )) = 1)"/>
       </entity>
       <entity name="Default_unsupported_passage_based_land_physical_template" supertypes="Default_passage_based_land_physical_template" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="of_passage_technology" optional="NO">
@@ -179,17 +169,17 @@
       </entity>
       <entity name="Default_unsupported_passage_definition" supertypes="Passage_technology" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="as_finished_passage_extent" optional="NO">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
       </entity>
       <entity name="Default_via_definition" supertypes="Passage_technology" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="as_finished_deposition_thickness" optional="NO">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
          <explicit name="as_finished_passage_extent" optional="NO">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
          <inverse name="deposition_material" entity="Material_identification" attribute="items">
@@ -290,26 +280,6 @@
          <where label="WR2" expression="NOT (EXISTS(terminal_connection_zone)) OR (SIZEOF(terminal_connection_zone) = SIZEOF(connection_zone_category))"/>
          <where label="WR3" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
-      <entity name="Layout_spacing_requirement_occurrence" supertypes="Requirement_definition_property" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="reference_design_object_category" optional="NO">
-            <typename name="pca_product_design_object_category"/>
-         </explicit>
-         <explicit name="dependent_design_object_category" optional="NO">
-            <typename name="pca_product_design_object_category"/>
-         </explicit>
-         <explicit name="required_characteristic" optional="NO">
-            <typename name="Tolerance_characteristic"/>
-            <redeclaration entity-ref="Requirement_definition_property"/>
-         </explicit>
-         <explicit name="of_spacing_type" optional="NO">
-            <typename name="spacing_type"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="reference_design_object_category"/>
-            <unique.attribute attribute="dependent_design_object_category"/>
-         </unique>
-         <where label="WR1" expression="'VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Requirement_definition_property.required_characteristic.items[1])"/>
-      </entity>
       <entity name="Library_stack_model" supertypes="Stratum_stack_model" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Material_addition_feature_template" supertypes="Stratum_feature_template" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Material_removal_feature_template" supertypes="Template_definition" super.expression="Dependent_material_removal_feature_template" abstract.supertype="NO" abstract.entity="NO">
@@ -324,10 +294,10 @@
             <builtintype type="STRING" fixed="NO"/>
          </explicit>
          <explicit name="as_finished_deposition_thickness" optional="YES">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </explicit>
          <explicit name="as_finished_passage_extent" optional="YES">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </explicit>
          <explicit name="maximum_aspect_ratio" optional="YES">
             <builtintype type="REAL" fixed="NO"/>
@@ -350,10 +320,6 @@
          <where label="WR3" expression="NOT EXISTS(as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1)"/>
          <where label="WR4" expression="NOT EXISTS(as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1)"/>
          <where label="WR5" expression="NOT (plated_passage) OR&#10;           (SIZEOF([deposition_material[1].electrical_conductivity_classification,&#10;                    deposition_material[1].thermal_conductivity_classification] *&#10;                   ['conductive']) &gt;= 1)"/>
-         <where label="WR6" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_passage_extent)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_passage_extent)) OR&#10;        (SIZEOF(QUERY(it &lt;* as_finished_passage_extent\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_passage_extent\Representation.items))&#10;         )) = 0)"/>
-         <where label="WR7" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_passage_extent)) OR&#10;        (SIZEOF(QUERY(it &lt;* as_finished_passage_extent\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_passage_extent\Representation.items))&#10;           )) = 1)"/>
-         <where label="WR8" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_deposition_thickness)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_deposition_thickness)) OR&#10;        (SIZEOF(QUERY(it &lt;* as_finished_deposition_thickness\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_deposition_thickness\Representation.items))&#10;         )) = 0)"/>
-         <where label="WR9" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(as_finished_deposition_thickness)) OR&#10;        (SIZEOF(QUERY(it &lt;* as_finished_deposition_thickness\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(as_finished_deposition_thickness\Representation.items))&#10;           )) = 1)"/>
       </entity>
       <entity name="Passage_technology_allocation_to_stack_model" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="allocated_technology" optional="NO">
@@ -375,8 +341,8 @@
          </explicit>
          <where label="WR1" expression="(NOT EXISTS(from_stratum_technology_occurrence) OR&#10;               (from_stratum_technology_occurrence IN associated_stackup.composing_occurrence)) AND&#10;          (NOT EXISTS(to_stratum_technology_occurrence) OR&#10;               (to_stratum_technology_occurrence IN associated_stackup.composing_occurrence))"/>
          <where label="WR2" expression="EXISTS(stratum_technology_sequence) OR&#10;               (from_stratum_technology_occurrence = to_stratum_technology_occurrence)"/>
-         <where label="WR3" expression="NOT (from_stratum_technology_occurrence XOR to_stratum_technology_occurrence)"/>
-         <where label="WR4" expression="stratum_technology_sequence XOR from_stratum_technology_occurrence"/>
+         <where label="WR3" expression="NOT (EXISTS(from_stratum_technology_occurrence) XOR EXISTS(to_stratum_technology_occurrence))"/>
+         <where label="WR4" expression="EXISTS(stratum_technology_sequence) XOR EXISTS(from_stratum_technology_occurrence)"/>
          <where label="WR5" expression="SIZEOF(QUERY(ast &lt;* associated_stackup | &#10;               (SIZEOF(QUERY(sts &lt;* stratum_technology_sequence | NOT(ast IN sts.scope))) = 0)&#10;               )) = 0"/>
          <where label="WR6" expression="SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1)"/>
          <where label="WR7" expression="sts_vertex_degree_less_than_two(stratum_technology_sequence)"/>
@@ -458,6 +424,21 @@
          </explicit>
          <where label="WR1" expression="precedent_sto &lt;&gt; subsequent_sto"/>
       <where label="IP1"/>
+      </entity>
+      <entity name="Stratum_technology_occurrence_swap_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="primary_sto" optional="NO">
+            <typename name="Stratum_technology_occurrence"/>
+         </explicit>
+         <explicit name="secondary_sto" optional="NO">
+            <typename name="Stratum_technology_occurrence"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="primary_sto"/>
+         </unique>
+         <unique label="UR2">
+            <unique.attribute attribute="secondary_sto"/>
+         </unique>
+         <where label="WR1" expression="primary_sto &lt;&gt; secondary_sto"/>
       </entity>
       <entity name="Stratum_technology_swap_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="primary_stratum_technology" optional="NO">
@@ -572,10 +553,10 @@
       </function>
       <function name="less">
          <parameter name="input1">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </parameter>
          <parameter name="input2">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </parameter>
          <builtintype type="BOOLEAN" fixed="NO"/>
          <algorithm>RETURN(TRUE);</algorithm>

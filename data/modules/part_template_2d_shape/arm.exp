@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.79 2005/12/12 13:07:46 liutkus Exp $
+   $Id: arm.exp,v 1.81 2005/12/15 19:57:51 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -190,7 +190,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Padstack_definition
     ABSTRACT SUPERTYPE OF ((ONEOF (Stratum_stack_specific_padstack_definition,
-                                   Stratum_stack_independent_padstack_definition) 
+                                   Stratum_stack_independent_padstack_definition))
                             ANDOR Passage_padstack_definition)
     SUBTYPE OF (Multi_layer_template_definition);
       padstack_location        : padstack_arrangement;
@@ -199,8 +199,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     WHERE
       WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
  'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'template model'))) > 0;
-      WR2: NOT(('PART_TEMPLATE_2D_SHAPE.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)) XOR 
-               ('PART_TEMPLATE_2D_SHAPE.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION_IN_MULTI_LAYER_TEMPLATE_DEFINITION' in SELF\Multi_layer_template_definition.templates))
+      WR2: NOT('PART_TEMPLATE_2D_SHAPE.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)) XOR 
+          ('PART_TEMPLATE_2D_SHAPE.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION_IN_MULTI_LAYER_TEMPLATE_DEFINITION' in SELF\Multi_layer_template_definition.templates);
   END_ENTITY;
 
   ENTITY Padstack_definition_shape_model
@@ -390,7 +390,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
 
 ENTITY Stratum_stack_independent_padstack_definition
-  SUBTYPE OF Padstack_definition;
+  SUBTYPE OF (Padstack_definition);
 WHERE
    WR1: SIZEOF(QUERY(temp <* SELF\Multi_layer_template_definition.templates |
               NOT
@@ -426,7 +426,7 @@ Fabrication_technology_arm.layer_position_type.primary
 END_ENTITY;
 
 ENTITY Stratum_stack_specific_padstack_definition
-  SUBTYPE OF Padstack_definition;
+  SUBTYPE OF (Padstack_definition);
   stack : Library_stack_model;
 WHERE
    WR1: SIZEOF(QUERY(temp <* SELF\Multi_layer_template_definition.templates |

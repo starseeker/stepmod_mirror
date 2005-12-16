@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.30 2005/12/14 15:27:40 liutkus Exp $
+   $Id: arm.exp,v 1.31 2005/12/15 08:30:27 liutkus Exp $
    ISO TC184/SC4/WG12 N3321 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
 *)
 
@@ -7,6 +7,7 @@ SCHEMA Characteristic_arm;
 
 	USE FROM Document_assignment_arm;	-- ISO/TS 10303-1122
 	USE FROM Extended_measure_representation_arm;	-- ISO/TS 10303-1106
+	USE FROM Shape_property_assignment_arm;    -- ISO/TS 10303-1032	
 	USE FROM Value_with_unit_extension_arm;	-- ISO/TS 10303-1753
   
   TYPE characteristic = SELECT
@@ -42,13 +43,17 @@ SCHEMA Characteristic_arm;
   END_TYPE;
 
   ENTITY Characteristic_data_table
-    SUBTYPE OF (Measure_item);
+    SUBTYPE OF (Characterizable_object, Measure_item);
       property_value : LIST[1:?] OF list_characteristic;
       index_value    : LIST[1:?] OF INTEGER;
+    UNIQUE
+      UR1: SELF\Characterizable_object.name;
     WHERE
       WR1: SIZEOF(property_value) = SIZEOF(index_value);
       -- TODO for Tom 
-      -- WR2: all members in  property_value must have the same size
+      -- WR2: ;-- all members in  property_value must have the same size
+      WR3: SIZEOF(USEDIN
+        (SELF,'PROPERTY_ASSIGNMENT_ARM.ASSIGNED_PROPERTY.DESCRIBED_ELEMENT')) = 0;
   END_ENTITY;
 
   ENTITY Expanded_uncertainty

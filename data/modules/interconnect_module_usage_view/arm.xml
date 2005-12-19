@@ -78,10 +78,10 @@
       </entity>
       <entity name="Interconnect_module_usage_view" supertypes="Part_usage_view" super.expression="Pcb_usage_view">
          <explicit name="thickness_over_dielectric_requirement" optional="YES">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </explicit>
          <explicit name="thickness_over_metal_requirement" optional="YES">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </explicit>
          <explicit name="measurement_condition" optional="YES">
             <typename name="Restraint_condition"/>
@@ -97,18 +97,14 @@
          <where label="WR2" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
          <where label="WR3" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_EDGE_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
          <where label="WR4" expression="EXISTS(thickness_over_metal_requirement) OR EXISTS(thickness_over_dielectric_requirement)"/>
-         <where label="WR5" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_dielectric_requirement)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_dielectric_requirement)) OR&#10;        (SIZEOF(QUERY(it &lt;* thickness_over_dielectric_requirement\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_over_dielectric_requirement\Representation.items))&#10;         )) = 0)"/>
-         <where label="WR6" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_dielectric_requirement)) OR&#10;        (SIZEOF(QUERY(it &lt;* thickness_over_dielectric_requirement\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_over_dielectric_requirement\Representation.items))&#10;           )) = 1)"/>
-         <where label="WR7" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_metal_requirement)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_metal_requirement)) OR&#10;        (SIZEOF(QUERY(it &lt;* thickness_over_metal_requirement\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_over_metal_requirement\Representation.items))&#10;         )) = 0)"/>
-         <where label="WR8" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_over_metal_requirement)) OR&#10;        (SIZEOF(QUERY(it &lt;* thickness_over_metal_requirement\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_over_metal_requirement\Representation.items))&#10;           )) = 1)"/>
-         <where label="WR9" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+         <where label="WR5" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
       </entity>
       <entity name="Located_interconnect_module_thickness_requirement">
          <explicit name="reference_location">
             <typename name="Axis_placement"/>
          </explicit>
          <explicit name="thickness_requirement">
-            <typename name="Tolerance_characteristic"/>
+            <typename name="Length_tolerance_characteristic"/>
          </explicit>
          <inverse name="design" entity="Interconnect_module_usage_view" attribute="located_thickness_requirement">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
@@ -117,16 +113,7 @@
             <unique.attribute attribute="design"/>
             <unique.attribute attribute="reference_location"/>
          </unique>
-         <where label="WR1" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_requirement)) OR&#10;        ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_requirement)) OR&#10;        (SIZEOF(QUERY(it &lt;* thickness_requirement\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_requirement\Representation.items))&#10;         )) = 0)"/>
-         <where label="WR2" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(thickness_requirement)) OR&#10;        (SIZEOF(QUERY(it &lt;* thickness_requirement\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(thickness_requirement\Representation.items))&#10;           )) = 1)"/>
       </entity>
       <entity name="Pcb_usage_view" supertypes="Interconnect_module_usage_view"/>
-      <function name="magnitude_of">
-         <parameter name="input">
-            <typename name="Length_data_element"/>
-         </parameter>
-         <builtintype type="REAL"/>
-         <algorithm>RETURN(input\Value_with_unit.value_component);</algorithm>
-      </function>
    </schema>
 </express>

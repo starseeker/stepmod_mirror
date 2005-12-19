@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.33 2005/12/19 13:35:30 liutkus Exp $
+   $Id: arm.exp,v 1.34 2005/12/19 14:33:54 liutkus Exp $
    ISO TC184/SC4/WG12 N3321 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
 *)
 
@@ -50,10 +50,11 @@ SCHEMA Characteristic_arm;
       UR1: SELF\Characterizable_object.name;
     WHERE
       WR1: SIZEOF(property_value) = SIZEOF(index_value);
-      -- TODO for Tom 
-      -- WR2: ;-- all members in  property_value must have the same size
+      WR2: SIZEOF(QUERY( pv <* property_value |
+                  NOT (SIZEOF(pv.property_value) = SIZEOF(property_value[1].property_value))
+                  )) = 0;
       WR3: SIZEOF(USEDIN
-        (SELF,'PROPERTY_ASSIGNMENT_ARM.ASSIGNED_PROPERTY.DESCRIBED_ELEMENT')) = 0;
+                 (SELF,'PROPERTY_ASSIGNMENT_ARM.ASSIGNED_PROPERTY.DESCRIBED_ELEMENT')) = 0;
   END_ENTITY;
 
   ENTITY Characteristic_data_table_row

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.70 2005/12/15 18:11:24 thomasrthurman Exp $
+   $Id: arm.exp,v 1.71 2005/12/15 18:16:25 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -349,9 +349,8 @@ SCHEMA Fabrication_technology_arm;
                (from_stratum_technology_occurrence = to_stratum_technology_occurrence);
      WR3: NOT (EXISTS(from_stratum_technology_occurrence) XOR EXISTS(to_stratum_technology_occurrence));
      WR4: EXISTS(stratum_technology_sequence) XOR EXISTS(from_stratum_technology_occurrence);
-     WR5: SIZEOF(QUERY(ast <* associated_stackup | 
-               (SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(ast IN sts.scope))) = 0)
-               )) = 0;
+     WR5: SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))
+                 ) = 0;
      WR6: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1); 
      WR7: sts_vertex_degree_less_than_two(stratum_technology_sequence);
   END_ENTITY;
@@ -534,14 +533,14 @@ END_FUNCTION;
  END_LOCAL;
   REPEAT i := 1 TO SIZEOF(sto) BY 1;
    REPEAT j := 1 TO SIZEOF(input) BY 1;
-     IF (input[j].precedent_sto IN sto[i]) THEN 
+     IF (input[j].precedent_sto :=: sto[i]) THEN 
       psto[i] := psto[i] + 1;
       IF (psto[i] = 2) THEN 
        pass := FALSE; 
        ESCAPE; 
       END_IF;
      END_IF;  
-     IF (input[j].subsequent_sto IN sto[i]) THEN 
+     IF (input[j].subsequent_sto :=: sto[i]) THEN 
       ssto[i] := ssto[i] + 1;  
       IF (ssto[i] = 2) THEN 
        pass := FALSE; 

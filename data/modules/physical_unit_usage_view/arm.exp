@@ -107,9 +107,11 @@ SCHEMA Physical_unit_usage_view_arm;
       shape_characterized_template : Part_feature_template_definition FOR feature_model;
     WHERE
       WR1 : NOT (SIZEOF(USEDIN(SELF, '')) > 1) OR 
-       (SIZEOF(QUERY(foo <* USEDIN(SELF,
-        '') | NOT(SIZEOF(['PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP','PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE_TEMPLATE_DEFINITION'] * TYPEOF(foo))= 1)) 
-        = 0));
+       (SIZEOF(QUERY(foo <* USEDIN(SELF,'') | 
+       NOT(SIZEOF(['PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP',
+        'PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE_TEMPLATE_DEFINITION'] * TYPEOF(foo))= 1)
+        )) 
+        = 0);
 --DESC: If self is useding more than once (one for Part_feature_template_definition) then the other USEDIN shall be a UCUR.
       WR2 : NOT EXISTS(SELF\Representation.description);
       WR3 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;            

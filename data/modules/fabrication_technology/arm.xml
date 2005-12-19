@@ -342,7 +342,7 @@
          <where label="WR2" expression="EXISTS(stratum_technology_sequence) OR&#10;               (from_stratum_technology_occurrence = to_stratum_technology_occurrence)"/>
          <where label="WR3" expression="NOT (EXISTS(from_stratum_technology_occurrence) XOR EXISTS(to_stratum_technology_occurrence))"/>
          <where label="WR4" expression="EXISTS(stratum_technology_sequence) XOR EXISTS(from_stratum_technology_occurrence)"/>
-         <where label="WR5" expression="SIZEOF(QUERY(ast &lt;* associated_stackup | &#10;               (SIZEOF(QUERY(sts &lt;* stratum_technology_sequence | NOT(ast IN sts.scope))) = 0)&#10;               )) = 0"/>
+         <where label="WR5" expression="SIZEOF(QUERY(sts &lt;* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))&#10;                 ) = 0"/>
          <where label="WR6" expression="SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1)"/>
          <where label="WR7" expression="sts_vertex_degree_less_than_two(stratum_technology_sequence)"/>
       </entity>
@@ -576,14 +576,14 @@
  END_LOCAL;
   REPEAT i := 1 TO SIZEOF(sto) BY 1;
    REPEAT j := 1 TO SIZEOF(input) BY 1;
-     IF (input[j].precedent_sto IN sto[i]) THEN 
+     IF (input[j].precedent_sto :=: sto[i]) THEN 
       psto[i] := psto[i] + 1;
       IF (psto[i] = 2) THEN 
        pass := FALSE; 
        ESCAPE; 
       END_IF;
      END_IF;  
-     IF (input[j].subsequent_sto IN sto[i]) THEN 
+     IF (input[j].subsequent_sto :=: sto[i]) THEN 
       ssto[i] := ssto[i] + 1;  
       IF (ssto[i] = 2) THEN 
        pass := FALSE; 

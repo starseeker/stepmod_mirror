@@ -26,8 +26,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       SELF\Shape_definition_3d_intersection.surface_intersection_result : Edge_shape_model;
       SELF\Shape_definition_3d_intersection.projected_volume            : Part_template_3d_shape_model;
     DERIVE
-      cross_section_reference                                           : edge_segment_vertex := SELF\Shape_definition_3d_intersection.projected_volume\Part_template_shape_model.shape_characterized_part_template\Inter_stratum_feature_edge_segment_template.start_vertex;
-      associated_template                                               : inter_stratum_feature_edge_segment_template := SELF\Shape_definition_3d_intersection.projected_volume\Part_template_shape_model.shape_characterized_part_template;
+      cross_section_reference                                           : edge_segment_vertex := 
+       SELF\Shape_definition_3d_intersection.projected_volume\Part_template_shape_model.shape_characterized_part_template[1]\
+       Inter_stratum_feature_edge_segment_template.start_vertex;
+      associated_template                                               : Template_definition := 
+       SELF\Shape_definition_3d_intersection.projected_volume\Part_template_shape_model.shape_characterized_part_template[1];
     INVERSE
       referencing_template : inter_stratum_feature_edge_segment_template_with_cross_section FOR cross_section;
     WHERE
@@ -37,13 +40,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Inter_stratum_feature_edge_segment_template_with_cross_section
     SUBTYPE OF (Inter_stratum_feature_edge_segment_template);
       cross_section  : Edge_segment_cross_section;
-    WHERE
-      WR1 : NOT (EXISTS(SELF\Inter_stratum_feature_edge_segment_template.start_vertex\Datum_point.location_in_3d)) OR 
-       (SELF\Inter_stratum_feature_edge_segment_template.reference_path.start_point :=: 
-        SELF\Inter_stratum_feature_edge_segment_template.start_vertex\Datum_point.location_in_3d);
-      WR2 : NOT (EXISTS (SELF\Inter_stratum_feature_edge_segment_template.end_vertex\Datum_point.location_in_3d)) OR 
-       (SELF\Inter_stratum_feature_edge_segment_template.reference_path.end_point :=: 
-        SELF\Inter_stratum_feature_edge_segment_template.end_vertex\Datum_point.location_in_3d);
   END_ENTITY;
 
   ENTITY Part_template_3d_keepout_shape_model

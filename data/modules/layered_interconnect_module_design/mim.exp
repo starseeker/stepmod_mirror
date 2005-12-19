@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.49 2005/12/13 07:50:35 liutkus Exp $
+   $Id: mim.exp,v 1.50 2005/12/19 15:05:31 liutkus Exp $
    ISO TC184/SC4/WG12 N3484 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS MIM
 *)
 
@@ -15,13 +15,20 @@ SCHEMA Layered_interconnect_module_design_mim;
 	USE FROM Part_template_extension_mim;	-- ISO/TS 10303-1718
 
 SUBTYPE_CONSTRAINT assembly_group_component_subtypes FOR assembly_group_component_definition; 
-	(ONEOF (footprint_occurrence,
-	 padstack_occurrence));
+	   (interfaced_group_component_definition ANDOR
+	 	array_placement_group_component_definition ANDOR
+	 	(ONEOF (footprint_occurrence,
+	 padstack_occurrence)));
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT array_placement_group_subtypes FOR array_placement_group_component_definition; 
 	(ONEOF (linear_array_placement_group_component_definition,
 	 rectangular_array_placement_group_component_definition));
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT assembly_component_subtypes FOR assembly_component; 
+    (ONEOF (physical_component,
+ 	laminate_component));
 END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT component_feature_subtypes FOR component_feature; 
@@ -33,6 +40,16 @@ SUBTYPE_CONSTRAINT component_terminal_subtypes FOR component_terminal;
 	(ONEOF (physical_component_terminal,
 	 laminate_component_join_terminal));
 END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT interconnect_module_terminal_subtypes FOR interconnect_module_terminal;     
+	(ONEOF (interconnect_module_interface_terminal,
+	 interconnect_module_join_terminal));
+END_SUBTYPE_CONSTRAINT; 
+
+SUBTYPE_CONSTRAINT limd_product_definition_subtypes FOR product_definition; 
+	(ONEOF (physical_unit,
+	stratum));
+END_SUBTYPE_CONSTRAINT; 
 
 SUBTYPE_CONSTRAINT template_definition_subtypes FOR part_template_definition; 
 	(ONEOF (generic_footprint_definition,
@@ -62,16 +79,6 @@ TYPE limd_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON do
       stratum_feature,
       stratum_surface);
 END_TYPE; 
-
-SUBTYPE_CONSTRAINT interconnect_module_terminal_subtypes FOR interconnect_module_terminal;         
-  (ONEOF (interconnect_module_interface_terminal,
-                      interconnect_module_join_terminal));
-END_SUBTYPE_CONSTRAINT;        
-
-SUBTYPE_CONSTRAINT plated_inter_stratum_feature_subtypes FOR plated_inter_stratum_feature;         
-  (ONEOF(plated_passage,plated_cutout_edge_segment, 
- plated_interconnect_module_edge_segment));
-END_SUBTYPE_CONSTRAINT;        
 
 ENTITY breakout_occurrence
   SUBTYPE OF (footprint_occurrence);
@@ -113,6 +120,8 @@ ENTITY fiducial_stratum_feature
 END_ENTITY;
 
 ENTITY filled_area_material_removal_component_definition
+  SUPERTYPE OF (ONEOF (electrical_isolation_component_definition,
+    thermal_isolation_component_definition))
   SUBTYPE OF (material_removal_component_definition);
 END_ENTITY;
 
@@ -161,6 +170,10 @@ ENTITY join_shape_aspect
 END_ENTITY;
 
 ENTITY laminate_component
+  SUPERTYPE OF (ONEOF (material_removal_component_definition,
+	probe_access_area,
+	inter_stratum_feature) ANDOR
+	fiducial)
   SUBTYPE OF (assembly_component);
 END_ENTITY;
 
@@ -242,7 +255,9 @@ ENTITY plated_interconnect_module_edge_segment
 END_ENTITY;
 
 ENTITY plated_inter_stratum_feature
-  SUPERTYPE OF (plated_passage)
+  SUPERTYPE OF (ONEOF (plated_cutout_edge_segment,
+		 plated_interconnect_module_edge_segment,
+		 plated_passage))
   SUBTYPE OF (inter_stratum_feature);
 END_ENTITY;
 

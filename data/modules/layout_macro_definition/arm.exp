@@ -9,8 +9,7 @@ SCHEMA Layout_macro_definition_arm;
 
 	SUBTYPE_CONSTRAINT printed_component_subtypes FOR Printed_component;  
 	(ONEOF (Layout_macro_component,
-	 Printed_connector_component,
-	 Routed_printed_component));
+	 Printed_connector_component));
 	END_SUBTYPE_CONSTRAINT;  
 
 	SUBTYPE_CONSTRAINT printed_part_template_subtypes FOR Printed_part_template;  
@@ -22,8 +21,6 @@ SCHEMA Layout_macro_definition_arm;
     SUBTYPE OF (Printed_component);
       design_definition                       	: Layout_macro_definition;
       SELF\Printed_component.derived_from		: Layout_macro_floor_plan_template;
-    WHERE
-      WR1 : NOT (EXISTS(SELF\Printed_component.footprint_implementation));
   END_ENTITY;
 
   ENTITY Layout_macro_definition
@@ -48,9 +45,12 @@ SCHEMA Layout_macro_definition_arm;
       access_maps : SET[1:?] OF Layout_macro_definition_terminal_to_usage_terminal_assignment;
     INVERSE
       macro_definition : SET[0:1] OF layout_macro_definition FOR floor_layout_view;
---    WHERE
---      WR1 : NOT (EXISTS(SELF\Printed_part_template.of_stratum_technology)) AND NOT (EXISTS(SELF\Printed_part_template.material_stack)) AND NOT (EXISTS(SELF\Printed_part_template.printed_part_template_stack));
--- VK rule is incorrect after spliting printed_part_template to subtypes.
+    WHERE
+      WR1: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\Printed_part_template ||
+                                 SELF\Template_definition ||
+                                 SELF\Item_shape ||
+                                 SELF\Product_view_definition ||
+                                 SELF\Layout_macro_floor_plan_template)) = 0;
   END_ENTITY;
 
 

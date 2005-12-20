@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.39 2005/12/13 02:40:31 thomasrthurman Exp $
+   $Id: arm.exp,v 1.40 2005/12/14 15:27:40 liutkus Exp $
    ISO TC184/SC4/WG12 N3582 - ISO/CD-TS 10303-1737 Printed physical layout template - EXPRESS ARM
 *)
 
@@ -25,14 +25,28 @@ REFERENCE FROM Requirement_decomposition_arm (get_requirement_definition_propert
 
   ENTITY Basic_multi_stratum_printed_part_template 
     SUBTYPE OF (Printed_part_template);
-      material_stack : Library_stack_model;
-      reference_template : Stratum_feature_template;
+      material_stack : Stratum_stack_model;
   END_ENTITY;
 
   ENTITY Complex_multi_stratum_printed_part_template
-    SUBTYPE OF (Printed_part_template,Multi_layer_complex_template);
+    SUBTYPE OF (Printed_part_template);
+      printed_part_template_stack : Stratum_stack_model;
     DERIVE
       access_mechanisms : SET [1:?] OF Printed_part_template_terminal := raw_access_mechanisms + complex_printed_part_template_access_mechanisms(decomposition);
+    INVERSE
+      decomposition : SET[2:?] OF Complex_multi_stratum_printed_part_template_composition FOR composition;
+  END_ENTITY;
+
+  ENTITY Complex_multi_stratum_printed_part_template_composition
+    SUBTYPE OF (View_definition_relationship);
+     SELF\View_definition_relationship.relating_view RENAMED composition : Complex_multi_stratum_printed_part_template;
+     SELF\View_definition_relationship.related_view RENAMED element      : Single_stratum_printed_part_template;
+     position : Stratum_technology_occurrence;
+   UNIQUE
+     UR1 : composition, position;
+   WHERE
+    WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
+    WR2 : position.definition IN element.of_stratum_technology;
   END_ENTITY;
 
   ENTITY Functional_usage_view_to_printed_part_template_terminal_assignment;
@@ -208,8 +222,8 @@ REFERENCE FROM Requirement_decomposition_arm (get_requirement_definition_propert
   END_ENTITY;
 
   ENTITY Single_stratum_printed_part_template
-    SUBTYPE OF (Printed_part_template,Single_layer_template);
-     SELF\Single_layer_template.of_stratum_technology : SET [1:?] OF Stratum_technology;
+    SUBTYPE OF (Printed_part_template);
+     of_stratum_technology : SET [1:?] OF Stratum_technology;
     DERIVE
      access_mechanisms : SET [1:?] OF Printed_part_template_terminal := raw_access_mechanisms;
   END_ENTITY;

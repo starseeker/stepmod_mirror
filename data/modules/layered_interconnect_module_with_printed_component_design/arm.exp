@@ -19,7 +19,7 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
 
   ENTITY Basic_multi_stratum_printed_component 
     SUBTYPE OF (Printed_component);
-      material_stack : Stratum_feature_based_pattern;
+      material_stack : Stratum_feature_based_derived_pattern;
       SELF\Printed_component.derived_from : Basic_multi_stratum_printed_part_template;
   END_ENTITY;
 
@@ -28,18 +28,6 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
       SELF\Printed_component.derived_from : Complex_multi_stratum_printed_part_template;
     INVERSE
         decomposition : SET [1:?] OF Complex_multi_stratum_printed_component_composition FOR composition;
-  END_ENTITY;
-
-  ENTITY Complex_multi_stratum_printed_component_composition
-    SUBTYPE OF (Next_assembly_usage);
-     SELF\View_definition_relationship.relating_view RENAMED composition : Complex_multi_stratum_printed_component;
-     SELF\View_definition_relationship.related_view RENAMED element      : Single_stratum_printed_component;
-     position : Stratum_technology_occurrence;
-     definition : Complex_multi_stratum_printed_part_template_composition;
-   WHERE
-    WR1 : position.definition IN element.of_stratum_technology;
-    WR2 : definition.composition = composition.derived_from;
-    WR3 : definition.element = element.derived_from;
   END_ENTITY;
 
   ENTITY Single_stratum_printed_component
@@ -58,18 +46,12 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
     Complex_multi_stratum_printed_component))
     SUBTYPE OF (Assembly_component);
       stratum_feature_implementation           : OPTIONAL SET[1:?] OF Stratum_feature;
-      SELF\Definition_based_product_occurrence.derived_from : printed_part_template_or_printed_part_cross_section_template;
-      footprint_implementation                 : OPTIONAL Footprint_occurrence;
+      SELF\Definition_based_product_occurrence.derived_from : printed_part_template;
     INVERSE
       access_mechanism       	: SET[1:?] OF printed_component_join_terminal FOR associated_component;
       cad_layer										: SET[0:1] OF External_source_identification FOR item;
     WHERE
-      WR1  : NOT EXISTS(stratum_feature_implementation) OR same_stratum(stratum_feature_implementation);
-      WR2  : NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF)) OR ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from));
-      WR3  : NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)) OR ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF));
-      WR4  : NOT EXISTS(footprint_implementation) OR (('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(footprint_implementation.derived_from.reference_package)) AND (derived_from = footprint_implementation.derived_from.reference_package));
-      WR5 : NOT EXISTS(footprint_implementation) OR NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF));
-      WR6 : NOT EXISTS(SELF\Product_view_definition.name);
+      WR5 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
   ENTITY Printed_component_join_terminal
@@ -99,27 +81,11 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
       WR2 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
-  ENTITY Routed_printed_component
-    SUBTYPE OF (Printed_component);
+  ENTITY Routed_transmission_line
+    SUBTYPE OF (Assembly_component);
       routed_centreline_shape                  : Curve;
       SELF\Definition_based_product_occurrence.derived_from : Printed_part_cross_section_template;
       component_extent                         : Inter_stratum_extent;
   END_ENTITY;
-
-  FUNCTION same_stratum(
-    input : SET OF Stratum_feature
-  ) : BOOLEAN;
-
-    LOCAL
-      pass : BOOLEAN := FALSE;
-      s    : SET OF stratum := [];
-    END_LOCAL;
-
-    REPEAT i := 1 TO SIZEOF(input) BY 1;
-      s := input[i].resident_stratum + s;
-    END_REPEAT;
-    pass := (SIZEOF(s) = 1);
-    RETURN(pass);
-  END_FUNCTION;
 
 END_SCHEMA; 

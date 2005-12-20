@@ -34,8 +34,8 @@
             <typename name="Derived_laminate_assignment"/>
             <redeclaration entity-ref="Requirement_assignment"/>
          </derived>
-         <where label="WR2" expression="SIZEOF(QUERY( oer &lt;* oem_requirement | (oer.assembly = solution_definition.assembly))) = 0"/>
-         <where label="WR3" expression="valid_oem_stratum_references(SELF)"/>
+         <where label="WR1" expression="SIZEOF(QUERY( oer &lt;* oem_requirement | (oer.assembly = solution_definition.assembly))) = 0"/>
+         <where label="WR2" expression="valid_oem_stratum_references(SELF)"/>
       </entity>
       <entity name="Derived_stratum_relationship" supertypes="View_definition_relationship">
          <explicit name="requirement_definition">
@@ -62,8 +62,9 @@
          </explicit>
       </entity>
       <entity name="Interconnect_module_stratum_based_terminal" supertypes="Interconnect_module_terminal">
-         <where label="WR1" expression="SIZEOF(QUERY(imtscr &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED') | NOT (SIZEOF(['SEQUENTIAL_LAMINATE_ASSEMBLY_DESIGN_ARM.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE',&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE'] * TYPEOF(imtscr.relating)) = 1))) = 0"/>
-         <where label="WR2" expression="SIZEOF(USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED')) = 1"/>
+         <where label="WR1" expression="SIZEOF(QUERY(imtscr &lt;* USEDIN(SELF,&#10;                        'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                        'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + &#10;                        'RELATED') | &#10;                        NOT (SIZEOF(['INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                            'INTERCONNECT_MODULE_PRIMARY_SURFACE',&#10;                            'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                            'INTERCONNECT_MODULE_SECONDARY_SURFACE'] * TYPEOF(imtscr.relating)) = 1))) = 0"/>
+         <where label="WR2" expression="SIZEOF(USEDIN(SELF,&#10;                         'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                         'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED')) = 1"/>
+         <where label="WR3" expression="SIZEOF(QUERY(sct &lt;* USEDIN(SELF,&#10;          'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.' +&#10;          'STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.DEFINED_PART_FEATURE') |&#10;          'LAND_ARM.LAND' IN TYPEOF(sct.assigned_design_object)&#10;             )) = 1"/>
       </entity>
       <entity name="Sequential_laminate_assembly_relationship" supertypes="Next_assembly_usage">
          <explicit name="assembly">
@@ -83,7 +84,7 @@
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
-         <where label="WR2" expression="SIZEOF(USEDIN(derived_from, 'XXX_ARM.INTERCONNECT_MODULE.USAGE_VIEW')) &gt; 0"/>
+         <where label="WR2" expression="SIZEOF(USEDIN(derived_from, 'PHYSICAL_UNIT_DESIGN_VIEW_ARM.PART_DESIGN_VIEW.USAGE_VIEW')) &gt; 0"/>
       </entity>
       <entity name="Sequential_laminate_stackup_definition" supertypes="Interconnect_module"/>
       <entity name="Stackup_requirement_to_design_relationship" supertypes="View_definition_relationship">

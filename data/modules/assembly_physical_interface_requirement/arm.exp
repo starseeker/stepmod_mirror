@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.22 2005/12/12 13:07:46 liutkus Exp $
+   $Id: arm.exp,v 1.23 2005/12/14 12:01:08 liutkus Exp $
    ISO TC184/SC4/WG12 N3360 - ISO/CD-TS 10303-1647 Assembly physical interface requirement - EXPRESS ARM
 *)
 
@@ -15,7 +15,7 @@ SCHEMA Assembly_physical_interface_requirement_arm;
 	
 
 REFERENCE FROM Requirement_decomposition_arm
-(get_requirement_definition_property, get_rvd);	-- ISO/TS 10303-1740
+(get_predefined_requirement_view_definition, get_rvd);	-- ISO/TS 10303-1740
 
 
 	TYPE apir_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
@@ -35,11 +35,11 @@ REFERENCE FROM Requirement_decomposition_arm
 	END_TYPE;
 
   ENTITY Interface_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
+    SUBTYPE OF (Predefined_requirement_view_definition);
       interface_to_next_higher_assembly : OPTIONAL Next_higher_assembly_interface_requirement;
       reference_protocol                : OPTIONAL Protocol_physical_layer_definition;
-   DERIVE
-       SELF\Requirement_definition_property.life_cycle_context : life_cycle_context_type := life_cycle_context_type.DESIGN;
+   WHERE    
+      WR1: SELF\Product_view_definition.initial_context.life_cycle_stage = 'design'; 
   END_ENTITY;
 
   ENTITY Mating_connector_component;
@@ -79,7 +79,7 @@ REFERENCE FROM Requirement_decomposition_arm
       SELF\Requirement_assignment.assigned_to : Part_terminal;
       protocol_signal                                   : Functional_unit_usage_view_terminal_definition;
     DERIVE
-    	assigned_requirement_property :  Requirement_definition_property := get_requirement_definition_property(SELF, 'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_ARM.'+'INTERFACE_REQUIREMENT_OCCURRENCE');
+    	assigned_requirement_property :  Predefined_requirement_view_definition := get_predefined_requirement_view_definition(SELF, 'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_ARM.'+'INTERFACE_REQUIREMENT_OCCURRENCE');
     WHERE
       WR1 : EXISTS(assigned_requirement_property\Interface_requirement_occurrence.reference_protocol);
       WR2 : protocol_signal IN assigned_requirement_property\Interface_requirement_occurrence.reference_protocol.host_functional_definition\Functional_unit_usage_view.access_mechanism;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.18 2005/10/24 07:44:15 liutkus Exp $
+   $Id: arm.exp,v 1.19 2005/11/07 12:30:19 liutkus Exp $
    ISO TC184/SC4/WG12 N3405 - ISO/CD-TS 10303-1669 Fabrication requirement - EXPRESS ARM
 *)
 
@@ -13,30 +13,31 @@ SCHEMA Fabrication_requirement_arm;
   END_TYPE;
 
   ENTITY Fabrication_thickness_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
+    SUBTYPE OF (Predefined_requirement_view_definition);
       characterized_class       : metal_or_dielectric;
       characterized_class_range : Range_characteristic;
       tolerance                 : Tolerance_characteristic;
-   DERIVE
-       SELF\Requirement_definition_property.life_cycle_context : life_cycle_context_type := life_cycle_context_type.TEST;
+   WHERE    
+      WR1: SELF\Product_view_definition.initial_context.life_cycle_stage = 'test'; 
+      WR2: NOT EXISTS(SELF\Product_view_definition.id);
   END_ENTITY;
 
   ENTITY Layout_land_width_tolerance_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
+    SUBTYPE OF (Predefined_requirement_view_definition);
       mating_feature_pitch_class : Pitch_class;
       maximum_negative_deviation : Length_data_element;
-   DERIVE
-       SELF\Requirement_definition_property.life_cycle_context : life_cycle_context_type := life_cycle_context_type.TEST;
+   WHERE    
+      WR1: SELF\Product_view_definition.initial_context.life_cycle_stage = 'test'; 
   END_ENTITY;
 
   ENTITY Layout_line_width_tolerance_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
+    SUBTYPE OF (Predefined_requirement_view_definition);
       characterized_stratum_technology : Stratum_technology;
       tolerance_line_width_class       : Line_width_class;
       maximum_negative_deviation       : Length_data_element;
       maximum_positive_deviation       : Length_data_element;
-   DERIVE
-       SELF\Requirement_definition_property.life_cycle_context : life_cycle_context_type := life_cycle_context_type.TEST;
+   WHERE    
+      WR1: SELF\Product_view_definition.initial_context.life_cycle_stage = 'test'; 
   END_ENTITY;
 
   ENTITY Line_width_class;
@@ -53,7 +54,7 @@ SCHEMA Fabrication_requirement_arm;
       WR1 : SIZEOF(QUERY(np <* class_member\Representation.items | NOT ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(np)))) = 0;
   END_ENTITY;
 
-	SUBTYPE_CONSTRAINT requirement_definition_property_subtypes FOR Requirement_definition_property;     
+	SUBTYPE_CONSTRAINT predefined_requirement_view_definition_subtypes FOR Predefined_requirement_view_definition;     
 	    (ONEOF (Layout_line_width_tolerance_requirement_occurrence,
 	 Layout_land_width_tolerance_requirement_occurrence,
 	 Fabrication_thickness_requirement_occurrence));

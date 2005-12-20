@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.52 2005/11/16 07:43:51 kovaliovas Exp $
+   $Id: arm.exp,v 1.53 2005/12/07 07:34:23 liutkus Exp $
    ISO TC184/SC4/WG12 N3591 - ISO/CD-TS 10303-1740 Requirement decomposition - EXPRESS ARM
 *)
 
@@ -9,6 +9,7 @@ SCHEMA Requirement_decomposition_arm;
 	USE FROM Elemental_geometric_shape_arm;	-- ISO/TS 10303-1004
 	USE FROM Functional_specification_arm;	-- ISO/TS 10303-1679
 	USE FROM Production_rule_arm;	-- ISO/TS 10303-1739
+    USE FROM Requirement_view_definition_arm;    -- ISO/TS 10303-1141	
 
 	REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
 
@@ -26,11 +27,11 @@ SCHEMA Requirement_decomposition_arm;
 	END_TYPE; 
 
 	TYPE rd_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
-	   (Requirement_definition_property);
+	   (Predefined_requirement_view_definition);
 	END_TYPE; 
 
 	TYPE rd_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
-		(Requirement_definition_property);
+		(Predefined_requirement_view_definition);
 	END_TYPE;
 
 	TYPE rd_property_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH
@@ -49,31 +50,17 @@ SCHEMA Requirement_decomposition_arm;
     	 supplemental);
 	END_TYPE;
 
-    TYPE life_cycle_context_type = EXTENSIBLE ENUMERATION OF 
-         (design,
-          qualify,
-          inspect, 
-          test);  
-    END_TYPE; 
- 
-    TYPE domain_context_type = EXTENSIBLE ENUMERATION OF 
-         (mechanical, 
-          thermal, 
-          electromechancial,
-          electromagnetic_compatibility, 
-          electrical); 
-    END_TYPE;
-
   ENTITY Constraint_occurrence
     SUPERTYPE OF (View_based_constraint_occurrence)
-    SUBTYPE OF (Requirement_definition_property);
+    SUBTYPE OF (Predefined_requirement_view_definition);
       logical_relation : OPTIONAL Rule_complex_clause;
     WHERE
       WR1 : (('REQUIREMENT_DECOMPOSITION_ARM.' + 'VIEW_BASED_CONSTRAINT_OCCURRENCE') IN TYPEOF(SELF)) OR EXISTS(logical_relation);
+      WR2 : NOT EXISTS(SELF\Product_view_definition.id);
   END_ENTITY;
 
   ENTITY Design_characteristic_occurrence
-    SUBTYPE OF (Requirement_definition_property);
+    SUBTYPE OF (Predefined_requirement_view_definition);
   END_ENTITY;
 
   ENTITY View_based_constraint_occurrence
@@ -83,7 +70,7 @@ SCHEMA Requirement_decomposition_arm;
   END_ENTITY;
 
   ENTITY Material_electrical_conductivity_requirement_occurrence
-    SUBTYPE OF (Requirement_definition_property);
+    SUBTYPE OF (Predefined_requirement_view_definition);
       electrical_conductivity_characteristic : material_conductivity_classification;
   END_ENTITY;
 
@@ -97,15 +84,12 @@ SCHEMA Requirement_decomposition_arm;
       WR1 : operand_1 :<>: operand_2;
   END_ENTITY;
 
-  ENTITY Requirement_definition_property
+  ENTITY Predefined_requirement_view_definition
 	SUPERTYPE OF(ONEOF(Constraint_occurrence,
 		 Design_characteristic_occurrence))
     SUBTYPE OF(Requirement_view_definition);
-      life_cycle_context                  : life_cycle_context_type; 
-      domain_context                      : domain_context_type; 
       required_analytical_representation  : OPTIONAL SET[1:?] OF Analytical_model_application;
       required_functional_specification   : OPTIONAL SET[1:?] OF Functional_specification;
-      required_part                       : OPTIONAL SET[1:?] OF Product;
       required_characteristic             : OPTIONAL characteristic_select;
     DERIVE
       associated_definition               : Requirement_view_definition := SELF;
@@ -121,9 +105,13 @@ SCHEMA Requirement_decomposition_arm;
       UR1 : associated_definition;
     WHERE  
 	  WR1 : NOT (SIZEOF(required_material) = 1) OR
-            ('CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (required_material));
+            ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (required_material));
       WR2 : SELF\Product_view_definition.initial_context\View_definition_context.life_cycle_stage = '';
       WR3 : SELF\Product_view_definition.initial_context\View_definition_context.application_domain = '';
+      WR4: ['mechanical', 'thermal', 'electromechancial', 'electromagnetic compatibility', 'electrical'] IN
+        SELF\Product_view_definition.initial_context.application_domain;
+      WR5: ['design', 'qualify', 'inspect', 'test'] IN SELF\Product_view_definition.initial_context.life_cycle_stage;
+      WR6 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
   ENTITY Requirement_view_definition_relationship
@@ -160,13 +148,13 @@ SCHEMA Requirement_decomposition_arm;
     RETURN(the_set);
   END_FUNCTION;
 
-FUNCTION get_requirement_definition_property
+FUNCTION get_predefined_requirement_view_definition
   (ra : Requirement_assignment;
-  req_type : STRING) : Requirement_definition_property;
+  req_type : STRING) : Predefined_requirement_view_definition;
   LOCAL
-    requirements : SET[0:?] OF Requirement_definition_property;
+    requirements : SET[0:?] OF Predefined_requirement_view_definition;
   END_LOCAL;
-	requirements := bag_to_set(USEDIN (ra.assigned_requirement, 'REQUIREMENT_DECOMPOSITION_ARM.' + 'REQUIREMENT_DEFINITION_PROPERTY.ASSOCIATED_DEFINITION')) ;
+	requirements := bag_to_set(USEDIN (ra.assigned_requirement, 'REQUIREMENT_DECOMPOSITION_ARM.' + 'PREDEFINED_REQUIREMENT_VIEW_DEFINITION.ASSOCIATED_DEFINITION')) ;
 	REPEAT i := 1 to SIZEOF(requirements) by 1;
 	  IF (req_type IN TYPEOF (requirements[i])) THEN
 	  	RETURN (requirements[i]);

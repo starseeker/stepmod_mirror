@@ -31,7 +31,7 @@
       <entity name="Characteristic_data_table" supertypes="Characterizable_object Measure_item" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="property_value" optional="NO">
             <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="list_characteristic"/>
+            <typename name="Characteristic_data_table_row"/>
          </explicit>
          <explicit name="index_value" optional="NO">
             <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
@@ -41,7 +41,14 @@
             <unique.attribute entity-ref="Characterizable_object" attribute="name"/>
          </unique>
          <where label="WR1" expression="SIZEOF(property_value) = SIZEOF(index_value)"/>
-         <where label="WR3" expression="SIZEOF(USEDIN&#10;        (SELF,'PROPERTY_ASSIGNMENT_ARM.ASSIGNED_PROPERTY.DESCRIBED_ELEMENT')) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY( pv &lt;* property_value |&#10;                  NOT (SIZEOF(pv.property_value) = SIZEOF(property_value[1].property_value))&#10;                  )) = 0"/>
+         <where label="WR3" expression="SIZEOF(USEDIN&#10;                 (SELF,'PROPERTY_ASSIGNMENT_ARM.ASSIGNED_PROPERTY.DESCRIBED_ELEMENT')) = 0"/>
+      </entity>
+      <entity name="Characteristic_data_table_row" supertypes="Measure_item" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="property_value" optional="NO">
+            <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="list_characteristic"/>
+         </explicit>
       </entity>
       <entity name="Expanded_uncertainty" supertypes="Standard_uncertainty" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="coverage_factor" optional="NO">
@@ -53,6 +60,11 @@
          <where label="WR2" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;           )) = 1)"/>
          <where label="WR3" expression="NOT('CHARACTERISTIC_ARM.STASTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;           )) = 1)"/>
          <where label="WR4" expression="NOT EXISTS(SELF\Representation.description)"/>
+      </entity>
+      <entity name="Logical_representation_item" supertypes="String_representation_item" abstract.supertype="NO" abstract.entity="NO">
+         <where label="WR1" expression="SELF\Representation_item.name IN ['.BOOLEAN.', '.LOGICAL.']"/>
+         <where label="WR2" expression="SELF\String_representation_item.string_value IN ['.TRUE.', '.FALSE.','.UNKNOWN.', '.UNDEFINED.']"/>
+         <where label="WR3" expression="NOT (SELF\Representation_item.name = '.BOOLEAN.') OR&#10;        (SELF\String_representation_item.string_value IN ['.TRUE.', '.FALSE.', '.UNDEFINED.'])"/>
       </entity>
       <entity name="Maximum_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="items" optional="NO">

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.73 2005/12/19 11:19:39 kovaliovas Exp $
+   $Id: arm.exp,v 1.74 2005/12/19 12:30:08 liutkus Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -299,8 +299,7 @@ SCHEMA Fabrication_technology_arm;
 
   ENTITY Material_removal_feature_template
     SUPERTYPE OF (Dependent_material_removal_feature_template)
-    SUBTYPE OF (Template_definition);
-      of_stratum_technology : OPTIONAL SET[1:?] OF Stratum_technology;
+    SUBTYPE OF (Single_layer_template);
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
@@ -355,13 +354,19 @@ SCHEMA Fabrication_technology_arm;
      WR7: sts_vertex_degree_less_than_two(stratum_technology_sequence);
   END_ENTITY;
 
+  ENTITY Single_layer_template
+    ABSTRACT SUPERTYPE OF (ONEOF (Stratum_feature_template, Material_removal_feature_template))
+    SUBTYPE OF (Template_definition);
+      of_stratum_technology : OPTIONAL SET [1:?] OF stratum_technology;
+  END_ENTITY;
+
   ENTITY Stratum_feature_template
     SUPERTYPE OF (ONEOF (Land_physical_template,
  Material_addition_feature_template))
-    SUBTYPE OF (Template_definition);
-      of_stratum_technology : OPTIONAL SET[1:?] OF Stratum_technology;
+    SUBTYPE OF (Single_layer_template);
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
+      -- IP1 : all part_template_planar_shapes of SELF shall be continuous
   END_ENTITY;
 
   ENTITY Stratum_stack_model

@@ -9,7 +9,7 @@
       <interface kind="use" schema="Requirement_view_definition_relationship_arm"/>
       <interface kind="use" schema="Integral_shield_arm"/>
       <interface kind="reference" schema="Requirement_decomposition_arm">
-         <interfaced.item name="get_requirement_definition_property"/>
+         <interfaced.item name="get_predefined_requirement_view_definition"/>
          <interfaced.item name="get_rvd"/>
       </interface>
       <type name="electrical_isolation_removal_structure_or_template">
@@ -26,13 +26,13 @@
          <where label="WR1" expression="SIZEOF(QUERY(eisr &lt;* electrical_isolation_spacing_requirement |&#10;         NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.ELECTRICAL_ISOLATION_REQUIREMENT'&#10;        IN TYPEOF(eisr)) )) =0"/>
       </entity>
       <entity name="Electrical_isolation_requirement" supertypes="Requirement_view_definition">
-         <derived name="effective_voltage_withstand_capacity_requirement" expression="get_specific_requirement_property_for_collector(SELF, 'effective voltage withstand capacity requirement')">
+         <derived name="effective_voltage_withstand_capacity_requirement" expression="get_specific_requirement_view_definition_for_collector(SELF, 'effective voltage withstand capacity requirement')">
             <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="Requirement_definition_property"/>
+            <typename name="Predefined_requirement_view_definition"/>
          </derived>
          <derived name="electrical_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'electrical isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
             <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="Requirement_definition_property"/>
+            <typename name="Predefined_requirement_view_definition"/>
          </derived>
          <where label="WR1" expression="'FABRICATION_TECHNOLOGY_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(electrical_isolation_spacing_requirement[1])"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
@@ -42,8 +42,8 @@
             <typename name="integral_or_routed_shield"/>
             <redeclaration entity-ref="Requirement_assignment"/>
          </explicit>
-         <derived name="assigned_requirement_property" expression="get_requirement_definition_property(SELF,&#10;'INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.'+'ELECTROMAGNETIC_REQUIREMENT_OCCURRENCE')">
-            <typename name="Requirement_definition_property"/>
+         <derived name="assigned_requirement_property" expression="get_predefined_requirement_view_definition(SELF,&#10;      'INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.'+'ELECTROMAGNETIC_REQUIREMENT_OCCURRENCE')">
+            <typename name="Predefined_requirement_view_definition"/>
          </derived>
       </entity>
       <entity name="Thermal_isolation_removal_template" supertypes="Material_removal_feature_template">
@@ -54,17 +54,17 @@
          <where label="WR1" expression="SIZEOF(QUERY(tisr &lt;* THERMAL_ISOLATION_SPACING_REQUIREMENT |&#10;       NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.THERMAL_ISOLATION_REQUIREMENT' IN TYPEOF(tisr))&#10;       )) =0"/>
       </entity>
       <entity name="Thermal_isolation_requirement" supertypes="Requirement_view_definition">
-         <derived name="effective_current_capacity_requirement" expression="get_specific_requirement_property_for_collector(SELF, 'effective current capacity requirement')">
+         <derived name="effective_current_capacity_requirement" expression="get_specific_requirement_view_definition_for_collector(SELF, 'effective current capacity requirement')">
             <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="Requirement_definition_property"/>
+            <typename name="Predefined_requirement_view_definition"/>
          </derived>
-         <derived name="angular_orientation_requirement" expression="get_specific_requirement_property_for_collector(SELF, 'angular orientation requirement')">
+         <derived name="angular_orientation_requirement" expression="get_specific_requirement_view_definition_for_collector(SELF, 'angular orientation requirement')">
             <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="Requirement_definition_property"/>
+            <typename name="Predefined_requirement_view_definition"/>
          </derived>
          <derived name="thermal_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'thermal isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
             <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="Requirement_definition_property"/>
+            <typename name="Predefined_requirement_view_definition"/>
          </derived>
          <where label="WR1" expression="'FABRICATION_TECHNOLOGY_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(thermal_isolation_spacing_requirement[1])"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
@@ -89,32 +89,6 @@
     END_IF;
     RETURN(the_set);</algorithm>
       </function>
-      <function name="get_specific_requirement_property_for_collector">
-         <parameter name="input">
-            <typename name="Requirement_view_definition"/>
-         </parameter>
-         <parameter name="id">
-            <builtintype type="STRING"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="Requirement_definition_property"/>
-         <algorithm>LOCAL
-    rcr : SET[0:?] OF Requirement_collection_relationship := [];--this gives us access to the information base
-    rdp : SET[0:?] OF Requirement_definition_property :=[];
-END_LOCAL;
-    rcr := bag_to_set(QUERY(rai &lt;* USEDIN (input, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.'+
-	'REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') | 
-          (rai\View_definition_relationship.relation_type = id)));
-
-	-- iterate over rcr 
-    REPEAT i := 1 to SIZEOF(rcr) by 1;
-        -- get rdp 
-      rdp := rdp + USEDIN (rcr[i].member, 'REQUIREMENT_DECOMPOSITION_ARM.'+
-        'REQUIREMENT_DEFINITION_PROPERTY.ASSOCIATED_DEFINITION');
-    END_REPEAT;
-
-	RETURN(rdp);</algorithm>
-      </function>
       <function name="get_specific_requirement_type_for_primary_rvd_relationship">
          <parameter name="input">
             <typename name="Requirement_view_definition"/>
@@ -126,20 +100,46 @@ END_LOCAL;
             <builtintype type="STRING"/>
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="Requirement_definition_property"/>
+         <typename name="Predefined_requirement_view_definition"/>
          <algorithm>LOCAL
     rvdr : SET[0:?] OF Requirement_view_definition_relationship := [];
-    rdp : SET[0:?] OF Requirement_definition_property := [];  --this gives us access to the information base
+    rdp : SET[0:?] OF Predefined_requirement_view_definition := [];  --this gives us access to the information base
 END_LOCAL;
 	rvdr := bag_to_set(QUERY(rvdre &lt;* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY')|
 	                           (rvdre.relation_type = id)
                        ));
 	-- iterate over rvdr
 	REPEAT i := 1 to SIZEOF(rvdr) by 1;
-      rdp := rdp + bag_to_set(QUERY(rdp &lt;* USEDIN (rvdr[i].primary, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_DEFINITION_PROPERTY.ASSOCIATED_DEFINITION') |
+      rdp := rdp + bag_to_set(QUERY(rdp &lt;* USEDIN (rvdr[i].primary, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'PREDEFINED_REQUIREMENT_VIEW_DEFINITION.ASSOCIATED_DEFINITION') |
         (reqType IN TYPEOF(rdp))
                              ));
 	END_REPEAT;
+
+	RETURN(rdp);</algorithm>
+      </function>
+      <function name="get_specific_requirement_view_definition_for_collector">
+         <parameter name="input">
+            <typename name="Requirement_view_definition"/>
+         </parameter>
+         <parameter name="id">
+            <builtintype type="STRING"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Predefined_requirement_view_definition"/>
+         <algorithm>LOCAL
+    rcr : SET[0:?] OF Requirement_collection_relationship := [];--this gives us access to the information base
+    rdp : SET[0:?] OF Predefined_requirement_view_definition :=[];
+END_LOCAL;
+    rcr := bag_to_set(QUERY(rai &lt;* USEDIN (input, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.'+
+	'REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') | 
+          (rai\View_definition_relationship.relation_type = id)));
+
+	-- iterate over rcr 
+    REPEAT i := 1 to SIZEOF(rcr) by 1;
+        -- get rdp 
+      rdp := rdp + USEDIN (rcr[i].member, 'REQUIREMENT_DECOMPOSITION_ARM.'+
+        'PREDEFINED_REQUIREMENT_VIEW_DEFINITION.ASSOCIATED_DEFINITION');
+    END_REPEAT;
 
 	RETURN(rdp);</algorithm>
       </function>

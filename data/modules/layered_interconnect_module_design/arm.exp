@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.162 2005/12/20 17:03:53 liutkus Exp $
+   $Id: arm.exp,v 1.163 2005/12/21 12:10:19 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -711,8 +711,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Multi_layer_component
-    ABSTRACT SUPERTYPE OF (ONEOF (Padstack_occurrence, Footprint_occurrence,
-      Special_symbol_occurrence))
+    ABSTRACT SUPERTYPE OF (ONEOF (Padstack_occurrence, Footprint_occurrence))
     SUBTYPE OF (Assembly_group_component);
       SELF\Definition_based_product_occurrence.derived_from : Multi_layer_structured_template;
     WHERE
@@ -726,8 +725,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Multi_layer_component_sub_assembly_relationship
     ABSTRACT SUPERTYPE OF (ONEOF (Padstack_occurrence_sub_assembly_relationship,
-      Footprint_occurrence_sub_assembly_relationship,
-      Special_symbol_occurrence_sub_assembly_relationship))
+      Footprint_occurrence_sub_assembly_relationship))
     SUBTYPE OF (Next_assembly_usage_occurence_relationship);
       SELF\View_definition_relationship.relating_view : Multi_layer_component;
       SELF\View_definition_relationship.related_view : Laminate_component;
@@ -897,20 +895,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       stratum_feature_implementation           				: Stratum_feature;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
-  END_ENTITY;
-
-  ENTITY Special_symbol_occurrence
-    SUBTYPE OF (Multi_layer_component);
-      SELF\Multi_layer_component.derived_from : Special_symbol_template;
-    WHERE
-      WR1: SIZEOF(QUERY(agc <* SELF\Assembly_group_component.components |
-        NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.SPECIAL_SYMBOL_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP'
-        IN TYPEOF(agc)))) = 0;
-  END_ENTITY;
-
-  ENTITY Special_symbol_occurrence_sub_assembly_relationship
-    SUBTYPE OF (Multi_layer_component_sub_assembly_relationship);
-      SELF\Multi_layer_component_sub_assembly_relationship.relating_view : Special_symbol_occurrence;
   END_ENTITY;
 
   ENTITY Stratum

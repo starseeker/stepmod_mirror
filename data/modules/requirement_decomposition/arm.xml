@@ -9,26 +9,21 @@
       <interface kind="use" schema="Elemental_geometric_shape_arm"/>
       <interface kind="use" schema="Functional_specification_arm"/>
       <interface kind="use" schema="Production_rule_arm"/>
+      <interface kind="use" schema="Requirement_view_definition_arm"/>
       <interface kind="reference" schema="Specification_document_arm">
          <interfaced.item name="get_document_definition"/>
       </interface>
       <type name="characteristic_select">
          <select selectitems="Property_value_representation characteristic"/>
       </type>
-      <type name="domain_context_type">
-         <enumeration extensible="YES" items="mechanical thermal electromechancial electromagnetic_compatibility electrical"/>
-      </type>
-      <type name="life_cycle_context_type">
-         <enumeration extensible="YES" items="design qualify inspect test"/>
-      </type>
       <type name="material_conductivity_classification">
          <enumeration items="conductive resistive semi_conductive non_conductive"/>
       </type>
       <type name="rd_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Requirement_definition_property"/>
+         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Predefined_requirement_view_definition"/>
       </type>
       <type name="rd_material_item_select">
-         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Requirement_definition_property"/>
+         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Predefined_requirement_view_definition"/>
       </type>
       <type name="rd_property_assignment_select">
          <select extensible="YES" genericentity="YES" basedon="property_assignment_select" selectitems="Requirement_view_definition"/>
@@ -39,14 +34,15 @@
       <type name="requirement_view_relationship_type">
          <enumeration items="derived_from precedence reference_to supplemental"/>
       </type>
-      <entity name="Constraint_occurrence" supertypes="Requirement_definition_property" super.expression="View_based_constraint_occurrence">
+      <entity name="Constraint_occurrence" supertypes="Predefined_requirement_view_definition" super.expression="View_based_constraint_occurrence">
          <explicit name="logical_relation" optional="YES">
             <typename name="Rule_complex_clause"/>
          </explicit>
          <where label="WR1" expression="(('REQUIREMENT_DECOMPOSITION_ARM.' + 'VIEW_BASED_CONSTRAINT_OCCURRENCE') IN TYPEOF(SELF)) OR EXISTS(logical_relation)"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.id)"/>
       </entity>
-      <entity name="Design_characteristic_occurrence" supertypes="Requirement_definition_property"/>
-      <entity name="Material_electrical_conductivity_requirement_occurrence" supertypes="Requirement_definition_property">
+      <entity name="Design_characteristic_occurrence" supertypes="Predefined_requirement_view_definition"/>
+      <entity name="Material_electrical_conductivity_requirement_occurrence" supertypes="Predefined_requirement_view_definition">
          <explicit name="electrical_conductivity_characteristic">
             <typename name="material_conductivity_classification"/>
          </explicit>
@@ -69,13 +65,7 @@
          </explicit>
          <where label="WR1" expression="operand_1 :&lt;&gt;: operand_2"/>
       </entity>
-      <entity name="Requirement_definition_property" supertypes="Requirement_view_definition" super.expression="ONEOF (Constraint_occurrence, Design_characteristic_occurrence)">
-         <explicit name="life_cycle_context">
-            <typename name="life_cycle_context_type"/>
-         </explicit>
-         <explicit name="domain_context">
-            <typename name="domain_context_type"/>
-         </explicit>
+      <entity name="Predefined_requirement_view_definition" supertypes="Requirement_view_definition" super.expression="ONEOF (Constraint_occurrence, Design_characteristic_occurrence)">
          <explicit name="required_analytical_representation" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Analytical_model_application"/>
@@ -84,16 +74,9 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Functional_specification"/>
          </explicit>
-         <explicit name="required_part" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Product"/>
-         </explicit>
          <explicit name="required_characteristic" optional="YES">
             <typename name="characteristic_select"/>
          </explicit>
-         <derived name="associated_definition" expression="SELF">
-            <typename name="Requirement_view_definition"/>
-         </derived>
          <derived name="requirement_specification" expression="get_document_definition(SELF, 'requirement specification', &#10;  			'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION')">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Document_definition"/>
@@ -105,12 +88,12 @@
          <inverse name="required_material" entity="Material_identification" attribute="items">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <unique label="UR1">
-            <unique.attribute attribute="associated_definition"/>
-         </unique>
-         <where label="WR1" expression="NOT (SIZEOF(required_material) = 1) OR&#10;            ('CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (required_material))"/>
+         <where label="WR1" expression="NOT (SIZEOF(required_material) = 1) OR&#10;            ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (required_material))"/>
          <where label="WR2" expression="SELF\Product_view_definition.initial_context\View_definition_context.life_cycle_stage = ''"/>
          <where label="WR3" expression="SELF\Product_view_definition.initial_context\View_definition_context.application_domain = ''"/>
+         <where label="WR4" expression="['mechanical', 'thermal', 'electromechancial', 'electromagnetic compatibility', 'electrical'] IN&#10;        SELF\Product_view_definition.initial_context.application_domain"/>
+         <where label="WR5" expression="['design', 'qualify', 'inspect', 'test'] IN SELF\Product_view_definition.initial_context.life_cycle_stage"/>
+         <where label="WR6" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
       <entity name="Requirement_view_definition_relationship" supertypes="View_definition_relationship">
          <explicit name="primary">
@@ -157,18 +140,18 @@
     END_IF;
     RETURN(the_set);</algorithm>
       </function>
-      <function name="get_requirement_definition_property">
+      <function name="get_predefined_requirement_view_definition">
          <parameter name="ra">
             <typename name="Requirement_assignment"/>
          </parameter>
          <parameter name="req_type">
             <builtintype type="STRING"/>
          </parameter>
-         <typename name="Requirement_definition_property"/>
+         <typename name="Predefined_requirement_view_definition"/>
          <algorithm>LOCAL
-    requirements : SET[0:?] OF Requirement_definition_property;
+    requirements : SET[0:?] OF Predefined_requirement_view_definition;
   END_LOCAL;
-	requirements := bag_to_set(USEDIN (ra.assigned_requirement, 'REQUIREMENT_DECOMPOSITION_ARM.' + 'REQUIREMENT_DEFINITION_PROPERTY.ASSOCIATED_DEFINITION')) ;
+	requirements := bag_to_set(USEDIN (ra.assigned_requirement, 'REQUIREMENT_DECOMPOSITION_ARM.' + 'PREDEFINED_REQUIREMENT_VIEW_DEFINITION.ASSOCIATED_DEFINITION')) ;
 	REPEAT i := 1 to SIZEOF(requirements) by 1;
 	  IF (req_type IN TYPEOF (requirements[i])) THEN
 	  	RETURN (requirements[i]);

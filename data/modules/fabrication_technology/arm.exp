@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.74 2005/12/19 12:30:08 liutkus Exp $
+   $Id: arm.exp,v 1.75 2005/12/21 09:24:21 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -354,6 +354,22 @@ SCHEMA Fabrication_technology_arm;
      WR7: sts_vertex_degree_less_than_two(stratum_technology_sequence);
   END_ENTITY;
 
+  ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;
+      keepout_shape : Physical_unit_keepout_shape_model;
+      stack_model : Library_stack_model;
+      swappable : BOOLEAN; 
+      kept_out_layers : SET [1:?] OF Stratum_technology_occurrence;
+    UNIQUE
+      UR1: keepout_shape, stack_model;
+    WHERE
+      WR1: keepout_shape\Physical_unit_keepout_shape_model.constrained_design_object_category
+        IN [keepout_product_design_object_category.interconnect_module_via,
+        keepout_product_design_object_category.interconnect_module_inter_stratum_feature,
+        keepout_product_design_object_category.interconnect_module_cutout,
+        keepout_product_design_object_category.interconnect_module_fill_area,
+        keepout_product_design_object_category.interconnect_module_stratum_feature];
+  END_ENTITY;
+  
   ENTITY Single_layer_template
     ABSTRACT SUPERTYPE OF (ONEOF (Stratum_feature_template, Material_removal_feature_template))
     SUBTYPE OF (Template_definition);

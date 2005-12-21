@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  reference="10303-52"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml2.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.38"
+    source="../data/resources/mesh_function_schema/mesh_function_schema.exp"/>
+
+  <schema name="mesh_function_schema">
+
+    <interface
+      kind="reference"
+      schema="mathematical_constructs_schema">
+      <interfaced.item
+        name="application_defined_function"/>
+      <interfaced.item
+        name="maths_function"/>
+      <interfaced.item
+        name="unary_generic_function"/>
+      <interfaced.item
+        name="function_is_table"/>
+    </interface>
+    <interface
+      kind="reference"
+      schema="mesh_topology_schema">
+      <interfaced.item
+        name="mesh"/>
+    </interface>
+    <interface
+      kind="reference"
+      schema="ISO13584_generic_expressions_schema">
+      <interfaced.item
+        name="generic_expression"/>
+      <interfaced.item
+        name="unary_generic_expression"/>
+    </interface>
+    <entity
+      name="mesh_function"
+      supertypes="application_defined_function unary_generic_expression">
+      <explicit
+        name="mesh">
+        <typename
+          name="mesh"/>
+      </explicit>
+      <explicit
+        name="basis">
+        <aggregate
+          type="LIST"/>
+        <typename
+          name="mesh_function_basis"/>
+      </explicit>
+      <explicit
+        name="uniform">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+      <explicit
+        name="vertex_values">
+        <builtintype
+          type="BOOLEAN"/>
+      </explicit>
+      <derived
+        name="control_values"
+        expression="SELF\unary_generic_function.operand">
+        <typename
+          name="maths_function"/>
+      </derived>
+      <where
+        label="wr1"
+        expression="function_is_table(control_values)">
+      </where>
+      <where
+        label="wr2"
+        expression="(uniform AND (SIZEOF(basis) = 1)) XOR(NOT uniform)">
+      </where>
+    </entity>
+
+    <entity
+      name="mesh_function_basis"
+      supertypes="application_defined_function unary_generic_expression">
+      <explicit
+        name="cell_topological_dimension">
+        <builtintype
+          type="INTEGER"/>
+      </explicit>
+      <explicit
+        name="value_array_dimension">
+        <builtintype
+          type="INTEGER"/>
+      </explicit>
+      <explicit
+        name="value_array_order">
+        <aggregate
+          type="ARRAY"
+          lower="1"
+          upper="value_array_dimension"/>
+        <builtintype
+          type="INTEGER"/>
+      </explicit>
+      <derived
+        name="value_positions"
+        expression="SELF\unary_generic_function.operand">
+        <typename
+          name="maths_function"/>
+      </derived>
+      <where
+        label="value_positions_as_table"
+        expression="function_is_table(value_positions)">
+      </where>
+    </entity>
+
+    <subtype.constraint name="sc1_application_defined_function"
+      entity="application_defined_function"
+      super.expression="ONEOF(mesh_function, mesh_function_basis)">
+    </subtype.constraint>
+    <subtype.constraint name="sc1_unary_generic_expression"
+      entity="unary_generic_expression"
+      super.expression="ONEOF(mesh_function, mesh_function_basis)">
+    </subtype.constraint>
+  </express>

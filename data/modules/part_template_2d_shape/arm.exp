@@ -65,8 +65,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Footprint_definition
-    SUBTYPE OF (Dependant_template, Generic_footprint_definition);
-      SELF\Dependant_template.associated_item RENAMED reference_package : Package;
+    SUBTYPE OF (Dependent_template, Generic_footprint_definition);
+      SELF\Dependent_template.associated_item RENAMED reference_package : Package;
     WHERE
       WR1 : SIZEOF (QUERY(shape <* SELF\Structured_template.shapes |
                NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(shape))
@@ -160,7 +160,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Multi_layer_structured_template
     ABSTRACT SUPERTYPE OF (ONEOF (Padstack_definition, Generic_footprint_definition, Multi_layer_special_symbol_template)
-      ANDOR Stratum_stack_dependant_template)
+      ANDOR Stratum_stack_dependent_template)
     SUBTYPE OF (Structured_template);
       location : template_arrangement;
   END_ENTITY;
@@ -234,8 +234,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Template_location_in_structured_template);
       reference_element : Shape_element;
     WHERE
-     WR1 : reference_element.containing_shape :=: assembly\Dependant_template.associated_item;
-     WR2 : 'FABRICATION_TECHNOLOGY_ARM.DEPENDANT_TEMPLATE' IN TYPEOF(assembly);
+     WR1 : reference_element.containing_shape :=: assembly\Dependent_template.associated_item;
+     WR2 : 'FABRICATION_TECHNOLOGY_ARM.DEPENDENT_TEMPLATE' IN TYPEOF(assembly);
   END_ENTITY;
 
   ENTITY Special_symbol_template
@@ -283,12 +283,12 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
            (NOT (bound_stratum\Stratum_technology_occurrence.definition\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
           ('FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
       WR5 : NOT ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(bound_stratum)) OR
-             ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDANT_TEMPLATE' IN TYPEOF(SELF\Template_location_in_structured_template.assembly));
+             ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(SELF\Template_location_in_structured_template.assembly));
   END_ENTITY;
 
-  ENTITY Stratum_stack_dependant_template
-    SUBTYPE OF (Dependant_template, Multi_layer_structured_template);
-      SELF\Dependant_template.associated_item RENAMED stack : library_stack_model;
+  ENTITY Stratum_stack_dependent_template
+    SUBTYPE OF (Dependent_template, Multi_layer_structured_template);
+      SELF\Dependent_template.associated_item RENAMED stack : library_stack_model;
   WHERE
     WR1 : SIZEOF(QUERY(temp <* SELF\Structured_template.templates |
           NOT
@@ -298,7 +298,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
            IN TYPEOF(temp\Stratum_specific_template_location.bound_stratum))
            )
            )) = 0;
-    WR2 : TYPEOF(SELF) <> TYPEOF(SELF\Stratum_stack_dependant_template);
+    WR2 : TYPEOF(SELF) <> TYPEOF(SELF\Stratum_stack_dependent_template);
   END_ENTITY;
 
   ENTITY Structured_template

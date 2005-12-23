@@ -1,13 +1,14 @@
 (*
-   $Id: arm.exp,v 1.42 2005/12/20 10:08:25 liutkus Exp $
+   $Id: arm.exp,v 1.43 2005/12/20 17:03:52 liutkus Exp $
    ISO TC184/SC4/WG12 N3582 - ISO/CD-TS 10303-1737 Printed physical layout template - EXPRESS ARM
 *)
 
 SCHEMA Printed_physical_layout_template_arm;
 
 	USE FROM Extended_geometric_tolerance_arm;	-- ISO/TS 10303-1666
-	USE FROM Fabrication_technology_arm;	-- ISO/TS 10303-1670
+--	USE FROM Fabrication_technology_arm;	-- ISO/TS 10303-1670
 	USE FROM Functional_usage_view_arm;	-- ISO/TS 10303-1705
+	USE FROM Part_template_2d_shape_arm; -- ISO/CD-TS 10303-1716
 
 	TYPE pplt_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
 		(Printed_part_template_terminal);
@@ -22,28 +23,8 @@ SCHEMA Printed_physical_layout_template_arm;
 
   ENTITY Basic_multi_stratum_printed_part_template 
     SUBTYPE OF (Printed_part_template);
-      material_stack : Stratum_stack_model;
-  END_ENTITY;
-
-  ENTITY Complex_multi_stratum_printed_part_template
-    SUBTYPE OF (Printed_part_template);
-      printed_part_template_stack : Stratum_stack_model;
-    DERIVE
-      access_mechanisms : SET [1:?] OF Printed_part_template_terminal := raw_access_mechanisms + complex_printed_part_template_access_mechanisms(decomposition);
-    INVERSE
-      decomposition : SET[2:?] OF Complex_multi_stratum_printed_part_template_composition FOR composition;
-  END_ENTITY;
-
-  ENTITY Complex_multi_stratum_printed_part_template_composition
-    SUBTYPE OF (View_definition_relationship);
-     SELF\View_definition_relationship.relating_view RENAMED composition : Complex_multi_stratum_printed_part_template;
-     SELF\View_definition_relationship.related_view RENAMED element      : Single_stratum_printed_part_template;
-     position : Stratum_technology_occurrence;
-   UNIQUE
-     UR1 : composition, position;
-   WHERE
-    WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
-    WR2 : position.definition IN element.of_stratum_technology;
+      material_stack : Library_stack_model;
+      reference_template : Stratum_feature_template;
   END_ENTITY;
 
   ENTITY Functional_usage_view_to_printed_part_template_terminal_assignment;
@@ -52,6 +33,10 @@ SCHEMA Printed_physical_layout_template_arm;
     UNIQUE
       UR1 : functional_usage_view_terminal,
  physical_usage_view_terminal;
+  END_ENTITY;
+
+  ENTITY Multi_stratum_printed_part_template
+    SUBTYPE OF (Structured_printed_part_template, Multi_layer_structured_template);
   END_ENTITY;
 
   ENTITY Non_conductive_cross_section_template
@@ -90,7 +75,7 @@ SCHEMA Printed_physical_layout_template_arm;
       start_vertex                             : Edge_segment_vertex;
       end_vertex                               : Edge_segment_vertex;
     INVERSE
-      using_terminal : SET[1:?] OF printed_part_cross_section_template_terminal FOR cross_section_definition;
+      using_terminal : SET[1:?] OF Printed_part_cross_section_template_terminal FOR cross_section_definition;
     WHERE
       WR1 : SIZEOF(QUERY(hml <* horizontal_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['right']))) = 0;
       WR2 : SIZEOF(QUERY(hml <* horizontal_material_link | NOT (hml.subsequent_material\Shape_element.element_name IN ['left']))) = 0;
@@ -125,23 +110,18 @@ SCHEMA Printed_physical_layout_template_arm;
   END_ENTITY;
 
   ENTITY Printed_part_template
-   ABSTRACT SUPERTYPE OF (ONEOF (Single_stratum_printed_part_template, 
-    Basic_multi_stratum_printed_part_template,
-    Complex_multi_stratum_printed_part_template) ANDOR Printed_connector_template)
+   ABSTRACT SUPERTYPE OF (ONEOF (Basic_multi_stratum_printed_part_template,
+    Structured_printed_part_template) ANDOR Printed_connector_template)
       SUBTYPE OF (Template_definition);
          implemented_function : OPTIONAL Functional_unit_usage_view;
-      DERIVE
-         footprint_implementation : BOOLEAN := (SIZEOF(USEDIN(SELF,
-        'PART_TEMPLATE_2D_SHAPE_ARM.' + 'FOOTPRINT_DEFINITION.REFERENCE_PACKAGE')) > 0);
       INVERSE
-        raw_access_mechanisms : SET [0:?] OF Printed_part_template_terminal FOR associated_definition;
+        raw_access_mechanisms : SET [1:?] OF Printed_part_template_terminal FOR associated_definition;
       WHERE
         WR1: (SIZEOF(QUERY(prpc <* USEDIN(defined_version.of_product,
             'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS')
               | (prpc.category\Product_category.name = 'printed part'))) >= 0) OR 
             ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE' IN TYPEOF(SELF));
-        WR2 : SIZEOF(USEDIN(SELF, 'PART_TEMPLATE_2D_SHAPE_ARM.' + 'FOOTPRINT_DEFINITION.REFERENCE_PACKAGE')) < 2;
-        WR3 : NOT EXISTS(SELF\Product_view_definition.name);
+        WR2 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
   ENTITY Printed_part_template_connected_terminals_definition;
@@ -195,9 +175,8 @@ SCHEMA Printed_physical_layout_template_arm;
   END_ENTITY;
 
   ENTITY Printed_part_template_terminal
-    ABSTRACT SUPERTYPE OF (printed_part_cross_section_template_terminal ANDOR
- (ONEOF (Printed_part_template_join_terminal,
- Printed_part_template_interface_terminal)))
+    ABSTRACT SUPERTYPE OF (((ONEOF (Printed_part_template_join_terminal, Printed_part_template_interface_terminal))
+      ANDOR (Printed_part_cross_section_template_terminal)) ANDOR Structured_printed_part_template_terminal)
     SUBTYPE OF (Placed_feature);
       SELF\Shape_element.containing_shape RENAMED associated_definition    : Printed_part_template;
       connection_zone_category : printed_part_template_terminal_class;
@@ -219,10 +198,34 @@ SCHEMA Printed_physical_layout_template_arm;
   END_ENTITY;
 
   ENTITY Single_stratum_printed_part_template
-    SUBTYPE OF (Printed_part_template);
-     of_stratum_technology : SET [1:?] OF Stratum_technology;
+    SUBTYPE OF (Structured_printed_part_template, Single_layer_structured_template);
+  END_ENTITY;
+  
+  ENTITY Structured_printed_part_template
+    ABSTRACT SUPERTYPE OF (ONEOF (Single_stratum_printed_part_template, 
+      Multi_stratum_printed_part_template))
+    SUBTYPE OF (Dependant_template, Printed_part_template, Structured_template);
     DERIVE
-     access_mechanisms : SET [1:?] OF Printed_part_template_terminal := raw_access_mechanisms;
+      access_mechanisms : SET [1:?] OF Printed_part_template_terminal := raw_access_mechanisms;
+      SELF\Dependant_template.associated_item : Item_shape := SELF;
+    WHERE
+      WR1 : SIZEOF(QUERY(t <* access_mechanisms |
+            NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.STRUCTURED_PRINTED_PART_TEMPLATE_TERMINAL'
+                  IN TYPEOF(t)))) = 0;
+      WR2 : SIZEOF(QUERY(t <* SELF\Structured_template.templates |
+            'PART_TEMPLATE_2D_SHAPE_MODEL_ARM.STRUCTURED_TEMPLATE' IN TYPEOF(t))) = 0;
+  END_ENTITY;
+
+  ENTITY Structured_printed_part_template_terminal
+    SUBTYPE OF (Printed_part_template_terminal);
+      SELF\Printed_part_template_terminal.associated_definition : Structured_printed_part_template;
+    INVERSE
+      associated_location : Shape_element_based_template_location FOR reference_element;
+    WHERE
+      WR1 : associated_location.assembly :=: associated_definition;
+      WR2 : SIZEOF(QUERY(t <* SELF\Placed_feature.feature_shape |
+             NOT (associated_location.template IN t.composed_model[1]\Part_template_shape_model.shape_characterized_part_template))) = 0;
+      WR3 : TYPEOF(SELF) <> TYPEOF(SELF\Structured_printed_part_template_terminal);
   END_ENTITY;
 
   ENTITY Template_material_cross_section_boundary
@@ -237,20 +240,5 @@ SCHEMA Printed_physical_layout_template_arm;
  'left',
  'right'];
   END_ENTITY;
-
-FUNCTION complex_printed_part_template_access_mechanisms
-          (input : SET OF
-           Complex_multi_stratum_printed_part_template_composition) : SET OF Printed_part_template_terminal;
-
-  LOCAL
-      pptt : SET OF printed_part_template_terminal := [];
-  END_LOCAL;
-
-    REPEAT i := 1 TO SIZEOF(input) BY 1;
-       pptt := input[i].element.raw_access_mechanisms + pptt;
-    END_REPEAT;
-    RETURN(pptt);
-END_FUNCTION; 
-
 
 END_SCHEMA;

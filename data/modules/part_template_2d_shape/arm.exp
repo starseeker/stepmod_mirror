@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.88 2005/12/21 14:08:22 kovaliovas Exp $
+   $Id: arm.exp,v 1.89 2005/12/23 11:30:10 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -12,16 +12,6 @@ SCHEMA Part_template_2d_shape_arm;
 	USE FROM Part_template_shape_with_parameters_arm;	-- ISO/TS 10303-1720
 
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
-
-	TYPE package_or_printed_part_template = SELECT
-		(Package,
-     	Printed_part_template);
-	END_TYPE;
-
-	TYPE package_terminal_or_printed_part_template_terminal = SELECT
-		(Package_terminal,
-     	Printed_part_template_terminal);
-	END_TYPE;
 
 	TYPE pt2ds_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
    	(Structured_template);
@@ -75,8 +65,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Footprint_definition
-    SUBTYPE OF (Generic_footprint_definition);
-      reference_package  : package_or_printed_part_template;
+    SUBTYPE OF (Dependant_template, Generic_footprint_definition);
+      SELF\Dependant_template.associated_item RENAMED reference_package : Package;
     WHERE
       WR1 : SIZEOF (QUERY(shape <* SELF\Structured_template.shapes |
                NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(shape))
@@ -170,7 +160,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Multi_layer_structured_template
     ABSTRACT SUPERTYPE OF (ONEOF (Padstack_definition, Generic_footprint_definition, Multi_layer_special_symbol_template)
-      ANDOR Stratum_stack_dependent_template)
+      ANDOR Stratum_stack_dependant_template)
     SUBTYPE OF (Structured_template);
       location : template_arrangement;
   END_ENTITY;
@@ -190,24 +180,13 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Padstack_location_in_footprint_definition
-    SUBTYPE OF (Part_feature_based_template_location);
+    SUBTYPE OF (Shape_element_based_template_location);
+      SELF\Template_location_in_structured_template.assembly : Footprint_definition;
       SELF\Template_location_in_structured_template.template : Padstack_definition;
-      SELF\Part_feature_based_template_location.reference_feature : package_terminal_or_printed_part_template_terminal;
+      SELF\Shape_element_based_template_location.reference_element : Package_terminal;
     UNIQUE
-      UR1: assembly, reference_feature;
-    WHERE
-      WR1 : NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_CONNECTOR_TEMPLATE' IN TYPEOF(assembly.reference_package)) OR 
-                ('PART_TEMPLATE_2D_SHAPE_ARM.PRINTED_PART_TEMPLATE_INTERFACE_TERMINAL' IN TYPEOF(reference_feature));
+      UR1: assembly, reference_element;
   END_ENTITY;
-
-  ENTITY Part_feature_based_template_location
-    SUBTYPE OF (Template_location_in_structured_template);
-     SELF\Template_location_in_structured_template.assembly : Footprint_definition;
-     reference_feature : Part_feature;
-    WHERE
-     WR1 : TYPEOF(SELF\Part_feature_based_template_location) <> TYPEOF(SELF);
-     WR2 : reference_feature\Shape_element.containing_shape :=: assembly\Footprint_definition.reference_package;
- END_ENTITY;
 
   ENTITY Part_template_planar_keepout_shape_model
     SUBTYPE OF (Planar_shape_model,
@@ -249,6 +228,14 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     WR1: SIZEOF (QUERY(tp <* SELF\Structured_template.templates |
                NOT ('FABRICATION_TECHNOLOGY_ARM.SINGLE_LAYER_TEMPLATE' IN TYPEOF(tp.template))
               )) = 0; 
+  END_ENTITY;
+
+  ENTITY Shape_element_based_template_location
+    SUBTYPE OF (Template_location_in_structured_template);
+      reference_element : Shape_element;
+    WHERE
+     WR1 : reference_element.containing_shape :=: assembly\Dependant_template.associated_item;
+     WR2 : 'FABRICATION_TECHNOLOGY_ARM.DEPENDANT_TEMPLATE' IN TYPEOF(assembly);
   END_ENTITY;
 
   ENTITY Special_symbol_template
@@ -296,12 +283,12 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
            (NOT (bound_stratum\Stratum_technology_occurrence.definition\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
           ('FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
       WR5 : NOT ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(bound_stratum)) OR
-             ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(SELF\Template_location_in_structured_template.assembly));
+             ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDANT_TEMPLATE' IN TYPEOF(SELF\Template_location_in_structured_template.assembly));
   END_ENTITY;
 
-  ENTITY Stratum_stack_dependent_template
-    SUBTYPE OF (Dependent_template, Multi_layer_structured_template);
-      SELF\Dependent_template.associated_template RENAMED stack : library_stack_model;
+  ENTITY Stratum_stack_dependant_template
+    SUBTYPE OF (Dependant_template, Multi_layer_structured_template);
+      SELF\Dependant_template.associated_item RENAMED stack : library_stack_model;
   WHERE
     WR1 : SIZEOF(QUERY(temp <* SELF\Structured_template.templates |
           NOT
@@ -311,7 +298,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
            IN TYPEOF(temp\Stratum_specific_template_location.bound_stratum))
            )
            )) = 0;
-    WR2 : TYPEOF(SELF) <> TYPEOF(SELF\Stratum_stack_dependent_template);
+    WR2 : TYPEOF(SELF) <> TYPEOF(SELF\Stratum_stack_dependant_template);
   END_ENTITY;
 
   ENTITY Structured_template
@@ -333,10 +320,10 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       (Inter_stratum_feature_template_location,
        Stratum_specific_template_location)
          ANDOR
-      (Part_feature_based_template_location));
+      (Shape_element_based_template_location));
 
     assembly : Structured_template;
-    template : Template_definition;
+    template : Geometric_template;
     reference_designation : STRING;
   INVERSE
     transform : SET [0:?] OF Template_location_in_structured_template_transform FOR reference_location;

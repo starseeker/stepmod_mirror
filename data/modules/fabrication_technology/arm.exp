@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.76 2005/12/21 12:49:44 liutkus Exp $
+   $Id: arm.exp,v 1.77 2005/12/21 13:40:45 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -8,6 +8,7 @@ SCHEMA Fabrication_technology_arm;
 	USE FROM Physical_layout_template_arm;	-- ISO/TS 10303-1722
 	USE FROM Requirement_decomposition_arm;	-- ISO/TS 10303-1740
 	USE FROM Extended_geometric_tolerance_arm;  -- ISO/TS 10303-1666
+	USE FROM Part_template_shape_with_parameters_arm; -- ISO/CD-TS 10303-1720
 
 	REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
 
@@ -28,9 +29,8 @@ SCHEMA Fabrication_technology_arm;
 	END_SUBTYPE_CONSTRAINT;
 
 	SUBTYPE_CONSTRAINT ft_template_definition_subtypes FOR Template_definition; 
-	    (ONEOF (Single_layer_template,
-		 Stratum_stack_model,
-         Inter_stratum_feature_template));
+	    (ONEOF (Geometric_template,
+		 Stratum_stack_model));
 	END_SUBTYPE_CONSTRAINT;
 
   TYPE land_template_terminal_class = ENUMERATION OF
@@ -119,6 +119,11 @@ SCHEMA Fabrication_technology_arm;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
+  
+  ENTITY Continuous_template
+    ABSTRACT SUPERTYPE OF (ONEOF (Inter_stratum_feature_template, Single_layer_continuous_template))
+    SUBTYPE OF (Geometric_template);
+  END_ENTITY;
 
   ENTITY Counterbore_passage_template
     SUBTYPE OF (Unsupported_passage_template);
@@ -198,9 +203,10 @@ SCHEMA Fabrication_technology_arm;
       WR1 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material);
   END_ENTITY;
 
-  ENTITY Dependent_material_removal_feature_template
-    SUBTYPE OF (Material_removal_feature_template);
-      associated_template : Land_physical_template;
+  ENTITY Dependent_template
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF (Template_definition);
+      associated_template : Template_definition;
   END_ENTITY;
 
   ENTITY Design_layer_technology
@@ -236,11 +242,18 @@ SCHEMA Fabrication_technology_arm;
 	  WR1: (EXISTS (pre_defined_documentation_layer_purpose)) XOR ((SIZEOF(externally_defined_documentation_layer_purpose)) = 1);
   END_ENTITY;
 
+  ENTITY Geometric_template
+    ABSTRACT SUPERTYPE OF (Continuous_template ANDOR Single_layer_template)
+    SUBTYPE OF (Template_definition);
+  INVERSE
+    shapes : SET [1:?] OF Part_template_shape_model FOR shape_characterized_part_template;
+  END_ENTITY;
+
   ENTITY Inter_stratum_feature_template
     SUPERTYPE OF (ONEOF(Component_termination_passage_template,
       Unsupported_passage_template,
       Via_template))
-    SUBTYPE OF (Template_definition);
+    SUBTYPE OF (Continuous_template);
       of_passage_technology : Passage_technology;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
@@ -297,8 +310,7 @@ SCHEMA Fabrication_technology_arm;
   END_ENTITY;
 
   ENTITY Material_removal_feature_template
-    SUPERTYPE OF (Dependent_material_removal_feature_template)
-    SUBTYPE OF (Single_layer_template);
+    SUBTYPE OF (Single_layer_continuous_template);
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
@@ -369,16 +381,21 @@ SCHEMA Fabrication_technology_arm;
         keepout_product_design_object_category.interconnect_module_stratum_feature];
   END_ENTITY;
   
-  ENTITY Single_layer_template
+  ENTITY Single_layer_continuous_template
     ABSTRACT SUPERTYPE OF (ONEOF (Stratum_feature_template, Material_removal_feature_template))
-    SUBTYPE OF (Template_definition);
+    SUBTYPE OF (Continuous_template, Single_layer_template);
+  END_ENTITY;
+
+  ENTITY Single_layer_template
+    ABSTRACT SUPERTYPE OF (Single_layer_continuous_template)
+    SUBTYPE OF (Geometric_template);
       of_stratum_technology : OPTIONAL SET [1:?] OF stratum_technology;
   END_ENTITY;
 
   ENTITY Stratum_feature_template
     SUPERTYPE OF (ONEOF (Land_physical_template,
  Material_addition_feature_template))
-    SUBTYPE OF (Single_layer_template);
+    SUBTYPE OF (Single_layer_continuous_template);
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
       -- IP1 : all part_template_planar_shapes of SELF shall be continuous

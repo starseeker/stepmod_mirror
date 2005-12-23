@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.27 2005/12/06 12:48:14 liutkus Exp $
+   $Id: arm.exp,v 1.28 2005/12/20 17:03:53 liutkus Exp $
    ISO TC184/SC4/WG12 N3456 - ISO/CD-TS 10303-1689 Interconnect physical requirement allocation - EXPRESS ARM
 *)
 
@@ -27,6 +27,16 @@ REFERENCE FROM Requirement_decomposition_arm (
  	TYPE thermal_isolation_removal_structure_or_template = EXTENSIBLE GENERIC_ENTITY SELECT
  		(Thermal_isolation_removal_template);
 	END_TYPE;
+
+  ENTITY Dependent_electrical_isolation_removal_template
+    SUBTYPE OF (Dependent_template, Electrical_isolation_removal_template);
+      SELF\Dependent_template.associated_template : Land_physical_template;
+  END_ENTITY;
+
+  ENTITY Dependent_thermal_isolation_removal_template
+    SUBTYPE OF (Dependent_template, Thermal_isolation_removal_template);
+      SELF\Dependent_template.associated_template : Land_physical_template;
+  END_ENTITY;
 
   ENTITY Electrical_isolation_removal_template
     SUBTYPE OF (Material_removal_feature_template);
@@ -60,7 +70,7 @@ REFERENCE FROM Requirement_decomposition_arm (
   END_ENTITY;
 		
   ENTITY Thermal_isolation_removal_template
-    SUBTYPE OF (Material_removal_feature_template);
+    SUBTYPE OF (Material_removal_structured_template);
 	DERIVE
   		thermal_isolation_spacing_requirement: SET[1:1] OF Requirement_view_definition :=
 		  get_rvd(SELF, 'thermal requirement');

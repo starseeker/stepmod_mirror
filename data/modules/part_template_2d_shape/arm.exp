@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.87 2005/12/21 13:34:37 kovaliovas Exp $
+   $Id: arm.exp,v 1.88 2005/12/21 14:08:22 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -24,8 +24,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	END_TYPE;
 
 	TYPE pt2ds_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
-   	(Generic_footprint_definition,
-   	Padstack_definition);
+   	(Structured_template);
 	END_TYPE; 
 
   	TYPE pt2ds_part_template_or_physical_unit_2d_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_2d_shape_select WITH 
@@ -36,7 +35,12 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	    (Physical_unit_planar_shape_model);
   	END_TYPE;
 
-  TYPE padstack_arrangement = ENUMERATION OF
+	SUBTYPE_CONSTRAINT pt2ds_geometric_template_subtypes FOR Geometric_template; 
+	    (ONEOF (Continuous_template,
+		 Structured_template));
+	END_SUBTYPE_CONSTRAINT;
+
+  TYPE template_arrangement = ENUMERATION OF
     (top,
      bottom,
      symmetrical,
@@ -54,10 +58,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     INVERSE
       breakout_traces : SET[1:?] OF Stratum_feature_template_location_in_breakout_footprint_definition FOR assembly;
     WHERE
-    -- Padstack must be of type passage_padstack_definition
-      WR1: SIZEOF(QUERY(ps <* padstacks | NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(ps.template)))) = 0;
-      WR2: SIZEOF(QUERY(ps <* padstacks | NOT('FABRICATION_TECHNOLOGY_ARM.VIA_TEMPLATE' * TYPEOF(ps.template\Passage_padstack_definition.reference_isft.template)))) = 0;
-      WR3: SELF\Multi_layer_structured_template.location = reference_footprint\Multi_layer_structured_template.location;
+      WR1: SELF\Multi_layer_structured_template.location = reference_footprint\Multi_layer_structured_template.location;
   --IP1: The domain of the geometry of the Breakout_footprint_definition shall be the same domain as that of
   -- the reference_footprint.
   --IP2: Each member of breakout_traces shall have a domain that overlaps with a Land in the reference_footprint;
@@ -120,18 +121,18 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     ABSTRACT SUPERTYPE OF (ONEOF (Footprint_definition, Breakout_footprint_definition))
     SUBTYPE OF (Multi_layer_structured_template);
     DERIVE 
-      SELF\Multi_layer_structured_template.location : padstack_arrangement := get_padstack_arrangement(padstacks);
+      SELF\Multi_layer_structured_template.location : template_arrangement := get_template_arrangement(padstacks);
       padstacks : SET[1:?] OF Template_location_in_structured_template := bag_to_set(QUERY(tlict <* SELF\Structured_template.templates |
-         ('PART_TEMPLATE_2D_SHAPE.PADSTACK_DEFINITION' IN TYPEOF(tlict.template))));
+         ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(tlict.template))));
     WHERE
       WR1 : SIZEOF(QUERY(ps <* padstacks | (ps.template\Padstack_definition.location <> location)
-              AND (ps.template\Padstack_definition.location <> padstack_arrangement.symmetrical))) = 0;
-      WR2 : ((location = padstack_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR 
-            (NOT (location = padstack_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'));
-      WR3 : ((location = padstack_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR 
-            (NOT (location = padstack_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'));
-      WR4 : ((location = padstack_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR 
-            (NOT (location = padstack_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'));
+              AND (ps.template\Padstack_definition.location <> template_arrangement.symmetrical))) = 0;
+      WR2 : ((location = template_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR 
+            (NOT (location = template_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'));
+      WR3 : ((location = template_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR 
+            (NOT (location = template_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'));
+      WR4 : ((location = template_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR 
+            (NOT (location = template_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'));
   END_ENTITY;
 
   ENTITY Inter_stratum_feature_template_location
@@ -156,16 +157,22 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
   
   ENTITY Material_removal_structured_template
-    SUBTYPE OF (Material_removal_feature_template, Single_layer_structured_template);
+    SUBTYPE OF (Single_layer_structured_template);
   WHERE
     WR1 : SIZEOF(QUERY(tlict <* SELF\Structured_template.templates |
-         NOT ('PART_TEMPLATE_2D_SHAPE.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(tlict.template)))) = 0;
+         SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE',
+           'PART_TEMPLATE_2D_SHAPE_ARM.MATERIAL_REMOVAL_STRUCTURED_TEMPLATE'] * TYPEOF(tlict.template)) = 0)) = 0;
+  END_ENTITY;
+  
+  ENTITY Multi_layer_special_symbol_template
+    SUBTYPE OF (Multi_layer_structured_template, Special_symbol_template);
   END_ENTITY;
 
   ENTITY Multi_layer_structured_template
-    SUPERTYPE OF (ONEOF (Padstack_definition, Generic_footprint_definition) ANDOR Stratum_stack_specific_template)
+    ABSTRACT SUPERTYPE OF (ONEOF (Padstack_definition, Generic_footprint_definition, Multi_layer_special_symbol_template)
+      ANDOR Stratum_stack_dependent_template)
     SUBTYPE OF (Structured_template);
-      location : padstack_arrangement;
+      location : template_arrangement;
   END_ENTITY;
 
   ENTITY Padstack_definition
@@ -176,10 +183,10 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
  'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'template model'))) > 0;
       WR2: NOT('PART_TEMPLATE_2D_SHAPE_ARM.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)) XOR 
           (SIZEOF(QUERY(tlict <* SELF\Structured_template.templates |
-         ('PART_TEMPLATE_2D_SHAPE.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict)))) > 0);
+         ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict)))) > 0);
       WR3: SIZEOF(QUERY(tlict <* SELF\Structured_template.templates |
-         (NOT ('PART_TEMPLATE_2D_SHAPE.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))) AND
-          (NOT ('PART_TEMPLATE_2D_SHAPE.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(tlict))))) = 0;
+         (NOT ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))) AND
+          (NOT ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(tlict))))) = 0;
   END_ENTITY;
 
   ENTITY Padstack_location_in_footprint_definition
@@ -224,15 +231,20 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Padstack_definition);
     DERIVE
       reference_isft : SET [1:?] OF Inter_stratum_feature_template_location := bag_to_set(QUERY(tlict <* SELF\Structured_template.templates |
-         ('PART_TEMPLATE_2D_SHAPE.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))));
+         ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))));
     WHERE
       WR1 : SIZEOF(reference_isft) = 1;
   END_ENTITY;
+  
+  ENTITY Single_layer_special_symbol_template
+    SUBTYPE OF (Single_layer_structured_template, Special_symbol_template);
+  END_ENTITY;
 
   ENTITY Single_layer_structured_template
+    ABSTRACT SUPERTYPE OF (ONEOF (Material_removal_structured_template, Single_layer_special_symbol_template))
     SUBTYPE OF (Structured_template, Single_layer_template);
   DERIVE
-    SELF\Single_layer_template.of_stratum_technology : SET [1:?] OF stratum_technology := ?; -- derive from templates
+    SELF\Single_layer_template.of_stratum_technology : SET [1:?] OF Stratum_technology := ?; -- derive from templates
   WHERE
     WR1: SIZEOF (QUERY(tp <* SELF\Structured_template.templates |
                NOT ('FABRICATION_TECHNOLOGY_ARM.SINGLE_LAYER_TEMPLATE' IN TYPEOF(tp.template))
@@ -240,12 +252,8 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Special_symbol_template
-    SUBTYPE OF (Structured_template);
-  WHERE
-    WR1 : SIZEOF (QUERY(tp <* SELF\Structured_template.templates |
-               ('FABRICATION_TECHNOLOGY_ARM.Inter_stratum_feature_template' IN TYPEOF(tp.template))
-              )) = 0; 
-    WR2 : TYPEOF(SELF) <> TYPEOF(SELF\Special_symbol_template);
+    ABSTRACT SUPERTYPE OF (ONEOF (Single_layer_special_symbol_template, Multi_layer_special_symbol_template))
+    SUBTYPE OF (Template_definition);
   END_ENTITY;
 
   ENTITY Stratum_feature_template_location_in_breakout_footprint_definition
@@ -287,11 +295,13 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
            (NOT EXISTS(bound_stratum\Stratum_technology_occurrence.definition\Documentation_layer_technology.pre_defined_documentation_layer_purpose) OR
            (NOT (bound_stratum\Stratum_technology_occurrence.definition\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
           ('FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
+      WR5 : NOT ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(bound_stratum)) OR
+             ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(SELF\Template_location_in_structured_template.assembly));
   END_ENTITY;
 
-  ENTITY Stratum_stack_specific_template
-    SUBTYPE OF (Multi_layer_structured_template);
-      stack : library_stack_model;
+  ENTITY Stratum_stack_dependent_template
+    SUBTYPE OF (Dependent_template, Multi_layer_structured_template);
+      SELF\Dependent_template.associated_template RENAMED stack : library_stack_model;
   WHERE
     WR1 : SIZEOF(QUERY(temp <* SELF\Structured_template.templates |
           NOT
@@ -301,18 +311,19 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
            IN TYPEOF(temp\Stratum_specific_template_location.bound_stratum))
            )
            )) = 0;
-    WR2 : TYPEOF(SELF) <> TYPEOF(SELF\Stratum_stack_specific_template);
+    WR2 : TYPEOF(SELF) <> TYPEOF(SELF\Stratum_stack_dependent_template);
   END_ENTITY;
 
   ENTITY Structured_template
-    ABSTRACT SUPERTYPE OF (ONEOF (Single_layer_structured_template, Multi_layer_structured_template) ANDOR (Special_symbol_template))
-    SUBTYPE OF (Template_definition);
+    ABSTRACT SUPERTYPE OF (ONEOF (Single_layer_structured_template, Multi_layer_structured_template))
+    SUBTYPE OF (Geometric_template);
   INVERSE
-    shapes : SET [1:?] OF Structured_template_planar_shape_model FOR shape_characterized_part_template;
+    SELF\Geometric_template.shapes : SET [1:?] OF Structured_template_planar_shape_model FOR shape_characterized_part_template;
     templates : SET [1:?] OF Template_location_in_structured_template FOR assembly;
   END_ENTITY;
 
   ENTITY Structured_template_planar_shape_model
+    SUPERTYPE OF (ONEOF (Breakout_footprint_definition_shape_model, Footprint_definition_shape_model))
     SUBTYPE OF (Part_template_planar_shape_model);
     SELF\Part_template_shape_model.shape_characterized_part_template : SET[1:1] OF Structured_template;
   END_ENTITY;
@@ -357,9 +368,9 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       WR1 : assembly_shape.shape_characterized_definition :=: reference_location.assembly;
   END_ENTITY;
 
-  FUNCTION get_padstack_arrangement(
+  FUNCTION get_template_arrangement(
     input : SET OF Padstack_location_in_footprint_definition
-  ) : padstack_arrangement;
+  ) : template_arrangement;
 
     LOCAL
       pabt : BAG OF STRING := [];
@@ -368,24 +379,24 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     END_LOCAL;
 
     REPEAT i := 1 TO SIZEOF(input) BY 1;
-      IF input[i].padstack.location = padstack_arrangement.top THEN
+      IF input[i].padstack.location = template_arrangement.top THEN
         pabt := pabt + 'top';
       END_IF;
-      IF input[i].padstack.location = padstack_arrangement.bottom THEN
+      IF input[i].padstack.location = template_arrangement.bottom THEN
         pabb := pabb + 'bottom';
       END_IF;
-      IF input[i].padstack.location = padstack_arrangement.symmetrical THEN
+      IF input[i].padstack.location = template_arrangement.symmetrical THEN
         pabs := pabs + 'symmetrical';
       END_IF;
     END_REPEAT;
     IF (SIZEOF(pabt) > 0) AND (SIZEOF(pabb) = 0) THEN
-      RETURN(padstack_arrangement.top);
+      RETURN(template_arrangement.top);
     END_IF;
     IF (SIZEOF(pabb) > 0) AND (SIZEOF(pabt) = 0) THEN
-      RETURN(padstack_arrangement.bottom);
+      RETURN(template_arrangement.bottom);
     END_IF;
     IF (SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabs) > 0) THEN
-      RETURN(padstack_arrangement.symmetrical);
+      RETURN(template_arrangement.symmetrical);
     END_IF;
     RETURN(?);
   END_FUNCTION;

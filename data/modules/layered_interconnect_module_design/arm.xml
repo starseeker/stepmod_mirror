@@ -662,15 +662,15 @@
             <typename name="stratum_feature_or_stratum_feature_template_component"/>
          </explicit>
       </entity>
-      <entity name="Multi_layer_component" abstract.supertype="YES" supertypes="Assembly_group_component" super.expression="ONEOF (Padstack_occurrence, Footprint_occurrence, Special_symbol_occurrence)" abstract.entity="NO">
+      <entity name="Multi_layer_component" abstract.supertype="YES" supertypes="Assembly_group_component" super.expression="ONEOF (Padstack_occurrence, Footprint_occurrence)" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
-            <typename name="Multi_layer_template_definition"/>
+            <typename name="Multi_layer_structured_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <where label="WR1" expression="SIZEOF(TYPEOF(SELF) *&#10;        ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT',&#10;        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',&#10;        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0"/>
          <where label="WR2" expression="SIZEOF(QUERY(agc &lt;* SELF\Assembly_group_component.components |&#10;        NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MULTI_LAYER_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc)))) = 0"/>
       </entity>
-      <entity name="Multi_layer_component_sub_assembly_relationship" abstract.supertype="YES" supertypes="Next_assembly_usage_occurence_relationship" super.expression="ONEOF (Padstack_occurrence_sub_assembly_relationship, Footprint_occurrence_sub_assembly_relationship, Special_symbol_occurrence_sub_assembly_relationship)" abstract.entity="NO">
+      <entity name="Multi_layer_component_sub_assembly_relationship" abstract.supertype="YES" supertypes="Next_assembly_usage_occurence_relationship" super.expression="ONEOF (Padstack_occurrence_sub_assembly_relationship, Footprint_occurrence_sub_assembly_relationship)" abstract.entity="NO">
          <explicit name="relating_view" optional="NO">
             <typename name="Multi_layer_component"/>
             <redeclaration entity-ref="View_definition_relationship"/>
@@ -680,7 +680,7 @@
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
          <explicit name="sub_assembly_reference_designation" optional="NO">
-            <typename name="Part_template_location_in_multi_layer_template_definition"/>
+            <typename name="Template_location_in_structured_template"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="sub_assembly_reference_designation"/>
@@ -822,26 +822,13 @@
       </entity>
       <entity name="Special_symbol_laminate_component" supertypes="Laminate_component" super.expression="Primary_stratum_indicator_symbol" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
-            <typename name="Special_symbol_definition"/>
+            <typename name="Special_symbol_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <explicit name="stratum_feature_implementation" optional="NO">
             <typename name="Stratum_feature"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
-      </entity>
-      <entity name="Special_symbol_occurrence" supertypes="Multi_layer_component" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="derived_from" optional="NO">
-            <typename name="Special_symbol_definition"/>
-            <redeclaration entity-ref="Multi_layer_component"/>
-         </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(agc &lt;* SELF\Assembly_group_component.components |&#10;        NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.SPECIAL_SYMBOL_OCCURRENCE_SUB_ASSEMBLY_RELATIONSHIP'&#10;        IN TYPEOF(agc)))) = 0"/>
-      </entity>
-      <entity name="Special_symbol_occurrence_sub_assembly_relationship" supertypes="Multi_layer_component_sub_assembly_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="relating_view" optional="NO">
-            <typename name="Special_symbol_occurrence"/>
-            <redeclaration entity-ref="Multi_layer_component_sub_assembly_relationship"/>
-         </explicit>
       </entity>
       <entity name="Stratum" supertypes="Part_view_definition Item_shape" super.expression="ONEOF (Documentation_layer_stratum, Design_layer_stratum)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="id" optional="NO">
@@ -1085,7 +1072,7 @@
       <subtype.constraint name="component_terminal_subtypes" entity="Component_terminal" super.expression="ONEOF (Physical_component_terminal, Laminate_component_join_terminal)" abstract.supertype="NO"/>
       <subtype.constraint name="interconnect_module_terminal_subtypes" entity="Interconnect_module_terminal" super.expression="ONEOF (Interconnect_module_interface_terminal, Interconnect_module_join_terminal)" abstract.supertype="NO"/>
       <subtype.constraint name="limd_part_view_definition_subtypes" entity="Part_view_definition" super.expression="ONEOF (Part_usage_view, Part_design_view, Stratum)" abstract.supertype="NO"/>
-      <subtype.constraint name="template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Generic_footprint_definition, Padstack_definition, Inter_stratum_feature_template, Material_removal_feature_template, Non_conductive_cross_section_template, Part_string_template, Printed_part_cross_section_template, Printed_part_template, Stratum_feature_template, Trace_template, Part_text_template)" abstract.supertype="NO"/>
+      <subtype.constraint name="template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Inter_stratum_feature_template, Non_conductive_cross_section_template, Part_string_template, Printed_part_cross_section_template, Printed_part_template, Single_layer_template, Trace_template, Part_text_template)" abstract.supertype="NO"/>
       <function name="bag_to_set">
          <parameter name="the_bag">
             <aggregate type="BAG" lower="0" upper="?" unique="NO" optional="NO"/>

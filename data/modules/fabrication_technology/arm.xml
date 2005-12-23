@@ -9,6 +9,7 @@
       <interface kind="use" schema="Physical_layout_template_arm"/>
       <interface kind="use" schema="Requirement_decomposition_arm"/>
       <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
+      <interface kind="use" schema="Part_template_shape_with_parameters_arm"/>
       <interface kind="reference" schema="Specification_document_arm">
          <interfaced.item name="get_document_definition"/>
       </interface>
@@ -87,6 +88,7 @@
          </unique>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
+      <entity name="Continuous_template" abstract.supertype="YES" supertypes="Geometric_template" super.expression="ONEOF (Inter_stratum_feature_template, Single_layer_continuous_template)" abstract.entity="NO"/>
       <entity name="Counterbore_passage_template" supertypes="Unsupported_passage_template" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="smaller_passage" optional="NO">
             <typename name="Unsupported_passage_template"/>
@@ -188,9 +190,9 @@
          </inverse>
          <where label="WR1" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material)"/>
       </entity>
-      <entity name="Dependent_material_removal_feature_template" supertypes="Material_removal_feature_template" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Dependent_template" abstract.supertype="YES" supertypes="Template_definition" abstract.entity="NO">
          <explicit name="associated_template" optional="NO">
-            <typename name="Land_physical_template"/>
+            <typename name="Template_definition"/>
          </explicit>
       </entity>
       <entity name="Design_layer_technology" supertypes="Stratum_technology" abstract.supertype="NO" abstract.entity="NO">
@@ -225,7 +227,12 @@
          </inverse>
          <where label="WR1" expression="(EXISTS (pre_defined_documentation_layer_purpose)) XOR ((SIZEOF(externally_defined_documentation_layer_purpose)) = 1)"/>
       </entity>
-      <entity name="Inter_stratum_feature_template" supertypes="Template_definition" super.expression="ONEOF (Component_termination_passage_template, Unsupported_passage_template, Via_template)" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Geometric_template" abstract.supertype="YES" supertypes="Template_definition" super.expression="Continuous_template ANDOR Single_layer_template" abstract.entity="NO">
+         <inverse name="shapes" entity="Part_template_shape_model" attribute="shape_characterized_part_template">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="Inter_stratum_feature_template" supertypes="Continuous_template" super.expression="ONEOF (Component_termination_passage_template, Unsupported_passage_template, Via_template)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="of_passage_technology" optional="NO">
             <typename name="Passage_technology"/>
          </explicit>
@@ -235,7 +242,7 @@
          <explicit name="of_stratum_technology" optional="YES">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Design_layer_technology"/>
-            <redeclaration entity-ref="Stratum_feature_template"/>
+            <redeclaration entity-ref="Single_layer_template"/>
          </explicit>
          <inverse name="access_mechanisms" entity="Land_template_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
@@ -282,11 +289,7 @@
       </entity>
       <entity name="Library_stack_model" supertypes="Stratum_stack_model" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Material_addition_feature_template" supertypes="Stratum_feature_template" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Material_removal_feature_template" supertypes="Template_definition" super.expression="Dependent_material_removal_feature_template" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="of_stratum_technology" optional="YES">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="Stratum_technology"/>
-         </explicit>
+      <entity name="Material_removal_feature_template" supertypes="Single_layer_continuous_template" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
       <entity name="Passage_technology" super.expression="ONEOF (Default_via_definition, Default_component_termination_passage_definition, Default_unsupported_passage_definition)" abstract.supertype="NO" abstract.entity="NO">
@@ -366,11 +369,14 @@
          </unique>
          <where label="WR1" expression="keepout_shape\Physical_unit_keepout_shape_model.constrained_design_object_category&#10;        IN [keepout_product_design_object_category.interconnect_module_via,&#10;        keepout_product_design_object_category.interconnect_module_inter_stratum_feature,&#10;        keepout_product_design_object_category.interconnect_module_cutout,&#10;        keepout_product_design_object_category.interconnect_module_fill_area,&#10;        keepout_product_design_object_category.interconnect_module_stratum_feature]"/>
       </entity>
-      <entity name="Stratum_feature_template" supertypes="Template_definition" super.expression="ONEOF (Land_physical_template, Material_addition_feature_template)" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Single_layer_continuous_template" abstract.supertype="YES" supertypes="Continuous_template Single_layer_template" super.expression="ONEOF (Stratum_feature_template, Material_removal_feature_template)" abstract.entity="NO"/>
+      <entity name="Single_layer_template" abstract.supertype="YES" supertypes="Geometric_template" super.expression="Single_layer_continuous_template" abstract.entity="NO">
          <explicit name="of_stratum_technology" optional="YES">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Stratum_technology"/>
          </explicit>
+      </entity>
+      <entity name="Stratum_feature_template" supertypes="Single_layer_continuous_template" super.expression="ONEOF (Land_physical_template, Material_addition_feature_template)" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
       <entity name="Stratum_stack_model" abstract.supertype="YES" supertypes="Template_definition" super.expression="ONEOF (Library_stack_model, Design_stack_model)" abstract.entity="NO">
@@ -517,7 +523,7 @@
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
       <subtype.constraint name="ft_placed_feature_subtypes" entity="Placed_feature" super.expression="ONEOF (Via_template_terminal, Component_termination_passage_template_terminal, Land_template_terminal)" abstract.supertype="NO"/>
-      <subtype.constraint name="ft_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Material_removal_feature_template, Stratum_feature_template, Stratum_stack_model, Inter_stratum_feature_template)" abstract.supertype="NO"/>
+      <subtype.constraint name="ft_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Geometric_template, Stratum_stack_model)" abstract.supertype="NO"/>
       <function name="bag_to_set">
          <parameter name="the_bag">
             <aggregate type="BAG" lower="0" upper="?" unique="NO" optional="NO"/>

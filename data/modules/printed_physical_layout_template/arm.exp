@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.44 2005/12/23 15:48:53 kovaliovas Exp $
+   $Id: arm.exp,v 1.45 2005/12/23 23:35:58 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3582 - ISO/CD-TS 10303-1737 Printed physical layout template - EXPRESS ARM
 *)
 
@@ -115,7 +115,7 @@ SCHEMA Printed_physical_layout_template_arm;
       SUBTYPE OF (Template_definition);
          implemented_function : OPTIONAL Functional_unit_usage_view;
       INVERSE
-        raw_access_mechanisms : SET [1:?] OF Printed_part_template_terminal FOR associated_definition;
+        access_mechanisms : SET [1:?] OF Printed_part_template_terminal FOR associated_definition;
       WHERE
         WR1: (SIZEOF(QUERY(prpc <* USEDIN(defined_version.of_product,
             'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS')
@@ -127,8 +127,12 @@ SCHEMA Printed_physical_layout_template_arm;
   ENTITY Printed_part_template_connected_terminals_definition;
       name                : STRING;   
       connected_terminals : SET[2:?] OF Printed_part_template_terminal;
+    DERIVE
+      scope : Printed_part_template := connected_terminals[1].associated_definition;
     UNIQUE
-      UR1 : name;
+      UR1 : name, scope;
+    WHERE
+      WR1 : SIZEOF(QUERY(t <* connected_terminals | t.associated_definition :<>: scope)) = 0;
   END_ENTITY;
 
   ENTITY Printed_part_template_interface_terminal
@@ -206,7 +210,6 @@ SCHEMA Printed_physical_layout_template_arm;
       Multi_stratum_printed_part_template))
     SUBTYPE OF (Dependent_template, Printed_part_template, Structured_template);
     DERIVE
-      access_mechanisms : SET [1:?] OF Printed_part_template_terminal := raw_access_mechanisms;
       SELF\Dependent_template.associated_item : Item_shape := SELF;
     WHERE
       WR1 : SIZEOF(QUERY(t <* access_mechanisms |

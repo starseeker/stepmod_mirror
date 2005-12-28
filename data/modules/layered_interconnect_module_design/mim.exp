@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.50 2005/12/19 15:05:31 liutkus Exp $
+   $Id: mim.exp,v 1.51 2005/12/19 22:46:23 liutkus Exp $
    ISO TC184/SC4/WG12 N3484 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS MIM
 *)
 
@@ -106,7 +106,11 @@ WHERE
   WR1: SELF\shape_aspect_relationship.relating_shape_aspect :<>:
        SELF\shape_aspect_relationship.related_shape_aspect;
 END_ENTITY;
-	
+
+ENTITY dependent_thermal_isolation_removal_component
+  SUBTYPE OF (material_removal_structured_component);
+END_ENTITY;
+  	
 ENTITY electrical_isolation_component_definition
   SUBTYPE OF (filled_area_material_removal_component_definition);
 END_ENTITY;
@@ -120,21 +124,17 @@ ENTITY fiducial_stratum_feature
 END_ENTITY;
 
 ENTITY filled_area_material_removal_component_definition
-  SUPERTYPE OF (ONEOF (electrical_isolation_component_definition,
-    thermal_isolation_component_definition))
+  SUPERTYPE OF (electrical_isolation_component_definition)
   SUBTYPE OF (material_removal_component_definition);
 END_ENTITY;
 
 ENTITY footprint_occurrence
-  SUBTYPE OF (assembly_group_component_definition);
+  SUBTYPE OF (structured_component);
 END_ENTITY;
 
 ENTITY footprint_occurrence_product_definition_relationship
-  SUBTYPE OF (property_definition, next_assembly_usage_occurence_relationship);
-WHERE
-  WR1: SELF\product_definition_relationship.related_product_definition :<>:
-       SELF\product_definition_relationship.relating_product_definition;
-END_ENTITY; 
+  SUBTYPE OF (structured_component_sub_assembly_relationship);
+END_ENTITY;
 
 ENTITY inter_stratum_feature
  SUBTYPE OF (laminate_component);
@@ -198,11 +198,23 @@ ENTITY laminate_group_component_make_from_relationship
     SELF\product_definition_relationship.related_product_definition  : assembly_group_component_definition;
 END_ENTITY;
 
+ENTITY material_removal_structured_component
+  SUBTYPE OF (structured_component);
+END_ENTITY;
+  
 ENTITY stratum_feature_based_pattern
  SUBTYPE OF (shape_aspect);
 UNIQUE
   UR1: SELF\shape_aspect.name;
 END_ENTITY;
+
+ENTITY structured_component_sub_assembly_relationship
+  SUPERTYPE OF (footprint_occurrence_product_definition_relationship)
+  SUBTYPE OF (property_definition, next_assembly_usage_occurence_relationship);
+  WHERE
+    WR1: SELF\product_definition_relationship.related_product_definition :<>:
+       SELF\product_definition_relationship.relating_product_definition;
+END_ENTITY;  
 
 ENTITY layer_connection_point
   SUBTYPE OF (shape_aspect);
@@ -231,7 +243,7 @@ ENTITY multi_layer_stratum_feature
 END_ENTITY;
 
 ENTITY padstack_occurrence
-  SUBTYPE OF (assembly_group_component_definition);--assembly_group_component_shape_aspect);
+  SUBTYPE OF (structured_component);--assembly_group_component_shape_aspect);
 END_ENTITY;
 
 ENTITY padstack_occurrence_product_definition_relationship
@@ -265,21 +277,19 @@ ENTITY plated_passage
   SUBTYPE OF (plated_inter_stratum_feature);
 END_ENTITY;
 
+ENTITY primary_stratum_indicator_symbol
+  SUBTYPE OF (single_stratum_special_symbol_component);
+END_ENTITY;
+  
 ENTITY probe_access_area
   SUBTYPE OF (laminate_component);
 END_ENTITY;
 
-ENTITY special_symbol_occurrence
-  SUBTYPE OF (assembly_group_component_definition);
+ENTITY single_stratum_special_symbol_component
+  SUPERTYPE OF (primary_stratum_indicator_symbol)
+  SUBTYPE OF (structured_component);
 END_ENTITY;
-
-ENTITY special_symbol_occurrence_product_definition_relationship
-  SUBTYPE OF (property_definition, next_assembly_usage_occurence_relationship);
-WHERE
-  WR1: SELF\product_definition_relationship.related_product_definition :<>:
-       SELF\product_definition_relationship.relating_product_definition;
-END_ENTITY; 
-
+  
 ENTITY stratum
  SUBTYPE OF (product_definition, product_definition_shape);
 UNIQUE
@@ -306,11 +316,12 @@ END_ENTITY;
 ENTITY stratum_technology_occurrence_to_stratum_mapping_relationship
   SUBTYPE OF(property_definition);
 END_ENTITY;
-				
-ENTITY thermal_isolation_component_definition
-  SUBTYPE OF (filled_area_material_removal_component_definition);
-END_ENTITY;
 
+ENTITY structured_component
+  ABSTRACT SUPERTYPE OF (ONEOF (padstack_occurrence, footprint_occurrence, single_stratum_special_symbol_component))
+  SUBTYPE OF (assembly_group_component_definition);
+END_ENTITY;  
+    				
 END_SCHEMA;
 
 

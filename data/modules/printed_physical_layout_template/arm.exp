@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.45 2005/12/23 23:35:58 thomasrthurman Exp $
+   $Id: arm.exp,v 1.46 2005/12/27 10:23:44 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3582 - ISO/CD-TS 10303-1737 Printed physical layout template - EXPRESS ARM
 *)
 
@@ -208,9 +208,7 @@ SCHEMA Printed_physical_layout_template_arm;
   ENTITY Structured_printed_part_template
     ABSTRACT SUPERTYPE OF (ONEOF (Single_stratum_printed_part_template, 
       Multi_stratum_printed_part_template))
-    SUBTYPE OF (Dependent_template, Printed_part_template, Structured_template);
-    DERIVE
-      SELF\Dependent_template.associated_item : Item_shape := SELF;
+    SUBTYPE OF (Printed_part_template, Structured_template);
     WHERE
       WR1 : SIZEOF(QUERY(t <* access_mechanisms |
             NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.STRUCTURED_PRINTED_PART_TEMPLATE_TERMINAL'
@@ -222,8 +220,7 @@ SCHEMA Printed_physical_layout_template_arm;
   ENTITY Structured_printed_part_template_terminal
     SUBTYPE OF (Printed_part_template_terminal);
       SELF\Printed_part_template_terminal.associated_definition : Structured_printed_part_template;
-    INVERSE
-      associated_location : Shape_element_based_template_location FOR reference_element;
+      associated_location : Template_location_in_structured_template;
     WHERE
       WR1 : associated_location.assembly :=: associated_definition;
       WR2 : SIZEOF(QUERY(t <* SELF\Placed_feature.feature_shape |

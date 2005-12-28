@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.89 2005/12/23 11:30:10 kovaliovas Exp $
+   $Id: arm.exp,v 1.91 2005/12/23 23:49:00 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -48,7 +48,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     INVERSE
       breakout_traces : SET[1:?] OF Stratum_feature_template_location_in_breakout_footprint_definition FOR assembly;
     WHERE
-      WR1: SELF\Multi_layer_structured_template.location = reference_footprint\Multi_layer_structured_template.location;
+      WR1: SELF\Multi_stratum_structured_template.location = reference_footprint\Multi_stratum_structured_template.location;
   --IP1: The domain of the geometry of the Breakout_footprint_definition shall be the same domain as that of
   -- the reference_footprint.
   --IP2: Each member of breakout_traces shall have a domain that overlaps with a Land in the reference_footprint;
@@ -109,9 +109,9 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Generic_footprint_definition
     ABSTRACT SUPERTYPE OF (ONEOF (Footprint_definition, Breakout_footprint_definition))
-    SUBTYPE OF (Multi_layer_structured_template);
+    SUBTYPE OF (Multi_stratum_structured_template);
     DERIVE 
-      SELF\Multi_layer_structured_template.location : template_arrangement := get_template_arrangement(padstacks);
+      SELF\Multi_stratum_structured_template.location : template_arrangement := get_template_arrangement(padstacks);
       padstacks : SET[1:?] OF Template_location_in_structured_template := bag_to_set(QUERY(tlict <* SELF\Structured_template.templates |
          ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(tlict.template))));
     WHERE
@@ -127,7 +127,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Inter_stratum_feature_template_location
   	SUBTYPE OF (Template_location_in_structured_template);
-      SELF\Template_location_in_structured_template.assembly : Multi_layer_structured_template;
+      SELF\Template_location_in_structured_template.assembly : Multi_stratum_structured_template;
       SELF\Template_location_in_structured_template.template : Inter_stratum_feature_template;
     WHERE
       WR1: SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE',
@@ -147,19 +147,19 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
   
   ENTITY Material_removal_structured_template
-    SUBTYPE OF (Single_layer_structured_template);
+    SUBTYPE OF (Single_stratum_structured_template);
   WHERE
     WR1 : SIZEOF(QUERY(tlict <* SELF\Structured_template.templates |
          SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE',
            'PART_TEMPLATE_2D_SHAPE_ARM.MATERIAL_REMOVAL_STRUCTURED_TEMPLATE'] * TYPEOF(tlict.template)) = 0)) = 0;
   END_ENTITY;
-  
-  ENTITY Multi_layer_special_symbol_template
-    SUBTYPE OF (Multi_layer_structured_template, Special_symbol_template);
+
+  ENTITY Multi_stratum_special_symbol_template
+    SUBTYPE OF (Multi_stratum_structured_template, Special_symbol_template);
   END_ENTITY;
 
-  ENTITY Multi_layer_structured_template
-    ABSTRACT SUPERTYPE OF (ONEOF (Padstack_definition, Generic_footprint_definition, Multi_layer_special_symbol_template)
+  ENTITY Multi_stratum_structured_template
+    ABSTRACT SUPERTYPE OF (ONEOF (Padstack_definition, Generic_footprint_definition, Multi_stratum_special_symbol_template)
       ANDOR Stratum_stack_dependent_template)
     SUBTYPE OF (Structured_template);
       location : template_arrangement;
@@ -167,7 +167,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Padstack_definition
     SUPERTYPE OF (Passage_padstack_definition)
-    SUBTYPE OF (Multi_layer_structured_template);
+    SUBTYPE OF (Multi_stratum_structured_template);
     WHERE
       WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
  'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'template model'))) > 0;
@@ -215,18 +215,18 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       WR1 : SIZEOF(reference_isft) = 1;
   END_ENTITY;
   
-  ENTITY Single_layer_special_symbol_template
-    SUBTYPE OF (Single_layer_structured_template, Special_symbol_template);
+  ENTITY Single_stratum_special_symbol_template
+    SUBTYPE OF (Single_stratum_structured_template, Special_symbol_template);
   END_ENTITY;
 
-  ENTITY Single_layer_structured_template
-    ABSTRACT SUPERTYPE OF (ONEOF (Material_removal_structured_template, Single_layer_special_symbol_template))
-    SUBTYPE OF (Structured_template, Single_layer_template);
+  ENTITY Single_stratum_structured_template
+    ABSTRACT SUPERTYPE OF (ONEOF (Material_removal_structured_template, Single_stratum_special_symbol_template))
+    SUBTYPE OF (Structured_template, Single_stratum_template);
   DERIVE
-    SELF\Single_layer_template.of_stratum_technology : SET [1:?] OF Stratum_technology := ?; -- derive from templates
+    SELF\Single_stratum_template.of_stratum_technology : SET [1:?] OF Stratum_technology := ?; -- derive from templates
   WHERE
     WR1: SIZEOF (QUERY(tp <* SELF\Structured_template.templates |
-               NOT ('FABRICATION_TECHNOLOGY_ARM.SINGLE_LAYER_TEMPLATE' IN TYPEOF(tp.template))
+               NOT ('FABRICATION_TECHNOLOGY_ARM.SINGLE_STRATUM_TEMPLATE' IN TYPEOF(tp.template))
               )) = 0; 
   END_ENTITY;
 
@@ -239,7 +239,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Special_symbol_template
-    ABSTRACT SUPERTYPE OF (ONEOF (Single_layer_special_symbol_template, Multi_layer_special_symbol_template))
+    ABSTRACT SUPERTYPE OF (ONEOF (Single_stratum_special_symbol_template, Multi_stratum_special_symbol_template))
     SUBTYPE OF (Template_definition);
   END_ENTITY;
 
@@ -259,13 +259,13 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Stratum_specific_template_location
   	SUBTYPE OF (Template_location_in_structured_template);
       bound_stratum : stratum_technology_occurrence_or_stratum_technology;
-      SELF\Template_location_in_structured_template.template : Single_layer_template;
+      SELF\Template_location_in_structured_template.template : Single_stratum_template;
     WHERE
       WR1: (NOT (SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1) OR
-               (SIZEOF(QUERY(st <* template\Single_layer_template.of_stratum_technology | st :=: bound_stratum)) = 1))
+               (SIZEOF(QUERY(st <* template\Single_stratum_template.of_stratum_technology | st :=: bound_stratum)) = 1))
               AND
               (NOT (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_TECHNOLOGY_OCCURRENCE'] * TYPEOF(bound_stratum)) = 1) OR
-               (SIZEOF(QUERY(st <* template\Single_layer_template.of_stratum_technology | st :=: bound_stratum\Stratum_technology_occurrence.definition)) = 1));
+               (SIZEOF(QUERY(st <* template\Single_stratum_template.of_stratum_technology | st :=: bound_stratum\Stratum_technology_occurrence.definition)) = 1));
       WR2: NOT (SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1) OR
              ((NOT (SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1) OR
                (SIZEOF(QUERY(st <* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))
@@ -287,7 +287,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Stratum_stack_dependent_template
-    SUBTYPE OF (Dependent_template, Multi_layer_structured_template);
+    SUBTYPE OF (Dependent_template, Multi_stratum_structured_template);
       SELF\Dependent_template.associated_item RENAMED stack : library_stack_model;
   WHERE
     WR1 : SIZEOF(QUERY(temp <* SELF\Structured_template.templates |
@@ -302,7 +302,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Structured_template
-    ABSTRACT SUPERTYPE OF (ONEOF (Single_layer_structured_template, Multi_layer_structured_template))
+    ABSTRACT SUPERTYPE OF (ONEOF (Single_stratum_structured_template, Multi_stratum_structured_template))
     SUBTYPE OF (Geometric_template);
   INVERSE
     SELF\Geometric_template.shapes : SET [1:?] OF Structured_template_planar_shape_model FOR shape_characterized_part_template;

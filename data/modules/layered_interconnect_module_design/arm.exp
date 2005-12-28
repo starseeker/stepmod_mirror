@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.169 2005/12/23 13:01:29 kovaliovas Exp $
+   $Id: arm.exp,v 1.170 2005/12/27 14:29:28 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -420,6 +420,19 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Footprint_occurrence
     SUBTYPE OF (Structured_component);
       SELF\Definition_based_product_occurrence.derived_from : Generic_footprint_definition;
+  END_ENTITY;
+
+  ENTITY Footprint_occurrence_sub_assembly_relationship
+	SUBTYPE OF (Structured_component_sub_assembly_relationship);
+      SELF\View_definition_relationship.relating_view : Footprint_occurrence;	
+      terminal_location : Padstack_location_in_footprint_definition;
+    UNIQUE
+      UR1 : sub_assembly_reference_designation,
+       relating_view,
+       terminal_location;
+    WHERE
+      WR1 : terminal_location.assembly :=: relating_view.derived_from;
+      WR2 : terminal_location.template :=: sub_assembly_reference_designation.assembly;
   END_ENTITY;
 
   ENTITY Generic_physical_network
@@ -1022,6 +1035,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Structured_component_sub_assembly_relationship
+    SUPERTYPE OF (Footprint_occurrence_sub_assembly_relationship)
     SUBTYPE OF (Next_assembly_usage_occurence_relationship);
       SELF\View_definition_relationship.relating_view : Structured_component;
       SELF\View_definition_relationship.related_view : Assembly_component;

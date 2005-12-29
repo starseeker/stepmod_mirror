@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.172 2005/12/28 12:37:33 kovaliovas Exp $
+   $Id: arm.exp,v 1.173 2005/12/28 15:52:06 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -97,7 +97,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 	END_TYPE; 
 
  	TYPE limd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Stratum_feature_based_pattern,
+		(Stratum_based_pattern,
 		Stratum_feature_based_derived_pattern,
 		Stratum,
 		Laminate_component);
@@ -929,6 +929,15 @@ SCHEMA Layered_interconnect_module_design_arm;
     WR1 : SELF\Stratum_surface.name = stratum_surface_designation.average_surface;
   END_ENTITY;
 
+  ENTITY Stratum_based_pattern;
+      name        : STRING;  
+      extent      : Inter_stratum_extent;
+    INVERSE
+      layer_usage	: SET[0:1] OF External_source_identification FOR item;
+    UNIQUE
+      UR1 : name;
+  END_ENTITY;
+
   ENTITY Stratum_based_pattern_inter_stratum_extent
     SUBTYPE OF (Inter_stratum_extent);
       reference_stratum : Stratum;
@@ -963,26 +972,17 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Stratum_feature_based_derived_pattern;
-      extent            : Inter_stratum_extent;
-      reference_stratum : Stratum;
+      extent                    : Inter_stratum_extent;
+      reference_stratum_feature : Stratum_feature;
     INVERSE
       layer_usage	: SET[0:1] OF External_source_identification FOR item;
     WHERE
-      WR1: reference_stratum IN extent\Inter_stratum_extent.included_stratum;
+      WR1: reference_stratum_feature\Stratum_feature.resident_stratum IN extent\Inter_stratum_extent.included_stratum;
       WR2: SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',
-                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum)) = 1;
+                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.resident_stratum)) = 1;
       WR3: SIZEOF(QUERY(ds <* extent\Inter_Stratum_extent.included_stratum |
              NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DERIVED_STRATUM' IN TYPEOF(ds))
                  )) = 1;
-  END_ENTITY;
-
-  ENTITY Stratum_feature_based_pattern;
-      name        : STRING;  
-      extent      : Inter_stratum_extent;
-    INVERSE
-      layer_usage	: SET[0:1] OF External_source_identification FOR item;
-    UNIQUE
-      UR1 : name;
   END_ENTITY;
 
   ENTITY Stratum_feature_template_component

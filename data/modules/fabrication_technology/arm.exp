@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.80 2005/12/23 23:02:12 thomasrthurman Exp $
+   $Id: arm.exp,v 1.81 2005/12/28 12:37:33 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -18,7 +18,8 @@ SCHEMA Fabrication_technology_arm;
 	END_TYPE; 
 
   TYPE ft_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
-	(Passage_technology,
+	(Filled_via_template,
+	Passage_technology,
 	Stratum_technology);
   END_TYPE;
 
@@ -240,6 +241,14 @@ SCHEMA Fabrication_technology_arm;
 	  externally_defined_documentation_layer_purpose : SET [0:1] OF External_source_identification FOR item;      
 	WHERE
 	  WR1: (EXISTS (pre_defined_documentation_layer_purpose)) XOR ((SIZEOF(externally_defined_documentation_layer_purpose)) = 1);
+  END_ENTITY;
+
+  ENTITY Filled_via_template
+    SUBTYPE OF (Via_template);
+    INVERSE
+      fill_material : SET[1:1] OF Material_identification FOR items;
+    WHERE
+      WR1: 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (fill_material[1]);
   END_ENTITY;
 
   ENTITY Geometric_template

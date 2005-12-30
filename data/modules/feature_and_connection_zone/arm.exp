@@ -1,10 +1,10 @@
 (*
-   $Id: arm.exp,v 1.14 2005/11/14 09:59:27 kovaliovas Exp $
+   $Id: arm.exp,v 1.15 2005/11/16 07:43:51 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3408 - ISO/CD-TS 10303-1671 Feature and connection zone - EXPRESS ARM
 *)
 
 SCHEMA Feature_and_connection_zone_arm; 
-
+    USE FROM Shape_feature_arm; -- new
 	USE FROM Shape_property_assignment_arm;	-- ISO/TS 10303-1032
 
 	SUBTYPE_CONSTRAINT facz_shape_element_subtypes FOR Shape_element;
@@ -12,6 +12,11 @@ SCHEMA Feature_and_connection_zone_arm;
 	  Connection_zone);
 	END_SUBTYPE_CONSTRAINT;
 
+  ENTITY Feature_definition_with_connection_area
+    SUBTYPE OF (Feature_definition);
+    connection_area : SET [1:?] OF Connection_zone;
+  END_ENTITY; -- Feature_definition
+  
   ENTITY Shape_feature
   	ABSTRACT SUPERTYPE
        SUBTYPE OF (Shape_element);
@@ -25,7 +30,9 @@ SCHEMA Feature_and_connection_zone_arm;
   ENTITY Connection_zone
   	ABSTRACT SUBTYPE OF (Shape_element);
     WHERE
-      WR1 : SIZEOF(USEDIN(SELF, '')) > 0;
+      WR1 : (SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA')) +
+             SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.SHAPE_FEATURE.CONNECTION_AREA')))
+            = 1;
       WR2 : NOT EXISTS (SELF\Shape_element.description);
       WR3 : NOT EXISTS (SELF\Shape_element.element_name);
   END_ENTITY;

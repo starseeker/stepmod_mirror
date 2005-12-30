@@ -6,14 +6,14 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="printed_physical_layout_template_mim schema_instance"/>
    <schema name="Printed_physical_layout_template_mim">
       <interface kind="use" schema="Extended_geometric_tolerance_mim"/>
-      <interface kind="use" schema="Fabrication_technology_mim"/>
       <interface kind="use" schema="Functional_usage_view_mim"/>
-      <interface kind="use" schema="Requirement_decomposition_mim"/>
+      <interface kind="use" schema="Part_template_2d_shape_mim"/>
       <type name="pplt_groupable_item">
          <select extensible="YES" genericentity="YES" basedon="groupable_item" selectitems="printed_part_template_terminal"/>
       </type>
-      <entity name="basic_multi_stratum_printed_part_template" supertypes="part_template_definition"/>
-      <entity name="complex_multi_stratum_printed_part_template" supertypes="part_template_definition"/>
+      <entity name="basic_multi_stratum_printed_part_template" supertypes="printed_part_template"/>
+      <entity name="multi_stratum_printed_part_template" supertypes="structured_printed_part_template multi_stratum_structured_template"/>
+      <entity name="printed_connector_template" supertypes="printed_part_template"/>
       <entity name="printed_connector_template_terminal_relationship" supertypes="shape_aspect shape_aspect_relationship">
          <unique label="UR1">
             <unique.attribute entity-ref="shape_aspect_relationship" attribute="relating_shape_aspect"/>
@@ -22,6 +22,7 @@
          <where label="WR1" expression="SELF\shape_aspect_relationship.relating_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.related_shape_aspect"/>
       </entity>
       <entity name="printed_part_cross_section_template_terminal" supertypes="printed_part_template_terminal"/>
+      <entity name="printed_part_template" abstract.supertype="YES" supertypes="part_template_definition" super.expression="ONEOF (basic_multi_stratum_printed_part_template, structured_printed_part_template) ANDOR printed_connector_template"/>
       <entity name="printed_part_template_connected_terminals_definition" supertypes="shape_aspect">
          <unique label="UR1">
             <unique.attribute entity-ref="shape_aspect" attribute="name"/>
@@ -43,9 +44,11 @@
          </unique>
          <where label="WR1" expression="SELF\shape_aspect_relationship.related_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.relating_shape_aspect"/>
       </entity>
-      <entity name="printed_part_template_terminal" supertypes="shape_aspect" super.expression="printed_part_cross_section_template_terminal"/>
+      <entity name="printed_part_template_terminal" supertypes="shape_aspect" super.expression="printed_part_cross_section_template_terminal ANDOR structured_printed_part_template_terminal"/>
       <entity name="printed_part_template_terminal_connection_zone_category" supertypes="group"/>
       <entity name="single_stratum_printed_part_template" supertypes="part_template_definition"/>
+      <entity name="structured_printed_part_template" abstract.supertype="YES" supertypes="dependent_template printed_part_template structured_template" super.expression="ONEOF (single_stratum_printed_part_template, multi_stratum_printed_part_template)"/>
+      <entity name="structured_printed_part_template_terminal" supertypes="printed_part_template_terminal"/>
       <entity name="template_material_cross_section_boundary" supertypes="shape_aspect"/>
    </schema>
 </express>

@@ -223,11 +223,16 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     ABSTRACT SUPERTYPE OF (ONEOF (Material_removal_structured_template, Single_stratum_special_symbol_template))
     SUBTYPE OF (Structured_template, Single_stratum_template);
   DERIVE
-    SELF\Single_stratum_template.of_stratum_technology : SET [1:?] OF Stratum_technology := ?; -- derive from templates
+    SELF\Single_stratum_template.of_stratum_technology : SET [1:?] OF Stratum_technology := 
+         SELF\Structured_template.templates[1].template\Single_stratum_template.of_stratum_technology;
   WHERE
     WR1: SIZEOF (QUERY(tp <* SELF\Structured_template.templates |
                NOT ('FABRICATION_TECHNOLOGY_ARM.SINGLE_STRATUM_TEMPLATE' IN TYPEOF(tp.template))
-              )) = 0; 
+              )) = 0;
+   WR2: SIZEOF(QUERY(tp <* SELF\Structured_template.templates |
+               NOT (SIZEOF(of_stratum_technology * tp.template.of_stratum_technology) = SIZEOF(of_stratum_technology) AND
+                    SIZEOF(tp.template.of_stratum_technology) = SIZEOF(of_stratum_technology))
+              )) = 0;              
   END_ENTITY;
 
   ENTITY Shape_element_based_template_location

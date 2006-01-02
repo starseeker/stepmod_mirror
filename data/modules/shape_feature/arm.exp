@@ -1,26 +1,30 @@
 (*
-   $Id: arm.exp,v 1.2 2005/11/17 22:22:02 liutkus Exp $
-   N - ISO/CD-TS - 10303- shape_feature - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   $Id: arm.exp,v 1.3 2005/11/28 09:51:21 liutkus Exp $
+   N - ISO/CD-TS - 10303-1764 shape_feature - EXPRESS ARM*)
+
 SCHEMA Shape_feature_arm;
 USE FROM Contextual_shape_positioning_arm;
 
   ENTITY Feature_definition
-    ABSTRACT SUPERTYPE
     SUBTYPE OF (Characterizable_object);
-    feature_model : Geometric_model;
-  END_ENTITY; -- Feature_definition
-  
-ENTITY Feature_occurrence  -- see AP214 for mapping
-  ABSTRACT SUPERTYPE OF (ONEOF (Included_feature, Placed_feature))
+    DERIVE
+      feature_model : SET [1:?] OF Geometric_model := get_geometric_model(of_shape); 
+    INVERSE
+      of_shape : Item_shape FOR described_element;
+    WHERE
+      WR1: EXISTS(feature_model);
+  END_ENTITY;
+
+ENTITY Feature_occurrence 
+  ABSTRACT SUPERTYPE OF (ONEOF (Instanced_feature, Placed_feature))
   SUBTYPE OF (Shape_element);
 END_ENTITY;
 
-ENTITY Included_feature  -- see AP214 for mapping
+ENTITY Instanced_feature  
   SUBTYPE OF ( Feature_occurrence, Feature_definition);
 END_ENTITY;
 
-ENTITY Placed_feature  -- see AP214 for mapping
+ENTITY Placed_feature  
   SUBTYPE OF ( Feature_occurrence);
    definition : Feature_definition;
   INVERSE
@@ -41,5 +45,38 @@ WHERE
 (*  WR2: -- update for new structure
   WR3: -- new: Target shall be at 0.0.0 with no roation *)
 END_ENTITY;
+
+  FUNCTION bag_to_set(
+    the_bag : BAG OF GENERIC : intype
+  ) : SET OF GENERIC : intype;
+
+    LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) > 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);
+  END_FUNCTION;
+
+ FUNCTION get_geometric_model(input : Item_shape) : SET OF Geometric_model;
+ LOCAL
+  sda : SET OF Shape_description_association := [];
+  gm : SET OF Geometric_model := [];
+ END_LOCAL;
+ 
+  sda := bag_to_set(USEDIN(input,
+	 	'SHAPE_PROPERTY_ASSIGNMENT_ARM.' + 
+	 	'SHAPE_DESCRIPTION_ASSOCIATION.' + 'REPRESENTED_CHARACTERISTIC'));
+ 
+ REPEAT i := 1 to SIZEOF(sda) BY 1;
+  gm := gm + sda[i].representation;
+ END_REPEAT;
+ RETURN(gm);
+END_FUNCTION;
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.174 2005/12/29 16:46:09 liutkus Exp $
+   $Id: arm.exp,v 1.175 2005/12/30 19:25:41 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -257,9 +257,9 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element_terminal
-    SUBTYPE OF (Laminate_component_feature);
+    SUBTYPE OF (Laminate_component_feature, Shape_feature);
       SELF\Component_feature.associated_component : Conductive_interconnect_element;
-      connection                                  : OPTIONAL Connection_zone_in_design_view;
+      SELF\Shape_feature.connection_area          : OPTIONAL SET[1:1] OF Connection_zone_in_design_view;
       location                                    : Layer_connection_point;
     UNIQUE
       UR1 : element_name,
@@ -850,11 +850,11 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Probe_access_area
     SUPERTYPE OF (Internal_probe_access_area)
-    SUBTYPE OF (Laminate_component);
+    SUBTYPE OF (Laminate_component, Shape_feature);
     	SELF\Definition_based_product_occurrence.derived_from : Stratum_feature_template;
-      probed_layout_item 																		: Stratum_feature;
-      probe_contact_zone 																		: Connection_zone_in_design_view;
-    	stratum_feature_material_stackup											: OPTIONAL Multi_layer_stratum_feature;
+        probed_layout_item                                    : Stratum_feature;
+        SELF\Shape_feature.connection_area                    : SET[1:1] OF Connection_zone_in_design_view;
+    	stratum_feature_material_stackup                      : OPTIONAL Multi_layer_stratum_feature;
     INVERSE
       network : Routed_physical_network FOR probe;
   END_ENTITY;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.92 2005/12/28 12:37:33 kovaliovas Exp $
+   $Id: arm.exp,v 1.94 2005/12/31 00:06:06 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -224,14 +224,15 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Structured_template, Single_stratum_template);
   DERIVE
     SELF\Single_stratum_template.of_stratum_technology : SET [1:?] OF Stratum_technology := 
-         SELF\Structured_template.templates[1].template\Single_stratum_template.of_stratum_technology;
+         SELF\Structured_template.templates[1]\Template_location_in_structured_template.template\Single_stratum_template.of_stratum_technology;
   WHERE
     WR1: SIZEOF (QUERY(tp <* SELF\Structured_template.templates |
                NOT ('FABRICATION_TECHNOLOGY_ARM.SINGLE_STRATUM_TEMPLATE' IN TYPEOF(tp.template))
               )) = 0;
    WR2: SIZEOF(QUERY(tp <* SELF\Structured_template.templates |
-               NOT (SIZEOF(of_stratum_technology * tp.template.of_stratum_technology) = SIZEOF(of_stratum_technology) AND
-                    SIZEOF(tp.template.of_stratum_technology) = SIZEOF(of_stratum_technology))
+               NOT (SIZEOF(of_stratum_technology * tp.template.of_stratum_technology) = SIZEOF(of_stratum_technology) 
+                 AND (SIZEOF(tp.template.of_stratum_technology) = SIZEOF(of_stratum_technology))
+               )
               )) = 0;              
   END_ENTITY;
 

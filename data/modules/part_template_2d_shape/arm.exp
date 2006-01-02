@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.94 2005/12/31 00:06:06 thomasrthurman Exp $
+   $Id: arm.exp,v 1.95 2006/01/02 18:08:50 liutkus Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -58,10 +58,10 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Breakout_footprint_definition_shape_model
     SUBTYPE OF (Structured_template_planar_shape_model);
-      SELF\Structured_template_planar_shape_model.shape_characterized_part_template : SET[1:1] OF Breakout_footprint_definition;
+      SELF\Part_template_planar_shape_model.shape_characterized_definition : SET[1:1] OF Breakout_footprint_definition;
       reference_shape : Footprint_definition_shape_model;
     WHERE
-      WR1 : reference_shape.shape_characterized_part_template[1] :=: shape_characterized_part_template[1].reference_footprint;
+      WR1 : reference_shape.shape_characterized_definition[1] :=: shape_characterized_definition[1].reference_footprint;
   END_ENTITY;
 
   ENTITY Footprint_definition
@@ -78,19 +78,19 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Footprint_definition_shape_model
     SUBTYPE OF (Structured_template_planar_shape_model);
-      SELF\Structured_template_planar_shape_model.shape_characterized_part_template : SET[1:1] OF Footprint_definition;
+      SELF\Structured_template_planar_shape_model.shape_characterized_definition : SET[1:1] OF Footprint_definition;
       reference_shape : physical_unit_shape_model_select;
     WHERE
       WR1 : NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',
                          'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
-            NOT ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit)) OR
-            NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(shape_characterized_part_template[1])) OR      
-                 (shape_characterized_part_template[1]\Footprint_definition.reference_package :=: 
-                  reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit);
+            NOT ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_definition)) OR
+            NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(shape_characterized_definition[1])) OR      
+                 (shape_characterized_definition[1]\Footprint_definition.reference_package :=: 
+                  reference_shape\Physical_unit_shape_model.shape_characterized_definition);
 
       WR2 : NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',
                          'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
-                ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit));
+                ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_definition));
 
 (* wr3 is invalid.  what are the rquirements?
      WR3 : NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',
@@ -103,7 +103,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       WR4 : NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',
                          'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
                 ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' 
-                   IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_part_template));
+                   IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_definition));
       WR5 : NOT EXISTS(SELF\Representation.description);
   END_ENTITY;
 
@@ -311,14 +311,14 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     ABSTRACT SUPERTYPE OF (ONEOF (Single_stratum_structured_template, Multi_stratum_structured_template))
     SUBTYPE OF (Geometric_template);
   INVERSE
-    SELF\Geometric_template.shapes : SET [1:?] OF Structured_template_planar_shape_model FOR shape_characterized_part_template;
+    SELF\Geometric_template.shapes : SET [1:?] OF Structured_template_planar_shape_model FOR shape_characterized_definition;
     templates : SET [1:?] OF Template_location_in_structured_template FOR assembly;
   END_ENTITY;
 
   ENTITY Structured_template_planar_shape_model
     SUPERTYPE OF (ONEOF (Breakout_footprint_definition_shape_model, Footprint_definition_shape_model))
     SUBTYPE OF (Part_template_planar_shape_model);
-    SELF\Part_template_shape_model.shape_characterized_part_template : SET[1:1] OF Structured_template;
+    SELF\Part_template_shape_model.shape_characterized_definition : SET[1:1] OF Structured_template;
   END_ENTITY;
 
   ENTITY Template_location_in_structured_template
@@ -340,7 +340,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
              (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
                       'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
                       'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * 
-              TYPEOF(transform[1].template_shape.shape_characterized_part_template)) = 0)) OR 
+              TYPEOF(transform[1].template_shape.shape_characterized_definition)) = 0)) OR 
             ((SIZEOF(transform) = 0) AND 
              (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',
                       'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',

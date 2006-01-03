@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.2 2005/11/08 10:45:42 thomasrthurman Exp $
+   $Id: arm.exp,v 1.3 2005/11/08 10:47:20 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3348 - ISO/CD-TS 10303-1628 Ap210 product data management - EXPRESS ARM
 *)
 
@@ -114,5 +114,45 @@ TYPE design_pdm_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT 
     Product_view_definition,
     Promissory_usage);
 END_TYPE; 
+
+RULE unique_document_id FOR
+    (Document);
+WHERE
+  WR1:  SIZEOF(QUERY (p1 <* Document | SIZEOF(QUERY (p2 <* Document | 
+              (NOT(p1 :=: p2) AND (p1.id = p2.id)))) > 0 )) = 0;
+END_RULE;
+
+RULE unique_part_id FOR
+    (Part);
+WHERE
+  WR1:  SIZEOF(QUERY (p1 <* Part | SIZEOF(QUERY (p2 <* Part | 
+              (NOT(p1 :=: p2) AND (p1.id = p2.id)))) > 0 )) = 0;
+END_RULE;
+
+RULE unique_product_version_id FOR
+    (Product_version);
+WHERE
+  WR1:  SIZEOF(QUERY (p <* Product | 
+   (SIZEOF (QUERY (pv1 <*
+USEDIN(p,'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VERSION.OF_PRODUCT') |  
+   (SIZEOF (QUERY (pv2 <*
+USEDIN(p,'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VERSION.OF_PRODUCT')
+|  pv1.id = pv2.id)) > 1)
+     )) > 0)
+   )) = 0;  
+END_RULE;
+
+RULE unique_product_view_definition_id FOR
+    (Product_view_definition);
+WHERE
+  WR1:  SIZEOF(QUERY (pv <* Product_version | 
+   (SIZEOF (QUERY (pvd1 <*
+USEDIN(pv,'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.DEFINED_VERSION') |  
+     (SIZEOF (QUERY (pvd2 <*
+USEDIN(pv,'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.DEFINED_VERSION')
+|  pvd1.id = pvd2.id)) > 1)
+     )) > 0)
+   )) = 0;  
+END_RULE;
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.178 2006/01/02 20:05:03 thomasrthurman Exp $
+   $Id: arm.exp,v 1.179 2006/01/03 11:50:00 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -423,12 +423,12 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;  
 
   ENTITY Footprint_occurrence
-    SUBTYPE OF (Structured_component);
+    SUBTYPE OF (Structured_layout_component);
       SELF\Definition_based_product_occurrence.derived_from : Generic_footprint_definition;
   END_ENTITY;
 
   ENTITY Footprint_occurrence_sub_assembly_relationship
-	SUBTYPE OF (Structured_component_sub_assembly_relationship);
+	SUBTYPE OF (Structured_layout_component_sub_assembly_relationship);
       SELF\View_definition_relationship.relating_view : Footprint_occurrence;	
       terminal_location : Padstack_location_in_footprint_definition;
     UNIQUE
@@ -607,7 +607,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     WHERE
     WR1:('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\View_definition_relationship.relating_view))
          OR
-        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]));
+        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]));
     WR2: SIZEOF(QUERY(oc <* SELF\Assembly_component.occurrence_contexts |
                 NOT(TYPEOF(oc) = TYPEOF(SELF\Assembly_component.occurrence_contexts[1]))
                 )) = 0;
@@ -725,7 +725,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Material_removal_structured_component
-    SUBTYPE OF (Structured_component);
+    SUBTYPE OF (Structured_layout_component);
       SELF\Definition_based_product_occurrence.derived_from : Material_removal_structured_template;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
@@ -747,7 +747,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
   
   ENTITY Multi_stratum_special_symbol_component
-    SUBTYPE OF (Structured_component);
+    SUBTYPE OF (Structured_layout_component);
       SELF\Definition_based_product_occurrence.derived_from : Multi_stratum_special_symbol_template;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
@@ -769,7 +769,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Padstack_occurrence
-    SUBTYPE OF (Structured_component);
+    SUBTYPE OF (Structured_layout_component);
       SELF\Definition_based_product_occurrence.derived_from : Padstack_definition;
   END_ENTITY;
 
@@ -880,7 +880,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Single_stratum_special_symbol_component
     SUPERTYPE OF (Primary_stratum_indicator_symbol)
-    SUBTYPE OF (Structured_component);
+    SUBTYPE OF (Structured_layout_component);
       SELF\Definition_based_product_occurrence.derived_from : Single_stratum_special_symbol_template;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
@@ -1023,7 +1023,7 @@ SCHEMA Layered_interconnect_module_design_arm;
          stratum_link.subsequent_surface.of_stratum.of_technology; 
   END_ENTITY;
 
-  ENTITY Structured_component
+  ENTITY Structured_layout_component
     ABSTRACT SUPERTYPE OF (ONEOF (Padstack_occurrence, Footprint_occurrence, Single_stratum_special_symbol_component))
     SUBTYPE OF (Assembly_group_component);
       SELF\Definition_based_product_occurrence.derived_from : Structured_template;
@@ -1032,13 +1032,13 @@ SCHEMA Layered_interconnect_module_design_arm;
         ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT',
         'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_COMPONENT']) = 0;
       WR2: SIZEOF(QUERY(agc <* SELF\Assembly_group_component.components |
-        NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc)))) = 0;
+        NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc)))) = 0;
   END_ENTITY;
 
-  ENTITY Structured_component_sub_assembly_relationship
+  ENTITY Structured_layout_component_sub_assembly_relationship
     SUPERTYPE OF (Footprint_occurrence_sub_assembly_relationship)
     SUBTYPE OF (Next_assembly_usage_occurence_relationship);
-      SELF\View_definition_relationship.relating_view : Structured_component;
+      SELF\View_definition_relationship.relating_view : Structured_layout_component;
       SELF\View_definition_relationship.related_view : Assembly_component;
       sub_assembly_reference_designation : Template_location_in_structured_template;
     UNIQUE

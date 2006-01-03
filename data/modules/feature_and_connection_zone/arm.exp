@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.16 2005/12/30 23:22:20 thomasrthurman Exp $
+   $Id: arm.exp,v 1.17 2006/01/02 16:27:25 liutkus Exp $
    ISO TC184/SC4/WG12 N3408 - ISO/CD-TS 10303-1671 Feature and connection zone - EXPRESS ARM
 *)
 
@@ -11,10 +11,24 @@ SCHEMA Feature_and_connection_zone_arm;
 	  Connection_zone);
 	END_SUBTYPE_CONSTRAINT;
 
+  ENTITY Connection_zone
+  	ABSTRACT SUBTYPE OF (Feature_occurrence);
+    WHERE
+      WR1 : (SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA')) +
+             SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.SHAPE_FEATURE.CONNECTION_AREA')))
+            = 1;
+      WR2 : NOT EXISTS (SELF\Shape_element.description);
+      WR3 : NOT EXISTS (SELF\Shape_element.element_name);
+  END_ENTITY;
+
   ENTITY Feature_definition_with_connection_area
     SUBTYPE OF (Feature_definition);
     connection_area : SET [1:?] OF Connection_zone;
   END_ENTITY; -- Feature_definition
+
+  ENTITY Location_shape_model
+    SUBTYPE OF (Geometric_model);
+  END_ENTITY;
   
   ENTITY Shape_feature
   	ABSTRACT SUPERTYPE
@@ -24,16 +38,6 @@ SCHEMA Feature_and_connection_zone_arm;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, 
       SELF\shape_element.containing_shape;
-  END_ENTITY;
-
-  ENTITY Connection_zone
-  	ABSTRACT SUBTYPE OF (Feature_occurrence);
-    WHERE
-      WR1 : (SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA')) +
-             SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.SHAPE_FEATURE.CONNECTION_AREA')))
-            = 1;
-      WR2 : NOT EXISTS (SELF\Shape_element.description);
-      WR3 : NOT EXISTS (SELF\Shape_element.element_name);
   END_ENTITY;
 
 END_SCHEMA;

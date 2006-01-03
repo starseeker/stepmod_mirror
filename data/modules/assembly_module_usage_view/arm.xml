@@ -8,7 +8,7 @@
       <interface kind="use" schema="Functional_usage_view_arm"/>
       <interface kind="use" schema="Packaged_connector_model_arm"/>
       <entity name="Assembly_module_interface_terminal" supertypes="Assembly_module_terminal" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Assembly_module_terminal" supertypes="Part_terminal" super.expression="Assembly_module_interface_terminal ANDOR Pca_terminal" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Assembly_module_terminal" supertypes="Part_terminal Shape_feature" super.expression="Assembly_module_interface_terminal ANDOR Pca_terminal" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="associated_definition" optional="NO">
             <typename name="Assembly_module_usage_view"/>
             <redeclaration entity-ref="Part_feature"/>
@@ -19,14 +19,14 @@
          <explicit name="related_connector" optional="YES">
             <typename name="Next_assembly_usage"/>
          </explicit>
-         <explicit name="terminal_connection_zone" optional="YES">
+         <explicit name="connection_area" optional="YES">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Connection_zone_in_usage_view"/>
+            <redeclaration entity-ref="Shape_feature"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS(related_connector) OR &#10;            (SELF\Shape_element.containing_shape.described_element = &#10;             related_connector\View_definition_relationship.related_view)"/>
          <where label="WR2" expression="NOT EXISTS(related_connector) OR EXISTS(related_connector.location_indicator)"/>
          <where label="WR3" expression="EXISTS(related_connector) OR &#10;            (SELF\Shape_element.containing_shape.described_element = &#10;             SELF\Part_feature.associated_definition)"/>
-      <where label="IP1"/>
       <where label="IP1"/>
       </entity>
       <entity name="Assembly_module_usage_view" supertypes="Part_usage_view Assembly_definition" super.expression="Pca_usage_view" abstract.supertype="NO" abstract.entity="NO">
@@ -34,10 +34,9 @@
             <typename name="Functional_unit_usage_view"/>
          </explicit>
          <inverse name="access_mechanisms" entity="Assembly_module_terminal" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="2" upper="?"/>
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
-      <where label="IP1"/>
       <where label="IP1"/>
       </entity>
       <entity name="Pca_terminal" supertypes="Assembly_module_terminal" abstract.supertype="NO" abstract.entity="NO">
@@ -53,9 +52,6 @@
          <explicit name="maximum_positive_component_height" optional="YES">
             <typename name="Datum_based_length_measure"/>
          </explicit>
-      <where label="IP1"/>
-         <where label="IP2"/>
-         <where label="IP3"/>
       <where label="IP1"/>
          <where label="IP2"/>
          <where label="IP3"/>

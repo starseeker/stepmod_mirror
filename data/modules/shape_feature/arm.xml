@@ -6,12 +6,15 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="shape_feature_arm schema_instance"/>
    <schema name="Shape_feature_arm">
       <interface kind="use" schema="Contextual_shape_positioning_arm"/>
-      <entity name="Feature_definition" abstract.supertype="YES" supertypes="Characterizable_object">
-         <explicit name="feature_model">
+      <entity name="Feature_definition" supertypes="Characterizable_object">
+         <derived name="feature_model" expression="get_geometric_model(of_shape)">
+            <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Geometric_model"/>
-         </explicit>
+         </derived>
+         <inverse name="of_shape" entity="Item_shape" attribute="described_element"/>
+         <where label="WR1" expression="EXISTS(feature_model)"/>
       </entity>
-      <entity name="Feature_occurrence" abstract.supertype="YES" supertypes="Shape_element" super.expression="ONEOF (Included_feature, Placed_feature)"/>
+      <entity name="Feature_occurrence" abstract.supertype="YES" supertypes="Shape_element" super.expression="ONEOF (Instanced_feature, Placed_feature)"/>
       <entity name="Geometric_model_constituent_relationship" abstract.supertype="YES" supertypes="Geometric_placement_operation">
          <explicit name="constituent_element">
             <typename name="Shape_element"/>
@@ -26,7 +29,7 @@
          <where label="WR1" expression="('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT' IN TYPEOF(SELF)) OR&#10;   ('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_OPERATOR_TRANSFORMATION' IN TYPEOF(SELF))"/>
          <where label="WR2" expression="NOT('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT_MODEL' IN TYPEOF(composed_model[1]))"/>
       </entity>
-      <entity name="Included_feature" supertypes="Feature_occurrence Feature_definition"/>
+      <entity name="Instanced_feature" supertypes="Feature_occurrence Feature_definition"/>
       <entity name="Placed_feature" supertypes="Feature_occurrence">
          <explicit name="definition">
             <typename name="Feature_definition"/>
@@ -35,5 +38,44 @@
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
       </entity>
+      <function name="bag_to_set">
+         <parameter name="the_bag">
+            <aggregate type="BAG" lower="0" upper="?"/>
+            <builtintype type="GENERIC"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="GENERIC"/>
+         <algorithm>LOCAL
+      the_set : SET OF GENERIC : intype := [];
+      i       : INTEGER;
+    END_LOCAL;
+
+    IF SIZEOF(the_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(the_bag);
+        the_set := the_set + the_bag[i];
+      END_REPEAT;
+    END_IF;
+    RETURN(the_set);</algorithm>
+      </function>
+      <function name="get_geometric_model">
+         <parameter name="input">
+            <typename name="Item_shape"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Geometric_model"/>
+         <algorithm>LOCAL
+  sda : SET OF Shape_description_association := [];
+  gm : SET OF Geometric_model := [];
+ END_LOCAL;
+ 
+  sda := bag_to_set(USEDIN(input,
+	 	'SHAPE_PROPERTY_ASSIGNMENT_ARM.' + 
+	 	'SHAPE_DESCRIPTION_ASSOCIATION.' + 'REPRESENTED_CHARACTERISTIC'));
+ 
+ REPEAT i := 1 to SIZEOF(sda) BY 1;
+  gm := gm + sda[i].representation;
+ END_REPEAT;
+ RETURN(gm);</algorithm>
+      </function>
    </schema>
 </express>

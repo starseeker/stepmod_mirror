@@ -11,52 +11,23 @@
       </type>
       <entity name="Basic_multi_stratum_printed_component" supertypes="Printed_component">
          <explicit name="material_stack">
-            <typename name="Stratum_feature_based_pattern"/>
+            <typename name="Stratum_feature_based_derived_pattern"/>
          </explicit>
          <explicit name="derived_from">
             <typename name="Basic_multi_stratum_printed_part_template"/>
             <redeclaration entity-ref="Printed_component"/>
          </explicit>
       </entity>
-      <entity name="Complex_multi_stratum_printed_component" supertypes="Printed_component">
+      <entity name="Multi_stratum_printed_component" supertypes="Printed_component Structured_layout_component">
          <explicit name="derived_from">
-            <typename name="Complex_multi_stratum_printed_part_template"/>
+            <typename name="Multi_stratum_printed_part_template"/>
             <redeclaration entity-ref="Printed_component"/>
          </explicit>
-         <inverse name="decomposition" entity="Complex_multi_stratum_printed_component_composition" attribute="composition">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
-         </inverse>
       </entity>
-      <entity name="Complex_multi_stratum_printed_component_composition" supertypes="Next_assembly_usage">
-         <explicit name="composition">
-            <typename name="Complex_multi_stratum_printed_component"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
-         </explicit>
-         <explicit name="element">
-            <typename name="Single_stratum_printed_component"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
-         </explicit>
-         <explicit name="position">
-            <typename name="Stratum_technology_occurrence"/>
-         </explicit>
-         <explicit name="definition">
-            <typename name="Complex_multi_stratum_printed_part_template_composition"/>
-         </explicit>
-         <where label="WR1" expression="position.definition IN element.of_stratum_technology"/>
-         <where label="WR2" expression="definition.composition = composition.derived_from"/>
-         <where label="WR3" expression="definition.element = element.derived_from"/>
-      </entity>
-      <entity name="Printed_component" abstract.supertype="YES" supertypes="Assembly_component" super.expression="ONEOF (Single_stratum_printed_component, Basic_multi_stratum_printed_component, Complex_multi_stratum_printed_component)">
-         <explicit name="stratum_feature_implementation" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Stratum_feature"/>
-         </explicit>
+      <entity name="Printed_component" abstract.supertype="YES" supertypes="Assembly_component" super.expression="ONEOF (Single_stratum_printed_component, Basic_multi_stratum_printed_component, Multi_stratum_printed_component)">
          <explicit name="derived_from">
-            <typename name="printed_part_template_or_printed_part_cross_section_template"/>
+            <typename name="Printed_part_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
-         </explicit>
-         <explicit name="footprint_implementation" optional="YES">
-            <typename name="Footprint_occurrence"/>
          </explicit>
          <inverse name="access_mechanism" entity="Printed_component_join_terminal" attribute="associated_component">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
@@ -64,12 +35,7 @@
          <inverse name="cad_layer" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <where label="WR1" expression="NOT EXISTS(stratum_feature_implementation) OR same_stratum(stratum_feature_implementation)"/>
-         <where label="WR2" expression="NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF)) OR ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))"/>
-         <where label="WR3" expression="NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)) OR ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF))"/>
-         <where label="WR4" expression="NOT EXISTS(footprint_implementation) OR (('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(footprint_implementation.derived_from.reference_package)) AND (derived_from = footprint_implementation.derived_from.reference_package))"/>
-         <where label="WR5" expression="NOT EXISTS(footprint_implementation) OR NOT ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.ROUTED_PRINTED_COMPONENT' IN TYPEOF(SELF))"/>
-         <where label="WR6" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+         <where label="WR5" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
       <entity name="Printed_component_join_terminal" supertypes="Laminate_component_join_terminal">
          <explicit name="definition">
@@ -110,7 +76,7 @@
          <where label="WR1" expression="NOT EXISTS(SELF\Component_feature.associated_component\Printed_component.stratum_feature_implementation) OR (SIZEOF(QUERY(temp &lt;* SELF\Component_feature.associated_component\Printed_component.stratum_feature_implementation | temp :=: stratum_concept_implementation.stratum_feature_implementation)) = 1)"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
-      <entity name="Routed_printed_component" supertypes="Printed_component">
+      <entity name="Routed_transmission_line" supertypes="Assembly_component">
          <explicit name="routed_centreline_shape">
             <typename name="Curve"/>
          </explicit>
@@ -122,35 +88,12 @@
             <typename name="Inter_stratum_extent"/>
          </explicit>
       </entity>
-      <entity name="Single_stratum_printed_component" supertypes="Printed_component">
-         <explicit name="stratum_feature_implementation">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Stratum_feature"/>
-            <redeclaration entity-ref="Printed_component"/>
-         </explicit>
+      <entity name="Single_stratum_printed_component" supertypes="Printed_component Structured_layout_component">
          <explicit name="derived_from">
             <typename name="Single_stratum_printed_part_template"/>
             <redeclaration entity-ref="Printed_component"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(sfi &lt;* stratum_feature_implementation |&#10;         NOT(sfi.resident_stratum = stratum_feature_implementation[1].resident_stratum)&#10;               )) = 0"/>
       </entity>
       <subtype.constraint name="limwpcd_assembly_component_subtypes" entity="Assembly_component" super.expression="ONEOF (Physical_component, Printed_component, Laminate_component)"/>
-      <function name="same_stratum">
-         <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Stratum_feature"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-      pass : BOOLEAN := FALSE;
-      s    : SET OF stratum := [];
-    END_LOCAL;
-
-    REPEAT i := 1 TO SIZEOF(input) BY 1;
-      s := input[i].resident_stratum + s;
-    END_REPEAT;
-    pass := (SIZEOF(s) = 1);
-    RETURN(pass);</algorithm>
-      </function>
    </schema>
 </express>

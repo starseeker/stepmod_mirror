@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.13 2005/10/10 14:07:02 liutkus Exp $
+   $Id: mim.exp,v 1.14 2005/11/24 11:55:23 liutkus Exp $
    ISO TC184/SC4/WG12 N3466 - ISO/CD-TS 10303-1692 Land - EXPRESS MIM
 *)
 
@@ -12,10 +12,35 @@ SUBTYPE_CONSTRAINT land_assembly_component_subtypes FOR assembly_component;
 (ONEOF (land, connected_area_component, inter_stratum_feature)
                 ANDOR (thermal_component));
 END_SUBTYPE_CONSTRAINT;        
+
+SUBTYPE_CONSTRAINT stratum_feature_template_component_subtypes FOR stratum_feature_template_component;   
+	(ONEOF (connected_area_component,
+	land));
+END_SUBTYPE_CONSTRAINT;
+
+ENTITY contact_size_dependent_land
+  SUBTYPE OF (land);
+END_ENTITY;
+
+ENTITY inter_stratum_feature_dependent_land
+  ABSTRACT SUPERTYPE OF (ONEOF (plated_passage_dependent_land,
+    unsupported_passage_dependent_land))
+  SUBTYPE OF (land);
+END_ENTITY;
 	
 ENTITY land
- SUBTYPE OF (laminate_component);
+  SUPERTYPE OF (ONEOF (contact_size_dependent_land,
+    inter_stratum_feature_dependent_land))
+  SUBTYPE OF (stratum_feature_template_component);
 END_ENTITY;	
+
+ENTITY plated_passage_dependent_land
+  SUBTYPE OF (inter_stratum_feature_dependent_land);
+END_ENTITY;
+
+ENTITY unsupported_passage_dependent_land
+  SUBTYPE OF (inter_stratum_feature_dependent_land);
+END_ENTITY;
 	
 END_SCHEMA;
 

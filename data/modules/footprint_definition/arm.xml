@@ -1,12 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.41 2004/10/11 20:17:49 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2004/10/11 20:17:49 $"
-   rcs.revision="$Revision: 1.41 $">
-  <schema name="Footprint_definition_arm">
-  </schema>
+
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="footprint_definition_arm schema_instance"/>
+   <schema name="Footprint_definition_arm">
+      <interface kind="use" schema="Part_template_2d_shape_arm"/>
+      <interface kind="use" schema="Package_arm"/>
+      <interface kind="reference" schema="Part_template_2d_shape_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <entity name="Breakout_footprint_definition" supertypes="Generic_footprint_definition">
+         <explicit name="reference_footprint">
+            <typename name="Footprint_definition"/>
+         </explicit>
+         <inverse name="breakout_traces" entity="Stratum_feature_template_location_in_breakout_footprint_definition" attribute="assembly">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+         <where label="WR1" expression="SELF\Multi_stratum_structured_template.location = reference_footprint\Multi_stratum_structured_template.location"/>
+      </entity>
+      <entity name="Breakout_footprint_definition_shape_model" supertypes="Structured_template_planar_shape_model">
+         <explicit name="shape_characterized_definition">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Breakout_footprint_definition"/>
+            <redeclaration entity-ref="Part_template_shape_model"/>
+         </explicit>
+         <explicit name="reference_shape">
+            <typename name="Footprint_definition_shape_model"/>
+         </explicit>
+         <where label="WR1" expression="reference_shape.shape_characterized_definition[1] :=: shape_characterized_definition[1].reference_footprint"/>
+      </entity>
+      <entity name="Footprint_definition" supertypes="Dependent_template Generic_footprint_definition">
+         <explicit name="reference_package">
+            <typename name="Package"/>
+            <redeclaration entity-ref="Dependent_template" old_name="associated_item"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF (QUERY(shape &lt;* SELF\Structured_template.shapes |&#10;               NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(shape))&#10;              )) = 0"/>
+         <where label="WR2" expression="SIZEOF (QUERY(padstack &lt;* SELF\Generic_footprint_definition.padstacks |&#10;               ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_LOCATION_IN_FOOTPRINT_DEFINITION' IN TYPEOF(padstack))&#10;              )) &gt; 0"/>
+      </entity>
+      <entity name="Footprint_definition_shape_model" supertypes="Structured_template_planar_shape_model">
+         <explicit name="shape_characterized_definition">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Footprint_definition"/>
+            <redeclaration entity-ref="Structured_template_planar_shape_model"/>
+         </explicit>
+         <explicit name="reference_shape">
+            <typename name="physical_unit_shape_model_select"/>
+         </explicit>
+         <where label="WR1" expression="NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',&#10;                         'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR &#10;            NOT ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_definition)) OR&#10;            NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(shape_characterized_definition[1])) OR      &#10;                 (shape_characterized_definition[1]\Footprint_definition.reference_package :=: &#10;                  reference_shape\Physical_unit_shape_model.shape_characterized_definition)"/>
+         <where label="WR2" expression="NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',&#10;                         'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR &#10;                ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_definition))"/>
+         <where label="WR4" expression="NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',&#10;                         'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR &#10;                ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' &#10;                   IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_definition))"/>
+         <where label="WR5" expression="NOT EXISTS(SELF\Representation.description)"/>
+      </entity>
+      <entity name="Generic_footprint_definition" abstract.supertype="YES" supertypes="Multi_stratum_structured_template" super.expression="ONEOF (Footprint_definition, Breakout_footprint_definition)">
+         <derived name="location" expression="get_template_arrangement(padstacks)">
+            <typename name="template_arrangement"/>
+            <redeclaration entity-ref="Multi_stratum_structured_template"/>
+         </derived>
+         <derived name="padstacks" expression="bag_to_set(QUERY(tlict &lt;* SELF\Structured_template.templates |&#10;         ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(tlict.template))))">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Template_location_in_structured_template"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(QUERY(ps &lt;* padstacks | (ps.template\Padstack_definition.location &lt;&gt; location)&#10;              AND (ps.template\Padstack_definition.location &lt;&gt; template_arrangement.symmetrical))) = 0"/>
+         <where label="WR2" expression="((location = template_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR &#10;            (NOT (location = template_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'))"/>
+         <where label="WR3" expression="((location = template_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR &#10;            (NOT (location = template_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'))"/>
+         <where label="WR4" expression="((location = template_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR &#10;            (NOT (location = template_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'))"/>
+      </entity>
+      <entity name="Padstack_location_in_footprint_definition" supertypes="Shape_element_based_template_location">
+         <explicit name="assembly">
+            <typename name="Footprint_definition"/>
+            <redeclaration entity-ref="Template_location_in_structured_template"/>
+         </explicit>
+         <explicit name="template">
+            <typename name="Padstack_definition"/>
+            <redeclaration entity-ref="Template_location_in_structured_template"/>
+         </explicit>
+         <explicit name="reference_element">
+            <typename name="Package_terminal"/>
+            <redeclaration entity-ref="Shape_element_based_template_location"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="assembly"/>
+            <unique.attribute attribute="reference_element"/>
+         </unique>
+      </entity>
+      <entity name="Stratum_feature_template_location_in_breakout_footprint_definition" supertypes="Stratum_specific_template_location">
+         <explicit name="assembly">
+            <typename name="Breakout_footprint_definition"/>
+            <redeclaration entity-ref="Template_location_in_structured_template"/>
+         </explicit>
+         <explicit name="template">
+            <typename name="Stratum_feature_template"/>
+            <redeclaration entity-ref="Template_location_in_structured_template"/>
+         </explicit>
+         <explicit name="original_padstack">
+            <typename name="Padstack_location_in_footprint_definition"/>
+         </explicit>
+         <explicit name="breakout_padstack">
+            <typename name="Template_location_in_structured_template"/>
+         </explicit>
+         <where label="WR1" expression="original_padstack.assembly :=: assembly.reference_footprint"/>
+         <where label="WR2" expression="breakout_padstack.assembly :=: assembly"/>
+      </entity>
+      <subtype.constraint name="structured_template_planar_shape_model_subtypes" entity="Structured_template_planar_shape_model" super.expression="ONEOF (Breakout_footprint_definition_shape_model, Footprint_definition_shape_model)"/>
+      <subtype.constraint name="multi_stratum_structured_template_subtypes" entity="Multi_stratum_structured_template" super.expression="ONEOF (Padstack_definition, Generic_footprint_definition, Multi_stratum_special_symbol_template)"/>
+      <function name="get_template_arrangement">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Padstack_location_in_footprint_definition"/>
+         </parameter>
+         <typename name="template_arrangement"/>
+         <algorithm>LOCAL
+      pabt : BAG OF STRING := [];
+      pabb : BAG OF STRING := [];
+      pabs : BAG OF STRING := [];
+    END_LOCAL;
+
+    REPEAT i := 1 TO SIZEOF(input) BY 1;
+      IF input[i].padstack.location = template_arrangement.top THEN
+        pabt := pabt + 'top';
+      END_IF;
+      IF input[i].padstack.location = template_arrangement.bottom THEN
+        pabb := pabb + 'bottom';
+      END_IF;
+      IF input[i].padstack.location = template_arrangement.symmetrical THEN
+        pabs := pabs + 'symmetrical';
+      END_IF;
+    END_REPEAT;
+    IF (SIZEOF(pabt) &gt; 0) AND (SIZEOF(pabb) = 0) THEN
+      RETURN(template_arrangement.top);
+    END_IF;
+    IF (SIZEOF(pabb) &gt; 0) AND (SIZEOF(pabt) = 0) THEN
+      RETURN(template_arrangement.bottom);
+    END_IF;
+    IF (SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabs) &gt; 0) THEN
+      RETURN(template_arrangement.symmetrical);
+    END_IF;
+    RETURN(?);</algorithm>
+      </function>
+   </schema>
 </express>

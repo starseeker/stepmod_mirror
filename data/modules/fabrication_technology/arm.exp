@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.85 2006/01/03 19:41:36 liutkus Exp $
+   $Id: arm.exp,v 1.86 2006/01/05 09:14:05 kovaliovas Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -221,17 +221,6 @@ SCHEMA Fabrication_technology_arm;
        (SELF\Stratum_technology.stratum_material.optical_insertion_loss_classification IN ['vacuum', 'very low loss', 'low loss']);
   END_ENTITY;
 
-  ENTITY Design_stack_model -- choose some of the Stratum_technology_occurrence
-    SUBTYPE OF(Stratum_stack_model);
-      reference_model : OPTIONAL Library_stack_model; 
-    INVERSE
-      passage: SET [1:?] OF Passage_technology_allocation_to_stack_model for associated_stackup;
-    WHERE
-      WR1: NOT EXISTS(reference_model) OR 
-          ((SELF\Stratum_stack_model.composing_occurrence * reference_model\Stratum_stack_model.composing_occurrence) = 
-           SELF\Stratum_stack_model.composing_occurrence);
-  END_ENTITY;
-
   ENTITY Documentation_layer_technology
     SUBTYPE OF (Stratum_technology);
       pre_defined_documentation_layer_purpose : OPTIONAL predefined_documentation_layer_purpose;
@@ -298,11 +287,6 @@ SCHEMA Fabrication_technology_arm;
       WR3 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
--- has many Stratum_technology_occurrence, more than may be actually used
-  ENTITY Library_stack_model 
-    SUBTYPE OF(Stratum_stack_model);
-  END_ENTITY;
-
   ENTITY Material_addition_feature_template
     SUBTYPE OF (Stratum_feature_template);
   END_ENTITY;
@@ -342,43 +326,6 @@ SCHEMA Fabrication_technology_arm;
                    ['conductive']) >= 1);
 	END_ENTITY;
 
-  ENTITY Passage_technology_allocation_to_stack_model;
-      allocated_technology : Passage_technology;
-      from_stratum_technology_occurrence : OPTIONAL Stratum_technology_occurrence;
-      to_stratum_technology_occurrence : OPTIONAL Stratum_technology_occurrence;
-      stratum_technology_sequence : OPTIONAL SET [1:?] OF Stratum_technology_occurrence_link;
-      associated_stackup : Design_stack_model;
-   WHERE 
-     WR1: (NOT EXISTS(from_stratum_technology_occurrence) OR
-               (from_stratum_technology_occurrence IN associated_stackup.composing_occurrence)) AND
-          (NOT EXISTS(to_stratum_technology_occurrence) OR
-               (to_stratum_technology_occurrence IN associated_stackup.composing_occurrence));
-     WR2: EXISTS(stratum_technology_sequence) OR
-               (from_stratum_technology_occurrence = to_stratum_technology_occurrence);
-     WR3: NOT (EXISTS(from_stratum_technology_occurrence) XOR EXISTS(to_stratum_technology_occurrence));
-     WR4: EXISTS(stratum_technology_sequence) XOR EXISTS(from_stratum_technology_occurrence);
-     WR5: SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))
-                 ) = 0;
-     WR6: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1); 
-     WR7: sts_vertex_degree_less_than_two(stratum_technology_sequence);
-  END_ENTITY;
-
-  ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;
-      keepout_shape : Physical_unit_keepout_shape_model;
-      stack_model : Library_stack_model;
-      swappable : BOOLEAN; 
-      kept_out_layers : SET [1:?] OF Stratum_technology_occurrence;
-    UNIQUE
-      UR1: keepout_shape, stack_model;
-    WHERE
-      WR1: keepout_shape\Physical_unit_keepout_shape_model.constrained_design_object_category
-        IN [keepout_product_design_object_category.interconnect_module_via,
-        keepout_product_design_object_category.interconnect_module_inter_stratum_feature,
-        keepout_product_design_object_category.interconnect_module_cutout,
-        keepout_product_design_object_category.interconnect_module_fill_area,
-        keepout_product_design_object_category.interconnect_module_stratum_feature];
-  END_ENTITY;
-  
   ENTITY Single_stratum_continuous_template
     ABSTRACT SUPERTYPE OF (ONEOF (Stratum_feature_template, Material_removal_feature_template))
     SUBTYPE OF (Continuous_template, Single_stratum_template);
@@ -400,7 +347,7 @@ SCHEMA Fabrication_technology_arm;
   END_ENTITY;
 
   ENTITY Stratum_stack_model
-    ABSTRACT SUPERTYPE OF(ONEOF(Library_stack_model,Design_stack_model))
+    ABSTRACT SUPERTYPE
     SUBTYPE OF(Template_definition);
     DERIVE
       composing_occurrence : SET [1:?] OF Stratum_technology_occurrence := get_stack(composing_link);
@@ -554,36 +501,5 @@ END_FUNCTION;
               input2 : Length_tolerance_characteristic) : BOOLEAN;
     RETURN(TRUE);
   END_FUNCTION;
-
- FUNCTION sts_vertex_degree_less_than_two(input : SET OF Stratum_technology_occurrence_link) : BOOLEAN;
- LOCAL
-   psto : BAG OF INTEGER := [];
-   ssto : BAG OF INTEGER := [];
-   sto : SET OF Stratum_technology_occurrence := get_stack(input);
-   i : INTEGER := 0;
-   j : INTEGER := 0;
-   pass : BOOLEAN := TRUE;
- END_LOCAL;
-  REPEAT i := 1 TO SIZEOF(sto) BY 1;
-   REPEAT j := 1 TO SIZEOF(input) BY 1;
-     IF (input[j].precedent_sto :=: sto[i]) THEN 
-      psto[i] := psto[i] + 1;
-      IF (psto[i] = 2) THEN 
-       pass := FALSE; 
-       ESCAPE; 
-      END_IF;
-     END_IF;  
-     IF (input[j].subsequent_sto :=: sto[i]) THEN 
-      ssto[i] := ssto[i] + 1;  
-      IF (ssto[i] = 2) THEN 
-       pass := FALSE; 
-       ESCAPE; 
-      END_IF;
-     END_IF;  
-   END_REPEAT;                                     
-  END_REPEAT;                                     
- RETURN(pass);
- END_FUNCTION;                                 
-
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.97 2006/01/03 05:52:11 thomasrthurman Exp $
+   $Id: arm.exp,v 1.98 2006/01/03 14:00:29 liutkus Exp $
    ISO TC184/SC4/WG12 N3519 - ISO/CD-TS 10303-1716 Part template 2d shape - EXPRESS ARM
 *)
 
@@ -9,7 +9,8 @@ SCHEMA Part_template_2d_shape_arm;
 	USE FROM Printed_physical_layout_template_arm;	-- ISO/TS 10303-1737
 	USE FROM Physical_unit_2d_shape_arm; -- ISO/TS 10303-1726
 
-REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
+	REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
+	REFERENCE FROM Fabrication_technology_arm(get_stack);	-- ISO/TS 10303-1670
 
 	TYPE pt2ds_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
    	(Structured_template);
@@ -28,6 +29,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 		 Structured_template));
 	END_SUBTYPE_CONSTRAINT;
 
+	SUBTYPE_CONSTRAINT pt2ds_stratum_stack_model_subtypes FOR Stratum_stack_model;
+	    (ONEOF (Design_stack_model,
+		 Library_stack_model));
+	END_SUBTYPE_CONSTRAINT;
+
   TYPE template_arrangement = ENUMERATION OF
     (top,
      bottom,
@@ -39,6 +45,17 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
    (Stratum_technology_occurrence,
     Stratum_technology);
   END_TYPE;
+
+  ENTITY Design_stack_model -- choose some of the Stratum_technology_occurrence
+    SUBTYPE OF(Stratum_stack_model);
+      reference_model : OPTIONAL Library_stack_model; 
+    INVERSE
+      passage: SET [1:?] OF Passage_technology_allocation_to_stack_model for associated_stackup;
+    WHERE
+      WR1: NOT EXISTS(reference_model) OR 
+          ((SELF\Stratum_stack_model.composing_occurrence * reference_model\Stratum_stack_model.composing_occurrence) = 
+           SELF\Stratum_stack_model.composing_occurrence);
+  END_ENTITY;
 
   ENTITY Inter_stratum_feature_template_location
   	SUBTYPE OF (Template_location_in_structured_template);
@@ -61,6 +78,14 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
        keepout_product_design_object_category.interconnect_module_stratum_feature];
   END_ENTITY;
   
+-- has many Stratum_technology_occurrence, more than may be actually used
+  ENTITY Library_stack_model 
+    SUBTYPE OF (Stratum_stack_model);
+  DERIVE
+    padstacks : SET[0:?] OF Padstack_definition := bag_to_set(QUERY(p <* USEDIN(SELF,
+      'PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE.STACK') | ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(p))));
+  END_ENTITY;
+
   ENTITY Material_removal_structured_template
     SUBTYPE OF (Single_stratum_structured_template);
   WHERE
@@ -119,6 +144,43 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
          ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))));
     WHERE
       WR1 : SIZEOF(reference_isft) = 1;
+  END_ENTITY;
+
+  ENTITY Passage_technology_allocation_to_stack_model;
+      allocated_technology : Passage_technology;
+      from_stratum_technology_occurrence : OPTIONAL Stratum_technology_occurrence;
+      to_stratum_technology_occurrence : OPTIONAL Stratum_technology_occurrence;
+      stratum_technology_sequence : OPTIONAL SET [1:?] OF Stratum_technology_occurrence_link;
+      associated_stackup : Design_stack_model;
+   WHERE 
+     WR1: (NOT EXISTS(from_stratum_technology_occurrence) OR
+               (from_stratum_technology_occurrence IN associated_stackup.composing_occurrence)) AND
+          (NOT EXISTS(to_stratum_technology_occurrence) OR
+               (to_stratum_technology_occurrence IN associated_stackup.composing_occurrence));
+     WR2: EXISTS(stratum_technology_sequence) OR
+               (from_stratum_technology_occurrence = to_stratum_technology_occurrence);
+     WR3: NOT (EXISTS(from_stratum_technology_occurrence) XOR EXISTS(to_stratum_technology_occurrence));
+     WR4: EXISTS(stratum_technology_sequence) XOR EXISTS(from_stratum_technology_occurrence);
+     WR5: SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))
+                 ) = 0;
+     WR6: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1); 
+     WR7: sts_vertex_degree_less_than_two(stratum_technology_sequence);
+  END_ENTITY;
+
+  ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;
+      keepout_shape : Physical_unit_keepout_shape_model;
+      stack_model : Library_stack_model;
+      swappable : BOOLEAN; 
+      kept_out_layers : SET [1:?] OF Stratum_technology_occurrence;
+    UNIQUE
+      UR1: keepout_shape, stack_model;
+    WHERE
+      WR1: keepout_shape\Physical_unit_keepout_shape_model.constrained_design_object_category
+        IN [keepout_product_design_object_category.interconnect_module_via,
+        keepout_product_design_object_category.interconnect_module_inter_stratum_feature,
+        keepout_product_design_object_category.interconnect_module_cutout,
+        keepout_product_design_object_category.interconnect_module_fill_area,
+        keepout_product_design_object_category.interconnect_module_stratum_feature];
   END_ENTITY;
   
   ENTITY Single_stratum_special_symbol_template
@@ -189,14 +251,13 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     SUBTYPE OF (Dependent_template, Multi_stratum_structured_template);
       SELF\Dependent_template.associated_item RENAMED stack : library_stack_model;
   WHERE
-    WR1 : SIZEOF(QUERY(temp <* SELF\Structured_template.templates |
-          NOT
-          (NOT('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' 
-           IN TYPEOF(temp)) OR
-           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' 
-           IN TYPEOF(temp\Stratum_specific_template_location.bound_stratum))
-           )
-           )) = 0;
+    WR1 : SIZEOF(QUERY(temp <* SELF\Structured_template.templates | 
+            NOT ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(temp))
+            OR (('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(temp\Stratum_specific_template_location.bound_stratum))
+                  AND
+               (temp\Stratum_specific_template_location.bound_stratum IN stack\Stratum_stack_model.composing_occurrence)
+            )
+          )) = 0;
     WR2 : TYPEOF(SELF) <> TYPEOF(SELF\Stratum_stack_dependent_template);
   END_ENTITY;
 
@@ -269,6 +330,36 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
     END_IF;
     RETURN(the_set);
   END_FUNCTION;
+
+ FUNCTION sts_vertex_degree_less_than_two(input : SET OF Stratum_technology_occurrence_link) : BOOLEAN;
+ LOCAL
+   psto : BAG OF INTEGER := [];
+   ssto : BAG OF INTEGER := [];
+   sto : SET OF Stratum_technology_occurrence := get_stack(input);
+   i : INTEGER := 0;
+   j : INTEGER := 0;
+   pass : BOOLEAN := TRUE;
+ END_LOCAL;
+  REPEAT i := 1 TO SIZEOF(sto) BY 1;
+   REPEAT j := 1 TO SIZEOF(input) BY 1;
+     IF (input[j].precedent_sto :=: sto[i]) THEN 
+      psto[i] := psto[i] + 1;
+      IF (psto[i] = 2) THEN 
+       pass := FALSE; 
+       ESCAPE; 
+      END_IF;
+     END_IF;  
+     IF (input[j].subsequent_sto :=: sto[i]) THEN 
+      ssto[i] := ssto[i] + 1;  
+      IF (ssto[i] = 2) THEN 
+       pass := FALSE; 
+       ESCAPE; 
+      END_IF;
+     END_IF;  
+   END_REPEAT;                                     
+  END_REPEAT;                                     
+ RETURN(pass);
+ END_FUNCTION;                                 
 
 END_SCHEMA;
 

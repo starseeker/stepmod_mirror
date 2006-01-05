@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.23 2005/12/28 22:19:30 liutkus Exp $
+   $Id: mim.exp,v 1.24 2006/01/05 11:50:46 liutkus Exp $
    ISO TC184/SC4/WG12 N3526 - ISO/CD-TS 10303-1718 Part template extension - EXPRESS MIM
 *)
 
@@ -12,20 +12,11 @@ SCHEMA Part_template_extension_mim;
 	
 	USE FROM Presentation_definition_schema(text_literal);
 
-	SUBTYPE_CONSTRAINT material_addition_feature_template_subtypes FOR material_addition_feature_template; 
-		(ONEOF (snowball_template,
-		 teardrop_by_angle_template,
-		 teardrop_by_length_template));
-	END_SUBTYPE_CONSTRAINT; 
-
-	SUBTYPE_CONSTRAINT pte_part_template_definition_subtypes FOR part_template_definition;         
-	    (ONEOF (inter_stratum_feature_edge_segment_template,
-		 inter_stratum_feature_edge_template,
-		 fill_area_template,
-		 part_string_template,
-		 part_text_template));
-	END_SUBTYPE_CONSTRAINT;        
-
+ SUBTYPE_CONSTRAINT pte_template_definition_subtypes FOR part_template_definition;   
+ 	(ONEOF (parametric_template,
+ 	part_string_template,
+    part_text_template));
+ END_SUBTYPE_CONSTRAINT;  
 
 ENTITY default_trace_template
   SUBTYPE OF (trace_template);
@@ -45,9 +36,16 @@ ENTITY inter_stratum_feature_edge_template
 END_ENTITY;
 
 ENTITY fill_area_template
-  SUBTYPE OF (part_template_definition);
+  SUBTYPE OF (parametric_template);
 END_ENTITY;
 
+ENTITY parametric_template
+  ABSTRACT SUPERTYPE OF (ONEOF (fill_area_template,
+    teardrop_template,
+    trace_template))
+  SUBTYPE OF (part_template_definition);
+END_ENTITY;
+  
 ENTITY part_string_template
   SUBTYPE OF (part_template_definition);
 END_ENTITY;
@@ -57,20 +55,27 @@ ENTITY part_text_template
 END_ENTITY;
 
 ENTITY snowball_template
-  SUBTYPE OF (material_addition_feature_template);
+  SUBTYPE OF (teardrop_template);
 END_ENTITY;
 
 ENTITY teardrop_by_angle_template
-  SUBTYPE OF (material_addition_feature_template);
+  SUBTYPE OF (teardrop_template);
 END_ENTITY;
 
 ENTITY teardrop_by_length_template
-  SUBTYPE OF (material_addition_feature_template);
+  SUBTYPE OF (teardrop_template);
 END_ENTITY;
 
+ENTITY teardrop_template
+  ABSTRACT SUPERTYPE OF (ONEOF (snowball_template,
+    teardrop_by_angle_template,
+    teardrop_by_length_template))
+  SUBTYPE OF (parametric_template);
+END_ENTITY;
+  
 ENTITY trace_template
   SUPERTYPE OF (default_trace_template)
-  SUBTYPE OF (part_template_definition);
+  SUBTYPE OF (parametric_template);
 END_ENTITY;
 	
 END_SCHEMA;

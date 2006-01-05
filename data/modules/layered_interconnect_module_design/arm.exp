@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.181 2006/01/03 12:53:36 kovaliovas Exp $
+   $Id: arm.exp,v 1.182 2006/01/03 14:00:29 liutkus Exp $
    ISO TC184/SC4/WG12 N3483 - ISO/CD-TS 10303-1698 Layered interconnect module design - EXPRESS ARM
 *)
 
@@ -18,6 +18,10 @@ SCHEMA Layered_interconnect_module_design_arm;
     (Generic_footprint_definition,
      Padstack_definition);
   END_TYPE;
+
+    TYPE stratum_feature_template_or_parametric_template = SELECT
+      (Stratum_feature_template, Parametric_template);
+    END_TYPE;
 
 	SUBTYPE_CONSTRAINT limd_assembly_component_subtypes FOR Assembly_component; 
 	    (ONEOF (Physical_component,
@@ -979,8 +983,8 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Stratum_feature_template_component
     SUBTYPE OF (Laminate_component);
-      SELF\Definition_based_product_occurrence.derived_from : Stratum_feature_template;
-      stratum_feature_implementation           : Stratum_feature;
+      SELF\Definition_based_product_occurrence.derived_from : stratum_feature_template_or_parametric_template;
+      stratum_feature_implementation : Stratum_feature;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;

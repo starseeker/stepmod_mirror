@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.46 2005/12/23 12:35:16 kovaliovas Exp $
+   $Id: arm.exp,v 1.47 2006/01/02 22:41:12 liutkus Exp $
    ISO TC184/SC4/WG12 N3525 - ISO/CD-TS 10303-1718 Part template extension - EXPRESS ARM
 *)
 
@@ -86,7 +86,7 @@ TYPE text_alignment = ENUMERATION OF(
   END_ENTITY;
 
   ENTITY Fill_area_template
-   SUBTYPE OF (Template_definition);
+   SUBTYPE OF (Parametric_template);
     fill_area_style : OPTIONAL fill_area_style_select;
     outer_boundary_style : Closed_curve_style_parameters;
     inner_boundary_style : Closed_curve_style_parameters;
@@ -109,6 +109,13 @@ TYPE text_alignment = ENUMERATION OF(
     INVERSE
       edges : SET[2:?] OF inter_stratum_feature_edge_segment_template FOR composed_edge;
   END_ENTITY;
+  
+  ENTITY Parametric_template
+    ABSTRACT SUPERTYPE OF (ONEOF (Fill_area_template,
+      Teardrop_template,
+      Trace_template))
+    SUBTYPE OF (Template_definition);
+  END_ENTITY;
 
   ENTITY Part_string_template
     SUBTYPE OF (Template_definition);
@@ -127,7 +134,7 @@ TYPE text_alignment = ENUMERATION OF(
   END_ENTITY;
 
   ENTITY Snowball_template
-    SUBTYPE OF (Material_addition_feature_template);
+    SUBTYPE OF (Teardrop_template);
       snowball_start_distance     : Length_data_element;
       snowball_end_distance       : OPTIONAL Length_data_element;
       snowball_initial_spacing    : OPTIONAL Length_data_element;
@@ -142,7 +149,7 @@ TYPE text_alignment = ENUMERATION OF(
   END_ENTITY;
 
   ENTITY Teardrop_by_angle_template
-    SUBTYPE OF (Material_addition_feature_template);
+    SUBTYPE OF (Teardrop_template);
       teardrop_angle : Angle_data_element;
     WHERE
       WR1 : (SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_DEFINITION')) = 0);
@@ -150,7 +157,7 @@ TYPE text_alignment = ENUMERATION OF(
   END_ENTITY;
 
   ENTITY Teardrop_by_length_template
-    SUBTYPE OF (Material_addition_feature_template);
+    SUBTYPE OF (Teardrop_template);
       teardrop_taper_start_distance : Length_data_element;
       teardrop_taper_end_distance   : Length_data_element;
    WHERE
@@ -158,9 +165,16 @@ TYPE text_alignment = ENUMERATION OF(
       WR2 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
   END_ENTITY;
 
+  ENTITY Teardrop_template
+    ABSTRACT SUPERTYPE OF (ONEOF (Snowball_template,
+      Teardrop_by_angle_template,
+      Teardrop_by_length_template))
+    SUBTYPE OF (Parametric_template);
+  END_ENTITY;
+
   ENTITY Trace_template
     SUPERTYPE OF (Default_trace_template)
-    SUBTYPE OF (Template_definition);
+    SUBTYPE OF (Parametric_template);
       trace_style : Curve_style_parameters;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);

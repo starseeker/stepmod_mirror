@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.3 2005/11/08 10:47:20 thomasrthurman Exp $
+   $Id: arm.exp,v 1.4 2006/01/03 11:31:57 liutkus Exp $
    ISO TC184/SC4/WG12 N3348 - ISO/CD-TS 10303-1628 Ap210 product data management - EXPRESS ARM
 *)
 
@@ -11,12 +11,13 @@ SCHEMA Design_product_data_management_arm;
 	USE FROM Generic_material_aspects_arm;	-- ISO/TS 10303-1681
 	USE FROM Group_arm;	-- ISO/TS 10303-1113
 	USE FROM Part_occurrence_arm;	-- ISO/TS 10303-1715
-	USE FROM Pre_defined_product_data_management_specialisations_arm;
+	USE FROM Pre_defined_product_data_management_specialisations_arm; -- ISO/TS 10303-1760
 	USE FROM Promissory_usage_in_product_concept_arm;	-- ISO/TS 10303-1758
 	USE FROM Requirement_assignment_arm;	-- ISO/TS 10303-1233
 	USE FROM Requirement_view_definition_relationship_arm;	-- ISO/TS 10303-1142
 	USE FROM Test_select_product_arm;	-- ISO/TS 10303-1757
 	USE FROM Activity_method_assignment_arm;    -- ISO/TS 10303-1249
+	USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
 
 TYPE design_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON
 activity_method_item WITH (
@@ -52,6 +53,79 @@ TYPE design_pdm_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON p
    (Alternate_product_relationship,
    Product_version);
 END_TYPE; 
+
+TYPE design_pdm_classified_attribute_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classified_attribute_select WITH (
+	Activity,
+	Activity_method,
+	Activity_method_assignment,
+	Activity_property,
+	Activity_property_representation,
+	Activity_relationship,
+	Address_assignment,
+	Affected_items_assignment,
+	Alternate_part_relationship,
+	Applied_activity_assignment,
+	Approval,
+	Approval_assignment,
+	Approval_relationship,
+	Approval_status,
+	Approving_person_organization,
+	Assigned_property,
+	Certification,
+	Certification_assignment,
+	Context_dependent_unit,
+	Contract,
+	Date_or_date_time_assignment,
+	Descriptive_document_property,
+	Digital_file,
+	Document_assignment,
+	Document_definition_relationship,
+	Document_location_identification,
+	Document_property_representation,
+	Effectivity,
+	Effectivity_assignment,
+	Event_assignment,
+	Event_relationship,
+	External_item_identification,
+	External_source_identification,
+	File_location_identification,
+	File_relationship,
+	Hardcopy,
+	Identification_assignment,
+	Independent_property,
+	Independent_property_relationship,
+	Independent_property_representation,
+	Language,
+	Market,
+	Numerical_document_property,
+	Organization_or_person_in_organization_assignment,
+	Organization_relationship,
+	Part_view_definition,
+	Partial_document_assignment,
+	Person_in_organization,
+	Product,
+	Product_category,
+	Product_concept,
+	Product_version,
+	Product_version_relationship,
+	Product_view_definition,
+	Project_assignment,
+	Project_relationship,
+	Property_representation,
+	Representation,
+	Representation_context,
+	Representation_item,
+	Security_classification,
+	Time_interval_relationship,
+	Uncertainty_with_unit,
+	Unit,
+	Value_with_unit,
+	View_definition_context,
+	View_definition_relationship,
+	Work_order,
+	Work_request,
+	Work_request_status);
+END_TYPE;
 
 TYPE design_pdm_contract_item = EXTENSIBLE SELECT BASED_ON contract_item WITH 
    (organization_or_person_in_organization_select,
@@ -126,6 +200,13 @@ RULE unique_part_id FOR
     (Part);
 WHERE
   WR1:  SIZEOF(QUERY (p1 <* Part | SIZEOF(QUERY (p2 <* Part | 
+              (NOT(p1 :=: p2) AND (p1.id = p2.id)))) > 0 )) = 0;
+END_RULE;
+
+RULE unique_requirement_id FOR
+    (Requirement);
+WHERE
+  WR1:  SIZEOF(QUERY (p1 <* Requirement | SIZEOF(QUERY (p2 <* Requirement | 
               (NOT(p1 :=: p2) AND (p1.id = p2.id)))) > 0 )) = 0;
 END_RULE;
 

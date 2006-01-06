@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.7 2005/04/19 15:05:32 liutkus Exp $
+ $Id: mim.exp,v 1.8 2005/04/27 12:04:52 liutkus Exp $
    ISO TC184/SC4/WG12 N3331 - ISO/CD-TS 10303-1731 Constructive solid geometry 2d - EXPRESS MIM
 *) 
 
@@ -46,5 +46,22 @@ ENTITY csg_2d_shape_representation
  WR5: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_representation ||
       SELF\csg_2d_shape_representation || SELF\representation)) = 0;
 END_ENTITY; -- csg_2d_shape_representation 
+
+  ENTITY single_area_csg_2d_shape_representation
+    SUBTYPE OF (csg_2d_shape_representation);
+  WHERE  
+    WR1: SIZEOF (QUERY (it <* SELF.items| 
+     ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.MAPPED_ITEM' 
+     IN TYPEOF(it)) )) = 0;
+    WR2: SIZEOF (QUERY (it <* SELF.items| 
+     ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.CSG_SOLID' 
+     IN TYPEOF(it)) )) = 1;
+  END_ENTITY;
+
+  ENTITY single_boundary_shape_representation
+    SUBTYPE OF (single_area_csg_2d_shape_representation);
+--  WHERE
+--    wr: only one outline (no holes)
+  END_ENTITY;
 
 END_SCHEMA;  -- Constructive_solid_geometry_2d_mim

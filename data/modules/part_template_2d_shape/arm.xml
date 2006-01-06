@@ -11,6 +11,9 @@
       <interface kind="reference" schema="Requirement_decomposition_arm">
          <interfaced.item name="get_rvd"/>
       </interface>
+      <interface kind="reference" schema="Fabrication_technology_arm">
+         <interfaced.item name="get_stack"/>
+      </interface>
       <type name="pt2ds_ee_product_definition_with_annotation_elements">
          <select extensible="YES" genericentity="YES" basedon="ee_product_definition_with_annotation_elements" selectitems="Structured_template"/>
       </type>
@@ -26,6 +29,15 @@
       <type name="template_arrangement">
          <enumeration items="top bottom symmetrical swapable"/>
       </type>
+      <entity name="Design_stack_model" supertypes="Stratum_stack_model">
+         <explicit name="reference_model" optional="YES">
+            <typename name="Library_stack_model"/>
+         </explicit>
+         <inverse name="passage" entity="Passage_technology_allocation_to_stack_model" attribute="associated_stackup">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+         <where label="WR1" expression="NOT EXISTS(reference_model) OR &#10;          ((SELF\Stratum_stack_model.composing_occurrence * reference_model\Stratum_stack_model.composing_occurrence) = &#10;           SELF\Stratum_stack_model.composing_occurrence)"/>
+      </entity>
       <entity name="Inter_stratum_feature_template_location" supertypes="Template_location_in_structured_template">
          <explicit name="assembly">
             <typename name="Multi_stratum_structured_template"/>
@@ -43,6 +55,12 @@
             <typename name="Stratum_technology"/>
          </explicit>
          <where label="WR1" expression="SELF\Physical_unit_keepout_shape_model.constrained_design_object_category&#10;       IN [keepout_product_design_object_category.interconnect_module_via,&#10;       keepout_product_design_object_category.interconnect_module_inter_stratum_feature,&#10;       keepout_product_design_object_category.interconnect_module_cutout,&#10;       keepout_product_design_object_category.interconnect_module_fill_area,&#10;       keepout_product_design_object_category.interconnect_module_stratum_feature]"/>
+      </entity>
+      <entity name="Library_stack_model" supertypes="Stratum_stack_model">
+         <derived name="padstacks" expression="bag_to_set(QUERY(p &lt;* USEDIN(SELF,&#10;      'PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE.STACK') | ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(p))))">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Padstack_definition"/>
+         </derived>
       </entity>
       <entity name="Material_removal_structured_template" supertypes="Single_stratum_structured_template">
          <where label="WR1" expression="SIZEOF(QUERY(tlict &lt;* SELF\Structured_template.templates |&#10;         SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE',&#10;           'PART_TEMPLATE_2D_SHAPE_ARM.MATERIAL_REMOVAL_STRUCTURED_TEMPLATE'] * TYPEOF(tlict.template)) = 0)) = 0"/>
@@ -75,6 +93,51 @@
             <typename name="Inter_stratum_feature_template_location"/>
          </derived>
          <where label="WR1" expression="SIZEOF(reference_isft) = 1"/>
+      </entity>
+      <entity name="Passage_technology_allocation_to_stack_model">
+         <explicit name="allocated_technology">
+            <typename name="Passage_technology"/>
+         </explicit>
+         <explicit name="from_stratum_technology_occurrence" optional="YES">
+            <typename name="Stratum_technology_occurrence"/>
+         </explicit>
+         <explicit name="to_stratum_technology_occurrence" optional="YES">
+            <typename name="Stratum_technology_occurrence"/>
+         </explicit>
+         <explicit name="stratum_technology_sequence" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Stratum_technology_occurrence_link"/>
+         </explicit>
+         <explicit name="associated_stackup">
+            <typename name="Design_stack_model"/>
+         </explicit>
+         <where label="WR1" expression="(NOT EXISTS(from_stratum_technology_occurrence) OR&#10;               (from_stratum_technology_occurrence IN associated_stackup.composing_occurrence)) AND&#10;          (NOT EXISTS(to_stratum_technology_occurrence) OR&#10;               (to_stratum_technology_occurrence IN associated_stackup.composing_occurrence))"/>
+         <where label="WR2" expression="EXISTS(stratum_technology_sequence) OR&#10;               (from_stratum_technology_occurrence = to_stratum_technology_occurrence)"/>
+         <where label="WR3" expression="NOT (EXISTS(from_stratum_technology_occurrence) XOR EXISTS(to_stratum_technology_occurrence))"/>
+         <where label="WR4" expression="EXISTS(stratum_technology_sequence) XOR EXISTS(from_stratum_technology_occurrence)"/>
+         <where label="WR5" expression="SIZEOF(QUERY(sts &lt;* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))&#10;                 ) = 0"/>
+         <where label="WR6" expression="SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1)"/>
+         <where label="WR7" expression="sts_vertex_degree_less_than_two(stratum_technology_sequence)"/>
+      </entity>
+      <entity name="Physical_unit_keepout_shape_allocation_to_stratum_stack">
+         <explicit name="keepout_shape">
+            <typename name="Physical_unit_keepout_shape_model"/>
+         </explicit>
+         <explicit name="stack_model">
+            <typename name="Library_stack_model"/>
+         </explicit>
+         <explicit name="swappable">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="kept_out_layers">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Stratum_technology_occurrence"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="keepout_shape"/>
+            <unique.attribute attribute="stack_model"/>
+         </unique>
+         <where label="WR1" expression="keepout_shape\Physical_unit_keepout_shape_model.constrained_design_object_category&#10;        IN [keepout_product_design_object_category.interconnect_module_via,&#10;        keepout_product_design_object_category.interconnect_module_inter_stratum_feature,&#10;        keepout_product_design_object_category.interconnect_module_cutout,&#10;        keepout_product_design_object_category.interconnect_module_fill_area,&#10;        keepout_product_design_object_category.interconnect_module_stratum_feature]"/>
       </entity>
       <entity name="Shape_element_based_template_location" supertypes="Template_location_in_structured_template">
          <explicit name="reference_element">
@@ -113,7 +176,7 @@
             <typename name="Library_stack_model"/>
             <redeclaration entity-ref="Dependent_template" old_name="associated_item"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(temp &lt;* SELF\Structured_template.templates |&#10;          NOT&#10;          (NOT('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' &#10;           IN TYPEOF(temp)) OR&#10;           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' &#10;           IN TYPEOF(temp\Stratum_specific_template_location.bound_stratum))&#10;           )&#10;           )) = 0"/>
+         <where label="WR1" expression="SIZEOF(QUERY(temp &lt;* SELF\Structured_template.templates | &#10;            NOT ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(temp))&#10;            OR (('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(temp\Stratum_specific_template_location.bound_stratum))&#10;                  AND&#10;               (temp\Stratum_specific_template_location.bound_stratum IN stack\Stratum_stack_model.composing_occurrence)&#10;            )&#10;          )) = 0"/>
          <where label="WR2" expression="TYPEOF(SELF) &lt;&gt; TYPEOF(SELF\Stratum_stack_dependent_template)"/>
       </entity>
       <entity name="Structured_template" abstract.supertype="YES" supertypes="Geometric_template" super.expression="ONEOF (Single_stratum_structured_template, Multi_stratum_structured_template)">
@@ -137,7 +200,7 @@
             <typename name="Structured_template"/>
          </explicit>
          <explicit name="template">
-            <typename name="Geometric_template"/>
+            <typename name="Template_definition"/>
          </explicit>
          <explicit name="reference_designation">
             <builtintype type="STRING"/>
@@ -149,8 +212,9 @@
             <unique.attribute attribute="assembly"/>
             <unique.attribute attribute="reference_designation"/>
          </unique>
-         <where label="WR1" expression="((SIZEOF(transform) &gt; 0) AND &#10;             (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',&#10;                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',&#10;                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * &#10;              TYPEOF(transform[1].template_shape.shape_characterized_definition)) = 0)) OR &#10;            ((SIZEOF(transform) = 0) AND &#10;             (SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.SNOWBALL_TEMPLATE',&#10;                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_ANGLE_TEMPLATE',&#10;                      'PART_TEMPLATE_2D_SHAPE_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(template)) = 1))"/>
+         <where label="WR1" expression="(SIZEOF(transform) &gt; 0) XOR ('PART_TEMPLATE_EXTENSION_ARM.TEARDROP_TEMPLATE' IN TYPEOF(template))"/>
          <where label="WR2" expression="NOT ('FABRICATION_TECHNOLOGY_ARM.INTER_STRATUM_FEATURE_TEMPLATE' IN TYPEOF(template)) OR&#10;           ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(SELF))"/>
+         <where label="WR3" expression="SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.TEARDROP_TEMPLATE',&#10;                  'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.GEOMETRIC_TEMPLATE'] *&#10;                 TYPEOF(template)) &gt; 0"/>
       </entity>
       <entity name="Template_location_in_structured_template_transform" supertypes="Geometric_placement">
          <explicit name="template_shape">
@@ -174,6 +238,7 @@
          <where label="WR1" expression="assembly_shape.shape_characterized_definition :=: reference_location.assembly"/>
       </entity>
       <subtype.constraint name="pt2ds_geometric_template_subtypes" entity="Geometric_template" super.expression="ONEOF (Continuous_template, Structured_template)"/>
+      <subtype.constraint name="pt2ds_stratum_stack_model_subtypes" entity="Stratum_stack_model" super.expression="ONEOF (Design_stack_model, Library_stack_model)"/>
       <function name="bag_to_set">
          <parameter name="the_bag">
             <aggregate type="BAG" lower="0" upper="?"/>
@@ -192,6 +257,40 @@
       END_REPEAT;
     END_IF;
     RETURN(the_set);</algorithm>
+      </function>
+      <function name="sts_vertex_degree_less_than_two">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Stratum_technology_occurrence_link"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+   psto : BAG OF INTEGER := [];
+   ssto : BAG OF INTEGER := [];
+   sto : SET OF Stratum_technology_occurrence := get_stack(input);
+   i : INTEGER := 0;
+   j : INTEGER := 0;
+   pass : BOOLEAN := TRUE;
+ END_LOCAL;
+  REPEAT i := 1 TO SIZEOF(sto) BY 1;
+   REPEAT j := 1 TO SIZEOF(input) BY 1;
+     IF (input[j].precedent_sto :=: sto[i]) THEN 
+      psto[i] := psto[i] + 1;
+      IF (psto[i] = 2) THEN 
+       pass := FALSE; 
+       ESCAPE; 
+      END_IF;
+     END_IF;  
+     IF (input[j].subsequent_sto :=: sto[i]) THEN 
+      ssto[i] := ssto[i] + 1;  
+      IF (ssto[i] = 2) THEN 
+       pass := FALSE; 
+       ESCAPE; 
+      END_IF;
+     END_IF;  
+   END_REPEAT;                                     
+  END_REPEAT;                                     
+ RETURN(pass);</algorithm>
       </function>
    </schema>
 </express>

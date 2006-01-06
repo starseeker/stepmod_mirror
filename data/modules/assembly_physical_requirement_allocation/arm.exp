@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.23 2005/11/16 07:43:51 kovaliovas Exp $
+   $Id: arm.exp,v 1.24 2005/12/20 17:03:54 liutkus Exp $
    ISO TC184/SC4/WG12 N3309 - ISO/CD-TS 10303-1648 Assembly physical requirement allocation - EXPRESS ARM
 *)
 
@@ -8,8 +8,6 @@ SCHEMA Assembly_physical_requirement_allocation_arm;
 	USE FROM Assembly_physical_interface_requirement_arm;	-- ISO/TS 10303-1647
 	USE FROM Assembly_technology_arm;	-- ISO/TS 10303-1649
 	USE FROM Discrete_shield_arm;	-- ISO/TS 10303-1744
-
-REFERENCE FROM Requirement_decomposition_arm (get_predefined_requirement_view_definition);	-- ISO/TS 10303-1740
 
 	TYPE apra_requirement_assignment_item = EXTENSIBLE SELECT BASED_ON requirement_assignment_item WITH 
     	(component_or_feature,
@@ -25,10 +23,7 @@ REFERENCE FROM Requirement_decomposition_arm (get_predefined_requirement_view_de
 ENTITY Assembly_shield_allocation
     SUBTYPE OF (Requirement_assignment);
       SELF\Requirement_assignment.assigned_to : Physical_shield;
-    DERIVE
-    	assigned_requirement_property :  Predefined_requirement_view_definition :=
-get_predefined_requirement_view_definition(SELF,
-'ASSEMBLY_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.'+'ELECTROMAGNETIC_REQUIREMENT_OCCURRENCE');
+      SELF\Requirement_assignment.assigned_requirement RENAMED assigned_requirement_property  : Electromagnetic_requirement_occurrence;
   END_ENTITY;
 
    ENTITY Assembly_requirement_allocation
@@ -53,8 +48,7 @@ get_predefined_requirement_view_definition(SELF,
   ENTITY Thermal_requirement_allocation
     SUBTYPE OF (Assembly_requirement_allocation);
       SELF\Requirement_assignment.assigned_to : Thermal_component;
-    DERIVE
-    	assigned_requirement_property :  Predefined_requirement_view_definition := get_predefined_requirement_view_definition(SELF, 'ASSEMBLY_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.'+'THERMAL_REQUIREMENT_OCCURRENCE');
+      SELF\Requirement_assignment.assigned_requirement RENAMED assigned_requirement_property  : Thermal_requirement_occurrence;
   END_ENTITY;
 
 END_SCHEMA;

@@ -14,10 +14,6 @@ SCHEMA Assembly_physical_interface_requirement_arm;
 	USE FROM Geometrically_bounded_surface_arm;	-- ISO/TS 10303-1507
 	
 
-REFERENCE FROM Requirement_decomposition_arm
-(get_predefined_requirement_view_definition, get_rvd);	-- ISO/TS 10303-1740
-
-
 	TYPE apir_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
 	    (Mating_connector_termination,
 	    Termination_constraint);
@@ -78,8 +74,7 @@ REFERENCE FROM Requirement_decomposition_arm
     SUBTYPE OF (Requirement_assignment);
       SELF\Requirement_assignment.assigned_to : Part_terminal;
       protocol_signal                                   : Functional_unit_usage_view_terminal_definition;
-    DERIVE
-    	assigned_requirement_property :  Predefined_requirement_view_definition := get_predefined_requirement_view_definition(SELF, 'ASSEMBLY_FUNCTIONAL_INTERFACE_REQUIREMENT_ARM.'+'INTERFACE_REQUIREMENT_OCCURRENCE');
+      SELF\Requirement_assignment.assigned_requirement RENAMED assigned_requirement_property  : Interface_requirement_occurrence;
     WHERE
       WR1 : EXISTS(assigned_requirement_property\Interface_requirement_occurrence.reference_protocol);
       WR2 : protocol_signal IN assigned_requirement_property\Interface_requirement_occurrence.reference_protocol.host_functional_definition\Functional_unit_usage_view.access_mechanism;

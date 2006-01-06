@@ -209,15 +209,6 @@
          </explicit>
          <where label="WR1" expression="(SIZEOF([SELF\Stratum_technology.stratum_material.electrical_conductivity_classification,&#10;           SELF\Stratum_technology.stratum_material.thermal_conductivity_classification] *&#10;           ['conductive']) &gt;= 1) OR&#10;       (SELF\Stratum_technology.stratum_material.magnetic_permeability_classification IN ['highly permeable']) OR&#10;       (SELF\Stratum_technology.stratum_material.optical_insertion_loss_classification IN ['vacuum', 'very low loss', 'low loss'])"/>
       </entity>
-      <entity name="Design_stack_model" supertypes="Stratum_stack_model" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="reference_model" optional="YES">
-            <typename name="Library_stack_model"/>
-         </explicit>
-         <inverse name="passage" entity="Passage_technology_allocation_to_stack_model" attribute="associated_stackup">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
-         </inverse>
-         <where label="WR1" expression="NOT EXISTS(reference_model) OR &#10;          ((SELF\Stratum_stack_model.composing_occurrence * reference_model\Stratum_stack_model.composing_occurrence) = &#10;           SELF\Stratum_stack_model.composing_occurrence)"/>
-      </entity>
       <entity name="Documentation_layer_technology" supertypes="Stratum_technology" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="pre_defined_documentation_layer_purpose" optional="YES">
             <typename name="predefined_documentation_layer_purpose"/>
@@ -232,11 +223,6 @@
             <inverse.aggregate type="SET" lower="1" upper="1"/>
          </inverse>
          <where label="WR1" expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (fill_material[1])"/>
-      </entity>
-      <entity name="Geometric_template" abstract.supertype="YES" supertypes="Template_definition" super.expression="Continuous_template ANDOR Single_stratum_template" abstract.entity="NO">
-         <inverse name="shapes" entity="Part_template_shape_model" attribute="shape_characterized_definition">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
-         </inverse>
       </entity>
       <entity name="Inter_stratum_feature_template" supertypes="Continuous_template" super.expression="ONEOF (Component_termination_passage_template, Unsupported_passage_template, Via_template)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="of_passage_technology" optional="NO">
@@ -290,7 +276,6 @@
          <where label="WR2" expression="NOT (EXISTS(SELF\Shape_feature.connection_area)) OR (SIZEOF(SELF\Shape_feature.connection_area) = SIZEOF(connection_zone_category))"/>
          <where label="WR3" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
-      <entity name="Library_stack_model" supertypes="Stratum_stack_model" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Material_addition_feature_template" supertypes="Stratum_feature_template" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Material_removal_feature_template" supertypes="Single_stratum_continuous_template" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
@@ -327,51 +312,6 @@
          <where label="WR4" expression="NOT EXISTS(as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1)"/>
          <where label="WR5" expression="NOT (plated_passage) OR&#10;           (SIZEOF([deposition_material[1].electrical_conductivity_classification,&#10;                    deposition_material[1].thermal_conductivity_classification] *&#10;                   ['conductive']) &gt;= 1)"/>
       </entity>
-      <entity name="Passage_technology_allocation_to_stack_model" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="allocated_technology" optional="NO">
-            <typename name="Passage_technology"/>
-         </explicit>
-         <explicit name="from_stratum_technology_occurrence" optional="YES">
-            <typename name="Stratum_technology_occurrence"/>
-         </explicit>
-         <explicit name="to_stratum_technology_occurrence" optional="YES">
-            <typename name="Stratum_technology_occurrence"/>
-         </explicit>
-         <explicit name="stratum_technology_sequence" optional="YES">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="Stratum_technology_occurrence_link"/>
-         </explicit>
-         <explicit name="associated_stackup" optional="NO">
-            <typename name="Design_stack_model"/>
-         </explicit>
-         <where label="WR1" expression="(NOT EXISTS(from_stratum_technology_occurrence) OR&#10;               (from_stratum_technology_occurrence IN associated_stackup.composing_occurrence)) AND&#10;          (NOT EXISTS(to_stratum_technology_occurrence) OR&#10;               (to_stratum_technology_occurrence IN associated_stackup.composing_occurrence))"/>
-         <where label="WR2" expression="EXISTS(stratum_technology_sequence) OR&#10;               (from_stratum_technology_occurrence = to_stratum_technology_occurrence)"/>
-         <where label="WR3" expression="NOT (EXISTS(from_stratum_technology_occurrence) XOR EXISTS(to_stratum_technology_occurrence))"/>
-         <where label="WR4" expression="EXISTS(stratum_technology_sequence) XOR EXISTS(from_stratum_technology_occurrence)"/>
-         <where label="WR5" expression="SIZEOF(QUERY(sts &lt;* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))&#10;                 ) = 0"/>
-         <where label="WR6" expression="SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1)"/>
-         <where label="WR7" expression="sts_vertex_degree_less_than_two(stratum_technology_sequence)"/>
-      </entity>
-      <entity name="Physical_unit_keepout_shape_allocation_to_stratum_stack" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="keepout_shape" optional="NO">
-            <typename name="Physical_unit_keepout_shape_model"/>
-         </explicit>
-         <explicit name="stack_model" optional="NO">
-            <typename name="Library_stack_model"/>
-         </explicit>
-         <explicit name="swappable" optional="NO">
-            <builtintype type="BOOLEAN" fixed="NO"/>
-         </explicit>
-         <explicit name="kept_out_layers" optional="NO">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="Stratum_technology_occurrence"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="keepout_shape"/>
-            <unique.attribute attribute="stack_model"/>
-         </unique>
-         <where label="WR1" expression="keepout_shape\Physical_unit_keepout_shape_model.constrained_design_object_category&#10;        IN [keepout_product_design_object_category.interconnect_module_via,&#10;        keepout_product_design_object_category.interconnect_module_inter_stratum_feature,&#10;        keepout_product_design_object_category.interconnect_module_cutout,&#10;        keepout_product_design_object_category.interconnect_module_fill_area,&#10;        keepout_product_design_object_category.interconnect_module_stratum_feature]"/>
-      </entity>
       <entity name="Single_stratum_continuous_template" abstract.supertype="YES" supertypes="Continuous_template Single_stratum_template" super.expression="ONEOF (Stratum_feature_template, Material_removal_feature_template)" abstract.entity="NO"/>
       <entity name="Single_stratum_template" abstract.supertype="YES" supertypes="Geometric_template" super.expression="Single_stratum_continuous_template" abstract.entity="NO">
          <explicit name="of_stratum_technology" optional="YES">
@@ -382,7 +322,7 @@
       <entity name="Stratum_feature_template" supertypes="Single_stratum_continuous_template" super.expression="ONEOF (Land_physical_template, Material_addition_feature_template)" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
-      <entity name="Stratum_stack_model" abstract.supertype="YES" supertypes="Template_definition" super.expression="ONEOF (Library_stack_model, Design_stack_model)" abstract.entity="NO">
+      <entity name="Stratum_stack_model" abstract.supertype="YES" supertypes="Template_definition" abstract.entity="NO">
          <derived name="composing_occurrence" expression="get_stack(composing_link)">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Stratum_technology_occurrence"/>
@@ -585,40 +525,6 @@
          </parameter>
          <builtintype type="BOOLEAN" fixed="NO"/>
          <algorithm>RETURN(TRUE);</algorithm>
-      </function>
-      <function name="sts_vertex_degree_less_than_two">
-         <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
-            <typename name="Stratum_technology_occurrence_link"/>
-         </parameter>
-         <builtintype type="BOOLEAN" fixed="NO"/>
-         <algorithm>LOCAL
-   psto : BAG OF INTEGER := [];
-   ssto : BAG OF INTEGER := [];
-   sto : SET OF Stratum_technology_occurrence := get_stack(input);
-   i : INTEGER := 0;
-   j : INTEGER := 0;
-   pass : BOOLEAN := TRUE;
- END_LOCAL;
-  REPEAT i := 1 TO SIZEOF(sto) BY 1;
-   REPEAT j := 1 TO SIZEOF(input) BY 1;
-     IF (input[j].precedent_sto :=: sto[i]) THEN 
-      psto[i] := psto[i] + 1;
-      IF (psto[i] = 2) THEN 
-       pass := FALSE; 
-       ESCAPE; 
-      END_IF;
-     END_IF;  
-     IF (input[j].subsequent_sto :=: sto[i]) THEN 
-      ssto[i] := ssto[i] + 1;  
-      IF (ssto[i] = 2) THEN 
-       pass := FALSE; 
-       ESCAPE; 
-      END_IF;
-     END_IF;  
-   END_REPEAT;                                     
-  END_REPEAT;                                     
- RETURN(pass);</algorithm>
       </function>
    </schema>
 </express>

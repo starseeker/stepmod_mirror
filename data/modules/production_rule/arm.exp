@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.5 2005/11/30 16:32:20 liutkus Exp $
+   $Id: arm.exp,v 1.6 2006/01/06 14:22:38 liutkus Exp $
    ISO TC184/SC4/WG12 N3588 - ISO/CD-TS 10303-1739 Production rule - EXPRESS ARM
 *)
 
@@ -28,17 +28,17 @@ END_TYPE;
 TYPE pr_logical = LOGICAL; 
 END_TYPE;
 
-TYPE pr_identification_item = SELECT BASED_ON Identification_item WITH 
+TYPE pr_identification_item = SELECT BASED_ON identification_item WITH 
    (Rule_set);
 END_TYPE; 
 
 TYPE clause_select = SELECT (Simple_clause, Complex_clause);
 END_TYPE;
 
-TYPE constants = EXTENSIBLE SELECT (PR_Number, PR_String, PR_Logical);
+TYPE constants = EXTENSIBLE SELECT (pr_number, pr_string, pr_logical);
 END_TYPE;
 
-TYPE function_symbol = SELECT (PR_String, Built_in_functions);
+TYPE function_symbol = SELECT (pr_string, built_in_functions);
 END_TYPE;
 
 TYPE built_in_functions = EXTENSIBLE ENUMERATION OF (ATTR_VAL);
@@ -53,7 +53,7 @@ END_TYPE;
 TYPE scope_select = SELECT (Rule_definition, Rule_set, Rule_set_group);
 END_TYPE;
 
-TYPE term_select = SELECT (Symbol, Constants, Func, Scalar_variable, Row_value, Row_variable); 
+TYPE term_select = SELECT (Symbol, constants, Func, Scalar_variable, Row_value, Row_variable); 
 END_TYPE;
 
 
@@ -67,8 +67,8 @@ END_ENTITY;
 
 ENTITY Atomic_formula
   ABSTRACT SUPERTYPE OF (ONEOF (Rule_condition, Ground_fact));
-  pred_sym : Predicate_Symbol;  
-  terms : LIST OF Term_select;
+  predicate_symbol : predicate_symbol;  
+  terms : LIST OF term_select;
 END_ENTITY;
 
 ENTITY Attribute_assertion
@@ -76,10 +76,6 @@ ENTITY Attribute_assertion
    entity_type : STRING;
    attribute : STRING;
 END_ENTITY; 
-
-ENTITY Enum_reference_prefix;
- prefix : STRING;
-END_ENTITY;
 
 ENTITY Back_chaining_rule
   SUBTYPE OF (Rule_definition);
@@ -92,25 +88,29 @@ END_ENTITY;
 
 ENTITY Complex_clause
   ABSTRACT SUPERTYPE OF (ONEOF (Complex_conjunctive_clause, Complex_disjunctive_clause));
-  clauses : LIST [2:?] OF Clause_select;
+  clauses : LIST [2:?] OF clause_select;
 END_ENTITY;
 
 ENTITY Complex_conjunctive_clause
-  SUBTYPE OF (Complex_Clause); 
+  SUBTYPE OF (Complex_clause); 
 END_ENTITY;
 
 ENTITY Complex_disjunctive_clause
-  SUBTYPE OF (Complex_Clause); 
+  SUBTYPE OF (Complex_clause); 
 END_ENTITY;
 
 ENTITY Entity_assertion
   SUBTYPE OF (Fact_type);
 END_ENTITY;
 
+ENTITY Enum_reference_prefix;
+ prefix : STRING;
+END_ENTITY;
+
 ENTITY Extent;
   source : STRING;
   query_expression : STRING;
-  syntax : OPTIONAL Expression_syntax;
+  syntax : OPTIONAL expression_syntax;
 END_ENTITY;
 
 ENTITY Fact_type
@@ -121,20 +121,20 @@ END_ENTITY;
 
 ENTITY Forward_chaining_rule
   SUBTYPE OF (Rule_definition);
-  premise : Clause_Select; 
+  premise : clause_Select; 
   conclusion : Literal_conjunction;
   WHERE
   WR1:  local_vars_of(SELF.conclusion) <= local_vars_of(SELF.premise);
 END_ENTITY;
 
 ENTITY Func;
- func_sym : Function_Symbol;
- terms : LIST OF Term_select;
+ func_sym : function_symbol;
+ terms : LIST OF term_select;
 END_ENTITY;
 
 ENTITY Global_assignment;
   variable : Abstract_variable;
-  val : Term_select;
+  val : term_select;
  WHERE
   WR1: NOT(contains_variable(SELF.val));
 END_ENTITY;
@@ -154,7 +154,7 @@ ENTITY Literal_disjunction
 END_ENTITY;
 
 ENTITY Row_value;
-  values : LIST OF Term_select;
+  values : LIST OF term_select;
  WHERE
   WR1: SIZEOF(QUERY(v <* SELF.values | contains_variable(v))) = 0;
   WR2: SIZEOF(QUERY(v <* SELF.values | 'PRODUCTION_RULE_ARM.ROW_VALUE' IN TYPEOF(v))) = 0;

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.3 2005/10/26 12:12:51 liutkus Exp $
+   $Id: mim.exp,v 1.4 2005/11/24 11:55:22 liutkus Exp $
    ISO TC184/SC4/WG12 N3589 - ISO/CD-TS 10303-1739 Product rule - EXPRESS MIM
 *)
 
@@ -14,6 +14,8 @@ SCHEMA Production_rule_mim;
 	USE FROM Activity_mim; -- ISO/TS 10303-1047
 	
 	USE FROM Product_definition_schema(product_definition_relationship);
+	
+	USE FROM representation_schema(representation_item_relationship);
 
 TYPE pr_name_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON name_item WITH 
      (rule_set);
@@ -28,57 +30,107 @@ TYPE pr_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and_
 END_TYPE; 
 
 TYPE pr_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
-   (rule_function_definition,
-   representation);
+   (representation);
 END_TYPE; 
 
 TYPE rule_superseded_item = SELECT
      (product_definition_formation);
 END_TYPE;
 
+ENTITY abstract_variable
+  SUBTYPE OF (property_definition, property_definition_representation, representation, representation_item);
+END_ENTITY;  
+
+ENTITY atomic_formula
+  SUBTYPE OF (compound_representation_item);
+END_ENTITY;    
+
+ENTITY attribute_assertion
+  SUBTYPE OF (fact_type, property_definition_representation, representation);
+END_ENTITY;  
+
+ENTITY back_chaining_rule  
+  SUBTYPE OF (rule_definition);
+END_ENTITY;  
+								  
+ENTITY back_chaining_rule_body 
+  SUBTYPE OF (property_definition, property_definition_representation, representation);
+END_ENTITY;
+
+ENTITY complex_clause
+  SUBTYPE OF (compound_representation_item);
+END_ENTITY;
+
+ENTITY complex_conjunctive_clause
+  SUBTYPE OF (complex_clause);
+END_ENTITY;
+
+ENTITY complex_disjunctive_clause
+  SUBTYPE OF (complex_clause);
+END_ENTITY;
+
+ENTITY entity_assertion
+  SUBTYPE OF (fact_type);
+END_ENTITY;
+
+ENTITY enum_reference_prefix  
+  SUBTYPE OF (descriptive_representation_item);
+END_ENTITY;
+
+ENTITY extent
+  SUBTYPE OF (characterized_object);
+END_ENTITY;
+
+ENTITY fact_type
+  SUBTYPE OF (property_definition);
+END_ENTITY;
+
+ENTITY forward_chaining_rule
+  SUBTYPE OF (rule_definition);
+END_ENTITY;
+				
+ENTITY forward_chaining_rule_premise 
+  SUBTYPE OF (property_definition, property_definition_representation, representation);
+END_ENTITY;
+
+ENTITY func
+  SUBTYPE OF (compound_representation_item);
+END_ENTITY;
+
+ENTITY global_assignment
+  SUBTYPE OF (representation_item_relationship);
+END_ENTITY; 
+
+ENTITY ground_fact
+  SUBTYPE OF (atomic_formula);
+END_ENTITY;
+
+ENTITY literal_conjunction
+  SUBTYPE OF (simple_clause);
+END_ENTITY;  
+
+ENTITY literal_disjunction
+  SUBTYPE OF (simple_clause);
+END_ENTITY;  
+
+ENTITY row_value
+  SUBTYPE OF (compound_representation_item);
+END_ENTITY;
+
+ENTITY row_variable
+  SUBTYPE OF (abstract_variable);
+END_ENTITY;
+																								
 ENTITY rule_action
   SUBTYPE OF (action);
 END_ENTITY;
 
-ENTITY rule_boolean_function_definition 
- SUBTYPE OF (rule_function_definition);
-END_ENTITY;
-
-ENTITY rule_complex_clause 
- SUBTYPE OF (representation);
-UNIQUE
- UR1: SELF\representation.name;
-END_ENTITY;
-
-ENTITY rule_conclusion_definition 
- SUBTYPE OF (representation);
-END_ENTITY;
-
+ENTITY rule_condition
+  SUBTYPE OF (atomic_formula);
+END_ENTITY;  
+					
 ENTITY rule_definition 
  SUBTYPE OF (rule_software_definition);
-END_ENTITY;
-
-ENTITY rule_function_definition 
- SUPERTYPE OF (rule_boolean_function_definition)
- SUBTYPE OF (representation);
-END_ENTITY;
-
-ENTITY rule_function_domain_parameter 
- SUBTYPE OF (model_parameter);
-END_ENTITY;
-
-ENTITY rule_function_range_parameter 
- SUBTYPE OF (model_parameter);
-END_ENTITY;
-
-ENTITY rule_general_clause 
- SUBTYPE OF (representation);
-UNIQUE
- UR1: SELF\representation.name;
-END_ENTITY;
-
-ENTITY rule_premise_definition 
- SUBTYPE OF (representation);
 END_ENTITY;
 
 ENTITY rule_superseded_assignment
@@ -98,15 +150,21 @@ ENTITY rule_set_group
 SUBTYPE OF (rule_software_definition);
 END_ENTITY;
 
-ENTITY rule_simple_clause 
- SUBTYPE OF (representation);
-UNIQUE
- UR1: SELF\representation.name;
+ENTITY rule_supersedence
+  SUBTYPE OF (rule_action);
 END_ENTITY;
 
-  ENTITY rule_supersedence
-    SUBTYPE OF (rule_action);
-  END_ENTITY;
+ENTITY scalar_variable
+  SUBTYPE OF (abstract_variable);
+END_ENTITY;
+					
+ENTITY simple_clause
+  SUBTYPE OF (compound_representation_item);
+END_ENTITY;
+					
+ENTITY symbol
+  SUBTYPE OF (representation_item);
+END_ENTITY;				
 	
 END_SCHEMA;
 

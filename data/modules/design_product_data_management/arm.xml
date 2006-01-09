@@ -17,6 +17,7 @@
       <interface kind="use" schema="Requirement_view_definition_relationship_arm"/>
       <interface kind="use" schema="Test_select_product_arm"/>
       <interface kind="use" schema="Activity_method_assignment_arm"/>
+      <interface kind="use" schema="Attribute_classification_arm"/>
       <type name="design_activity_method_item">
          <select extensible="YES" genericentity="YES" basedon="activity_method_item" selectitems="Document Document_version"/>
       </type>
@@ -31,6 +32,9 @@
       </type>
       <type name="design_pdm_certification_item">
          <select extensible="YES" genericentity="YES" basedon="pdm_certification_item" selectitems="Alternate_product_relationship Product_version"/>
+      </type>
+      <type name="design_pdm_classified_attribute_select">
+         <select extensible="YES" genericentity="YES" basedon="classified_attribute_select" selectitems="Activity Activity_method Activity_method_assignment Activity_property Activity_property_representation Activity_relationship Address_assignment Affected_items_assignment Alternate_part_relationship Applied_activity_assignment Approval Approval_assignment Approval_relationship Approval_status Approving_person_organization Assigned_property Certification Certification_assignment Context_dependent_unit Contract Date_or_date_time_assignment Descriptive_document_property Digital_file Document_assignment Document_definition_relationship Document_location_identification Document_property_representation Effectivity Effectivity_assignment Event_assignment Event_relationship External_item_identification External_source_identification File_location_identification File_relationship Hardcopy Identification_assignment Independent_property Independent_property_relationship Independent_property_representation Language Market Numerical_document_property Organization_or_person_in_organization_assignment Organization_relationship Part_view_definition Partial_document_assignment Person_in_organization Product Product_category Product_concept Product_version Product_version_relationship Product_view_definition Project_assignment Project_relationship Property_representation Representation Representation_context Representation_item Security_classification Time_interval_relationship Uncertainty_with_unit Unit Value_with_unit View_definition_context View_definition_relationship Work_order Work_request Work_request_status"/>
       </type>
       <type name="design_pdm_contract_item">
          <select extensible="YES" basedon="contract_item" selectitems="organization_or_person_in_organization_select Product_version Work_order"/>
@@ -67,6 +71,9 @@
       </rule>
       <rule name="unique_product_view_definition_id" appliesto="">
          <where label="WR1" expression="SIZEOF(QUERY (pv &lt;* Product_version | &#10;   (SIZEOF (QUERY (pvd1 &lt;*&#10;USEDIN(pv,'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.DEFINED_VERSION') |  &#10;     (SIZEOF (QUERY (pvd2 &lt;*&#10;USEDIN(pv,'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.DEFINED_VERSION')&#10;|  pvd1.id = pvd2.id)) &gt; 1)&#10;     )) &gt; 0)&#10;   )) = 0"/>
+      </rule>
+      <rule name="unique_requirement_id" appliesto="">
+         <where label="WR1" expression="SIZEOF(QUERY (p1 &lt;* Requirement | SIZEOF(QUERY (p2 &lt;* Requirement | &#10;              (NOT(p1 :=: p2) AND (p1.id = p2.id)))) &gt; 0 )) = 0"/>
       </rule>
    </schema>
 </express>

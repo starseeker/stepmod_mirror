@@ -592,7 +592,7 @@
 					<xsl:text>&#xa;</xsl:text>			
 			</xsl:when>
 			<xsl:otherwise>
-				<xs:element name="{$corrected_type_name}" nillable="true">
+				<xs:element name="{$corrected_type_name}-wrapper" nillable="true">
 					<xs:complexType>
 						<xs:simpleContent>
 							<xs:extension base="{$namespace_prefix}{$corrected_type_name}">
@@ -603,11 +603,24 @@
 				</xs:element>
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
-				<xs:simpleType name="{$corrected_type_name}">
-					<xsl:call-template name="generate_restriction">
-						<xsl:with-param name="type" select="."/>
-					</xsl:call-template>
-				</xs:simpleType>
+				<xsl:choose>
+					<xsl:when test="./builtintype[@type='BINARY' or @type='LOGICAL']">
+						<xs:complexType name="{$corrected_type_name}">
+							<xs:simpleContent>
+								<xsl:call-template name="generate_restriction">
+									<xsl:with-param name="type" select="."/>
+								</xsl:call-template>
+							</xs:simpleContent>
+						</xs:complexType>
+					</xsl:when>
+					<xsl:otherwise>
+						<xs:simpleType name="{$corrected_type_name}">
+							<xsl:call-template name="generate_restriction">
+								<xsl:with-param name="type" select="."/>
+							</xsl:call-template>
+						</xs:simpleType>
+					</xsl:otherwise>
+				</xsl:choose>
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
 			</xsl:otherwise>

@@ -51,7 +51,7 @@
             <typename name="Stratum_technology"/>
          </explicit>
       </entity>
-      <entity name="Fill_area_template" supertypes="Template_definition">
+      <entity name="Fill_area_template" supertypes="Parametric_template">
          <explicit name="fill_area_style" optional="YES">
             <typename name="fill_area_style_select"/>
          </explicit>
@@ -83,6 +83,7 @@
             <inverse.aggregate type="SET" lower="2" upper="?"/>
          </inverse>
       </entity>
+      <entity name="Parametric_template" abstract.supertype="YES" supertypes="Template_definition" super.expression="ONEOF (Fill_area_template, Teardrop_template, Trace_template)"/>
       <entity name="Part_string_template" supertypes="Template_definition">
          <explicit name="string_alignment">
             <typename name="text_alignment"/>
@@ -103,7 +104,7 @@
             <redeclaration entity-ref="Representation"/>
          </explicit>
       </entity>
-      <entity name="Snowball_template" supertypes="Material_addition_feature_template">
+      <entity name="Snowball_template" supertypes="Teardrop_template">
          <explicit name="snowball_start_distance">
             <typename name="Length_data_element"/>
          </explicit>
@@ -129,14 +130,14 @@
          <where label="WR2" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_DEFINITION')) = 0)"/>
          <where label="WR3" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
       </entity>
-      <entity name="Teardrop_by_angle_template" supertypes="Material_addition_feature_template">
+      <entity name="Teardrop_by_angle_template" supertypes="Teardrop_template">
          <explicit name="teardrop_angle">
             <typename name="Angle_data_element"/>
          </explicit>
          <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_DEFINITION')) = 0)"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
       </entity>
-      <entity name="Teardrop_by_length_template" supertypes="Material_addition_feature_template">
+      <entity name="Teardrop_by_length_template" supertypes="Teardrop_template">
          <explicit name="teardrop_taper_start_distance">
             <typename name="Length_data_element"/>
          </explicit>
@@ -146,14 +147,14 @@
          <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL.' + 'SHAPE_CHARACTERIZED_DEFINITION')) = 0)"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
       </entity>
-      <entity name="Trace_template" supertypes="Template_definition" super.expression="Default_trace_template">
+      <entity name="Teardrop_template" abstract.supertype="YES" supertypes="Parametric_template" super.expression="ONEOF (Snowball_template, Teardrop_by_angle_template, Teardrop_by_length_template)"/>
+      <entity name="Trace_template" supertypes="Parametric_template" super.expression="Default_trace_template">
          <explicit name="trace_style">
             <typename name="Curve_style_parameters"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
       <subtype.constraint name="inter_stratum_feature_template_subtypes" entity="Inter_stratum_feature_template" super.expression="ONEOF (Component_termination_passage_template, Via_template, Unsupported_passage_template, Inter_stratum_feature_edge_segment_template, Inter_stratum_feature_edge_template)"/>
-      <subtype.constraint name="material_addition_feature_template_subtypes" entity="Material_addition_feature_template" super.expression="ONEOF (Snowball_template, Teardrop_by_angle_template, Teardrop_by_length_template)"/>
-      <subtype.constraint name="pte_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Fill_area_template, Part_string_template, Part_text_template, Trace_template)"/>
+      <subtype.constraint name="pte_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Parametric_template, Part_string_template, Part_text_template)"/>
    </schema>
 </express>

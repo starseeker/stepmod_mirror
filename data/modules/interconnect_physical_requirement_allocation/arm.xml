@@ -9,7 +9,6 @@
       <interface kind="use" schema="Requirement_view_definition_relationship_arm"/>
       <interface kind="use" schema="Integral_shield_arm"/>
       <interface kind="reference" schema="Requirement_decomposition_arm">
-         <interfaced.item name="get_predefined_requirement_view_definition"/>
          <interfaced.item name="get_rvd"/>
       </interface>
       <type name="electrical_isolation_removal_structure_or_template">
@@ -54,9 +53,11 @@
             <typename name="Integral_shield"/>
             <redeclaration entity-ref="Requirement_assignment"/>
          </explicit>
-         <derived name="assigned_requirement_property" expression="get_predefined_requirement_view_definition(SELF,&#10;      'INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.'+'ELECTROMAGNETIC_REQUIREMENT_OCCURRENCE')">
+         <explicit name="assigned_requirement_property">
             <typename name="Predefined_requirement_view_definition"/>
-         </derived>
+            <redeclaration entity-ref="Requirement_assignment" old_name="assigned_requirement"/>
+         </explicit>
+         <where label="WR1" expression="assigned_requirement_property\Product_view_definition.initial_context\View_definition_context.application_domain = 'electrical'"/>
       </entity>
       <entity name="Thermal_isolation_removal_template" supertypes="Material_removal_structured_template">
          <derived name="thermal_isolation_spacing_requirement" expression="get_rvd(SELF, 'thermal requirement')">
@@ -118,13 +119,11 @@
     rdp : SET[0:?] OF Predefined_requirement_view_definition := [];  --this gives us access to the information base
 END_LOCAL;
 	rvdr := bag_to_set(QUERY(rvdre &lt;* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY')|
-	                           (rvdre.relation_type = id)
+	                           ((rvdre.relation_type = id) AND (reqType IN TYPEOF(rvdre.primary)))
                        ));
 	-- iterate over rvdr
 	REPEAT i := 1 to SIZEOF(rvdr) by 1;
-      rdp := rdp + bag_to_set(QUERY(rdp &lt;* USEDIN (rvdr[i].primary, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'PREDEFINED_REQUIREMENT_VIEW_DEFINITION.ASSOCIATED_DEFINITION') |
-        (reqType IN TYPEOF(rdp))
-                             ));
+      rdp := rdp + rvdr[i].primary;
 	END_REPEAT;
 
 	RETURN(rdp);</algorithm>
@@ -149,8 +148,7 @@ END_LOCAL;
 	-- iterate over rcr 
     REPEAT i := 1 to SIZEOF(rcr) by 1;
         -- get rdp 
-      rdp := rdp + USEDIN (rcr[i].member, 'REQUIREMENT_DECOMPOSITION_ARM.'+
-        'PREDEFINED_REQUIREMENT_VIEW_DEFINITION.ASSOCIATED_DEFINITION');
+      rdp := rdp + rcr[i].member;
     END_REPEAT;
 
 	RETURN(rdp);</algorithm>

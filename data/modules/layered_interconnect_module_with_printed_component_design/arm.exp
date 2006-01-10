@@ -21,6 +21,8 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
     SUBTYPE OF (Printed_component);
       material_stack : Stratum_feature_based_derived_pattern;
       SELF\Printed_component.derived_from : Basic_multi_stratum_printed_part_template;
+    DERIVE
+      stratum_feature_implementation : Stratum_feature := material_stack.reference_stratum_feature;
   END_ENTITY;
 
   ENTITY Multi_stratum_printed_component
@@ -32,7 +34,7 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
     SUBTYPE OF (Printed_component, Structured_layout_component);
       SELF\Printed_component.derived_from : Single_stratum_printed_part_template;
 (*
-  add similar WR
+      stratum_feature_implementation : SET [1:?] OF Stratum_feature;
    WHERE
     WR1 : SIZEOF(QUERY(sfi <* stratum_feature_implementation |
          NOT(sfi.resident_stratum = stratum_feature_implementation[1].resident_stratum)
@@ -75,8 +77,7 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
       SELF\Component_feature.associated_component : Printed_connector_component;
       stratum_concept_implementation              : Stratum_feature_template_component;
     WHERE
-      WR1 : NOT EXISTS(SELF\Component_feature.associated_component\Printed_component.stratum_feature_implementation) OR (SIZEOF(QUERY(temp <* SELF\Component_feature.associated_component\Printed_component.stratum_feature_implementation | temp :=: stratum_concept_implementation.stratum_feature_implementation)) = 1);
-      WR2 : NOT EXISTS(SELF\Shape_element.description);
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Routed_transmission_line

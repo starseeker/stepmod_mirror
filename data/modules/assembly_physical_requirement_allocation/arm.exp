@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.24 2005/12/20 17:03:54 liutkus Exp $
+   $Id: arm.exp,v 1.25 2006/01/06 23:08:22 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3309 - ISO/CD-TS 10303-1648 Assembly physical requirement allocation - EXPRESS ARM
 *)
 
@@ -20,10 +20,12 @@ SCHEMA Assembly_physical_requirement_allocation_arm;
  		Component_feature);
 	END_TYPE;
 
-ENTITY Assembly_shield_allocation
+  ENTITY Assembly_shield_allocation
     SUBTYPE OF (Requirement_assignment);
       SELF\Requirement_assignment.assigned_to : Physical_shield;
-      SELF\Requirement_assignment.assigned_requirement RENAMED assigned_requirement_property  : Electromagnetic_requirement_occurrence;
+      SELF\Requirement_assignment.assigned_requirement RENAMED assigned_requirement_property  : Predefined_requirement_view_definition;
+    WHERE
+     WR1 : assigned_requirement_property\Product_view_definition.initial_context\View_definition_context.application_domain = 'electrical';
   END_ENTITY;
 
    ENTITY Assembly_requirement_allocation
@@ -48,7 +50,9 @@ ENTITY Assembly_shield_allocation
   ENTITY Thermal_requirement_allocation
     SUBTYPE OF (Assembly_requirement_allocation);
       SELF\Requirement_assignment.assigned_to : Thermal_component;
-      SELF\Requirement_assignment.assigned_requirement RENAMED assigned_requirement_property  : Thermal_requirement_occurrence;
+      SELF\Requirement_assignment.assigned_requirement RENAMED assigned_requirement_property  : Predefined_requirement_view_definition;
+    WHERE
+     WR1 : assigned_requirement_property\Product_view_definition.initial_context\View_definition_context.application_domain = 'thermal';
   END_ENTITY;
 
 END_SCHEMA;

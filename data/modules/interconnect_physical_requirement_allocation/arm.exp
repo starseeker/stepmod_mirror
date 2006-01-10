@@ -62,7 +62,9 @@
   ENTITY Interconnect_shield_allocation
     SUBTYPE OF (Requirement_assignment);
       SELF\Requirement_assignment.assigned_to : Integral_shield;
-      SELF\Requirement_assignment.assigned_requirement RENAMED assigned_requirement_property  : Electromagnetic_requirement_occurrence;
+      SELF\Requirement_assignment.assigned_requirement RENAMED assigned_requirement_property  : Predefined_requirement_view_definition;
+    WHERE
+     WR1 : assigned_requirement_property\Product_view_definition.initial_context\View_definition_context.application_domain = 'electrical';
   END_ENTITY;
 		
   ENTITY Thermal_isolation_removal_template
@@ -107,8 +109,7 @@ END_LOCAL;
 	-- iterate over rcr 
     REPEAT i := 1 to SIZEOF(rcr) by 1;
         -- get rdp 
-      rdp := rdp + USEDIN (rcr[i].member, 'REQUIREMENT_DECOMPOSITION_ARM.'+
-        'PREDEFINED_REQUIREMENT_VIEW_DEFINITION.ASSOCIATED_DEFINITION');
+      rdp := rdp + rcr[i].member;
     END_REPEAT;
 
 	RETURN(rdp);
@@ -125,13 +126,11 @@ LOCAL
     rdp : SET[0:?] OF Predefined_requirement_view_definition := [];  --this gives us access to the information base
 END_LOCAL;
 	rvdr := bag_to_set(QUERY(rvdre <* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY')|
-	                           (rvdre.relation_type = id)
+	                           ((rvdre.relation_type = id) AND (reqType IN TYPEOF(rvdre.primary)))
                        ));
 	-- iterate over rvdr
 	REPEAT i := 1 to SIZEOF(rvdr) by 1;
-      rdp := rdp + bag_to_set(QUERY(rdp <* USEDIN (rvdr[i].primary, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'PREDEFINED_REQUIREMENT_VIEW_DEFINITION.ASSOCIATED_DEFINITION') |
-        (reqType IN TYPEOF(rdp))
-                             ));
+      rdp := rdp + rvdr[i].primary;
 	END_REPEAT;
 
 	RETURN(rdp);

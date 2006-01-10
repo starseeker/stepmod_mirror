@@ -89,11 +89,9 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression="NOT (SIZEOF(required_material) = 1) OR&#10;            ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (required_material))"/>
-         <where label="WR2" expression="SELF\Product_view_definition.initial_context\View_definition_context.life_cycle_stage = ''"/>
-         <where label="WR3" expression="SELF\Product_view_definition.initial_context\View_definition_context.application_domain = ''"/>
-         <where label="WR4" expression="SELF\Product_view_definition.initial_context.application_domain IN &#10;          ['mechanical', 'thermal', 'electromechancial', 'electromagnetic compatibility', 'electrical']"/>
-         <where label="WR5" expression="SELF\Product_view_definition.initial_context.life_cycle_stage in ['design', 'qualify', 'inspect', 'test']"/>
-         <where label="WR6" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+         <where label="WR2" expression="SELF\Product_view_definition.initial_context.application_domain IN &#10;          ['mechanical', 'thermal', 'electromechancial', 'electromagnetic compatibility', 'electrical']"/>
+         <where label="WR3" expression="SELF\Product_view_definition.initial_context.life_cycle_stage in ['design', 'qualify', 'inspect', 'test']"/>
+         <where label="WR4" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
       <entity name="Requirement_view_definition_relationship" supertypes="View_definition_relationship">
          <explicit name="primary">
@@ -139,25 +137,6 @@
       END_REPEAT;
     END_IF;
     RETURN(the_set);</algorithm>
-      </function>
-      <function name="get_predefined_requirement_view_definition">
-         <parameter name="ra">
-            <typename name="Requirement_assignment"/>
-         </parameter>
-         <parameter name="req_type">
-            <builtintype type="STRING"/>
-         </parameter>
-         <typename name="Predefined_requirement_view_definition"/>
-         <algorithm>LOCAL
-    requirements : SET[0:?] OF Predefined_requirement_view_definition;
-  END_LOCAL;
-	requirements := bag_to_set(USEDIN (ra.assigned_requirement, 'REQUIREMENT_DECOMPOSITION_ARM.' + 'PREDEFINED_REQUIREMENT_VIEW_DEFINITION.ASSOCIATED_DEFINITION')) ;
-	REPEAT i := 1 to SIZEOF(requirements) by 1;
-	  IF (req_type IN TYPEOF (requirements[i])) THEN
-	  	RETURN (requirements[i]);
-	  END_IF;
-	END_REPEAT;
-	RETURN (?);</algorithm>
       </function>
       <function name="get_rvd">
          <parameter name="input">

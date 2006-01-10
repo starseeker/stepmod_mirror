@@ -7,14 +7,15 @@
    <schema name="Interconnect_module_with_macros_arm">
       <interface kind="use" schema="Assembly_module_with_interconnect_component_arm"/>
       <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
-      <entity name="Interconnect_module_macro_component" supertypes="Interconnect_module_component">
-         <explicit name="design_definition">
+      <entity name="Interconnect_module_macro_component" supertypes="Physical_component">
+         <explicit name="derived_from">
             <typename name="Interconnect_module"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <inverse name="join_access_mechanisms" entity="Interconnect_module_macro_component_join_terminal" attribute="associated_component">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <where label="WR1" expression="SIZEOF(QUERY(immcjt &lt;* join_access_mechanisms | immcjt\Component_feature.definition\Shape_element.containing_shape :&lt;&gt;: design_definition\Part_design_view.usage_view)) = 0"/>
+         <where label="WR1" expression="SIZEOF(QUERY(immcjt &lt;* join_access_mechanisms | immcjt\Component_feature.definition\Shape_element.containing_shape :&lt;&gt;: SELF\Definition_based_product_occurrence.derived_from\Part_design_view.usage_view)) = 0"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
       </entity>
       <entity name="Interconnect_module_macro_component_join_terminal" supertypes="Interconnect_module_component_terminal">

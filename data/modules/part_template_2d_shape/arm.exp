@@ -229,10 +229,10 @@ SCHEMA Part_template_2d_shape_arm;
                (SIZEOF(QUERY(st <* template\Single_stratum_template.of_stratum_technology | st :=: bound_stratum\Stratum_technology_occurrence.definition)) = 1));
       WR2: NOT (SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE'] * TYPEOF(template)) = 1) OR
              ((NOT (SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1) OR
-               (SIZEOF(QUERY(st <* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum)) = 1))
+               (SIZEOF(QUERY(st <* template\Single_stratum_template.of_stratum_technology | st :=: bound_stratum)) = 1))
               AND
               (NOT (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_TECHNOLOGY_OCCURRENCE'] * TYPEOF(bound_stratum)) = 1) OR
-               (SIZEOF(QUERY(st <* template\Material_removal_feature_template.of_stratum_technology | st :=: bound_stratum\Stratum_technology_occurrence.definition)) = 1)));
+               (SIZEOF(QUERY(st <* template\Single_stratum_template.of_stratum_technology | st :=: bound_stratum\Stratum_technology_occurrence.definition)) = 1)));
       WR3: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM_TECHNOLOGY' IN TYPEOF(bound_stratum)) OR
            (NOT EXISTS(bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose) OR
            (NOT (bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
@@ -306,7 +306,7 @@ SCHEMA Part_template_2d_shape_arm;
     UNIQUE
       UR1 : reference_location, assembly_shape;
     WHERE
-      WR1 : assembly_shape.shape_characterized_definition :=: reference_location.assembly;
+      WR1 : assembly_shape.shape_characterized_definition[1] :=: reference_location.assembly;
   END_ENTITY;
 
   FUNCTION bag_to_set(

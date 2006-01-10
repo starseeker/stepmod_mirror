@@ -7,14 +7,15 @@
    <schema name="Assembly_module_with_macro_component_arm">
       <interface kind="use" schema="Assembly_module_macro_definition_arm"/>
       <interface kind="use" schema="Assembly_module_with_subassembly_arm"/>
-      <entity name="Assembly_module_macro_component" supertypes="Assembly_module_component">
-         <explicit name="design_definition">
+      <entity name="Assembly_module_macro_component" supertypes="Physical_component">
+         <explicit name="derived_from">
             <typename name="Assembly_module"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <inverse name="join_access_mechanisms" entity="Assembly_module_macro_component_join_terminal" attribute="associated_component">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <where label="WR1" expression="SIZEOF(QUERY(ammcjt &lt;* join_access_mechanisms | ammcjt\Component_feature.definition\Shape_element.containing_shape :&lt;&gt;: design_definition\Part_design_view.usage_view)) = 0"/>
+         <where label="WR1" expression="SIZEOF(QUERY(ammcjt &lt;* join_access_mechanisms | ammcjt\Component_feature.definition\Shape_element.containing_shape :&lt;&gt;: SELF\Definition_based_product_occurrence.derived_from\Part_design_view.usage_view)) = 0"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
       </entity>
       <entity name="Assembly_module_macro_component_join_terminal" supertypes="Assembly_module_component_terminal">

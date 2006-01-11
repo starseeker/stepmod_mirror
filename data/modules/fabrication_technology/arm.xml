@@ -87,7 +87,9 @@
          </unique>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
-      <entity name="Continuous_template" abstract.supertype="YES" supertypes="Geometric_template" super.expression="ONEOF (Inter_stratum_feature_template, Single_stratum_continuous_template)" abstract.entity="NO"/>
+      <entity name="Continuous_template" abstract.supertype="YES" supertypes="Geometric_template" super.expression="ONEOF (Inter_stratum_feature_template, Single_stratum_continuous_template)" abstract.entity="NO">
+         <where label="WR1" expression="SIZEOF(QUERY(s &lt;* SELF\Geometric_template.shapes |&#10;          NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_AREA_CSG_2D_MODEL' IN TYPEOF(s)))) = 0"/>
+      </entity>
       <entity name="Counterbore_passage_template" supertypes="Unsupported_passage_template" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="smaller_passage" optional="NO">
             <typename name="Unsupported_passage_template"/>
@@ -247,6 +249,7 @@
             <unique.attribute attribute="pre_defined_classification_code"/>
          </unique>
          <where label="WR1" expression="SIZEOF(QUERY(ltjt &lt;* access_mechanisms | NOT ('FABRICATION_TECHNOLOGY_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt)))) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(s &lt;* SELF\Geometric_template.shapes |&#10;             NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(s)))) = 0"/>
       </entity>
       <entity name="Land_template_interface_terminal" supertypes="Land_template_terminal" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="associated_definition" optional="NO">
@@ -401,6 +404,9 @@
          <explicit name="secondary_sto" optional="NO">
             <typename name="Stratum_technology_occurrence"/>
          </explicit>
+         <explicit name="scope" optional="NO">
+            <typename name="Stratum_stack_model"/>
+         </explicit>
          <unique label="UR1">
             <unique.attribute attribute="primary_sto"/>
          </unique>
@@ -408,6 +414,7 @@
             <unique.attribute attribute="secondary_sto"/>
          </unique>
          <where label="WR1" expression="primary_sto &lt;&gt; secondary_sto"/>
+         <where label="WR2" expression="(primary_sto IN scope\Stratum_stack_model.composing_occurrence) AND&#10;         (secondary_sto IN scope\Stratum_stack_model.composing_occurrence)"/>
       </entity>
       <entity name="Stratum_technology_swap_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="primary_stratum_technology" optional="NO">

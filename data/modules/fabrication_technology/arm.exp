@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.90 2006/01/10 06:23:08 thomasrthurman Exp $
+   $Id: arm.exp,v 1.91 2006/01/11 10:04:10 liutkus Exp $
    ISO TC184/SC4/WG12 N3663 - ISO/CD-TS 10303-1670 Fabrication technology - EXPRESS ARM
 *)
 
@@ -123,6 +123,9 @@ SCHEMA Fabrication_technology_arm;
   ENTITY Continuous_template
     ABSTRACT SUPERTYPE OF (ONEOF (Inter_stratum_feature_template, Single_stratum_continuous_template))
     SUBTYPE OF (Geometric_template);
+  WHERE
+    WR1 : SIZEOF(QUERY(s <* SELF\Geometric_template.shapes |
+          NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_AREA_CSG_2D_MODEL' IN TYPEOF(s)))) = 0;
   END_ENTITY;
 
   ENTITY Counterbore_passage_template
@@ -261,6 +264,8 @@ SCHEMA Fabrication_technology_arm;
       UR1 : pre_defined_classification_code;
     WHERE
       WR1 : SIZEOF(QUERY(ltjt <* access_mechanisms | NOT ('FABRICATION_TECHNOLOGY_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt)))) = 0;
+      WR2 : SIZEOF(QUERY(s <* SELF\Geometric_template.shapes |
+             NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(s)))) = 0;
   END_ENTITY;
 
   ENTITY Land_template_interface_terminal

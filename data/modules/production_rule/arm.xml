@@ -14,6 +14,9 @@
       <interface kind="reference" schema="Product_identification_arm">
          <interfaced.item name="types_of_product"/>
       </interface>
+      <interface kind="reference" schema="Specification_document_arm">
+         <interfaced.item name="get_document_definition"/>
+      </interface>
       <type name="built_in_functions">
          <enumeration extensible="YES" items="attr_val"/>
       </type>
@@ -28,6 +31,9 @@
       </type>
       <type name="function_symbol">
          <select selectitems="any_string_value built_in_functions"/>
+      </type>
+      <type name="pr_documented_element_select">
+         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Rule_set"/>
       </type>
       <type name="pr_identification_item">
          <select basedon="identification_item" selectitems="Rule_set"/>
@@ -220,9 +226,6 @@
       </entity>
       <entity name="Rule_request" supertypes="Rule_action"/>
       <entity name="Rule_set" supertypes="Rule_software_definition">
-         <explicit name="engine">
-            <typename name="Language_reference_manual"/>
-         </explicit>
          <explicit name="conflict_resolution_strategy" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
@@ -230,6 +233,10 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Rule_priority"/>
          </explicit>
+         <derived name="engine" expression="get_document_definition(SELF, 'engine', &#10;		'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL')">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Document_definition"/>
+         </derived>
          <inverse name="purpose" entity="Identification_assignment" attribute="items"/>
          <where label="WR1" expression="purpose.role = 'purpose'"/>
       </entity>

@@ -1,4 +1,4 @@
-//$Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $
+//$Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $
 //  Author: Tom Hendrix
 //  Owner:  
 //  Purpose:  JScript to generate the default XML for the common resource.
@@ -22,11 +22,9 @@ var stepmodHome = "../..";
 
 //var resourceSchemas = new Array("nut_and_bolt_1_schema", "nut_and_bolt_2_schema", "nut_and_bolt_3_schema");
 
-var resourceSchemas = new Array("product_and_model_relationships_schema", 
-                                "action_and_model_relationships_schema",
-				"state_and_model_relationships_schema",
-				"property_distribution_and_model_relationships_schema",
-				"fea_definition_relationships_schema" );
+var resourceSchemas = new Array("analysis_product_relationships_schema", 
+                                "product_analysis_schema",
+				"analysis_schema");
 
 //these are boilerplate files in /sys. Assumption is the names and xsl follow a pattern.
 
@@ -147,7 +145,7 @@ function MakeDvlpFldr(resource) {
 	f = fso.GetFile(projmgXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $ -->");//        ts.WriteLine("       <imgfile file=\"c"+(i+4)+"_expg1.xml\"/>");
+	ts.WriteLine("<!-- $Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $ -->");//        ts.WriteLine("       <imgfile file=\"c"+(i+4)+"_expg1.xml\"/>");
 
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/projmg.xsl\"?>");
   	ts.WriteLine("<!DOCTYPE management SYSTEM \"../../../../dtd/projmg/resdoc_projmg.dtd\">");
@@ -282,7 +280,7 @@ function MakeDvlpFldr(resource) {
 	f = fso.GetFile(issuesXML);
 	ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
 	ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	ts.WriteLine("<!-- $Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $ -->");
+	ts.WriteLine("<!-- $Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $ -->");
 	ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../../xsl/projmg/issues_file.xsl\"?>");
   	ts.WriteLine("<!DOCTYPE issues SYSTEM \"../../../../dtd/projmg/resource_issues.dtd\">");
 	ts.WriteLine("<issues resource=\""+resource+"\">");
@@ -354,7 +352,7 @@ function MakeResdocClause(resdoc, clause) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource_clause SYSTEM \"../../../../dtd/res_doc/resource_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/res_doc/" + clauseXSL + "\" ?>");
@@ -377,7 +375,7 @@ function MakeResdocSchemaClause(resdoc, xmlfile, xslfile,schemano) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource_clause SYSTEM \"../../../../dtd/res_doc/resource_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../../xsl/res_doc/" + clauseXSL + "\" ?>");
@@ -401,7 +399,7 @@ function MakeResourceXML(resource, partNo) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     userMessage(TristateUseDefault);
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource SYSTEM \"../../../dtd/res_doc/resource.dtd\">");
     //ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     //ts.WriteLine("href=\"../../../xsl/res_doc/express.xsl\" ?>");
@@ -543,7 +541,7 @@ function MakeExpressG(resdoc, schema, title) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE imgfile.content SYSTEM \"../../../dtd/text.ent\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("    href=\"../../../xsl/res_doc/imgfile.xsl\"?>");
@@ -590,7 +588,7 @@ if (resourceSchemas.length == 0){
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("(*");
-    ts.WriteLine("   $Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $");
+    ts.WriteLine("   $Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $");
     ts.Write("   N - ISO/CD-TS - 10303- ");
     ts.Write(resource);
     ts.Write(" - EXPRESS ");
@@ -612,7 +610,7 @@ function MakeIndexXML(resdoc) {
     var f = fso.GetFile(indexXML);
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);    
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource_clause SYSTEM \"../../../dtd/res_doc/resource_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/res_doc/index.xsl\" ?>");
     ts.WriteLine("<!-- do not edit this file -->");
@@ -631,7 +629,7 @@ function MakeResdocindexXML(resdoc) {
     var f = fso.GetFile(resdocindexXML);
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);    
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE resource_clause SYSTEM \"../../../dtd/res_doc/resource_clause.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\" href=\"../../../xsl/res_doc/sect_resdocindex.xsl\" ?>");
     ts.WriteLine("<!-- do not edit this file -->");
@@ -655,14 +653,14 @@ function MakeExpressXML(resource,schema, partNo) {
     var ts = f.OpenAsTextStream(ForWriting, TristateUseDefault);
     
     ts.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    ts.WriteLine("<!-- $Id: mkresource.js,v 1.9 2004/12/18 00:09:18 thendrix Exp $ -->");
+    ts.WriteLine("<!-- $Id: mkresource.js,v 1.10 2005/07/20 20:27:44 thendrix Exp $ -->");
     ts.WriteLine("<!DOCTYPE express SYSTEM \"../../../dtd/express.dtd\">");
     ts.WriteLine("<?xml-stylesheet type=\"text/xsl\"");
     ts.WriteLine("href=\"../../../res_doc/xsl/express.xsl\" ?>");
     ts.WriteLine("<express");
     ts.WriteLine("   language_version=\"2\"");
-    ts.WriteLine("   rcs.date=\"$Date: 2004/12/18 00:09:18 $\"");
-    ts.WriteLine("   rcs.revision=\"$Revision: 1.9 $\"");
+    ts.WriteLine("   rcs.date=\"$Date: 2005/07/20 20:27:44 $\"");
+    ts.WriteLine("   rcs.revision=\"$Revision: 1.10 $\"");
     ts.WriteLine("   reference=\"ISO 10303-"+partNo+"\"");
     ts.WriteLine("   description.file=\"descriptions.xml\"\>");
     ts.WriteLine("  <schema name=\""+schema+"\">");

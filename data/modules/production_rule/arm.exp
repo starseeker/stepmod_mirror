@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.9 2006/01/10 13:41:14 liutkus Exp $
+   $Id: arm.exp,v 1.10 2006/01/11 12:09:17 liutkus Exp $
    ISO TC184/SC4/WG12 N3588 - ISO/CD-TS 10303-1739 Production rule - EXPRESS ARM
 *)
 
@@ -17,7 +17,7 @@ REFERENCE FROM Product_identification_arm(types_of_product); -- ISO/TS 10303-101
 USE FROM Identification_assignment_arm;
 USE FROM Product_identification_arm;
 
--- REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
+REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
 
 TYPE pr_identification_item = SELECT BASED_ON identification_item WITH 
    (Rule_set);
@@ -37,6 +37,10 @@ END_TYPE;
 
 TYPE expression_syntax = EXTENSIBLE ENUMERATION OF (express);
 END_TYPE;
+
+TYPE pr_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
+   (Rule_set);
+END_TYPE; 
 
 TYPE predicate_symbol = STRING;
 END_TYPE;
@@ -242,9 +246,12 @@ END_ENTITY;
 
 ENTITY Rule_set
    SUBTYPE OF (Rule_software_definition);
-   engine : Language_reference_manual;
    conflict_resolution_strategy : OPTIONAL STRING;
    rule_member : SET[1:?] OF Rule_priority;
+ DERIVE  
+   engine: SET[1:1] OF Document_definition :=
+		get_document_definition(SELF, 'engine', 
+		'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL');
  INVERSE
    purpose : Identification_assignment FOR items;
  WHERE

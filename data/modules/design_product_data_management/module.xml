@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE module SYSTEM "../../../dtd/module.dtd">
-<module xmlns:xlink="http://www.w3.org/1999/xlink" name="design_product_data_management" part="1628" version="1" sc4.working_group="12" wg.number="3836" wg.number.arm="3837" wg.number.mim="3838" wg.number.supersedes="3347" wg.number.arm.supersedes="3348" wg.number.mim.supersedes="3349" checklist.internal_review="3818" checklist.project_leader="3819" checklist.convener="3820" status="TS" language="E" publication.year="2006" published="y" rcs.date="$Date: 2006/01/06 21:40:17 $" rcs.revision="$Revision: 1.5 $" development.folder="dvlp">
+<module xmlns:xlink="http://www.w3.org/1999/xlink" name="design_product_data_management" part="1628" version="1" sc4.working_group="12" wg.number="3836" wg.number.arm="3837" wg.number.mim="3838" wg.number.supersedes="3347" wg.number.arm.supersedes="3348" wg.number.mim.supersedes="3349" checklist.internal_review="3818" checklist.project_leader="3819" checklist.convener="3820" status="TS" language="E" publication.year="2006" published="y" rcs.date="$Date: 2006/01/09 12:49:46 $" rcs.revision="$Revision: 1.6 $" development.folder="dvlp">
     <keywords>
     module, product data management, approval, identification, test select
  </keywords>
@@ -75,31 +75,23 @@
         </express-g>
     </arm>
     <mapping_table>
+		<ae entity="Applied_activity_method_assignment" original_module= "activity_method_assignment" > 
+			<aa attribute="items" assertion_to="Document"> 
+				<refpath_extend extended_select="activity_method_item" >
+					action_method_items *&gt; design_action_method_items
+					design_action_method_items = product
+				</refpath_extend>
+			</aa> 
+
+			<aa attribute="items" assertion_to="Document_version"> 
+				<refpath_extend extended_select="activity_method_item" >
+					action_method_items *&gt; design_action_method_items
+					design_action_method_items = product_definition_formation
+				</refpath_extend>
+			</aa> 
+		</ae> 
+    
 		<ae entity="Affected_items_assignment" original_module="work_request" extensible="NO">
-			<aa attribute="items" assertion_to="Assigned_property">
-				<refpath_extend extended_select="affected_item_select" xml:space="preserve">
-				action_request_item *&gt; pdm_action_request_item
-				pdm_action_request_item = property_definition
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Product_version">
-				<refpath_extend extended_select="affected_item_select" xml:space="preserve">
-				action_request_item *&gt; pdm_action_request_item
-				pdm_action_request_item = product_definition_formation
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Product_view_definition">
-				<refpath_extend extended_select="affected_item_select" xml:space="preserve">
-				action_request_item *&gt; pdm_action_request_item
-				pdm_action_request_item = product_definition
-				</refpath_extend>
-			</aa>			
-			<aa attribute="items" assertion_to="View_definition_relationship">
-				<refpath_extend extended_select="affected_item_select" xml:space="preserve">
-				action_request_item *&gt; pdm_action_request_item
-				pdm_action_request_item = product_definition_relationship
-				</refpath_extend>
-			</aa>			
 			<aa attribute="items" assertion_to="Work_request">
 				<refpath_extend extended_select="affected_item_select" xml:space="preserve">
 				action_request_item *&gt; pdm_action_request_item
@@ -134,25 +126,8 @@
 				</refpath_extend>
 			</aa>
 		</ae>
+
 		<ae entity="Approval_assignment" original_module="approval" extensible="NO">
-			<aa attribute="items" assertion_to="Item_usage_effectivity">
-				<refpath_extend extended_select="approval_item" xml:space="preserve">
-				approval_item *&gt; pdm_approval_item
-				pdm_approval_item = configuration_effectivity
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Applied_activity_assignment">
-				<refpath_extend extended_select="approval_item" xml:space="preserve">
-				approval_item *&gt; pdm_approval_item
-				pdm_approval_item = applied_action_assignment
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Activity">
-				<refpath_extend extended_select="approval_item" xml:space="preserve">
-				approval_item *&gt; pdm_approval_item
-				pdm_approval_item = executed_action
-				</refpath_extend>
-			</aa>
 			<aa attribute="items" assertion_to="Certification">
 				<refpath_extend extended_select="approval_item" xml:space="preserve">
 				approval_item *&gt; pdm_approval_item
@@ -219,13 +194,611 @@
 				pdm_approval_item = action_directive
 				</refpath_extend>
 			</aa>
-			<aa attribute="items" assertion_to="Work_request">
-				<refpath_extend extended_select="approval_item" xml:space="preserve">
-				approval_item *&gt; pdm_approval_item
-				pdm_approval_item = versioned_action_request
-				</refpath_extend>
-			</aa>
 		</ae>
+		<ae entity="Attribute_classification" original_module= "attribute_classification" > 
+			<aa attribute="classified_entity" assertion_to="Activity"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = executed_action  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Activity_method"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = action_method  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Activity_method_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = action_request_solution  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Activity_property"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = action_request_solution  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Activity_property_representation"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = action_property_representation  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Activity_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = action_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Address_assignment"> 
+			<alt_map id="1">
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = person_and_organization_address  
+					</refpath> 
+			</alt_map>		
+			<alt_map id="2">
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = organizational_address  
+					</refpath> 
+			</alt_map>		
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Affected_items_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_action_request_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Alternate_part_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = alternate_product_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Applied_activity_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_action_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Approval"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = approval  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Approval_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_approval_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Approval_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = approval_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Approval_status"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = approval_status  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Approving_person_organization"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = approval_person_organization  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Assigned_property"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = property_definition  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Certification"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = certification  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Certification_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_certification_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Context_dependent_unit"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = context_dependent_unit  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Contract"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = contract  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Date_or_date_time_assignment"> 
+			<alt_map id="1">
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = date_assignment  
+					</refpath> 
+			</alt_map>
+			<alt_map id="2">
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = date_and_time_assignment  
+					</refpath> 
+			</alt_map>
+			</aa>			
+			<aa attribute="classified_entity" assertion_to="Descriptive_document_property"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = descriptive_representation_item  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Digital_file"> 
+			<alt_map id="1">
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = document_file  
+					</refpath> 
+			</alt_map>
+			<alt_map id="2">
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_document_usage_constraint_assignment  
+					</refpath> 
+			</alt_map>
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Document_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_document_reference  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Document_definition_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product_definition_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Document_location_identification"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_external_identification_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Document_property_representation"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = representation  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Effectivity"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = effectivity  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Effectivity_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_effectivity_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Event_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_event_occurrence_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Event_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = event_occurrence_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="External_item_identification"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_external_identification_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="External_source_identification"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_external_identification_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="File_location_identification"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_external_identification_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="File_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = document_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Hardcopy"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = document_file  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Identification_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_identification_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Independent_property"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = general_property  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Independent_property_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = general_property_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Independent_property_representation"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = property_definition_representation  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Language"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = language  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Market"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product_concept_context  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Numerical_document_property"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = measure_representation_item  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Organization_or_person_in_organization_assignment"> 
+			<alt_map id="1">
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_organization_assignment  
+					</refpath> 
+			</alt_map>
+			<alt_map id="2">
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_person_and_organization_assignment  
+					</refpath> 
+			</alt_map>
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Organization_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = organization_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Part_view_definition"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product_definition  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Partial_document_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_document_usage_constraint_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Person_in_organization"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = person_and_organization  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Product"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Product_category"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product_category  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Product_concept"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product_concept  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Product_version"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product_definition_formation  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Product_version_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product_definition_formation_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Product_view_definition"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product_definition  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Project_assignment"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = applied_organizational_project_assignment  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Project_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = organizational_project_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Property_representation"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = property_definition_representation  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Representation"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = representation  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Representation_context"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = representation_context  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Representation_item"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = representation_item  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Security_classification"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = security_classification  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Time_interval_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = time_interval_relationship  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Uncertainty_with_unit"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = uncertainty_measure_with_unit  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Unit"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						(design_pdm_attribute_classification_item = named_unit)
+						(design_pdm_attribute_classification_item = derived_unit)
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Value_with_unit"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = measure_with_unit  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="View_definition_context"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product_definition_context  
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="View_definition_relationship"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = product_definition_context
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Work_order"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = action_directive
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Work_request"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = versioned_action_request
+					</refpath> 
+			</aa>
+			<aa attribute="classified_entity" assertion_to="Work_request_status"> 
+				<aimelt>PATH</aimelt> 
+					<refpath> applied_attribute_classification_assignment
+						applied_attribute_classification_assignment.items[i] = attribute_classification_item
+						attribute_classification_item *&gt; design_pdm_attribute_classification_item
+						design_pdm_attribute_classification_item = action_request_status
+					</refpath> 
+			</aa>
+		</ae> 
+
 		<ae entity="Attribute_translation_assignment" original_module="multi_linguism" extensible="NO">
 			<aa attribute="considered_instance" assertion_to="Approval">
 				<refpath_extend extended_select="string_select" xml:space="preserve">
@@ -351,6 +924,7 @@
 				</refpath_extend>
 			</aa>
 		</ae>
+
 		<ae entity="Certification_assignment" original_module="certification" extensible="NO">
 			<aa attribute="items" assertion_to="Alternate_product_relationship">
 				<refpath_extend extended_select="certification_item" xml:space="preserve">
@@ -362,12 +936,6 @@
 				<refpath_extend extended_select="certification_item" xml:space="preserve">
 				certification_item *&gt; pdm_certification_item
 				pdm_certification_item = product_definition_formation
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Product_version_relationship">
-				<refpath_extend extended_select="certification_item" xml:space="preserve">
-				certification_item *&gt; pdm_certification_item
-				pdm_certification_item = product_definition_formation_relationship
 				</refpath_extend>
 			</aa>
 		</ae>
@@ -847,11 +1415,13 @@
 				</refpath_extend>
 			</aa>
 		</ae>
+		
 		<ae entity="Contract_assignment" original_module="contract" extensible="NO">
-			<aa attribute="items" assertion_to="Person_in_organization">
+			<aa attribute="items" assertion_to="organization_or_person_in_organization_select">
 			<refpath_extend extended_select="contract_item" xml:space="preserve">
 			contract_item *&gt; design_pdm_contract_item
-			design_pdm_contract_item = person_and_organization
+			(design_pdm_contract_item = person_and_organization)
+			(design_pdm_contract_item = organization)
 			</refpath_extend>
 			</aa>
 			<aa attribute="items" assertion_to="Product_version">
@@ -860,6 +1430,7 @@
 			design_pdm_contract_item = product_definition_formation
 			</refpath_extend>			
 			</aa>
+			
 			<aa attribute="items" assertion_to="Work_order">
 			<refpath_extend extended_select="contract_item" xml:space="preserve">
 			contract_item *&gt; design_pdm_contract_item
@@ -867,39 +1438,8 @@
 			</refpath_extend>
 			</aa>
 		</ae>
+		
 		<ae entity="Date_or_date_time_assignment" original_module="date_time_assignment" extensible="NO">
-				<aa attribute="items" assertion_to="Activity">
-					<alt_map alt_map.inc="1">
-						<aimelt xml:space="preserve">PATH</aimelt>
-						<refpath_extend extended_select="date_or_date_time_item" xml:space="preserve">
-						date_item *&gt; pdm_date_item
-						pdm_date_item = executed_action
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-						<aimelt xml:space="preserve">PATH</aimelt>
-						<refpath_extend extended_select="date_or_date_time_item" xml:space="preserve">						
-						date_and_time_item *&gt; pdm_date_and_time_item
-						pdm_date_and_time_item = executed_action
-						</refpath_extend>
-					</alt_map>
-				</aa>
-				<aa attribute="items" assertion_to="Applied_activity_assignment">
-					<alt_map alt_map.inc="1">
-						<aimelt xml:space="preserve">PATH</aimelt>
-						<refpath_extend extended_select="date_or_date_time_item" xml:space="preserve">
-						date_item *&gt; pdm_date_item
-						pdm_date_item = applied_action_assignment
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-						<aimelt xml:space="preserve">PATH</aimelt>
-						<refpath_extend extended_select="date_or_date_time_item" xml:space="preserve">						
-						date_and_time_item *&gt; pdm_date_and_time_item
-						pdm_date_and_time_item = applied_action_assignment
-						</refpath_extend>
-					</alt_map>
-				</aa>
 				<aa attribute="items" assertion_to="Contract">
 					<alt_map alt_map.inc="1">
 						<aimelt xml:space="preserve">PATH</aimelt>
@@ -980,52 +1520,9 @@
 						</refpath_extend>
 					</alt_map>
 				</aa>
-				<aa attribute="items" assertion_to="Work_request">
-					<alt_map alt_map.inc="1">
-						<aimelt xml:space="preserve">PATH</aimelt>
-						<refpath_extend extended_select="date_or_date_time_item" xml:space="preserve">
-						date_item *&gt; pdm_date_item
-						pdm_date_item = versioned_action_request
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-						<aimelt xml:space="preserve">PATH</aimelt>
-						<refpath_extend extended_select="date_or_date_time_item" xml:space="preserve">						
-						date_and_time_item *&gt; pdm_date_and_time_item
-						pdm_date_and_time_item = versioned_action_request
-						</refpath_extend>
-					</alt_map>
-				</aa>
 		</ae>
+		
 		<ae entity="Document_assignment" original_module="document_assignment" extensible="NO">
-			<aa attribute="is_assigned_to" assertion_to="Activity">
-				<alt_map alt_map.inc="1">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = executed_action
-					</refpath_extend>
-				</alt_map>
-				<alt_map alt_map.inc="2">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = executed_action
-					</refpath_extend>
-				</alt_map>
-			</aa>
-			<aa attribute="is_assigned_to" assertion_to="Activity_method">
-				<alt_map alt_map.inc="1">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = action_method
-					</refpath_extend>
-				</alt_map>
-				<alt_map alt_map.inc="2">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = action_method
-					</refpath_extend>
-				</alt_map>			
-			</aa>
 			<aa attribute="is_assigned_to" assertion_to="External_item_identification">
 				<alt_map alt_map.inc="1">
 					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
@@ -1068,20 +1565,6 @@
 					</refpath_extend>
 				</alt_map>			
 			</aa>
-			<aa attribute="is_assigned_to" assertion_to="Product_version_relationship">
-				<alt_map alt_map.inc="1">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = product_definition_formation_relationship
-					</refpath_extend>
-				</alt_map>
-				<alt_map alt_map.inc="2">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = product_definition_formation_relationship
-					</refpath_extend>
-				</alt_map>			
-			</aa>
 			<aa attribute="is_assigned_to" assertion_to="Product_view_definition">
 				<alt_map alt_map.inc="1">
 					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
@@ -1107,48 +1590,6 @@
 					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
 						document_reference_item *&gt; pdm_document_reference_item
 						pdm_document_reference_item = representation_item
-					</refpath_extend>
-				</alt_map>			
-			</aa>
-			<aa attribute="is_assigned_to" assertion_to="Shape_element">
-				<alt_map alt_map.inc="1">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = shape_aspect
-					</refpath_extend>
-				</alt_map>
-				<alt_map alt_map.inc="2">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = shape_aspect
-					</refpath_extend>
-				</alt_map>			
-			</aa>
-			<aa attribute="is_assigned_to" assertion_to="Shape_element_relationship">
-				<alt_map alt_map.inc="1">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = shape_aspect_relationship
-					</refpath_extend>
-				</alt_map>
-				<alt_map alt_map.inc="2">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = shape_aspect_relationship
-					</refpath_extend>
-				</alt_map>			
-			</aa>
-			<aa attribute="is_assigned_to" assertion_to="Work_request">
-				<alt_map alt_map.inc="1">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = versioned_action_request
-					</refpath_extend>
-				</alt_map>
-				<alt_map alt_map.inc="2">
-					<refpath_extend extended_select="documented_element_select" xml:space="preserve">
-						document_reference_item *&gt; pdm_document_reference_item
-						pdm_document_reference_item = versioned_action_request
 					</refpath_extend>
 				</alt_map>			
 			</aa>
@@ -1181,6 +1622,7 @@
 				</refpath_extend>
 			</aa>
 		</ae>
+		
 		<ae entity="Identification_assignment" original_module="identification_assignment" extensible="NO">
 			<aa attribute="items" assertion_to="Material_identification">
 				<refpath_extend extended_select="identification_item" xml:space="preserve">
@@ -1222,12 +1664,6 @@
 				<refpath_extend extended_select="identification_item" xml:space="preserve">
 					identification_item *&gt; pdm_identification_item
 					pdm_identification_item = product_definition_formation
-				</refpath_extend>
-			</aa>
-			<aa attribute="items" assertion_to="Shape_element_relationship">
-				<refpath_extend extended_select="identification_item" xml:space="preserve">
-					identification_item *&gt; pdm_identification_item
-					pdm_identification_item = shape_aspect_relationship
 				</refpath_extend>
 			</aa>
 		</ae>
@@ -1356,6 +1792,7 @@
 				</refpath_extend>
 			</aa>
 		</ae>
+		
 		<ae entity="Name_assignment" original_module="name_assignment" extensible="NO">
 			<aa attribute="items" assertion_to="Product">
 				<refpath_extend extended_select="assigned_name_select" xml:space="preserve">
@@ -1369,28 +1806,9 @@
 					design_pdm_name_item = product_definition
 				</refpath_extend>
 			</aa>
-			<aa attribute="items" assertion_to="External_class_library">
-				<refpath_extend extended_select="assigned_name_select" xml:space="preserve">
-					name_item *&gt; design_pdm_name_item
-					design_pdm_name_item = external_class_library
-				</refpath_extend>
-			</aa>
 		</ae>
+		
 		<ae entity="Organization_or_person_in_organization_assignment" original_module="person_organization_assignment" extensible="NO">
-				<aa attribute="items" assertion_to="Activity">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = executed_action
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = executed_action
-							</refpath_extend>
-					</alt_map>
-				</aa>
 			<aa attribute="items" assertion_to="Alias_identification">
 					<alt_map alt_map.inc="1">
 						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
@@ -1405,62 +1823,6 @@
 							</refpath_extend>
 					</alt_map>
 			</aa>
-			<aa attribute="items" assertion_to="Applied_activity_assignment">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = applied_action_assignment
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = applied_action_assignment
-							</refpath_extend>
-					</alt_map>
-			</aa>
-			<aa attribute="items" assertion_to="Approval">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = approval
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = approval
-							</refpath_extend>
-					</alt_map>
-			</aa>
-			<aa attribute="items" assertion_to="Certification">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = certification
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = certification
-							</refpath_extend>
-					</alt_map>
-			</aa>
-			<aa attribute="items" assertion_to="Contract">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = contract
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = contract
-							</refpath_extend>
-					</alt_map>
-			</aa>
 			<aa attribute="items" assertion_to="Document_definition">
 					<alt_map alt_map.inc="1">
 						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
@@ -1472,76 +1834,6 @@
 							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
 							person_and_organization_item *&gt; pdm_person_and_organization_item
 							pdm_person_and_organization_item = product_definition
-							</refpath_extend>
-					</alt_map>
-			</aa>
-			<aa attribute="items" assertion_to="Product">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = product
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = product
-							</refpath_extend>
-					</alt_map>
-			</aa>
-			<aa attribute="items" assertion_to="Product_configuration">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = configuration_item
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = configuration_item
-							</refpath_extend>
-					</alt_map>
-			</aa>
-			<aa attribute="items" assertion_to="Product_version">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = product_definition_formation
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = product_definition_formation
-							</refpath_extend>
-					</alt_map>
-			</aa>
-			<aa attribute="items" assertion_to="Product_view_definition">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = product_definition
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = product_definition
-							</refpath_extend>
-					</alt_map>
-			</aa>
-			<aa attribute="items" assertion_to="Security_classification">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = security_classification
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = security_classification
 							</refpath_extend>
 					</alt_map>
 			</aa>
@@ -1570,20 +1862,6 @@
 							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
 							person_and_organization_item *&gt; pdm_person_and_organization_item
 							pdm_person_and_organization_item = action_directive
-							</refpath_extend>
-					</alt_map>
-			</aa>
-			<aa attribute="items" assertion_to="Work_request">
-					<alt_map alt_map.inc="1">
-						<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							organization_item *&gt; pdm_organization_item
-							pdm_organization_item = versioned_action_request
-						</refpath_extend>
-					</alt_map>
-					<alt_map alt_map.inc="2">
-							<refpath_extend extended_select="organization_or_person_in_organization_item" xml:space="preserve">
-							person_and_organization_item *&gt; pdm_person_and_organization_item
-							pdm_person_and_organization_item = versioned_action_request
 							</refpath_extend>
 					</alt_map>
 			</aa>
@@ -1668,22 +1946,6 @@
 		</ae>
 		
 		<ae entity="Security_classification_assignment" original_module="security_classification" extensible="NO">
-			<aa attribute="items" assertion_to="Assembly_component_relationship">
-				<alt_map alt_map.inc="1">
-					<refpath_extend extended_select="security_classification_item" xml:space="preserve">
-						security_classification_item *&gt; pdm_security_classification_item
-						pdm_security_classification_item = assembly_component_usage
-					</refpath_extend>
-				</alt_map>
-				<alt_map alt_map.inc="2">
-					<refpath_extend extended_select="security_classification_item" xml:space="preserve">
-						security_classification_item *&gt; pdm_security_classification_item
-						pdm_security_classification_item = 
-						assembly_component_usage =&gt;
-						quantified_assembly_component_usage
-					</refpath_extend>
-				</alt_map>
-			</aa>
 			<aa attribute="items" assertion_to="Document_definition">
 				<refpath_extend extended_select="security_classification_item" xml:space="preserve">
 					security_classification_item *&gt; pdm_security_classification_item

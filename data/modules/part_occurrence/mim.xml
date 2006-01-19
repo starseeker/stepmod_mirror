@@ -22,7 +22,7 @@
       <type name="product_definition_or_assembly_relationship">
          <select selectitems="assembly_component_usage product_definition"/>
       </type>
-      <rule name="restrict_part_occurrence" appliesto="">
+      <rule name="restrict_part_occurrence" appliesto="product_definition">
          <algorithm>LOCAL
   part_occurrences: SET OF product_definition := [];
 END_LOCAL;
@@ -35,7 +35,7 @@ END_LOCAL;
          <where label="WR5" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences | &#10; 	( pd.name = 'quantified instance' ) AND &#10;	( SIZEOF ( QUERY (ppd &lt;* USEDIN ( pd , 'PART_OCCURRENCE_MIM.' +'PROPERTY_DEFINITION.DEFINITION' ) |&#10; 	( ppd.name ='occurrence quantity' ) AND &#10;	( SIZEOF ( QUERY ( pdr &lt;*USEDIN ( ppd , 'PART_OCCURRENCE_MIM.' +'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION' ) | (&#10;	pdr.used_representation.name = 'quantity' ) AND &#10;	(SIZEOF ( pdr.used_representation.items ) = 1 ) AND &#10; 	(SIZEOF ( QUERY ( i &lt;* pdr.used_representation.items | &#10;	('PART_OCCURRENCE_MIM.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND&#10;	( i.name = 'quantity measure' ) ) ) = 1)))= 1 )))= 0 )))= 0"/>
          <where label="WR6" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences | &#10;	( pd.name = 'specified instance' ) AND &#10;	( SIZEOF ( QUERY (&#10;pdor &lt;* USEDIN ( pd , 'PART_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) | &#10;  'PART_OCCURRENCE_MIM.' +'SPECIFIED_HIGHER_USAGE_OCCURRENCE' IN TYPEOF ( pdor.occurrence_usage ) ) ) = 0 ) ) ) = 0"/>
       </rule>
-      <rule name="restrict_part_occurrence_category" appliesto="">
+      <rule name="restrict_part_occurrence_category" appliesto="product_definition">
          <algorithm>LOCAL
   part_occurrences: SET OF product_definition := [];
 END_LOCAL;
@@ -43,10 +43,10 @@ END_LOCAL;
 		pd.frame_of_reference.name = 'part occurrence'));</algorithm>
          <where label="WR1" expression="SIZEOF( QUERY( pd &lt;* part_occurrences | &#10;(SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, 'PART_OCCURRENCE_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | &#10;  prpc.name IN ['part','raw material','tool'] )) = 0 ) )) = 0"/>
       </rule>
-      <rule name="restrict_product_definitions_for_definition_usage" appliesto="">
+      <rule name="restrict_product_definitions_for_definition_usage" appliesto="product_definition_relationship">
          <where label="WR1" expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |&#10;     ( pdr.name = 'definition usage' ) AND &#10;	( ( pdr.relating_product_definition.frame_of_reference.name&lt;&gt; 'part definition' ) OR &#10;	( pdr.related_product_definition.frame_of_reference.name&lt;&gt;'part occurrence' )))) =0"/>
       </rule>
-      <rule name="selected_instance_usage_requires_representation" appliesto="">
+      <rule name="selected_instance_usage_requires_representation" appliesto="assembly_component_usage">
          <algorithm>LOCAL
   selected_instance_usages: SET OF assembly_component_usage := [];
 END_LOCAL;

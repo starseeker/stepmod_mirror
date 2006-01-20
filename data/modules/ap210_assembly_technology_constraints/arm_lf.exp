@@ -3,7 +3,7 @@
    ISO TC184/SC4/WG3 N1976 - ISO/CD-TS 10303-1610 AP210 assembly technology constraints - EXPRESS ARM Long form
    Supersedes ISO TC184/SC4/WG3 N1700
 *)
-SCHEMA ap210_assembly_technology_constraints_arm;
+SCHEMA ap210_assembly_technology_constraints_arm_lf;
 
 CONSTANT
 	Pre_defined_activity_relationship_types : SET [0:?] OF STRING := [
@@ -574,7 +574,7 @@ END_TYPE; -- extended_value_with_unit
 
 TYPE groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.GROUP' IN TYPEOF(SELF));
+	WR1 : NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.GROUP' IN TYPEOF(SELF));
 END_TYPE; -- groupable_item
 
 TYPE identification_item = EXTENSIBLE SELECT ;
@@ -1036,7 +1036,7 @@ DERIVE
 	SELF\Identification_assignment.role : STRING := 'alias';
 WHERE
 	WR1 : SIZEOF(QUERY(item <* SELF\Identification_assignment.items |
-NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item))))= 0;
+NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item))))= 0;
 END_ENTITY; -- Alias_identification
 
 
@@ -1097,7 +1097,7 @@ WHERE
 	WR2 : SELF\View_definition_relationship.relating_view :=: upper_assembly_relationship\View_definition_relationship.relating_view;
 	WR3 : SELF\View_definition_relationship.related_view :=: sub_assembly_relationship\View_definition_relationship.related_view;
 	WR4 : (upper_assembly_relationship\View_definition_relationship.related_view :=: sub_assembly_relationship\View_definition_relationship.relating_view)OR(SIZEOF(QUERY(pdr <* USEDIN(upper_assembly_relationship\View_definition_relationship.related_view, 'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW')| pdr.relating_view :=: sub_assembly_relationship\View_definition_relationship.relating_view))= 1);
-	WR5 : SIZEOF(['AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.NEXT_ASSEMBLY_USAGE', 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship))= 1;
+	WR5 : SIZEOF(['AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.NEXT_ASSEMBLY_USAGE', 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship))= 1;
 END_ENTITY; -- Component_upper_level_identification
 
 
@@ -1195,16 +1195,16 @@ END_ENTITY; -- Expanded_uncertainty
 ENTITY Length_tolerance_characteristic
 	SUBTYPE OF (Tolerance_characteristic);
 WHERE
-	WR1 : ('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
-       ('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
+	WR1 : ('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
+       ('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
        (SIZEOF(QUERY(it <* SELF\Representation.items |
           NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))
         ))= 0);
-	WR2 : NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
+	WR2 : NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
        (SIZEOF(QUERY(it <* SELF\Representation.items |
        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))
           ))= 1);
-	WR3 : NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.STASTICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
+	WR3 : NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.STASTICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
        (SIZEOF(QUERY(it <* SELF\Representation.items |
        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))
           ))= 1);
@@ -1384,9 +1384,9 @@ ENTITY Classification_association
 	SELF\Classification_assignment.assigned_class : Class_with_attributes;
 WHERE
 	WR1 : SIZEOF(QUERY(it<* SELF\Classification_assignment.items |
-     NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.DEFINABLE_OBJECTS' IN TYPEOF(it))AND definitional))=0;
+     NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.DEFINABLE_OBJECTS' IN TYPEOF(it))AND definitional))=0;
 	WR2 : SIZEOF(QUERY(it<* SELF\Classification_assignment.items |
-     NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF(it))))=0;
+     NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF(it))))=0;
 END_ENTITY; -- Classification_association
 
 
@@ -1609,7 +1609,7 @@ END_ENTITY; -- Document_definition
 ENTITY Document_location_identification
 	SUBTYPE OF (External_source_identification);
 WHERE
-	WR1 : 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.DOCUMENT_DEFINITION' IN TYPEOF(SELF\External_source_identification.item);
+	WR1 : 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.DOCUMENT_DEFINITION' IN TYPEOF(SELF\External_source_identification.item);
 END_ENTITY; -- Document_location_identification
 
 
@@ -1627,7 +1627,7 @@ DERIVE
 UNIQUE
 	UR1 : described_element;
 WHERE
-	WR1 : SIZEOF(['AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.DOCUMENT_DEFINITION', 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.FILE']*TYPEOF(SELF\Assigned_property.described_element))= 1;
+	WR1 : SIZEOF(['AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.DOCUMENT_DEFINITION', 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.FILE']*TYPEOF(SELF\Assigned_property.described_element))= 1;
 END_ENTITY; -- Assigned_document_property
 
 
@@ -1642,7 +1642,7 @@ ENTITY Document_property_representation
 	SUBTYPE OF (Representation);
 	SELF\Representation.items : SET [1:?] OF descriptive_or_numerical;
 WHERE
-	WR1 : SIZEOF(QUERY(pr <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_REPRESENTATION.REP')| 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.ASSIGNED_PROPERTY' IN TYPEOF(pr.property)))> 0;
+	WR1 : SIZEOF(QUERY(pr <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_REPRESENTATION.REP')| 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.ASSIGNED_PROPERTY' IN TYPEOF(pr.property)))> 0;
 	WR2 : SELF\Representation.context_of_items.kind = 'document parameters';
 	WR3 : valid_document_property_representation(SELF);
 	WR4 : SIZEOF(QUERY(it1 <* SELF\Representation.items | SIZEOF(QUERY(it2 <* SELF\Representation.items | it1.name = it2.name))> 1))= 0;
@@ -2001,7 +2001,7 @@ END_ENTITY; -- File
 ENTITY File_location_identification
 	SUBTYPE OF (External_item_identification);
 WHERE
-	WR1 : 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.FILE' IN TYPEOF(SELF\External_source_identification.item);
+	WR1 : 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.FILE' IN TYPEOF(SELF\External_source_identification.item);
 END_ENTITY; -- File_location_identification
 
 
@@ -2170,7 +2170,7 @@ ENTITY Incomplete_reference_marking
 	SUBTYPE OF (Classification_assignment);
 WHERE
 	WR1 : SIZEOF(QUERY(item <* SELF\Classification_assignment.items | 
-	NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.IDRM_MARKED_ITEM' IN TYPEOF(item))))= 0;
+	NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.IDRM_MARKED_ITEM' IN TYPEOF(item))))= 0;
 	WR2 : SELF\Classification_assignment.assigned_class.id = 'reference';
 END_ENTITY; -- Incomplete_reference_marking
 
@@ -2210,7 +2210,7 @@ ENTITY Numerical_item_with_global_unit
 	SUBTYPE OF (Measure_item);
 	value_component : measure_value;
 WHERE
-	WR1 : SIZEOF(QUERY(pvr <* QUERY(r <* USEDIN(SELF, 'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS')| 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.PROPERTY_VALUE_REPRESENTATION' IN TYPEOF(r))| EXISTS(pvr.context_of_items.units)))> 0;
+	WR1 : SIZEOF(QUERY(pvr <* QUERY(r <* USEDIN(SELF, 'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS')| 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.PROPERTY_VALUE_REPRESENTATION' IN TYPEOF(r))| EXISTS(pvr.context_of_items.units)))> 0;
 END_ENTITY; -- Numerical_item_with_global_unit
 
 
@@ -2773,9 +2773,9 @@ ENTITY View_definition_context;
 	life_cycle_stage : STRING;
 	description : OPTIONAL STRING;
 WHERE
-	WR1 : (SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' +
+	WR1 : (SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' +
     'PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT'))> 0)OR
-   (SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' +
+   (SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' +
     'PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS'))> 0);
 END_ENTITY; -- View_definition_context
 
@@ -3062,7 +3062,7 @@ ENTITY Specification_based_product_version
 INVERSE
 	specification_source: Item_design_association FOR design;
 WHERE
-	WR1 : 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.PRODUCT_SPECIFICATION' IN TYPEOF(specification_source.configuration);
+	WR1 : 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.PRODUCT_SPECIFICATION' IN TYPEOF(specification_source.configuration);
 END_ENTITY; -- Specification_based_product_version
 
 
@@ -3095,7 +3095,7 @@ ENTITY Tagged_text_item
 WHERE
 	WR1 : SIZEOF(QUERY(using_rep <* USEDIN(SELF,
        'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS')|
-  NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.TAGGED_TEXT_FORMAT' IN
+  NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.TAGGED_TEXT_FORMAT' IN
   TYPEOF(using_rep.context_of_items))
       ))= 0;
 END_ENTITY; -- Tagged_text_item
@@ -3187,7 +3187,7 @@ END_ENTITY; -- Derived_unit_element
 ENTITY Duration
 	SUBTYPE OF (Value_with_unit);
 WHERE
-	WR1 : 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
+	WR1 : 'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
 END_ENTITY; -- Duration
 
 
@@ -3593,22 +3593,22 @@ END_RULE; -- unique_requirement_id
 
 RULE document_version_constraint FOR (Product_version);
 WHERE
-	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' + 'DOCUMENT_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' + 'DOCUMENT' IN TYPEOF(pv.of_product))))= 0;
+	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' + 'DOCUMENT_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' + 'DOCUMENT' IN TYPEOF(pv.of_product))))= 0;
 END_RULE; -- document_version_constraint
 
 RULE document_definition_constraint FOR (Product_view_definition);
 WHERE
-	WR1 : SIZEOF(QUERY(dd <* Product_view_definition |(NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' + 'DOCUMENT_DEFINITION' IN  TYPEOF (dd)))AND('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' + 'DOCUMENT_VERSION' IN TYPEOF(dd.defined_version))))=0;
+	WR1 : SIZEOF(QUERY(dd <* Product_view_definition |(NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' + 'DOCUMENT_DEFINITION' IN  TYPEOF (dd)))AND('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' + 'DOCUMENT_VERSION' IN TYPEOF(dd.defined_version))))=0;
 END_RULE; -- document_definition_constraint
 
 RULE part_version_constraint FOR (Product_version);
 WHERE
-	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' + 'PART_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' + 'PART' IN TYPEOF(pv.of_product))))=0;
+	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' + 'PART_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' + 'PART' IN TYPEOF(pv.of_product))))=0;
 END_RULE; -- part_version_constraint
 
 RULE part_view_definition_constraint FOR (Product_view_definition);
 WHERE
-	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' + 'PART_VIEW_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' + 'PART_VERSION' IN TYPEOF(pvd.defined_version))))=0;
+	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' + 'PART_VIEW_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' + 'PART_VERSION' IN TYPEOF(pvd.defined_version))))=0;
 END_RULE; -- part_view_definition_constraint
 
 FUNCTION get_value
@@ -3764,7 +3764,7 @@ LOCAL
 ;
 
  
- category_assignments := USEDIN(obj,'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
+ category_assignments := USEDIN(obj,'AP210_ASSEMBLY_TECHNOLOGY_CONSTRAINTS_ARM_LF.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
 
     
  REPEAT i := LOINDEX(category_assignments)TO HIINDEX(category_assignments)BY 1;
@@ -3805,5 +3805,6 @@ END_LOCAL
 	RETURN(dd);
 END_FUNCTION; -- get_document_definition
 
-END_SCHEMA; --ap210_assembly_technology_constraints_arm
+END_SCHEMA; --ap210_assembly_technology_constraints_arm_lf
+
 

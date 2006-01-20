@@ -1,10 +1,10 @@
 (*
- $Id: arm_lf.exp,v 1.7 2006/01/20 09:48:41 liutkuviene Exp $
+ $Id: arm_lf.exp,v 1.8 2006/01/20 11:47:43 liutkuviene Exp $
  ISO TC184/SC4/WG3 N1956 - ISO/CD-TS 10303-1606 AP210 assembly physical design - EXPRESS ARM Long form
  Supersedes ISO TC184/SC4/WG3 N1692
 *)
 
-SCHEMA ap210_assembly_physical_design_arm;
+SCHEMA ap210_assembly_physical_design_arm_lf;
 
 CONSTANT
 	chemical_elements : LIST [0:?] OF STRING := [
@@ -1167,7 +1167,7 @@ END_TYPE; -- tolerance_condition
 
 TYPE groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.GROUP' IN TYPEOF(SELF));
+	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.GROUP' IN TYPEOF(SELF));
 END_TYPE; -- groupable_item
 
 TYPE identification_item = EXTENSIBLE SELECT ;
@@ -2335,7 +2335,7 @@ DERIVE
 	SELF\Identification_assignment.role : STRING := 'alias';
 WHERE
 	WR1 : SIZEOF(QUERY(item <* SELF\Identification_assignment.items |
-NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item))))= 0;
+NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item))))= 0;
 END_ENTITY; -- Alias_identification
 
 
@@ -2658,8 +2658,8 @@ ENTITY Component_2d_edge_location
 WHERE
 	WR1 : reference_terminal_assembly_joint <> mounting_surface_assembly_joint;
 	WR2 : SELF\Component_2d_location.substrate_location = FALSE;
-	WR3 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_surface_assembly_joint.assembly_feature_1))>= 1;
+	WR3 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_surface_assembly_joint.assembly_feature_1))>= 1;
 	WR4 : 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(reference_terminal_assembly_joint\assembly_joint.assembly_feature_1);
 	WR5 : NOT EXISTS(SELF\Representation_relationship.description);
 END_ENTITY; -- Component_2d_edge_location
@@ -2669,10 +2669,10 @@ ENTITY Component_2d_stacked_location
 	SUBTYPE OF (Component_2d_location);
 	mounting_joint : Assembly_joint;
 WHERE
-	WR1 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_joint.assembly_feature_1))= 0;
-	WR2 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_joint.assembly_feature_2))= 0;
+	WR1 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_joint.assembly_feature_1))= 0;
+	WR2 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_joint.assembly_feature_2))= 0;
 	WR3 : SELF\Component_2d_location.substrate_location = FALSE;
 	WR4 : NOT EXISTS(SELF\Representation_relationship.description);
 END_ENTITY; -- Component_2d_stacked_location
@@ -2683,8 +2683,8 @@ ENTITY Component_2d_surface_location
 	mounting_surface_assembly_joint : Assembly_joint;
 WHERE
 	WR1 : SELF\Component_2d_location.substrate_location = FALSE;
-	WR2 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_surface_assembly_joint.assembly_feature_1))>= 1;
+	WR2 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_COMPONENT_TERMINAL',
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_COMPONENT_SURFACE_FEATURE'] * TYPEOF(mounting_surface_assembly_joint.assembly_feature_1))>= 1;
 	WR3 : NOT EXISTS(SELF\Representation_relationship.description);
 END_ENTITY; -- Component_2d_surface_location
 
@@ -2747,7 +2747,7 @@ ENTITY Mounting_restriction_area
 	mounting_surface : Interconnect_module_component_surface_feature;
 	SELF\Non_feature_shape_element.scope : Assembly_module;
 WHERE
-	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(SELF\Non_feature_shape_element.element_shape);
+	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(SELF\Non_feature_shape_element.element_shape);
 END_ENTITY; -- Mounting_restriction_area
 
 
@@ -2794,7 +2794,7 @@ INVERSE
 WHERE
 	WR1 : SIZEOF(SELF\Packaged_part.access_mechanisms)= 0;
 	WR2 : NOT EXISTS(SELF\Packaged_part.implemented_function);
-	WR3 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ALTERED_PACKAGED_PART' IN TYPEOF(SELF));
+	WR3 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ALTERED_PACKAGED_PART' IN TYPEOF(SELF));
 END_ENTITY; -- Minimally_defined_connector
 
 
@@ -2958,11 +2958,11 @@ ENTITY Assembly_module_macro_terminal
 INVERSE
 	defining_terminal: Component_feature_to_physical_usage_view_assignment FOR defined_part_feature;
 WHERE
-	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_MACRO_TERMINAL' IN TYPEOF(defining_terminal.assigned_terminal);
-	WR2 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'COMPONENT_TERMINAL_TO_ASSEMBLY_MODULE_MACRO_TERMINAL_ASSIGNMENT' IN TYPEOF(defining_terminal);
+	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_MACRO_TERMINAL' IN TYPEOF(defining_terminal.assigned_terminal);
+	WR2 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'COMPONENT_TERMINAL_TO_ASSEMBLY_MODULE_MACRO_TERMINAL_ASSIGNMENT' IN TYPEOF(defining_terminal);
 	WR3 : NOT(SIZEOF(USEDIN(SELF,
  ''))> 0)OR(SIZEOF(QUERY(ct <* USEDIN(SELF,
- '')| NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ASSEMBLY_MODULE_MACRO_COMPONENT_JOIN_TERMINAL' IN TYPEOF(ct))))= 0);
+ '')| NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ASSEMBLY_MODULE_MACRO_COMPONENT_JOIN_TERMINAL' IN TYPEOF(ct))))= 0);
 END_ENTITY; -- Assembly_module_macro_terminal
 
 
@@ -3195,7 +3195,7 @@ WHERE
 	WR2 : SELF\View_definition_relationship.relating_view :=: upper_assembly_relationship\View_definition_relationship.relating_view;
 	WR3 : SELF\View_definition_relationship.related_view :=: sub_assembly_relationship\View_definition_relationship.related_view;
 	WR4 : (upper_assembly_relationship\View_definition_relationship.related_view :=: sub_assembly_relationship\View_definition_relationship.relating_view)OR(SIZEOF(QUERY(pdr <* USEDIN(upper_assembly_relationship\View_definition_relationship.related_view, 'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW')| pdr.relating_view :=: sub_assembly_relationship\View_definition_relationship.relating_view))= 1);
-	WR5 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.NEXT_ASSEMBLY_USAGE', 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship))= 1;
+	WR5 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.NEXT_ASSEMBLY_USAGE', 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship))= 1;
 END_ENTITY; -- Component_upper_level_identification
 
 
@@ -3227,11 +3227,11 @@ UNIQUE
 	UR1 : element_name, associated_assembly;
 WHERE
 	WR1 : assembly_feature_1 :<>: assembly_feature_2;
-	WR2 : ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ASSEMBLED_WITH_FASTENERS' IN  TYPEOF(SELF))OR 
-            (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_1))AND 
+	WR2 : ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ASSEMBLED_WITH_FASTENERS' IN  TYPEOF(SELF))OR 
+            (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_1))AND 
             (SIZEOF(QUERY(ay <* assembly_feature_1\Component_feature.associated_component\Product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly))= 0));
-	WR3 : ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ASSEMBLED_WITH_FASTENERS' IN  TYPEOF(SELF))OR 
-            (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2))AND 
+	WR3 : ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ASSEMBLED_WITH_FASTENERS' IN  TYPEOF(SELF))OR 
+            (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.COMPONENT_FEATURE' IN TYPEOF(assembly_feature_2))AND 
             (SIZEOF(QUERY(ay <* assembly_feature_2\Component_feature.associated_component\Product_occurrence.occurrence_contexts | ay.related_view <> associated_assembly))= 0));
 END_ENTITY; -- Assembly_joint
 
@@ -3311,11 +3311,11 @@ INVERSE
 	die_seating_plane: Non_feature_shape_element FOR scope;
 WHERE
 	WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'BARE_DIE_TOP_SURFACE' IN TYPEOF(pf))))<= 1;
+ 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'BARE_DIE_TOP_SURFACE' IN TYPEOF(pf))))<= 1;
 	WR2 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'BARE_DIE_BOTTOM_SURFACE' IN TYPEOF(pf))))<= 1;
+ 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'BARE_DIE_BOTTOM_SURFACE' IN TYPEOF(pf))))<= 1;
 	WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'BARE_DIE_EDGE_SURFACE' IN TYPEOF(pf))))<= 1;
+ 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'BARE_DIE_EDGE_SURFACE' IN TYPEOF(pf))))<= 1;
 	WR4 : 'NON_FEATURE_SHAPE_ELEMENT_ARM.SEATING_PLANE' IN TYPEOF(die_seating_plane);
 END_ENTITY; -- Bare_die
 
@@ -3527,16 +3527,16 @@ END_ENTITY; -- Expanded_uncertainty
 ENTITY Length_tolerance_characteristic
 	SUBTYPE OF (Tolerance_characteristic);
 WHERE
-	WR1 : ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
-       ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
+	WR1 : ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
+       ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
        (SIZEOF(QUERY(it <* SELF\Representation.items |
           NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))
         ))= 0);
-	WR2 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
+	WR2 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
        (SIZEOF(QUERY(it <* SELF\Representation.items |
        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))
           ))= 1);
-	WR3 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STASTICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
+	WR3 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STASTICAL_TOLERANCE_CHARACTERISTIC' IN  TYPEOF(SELF))OR
        (SIZEOF(QUERY(it <* SELF\Representation.items |
        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))
           ))= 1);
@@ -3786,9 +3786,9 @@ ENTITY Classification_association
 	SELF\Classification_assignment.assigned_class : Class_with_attributes;
 WHERE
 	WR1 : SIZEOF(QUERY(it<* SELF\Classification_assignment.items |
-     NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DEFINABLE_OBJECTS' IN TYPEOF(it))AND definitional))=0;
+     NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DEFINABLE_OBJECTS' IN TYPEOF(it))AND definitional))=0;
 	WR2 : SIZEOF(QUERY(it<* SELF\Classification_assignment.items |
-     NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF(it))))=0;
+     NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF(it))))=0;
 END_ENTITY; -- Classification_association
 
 
@@ -3983,27 +3983,27 @@ WHERE
 	WR1 : (SIZEOF(QUERY(ca <* USEDIN(SELF,
 	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
 	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|
-	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.'+
+	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.'+
 	 	'MATERIAL_ELECTRICAL_CONDUCTIVITY_CLASS' IN TYPEOF(ca.assigned_class))))= 1);
 	WR2 : (SIZEOF(QUERY(ca <* USEDIN(SELF,
 	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
 	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|
-	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.'+
+	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.'+
 	 	'MATERIAL_THERMAL_CONDUCTIVITY_CLASS' IN TYPEOF(ca.assigned_class))))<= 1);
 	WR3 : (SIZEOF(QUERY(ca <* USEDIN(SELF,
 	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
 	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|
-	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.'+
+	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.'+
 	 	'RELATIVE_PERMEABILITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF(ca.assigned_class))))<= 1);
 	WR4 : (SIZEOF(QUERY(ca <* USEDIN(SELF,
 	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
 	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|
-	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.'+
+	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.'+
 	 	'RELATIVE_PERMITTIVITY_MATERIAL_PROPERTY_CLASS' IN TYPEOF(ca.assigned_class))))<= 1);
 	WR5 : (SIZEOF(QUERY(ca <* USEDIN(SELF,
 	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
 	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS')|
-	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.'+
+	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.'+
 	 	'RELATIVE_OPTICAL_INSERTION_LOSS_MATERIAL_PROPERTY_CLASS' IN TYPEOF(ca.assigned_class))))<= 1);
 END_ENTITY; -- Material_identification_with_conductivity_classification
 
@@ -4326,8 +4326,8 @@ INVERSE
 WHERE
 	WR1 : SIZEOF(QUERY(st <* message_representation\Geometric_model.items |(st = message_representation_text)))= 1;
 	WR2 : SIZEOF(QUERY(ap <* marked_device_shape\Geometric_model.items |(ap = placement)))= 1;
-	WR3 : SIZEOF(TYPEOF(marked_device_shape)* ['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'])= 1;
+	WR3 : SIZEOF(TYPEOF(marked_device_shape)* ['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PHYSICAL_UNIT_3D_SHAPE_MODEL',
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'])= 1;
 	WR4 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF(marking_material);
 	WR5 : EXISTS(marking_specification)AND(SIZEOF(marking_specification)= 1);
 END_ENTITY; -- Marking
@@ -4500,7 +4500,7 @@ END_ENTITY; -- Document_definition
 ENTITY Document_location_identification
 	SUBTYPE OF (External_source_identification);
 WHERE
-	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DOCUMENT_DEFINITION' IN TYPEOF(SELF\External_source_identification.item);
+	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DOCUMENT_DEFINITION' IN TYPEOF(SELF\External_source_identification.item);
 END_ENTITY; -- Document_location_identification
 
 
@@ -4518,7 +4518,7 @@ DERIVE
 UNIQUE
 	UR1 : described_element;
 WHERE
-	WR1 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DOCUMENT_DEFINITION', 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.FILE']*TYPEOF(SELF\Assigned_property.described_element))= 1;
+	WR1 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DOCUMENT_DEFINITION', 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.FILE']*TYPEOF(SELF\Assigned_property.described_element))= 1;
 END_ENTITY; -- Assigned_document_property
 
 
@@ -4533,7 +4533,7 @@ ENTITY Document_property_representation
 	SUBTYPE OF (Representation);
 	SELF\Representation.items : SET [1:?] OF descriptive_or_numerical;
 WHERE
-	WR1 : SIZEOF(QUERY(pr <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_REPRESENTATION.REP')| 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ASSIGNED_PROPERTY' IN TYPEOF(pr.property)))> 0;
+	WR1 : SIZEOF(QUERY(pr <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_REPRESENTATION.REP')| 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ASSIGNED_PROPERTY' IN TYPEOF(pr.property)))> 0;
 	WR2 : SELF\Representation.context_of_items.kind = 'document parameters';
 	WR3 : valid_document_property_representation(SELF);
 	WR4 : SIZEOF(QUERY(it1 <* SELF\Representation.items | SIZEOF(QUERY(it2 <* SELF\Representation.items | it1.name = it2.name))> 1))= 0;
@@ -4589,7 +4589,7 @@ ENTITY Edge_shape_model
 	SUBTYPE OF (Planar_shape_model);
 WHERE
 	WR1 : SIZEOF(QUERY(escss <* USEDIN(SELF,
- 'LAYERED_3D_SHAPE_ARM.SHAPE_DEFINITION_3D_INTERSECTION.SURFACE_INTERSECTION_RESULT')| NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.EDGE_SEGMENT_CROSS_SECTION' IN TYPEOF(escss))))= 0;
+ 'LAYERED_3D_SHAPE_ARM.SHAPE_DEFINITION_3D_INTERSECTION.SURFACE_INTERSECTION_RESULT')| NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.EDGE_SEGMENT_CROSS_SECTION' IN TYPEOF(escss))))= 0;
 	WR2 : NOT EXISTS(SELF\Representation.name);
 END_ENTITY; -- Edge_shape_model
 
@@ -5811,7 +5811,7 @@ INVERSE
 UNIQUE
 	UR1 : pre_defined_classification_code;
 WHERE
-	WR1 : SIZEOF(QUERY(ltjt <* access_mechanisms | NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt))))= 0;
+	WR1 : SIZEOF(QUERY(ltjt <* access_mechanisms | NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt))))= 0;
 	WR2 : SIZEOF(QUERY(s <* SELF\Geometric_template.shapes |
              NOT('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(s))))= 0;
 END_ENTITY; -- Land_physical_template
@@ -5932,8 +5932,8 @@ INVERSE
 UNIQUE
 	UR1 : name;
 WHERE
-	WR1 : NOT(layer_position = layer_position_type.primary)OR('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF));
-	WR2 : NOT(layer_position = layer_position_type.secondary)OR('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF));
+	WR1 : NOT(layer_position = layer_position_type.primary)OR('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF));
+	WR2 : NOT(layer_position = layer_position_type.secondary)OR('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF));
 	WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF(stratum_material);
 END_ENTITY; -- Stratum_technology
 
@@ -5976,7 +5976,7 @@ UNIQUE
 	UR2 : secondary_stratum_technology;
 	UR1 : primary_stratum_technology;
 WHERE
-	WR1 : NOT(('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(primary_stratum_technology))AND
+	WR1 : NOT(('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(primary_stratum_technology))AND
               EXISTS(primary_stratum_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose))
           OR
          (primary_stratum_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose =
@@ -6019,8 +6019,8 @@ ENTITY Connection_zone
 	ABSTRACT
 	SUBTYPE OF (Feature_occurrence);
 WHERE
-	WR1 : (SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA'))+
-             SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.SHAPE_FEATURE.CONNECTION_AREA')))
+	WR1 : (SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA'))+
+             SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.SHAPE_FEATURE.CONNECTION_AREA')))
             = 1;
 	WR2 : NOT EXISTS(SELF\Shape_element.description);
 	WR3 : NOT EXISTS(SELF\Shape_element.element_name);
@@ -6064,7 +6064,7 @@ END_ENTITY; -- File
 ENTITY File_location_identification
 	SUBTYPE OF (External_item_identification);
 WHERE
-	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.FILE' IN TYPEOF(SELF\External_source_identification.item);
+	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.FILE' IN TYPEOF(SELF\External_source_identification.item);
 END_ENTITY; -- File_location_identification
 
 
@@ -6595,8 +6595,8 @@ ENTITY Geometric_tolerance
 	tolerance_value : Value_with_unit;
 	value_determination : OPTIONAL STRING;
 WHERE
-	WR1 : (NOT(EXISTS(segment_size)))OR('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LENGTH_MEASURE' IN TYPEOF(segment_size.value_component));
-	WR2 : (NOT(EXISTS(tolerance_value)))OR('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LENGTH_MEASURE' IN TYPEOF(tolerance_value.value_component));
+	WR1 : (NOT(EXISTS(segment_size)))OR('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LENGTH_MEASURE' IN TYPEOF(segment_size.value_component));
+	WR2 : (NOT(EXISTS(tolerance_value)))OR('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LENGTH_MEASURE' IN TYPEOF(tolerance_value.value_component));
 	WR3 : (NOT(EXISTS(significant_digits)))OR(significant_digits > 0);
 END_ENTITY; -- Geometric_tolerance
 
@@ -6759,7 +6759,7 @@ ENTITY Incomplete_reference_marking
 	SUBTYPE OF (Classification_assignment);
 WHERE
 	WR1 : SIZEOF(QUERY(item <* SELF\Classification_assignment.items | 
-	NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.IDRM_MARKED_ITEM' IN TYPEOF(item))))= 0;
+	NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.IDRM_MARKED_ITEM' IN TYPEOF(item))))= 0;
 	WR2 : SELF\Classification_assignment.assigned_class.id = 'reference';
 END_ENTITY; -- Incomplete_reference_marking
 
@@ -7009,11 +7009,11 @@ ENTITY Interconnect_module_usage_view
 	implemented_function : OPTIONAL Functional_unit_usage_view;
 WHERE
 	WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(pf))))<= 1;
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(pf))))<= 1;
 	WR2 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(pf))))<= 1;
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(pf))))<= 1;
 	WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'INTERCONNECT_MODULE_EDGE_SURFACE' IN TYPEOF(pf))))<= 1;
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'INTERCONNECT_MODULE_EDGE_SURFACE' IN TYPEOF(pf))))<= 1;
 	WR4 : EXISTS(thickness_over_metal_requirement)OR EXISTS(thickness_over_dielectric_requirement);
 	WR5 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
 END_ENTITY; -- Interconnect_module_usage_view
@@ -7070,7 +7070,7 @@ DERIVE
 	electrical_isolation_spacing_requirement : SET [1:1] OF Requirement_view_definition := get_rvd(SELF, 'electrical requirement');
 WHERE
 	WR1 : SIZEOF(QUERY(eisr <* electrical_isolation_spacing_requirement |
-         NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ELECTRICAL_ISOLATION_REQUIREMENT'
+         NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ELECTRICAL_ISOLATION_REQUIREMENT'
         IN TYPEOF(eisr))))=0;
 END_ENTITY; -- Electrical_isolation_removal_template
 
@@ -7101,7 +7101,7 @@ DERIVE
 	thermal_isolation_spacing_requirement : SET [1:1] OF Requirement_view_definition := get_rvd(SELF, 'thermal requirement');
 WHERE
 	WR1 : SIZEOF(QUERY(tisr <* THERMAL_ISOLATION_SPACING_REQUIREMENT |
-       NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.THERMAL_ISOLATION_REQUIREMENT' IN TYPEOF(tisr))
+       NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.THERMAL_ISOLATION_REQUIREMENT' IN TYPEOF(tisr))
       ))=0;
 END_ENTITY; -- Thermal_isolation_removal_template
 
@@ -7268,7 +7268,7 @@ ENTITY Shape_definition_3d_intersection
 	SELF\Geometric_model_relationship.rep_2 RENAMED projected_volume : Geometric_model;
 	SELF\Geometric_model_relationship.rep_1 RENAMED surface_intersection_result : Planar_shape_model;
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PLANAR_SHAPE_MODEL' IN TYPEOF(projected_volume));
+	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PLANAR_SHAPE_MODEL' IN TYPEOF(projected_volume));
 	WR2 : NOT EXISTS(SELF\Representation_relationship.relation_type);
 END_ENTITY; -- Shape_definition_3d_intersection
 
@@ -7280,7 +7280,7 @@ ENTITY Shape_definition_3d_plane_projection
 	SELF\Geometric_model_relationship.rep_2 RENAMED projected_volume : Geometric_model;
 	SELF\Geometric_model_relationship.rep_1 RENAMED surface_projection_result : Planar_shape_model;
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PLANAR_SHAPE_MODEL' IN TYPEOF(projected_volume));
+	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PLANAR_SHAPE_MODEL' IN TYPEOF(projected_volume));
 	WR2 : NOT EXISTS(SELF\Representation_relationship.relation_type);
 END_ENTITY; -- Shape_definition_3d_plane_projection
 
@@ -7307,17 +7307,17 @@ UNIQUE
 	UR1 : name;
 WHERE
 	WR1 : precedent_item <> subsequent_item;
-	WR2 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.COMPONENT_FEATURE' IN TYPEOF(precedent_item))OR 
-       (SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.BARE_DIE_SURFACE',
-               'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGE_BODY_SURFACE',
+	WR2 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.COMPONENT_FEATURE' IN TYPEOF(precedent_item))OR 
+       (SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.BARE_DIE_SURFACE',
+               'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGE_BODY_SURFACE',
                'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SECONDARY_SURFACE'] * TYPEOF(precedent_item.definition))= 1);
-	WR3 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.COMPONENT_FEATURE' IN TYPEOF(subsequent_item))OR 
-       (SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.BARE_DIE_SURFACE',
-                 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGE_BODY_SURFACE',
+	WR3 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.COMPONENT_FEATURE' IN TYPEOF(subsequent_item))OR 
+       (SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.BARE_DIE_SURFACE',
+                 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGE_BODY_SURFACE',
                  'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE'] * TYPEOF(subsequent_item.definition))= 1);
-	WR4 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(precedent_item))OR 
+	WR4 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRATUM_SURFACE' IN TYPEOF(precedent_item))OR 
                (precedent_item.name = stratum_surface_designation.secondary_surface);
-	WR5 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(subsequent_item))OR 
+	WR5 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRATUM_SURFACE' IN TYPEOF(subsequent_item))OR 
                (precedent_item.name = stratum_surface_designation.primary_surface);
 END_ENTITY; -- Adjacent_stratum_surface_embedded_physical_component_surface_definition
 
@@ -7416,8 +7416,8 @@ WHERE
 	WR1 : SIZEOF(connected_points)= SIZEOF(SELF\Conductive_interconnect_element.access_mechanisms)- 1;
 	WR2 : correlated_terminals(SELF\Conductive_interconnect_element.access_mechanisms,
  connected_points);
-	WR3 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.CONDUCTOR',
-            'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.CONDUCTIVE_FILLED_AREA'] *
+	WR3 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.CONDUCTOR',
+            'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.CONDUCTIVE_FILLED_AREA'] *
             TYPEOF(SELF\Conductive_interconnect_element.composed_conductor))= 1;
 END_ENTITY; -- Conductive_interconnect_element_with_pre_defined_transitions
 
@@ -7477,7 +7477,7 @@ END_ENTITY; -- Dependent_thermal_isolation_removal_component
 ENTITY Derived_stratum
 	SUBTYPE OF (Stratum);
 WHERE
-	WR1 : SIZEOF(USEDIN(SELF,'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRATUM_FEATURE.RESIDENT_STRATUM'))= 1;
+	WR1 : SIZEOF(USEDIN(SELF,'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRATUM_FEATURE.RESIDENT_STRATUM'))= 1;
 END_ENTITY; -- Derived_stratum
 
 
@@ -7492,8 +7492,8 @@ INVERSE
 	existence_dependence: SET [1:?] OF Layer_connection_point FOR resident_design_layer_stratum;
 WHERE
 	WR1 : (NOT(primary_design_layer_stratum)AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
- 'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN  TYPEOF(imps.defined_part_feature))))= 0))OR((primary_design_layer_stratum)AND(SIZEOF(QUERY(imps <* USEDIN(SELF,
- 'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature))))= 1));
+ 'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN  TYPEOF(imps.defined_part_feature))))= 0))OR((primary_design_layer_stratum)AND(SIZEOF(QUERY(imps <* USEDIN(SELF,
+ 'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature))))= 1));
 	WR2 : SIZEOF(library_definition)<= 1;
 END_ENTITY; -- Design_layer_stratum
 
@@ -7547,7 +7547,7 @@ ENTITY Filled_area_material_removal_laminate_component
 	SUPERTYPE OF (Electrical_isolation_laminate_component)
 	SUBTYPE OF (Material_removal_laminate_component);
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.CONDUCTOR' IN TYPEOF(SELF\Material_removal_laminate_component.design_intent));
+	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.CONDUCTOR' IN TYPEOF(SELF\Material_removal_laminate_component.design_intent));
 END_ENTITY; -- Filled_area_material_removal_laminate_component
 
 
@@ -7630,11 +7630,11 @@ INVERSE
 	of_fabrication_thickness_requirement: SET [0:?] OF Requirement_assignment FOR assigned_to;
 	stackup_model: SET [1:1] OF Stratum_stack_model_to_interconnect_assignment FOR design;
 WHERE
-	WR1 : SIZEOF(QUERY(ftr <* of_fabrication_thickness_requirement | NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF(ftr\Requirement_assignment.assigned_requirement))))= 0;
-	WR2 : (SIZEOF(USEDIN(SELF,'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY'))= 0)
+	WR1 : SIZEOF(QUERY(ftr <* of_fabrication_thickness_requirement | NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF(ftr\Requirement_assignment.assigned_requirement))))= 0;
+	WR2 : (SIZEOF(USEDIN(SELF,'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY'))= 0)
       OR
-     (SIZEOF(QUERY(imsar <* USEDIN(SELF, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY')| 
-             (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component))AND 
+     (SIZEOF(QUERY(imsar <* USEDIN(SELF, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY')| 
+             (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component))AND 
               (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE))))= 1);
 	WR3 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
 END_ENTITY; -- Interconnect_module
@@ -7663,11 +7663,11 @@ ENTITY Interconnect_module_macro_terminal
 INVERSE
 	defining_terminal: Component_feature_to_physical_usage_view_assignment FOR defined_part_feature;
 WHERE
-	WR1 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL',
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.VIA_TERMINAL',
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PRINTED_COMPONENT_JOIN_TERMINAL',
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL',
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LAND_JOIN_TERMINAL'] * TYPEOF(defining_terminal.assigned_design_object))= 1;
+	WR1 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL',
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.VIA_TERMINAL',
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PRINTED_COMPONENT_JOIN_TERMINAL',
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL',
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LAND_JOIN_TERMINAL'] * TYPEOF(defining_terminal.assigned_design_object))= 1;
 END_ENTITY; -- Interconnect_module_macro_terminal
 
 
@@ -7743,9 +7743,9 @@ ENTITY Laminate_component
 INVERSE
 	cad_layer: SET [0:1] OF External_source_identification FOR item;
 WHERE
-	WR1 : ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE' IN  TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\View_definition_relationship.relating_view))
+	WR1 : ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE' IN  TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\View_definition_relationship.relating_view))
          OR
-       ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]));
+       ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]));
 	WR2 : SIZEOF(QUERY(oc <* SELF\Assembly_component.occurrence_contexts |
                 NOT(TYPEOF(oc)= TYPEOF(SELF\Assembly_component.occurrence_contexts[1]))
                ))= 0;
@@ -7778,8 +7778,8 @@ ENTITY Laminate_group_component_make_from_relationship
 	SELF\Component_make_from_relationship.resultant_component : Assembly_group_component;
 	SELF\Component_make_from_relationship.reusable_component : Assembly_group_component;
 WHERE
-	WR1 : SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.reusable_component.components | NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar\view_definition_relationship.related_view))))= 0;
-	WR2 : SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.resultant_component.components | NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar\view_definition_relationship.related_view))))= 0;
+	WR1 : SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.reusable_component.components | NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LAMINATE_COMPONENT' IN TYPEOF(sar\view_definition_relationship.related_view))))= 0;
+	WR2 : SIZEOF(QUERY(sar <* SELF\Component_make_from_relationship.resultant_component.components | NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LAMINATE_COMPONENT' IN TYPEOF(sar\view_definition_relationship.related_view))))= 0;
 END_ENTITY; -- Laminate_group_component_make_from_relationship
 
 
@@ -7800,7 +7800,7 @@ ENTITY Laminate_text_string_component
 	SELF\Definition_based_product_occurrence.derived_from : Part_string_template;
 WHERE
 	WR1 : SIZEOF(QUERY(sar <* SELF\Assembly_group_component.components | 
-            NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LAMINATE_TEXT_COMPONENT' IN  TYPEOF(sar.related_view))))= 0;
+            NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LAMINATE_TEXT_COMPONENT' IN  TYPEOF(sar.related_view))))= 0;
 	WR2 : NOT EXISTS(SELF\Product_view_definition.name);
 END_ENTITY; -- Laminate_text_string_component
 
@@ -7876,11 +7876,11 @@ ENTITY Multi_layer_material_removal_laminate_component
 	SUBTYPE OF (Material_removal_laminate_component);
 	derived_layer_geometry : Stratum_feature_based_derived_pattern;
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRATUM_FEATURE' IN
+	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRATUM_FEATURE' IN
         TYPEOF(SELF\Material_removal_laminate_component.design_intent))OR
        (SELF\Material_removal_laminate_component.design_intent\Stratum_feature.resident_stratum = 
              derived_layer_geometry.reference_stratum_feature.resident_stratum);
-	WR2 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT' IN
+	WR2 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRATUM_FEATURE_TEMPLATE_COMPONENT' IN
         TYPEOF(SELF\Material_removal_laminate_component.design_intent))OR
        (SELF\Material_removal_laminate_component.design_intent\Stratum_feature_template_component.
              stratum_feature_implementation\Stratum_feature.resident_stratum =
@@ -8029,7 +8029,7 @@ ENTITY Routed_physical_network
 DERIVE
 	complete : BOOLEAN := NOT EXISTS(unrouted_connectivity_requirement_element);
 WHERE
-	WR1 : SIZEOF(QUERY(cre <* connectivity_requirement_element | NOT(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre))OR(SIZEOF(TYPEOF(cre\Component_feature.associated_component)* ['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND'])= 1))))= 0;
+	WR1 : SIZEOF(QUERY(cre <* connectivity_requirement_element | NOT(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LAND_JOIN_TERMINAL' IN TYPEOF(cre))OR(SIZEOF(TYPEOF(cre\Component_feature.associated_component)* ['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.CONTACT_SIZE_DEPENDENT_LAND'])= 1))))= 0;
 	WR2 : reference_connected_terminals.associated_definition = SELF\Generic_physical_network.current_associated_definition\Part_design_view.usage_view;
 END_ENTITY; -- Routed_physical_network
 
@@ -8100,8 +8100,8 @@ ENTITY Stratum_based_pattern_inter_stratum_extent
 WHERE
 	WR1 : reference_stratum IN SELF\Inter_stratum_extent.included_stratum;
 	WR2 : SIZEOF(QUERY(rs <* SELF\Inter_stratum_extent.included_stratum | 
-     (SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DESIGN_LAYER_STRATUM',
-               'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(rs))= 1)
+     (SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DESIGN_LAYER_STRATUM',
+               'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(rs))= 1)
                  ))= 1;
 END_ENTITY; -- Stratum_based_pattern_inter_stratum_extent
 
@@ -8135,10 +8135,10 @@ INVERSE
 	layer_usage: SET [0:1] OF External_source_identification FOR item;
 WHERE
 	WR1 : reference_stratum_feature\Stratum_feature.resident_stratum IN extent\Inter_stratum_extent.included_stratum;
-	WR2 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DESIGN_LAYER_STRATUM',
-                   'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.resident_stratum))= 1;
+	WR2 : SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DESIGN_LAYER_STRATUM',
+                   'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(reference_stratum_feature\Stratum_feature.resident_stratum))= 1;
 	WR3 : SIZEOF(QUERY(ds <* extent\Inter_Stratum_extent.included_stratum |
-             NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DERIVED_STRATUM' IN TYPEOF(ds))
+             NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DERIVED_STRATUM' IN TYPEOF(ds))
                 ))= 1;
 END_ENTITY; -- Stratum_feature_based_derived_pattern
 
@@ -8189,10 +8189,10 @@ ENTITY Structured_layout_component
 	SELF\Definition_based_product_occurrence.derived_from : Structured_template;
 WHERE
 	WR1 : SIZEOF(TYPEOF(SELF)*
-        ['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LAMINATE_COMPONENT',
-        'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PHYSICAL_COMPONENT'])= 0;
+        ['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LAMINATE_COMPONENT',
+        'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PHYSICAL_COMPONENT'])= 0;
 	WR2 : SIZEOF(QUERY(agc <* SELF\Assembly_group_component.components |
-        NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc))))= 0;
+        NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc))))= 0;
 END_ENTITY; -- Structured_layout_component
 
 
@@ -8218,7 +8218,7 @@ ENTITY Unplated_cutout_edge_segment
 	SUBTYPE OF (Cutout_edge_segment);
 	SELF\Cutout_edge_segment.composed_cutout : Partially_plated_cutout;
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PLATED_INTER_STRATUM_FEATURE' IN TYPEOF(SELF));
+	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PLATED_INTER_STRATUM_FEATURE' IN TYPEOF(SELF));
 END_ENTITY; -- Unplated_cutout_edge_segment
 
 
@@ -8226,7 +8226,7 @@ ENTITY Unplated_interconnect_module_edge_segment
 	SUBTYPE OF (Interconnect_module_edge_segment);
 	SELF\Interconnect_module_edge_segment.composed_edge : Partially_plated_interconnect_module_edge;
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PLATED_INTER_STRATUM_FEATURE' IN TYPEOF(SELF));
+	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PLATED_INTER_STRATUM_FEATURE' IN TYPEOF(SELF));
 END_ENTITY; -- Unplated_interconnect_module_edge_segment
 
 
@@ -8424,7 +8424,7 @@ ENTITY Numerical_item_with_global_unit
 	SUBTYPE OF (Measure_item);
 	value_component : measure_value;
 WHERE
-	WR1 : SIZEOF(QUERY(pvr <* QUERY(r <* USEDIN(SELF, 'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS')| 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PROPERTY_VALUE_REPRESENTATION' IN TYPEOF(r))| EXISTS(pvr.context_of_items.units)))> 0;
+	WR1 : SIZEOF(QUERY(pvr <* QUERY(r <* USEDIN(SELF, 'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS')| 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PROPERTY_VALUE_REPRESENTATION' IN TYPEOF(r))| EXISTS(pvr.context_of_items.units)))> 0;
 END_ENTITY; -- Numerical_item_with_global_unit
 
 
@@ -8712,7 +8712,7 @@ ENTITY View_level_non_feature_shape_element
 	SUBTYPE OF (Non_feature_shape_element);
 WHERE
 	WR1 : NOT(SIZEOF(SELF\Non_feature_shape_element.element_shape)> 0)OR
-      valid_es('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.USAGE_VIEW_LEVEL_NON_FEATURE_SHAPE_MODEL',
+      valid_es('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.USAGE_VIEW_LEVEL_NON_FEATURE_SHAPE_MODEL',
      (SELF\Non_feature_shape_element.element_shape));
 	WR2 : NOT EXISTS(SELF\Shape_element.description);
 END_ENTITY; -- View_level_non_feature_shape_element
@@ -8791,7 +8791,7 @@ WHERE
 	WR4 : (NOT(mounting_technology = surface_mount)AND  NOT(EXISTS(surface_mount_lead_form)))OR((mounting_technology = surface_mount)AND(EXISTS(surface_mount_lead_form)));
 	WR5 : package_seating_plane\Shape_element.element_name = 'package seating plane';
 	WR6 : 'package' IN types_of_product(SELF\Product_view_definition.defined_version.of_product);
-	WR7 : SIZEOF(QUERY(pa <* package_accesses | 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa)))= 1;
+	WR7 : SIZEOF(QUERY(pa <* package_accesses | 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa)))= 1;
 	WR8 : (EXISTS(surface_mount_lead_form))XOR((SIZEOF(external_surface_mount_lead_form))= 1);
 	WR9 : SIZEOF(QUERY(nt <* package_accesses |
 	                      EXISTS(nt\Part_feature.precedent_feature)
@@ -8809,11 +8809,11 @@ INVERSE
 	body_material: Material_identification FOR items;
 WHERE
 	WR1 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'PACKAGE_BODY_TOP_SURFACE' IN TYPEOF(pf))))<= 1;
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'PACKAGE_BODY_TOP_SURFACE' IN TYPEOF(pf))))<= 1;
 	WR2 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'PACKAGE_BODY_BOTTOM_SURFACE' IN TYPEOF(pf))))<= 1;
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'PACKAGE_BODY_BOTTOM_SURFACE' IN TYPEOF(pf))))<= 1;
 	WR3 : SIZEOF(QUERY(pf <* USEDIN(SELF,
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF(pf))))<= 1;
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY')|('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF(pf))))<= 1;
 	WR4 : 'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF(body_material);
 END_ENTITY; -- Package_body
 
@@ -9077,13 +9077,13 @@ ENTITY Part_interface_access_feature
 WHERE
 	WR1 : SELF\Part_feature.material_state_change = material_removal;
 	WR2 : SELF <> accessed_interface;
-	WR3 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PART_TERMINAL' IN TYPEOF(SELF));
-	WR4 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGE_BODY' IN TYPEOF(SELF));
-	WR5 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PART_MOUNTING_FEATURE' IN TYPEOF(SELF));
-	WR6 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF));
-	WR7 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGE_TERMINAL' IN TYPEOF(SELF));
-	WR8 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGE_BODY_SURFACE' IN TYPEOF(SELF));
-	WR9 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.POLARITY_INDICATION_FEATURE' IN TYPEOF(SELF));
+	WR3 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PART_TERMINAL' IN TYPEOF(SELF));
+	WR4 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGE_BODY' IN TYPEOF(SELF));
+	WR5 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PART_MOUNTING_FEATURE' IN TYPEOF(SELF));
+	WR6 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF));
+	WR7 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGE_TERMINAL' IN TYPEOF(SELF));
+	WR8 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGE_BODY_SURFACE' IN TYPEOF(SELF));
+	WR9 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.POLARITY_INDICATION_FEATURE' IN TYPEOF(SELF));
 END_ENTITY; -- Part_interface_access_feature
 
 
@@ -9091,10 +9091,10 @@ ENTITY Part_mating_feature
 	SUBTYPE OF (Part_feature, Shape_feature);
 	SELF\Shape_feature.connection_area : OPTIONAL SET [1:?] OF Connection_zone_in_usage_view;
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PART_MOUNTING_FEATURE' IN TYPEOF(SELF));
-	WR2 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF));
-	WR3 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGE_TERMINAL' IN TYPEOF(SELF));
-	WR4 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PART_TERMINAL' IN TYPEOF(SELF));
+	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PART_MOUNTING_FEATURE' IN TYPEOF(SELF));
+	WR2 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF));
+	WR3 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGE_TERMINAL' IN TYPEOF(SELF));
+	WR4 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PART_TERMINAL' IN TYPEOF(SELF));
 END_ENTITY; -- Part_mating_feature
 
 
@@ -9133,19 +9133,19 @@ ENTITY Usage_concept_usage_relationship
 	SELF\Geometric_model_constituent_relationship.constituent_model RENAMED associated_shape_definition : Geometric_model;
 	SELF\Geometric_model_constituent_relationship.constituent_element RENAMED associated_usage : usage_concept;
 WHERE
-	WR1 : (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.NON_FEATURE_SHAPE_MODEL' IN  
+	WR1 : (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.NON_FEATURE_SHAPE_MODEL' IN  
                  TYPEOF(associated_shape_definition))AND  
-              ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.NON_FEATURE_SHAPE_MODEL' IN  
+              ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.NON_FEATURE_SHAPE_MODEL' IN  
                  TYPEOF(associating_usage_shape)))OR 
            (('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN  
                TYPEOF(associated_shape_definition))AND 
             ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(associating_usage_shape)));
 	WR2 : NOT 
-        (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.GEOMETRIC_OPERATOR_TRANSFORMATION' IN
+        (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.GEOMETRIC_OPERATOR_TRANSFORMATION' IN
               TYPEOF(SELF))AND
-           ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.CARTESIAN_TRANSFORMATION_2D' IN  
+           ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.CARTESIAN_TRANSFORMATION_2D' IN  
               TYPEOF(SELF\Geometric_operator_transformation.target)))OR 
-           ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.NON_FEATURE_SHAPE_MODEL' IN 
+           ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.NON_FEATURE_SHAPE_MODEL' IN 
               TYPEOF(associating_usage_shape));
 	WR3 : associating_usage_shape = SELF\Geometric_model_constituent_relationship.composed_model[1];
 	WR4 : NOT EXISTS(SELF\Representation_item.name);
@@ -9230,7 +9230,7 @@ ENTITY Material_removal_structured_template
 WHERE
 	WR1 : SIZEOF(QUERY(tlict <* SELF\Structured_template.templates |
          SIZEOF(['FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE',
-           'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.MATERIAL_REMOVAL_STRUCTURED_TEMPLATE'] * TYPEOF(tlict.template))= 0))= 0;
+           'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.MATERIAL_REMOVAL_STRUCTURED_TEMPLATE'] * TYPEOF(tlict.template))= 0))= 0;
 END_ENTITY; -- Material_removal_structured_template
 
 
@@ -9252,12 +9252,12 @@ ENTITY Padstack_definition
 WHERE
 	WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
  'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS')|(prpc.category\Product_category.name = 'template model')))> 0;
-	WR2 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PASSAGE_PADSTACK_DEFINITION' IN  TYPEOF(SELF))XOR 
+	WR2 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PASSAGE_PADSTACK_DEFINITION' IN  TYPEOF(SELF))XOR 
          (SIZEOF(QUERY(tlict <* SELF\Structured_template.templates |
-        ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))))> 0);
+        ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))))> 0);
 	WR3 : SIZEOF(QUERY(tlict <* SELF\Structured_template.templates |
-        (NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN  TYPEOF(tlict)))AND
-         (NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(tlict)))))= 0;
+        (NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN  TYPEOF(tlict)))AND
+         (NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(tlict)))))= 0;
 END_ENTITY; -- Padstack_definition
 
 
@@ -9384,7 +9384,7 @@ WHERE
           (NOT(bound_stratum\Stratum_technology_occurrence.definition\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask)OR
          ('FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
 	WR4 : NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN  TYPEOF(bound_stratum))OR
-            ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(SELF\Template_location_in_structured_template.assembly));
+            ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(SELF\Template_location_in_structured_template.assembly));
 END_ENTITY; -- Stratum_specific_template_location
 
 
@@ -9393,7 +9393,7 @@ ENTITY Stratum_stack_dependent_template
 	stack : Library_stack_model;
 WHERE
 	WR1 : SIZEOF(QUERY(temp <* SELF\Structured_template.templates | 
-           ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN  TYPEOF(temp))
+           ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN  TYPEOF(temp))
             AND(NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN  TYPEOF(temp\Stratum_specific_template_location.bound_stratum))
                   OR
                NOT(temp\Stratum_specific_template_location.bound_stratum IN stack\Stratum_stack_model.composing_occurrence)
@@ -9430,7 +9430,7 @@ UNIQUE
 WHERE
 	WR1 : (SIZEOF(transform)> 0)XOR('PART_TEMPLATE_EXTENSION_ARM.TEARDROP_TEMPLATE' IN TYPEOF(template));
 	WR2 : NOT('FABRICATION_TECHNOLOGY_ARM.INTER_STRATUM_FEATURE_TEMPLATE' IN  TYPEOF(template))OR
-          ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(SELF));
+          ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(SELF));
 	WR3 : SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.TEARDROP_TEMPLATE',
                   'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.GEOMETRIC_TEMPLATE'] *
                  TYPEOF(template))> 0;
@@ -9808,10 +9808,10 @@ ENTITY Physical_unit_network_definition
 DERIVE
 	terminals : SET [0:?] OF Component_terminal := get_terminals(bag_to_set(USEDIN(SELF,'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_DEFINITION')));
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PART_VIEW_DEFINITION' IN  TYPEOF(SELF))OR 
-               ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PART_DESIGN_VIEW' IN TYPEOF(SELF));
+	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PART_VIEW_DEFINITION' IN  TYPEOF(SELF))OR 
+               ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PART_DESIGN_VIEW' IN TYPEOF(SELF));
 	WR2 : NOT(SIZEOF(terminals)> 1)OR
-          (SIZEOF(QUERY(t <* terminals | NOT(SIZEOF(USEDIN(t, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 
+          (SIZEOF(QUERY(t <* terminals | NOT(SIZEOF(USEDIN(t, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 
                           'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS'))= 1)))= 0);
 END_ENTITY; -- Physical_unit_network_definition
 
@@ -10006,7 +10006,7 @@ DERIVE
 INVERSE
 	SELF\Product_occurrence.occurrence_contexts: SET [1:?] OF Assembly_component_relationship FOR related_view;
 WHERE
-	WR1 : NOT(EXISTS(SELF\Definition_based_product_occurrence.derived_from))OR ((('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN  TYPEOF(SELF))AND ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.FOOTPRINT_DEFINITION' IN  TYPEOF(derived_from)))OR (NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN  TYPEOF(SELF))AND  NOT ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.FOOTPRINT_DEFINITION' IN  TYPEOF(SELF\Definition_based_product_occurrence.derived_from)))OR (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PADSTACK_OCCURRENCE' IN  TYPEOF(SELF))AND ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PADSTACK_DEFINITION' IN  TYPEOF(SELF\Definition_based_product_occurrence.derived_from)))OR(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PADSTACK_OCCURRENCE' IN  TYPEOF(SELF))AND NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))));
+	WR1 : NOT(EXISTS(SELF\Definition_based_product_occurrence.derived_from))OR ((('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.FOOTPRINT_OCCURRENCE' IN  TYPEOF(SELF))AND ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.FOOTPRINT_DEFINITION' IN  TYPEOF(derived_from)))OR (NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.FOOTPRINT_OCCURRENCE' IN  TYPEOF(SELF))AND  NOT ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.FOOTPRINT_DEFINITION' IN  TYPEOF(SELF\Definition_based_product_occurrence.derived_from)))OR (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PADSTACK_OCCURRENCE' IN  TYPEOF(SELF))AND ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PADSTACK_DEFINITION' IN  TYPEOF(SELF\Definition_based_product_occurrence.derived_from)))OR(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PADSTACK_OCCURRENCE' IN  TYPEOF(SELF))AND NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))));
 	WR2 : SELF\Product_view_definition.defined_version :=: SELF\Definition_based_product_occurrence.derived_from.defined_version;
 END_ENTITY; -- Assembly_component
 
@@ -10067,7 +10067,7 @@ ENTITY Part_design_view
 DERIVE
 	SELF\Item_shape.described_element : shapeable_item := SELF;
 WHERE
-	WR1 : ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF))OR EXISTS(usage_view);
+	WR1 : ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF))OR EXISTS(usage_view);
 END_ENTITY; -- Part_design_view
 
 
@@ -10091,13 +10091,13 @@ ENTITY Connector_based_interconnect_definition;
 UNIQUE
 	UR1 : name, associated_definition;
 WHERE
-	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGED_CONNECTOR_COMPONENT' IN 
+	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGED_CONNECTOR_COMPONENT' IN 
         TYPEOF(connector_in_uv_1\View_definition_relationship.related_view);
-	WR2 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGED_CONNECTOR_COMPONENT' IN 
+	WR2 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGED_CONNECTOR_COMPONENT' IN 
         TYPEOF(connector_in_uv_2\View_definition_relationship.related_view);
-	WR3 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PART_USAGE_VIEW' IN 
+	WR3 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PART_USAGE_VIEW' IN 
         TYPEOF(connector_in_uv_1\View_definition_relationship.relating_view);
-	WR4 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PART_USAGE_VIEW' IN 
+	WR4 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PART_USAGE_VIEW' IN 
         TYPEOF(connector_in_uv_2\View_definition_relationship.relating_view);
 	WR5 : EXISTS(connector_in_uv_1\Assembly_component_relationship.location_indicator);
 	WR6 : EXISTS(connector_in_uv_2\Assembly_component_relationship.location_indicator);
@@ -10116,9 +10116,9 @@ WHERE
 	WR17 : connector_in_uv_1 <> component_2;
 	WR18 : component_1 <> connector_in_uv_2;
 	WR19 : connector_in_uv_2 <> component_2;
-	WR20 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DEFINITION_BASED_PART_OCCURRENCE' IN 
+	WR20 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DEFINITION_BASED_PART_OCCURRENCE' IN 
         TYPEOF(component_1\View_definition_relationship.related_view);
-	WR21 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.DEFINITION_BASED_PART_OCCURRENCE' IN 
+	WR21 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.DEFINITION_BASED_PART_OCCURRENCE' IN 
         TYPEOF(component_2\View_definition_relationship.related_view);
 	WR22 : associated_definition = component_1\View_definition_relationship.relating_view;
 	WR23 : associated_definition = component_2\View_definition_relationship.relating_view;
@@ -10159,7 +10159,7 @@ ENTITY Physical_unit_shape_model
 	shape_approximation_level : shape_approximation_level;
 	mass_property_quality : mass_property_quality;
 WHERE
-	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGED_PART' IN TYPEOF(shape_characterized_definition));
+	WR1 : NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGED_PART' IN TYPEOF(shape_characterized_definition));
 	WR2 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;
 END_ENTITY; -- Physical_unit_shape_model
 
@@ -10239,8 +10239,8 @@ ENTITY Part_feature_template_shape_model
 WHERE
 	WR1 : NOT(SIZEOF(USEDIN(SELF, ''))> 1)OR 
       (SIZEOF(QUERY(foo <* USEDIN(SELF,'')| 
-       NOT(SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP',
-        'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PART_FEATURE_TEMPLATE_DEFINITION'] * TYPEOF(foo))= 1)
+       NOT(SIZEOF(['AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.USAGE_CONCEPT_USAGE_RELATIONSHIP',
+        'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PART_FEATURE_TEMPLATE_DEFINITION'] * TYPEOF(foo))= 1)
        ))
         = 0);
 	WR2 : NOT EXISTS(SELF\Representation.description);
@@ -10254,7 +10254,7 @@ DERIVE
 	SELF\Item_shape.described_element : shapeable_item := SELF;
 WHERE
 	WR1 : SIZEOF(QUERY(acr <* USEDIN(SELF,
- 'PART_OCCURRENCE_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW')| NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF(acr.related_view))))= 0;
+ 'PART_OCCURRENCE_ARM.' + 'PART_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW')| NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PACKAGED_CONNECTOR_COMPONENT' IN TYPEOF(acr.related_view))))= 0;
 END_ENTITY; -- Part_usage_view
 
 
@@ -10527,7 +10527,7 @@ WHERE
 	WR1 : (SIZEOF(QUERY(prpc <* USEDIN(defined_version.of_product,
             'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS')
               |(prpc.category\Product_category.name = 'printed part')))>= 0)OR 
-           ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE' IN TYPEOF(SELF));
+           ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.LAYOUT_MACRO_FLOOR_PLAN_TEMPLATE' IN TYPEOF(SELF));
 	WR2 : NOT EXISTS(SELF\Product_view_definition.name);
 END_ENTITY; -- Printed_part_template
 
@@ -10566,13 +10566,13 @@ INVERSE
 	boundary: SET [0:4] OF Template_material_cross_section_boundary FOR associated_definition;
 WHERE
 	WR1 : SIZEOF(QUERY(temp <*(USEDIN(SELF,
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION'))| temp\Shape_element.element_name = 'top'))<= 1;
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION'))| temp\Shape_element.element_name = 'top'))<= 1;
 	WR2 : SIZEOF(QUERY(temp <*(USEDIN(SELF,
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION'))| temp\Shape_element.element_name = 'bottom'))<= 1;
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION'))| temp\Shape_element.element_name = 'bottom'))<= 1;
 	WR3 : SIZEOF(QUERY(temp <*(USEDIN(SELF,
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION'))| temp\Shape_element.element_name = 'left'))<= 1;
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION'))| temp\Shape_element.element_name = 'left'))<= 1;
 	WR4 : SIZEOF(QUERY(temp <*(USEDIN(SELF,
- 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION'))| temp\Shape_element.element_name = 'right'))<= 1;
+ 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION'))| temp\Shape_element.element_name = 'right'))<= 1;
 END_ENTITY; -- Printed_part_template_material
 
 
@@ -10622,7 +10622,7 @@ ENTITY Structured_printed_part_template
 	SUBTYPE OF (Printed_part_template, Structured_template);
 WHERE
 	WR1 : SIZEOF(QUERY(t <* access_mechanisms |
-            NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.STRUCTURED_PRINTED_PART_TEMPLATE_TERMINAL'
+            NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.STRUCTURED_PRINTED_PART_TEMPLATE_TERMINAL'
                   IN TYPEOF(t))))= 0;
 	WR2 : SIZEOF(QUERY(t <* SELF\Structured_template.templates |
             'PART_TEMPLATE_2D_SHAPE_MODEL_ARM.STRUCTURED_TEMPLATE' IN TYPEOF(t.template)))= 0;
@@ -10895,9 +10895,9 @@ ENTITY View_definition_context;
 	life_cycle_stage : STRING;
 	description : OPTIONAL STRING;
 WHERE
-	WR1 : (SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' +
+	WR1 : (SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' +
     'PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT'))> 0)OR
-   (SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' +
+   (SIZEOF(USEDIN(SELF, 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' +
     'PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS'))> 0);
 END_ENTITY; -- View_definition_context
 
@@ -11033,7 +11033,7 @@ ENTITY Row_value;
 	values : LIST [0:?] OF term_select;
 WHERE
 	WR1 : SIZEOF(QUERY(v <* SELF.values | contains_variable(v)))= 0;
-	WR2 : SIZEOF(QUERY(v <* SELF.values | 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ROW_VALUE' IN TYPEOF(v)))= 0;
+	WR2 : SIZEOF(QUERY(v <* SELF.values | 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ROW_VALUE' IN TYPEOF(v)))= 0;
 END_ENTITY; -- Row_value
 
 
@@ -11276,7 +11276,7 @@ ENTITY Constraint_occurrence
 	SUBTYPE OF (Predefined_requirement_view_definition);
 	logical_relation : OPTIONAL Complex_clause;
 WHERE
-	WR1 : (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'VIEW_BASED_CONSTRAINT_OCCURRENCE')IN TYPEOF(SELF))OR EXISTS(logical_relation);
+	WR1 : (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'VIEW_BASED_CONSTRAINT_OCCURRENCE')IN TYPEOF(SELF))OR EXISTS(logical_relation);
 	WR2 : NOT EXISTS(SELF\Product_view_definition.id);
 END_ENTITY; -- Constraint_occurrence
 
@@ -11792,7 +11792,7 @@ ENTITY Specification_based_product_version
 INVERSE
 	specification_source: Item_design_association FOR design;
 WHERE
-	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.PRODUCT_SPECIFICATION' IN TYPEOF(specification_source.configuration);
+	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.PRODUCT_SPECIFICATION' IN TYPEOF(specification_source.configuration);
 END_ENTITY; -- Specification_based_product_version
 
 
@@ -11871,7 +11871,7 @@ ENTITY Tagged_text_item
 WHERE
 	WR1 : SIZEOF(QUERY(using_rep <* USEDIN(SELF,
        'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS')|
-  NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.TAGGED_TEXT_FORMAT' IN
+  NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.TAGGED_TEXT_FORMAT' IN
   TYPEOF(using_rep.context_of_items))
       ))= 0;
 END_ENTITY; -- Tagged_text_item
@@ -12033,7 +12033,7 @@ END_ENTITY; -- Derived_unit_element
 ENTITY Duration
 	SUBTYPE OF (Value_with_unit);
 WHERE
-	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
+	WR1 : 'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
 END_ENTITY; -- Duration
 
 
@@ -12598,32 +12598,32 @@ END_SUBTYPE_CONSTRAINT; -- value_with_unit_subtypes
 
 RULE analytical_model_definition_constraint FOR (Product_view_definition);
 WHERE
-	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'ANALYTICAL_MODEL_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF(pvd.defined_version))))=0;
+	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'ANALYTICAL_MODEL_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'ANALYTICAL_MODEL_VERSION' IN TYPEOF(pvd.defined_version))))=0;
 END_RULE; -- analytical_model_definition_constraint
 
 RULE analytical_model_version_constraint FOR (Product_version);
 WHERE
-	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'ANALYTICAL_MODEL_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'ANALYTICAL_MODEL' IN TYPEOF(pv.of_product))))=0;
+	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'ANALYTICAL_MODEL_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'ANALYTICAL_MODEL' IN TYPEOF(pv.of_product))))=0;
 END_RULE; -- analytical_model_version_constraint
 
 RULE chemical_element_constraint FOR (Product);
 WHERE
 	WR1 : SIZEOF(QUERY(p <* Product | 
-              (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'SUBSTANCE' IN  TYPEOF (p))AND ((p\Product.name)IN  chemical_elements))
+              (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'SUBSTANCE' IN  TYPEOF (p))AND ((p\Product.name)IN  chemical_elements))
                 OR
-              (NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'SUBSTANCE' IN  TYPEOF(p))AND NOT((p\Product.name)IN chemical_elements))
+              (NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'SUBSTANCE' IN  TYPEOF(p))AND NOT((p\Product.name)IN chemical_elements))
       ))=
        SIZEOF(Product);
 END_RULE; -- chemical_element_constraint
 
 RULE substance_version_constraint FOR (Product_version);
 WHERE
-	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'SUBSTANCE_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'SUBSTANCE' IN TYPEOF(pv.of_product))))=0;
+	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'SUBSTANCE_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'SUBSTANCE' IN TYPEOF(pv.of_product))))=0;
 END_RULE; -- substance_version_constraint
 
 RULE substance_view_definition_constraint FOR (Product_view_definition);
 WHERE
-	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'SUBSTANCE_VIEW_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'SUBSTANCE_VERSION' IN TYPEOF(pvd.defined_version))))=0;
+	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'SUBSTANCE_VIEW_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'SUBSTANCE_VERSION' IN TYPEOF(pvd.defined_version))))=0;
 END_RULE; -- substance_view_definition_constraint
 
 RULE unique_document_id FOR (Document);
@@ -12670,19 +12670,19 @@ END_RULE; -- unique_requirement_id
 
 RULE document_version_constraint FOR (Product_version);
 WHERE
-	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'DOCUMENT_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'DOCUMENT' IN TYPEOF(pv.of_product))))= 0;
+	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'DOCUMENT_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'DOCUMENT' IN TYPEOF(pv.of_product))))= 0;
 END_RULE; -- document_version_constraint
 
 RULE document_definition_constraint FOR (Product_view_definition);
 WHERE
-	WR1 : SIZEOF(QUERY(dd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'DOCUMENT_DEFINITION' IN  TYPEOF (dd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'DOCUMENT_VERSION' IN TYPEOF(dd.defined_version))))=0;
+	WR1 : SIZEOF(QUERY(dd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'DOCUMENT_DEFINITION' IN  TYPEOF (dd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'DOCUMENT_VERSION' IN TYPEOF(dd.defined_version))))=0;
 END_RULE; -- document_definition_constraint
 
 RULE Information_product_version_constraint FOR (Product_version);
 WHERE
 	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT(
-  'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'INFORMATION_VERSION' IN  TYPEOF
-(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'INFORMATION_PRODUCT' IN TYPEOF(
+  'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'INFORMATION_VERSION' IN  TYPEOF
+(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'INFORMATION_PRODUCT' IN TYPEOF(
 pv.of_product))))=0;
 END_RULE; -- Information_product_version_constraint
 
@@ -12690,7 +12690,7 @@ RULE Definition_replacement_requires_effectivity_assignment FOR (Part_definition
 WHERE
 	WR1 : SIZEOF(QUERY(pdr <* Part_definition_relationship | 
 	(pdr\View_definition_relationship.relation_type = 'definition replacement')AND 
-	(SIZEOF(USEDIN(pdr,'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.EFFECTIVITY_ASSIGNMENT.ITEMS'))= 0)))
+	(SIZEOF(USEDIN(pdr,'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.EFFECTIVITY_ASSIGNMENT.ITEMS'))= 0)))
 	 = 0;
 END_RULE; -- Definition_replacement_requires_effectivity_assignment
 
@@ -12703,27 +12703,27 @@ END_LOCAL
 
 WHERE
 	WR1 : SIZEOF(QUERY(ar <* assemblies_of_parts | 
-	NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ASSEMBLED_PART_ASSOCIATION' IN TYPEOF(ar))))= 0;
+	NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ASSEMBLED_PART_ASSOCIATION' IN TYPEOF(ar))))= 0;
 END_RULE; -- Mandatory_part_occurrence_definition_relationship
 
 RULE part_version_constraint FOR (Product_version);
 WHERE
-	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'PART_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'PART' IN TYPEOF(pv.of_product))))=0;
+	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'PART_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'PART' IN TYPEOF(pv.of_product))))=0;
 END_RULE; -- part_version_constraint
 
 RULE part_view_definition_constraint FOR (Product_view_definition);
 WHERE
-	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'PART_VIEW_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'PART_VERSION' IN TYPEOF(pvd.defined_version))))=0;
+	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'PART_VIEW_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'PART_VERSION' IN TYPEOF(pvd.defined_version))))=0;
 END_RULE; -- part_view_definition_constraint
 
 RULE template_definition_constraint FOR (Product_view_definition);
 WHERE
-	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'TEMPLATE_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'TEMPLATE_VERSION' IN TYPEOF(pvd.defined_version))))=0;
+	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'TEMPLATE_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'TEMPLATE_VERSION' IN TYPEOF(pvd.defined_version))))=0;
 END_RULE; -- template_definition_constraint
 
 RULE template_version_constraint FOR (Product_version);
 WHERE
-	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'TEMPLATE_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'TEMPLATE' IN TYPEOF(pv.of_product))))=0;
+	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'TEMPLATE_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'TEMPLATE' IN TYPEOF(pv.of_product))))=0;
 END_RULE; -- template_version_constraint
 
 RULE unique_assembly_component_2d_shape_model FOR (Assembly_component_2d_shape_model);LOCAL
@@ -12820,12 +12820,12 @@ END_RULE; -- rule_version_constraint
 
 RULE software_definition_constraint FOR (Product_view_definition);
 WHERE
-	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'SOFTWARE_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'SOFTWARE_VERSION' IN TYPEOF(pvd.defined_version))))=0;
+	WR1 : SIZEOF(QUERY(pvd <* Product_view_definition |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'SOFTWARE_DEFINITION' IN  TYPEOF (pvd)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'SOFTWARE_VERSION' IN TYPEOF(pvd.defined_version))))=0;
 END_RULE; -- software_definition_constraint
 
 RULE software_version_constraint FOR (Product_version);
 WHERE
-	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'SOFTWARE_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'SOFTWARE' IN TYPEOF(pv.of_product))))=0;
+	WR1 : SIZEOF(QUERY(pv <* Product_version |(NOT('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'SOFTWARE_VERSION' IN  TYPEOF(pv)))AND('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'SOFTWARE' IN TYPEOF(pv.of_product))))=0;
 END_RULE; -- software_version_constraint
 
 FUNCTION bag_to_set
@@ -12888,7 +12888,7 @@ LOCAL
   car := QUERY(ca <* bag_to_set(USEDIN(input1,
 	 	'CLASSIFICATION_ASSIGNMENT_ARM.' + 
 	 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS'))|
-	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.'+
+	 	('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.'+
 	 	input2 IN TYPEOF(ca.assigned_class)));
 
  IF SIZEOF(car)= 1
@@ -13396,12 +13396,12 @@ LOCAL
 
   REPEAT  i := 1 TO SIZEOF(input)BY 1;
 
-   IF ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.TOPOLOGICAL_JUNCTION' IN  TYPEOF(input[i].start_terminus))THEN
+   IF ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.TOPOLOGICAL_JUNCTION' IN  TYPEOF(input[i].start_terminus))THEN
    tj := tj + input[i].start_terminus;
 
    END_IF;
 
-   IF('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.TOPOLOGICAL_JUNCTION' IN TYPEOF(input[i].end_terminus))THEN
+   IF('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.TOPOLOGICAL_JUNCTION' IN TYPEOF(input[i].end_terminus))THEN
    tj := tj + input[i].end_terminus;
 
    END_IF;
@@ -13451,7 +13451,7 @@ LOCAL
 ;
 
  
- category_assignments := USEDIN(obj,'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
+ category_assignments := USEDIN(obj,'AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
 
     
  REPEAT i := LOINDEX(category_assignments)TO HIINDEX(category_assignments)BY 1;
@@ -13466,9 +13466,9 @@ END_FUNCTION; -- types_of_product
 
 FUNCTION contains_variable
 	(x : term_select) : BOOLEAN;
-IF('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ABSTRACT_VARIABLE' IN  TYPEOF(x))THEN  RETURN (TRUE);
+IF('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ABSTRACT_VARIABLE' IN  TYPEOF(x))THEN  RETURN (TRUE);
 
-      ELSE  IF(('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.FUNC' IN TYPEOF(X))AND
+      ELSE  IF(('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.FUNC' IN TYPEOF(X))AND
              (SIZEOF(QUERY(y <* x.terms | contains_variable(y)))> 0))
               THEN RETURN (TRUE);
 
@@ -13486,25 +13486,25 @@ LOCAL
  END_LOCAL
 ;
 
-  IF (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.ABSTRACT_VARIABLE' IN  TYPEOF(thing))AND 
-     ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.RULE_DEFINITION' IN (TYPEOF(thing.scope))))
+  IF (('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.ABSTRACT_VARIABLE' IN  TYPEOF(thing))AND 
+     ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.RULE_DEFINITION' IN (TYPEOF(thing.scope))))
    THEN  accum := accum + thing;
 
-   ELSE  IF ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.RULE_CONDITION' IN  TYPEOF(thing))
+   ELSE  IF ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.RULE_CONDITION' IN  TYPEOF(thing))
         THEN  REPEAT  i := 1 TO  HIINDEX(thing\Atomic_formula.terms);
 
                 accum := local_vars_aux(thing\Atomic_formula.terms[i],accum);
 
              END_REPEAT;
 
-        ELSE  IF ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.SIMPLE_CLAUSE' IN  TYPEOF(thing))
+        ELSE  IF ('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.SIMPLE_CLAUSE' IN  TYPEOF(thing))
              THEN  REPEAT  j := 1 TO  HIINDEX(thing.formulas);
 
                         accum := local_vars_aux(thing.formulas[j],accum);
 
                   END_REPEAT;
 
-             ELSE IF('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM.COMPLEX_CLAUSE' IN TYPEOF(thing))
+             ELSE IF('AP210_ASSEMBLY_PHYSICAL_DESIGN_ARM_LF.COMPLEX_CLAUSE' IN TYPEOF(thing))
                   THEN REPEAT k := 1 TO HIINDEX(thing.clauses);
 
                         accum := local_vars_aux(thing.clauses[k],accum);
@@ -13690,5 +13690,7 @@ END_LOCAL
 	RETURN(dd);
 END_FUNCTION; -- get_document_definition
 
-END_SCHEMA; --ap210_assembly_physical_design_arm
+END_SCHEMA; --ap210_assembly_physical_design_arm_lf
+
+
 

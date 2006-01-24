@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.93 2006/01/11 12:34:45 kovaliovas Exp $
+   $Id: arm.exp,v 1.94 2006/01/20 08:43:38 liutkuviene Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -267,6 +267,7 @@ SCHEMA Fabrication_technology_arm;
       WR1 : SIZEOF(QUERY(ltjt <* access_mechanisms | NOT ('FABRICATION_TECHNOLOGY_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt)))) = 0;
       WR2 : SIZEOF(QUERY(s <* SELF\Geometric_template.shapes |
              NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(s)))) = 0;
+      WR3 : SIZEOF(SELF\Geometric_template.shapes) > 0;
   END_ENTITY;
 
   ENTITY Land_template_interface_terminal
@@ -296,12 +297,15 @@ SCHEMA Fabrication_technology_arm;
 
   ENTITY Material_addition_feature_template
     SUBTYPE OF (Stratum_feature_template);
+    WHERE
+      WR1 : SIZEOF(SELF\Geometric_template.shapes) > 0;
   END_ENTITY;
 
   ENTITY Material_removal_feature_template
     SUBTYPE OF (Single_stratum_continuous_template);
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
+      WR2 : SIZEOF(SELF\Geometric_template.shapes) > 0;
   END_ENTITY;
 
 	ENTITY Passage_technology

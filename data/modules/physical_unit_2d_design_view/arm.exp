@@ -28,6 +28,14 @@ SCHEMA Physical_unit_2d_design_view_arm;
      SELF\Representation_relationship.relation_type : STRING := 'component 2d location';
    WHERE
      WR1: EXISTS (component);  
+     WR2: NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' IN TYPEOF(component_model)) OR
+     (component\Next_assembly_usage_occurrence_relationship.related_view IN component_model.shape_characterized_component);
+     WR3: NOT('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF(component_model)) OR
+     (component_model.shape_characterized_definition :=: 
+     component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from);
+     WR4: NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN TYPEOF(component_model)) OR
+     (component_model.shape_characterized_definition :=: 
+     component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from);
   END_ENTITY;
 
   ENTITY Component_part_2d_geometric_representation_relationship
@@ -36,6 +44,10 @@ SCHEMA Physical_unit_2d_design_view_arm;
     	SELF\Geometric_model_relationship.rep_2 RENAMED component_shape : Assembly_component_2d_shape_model;
     WHERE
       WR1 : NOT EXISTS(SELF\Representation_relationship.relation_type);
+      WR2 : SIZEOF(QUERY(ac <* component_shape.shape_characterized_component |
+                   NOT(part_shape.shape_characterized_definition :=: ac\Assembly_component.derived_from)
+                   )) = 0;
+      WR3 : part_shape :<>: component_shape;
   END_ENTITY;
 
   RULE unique_assembly_component_2d_shape_model FOR (Assembly_component_2d_shape_model);

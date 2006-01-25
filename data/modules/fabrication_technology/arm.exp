@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.95 2006/01/24 23:59:42 thomasrthurman Exp $
+   $Id: arm.exp,v 1.96 2006/01/25 16:37:43 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -152,6 +152,10 @@ SCHEMA Fabrication_technology_arm;
       interface_access_mechanisms : SET[1:?] OF land_template_interface_terminal FOR associated_definition;
     WHERE
       WR1 : NOT (EXISTS(minimum_attachment_region_size) AND EXISTS(maximum_attachment_region_size)) OR (minimum_attachment_region_size[1] :<>: maximum_attachment_region_size);
+      WR2 : NOT (EXISTS(minimum_attachment_region_size)) OR (SIZEOF(QUERY(mars <* minimum_attachment_region_size |
+                 NOT(mars\Shape_element.containing_shape :=: SELF)
+                 )) = 0);
+      WR3 : maximum_attachment_region_size\Shape_element.containing_shape :=: SELF;
   END_ENTITY;
 
   ENTITY Default_component_termination_passage_definition

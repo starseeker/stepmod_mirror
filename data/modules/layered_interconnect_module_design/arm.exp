@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.190 2006/01/16 08:45:22 liutkus Exp $
+   $Id: arm.exp,v 1.191 2006/01/20 08:43:38 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -429,15 +429,18 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Footprint_occurrence_sub_assembly_relationship
 	SUBTYPE OF (Structured_layout_component_sub_assembly_relationship);
-      SELF\View_definition_relationship.relating_view : Footprint_occurrence;	
-      terminal_location : Padstack_location_in_footprint_definition;
-    UNIQUE
+      SELF\Structured_layout_component_sub_assembly_relationship.relating_view : Footprint_occurrence;	
+      SELF\Structured_layout_component_sub_assembly_relationship.related_view : Laminate_component;
+      SELF\Structured_layout_component_sub_assembly_relationship.first_location RENAMED terminal_location : Padstack_location_in_footprint_definition;
+      SELF\Structured_layout_component_sub_assembly_relationship.second_location RENAMED sub_assembly_reference_designation : Template_location_in_structured_template; 
+   UNIQUE
       UR1 : sub_assembly_reference_designation,
        relating_view,
        terminal_location;
     WHERE
       WR1 : terminal_location.assembly :=: relating_view.derived_from;
       WR2 : terminal_location.template :=: sub_assembly_reference_designation.assembly;
+      WR3 : 'PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(sub_assembly_reference_designation.assembly);
   END_ENTITY;
 
   ENTITY Generic_physical_network
@@ -781,10 +784,16 @@ SCHEMA Layered_interconnect_module_design_arm;
    WR2 desc: The location of the overriding_padstack_occurrence shall be derived from the relative location of the reference_pd_in_footprint_definition and shall not be provided.
 *)   
   END_ENTITY;
-
+--tt added inverse, wr1 1/15/06
   ENTITY Padstack_occurrence
     SUBTYPE OF (Structured_layout_component);
       SELF\Definition_based_product_occurrence.derived_from : Padstack_definition;
+    INVERSE
+      SELF\Assembly_group_component.components : SET [1:?] OF Structured_layout_component_sub_assembly_relationship FOR relating_view;
+    WHERE
+      WR1 : SIZEOF(QUERY(sar <* components |
+            EXISTS(sar.second_location)
+                  )) = 0;
   END_ENTITY;
 
   ENTITY Partially_plated_cutout
@@ -865,6 +874,9 @@ SCHEMA Layered_interconnect_module_design_arm;
         probed_layout_item                                    : Stratum_feature;
         SELF\Shape_feature.connection_area                    : SET[1:1] OF Connection_zone_in_design_view;
     	stratum_feature_material_stackup                      : OPTIONAL Multi_layer_stratum_feature;
+    DERIVE
+      SELF\shape_element.containing_shape : Probe_access_area := SELF;
+      SELF\shape_feature.element_name : STRING := '';      
     INVERSE
       network : Routed_physical_network FOR probe;
   END_ENTITY;
@@ -1049,21 +1061,31 @@ SCHEMA Layered_interconnect_module_design_arm;
         NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(agc)))) = 0;
   END_ENTITY;
 
-  ENTITY Structured_layout_component_sub_assembly_relationship
+ENTITY Structured_layout_component_sub_assembly_relationship
     SUPERTYPE OF (Footprint_occurrence_sub_assembly_relationship)
     SUBTYPE OF (Next_assembly_usage_occurrence_relationship);
       SELF\View_definition_relationship.relating_view : Structured_layout_component;
       SELF\View_definition_relationship.related_view : Assembly_component;
-      sub_assembly_reference_designation : Template_location_in_structured_template;
+      first_location : Template_location_in_structured_template;
+      second_location : OPTIONAL Template_location_in_structured_template;
+   DERIVE
+      first_location_overridden : BOOLEAN := 
+                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
+                   :<>: first_location.template);      
+      second_location_overridden : BOOLEAN := EXISTS(second_location) AND
+                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
+                   :<>: second_location.template);
     UNIQUE
-      UR1 : sub_assembly_reference_designation, relating_view, related_view;
+      UR1 : first_location, second_location,relating_view,related_view;
     WHERE
      WR1: NOT EXISTS(SELF\View_definition_relationship.relation_type);
      WR2: NOT EXISTS(SELF\View_definition_relationship.id);
      WR3: NOT EXISTS(SELF\Assembly_component_relationship.location_indicator);
      WR4: NOT EXISTS(SELF\Assembly_component_relationship.quantity);
-     WR5: SELF\View_definition_relationship.related_view\Assembly_component.derived_from :=: sub_assembly_reference_designation.template;
-     WR6: SELF\View_definition_relationship.relating_view\Assembly_component.derived_from :=: sub_assembly_reference_designation.assembly;
+     WR5: SELF\View_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly;
+     WR6: first_location :<>: second_location;
+     WR7: NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view));
+     WR8: NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view));
   END_ENTITY;
 
   ENTITY Unplated_cutout_edge_segment

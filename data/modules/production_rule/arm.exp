@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.11 2006/01/12 07:09:56 liutkus Exp $
+   $Id: arm.exp,v 1.12 2006/01/20 08:43:42 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4164 - ISO/TS 10303-1739 Production rule - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3588 
 *)
@@ -8,7 +8,6 @@ SCHEMA Production_rule_arm;
 
 REFERENCE FROM Product_identification_arm(types_of_product); -- ISO/TS 10303-1017 
 
---	USE FROM Model_parameter_arm;	-- ISO/TS 10303-1703
 	USE FROM Specification_document_arm;    --  ISO/CD-TS 10303-1747
 	USE FROM Software_arm;	-- ISO/TS 10303-1746
 
@@ -299,10 +298,11 @@ ENTITY Simple_clause
   formulas : LIST [1:?] OF Rule_condition;
 END_ENTITY;
 
-ENTITY Symbol;
-  name : STRING;
+ENTITY Symbol
+  SUBTYPE OF(Representation_item);
+ UNIQUE
+  UR1 : SELF\Representation_item.name;
 END_ENTITY;
-
 
   FUNCTION bag_to_set(
     the_bag : BAG OF GENERIC : intype
@@ -370,15 +370,15 @@ END_RULE;
 
 RULE rule_software_definition_constraint FOR (Product_view_definition);
 WHERE
-   WR1: SIZEOF (QUERY ( pvd <* Product_view_definition | ( NOT('PRODUCT_RULE_ARM.' + 'RULE_SOFTWARE_DEFINITION' 
+   WR1: SIZEOF (QUERY ( pvd <* Product_view_definition | ( NOT('PRODUCTION_RULE_ARM.' + 'RULE_SOFTWARE_DEFINITION' 
                        IN TYPEOF(pvd))) 
-                       AND ('PRODUCT_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF (pvd . defined_version)))) = 0 ;
+                       AND ('PRODUCTION_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF (pvd . defined_version)))) = 0 ;
 END_RULE; 
 
 RULE rule_version_constraint FOR (Product_version);
 WHERE
-   WR1: SIZEOF (QUERY(pv <* Product_version | (NOT('PRODUCT_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF(pv))) 
-                      AND ( 'PRODUCT_RULE_ARM.' + 'RULE_PRODUCT' IN TYPEOF(pv.of_product)))) = 0 ;
+   WR1: SIZEOF (QUERY(pv <* Product_version | (NOT('PRODUCTION_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF(pv))) 
+                      AND ( 'PRODUCTION_RULE_ARM.' + 'RULE_PRODUCT' IN TYPEOF(pv.of_product)))) = 0 ;
 END_RULE;
 
 END_SCHEMA; 

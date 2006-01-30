@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.100 2006/01/30 10:39:43 kovaliovas Exp $
+   $Id: arm.exp,v 1.101 2006/01/30 13:22:23 liutkus Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -97,7 +97,7 @@ SCHEMA Fabrication_technology_arm;
   END_ENTITY;
 
   ENTITY Component_termination_passage_template
-    SUBTYPE OF (Inter_stratum_feature_template);
+    SUBTYPE OF (Continuous_template, Inter_stratum_feature_template);
       SELF\Inter_stratum_feature_template.of_passage_technology : Default_component_termination_passage_definition;
     INVERSE
       access_mechanisms : SET[2:?] OF component_termination_passage_template_terminal FOR associated_definition;
@@ -126,7 +126,6 @@ SCHEMA Fabrication_technology_arm;
   END_ENTITY;
   
   ENTITY Continuous_template
-    ABSTRACT SUPERTYPE OF (ONEOF (Inter_stratum_feature_template, Single_stratum_continuous_template))
     SUBTYPE OF (Geometric_template);
   WHERE
     WR1 : SIZEOF(QUERY(s <* SELF\Geometric_template.shapes |
@@ -252,7 +251,7 @@ SCHEMA Fabrication_technology_arm;
     SUPERTYPE OF (ONEOF(Component_termination_passage_template,
       Unsupported_passage_template,
       Via_template))
-    SUBTYPE OF (Continuous_template);
+    SUBTYPE OF (Geometric_template);
       of_passage_technology : Passage_technology;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
@@ -345,13 +344,14 @@ SCHEMA Fabrication_technology_arm;
 	END_ENTITY;
 
   ENTITY Single_stratum_continuous_template
-    ABSTRACT SUPERTYPE OF (ONEOF (Stratum_feature_template, Material_removal_feature_template))
+    ABSTRACT SUPERTYPE OF (ONEOF (Stratum_feature_template,
+                                Material_removal_feature_template))  
     SUBTYPE OF (Continuous_template, Single_stratum_template);
   END_ENTITY;
 
   ENTITY Single_stratum_template
     ABSTRACT SUPERTYPE OF (Single_stratum_continuous_template)
-    SUBTYPE OF (Geometric_template);
+    SUBTYPE OF (Template_definition);
       of_stratum_technology : OPTIONAL SET [1:?] OF stratum_technology;
   END_ENTITY;
 
@@ -453,12 +453,12 @@ SCHEMA Fabrication_technology_arm;
     SUPERTYPE OF (ONEOF (Counterbore_passage_template,
       Countersunk_passage_template,
       Blind_passage_template))
-    SUBTYPE OF (Inter_stratum_feature_template);
+    SUBTYPE OF (Continuous_template, Inter_stratum_feature_template);
       SELF\Inter_stratum_feature_template.of_passage_technology : Default_unsupported_passage_definition;
   END_ENTITY;
 
   ENTITY Via_template
-    SUBTYPE OF (Inter_stratum_feature_template);
+    SUBTYPE OF (Continuous_template, Inter_stratum_feature_template);
       SELF\Inter_stratum_feature_template.of_passage_technology : Default_via_definition;
     INVERSE
       access_mechanisms : SET[2:?] OF via_template_terminal FOR containing_shape;

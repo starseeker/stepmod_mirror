@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.108 2006/01/20 08:43:37 liutkuviene Exp $
+   $Id: arm.exp,v 1.109 2006/01/30 13:22:23 liutkus Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -149,23 +149,17 @@ SCHEMA Part_template_2d_shape_arm;
 
   ENTITY Passage_technology_allocation_to_stack_model;
       allocated_technology : Passage_technology;
-      from_stratum_technology_occurrence : OPTIONAL Stratum_technology_occurrence;
-      to_stratum_technology_occurrence : OPTIONAL Stratum_technology_occurrence;
+      single_stratum_passage_location : OPTIONAL Stratum_technology_occurrence;
       stratum_technology_sequence : OPTIONAL SET [1:?] OF Stratum_technology_occurrence_link;
       associated_stackup : Design_stack_model;
    WHERE 
-     WR1: (NOT EXISTS(from_stratum_technology_occurrence) OR
-               (from_stratum_technology_occurrence IN associated_stackup.composing_occurrence)) AND
-          (NOT EXISTS(to_stratum_technology_occurrence) OR
-               (to_stratum_technology_occurrence IN associated_stackup.composing_occurrence));
-     WR2: EXISTS(stratum_technology_sequence) OR
-               (from_stratum_technology_occurrence = to_stratum_technology_occurrence);
-     WR3: NOT (EXISTS(from_stratum_technology_occurrence) XOR EXISTS(to_stratum_technology_occurrence));
-     WR4: EXISTS(stratum_technology_sequence) XOR EXISTS(from_stratum_technology_occurrence);
-     WR5: SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))
+     WR1: (NOT EXISTS(single_stratum_passage_location) OR
+               (single_stratum_passage_location IN associated_stackup.composing_occurrence));
+     WR2: EXISTS(stratum_technology_sequence) XOR EXISTS(single_stratum_passage_location);
+     WR3: SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))
                  ) = 0;
-     WR6: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1); 
-     WR7: sts_vertex_degree_less_than_two(stratum_technology_sequence);
+     WR4: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1); 
+     WR5: sts_vertex_degree_less_than_two(stratum_technology_sequence);
   END_ENTITY;
 
   ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;

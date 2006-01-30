@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2006/01/12 09:24:19 kovaliovas Exp $
+   $Id: arm.exp,v 1.5 2006/01/20 08:43:40 liutkuviene Exp $
    ISO TC184/SC4/WG12 N3885 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
 *)
 (* UNDER DEVELOPMENT *)
@@ -41,8 +41,8 @@ REFERENCE FROM Part_template_2d_shape_arm(bag_to_set);	-- ISO/TS 10303-1716
   END_ENTITY;
 
   ENTITY Footprint_definition
-    SUBTYPE OF (Dependent_template, Generic_footprint_definition);
-      SELF\Dependent_template.associated_item RENAMED reference_package : Package;
+    SUBTYPE OF (Generic_footprint_definition);
+      reference_package : Package;
     WHERE
       WR1 : SIZEOF (QUERY(shape <* SELF\Structured_template.shapes |
                NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(shape))
@@ -102,12 +102,19 @@ REFERENCE FROM Part_template_2d_shape_arm(bag_to_set);	-- ISO/TS 10303-1716
   END_ENTITY;
 
   ENTITY Padstack_location_in_footprint_definition
-    SUBTYPE OF (Shape_element_based_template_location);
-      SELF\Template_location_in_structured_template.assembly : Footprint_definition;
+    SUBTYPE OF (Part_feature_based_template_location);
       SELF\Template_location_in_structured_template.template : Padstack_definition;
-      SELF\Shape_element_based_template_location.reference_element : Package_terminal;
+      SELF\Part_feature_based_template_location.reference_feature : Package_terminal;
     UNIQUE
-      UR1: assembly, reference_element;
+      UR1: assembly, reference_feature;
+  END_ENTITY;
+
+  ENTITY Part_feature_based_template_location
+    SUBTYPE OF (Template_location_in_structured_template);
+      SELF\Template_location_in_structured_template.assembly : Footprint_definition;
+      reference_feature : Part_feature;
+    WHERE
+      WR1 : reference_feature.associated_definition :=: assembly\Footprint_definition.reference_package;
   END_ENTITY;
 
   ENTITY Stratum_feature_template_location_in_breakout_footprint_definition

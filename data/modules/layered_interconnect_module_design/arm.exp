@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.192 2006/01/25 23:36:33 thomasrthurman Exp $
+   $Id: arm.exp,v 1.193 2006/01/30 09:10:42 kovaliovas Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -514,9 +514,15 @@ SCHEMA Layered_interconnect_module_design_arm;
  Plated_interconnect_module_edge))
     SUBTYPE OF (Inter_stratum_feature);
     WHERE
-      WR1: SIZEOF(QUERY(s <* SELF.derived_from\Geometric_template.shapes | NOT
+      WR1: (SIZEOF(QUERY(s <* SELF.derived_from\Geometric_template.shapes | NOT
            ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN
-           TYPEOF(s)))) = 0;
+           TYPEOF(s)))) = 0)
+           AND
+           (SIZEOF(QUERY(shape <*
+           USEDIN(SELF, 'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' +
+           'SHAPE_CHARACTERIZED_COMPONENT') | NOT
+           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN
+           TYPEOF(shape)))) = 0);
   END_ENTITY;
 
   ENTITY Interconnect_module_edge_segment

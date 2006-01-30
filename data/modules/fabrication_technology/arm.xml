@@ -115,10 +115,20 @@
          <explicit name="maximum_attachment_region_size" optional="YES">
             <typename name="Connection_zone_in_layout_template"/>
          </explicit>
+         <derived name="containing_shape" expression="SELF">
+            <typename name="Default_attachment_size_based_land_physical_template"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
+         <derived name="element_name" expression="''">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Shape_feature"/>
+         </derived>
          <inverse name="interface_access_mechanisms" entity="Land_template_interface_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <where label="WR1" expression="NOT (EXISTS(minimum_attachment_region_size) AND EXISTS(maximum_attachment_region_size)) OR (minimum_attachment_region_size[1] :&lt;&gt;: maximum_attachment_region_size)"/>
+         <where label="WR2" expression="NOT (EXISTS(minimum_attachment_region_size)) OR (SIZEOF(QUERY(mars &lt;* minimum_attachment_region_size |&#10;                 NOT(mars\Shape_element.containing_shape :=: SELF)&#10;                 )) = 0)"/>
+         <where label="WR3" expression="maximum_attachment_region_size\Shape_element.containing_shape :=: SELF"/>
       </entity>
       <entity name="Default_component_termination_passage_definition" supertypes="Passage_technology">
          <explicit name="allowed_component_terminal_extent">

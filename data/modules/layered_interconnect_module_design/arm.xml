@@ -281,7 +281,7 @@
          <where label="WR1" expression="associated_land\Definition_based_product_occurrence.derived_from :=:&#10;            SELF\Definition_based_product_occurrence.derived_from\Dependent_template.associated_item"/>
       </entity>
       <entity name="Derived_stratum" supertypes="Stratum" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="SIZEOF(USEDIN (SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE.RESIDENT_STRATUM')) = 1"/>
+         <where label="WR1" expression="SIZEOF(USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_BASED_PATTERN_INTER_STRATUM_EXTENT.INCLUDED_STRATUM'))=1"/>
       </entity>
       <entity name="Design_layer_stratum" supertypes="Stratum" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="primary_design_layer_stratum" optional="NO">
@@ -466,7 +466,9 @@
          <where label="WR2" expression="(SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY')) = 0)&#10;      OR&#10;      (SIZEOF(QUERY(imsar &lt;* USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | &#10;              (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND &#10;               (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1)"/>
          <where label="WR3" expression="NOT EXISTS (SELF\Product_view_definition.additional_characterization)"/>
       </entity>
-      <entity name="Interconnect_module_edge" supertypes="Inter_stratum_feature" super.expression="ONEOF (Partially_plated_interconnect_module_edge, Plated_interconnect_module_edge)" abstract.supertype="NO" abstract.entity="NO"/>
+      <entity name="Interconnect_module_edge" supertypes="Inter_stratum_feature" super.expression="ONEOF (Partially_plated_interconnect_module_edge, Plated_interconnect_module_edge)" abstract.supertype="NO" abstract.entity="NO">
+         <where label="WR1" expression="(SIZEOF(QUERY(s &lt;* SELF.derived_from\Geometric_template.shapes | NOT&#10;           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN&#10;           TYPEOF(s)))) = 0)&#10;           AND&#10;           (SIZEOF(QUERY(shape &lt;*&#10;           USEDIN(SELF, 'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' +&#10;           'SHAPE_CHARACTERIZED_COMPONENT') | NOT&#10;           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN&#10;           TYPEOF(shape)))) = 0)"/>
+      </entity>
       <entity name="Interconnect_module_edge_segment" supertypes="Inter_stratum_feature" super.expression="ONEOF (Plated_interconnect_module_edge_segment, Unplated_interconnect_module_edge_segment)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_edge" optional="NO">
             <typename name="Interconnect_module_edge"/>
@@ -687,6 +689,15 @@
       </entity>
       <entity name="Library_reference_view_definition_relationship" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+      </entity>
+      <entity name="Material_addition_laminate_component" supertypes="Laminate_component" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="derived_from" optional="NO">
+            <typename name="Material_addition_feature_template"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
+         <explicit name="design_intent" optional="NO">
+            <typename name="stratum_feature_or_stratum_feature_template_component"/>
+         </explicit>
       </entity>
       <entity name="Material_removal_laminate_component" supertypes="Laminate_component" super.expression="Filled_area_material_removal_laminate_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">

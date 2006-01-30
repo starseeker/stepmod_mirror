@@ -360,18 +360,28 @@
       <entity name="Footprint_occurrence_sub_assembly_relationship" supertypes="Structured_layout_component_sub_assembly_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="relating_view" optional="NO">
             <typename name="Footprint_occurrence"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
+            <redeclaration entity-ref="Structured_layout_component_sub_assembly_relationship"/>
+         </explicit>
+         <explicit name="related_view" optional="NO">
+            <typename name="Laminate_component"/>
+            <redeclaration entity-ref="Structured_layout_component_sub_assembly_relationship"/>
          </explicit>
          <explicit name="terminal_location" optional="NO">
             <typename name="Padstack_location_in_footprint_definition"/>
+            <redeclaration entity-ref="Structured_layout_component_sub_assembly_relationship" old_name="first_location"/>
+         </explicit>
+         <explicit name="sub_assembly_reference_designation" optional="NO">
+            <typename name="Template_location_in_structured_template"/>
+            <redeclaration entity-ref="Structured_layout_component_sub_assembly_relationship" old_name="second_location"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="Structured_layout_component_sub_assembly_relationship" attribute="sub_assembly_reference_designation"/>
+            <unique.attribute attribute="sub_assembly_reference_designation"/>
             <unique.attribute attribute="relating_view"/>
             <unique.attribute attribute="terminal_location"/>
          </unique>
          <where label="WR1" expression="terminal_location.assembly :=: relating_view.derived_from"/>
          <where label="WR2" expression="terminal_location.template :=: sub_assembly_reference_designation.assembly"/>
+         <where label="WR3" expression="'PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(sub_assembly_reference_designation.assembly)"/>
       </entity>
       <entity name="Generic_physical_network" abstract.supertype="YES" super.expression="ONEOF (Unrouted_physical_network, Routed_physical_network)" abstract.entity="NO">
          <explicit name="name" optional="NO">
@@ -739,6 +749,11 @@
             <typename name="Padstack_definition"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
+         <inverse name="components" entity="Structured_layout_component_sub_assembly_relationship" attribute="relating_view">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+            <redeclaration entity-ref="Assembly_group_component"/>
+         </inverse>
+         <where label="WR1" expression="SIZEOF(QUERY(sar &lt;* components |&#10;            EXISTS(sar.second_location)&#10;                  )) = 0"/>
       </entity>
       <entity name="Partially_plated_cutout" supertypes="Cutout" abstract.supertype="NO" abstract.entity="NO">
          <inverse name="plated_segment" entity="Plated_cutout_edge_segment" attribute="composed_cutout">
@@ -806,6 +821,14 @@
          <explicit name="stratum_feature_material_stackup" optional="YES">
             <typename name="Multi_layer_stratum_feature"/>
          </explicit>
+         <derived name="containing_shape" expression="SELF">
+            <typename name="Probe_access_area"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </derived>
+         <derived name="element_name" expression="''">
+            <builtintype type="STRING" fixed="NO"/>
+            <redeclaration entity-ref="Shape_feature"/>
+         </derived>
          <inverse name="network" entity="Routed_physical_network" attribute="probe"/>
       </entity>
       <entity name="Routed_join_relationship" abstract.supertype="YES" supertypes="Join_relationship" super.expression="ONEOF (Inter_stratum_join_relationship, Intra_stratum_join_relationship, Stratum_embedded_physical_component_join_relationship)" abstract.entity="NO">
@@ -865,7 +888,6 @@
          </derived>
          <inverse name="of_surface" entity="Stratum_surface" attribute="of_stratum">
             <inverse.aggregate type="SET" lower="1" upper="3"/>
-
          </inverse>
          <inverse name="assembly" entity="Interconnect_module_stratum_assembly_relationship" attribute="component">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
@@ -1019,11 +1041,21 @@
             <typename name="Assembly_component"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
-         <explicit name="sub_assembly_reference_designation" optional="NO">
+         <explicit name="first_location" optional="NO">
             <typename name="Template_location_in_structured_template"/>
          </explicit>
+         <explicit name="second_location" optional="YES">
+            <typename name="Template_location_in_structured_template"/>
+         </explicit>
+         <derived name="first_location_overridden" expression="(SELF\View_definition_relationship.related_view\Assembly_component.derived_from&#10;                   :&lt;&gt;: first_location.template)">
+            <builtintype type="BOOLEAN" fixed="NO"/>
+         </derived>
+         <derived name="second_location_overridden" expression="EXISTS(second_location) AND&#10;                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from&#10;                   :&lt;&gt;: second_location.template)">
+            <builtintype type="BOOLEAN" fixed="NO"/>
+         </derived>
          <unique label="UR1">
-            <unique.attribute attribute="sub_assembly_reference_designation"/>
+            <unique.attribute attribute="first_location"/>
+            <unique.attribute attribute="second_location"/>
             <unique.attribute attribute="relating_view"/>
             <unique.attribute attribute="related_view"/>
          </unique>
@@ -1031,8 +1063,10 @@
          <where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.id)"/>
          <where label="WR3" expression="NOT EXISTS(SELF\Assembly_component_relationship.location_indicator)"/>
          <where label="WR4" expression="NOT EXISTS(SELF\Assembly_component_relationship.quantity)"/>
-         <where label="WR5" expression="SELF\View_definition_relationship.related_view\Assembly_component.derived_from :=: sub_assembly_reference_designation.template"/>
-         <where label="WR6" expression="SELF\View_definition_relationship.relating_view\Assembly_component.derived_from :=: sub_assembly_reference_designation.assembly"/>
+         <where label="WR5" expression="SELF\View_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly"/>
+         <where label="WR6" expression="first_location :&lt;&gt;: second_location"/>
+         <where label="WR7" expression="NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view))"/>
+         <where label="WR8" expression="NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view))"/>
       </entity>
       <entity name="Unplated_cutout_edge_segment" supertypes="Cutout_edge_segment" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_cutout" optional="NO">

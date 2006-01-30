@@ -47,6 +47,9 @@
             <redeclaration entity-ref="Representation_relationship"/>
          </derived>
          <where label="WR1" expression="EXISTS (component)"/>
+         <where label="WR2" expression="NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\Next_assembly_usage_occurrence_relationship.related_view IN component_model.shape_characterized_component)"/>
+         <where label="WR3" expression="NOT('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component_model.shape_characterized_definition :=: &#10;     component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from)"/>
+         <where label="WR4" expression="NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component_model.shape_characterized_definition :=: &#10;     component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from)"/>
       <where label="IP1"/>
          <where label="IP2"/>
       </entity>
@@ -60,6 +63,8 @@
             <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Representation_relationship.relation_type)"/>
+         <where label="WR2" expression="SIZEOF(QUERY(ac &lt;* component_shape.shape_characterized_component |&#10;                   NOT(part_shape.shape_characterized_definition :=: ac\Assembly_component.derived_from)&#10;                   )) = 0"/>
+         <where label="WR3" expression="part_shape :&lt;&gt;: component_shape"/>
       </entity>
       <rule name="unique_assembly_component_2d_shape_model" appliesto="Assembly_component_2d_shape_model">
          <algorithm>LOCAL

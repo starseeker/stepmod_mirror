@@ -14,6 +14,9 @@
       <interface kind="reference" schema="Fabrication_technology_arm">
          <interfaced.item name="get_stack"/>
       </interface>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <type name="pt2ds_ee_product_definition_with_annotation_elements">
          <select extensible="YES" genericentity="YES" basedon="ee_product_definition_with_annotation_elements" selectitems="Structured_template"/>
       </type>
@@ -98,10 +101,7 @@
          <explicit name="allocated_technology">
             <typename name="Passage_technology"/>
          </explicit>
-         <explicit name="from_stratum_technology_occurrence" optional="YES">
-            <typename name="Stratum_technology_occurrence"/>
-         </explicit>
-         <explicit name="to_stratum_technology_occurrence" optional="YES">
+         <explicit name="single_stratum_passage_location" optional="YES">
             <typename name="Stratum_technology_occurrence"/>
          </explicit>
          <explicit name="stratum_technology_sequence" optional="YES">
@@ -111,13 +111,11 @@
          <explicit name="associated_stackup">
             <typename name="Design_stack_model"/>
          </explicit>
-         <where label="WR1" expression="(NOT EXISTS(from_stratum_technology_occurrence) OR&#10;               (from_stratum_technology_occurrence IN associated_stackup.composing_occurrence)) AND&#10;          (NOT EXISTS(to_stratum_technology_occurrence) OR&#10;               (to_stratum_technology_occurrence IN associated_stackup.composing_occurrence))"/>
-         <where label="WR2" expression="EXISTS(stratum_technology_sequence) OR&#10;               (from_stratum_technology_occurrence = to_stratum_technology_occurrence)"/>
-         <where label="WR3" expression="NOT (EXISTS(from_stratum_technology_occurrence) XOR EXISTS(to_stratum_technology_occurrence))"/>
-         <where label="WR4" expression="EXISTS(stratum_technology_sequence) XOR EXISTS(from_stratum_technology_occurrence)"/>
-         <where label="WR5" expression="SIZEOF(QUERY(sts &lt;* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))&#10;                 ) = 0"/>
-         <where label="WR6" expression="SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1)"/>
-         <where label="WR7" expression="sts_vertex_degree_less_than_two(stratum_technology_sequence)"/>
+         <where label="WR1" expression="(NOT EXISTS(single_stratum_passage_location) OR&#10;               (single_stratum_passage_location IN associated_stackup.composing_occurrence))"/>
+         <where label="WR2" expression="EXISTS(stratum_technology_sequence) XOR EXISTS(single_stratum_passage_location)"/>
+         <where label="WR3" expression="SIZEOF(QUERY(sts &lt;* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))&#10;                 ) = 0"/>
+         <where label="WR4" expression="SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1)"/>
+         <where label="WR5" expression="sts_vertex_degree_less_than_two(stratum_technology_sequence)"/>
       </entity>
       <entity name="Physical_unit_keepout_shape_allocation_to_stratum_stack">
          <explicit name="keepout_shape">
@@ -138,13 +136,6 @@
             <unique.attribute attribute="stack_model"/>
          </unique>
          <where label="WR1" expression="keepout_shape\Physical_unit_keepout_shape_model.constrained_design_object_category&#10;        IN [keepout_product_design_object_category.interconnect_module_via,&#10;        keepout_product_design_object_category.interconnect_module_inter_stratum_feature,&#10;        keepout_product_design_object_category.interconnect_module_cutout,&#10;        keepout_product_design_object_category.interconnect_module_fill_area,&#10;        keepout_product_design_object_category.interconnect_module_stratum_feature]"/>
-      </entity>
-      <entity name="Shape_element_based_template_location" supertypes="Template_location_in_structured_template">
-         <explicit name="reference_element">
-            <typename name="Shape_element"/>
-         </explicit>
-         <where label="WR1" expression="reference_element.containing_shape :=: assembly\Dependent_template.associated_item"/>
-         <where label="WR2" expression="'FABRICATION_TECHNOLOGY_ARM.DEPENDENT_TEMPLATE' IN TYPEOF(assembly)"/>
       </entity>
       <entity name="Single_stratum_special_symbol_template" supertypes="Single_stratum_structured_template Special_symbol_template"/>
       <entity name="Single_stratum_structured_template" abstract.supertype="YES" supertypes="Structured_template Single_stratum_template" super.expression="ONEOF (Material_removal_structured_template, Single_stratum_special_symbol_template)">
@@ -193,7 +184,7 @@
             <redeclaration entity-ref="Part_template_shape_model"/>
          </explicit>
       </entity>
-      <entity name="Template_location_in_structured_template" super.expression="ONEOF (Inter_stratum_feature_template_location, Stratum_specific_template_location) ANDOR Shape_element_based_template_location">
+      <entity name="Template_location_in_structured_template" super.expression="ONEOF (Inter_stratum_feature_template_location, Stratum_specific_template_location)">
          <explicit name="assembly">
             <typename name="Structured_template"/>
          </explicit>
@@ -237,25 +228,6 @@
       </entity>
       <subtype.constraint name="pt2ds_geometric_template_subtypes" entity="Geometric_template" super.expression="ONEOF (Continuous_template, Structured_template)"/>
       <subtype.constraint name="pt2ds_stratum_stack_model_subtypes" entity="Stratum_stack_model" super.expression="ONEOF (Design_stack_model, Library_stack_model)"/>
-      <function name="bag_to_set">
-         <parameter name="the_bag">
-            <aggregate type="BAG" lower="0" upper="?"/>
-            <builtintype type="GENERIC"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <builtintype type="GENERIC"/>
-         <algorithm>LOCAL
-      the_set : SET OF GENERIC : intype := [];
-      i       : INTEGER;
-    END_LOCAL;
-
-    IF SIZEOF(the_bag) &gt; 0 THEN
-      REPEAT i := 1 TO HIINDEX(the_bag);
-        the_set := the_set + the_bag[i];
-      END_REPEAT;
-    END_IF;
-    RETURN(the_set);</algorithm>
-      </function>
       <function name="sts_vertex_degree_less_than_two">
          <parameter name="input">
             <aggregate type="SET" lower="0" upper="?"/>

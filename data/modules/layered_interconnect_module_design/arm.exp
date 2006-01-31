@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.198 2006/01/30 15:12:16 liutkus Exp $
+   $Id: arm.exp,v 1.199 2006/01/31 07:41:16 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -354,17 +354,12 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Stratum);
       primary_design_layer_stratum : BOOLEAN;
       SELF\Stratum.of_technology   : Design_layer_technology;
-    DERIVE
-       library_definition : SET[0:1] OF Library_reference_view_definition_relationship :=
-        bag_to_set(QUERY(vdr <* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' 
-        + 'LIBRARY_REFERENCE_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF (vdr)));
     INVERSE
       existence_dependence : SET[1:?] OF layer_connection_point FOR resident_design_layer_stratum;
     WHERE
       WR1 : (NOT (primary_design_layer_stratum) AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
  'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 0)) OR ((primary_design_layer_stratum) AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
  'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 1));
-      WR2: SIZEOF(library_definition) <= 1;
   END_ENTITY;
 
   ENTITY Dielectric_material_passage
@@ -378,12 +373,6 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Documentation_layer_stratum
     SUBTYPE OF (Stratum);
       SELF\Stratum.of_technology : Documentation_layer_technology;
-    DERIVE
-       library_definition : SET[0:1] OF Library_reference_view_definition_relationship :=
-        bag_to_set(QUERY(vdr <* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' 
-        + 'LIBRARY_REFERENCE_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF (vdr)));
-    WHERE    
-      WR1: SIZEOF(library_definition) <= 1;
   END_ENTITY;
 
   ENTITY Electrical_isolation_laminate_component

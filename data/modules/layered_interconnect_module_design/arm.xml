@@ -13,6 +13,9 @@
       <interface kind="use" schema="Physical_connectivity_definition_arm"/>
       <interface kind="use" schema="Part_template_extension_arm"/>
       <interface kind="use" schema="Interconnect_module_connection_routing_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <type name="bare_die_component_or_packaged_component">
          <select extensible="YES" genericentity="YES"/>
       </type>
@@ -36,9 +39,6 @@
       </type>
       <type name="limd_physical_feature_or_part_template">
          <select extensible="YES" genericentity="YES" basedon="physical_feature_or_part_template" selectitems="Part_feature Physical_component_feature Laminate_component Template_definition Stratum_feature"/>
-      </type>
-      <type name="limd_physical_unit_or_part_template_or_fp_or_pd">
-         <select extensible="YES" genericentity="YES" basedon="physical_unit_or_part_template_or_fp_or_pd" selectitems="Generic_footprint_definition Padstack_definition"/>
       </type>
       <type name="limd_requirement_assignment_item">
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Stratum_feature_conductive_join Dielectric_crossover_area Interconnect_module"/>
@@ -114,7 +114,6 @@
          <where label="WR5" expression="NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(subsequent_item)) OR &#10;                (precedent_item.name = stratum_surface_designation.primary_surface)"/>
       </entity>
       <entity name="Breakout_occurrence" supertypes="Footprint_occurrence" abstract.supertype="NO" abstract.entity="NO">
-
          <explicit name="derived_from" optional="NO">
             <typename name="Breakout_footprint_definition"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
@@ -278,7 +277,7 @@
          <explicit name="associated_land" optional="NO">
             <typename name="Land"/>
          </explicit>
-         <where label="WR1" expression="associated_land\Definition_based_product_occurrence.derived_from :=:&#10;            SELF\Definition_based_product_occurrence.derived_from\Dependent_template.associated_item"/>
+         <where label="WR1" expression="associated_land\Definition_based_product_occurrence.derived_from :=:&#10;            SELF\Definition_based_product_occurrence.derived_from\Dependent_thermal_isolation_removal_template.associated_item"/>
       </entity>
       <entity name="Derived_stratum" supertypes="Stratum" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="SIZEOF(USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_BASED_PATTERN_INTER_STRATUM_EXTENT.INCLUDED_STRATUM'))=1"/>
@@ -291,15 +290,10 @@
             <typename name="Design_layer_technology"/>
             <redeclaration entity-ref="Stratum"/>
          </explicit>
-         <derived name="library_definition" expression="BAG_TO_SET(QUERY(vdr &lt;* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' &#10;        + 'LIBRARY_REFERENCE_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF (vdr)))">
-            <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
-            <typename name="Library_reference_view_definition_relationship"/>
-         </derived>
          <inverse name="existence_dependence" entity="Layer_connection_point" attribute="resident_design_layer_stratum">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <where label="WR1" expression="(NOT (primary_design_layer_stratum) AND (SIZEOF(QUERY(imps &lt;* USEDIN(SELF,&#10; 'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 0)) OR ((primary_design_layer_stratum) AND (SIZEOF(QUERY(imps &lt;* USEDIN(SELF,&#10; 'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 1))"/>
-         <where label="WR2" expression="SIZEOF(library_definition) &lt;= 1"/>
       </entity>
       <entity name="Dielectric_material_passage" supertypes="Inter_stratum_feature" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="feature_material" optional="YES">
@@ -316,11 +310,6 @@
             <typename name="Documentation_layer_technology"/>
             <redeclaration entity-ref="Stratum"/>
          </explicit>
-         <derived name="library_definition" expression="BAG_TO_SET(QUERY(vdr &lt;* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' &#10;        + 'LIBRARY_REFERENCE_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF (vdr)))">
-            <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
-            <typename name="Library_reference_view_definition_relationship"/>
-         </derived>
-         <where label="WR1" expression="SIZEOF(library_definition) &lt;= 1"/>
       <where label="IP1"/>
       </entity>
       <entity name="Electrical_isolation_laminate_component" supertypes="Filled_area_material_removal_laminate_component" abstract.supertype="NO" abstract.entity="NO">
@@ -1158,25 +1147,6 @@
       <subtype.constraint name="interconnect_module_terminal_subtypes" entity="Interconnect_module_terminal" super.expression="ONEOF (Interconnect_module_interface_terminal, Interconnect_module_macro_terminal)" abstract.supertype="NO"/>
       <subtype.constraint name="limd_part_view_definition_subtypes" entity="Part_view_definition" super.expression="ONEOF (Part_usage_view, Part_design_view, Stratum)" abstract.supertype="NO"/>
       <subtype.constraint name="limd_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF ((ONEOF (Printed_part_template, Special_symbol_template) ANDOR Geometric_template), Non_conductive_cross_section_template, Part_string_template, Printed_part_cross_section_template, Parametric_template, Part_text_template, Stratum_stack_model)" abstract.supertype="NO"/>
-      <function name="bag_to_set">
-         <parameter name="the_bag">
-            <aggregate type="BAG" lower="0" upper="?" unique="NO" optional="NO"/>
-            <builtintype type="GENERIC" fixed="NO"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
-         <builtintype type="GENERIC" fixed="NO"/>
-         <algorithm>LOCAL
-      the_set : SET OF GENERIC : intype := [];
-      i       : INTEGER;
-    END_LOCAL;
-
-    IF SIZEOF(the_bag) &gt; 0 THEN
-      REPEAT i := 1 TO HIINDEX(the_bag);
-        the_set := the_set + the_bag[i];
-      END_REPEAT;
-    END_IF;
-    RETURN(the_set);</algorithm>
-      </function>
       <function name="correlated_terminals">
          <parameter name="input1">
             <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>

@@ -7,6 +7,9 @@
    <schema name="Physical_unit_2d_design_view_arm">
       <interface kind="use" schema="Physical_unit_2d_shape_arm"/>
       <interface kind="use" schema="Physical_unit_design_view_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <entity name="Assembly_component_2d_shape_model" supertypes="Planar_projected_shape_model" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="shape_characterized_component" optional="NO">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
@@ -76,25 +79,6 @@
    END_REPEAT;</algorithm>
          <where label="WR1" expression="SIZEOF(ac) = SIZEOF(bag_to_set(ac))"/>
       </rule>
-      <function name="bag_to_set">
-         <parameter name="the_bag">
-            <aggregate type="BAG" lower="0" upper="?" unique="NO" optional="NO"/>
-            <builtintype type="GENERIC" fixed="NO"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
-         <builtintype type="GENERIC" fixed="NO"/>
-         <algorithm>LOCAL
-      the_set : SET OF GENERIC : intype := [];
-      i       : INTEGER;
-    END_LOCAL;
-
-    IF SIZEOF(the_bag) &gt; 0 THEN
-      REPEAT i := 1 TO HIINDEX(the_bag);
-        the_set := the_set + the_bag[i];
-      END_REPEAT;
-    END_IF;
-    RETURN(the_set);</algorithm>
-      </function>
       <function name="substrate_in_assembly">
          <parameter name="c2dl">
             <typename name="Component_2d_location"/>

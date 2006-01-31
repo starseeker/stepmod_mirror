@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.14 2006/01/03 11:31:57 liutkus Exp $
+   $Id: arm.exp,v 1.15 2006/01/20 08:43:39 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4062 - ISO/TS 10303-1705 Functional usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3342
 *)
@@ -8,7 +8,10 @@ SCHEMA Functional_usage_view_arm;
 
  USE FROM Analytical_model_arm;		-- ISO/TS 10303-1603
  
-  REFERENCE FROM product_identification_arm(types_of_product); -- ISO/TS 10303-1017 
+REFERENCE FROM Product_identification_arm(types_of_product); -- ISO/TS 10303-1017 
+
+REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+
   
   USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
   
@@ -116,23 +119,5 @@ SCHEMA Functional_usage_view_arm;
     WHERE
       WR1 : precedent_terminal_definition :<>: subsequent_terminal_definition;
   END_ENTITY;
-
-  FUNCTION bag_to_set(
-    the_bag : BAG OF GENERIC : intype
-  ) : SET OF GENERIC : intype;
-
-    LOCAL
-      the_set : SET OF GENERIC : intype := [];
-      i       : INTEGER;
-    END_LOCAL;
-
-    IF SIZEOF(the_bag) > 0 THEN
-      REPEAT i := 1 TO HIINDEX(the_bag);
-        the_set := the_set + the_bag[i];
-      END_REPEAT;
-    END_IF;
-    RETURN(the_set);
-  END_FUNCTION;
-
 
 END_SCHEMA;

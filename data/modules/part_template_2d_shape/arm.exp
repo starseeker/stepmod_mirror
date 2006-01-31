@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.109 2006/01/30 13:22:23 liutkus Exp $
+   $Id: arm.exp,v 1.110 2006/01/30 16:47:18 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -12,6 +12,7 @@ SCHEMA Part_template_2d_shape_arm;
 
 	REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	REFERENCE FROM Fabrication_technology_arm(get_stack);	-- ISO/TS 10303-1670
+	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
 	TYPE pt2ds_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
    	(Structured_template);
@@ -287,23 +288,6 @@ SCHEMA Part_template_2d_shape_arm;
     WHERE
       WR1 : assembly_shape.shape_characterized_definition[1] :=: reference_location.assembly;
   END_ENTITY;
-
-  FUNCTION bag_to_set(
-    the_bag : BAG OF GENERIC : intype
-  ) : SET OF GENERIC : intype;
-
-    LOCAL
-      the_set : SET OF GENERIC : intype := [];
-      i       : INTEGER;
-    END_LOCAL;
-
-    IF SIZEOF(the_bag) > 0 THEN
-      REPEAT i := 1 TO HIINDEX(the_bag);
-        the_set := the_set + the_bag[i];
-      END_REPEAT;
-    END_IF;
-    RETURN(the_set);
-  END_FUNCTION;
 
  FUNCTION sts_vertex_degree_less_than_two(input : SET OF Stratum_technology_occurrence_link) : BOOLEAN;
  LOCAL

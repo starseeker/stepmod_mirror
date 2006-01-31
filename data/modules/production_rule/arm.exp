@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.12 2006/01/20 08:43:42 liutkuviene Exp $
+   $Id: arm.exp,v 1.13 2006/01/25 21:54:21 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4164 - ISO/TS 10303-1739 Production rule - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3588 
 *)
@@ -18,6 +18,8 @@ USE FROM Identification_assignment_arm;
 USE FROM Product_identification_arm;
 
 REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
+REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+
 
 TYPE pr_identification_item = SELECT BASED_ON identification_item WITH 
    (Rule_set);
@@ -303,23 +305,6 @@ ENTITY Symbol
  UNIQUE
   UR1 : SELF\Representation_item.name;
 END_ENTITY;
-
-  FUNCTION bag_to_set(
-    the_bag : BAG OF GENERIC : intype
-  ) : SET OF GENERIC : intype;
-
-    LOCAL
-      the_set : SET OF GENERIC : intype := [];
-      i       : INTEGER;
-    END_LOCAL;
-
-    IF SIZEOF(the_bag) > 0 THEN
-      REPEAT i := 1 TO HIINDEX(the_bag);
-        the_set := the_set + the_bag[i];
-      END_REPEAT;
-    END_IF;
-    RETURN(the_set);
-  END_FUNCTION;
 
 FUNCTION contains_variable (x : Term_select) : BOOLEAN;
   IF ('PRODUCTION_RULE_ARM.ABSTRACT_VARIABLE' IN TYPEOF(x)) THEN RETURN (TRUE);

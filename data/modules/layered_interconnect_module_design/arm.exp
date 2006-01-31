@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.197 2006/01/30 13:22:23 liutkus Exp $
+   $Id: arm.exp,v 1.198 2006/01/30 15:12:16 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -14,6 +14,8 @@ SCHEMA Layered_interconnect_module_design_arm;
 	USE FROM Physical_connectivity_definition_arm;	-- ISO/TS 10303-1755
 	USE FROM Part_template_extension_arm;	-- ISO/TS 10303-1718
 	USE FROM Interconnect_module_connection_routing_arm;
+
+	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
     TYPE special_symbol_component = SELECT
       (Single_stratum_special_symbol_component, Multi_stratum_special_symbol_component);
@@ -354,7 +356,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       SELF\Stratum.of_technology   : Design_layer_technology;
     DERIVE
        library_definition : SET[0:1] OF Library_reference_view_definition_relationship :=
-        BAG_TO_SET(QUERY(vdr <* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' 
+        bag_to_set(QUERY(vdr <* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' 
         + 'LIBRARY_REFERENCE_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF (vdr)));
     INVERSE
       existence_dependence : SET[1:?] OF layer_connection_point FOR resident_design_layer_stratum;
@@ -378,7 +380,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       SELF\Stratum.of_technology : Documentation_layer_technology;
     DERIVE
        library_definition : SET[0:1] OF Library_reference_view_definition_relationship :=
-        BAG_TO_SET(QUERY(vdr <* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' 
+        bag_to_set(QUERY(vdr <* USEDIN (SELF,'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' 
         + 'LIBRARY_REFERENCE_VIEW_DEFINITION_RELATIONSHIP' IN TYPEOF (vdr)));
     WHERE    
       WR1: SIZEOF(library_definition) <= 1;
@@ -1198,23 +1200,6 @@ ENTITY Structured_layout_component_sub_assembly_relationship
 
     v1 := v1 + input2 + input3 + input4;
     RETURN(v1);
-  END_FUNCTION;
-
-  FUNCTION bag_to_set(
-    the_bag : BAG OF GENERIC : intype
-  ) : SET OF GENERIC : intype;
-
-    LOCAL
-      the_set : SET OF GENERIC : intype := [];
-      i       : INTEGER;
-    END_LOCAL;
-
-    IF SIZEOF(the_bag) > 0 THEN
-      REPEAT i := 1 TO HIINDEX(the_bag);
-        the_set := the_set + the_bag[i];
-      END_REPEAT;
-    END_IF;
-    RETURN(the_set);
   END_FUNCTION;
 
 END_SCHEMA;

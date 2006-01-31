@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.57 2005/12/14 15:27:40 liutkus Exp $
+   $Id: arm.exp,v 1.58 2006/01/20 08:43:40 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4068 - ISO/TS 10303-1707 Package - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3498
 *)
@@ -10,6 +10,8 @@ SCHEMA Package_arm;
 	USE FROM Part_feature_function_arm;	-- ISO/TS 10303-1712
 	
 	REFERENCE FROM Product_identification_arm(types_of_product); -- ISO/TS 10303-1017 
+
+	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   	TYPE mounting_technology_type = ENUMERATION OF
     	(surface_mount,
@@ -271,23 +273,6 @@ INVERSE
   ) : Length_data_element;
 
     RETURN(input1);
-  END_FUNCTION;
-
-  FUNCTION bag_to_set(
-    the_bag : BAG OF GENERIC : intype
-  ) : SET OF GENERIC : intype;
-
-    LOCAL
-      the_set : SET OF GENERIC : intype := [];
-      i       : INTEGER;
-    END_LOCAL;
-
-    IF SIZEOF(the_bag) > 0 THEN
-      REPEAT i := 1 TO HIINDEX(the_bag);
-        the_set := the_set + the_bag[i];
-      END_REPEAT;
-    END_IF;
-    RETURN(the_set);
   END_FUNCTION;
 
   FUNCTION max_data_element(

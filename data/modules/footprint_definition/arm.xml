@@ -7,7 +7,7 @@
    <schema name="Footprint_definition_arm">
       <interface kind="use" schema="Part_template_2d_shape_arm"/>
       <interface kind="use" schema="Package_arm"/>
-      <interface kind="reference" schema="Part_template_2d_shape_arm">
+      <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
       <entity name="Breakout_footprint_definition" supertypes="Generic_footprint_definition">
@@ -30,10 +30,9 @@
          </explicit>
          <where label="WR1" expression="reference_shape.shape_characterized_definition[1] :=: shape_characterized_definition[1].reference_footprint"/>
       </entity>
-      <entity name="Footprint_definition" supertypes="Dependent_template Generic_footprint_definition">
+      <entity name="Footprint_definition" supertypes="Generic_footprint_definition">
          <explicit name="reference_package">
             <typename name="Package"/>
-            <redeclaration entity-ref="Dependent_template" old_name="associated_item"/>
          </explicit>
          <where label="WR1" expression="SIZEOF (QUERY(shape &lt;* SELF\Structured_template.shapes |&#10;               NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(shape))&#10;              )) = 0"/>
          <where label="WR2" expression="SIZEOF (QUERY(padstack &lt;* SELF\Generic_footprint_definition.padstacks |&#10;               ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_LOCATION_IN_FOOTPRINT_DEFINITION' IN TYPEOF(padstack))&#10;              )) &gt; 0"/>
@@ -66,23 +65,29 @@
          <where label="WR3" expression="((location = template_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR &#10;            (NOT (location = template_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'))"/>
          <where label="WR4" expression="((location = template_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR &#10;            (NOT (location = template_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'))"/>
       </entity>
-      <entity name="Padstack_location_in_footprint_definition" supertypes="Shape_element_based_template_location">
-         <explicit name="assembly">
-            <typename name="Footprint_definition"/>
-            <redeclaration entity-ref="Template_location_in_structured_template"/>
-         </explicit>
+      <entity name="Padstack_location_in_footprint_definition" supertypes="Part_feature_based_template_location">
          <explicit name="template">
             <typename name="Padstack_definition"/>
             <redeclaration entity-ref="Template_location_in_structured_template"/>
          </explicit>
-         <explicit name="reference_element">
+         <explicit name="reference_feature">
             <typename name="Package_terminal"/>
-            <redeclaration entity-ref="Shape_element_based_template_location"/>
+            <redeclaration entity-ref="Part_feature_based_template_location"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="assembly"/>
-            <unique.attribute attribute="reference_element"/>
+            <unique.attribute entity-ref="Part_feature_based_template_location" attribute="assembly"/>
+            <unique.attribute attribute="reference_feature"/>
          </unique>
+      </entity>
+      <entity name="Part_feature_based_template_location" supertypes="Template_location_in_structured_template">
+         <explicit name="assembly">
+            <typename name="Footprint_definition"/>
+            <redeclaration entity-ref="Template_location_in_structured_template"/>
+         </explicit>
+         <explicit name="reference_feature">
+            <typename name="Part_feature"/>
+         </explicit>
+         <where label="WR1" expression="reference_feature.associated_definition :=: assembly\Footprint_definition.reference_package"/>
       </entity>
       <entity name="Stratum_feature_template_location_in_breakout_footprint_definition" supertypes="Stratum_specific_template_location">
          <explicit name="assembly">

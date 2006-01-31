@@ -20,6 +20,9 @@
       <type name="ft_material_item_select">
          <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Filled_via_template Passage_technology Stratum_technology"/>
       </type>
+      <type name="ft_requirement_assignment_item">
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Stratum_technology_occurrence"/>
+      </type>
       <type name="land_template_terminal_class">
          <enumeration items="surface_point_class edge_curve_class edge_point_class surface_area_class"/>
       </type>
@@ -55,7 +58,7 @@
             <typename name="Shape_dimension_representation"/>
          </explicit>
       </entity>
-      <entity name="Component_termination_passage_template" supertypes="Inter_stratum_feature_template">
+      <entity name="Component_termination_passage_template" supertypes="Continuous_template Inter_stratum_feature_template">
          <explicit name="of_passage_technology">
             <typename name="Default_component_termination_passage_definition"/>
             <redeclaration entity-ref="Inter_stratum_feature_template"/>
@@ -87,7 +90,7 @@
          </unique>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
-      <entity name="Continuous_template" abstract.supertype="YES" supertypes="Geometric_template" super.expression="ONEOF (Inter_stratum_feature_template, Single_stratum_continuous_template)">
+      <entity name="Continuous_template" supertypes="Geometric_template">
          <where label="WR1" expression="SIZEOF(QUERY(s &lt;* SELF\Geometric_template.shapes |&#10;          NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_AREA_CSG_2D_MODEL' IN TYPEOF(s)))) = 0"/>
       </entity>
       <entity name="Counterbore_passage_template" supertypes="Unsupported_passage_template">
@@ -155,10 +158,6 @@
          <explicit name="of_passage_technology">
             <typename name="Passage_technology"/>
          </explicit>
-         <explicit name="of_stratum_extent">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Stratum_technology_occurrence_link"/>
-         </explicit>
          <explicit name="minimum_annular_ring">
             <typename name="Length_data_element"/>
          </explicit>
@@ -203,11 +202,6 @@
          </inverse>
          <where label="WR1" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material)"/>
       </entity>
-      <entity name="Dependent_template" abstract.supertype="YES" supertypes="Template_definition">
-         <explicit name="associated_item">
-            <typename name="Item_shape"/>
-         </explicit>
-      </entity>
       <entity name="Design_layer_technology" supertypes="Stratum_technology">
          <explicit name="design_layer_purpose">
             <typename name="layer_purpose"/>
@@ -237,7 +231,7 @@
          </inverse>
          <where label="WR1" expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (fill_material[1])"/>
       </entity>
-      <entity name="Inter_stratum_feature_template" supertypes="Continuous_template" super.expression="ONEOF (Component_termination_passage_template, Unsupported_passage_template, Via_template)">
+      <entity name="Inter_stratum_feature_template" supertypes="Geometric_template" super.expression="ONEOF (Component_termination_passage_template, Unsupported_passage_template, Via_template)">
          <explicit name="of_passage_technology">
             <typename name="Passage_technology"/>
          </explicit>
@@ -297,6 +291,7 @@
       <entity name="Material_removal_feature_template" supertypes="Single_stratum_continuous_template">
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
          <where label="WR2" expression="SIZEOF(SELF\Geometric_template.shapes) &gt; 0"/>
+         <where label="WR3" expression="SIZEOF(QUERY(s &lt;* SELF\Geometric_template.shapes |&#10;            NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(s)))) = 0"/>
       </entity>
       <entity name="Passage_technology" super.expression="ONEOF (Default_via_definition, Default_component_termination_passage_definition, Default_unsupported_passage_definition)">
          <explicit name="name">
@@ -331,7 +326,7 @@
          <where label="WR5" expression="NOT (plated_passage) OR&#10;           (SIZEOF([deposition_material[1].electrical_conductivity_classification,&#10;                    deposition_material[1].thermal_conductivity_classification] *&#10;                   ['conductive']) &gt;= 1)"/>
       </entity>
       <entity name="Single_stratum_continuous_template" abstract.supertype="YES" supertypes="Continuous_template Single_stratum_template" super.expression="ONEOF (Stratum_feature_template, Material_removal_feature_template)"/>
-      <entity name="Single_stratum_template" abstract.supertype="YES" supertypes="Geometric_template" super.expression="Single_stratum_continuous_template">
+      <entity name="Single_stratum_template" abstract.supertype="YES" supertypes="Template_definition" super.expression="Single_stratum_continuous_template">
          <explicit name="of_stratum_technology" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Stratum_technology"/>
@@ -448,13 +443,13 @@
          <where label="WR4" expression="secondary_stratum_technology\Stratum_technology.layer_position = layer_position_type.secondary"/>
          <where label="WR5" expression="primary_stratum_technology &lt;&gt; secondary_stratum_technology"/>
       </entity>
-      <entity name="Unsupported_passage_template" supertypes="Inter_stratum_feature_template" super.expression="ONEOF (Counterbore_passage_template, Countersunk_passage_template, Blind_passage_template)">
+      <entity name="Unsupported_passage_template" supertypes="Continuous_template Inter_stratum_feature_template" super.expression="ONEOF (Counterbore_passage_template, Countersunk_passage_template, Blind_passage_template)">
          <explicit name="of_passage_technology">
             <typename name="Default_unsupported_passage_definition"/>
             <redeclaration entity-ref="Inter_stratum_feature_template"/>
          </explicit>
       </entity>
-      <entity name="Via_template" supertypes="Inter_stratum_feature_template">
+      <entity name="Via_template" supertypes="Continuous_template Inter_stratum_feature_template">
          <explicit name="of_passage_technology">
             <typename name="Default_via_definition"/>
             <redeclaration entity-ref="Inter_stratum_feature_template"/>
@@ -485,25 +480,6 @@
       </entity>
       <subtype.constraint name="ft_shape_feature_subtypes" entity="Shape_feature" super.expression="ONEOF (Via_template_terminal, Component_termination_passage_template_terminal, Land_template_terminal)"/>
       <subtype.constraint name="ft_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Geometric_template, Stratum_stack_model)"/>
-      <function name="bag_to_set">
-         <parameter name="the_bag">
-            <aggregate type="BAG" lower="0" upper="?"/>
-            <builtintype type="GENERIC"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <builtintype type="GENERIC"/>
-         <algorithm>LOCAL
-      the_set : SET OF GENERIC : intype := [];
-      i       : INTEGER;
-    END_LOCAL;
-
-    IF SIZEOF(the_bag) &gt; 0 THEN
-      REPEAT i := 1 TO HIINDEX(the_bag);
-        the_set := the_set + the_bag[i];
-      END_REPEAT;
-    END_IF;
-    RETURN(the_set);</algorithm>
-      </function>
       <function name="get_electrical_conductivity">
          <parameter name="mi">
             <aggregate type="SET" lower="0" upper="?"/>

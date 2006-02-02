@@ -42,12 +42,21 @@ REFERENCE FROM support_resource_schema
      text,
      bag_to_set);
 
-TYPE text_delineation = label;
+
+TYPE defined_glyph_select = SELECT
+  (pre_defined_character_glyph,
+   externally_defined_character_glyph);
 END_TYPE;
 
 TYPE defined_symbol_select = SELECT
   (pre_defined_symbol,
    externally_defined_symbol);
+END_TYPE;
+
+TYPE text_alignment = label;
+END_TYPE;
+
+TYPE text_delineation = label;
 END_TYPE;
 
 TYPE text_or_character = SELECT
@@ -58,14 +67,6 @@ TYPE text_or_character = SELECT
    text_literal);
 END_TYPE;
 
-TYPE text_alignment = label;
-END_TYPE;
-
-TYPE defined_glyph_select = SELECT
-  (pre_defined_character_glyph,
-   externally_defined_character_glyph);
-END_TYPE;
-
 TYPE text_path = ENUMERATION OF
   (left,
    right,
@@ -73,34 +74,48 @@ TYPE text_path = ENUMERATION OF
    down);
 END_TYPE;
 
+ENTITY annotation_curve_occurrence
+  SUBTYPE OF (annotation_occurrence);
+WHERE
+  WR1: 'GEOMETRY_SCHEMA.CURVE' IN TYPEOF (SELF\styled_item.item);
+END_ENTITY;
+
 ENTITY annotation_fill_area
   SUBTYPE OF (geometric_representation_item);
   boundaries : SET [1:?] OF curve;
 END_ENTITY;
 
-ENTITY defined_symbol
-  SUBTYPE OF(geometric_representation_item);
-  definition : defined_symbol_select;
-  target     : symbol_target;
+ENTITY annotation_fill_area_occurrence
+  SUBTYPE OF (annotation_occurrence);
+  fill_style_target : point;
+WHERE
+  WR1: 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_FILL_AREA' IN
+         TYPEOF (SELF.item);
 END_ENTITY;
 
-ENTITY defined_table
-  SUBTYPE OF(defined_symbol);
+ENTITY annotation_occurrence
+  SUPERTYPE OF (ONEOF(annotation_point_occurrence,
+                      annotation_curve_occurrence,
+                      annotation_fill_area_occurrence,
+                      annotation_text_occurrence,
+                      annotation_symbol_occurrence))
+  SUBTYPE OF (styled_item);
+WHERE
+  WR1: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN
+          TYPEOF (SELF);
 END_ENTITY;
 
-ENTITY symbol_target
-  SUBTYPE OF (geometric_representation_item);
-  placement         : axis2_placement;
-  x_scale           : positive_ratio_measure;
-  y_scale           : positive_ratio_measure;
+ENTITY annotation_occurrence_relationship;
+  name                           : label;
+  description                    : text;
+  relating_annotation_occurrence : annotation_occurrence;
+  related_annotation_occurrence  : annotation_occurrence;
 END_ENTITY;
 
-ENTITY pre_defined_symbol
-  SUBTYPE OF (pre_defined_item);
-END_ENTITY;
-
-ENTITY externally_defined_symbol
-  SUBTYPE OF (externally_defined_item);
+ENTITY annotation_point_occurrence
+  SUBTYPE OF (annotation_occurrence);
+WHERE
+  WR1: 'GEOMETRY_SCHEMA.POINT' IN TYPEOF (SELF\styled_item.item);
 END_ENTITY;
 
 ENTITY annotation_symbol
@@ -114,11 +129,147 @@ WHERE
          TYPEOF (SELF);
 END_ENTITY;
 
+ENTITY annotation_symbol_occurrence
+  SUBTYPE OF (annotation_occurrence);
+WHERE
+  WR1: SIZEOF(
+         ['PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_SYMBOL',
+          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_SYMBOL'] *
+         TYPEOF(SELF\styled_item.item)) > 0;
+END_ENTITY;
+
 ENTITY annotation_table
   SUBTYPE OF(annotation_symbol);
 WHERE
   WR1: 'PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION' IN
          TYPEOF (SELF\mapped_item.mapping_source.mapped_representation);
+END_ENTITY;
+
+ENTITY annotation_table_occurrence
+  SUBTYPE OF (annotation_symbol_occurrence);
+WHERE
+  WR1: SIZEOF (
+         ['PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE',
+          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_TABLE'] *
+         TYPEOF (SELF\styled_item.item)) > 0;
+END_ENTITY;
+
+ENTITY annotation_text
+  SUBTYPE OF (mapped_item);
+WHERE
+  WR1: 'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN
+       TYPEOF( SELF\mapped_item.mapping_target);
+  WR2: 'PRESENTATION_DEFINITION_SCHEMA.TEXT_STRING_REPRESENTATION' IN
+       TYPEOF( SELF\mapped_item.mapping_source.mapped_representation);
+  WR3: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN
+       TYPEOF( SELF);
+END_ENTITY;
+
+ENTITY annotation_text_character
+  SUBTYPE OF (mapped_item);
+  alignment : text_alignment;
+WHERE
+  WR1: 'PRESENTATION_RESOURCE_SCHEMA.CHARACTER_GLYPH_SYMBOL' IN
+         TYPEOF (SELF\mapped_item.mapping_source.mapped_representation);
+  WR2: 'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN
+         TYPEOF (SELF\mapped_item.mapping_target);
+  WR3: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN
+         TYPEOF (SELF);
+END_ENTITY;
+
+ENTITY annotation_text_occurrence
+  SUBTYPE OF (annotation_occurrence);
+WHERE
+  WR1: SIZEOF (
+         ['PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL',
+          'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT',
+          'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_CHARACTER',
+          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_CHARACTER_GLYPH',
+          'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT'] *
+         TYPEOF (SELF\styled_item.item)) > 0;
+END_ENTITY;
+
+ENTITY annotation_text_with_associated_curves
+  SUBTYPE OF (annotation_text);
+  associated_curves : SET[1:?] of curve;
+END_ENTITY;
+
+ENTITY annotation_text_with_blanking_box
+  SUBTYPE OF (annotation_text);
+  blanking : planar_box;
+END_ENTITY;
+
+ENTITY annotation_text_with_delineation
+  SUBTYPE OF (annotation_text);
+  delineation : text_delineation;
+END_ENTITY;
+
+ENTITY annotation_text_with_extent
+  SUBTYPE OF (annotation_text);
+  extent : planar_extent;
+END_ENTITY;
+
+ENTITY composite_text
+  SUBTYPE OF (geometric_representation_item);
+  collected_text : SET[2:?] of text_or_character;
+WHERE
+  WR1: acyclic_composite_text( SELF, SELF.collected_text);
+END_ENTITY;
+
+ENTITY composite_text_with_associated_curves
+  SUBTYPE OF (composite_text);
+  associated_curves : SET[1:?] of curve;
+END_ENTITY;
+
+ENTITY composite_text_with_blanking_box
+  SUBTYPE OF (composite_text);
+  blanking : planar_box;
+END_ENTITY;
+
+ENTITY composite_text_with_delineation
+  SUBTYPE OF (composite_text);
+  delineation : text_delineation;
+END_ENTITY;
+
+ENTITY composite_text_with_extent
+  SUBTYPE OF (composite_text);
+  extent : planar_extent;
+END_ENTITY;
+
+ENTITY defined_character_glyph
+  SUBTYPE OF(geometric_representation_item);
+  definition : defined_glyph_select;
+  placement  : axis2_placement;
+END_ENTITY;
+
+ENTITY defined_symbol
+  SUBTYPE OF(geometric_representation_item);
+  definition : defined_symbol_select;
+  target     : symbol_target;
+END_ENTITY;
+
+ENTITY defined_table
+  SUBTYPE OF(defined_symbol);
+END_ENTITY;
+
+ENTITY externally_defined_character_glyph
+  SUBTYPE OF (externally_defined_item);
+END_ENTITY;
+
+ENTITY externally_defined_symbol
+  SUBTYPE OF (externally_defined_item);
+END_ENTITY;
+
+ENTITY pre_defined_character_glyph
+  SUBTYPE OF (pre_defined_item);
+END_ENTITY;
+
+ENTITY pre_defined_symbol
+  SUBTYPE OF (pre_defined_item);
+END_ENTITY;
+
+ENTITY symbol_representation
+  SUBTYPE OF (representation);
 END_ENTITY;
 
 ENTITY symbol_representation_map
@@ -130,8 +281,16 @@ WHERE
          TYPEOF (SELF\representation_map.mapping_origin);
 END_ENTITY;
 
-ENTITY symbol_representation
-  SUBTYPE OF (representation);
+ENTITY symbol_representation_relationship
+  SUBTYPE OF (representation_relationship_with_transformation);
+WHERE
+  WR1: acyclic_symbol_representation_relationship (SELF,
+                                                   [SELF\representation_relationship.
+                                                         rep_2]);
+  WR2: 'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION' IN
+         TYPEOF (SELF\representation_relationship.rep_1);
+  WR3: 'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION'IN
+          TYPEOF (SELF\representation_relationship.rep_2);
 END_ENTITY;
 
 ENTITY symbol_representation_with_blanking_box
@@ -141,26 +300,15 @@ WHERE
   WR1: item_in_context (SELF.blanking, SELF\representation.context_of_items);
 END_ENTITY;
 
-ENTITY table_representation
-  SUBTYPE OF (symbol_representation);
+ENTITY symbol_target
+  SUBTYPE OF (geometric_representation_item);
+  placement         : axis2_placement;
+  x_scale           : positive_ratio_measure;
+  y_scale           : positive_ratio_measure;
 END_ENTITY;
 
-ENTITY table_record_representation
+ENTITY table_representation
   SUBTYPE OF (symbol_representation);
-WHERE
-  WR1: (SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
-                            'REPRESENTATION_RELATIONSHIP.REP_2')) > 0) 
-                        OR 
-       (SIZEOF(QUERY( map_item <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
-                                               'REPRESENTATION_MAP.'+ 
-                                               'MAPPED_REPRESENTATION') | 
-         SIZEOF(QUERY( mi <* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+
-                                              'MAPPED_ITEM.'+
-                                              'MAPPING_SOURCE') |   
-                                              'PRESENTATION_DEFINITION_SCHEMA.'+
-                                              'TABLE_REPRESENTATION' IN 
-             TYPEOF (using_representations (mi)) )) > 0))  
-                    > 0);
 END_ENTITY;
 
 ENTITY table_record_field_representation
@@ -189,16 +337,22 @@ WHERE
                          SELF\representation.context_of_items);
 END_ENTITY;
 
-ENTITY symbol_representation_relationship
-  SUBTYPE OF (representation_relationship_with_transformation);
+ENTITY table_record_representation
+  SUBTYPE OF (symbol_representation);
 WHERE
-  WR1: acyclic_symbol_representation_relationship (SELF,
-                                                   [SELF\representation_relationship.
-                                                         rep_2]);
-  WR2: 'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION' IN
-         TYPEOF (SELF\representation_relationship.rep_1);
-  WR3: 'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION'IN
-          TYPEOF (SELF\representation_relationship.rep_2);
+  WR1: (SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
+                            'REPRESENTATION_RELATIONSHIP.REP_2')) > 0) 
+                        OR 
+       (SIZEOF(QUERY( map_item <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
+                                               'REPRESENTATION_MAP.'+ 
+                                               'MAPPED_REPRESENTATION') | 
+         SIZEOF(QUERY( mi <* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+
+                                              'MAPPED_ITEM.'+
+                                              'MAPPING_SOURCE') |   
+                                              'PRESENTATION_DEFINITION_SCHEMA.'+
+                                              'TABLE_REPRESENTATION' IN 
+             TYPEOF (using_representations (mi)) )) > 0))  
+                    > 0);
 END_ENTITY;
 
 ENTITY table_representation_relationship
@@ -221,35 +375,51 @@ WHERE
          TYPEOF (SELF\representation_relationship.rep_2));
 END_ENTITY;
 
-ENTITY annotation_text
-  SUBTYPE OF (mapped_item);
+ENTITY table_text_relationship
+  SUBTYPE OF (annotation_occurrence_relationship);
+  field : table_record_field_representation;
 WHERE
-  WR1: 'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN
-       TYPEOF( SELF\mapped_item.mapping_target);
-  WR2: 'PRESENTATION_DEFINITION_SCHEMA.TEXT_STRING_REPRESENTATION' IN
-       TYPEOF( SELF\mapped_item.mapping_source.mapped_representation);
-  WR3: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN
-       TYPEOF( SELF);
+  WR1: 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE_OCCURRENCE'
+       IN TYPEOF (SELF\annotation_occurrence_relationship.
+                  relating_annotation_occurrence);
+  WR2: 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE'
+       IN TYPEOF (SELF\annotation_occurrence_relationship.
+                  relating_annotation_occurrence\styled_item.item);
+  WR3: 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_OCCURRENCE'
+       IN TYPEOF (SELF\annotation_occurrence_relationship.
+                  related_annotation_occurrence);
+  WR4: field_in_table (SELF.field,
+                       SELF\annotation_occurrence_relationship.
+                       relating_annotation_occurrence);
 END_ENTITY;
 
-ENTITY annotation_text_with_extent
-  SUBTYPE OF (annotation_text);
-  extent : planar_extent;
+ENTITY text_literal
+  SUBTYPE OF (geometric_representation_item);
+  literal   : presentable_text;
+  placement : axis2_placement;
+  alignment : text_alignment;
+  path      : text_path;
+  font      : font_select;
 END_ENTITY;
 
-ENTITY annotation_text_with_delineation
-  SUBTYPE OF (annotation_text);
-  delineation : text_delineation;
+ENTITY text_literal_with_associated_curves
+  SUBTYPE OF (text_literal);
+  associated_curves : SET[1:?] of curve;
 END_ENTITY;
 
-ENTITY annotation_text_with_blanking_box
-  SUBTYPE OF (annotation_text);
+ENTITY text_literal_with_blanking_box
+  SUBTYPE OF (text_literal);
   blanking : planar_box;
 END_ENTITY;
 
-ENTITY annotation_text_with_associated_curves
-  SUBTYPE OF (annotation_text);
-  associated_curves : SET[1:?] of curve;
+ENTITY text_literal_with_delineation
+  SUBTYPE OF (text_literal);
+  delineation : text_delineation;
+END_ENTITY;
+
+ENTITY text_literal_with_extent
+  SUBTYPE OF (text_literal);
+  extent : planar_extent;
 END_ENTITY;
 
 ENTITY text_string_representation
@@ -290,175 +460,6 @@ WHERE
                  'ANNOTATION_TEXT_CHARACTER' IN TYPEOF (item)) | 
                (atc\mapped_item.mapping_target :=: a2p))) >= 1)
           ))) = 0;
-END_ENTITY;
-
-ENTITY annotation_text_character
-  SUBTYPE OF (mapped_item);
-  alignment : text_alignment;
-WHERE
-  WR1: 'PRESENTATION_RESOURCE_SCHEMA.CHARACTER_GLYPH_SYMBOL' IN
-         TYPEOF (SELF\mapped_item.mapping_source.mapped_representation);
-  WR2: 'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN
-         TYPEOF (SELF\mapped_item.mapping_target);
-  WR3: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN
-         TYPEOF (SELF);
-END_ENTITY;
-
-ENTITY defined_character_glyph
-  SUBTYPE OF(geometric_representation_item);
-  definition : defined_glyph_select;
-  placement  : axis2_placement;
-END_ENTITY;
-
-ENTITY externally_defined_character_glyph
-  SUBTYPE OF (externally_defined_item);
-END_ENTITY;
-
-ENTITY pre_defined_character_glyph
-  SUBTYPE OF (pre_defined_item);
-END_ENTITY;
-
-ENTITY text_literal
-  SUBTYPE OF (geometric_representation_item);
-  literal   : presentable_text;
-  placement : axis2_placement;
-  alignment : text_alignment;
-  path      : text_path;
-  font      : font_select;
-END_ENTITY;
-
-ENTITY text_literal_with_extent
-  SUBTYPE OF (text_literal);
-  extent : planar_extent;
-END_ENTITY;
-
-ENTITY text_literal_with_delineation
-  SUBTYPE OF (text_literal);
-  delineation : text_delineation;
-END_ENTITY;
-
-ENTITY text_literal_with_blanking_box
-  SUBTYPE OF (text_literal);
-  blanking : planar_box;
-END_ENTITY;
-
-ENTITY text_literal_with_associated_curves
-  SUBTYPE OF (text_literal);
-  associated_curves : SET[1:?] of curve;
-END_ENTITY;
-
-ENTITY composite_text
-  SUBTYPE OF (geometric_representation_item);
-  collected_text : SET[2:?] of text_or_character;
-WHERE
-  WR1: acyclic_composite_text( SELF, SELF.collected_text);
-END_ENTITY;
-
-ENTITY composite_text_with_extent
-  SUBTYPE OF (composite_text);
-  extent : planar_extent;
-END_ENTITY;
-
-ENTITY composite_text_with_delineation
-  SUBTYPE OF (composite_text);
-  delineation : text_delineation;
-END_ENTITY;
-
-ENTITY composite_text_with_blanking_box
-  SUBTYPE OF (composite_text);
-  blanking : planar_box;
-END_ENTITY;
-
-ENTITY composite_text_with_associated_curves
-  SUBTYPE OF (composite_text);
-  associated_curves : SET[1:?] of curve;
-END_ENTITY;
-
-ENTITY annotation_occurrence
-  SUPERTYPE OF (ONEOF(annotation_point_occurrence,
-                      annotation_curve_occurrence,
-                      annotation_fill_area_occurrence,
-                      annotation_text_occurrence,
-                      annotation_symbol_occurrence))
-  SUBTYPE OF (styled_item);
-WHERE
-  WR1: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN
-          TYPEOF (SELF);
-END_ENTITY;
-
-ENTITY annotation_point_occurrence
-  SUBTYPE OF (annotation_occurrence);
-WHERE
-  WR1: 'GEOMETRY_SCHEMA.POINT' IN TYPEOF (SELF\styled_item.item);
-END_ENTITY;
-
-ENTITY annotation_curve_occurrence
-  SUBTYPE OF (annotation_occurrence);
-WHERE
-  WR1: 'GEOMETRY_SCHEMA.CURVE' IN TYPEOF (SELF\styled_item.item);
-END_ENTITY;
-
-ENTITY annotation_fill_area_occurrence
-  SUBTYPE OF (annotation_occurrence);
-  fill_style_target : point;
-WHERE
-  WR1: 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_FILL_AREA' IN
-         TYPEOF (SELF.item);
-END_ENTITY;
-
-ENTITY annotation_text_occurrence
-  SUBTYPE OF (annotation_occurrence);
-WHERE
-  WR1: SIZEOF (
-         ['PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL',
-          'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT',
-          'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_CHARACTER',
-          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_CHARACTER_GLYPH',
-          'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT'] *
-         TYPEOF (SELF\styled_item.item)) > 0;
-END_ENTITY;
-
-ENTITY annotation_symbol_occurrence
-  SUBTYPE OF (annotation_occurrence);
-WHERE
-  WR1: SIZEOF(
-         ['PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_SYMBOL',
-          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_SYMBOL'] *
-         TYPEOF(SELF\styled_item.item)) > 0;
-END_ENTITY;
-
-ENTITY annotation_table_occurrence
-  SUBTYPE OF (annotation_symbol_occurrence);
-WHERE
-  WR1: SIZEOF (
-         ['PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE',
-          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_TABLE'] *
-         TYPEOF (SELF\styled_item.item)) > 0;
-END_ENTITY;
-
-ENTITY annotation_occurrence_relationship;
-  name                           : label;
-  description                    : text;
-  relating_annotation_occurrence : annotation_occurrence;
-  related_annotation_occurrence  : annotation_occurrence;
-END_ENTITY;
-
-ENTITY table_text_relationship
-  SUBTYPE OF (annotation_occurrence_relationship);
-  field : table_record_field_representation;
-WHERE
-  WR1: 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE_OCCURRENCE'
-       IN TYPEOF (SELF\annotation_occurrence_relationship.
-                  relating_annotation_occurrence);
-  WR2: 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE'
-       IN TYPEOF (SELF\annotation_occurrence_relationship.
-                  relating_annotation_occurrence\styled_item.item);
-  WR3: 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_OCCURRENCE'
-       IN TYPEOF (SELF\annotation_occurrence_relationship.
-                  related_annotation_occurrence);
-  WR4: field_in_table (SELF.field,
-                       SELF\annotation_occurrence_relationship.
-                       relating_annotation_occurrence);
 END_ENTITY;
 
 FUNCTION acyclic_composite_text(start_composite : composite_text;

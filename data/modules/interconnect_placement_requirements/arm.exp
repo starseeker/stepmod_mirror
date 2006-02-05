@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.26 2006/01/05 09:26:34 kovaliovas Exp $
+   $Id: arm.exp,v 1.27 2006/01/20 08:43:43 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4017 - ISO/TS 10303-1690 Interconnect placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3459
 *)
@@ -178,6 +178,7 @@ SCHEMA Interconnect_placement_requirements_arm;
     WHERE
       WR1 : NOT (SIZEOF(precedent_version_constraint_region) = 1) OR ('INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.INTERCONNECT_MODULE_CONSTRAINT_REGION' IN TYPEOF(precedent_version_constraint_region[1]\Non_feature_shape_element_relationship.relating));
       WR2 : NOT EXISTS(SELF\Shape_element.description);
+      WR3 : valid_non_conformant_design_object_context(non_conformant_interconnect_module_design_object, scope);
   END_ENTITY;
 
   ENTITY Layer_qualified_layout_spacing_requirement_occurrence
@@ -203,6 +204,31 @@ SCHEMA Interconnect_placement_requirements_arm;
       reference_design_object      : assembly_or_interconnect_design_object_select;
       design_requirement           : Layout_spacing_requirement_occurrence;
   END_ENTITY;
+
+  FUNCTION valid_non_conformant_design_object_context(input1 : SET OF interconnect_module_design_object_select;
+                  input2 : Interconnect_module) : BOOLEAN;
+  LOCAL
+    vdr : SET OF View_definition_relationship := [];
+    valid : BOOLEAN := TRUE;
+    pvd : SET OF Product_view_definition := [];
+  END_LOCAL;
+
+   REPEAT i := 1 to HIINDEX(input1);
+    IF ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(input1[i]))
+    THEN
+       vdr := input1[i]\Assembly_component.occurrence_contexts;
+       pvd := [];
+      REPEAT j := 1 to HIINDEX(vdr);
+       pvd := pvd + vdr[j]\View_definition_relationship.relating_view;
+      END_REPEAT;
+       IF NOT (input2 IN pvd) 
+         THEN valid := FALSE; 
+       END_IF;
+    END_IF;
+   END_REPEAT;
+   
+    RETURN(valid);
+  END_FUNCTION;
 
 END_SCHEMA;
 

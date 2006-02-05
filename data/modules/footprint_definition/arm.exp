@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.7 2006/01/31 07:41:16 liutkus Exp $
+   $Id: arm.exp,v 1.8 2006/02/02 05:04:26 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3885 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
 *)
 (* UNDER DEVELOPMENT *)
@@ -25,11 +25,6 @@ SCHEMA Footprint_definition_arm;
       breakout_traces : SET[1:?] OF Stratum_feature_template_location_in_breakout_footprint_definition FOR assembly;
     WHERE
       WR1: SELF\Multi_stratum_structured_template.location = reference_footprint\Multi_stratum_structured_template.location;
-  --IP1: The domain of the geometry of the Breakout_footprint_definition shall be the same domain as that of
-  -- the reference_footprint.
-  --IP2: Each member of breakout_traces shall have a domain that overlaps with a Land in the reference_footprint;
-  --IP3: Each member of breakout_traces shall have a domain that overlaps with a Land in the padstack inherited from
-  -- Generic_footprint_definition
   END_ENTITY;
 
   ENTITY Breakout_footprint_definition_shape_model
@@ -68,19 +63,11 @@ SCHEMA Footprint_definition_arm;
                          'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
                 ('PACKAGE_ARM.PACKAGE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_definition));
 
-(* wr3 is invalid.  what are the rquirements?
-     WR3 : NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',
-                         'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
-            NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_physical_unit)) OR
-            NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(shape_characterized_definition)) OR      
-                 (shape_characterized_definition\Footprint_definition.reference_package :=: 
-                  reference_shape\Part_template_shape_model.shape_characterized_part_template);
-*)
-      WR4 : NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',
+      WR3 : NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL',
                          'PART_TEMPLATE_2D_SHAPE_ARM.PART_TEMPLATE_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
                 ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' 
                    IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_definition));
-      WR5 : NOT EXISTS(SELF\Representation.description);
+      WR4 : NOT EXISTS(SELF\Representation.description);
   END_ENTITY;
 
   ENTITY Generic_footprint_definition

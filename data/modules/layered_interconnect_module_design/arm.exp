@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.200 2006/01/31 08:06:32 liutkus Exp $
+   $Id: arm.exp,v 1.201 2006/02/05 19:45:37 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -170,13 +170,15 @@ SCHEMA Layered_interconnect_module_design_arm;
       name               : STRING;
       precedent_surface  : Stratum_surface;
       subsequent_surface : Stratum_surface;
+    DERIVE
+      of_product : Product := precedent_surface.of_stratum\Product_view_definition.defined_version.of_product;      
     UNIQUE
       UR1 : name;
-      UR2 : precedent_surface,
- subsequent_surface;
+      UR2 : precedent_surface, subsequent_surface;
     WHERE
       WR1 : precedent_surface.name = stratum_surface_designation.secondary_surface;
       WR2 : subsequent_surface.name = stratum_surface_designation.primary_surface;
+      WR3: of_product :=: subsequent_surface.of_stratum\Product_view_definition.defined_version.of_product;
   END_ENTITY;
 
   ENTITY Adjacent_stratum_surface_embedded_physical_component_surface_definition;

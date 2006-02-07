@@ -56,6 +56,7 @@
          </inverse>
          <where label="WR1" expression="NOT (SIZEOF(precedent_version_constraint_region) = 1) OR ('INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.INTERCONNECT_MODULE_CONSTRAINT_REGION' IN TYPEOF(precedent_version_constraint_region[1]\Non_feature_shape_element_relationship.relating))"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Shape_element.description)"/>
+         <where label="WR3" expression="valid_non_conformant_design_object_context(non_conformant_interconnect_module_design_object, scope)"/>
       </entity>
       <entity name="Layer_qualified_layout_spacing_requirement_occurrence" supertypes="Layout_spacing_requirement_occurrence">
          <explicit name="layer_context">
@@ -97,5 +98,36 @@
       </entity>
       <subtype.constraint name="ipr_non_feature_shape_element_subtypes" entity="Non_feature_shape_element" super.expression="ONEOF (Derived_non_feature_shape_element, Directed_axis, Positional_boundary, Positional_boundary_member, Tolerance_zone_boundary, Tolerance_zone_boundary_member, Viewing_plane, Seating_plane, Template_material_cross_section_boundary, Interconnect_module_constraint_region, Reference_graphic_registration_mark, Mounting_restriction_area, Mounting_restriction_volume)"/>
       <subtype.constraint name="ipr_predefined_requirement_view_definition_subtypes" entity="Predefined_requirement_view_definition" super.expression="ONEOF (Layout_spacing_requirement_occurrence, Item_restricted_requirement_occurrence)"/>
+      <function name="valid_non_conformant_design_object_context">
+         <parameter name="input1">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="interconnect_module_design_object_select"/>
+         </parameter>
+         <parameter name="input2">
+            <typename name="Interconnect_module"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+    vdr : SET OF View_definition_relationship := [];
+    valid : BOOLEAN := TRUE;
+    pvd : SET OF Product_view_definition := [];
+  END_LOCAL;
+
+   REPEAT i := 1 to HIINDEX(input1);
+    IF ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(input1[i]))
+    THEN
+       vdr := input1[i]\Assembly_component.occurrence_contexts;
+       pvd := [];
+      REPEAT j := 1 to HIINDEX(vdr);
+       pvd := pvd + vdr[j]\View_definition_relationship.relating_view;
+      END_REPEAT;
+       IF NOT (input2 IN pvd) 
+         THEN valid := FALSE; 
+       END_IF;
+    END_IF;
+   END_REPEAT;
+   
+    RETURN(valid);</algorithm>
+      </function>
    </schema>
 </express>

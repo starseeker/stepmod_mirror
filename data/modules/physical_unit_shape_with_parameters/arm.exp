@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.23 2006/01/02 22:41:12 liutkus Exp $
+   $Id: arm.exp,v 1.24 2006/01/20 08:43:41 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4137 - ISO/TS 10303-1730 Physical unit shape with parameters - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3576
 *)
@@ -76,6 +76,21 @@ SCHEMA Physical_unit_shape_with_parameters_arm;
       WR1 : NOT ('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PACKAGED_PART' IN TYPEOF(shape_characterized_definition));
       WR2 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;            
   END_ENTITY;
+
+  ENTITY Physical_unit_shape_representation_relationship
+  	SUBTYPE OF (Geometric_model_relationship);
+      SELF\Geometric_model_relationship.rep_1 RENAMED principal_part_shape : Physical_unit_shape_model;
+      SELF\Geometric_model_relationship.rep_2 RENAMED related_part_shape   : Physical_unit_shape_model;
+    UNIQUE
+      UR1 : principal_part_shape, related_part_shape;
+    WHERE
+      WR1 : principal_part_shape :<>: related_part_shape;
+      WR2 : NOT EXISTS(SELF\Representation_relationship.relation_type);
+      WR3 : principal_part_shape\Geometric_model.context_of_items :=: related_part_shape\Geometric_model.context_of_items;
+      WR4 : principal_part_shape\Physical_unit_shape_model.shape_characterized_definition :=:
+            related_part_shape\Physical_unit_shape_model.shape_characterized_definition;
+  END_ENTITY;
+
 
 END_SCHEMA;
 

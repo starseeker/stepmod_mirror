@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.20 2006/01/05 09:14:05 kovaliovas Exp $
+   $Id: arm.exp,v 1.23 2006/01/24 23:59:02 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4107 - ISO/TS 10303-1720 Part template shape with parameters - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3531
 *)
@@ -57,5 +57,20 @@ SCHEMA Part_template_shape_with_parameters_arm;
       shape_environment              : OPTIONAL application_environment;
       shape_material_condition       : material_condition;
   END_ENTITY;
+
+  ENTITY Part_template_shape_representation_relationship
+  	SUBTYPE OF (Geometric_model_relationship);
+      SELF\Geometric_model_relationship.rep_1 RENAMED principal_part_shape : Part_template_shape_model;
+      SELF\Geometric_model_relationship.rep_2 RENAMED related_part_shape   : Part_template_shape_model;
+    UNIQUE
+      UR1 : principal_part_shape, related_part_shape;
+    WHERE
+      WR1 : principal_part_shape :<>: related_part_shape;
+      WR2 : NOT EXISTS(SELF\Representation_relationship.relation_type);
+      WR3 : principal_part_shape\Geometric_model.context_of_items :=: related_part_shape\Geometric_model.context_of_items;
+      WR4 : principal_part_shape\Part_template_shape_model.shape_characterized_definition :=:
+            related_part_shape\Part_template_shape_model.shape_characterized_definition;
+  END_ENTITY;
+
 
 END_SCHEMA;

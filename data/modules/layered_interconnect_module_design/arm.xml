@@ -52,6 +52,9 @@
       <type name="material_or_specification">
          <select selectitems="Predefined_requirement_view_definition Material_identification" genericentity="NO" extensible="NO"/>
       </type>
+      <type name="pattern_role">
+         <enumeration items="removal_only addition_and_removal" extensible="NO"/>
+      </type>
       <type name="printed_part_template_or_printed_part_cross_section_template">
          <select selectitems="Printed_part_template Printed_part_cross_section_template" genericentity="NO" extensible="NO"/>
       </type>
@@ -66,6 +69,9 @@
       </type>
       <type name="stratum_feature_template_or_parametric_template">
          <select selectitems="Stratum_feature_template Parametric_template" genericentity="NO" extensible="NO"/>
+      </type>
+      <type name="stratum_or_stratum_feature_or_stratum_feature_template_component">
+         <select selectitems="Stratum stratum_feature_or_stratum_feature_template_component" genericentity="NO" extensible="NO"/>
       </type>
       <type name="stratum_surface_designation">
          <enumeration items="average_surface primary_surface secondary_surface" extensible="NO"/>
@@ -284,7 +290,7 @@
          <where label="WR1" expression="associated_land\Definition_based_product_occurrence.derived_from :=:&#10;            SELF\Definition_based_product_occurrence.derived_from\Dependent_thermal_isolation_removal_template.associated_item"/>
       </entity>
       <entity name="Derived_stratum" supertypes="Stratum" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="SIZEOF(USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_BASED_PATTERN_INTER_STRATUM_EXTENT.INCLUDED_STRATUM'))=1"/>
+         <where label="WR1" expression="SIZEOF(QUERY(sbpise &lt;* USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTER_STRATUM_EXTENT.INCLUDED_STRATUM')|&#10;                      ('STRATUM_BASED_PATTERN_INTER_STRATUM_EXTENT' IN TYPEOF(sbpise))))=1"/>
       </entity>
       <entity name="Design_layer_stratum" supertypes="Stratum" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="primary_design_layer_stratum" optional="NO">
@@ -298,6 +304,7 @@
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <where label="WR1" expression="(NOT (primary_design_layer_stratum) AND (SIZEOF(QUERY(imps &lt;* USEDIN(SELF,&#10; 'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 0)) OR ((primary_design_layer_stratum) AND (SIZEOF(QUERY(imps &lt;* USEDIN(SELF,&#10; 'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 1))"/>
+         <where label="WR2" expression="SELF\Stratum.permissible_pattern_role = pattern_role.addition_and_removal"/>
       <where label="IP1"/>
       </entity>
       <entity name="Dielectric_material_passage" supertypes="Inter_stratum_feature" abstract.supertype="NO" abstract.entity="NO">
@@ -315,6 +322,7 @@
             <typename name="Documentation_layer_technology"/>
             <redeclaration entity-ref="Stratum"/>
          </explicit>
+         <where label="WR1" expression="NOT (EXISTS(of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose) AND&#10;               (of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose IN &#10;               [predefined_documentation_layer_purpose.soldermask,&#10;               predefined_documentation_layer_purpose.gluemask,&#10;               predefined_documentation_layer_purpose.pastemask])) OR&#10;               (SELF\Stratum.permissible_pattern_role = pattern_role.removal_only)"/>
       </entity>
       <entity name="Electrical_isolation_laminate_component" supertypes="Filled_area_material_removal_laminate_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
@@ -460,7 +468,7 @@
          <where label="WR3" expression="NOT EXISTS (SELF\Product_view_definition.additional_characterization)"/>
       </entity>
       <entity name="Interconnect_module_edge" supertypes="Inter_stratum_feature" super.expression="ONEOF (Partially_plated_interconnect_module_edge, Plated_interconnect_module_edge)" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="(SIZEOF(QUERY(s &lt;* SELF.derived_from\Geometric_template.shapes | NOT&#10;           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN&#10;           TYPEOF(s)))) = 0)&#10;           AND&#10;           (SIZEOF(QUERY(shape &lt;*&#10;           USEDIN(SELF, 'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' +&#10;           'SHAPE_CHARACTERIZED_COMPONENT') | NOT&#10;           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN&#10;           TYPEOF(shape)))) = 0)"/>
+         <where label="WR1" expression="(SIZEOF(QUERY(s &lt;* SELF.derived_from\Geometric_template.shapes | NOT&#10;           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL.' IN&#10;           TYPEOF(s)))) = 0)&#10;           AND&#10;           (SIZEOF(QUERY(shape &lt;*&#10;           USEDIN(SELF, 'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.' +&#10;           'SHAPE_CHARACTERIZED_COMPONENT') | NOT&#10;           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL.' IN&#10;           TYPEOF(shape)))) = 0)"/>
       </entity>
       <entity name="Interconnect_module_edge_segment" supertypes="Inter_stratum_feature" super.expression="ONEOF (Plated_interconnect_module_edge_segment, Unplated_interconnect_module_edge_segment)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_edge" optional="NO">
@@ -698,8 +706,9 @@
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <explicit name="design_intent" optional="NO">
-            <typename name="stratum_feature_or_stratum_feature_template_component"/>
+            <typename name="stratum_or_stratum_feature_or_stratum_feature_template_component"/>
          </explicit>
+         <where label="WR1" expression="NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(design_intent))"/>
       </entity>
       <entity name="Material_removal_structured_component" supertypes="Structured_layout_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
@@ -853,6 +862,7 @@
          <explicit name="probe" optional="YES">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Probe_access_area"/>
+
          </explicit>
          <derived name="complete" expression="NOT EXISTS(unrouted_connectivity_requirement_element)">
             <builtintype type="BOOLEAN" fixed="NO"/>
@@ -874,6 +884,9 @@
          <explicit name="id" optional="NO">
             <builtintype type="STRING" fixed="NO"/>
             <redeclaration entity-ref="Product_view_definition"/>
+         </explicit>
+         <explicit name="permissible_pattern_role" optional="NO">
+            <typename name="pattern_role"/>
          </explicit>
          <explicit name="of_technology" optional="NO">
             <typename name="Stratum_technology"/>
@@ -963,6 +976,7 @@
             <unique.attribute attribute="element_name"/>
             <unique.attribute attribute="resident_stratum"/>
          </unique>
+         <where label="WR1" expression="resident_stratum\Stratum.permissible_pattern_role = pattern_role.addition_and_removal"/>
       </entity>
       <entity name="Stratum_feature_based_derived_pattern" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="extent" optional="NO">

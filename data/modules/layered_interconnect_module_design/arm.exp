@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.202 2006/02/05 22:59:47 thomasrthurman Exp $
+   $Id: arm.exp,v 1.203 2006/02/07 19:57:56 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -17,6 +17,11 @@ SCHEMA Layered_interconnect_module_design_arm;
 
 	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
+    TYPE pattern_role = ENUMERATION OF (
+         removal_only,
+         addition_and_removal);
+    END_TYPE;
+           
     TYPE special_symbol_component = SELECT
       (Single_stratum_special_symbol_component, Multi_stratum_special_symbol_component);
     END_TYPE;
@@ -158,6 +163,11 @@ SCHEMA Layered_interconnect_module_design_arm;
 	TYPE stratum_feature_or_stratum_feature_template_component = SELECT(
 		Stratum_feature,
     	Stratum_feature_template_component);
+	END_TYPE;
+
+	TYPE stratum_or_stratum_feature_or_stratum_feature_template_component = SELECT(
+		Stratum,
+    	stratum_feature_or_stratum_feature_template_component);
 	END_TYPE;
 
   TYPE stratum_surface_designation = ENUMERATION OF
@@ -363,6 +373,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : (NOT (primary_design_layer_stratum) AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
  'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 0)) OR ((primary_design_layer_stratum) AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
  'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 1));
+      WR2 : SELF\Stratum.permissible_pattern_role = pattern_role.addition_and_removal;
   END_ENTITY;
 
   ENTITY Dielectric_material_passage
@@ -376,6 +387,13 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Documentation_layer_stratum
     SUBTYPE OF (Stratum);
       SELF\Stratum.of_technology : Documentation_layer_technology;
+    WHERE
+      WR1 : NOT (EXISTS(of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose) AND
+               (of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose IN 
+               [predefined_documentation_layer_purpose.soldermask,
+               predefined_documentation_layer_purpose.gluemask,
+               predefined_documentation_layer_purpose.pastemask])) OR
+               (SELF\Stratum.permissible_pattern_role = pattern_role.removal_only);
   END_ENTITY;
 
   ENTITY Electrical_isolation_laminate_component
@@ -728,7 +746,9 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUPERTYPE OF (Filled_area_material_removal_laminate_component)
     SUBTYPE OF (Laminate_component);
       SELF\Definition_based_product_occurrence.derived_from : Material_removal_feature_template;
-      design_intent                                         : stratum_feature_or_stratum_feature_template_component;
+      design_intent                                         : stratum_or_stratum_feature_or_stratum_feature_template_component;
+    WHERE
+      WR1 : NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(design_intent));
   END_ENTITY;
 
   ENTITY Material_removal_structured_component
@@ -921,6 +941,7 @@ SCHEMA Layered_interconnect_module_design_arm;
  Design_layer_stratum))
     SUBTYPE OF (Part_view_definition, Item_shape);
       SELF\Product_view_definition.id : STRING;
+      permissible_pattern_role  : pattern_role;
       of_technology 			: Stratum_technology;
     DERIVE
       of_average_surface 	: SET[0:1] OF stratum_average_surface := 
@@ -1000,6 +1021,8 @@ SCHEMA Layered_interconnect_module_design_arm;
       feature_of_size                                               : BOOLEAN;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, resident_stratum;
+    WHERE
+      WR1 : resident_stratum\Stratum.permissible_pattern_role = pattern_role.addition_and_removal;
   END_ENTITY;
 
   ENTITY Stratum_feature_based_derived_pattern;

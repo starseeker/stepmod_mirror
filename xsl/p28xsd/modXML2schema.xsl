@@ -887,13 +887,13 @@
 										</xsl:choose -->
 									</xsl:when>
 									<xsl:when test="$target = //entity/@name">
-										<!-- xsl:variable name="subtypes_exist">
+										<xsl:variable name="subtypes_exist">
 											<xsl:call-template name="check_whether_subtypes_exist">
 												<xsl:with-param name="entity_name_param" select="$target"/>
 											</xsl:call-template>
-										</xsl:variable -->
-										<!-- xsl:choose>
-											<xsl:when test="contains($subtypes_exist, 'YES')" -->
+										</xsl:variable>
+										<xsl:choose>
+											<xsl:when test="contains($subtypes_exist, 'YES')">
 												<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 													<xs:complexType>
 														<xs:sequence>
@@ -904,7 +904,7 @@
 														<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
 													</xs:complexType>
 												</xs:element>
-											<!-- /xsl:when>
+											</xsl:when>
 											<xsl:otherwise>
 												<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 													<xs:complexType>
@@ -917,7 +917,7 @@
 													</xs:complexType>
 												</xs:element>
 											</xsl:otherwise>
-										</xsl:choose -->
+										</xsl:choose>
 									</xsl:when>
 									<xsl:otherwise></xsl:otherwise>
 								</xsl:choose>
@@ -1002,13 +1002,13 @@
 								</xsl:choose -->
 							</xsl:when>
 							<xsl:when test="$target = //entity/@name">
-								<!-- xsl:variable name="subtypes_exist">
+								<xsl:variable name="subtypes_exist">
 									<xsl:call-template name="check_whether_subtypes_exist">
 										<xsl:with-param name="entity_name_param" select="$target"/>
 									</xsl:call-template>
 								</xsl:variable>
 								<xsl:choose>
-									<xsl:when test="contains($subtypes_exist, 'YES')" -->
+									<xsl:when test="contains($subtypes_exist, 'YES')">
 										<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 											<xs:complexType>
 												<xs:sequence>
@@ -1016,7 +1016,7 @@
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
-									<!-- /xsl:when>
+									</xsl:when>
 									<xsl:otherwise>
 										<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 											<xs:complexType>
@@ -1026,7 +1026,7 @@
 											</xs:complexType>
 										</xs:element>
 									</xsl:otherwise>
-								</xsl:choose -->
+								</xsl:choose>
 							</xsl:when>
 							<xsl:otherwise></xsl:otherwise>
 						</xsl:choose>
@@ -1209,13 +1209,13 @@
 									</xsl:when>
 									
 									<xsl:when test="$target = //entity/@name">
-										<!-- xsl:variable name="subtypes_exist">
+										<xsl:variable name="subtypes_exist">
 											<xsl:call-template name="check_whether_subtypes_exist">
 												<xsl:with-param name="entity_name_param" select="$target"/>
 											</xsl:call-template>
 										</xsl:variable>
 										<xsl:choose>
-											<xsl:when test="contains($subtypes_exist, 'YES')" -->
+											<xsl:when test="contains($subtypes_exist, 'YES')">
 												<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 													<xs:complexType>
 														<xs:sequence>
@@ -1226,7 +1226,7 @@
 														<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
 													</xs:complexType>
 												</xs:element>
-											<!-- /xsl:when>
+											</xsl:when>
 											<xsl:otherwise>
 												<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 													<xs:complexType>
@@ -1239,7 +1239,7 @@
 													</xs:complexType>
 												</xs:element>
 											</xsl:otherwise>
-										</xsl:choose -->
+										</xsl:choose>
 									</xsl:when>
 									
 									<xsl:otherwise><xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"></xs:element></xsl:otherwise>
@@ -1345,13 +1345,13 @@
 								</xsl:choose>
 							</xsl:when>
 							<xsl:when test="$target = //entity/@name">
-								<!-- xsl:variable name="subtypes_exist">
+								<xsl:variable name="subtypes_exist">
 									<xsl:call-template name="check_whether_subtypes_exist">
 										<xsl:with-param name="entity_name_param" select="$target"/>
 									</xsl:call-template>
 								</xsl:variable>
 								<xsl:choose>
-									<xsl:when test="contains($subtypes_exist, 'YES')" -->
+									<xsl:when test="contains($subtypes_exist, 'YES')">
 										<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 											<xs:complexType>
 												<xs:sequence>
@@ -1359,7 +1359,7 @@
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
-									<!-- /xsl:when>
+									</xsl:when>
 									<xsl:otherwise>
 										<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 											<xs:complexType>
@@ -1369,7 +1369,7 @@
 											</xs:complexType>
 										</xs:element>
 									</xsl:otherwise>
-								</xsl:choose -->
+								</xsl:choose>
 							</xsl:when>
 							<xsl:otherwise>
 								<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"/>
@@ -1390,7 +1390,7 @@
 		</xsl:choose>
 	</xsl:template>
 	
-	<!-- NOT USED -->
+	<!-- USED -->
 	<xsl:template name="check_whether_subtypes_exist">
 		<xsl:param name="entity_name_param"/>
 		<xsl:for-each select="//entity/@supertypes">

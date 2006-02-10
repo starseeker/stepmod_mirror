@@ -299,18 +299,18 @@
 					</xsl:call-template>
 				</xsl:variable>
 				
-				<xsl:variable name="working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities">
+				<!-- xsl:variable name="working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities">
 					<xsl:call-template name="remove_subtypes_of_concrete_entities_from_list">
 						<xsl:with-param name="list_of_selected_datatypes_param" select="$working_select_list_no_duplicates"/>
 						<xsl:with-param name="fixed_list_of_selected_datatypes_param" select="$working_select_list_no_duplicates" />
 					</xsl:call-template>
-				</xsl:variable>
+				</xsl:variable -->
 								
 				<xsl:choose>
 					<!-- check whether select list is empty -->
-					<xsl:when test="string-length(normalize-space($working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities)) = 0"></xsl:when>
+					<xsl:when test="string-length(normalize-space($working_select_list_no_duplicates_no_abstracts)) = 0"></xsl:when>
 					<!-- check that select list contains at least two items -->
-					<xsl:when test="contains(normalize-space($working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities), ' ')">
+					<xsl:when test="contains(normalize-space($working_select_list_no_duplicates_no_abstracts), ' ')">
 						<xsl:text>&#xa;</xsl:text>
 						<xsl:text>&#xa;</xsl:text>
 						<xs:complexType name="{$corrected_type_name}">
@@ -322,7 +322,7 @@
 							<xs:choice>
 								<xsl:call-template name="construct_select_elements">
 									
-									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities"/>
+									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list_no_duplicates_no_abstracts"/>
 								</xsl:call-template>
 							</xs:choice>
 						</xs:group>
@@ -341,7 +341,7 @@
 						<xs:group name="{$corrected_type_name}">
 							<xs:choice>
 								<xsl:call-template name="construct_select_elements">
-									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities"/>
+									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list_no_duplicates_no_abstracts"/>
 								</xsl:call-template>
 							</xs:choice>
 						</xs:group>
@@ -564,6 +564,7 @@
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:variable name="end_of_wr">&apos; IN TYPEOF</xsl:variable>
 				<xsl:variable name="list_of_items_for_underlying_select" select="//type[@name=$raw_select_type_name]/select/@selectitems"/>
+				
 				<xsl:variable name="working_select_list_for_underlying_select">
 					<xsl:call-template name="build_working_select_list">
 						<xsl:with-param name="list_of_items_param" select="$list_of_items_for_underlying_select"/>
@@ -606,18 +607,18 @@
 					</xsl:call-template>
 				</xsl:variable>
 				
-				<xsl:variable name="pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities">
+				<!-- xsl:variable name="pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities">
 					<xsl:call-template name="remove_subtypes_of_concrete_entities_from_list">
 						<xsl:with-param name="list_of_selected_datatypes_param" select="$pruned_select_list_no_duplicates"/>
 						<xsl:with-param name="fixed_list_of_selected_datatypes_param" select="$pruned_select_list_no_duplicates"/>
 					</xsl:call-template>
-				</xsl:variable>
+				</xsl:variable -->
 				
 				<xsl:choose>
 						<!-- test whether select list empty -->
-						<xsl:when test="string-length(normalize-space($pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities)) = 0"/>
+						<xsl:when test="string-length(normalize-space($pruned_select_list_no_duplicates_no_abstracts)) = 0"/>
 						<!-- test whether select list has at least two items -->		
-						<xsl:when test="contains(normalize-space($pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities), ' ')">
+						<xsl:when test="contains(normalize-space($pruned_select_list_no_duplicates_no_abstracts), ' ')">
 							<xs:complexType name="{$corrected_type_name}">
 								<xs:group ref="{$namespace_prefix}{$corrected_type_name}"/>
 							</xs:complexType>
@@ -626,7 +627,7 @@
 							<xs:group name="{$corrected_type_name}">
 								<xs:choice>
 									<xsl:call-template name="construct_select_elements">
-										<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities"/>
+										<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list_no_duplicates_no_abstracts"/>
 									</xsl:call-template>
 								</xs:choice>
 							</xs:group>
@@ -643,7 +644,7 @@
 							<xs:group name="{$corrected_type_name}">
 								<xs:choice>
 									<xsl:call-template name="construct_select_elements">
-										<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities"/>
+										<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list_no_duplicates_no_abstracts"/>
 									</xsl:call-template>
 								</xs:choice>
 							</xs:group>
@@ -843,9 +844,9 @@
 											</xsl:call-template>
 										</xsl:variable>
 										<xsl:variable name="normalized_working_select_list" select="normalize-space($working_select_list)"/>
-										<xsl:choose>
+										<!-- xsl:choose -->
 											<!-- test whether single item select -->
-											<xsl:when test="contains($normalized_working_select_list, ' ')">
+											<!-- xsl:when test="contains($normalized_working_select_list, ' ')" -->
 												<xs:element name="{$corrected_attribute_name}">
 													<xs:complexType>
 														<xs:sequence>
@@ -865,7 +866,7 @@
 												</xs:element>
 												<xsl:text>&#xa;</xsl:text>
 												<xsl:text>&#xa;</xsl:text>
-											</xsl:when>
+											<!-- /xsl:when>
 											<xsl:otherwise>
 												<xsl:variable name="corrected_target_select_target_name">
 													<xsl:call-template name="correct_express_name">
@@ -883,7 +884,7 @@
 													</xs:complexType>
 												</xs:element>
 											</xsl:otherwise>
-										</xsl:choose>
+										</xsl:choose -->
 									</xsl:when>
 									<xsl:when test="$target = //entity/@name">
 										<!-- xsl:variable name="subtypes_exist">
@@ -953,9 +954,9 @@
 									</xsl:call-template>
 								</xsl:variable>
 								<xsl:variable name="normalized_working_select_list" select="normalize-space($working_select_list)"/>
-								<xsl:choose>
+								<!-- xsl:choose -->
 									<!-- test whether single item select -->
-									<xsl:when test="contains($normalized_working_select_list, ' ')">
+									<!-- xsl:when test="contains($normalized_working_select_list, ' ')" -->
 										<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 											<xs:complexType>
 												<xs:group ref="{$namespace_prefix}{$corrected_target_name}"/>
@@ -963,7 +964,7 @@
 										</xs:element>
 										<xsl:text>&#xa;</xsl:text>
 										<xsl:text>&#xa;</xsl:text>
-									</xsl:when>
+									<!-- /xsl:when>
 									<xsl:otherwise>
 										<xsl:variable name="corrected_target_select_target_name">
 											<xsl:call-template name="correct_express_name">
@@ -998,7 +999,7 @@
 											<xsl:otherwise/>
 										</xsl:choose>
 									</xsl:otherwise>
-								</xsl:choose>
+								</xsl:choose -->
 							</xsl:when>
 							<xsl:when test="$target = //entity/@name">
 								<!-- xsl:variable name="subtypes_exist">
@@ -2123,12 +2124,12 @@
 				</xsl:variable>
 				<xsl:choose>
 					<xsl:when test="//entity[@name=$first]">
-						<xs:group ref="{$namespace_prefix}{$corrected_select_item_name}-group"/>
+						<xs:element ref="{$namespace_prefix}{$corrected_select_item_name}"/>
 					</xsl:when>
 					<xsl:when test="//type[@name=$first]">
 						<xs:element ref="{$namespace_prefix}{$corrected_select_item_name}-wrapper"/>
 					</xsl:when>
-					<xsl:otherwise>BUGGER</xsl:otherwise>
+					<xsl:otherwise></xsl:otherwise>
 				</xsl:choose>
 				
 				<xsl:call-template name="construct_select_elements">

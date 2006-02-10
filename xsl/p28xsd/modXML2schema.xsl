@@ -275,7 +275,10 @@
 		</xsl:variable>
 		<xsl:choose>
 			<!-- test whether express type is a select type -->
+		
+			
 			<xsl:when test="./select">
+				
 				<xsl:variable name="initial_list_of_items" select="./select/@selectitems"/>
 				
 				<xsl:variable name="working_select_list">
@@ -283,24 +286,31 @@
 						<xsl:with-param name="list_of_items_param" select="$initial_list_of_items"/>
 					</xsl:call-template>
 				</xsl:variable>
-				
+										
 				<xsl:variable name="working_select_list_no_duplicates">
 					<xsl:call-template name="filter-word-list-unique">
 						<xsl:with-param name="word-list" select="$working_select_list"/>
 					</xsl:call-template>
 				</xsl:variable>
-				
+								
 				<xsl:variable name="working_select_list_no_duplicates_no_abstracts">
 					<xsl:call-template name="remove_names_of_abstract_entities_from_list">
 						<xsl:with-param name="list_of_selected_datatypes_param" select="$working_select_list_no_duplicates"/>
 					</xsl:call-template>
 				</xsl:variable>
 				
+				<xsl:variable name="working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities">
+					<xsl:call-template name="remove_subtypes_of_concrete_entities_from_list">
+						<xsl:with-param name="list_of_selected_datatypes_param" select="$working_select_list_no_duplicates"/>
+						<xsl:with-param name="fixed_list_of_selected_datatypes_param" select="$working_select_list_no_duplicates" />
+					</xsl:call-template>
+				</xsl:variable>
+								
 				<xsl:choose>
 					<!-- check whether select list is empty -->
-					<xsl:when test="string-length(normalize-space($working_select_list_no_duplicates_no_abstracts)) = 0"></xsl:when>
+					<xsl:when test="string-length(normalize-space($working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities)) = 0"></xsl:when>
 					<!-- check that select list contains at least two items -->
-					<xsl:when test="contains(normalize-space($working_select_list_no_duplicates_no_abstracts), ' ')">
+					<xsl:when test="contains(normalize-space($working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities), ' ')">
 						<xsl:text>&#xa;</xsl:text>
 						<xsl:text>&#xa;</xsl:text>
 						<xs:complexType name="{$corrected_type_name}">
@@ -311,14 +321,33 @@
 						<xs:group name="{$corrected_type_name}">
 							<xs:choice>
 								<xsl:call-template name="construct_select_elements">
-									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list_no_duplicates_no_abstracts"/>
+									
+									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities"/>
 								</xsl:call-template>
 							</xs:choice>
 						</xs:group>
 						<xsl:text>&#xa;</xsl:text>
 						<xsl:text>&#xa;</xsl:text>
 					</xsl:when>
-					<xsl:otherwise><!-- add instruction for what to do if select list contains only one item --></xsl:otherwise>
+					<xsl:otherwise>
+							<!-- add instruction for what to do if select list contains only one item; p28 spec says elminate select type, but there are problems if u do this, so 4 now do say and for multiple items in select-->
+							<xsl:text>&#xa;</xsl:text>
+						<xsl:text>&#xa;</xsl:text>
+						<xs:complexType name="{$corrected_type_name}">
+							<xs:group ref="{$namespace_prefix}{$corrected_type_name}"/>
+						</xs:complexType>
+						<xsl:text>&#xa;</xsl:text>
+						<xsl:text>&#xa;</xsl:text>
+						<xs:group name="{$corrected_type_name}">
+							<xs:choice>
+								<xsl:call-template name="construct_select_elements">
+									<xsl:with-param name="complete_list_of_items_param" select="$working_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities"/>
+								</xsl:call-template>
+							</xs:choice>
+						</xs:group>
+						<xsl:text>&#xa;</xsl:text>
+						<xsl:text>&#xa;</xsl:text>
+					</xsl:otherwise>
 				</xsl:choose>
 			</xsl:when>
 			<!-- test whether express type is an aggregate type -->
@@ -406,11 +435,11 @@
 								</xsl:when>
 								<!-- test whether aggregated datatype is an entity -->
 								<xsl:when test="$express_name_of_aggregated_datatype=//entity/@name">
-									<xsl:variable name="subtypes_exist">
+									<!-- xsl:variable name="subtypes_exist">
 										<xsl:call-template name="check_whether_subtypes_exist">
 											<xsl:with-param name="entity_name_param" select="$express_name_of_aggregated_datatype"/>
 										</xsl:call-template>
-									</xsl:variable>
+									</xsl:variable -->
 								</xsl:when>
 								<xsl:otherwise>
 									<xs:sequence>
@@ -550,27 +579,45 @@
 						<xsl:with-param name="list_of_express_names_param" select="concat(' ',$list_of_exclusions)"/>
 					</xsl:call-template>
 				</xsl:variable>
+				<!-- NEW -->
+				<xsl:variable name="corrected_case_list_of_exclusions_with_subtypes">
+					<xsl:call-template name="add_subtypes_to_a_list">
+					<xsl:with-param name="entity_list_param" select="concat(' ', normalize-space($corrected_case_list_of_exclusions), ' ')"/>
+					<xsl:with-param name="entity_list_plus_subtypes_param" select="$corrected_case_list_of_exclusions"/>
+				</xsl:call-template>
+				</xsl:variable>
+				
 				<xsl:variable name="pruned_select_list">
-					<xsl:call-template name="subtract-forbiden-word-list-from-main-word-list">
-						<xsl:with-param name="forbidden-list" select="$corrected_case_list_of_exclusions"/>
+					<xsl:call-template name="subtract-forbidden-word-list-from-main-word-list">
+						<xsl:with-param name="forbidden-list" select="$corrected_case_list_of_exclusions_with_subtypes"/>
 						<xsl:with-param name="main-list" select="$working_select_list_for_underlying_select"/>
 					</xsl:call-template>
 				</xsl:variable>
+				
 				<xsl:variable name="pruned_select_list_no_duplicates">
 					<xsl:call-template name="filter-word-list-unique">
 						<xsl:with-param name="word-list" select="$pruned_select_list"/>
 					</xsl:call-template>
 				</xsl:variable>
+				
 				<xsl:variable name="pruned_select_list_no_duplicates_no_abstracts">
 					<xsl:call-template name="remove_names_of_abstract_entities_from_list">
 						<xsl:with-param name="list_of_selected_datatypes_param" select="$pruned_select_list_no_duplicates"/>
 					</xsl:call-template>
-				</xsl:variable>	
+				</xsl:variable>
+				
+				<xsl:variable name="pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities">
+					<xsl:call-template name="remove_subtypes_of_concrete_entities_from_list">
+						<xsl:with-param name="list_of_selected_datatypes_param" select="$pruned_select_list_no_duplicates"/>
+						<xsl:with-param name="fixed_list_of_selected_datatypes_param" select="$pruned_select_list_no_duplicates"/>
+					</xsl:call-template>
+				</xsl:variable>
+				
 				<xsl:choose>
 						<!-- test whether select list empty -->
-						<xsl:when test="string-length(normalize-space($pruned_select_list_no_duplicates_no_abstracts)) = 0"/>
+						<xsl:when test="string-length(normalize-space($pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities)) = 0"/>
 						<!-- test whether select list has at least two items -->		
-						<xsl:when test="contains(normalize-space($pruned_select_list_no_duplicates_no_abstracts), ' ')">
+						<xsl:when test="contains(normalize-space($pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities), ' ')">
 							<xs:complexType name="{$corrected_type_name}">
 								<xs:group ref="{$namespace_prefix}{$corrected_type_name}"/>
 							</xs:complexType>
@@ -579,14 +626,30 @@
 							<xs:group name="{$corrected_type_name}">
 								<xs:choice>
 									<xsl:call-template name="construct_select_elements">
-										<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list_no_duplicates_no_abstracts"/>
+										<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities"/>
 									</xsl:call-template>
 								</xs:choice>
 							</xs:group>
 							<xsl:text>&#xa;</xsl:text>
 							<xsl:text>&#xa;</xsl:text>
 						</xsl:when>
-						<xsl:otherwise><!-- need to add what to do if select list has one item --></xsl:otherwise>
+						<xsl:otherwise>
+								<!-- need to add what to do if select list has one item -->
+								<xs:complexType name="{$corrected_type_name}">
+								<xs:group ref="{$namespace_prefix}{$corrected_type_name}"/>
+							</xs:complexType>
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:text>&#xa;</xsl:text>
+							<xs:group name="{$corrected_type_name}">
+								<xs:choice>
+									<xsl:call-template name="construct_select_elements">
+										<xsl:with-param name="complete_list_of_items_param" select="$pruned_select_list_no_duplicates_no_abstracts_no_subtypes_of_concrete_entities"/>
+									</xsl:call-template>
+								</xs:choice>
+							</xs:group>
+							<xsl:text>&#xa;</xsl:text>
+							<xsl:text>&#xa;</xsl:text>
+						</xsl:otherwise>
 					</xsl:choose>
 					<xsl:text>&#xa;</xsl:text>
 					<xsl:text>&#xa;</xsl:text>			
@@ -823,13 +886,13 @@
 										</xsl:choose>
 									</xsl:when>
 									<xsl:when test="$target = //entity/@name">
-										<xsl:variable name="subtypes_exist">
+										<!-- xsl:variable name="subtypes_exist">
 											<xsl:call-template name="check_whether_subtypes_exist">
 												<xsl:with-param name="entity_name_param" select="$target"/>
 											</xsl:call-template>
-										</xsl:variable>
-										<xsl:choose>
-											<xsl:when test="contains($subtypes_exist, 'YES')">
+										</xsl:variable -->
+										<!-- xsl:choose>
+											<xsl:when test="contains($subtypes_exist, 'YES')" -->
 												<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 													<xs:complexType>
 														<xs:sequence>
@@ -840,7 +903,7 @@
 														<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
 													</xs:complexType>
 												</xs:element>
-											</xsl:when>
+											<!-- /xsl:when>
 											<xsl:otherwise>
 												<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 													<xs:complexType>
@@ -853,7 +916,7 @@
 													</xs:complexType>
 												</xs:element>
 											</xsl:otherwise>
-										</xsl:choose>
+										</xsl:choose -->
 									</xsl:when>
 									<xsl:otherwise></xsl:otherwise>
 								</xsl:choose>
@@ -938,13 +1001,13 @@
 								</xsl:choose>
 							</xsl:when>
 							<xsl:when test="$target = //entity/@name">
-								<xsl:variable name="subtypes_exist">
+								<!-- xsl:variable name="subtypes_exist">
 									<xsl:call-template name="check_whether_subtypes_exist">
 										<xsl:with-param name="entity_name_param" select="$target"/>
 									</xsl:call-template>
 								</xsl:variable>
 								<xsl:choose>
-									<xsl:when test="contains($subtypes_exist, 'YES')">
+									<xsl:when test="contains($subtypes_exist, 'YES')" -->
 										<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 											<xs:complexType>
 												<xs:sequence>
@@ -952,7 +1015,7 @@
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
-									</xsl:when>
+									<!-- /xsl:when>
 									<xsl:otherwise>
 										<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 											<xs:complexType>
@@ -962,7 +1025,7 @@
 											</xs:complexType>
 										</xs:element>
 									</xsl:otherwise>
-								</xsl:choose>
+								</xsl:choose -->
 							</xsl:when>
 							<xsl:otherwise></xsl:otherwise>
 						</xsl:choose>
@@ -1122,13 +1185,21 @@
 												</xsl:otherwise>
 											</xsl:choose>
 										</xsl:when>
-										
+											<xsl:when test="$target = //type[typename]/@name">
+												<xs:element name="{$corrected_attribute_name}">
+													<xs:complexType>
+														<xs:sequence>
+															<xs:element ref="{$namespace_prefix}{$corrected_target_name}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+											</xsl:when>
 											<!-- if aggregate of non simple non entity non select datatype -->
 											<xsl:otherwise>
 												<xs:element name="{$corrected_attribute_name}">
 													<xs:complexType>
 														<xs:sequence>
-															<xs:element ref="{$namespace_prefix}{$corrected_target_name}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
+															<xs:element ref="{$namespace_prefix}{$corrected_target_name}-wrapper" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
 														</xs:sequence>
 													</xs:complexType>
 												</xs:element>
@@ -1137,13 +1208,13 @@
 									</xsl:when>
 									
 									<xsl:when test="$target = //entity/@name">
-										<xsl:variable name="subtypes_exist">
+										<!-- xsl:variable name="subtypes_exist">
 											<xsl:call-template name="check_whether_subtypes_exist">
 												<xsl:with-param name="entity_name_param" select="$target"/>
 											</xsl:call-template>
 										</xsl:variable>
 										<xsl:choose>
-											<xsl:when test="contains($subtypes_exist, 'YES')">
+											<xsl:when test="contains($subtypes_exist, 'YES')" -->
 												<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 													<xs:complexType>
 														<xs:sequence>
@@ -1154,7 +1225,7 @@
 														<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
 													</xs:complexType>
 												</xs:element>
-											</xsl:when>
+											<!-- /xsl:when>
 											<xsl:otherwise>
 												<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 													<xs:complexType>
@@ -1167,7 +1238,7 @@
 													</xs:complexType>
 												</xs:element>
 											</xsl:otherwise>
-										</xsl:choose>
+										</xsl:choose -->
 									</xsl:when>
 									
 									<xsl:otherwise><xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"></xs:element></xsl:otherwise>
@@ -1273,13 +1344,13 @@
 								</xsl:choose>
 							</xsl:when>
 							<xsl:when test="$target = //entity/@name">
-								<xsl:variable name="subtypes_exist">
+								<!-- xsl:variable name="subtypes_exist">
 									<xsl:call-template name="check_whether_subtypes_exist">
 										<xsl:with-param name="entity_name_param" select="$target"/>
 									</xsl:call-template>
 								</xsl:variable>
 								<xsl:choose>
-									<xsl:when test="contains($subtypes_exist, 'YES')">
+									<xsl:when test="contains($subtypes_exist, 'YES')" -->
 										<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 											<xs:complexType>
 												<xs:sequence>
@@ -1287,7 +1358,7 @@
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
-									</xsl:when>
+									<!-- /xsl:when>
 									<xsl:otherwise>
 										<xs:element name="{$corrected_attribute_name}" minOccurs="{$optionality}">
 											<xs:complexType>
@@ -1297,7 +1368,7 @@
 											</xs:complexType>
 										</xs:element>
 									</xsl:otherwise>
-								</xsl:choose>
+								</xsl:choose -->
 							</xsl:when>
 							<xsl:otherwise>
 								<xs:element name="{$corrected_attribute_name}" type="{$namespace_prefix}{$corrected_target_name}"/>
@@ -1318,7 +1389,7 @@
 		</xsl:choose>
 	</xsl:template>
 	
-	<!-- USED -->
+	<!-- NOT USED -->
 	<xsl:template name="check_whether_subtypes_exist">
 		<xsl:param name="entity_name_param"/>
 		<xsl:for-each select="//entity/@supertypes">
@@ -1342,6 +1413,32 @@
 				</xsl:call-template>
 			</xsl:if>
 		</xsl:for-each>
+	</xsl:template>
+	
+	<!-- USED NEW -->
+	<xsl:template name="add_subtypes_to_a_list">
+		<xsl:param name="entity_list_param"/>
+		<xsl:param name="entity_list_plus_subtypes_param"/>
+		<xsl:variable name="wlist_of_entities" select="concat(normalize-space($entity_list_param), ' ')"/>
+		<xsl:choose>
+			<xsl:when test="$wlist_of_entities!=' '">
+				<xsl:variable name="first" select="substring-before($wlist_of_entities, ' ')"/>
+				<xsl:variable name="rest" select="substring-after($wlist_of_entities, ' ')"/>
+				<xsl:variable name="subtypes">
+					<xsl:call-template name="collect_subtypes">
+						<xsl:with-param name="top_entity_name_param" select="$first"/>
+					</xsl:call-template>
+				</xsl:variable>
+				<xsl:variable name="entity_list_plus_subtypes" select="concat($first, ' ', $subtypes)"/>
+				<xsl:call-template name="add_subtypes_to_a_list">
+					<xsl:with-param name="entity_list_param" select="$rest"/>
+					<xsl:with-param name="entity_list_plus_subtypes_param" select="$entity_list_plus_subtypes"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$entity_list_plus_subtypes_param"/>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 	
 	<!-- USED -->
@@ -1956,22 +2053,22 @@
 			<xsl:when test="contains($subtypes_still_exist, 'YES')">
 				<xsl:for-each select="//entity[contains(concat(' ', normalize-space(@supertypes), ' '), concat(' ', $raw_node_name_param, ' '))]/@name">
 					<xsl:variable name="raw_subtype_name" select="."/>
-					<xsl:choose>
+					<!-- xsl:choose>
 						<xsl:when test="//entity[@name=$raw_subtype_name]/@abstract.supertype='YES'"></xsl:when>
-						<xsl:otherwise>
+						<xsl:otherwise -->
 							
 							<xsl:variable name="corrected_subtype_name">
 								<xsl:call-template name="correct_express_name">
 									<xsl:with-param name="raw_express_name_param" select="$raw_subtype_name"/>
 								</xsl:call-template>
 							</xsl:variable>
-							<xs:element ref="{$namespace_prefix}{$corrected_subtype_name}"/>
-							<xsl:call-template name="recurse_through_subtype_tree">
+							<xs:group ref="{$namespace_prefix}{$corrected_subtype_name}-group"/>
+							<!-- /xsl:otherwise>
+					</xsl:choose -->
+						<!-- xsl:call-template name="recurse_through_subtype_tree">
 								<xsl:with-param name="raw_node_name_param" select="$raw_subtype_name"/>
-							</xsl:call-template>
-						</xsl:otherwise>
-					</xsl:choose>
-					
+							</xsl:call-template -->
+						
 				</xsl:for-each>
 			</xsl:when>
 			<xsl:otherwise/>
@@ -2018,12 +2115,22 @@
 			<xsl:when test="$wcomplete_list_of_items!=' '">
 				<xsl:variable name="first" select="substring-before($wcomplete_list_of_items, ' ')"/>
 				<xsl:variable name="rest" select="substring-after($wcomplete_list_of_items, ' ')"/>
+				
 				<xsl:variable name="corrected_select_item_name">
 					<xsl:call-template name="correct_express_name">
 						<xsl:with-param name="raw_express_name_param" select="$first"/>
 					</xsl:call-template>
 				</xsl:variable>
-				<xs:element ref="{$namespace_prefix}{$corrected_select_item_name}"/>
+				<xsl:choose>
+					<xsl:when test="//entity[@name=$first]">
+						<xs:group ref="{$namespace_prefix}{$corrected_select_item_name}-group"/>
+					</xsl:when>
+					<xsl:when test="//type[@name=$first]">
+						<xs:element ref="{$namespace_prefix}{$corrected_select_item_name}-wrapper"/>
+					</xsl:when>
+					<xsl:otherwise>BUGGER</xsl:otherwise>
+				</xsl:choose>
+				
 				<xsl:call-template name="construct_select_elements">
 					<xsl:with-param name="complete_list_of_items_param" select="$rest"/>
 				</xsl:call-template>
@@ -2051,7 +2158,7 @@
 	</xsl:template>
 	
 	<!-- USED -->
-	<xsl:template name="subtract-forbiden-word-list-from-main-word-list" >
+	<xsl:template name="subtract-forbidden-word-list-from-main-word-list" >
 		<xsl:param name="forbidden-list" />
 		<xsl:param name="main-list" />
 		<!-- outputs all words from main-word-list that are NOT in forbidden-list -->
@@ -2061,7 +2168,7 @@
 			<xsl:if test="not(contains(concat(' ', $forbidden-list, ' '),concat(' ', $first, ' ')))">
 				<xsl:value-of select="concat(' ',$first,' ')"/> 
 			</xsl:if>
-			<xsl:call-template name="subtract-forbiden-word-list-from-main-word-list">
+			<xsl:call-template name="subtract-forbidden-word-list-from-main-word-list">
 				<xsl:with-param name="forbidden-list" select="$forbidden-list"/>
 				<xsl:with-param name="main-list" select="substring-after($main-list, $first)"/>
 			</xsl:call-template>
@@ -2094,6 +2201,49 @@
 			</xsl:if>
 			<xsl:call-template name="remove_names_of_abstract_entities_from_list">
 				<xsl:with-param name="list_of_selected_datatypes_param" select="$rest" />
+			</xsl:call-template>
+		</xsl:if>
+	</xsl:template>
+	
+	<!-- USED NEW -->
+	<xsl:template name="remove_subtypes_of_concrete_entities_from_list">
+		<xsl:param name="list_of_selected_datatypes_param"/>
+		<xsl:param name="fixed_list_of_selected_datatypes_param"/>
+		<xsl:variable name="first" select="substring-before(concat(normalize-space($list_of_selected_datatypes_param),' '),' ')" />
+		<xsl:variable name="rest" select="substring-after($list_of_selected_datatypes_param,$first)" />
+		<xsl:variable name="supertypes" select="//entity[@name=$first]/@supertypes"/>
+		<xsl:variable name="has_concrete_supertype">
+			<xsl:call-template name="go_thru_list_of_supertypes_and_generate_llist_entry_if_appropriate">
+				<xsl:with-param name="supertypes" select="$supertypes" />
+				<xsl:with-param name="fixed_list_of_selected_datatypes_param" select="$fixed_list_of_selected_datatypes_param"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:if test="$first">
+			<xsl:choose>
+				<xsl:when test="contains($has_concrete_supertype, 'YES')"></xsl:when>
+				<xsl:otherwise><xsl:value-of select="concat(' ',$first,' ')" /></xsl:otherwise>
+			</xsl:choose>
+			<xsl:call-template name="remove_subtypes_of_concrete_entities_from_list">
+				<xsl:with-param name="list_of_selected_datatypes_param" select="$rest" />
+				<xsl:with-param name="fixed_list_of_selected_datatypes_param" select="$fixed_list_of_selected_datatypes_param" />
+			</xsl:call-template>
+		</xsl:if>
+	</xsl:template>
+	
+	<!-- USED NEW -->
+	<xsl:template name="go_thru_list_of_supertypes_and_generate_llist_entry_if_appropriate">
+		<xsl:param name="supertypes"/>
+		<xsl:param name="fixed_list_of_selected_datatypes_param"/>
+		<xsl:variable name="first" select="substring-before(concat(normalize-space($supertypes),' '),' ')" />
+		<xsl:variable name="rest" select="substring-after($supertypes,$first)" />
+		<xsl:if test="$first">
+			<xsl:if test="contains($fixed_list_of_selected_datatypes_param, concat(' ',$first,' '))">
+				<xsl:value-of select="' YES'"/> 
+			</xsl:if>
+			<xsl:call-template name="go_thru_list_of_supertypes_and_generate_llist_entry_if_appropriate">
+				<xsl:with-param name="supertypes" select="$rest" />
+				<xsl:with-param name="fixed_list_of_selected_datatypes_param" select="$fixed_list_of_selected_datatypes_param"/>
+				
 			</xsl:call-template>
 		</xsl:if>
 	</xsl:template>

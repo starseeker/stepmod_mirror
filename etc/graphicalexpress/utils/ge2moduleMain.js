@@ -1,4 +1,4 @@
-//$Id: ge2moduleMain.js,v 1.6 2005/01/08 01:03:01 thendrix Exp $
+//$Id: ge2moduleMain.js,v 1.7 2005/10/07 19:30:36 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -167,11 +167,30 @@ function getSchemaNameFromXML(geDir) {
     xml.async = false;
     xml.load(modelXmlFile);
     var schemaName = "";
+    var sourceFileName = "";
     if (checkXMLParse(xml)) {
+
+	// Get name of file
+	var applNodes = xml.selectNodes("/express/application");
+	var node = applNodes(0);
+	sourceFileName = node.attributes.getNamedItem("source").nodeValue;
 
 	// Get the schema out of model.xml
 	var schemaNodes = xml.selectNodes("/express/schema");
 	var node = schemaNodes(0);
+
+	// Search for schema name contained in file name
+	var members = schemaNodes.length;
+	var schema, module;
+	for (var i = 0; i < members; i++) {
+	  var tmpnode = schemaNodes(i);
+	  schemaName = tmpnode.attributes.getNamedItem("name").nodeValue;
+	  schemaName = schemaName.toLowerCase();
+      reg = new RegExp(schemaName);
+	  var token = sourceFileName.match(reg);
+	  if (token) node = tmpnode;
+	}
+	    
 	schemaName = node.attributes.getNamedItem("name").nodeValue;
 	//userMessage("Schema: "+schemaName);
     } 

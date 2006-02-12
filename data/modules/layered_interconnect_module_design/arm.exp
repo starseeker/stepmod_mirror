@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.203 2006/02/07 19:57:56 thomasrthurman Exp $
+   $Id: arm.exp,v 1.204 2006/02/09 05:04:21 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -1023,6 +1023,12 @@ SCHEMA Layered_interconnect_module_design_arm;
       UR1 : SELF\Shape_element.element_name, resident_stratum;
     WHERE
       WR1 : resident_stratum\Stratum.permissible_pattern_role = pattern_role.addition_and_removal;
+      WR2 : SIZEOF(query ( ac <* USEDIN(SELF,'') |
+                  ('PHYSICAL_UNIT_DESIGN_VIEW.ASSEMBLY_COMPONENT' IN TYPEOF(ac))
+                   AND
+                  (get_assemblies(ac) <> get_ims(resident_stratum))
+                  ))
+                  = 0;      
   END_ENTITY;
 
   ENTITY Stratum_feature_based_derived_pattern;
@@ -1215,6 +1221,30 @@ ENTITY Structured_layout_component_sub_assembly_relationship
     v1 := v1 + input2 + input3 + input4;
     RETURN(v1);
   END_FUNCTION;
+
+FUNCTION get_assemblies(input : Assembly_component) : SET OF Product_view_definition;
+LOCAL
+  acr : SET OF Assembly_component_relationship := input.occurrence_contexts;
+  pvd : SET OF Product_view_definition := [];
+END_LOCAL;
+REPEAT i := 1 TO HIINDEX(acr) BY 1;
+  pvd := pvd + acr[i]\View_definition_relationship.relating_view; 
+END_REPEAT;
+
+RETURN (pvd);
+END_FUNCTION;
+
+FUNCTION get_ims(input : Stratum) : SET OF Product_view_definition;
+LOCAL
+  imsar : SET OF Interconnect_module_stratum_assembly_relationship := input.assembly;
+  pvd : SET OF Product_view_definition := [];
+END_LOCAL;
+REPEAT i := 1 TO HIINDEX(imsar) BY 1;
+  pvd := pvd + imsar[i].assembly; 
+END_REPEAT;
+
+RETURN (pvd);
+END_FUNCTION;
 
 END_SCHEMA;
 

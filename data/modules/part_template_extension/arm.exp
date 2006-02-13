@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.51 2006/02/11 22:34:08 thomasrthurman Exp $
+   $Id: arm.exp,v 1.52 2006/02/13 17:39:29 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4101 - ISO/TS 10303-1718 Part template extension - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3525
 *)
@@ -98,8 +98,8 @@ TYPE text_alignment = ENUMERATION OF(
       end_vertex     : Edge_segment_vertex;
       reference_path : Trimmed_curve;
     WHERE
-      WR1 : EXISTS(reference_path.start_point) AND EXISTS
-(reference_path.end_point);
+      WR1 : EXISTS(reference_path.start_point) AND 
+            EXISTS(reference_path.end_point);
       WR2 : start_vertex :<>: end_vertex;
   END_ENTITY;
 
@@ -132,8 +132,8 @@ TYPE text_alignment = ENUMERATION OF(
     SELF\Representation.items: SET[2:2] OF curve_or_axis_placement;
     WHERE
      WR1 : SIZEOF(QUERY(it <* SELF\Representation.items |
-                        (('BASIC_GEOMETRY_ARM.CURVE' in TYPEOF(it))AND (it\Representation_item.name <> 'origin'))
-                   )) = 1;       
+                        ('BASIC_GEOMETRY_ARM.CURVE' in TYPEOF(it))
+                  )) = 1;       
      WR2 : SIZEOF(QUERY(it <* SELF\Representation.items |
                         (('ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT' in TYPEOF(it)) AND 
                          (it\Representation_item.name = 'origin') AND
@@ -142,6 +142,16 @@ TYPE text_alignment = ENUMERATION OF(
                          ((SIZEOF(it\Axis_placement.origin.coordinates) = 2) OR (it\Axis_placement.origin.coordinates[3] = 0.0))
                          )
                    )) = 1;    
+  END_ENTITY;
+  
+  ENTITY Planar_closed_path_shape_model_with_parameters
+    SUBTYPE OF (Planar_path_shape_model_with_parameters);
+    WHERE
+     WR1 : SIZEOF(QUERY(it <* SELF\Representation.items |
+                        ('BASIC_GEOMETRY_ARM.CLOSED_CURVE' in TYPEOF(it))
+                   )) = 1;
+     WR2 : 'PART_TEMPLATE_EXTENSION.CLOSED_CURVE_STYLE_PARAMETERS' IN 
+            TYPEOF(SELF\Planar_path_shape_model_with_parameters.parameters\Trace_template.trace_style);                          
   END_ENTITY;
 
   ENTITY Snowball_template

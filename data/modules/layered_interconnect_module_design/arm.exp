@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.204 2006/02/09 05:04:21 thomasrthurman Exp $
+   $Id: arm.exp,v 1.205 2006/02/12 02:16:25 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -24,6 +24,11 @@ SCHEMA Layered_interconnect_module_design_arm;
            
     TYPE special_symbol_component = SELECT
       (Single_stratum_special_symbol_component, Multi_stratum_special_symbol_component);
+    END_TYPE;
+
+    TYPE inter_stratum_feature_template_or_trace_template = SELECT
+      (inter_stratum_feature_template,
+       trace_template);
     END_TYPE;
 
     TYPE stratum_feature_template_or_parametric_template = SELECT
@@ -332,8 +337,11 @@ SCHEMA Layered_interconnect_module_design_arm;
  Plated_cutout,
  Partially_plated_cutout))
     SUBTYPE OF (Inter_stratum_feature);
+      SELF\Definition_based_product_occurrence.derived_from : Trace_template;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
+      WR2 : 'PART_TEMPLATE_EXTENSION_ARM.CLOSED_CURVE_STYLE_PARAMETERS' IN 
+             TYPEOF(SELF.derived_from\Trace_template.trace_style);
   END_ENTITY;
 
   ENTITY Cutout_edge_segment
@@ -484,7 +492,12 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Laminate_component);
       feature_of_size                          : BOOLEAN;
       vertical_extent : Passage_technology_allocation_to_stack_model;
-      SELF\Definition_based_product_occurrence.derived_from : Inter_stratum_feature_template;
+      SELF\Definition_based_product_occurrence.derived_from : inter_stratum_feature_template_or_trace_template;
+    WHERE
+      WR1 : NOT('PART_TEMPLATE_EXTENSION_ARM.TRACE_TEMPLATE' IN TYPEOF(derived_from)) OR
+            ((derived_from.trace_style.curve_width\Value_with_unit.value_component = 0.0) AND
+             (derived_from.trace_style.width_uncertainty\Value_with_unit.value_component = 0.0) AND
+             (derived_from.trace_style.corner_style = extend_or_chord_2_extend_or_truncate_or_round.truncate));            
   END_ENTITY;
 
   ENTITY Inter_stratum_join_relationship
@@ -520,16 +533,10 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUPERTYPE OF (ONEOF (Partially_plated_interconnect_module_edge,
  Plated_interconnect_module_edge))
     SUBTYPE OF (Inter_stratum_feature);
+      SELF\Definition_based_product_occurrence.derived_from : Trace_template;
     WHERE
-      WR1: (SIZEOF(QUERY(s <* SELF.derived_from\Geometric_template.shapes | NOT
-           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL.' IN
-           TYPEOF(s)))) = 0)
-           AND
-           (SIZEOF(QUERY(shape <*
-           USEDIN(SELF, 'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.' +
-           'SHAPE_CHARACTERIZED_COMPONENT') | NOT
-           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL.' IN
-           TYPEOF(shape)))) = 0);
+      WR1 : 'PART_TEMPLATE_EXTENSION_ARM.CLOSED_CURVE_STYLE_PARAMETERS' IN 
+             TYPEOF(SELF.derived_from\Trace_template.trace_style);
   END_ENTITY;
 
   ENTITY Interconnect_module_edge_segment
@@ -803,10 +810,12 @@ SCHEMA Layered_interconnect_module_design_arm;
   (* Tom to implement the WRs
   WHERE
     WR1: TRUE;
-   WR1 desc: The Padstack_location_in_footprint_definition specified by reference_pd_in_footprint_definition shall not also be referenced by the terminal_location attribute of any member of
+   WR1 desc: The Padstack_location_in_footprint_definition specified by reference_pd_in_footprint_definition shall not also be referenced 
+   by the terminal_location attribute of any member of
  Footprint_occurrence_sub_assembly_relationship that references the associated_footprint_occurrence
    WR2: TRUE;
-   WR2 desc: The location of the overriding_padstack_occurrence shall be derived from the relative location of the reference_pd_in_footprint_definition and shall not be provided.
+   WR2 desc: The location of the overriding_padstack_occurrence shall be derived from the relative location of the 
+   reference_pd_in_footprint_definition and shall not be provided.
 *)   
   END_ENTITY;
   ENTITY Padstack_occurrence

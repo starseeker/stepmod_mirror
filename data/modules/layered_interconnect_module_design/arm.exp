@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.205 2006/02/12 02:16:25 thomasrthurman Exp $
+   $Id: arm.exp,v 1.206 2006/02/13 21:19:40 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -497,7 +497,12 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : NOT('PART_TEMPLATE_EXTENSION_ARM.TRACE_TEMPLATE' IN TYPEOF(derived_from)) OR
             ((derived_from.trace_style.curve_width\Value_with_unit.value_component = 0.0) AND
              (derived_from.trace_style.width_uncertainty\Value_with_unit.value_component = 0.0) AND
-             (derived_from.trace_style.corner_style = extend_or_chord_2_extend_or_truncate_or_round.truncate));            
+             (derived_from.trace_style.corner_style = extend_or_chord_2_extend_or_truncate_or_round.truncate));        
+      WR2 : SIZEOF(QUERY(nauor <* SELF\Assembly_component.occurrence_contexts |
+              NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(nauor\View_definition_relationship.relating_view)) AND             
+              (vertical_extent\Passage_technology_allocation_to_stack_model.associated_stackup =
+                   nauor\View_definition_relationship.relating_view.stackup_model[1].concept))
+                   )) = 0;                   
   END_ENTITY;
 
   ENTITY Inter_stratum_join_relationship
@@ -527,6 +532,10 @@ SCHEMA Layered_interconnect_module_design_arm;
               (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND 
                (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1);
       WR3: NOT EXISTS (SELF\Product_view_definition.additional_characterization);
+      WR4 : SIZEOF(QUERY(vdr <* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.' + 'RELATING_VIEW') | 
+              (('ASSEMBLY_STRUCTURE.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(vdr)) AND
+              ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_EDGE' IN TYPEOF(vdr.related_view)))
+                  )) = 1;
   END_ENTITY;
 
   ENTITY Interconnect_module_edge
@@ -873,6 +882,8 @@ SCHEMA Layered_interconnect_module_design_arm;
 		 Plated_interconnect_module_edge_segment,
 		 Plated_passage))
     SUBTYPE OF (Inter_stratum_feature);
+    WHERE
+      WR1 : SELF\Inter_stratum_feature.vertical_extent.allocated_technology.plated_passage = TRUE;
   END_ENTITY;
 
   ENTITY Plated_interconnect_module_edge

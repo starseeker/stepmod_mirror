@@ -25,6 +25,9 @@
       <type name="component_feature_or_stratum_surface">
          <select extensible="YES" genericentity="YES" selectitems="Component_feature Stratum_surface"/>
       </type>
+      <type name="inter_stratum_feature_template_or_trace_template">
+         <select selectitems="Inter_stratum_feature_template Trace_template" genericentity="NO" extensible="NO"/>
+      </type>
       <type name="limd_documented_element_select">
          <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="stratum_concept Stratum"/>
       </type>
@@ -261,7 +264,12 @@
          </explicit>
       </entity>
       <entity name="Cutout" supertypes="Inter_stratum_feature" super.expression="ONEOF (Physical_connectivity_interrupting_cutout, Plated_cutout, Partially_plated_cutout)" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="derived_from" optional="NO">
+            <typename name="Trace_template"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+         <where label="WR2" expression="'PART_TEMPLATE_EXTENSION_ARM.CLOSED_CURVE_STYLE_PARAMETERS' IN &#10;             TYPEOF(SELF.derived_from\Trace_template.trace_style)"/>
       </entity>
       <entity name="Cutout_edge_segment" supertypes="Inter_stratum_feature" super.expression="Plated_cutout_edge_segment" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_cutout" optional="NO">
@@ -429,9 +437,11 @@
             <typename name="Passage_technology_allocation_to_stack_model"/>
          </explicit>
          <explicit name="derived_from" optional="NO">
-            <typename name="Inter_stratum_feature_template"/>
+            <typename name="inter_stratum_feature_template_or_trace_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
+         <where label="WR1" expression="NOT('PART_TEMPLATE_EXTENSION_ARM.TRACE_TEMPLATE' IN TYPEOF(derived_from)) OR&#10;            ((derived_from.trace_style.curve_width\Value_with_unit.value_component = 0.0) AND&#10;             (derived_from.trace_style.width_uncertainty\Value_with_unit.value_component = 0.0) AND&#10;             (derived_from.trace_style.corner_style = extend_or_chord_2_extend_or_truncate_or_round.truncate))"/>
+         <where label="WR2" expression="SIZEOF(QUERY(nauor &lt;* SELF\Assembly_component.occurrence_contexts |&#10;              NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(nauor\View_definition_relationship.relating_view)) AND             &#10;              (vertical_extent\Passage_technology_allocation_to_stack_model.associated_stackup =&#10;                   nauor\View_definition_relationship.relating_view.stackup_model[1].concept))&#10;                   )) = 0"/>
       </entity>
       <entity name="Inter_stratum_join_relationship" supertypes="Routed_join_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="points_to_be_connected" optional="NO">
@@ -466,9 +476,14 @@
          <where label="WR1" expression="SIZEOF(QUERY(ftr &lt;* of_fabrication_thickness_requirement | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF(ftr\Requirement_assignment.assigned_requirement)))) = 0"/>
          <where label="WR2" expression="(SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY')) = 0)&#10;      OR&#10;      (SIZEOF(QUERY(imsar &lt;* USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | &#10;              (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND &#10;               (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1)"/>
          <where label="WR3" expression="NOT EXISTS (SELF\Product_view_definition.additional_characterization)"/>
+         <where label="WR4" expression="SIZEOF(QUERY(vdr &lt;* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.' + 'RELATING_VIEW') | &#10;              (('ASSEMBLY_STRUCTURE_ARM.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(vdr)) AND&#10;              ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_EDGE' IN TYPEOF(vdr.related_view)))&#10;                  )) = 1"/>
       </entity>
       <entity name="Interconnect_module_edge" supertypes="Inter_stratum_feature" super.expression="ONEOF (Partially_plated_interconnect_module_edge, Plated_interconnect_module_edge)" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="(SIZEOF(QUERY(s &lt;* SELF.derived_from\Geometric_template.shapes | NOT&#10;           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL.' IN&#10;           TYPEOF(s)))) = 0)&#10;           AND&#10;           (SIZEOF(QUERY(shape &lt;*&#10;           USEDIN(SELF, 'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.' +&#10;           'SHAPE_CHARACTERIZED_COMPONENT') | NOT&#10;           ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL.' IN&#10;           TYPEOF(shape)))) = 0)"/>
+         <explicit name="derived_from" optional="NO">
+            <typename name="Trace_template"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
+         <where label="WR1" expression="'PART_TEMPLATE_EXTENSION_ARM.CLOSED_CURVE_STYLE_PARAMETERS' IN &#10;             TYPEOF(SELF.derived_from\Trace_template.trace_style)"/>
       </entity>
       <entity name="Interconnect_module_edge_segment" supertypes="Inter_stratum_feature" super.expression="ONEOF (Plated_interconnect_module_edge_segment, Unplated_interconnect_module_edge_segment)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_edge" optional="NO">
@@ -716,6 +731,7 @@
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+
       </entity>
       <entity name="Multi_layer_material_removal_laminate_component" supertypes="Material_removal_laminate_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_layer_geometry" optional="NO">
@@ -804,7 +820,9 @@
             <redeclaration entity-ref="Cutout_edge_segment"/>
          </explicit>
       </entity>
-      <entity name="Plated_inter_stratum_feature" abstract.supertype="YES" supertypes="Inter_stratum_feature" super.expression="ONEOF (Plated_cutout, Plated_interconnect_module_edge, Plated_cutout_edge_segment, Plated_interconnect_module_edge_segment, Plated_passage)" abstract.entity="NO"/>
+      <entity name="Plated_inter_stratum_feature" abstract.supertype="YES" supertypes="Inter_stratum_feature" super.expression="ONEOF (Plated_cutout, Plated_interconnect_module_edge, Plated_cutout_edge_segment, Plated_interconnect_module_edge_segment, Plated_passage)" abstract.entity="NO">
+         <where label="WR1" expression="SELF\Inter_stratum_feature.vertical_extent.allocated_technology.plated_passage = TRUE"/>
+      </entity>
       <entity name="Plated_interconnect_module_edge" supertypes="Interconnect_module_edge Plated_inter_stratum_feature" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
@@ -862,7 +880,6 @@
          <explicit name="probe" optional="YES">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Probe_access_area"/>
-
          </explicit>
          <derived name="complete" expression="NOT EXISTS(unrouted_connectivity_requirement_element)">
             <builtintype type="BOOLEAN" fixed="NO"/>
@@ -977,6 +994,7 @@
             <unique.attribute attribute="resident_stratum"/>
          </unique>
          <where label="WR1" expression="resident_stratum\Stratum.permissible_pattern_role = pattern_role.addition_and_removal"/>
+         <where label="WR2" expression="SIZEOF(query ( ac &lt;* USEDIN(SELF,'') |&#10;                  ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT' IN TYPEOF(ac))&#10;                   AND&#10;                  (get_assemblies(ac) &lt;&gt; get_ims(resident_stratum))&#10;                  ))&#10;                  = 0"/>
       </entity>
       <entity name="Stratum_feature_based_derived_pattern" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="extent" optional="NO">
@@ -1186,6 +1204,38 @@
     END_REPEAT;
     pass := (input1 = ciet);
     RETURN(pass);</algorithm>
+      </function>
+      <function name="get_assemblies">
+         <parameter name="input">
+            <typename name="Assembly_component"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Product_view_definition"/>
+         <algorithm>LOCAL
+  acr : SET OF Assembly_component_relationship := input.occurrence_contexts;
+  pvd : SET OF Product_view_definition := [];
+END_LOCAL;
+REPEAT i := 1 TO HIINDEX(acr) BY 1;
+  pvd := pvd + acr[i]\View_definition_relationship.relating_view; 
+END_REPEAT;
+
+RETURN (pvd);</algorithm>
+      </function>
+      <function name="get_ims">
+         <parameter name="input">
+            <typename name="Stratum"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Product_view_definition"/>
+         <algorithm>LOCAL
+  imsar : SET OF Interconnect_module_stratum_assembly_relationship := input.assembly;
+  pvd : SET OF Product_view_definition := [];
+END_LOCAL;
+REPEAT i := 1 TO HIINDEX(imsar) BY 1;
+  pvd := pvd + imsar[i].assembly; 
+END_REPEAT;
+
+RETURN (pvd);</algorithm>
       </function>
       <function name="get_included_stratum">
          <parameter name="input1">

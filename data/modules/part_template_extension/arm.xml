@@ -9,6 +9,9 @@
       <interface kind="use" schema="Fill_area_style_arm"/>
       <interface kind="use" schema="Fabrication_technology_arm"/>
       <interface kind="use" schema="Text_representation_arm"/>
+      <type name="curve_or_axis_placement">
+         <select selectitems="Curve Axis_placement"/>
+      </type>
       <type name="extend_or_chord_2_extend_or_truncate_or_round">
          <enumeration items="truncate chord_2_extend round extend"/>
       </type>
@@ -22,8 +25,7 @@
          <enumeration items="top_right top_centre top_left centre_right centre_centre centre_left bottom_right bottom_centre bottom_left"/>
       </type>
       <entity name="Closed_curve_style_parameters" supertypes="Curve_style_parameters"/>
-      <entity name="Curve_style_parameters" abstract.supertype="YES" super.expression="ONEOF (Closed_curve_style_parameters, Curve_style_parameters_with_ends)"/>
-      <entity name="Curve_style_parameters_with_ends" supertypes="Curve_style_parameters">
+      <entity name="Curve_style_parameters" abstract.supertype="YES" super.expression="ONEOF (Closed_curve_style_parameters, Curve_style_parameters_with_ends)">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
@@ -33,18 +35,20 @@
          <explicit name="curve_width">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="end_extension">
-            <typename name="extend_or_truncate"/>
-         </explicit>
-         <explicit name="end_style">
-            <typename name="square_or_round"/>
-         </explicit>
          <explicit name="width_uncertainty">
             <typename name="Length_data_element"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute attribute="name"/>
          </unique>
+      </entity>
+      <entity name="Curve_style_parameters_with_ends" supertypes="Curve_style_parameters">
+         <explicit name="end_extension">
+            <typename name="extend_or_truncate"/>
+         </explicit>
+         <explicit name="end_style">
+            <typename name="square_or_round"/>
+         </explicit>
       </entity>
       <entity name="Default_trace_template" supertypes="Trace_template">
          <explicit name="of_stratum_technology">
@@ -75,7 +79,7 @@
          <explicit name="reference_path">
             <typename name="Trimmed_curve"/>
          </explicit>
-         <where label="WR1" expression="EXISTS(reference_path.start_point) AND EXISTS&#10;(reference_path.end_point)"/>
+         <where label="WR1" expression="EXISTS(reference_path.start_point) AND &#10;            EXISTS(reference_path.end_point)"/>
          <where label="WR2" expression="start_vertex :&lt;&gt;: end_vertex"/>
       </entity>
       <entity name="Inter_stratum_feature_edge_template" supertypes="Inter_stratum_feature_template">
@@ -94,15 +98,21 @@
             <typename name="Character_glyph_symbol"/>
          </explicit>
       </entity>
+      <entity name="Planar_closed_path_shape_model_with_parameters" supertypes="Planar_path_shape_model_with_parameters">
+         <where label="WR1" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;                        ('BASIC_CURVE_ARM.CLOSED_CURVE' in TYPEOF(it))&#10;                   )) = 1"/>
+         <where label="WR2" expression="'PART_TEMPLATE_EXTENSION_ARM.CLOSED_CURVE_STYLE_PARAMETERS' IN &#10;            TYPEOF(SELF\Planar_path_shape_model_with_parameters.parameters\Trace_template.trace_style)"/>
+      </entity>
       <entity name="Planar_path_shape_model_with_parameters" supertypes="Planar_projected_shape_model">
          <explicit name="parameters">
             <typename name="Trace_template"/>
          </explicit>
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="Curve"/>
+            <aggregate type="SET" lower="2" upper="2"/>
+            <typename name="curve_or_axis_placement"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;                        ('BASIC_GEOMETRY_ARM.CURVE' in TYPEOF(it))&#10;                  )) = 1"/>
+         <where label="WR2" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;                        (('ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT' in TYPEOF(it)) AND &#10;                         (it\Representation_item.name = 'origin') AND&#10;                         (it\Axis_placement.origin.coordinates[1] = 0.0) AND&#10;                         (it\Axis_placement.origin.coordinates[2] = 0.0) AND&#10;                         ((SIZEOF(it\Axis_placement.origin.coordinates) = 2) OR (it\Axis_placement.origin.coordinates[3] = 0.0))&#10;                         )&#10;                   )) = 1"/>
       </entity>
       <entity name="Snowball_template" supertypes="Teardrop_template">
          <explicit name="snowball_start_distance">

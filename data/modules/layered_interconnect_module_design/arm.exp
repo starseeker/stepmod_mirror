@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.207 2006/02/14 21:53:22 thomasrthurman Exp $
+   $Id: arm.exp,v 1.208 2006/02/15 10:08:15 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -94,6 +94,10 @@ SCHEMA Layered_interconnect_module_design_arm;
  	TYPE component_feature_or_stratum_surface = EXTENSIBLE GENERIC_ENTITY SELECT
 		(Component_feature,
 		Stratum_surface);
+ 	END_TYPE;
+
+ 	TYPE template_location_or_design_specific_location = EXTENSIBLE GENERIC_ENTITY SELECT
+		(Template_location_in_structured_template);
  	END_TYPE;
 
 	TYPE limd_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
@@ -1119,26 +1123,32 @@ ENTITY Structured_layout_component_sub_assembly_relationship
     SUBTYPE OF (Next_assembly_usage_occurrence_relationship);
       SELF\View_definition_relationship.relating_view : Structured_layout_component;
       SELF\View_definition_relationship.related_view : Assembly_component;
-      first_location : Template_location_in_structured_template;
-      second_location : OPTIONAL Template_location_in_structured_template;
+      first_location : template_location_or_design_specific_location;
+      second_location : OPTIONAL template_location_or_design_specific_location;
    DERIVE
       first_location_overridden : BOOLEAN := 
-                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
-                   :<>: first_location.template);      
+                  NOT('PART_TEMPLATE_2D_SHAPE.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE' IN TYPEOF(first_location));
       second_location_overridden : BOOLEAN := EXISTS(second_location) AND
-                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
-                   :<>: second_location.template);
+                  NOT('PART_TEMPLATE_2D_SHAPE.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE' IN TYPEOF(second_location));
     UNIQUE
       UR1 : first_location, second_location,relating_view,related_view;
     WHERE
-     WR1: NOT EXISTS(SELF\View_definition_relationship.relation_type);
-     WR2: NOT EXISTS(SELF\View_definition_relationship.id);
-     WR3: NOT EXISTS(SELF\Assembly_component_relationship.location_indicator);
-     WR4: NOT EXISTS(SELF\Assembly_component_relationship.quantity);
-     WR5: SELF\View_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly;
-     WR6: first_location :<>: second_location;
-     WR7: NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view));
-     WR8: NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view));
+     WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
+     WR2 : NOT EXISTS(SELF\View_definition_relationship.id);
+     WR3 : NOT EXISTS(SELF\Assembly_component_relationship.location_indicator);
+     WR4 : NOT EXISTS(SELF\Assembly_component_relationship.quantity);
+     WR5 : first_location_overridden OR 
+          (SELF\View_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly);
+     WR6 : first_location :<>: second_location;
+     WR7 : NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view));
+     WR8 : NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view));
+     WR9 : NOT (first_location_overridden AND second_location_overridden);
+     WR10: NOT first_location_overridden OR 
+                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
+                   :<>: first_location.template);      
+     WR11: NOT second_location_overridden OR 
+                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
+                   :<>: second_location.template);
   END_ENTITY;
 
   ENTITY Unplated_cutout_edge_segment

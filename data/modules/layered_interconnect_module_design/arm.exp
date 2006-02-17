@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.208 2006/02/15 10:08:15 liutkus Exp $
+   $Id: arm.exp,v 1.209 2006/02/16 00:15:22 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -16,24 +16,6 @@ SCHEMA Layered_interconnect_module_design_arm;
 	USE FROM Interconnect_module_connection_routing_arm;
 
 	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
-
-    TYPE pattern_role = ENUMERATION OF (
-         removal_only,
-         addition_and_removal);
-    END_TYPE;
-           
-    TYPE special_symbol_component = SELECT
-      (Single_stratum_special_symbol_component, Multi_stratum_special_symbol_component);
-    END_TYPE;
-
-    TYPE inter_stratum_feature_template_or_trace_template = SELECT
-      (Inter_stratum_feature_template,
-       Trace_template);
-    END_TYPE;
-
-    TYPE stratum_feature_template_or_parametric_template = SELECT
-      (Stratum_feature_template, Parametric_template);
-    END_TYPE;
 
 	SUBTYPE_CONSTRAINT limd_assembly_component_subtypes FOR Assembly_component; 
 	    (ONEOF (Physical_component,
@@ -85,6 +67,24 @@ SCHEMA Layered_interconnect_module_design_arm;
            Stratum_stack_model));
 	END_SUBTYPE_CONSTRAINT;
 
+    TYPE pattern_role = ENUMERATION OF (
+         removal_only,
+         addition_and_removal);
+    END_TYPE;
+           
+    TYPE special_symbol_component = SELECT
+      (Single_stratum_special_symbol_component, Multi_stratum_special_symbol_component);
+    END_TYPE;
+
+    TYPE inter_stratum_feature_template_or_trace_template = SELECT
+      (Inter_stratum_feature_template,
+       Trace_template);
+    END_TYPE;
+
+    TYPE stratum_feature_template_or_parametric_template = SELECT
+      (Stratum_feature_template, Parametric_template);
+    END_TYPE;
+
  	TYPE bare_die_component_or_packaged_component = EXTENSIBLE GENERIC_ENTITY SELECT;
 	END_TYPE;
 
@@ -94,10 +94,6 @@ SCHEMA Layered_interconnect_module_design_arm;
  	TYPE component_feature_or_stratum_surface = EXTENSIBLE GENERIC_ENTITY SELECT
 		(Component_feature,
 		Stratum_surface);
- 	END_TYPE;
-
- 	TYPE template_location_or_design_specific_location = EXTENSIBLE GENERIC_ENTITY SELECT
-		(Template_location_in_structured_template);
  	END_TYPE;
 
 	TYPE limd_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
@@ -155,10 +151,10 @@ SCHEMA Layered_interconnect_module_design_arm;
      	Material_identification);
 	END_TYPE;
 
-  TYPE printed_part_template_or_printed_part_cross_section_template = SELECT
+    TYPE printed_part_template_or_printed_part_cross_section_template = SELECT
     (Printed_part_template,
      Printed_part_cross_section_template);
-  END_TYPE;
+    END_TYPE;
 
  	TYPE stratum_concept = EXTENSIBLE GENERIC_ENTITY SELECT
     (Laminate_component,
@@ -179,11 +175,11 @@ SCHEMA Layered_interconnect_module_design_arm;
     	stratum_feature_or_stratum_feature_template_component);
 	END_TYPE;
 
-  TYPE stratum_surface_designation = ENUMERATION OF
+    TYPE stratum_surface_designation = ENUMERATION OF
     (average_surface,
      primary_surface,
      secondary_surface);
-  END_TYPE;
+    END_TYPE;
 
   ENTITY Adjacent_stratum_surface_definition;
       name               : STRING;
@@ -1123,13 +1119,16 @@ ENTITY Structured_layout_component_sub_assembly_relationship
     SUBTYPE OF (Next_assembly_usage_occurrence_relationship);
       SELF\View_definition_relationship.relating_view : Structured_layout_component;
       SELF\View_definition_relationship.related_view : Assembly_component;
-      first_location : template_location_or_design_specific_location;
-      second_location : OPTIONAL template_location_or_design_specific_location;
+      first_location : Template_location_in_structured_template;
+      second_location : OPTIONAL Template_location_in_structured_template;
+      overriding_shape : OPTIONAL Part_template_shape_model;
    DERIVE
       first_location_overridden : BOOLEAN := 
-                  NOT('PART_TEMPLATE_2D_SHAPE.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE' IN TYPEOF(first_location));
+                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
+                   :<>: first_location.template);      
       second_location_overridden : BOOLEAN := EXISTS(second_location) AND
-                  NOT('PART_TEMPLATE_2D_SHAPE.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE' IN TYPEOF(second_location));
+                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
+                   :<>: second_location.template);
     UNIQUE
       UR1 : first_location, second_location,relating_view,related_view;
     WHERE
@@ -1143,12 +1142,8 @@ ENTITY Structured_layout_component_sub_assembly_relationship
      WR7 : NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view));
      WR8 : NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view));
      WR9 : NOT (first_location_overridden AND second_location_overridden);
-     WR10: NOT first_location_overridden OR 
-                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
-                   :<>: first_location.template);      
-     WR11: NOT second_location_overridden OR 
-                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
-                   :<>: second_location.template);
+     WR10: NOT (EXISTS(overriding_shape) XOR (first_location_overridden OR second_location_overridden));
+     WR11: NOT EXISTS(overriding_shape) OR (related_view.derived_from IN overriding_shape.shape_characterized_definition);
   END_ENTITY;
 
   ENTITY Unplated_cutout_edge_segment

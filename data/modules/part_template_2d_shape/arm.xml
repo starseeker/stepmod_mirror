@@ -86,7 +86,31 @@
          <where label="WR2" expression="NOT('PART_TEMPLATE_2D_SHAPE_ARM.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)) XOR &#10;          (SIZEOF(QUERY(tlict &lt;* SELF\Structured_template.templates |&#10;         ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict)))) &gt; 0)"/>
          <where label="WR3" expression="SIZEOF(QUERY(tlict &lt;* SELF\Structured_template.templates |&#10;         (NOT ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))) AND&#10;          (NOT ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(tlict))))) = 0"/>
       </entity>
+      <entity name="Part_template_keepout_shape_allocation_to_stratum_stack">
+         <explicit name="keepout_shape">
+            <typename name="Part_template_keepout_shape_model"/>
+         </explicit>
+         <explicit name="kept_out_layers">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Stratum_technology_occurrence"/>
+         </explicit>
+         <derived name="swappable" expression="keepout_shape.shape_characterized_definition\Multi_stratum_structured_template.location&#10;        = template_arrangement.swapable">
+            <builtintype type="BOOLEAN"/>
+         </derived>
+         <derived name="stack_model" expression="keepout_shape.shape_characterized_definition\Stratum_stack_dependent_template.stack">
+            <typename name="Library_stack_model"/>
+         </derived>
+         <unique label="UR1">
+            <unique.attribute attribute="keepout_shape"/>
+         </unique>
+         <where label="WR1" expression="keepout_shape.constrained_design_object_category&#10;       IN [keepout_product_design_object_category.interconnect_module_via,&#10;       keepout_product_design_object_category.interconnect_module_inter_stratum_feature,&#10;       keepout_product_design_object_category.interconnect_module_cutout,&#10;       keepout_product_design_object_category.interconnect_module_fill_area,&#10;       keepout_product_design_object_category.interconnect_module_stratum_feature]"/>
+         <where label="WR2" expression="'PART_TEMPLATE_2D_SHAPE_ARM.Stratum_stack_dependent_template' IN TYPEOF(keepout_shape.shape_characterized_definition)"/>
+      </entity>
       <entity name="Part_template_planar_keepout_shape_model" supertypes="Planar_shape_model Non_feature_shape_model Part_template_keepout_shape_model">
+         <explicit name="model_shape">
+            <typename name="Part_template_planar_shape_model"/>
+            <redeclaration entity-ref="Non_feature_shape_model"/>
+         </explicit>
          <derived name="application_technology_constraint" expression="get_rvd(SELF, 'application technology constraint')">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Requirement_view_definition"/>
@@ -173,7 +197,6 @@
             <typename name="Library_stack_model"/>
          </explicit>
          <where label="WR1" expression="SIZEOF(QUERY(temp &lt;* SELF\Structured_template.templates | &#10;            ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(temp))&#10;            AND (NOT ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(temp\Stratum_specific_template_location.bound_stratum))&#10;                  OR&#10;               NOT (temp\Stratum_specific_template_location.bound_stratum IN stack\Stratum_stack_model.composing_occurrence)&#10;            )&#10;          )) = 0"/>
-         <where label="WR2" expression="TYPEOF(SELF) &lt;&gt; TYPEOF(SELF\Stratum_stack_dependent_template)"/>
       </entity>
       <entity name="Structured_template" abstract.supertype="YES" supertypes="Geometric_template" super.expression="ONEOF (Single_stratum_structured_template, Multi_stratum_structured_template)">
          <inverse name="shapes" entity="Structured_template_planar_shape_model" attribute="shape_characterized_definition">

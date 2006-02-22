@@ -759,20 +759,6 @@
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
-      <entity name="Overriding_padstack_occurrence_for_footprint_occurrence" supertypes="Assigned_property View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="associated_footprint_occurrence" optional="NO">
-            <typename name="Footprint_occurrence"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
-         </explicit>
-         <explicit name="overriding_padstack_occurrence" optional="NO">
-            <typename name="Padstack_occurrence"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
-         </explicit>
-         <explicit name="reference_pd_in_footprint_definition" optional="NO">
-            <typename name="Padstack_location_in_footprint_definition"/>
-            <redeclaration entity-ref="Assigned_property" old_name="described_element"/>
-         </explicit>
-      </entity>
       <entity name="Padstack_occurrence" supertypes="Structured_layout_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
             <typename name="Padstack_definition"/>
@@ -1083,6 +1069,9 @@
          <explicit name="second_location" optional="YES">
             <typename name="Template_location_in_structured_template"/>
          </explicit>
+         <explicit name="overriding_shape" optional="YES">
+            <typename name="Part_template_shape_model"/>
+         </explicit>
          <derived name="first_location_overridden" expression="(SELF\View_definition_relationship.related_view\Assembly_component.derived_from&#10;                   :&lt;&gt;: first_location.template)">
             <builtintype type="BOOLEAN" fixed="NO"/>
          </derived>
@@ -1099,10 +1088,13 @@
          <where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.id)"/>
          <where label="WR3" expression="NOT EXISTS(SELF\Assembly_component_relationship.location_indicator)"/>
          <where label="WR4" expression="NOT EXISTS(SELF\Assembly_component_relationship.quantity)"/>
-         <where label="WR5" expression="SELF\View_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly"/>
+         <where label="WR5" expression="first_location_overridden OR &#10;          (SELF\View_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly)"/>
          <where label="WR6" expression="first_location :&lt;&gt;: second_location"/>
          <where label="WR7" expression="NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view))"/>
          <where label="WR8" expression="NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view))"/>
+         <where label="WR9" expression="NOT (first_location_overridden AND second_location_overridden)"/>
+         <where label="WR10" expression="NOT (EXISTS(overriding_shape) XOR (first_location_overridden OR second_location_overridden))"/>
+         <where label="WR11" expression="NOT EXISTS(overriding_shape) OR (related_view.derived_from IN overriding_shape.shape_characterized_definition)"/>
       </entity>
       <entity name="Unplated_cutout_edge_segment" supertypes="Cutout_edge_segment" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_cutout" optional="NO">

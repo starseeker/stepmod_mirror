@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.113 2006/02/09 18:08:22 thomasrthurman Exp $
+   $Id: arm.exp,v 1.114 2006/02/22 09:34:05 kovaliovas Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -127,6 +127,28 @@ SCHEMA Part_template_2d_shape_arm;
          (NOT ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))) AND
           (NOT ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(tlict))))) = 0;
   END_ENTITY;
+
+  ENTITY Part_template_keepout_shape_allocation_to_stratum_stack;
+      keepout_shape : Part_template_keepout_shape_model;
+      kept_out_layers : SET [1:?] OF Stratum_technology_occurrence;
+    DERIVE
+      swappable : BOOLEAN :=
+        keepout_shape.shape_characterized_definition\Multi_stratum_structured_template.location
+        = template_arrangement.swapable;
+      stack_model : Library_stack_model :=
+        keepout_shape.shape_characterized_definition\Stratum_stack_dependent_template.stack;
+    UNIQUE
+      UR1 : keepout_shape;
+    WHERE
+      WR1: keepout_shape.constrained_design_object_category
+       IN [keepout_product_design_object_category.interconnect_module_via,
+       keepout_product_design_object_category.interconnect_module_inter_stratum_feature,
+       keepout_product_design_object_category.interconnect_module_cutout,
+       keepout_product_design_object_category.interconnect_module_fill_area,
+       keepout_product_design_object_category.interconnect_module_stratum_feature];
+     WR2: 'PART_TEMPLATE_2D_SHAPE_ARM.Stratum_stack_dependent_template' IN TYPEOF(keepout_shape.shape_characterized_definition);
+     -- TODO WR3: kept_out_layers in scope of stack_model;
+  END_ENTITY;  
 
   ENTITY Part_template_planar_keepout_shape_model
     SUBTYPE OF (Planar_shape_model,

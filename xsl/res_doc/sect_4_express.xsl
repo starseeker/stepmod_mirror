@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.24 2004/11/11 01:11:19 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.25 2005/03/11 00:12:17 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -487,7 +487,6 @@
     </A>
   </h2>
 
-  <!-- output description from express --> 
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
     <xsl:with-param name="schema" select="../@name"/>
@@ -1433,12 +1432,16 @@
       <xsl:with-param name="schema" select="../../@name"/>
       <xsl:with-param name="entity" select="../@name"/>
       <xsl:with-param name="unique" select="./@label"/>
+	  <xsl:with-param name="inline_aname" select="$aname"/>
+	  <xsl:with-param name="inline_name" select="@label"/>
+
     </xsl:call-template>
     <!-- output description from express -->
     
     <xsl:choose>
       <xsl:when test="string-length(./description)>0">
-        <xsl:apply-templates select="./description"/>
+        <xsl:apply-templates select="./description">
+		</xsl:apply-templates>
       </xsl:when>
       <xsl:otherwise>
         <xsl:variable name="external_description">
@@ -1503,9 +1506,11 @@
 
   <!-- output description from external file -->
   <xsl:call-template name="output_external_description">
-    <xsl:with-param name="schema" select="../../@name"/>
-    <xsl:with-param name="entity" select="../@name"/>
-    <xsl:with-param name="where" select="@label"/>
+	<xsl:with-param name="schema" select="../../@name"/>
+	<xsl:with-param name="entity" select="../@name"/>
+	<xsl:with-param name="where" select="@label"/>
+	<xsl:with-param name="inline_aname" select="$aname"/>
+	<xsl:with-param name="inline_name" select="@label"/>
   </xsl:call-template>
   <!-- output description from express -->
 

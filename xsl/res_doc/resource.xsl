@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.54 2005/03/11 00:12:17 thendrix Exp $
+$Id: resource.xsl,v 1.55 2005/07/11 19:51:49 thendrix Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -609,11 +609,12 @@ Purpose:
 	  </xsl:call-template>           
 	</xsl:variable>
 
+<!-- THX deleted per ISO review of part 107 
 	<P>
 	  <xsl:value-of select="$resdoc_stdnumber"/>  specifies the integrated resource 
 	  <xsl:value-of select="$resdoc_name"/>.
 	</P>
-
+-->
 
 	<xsl:choose>
 	  <xsl:when test="./abstract">

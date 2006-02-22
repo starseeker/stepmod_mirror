@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: pub_readme.xsl,v 1.8 2005/08/17 17:48:28 robbod Exp $
+$Id: pub_readme.xsl,v 1.9 2005/08/18 07:54:25 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the readme file for a published module.
@@ -177,7 +177,10 @@ NOTE - if you already purchased other parts, then unzip the
 file into the same directory as the other parts.
 If asked when unzipping the file, you should overwrite any file in the images directory.
 
+<!-- THX removed per ISO review of part 107
 The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
+-->
+
   </xsl:template>
 
 </xsl:stylesheet>

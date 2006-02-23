@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
+<!--
+	$Id: p28xsd.xsl,v 1.11 2006/02/23 08:49:14 mikeward Exp $
+	Author:  Mike Ward, Eurostep Limited
+	Owner:   Developed by Eurostep.
+	Purpose:     geneartion of p28 XSD from expressXML
+-->
+
+
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:exp="urn:iso:std:iso:10303:28:ed-2:2005:schema:common">
 	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no"/>
 	<xsl:variable name="module_directory_name" select="//module_clause/@directory"/>

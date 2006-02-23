@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="2005-03-31T15:38:25" rcs.revision="1.0" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_measure_representation_mim schema_instance"/>
    <schema name="Extended_measure_representation_mim">
       <interface kind="use" schema="Measure_representation_mim"/>
@@ -27,33 +27,63 @@
          <interfaced.item name="type_check_function"/>
       </interface>
       <entity name="value_range" supertypes="compound_representation_item">
-         <where label="WR1" expression=" ( 'value_with_unit_mim.' + 'SET_REPRESENTATION_ITEM' IN TYPEOF ( item_element ) ) AND value_range_wr1 ( item_element ) "/>
-         <where label="WR2" expression=" value_range_wr2 ( item_element ) "/>
-         <where label="WR3" expression=" value_range_wr3 ( item_element ) "/>
+         <where label="WR1" expression="( 'value_with_unit_mim.'+ 'SET_REPRESENTATION_ITEM' IN TYPEOF ( item_element ) ) AND value_range_wr1 ( item_element )"/>
+         <where label="WR2" expression="value_range_wr2 ( item_element )"/>
+         <where label="WR3" expression="value_range_wr3 ( item_element )"/>
       </entity>
       <rule name="subtype_exclusiveness_representation_item" appliesto="representation_item">
-         <where label="WR1" expression=" SIZEOF ( QUERY ( cri &lt;* representation_item | NOT ( type_check_function ( cri , [ 'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' , 'REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM' , 'REPRESENTATION_SCHEMA.COMPOUND_REPRESENTATION_ITEM' ] , 3 ) ) ) ) = 0 "/>
+         <where label="WR1" expression="SIZEOF(QUERY (cri &lt;* representation_item | NOT (type_check_function(cri,['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM','REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM','REPRESENTATION_SCHEMA.COMPOUND_REPRESENTATION_ITEM'] , 3)))) = 0"/>
       </rule>
       <function name="value_range_wr1">
          <parameter name="agg">
             <typename name="compound_item_definition"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm> BEGIN IF ( SIZEOF ( agg ) = 2 ) AND ( ( SIZEOF ( QUERY ( i1 &lt;* agg | ( 'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( i1 ) ) ) ) = 2 ) OR ( SIZEOF ( QUERY ( i2 &lt;* agg | ( 'REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM' IN TYPEOF ( i2 ) ) ) ) = 2 ) ) THEN RETURN ( TRUE ) ; ELSE RETURN ( FALSE ) ; END_IF ; END ; </algorithm>
+         <algorithm>BEGIN
+IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY (i1 &lt;* agg | (
+'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
+(i1)))) = 2) OR
+(SIZEOF(QUERY (i2 &lt;* agg | (
+'REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM' IN TYPEOF
+(i2)))) = 2)) THEN
+RETURN(TRUE);
+ELSE
+RETURN(FALSE);
+END_IF;
+END;</algorithm>
       </function>
       <function name="value_range_wr2">
          <parameter name="agg">
             <typename name="compound_item_definition"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm> BEGIN IF ( SIZEOF ( QUERY ( i &lt;* agg | ( i . name = 'upper limit' ) ) ) = 1 ) AND ( SIZEOF ( QUERY ( i &lt;* agg | ( i . name = 'lower limit' ) ) ) = 1 ) THEN RETURN ( TRUE ) ; ELSE RETURN ( FALSE ) ; END_IF ; END ; </algorithm>
+         <algorithm>BEGIN
+IF (SIZEOF(QUERY (i &lt;* agg | (i.name = 'upper limit'))) = 1)
+AND (SIZEOF(QUERY (i &lt;* agg | (i.name = 'lower limit'))) = 1)
+THEN
+RETURN(TRUE);
+ELSE
+RETURN(FALSE);
+END_IF;
+END;</algorithm>
       </function>
       <function name="value_range_wr3">
          <parameter name="agg">
             <typename name="compound_item_definition"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm> BEGIN IF ( SIZEOF ( QUERY ( i1 &lt;* agg | ( 'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( i1 ) ) AND ( SIZEOF ( QUERY ( i2 &lt;* agg | ( 'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF ( i2 ) ) AND ( i1 :&lt;&gt;: i2 ) AND ( i1 \ measure_with_unit . unit_component :=: i2 \ measure_with_unit . unit_component ) ) ) = 1 ) ) ) = 2 ) THEN RETURN ( TRUE ) ; ELSE RETURN ( FALSE ) ; END_IF ; END ; </algorithm>
+         <algorithm>BEGIN
+IF (SIZEOF(QUERY(i1 &lt;* agg |
+('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i1)) AND
+(SIZEOF (QUERY (i2 &lt;* agg |
+('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i2)) AND
+(i1 :&lt;&gt;: i2) AND (i1\measure_with_unit.unit_component :=: i2\measure_with_unit.unit_component))) = 1))) = 2)
+THEN
+RETURN (TRUE);
+ELSE
+RETURN (FALSE);
+END_IF;
+END;</algorithm>
       </function>
    </schema>
 </express>

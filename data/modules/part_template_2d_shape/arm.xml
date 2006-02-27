@@ -30,11 +30,15 @@
          <select selectitems="Stratum_technology_occurrence Stratum_technology"/>
       </type>
       <type name="template_arrangement">
-         <enumeration items="top bottom symmetrical swapable"/>
+         <enumeration items="top bottom symmetrical swappable"/>
       </type>
-      <entity name="Dependent_template_location" supertypes="Template_location_in_structured_template">
+      <entity name="Dependent_template_location_in_padstack_definition" supertypes="Template_location_in_structured_template">
          <explicit name="reference_location">
             <typename name="Template_location_in_structured_template"/>
+         </explicit>
+         <explicit name="assembly">
+            <typename name="Padstack_definition"/>
+            <redeclaration entity-ref="Template_location_in_structured_template"/>
          </explicit>
          <where label="WR1" expression="SELF &lt;&gt; reference_location"/>
          <where label="WR2" expression="SELF\Template_location_in_structured_template.assembly :=: reference_location.assembly"/>
@@ -94,7 +98,7 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Stratum_technology_occurrence"/>
          </explicit>
-         <derived name="swappable" expression="keepout_shape.shape_characterized_definition\Multi_stratum_structured_template.location&#10;        = template_arrangement.swapable">
+         <derived name="swappable" expression="(keepout_shape.shape_characterized_definition\Multi_stratum_structured_template.location&#10;        = template_arrangement.swappable)">
             <builtintype type="BOOLEAN"/>
          </derived>
          <derived name="stack_model" expression="keepout_shape.shape_characterized_definition\Stratum_stack_dependent_template.stack">
@@ -104,7 +108,8 @@
             <unique.attribute attribute="keepout_shape"/>
          </unique>
          <where label="WR1" expression="keepout_shape.constrained_design_object_category&#10;       IN [keepout_product_design_object_category.interconnect_module_via,&#10;       keepout_product_design_object_category.interconnect_module_inter_stratum_feature,&#10;       keepout_product_design_object_category.interconnect_module_cutout,&#10;       keepout_product_design_object_category.interconnect_module_fill_area,&#10;       keepout_product_design_object_category.interconnect_module_stratum_feature]"/>
-         <where label="WR2" expression="'PART_TEMPLATE_2D_SHAPE_ARM.Stratum_stack_dependent_template' IN TYPEOF(keepout_shape.shape_characterized_definition)"/>
+         <where label="WR2" expression="'PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(keepout_shape.shape_characterized_definition)"/>
+         <where label="WR3" expression="kept_out_layers = kept_out_layers * stack_model\Stratum_stack_model.composing_occurrence"/>
       </entity>
       <entity name="Part_template_planar_keepout_shape_model" supertypes="Planar_shape_model Non_feature_shape_model Part_template_keepout_shape_model">
          <explicit name="model_shape">

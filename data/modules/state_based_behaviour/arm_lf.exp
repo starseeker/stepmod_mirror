@@ -1,8 +1,1744 @@
 (*
-   $Id: arm_lf.exp,v 1.1 2006/02/24 02:03:33 dmprice Exp $
+   $Id: arm_lf.exp,v 1.2 2006/02/27 01:55:55 dmprice Exp $
    N - ISO/WD - 10303- state_based_behaviour - EXPRESS ARM_LF*)
 (* UNDER DEVELOPMENT *)
 SCHEMA state_based_behaviour_arm_lf; 
+
+(*
+EDITORS NOTE: David Price 2006-02-25
+
+Note: The schema below is a pseudo long form constructed on the assumption that 
+      all USE constructs call out the complete schema. 
+This long form was produced using simple STEPMod ARM Long form view XSLT, not an EXPRESS tool.
+This long form is not accurate but gives an idea of the current scope of SBB in preparation for AP233 WD2.
+
+*) 
+
+TYPE alias_identification_item = SELECT 
+(Behaviour,
+Behaviour_version); 
+END_TYPE; 
+
+TYPE any_number_value = NUMBER;
+END_TYPE; 
+
+TYPE any_string_value = STRING;
+END_TYPE; 
+
+TYPE assigned_name_select = SELECT 
+(Condition,
+External_class_library,
+General_model_parameter,
+Product,
+Product_view_definition,
+State_based_behaviour_model,
+State_definition,
+State_transition_definition); 
+END_TYPE; 
+
+TYPE behaviour_and_version_identification_item = SELECT 
+(Behaviour,
+Behaviour_version); 
+END_TYPE; 
+
+TYPE behaviour_item = SELECT 
+(Behaviour_view_definition); 
+END_TYPE; 
+
+TYPE behaviour_model = SELECT 
+(State_based_behaviour_model); 
+END_TYPE; 
+
+TYPE behaviour_view_definition_identification_item = SELECT 
+(Behaviour_view_definition); 
+END_TYPE; 
+
+TYPE classification_item = SELECT 
+(Condition,
+Condition_assignment,
+Condition_parameter,
+Condition_relationship,
+General_model_parameter,
+Product,
+Product_version,
+Product_view_definition,
+State_definition,
+State_transition_definition); 
+END_TYPE; 
+
+TYPE condition_classification_item = SELECT 
+(Condition,
+Condition_assignment,
+Condition_parameter,
+Condition_relationship); 
+END_TYPE; 
+
+TYPE condition_item = SELECT 
+(State_transition_definition); 
+END_TYPE; 
+
+TYPE condition_parameter_item = SELECT 
+(Condition_relationship,
+Generic_expression,
+Product_view_definition,
+State_based_behaviour_model,
+Value_with_unit); 
+END_TYPE; 
+
+TYPE external_class_assigned_name_select = SELECT 
+(External_class_library); 
+END_TYPE; 
+
+TYPE gmp_classification_item = SELECT 
+(General_model_parameter); 
+END_TYPE; 
+
+TYPE identification_item = SELECT 
+(Behaviour_view_definition,
+Product,
+Product_version,
+Product_view_definition); 
+END_TYPE; 
+
+TYPE length_measure = REAL;
+END_TYPE; 
+
+TYPE measure_value = SELECT 
+(any_number_value,
+any_string_value,
+length_measure,
+plane_angle_measure); 
+END_TYPE; 
+
+TYPE parameter_value_select = SELECT 
+(Generic_expression,
+Product_view_definition,
+State_based_behaviour_model,
+Value_with_unit); 
+END_TYPE; 
+
+TYPE plane_angle_measure = REAL;
+END_TYPE; 
+
+TYPE sbb_assigned_name_select = SELECT 
+(behaviour_model,
+Condition,
+General_model_parameter,
+Product,
+Product_view_definition,
+State_definition,
+State_transition_definition); 
+END_TYPE; 
+
+TYPE sbb_behaviour_model = SELECT 
+(State_based_behaviour_model); 
+END_TYPE; 
+
+TYPE sbb_classification_item = SELECT 
+(Product,
+Product_version,
+Product_view_definition,
+State_definition,
+State_transition_definition); 
+END_TYPE; 
+
+TYPE sbb_condition_item = SELECT 
+(State_transition_definition); 
+END_TYPE; 
+
+TYPE sbb_condition_parameter_item = SELECT 
+(Condition_relationship,
+Generic_expression,
+parameter_value_select,
+Product_view_definition,
+State_based_behaviour_model,
+Value_with_unit); 
+END_TYPE; 
+
+TYPE sbb_identification_item = SELECT 
+(Product,
+Product_version,
+Product_view_definition); 
+END_TYPE; 
+
+TYPE sbb_parameter_value_select = SELECT 
+(behaviour_model,
+Generic_expression,
+Product_view_definition,
+Value_with_unit); 
+END_TYPE;
+
+TYPE sbb_state_definition_of_item = SELECT 
+(Product_view_definition); 
+END_TYPE; 
+
+TYPE state_based_behaviour_element = SELECT
+(State_definition, 
+State_definition_relationship);
+END_TYPE; 
+
+TYPE state_definition_of_item = SELECT 
+(Product_view_definition); 
+END_TYPE; 
+
+(* Abs_function from schema Numeric_function_arm *) 
+
+ENTITY Abs_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Acos_function from schema Numeric_function_arm *) 
+
+ENTITY Acos_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Alias_identification from schema Alias_identification_arm *) 
+
+ENTITY Alias_identification
+SUBTYPE OF (Identification_assignment);
+DERIVE
+SELF\Identification_assignment.role : STRING := 'alias';
+WHERE
+WR1: SIZEOF (QUERY( item <* SELF\Identification_assignment.items | NOT ('STATE_BASED_BEHAVIOUR_ARM_LF.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item) ) )) = 0;
+END_ENTITY;
+
+(* Amount_of_substance_unit from schema Value_with_unit_arm *) 
+
+ENTITY Amount_of_substance_unit
+SUBTYPE OF (Unit);
+END_ENTITY;
+
+(* And_expression from schema Expression_arm *) 
+
+ENTITY And_expression
+SUBTYPE OF (Multiple_arity_boolean_expression);
+END_ENTITY;
+
+(* Applied_state_definition_assignment from schema Foundation_state_definition_arm *) 
+
+ENTITY Applied_state_definition_assignment;
+assigned_to : state_definition_of_item;
+described_state_definition : State_definition;
+role : State_definition_role;
+END_ENTITY;
+
+(* Asin_function from schema Numeric_function_arm *) 
+
+ENTITY Asin_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Atan_function from schema Numeric_function_arm *) 
+
+ENTITY Atan_function
+SUBTYPE OF (Binary_function_call);
+END_ENTITY;
+
+(* Behaviour from schema Behaviour_identification_and_version_arm *) 
+
+ENTITY Behaviour
+SUBTYPE OF (Product);
+END_ENTITY;
+
+(* Behaviour_description_association from schema Behaviour_description_assignment_arm *) 
+
+ENTITY Behaviour_description_association;
+description : OPTIONAL STRING;
+representation : behaviour_model;
+represented_item : behaviour_item;
+role : OPTIONAL STRING;
+END_ENTITY;
+
+(* Behaviour_version from schema Behaviour_identification_and_version_arm *) 
+
+ENTITY Behaviour_version
+SUBTYPE OF (Product_version);
+SELF\Product_version.of_product : Behaviour;
+END_ENTITY;
+
+(* Behaviour_version_sequence from schema Behaviour_identification_and_version_arm *) 
+
+ENTITY Behaviour_version_sequence
+SUBTYPE OF (Product_version_relationship);
+SELF\Product_version_relationship.relating_version RENAMED predecessor : Behaviour_version;
+SELF\Product_version_relationship.related_version RENAMED successor : Behaviour_version;
+END_ENTITY;
+
+(* Behaviour_view_definition from schema Behaviour_view_definition_arm *) 
+
+ENTITY Behaviour_view_definition
+SUBTYPE OF (Product_view_definition);
+SELF\Product_view_definition.defined_version : Behaviour_version;
+END_ENTITY;
+
+(* Binary_boolean_expression from schema Expression_arm *) 
+
+ENTITY Binary_boolean_expression
+ABSTRACT SUPERTYPE OF (ONEOF (Xor_expression,
+Equals_expression))
+SUBTYPE OF (Boolean_expression, Binary_generic_expression);
+END_ENTITY;
+
+(* Binary_function_call from schema Expression_arm *) 
+
+ENTITY Binary_function_call
+ABSTRACT SUPERTYPE OF (Atan_function)
+SUBTYPE OF (Binary_numeric_expression);
+END_ENTITY;
+
+(* Binary_generic_expression from schema Generic_expression_arm *) 
+
+ENTITY Binary_generic_expression
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Generic_expression);
+operands : LIST[2:2] OF Generic_expression;
+END_ENTITY;
+
+(* Binary_numeric_expression from schema Expression_arm *) 
+
+ENTITY Binary_numeric_expression
+ABSTRACT SUPERTYPE OF (ONEOF (Minus_expression,
+Div_expression,
+Mod_expression,
+Slash_expression,
+Power_expression,
+Binary_function_call))
+SUBTYPE OF (Numeric_expression, Binary_generic_expression);
+SELF\Binary_generic_expression.operands : LIST[2:2] OF Numeric_expression;
+END_ENTITY;
+
+(* Boolean_defined_function from schema Expression_arm *) 
+
+ENTITY Boolean_defined_function
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Defined_function, Boolean_expression);
+END_ENTITY;
+
+(* Boolean_expression from schema Expression_arm *) 
+
+ENTITY Boolean_expression
+ABSTRACT SUPERTYPE OF (ONEOF (Simple_boolean_expression,
+Unary_boolean_expression,
+Binary_boolean_expression,
+Multiple_arity_boolean_expression,
+Comparison_expression,
+Interval_expression,
+Boolean_defined_function))
+SUBTYPE OF (Expression);
+END_ENTITY;
+
+(* Boolean_literal from schema Expression_arm *) 
+
+ENTITY Boolean_literal
+SUBTYPE OF (Simple_boolean_expression, Generic_literal);
+the_value : BOOLEAN;
+END_ENTITY;
+
+(* Boolean_variable from schema Expression_arm *) 
+
+ENTITY Boolean_variable
+SUBTYPE OF (Simple_boolean_expression, Variable);
+END_ENTITY;
+
+(* Class from schema Class_arm *) 
+
+ENTITY Class
+SUPERTYPE OF (ONEOF (Class_by_extension,
+Class_by_intension));
+id : STRING;
+name : STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+(* Class_by_extension from schema Class_arm *) 
+
+ENTITY Class_by_extension
+SUBTYPE OF (Class);
+END_ENTITY;
+
+(* Class_by_intension from schema Class_arm *) 
+
+ENTITY Class_by_intension
+SUBTYPE OF (Class);
+END_ENTITY;
+
+(* Classification_assignment from schema Classification_assignment_arm *) 
+
+ENTITY Classification_assignment;
+assigned_class : Class;
+items : SET[1:?] OF classification_item;
+role : OPTIONAL STRING;
+END_ENTITY;
+
+(* Comparison_equal from schema Expression_arm *) 
+
+ENTITY Comparison_equal
+SUBTYPE OF (Comparison_expression);
+END_ENTITY;
+
+(* Comparison_expression from schema Expression_arm *) 
+
+ENTITY Comparison_expression
+ABSTRACT SUPERTYPE OF (ONEOF (Comparison_equal,
+Comparison_greater,
+Comparison_greater_equal,
+Comparison_less,
+Comparison_less_equal,
+Comparison_not_equal,
+Like_expression))
+SUBTYPE OF (Boolean_expression, Binary_generic_expression);
+SELF\Binary_generic_expression.operands : LIST[2:2] OF Expression;
+WHERE
+WR1: (('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR(('STATE_BASED_BEHAVIOUR_ARM_LF.BOOLEAN_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND('STATE_BASED_BEHAVIOUR_ARM_LF.BOOLEAN_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR(('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[2])));
+END_ENTITY;
+
+(* Comparison_greater from schema Expression_arm *) 
+
+ENTITY Comparison_greater
+SUBTYPE OF (Comparison_expression);
+END_ENTITY;
+
+(* Comparison_greater_equal from schema Expression_arm *) 
+
+ENTITY Comparison_greater_equal
+SUBTYPE OF (Comparison_expression);
+END_ENTITY;
+
+(* Comparison_less from schema Expression_arm *) 
+
+ENTITY Comparison_less
+SUBTYPE OF (Comparison_expression);
+END_ENTITY;
+
+(* Comparison_less_equal from schema Expression_arm *) 
+
+ENTITY Comparison_less_equal
+SUBTYPE OF (Comparison_expression);
+END_ENTITY;
+
+(* Comparison_not_equal from schema Expression_arm *) 
+
+ENTITY Comparison_not_equal
+SUBTYPE OF (Comparison_expression);
+END_ENTITY;
+
+(* Composition_of_state_definition from schema Foundation_state_definition_arm *) 
+
+ENTITY Composition_of_state_definition
+SUBTYPE OF (State_definition_relationship);
+SELF\State_definition_relationship.related RENAMED part : SET[1:?] OF State_definition;
+SELF\State_definition_relationship.relating RENAMED whole : SET[1:?] OF State_definition;
+END_ENTITY;
+
+(* Concat_expression from schema Expression_arm *) 
+
+ENTITY Concat_expression
+SUBTYPE OF (String_expression, Multiple_arity_generic_expression);
+SELF\Multiple_arity_generic_expression.operands : LIST[2:?] OF String_expression;
+END_ENTITY;
+
+(* Condition from schema Condition_arm *) 
+
+ENTITY Condition;
+name : STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+(* Condition_assignment from schema Condition_arm *) 
+
+ENTITY Condition_assignment;
+assigned_condition : Condition;
+item : condition_item;
+END_ENTITY;
+
+(* Condition_expression_assignment from schema State_based_behaviour_arm *) 
+
+ENTITY Condition_expression_assignment;
+assigned_expression : Boolean_expression;
+specified_condition : Condition;
+END_ENTITY;
+
+(* Condition_parameter from schema Condition_arm *) 
+
+ENTITY Condition_parameter;
+name : STRING;
+description : OPTIONAL STRING;
+condition : Condition;
+parameter : OPTIONAL condition_parameter_item;
+END_ENTITY;
+
+(* Condition_relationship from schema Condition_arm *) 
+
+ENTITY Condition_relationship;
+name : STRING;
+description : OPTIONAL STRING;
+relating_condition : Condition;
+related_condition : Condition;
+END_ENTITY;
+
+(* Context_dependent_unit from schema Value_with_unit_arm *) 
+
+ENTITY Context_dependent_unit
+SUBTYPE OF (Unit);
+WHERE
+WR1: EXISTS(SELF\Unit.name);
+END_ENTITY;
+
+(* Conversion_based_unit from schema Value_with_unit_arm *) 
+
+ENTITY Conversion_based_unit
+SUBTYPE OF (Unit);
+conversion_factor : Value_with_unit;
+WHERE
+WR1: EXISTS(SELF\Unit.name);
+END_ENTITY;
+
+(* Cos_function from schema Numeric_function_arm *) 
+
+ENTITY Cos_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Defined_function from schema Expression_arm *) 
+
+ENTITY Defined_function
+ABSTRACT SUPERTYPE ;
+END_ENTITY;
+
+(* Derived_unit from schema Value_with_unit_arm *) 
+
+ENTITY Derived_unit
+SUBTYPE OF (Unit);
+elements : SET[1:?] OF Derived_unit_element;
+END_ENTITY;
+
+(* Derived_unit_element from schema Value_with_unit_arm *) 
+
+ENTITY Derived_unit_element;
+base_unit : Unit;
+exponent : REAL;
+END_ENTITY;
+
+(* Div_expression from schema Expression_arm *) 
+
+ENTITY Div_expression
+SUBTYPE OF (Binary_numeric_expression);
+END_ENTITY;
+
+(* Duration from schema Value_with_unit_arm *) 
+
+ENTITY Duration
+SUBTYPE OF (Value_with_unit);
+WHERE
+WR1: 'STATE_BASED_BEHAVIOUR_ARM_LF.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
+END_ENTITY;
+
+(* Electric_current_unit from schema Value_with_unit_arm *) 
+
+ENTITY Electric_current_unit
+SUBTYPE OF (Unit);
+END_ENTITY;
+
+(* Environment from schema Generic_expression_arm *) 
+
+ENTITY Environment;
+syntactic_representation : Generic_variable;
+semantics : Variable_semantics;
+END_ENTITY;
+
+(* Equals_expression from schema Expression_arm *) 
+
+ENTITY Equals_expression
+SUBTYPE OF (Binary_boolean_expression);
+END_ENTITY;
+
+(* Exp_function from schema Numeric_function_arm *) 
+
+ENTITY Exp_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Expression from schema Expression_arm *) 
+
+ENTITY Expression
+ABSTRACT SUPERTYPE OF (ONEOF (Numeric_expression,
+Boolean_expression,
+String_expression))
+SUBTYPE OF (Generic_expression);
+END_ENTITY;
+
+(* External_class from schema External_class_arm *) 
+
+ENTITY External_class
+SUBTYPE OF (Class);
+external_source : External_class_library;
+END_ENTITY;
+
+(* External_class_library from schema External_class_arm *) 
+
+ENTITY External_class_library;
+id : STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+(* Format_function from schema Expression_arm *) 
+
+ENTITY Format_function
+SUBTYPE OF (String_expression, Binary_generic_expression);
+DERIVE
+value_to_format : Generic_expression := SELF\Binary_generic_expression.operands[1];
+format_string : Generic_expression := SELF\Binary_generic_expression.operands[2];
+WHERE
+WR1: (('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION') IN TYPEOF(value_to_format)) AND (('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION') IN TYPEOF(format_string));
+END_ENTITY;
+
+(* General_model_parameter from schema General_model_parameter_arm *) 
+
+ENTITY General_model_parameter
+SUBTYPE OF (Independent_property);
+default_value : OPTIONAL parameter_value_select;
+END_ENTITY;
+
+(* Generic_expression from schema Generic_expression_arm *) 
+
+ENTITY Generic_expression
+ABSTRACT SUPERTYPE OF (ONEOF (Simple_generic_expression,
+Unary_generic_expression,
+Binary_generic_expression,
+Multiple_arity_generic_expression));
+WHERE
+WR1: Is_Acyclic(SELF);
+END_ENTITY;
+
+(* Generic_literal from schema Generic_expression_arm *) 
+
+ENTITY Generic_literal
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Simple_generic_expression);
+END_ENTITY;
+
+(* Generic_variable from schema Generic_expression_arm *) 
+
+ENTITY Generic_variable
+ABSTRACT SUPERTYPE OF (Variable)
+SUBTYPE OF (Simple_generic_expression);
+INVERSE
+interpretation : Environment FOR syntactic_representation;
+END_ENTITY;
+
+(* Identification_assignment from schema Identification_assignment_arm *) 
+
+ENTITY Identification_assignment;
+identifier : STRING;
+role : STRING;
+description : OPTIONAL STRING;
+items : SET[1:?] OF identification_item;
+END_ENTITY;
+
+(* Independent_property from schema Independent_property_arm *) 
+
+ENTITY Independent_property;
+id : STRING;
+property_type : STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+(* Independent_property_relationship from schema Independent_property_arm *) 
+
+ENTITY Independent_property_relationship;
+relation_type : STRING;
+description : OPTIONAL STRING;
+relating : Independent_property;
+related : Independent_property;
+END_ENTITY;
+
+(* Independent_property_representation from schema Independent_property_representation_arm *) 
+
+ENTITY Independent_property_representation;
+description : OPTIONAL STRING;
+property : Independent_property;
+rep : Representation;
+role : OPTIONAL STRING;
+END_ENTITY;
+
+(* Index_expression from schema Expression_arm *) 
+
+ENTITY Index_expression
+SUBTYPE OF (String_expression, Binary_generic_expression);
+DERIVE
+operand : Generic_expression := SELF\Binary_generic_expression.operands[1];
+index : Generic_expression := SELF\Binary_generic_expression.operands[2];
+WHERE
+WR1: ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(operand)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(index));
+WR2: is_int_expr (index);
+END_ENTITY;
+
+(* Int_literal from schema Expression_arm *) 
+
+ENTITY Int_literal
+SUBTYPE OF (Literal_number);
+SELF\Literal_number.the_value : INTEGER;
+END_ENTITY;
+
+(* Int_numeric_variable from schema Expression_arm *) 
+
+ENTITY Int_numeric_variable
+SUBTYPE OF (Numeric_variable);
+END_ENTITY;
+
+(* Int_value_function from schema Numeric_function_arm *) 
+
+ENTITY Int_value_function
+SUBTYPE OF (Value_function);
+END_ENTITY;
+
+(* Integer_defined_function from schema Numeric_function_arm *) 
+
+ENTITY Integer_defined_function
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Numeric_defined_function);
+END_ENTITY;
+
+(* Interval_expression from schema Expression_arm *) 
+
+ENTITY Interval_expression
+SUBTYPE OF (Boolean_expression, Multiple_arity_generic_expression);
+DERIVE
+interval_low : Generic_expression := SELF\Multiple_arity_generic_expression.operands[1];
+interval_item : Generic_expression := SELF\Multiple_arity_generic_expression.operands[2];
+interval_high : Generic_expression := SELF\Multiple_arity_generic_expression.operands[3];
+WHERE
+WR1: ('STATE_BASED_BEHAVIOUR_ARM_LF.EXPRESSION' IN TYPEOF(interval_low)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.EXPRESSION' IN TYPEOF(interval_item)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.EXPRESSION' IN TYPEOF(interval_high));
+WR2: (('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF (SELF.Interval_low)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF (SELF.Interval_high)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF (SELF.Interval_item))) OR(('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(SELF.Interval_low)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(SELF.Interval_item)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(SELF.Interval_high)));
+END_ENTITY;
+
+(* Length_function from schema Numeric_function_arm *) 
+
+ENTITY Length_function
+SUBTYPE OF (Numeric_expression, Unary_generic_expression);
+SELF\Unary_generic_expression.operand : String_expression;
+END_ENTITY;
+
+(* Length_unit from schema Value_with_unit_arm *) 
+
+ENTITY Length_unit
+SUBTYPE OF (Unit);
+END_ENTITY;
+
+(* Like_expression from schema Expression_arm *) 
+
+ENTITY Like_expression
+SUBTYPE OF (Comparison_expression);
+WHERE
+WR1: ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(SELF\Comparison_expression.operands[1])) AND('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(SELF\Comparison_expression.operands[2]));
+END_ENTITY;
+
+(* Literal_number from schema Expression_arm *) 
+
+ENTITY Literal_number
+ABSTRACT SUPERTYPE OF (ONEOF (Int_literal,
+Real_literal))
+SUBTYPE OF (Simple_numeric_expression, Generic_literal);
+the_value : NUMBER;
+END_ENTITY;
+
+(* Log_function from schema Numeric_function_arm *) 
+
+ENTITY Log_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Log10_function from schema Numeric_function_arm *) 
+
+ENTITY Log10_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Log2_function from schema Numeric_function_arm *) 
+
+ENTITY Log2_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Luminous_intensity_unit from schema Value_with_unit_arm *) 
+
+ENTITY Luminous_intensity_unit
+SUBTYPE OF (Unit);
+END_ENTITY;
+
+(* Mass_unit from schema Value_with_unit_arm *) 
+
+ENTITY Mass_unit
+SUBTYPE OF (Unit);
+END_ENTITY;
+
+(* Maximum_function from schema Numeric_function_arm *) 
+
+ENTITY Maximum_function
+SUBTYPE OF (Multiple_arity_function_call);
+END_ENTITY;
+
+(* Minimum_function from schema Numeric_function_arm *) 
+
+ENTITY Minimum_function
+SUBTYPE OF (Multiple_arity_function_call);
+END_ENTITY;
+
+(* Minus_expression from schema Expression_arm *) 
+
+ENTITY Minus_expression
+SUBTYPE OF (Binary_numeric_expression);
+END_ENTITY;
+
+(* Minus_function from schema Numeric_function_arm *) 
+
+ENTITY Minus_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Mod_expression from schema Expression_arm *) 
+
+ENTITY Mod_expression
+SUBTYPE OF (Binary_numeric_expression);
+END_ENTITY;
+
+(* Mult_expression from schema Expression_arm *) 
+
+ENTITY Mult_expression
+SUBTYPE OF (Multiple_arity_numeric_expression);
+END_ENTITY;
+
+(* Multiple_arity_boolean_expression from schema Expression_arm *) 
+
+ENTITY Multiple_arity_boolean_expression
+ABSTRACT SUPERTYPE OF (ONEOF (And_expression,
+Or_expression))
+SUBTYPE OF (Boolean_expression, Multiple_arity_generic_expression);
+SELF\Multiple_arity_generic_expression.operands : LIST[2:?] OF Boolean_expression;
+END_ENTITY;
+
+(* Multiple_arity_function_call from schema Expression_arm *) 
+
+ENTITY Multiple_arity_function_call
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Multiple_arity_numeric_expression);
+END_ENTITY;
+
+(* Multiple_arity_generic_expression from schema Generic_expression_arm *) 
+
+ENTITY Multiple_arity_generic_expression
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Generic_expression);
+operands : LIST[2:?] OF Generic_expression;
+END_ENTITY;
+
+(* Multiple_arity_numeric_expression from schema Expression_arm *) 
+
+ENTITY Multiple_arity_numeric_expression
+ABSTRACT SUPERTYPE OF (ONEOF (Plus_expression,
+Mult_expression,
+Multiple_arity_function_call))
+SUBTYPE OF (Numeric_expression, Multiple_arity_generic_expression);
+SELF\Multiple_arity_generic_expression.operands : LIST[2:?] OF Numeric_expression;
+END_ENTITY;
+
+(* Name_assignment from schema Name_assignment_arm *) 
+
+ENTITY Name_assignment;
+name : STRING;
+role : STRING;
+items : assigned_name_select;
+END_ENTITY;
+
+(* Not_expression from schema Expression_arm *) 
+
+ENTITY Not_expression
+SUBTYPE OF (Unary_boolean_expression);
+SELF\Unary_generic_expression.operand : Boolean_expression;
+END_ENTITY;
+
+(* Numeric_defined_function from schema Numeric_function_arm *) 
+
+ENTITY Numeric_defined_function
+ABSTRACT SUPERTYPE OF (ONEOF (Integer_defined_function,
+Real_defined_function))
+SUBTYPE OF (Numeric_expression, Defined_function);
+END_ENTITY;
+
+(* Numeric_expression from schema Expression_arm *) 
+
+ENTITY Numeric_expression
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Expression);
+DERIVE
+is_int : BOOLEAN := Is_int_expr (SELF);
+sql_mappable : BOOLEAN := Is_sql_mappable (SELF);
+END_ENTITY;
+
+(* Numeric_variable from schema Expression_arm *) 
+
+ENTITY Numeric_variable
+SUPERTYPE OF (ONEOF (Int_numeric_variable,
+Real_numeric_variable))
+SUBTYPE OF (Simple_numeric_expression, Variable);
+WHERE
+WR1: ('STATE_BASED_BEHAVIOUR_ARM_LF.INT_NUMERIC_VARIABLE' IN TYPEOF(SELF)) OR('STATE_BASED_BEHAVIOUR_ARM_LF.REAL_NUMERIC_VARIABLE' IN TYPEOF(SELF));
+END_ENTITY;
+
+(* Numerical_representation_context from schema Foundation_representation_arm *) 
+
+ENTITY Numerical_representation_context
+SUBTYPE OF (Representation_context);
+units : OPTIONAL SET[1:?] OF Unit;
+accuracies : OPTIONAL SET[1:?] OF Uncertainty_with_unit;
+END_ENTITY;
+
+(* Odd_function from schema Numeric_function_arm *) 
+
+ENTITY Odd_function
+SUBTYPE OF (Unary_boolean_expression);
+SELF\Unary_generic_expression.operand : Numeric_expression;
+WHERE
+WR1: Is_int_expr(SELF\Numeric_expression);
+END_ENTITY;
+
+(* Or_expression from schema Expression_arm *) 
+
+ENTITY Or_expression
+SUBTYPE OF (Multiple_arity_boolean_expression);
+END_ENTITY;
+
+(* Plane_angle_unit from schema Value_with_unit_arm *) 
+
+ENTITY Plane_angle_unit
+SUBTYPE OF (Unit);
+END_ENTITY;
+
+(* Plus_expression from schema Expression_arm *) 
+
+ENTITY Plus_expression
+SUBTYPE OF (Multiple_arity_numeric_expression);
+END_ENTITY;
+
+(* Power_expression from schema Expression_arm *) 
+
+ENTITY Power_expression
+SUBTYPE OF (Binary_numeric_expression);
+END_ENTITY;
+
+(* Product from schema Product_identification_arm *) 
+
+ENTITY Product;
+id : STRING;
+name : OPTIONAL STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+(* Product_category from schema Product_categorization_arm *) 
+
+ENTITY Product_category;
+id : OPTIONAL STRING;
+name : STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+(* Product_category_assignment from schema Product_identification_arm *) 
+
+ENTITY Product_category_assignment;
+category : Product_category;
+products : SET[1:?] OF Product;
+END_ENTITY;
+
+(* Product_category_hierarchy from schema Product_categorization_arm *) 
+
+ENTITY Product_category_hierarchy;
+super_category : Product_category;
+sub_category : Product_category;
+END_ENTITY;
+
+(* Product_version from schema Product_version_arm *) 
+
+ENTITY Product_version;
+id : STRING;
+description : OPTIONAL STRING;
+of_product : Product;
+END_ENTITY;
+
+(* Product_version_relationship from schema Product_version_relationship_arm *) 
+
+ENTITY Product_version_relationship;
+relation_type : STRING;
+description : OPTIONAL STRING;
+relating_version : Product_version;
+related_version : Product_version;
+WHERE
+WR1: relating_version :<>: related_version;
+END_ENTITY;
+
+(* Product_view_definition from schema Product_view_definition_arm *) 
+
+ENTITY Product_view_definition;
+id : STRING;
+name : OPTIONAL STRING;
+additional_characterization : OPTIONAL STRING;
+initial_context : View_definition_context;
+additional_contexts : SET[0:?] OF View_definition_context;
+defined_version : Product_version;
+WHERE
+WR1: NOT (initial_context IN additional_contexts);
+END_ENTITY;
+
+(* Ratio_unit from schema Value_with_unit_arm *) 
+
+ENTITY Ratio_unit
+SUBTYPE OF (Unit);
+END_ENTITY;
+
+(* Real_defined_function from schema Numeric_function_arm *) 
+
+ENTITY Real_defined_function
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Numeric_defined_function);
+END_ENTITY;
+
+(* Real_literal from schema Expression_arm *) 
+
+ENTITY Real_literal
+SUBTYPE OF (Literal_number);
+SELF\Literal_number.the_value : REAL;
+END_ENTITY;
+
+(* Real_numeric_variable from schema Expression_arm *) 
+
+ENTITY Real_numeric_variable
+SUBTYPE OF (Numeric_variable);
+END_ENTITY;
+
+(* Representation from schema Foundation_representation_arm *) 
+
+ENTITY Representation;
+id : OPTIONAL STRING;
+name : STRING;
+description : OPTIONAL STRING;
+context_of_items : Representation_context;
+items : SET[1:?] OF Representation_item;
+END_ENTITY;
+
+(* Representation_context from schema Foundation_representation_arm *) 
+
+ENTITY Representation_context;
+id : STRING;
+kind : STRING;
+INVERSE
+representations_in_context : SET[1:?] OF Representation FOR context_of_items;
+END_ENTITY;
+
+(* Representation_item from schema Foundation_representation_arm *) 
+
+ENTITY Representation_item
+ABSTRACT SUPERTYPE ;
+name : STRING;
+END_ENTITY;
+
+(* Representation_relationship from schema Foundation_representation_arm *) 
+
+ENTITY Representation_relationship;
+relation_type : STRING;
+description : STRING;
+rep_1 : Representation;
+rep_2 : Representation;
+END_ENTITY;
+
+(* Simple_boolean_expression from schema Expression_arm *) 
+
+ENTITY Simple_boolean_expression
+ABSTRACT SUPERTYPE OF (ONEOF (Boolean_literal,
+Boolean_variable))
+SUBTYPE OF (Boolean_expression, Simple_generic_expression);
+END_ENTITY;
+
+(* Simple_generic_expression from schema Generic_expression_arm *) 
+
+ENTITY Simple_generic_expression
+ABSTRACT SUPERTYPE OF (ONEOF (Generic_literal,
+Generic_variable))
+SUBTYPE OF (Generic_expression);
+END_ENTITY;
+
+(* Simple_numeric_expression from schema Expression_arm *) 
+
+ENTITY Simple_numeric_expression
+ABSTRACT SUPERTYPE OF (ONEOF (Literal_number,
+Numeric_variable))
+SUBTYPE OF (Numeric_expression, Simple_generic_expression);
+END_ENTITY;
+
+(* Simple_string_expression from schema Expression_arm *) 
+
+ENTITY Simple_string_expression
+ABSTRACT SUPERTYPE OF (ONEOF (String_literal,
+String_variable))
+SUBTYPE OF (String_expression, Simple_generic_expression);
+END_ENTITY;
+
+(* Sin_function from schema Numeric_function_arm *) 
+
+ENTITY Sin_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Slash_expression from schema Expression_arm *) 
+
+ENTITY Slash_expression
+SUBTYPE OF (Binary_numeric_expression);
+END_ENTITY;
+
+(* Solid_angle_unit from schema Value_with_unit_arm *) 
+
+ENTITY Solid_angle_unit
+SUBTYPE OF (Unit);
+END_ENTITY;
+
+(* Sql_mappable_defined_function from schema Expression_arm *) 
+
+ENTITY Sql_mappable_defined_function
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Defined_function);
+END_ENTITY;
+
+(* Square_root_function from schema Numeric_function_arm *) 
+
+ENTITY Square_root_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* State_based_behaviour_model from schema State_based_behaviour_representation_arm *) 
+
+ENTITY State_based_behaviour_model
+SUBTYPE OF (Representation);
+SELF\Representation.context_of_items : State_based_behaviour_representation_context;
+SELF\Representation.items : SET[1:?] OF State_based_behaviour_representation_item;
+END_ENTITY;
+
+(* State_based_behaviour_representation_context from schema State_based_behaviour_representation_arm *) 
+
+ENTITY State_based_behaviour_representation_context
+SUBTYPE OF (Representation_context);
+END_ENTITY;
+
+(* State_based_behaviour_representation_item from schema State_based_behaviour_representation_arm *) 
+
+ENTITY State_based_behaviour_representation_item
+SUBTYPE OF (Representation_item);
+item : State_based_behaviour_element;
+END_ENTITY;
+
+(* State_definition from schema Foundation_state_definition_arm *) 
+
+ENTITY State_definition;
+name : STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+(* State_definition_relationship from schema Foundation_state_definition_arm *) 
+
+ENTITY State_definition_relationship;
+name : STRING;
+description : OPTIONAL STRING;
+relating : SET[1:?] OF State_definition;
+related : SET[1:?] OF State_definition;
+END_ENTITY;
+
+(* State_definition_role from schema Foundation_state_definition_arm *) 
+
+ENTITY State_definition_role;
+name : STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+(* State_transition_definition from schema Foundation_state_definition_arm *) 
+
+ENTITY State_transition_definition
+SUBTYPE OF (State_definition_relationship);
+SELF\State_definition_relationship.relating RENAMED end_state : SET[1:?] OF State_definition;
+SELF\State_definition_relationship.related RENAMED start_state : SET[1:?] OF State_definition;
+END_ENTITY;
+
+(* String_defined_function from schema Expression_arm *) 
+
+ENTITY String_defined_function
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Defined_function, String_expression);
+END_ENTITY;
+
+(* String_expression from schema Expression_arm *) 
+
+ENTITY String_expression
+ABSTRACT SUPERTYPE OF (ONEOF (Simple_string_expression,
+Index_expression,
+Substring_expression,
+Concat_expression,
+Format_function,
+String_defined_function))
+SUBTYPE OF (Expression);
+END_ENTITY;
+
+(* String_literal from schema Expression_arm *) 
+
+ENTITY String_literal
+SUBTYPE OF (Simple_string_expression, Generic_literal);
+the_value : STRING;
+END_ENTITY;
+
+(* String_representation_item from schema Foundation_representation_arm *) 
+
+ENTITY String_representation_item
+SUBTYPE OF (Representation_item);
+string_value : STRING;
+END_ENTITY;
+
+(* String_variable from schema Expression_arm *) 
+
+ENTITY String_variable
+SUBTYPE OF (Simple_string_expression, Variable);
+END_ENTITY;
+
+(* Substring_expression from schema Expression_arm *) 
+
+ENTITY Substring_expression
+SUBTYPE OF (String_expression, Multiple_arity_generic_expression);
+DERIVE
+operand : Generic_expression := SELF\Multiple_arity_generic_expression.operands[1];
+index1 : Generic_expression := SELF\Multiple_arity_generic_expression.operands[2];
+index2 : Generic_expression := SELF\Multiple_arity_generic_expression.operands[3];
+WHERE
+WR1: ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(operand)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(index1)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(index2));
+WR2: SIZEOF(SELF\Multiple_arity_generic_expression.operands)=3;
+WR3: is_int_expr (index1);
+WR4: is_int_expr (index2);
+END_ENTITY;
+
+(* Supplied_part_relationship from schema Product_version_relationship_arm *) 
+
+ENTITY Supplied_part_relationship
+SUBTYPE OF (Product_version_relationship);
+WHERE
+WR1: SELF\Product_version_relationship.relation_type IN ['supplied item', 'supplied document'];
+END_ENTITY;
+
+(* Tan_function from schema Numeric_function_arm *) 
+
+ENTITY Tan_function
+SUBTYPE OF (Unary_function_call);
+END_ENTITY;
+
+(* Thermodynamic_temperature_unit from schema Value_with_unit_arm *) 
+
+ENTITY Thermodynamic_temperature_unit
+SUBTYPE OF (Unit);
+END_ENTITY;
+
+(* Time_unit from schema Value_with_unit_arm *) 
+
+ENTITY Time_unit
+SUBTYPE OF (Unit);
+END_ENTITY;
+
+(* Unary_boolean_expression from schema Expression_arm *) 
+
+ENTITY Unary_boolean_expression
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Boolean_expression, Unary_generic_expression);
+END_ENTITY;
+
+(* Unary_function_call from schema Numeric_function_arm *) 
+
+ENTITY Unary_function_call
+ABSTRACT SUPERTYPE OF (ONEOF (Abs_function,
+Minus_function,
+Sin_function,
+Cos_function,
+Tan_function,
+Asin_function,
+Acos_function,
+Exp_function,
+Log_function,
+Log2_function,
+Log10_function,
+Square_root_function))
+SUBTYPE OF (Unary_numeric_expression);
+END_ENTITY;
+
+(* Unary_generic_expression from schema Generic_expression_arm *) 
+
+ENTITY Unary_generic_expression
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Generic_expression);
+operand : Generic_expression;
+END_ENTITY;
+
+(* Unary_numeric_expression from schema Expression_arm *) 
+
+ENTITY Unary_numeric_expression
+ABSTRACT SUPERTYPE OF (Unary_function_call)
+SUBTYPE OF (Numeric_expression, Unary_generic_expression);
+SELF\Unary_generic_expression.operand : Numeric_expression;
+END_ENTITY;
+
+(* Uncertainty_with_unit from schema Value_with_unit_arm *) 
+
+ENTITY Uncertainty_with_unit
+SUBTYPE OF (Value_with_unit);
+name : STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+(* Unit from schema Value_with_unit_arm *) 
+
+ENTITY Unit
+SUPERTYPE OF (ONEOF (Amount_of_substance_unit,
+Electric_current_unit,
+Length_unit,
+Luminous_intensity_unit,
+Mass_unit,
+Plane_angle_unit,
+Ratio_unit,
+Solid_angle_unit,
+Thermodynamic_temperature_unit,
+Time_unit));
+name : STRING;
+si_unit : BOOLEAN;
+END_ENTITY;
+
+(* Value_function from schema Numeric_function_arm *) 
+
+ENTITY Value_function
+SUPERTYPE OF (Int_value_function)
+SUBTYPE OF (Numeric_expression, Unary_generic_expression);
+SELF\Unary_generic_expression.operand : String_expression;
+END_ENTITY;
+
+(* Value_with_unit from schema Value_with_unit_arm *) 
+
+ENTITY Value_with_unit;
+unit : Unit;
+value_component : measure_value;
+END_ENTITY;
+
+(* Variable from schema Generic_expression_arm *) 
+
+ENTITY Variable
+ABSTRACT SUPERTYPE 
+SUBTYPE OF (Generic_variable);
+END_ENTITY;
+
+(* Variable_semantics from schema Generic_expression_arm *) 
+
+ENTITY Variable_semantics
+ABSTRACT SUPERTYPE ;
+END_ENTITY;
+
+(* View_definition_context from schema Product_view_definition_arm *) 
+
+ENTITY View_definition_context;
+application_domain : STRING;
+life_cycle_stage : STRING;
+description : OPTIONAL STRING;
+END_ENTITY;
+
+(* Xor_expression from schema Expression_arm *) 
+
+ENTITY Xor_expression
+SUBTYPE OF (Binary_boolean_expression);
+SELF\Binary_generic_expression.operands : LIST[2:2] OF Boolean_expression;
+END_ENTITY;
+
+(* Acyclic from schema Generic_expression_arm *) 
+
+FUNCTION Acyclic
+(arg1 : Generic_expression; arg2 : SET OF Generic_expression) : BOOLEAN; 
+LOCAL
+result: BOOLEAN;
+END_LOCAL;
+IF ('STATE_BASED_BEHAVIOUR_ARM_LF.SIMPLE_GENERIC_EXPRESSION'
+IN TYPEOF (arg1))
+THEN
+RETURN (TRUE);
+END_IF;
+IF arg1 IN arg2
+THEN
+RETURN (FALSE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.UNARY_GENERIC_EXPRESSION'
+IN TYPEOF (arg1)
+THEN
+RETURN
+(Acyclic(arg1\Unary_generic_expression.operand,arg2+[arg1]));
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.BINARY_GENERIC_EXPRESSION'
+IN TYPEOF (arg1)
+THEN
+RETURN
+(Acyclic(arg1\Binary_generic_expression.operands[1],arg2+[arg1])
+AND
+Acyclic(arg1\Binary_generic_expression.operands[2],arg2+[arg1]));
+END_IF;
+IF
+'STATE_BASED_BEHAVIOUR_ARM_LF.MULTIPLE_ARITY_GENERIC_EXPRESSION'
+IN TYPEOF (arg1)
+THEN
+result := TRUE;
+REPEAT i := 1 TO
+SIZEOF (arg1\Multiple_arity_generic_expression.operands);
+result := result AND
+Acyclic(arg1\Multiple_arity_generic_expression.operands[i], arg2+[arg1]);
+END_REPEAT;
+RETURN (result);
+END_IF;
+      
+END_FUNCTION; 
+
+(* Is_Acyclic from schema Generic_expression_arm *) 
+
+FUNCTION Is_Acyclic
+(arg : Generic_expression) : BOOLEAN; 
+RETURN (Acyclic (arg, []));
+      
+END_FUNCTION; 
+
+(* Is_int_expr from schema Expression_arm *) 
+
+FUNCTION Is_int_expr
+(arg : Numeric_expression) : BOOLEAN; 
+LOCAL
+i: INTEGER;
+END_LOCAL;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.INT_LITERAL' IN TYPEOF(arg)
+THEN
+RETURN (TRUE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.REAL_LITERAL' IN TYPEOF(arg)
+THEN
+RETURN (FALSE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.INT_NUMERIC_VARIABLE' IN TYPEOF(arg)
+THEN
+RETURN (TRUE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.REAL_NUMERIC_VARIABLE' IN TYPEOF(arg)
+THEN
+RETURN (FALSE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.ABS_FUNCTION' IN TYPEOF(arg)
+THEN
+RETURN (Is_int_expr(arg\Unary_numeric_expression.operand));
+END_IF;
+IF 'NUMERIC_FUNCTION.MINUS_FUNCTION' IN TYPEOF(arg)
+THEN
+RETURN (Is_int_expr(arg\Unary_numeric_expression.operand));
+END_IF;
+IF ('STATE_BASED_BEHAVIOUR_ARM_LF.SIN_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COS_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.TAN_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.ASIN_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.ACOS_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.Atan_function' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.EXP_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG2_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG10_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.SQUARE_ROOT_FUNCTION'
+IN TYPEOF(arg))
+THEN
+RETURN (FALSE);
+END_IF;
+IF 	('STATE_BASED_BEHAVIOUR_ARM_LF.PLUS_EXPRESSION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.MULT_EXPRESSION'
+IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.MAXIMUM_FUNCTION'
+IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.MINIMUM_FUNCTION'
+IN TYPEOF(arg))
+THEN
+REPEAT i :=1 TO SIZEOF (
+arg\Multiple_arity_numeric_expression.operands);
+IF NOT
+Is_int_expr(arg\Multiple_arity_numeric_expression.operands[i])
+THEN
+RETURN (FALSE);
+END_IF;
+END_REPEAT;
+RETURN (TRUE);
+END_IF;
+IF 	('STATE_BASED_BEHAVIOUR_ARM_LF.MINUS_EXPRESSION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.POWER_EXPRESSION'
+IN TYPEOF(arg))
+THEN
+RETURN (Is_int_expr(arg\Binary_numeric_expression.operands[1])
+AND Is_int_expr(arg\Binary_numeric_expression.operands[2]));
+END_IF;
+IF	('STATE_BASED_BEHAVIOUR_ARM_LF.DIV_EXPRESSION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.MOD_EXPRESSION' IN TYPEOF(arg))
+THEN
+RETURN(TRUE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.SLASH_EXPRESSION' IN TYPEOF(arg)
+THEN
+RETURN (FALSE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.LENGTH_FUNCTION' IN TYPEOF(arg)
+THEN
+RETURN (TRUE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.VALUE_FUNCTION' IN TYPEOF(arg)
+THEN
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.INT_VALUE_FUNCTION'
+IN TYPEOF(arg)
+THEN
+RETURN (TRUE);
+ELSE
+RETURN (FALSE);
+END_IF;
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.INTEGER_DEFINED_FUNCTION'
+IN TYPEOF(arg)
+THEN
+RETURN(TRUE) ;
+END_IF;
+IF'STATE_BASED_BEHAVIOUR_ARM_LF.REAL_DEFINED_FUNCTION' IN TYPEOF(arg)
+THEN
+RETURN(FALSE) ;
+END_IF ;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.BOOLEAN_DEFINED_FUNCTION'
+IN TYPEOF(arg)
+THEN
+RETURN(FALSE) ;
+END_IF ;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.STRING_DEFINED_FUNCTION'
+IN TYPEOF(arg)
+THEN
+RETURN (FALSE) ;
+END_IF ;
+RETURN (FALSE);
+                          
+END_FUNCTION; 
+
+(* Is_sql_mappable from schema Expression_arm *) 
+
+FUNCTION Is_sql_mappable
+(arg : expression) : BOOLEAN; 
+LOCAL
+i: INTEGER;
+END_LOCAL;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.SIMPLE_NUMERIC_EXPRESSION'
+IN TYPEOF (arg)
+THEN
+RETURN (TRUE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.SQL_MAPPABLE_DEFINED_FUNCTION'
+IN TYPEOF (arg)
+THEN
+RETURN (TRUE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.MINUS_FUNCTION' IN TYPEOF(arg)
+THEN
+RETURN (Is_sql_mappable(arg\Unary_numeric_expression.operand));
+END_IF;
+IF ('STATE_BASED_BEHAVIOUR_ARM_LF.ABS_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.SIN_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COS_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.TAN_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.ASIN_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.ACOS_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.ATAN_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.EXP_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG2_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG10_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.SQUARE_ROOT_FUNCTION'
+IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.VALUE_FUNCTION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LENGTH_FUNCTION'
+IN TYPEOF(arg))
+THEN
+RETURN (FALSE);
+END_IF;
+IF ('STATE_BASED_BEHAVIOUR_ARM_LF.PLUS_EXPRESSION' IN TYPEOF(arg))
+OR('STATE_BASED_BEHAVIOUR_ARM_LF.MULT_EXPRESSION' IN TYPEOF(arg))
+OR('STATE_BASED_BEHAVIOUR_ARM_LF.MAXIMUM_FUNCTION'
+IN TYPEOF(arg))
+OR('STATE_BASED_BEHAVIOUR_ARM_LF.MAXIMUM_FUNCTION'
+IN TYPEOF(arg))
+THEN
+REPEAT i :=1 TO SIZEOF (
+arg\Multiple_arity_numeric_expression.operands);
+IF NOT Is_sql_mappable(
+arg\Multiple_arity_numeric_expression.operands[i])
+THEN
+RETURN (FALSE);
+END_IF;
+END_REPEAT;
+RETURN (TRUE);
+END_IF;
+IF ('STATE_BASED_BEHAVIOUR_ARM_LF.MINUS_EXPRESSION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.SLASH_EXPRESSION' IN
+TYPEOF(arg))
+THEN
+RETURN (Is_sql_mappable(
+arg\Binary_numeric_expression.operands[1])
+AND Is_sql_mappable(arg\Binary_numeric_expression.operands[2]));
+END_IF;
+IF ('STATE_BASED_BEHAVIOUR_ARM_LF.DIV_EXPRESSION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.MOD_EXPRESSION' IN TYPEOF(arg))
+OR('STATE_BASED_BEHAVIOUR_ARM_LF.POWER_EXPRESSION'
+IN TYPEOF(arg))
+THEN
+RETURN (FALSE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.SIMPLE_BOOLEAN_EXPRESSION'
+IN TYPEOF (arg)
+THEN
+RETURN (TRUE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.NOT_EXPRESSION' IN TYPEOF (arg)
+THEN
+RETURN (Is_sql_mappable (arg\UNARY_GENERIC_EXPRESSION.OPERAND));
+END_IF;
+IF ('STATE_BASED_BEHAVIOUR_ARM_LF.ODD_FUNCTION'IN TYPEOF (arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.XOR_EXPRESSION'
+IN TYPEOF (arg))
+THEN
+RETURN (FALSE);
+END_IF;
+IF ('STATE_BASED_BEHAVIOUR_ARM_LF.AND_EXPRESSION' IN TYPEOF (arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.OR_EXPRESSION' IN TYPEOF (arg))
+THEN
+REPEAT i:=1 TO SIZEOF (
+arg\MULTIPLE_ARITY_BOOLEAN_EXPRESSION.OPERANDS);
+IF NOT Is_sql_mappable (
+arg\MULTIPLE_ARITY_BOOLEAN_EXPRESSION.OPERANDS[i])
+THEN
+RETURN (FALSE);
+END_IF;
+END_REPEAT;
+RETURN (TRUE);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.EQUALS_EXPRESSION' IN TYPEOF (arg)
+THEN
+RETURN(Is_sql_mappable (
+arg\Binary_generic_expression.OPERANDS [1])
+AND Is_sql_mappable(
+arg\Binary_generic_expression.OPERANDS [2]));
+END_IF;
+IF	('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_EQUAL' IN TYPEOF (arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_GREATER'
+IN TYPEOF (arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_GREATER_EQUAL'
+IN TYPEOF (arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_LESS'
+IN TYPEOF (arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_LESS_EQUAL'
+IN TYPEOF (arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_NOT_EQUAL'
+IN TYPEOF (arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LIKE_EXPRESSION'
+IN TYPEOF (arg))
+THEN
+RETURN (Is_sql_mappable (arg\COMPARISON_EXPRESSION.OPERANDS[1])
+AND Is_sql_mappable (arg\COMPARISON_EXPRESSION.OPERANDS[2]));
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.INTERVAL_EXPRESSION' IN TYPEOF(arg)
+THEN
+RETURN (Is_sql_mappable(arg\Interval_expression.interval_low)
+AND Is_sql_mappable(arg\Interval_expression.interval_high)
+AND Is_sql_mappable(arg\Interval_expression.interval_item));
+END_IF;
+IF ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_DEFINED_FUNCTION'
+IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.BOOLEAN_DEFINED_FUNCTION'
+IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_DEFINED_FUNCTION'
+IN TYPEOF(arg))
+THEN
+RETURN (FALSE) ;
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.SIMPLE_STRING_EXPRESSION'
+IN TYPEOF(ARG)
+THEN
+RETURN (TRUE);
+END_IF;
+IF 	('STATE_BASED_BEHAVIOUR_ARM_LF.INDEX_EXPRESSION' IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.SUBSTRING_EXPRESSION'
+IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.CONCAT_EXPRESSION'
+IN TYPEOF(arg))
+OR ('STATE_BASED_BEHAVIOUR_ARM_LF.FORMAT_FUNCTION'
+IN TYPEOF(arg))
+THEN
+RETURN (FALSE);
+END_IF;
+RETURN (FALSE);
+                          
+END_FUNCTION; 
+
+(* types_of_product from schema Product_identification_arm *) 
+
+FUNCTION types_of_product
+(obj : Product) : SET OF STRING; 
+ LOCAL
+ 	category_assignments: BAG OF Product_category_assignment;
+ 	categories: SET OF STRING:=[];
+ 	i: INTEGER;
+ END_LOCAL;
+ 
+ category_assignments := USEDIN(obj,'STATE_BASED_BEHAVIOUR_ARM_LF.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
+    
+ REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+       categories := categories + category_assignments[i].category.name;
+ END_REPEAT;
+ 
+ RETURN(categories);
+       
+END_FUNCTION; 
+
+(* Used_variables from schema Generic_expression_arm *) 
+
+FUNCTION Used_variables
+(arg : Generic_expression) : SET OF Generic_variable; 
+LOCAL
+result : SET OF Generic_variable := [];
+END_LOCAL;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.GENERIC_VARIABLE'
+IN TYPEOF (arg)
+THEN
+RETURN ([arg]);
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.UNARY_GENERIC_EXPRESSION'
+IN TYPEOF (arg)
+THEN
+RETURN (Used_variables (arg\Unary_generic_expression.operand));
+END_IF;
+IF 'STATE_BASED_BEHAVIOUR_ARM_LF.BINARY_GENERIC_EXPRESSION'
+IN TYPEOF (arg)
+THEN
+RETURN(Used_variables(arg\Binary_generic_expression.operands[1])
++ Used_variables (arg\Binary_generic_expression.operands[2]));
+END_IF;
+IF
+'STATE_BASED_BEHAVIOUR_ARM_LF.MULTIPLE_ARITY_GENERIC_EXPRESSION'
+IN TYPEOF (arg)
+THEN
+REPEAT i := 1 TO
+SIZEOF(arg\Multiple_arity_generic_expression.operands);
+result := result + Used_variables(
+arg\Multiple_arity_generic_expression.operands[i]);
+END_REPEAT;
+RETURN (result);
+END_IF;
+RETURN ([ ]);
+      
+END_FUNCTION;  
 
 END_SCHEMA; -- state_based_behaviour_arm_lf;
 

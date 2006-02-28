@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: ballot_list.xsl,v 1.8 2004/08/31 07:16:02 robbod Exp $
+$Id: ballot_list.xsl,v 1.9 2005/02/17 02:20:32 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display the modules according to ballot packages
@@ -12,7 +13,6 @@ $Id: ballot_list.xsl,v 1.8 2004/08/31 07:16:02 robbod Exp $
 
 
   <xsl:import href="./common.xsl"/>
-  <xsl:import href="../../xsl/res_doc/common.xsl"/>
   <xsl:import href="../../xsl/common.xsl"/>
 
 

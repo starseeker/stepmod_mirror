@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-$Id: sect_cover.xsl,v 1.1 2002/10/16 00:43:38 thendrix Exp $
+
+$Id: sect_cover.xsl,v 1.2 2004/02/10 23:45:46 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output cover page as a web page

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.27 2005/07/11 19:51:47 thendrix Exp $
+$Id: common.xsl,v 1.28 2005/07/11 21:04:04 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -10,71 +10,39 @@ $Id: common.xsl,v 1.27 2005/07/11 19:51:47 thendrix Exp $
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
-  <!--
-       Template to determine whether the output is XML or HTML
-       Sets variable global FILE_EXT
-       -->
-  <xsl:import href="file_ext.xsl"/>
-
 
   <!-- parameters that control the output -->
   <xsl:import href="parameters.xsl"/>
+  <xsl:import href="../common.xsl"/>
 
   <xsl:output method="html"/>
 
-<!--
-     Output a cascading stylesheet. The stylesheet is specified in the
-     global parameter: output_css in parameter.xsl, so to prevent a
-     cascading stylesheet being used set output_css to ''
-     To override this and force a cascading stylesheet set
-     overide_css
-     -->
-<xsl:template name="output_css">
-  <xsl:param name="path"/>
-  <xsl:param name="override_css"/>
-  <xsl:choose>
-    <xsl:when test="$override_css">
-      <xsl:variable name="hpath"
-      select="concat($path,$override_css)"/>
-      <link
-        rel="stylesheet"
-       type="text/css"
-        href="{$hpath}"/>
-    </xsl:when>
-    <xsl:when test="$output_css">
-      <xsl:variable name="hpath"
-        select="concat($path,$output_css)"/>
-      <link
-        rel="stylesheet"
-        type="text/css"
-        href="{$hpath}"/>
-    </xsl:when>
-  </xsl:choose>
-</xsl:template>
 
-
-<!--
-     Output an HTML meta element for inclusion in the header of the HTML file
--->
-<xsl:template name="meta-elements">
-  <xsl:param name="name" />
-  <xsl:param name="content" />
-
-  <xsl:element name="META">
-    <xsl:attribute name="name">
-      <xsl:value-of select="$name"/>
-    </xsl:attribute>
-    <xsl:attribute name="content">
-      <xsl:value-of select="$content"/>
-    </xsl:attribute>
-  </xsl:element>
-</xsl:template>
 
 <!--
      Output the resource doc title - used to create the HTML TITLE
      If the global parameter: output_rcs in parameter.xsl
      is set, then RCS version control information is displayed
 -->
+  
+<xsl:template match="resource" mode="type">
+  <xsl:choose>
+	<xsl:when test="@part >  500">
+	  Application interpreted construct</xsl:when>
+	<xsl:when test="@part >  99">
+	  Integrated application resource</xsl:when>
+	<xsl:when test="@part &lt;  99">
+	  Integrated generic resource</xsl:when>
+	<xsl:otherwise>
+	  <xsl:call-template name="error_message">
+		<xsl:with-param 
+			name="message" 
+			select="concat('Error : unknown type,  part number:', @part)"/>
+	  </xsl:call-template>
+	</xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 <xsl:template match="resource" mode="title">
   <xsl:variable
     name="lpart">
@@ -105,6 +73,106 @@ $Id: common.xsl,v 1.27 2005/07/11 19:51:47 thendrix Exp $
   <xsl:value-of select="$stdnumber"/>
 
 </xsl:template>
+  <!-- output RCS version control information -->
+<xsl:template name="rcs_output_resdoc">
+  <xsl:param name="resdoc" select="@name"/>
+  <!-- the relative path in HTML from the file calling to the resource_doc
+       directory -->
+  <xsl:param name="resdoc_root" select="'..'"/>
+
+  <xsl:variable name="icon_path" select="concat($resdoc_root,'/../../../images/')"/>
+
+  <xsl:if test="$output_rcs='YES'">
+    <xsl:variable name="resdoc_dir">
+      <xsl:call-template name="resdoc_directory">
+        <xsl:with-param name="resdoc" select="$resdoc"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:variable name="fldr_gif" select="concat($icon_path,'folder.gif')"/>
+    <xsl:variable name="proj_gif" select="concat($icon_path,'project.gif')"/>
+
+    <table cellspacing="0" border="0">
+      <xsl:variable
+        name="resdoc_file"
+        select="concat($resdoc_dir,'/resource.xml')"/>
+      <xsl:variable
+        name="resdoc_date"
+        select="translate(document($resdoc_file)/resource_doc/@rcs.date,'$','')"/>
+      <xsl:variable
+        name="resdoc_rev"
+        select="translate(document($resdoc_file)/resource_doc/@rcs.revision,'$','')"/>
+      <tr>
+        <td>
+          <p class="rcs">
+          <a href="{$resdoc_root}">
+            <img alt="resource doc folder" 
+              border="0"
+              align="middle"
+              src="{$fldr_gif}"/>
+          </a>&#160;
+
+          <xsl:if test="@development.folder">
+            <xsl:variable name="prjmg_href"
+              select="concat($resdoc_root,'/',@development.folder,'/projmg',$FILE_EXT)"/>
+            <a href="{$prjmg_href}">
+              <img alt="project management summary" 
+                border="0"
+                align="middle"
+                src="{$proj_gif}"/>
+            </a>&#160;
+            <xsl:variable name="issue_href"
+              select="concat($resdoc_root,'/',@development.folder,'/issues',$FILE_EXT)"/>
+            <xsl:variable name="issues_file" 
+              select="concat($resdoc_dir,'/',@development.folder,'/issues.xml')"/>
+ 
+            <xsl:variable name="open_issues"
+              select="count(document($issues_file)/issues/issue[@status!='closed'])"/>
+
+            <xsl:variable name="total_issues"
+              select="count(document($issues_file)/issues/issue)"/>
+
+            <xsl:variable name="issue_gif">
+              <xsl:choose>
+                <xsl:when test="$open_issues>0">
+                  <xsl:value-of select="concat($icon_path,'issues.gif')"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="concat($icon_path,'closed.gif')"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:variable>
+
+           <xsl:if test="$total_issues > 0">
+             <a href="{$issue_href}">
+               <img alt="issues" 
+                 border="0"
+                 align="middle"
+                 src="{$issue_gif}"/>
+               <small>[<xsl:value-of select="$open_issues"/>/<xsl:value-of select="$total_issues"/>]</small>
+             </a>&#160;
+           </xsl:if>
+          </xsl:if>
+        </p>
+        </td>
+        <td>
+          <font size="-2">
+            <p class="rcs">
+              <xsl:value-of select="'resource.xml'"/>
+            </p>
+          </font>
+        </td>
+        <td>
+          <font size="-2">
+            <p class="rcs">
+              <xsl:value-of select="concat('(',$resdoc_date,' ',$resdoc_rev,')')"/>
+            </p>
+          </font>
+        </td>
+      </tr>
+    </table>
+  </xsl:if>
+</xsl:template>
 
 <xsl:template match="resource" mode="meta_data">
   <xsl:param name="clause"/>
@@ -125,9 +193,15 @@ $Id: common.xsl,v 1.27 2005/07/11 19:51:47 thendrix Exp $
     </xsl:call-template>
   </xsl:variable>
 
+
   <xsl:variable name="resdoc_title">
-    <xsl:value-of select="concat('Product data representation and exchange: Generic integrated resource: ', $resdoc_name)"/>
+	<xsl:apply-templates select="." mode="type"/>
   </xsl:variable>
+
+ <xsl:variable name="this-type">
+	<xsl:apply-templates select="." mode="type"/>
+  </xsl:variable>
+
   <xsl:call-template name="meta-elements">
     <xsl:with-param name="name" select="'DC.Title'"/>
     <xsl:with-param name="content" select="$resdoc_title"/>
@@ -239,130 +313,8 @@ $Id: common.xsl,v 1.27 2005/07/11 19:51:47 thendrix Exp $
     <xsl:with-param name="content" select="translate(./@rcs.revision,'$','')"/>
   </xsl:call-template>
 
-  <!-- now get meta data for arm and mim -->
-  <!-- not needed for IR but need to do something about the schemas I guess
-  <xsl:variable name="resdoc_dir">
-    <xsl:call-template name="resdoc_directory">
-      <xsl:with-param name="resdoc" select="./@name"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:variable name="arm_xml" select="concat($module_dir,'/arm.xml')"/>
-  <xsl:variable name="arm_express" select="document($arm_xml)/express"/>
-  <xsl:call-template name="meta-elements">
-    <xsl:with-param name="name" select="'STEPMOD.arm.rcs.revision'"/>
-    <xsl:with-param name="content" select="translate($arm_express/@rcs.revision,'$','')"/>
-  </xsl:call-template>
-
-  <xsl:variable name="mim_xml" select="concat($module_dir,'/mim.xml')"/>
-  <xsl:variable name="mim_express" select="document($mim_xml)/express"/>
-  <xsl:call-template name="meta-elements">
-    <xsl:with-param name="name" select="'STEPMOD.mim.rcs.revision'"/>
-    <xsl:with-param name="content" select="translate($mim_express/@rcs.date,'$','')"/>
-  </xsl:call-template>
--->
   </xsl:template>
 
-
-  <!-- output RCS version control information -->
-<xsl:template name="rcs_output">
-  <xsl:param name="resdoc" select="@name"/>
-  <!-- the relative path in HTML from the file calling to the resource_doc
-       directory -->
-  <xsl:param name="resdoc_root" select="'..'"/>
-
-  <xsl:variable name="icon_path" select="concat($resdoc_root,'/../../../images/')"/>
-
-  <xsl:if test="$output_rcs='YES'">
-    <xsl:variable name="resdoc_dir">
-      <xsl:call-template name="resdoc_directory">
-        <xsl:with-param name="resdoc" select="$resdoc"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="fldr_gif" select="concat($icon_path,'folder.gif')"/>
-    <xsl:variable name="proj_gif" select="concat($icon_path,'project.gif')"/>
-
-    <table cellspacing="0" border="0">
-      <xsl:variable
-        name="resdoc_file"
-        select="concat($resdoc_dir,'/resource.xml')"/>
-      <xsl:variable
-        name="resdoc_date"
-        select="translate(document($resdoc_file)/resource_doc/@rcs.date,'$','')"/>
-      <xsl:variable
-        name="resdoc_rev"
-        select="translate(document($resdoc_file)/resource_doc/@rcs.revision,'$','')"/>
-      <tr>
-        <td>
-          <p class="rcs">
-          <a href="{$resdoc_root}">
-            <img alt="resource doc folder" 
-              border="0"
-              align="middle"
-              src="{$fldr_gif}"/>
-          </a>&#160;
-
-          <xsl:if test="@development.folder">
-            <xsl:variable name="prjmg_href"
-              select="concat($resdoc_root,'/',@development.folder,'/projmg',$FILE_EXT)"/>
-            <a href="{$prjmg_href}">
-              <img alt="project management summary" 
-                border="0"
-                align="middle"
-                src="{$proj_gif}"/>
-            </a>&#160;
-            <xsl:variable name="issue_href"
-              select="concat($resdoc_root,'/',@development.folder,'/issues',$FILE_EXT)"/>
-            <xsl:variable name="issues_file" 
-              select="concat($resdoc_dir,'/',@development.folder,'/issues.xml')"/>
- 
-            <xsl:variable name="open_issues"
-              select="count(document($issues_file)/issues/issue[@status!='closed'])"/>
-
-            <xsl:variable name="total_issues"
-              select="count(document($issues_file)/issues/issue)"/>
-
-            <xsl:variable name="issue_gif">
-              <xsl:choose>
-                <xsl:when test="$open_issues>0">
-                  <xsl:value-of select="concat($icon_path,'issues.gif')"/>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:value-of select="concat($icon_path,'closed.gif')"/>
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:variable>
-
-           <xsl:if test="$total_issues > 0">
-             <a href="{$issue_href}">
-               <img alt="issues" 
-                 border="0"
-                 align="middle"
-                 src="{$issue_gif}"/>
-               <small>[<xsl:value-of select="$open_issues"/>/<xsl:value-of select="$total_issues"/>]</small>
-             </a>&#160;
-           </xsl:if>
-          </xsl:if>
-        </p>
-        </td>
-        <td>
-          <font size="-2">
-            <p class="rcs">
-              <xsl:value-of select="'resource.xml'"/>
-            </p>
-          </font>
-        </td>
-        <td>
-          <font size="-2">
-            <p class="rcs">
-              <xsl:value-of select="concat('(',$resdoc_date,' ',$resdoc_rev,')')"/>
-            </p>
-          </font>
-        </td>
-      </tr>
-    </table>
-  </xsl:if>
-</xsl:template>
 
 <xsl:template match="resource" mode="TOCbannertitle">
   <!-- the entry that has been selected -->
@@ -374,14 +326,18 @@ $Id: common.xsl,v 1.27 2005/07/11 19:51:47 thendrix Exp $
   </xsl:message>
   -->
   <!-- output RCS version control information -->
-  <xsl:call-template name="rcs_output">
+  <xsl:call-template name="rcs_output_resdoc">
     <xsl:with-param name="resdoc" select="@name"/>
     <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
   </xsl:call-template>
+  <xsl:variable name="this-type">
+	<xsl:apply-templates select="." mode="type"/>
+  </xsl:variable>
+
   
   <TABLE cellspacing="0" border="0" width="100%">
-    <tr>
-      <td>
+    <TR>
+      <TD>
         <!-- RBN - this xref is here to aid navigation, it may need to be
              removed for the ISO process 
         <A HREF="{$resdoc_root}/../../../repository_index{$FILE_EXT}">
@@ -390,16 +346,16 @@ $Id: common.xsl,v 1.27 2005/07/11 19:51:47 thendrix Exp $
         -->
 
         <xsl:call-template name="output_menubar">
-          <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
-          <xsl:with-param name="resdoc_name" select="@name"/>
+          <xsl:with-param name="module_root" select="$resdoc_root"/>
+          <xsl:with-param name="mdule_name" select="@name"/>
         </xsl:call-template>
 
-      </td>
-    </tr>
+      </TD>
+    </TR>
     <TR>
       <TD valign="MIDDLE">
         <B>
-          Integrated generic resource:
+          <xsl:value-of select="concat($this-type,': ')" />
           <xsl:call-template name="res_display_name">
             <xsl:with-param name="res" select="@name"/>
           </xsl:call-template>
@@ -426,472 +382,33 @@ $Id: common.xsl,v 1.27 2005/07/11 19:51:47 thendrix Exp $
 
 
 
-<!-- output the clause heading -->
-<xsl:template name="clause_header">
-  <xsl:param name="heading"/>
-  <xsl:param name="aname"/>
-  <H2>
-    <A NAME="{$aname}">
-      <xsl:value-of select="$heading"/>
-    </A>
-  </H2>
-</xsl:template>
-
-<!-- output the Annex heading -->
-<xsl:template name="annex_header">
-  <xsl:param name="heading"/>
-  <xsl:param name="annex_no"/>
-  <xsl:param name="title"/>
-  <xsl:param name="aname"/>
-  <xsl:param name="informative" select="'informative'"/>
-  <div align="center">
-    <h2>
-      <A NAME="{$aname}">
-        <xsl:value-of select="concat('Annex ', $annex_no)"/>
-      </A><br/>
-    (<xsl:value-of select="$informative"/>)<br/><br/>
-      <xsl:value-of select="$heading"/>
-    </h2>
-  </div>
-</xsl:template>
-
-
-
-<xsl:template match="description">
-  <xsl:apply-templates/>
-</xsl:template>
-
-
-<xsl:template match="note">
-  <xsl:variable name="text_str" select="normalize-space(text())"/>
-  <xsl:choose>
-    <!-- expect the note to start with <p> If not flag an error -->
-    <xsl:when test="string-length($text_str) != 0 and ./child::*[name()='p' or name()='screen' or name()='ul' or name()='note' or name='example']">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error NOTE1: Notes containing block elements
-                  such as &lt;',
-                  name(./child::*[name()='p' or name()='screen' or name()='ul' or name()='note' or name()='example']),
-                  '&gt; should start with &lt;p&gt; not text#Currently starts with:#',$text_str)"/>
-      </xsl:call-template>
-      NOTE
-    </xsl:when>
-    <xsl:when test="string-length($text_str) != 0">
-      <xsl:variable name="aname">
-        <xsl:choose>
-          <xsl:when test="@id">
-            <xsl:value-of select="concat('note_',@id)"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="concat('note_',@number)"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      <p class="note">
-        <small>
-          <a name="{$aname}">
-            <xsl:value-of select="concat('NOTE&#160;',@number)"/></a>&#160;&#160;
-            <xsl:apply-templates/>
-          </small>
-        </p>  
-    </xsl:when>
-    <!-- check that the first element is p -->
-    <xsl:when test="string(name(child::*[1])) != 'p'">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error NOTE2: Notes start with p element not ', name(./child::*[1]))"/>
-      </xsl:call-template>
-      EXAMPLE
-    </xsl:when>
-
-    <xsl:otherwise>
-      <xsl:apply-templates select="./p[1]" mode="first_paragraph_note">
-        <xsl:with-param name="id" select="@id"/>
-        <xsl:with-param name="number" select="@number"/>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="./child::*[position() &gt; 1]"/>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-<!-- called from <note> to deal with first paragraph -->
-<xsl:template match="p" mode="first_paragraph_note">
-  <xsl:param name="id"/>
-  <xsl:param name="number"/>
-  <xsl:variable name="aname">
-    <xsl:choose>
-      <xsl:when test="$id">
-        <xsl:value-of select="concat('note_',$id)"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat('note_',$number)"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  <xsl:apply-templates select="." mode="check_html"/>
-  <xsl:choose>
-    <xsl:when test="name(../..)='example'">
-      <!-- already small -->
-      <p class="note">
-        <a name="{$aname}">
-          <xsl:value-of select="concat('NOTE&#160;',$number)"/></a>&#160;&#160;
-          <xsl:apply-templates/>
-      </p>
-    </xsl:when>
-    <xsl:otherwise>
-      <p class="note">
-        <small>
-          <a name="{$aname}">
-            <xsl:value-of select="concat('NOTE&#160;',$number)"/></a>&#160;&#160;
-            <xsl:apply-templates/>
-          </small>
-        </p>  
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-<xsl:template match="example">
-  <xsl:variable name="text_str" select="normalize-space(text())"/>
-  <xsl:choose>
-    <!-- expect the example to be plain text, or if starts with <p> not to
-         contain any block elements.start with <p>. If not flag an error -->
-    <xsl:when test="string-length($text_str) != 0 and ./child::*[name()='p'
-or name()='screen' or name()='ul' or name()='example' or name()='note' or name()='figure']">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error EX1: Examples containing block elements such as ', name(./child::*[name()='p' or name()='screen' or name()='ul' or name()='note' or name()='example']), ' should start with p not text#Currently starts with:#',$text_str)"/>
-      </xsl:call-template>
-      EXAMPLE
-    </xsl:when>
-    <xsl:when test="string-length($text_str) != 0">
-      <xsl:variable name="aname">
-        <xsl:choose>
-          <xsl:when test="@id">
-            <xsl:value-of select="concat('example_',@id)"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="concat('example_',@number)"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      <p class="example">
-        <small>
-          <a name="{$aname}">
-            <xsl:value-of select="concat('EXAMPLE&#160;',@number)"/></a>&#160;&#160;
-            <xsl:apply-templates/>
-          </small>
-        </p>  
-    </xsl:when>
-    <!-- check that the first element is p or ul-->
-    <xsl:when test="name(child::*[1]) != 'p'">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error EX2: Examples should start with p or ul element not ', name(./child::*[1]))"/>
-      </xsl:call-template>
-      EXAMPLE
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:apply-templates select="./p[1]" mode="first_paragraph_example">
-        <xsl:with-param name="id" select="@id"/>
-        <xsl:with-param name="number" select="@number"/>
-      </xsl:apply-templates>
-      <xsl:apply-templates select="./child::*[position() &gt; 1]"/>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-<!-- called from <example> to deal with first paragraph -->
-<xsl:template match="p" mode="first_paragraph_example">
-  <xsl:param name="id"/>
-  <xsl:param name="number"/>
-  <xsl:variable name="aname">
-    <xsl:choose>
-      <xsl:when test="$id">
-        <xsl:value-of select="concat('example_',$id)"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat('example_',$number)"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  <xsl:apply-templates select="." mode="check_html"/>
-  <p class="example">
-    <small>
-      <a name="{$aname}">
-        <xsl:value-of select="concat('EXAMPLE&#160;',$number)"/></a>&#160;&#160;
-      <xsl:apply-templates/>
-    </small>
-  </p>  
-</xsl:template>
-
-<xsl:template match="figure">
-  <xsl:variable name="number">
-    <xsl:choose>
-      <xsl:when test="@number">
-        <xsl:value-of select="@number"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:number/>
-      </xsl:otherwise>
-    </xsl:choose>
+  <xsl:template match="resource" mode="display_name">
+ <xsl:variable name="this-type">
+	<xsl:apply-templates select="." mode="type"/>
   </xsl:variable>
 
-    <xsl:variable name="aname">
-      <xsl:call-template name="table_aname">
-        <xsl:with-param name="table" select="."/>
-        <xsl:with-param name="number" select="@number"/>
-        <xsl:with-param name="id" select="@id"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="title">
-      <xsl:value-of select="concat('Figure ',$number,
-                            '&#160;&#8212;&#160;&#160;',./title)"/>
-    </xsl:variable>
-    <br/><br/>
-    <a name="{$aname}"/>
-      <xsl:apply-templates select="./img">
-        <xsl:with-param name="alt" select="$title"/>
-      </xsl:apply-templates>
-    <br/>
-    <div align="center">
-      <b>
-        <xsl:value-of select="$title"/>
-      </b>
-    </div>
-    <br/>
+	<xsl:value-of select="concat($this-type,': ')" />
+	<xsl:call-template name="module_display_name">
+	  <xsl:with-param name="module" select="@name"/>
+	</xsl:call-template>
   </xsl:template>
 
-<xsl:template match="title">
-  <xsl:apply-templates/>
-</xsl:template>
+  <xsl:template match="resource" mode="display_name_french">
+    Ressources g&#233;n&#233;riques int&#233;gr&#233;es: 
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="@name.french"/>
+    </xsl:call-template>
+  </xsl:template>
 
-<xsl:template match="img">
-  <xsl:param name="alt"/>
-  <!-- if the img has been defined in a separate file within the element
-       imgfile.content, then the src path is OK.
-       If the img has been defined in the module or documentation, then the
-       XSL has been invoked from a file in the sys directory, hence the
-       path needs to go up to the module directory -->
-
-  <xsl:variable name="src">
-    <xsl:choose>
-      <xsl:when test="name(..)='imgfile.content'">
-        <xsl:value-of select="@src"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat('../',@src)"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
-  <xsl:variable name="alt1">
-    <xsl:choose>
-      <xsl:when test="string-length($alt)>0">
-        <xsl:value-of select="$alt"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="@src"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  
-  <div align="center">
-    <xsl:choose>
-      <xsl:when test="img.area">
-        <IMG src="{$src}" border="0" usemap="#map" alt="{$alt1}">
-          <MAP NAME="map">
-            <xsl:apply-templates select="img.area"/>
-          </MAP>
-        </IMG>        
-      </xsl:when>
-      <xsl:otherwise>
-        <IMG src="{$src}" border="0" alt="{$alt1}"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </div>
-</xsl:template>
-
-<xsl:template match="img.area">
-  <xsl:variable name="shape">
-    <xsl:choose>
-      <xsl:when test="string(@shape)='polygon' or
-                      string(@shape)='POLYGON'">
-        <xsl:value-of select="'poly'"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="@shape"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  <xsl:variable name="coords" select="@coords"/>
-  <xsl:variable name="href">
-    <xsl:choose>
-      <xsl:when test="contains(@href,'xml')">
-        <xsl:value-of select="concat(substring-before(@href,'.xml'),
-                              $FILE_EXT,
-                              substring-after(@href,'.xml'))"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="@href"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  <AREA shape="{$shape}" coords="{$coords}" href="{$href}" alt="{$href}"/>
-</xsl:template>
+  <xsl:template match="resource" mode="page_count">
+	<xsl:variable name="expg_count" select="count(.//express-g/imgfile)" />
+	<xsl:variable name="schema_count" select="count(.//schema)" />
+	<xsl:variable name="tech_disc_count" select="count(.//tech_discussion)" />
+	<xsl:variable name="add_scope" select="count(.//add_scope)" />
+	<xsl:value-of select="$expg_count + $schema_count + $schema_count  + 16" />
+  </xsl:template>
 
 
-<!--
-     An unordered list
-     -->
-<xsl:template match="ul|UL">
-  <ul>
-    <xsl:apply-templates/>
-  </ul>
-</xsl:template>
-
-<!--
-     An ordered list
-     -->
-<xsl:template match="ol" >
-  <xsl:variable
-    name="type"
-    select="@type"/>
-  <xsl:choose>
-    <xsl:when test="$type">
-      <ol type="{$type}">
-        <xsl:apply-templates/>
-      </ol>
-    </xsl:when>
-    <xsl:otherwise>
-      <ol>
-        <xsl:apply-templates/>
-      </ol>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-<xsl:template match="OL" >
-  <xsl:variable
-    name="type"
-    select="@type"/>
-  <xsl:choose>
-    <xsl:when test="$type">
-      <ol type="{$type}">
-        <xsl:apply-templates/>
-      </ol>
-    </xsl:when>
-    <xsl:otherwise>
-      <ol>
-        <xsl:apply-templates/>
-      </ol>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-<!--
-     A list item - called from scope statements where there are clear rules
-     for the punctuation of a list
-     -->
-<xsl:template match="li|LI">
-  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
-  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-
-  <!-- make sure that the LI is in a UL OL or INSCOPE -->
-  <xsl:variable name="parent" select="translate(name(..),$UPPER,$LOWER)"/>
-
-  <xsl:choose>
-    <xsl:when test="not($parent='ul' or $parent='ol' or $parent='ul' or $parent='inscope' or $parent='outscope' or $parent='abstract')">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error LI1: The parent element of &lt;li&gt;, must be a &lt;ul&gt;,&lt;ol&gt;, &lt;inscope&gt;, &lt;outscope&gt; not ',$parent)"/>
-            </xsl:call-template>
-    </xsl:when>
-  </xsl:choose>
-
-  <xsl:choose>
-    <xsl:when test="$ERROR_CHECK_LIST_ITEMS = 'NO'">
-      <li>
-        <xsl:choose>
-          <xsl:when test="./ancestor::*[name()='example' or name()='note']">
-            <small>
-              <xsl:apply-templates/>
-            </small>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:apply-templates/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </li>
-    </xsl:when>
-    <xsl:otherwise>
-      <!-- get the text or the text of the last paragraph. Ignore examples and
-           notes -->
-      <xsl:variable name="item1">
-        <xsl:apply-templates select="." mode="flatten"/>
-      </xsl:variable>
-      <xsl:variable name="item" select="normalize-space($item1)"/>
-      <xsl:variable name="position">
-        <!-- use number rather than position as SAXON gives wrong results -->
-        <xsl:number/>
-      </xsl:variable>
-      <!-- use count rather than last as SAXON gives wrong results -->
-      <xsl:variable name="last" select="count(../li)"/>
-      <xsl:variable name="terminator">
-        <xsl:choose>
-          <xsl:when test="$position=$last">
-            <xsl:value-of select="'.'"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="';'"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>  
-      <li>
-        <xsl:choose>
-          <xsl:when test="contains($item,'**')">
-            <!-- the list item contains a sub list, so allow other terminators -->
-          </xsl:when>
-          <xsl:when test="substring($item,string-length($item))!=$terminator">
-            <!-- need to check for colon and if not found comma is okay.
-                 sentence, then puctuated with colo
-            <xsl:call-template name="error_message">
-              <xsl:with-param 
-                name="message" 
-                select="concat('Error b1: Item in list should end with',$terminator)"/>
-            </xsl:call-template> -->
-          </xsl:when>
-        </xsl:choose>
-        <xsl:choose>
-          <xsl:when test="./ancestor::*[name()='example' or name()='note']">
-            <small>
-              <xsl:apply-templates/>
-            </small>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:apply-templates/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </li>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-
-
-
-<xsl:template match="example|note|b|i|sup|sub" mode="flatten"/>
-<xsl:template match="ul" mode="flatten">
- **
-</xsl:template>
-
-<xsl:template match="p" mode="flatten">
-  <xsl:value-of select="."/>
-</xsl:template>
 
 
 
@@ -1038,154 +555,6 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 </xsl:template>
 
 
-<!-- Given a string representing a space separated list, remove all
-     duplicate words
--->
-  <!--
-       Removes all duplicate words from the list
-       -->
-  <xsl:template name="remove_duplicates">
-    <xsl:param name="list" />
-    <xsl:call-template name="remove_duplicates_rec">
-      <xsl:with-param name="list"
-        select="concat(normalize-space($list),' ')" />
-      <xsl:with-param name="return_list" select="' '" />
-    </xsl:call-template>
-  </xsl:template>
-  <xsl:template name="remove_duplicates_rec">
-    <xsl:param name="list" />
-    <xsl:param name="return_list" />
-    <xsl:variable
-      name="first"
-      select="substring-before($list,' ')" />
-    <xsl:variable
-      name="rest"
-      select="substring-after($list,' ')" />
-    <xsl:choose>
-      <!-- only one word left -->
-      <xsl:when test="not($first)" >
-        <xsl:choose>
-          <!-- check that the word has not already been found -->
-          <xsl:when test="contains($return_list,concat(' ',$list,' '))">
-            <xsl:value-of select="normalize-space($return_list)" />
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="normalize-space(concat($return_list,' ',$list))" />
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:when test="contains($return_list,concat(' ',$first,' '))" >
-        <xsl:call-template name="remove_duplicates_rec">
-          <xsl:with-param name="list" select="$rest" />
-          <xsl:with-param name="return_list" select="$return_list" />
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:call-template name="remove_duplicates_rec">
-          <xsl:with-param name="list" select="$rest" />
-          <xsl:with-param name="return_list" select="concat($return_list,$first,' ')" />
-        </xsl:call-template>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <!-- given the name of a module, check to see whether it has been
-       included in the repository_index.xml file
-       Return true or if not found, an error message.
-       -->
-
-  <!-- given the name of a resource doc, check to see whether it has been
-       included in the repository_index.xml file
-       Return true or if not found, an error message.
-       -->
-  <xsl:template name="check_resdoc_exists">
-    <xsl:param name="resdoc"/>
-
-    <xsl:variable name="resdoc_name">
-      <xsl:call-template name="resdoc_name">
-        <xsl:with-param name="resdoc" select="$resdoc"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:variable name="ret_val">
-        <xsl:choose>
-          <xsl:when
-            test="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc_name]">
-            <xsl:value-of select="'true'"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of
-              select="concat(' The resource document ', $resdoc_name,
-                      ' is not identified as a resource document  in repository_index.xml')"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      <xsl:value-of select="$ret_val"/>
-  </xsl:template>
-
-  <!-- given the name of a schema, check to see whether it has been
-       included in the repository_index.xml file as an
-       integrated resource schema
-       Return true or if not found, an error message.
-       -->
-  <xsl:template name="check_resource_exists">
-    <xsl:param name="schema"/>
-
-    <!-- the name of the resource directory should be in lower case -->
-    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_'"/>
-    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-    <xsl:variable name="lschema" select="translate($schema,$UPPER,$LOWER)"/>
-    <xsl:variable name="ret_val">
-        <xsl:choose>
-          <xsl:when
-            test="document('../../repository_index.xml')/repository_index/resources/resource[@name=$lschema]">
-            <xsl:value-of select="'true'"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of
-              select="concat(' The schema ', $lschema,
-                      ' is not identified as a resource in repository_index.xml')"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-      <xsl:value-of select="$ret_val"/>
-  </xsl:template>
-
-
-
-  <!-- output a warning message. If $inline is yes then the error message
-       will be included  in the HTML output.
-       NOTE - this gets overridden if $INLINE_ERRORS defined in
-       parameters.xsl is 'no'
-       A line break can be inserted into the string by inserting a #
-       -->
-  <xsl:template name="error_message">
-    <xsl:param name="message"/>
-    <xsl:param name="inline" select="'yes'"/>
-    <xsl:param name="warning_gif"
-      select="'../../../../images/warning.gif'"/>
-    <xsl:message>
-      <xsl:value-of select="translate($message,'#','&#010;')"/>
-    </xsl:message>
-    <xsl:if test="contains($INLINE_ERRORS,'yes')">
-      <xsl:if test="contains($inline,'yes')">
-        <br/>
-        <IMG
-          SRC="{$warning_gif}" ALT="[warning:]"
-          align="bottom" border="0"
-          width="20" height="20"/>
-        <font color="#FF0000" size="-1">
-          <i>
-            <xsl:call-template name="output_line_breaks">
-              <xsl:with-param name="str" select="$message"/>
-              <xsl:with-param name="break_char" select="'#'"/>
-              <xsl:with-param name="replace_break_char" select="'true'"/>
-            </xsl:call-template>
-          </i>
-        </font>
-        <br/>
-      </xsl:if>
-    </xsl:if>
-  </xsl:template>
 
 
   <!-- given the name of a resource or schema , return the name of resource
@@ -1302,39 +671,6 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
 
 
-  <!-- return the target for an express entity
-       This will be of the form schema.entity.attribute
-       -->
-  <xsl:template name="express_a_name">
-    <xsl:param name="section1" select="''"/>
-    <xsl:param name="section2" select="''"/>
-    <xsl:param name="section3" select="''"/>
-    <xsl:param name="section3separator" select="'.'"/>
-    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-
-    <xsl:variable name="s1"
-      select="normalize-space(translate($section1,$UPPER,$LOWER))"/>
-    <xsl:variable name="s2"
-      select="normalize-space(translate($section2,$UPPER,$LOWER))"/>
-    <xsl:variable name="s3"
-      select="normalize-space(translate($section3,$UPPER,$LOWER))"/>
-
-    <xsl:choose>
-      <xsl:when test="$s3">
-        <xsl:value-of select="concat($s1,'.',$s2,$section3separator,$s3)"/>
-      </xsl:when>
-      <xsl:when test="$s2">
-        <xsl:value-of select="concat($s1,'.',$s2)"/>
-      </xsl:when>
-      <xsl:when test="$s1">
-        <xsl:value-of select="$s1"/>
-      </xsl:when>
-    </xsl:choose>
-
-  </xsl:template>
-
-
   <!-- a reference to an EXPRESS construct in a module ARM or MIM or in the
        Integrated Resource. The format of the linkend attribute that
        defines the reference is:
@@ -1404,110 +740,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   </xsl:template>
 
 
-  <xsl:template name="get_href_from_express_ref">
-     <xsl:param name="linkend"/>
-     <!-- the relative path to be added to the url -->
-     <xsl:param name="baselink" select="'../../../'"/>
-    <!-- remove all whitespace -->
-    <xsl:variable
-      name="nlinkend"
-      select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
-
-    <xsl:variable
-      name="module"
-      select="substring-before($nlinkend,':')"/>
-
-    <xsl:variable
-      name="nlinkend1"
-      select="substring-before(substring-after($nlinkend,':'),':')"/>
-
-    <xsl:variable name="arm_mim_ir">
-      <xsl:choose>
-        <xsl:when test="$nlinkend1='arm'
-                        or $nlinkend1='arm_express'
-                        or $nlinkend1='mim'
-                        or $nlinkend1='mim_express'
-                        or $nlinkend1='ir_express'
-                        or $nlinkend1='ir'">
-
-          <xsl:value-of select="$nlinkend1"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <!-- error found, do nothing until href variable is set -->
-          <xsl:value-of select="''"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:variable
-      name="express_ref"
-      select="translate(substring-after(substring-after($nlinkend,':'),':'),
-              'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"/>
-
-    <xsl:variable name="href">
-      <xsl:choose>
-        <xsl:when test="$module='' or $arm_mim_ir=''">
-          <!--
-               error do nothing as the error will be picked up after the
-               href variable is set.
-               -->
-        </xsl:when>
-
-        <xsl:when test="$arm_mim_ir='ir_express'">
-          <xsl:value-of
-            select="concat($baselink,'resources/',$module,'/',
-                    $module,$FILE_EXT,'#',$express_ref)"/>
-        </xsl:when>
-
-
-        <xsl:when test="$arm_mim_ir='ir'">
-          <!-- get the name and position of the resource_part containing the schema. -->
-          <xsl:variable
-            name="schema"
-            select="substring-before($express_ref,'.')"/>
-          
-          <xsl:variable name="resdoc_xml" select="document(concat('../../data/resource_docs/',$module,'/resource.xml'))"/>
-          
-          <xsl:variable name="temp" >
-            <xsl:for-each select="$resdoc_xml/resource//schema">
-              <xsl:if test="@name=$schema">
-                <xsl:value-of select="concat($baselink,'resource_docs/',$module,
-                                      '/sys/', position()+3,'_schema',$FILE_EXT,'#',$express_ref)"/>
-              </xsl:if>
-            </xsl:for-each>
-          </xsl:variable>
-          <xsl:value-of select="$temp"/>
-        </xsl:when>
-
-
-        <xsl:when test="$arm_mim_ir='arm'">
-          <xsl:value-of
-            select="concat($baselink,'modules/',$module,
-                    '/sys/4_info_reqs',$FILE_EXT,'#',$express_ref)"/>
-        </xsl:when>
-
-        <xsl:when test="$arm_mim_ir='arm_express'">
-          <xsl:value-of
-            select="concat($baselink,'modules/',$module,
-                    '/arm',$FILE_EXT,'#',$express_ref)"/>
-        </xsl:when>
-
-        <xsl:when test="$arm_mim_ir='mim'">
-          <xsl:value-of
-            select="concat($baselink,'modules/',$module,
-                    '/sys/5_mim',$FILE_EXT,'#',$express_ref)"/>
-        </xsl:when>
-
-
-        <xsl:when test="$arm_mim_ir='mim_express'">
-          <xsl:value-of
-            select="concat($baselink,'modules/',$module,
-                    '/mim',$FILE_EXT,'#',$express_ref)"/>
-        </xsl:when>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:value-of select="$href"/>
-  </xsl:template>
+  
 
   <!-- A reference to a section of the module.
        The format of the linkend attribute that defines the reference is:
@@ -1921,104 +1154,6 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     </xsl:choose>
   </xsl:template>
 
-  <!-- count the number of characters in string -->
-  <xsl:template name="count_substring">
-    <xsl:param name="substring"/>
-    <xsl:param name="string"/>
-    <xsl:param name="cnt" select="0"/>
-
-    <xsl:choose>
-      <xsl:when test="$string">
-        <xsl:variable name="rest" select="substring($string,2)"/>
-        <xsl:variable name="cnt1">
-          <xsl:choose>
-            <xsl:when test="starts-with($string,$substring)">
-              <xsl:value-of select="$cnt+1"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="$cnt"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-
-        <xsl:call-template name="count_substring">
-          <xsl:with-param name="substring" select="$substring"/>
-          <xsl:with-param name="string" select="$rest"/>
-          <xsl:with-param name="cnt" select="$cnt1"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$cnt"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  
-  <!-- remove any whitespace characters from the start of a string -->
-  <xsl:template name="remove_trailing_whitespace">
-    <xsl:param name="string"/>
-    <xsl:choose>
-      <xsl:when test="starts-with($string,'&#xA;')">
-        <xsl:call-template name="remove_trailing_whitespace">
-          <xsl:with-param name="string" 
-            select="substring-after($string,'&#xA;')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="starts-with($string,'&#xD;')">
-        <xsl:call-template name="remove_trailing_whitespace">
-          <xsl:with-param name="string" 
-            select="substring-after($string,'&#xD;')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="starts-with($string,'&#x20;')">
-        <xsl:call-template name="remove_trailing_whitespace">
-          <xsl:with-param name="string" 
-            select="substring-after($string,'&#x20;')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="starts-with($string,'&#x9;')">
-        <xsl:call-template name="remove_trailing_whitespace">
-          <xsl:with-param name="string" 
-            select="substring-after($string,'&#x9;')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$string"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <!-- Output a string, replacing all the carriage returns with
-       HTML br
-       -->
-  <xsl:template name="output_string_with_linebreaks">
-    <xsl:param name="string"/>
-
-    <xsl:variable name="nstring"
-      select="translate($string,'&#xA;&#xD;','&#xA;')"/>
-
-    <xsl:choose>
-      <xsl:when test="contains($nstring,'&#xA;')">
-        <xsl:variable
-          name="first"
-          select="substring-before($nstring,'&#xA;')"/>
-        <xsl:variable
-          name="rest"
-          select="substring-after($nstring,'&#xA;')"/>
-
-        <xsl:value-of select="$first"/><br/>
-        <xsl:call-template name="output_string_with_linebreaks">
-          <xsl:with-param name="string" select="$rest"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$nstring"/>
-      </xsl:otherwise>
-    </xsl:choose>
-
-  </xsl:template>
-
-
 
 <!-- return the standard number of the module -->
 <xsl:template name="get_resdoc_stdnumber">
@@ -2205,43 +1340,6 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
   </xsl:if>
 </xsl:template>
 
-<!-- apparently never called 
-<xsl:template name="get_resource_iso_number">
-  <xsl:param name="resdoc"/>
-  <xsl:variable name="resdoc_dir">
-    <xsl:call-template name="resdoc_directory">
-      <xsl:with-param name="resdoc" select="$resdoc"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:variable name="part">
-    <xsl:value-of
-      select="document(concat($resdoc_dir,'/resource.xml'))/resource/@part"/>
-  </xsl:variable>
-  <xsl:variable name="status">
-    <xsl:value-of
-      select="document(concat($resdoc_dir,'/resource.xml'))/resource/@status"/>
-  </xsl:variable>
-
-    <xsl:variable name="stdnumber">
-      <xsl:choose>
-        <xsl:when test="$status='IS'">
-          <xsl:value-of 
-            select="concat($orgname,' 10303-',$part)"/>
-        </xsl:when>
-        <xsl:when test="$status='TS'">
-          <xsl:value-of 
-            select="concat($orgname,'/',$status,' 10303-',$part)"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of 
-            select="concat($orgname,'/',$status,' 10303-',$part)"/>          
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-  <xsl:value-of select="$stdnumber"/>
-</xsl:template>
--->
 
 <xsl:template name="get_resdoc_iso_number">
   <xsl:param name="resdoc"/>
@@ -2278,1201 +1376,6 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 </xsl:template>
 
 
-<!-- given a string xxx.ccc.qqq return the value after the last . -->
-<xsl:template name="get_last_section">
-  <xsl:param name="path"/>
-  <xsl:choose>
-    <xsl:when test="contains($path,'.')">
-      <xsl:call-template name="get_last_section">
-        <xsl:with-param name="path" select="substring-after($path,'.')"/>
-      </xsl:call-template>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:value-of select="$path"/>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-
-
-<xsl:template name="check_express_ref">
-  <xsl:param name="linkend"/>
-
-  <xsl:variable name="first_sect">
-    <xsl:call-template name="check_express_ref_first_section">
-      <xsl:with-param name="linkend" select="$linkend"/>
-    </xsl:call-template>
-  </xsl:variable>
-
-  <xsl:choose>
-    <xsl:when test="$first_sect = 'OK'">
-      
-      <!-- remove all whitespace -->
-      <xsl:variable
-        name="nlinkend"
-        select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
-
-      <xsl:variable
-        name="resource"
-        select="substring-before($nlinkend,':')"/>
-
-      <xsl:variable name="resource_dir">
-        <xsl:call-template name="resource_directory">
-          <xsl:with-param name="resource" select="$resource"/>
-        </xsl:call-template>
-      </xsl:variable>
-
-
-      <xsl:variable name="express_path"
-        select="substring-after(substring-after($nlinkend,':'),':')"/>
-      
-      <xsl:variable name="schema">
-        <xsl:choose>
-          <xsl:when test="contains($express_path,'.')">
-            <xsl:value-of select="substring-before($express_path,'.')"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$express_path"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-
-      <xsl:variable name="express_path1"
-        select="substring-after($express_path,'.')"/>
-      
-      <xsl:variable name="entity_type">
-        <xsl:choose>
-          <xsl:when test="contains($express_path1,'.')">
-            <xsl:value-of select="substring-before($express_path1,'.')"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$express_path1"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-
-      <xsl:variable name="express_path2"
-        select="substring-after($express_path1,'.')"/>
-
-      <xsl:variable name="attribute">
-        <xsl:choose>
-          <xsl:when test="starts-with($express_path2,'wr:') 
-                          or starts-with($express_path2,'ur:')">
-            <xsl:value-of select="''"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$express_path2"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-
-      <xsl:variable name="wr">
-        <xsl:choose>
-          <xsl:when test="starts-with($express_path2,'wr:')">
-            <xsl:value-of select="substring-after($express_path2,'wr:')"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="''"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-
-      <xsl:variable name="ur">
-        <xsl:choose>
-          <xsl:when test="starts-with($express_path2,'ur:')">
-            <xsl:value-of select="substring-after($express_path2,'ur:')"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="''"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-
-
-
-      <xsl:variable name="arm_mim_res"
-        select="substring-before(substring-after($nlinkend,':'),':')"/>
-
-      <xsl:variable name="express_file">
-        <xsl:choose>
-          <xsl:when test="$arm_mim_res='ir_express' or $arm_mim_res='ir' or $arm_mim_res='resdoc'">
-            <xsl:value-of select="concat('../../data/resources/',$schema,'/',$schema,'.xml')"/>
-          </xsl:when>
-        </xsl:choose>
-      </xsl:variable>
-      <xsl:variable name="express_nodes"
-        select="document(string($express_file))"/>
-      <xsl:choose>
-        <xsl:when test="string-length($wr) != 0">
-          <xsl:if test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/where[@label=$wr])">
-            <xsl:call-template name="error_message">
-              <xsl:with-param name="message" 
-                select="concat('Error ER-4: The express_ref linkend #', 
-                        $linkend, 
-                        '# is incorrectly specified. 
-                        #The WHERE rule does not exist.
-                        #Note linkend is case sensitive.')"/>
-            </xsl:call-template>
-          </xsl:if>
-        </xsl:when>
-
-        <xsl:when test="string-length($ur) != 0">
-          <xsl:if test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/unique[@label=$ur])">
-            <xsl:call-template name="error_message">
-              <xsl:with-param name="message" 
-                select="concat('Error ER-5: The express_ref linkend ', 
-                        $linkend, 
-                        '# is incorrectly specified.# 
-                        The UNIQUE rule does not exist.
-                        #Note linkend is case sensitive.')"/>
-            </xsl:call-template>
-          </xsl:if>
-        </xsl:when>
-
-        <xsl:when test="string-length($attribute) != 0">
-          <xsl:if
-            test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/explicit[@name=$attribute]
-                  or 
-                  $express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/inverse[@name=$attribute]
-                  or
-                  $express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]/derived[@name=$attribute])">
-            <xsl:call-template name="error_message">
-              <xsl:with-param name="message" 
-                select="concat('Error ER-6: The express_ref linkend# ', 
-                        $linkend, 
-                        '# is incorrectly specified. 
-                        The attribute does not exist.#
-                        Note linkend
-is case sensitive.')"/>
-            </xsl:call-template>
-          </xsl:if>
-        </xsl:when>
-
-
-        <xsl:when test="string-length($entity_type) != 0">
-          <xsl:if
-            test="not($express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]
-                  or 
-                  $express_nodes/express/schema[@name=$schema]/type[@name=$entity_type]
-                  or 
-                  $express_nodes/express/schema[@name=$schema]/rule[@name=$entity_type]
-                  or 
-                  $express_nodes/express/schema[@name=$schema]/function[@name=$entity_type]                  or
-                  $express_nodes/express/schema[@name=$schema]/procedure[@name=$entity_type]
-
-)">
-            <xsl:call-template name="error_message">
-              <xsl:with-param name="message" 
-                select="concat('Error ER-7: The express_ref linkend#', 
-                              $linkend, 
-                              '# is incorrectly specified.# 
-                        The entity does not exist.#Note linkend
-is case sensitive.')"/>
-            </xsl:call-template>
-          </xsl:if>
-        </xsl:when>
-
-        <xsl:when test="string-length($schema) != 0">
-          <xsl:if
-            test="not($express_nodes/express/schema[@name=$schema])">
-            <xsl:call-template name="error_message">
-              <xsl:with-param name="message" 
-                select="concat('Error ER-8: The express_ref linkend# ', 
-                        $linkend, 
-                        '# is incorrectly specified.# 
-                        The schema does not exist.
-                        #Note linkend
-is case sensitive.')"/>
-            </xsl:call-template>
-          </xsl:if>
-        </xsl:when>
-
-
-        <xsl:otherwise>
-            <xsl:call-template name="error_message">
-              <xsl:with-param name="message" 
-                select="concat('Error ER-9: The express_ref linkend #', 
-                        $linkend, 
-                        '# is incorrectly specified.')"/>
-            </xsl:call-template>          
-        </xsl:otherwise>
-
-      </xsl:choose>
-
-    </xsl:when>
-
-    <xsl:otherwise>
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message" select="$first_sect"/>
-      </xsl:call-template>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-<!-- 
-     TEH - need to fix this - 
-     Return an error message if the linkend of an express_ref is incorrect 
-     Just checks the first section i.e resource:: 
--->
-<xsl:template name="check_express_ref_first_section">
-  <xsl:param name="linkend"/>
-  
-  <xsl:variable 
-    name="nlinkend"
-    select="translate($linkend,'&#x9;&#xA;&#x20;&#xD;','')"/>
-  
-  <xsl:variable 
-    name="resdoc_section" 
-    select="substring-before($nlinkend,':')"/>
-
-  <xsl:variable 
-    name="nlinkend1"
-    select="substring-before(substring-after($nlinkend,':'),':')"/>
-
-  <xsl:variable name="resdoc_resource_ok">
-    <xsl:choose>
-      <xsl:when test="$nlinkend1='resdoc' or $nlinkend1='ir'">
-        <xsl:call-template name="check_resdoc_exists">
-          <xsl:with-param name="resdoc" select="$resdoc_section"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:when test="$nlinkend1='ir_express'">
-        <xsl:call-template name="check_resource_exists">
-          <xsl:with-param name="schema" select="$resdoc_section"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'false'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  
-  <xsl:variable name="arm_mim_ir_section">
-    <xsl:choose>
-      <xsl:when test="$nlinkend1='arm'
-                      or $nlinkend1='arm_express'
-                      or $nlinkend1='mim'
-                      or $nlinkend1='mim_express'
-                      or $nlinkend1='ir'
-                      or $nlinkend1='ir_express'">
-        <xsl:value-of select="$nlinkend1"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <!-- error found, do nothing until linkend_ok variable is set -->
-        <xsl:value-of select="''"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  
-  
-  <xsl:variable name="linkend_ok">
-    <xsl:choose>
-      <xsl:when test="$arm_mim_ir_section=''">
-        <xsl:value-of select="concat('Error ER-1: The express_ref linkend ', 
-                              $linkend, 
-                              ' is incorrectly specified. 
-                              Need to specify :arm: :arm_express: :mim: :ir: :ir_express')"/>
-      </xsl:when>
-      <xsl:when test="$resdoc_section=''">
-        <xsl:value-of select="concat('Error ER-2: express_ref linkend ', 
-                              $linkend, 
-                              ' is incorrectly specified.
-                              Need to specify the resource document first')"/>
-      </xsl:when>
-      <xsl:when test="$resdoc_resource_ok!='true'">
-        <xsl:value-of select="concat('Error ER-3: express_ref linkend ', 
-                              $linkend, 
-                              ' is incorrectly specified.', $resdoc_resource_ok)"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="'OK'"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-  <xsl:value-of select="$linkend_ok"/>
-</xsl:template>
-  
-
-<!-- 
-     Return an error message if the linkend of an express_ref is incorrect 
--->
-<xsl:template name="check_express_path">
-  <xsl:param name="linkend"/>
-
-
-</xsl:template>
-
-
-  <!-- 
-       Output a menubar at the top of the page.
-       The menu bar is defined in a menubar file specified by the parameter 
-       menubar_file defined in menubar_params.xsl
-       -->
-  
-
-  
-  <xsl:template name="output_menubar">
-    <xsl:param name="resdoc_root"/>
-    <xsl:param name="resdoc_name"/>
-    <!-- overwrites the menubar file defined in menubar_params.xsl -->
-    <xsl:param name="new_menubar_file"/>
-    <!-- the relative path from XSL directory to stepmod -->
-    <xsl:param name="xsl_path" select="'../..'"/>
-
-    <!-- output link to ISO cover page. The publication process will swap the
-         cover.xml for isocover.xml This is just here for reader convenience 
-    <small><a href="isocover{$FILE_EXT}">ISO cover</a></small> | --> 
-
-    <xsl:variable name="rel_menubar_file">
-      <xsl:choose>
-        <xsl:when test="string-length($new_menubar_file)>0">
-          <xsl:value-of select="concat($xsl_path,'/',$new_menubar_file)"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="concat($xsl_path,'/',$menubar_file)"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <!-- no idea why I need to force a string here -->
-    <xsl:apply-templates
-     select="document(string($rel_menubar_file))/menubar">
-      <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
-      <xsl:with-param name="resdoc_name" select="$resdoc_name"/>
-    </xsl:apply-templates>
-  </xsl:template>
-
-  <xsl:template match="menubar">
-    <xsl:param name="resdoc_root"/>
-    <xsl:param name="resdoc_name"/>
-    <small>
-      <xsl:choose>
-      <xsl:when test="$view!='repository'" >
-        <xsl:apply-templates select="menuitem|menubreak|menuspace">
-          <xsl:with-param name="resdoc_root" select="''"/>
-          <xsl:with-param name="resdoc_name" select="$resdoc_name"/>
-        </xsl:apply-templates>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:apply-templates select="menuitem|menubreak|menuspace">
-          <xsl:with-param name="resdoc_root" select="$resdoc_root"/>
-          <xsl:with-param name="resdoc_name" select="$resdoc_name"/>
-        </xsl:apply-templates>
-      </xsl:otherwise>
-    </xsl:choose>
-    </small>
-  </xsl:template>
-
-  <xsl:template match="menubreak">
-    <br/>
-  </xsl:template>
-
-  <xsl:template match="menuspace">
-    <xsl:value-of select="."/>
-  </xsl:template>
-
-  <xsl:template match="menuitem">
-    <xsl:param name="resdoc_root"/>
-    <xsl:param name="resdoc_name"/>
-    <xsl:variable name="url">
-      <xsl:choose>
-        <xsl:when test="@relative.url">
-          <xsl:variable name="relurl">
-            <xsl:choose>
-              <xsl:when test="starts-with(@relative.url,'..') and string-length($resdoc_root)> 0">
-                <xsl:value-of select="concat('/',@relative.url)"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="@relative.url"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:variable> <!-- relurl -->
-
-          <xsl:choose>
-            <xsl:when test="contains($relurl,'.xml')">
- 
-             <xsl:value-of 
-                select="concat($resdoc_root,
-                        substring-before($relurl,'.xml'),
-                        $FILE_EXT,
-                        substring-after($relurl,'.xml'))"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of 
-                select="concat($resdoc_root,$relurl)"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:when>
-
-        <xsl:when test="@resdoc.url">
-          <xsl:variable name="relurl1">
-            <xsl:choose>
-              <xsl:when test="starts-with(@resdoc.url,'..')">
-                <xsl:value-of select="concat('/',@resdoc.url)"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="@resdoc.url"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:variable> <!-- relurl -->
-
-          <xsl:variable name="relurl2">
-            <xsl:choose>
-              <xsl:when test="contains($relurl1,'.xml')">
-                <xsl:value-of 
-                  select="concat($resdoc_root,
-                          substring-before($relurl1,'.xml'),
-                          $FILE_EXT,
-                          substring-after($relurl1,'.xml'))"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of 
-                  select="concat($resdoc_root,$relurl1)"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:variable> <!-- relurl2 -->
-
-          <xsl:value-of select="concat(
-                                substring-before($relurl2, '{' ),
-                                $resdoc_name,
-                                substring-after($relurl2, '}' ) )"/>
-        </xsl:when>
-
-        <xsl:when test="@absolute.url">
-          <xsl:value-of select="@absolute.url"/>
-        </xsl:when>
-        <xsl:otherwise>
-          ERROR
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable> <!-- url -->
-
-
-    <xsl:choose>
-      <xsl:when test="contains($url,'ERROR')">
-        <xsl:call-template name="error_message">
-          <xsl:with-param
-            name="message"
-            select="concat('ERROR mb1: The menubar #',
-                    $menubar_file ,' must contain a path.')"/>
-        </xsl:call-template>
-      </xsl:when>
-      
-      <xsl:when test="@img">
-        <xsl:variable name="item" select="@item"/>
-        <xsl:variable name="img">
-          <xsl:choose>
-            <xsl:when test="starts-with(@img,'..')">
-              <xsl:value-of select="concat($resdoc_root,'/',@img)"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="concat($resdoc_root,@img)"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-        <a href="{$url}">
-          <img alt="{$item}" border="0" align="middle" src="{$img}"/>
-        </a>
-      </xsl:when>
-
-      <xsl:otherwise>
-        <a href="{$url}">
-          <xsl:value-of select="@item"/>
-        </a>
-      </xsl:otherwise>
-    </xsl:choose>
-
-    <xsl:choose>
-      <xsl:when test="string-length(@img)!= 0">
-        &#160;&#160;&#160;
-      </xsl:when>
-      <xsl:when test="position() != last()">
-        &#160;&#124;&#160;        
-      </xsl:when>
-    </xsl:choose>
-  </xsl:template>
-
-
-
-  <!-- check the schema name starts with Upper case and rest is lower case
-       the schema ends in _arm or _mim -->
-  <xsl:template name="check_schema_name">
-    <xsl:param name="arm_mim_schema"/>
-    <xsl:param name="schema_name"/>
-    
-    <xsl:variable name="_arm_mim_schema" select="concat('_',$arm_mim_schema)"/>
-    <!-- check that the schema name ends in _arm or _mim or _schema -->
-    <xsl:if 
-      test="substring($schema_name, string-length($schema_name)- string-length($arm_mim_schema)) != $_arm_mim_schema">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error q1: ',$arm_mim_schema,' schema ',$schema_name,' must end in', $_arm_mim_schema)"/>
-      </xsl:call-template>
-    </xsl:if>
-
-    <!-- check that the schema name starts with Uppercase and rest is
-         lower case -->
-    <xsl:variable name="test">
-      <xsl:call-template name="check_upper_lower_case">
-        <xsl:with-param name="str" select="$schema_name"/>
-        <xsl:with-param name="arm_mim_schema" select="$arm_mim_schema"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:if test="$test = -1">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error q2: ',$arm_mim_schema,' schema ',$schema_name,' incorrectly
-                  named. First letter must uppercase, rest is lower case')"/>
-      </xsl:call-template>    
-    </xsl:if>
-  </xsl:template>
-
-  <!-- return 1 if the first letter in the string is Upper case and all the
-       rest are lower case -->
-  <xsl:template name="check_upper_lower_case">
-    <xsl:param name="str"/>
-    <xsl:param name="arm_mim_schema"/>
-    <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'"/>
-    <xsl:choose>
-      <xsl:when test="$arm_mim_schema='schema'" >
-        <xsl:call-template name="check_all_lower_case">
-          <xsl:with-param name="str" select="$str"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-          <xsl:choose>
-            <xsl:when test="contains($UPPER,substring($str,1,1))">
-              <xsl:call-template name="check_all_lower_case">
-          <xsl:with-param name="str" select="substring($str,2)"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <!-- failed -->
-        -1
-      </xsl:otherwise>
-          </xsl:choose>
-    </xsl:otherwise>
-  </xsl:choose>
-  </xsl:template>
-
-
-
-  <!-- check the entity name starts with Upper case and rest is lower case -->
-  <xsl:template name="check_arm_entity_name">
-    <xsl:param name="entity_name"/>
-    <xsl:variable name="test">
-      <xsl:call-template name="check_upper_lower_case">
-        <xsl:with-param name="str" select="$entity_name"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:if test="$test = -1">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error q3: the entity ',$entity_name,' incorrectly
-                  named.#First letter must uppercase, rest is lower case')"/>
-      </xsl:call-template>    
-    </xsl:if>
-  </xsl:template>
-
-
-  <!-- check that the type name is all lower case -->
-  <xsl:template name="check_type_name">
-    <xsl:param name="type_name"/>
-    <xsl:variable name="test">
-      <xsl:call-template name="check_all_lower_case">
-        <xsl:with-param name="str" select="$type_name"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:if test="$test = -1">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error q4: the type ',$type_name,' incorrectly
-                  named.#Should be all lower case')"/>
-      </xsl:call-template>    
-    </xsl:if>
-  </xsl:template>
-
-  <!-- check that the mim entity name is all lower case -->
-  <xsl:template name="check_mim_entity_name">
-    <xsl:param name="entity_name"/>
-    <xsl:variable name="test">
-      <xsl:call-template name="check_all_lower_case">
-        <xsl:with-param name="str" select="$entity_name"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:if test="$test = -1">
-      <xsl:call-template name="error_message">
-        <xsl:with-param 
-          name="message" 
-          select="concat('Error q5: the entity ',$entity_name,' incorrectly
-                  named.# Should be all lower case.')"/>
-      </xsl:call-template>    
-    </xsl:if>
-  </xsl:template>
-
-
-
-  <!-- return 1 if all the letters in string are lower case -->
-  <xsl:template name="check_all_lower_case">
-    <xsl:param name="str"/>
-    <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz_0123456789'"/>
-    <xsl:variable name="first" select="substring($str,1,1)"/>
-    <xsl:variable name="rest" select="substring($str,2)"/>
-    <xsl:choose>
-      <xsl:when test="contains($LOWER,$first)">
-        <xsl:choose>
-          <xsl:when test="$rest">
-            <xsl:call-template name="check_all_lower_case">
-              <xsl:with-param name="str" select="$rest"/>
-            </xsl:call-template>
-          </xsl:when>
-          <xsl:otherwise>
-            <!-- tested all the string -->
-            1 
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:otherwise>
-        -1
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <!-- return the HREF to a table -->
-  <xsl:template name="table_href">
-    <xsl:param name="table" select="."/>
-
-    <xsl:variable name="file">
-      <xsl:call-template name="in_file">
-        <xsl:with-param name="table_fig_node" select="$table"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="aname">
-      <xsl:call-template name="table_aname"/>
-    </xsl:variable>
-    <xsl:value-of select="concat($file,'#',$aname)"/>
-  </xsl:template>
-
-
-  <!-- Return the A name with which a TABLE or FIGURE will tagged -->
-  <xsl:template name="table_aname">
-    <xsl:param name="table" select="."/>
-    <xsl:param name="number" select="./@number"/>
-    <xsl:param name="id" select="./@id"/>
-
-    <xsl:variable name="aname">
-      <xsl:choose>
-        <xsl:when test="$id">
-          <xsl:value-of select="concat(name($table),'_',$id)"/>
-        </xsl:when>
-        <xsl:otherwise>          
-          <xsl:value-of select="concat(name($table),'_',$number)"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:value-of select="$aname"/>   
-  </xsl:template>
-
-
-  <!-- return the file that any table or figure XML element is in -->
-  <xsl:template name="in_file">
-    <xsl:param name="table_fig_node"/>
-
-    <xsl:choose>
-      <xsl:when test="$table_fig_node/ancestor::purpose[1]">
-        <xsl:value-of select="concat('introduction',$FILE_EXT)"/>
-      </xsl:when>
-      <xsl:when test="$table_fig_node/ancestor::scope[1]">
-        <xsl:value-of select="concat('scope',$FILE_EXT)"/>
-      </xsl:when>
-      <xsl:when test="$table_fig_node/ancestor::inscope[1]|$table_fig_node/ancestor::outscope[1]">
-        <xsl:value-of select="concat('1_scope',$FILE_EXT)"/>
-      </xsl:when>
-
-      <xsl:when test="$table_fig_node/ancestor::ext_descriptions[1][@schema_file='arm.xml']">
-        <xsl:value-of select="concat('4_info_reqs',$FILE_EXT)"/>
-      </xsl:when>
-
-      <xsl:when test="$table_fig_node/ancestor::schema">
-        <xsl:variable name="schema" select="//schema/@name"/>
-        <xsl:choose>
-          <xsl:when test="substring($schema,string-length($schema)-6)='_schema'">
-            <xsl:value-of select="concat(position()+3,'_schema',$FILE_EXT)"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="concat('',$FILE_EXT)"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-
-      <xsl:when test="$table_fig_node/ancestor::ext_descriptions[1][@schema_file='mim.xml']">
-        <xsl:value-of select="concat('5_mim',$FILE_EXT)"/>
-      </xsl:when>
-
-      <xsl:when test="$table_fig_node/ancestor::tech_discussion[1]">
-        <xsl:value-of select="concat('tech_discussion',$FILE_EXT)"/>
-      </xsl:when>
-
-      <xsl:when test="$table_fig_node/ancestor::examples[1]">
-        <xsl:value-of select="concat('examples',$FILE_EXT)"/>
-      </xsl:when>
-
-      <xsl:when test="$table_fig_node/ancestor::add_scope[1]">
-        <xsl:value-of select="concat('add_scope',$FILE_EXT)"/>
-      </xsl:when>
-
-    </xsl:choose>
-  </xsl:template>
-
-
-  <!-- display the expressg Icon for an express construct -->
-  <xsl:template match="entity|type|schema|constant" mode="expressg_icon">
-    <!-- the entity may be being referenced from another resdoc TEH fix
-         in which case the schema needs to be explicit.
-         This only happens in the mapping tables when and ARM object is
-         being remapped from another resdoc. -->
-    <xsl:param name="original_schema"/>
-    
-    <xsl:variable name="schema">
-      <xsl:choose>
-        <!-- original_scheam specified then the object is declared in
-             another schema -->
-        <xsl:when test="$original_schema">
-          <xsl:value-of select="$original_schema"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="../@name"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-
-    <xsl:variable name="resdoc_dir">
-      <xsl:call-template name="resdoc_directory">
-        <xsl:with-param name="resdoc" select="$schema"/>
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:variable name="href_expg">
-      <xsl:choose>
-        <xsl:when test="substring($schema,string-length($schema)-6)='_schema'">
-          <xsl:choose>
-            <xsl:when test="./graphic.element/@page">
-               <xsl:value-of select="concat('../../../resources/',$schema,'/',$schema,'expg',./graphic.element/@page,$FILE_EXT)"/>   
-            </xsl:when>
-            <xsl:otherwise>
-ZZZZZZZZZ should not get here.
-            </xsl:otherwise>
-          </xsl:choose>
-          
-        </xsl:when>
-      </xsl:choose>
-    </xsl:variable>
-
-    &#160;&#160;<a href="{$href_expg}">
-      <img align="middle" border="0" 
-        alt="EXPRESS-G" src="../../../../images/expg.gif"/>
-    </a>
-
-  </xsl:template>
-
-
-  <xsl:template name="expressg_icon">
-    <xsl:param name="schema"/>
-    <xsl:param name="entity"/>
-    <xsl:param name="resdoc_root" select="'..'"/>
-    <xsl:variable name="resdoc_dir">
-      <xsl:call-template name="resdoc_directory">
-        <xsl:with-param name="resdoc" select="$schema"/>
-      </xsl:call-template>
-    </xsl:variable>  
-
-    <xsl:variable name="href_expg">
-      <xsl:choose>
-        <xsl:when test="$entity">
-          <xsl:choose>
-            <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
-              <xsl:choose>
-                <xsl:when test="./graphic.element/@page">
-                  <xsl:value-of select="concat('../armexpg',./graphic.element/@page,$FILE_EXT)"/>                  
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:value-of select="concat('../armexpg1',$FILE_EXT)"/>
-                </xsl:otherwise>
-              </xsl:choose>
-
-            </xsl:when>
-            <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
-              <xsl:choose>
-                <xsl:when test="./graphic.element/@page">
-                  <xsl:value-of select="concat('../mimexpg',./graphic.element/@page,$FILE_EXT)"/>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:value-of select="concat('../mimexpg1',$FILE_EXT)"/>
-                </xsl:otherwise>
-              </xsl:choose>
-
-            </xsl:when>      
-          </xsl:choose>
-        </xsl:when>
-        
-        <xsl:otherwise>
-          <xsl:choose>
-            <xsl:when test="substring($schema, string-length($schema)-3)='_arm'">
-              <xsl:value-of select="concat($resdoc_root,'/armexpg1',$FILE_EXT)"/>
-            </xsl:when>
-            <xsl:when test="substring($schema, string-length($schema)-3)='_mim'">
-              <xsl:value-of select="concat($resdoc_root,'/mimexpg1',$FILE_EXT)"/>
-            </xsl:when>      
-          </xsl:choose>        
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    &#160;&#160;<a href="{$href_expg}">
-      <img align="middle" border="0" 
-        alt="EXPRESS-G" src="{$resdoc_root}/../../../images/expg.gif"/>
-    </a>
-
-  </xsl:template>
-
-  <!-- given a string, output the string with line breaks after the specified
-       character (break_char) that occurs immediately before a specified
-       number of characters (length).
-       If replace_break_char = true then replace the break-char with <br/>
-       otherwise the break char is output.
-       -->
-  <xsl:template name="output_line_breaks">
-    <xsl:param name="str"/>
-    <xsl:param name="break_char"/>
-    <xsl:param name="replace_break_char" select="'false'"/>
-    <xsl:param name="indent" select="''"/>
-    <xsl:choose>
-      <xsl:when test="contains($str,$break_char)">
-        <xsl:variable name="substr" 
-          select="substring-before($str,$break_char)"/>
-        <xsl:choose>
-          <xsl:when test="$replace_break_char != 'false'">
-            <xsl:value-of select="concat($indent,$substr)"/><br/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="concat($indent,$substr,$break_char)"/><br/>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xsl:call-template name="output_line_breaks">
-          <xsl:with-param name="str" select="substring-after($str,$break_char)"/>
-          <xsl:with-param name="break_char" select="$break_char"/>
-          <xsl:with-param name="replace_break_char" select="$replace_break_char"/>
-          <xsl:with-param name="indent" select="'&#160;&#160;&#160;&#160;'"/>
-        </xsl:call-template> 
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat($indent,$str)"/>
-      </xsl:otherwise>        
-    </xsl:choose>
-  </xsl:template>
-
-
-
-  <!--
-       Given a string, return the substring immediately before the last 
-       specified character (char) )
-       e.g.       
-       get_string_before("1,2,3,4,5",",") returns 1,2,3,4
-       -->
-  <xsl:template name="get_string_before">
-    <xsl:param name="str"/>
-    <xsl:param name="char"/>
-    <xsl:param name="previous_str" select="''"/>
-    <xsl:choose>
-      <xsl:when test="contains($str,$char)">
-        <xsl:variable name="prev" 
-          select="concat($previous_str,substring-before($str,$char))"/>
-        <xsl:call-template name="get_string_before">
-          <xsl:with-param name="str" select="substring-after($str,$char)"/>
-          <xsl:with-param name="char" select="$char"/>
-          <xsl:with-param name="previous_str" select="$prev"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="concat($previous_str,$str)"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <!-- given a string, return the opening paren at the start -->
-  <xsl:template name="get_open_paren">
-    <xsl:param name="str"/>
-    <xsl:param name="previous_str" select="''"/>
-
-    <xsl:variable name="nstr" 
-      select="translate(normalize-space($str),' ','')"/>
-    <xsl:choose>
-      <xsl:when test="substring($nstr,1,1)='('">
-        <xsl:variable name="prev" 
-          select="concat($previous_str,'(')"/>
-        <xsl:call-template name="get_open_paren">
-          <xsl:with-param name="str" select="substring-after($nstr,'(')"/>
-          <xsl:with-param name="previous_str" select="$prev"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$previous_str"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template name="first_uppercase">
-    <xsl:param name="string"/>
-    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    <xsl:variable name="first_char" 
-      select="translate(substring($string,1,1),$LOWER,$UPPER)"/>
-    <xsl:value-of 
-      select="concat($first_char,
-              translate(substring($string,2),$UPPER,$LOWER))"/>
-  </xsl:template>
-
-  <!-- generate a string of length no_chars mad up of chars -->
-  <xsl:template name="string_n_chars">
-    <xsl:param name="char"/>
-    <xsl:param name="no_chars"/>
-    <xsl:param name="str" select="''"/>
-    <xsl:choose>
-      <xsl:when test="$no_chars>0">
-        <xsl:call-template name="string_n_chars">
-          <xsl:with-param name="char" select="$char"/>
-          <xsl:with-param name="no_chars" select="$no_chars - 1"/>
-          <xsl:with-param name="str" select="concat($str,$char)"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$str"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-
-  <!-- given a string, return the first word, where any non ALPHA character 
-       is a word space-->
-  <xsl:template name="get_word">
-    <xsl:param name="str"/>
-
-    <xsl:variable name="nstr" 
-      select="translate(normalize-space($str),
-              '[](){}+=-,; ',
-              '************')"/>
-    <!-- if string starts with * there is some leading white space -->
-    <xsl:choose>
-      <xsl:when test="substring($nstr,1,1)='*'">
-        <xsl:call-template name="get_word">
-          <xsl:with-param name="str" select="substring-after($nstr,'*')"/>
-        </xsl:call-template>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="substring-before($nstr,'*')"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-
-  <!-- given a string, delete the first word, and return the rest of the
-       string where any non ALPHA character is a word space-->
-  <xsl:template name="get_after_word">
-    <xsl:param name="str"/>
-    <xsl:variable name="word">
-      <xsl:call-template name="get_word">
-        <xsl:with-param name="str" select="$str"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:value-of select="substring-after($str,$word)"/>
-  </xsl:template>
-
-  <!-- given a string, return all non ALPHA character upto first ALPH
-       character -->
-  <xsl:template name="get_before_word">
-    <xsl:param name="str"/>
-    <xsl:variable name="word">
-      <xsl:call-template name="get_word">
-        <xsl:with-param name="str" select="$str"/>
-      </xsl:call-template>
-    </xsl:variable>
-    <xsl:value-of select="substring-before($str,$word)"/>
-  </xsl:template>
-
-<xsl:template match="projlead">
-  <xsl:variable name="ref" select="@ref"/>
-  <xsl:variable name="projlead"
-    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-  <b>Project leader: </b>
-  <xsl:choose>
-    <xsl:when test="$projlead">
-      <xsl:apply-templates select="$projlead"/>      
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message">
-          Error 1: No contact provided for project leader.
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-<xsl:template match="projlead" mode="no_address">
-  <xsl:variable name="ref" select="@ref"/>
-  <xsl:variable name="projlead"
-    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-  <xsl:choose>
-    <xsl:when test="$projlead">
-      <xsl:apply-templates select="$projlead" mode="no_address"/>      
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message">
-          Error 1: No contact provided for project leader.
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-<xsl:template match="editor">
-  <xsl:variable name="ref" select="@ref"/>
-  <xsl:variable name="editor"
-    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-  <b>Project editor: </b>
-  <xsl:choose>
-    <xsl:when test="$editor">
-      <xsl:apply-templates select="$editor"/>      
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message">
-          Error 2: No contact provided for project editor.
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-
-<xsl:template match="editor" mode="no_address">
-  <xsl:variable name="ref" select="@ref"/>
-  <xsl:variable name="editor"
-    select="document('../../data/basic/contacts.xml')/contact.list/contact[@id=$ref]"/>
-  <xsl:choose>
-    <xsl:when test="$editor">
-      <xsl:apply-templates select="$editor"  mode="no_address"/>      
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:call-template name="error_message">
-        <xsl:with-param name="message">
-          Error 2: No contact provided for project editor.
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
-
-<xsl:template match="contact">
-  <xsl:apply-templates select="firstname"/>
-  &#160;
-  <xsl:apply-templates select="lastname"/>
-  <br/>
-  <xsl:apply-templates select="." mode="address"/>
-  <br/>
-  <xsl:apply-templates select="phone"/>
-  <xsl:apply-templates select="fax"/>
-  <xsl:apply-templates select="email"/>
-</xsl:template>
-
-
-<xsl:template match="contact" mode="no_address">
-  <xsl:apply-templates select="firstname"/>
-  &#160;
-  <xsl:apply-templates select="lastname"/>
-  <br/>
-  <xsl:apply-templates select="phone"/>
-  <xsl:apply-templates select="email"/>
-</xsl:template>
-
-
-<xsl:template match="firstname | lastname">
-  <xsl:value-of select="."/>
-</xsl:template>
-
-<xsl:template match="contact" mode="address">
-  <b>Address: </b>
-  <xsl:apply-templates select="./affiliation"/>
-  <xsl:apply-templates select="./street"/>
-  <xsl:apply-templates select="./pobox"/>
-  <xsl:apply-templates select="./city"/>
-  <xsl:apply-templates select="./state"/>
-  <xsl:apply-templates select="./postcode"/>
-  <xsl:apply-templates select="./country"/>
-</xsl:template>
-
-
-<xsl:template match="affiliation">
-  <xsl:value-of select="."/> <br/>
-</xsl:template>
-
-<xsl:template match="street">
-  <xsl:value-of select="."/> <br/>
-</xsl:template>
-
-<xsl:template match="pobox">
-  <xsl:value-of select="."/> <br/>
-</xsl:template>
-
-<xsl:template match="city">
-  <xsl:value-of select="."/> <br/>
-</xsl:template>
-
-<xsl:template match="state">
-  <xsl:value-of select="."/> <br/>
-</xsl:template>
-
-<xsl:template match="postcode">
-  <xsl:value-of select="."/> <br/>
-</xsl:template>
-
-<xsl:template match="country">
-  <xsl:value-of select="."/> <br/>
-</xsl:template>
-
-<xsl:template match="phone">
-  <b>Telephone: </b>
-  <xsl:value-of select="."/>
-  <br/>
-</xsl:template>
-
-<xsl:template match="fax">
-  <b>Telefacsimile: </b>
-  <xsl:value-of select="."/>
-  <br/>
-</xsl:template>
-
-<xsl:template match="email">
-  <xsl:variable name="mailto" select="concat('mailto:',.)"/>
-  <b>Electronic mail: </b>
-  <a href="{$mailto}">
-    <xsl:value-of select="."/>
-  </a>
-  <br/>
-</xsl:template>
-
-<xsl:template name="no_node_set">
-        Currently configured to support  SAXON, IE 6.0  or later,  and MSXSL XSLT parsers.	Your parser is from <xsl:element name="a">
-<xsl:attribute name="href"><xsl:value-of select="system-property('xsl:vendor-url')"/></xsl:attribute>
-<xsl:value-of select="system-property('xsl:vendor')"/> 
-</xsl:element> and supports xslt version &#x22;<xsl:value-of select="system-property('xsl:version')"/>&#x22; 
-
-</xsl:template>
 
 
 </xsl:stylesheet>

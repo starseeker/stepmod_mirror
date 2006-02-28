@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.158 2005/11/09 00:36:24 thendrix Exp $
+$Id: common.xsl,v 1.159 2005/11/09 01:07:15 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -448,8 +448,8 @@ $Id: common.xsl,v 1.158 2005/11/09 00:36:24 thendrix Exp $
   </xsl:call-template>
 
   <TABLE cellspacing="0" border="0" width="100%">
-    <tr>
-      <td>
+    <TR>
+      <TD>
         <!-- RBN - this xref is here to aid navigation, it may need to be
              removed for the ISO process 
         <A HREF="{$module_root}/../../../repository_index{$FILE_EXT}">
@@ -461,8 +461,8 @@ $Id: common.xsl,v 1.158 2005/11/09 00:36:24 thendrix Exp $
           <xsl:with-param name="module_name" select="@name"/>
 
         </xsl:call-template>
-      </td>
-    </tr>
+      </TD>
+    </TR>
     <TR>
       <TD valign="MIDDLE">
         <B>
@@ -660,7 +660,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 </xsl:template>
 
 <!-- called from <note> to deal with first paragraph -->
-<xsl:template match="p" mode="first_paragraph_note">
+<xsl:template match="p" mode="first_paragraphutput_men_note">
   <xsl:param name="id"/>
   <xsl:param name="number"/>
   <xsl:variable name="aname">
@@ -1305,6 +1305,31 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 
 
 
+  <xsl:template name="check_resdoc_exists">
+    <xsl:param name="resdoc"/>
+
+    <xsl:variable name="resdoc_name">
+      <xsl:call-template name="resdoc_name">
+        <xsl:with-param name="resdoc" select="$resdoc"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="ret_val">
+        <xsl:choose>
+          <xsl:when
+            test="document('../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc_name]">
+            <xsl:value-of select="'true'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of
+              select="concat(' The resource document ', $resdoc_name,
+                      ' is not identified as a resource document  in repository_index.xml')"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:value-of select="$ret_val"/>
+  </xsl:template>
+
+
   <!-- output a warning message. If $inline is yes then the error message
        will be included  in the HTML output.
        NOTE - this gets overridden if $INLINE_ERRORS defined in
@@ -1492,6 +1517,123 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
       select="concat($first_char,substring($module_name,2),'_',$arm_mim)"/>
   </xsl:template>
 
+
+
+
+
+
+  <!-- given the name of a resource or schema , return the name of resource
+       -->
+  <xsl:template name="resource_name">
+    <xsl:param name="resource"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="resource_lcase"
+      select="translate(
+              normalize-space(translate($resource,$UPPER, $LOWER)),
+              '&#x20;','_')"/>
+    <xsl:variable name="name">
+      <xsl:choose>
+        <xsl:when test="contains($resource_lcase,'_schema')">
+          <xsl:value-of select="substring-before($resource_lcase,'_schema')"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="string($resource_lcase)"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:value-of select="$name"/>
+  </xsl:template>
+
+
+  <!-- given the name of a resource document , return the name of resource document - dont ask
+       -->
+  <xsl:template name="resdoc_name">
+    <xsl:param name="resdoc"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="first_char" 
+      select="translate(substring($resdoc,1,1),$UPPER,$LOWER)"/>
+    <xsl:value-of 
+      select="concat($first_char,substring($resdoc,2))"/>
+  </xsl:template>
+
+
+  <!-- given the name of a resource doc or resource  - that is minus the _schema
+       return the name as it is to be displayed
+       i.e First character uppercase, then whitespace
+       -->
+  <xsl:template name="res_display_name">
+    <xsl:param name="res"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+
+    <xsl:variable name="first_char"
+      select="substring(translate($res,$LOWER,$UPPER),1,1)"/>
+
+    <xsl:variable name="res_name"
+      select="concat($first_char,
+              translate(substring($res,2),'_',' '))"/>
+    <xsl:value-of select="$res_name"/>
+
+  </xsl:template>
+
+  <!-- given the name of a resource return the schema name
+       -->
+  <xsl:template name="res_schema_name">
+    <xsl:param name="resource"/>
+    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
+    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="resource_lcase"
+      select="translate(
+              normalize-space(translate($resource,$UPPER, $LOWER)),
+              '&#x20;','_')"/>
+    <xsl:variable name="res_name">
+          <xsl:value-of select="substring-before($resource_lcase,'_schema')"/>
+    </xsl:variable>
+    <xsl:value-of select="$res_name"/>
+  </xsl:template>
+
+  <!-- given the name of a resource doc
+       return the resource doc directory - unlike module no need to lower case the name.
+-->
+
+  <xsl:template name="resdoc_directory">
+    <xsl:param name="resdoc"/>
+    <xsl:value-of select="concat('../../data/resource_docs/',$resdoc)"/>
+  </xsl:template>
+
+
+  <!-- given the name of a resource
+       return the directory
+-->
+  <xsl:template name="resource_directory">
+    <xsl:param name="resource"/>
+    <xsl:value-of select="concat('../../data/resources/',$resource)"/>
+  </xsl:template>
+
+  <!-- given the name of a resource
+       return the resource file path
+-->
+
+
+  <xsl:template name="resource_file">
+    <xsl:param name="resource"/>
+    <xsl:value-of select="concat('../data/resources/',$resource,'/',$resource,'.xml')"/>
+  </xsl:template>
+
+
+  <!-- given the name of a resource expg file
+       return the resource expg file path
+-->
+
+
+  <xsl:template name="resource_expg_file">
+    <xsl:param name="resource"/>
+    <xsl:param name="expg_file"/>
+    <xsl:value-of select="concat('../data/resources/',$resource,'/',$expg_file)"/>
+  </xsl:template>
+
   <!-- return the target for an express entity
        This will be of the form schema.entity.attribute
        -->
@@ -1581,6 +1723,12 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         <xsl:when test="contains($last_section,':ir_express:')">
           <xsl:value-of select="substring-after($last_section,':ir_express:')"/>
         </xsl:when>
+      <!-- if the express_ref is of the form
+           linkend="state:ir:state_type_schema" -->
+
+        <xsl:when test="contains($last_section,':ir:')">
+          <xsl:value-of select="substring-after($last_section,':ir:')"/>
+        </xsl:when>
 
       <!-- if the express_ref is of the form
            linkend="" -->
@@ -1665,7 +1813,8 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
                         or $nlinkend1='mim'
                         or $nlinkend1='mim_lf_express'
                         or $nlinkend1='mim_express'
-                        or $nlinkend1='ir_express'">
+                        or $nlinkend1='ir_express'
+						or $nlinkend1='ir'">
           <xsl:value-of select="$nlinkend1"/>
         </xsl:when>
         <xsl:otherwise>
@@ -1693,6 +1842,25 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
             select="concat($baselink,'resources/',$module,'/',
                     $module,$FILE_EXT,'#',$express_ref)"/>
         </xsl:when>
+        <xsl:when test="$arm_mim_ir='ir'">
+          <!-- get the name and position of the resource_part containing the schema. -->
+          <xsl:variable
+            name="schema"
+            select="substring-before($express_ref,'.')"/>
+          
+          <xsl:variable name="resdoc_xml" select="document(concat('../data/resource_docs/',$module,'/resource.xml'))"/>
+          
+          <xsl:variable name="temp" >
+            <xsl:for-each select="$resdoc_xml/resource//schema">
+              <xsl:if test="@name=$schema">
+                <xsl:value-of select="concat($baselink,'resource_docs/',$module,
+                                      '/sys/', position()+3,'_schema',$FILE_EXT,'#',$express_ref)"/>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:variable>
+          <xsl:value-of select="$temp"/>
+        </xsl:when>
+
         <xsl:when test="$arm_mim_ir='arm'">
           <xsl:value-of
             select="concat($baselink,'modules/',$module,
@@ -2956,12 +3124,30 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         name="module"
         select="substring-before($nlinkend,':')"/>
 
-      <xsl:variable name="mod_dir">
-        <xsl:call-template name="module_directory">
+	  <xsl:variable 
+		  name="module_section" 
+		  select="substring-before($nlinkend,':')"/>
+
+
+	  <xsl:variable 
+		  name="nlinkend1"
+		  select="substring-before(substring-after($nlinkend,':'),':')"/>
+
+	  <xsl:variable name="mod_dir">
+		<xsl:choose>
+		  <xsl:when test="$nlinkend1='arm' or $nlinkend1='mim'">
+			<xsl:call-template name="module_directory">
+			  <xsl:with-param name="module" select="$module"/>
+			</xsl:call-template>
+
+		  </xsl:when>
+		  <xsl:otherwise>
+        <xsl:call-template name="resource_directory">
           <xsl:with-param name="module" select="$module"/>
         </xsl:call-template>
+		  </xsl:otherwise>
+		</xsl:choose>
       </xsl:variable>
-
 
       <xsl:variable name="express_path"
         select="substring-after(substring-after($nlinkend,':'),':')"/>
@@ -3046,14 +3232,16 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
           <xsl:when test="$arm_mim_res='mim_lf_express'">
             <xsl:value-of select="concat($mod_dir,'/mim_lf.xml')"/>
           </xsl:when>
-          <xsl:when test="$arm_mim_res='ir_express'">
+		  <xsl:when test="$arm_mim_res='ir_express' or $arm_mim_res='ir' or $arm_mim_res='resdoc'">     
             <xsl:value-of select="concat('../data/resources/',$schema,'/',$schema,'.xml')"/>
-          </xsl:when>
+     
+		  </xsl:when>
           <xsl:when test="$arm_mim_res='reference'">
             <xsl:value-of select="concat('../data/reference/',$schema,'/',$schema,'.xml')"/>
           </xsl:when>
         </xsl:choose>
       </xsl:variable>
+
       <xsl:variable name="express_nodes"
         select="document(string($express_file))"/>
       <xsl:choose>
@@ -3098,7 +3286,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
                 select="concat('Error ER-6: The express_ref linkend# ', 
                         $linkend, 
                         '# is incorrectly specified. 
-                        The attribute does not exist.#
+                        The attribute ', $attribute, ' does not exist.#
                         Note linkend
 is case sensitive.')"/>
             </xsl:call-template>
@@ -3113,7 +3301,7 @@ is case sensitive.')"/>
                   or
                   $express_nodes/express/schema[@name=$schema]/type[@name=$entity_type]
                   or
-		  $express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]
+				  $express_nodes/express/schema[@name=$schema]/entity[@name=$entity_type]
                   or 
                   $express_nodes/express/schema[@name=$schema]/subtype.constraint[@name=$entity_type]
                   or
@@ -3128,7 +3316,7 @@ is case sensitive.')"/>
                 select="concat('Error ER-7: The express_ref linkend#', 
                               $linkend, 
                               '# is incorrectly specified.# 
-                        The entity does not exist.#Note linkend
+                        The data type ', $schema,'.',$entity_type,' does not exist.#Note linkend
 is case sensitive.')"/>
             </xsl:call-template>
 
@@ -3189,6 +3377,11 @@ is case sensitive.')"/>
     select="substring-before($nlinkend,':')"/>
 
   <xsl:variable 
+    name="resdoc_section" 
+    select="substring-before($nlinkend,':')"/>
+
+
+  <xsl:variable 
     name="nlinkend1"
     select="substring-before(substring-after($nlinkend,':'),':')"/>
 
@@ -3202,6 +3395,11 @@ is case sensitive.')"/>
                       or $nlinkend1='mim_lf_express'">
         <xsl:call-template name="check_module_exists">
           <xsl:with-param name="module" select="$module_section"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="$nlinkend1='resdoc' or $nlinkend1='ir'">
+        <xsl:call-template name="check_resdoc_exists">
+          <xsl:with-param name="resdoc" select="$resdoc_section"/>
         </xsl:call-template>
       </xsl:when>
       <xsl:when test="$nlinkend1='ir_express'">
@@ -3228,6 +3426,7 @@ is case sensitive.')"/>
                       or $nlinkend1='mim'
                       or $nlinkend1='mim_express'
                       or $nlinkend1='mim_lf_express'
+                      or $nlinkend1='ir'
                       or $nlinkend1='ir_express'
                       or $nlinkend1='reference'">
         <xsl:value-of select="$nlinkend1"/>
@@ -3451,18 +3650,18 @@ is case sensitive.')"/>
 
   <!-- check the schema name starts with Upper case and rest is lower case
        the schema ends in _arm or _mim -->
-  <xsl:template name="check_schema_name">
-    <xsl:param name="arm_mim"/>
+
+<xsl:template name="check_schema_name">
+    <xsl:param name="arm_mim_schema"/>
     <xsl:param name="schema_name"/>
-    
-    <xsl:variable name="_arm_mim" select="concat('_',$arm_mim)"/>
-    <!-- check that the schema name ends in _arm or _mim -->
+        <xsl:variable name="_arm_mim_schema" select="concat('_',$arm_mim_schema)"/>
+    <!-- check that the schema name ends in _arm or _mim or _schema -->
     <xsl:if 
-      test="substring($schema_name, string-length($schema_name)-3) != $_arm_mim">
+      test="substring($schema_name, string-length($schema_name)- string-length($arm_mim_schema)) != $_arm_mim_schema">
       <xsl:call-template name="error_message">
         <xsl:with-param 
           name="message" 
-          select="concat('Error q1: ',$arm_mim,' schema ',$schema_name,' must end in', $_arm_mim)"/>
+          select="concat('Error q1: ',$arm_mim_schema,' schema ',$schema_name,' must end in', $_arm_mim_schema)"/>
       </xsl:call-template>
     </xsl:if>
 
@@ -3471,26 +3670,37 @@ is case sensitive.')"/>
     <xsl:variable name="test">
       <xsl:call-template name="check_upper_lower_case">
         <xsl:with-param name="str" select="$schema_name"/>
+        <xsl:with-param name="arm_mim_schema" select="$arm_mim_schema"/>
       </xsl:call-template>
     </xsl:variable>
     <xsl:if test="$test = -1">
       <xsl:call-template name="error_message">
         <xsl:with-param 
           name="message" 
-          select="concat('Error q2: ',$arm_mim,' schema ',$schema_name,' incorrectly
+          select="concat('Error q2: ',$arm_mim_schema,' schema ',$schema_name,' incorrectly
                   named. First letter must uppercase, rest is lower case')"/>
       </xsl:call-template>    
     </xsl:if>
   </xsl:template>
 
+
   <!-- return 1 if the first letter in the string is Upper case and all the
        rest are lower case -->
+
   <xsl:template name="check_upper_lower_case">
     <xsl:param name="str"/>
+    <xsl:param name="arm_mim_schema"/>
     <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'"/>
     <xsl:choose>
-      <xsl:when test="contains($UPPER,substring($str,1,1))">
+      <xsl:when test="$arm_mim_schema='schema'" >
         <xsl:call-template name="check_all_lower_case">
+          <xsl:with-param name="str" select="$str"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+          <xsl:choose>
+            <xsl:when test="contains($UPPER,substring($str,1,1))">
+              <xsl:call-template name="check_all_lower_case">
           <xsl:with-param name="str" select="substring($str,2)"/>
         </xsl:call-template>
       </xsl:when>
@@ -3498,9 +3708,10 @@ is case sensitive.')"/>
         <!-- failed -->
         -1
       </xsl:otherwise>
-    </xsl:choose>
+          </xsl:choose>
+    </xsl:otherwise>
+  </xsl:choose>
   </xsl:template>
-
 
 
   <!-- check the entity name starts with Upper case and rest is lower case -->
@@ -4265,6 +4476,13 @@ is case sensitive.')"/>
   </xsl:if>
 </xsl:template>
 
+<xsl:template name="no_node_set">
+        Currently configured to support  SAXON, IE 6.0  or later,  and MSXSL XSLT parsers.	Your parser is from <xsl:element name="a">
+<xsl:attribute name="href"><xsl:value-of select="system-property('xsl:vendor-url')"/></xsl:attribute>
+<xsl:value-of select="system-property('xsl:vendor')"/> 
+</xsl:element> and supports xslt version &#x22;<xsl:value-of select="system-property('xsl:version')"/>&#x22; 
+
+</xsl:template>
 
 </xsl:stylesheet>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.25 2005/03/11 00:12:17 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.26 2006/02/22 21:25:33 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -18,8 +18,6 @@
 
   <xsl:import href="express_link.xsl"/> 
   <xsl:import href="express_description.xsl"/> 
-  <xsl:import href="express_code.xsl"/> 
-
   <xsl:import href="../projmg/resource_issues.xsl"/> 
 
   <xsl:output method="html"/>
@@ -562,6 +560,31 @@
 
 </xsl:template>
 
+
+
+<!-- THX added to support constants that are aggregates -->
+
+
+<xsl:template name="output_constant_expression">
+  <xsl:param name="expression"/>
+  <!--  <xsl:value-of select="','" /> -->
+    <br/>
+    &#160;&#160;&#160;&#160;<xsl:value-of select="substring-before($expression,',')"/>
+    
+    <xsl:choose>
+      <xsl:when test="contains($expression,',')">,
+        <xsl:call-template name="output_constant_expression">
+          <xsl:with-param name="expression" select="substring-after($expression,',')"/>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$expression"/>;
+      </xsl:otherwise>
+    </xsl:choose>
+
+
+</xsl:template>
+
 <xsl:template match="type" >
   <xsl:param name="main_clause"/>
   <xsl:variable 
@@ -843,6 +866,9 @@
       </a>
     </b> -->
     
+
+
+
     <!-- get description from external file -->
     <xsl:call-template name="output_external_description">
       <xsl:with-param name="schema" select="$schema"/>

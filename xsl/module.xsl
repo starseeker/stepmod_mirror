@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.192 2005/08/10 13:13:12 robbod Exp $
+$Id: module.xsl,v 1.193 2005/08/10 14:17:56 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1766,7 +1766,7 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
     select="$arm_node/express/schema/@name"/>
 
   <xsl:call-template name="check_schema_name">
-    <xsl:with-param name="arm_mim" select="'arm'"/>
+    <xsl:with-param name="arm_mim_schema" select="'arm'"/>
     <xsl:with-param name="schema_name" select="$schema_name"/>
   </xsl:call-template>
 
@@ -2222,7 +2222,7 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
 
 
   <xsl:call-template name="check_schema_name">
-    <xsl:with-param name="arm_mim" select="'mim'"/>
+    <xsl:with-param name="arm_mim_schema" select="'mim'"/>
     <xsl:with-param name="schema_name" select="$schema_name"/>
   </xsl:call-template>
 

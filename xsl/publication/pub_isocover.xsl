@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: pub_isocover.xsl,v 1.9 2004/11/01 13:37:48 robbod Exp $
+$Id: pub_isocover.xsl,v 1.10 2004/11/04 15:01:09 robbod Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -524,10 +525,33 @@ $Id: pub_isocover.xsl,v 1.9 2004/11/01 13:37:48 robbod Exp $
 
 
   <xsl:template match="resource" mode="display_name">
-    Integrated generic resource: 
+	<xsl:choose>
+	  <xsl:when test="@part >  500">
+    Application interpreted construct: 
     <xsl:call-template name="module_display_name">
       <xsl:with-param name="module" select="@name"/>
     </xsl:call-template>
+	  </xsl:when>
+	  <xsl:when test="@part >  99">
+    Integrated application resource: 
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="@name"/>
+    </xsl:call-template>
+	  </xsl:when>
+	  <xsl:when test="@part &lt;  99">
+	<xsl:apply-templates select="." mode="type"/>: 
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="@name"/>
+    </xsl:call-template>
+	  </xsl:when>
+	  <xsl:otherwise>
+      <xsl:call-template name="error_message">
+        <xsl:with-param 
+          name="message" 
+          select="concat('Error : unknown part number:', @part)"/>
+	  </xsl:call-template>
+	  </xsl:otherwise>
+	</xsl:choose>
   </xsl:template>
 
   <xsl:template match="resource" mode="display_name_french">

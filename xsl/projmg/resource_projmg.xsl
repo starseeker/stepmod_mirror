@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 
 <!--
-     $Id: resource_projmg.xsl,v 1.1 2002/10/16 20:49:59 thendrix Exp $
+     $Id: resource_projmg.xsl,v 1.2 2003/02/10 02:44:46 thendrix Exp $
 -->
 
 <xsl:stylesheet 
@@ -34,32 +34,14 @@
   <xsl:template match="management">
         <!-- Output a Table of contents -->
         <xsl:variable name="resdoc_name" select="@resource"/>
-
-        TEHTEHTEH resdoc_name:<xsl:value-of select="$resdoc_name" />:resdoc_name
-
         <xsl:variable name="resdoc_file"
           select="concat('../../data/resource_docs/',@resource,'/resource.xml')"/>
-
-        <xsl:message>
-          before in_repo
-        </xsl:message>
-
-        <xsl:variable name="in_repo"
-          select="document('../../data/resource_docs/resdoc_index.xml')/resource_docs/resource_docs[@name=$resdoc_name]"/>
-
-        <xsl:message>
-          in_repo after select
-        </xsl:message>
-
-        <xsl:choose>
+       <xsl:variable name="in_repo"
+          select="document('../../repository_index.xml')/repository_index/resource_docs/resource_doc[@name=$resdoc_name]"/>
+       <xsl:choose>
           <!-- the resource doc is present in the STEP resource doc repository -->
           <xsl:when test="$in_repo">
-
-        <xsl:message>
-          in_repo after test in repo
-        </xsl:message>
-
-            <xsl:variable name="resdoc_node"
+           <xsl:variable name="resdoc_node"
               select="document($resdoc_file)/resource[@name=$resdoc_name]"/>
             <xsl:apply-templates select="$resdoc_node"
               mode="TOCmultiplePage"/> 
@@ -74,7 +56,7 @@
                 <xsl:with-param name="message">
                   <xsl:value-of select="concat('Error B1: Resource document ',
                                         $resdoc_name,
-                                        ' does not exist in stepmod/resource_docs/resdoc_index.xml')"/>
+                                        ' does not exist in stepmod/repsitory_index.xml')"/>
                 </xsl:with-param>
               </xsl:call-template>
             </p>
@@ -88,7 +70,7 @@
       <tr>
         <td colspan="2" valign="middle">
           <h2>
-            Integrated generic resource: 
+	<xsl:apply-templates select="." mode="type"/>: 
             <a href="{$xref}">
               <xsl:value-of select="@resource"/>
             </a>

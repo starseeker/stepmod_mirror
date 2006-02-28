@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_1_scope.xsl,v 1.3 2003/08/24 22:10:35 thendrix Exp $
+$Id: sect_1_scope.xsl,v 1.4 2005/07/11 19:51:35 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -28,7 +28,7 @@ $Id: sect_1_scope.xsl,v 1.3 2003/08/24 22:10:35 thendrix Exp $
     Industrial automation systems and integration &#8212; <br/>
     Product data representation and exchange &#8212;  <br/>
     Part <xsl:value-of select="@part"/>:<br/>
-    Integrated generic resource: 
+	<xsl:apply-templates select="." mode="type"/>: 
     <xsl:call-template name="res_display_name">
       <xsl:with-param name="res" select="@name"/>
     </xsl:call-template>

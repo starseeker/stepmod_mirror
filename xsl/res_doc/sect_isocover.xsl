@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: sect_isocover.xsl,v 1.3 2004/11/09 01:22:26 thendrix Exp $
+$Id: sect_isocover.xsl,v 1.4 2005/07/11 17:46:00 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the cover page for a published module.
@@ -524,27 +525,6 @@ $Id: sect_isocover.xsl,v 1.3 2004/11/09 01:22:26 thendrix Exp $
   </xsl:template>
 
 
-  <xsl:template match="resource" mode="display_name">
-    Integrated generic resource: 
-    <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="@name"/>
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template match="resource" mode="display_name_french">
-    Ressources g&#233;n&#233;riques int&#233;gr&#233;es: 
-    <xsl:call-template name="module_display_name">
-      <xsl:with-param name="module" select="@name.french"/>
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template match="resource" mode="page_count">
-    <xsl:variable name="expg_count" select="count(.//express-g/imgfile)" />
-      <xsl:variable name="schema_count" select="count(.//schema)" />
-      <xsl:variable name="tech_disc_count" select="count(.//tech_discussion)" />
-      <xsl:variable name="add_scope" select="count(.//add_scope)" />
-        <xsl:value-of select="$expg_count + $schema_count + $schema_count  + 16" />
-        </xsl:template>
         
 <xsl:template match="module" mode="page_count">
     <xsl:variable name="expg_count" select="count(.//express-g/imgfile)" />

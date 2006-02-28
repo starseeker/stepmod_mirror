@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.28 2005/07/11 21:04:04 thendrix Exp $
+$Id: common.xsl,v 1.29 2006/02/28 01:06:30 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -553,121 +553,6 @@ $Id: common.xsl,v 1.28 2005/07/11 21:04:04 thendrix Exp $
     <p align="centre"><b><xsl:apply-templates/></b></p>
   </xsl:element>
 </xsl:template>
-
-
-
-
-  <!-- given the name of a resource or schema , return the name of resource
-       -->
-  <xsl:template name="resource_name">
-    <xsl:param name="resource"/>
-    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    <xsl:variable name="resource_lcase"
-      select="translate(
-              normalize-space(translate($resource,$UPPER, $LOWER)),
-              '&#x20;','_')"/>
-    <xsl:variable name="name">
-      <xsl:choose>
-        <xsl:when test="contains($resource_lcase,'_schema')">
-          <xsl:value-of select="substring-before($resource_lcase,'_schema')"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="string($resource_lcase)"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <xsl:value-of select="$name"/>
-  </xsl:template>
-
-
-  <!-- given the name of a resource document , return the name of resource document - dont ask
-       -->
-  <xsl:template name="resdoc_name">
-    <xsl:param name="resdoc"/>
-    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    <xsl:variable name="first_char" 
-      select="translate(substring($resdoc,1,1),$UPPER,$LOWER)"/>
-    <xsl:value-of 
-      select="concat($first_char,substring($resdoc,2))"/>
-  </xsl:template>
-
-
-  <!-- given the name of a resource doc or resource  - that is minus the _schema
-       return the name as it is to be displayed
-       i.e First character uppercase, then whitespace
-       -->
-  <xsl:template name="res_display_name">
-    <xsl:param name="res"/>
-    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-
-    <xsl:variable name="first_char"
-      select="substring(translate($res,$LOWER,$UPPER),1,1)"/>
-
-    <xsl:variable name="res_name"
-      select="concat($first_char,
-              translate(substring($res,2),'_',' '))"/>
-    <xsl:value-of select="$res_name"/>
-
-  </xsl:template>
-
-  <!-- given the name of a resource return the schema name
-       -->
-  <xsl:template name="res_schema_name">
-    <xsl:param name="resource"/>
-    <xsl:variable name="UPPER">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>
-    <xsl:variable name="LOWER">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    <xsl:variable name="resource_lcase"
-      select="translate(
-              normalize-space(translate($resource,$UPPER, $LOWER)),
-              '&#x20;','_')"/>
-    <xsl:variable name="res_name">
-          <xsl:value-of select="substring-before($resource_lcase,'_schema')"/>
-    </xsl:variable>
-    <xsl:value-of select="$res_name"/>
-  </xsl:template>
-
-  <!-- given the name of a resource doc
-       return the resource doc directory - unlike module no need to lower case the name.
--->
-
-  <xsl:template name="resdoc_directory">
-    <xsl:param name="resdoc"/>
-    <xsl:value-of select="concat('../../data/resource_docs/',$resdoc)"/>
-  </xsl:template>
-
-
-  <!-- given the name of a resource
-       return the directory
--->
-  <xsl:template name="resource_directory">
-    <xsl:param name="resource"/>
-    <xsl:value-of select="concat('../../data/resources/',$resource)"/>
-  </xsl:template>
-
-  <!-- given the name of a resource
-       return the resource file path
--->
-
-
-  <xsl:template name="resource_file">
-    <xsl:param name="resource"/>
-    <xsl:value-of select="concat('../../data/resources/',$resource,'/',$resource,'.xml')"/>
-  </xsl:template>
-
-
-  <!-- given the name of a resource expg file
-       return the resource expg file path
--->
-
-
-  <xsl:template name="resource_expg_file">
-    <xsl:param name="resource"/>
-    <xsl:param name="expg_file"/>
-    <xsl:value-of select="concat('../../data/resources/',$resource,'/',$expg_file)"/>
-  </xsl:template>
 
 
 

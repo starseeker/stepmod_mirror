@@ -3,7 +3,7 @@
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
 <ext_descriptions module_directory="chemical_substance" schema_file="arm.xml" 
 	describe.selects="YES" describe.subtype_constraints="YES" 
-	rcs.date="$Date: 2006/01/05 08:28:12 $" rcs.revision="$Revision: 1.26 $">
+	rcs.date="$Date: 2006/01/31 16:14:13 $" rcs.revision="$Revision: 1.27 $">
 	<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Chemical_substance_arm
    <express_ref linkend="chemical_substance:arm:Chemical_substance_arm"/>
@@ -62,7 +62,12 @@ The <b>Chemical_element</b> shall belong to a product category named 'chemical e
 	A <b>Substance</b> is a type of 
 	<express_ref linkend="product_identification:arm:Product_identification_arm.Product"/> 
 	that collects the definitional information of the versions of a 
-	<module_ref	linkend="chemical_substance:3_definition">substance</module_ref> 
+	<module_ref	linkend="chemical_substance:3_definition">substance</module_ref>.
+	A <b>Substance</b> may be one of a
+	<express_ref linkend="Chemical_substance:arm:Chemical_substance_arm.Chemical_element"/>,
+	<express_ref linkend="Chemical_substance:arm:Chemical_substance_arm.Chemical_compound"/>
+	or a
+	<express_ref linkend="Chemical_substance:arm:Chemical_substance_arm.Physical_particle"/>.
 </ext_description>
 
 <!-- WR1 -->
@@ -89,13 +94,7 @@ The <b>Chemical_element</b> shall belong to a product category named 'chemical e
 	<ext_description linkend="Chemical_substance_arm.Chemical_element.wr:wr1"> 
 		The <b>Chemical_element</b> shall belong to a product category named 
 		'chemical element'. </ext_description>
-	<ext_description linkend="Chemical_substance_arm.Chemical_element.wr:wr2">
-	<p>
-		The name of a <b>Chemical_element</b> shall be one of the names in 
-		<module_ref 
-		linkend="chemical_substance:3_definition">chemical_elements</module_ref> list.
-		</p>
-		</ext_description>
+	
 <!-- +++++++++++ Chemical_compound +++++++++++ -->
 <ext_description linkend="Chemical_substance_arm.Chemical_compound"> A 
 		<b>Chemical_compound</b> is a type of <express_ref 
@@ -145,10 +144,12 @@ set to 'id owner'. Where applicable the <b>id_owner</b> shall be an organization
 		linkend="product_view_definition:arm:Product_view_definition_arm.Product_view_definition"/> 
 		that defines a characterization view of a version of a <express_ref 
 		linkend="chemical_substance:arm:Chemical_substance_arm.Substance"/>.</ext_description>
+
+<!-- defined_version -->
 	<ext_description 
 		linkend="Chemical_substance_arm.Substance_view_definition.defined_version">
 		 the <express_ref 
-		linkend="part_and_version_identification:arm:Part_and_version_identification_arm.Part_version"/> 
+		linkend="Chemical_substance:arm:Chemical_substance_arm.Substance_version"/> 
 		of which the <b>Substance_view_definition</b> defines a 
 		view.</ext_description>
 <!-- +++++++++++ Substance_view_definition_constraint +++++++++++ -->
@@ -175,7 +176,7 @@ set to 'id owner'. Where applicable the <b>id_owner</b> shall be an organization
 		linkend="Chemical_substance_arm.Raw_material_definition_relationship">
 		<p> A <b>Raw_material_definition_relationship</b> is a type of 
 			<express_ref 
-			linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/>. 
+			linkend="Product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_usage"/>. 
 			A <b>Raw_material_definition_relationship</b> is the association 
 			between a <express_ref 
 			linkend="part_view_definition:arm:Part_view_definition_arm.Part_view_definition"/> 
@@ -214,7 +215,7 @@ set to 'id owner'. Where applicable the <b>id_owner</b> shall be an organization
 		linkend="Chemical_substance_arm.Substance_composition_relationship">
 		<p> An <b>Substance_composition_relationship</b> is a type of 
 			<express_ref 
-			linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/>. 
+			linkend="Product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship"/>. 
 			An <b>Substance_composition_relationship</b> is the association 
 			between a <express_ref 
 			linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Part_design_view"/> 
@@ -227,24 +228,13 @@ set to 'id owner'. Where applicable the <b>id_owner</b> shall be an organization
 			the assembly using this Application Object. </example>
 	</ext_description>
 	
-	<!-- quantity -->
-	<ext_description 
-		linkend="Chemical_substance_arm.Substance_composition_relationship.quantity">
-		 specifies the role of the <express_ref 
-		linkend="Value_with_unit:arm:Value_with_unit_arm.Value_with_unit"/> for 
-		the <express_ref linkend="chemical_substance:arm:Chemical_substance_arm.Substance_composition_relationship"/>. 
-		The <b>quantity</b> need not be specified
-		for the <express_ref 
-		linkend="Chemical_substance:arm:Chemical_substance_arm.Substance_composition_relationship"/> and if given be of unit type ratio. 
-		</ext_description>
-		
 	<!-- determination_method -->
 	<ext_description 
 		linkend="Chemical_substance_arm.Substance_composition_relationship.determination_method">
 		<p> specifies the LOGICAL type 
 			for the <express_ref 
 			linkend="Chemical_substance:arm:Chemical_substance_arm.Substance_composition_relationship"/>. 
-			This type permits a user to specify that the <b>quantity</b> of 
+			This type permits a user to specify that the <b>amount</b> of 
 			material to be supplied with the product may be determined at 
 			assembly on an item by item basis, where the item referred to is a 
 			real product delivered to a customer. </p>
@@ -255,19 +245,27 @@ set to 'id owner'. Where applicable the <b>id_owner</b> shall be an organization
 	<!-- composition_basis -->
 	<ext_description 
 		linkend="Chemical_substance_arm.Substance_composition_relationship.composition_basis">
-		specifies the kind of ratio given by <express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship.quantity"/>.
+		specifies the
+		<express_ref linkend="Chemical_substance:arm:Chemical_substance_arm.substance_composition_basis"/>,
+		the kind of ratio given by <express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship.quantity"/>.
 	</ext_description>
 	
 	<!-- whole -->
 	<ext_description 
 		linkend="Chemical_substance_arm.Substance_composition_relationship.whole">
-		specifies the <express_ref linkend="chemical_substance:arm:Chemical_substance_arm.Substance"/> that serves as 100% for the ratio given by <express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship.quantity"/>.
+		specifies the 
+		<express_ref linkend="Chemical_substance:arm:Chemical_substance_arm.Substance_view_definition"/> 
+		that serves as 100% for the ratio given by 
+		<express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship.quantity"/>.
 	</ext_description>
 	
 	<!-- constituent -->
 	<ext_description 
 		linkend="Chemical_substance_arm.Substance_composition_relationship.constituent">
-		specifies the <express_ref linkend="chemical_substance:arm:Chemical_substance_arm.Substance"/> for which the ratio given by <express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship.quantity"/> applies to.
+		specifies the 
+		<express_ref linkend="Chemical_substance:arm:Chemical_substance_arm.Substance_view_definition"/> 
+		for which the ratio given by 
+		<express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship.quantity"/> applies to.
 	</ext_description>
 	
 	<!-- amount -->
@@ -280,7 +278,7 @@ set to 'id owner'. Where applicable the <b>id_owner</b> shall be an organization
 <ext_description linkend="Chemical_substance_arm.Substance_composition_relationship.wr:WR1">
 	The 
 	<express_ref linkend="value_with_unit:arm:Value_with_unit_arm.Value_with_unit.unit"/> 
-	of <b>quantity</b> shall be
+	of <b>amount</b> shall be
 	<express_ref linkend="value_with_unit:arm:Value_with_unit_arm.Ratio_unit"/>.
 </ext_description>
 

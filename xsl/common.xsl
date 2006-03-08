@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.159 2005/11/09 01:07:15 thendrix Exp $
+$Id: common.xsl,v 1.160 2006/02/28 01:06:30 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3853,13 +3853,19 @@ is case sensitive.')"/>
       </xsl:when>
 
       <xsl:when test="$table_fig_node/ancestor::schema">
-        <xsl:variable name="schema" select="//schema/@name"/>
+        <xsl:variable name="schema" select="$table_fig_node/ancestor::schema/@name"/>
         <xsl:choose>
           <xsl:when test="substring($schema,string-length($schema)-3)='_arm'">
             <xsl:value-of select="concat('4_info_reqs',$FILE_EXT)"/>
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="substring($schema,string-length($schema)-3)='_mim'">
             <xsl:value-of select="concat('5_mim',$FILE_EXT)"/>
+          </xsl:when>
+          <xsl:when test="substring($schema,string-length($schema)-6)='_schema'">
+            <xsl:value-of select="concat(count($table_fig_node/ancestor::schema/preceding-sibling::schema)+4,'_schema',$FILE_EXT)"/>
+          </xsl:when>
+          <xsl:otherwise>
+			<xsl:value-of select="concat('',$FILE_EXT)"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -3870,6 +3876,19 @@ is case sensitive.')"/>
       <xsl:when test="$table_fig_node/ancestor::usage_guide[1]">
         <xsl:value-of select="concat('f_guide',$FILE_EXT)"/>
       </xsl:when>
+
+      <xsl:when test="$table_fig_node/ancestor::tech_discussion[1]">
+        <xsl:value-of select="concat('tech_discussion',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="$table_fig_node/ancestor::examples[1]">
+        <xsl:value-of select="concat('examples',$FILE_EXT)"/>
+      </xsl:when>
+
+      <xsl:when test="$table_fig_node/ancestor::add_scope[1]">
+        <xsl:value-of select="concat('add_scope',$FILE_EXT)"/>
+      </xsl:when>
+
     </xsl:choose>
   </xsl:template>
 

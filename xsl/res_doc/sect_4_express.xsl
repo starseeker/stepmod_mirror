@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.26 2006/02/22 21:25:33 thendrix Exp $
+     $Id: sect_4_express.xsl,v 1.27 2006/02/28 01:06:30 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -2411,6 +2411,9 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
       <xsl:when test="contains($schema_name,'_schema')">
         <xsl:value-of select="concat($resource_dir,'/',$schema_name,'.xml')"/>
       </xsl:when>
+      <xsl:when test="contains($schema_name,'aic_')">
+        <xsl:value-of select="concat($resource_dir,'/',$schema_name,'.xml')"/>
+      </xsl:when>
       <xsl:otherwise>
         <!-- should never get here -->
         9999
@@ -2738,6 +2741,9 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
   <xsl:variable name="xml_file">
     <xsl:choose>
       <xsl:when test="contains($schema_name,'_schema')">
+        <xsl:value-of select="concat($resource_dir,'/',$schema_name,'.xml')"/>
+      </xsl:when>
+      <xsl:when test="contains($schema_name,'aic_')">
         <xsl:value-of select="concat($resource_dir,'/',$schema_name,'.xml')"/>
       </xsl:when>
       <xsl:otherwise>
@@ -3081,12 +3087,12 @@ main_clause in exp_cl_pres   :<xsl:value-of select="$main_clause"/>
           <xsl:choose>
             <xsl:when test="contains($schema_name,'_schema')">
               <xsl:value-of select="concat($clause_number, 
-                                    ' ARM EXPRESS imported ',
+                                    ' EXPRESS imported ',
                                     $lkind,' modifications')"/>
             </xsl:when>
-            <xsl:when test="contains($schema_name,'_mim')">
+            <xsl:when test="contains($schema_name,'aic_')">
               <xsl:value-of select="concat($clause_number, 
-                                    ' MIM  EXPRESS imported '
+                                    ' EXPRESS imported '
                                     ,$lkind,' modifications')"/>
             </xsl:when>
           </xsl:choose>      

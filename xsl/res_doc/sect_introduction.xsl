@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.7 2004/02/10 23:45:29 thendrix Exp $
+$Id: sect_introduction.xsl,v 1.8 2004/02/25 09:15:14 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -27,7 +27,6 @@ $Id: sect_introduction.xsl,v 1.7 2004/02/10 23:45:29 thendrix Exp $
 <!-- overwrites the template declared in module.xsl -->
 <xsl:template match="resource">
   <xsl:apply-templates select="purpose"/>
-  <xsl:apply-templates select="schema_diag" />
 </xsl:template>
 
 
@@ -49,67 +48,99 @@ $Id: sect_introduction.xsl,v 1.7 2004/02/10 23:45:29 thendrix Exp $
     sharing product databases, and as a basis 
     for archiving.
   </p>
+  <xsl:variable name="doctype" >
+    <xsl:apply-templates select="ancestor::*[last()]" mode="doctype"/>
+  </xsl:variable>
   <xsl:choose>
-    <xsl:when test="count(../schema)>1">
-      <p>This part of ISO 10303 is a member of the integrated resources series. 
-      Major subdivisions of this part of ISO 10303 are: 
-    </p>
-      <ul>
-        <xsl:for-each select="../schema"> 
-        <li>
+    <xsl:when test="$doctype='igr' or $doctype='iar'">
       <xsl:choose>
-        <xsl:when test="position()!=last()">
-          <xsl:value-of select="concat(@name,';')"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="concat(@name,'.')"/>        
-        </xsl:otherwise>
+	<xsl:when test="count(../schema)>1">
+	  <p>This part of ISO 10303 is a member of the 
+	  
+
+	  <xsl:apply-templates select="ancestor::resource" mode="intro_type"/>
+
+	  series. 
+
+
+	  Major subdivisions of this part of ISO 10303 are: 
+	  </p>
+	  <ul>
+	    <xsl:for-each select="../schema"> 
+	      <li>
+		<xsl:choose>
+		  <xsl:when test="position()!=last()">
+		    <xsl:value-of select="concat(@name,';')"/>
+		  </xsl:when>
+		  <xsl:otherwise>
+		    <xsl:value-of select="concat(@name,'.')"/>        
+		  </xsl:otherwise>
+		</xsl:choose>
+	      </li>
+	    </xsl:for-each>
+
+	  </ul>
+	</xsl:when>
+
+	<xsl:otherwise>
+
+	  <p>This part of ISO 10303 is a member of the integrated resource series. This part of ISO 10303 specifies the 
+	  <xsl:value-of select="../schema[1]/@name" />.</p>
+	</xsl:otherwise>
       </xsl:choose>
-        </li>
-    </xsl:for-each>
 
-  </ul>
-</xsl:when>
 
-<xsl:otherwise>
- <p>This part of ISO 10303 is a member of the integrated resources series. This part of ISO 10303 specifies the 
- <xsl:value-of select="../schema[1]/@name" />.</p>
-</xsl:otherwise></xsl:choose>
+      <!-- output any issues -->
+      <xsl:apply-templates select=".." mode="output_clause_issue">
+	<xsl:with-param name="clause" select="'purpose'"/>
+      </xsl:apply-templates>
+<!-- output explicit text from the purpose tag -->. 
+      <xsl:apply-templates/>
 
-  <!-- output any issues -->
-  <xsl:apply-templates select=".." mode="output_clause_issue">
-    <xsl:with-param name="clause" select="'purpose'"/>
-  </xsl:apply-templates>
-  <xsl:apply-templates/>
+      <!-- prepare variables to output list of used schemas and parts -->
+      
+      <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of this International Standard are illustrated in Figure 1 using the EXPRESS-G notation. EXPRESS-G is defined in Annex D of ISO 10303-11. 
+      </p>
+      <xsl:variable name="used" >
+	<xsl:apply-templates select="../schema_diag" mode="use_reference_list" />
+      </xsl:variable>
+      <xsl:choose>
+	<xsl:when test="function-available('msxsl:node-set')">
 
-<!-- prepare variables to output list of used schemas and parts -->
-  
-  <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of this International Standard are illustrated in Figure 1 using the EXPRESS-G notation. EXPRESS-G is defined in Annex D of ISO 10303-11. 
-  </p>
-	<xsl:variable name="used" >
-		<xsl:apply-templates select="../schema_diag" mode="use_reference_list" />
-	</xsl:variable>
-	<xsl:choose>
-		<xsl:when test="function-available('msxsl:node-set')">
+	  <xsl:variable name="used-node-set" select="msxsl:node-set($used)" />
 
-        		<xsl:variable name="used-node-set" select="msxsl:node-set($used)" />
+	  <xsl:apply-templates select="$used-node-set/ref-list" />
 
-			<xsl:apply-templates select="$used-node-set/ref-list" />
-
-		</xsl:when>
+	</xsl:when>
 	
-		<xsl:when test="function-available('exslt:node-set')">
+	<xsl:when test="function-available('exslt:node-set')">
 
-        		<xsl:variable name="used-node-set" select="exslt:node-set($used)"/>
+	  <xsl:variable name="used-node-set" select="exslt:node-set($used)"/>
 
-			<xsl:apply-templates select="$used-node-set/ref-list" />
+	  <xsl:apply-templates select="$used-node-set/ref-list" />
 
 
-		</xsl:when>
+	</xsl:when>
 
-	</xsl:choose>
+      </xsl:choose>
 
-  <p>The schemas illustrated in Figure 1 are components of the integrated resources.</p>
+      <p>The schemas illustrated in Figure 1 are components of the integrated resources.</p>
+
+  <xsl:apply-templates select="//schema_diag" />
+
+    </xsl:when>
+
+    <xsl:when test="$doctype='aic'">
+
+      An application interpreted construct (AIC) provides a logical grouping of interpreted constructs that supports a specific functionality for the usage of product data across multiple application contexts. An interpreted construct is a common interpretation of the integrated resources that supports shared information requirements among application protocols.
+<!-- output explicit text from the purpose tag -->. 
+      <xsl:apply-templates/>
+
+    </xsl:when>
+    <xsl:otherwise>
+    </xsl:otherwise>
+  </xsl:choose>
+
 </xsl:template>
 
 
@@ -189,5 +220,23 @@ $Id: sect_introduction.xsl,v 1.7 2004/02/10 23:45:29 thendrix Exp $
 
 </xsl:template>
 
+<xsl:template match="resource" mode="intro_type">
+  <xsl:choose>
+	<xsl:when test="@part >  499">
+	  application interpreted construct</xsl:when>
+	<xsl:when test="@part >  99">
+	  integrated resource</xsl:when>
+	<xsl:when test="@part &lt;  99">
+	  integrated resource</xsl:when>
+	<xsl:otherwise>
+	  <xsl:call-template name="error_message">
+		<xsl:with-param 
+			name="message" 
+			select="concat('Error : unknown type,  part number:', @part)"/>
+	  </xsl:call-template>
+	</xsl:otherwise>
+  </xsl:choose>
+
+</xsl:template>
 
 </xsl:stylesheet>

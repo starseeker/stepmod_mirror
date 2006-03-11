@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.160 2006/02/28 01:06:30 thendrix Exp $
+$Id: common.xsl,v 1.161 2006/03/08 21:44:20 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1537,6 +1537,9 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
         <xsl:when test="contains($resource_lcase,'_schema')">
           <xsl:value-of select="substring-before($resource_lcase,'_schema')"/>
         </xsl:when>
+        <xsl:when test="contains($resource_lcase,'aic_')">
+          <xsl:value-of select="substring-after($resource_lcase,'aic_')"/>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="string($resource_lcase)"/>
         </xsl:otherwise>
@@ -1590,6 +1593,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
               '&#x20;','_')"/>
     <xsl:variable name="res_name">
           <xsl:value-of select="substring-before($resource_lcase,'_schema')"/>
+          <xsl:value-of select="substring-after($resource_lcase,'aic_')"/>
     </xsl:variable>
     <xsl:value-of select="$res_name"/>
   </xsl:template>
@@ -3654,14 +3658,27 @@ is case sensitive.')"/>
 <xsl:template name="check_schema_name">
     <xsl:param name="arm_mim_schema"/>
     <xsl:param name="schema_name"/>
-        <xsl:variable name="_arm_mim_schema" select="concat('_',$arm_mim_schema)"/>
-    <!-- check that the schema name ends in _arm or _mim or _schema -->
+<xsl:message>
+arm_mim_schema:<xsl:value-of select="$arm_mim_schema"/>
+substr:<xsl:value-of select="substring($schema_name,1 ,string-length($arm_mim_schema))"/>
+</xsl:message>
+        <xsl:variable name="_arm_mim_schema">
+	  <xsl:choose>
+	    <xsl:when test="not($arm_mim_schema='aic')">
+	      <xsl:value-of select="concat('_',$arm_mim_schema)"/>
+	    </xsl:when>
+	    <xsl:when test="$arm_mim_schema='aic'">
+	      <xsl:value-of select="concat($arm_mim_schema,'_')"/>
+	    </xsl:when>
+	  </xsl:choose>
+	</xsl:variable>
+    <!-- check that the schema name ends in _arm or _mim or _schema or starts with aic_ -->
     <xsl:if 
-      test="substring($schema_name, string-length($schema_name)- string-length($arm_mim_schema)) != $_arm_mim_schema">
+      test="substring($schema_name, string-length($schema_name)- string-length($arm_mim_schema)) != $_arm_mim_schema  and  substring($schema_name,1 ,string-length($_arm_mim_schema)) != $_arm_mim_schema">
       <xsl:call-template name="error_message">
         <xsl:with-param 
           name="message" 
-          select="concat('Error q1: ',$arm_mim_schema,' schema ',$schema_name,' must end in', $_arm_mim_schema)"/>
+          select="concat('Error q1: ',$arm_mim_schema,' schema ',$schema_name,' must start or end in', $_arm_mim_schema)"/>
       </xsl:call-template>
     </xsl:if>
 
@@ -3692,7 +3709,7 @@ is case sensitive.')"/>
     <xsl:param name="arm_mim_schema"/>
     <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'"/>
     <xsl:choose>
-      <xsl:when test="$arm_mim_schema='schema'" >
+      <xsl:when test="$arm_mim_schema='schema' or $arm_mim_schema='aic' " >
         <xsl:call-template name="check_all_lower_case">
           <xsl:with-param name="str" select="$str"/>
         </xsl:call-template>
@@ -4502,6 +4519,44 @@ is case sensitive.')"/>
 </xsl:element> and supports xslt version &#x22;<xsl:value-of select="system-property('xsl:version')"/>&#x22; 
 
 </xsl:template>
+
+
+<xsl:template match="resource" mode="type">
+  <xsl:choose>
+	<xsl:when test="@part >  500">
+	  Application interpreted construct</xsl:when>
+	<xsl:when test="@part >  99">
+	  Integrated application resource</xsl:when>
+	<xsl:when test="@part &lt;  99">
+	  Integrated generic resource</xsl:when>
+	<xsl:otherwise>
+	  <xsl:call-template name="error_message">
+		<xsl:with-param 
+			name="message" 
+			select="concat('Error : unknown type,  part number:', @part)"/>
+	  </xsl:call-template>
+	</xsl:otherwise>
+  </xsl:choose>
+
+</xsl:template>
+
+<xsl:template match="resource|module|application_protocol" mode="doctype">
+  <xsl:choose>
+	<xsl:when test="name(.)='application_protocol'">ap</xsl:when>
+	<xsl:when test="name(.)='module'">am</xsl:when>
+	<xsl:when test="name(.)='resource' and @part > 499">aic</xsl:when>
+	<xsl:when test="name(.)='resource' and @part >  99">iar</xsl:when>
+	<xsl:when test="name(.)='resource' and @part &lt;  99">igr</xsl:when>
+	<xsl:otherwise>
+	  <xsl:call-template name="error_message">
+		<xsl:with-param 
+			name="message" 
+			select="concat('Error : unknown type,  part number:', @part)"/>
+	  </xsl:call-template>
+	</xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 
 </xsl:stylesheet>
 

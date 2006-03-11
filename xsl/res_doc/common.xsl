@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.29 2006/02/28 01:06:30 thendrix Exp $
+$Id: common.xsl,v 1.30 2006/02/28 22:12:59 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -25,23 +25,6 @@ $Id: common.xsl,v 1.29 2006/02/28 01:06:30 thendrix Exp $
      is set, then RCS version control information is displayed
 -->
   
-<xsl:template match="resource" mode="type">
-  <xsl:choose>
-	<xsl:when test="@part >  500">
-	  Application interpreted construct</xsl:when>
-	<xsl:when test="@part >  99">
-	  Integrated application resource</xsl:when>
-	<xsl:when test="@part &lt;  99">
-	  Integrated generic resource</xsl:when>
-	<xsl:otherwise>
-	  <xsl:call-template name="error_message">
-		<xsl:with-param 
-			name="message" 
-			select="concat('Error : unknown type,  part number:', @part)"/>
-	  </xsl:call-template>
-	</xsl:otherwise>
-  </xsl:choose>
-</xsl:template>
 
 <xsl:template match="resource" mode="title">
   <xsl:variable

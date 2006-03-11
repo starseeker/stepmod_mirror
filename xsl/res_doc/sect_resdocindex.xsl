@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_resdocindex.xsl,v 1.5 2004/11/16 00:42:53 thendrix Exp $
+$Id: sect_resdocindex.xsl,v 1.6 2005/03/02 19:50:32 thendrix Exp $
   Author:  Tom Hendrix, Boeing
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -323,7 +323,9 @@ $Id: sect_resdocindex.xsl,v 1.5 2004/11/16 00:42:53 thendrix Exp $
 <xsl:template match="resource" mode="get_definition_section">
   <!-- get a list of normative references that have terms defined -->
   <xsl:variable name="normrefs">
-    <xsl:call-template name="normrefs_terms_list"/>
+    <xsl:call-template name="normrefs_terms_list">
+      <xsl:with-param name="current_resource" select="."/>
+    </xsl:call-template>
   </xsl:variable>
 
   <xsl:variable name="def_section">

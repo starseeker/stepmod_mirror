@@ -13,10 +13,18 @@ SCHEMA Generic_material_aspects_arm;
 TYPE material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT;
 END_TYPE;
 
+TYPE material_property_select = SELECT (Material_property, Applied_independent_property);
+END_TYPE;
+
 TYPE dependent_or_independent_property_representation = SELECT(
   Independent_property_representation,
   Property_representation);
 END_TYPE;
+
+ ENTITY Applied_independent_material_property SUBTYPE OF
+    (Material_property, Applied_independent_property);
+     SELF\Applied_independent_property.base_independent_property: Independent_material_property;
+  END_ENTITY;
 
  ENTITY Data_environment;
   environment_name : STRING;
@@ -29,6 +37,10 @@ END_TYPE;
   items : SET[1:?] OF material_item_select;
  END_ENTITY;
 
+ ENTITY Material_property
+  SUBTYPE OF (Assigned_property);
+ END_ENTITY;
+
  ENTITY Material_property_association;
   described_material : Material_identification;
   associated_property_value : Material_property_value_representation;
@@ -38,13 +50,19 @@ END_TYPE;
  ENTITY Material_property_value_representation
   SUBTYPE OF (Property_representation);
   environment_condition : Data_environment;
-  SELF\Property_representation.property : Applied_independent_property;
+  SELF\Property_representation.property : material_property_select;
 WHERE
 WR1: 'MATERIAL_ASPECTS_ARM.PDM_MATERIAL_PROPERTY' IN TYPEOF(SELF\Property_representation.property.base_independent_property); 
 END_ENTITY;
 
- ENTITY Pdm_material_property
+ ENTITY Independent_material_property
   SUBTYPE OF (Independent_property);
+  WHERE
+    WR1:  SIZEOF(QUERY( aip <* USEDIN(SELF,'PROPERTY_ASSIGNMENT_ARM.APPLIED_INDEPENDENT_PROPERTY.'+
+                     'BASE_INDEPENDENT_PROPERTY') |
+               NOT
+			('GENERIC_MATERIAL_ASPECTS_ARM.APPLIED_INDEPENDENT_MATERIAL_PROPERTY' IN
+                    TYPEOF(aip)))) = 0;
  END_ENTITY;
 
 

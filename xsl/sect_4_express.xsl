@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.120 2005/01/04 07:40:17 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.121 2005/01/31 11:24:53 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -1624,7 +1624,7 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
 <xsl:template match="explicit" mode="code">
   <xsl:if test="@name='id' or @name='identifier' or substring-after(@name,'_')='id'" >
 
-    <xsl:if test="not(preceding-sibling::explicit[1][@name='id' or substring-after(@name,'_')='id']) and preceding-sibling::explicit[1]">
+    <xsl:if test="not(preceding-sibling::explicit[@name='id'] or preceding-sibling::explicit[substring-after(@name,'_')='id']) and preceding-sibling::explicit">
    <xsl:call-template name="error_message">
         <xsl:with-param 
           name="message" 

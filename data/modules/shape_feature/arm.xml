@@ -9,15 +9,6 @@
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <entity name="Feature_definition" supertypes="Characterizable_object">
-         <derived name="feature_model" expression="get_geometric_model(of_shape)">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Geometric_model"/>
-         </derived>
-         <inverse name="of_shape" entity="Item_shape" attribute="described_element"/>
-         <where label="WR1" expression="EXISTS(feature_model)"/>
-      </entity>
-      <entity name="Feature_occurrence" abstract.supertype="YES" supertypes="Shape_element" super.expression="ONEOF (Instanced_feature, Placed_feature)"/>
       <entity name="Geometric_model_constituent_relationship" abstract.supertype="YES" supertypes="Geometric_placement_operation">
          <explicit name="constituent_element">
             <typename name="Shape_element"/>
@@ -32,15 +23,24 @@
          <where label="WR1" expression="('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT' IN TYPEOF(SELF)) OR&#10;   ('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_OPERATOR_TRANSFORMATION' IN TYPEOF(SELF))"/>
          <where label="WR2" expression="NOT('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT_MODEL' IN TYPEOF(composed_model[1]))"/>
       </entity>
-      <entity name="Instanced_feature" supertypes="Feature_occurrence Feature_definition"/>
-      <entity name="Placed_feature" supertypes="Feature_occurrence">
+      <entity name="Instanced_feature" supertypes="Shape_feature_occurrence Shape_feature_definition"/>
+      <entity name="Placed_feature" supertypes="Shape_feature_occurrence">
          <explicit name="definition">
-            <typename name="Feature_definition"/>
+            <typename name="Shape_feature_definition"/>
          </explicit>
          <inverse name="feature_shape" entity="Geometric_model_constituent_relationship" attribute="constituent_element">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
       </entity>
+      <entity name="Shape_feature_definition" supertypes="Characterizable_object">
+         <derived name="feature_model" expression="get_geometric_model(of_shape)">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Geometric_model"/>
+         </derived>
+         <inverse name="of_shape" entity="Item_shape" attribute="described_element"/>
+         <where label="WR1" expression="EXISTS(feature_model)"/>
+      </entity>
+      <entity name="Shape_feature_occurrence" abstract.supertype="YES" supertypes="Shape_element" super.expression="ONEOF (Instanced_feature, Placed_feature)"/>
       <function name="get_geometric_model">
          <parameter name="input">
             <typename name="Item_shape"/>

@@ -14,6 +14,15 @@
       <type name="material_item_select">
          <select extensible="YES" genericentity="YES"/>
       </type>
+      <type name="material_property_select">
+         <select selectitems="Material_property General_material_property"/>
+      </type>
+      <entity name="Applied_independent_material_property" supertypes="Material_property Applied_independent_property">
+         <explicit name="base_independent_property">
+            <typename name="General_material_property"/>
+            <redeclaration entity-ref="Applied_independent_property"/>
+         </explicit>
+      </entity>
       <entity name="Data_environment">
          <explicit name="environment_name">
             <builtintype type="STRING"/>
@@ -26,6 +35,9 @@
             <typename name="dependent_or_independent_property_representation"/>
          </explicit>
       </entity>
+      <entity name="General_material_property" supertypes="Independent_property">
+         <where label="WR1" expression="SIZEOF(QUERY( aip &lt;* USEDIN(SELF,'PROPERTY_ASSIGNMENT_ARM.APPLIED_INDEPENDENT_PROPERTY.'+&#10;                     'BASE_INDEPENDENT_PROPERTY') |&#10;               NOT&#10;			('GENERIC_MATERIAL_ASPECTS_ARM.APPLIED_INDEPENDENT_MATERIAL_PROPERTY' IN&#10;                    TYPEOF(aip)))) = 0"/>
+      </entity>
       <entity name="Material_identification">
          <explicit name="material_name">
             <builtintype type="STRING"/>
@@ -35,6 +47,7 @@
             <typename name="material_item_select"/>
          </explicit>
       </entity>
+      <entity name="Material_property" supertypes="Assigned_property"/>
       <entity name="Material_property_association">
          <explicit name="described_material">
             <typename name="Material_identification"/>
@@ -51,11 +64,10 @@
             <typename name="Data_environment"/>
          </explicit>
          <explicit name="property">
-            <typename name="Applied_independent_property"/>
+            <typename name="material_property_select"/>
             <redeclaration entity-ref="Property_representation"/>
          </explicit>
-         <where label="WR1" expression="'MATERIAL_ASPECTS_ARM.PDM_MATERIAL_PROPERTY' IN TYPEOF(SELF\Property_representation.property.base_independent_property)"/>
+         <where label="WR1" expression="'GENERIC_MATERIAL_ASPECTS_ARM.GENERAL_MATERIAL_PROPERTY' IN TYPEOF(SELF\Property_representation.property.base_independent_property)"/>
       </entity>
-      <entity name="Pdm_material_property" supertypes="Independent_property"/>
    </schema>
 </express>

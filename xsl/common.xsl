@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.161 2006/03/08 21:44:20 thendrix Exp $
+$Id: common.xsl,v 1.162 2006/03/11 01:22:50 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3658,10 +3658,6 @@ is case sensitive.')"/>
 <xsl:template name="check_schema_name">
     <xsl:param name="arm_mim_schema"/>
     <xsl:param name="schema_name"/>
-<xsl:message>
-arm_mim_schema:<xsl:value-of select="$arm_mim_schema"/>
-substr:<xsl:value-of select="substring($schema_name,1 ,string-length($arm_mim_schema))"/>
-</xsl:message>
         <xsl:variable name="_arm_mim_schema">
 	  <xsl:choose>
 	    <xsl:when test="not($arm_mim_schema='aic')">

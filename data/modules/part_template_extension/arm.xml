@@ -18,6 +18,9 @@
       <type name="extend_or_truncate">
          <enumeration items="truncate extend"/>
       </type>
+      <type name="primitive_2d_planar_path_with_parameters_or_axis_placement_2d">
+         <select selectitems="Primitive_2d_planar_path_with_parameters Axis_placement_2d"/>
+      </type>
       <type name="square_or_round">
          <enumeration items="square round"/>
       </type>
@@ -102,17 +105,23 @@
          <where label="WR1" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;                        ('BASIC_CURVE_ARM.CLOSED_CURVE' in TYPEOF(it))&#10;                   )) = 1"/>
          <where label="WR2" expression="'PART_TEMPLATE_EXTENSION_ARM.CLOSED_CURVE_STYLE_PARAMETERS' IN &#10;            TYPEOF(SELF\Planar_path_shape_model_with_parameters.parameters\Trace_template.trace_style)"/>
       </entity>
-      <entity name="Planar_path_shape_model_with_parameters" supertypes="Planar_projected_shape_model">
+      <entity name="Planar_path_shape_model_with_parameters" supertypes="Single_area_csg_2d_model">
          <explicit name="parameters">
             <typename name="Trace_template"/>
          </explicit>
          <explicit name="items">
-            <aggregate type="SET" lower="2" upper="2"/>
-            <typename name="curve_or_axis_placement"/>
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="primitive_2d_planar_path_with_parameters_or_axis_placement_2d"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;                        ('BASIC_GEOMETRY_ARM.CURVE' in TYPEOF(it))&#10;                  )) = 1"/>
-         <where label="WR2" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;                        (('ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT' in TYPEOF(it)) AND &#10;                         (it\Axis_placement.origin.coordinates[1] = 0.0) AND&#10;                         (it\Axis_placement.origin.coordinates[2] = 0.0) AND&#10;                         ((SIZEOF(it\Axis_placement.origin.coordinates) = 2) OR (it\Axis_placement.origin.coordinates[3] = 0.0))&#10;                         )&#10;                   )) = 1"/>
+      </entity>
+      <entity name="Primitive_2d_planar_path_with_parameters" supertypes="Detailed_geometric_model_element">
+         <explicit name="centerline">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="parameters">
+            <typename name="Closed_curve_style_parameters"/>
+         </explicit>
       </entity>
       <entity name="Snowball_template" supertypes="Teardrop_template">
          <explicit name="snowball_start_distance">

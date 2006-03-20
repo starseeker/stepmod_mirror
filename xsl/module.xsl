@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.194 2006/02/28 01:06:30 thendrix Exp $
+$Id: module.xsl,v 1.195 2006/03/20 21:17:43 dmprice Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4150,7 +4150,7 @@ $module_ok,' Check the normatives references')"/>
 
 <xsl:template match="usage_guide[.//guide_subclause]">
 
-    <xsl:apply-templates select="p" />
+    <xsl:apply-templates select="p | ul" />
 
 <!-- usage guide with sub-clauses -->
   <xsl:for-each select="./guide_subclause">		
@@ -4193,7 +4193,7 @@ $module_ok,' Check the normatives references')"/>
 		<A name="{$title}"><h2><xsl:value-of select="concat('F.',$sect_no,' ')"/>
 			<xsl:value-of select="@title"/></h2></A>
 
-	    <xsl:apply-templates select="p" />
+	    <xsl:apply-templates select="p | ul" />
 			
 			<xsl:variable name="sect_sup">
 		<xsl:value-of select="concat('F.',$sect_no,'.')"/>

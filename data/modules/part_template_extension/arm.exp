@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.54 2006/02/15 10:08:15 liutkus Exp $
+   $Id: arm.exp,v 1.55 2006/02/21 14:37:12 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4101 - ISO/TS 10303-1718 Part template extension - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3525
 *)
@@ -23,10 +23,14 @@ SCHEMA Part_template_extension_arm;
      extend);
   END_TYPE;
 
-	TYPE curve_or_axis_placement = SELECT(
-		Curve,
-   		Axis_placement);
-	END_TYPE;
+  TYPE curve_or_axis_placement = SELECT(
+	Curve,
+   	Axis_placement);
+  END_TYPE;
+
+  TYPE primitive_2d_planar_path_with_parameters_or_axis_placement_2d = SELECT (
+    Primitive_2d_planar_path_with_parameters, Axis_placement_2d);
+  END_TYPE;
 
 TYPE text_alignment = ENUMERATION OF(
           top_right,
@@ -127,21 +131,19 @@ TYPE text_alignment = ENUMERATION OF(
   END_ENTITY;
 
   ENTITY Planar_path_shape_model_with_parameters
-    SUBTYPE OF (Planar_projected_shape_model);
-    parameters : Trace_template;
-    SELF\Representation.items: SET[2:2] OF curve_or_axis_placement;
-    WHERE
-     WR1 : SIZEOF(QUERY(it <* SELF\Representation.items |
-                        ('BASIC_GEOMETRY_ARM.CURVE' in TYPEOF(it))
-                  )) = 1;       
-     WR2 : SIZEOF(QUERY(it <* SELF\Representation.items |
-                        (('ELEMENTAL_GEOMETRIC_SHAPE_ARM.AXIS_PLACEMENT' in TYPEOF(it)) AND 
-                         (it\Axis_placement.origin.coordinates[1] = 0.0) AND
-                         (it\Axis_placement.origin.coordinates[2] = 0.0) AND
-                         ((SIZEOF(it\Axis_placement.origin.coordinates) = 2) OR (it\Axis_placement.origin.coordinates[3] = 0.0))
-                         )
-                   )) = 1;    
-  END_ENTITY;
+    SUBTYPE OF (Single_area_csg_2d_model);
+      parameters : Trace_template;
+      SELF\Representation.items : SET [1:?] OF primitive_2d_planar_path_with_parameters_or_axis_placement_2d;
+    --TODO  
+    -- WHERE
+    --  wr1: - there must be eactly one Planar_path_shape_with_parameters i the items
+  END_ENTITY;  
+  
+  ENTITY Primitive_2d_planar_path_with_parameters
+    SUBTYPE OF (Detailed_geometric_model_element);
+      centerline : Curve;
+      parameters : Closed_curve_style_parameters;
+  END_ENTITY;  
   
   ENTITY Planar_closed_path_shape_model_with_parameters
     SUBTYPE OF (Planar_path_shape_model_with_parameters);

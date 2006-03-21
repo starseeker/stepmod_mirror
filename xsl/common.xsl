@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.162 2006/03/11 01:22:50 thendrix Exp $
+$Id: common.xsl,v 1.163 2006/03/16 21:25:42 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4533,8 +4533,50 @@ is case sensitive.')"/>
 	  </xsl:call-template>
 	</xsl:otherwise>
   </xsl:choose>
-
 </xsl:template>
+
+<xsl:template match="resource" mode="display_french_doctype">
+  <xsl:variable name="doctype">
+    <xsl:apply-templates select="." mode="doctype"/>
+  </xsl:variable>
+  <xsl:choose>
+	<xsl:when test="$doctype='aic'">
+	  **FIX** </xsl:when>
+	<xsl:when test="$doctype='iar'">
+	  Ressources d'application int&#233;gr&#233;es</xsl:when>
+	<xsl:when test="$doctype='igr'">
+	  Ressources g&#233;n&#233;riques int&#233;gr&#233;es</xsl:when>
+	<xsl:otherwise>
+	  <xsl:call-template name="error_message">
+		<xsl:with-param 
+			name="message" 
+			select="concat('Error : unknown type: ', $doctype)"/>
+	  </xsl:call-template>
+	</xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="resource" mode="display_doctype">
+  <xsl:variable name="doctype">
+    <xsl:apply-templates select="." mode="doctype"/>
+  </xsl:variable>
+  <xsl:choose>
+	<xsl:when test="$doctype='aic'">
+	  Application interpreted construct</xsl:when>
+	<xsl:when test="$doctype='iar'">
+	  Integrated application resource</xsl:when>
+	<xsl:when test="$doctype='igr'">
+	  Integrated generic resource</xsl:when>
+	<xsl:otherwise>
+	  <xsl:call-template name="error_message">
+		<xsl:with-param 
+			name="message" 
+			select="concat('Error : unknown type: ', $doctype)"/>
+	  </xsl:call-template>
+	</xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
 
 <xsl:template match="resource|module|application_protocol" mode="doctype">
   <xsl:choose>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.30 2006/02/28 22:12:59 thendrix Exp $
+$Id: common.xsl,v 1.31 2006/03/11 01:22:50 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -364,20 +364,18 @@ $Id: common.xsl,v 1.30 2006/02/28 22:12:59 thendrix Exp $
 </xsl:template>
 
 
-
   <xsl:template match="resource" mode="display_name">
- <xsl:variable name="this-type">
-	<xsl:apply-templates select="." mode="type"/>
-  </xsl:variable>
-
-	<xsl:value-of select="concat($this-type,': ')" />
-	<xsl:call-template name="module_display_name">
-	  <xsl:with-param name="module" select="@name"/>
-	</xsl:call-template>
+    <xsl:variable name="this-type">
+      <xsl:apply-templates select="." mode="type"/>
+    </xsl:variable>
+    <xsl:value-of select="concat($this-type,': ')" />
+    <xsl:call-template name="module_display_name">
+      <xsl:with-param name="module" select="@name"/>
+    </xsl:call-template>
   </xsl:template>
 
   <xsl:template match="resource" mode="display_name_french">
-    Ressources g&#233;n&#233;riques int&#233;gr&#233;es: 
+    <xsl:apply-templates select="." mode="display_french_doctype"/>: 
     <xsl:call-template name="module_display_name">
       <xsl:with-param name="module" select="@name.french"/>
     </xsl:call-template>

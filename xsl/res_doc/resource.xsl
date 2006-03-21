@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.56 2006/02/22 23:01:13 thendrix Exp $
+$Id: resource.xsl,v 1.57 2006/03/11 01:22:50 thendrix Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -1032,7 +1032,7 @@ Purpose:
       This annex references a listing of the EXPRESS entity names and
       corresponding short names as specified or referenced in this part of ISO
       10303. It also provides a listing of each EXPRESS schema specified in this
-      part of ISO 10303 without comments nor other explanatory text. These
+      part of ISO 10303 without comments or other explanatory text. These
       listings are available in computer-interpretable form in Table C.1 and can
       be found at the following URLs:
     </p>

@@ -14,6 +14,11 @@ USE FROM Independent_property_arm;    -- ISO/TS 10303-1036
 TYPE property_assignment_select = EXTENSIBLE SELECT;
 END_TYPE; 
 
+TYPE represented_definition = EXTENSIBLE SELECT (
+    Independent_property,
+    Assigned_property);
+END_TYPE;
+
 ENTITY Applied_independent_property
   SUBTYPE OF (Assigned_property);
   base_independent_property : Independent_property;
@@ -28,11 +33,17 @@ ENTITY Assigned_property;
   described_element : property_assignment_select;
 END_ENTITY;
 
-ENTITY Property_representation;
-  description : OPTIONAL STRING;
-  property : Assigned_property;
-  rep : Representation;
-  role : OPTIONAL STRING;
+ENTITY Property_definition_representation
+  ABSTRACT SUPERTYPE;
+    description : OPTIONAL STRING;
+    definition : represented_definition;
+    rep : Representation;
+    role : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Property_representation
+  SUBTYPE OF (Property_definition_representation);
+    SELF\Property_definition_representation.definition RENAMED property : Assigned_property;
 END_ENTITY;
 
 END_SCHEMA;  -- Property_assignment_arm

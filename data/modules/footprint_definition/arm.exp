@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.9 2006/02/05 19:38:55 thomasrthurman Exp $
+   $Id: arm.exp,v 1.10 2006/02/20 09:51:20 liutkuviene Exp $
    ISO TC184/SC4/WG12 N3885 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
 *)
 
@@ -37,14 +37,14 @@ SCHEMA Footprint_definition_arm;
 
   ENTITY Footprint_definition
     SUBTYPE OF (Generic_footprint_definition);
-      reference_package : Package;
+      reference_package : OPTIONAL Part_usage_view;
     WHERE
       WR1 : SIZEOF (QUERY(shape <* SELF\Structured_template.shapes |
                NOT ('PART_TEMPLATE_2D_SHAPE_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(shape))
               )) = 0;
-      WR2 : SIZEOF (QUERY(padstack <* SELF\Generic_footprint_definition.padstacks |
-               ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_LOCATION_IN_FOOTPRINT_DEFINITION' IN TYPEOF(padstack))
-              )) > 0;
+      WR2 : SIZEOF (QUERY(tlist <* SELF\Structured_template.templates |
+               ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(tlist.template))
+              )) = 0;
   END_ENTITY;
 
   ENTITY Footprint_definition_shape_model
@@ -88,16 +88,6 @@ SCHEMA Footprint_definition_arm;
             (NOT (location = template_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'));
   END_ENTITY;
 
-  ENTITY Padstack_location_in_footprint_definition
-    SUBTYPE OF (Part_feature_based_template_location);
-      SELF\Template_location_in_structured_template.template : Padstack_definition;
-      SELF\Part_feature_based_template_location.reference_feature : Package_terminal;
-    DERIVE
-      SELF\Template_location_in_structured_template.reference_designation : STRING := reference_feature\Shape_element.element_name;
-    UNIQUE
-      UR1: assembly, reference_feature;
-  END_ENTITY;
-
   ENTITY Part_feature_based_template_location
     SUBTYPE OF (Template_location_in_structured_template);
       SELF\Template_location_in_structured_template.assembly : Footprint_definition;
@@ -110,7 +100,7 @@ SCHEMA Footprint_definition_arm;
     SUBTYPE OF (Stratum_specific_template_location);
       SELF\Template_location_in_structured_template.assembly : Breakout_footprint_definition;
       SELF\Template_location_in_structured_template.template : Stratum_feature_template;
-      original_padstack : Padstack_location_in_footprint_definition;
+      original_padstack : Part_feature_based_template_location;
       breakout_padstack : Template_location_in_structured_template;
     WHERE
     -- original_padstack must belong to Footprint_definition

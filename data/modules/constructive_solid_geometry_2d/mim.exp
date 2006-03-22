@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.13 2006/03/20 13:00:39 liutkus Exp $
+   $Id: mim.exp,v 1.14 2006/03/20 13:49:13 liutkus Exp $
    ISO TC184/SC4/WG12 N4141 - ISO/TS 10303-1731 Constructive solid geometry 2d - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3331
 *) 
@@ -40,11 +40,11 @@ USE FROM geometry_schema (composite_curve);
   TYPE csg_select_2d = SELECT (primitive_2d, boolean_result_2d);
   END_TYPE;
 
-  TYPE set_inner_area_boundary = SET [1:?] OF inner_area_boundary;
+  TYPE set_inner_area_boundary = SET [1:?] OF area_with_inner_boundary;
   END_TYPE;
 
-  ENTITY area_boundary 
-    ABSTRACT SUPERTYPE OF (ONEOF(inner_area_boundary, outer_area_boundary))
+  ENTITY bounded_area 
+    ABSTRACT SUPERTYPE OF (ONEOF(area_with_inner_boundary, area_with_outer_boundary))
     SUBTYPE OF (half_space_2d);
       SELF\half_space_2d.base_curve : composite_curve;
    WHERE
@@ -58,8 +58,8 @@ USE FROM geometry_schema (composite_curve);
      SELF\boolean_result.second_operand : boolean_operand_2d;
   END_ENTITY;
 
-  ENTITY complex_area_boundary 
-    SUBTYPE OF (outer_area_boundary, compound_representation_item);
+  ENTITY area_with_complex_boundary 
+    SUBTYPE OF (area_with_outer_boundary, compound_representation_item);
      SELF\compound_representation_item.item_element RENAMED inner_boundary : compound_inner_area_boundary; 
   END_ENTITY; 
 
@@ -99,12 +99,12 @@ USE FROM geometry_schema (composite_curve);
      --  SELF\csg_2d_shape_representation || SELF\representation)) = 0;
   END_ENTITY;
 
-  ENTITY inner_area_boundary 
-    SUBTYPE OF (area_boundary);
+  ENTITY area_with_inner_boundary 
+    SUBTYPE OF (bounded_area);
   END_ENTITY;
 
-  ENTITY outer_area_boundary 
-     SUBTYPE OF (area_boundary, primitive_2d);
+  ENTITY area_with_outer_boundary 
+     SUBTYPE OF (bounded_area, primitive_2d);
   END_ENTITY; 
 
   ENTITY single_area_csg_2d_shape_representation
@@ -124,8 +124,8 @@ USE FROM geometry_schema (composite_curve);
     WHERE
       WR1: SIZEOF(QUERY ( it <* SELF.items |
       (('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.CSG_PRIMITIVE_SOLID_2D' IN TYPEOF(it)) AND
-      (NOT (( 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.COMPLEX_AREA_BOUNDARY') IN
+      (NOT (( 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.AREA_WITH_COMPLEX_BOUNDARY') IN
       TYPEOF(it\csg_primitive_solid_2d.tree_root_expression)))) )) = 0;    
   END_ENTITY;
 
-END_SCHEMA;  -- Constructive_solid_geometry_2d_mim
+END_SCHEMA;

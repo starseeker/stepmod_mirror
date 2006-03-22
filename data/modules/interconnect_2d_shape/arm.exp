@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.29 2006/01/20 08:43:41 liutkuviene Exp $
+   $Id: arm.exp,v 1.31 2006/02/17 20:00:50 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3993 - ISO/TS 10303-1682 Interconnect 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3435
 *)
@@ -7,13 +7,7 @@
 SCHEMA Interconnect_2d_shape_arm;
 
 	USE FROM Fabrication_joint_arm;	-- ISO/TS 10303-1668
-	USE FROM Layered_interconnect_module_with_design_intent_modifications_arm;	-- ISO/TS 10303-1699
 	USE FROM Physical_unit_2d_design_view_arm;	-- ISO/TS 10303-1724
-
-  TYPE design_intent_modification_planar_shape_select = SELECT
-    (Design_intent_modification_styled_area_representation,
-     Design_intent_modification_planar_shape_model);
-  END_TYPE;
 
   ENTITY Component_2d_embedded_location
     SUBTYPE OF (Component_2d_location);
@@ -33,19 +27,6 @@ SCHEMA Interconnect_2d_shape_arm;
   ENTITY Continuous_assembly_component_2d_shape_model
    SUBTYPE OF (Assembly_component_2d_shape_model);
       SELF\Assembly_component_2d_shape_model.shape_characterized_component : SET[1:?] OF Connected_area_component;
-  END_ENTITY;
-
-  ENTITY Design_intent_modification_planar_shape_model
-    SUBTYPE OF (Planar_projected_shape_model);
-      shape_characterized_component : Design_intent_modification;
-    WHERE
-      WR1 : NOT EXISTS(SELF\Representation.description);
-  END_ENTITY;
-
-  ENTITY Design_intent_modification_styled_area_representation;
-      derived_planar_shape                   : OPTIONAL SET[1:?] OF Design_intent_modification_planar_shape_model;
-      represented_design_intent_modification : Design_intent_modification;
-      shape_styled_area_representation       : fill_area_style_select;
   END_ENTITY;
 
 END_SCHEMA;

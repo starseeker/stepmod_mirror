@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.213 2006/02/22 09:34:05 kovaliovas Exp $
+   $Id: arm.exp,v 1.214 2006/03/20 14:50:14 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -14,8 +14,19 @@ SCHEMA Layered_interconnect_module_design_arm;
 	USE FROM Physical_connectivity_definition_arm;	-- ISO/TS 10303-1755
 	USE FROM Part_template_extension_arm;	-- ISO/TS 10303-1718
 	USE FROM Interconnect_module_connection_routing_arm;
+	USE FROM Assembly_component_placement_requirements_arm;	-- ISO/TS 10303-1634	
 
 	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+
+	TYPE limwdim_restriction_basis_item = EXTENSIBLE SELECT BASED_ON restriction_basis_item WITH 
+	   (stratum_concept,
+	   Stratum);
+	END_TYPE; 
+
+    TYPE stratum_feature_or_stratum = SELECT (
+      Stratum_feature,
+      Stratum);
+    END_TYPE;
 
 	SUBTYPE_CONSTRAINT limd_assembly_component_subtypes FOR Assembly_component; 
 	    (ONEOF (Physical_component,
@@ -165,16 +176,6 @@ SCHEMA Layered_interconnect_module_design_arm;
      Structured_layout_component);
 	END_TYPE;
 
-	TYPE stratum_feature_or_stratum_feature_template_component = SELECT(
-		Stratum_feature,
-    	Stratum_feature_template_component);
-	END_TYPE;
-
-	TYPE stratum_or_stratum_feature_or_stratum_feature_template_component = SELECT(
-		Stratum,
-    	stratum_feature_or_stratum_feature_template_component);
-	END_TYPE;
-
     TYPE stratum_surface_designation = ENUMERATION OF
     (average_surface,
      primary_surface,
@@ -261,14 +262,17 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element
-    ABSTRACT SUPERTYPE OF (ONEOF (Unrouted_conductive_interconnect_element,
- Conductive_interconnect_element_with_pre_defined_transitions))
-    SUBTYPE OF (Laminate_component);
-      composed_conductor : OPTIONAL Stratum_feature;
+    ABSTRACT SUPERTYPE OF (ONEOF (Unrouted_conductive_interconnect_element, Conductive_interconnect_element_with_pre_defined_transitions))
+    SUBTYPE OF (Stratum_feature_template_component);
     INVERSE
-      access_mechanisms : SET[2:?] OF conductive_interconnect_element_terminal FOR associated_component;
+      access_mechanisms : SET [2:?] OF Conductive_interconnect_element_terminal FOR associated_component;
+      connected_points : SET [1:?] OF Conductive_interconnect_element_terminal_link FOR associated_element;
     WHERE
-      WR1 : NOT EXISTS(SELF\Product_view_definition.name);
+      WR1: NOT EXISTS(SELF\Product_view_definition.name);
+      WR2: NOT('LAYERED_INTERCONNECT_MODULE_ARM.PROBE_ACCESS_AREA' IN TYPEOF(SELF));
+      WR3: NOT('LAYERED_INTERCONNECT_MODULE_ARM.FIDUCIAL' IN TYPEOF(SELF));
+      WR4: correlated_terminals(SELF\Conductive_interconnect_element.access_mechanisms,
+         connected_points);      
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element_terminal
@@ -299,18 +303,14 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Conductive_interconnect_element_with_pre_defined_transitions
     SUPERTYPE OF (Join_two_physical_connectivity_definition_supporting_printed_component)
     SUBTYPE OF (Conductive_interconnect_element);
-      SELF\Definition_based_product_occurrence.derived_from   : Trace_template;
-      centreline_shape                                        : Curve;
-      SELF\Conductive_interconnect_element.composed_conductor : Stratum_feature;
-    INVERSE
-      connected_points : SET[1:?] OF conductive_interconnect_element_terminal_link FOR associated_element;
+      centreline_shape : Curve;
+      SELF\Definition_based_product_occurrence.derived_from                      : Trace_template;
+      SELF\Stratum_feature_template_component.implementation_or_resident_stratum : Stratum_feature;
     WHERE
-      WR1 : SIZEOF(connected_points) = SIZEOF(SELF\Conductive_interconnect_element.access_mechanisms) - 1;
-      WR2 : correlated_terminals(SELF\Conductive_interconnect_element.access_mechanisms,
- connected_points);
-      WR3 : SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR',
+      WR1: SIZEOF(connected_points) = SIZEOF(SELF\Conductive_interconnect_element.access_mechanisms) - 1;
+      WR2: SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR',
             'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_FILLED_AREA'] *
-            TYPEOF(SELF\Conductive_interconnect_element.composed_conductor)) = 1;
+            TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum)) = 1;
   END_ENTITY;
 
   ENTITY Conductor
@@ -405,7 +405,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Electrical_isolation_laminate_component
-    SUBTYPE OF (Filled_area_material_removal_laminate_component);
+    SUBTYPE OF (Material_removal_laminate_component);
       SELF\Definition_based_product_occurrence.derived_from : Electrical_isolation_removal_template;
   END_ENTITY;
 
@@ -423,13 +423,6 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Fiducial_stratum_feature
     SUBTYPE OF (Stratum_feature);
-  END_ENTITY;
-
-  ENTITY Filled_area_material_removal_laminate_component
-    SUPERTYPE OF (ONEOF (Electrical_isolation_laminate_component))
-    SUBTYPE OF (Material_removal_laminate_component);
-    WHERE
-      WR1 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR' IN TYPEOF(SELF\Material_removal_laminate_component.design_intent));
   END_ENTITY;
 
   ENTITY Filled_via
@@ -752,20 +745,13 @@ SCHEMA Layered_interconnect_module_design_arm;
     WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
   END_ENTITY;
 
-  ENTITY Material_addition_laminate_component
-    SUBTYPE OF (Laminate_component);
-      SELF\Definition_based_product_occurrence.derived_from : Material_addition_feature_template;
-      design_intent : stratum_feature_or_stratum_feature_template_component;
-  END_ENTITY;
-
   ENTITY Material_removal_laminate_component
-    SUPERTYPE OF (Filled_area_material_removal_laminate_component)
+    SUPERTYPE OF (Electrical_isolation_laminate_component)
     SUBTYPE OF (Laminate_component);
+      causal_item                                           : OPTIONAL restriction_basis_item;
+      design_intent                                         : SET[1:?] OF Stratum_feature_template_component;
       SELF\Definition_based_product_occurrence.derived_from : Material_removal_feature_template;
-      design_intent                                         : stratum_or_stratum_feature_or_stratum_feature_template_component;
       explicitly_created                                    : BOOLEAN;
-    WHERE
-      WR1 : NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(design_intent));
   END_ENTITY;
 
   ENTITY Material_removal_structured_component
@@ -1058,9 +1044,33 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Stratum_feature_template_component
     SUBTYPE OF (Laminate_component);
       SELF\Definition_based_product_occurrence.derived_from : stratum_feature_template_or_parametric_template;
-      stratum_feature_implementation : Stratum_feature;
+      implementation_or_resident_stratum : stratum_feature_or_stratum; 
+      replaced_component : OPTIONAL Stratum_feature_template_component; 
+      causal_item : OPTIONAL restriction_basis_item;
+    DERIVE
+      is_final : BOOLEAN := SIZEOF(replaced_by) = 0;
+      resident_stratum : stratum := get_resident_stratum(SELF);
+    INVERSE
+      replaced_by : SET[0:?] OF Stratum_feature_template_component FOR replaced_component;
     WHERE
-      WR1 : NOT EXISTS(SELF\Product_view_definition.name);
+      WR1: NOT EXISTS(SELF\Product_view_definition.name);
+      WR2: NOT(is_final) OR
+         ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum));
+     -- TODO    
+    (* can't implement next rule because we don't have access to assembly_component_shape_model in this module.
+      WR3: if shape of SELF is empty, then stratum_feature_implementation shall
+       be of type Stratum; TT_LK_VK ok
+     *)         
+      WR4 : NOT(SIZEOF(replaced_by) > 1) OR
+        ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum));
+      WR5: NOT(is_final) OR
+         (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) = 0);
+      WR6: (SIZEOF(replaced_by) = 0) OR (SIZEOF(QUERY(rp <* replaced_by | resident_stratum :<>: get_resident_stratum(rp)
+          )) = 0); 
+      WR7: NOT (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) >= 0) OR
+          NOT(is_final);
+      WR8: NOT(SELF IN replaced_by);
+      WR9: NOT(replaced_component IN replaced_by);
   END_ENTITY;
 
   ENTITY Stratum_stack_model_to_interconnect_assignment
@@ -1152,12 +1162,7 @@ ENTITY Structured_layout_component_sub_assembly_relationship
 
   ENTITY Unrouted_conductive_interconnect_element
     SUBTYPE OF (Conductive_interconnect_element);
-    INVERSE
-      connected_points : SET[1:?] OF conductive_interconnect_element_terminal_link FOR associated_element;
-    WHERE
-      WR1 : NOT (EXISTS(SELF\Conductive_interconnect_element.composed_conductor));
-      WR2 : correlated_terminals(SELF\Conductive_interconnect_element.access_mechanisms,
- connected_points);
+      SELF\Stratum_feature_template_component.implementation_or_resident_stratum : Stratum;
   END_ENTITY;
 
   ENTITY Unrouted_join_relationship
@@ -1259,6 +1264,17 @@ REPEAT i := 1 TO HIINDEX(imsar) BY 1;
 END_REPEAT;
 
 RETURN (pvd);
+END_FUNCTION;
+
+FUNCTION get_resident_stratum(input: Stratum_feature_template_component) : Stratum;
+   IF 'LAYERED_INTERCONNECT_MODULE_ARM.STRATUM_FEATURE' IN TYPEOF(input.implementation_or_resident_stratum)
+     THEN RETURN(input.implementation_or_resident_stratum.resident_stratum);
+   ELSE 
+     IF 'LAYERED_INTERCONNECT_MODULE_ARM.STRATUM' IN TYPEOF(input.implementation_or_resident_stratum)
+       THEN RETURN(input.implementation_or_resident_stratum);
+     END_IF;  
+   END_IF;
+   RETURN(?); 
 END_FUNCTION;
 
 END_SCHEMA;

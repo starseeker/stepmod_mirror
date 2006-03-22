@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.10 2006/02/20 09:51:20 liutkuviene Exp $
+   $Id: arm.exp,v 1.11 2006/03/22 12:31:09 liutkus Exp $
    ISO TC184/SC4/WG12 N3885 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
 *)
 
@@ -90,10 +90,13 @@ SCHEMA Footprint_definition_arm;
 
   ENTITY Part_feature_based_template_location
     SUBTYPE OF (Template_location_in_structured_template);
-      SELF\Template_location_in_structured_template.assembly : Footprint_definition;
       reference_feature : Part_feature;
+    DERIVE
+      all_reference_feature : SET [1:?] OF Part_feature := bag_to_set(USEDIN
+      (SELF\Template_location_in_structured_template.assembly,
+      'PART_TEMPLATE_2D_SHAPE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.ASSEMBLY')); 
     WHERE
-      WR1 : reference_feature.associated_definition :=: assembly\Footprint_definition.reference_package;
+      WR1: SIZEOF(QUERY( arf <* all_reference_feature | NOT(reference_feature.associated_definition :=: arf.associated_definition))) = 0;
   END_ENTITY;
 
   ENTITY Stratum_feature_template_location_in_breakout_footprint_definition

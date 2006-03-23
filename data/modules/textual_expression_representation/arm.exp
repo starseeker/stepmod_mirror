@@ -1,31 +1,39 @@
 (*
-   $Id: checkModuleMain.js,v 1.16 2005/03/09 01:07:43 thendrix Exp $
+   $Id: arm.exp,v 1.5 2005/07/07 17:52:58 abhpf Exp $
  ISO TC184/SC4/WG12 N3761 - ISO/CD-TS 10303-1367 Textual expression representation - EXPRESS ARM
 *) 
 
-SCHEMA Textual_expression_representation_arm; 
+SCHEMA Textual_expression_representation_arm;
 
-USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
+USE FROM Foundation_representation_arm;
 
+TYPE formal_language_item_select = SELECT 
+  (Included_formal_language_representation,
+   Textual_expression_composition,
+   Textual_expression_representation_item);
+END_TYPE;
 
-ENTITY Parameter_representation_item
-  SUBTYPE OF (Textual_expression_representation_item);
+TYPE list_of_formal_language_item = LIST [1 : ?] OF Textual_expression_representation_item;
+END_TYPE;
+
+ENTITY Formal_language_representation
+SUBTYPE OF (Representation);
+  SELF\Representation.items : SET [1 : 1] OF formal_language_item_select;
+END_ENTITY;
+
+ENTITY Included_formal_language_representation
+SUBTYPE OF (Representation_item);
+  source : Formal_language_representation;
+END_ENTITY;
+
+ENTITY Textual_expression_composition
+SUBTYPE OF (Representation_item);
+  content : list_of_formal_language_item;
 END_ENTITY;
 
 ENTITY Textual_expression_representation_item
-  ABSTRACT SUPERTYPE 
-  SUBTYPE OF (Representation_item);
-  description : STRING;
-  encoding : STRING;
-  my_value : OPTIONAL Representation_item;
+SUBTYPE OF (String_representation_item);
+  language : STRING;
 END_ENTITY;
 
-ENTITY Textual_function_representation_item
-  SUBTYPE OF (Textual_expression_representation_item);
-  function_text : STRING;
-  parameters : SET[1:?] OF Textual_expression_representation_item;
-END_ENTITY;
-
-END_SCHEMA;  -- Textual_expression_representation_arm
-
-
+END_SCHEMA;

@@ -273,8 +273,8 @@ SCHEMA Layered_interconnect_module_design_arm;
       connected_points : SET [1:?] OF Conductive_interconnect_element_terminal_link FOR associated_element;
     WHERE
       WR1: NOT EXISTS(SELF\Product_view_definition.name);
-      WR2: NOT('LAYERED_INTERCONNECT_MODULE_ARM.PROBE_ACCESS_AREA' IN TYPEOF(SELF));
-      WR3: NOT('LAYERED_INTERCONNECT_MODULE_ARM.FIDUCIAL' IN TYPEOF(SELF));
+      WR2: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PROBE_ACCESS_AREA' IN TYPEOF(SELF));
+      WR3: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FIDUCIAL' IN TYPEOF(SELF));
       WR4: correlated_terminals(SELF\Conductive_interconnect_element.access_mechanisms,
          connected_points);      
   END_ENTITY;
@@ -287,7 +287,6 @@ SCHEMA Layered_interconnect_module_design_arm;
     UNIQUE
       UR1 : SELF\Component_feature.element_name, SELF\Component_feature.associated_component;
     WHERE
-      WR1 : NOT (EXISTS(SELF\Component_feature.associated_component\Conductive_interconnect_element.composed_conductor)) OR (location.resident_design_layer_stratum = SELF\Component_feature.associated_component\Conductive_interconnect_element.composed_conductor.resident_stratum);
       WR2 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
@@ -316,6 +315,10 @@ SCHEMA Layered_interconnect_module_design_arm;
             'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_FILLED_AREA'] *
             TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum)) = 1;
       WR3: centreline_shape.parameters = derived_from.trace_style;            
+      WR4 : SIZEOF(QUERY(ciet <* SELF\Conductive_interconnect_element.access_mechanisms |
+             NOT(ciet.location.resident_design_layer_stratum = 
+            SELF\Stratum_feature_template_component.implementation_or_resident_stratum.resident_stratum)
+                  )) = 0;
   END_ENTITY;
 
   ENTITY Conductor
@@ -769,16 +772,6 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Multi_layer_material_removal_laminate_component
     SUBTYPE OF (Material_removal_laminate_component);
       derived_layer_geometry : Stratum_feature_based_derived_pattern;
-    WHERE
-      WR1: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN
-        TYPEOF(SELF\Material_removal_laminate_component.design_intent)) OR
-        (SELF\Material_removal_laminate_component.design_intent\Stratum_feature.resident_stratum = 
-             derived_layer_geometry.reference_stratum_feature.resident_stratum);
-      WR2: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT' IN
-        TYPEOF(SELF\Material_removal_laminate_component.design_intent)) OR
-        (SELF\Material_removal_laminate_component.design_intent\Stratum_feature_template_component.
-             stratum_feature_implementation\Stratum_feature.resident_stratum =
-        derived_layer_geometry.reference_stratum_feature.resident_stratum);
   END_ENTITY;
 
   ENTITY Multi_stratum_special_symbol_component
@@ -1055,19 +1048,19 @@ SCHEMA Layered_interconnect_module_design_arm;
     WHERE
       WR1: NOT EXISTS(SELF\Product_view_definition.name);
       WR2: NOT(is_final) OR
-         ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum));
+         ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum));
      -- TODO    
     (* can't implement next rule because we don't have access to assembly_component_shape_model in this module.
       WR3: if shape of SELF is empty, then stratum_feature_implementation shall
        be of type Stratum; TT_LK_VK ok
      *)         
       WR4 : NOT(SIZEOF(replaced_by) > 1) OR
-        ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum));
+        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum));
       WR5: NOT(is_final) OR
-         (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) = 0);
+         (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) = 0);
       WR6: (SIZEOF(replaced_by) = 0) OR (SIZEOF(QUERY(rp <* replaced_by | resident_stratum :<>: get_resident_stratum(rp)
           )) = 0); 
-      WR7: NOT (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) >= 0) OR
+      WR7: NOT (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) >= 0) OR
           NOT(is_final);
       WR8: NOT(SELF IN replaced_by);
       WR9: NOT(replaced_component IN replaced_by);
@@ -1267,10 +1260,10 @@ RETURN (pvd);
 END_FUNCTION;
 
 FUNCTION get_resident_stratum(input: Stratum_feature_template_component) : Stratum;
-   IF 'LAYERED_INTERCONNECT_MODULE_ARM.STRATUM_FEATURE' IN TYPEOF(input.implementation_or_resident_stratum)
+   IF 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(input.implementation_or_resident_stratum)
      THEN RETURN(input.implementation_or_resident_stratum.resident_stratum);
    ELSE 
-     IF 'LAYERED_INTERCONNECT_MODULE_ARM.STRATUM' IN TYPEOF(input.implementation_or_resident_stratum)
+     IF 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(input.implementation_or_resident_stratum)
        THEN RETURN(input.implementation_or_resident_stratum);
      END_IF;  
    END_IF;

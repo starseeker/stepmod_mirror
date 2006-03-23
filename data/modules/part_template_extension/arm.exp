@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.56 2006/03/20 14:17:43 liutkus Exp $
+   $Id: arm.exp,v 1.57 2006/03/23 08:15:10 liutkus Exp $
    ISO TC184/SC4/WG12 N4101 - ISO/TS 10303-1718 Part template extension - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3525
 *)
@@ -26,10 +26,6 @@ SCHEMA Part_template_extension_arm;
   TYPE curve_or_axis_placement = SELECT(
 	Curve,
    	Axis_placement);
-  END_TYPE;
-
-  TYPE primitive_2d_planar_path_with_parameters_or_axis_placement_2d = SELECT (
-    Primitive_2d_planar_path_with_parameters, Axis_placement_2d);
   END_TYPE;
 
 TYPE text_alignment = ENUMERATION OF(
@@ -132,31 +128,15 @@ TYPE text_alignment = ENUMERATION OF(
 
   ENTITY Planar_path_shape_model_with_parameters
     SUBTYPE OF (Single_area_csg_2d_model);
-      SELF\Representation.items : SET[1:?] OF primitive_2d_planar_path_with_parameters_or_axis_placement_2d;
-    (* TODO Lothar      
-    DERIVE
-      parameters : Curve_style_parameters := -- Planar_path_shape_model_with_parameters := 
-        QUERY(item <* items | ('xxx.PRIMITIVE_2D_PLANAR_PATH_WITH_PARAMETERS' IN TYPEOF(items)))[1].parameters;  
-      centerline : Curve := -- Planar_path_shape_model_with_parameters := 
-        QUERY(item <* 
-        items | ('xxx.PRIMITIVE_2D_PLANAR_PATH_WITH_PARAMETERS' IN TYPEOF(items)))[1].centerline;
-    *)    
-  END_ENTITY;  
-
-  ENTITY Primitive_2d_planar_path_with_parameters
-    SUBTYPE OF (Detailed_geometric_model_element);
+      SELF\Representation.items : SET[1:?] OF Axis_placement_2d;
       centreline : Curve;
       parameters : Curve_style_parameters;
-  END_ENTITY;  
-  
+  END_ENTITY;
+
   ENTITY Planar_closed_path_shape_model_with_parameters
     SUBTYPE OF (Planar_path_shape_model_with_parameters);
-    WHERE
-     WR1 : SIZEOF(QUERY(it <* SELF\Representation.items |
-                        ('BASIC_CURVE_ARM.CLOSED_CURVE' in TYPEOF(it))
-                   )) = 1;
-     WR2 : 'PART_TEMPLATE_EXTENSION_ARM.CLOSED_CURVE_STYLE_PARAMETERS' IN 
-            TYPEOF(SELF\Planar_path_shape_model_with_parameters.parameters\Trace_template.trace_style);                          
+      SELF\Planar_path_shape_model_with_parameters.centreline : Closed_curve;
+      SELF\Planar_path_shape_model_with_parameters.parameters : Closed_curve_style_parameters;
   END_ENTITY;
 
   ENTITY Snowball_template

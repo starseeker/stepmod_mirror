@@ -1,68 +1,30 @@
-<?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.7 2002/06/28 08:50:23 goset1 Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2002/06/28 08:50:23 $"
-  rcs.revision="$Revision: 1.7 $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.15"
-    source="../data/modules/product_version_relationship/arm.exp"/>
-
-  <schema name="Product_version_relationship_arm">
-    <interface
-      kind="use"
-      schema="Product_version_arm">
-    </interface>
-
-    <entity
-      name="Product_version_relationship">
-      <explicit
-        name="relation_type">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="relating_version">
-        <typename
-          name="Product_version"/>
-      </explicit>
-      <explicit
-        name="related_version">
-        <typename
-          name="Product_version"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="relating_version :&lt;&gt;: related_version">
-      </where>
-    </entity>
-
-    <entity
-      name="Supplied_part_relationship"
-      supertypes="Product_version_relationship">
-      <where
-        label="WR1"
-        expression="SELF\Product_version_relationship.relation_type IN ['supplied item', 'supplied document']">
-      </where>
-      <where
-        label="IP1"
-        >
-      </where>
-    </entity>
-
-  </schema>
-
+<express language_version="2" rcs.date="$Date: 2006/02/24 14:49:44 $" rcs.revision="$Revision: 1.3 $" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="product_version_relationship_arm schema_instance"/>
+   <schema name="Product_version_relationship_arm">
+      <interface kind="use" schema="Product_version_arm"/>
+      <entity name="Product_version_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="relation_type" optional="YES">
+            <builtintype type="STRING" fixed="NO"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING" fixed="NO"/>
+         </explicit>
+         <explicit name="relating_version" optional="NO">
+            <typename name="Product_version"/>
+         </explicit>
+         <explicit name="related_version" optional="NO">
+            <typename name="Product_version"/>
+         </explicit>
+         <where label="WR1" expression="relating_version :&lt;&gt;: related_version"/>
+         <where label="WR2" expression="EXISTS(relation_type) OR (TYPEOF(SELF\Product_version_relationship) &lt;&gt; TYPEOF(SELF))"/>
+      </entity>
+      <entity name="Supplied_part_relationship" supertypes="Product_version_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <where label="WR1" expression="SELF\Product_version_relationship.relation_type IN ['supplied item', 'supplied document']"/>
+      <where label="IP1"/>
+      </entity>
+   </schema>
 </express>

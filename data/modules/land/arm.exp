@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.30 2006/01/10 05:39:23 thomasrthurman Exp $
+   $Id: arm.exp,v 1.31 2006/01/20 08:43:42 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4023 - ISO/TS 10303-1692 Land - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3465
 *)
@@ -47,10 +47,12 @@ SCHEMA Land_arm;
       SELF\Definition_based_product_occurrence.derived_from : Land_physical_template;
     DERIVE
        functional: BOOLEAN :=
-        (SIZEOF(USEDIN(SELF\Stratum_feature_template_component.stratum_feature_implementation,
-         'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT.COMPOSED_CONDUCTOR')) +
-         SIZEOF(USEDIN(SELF\Stratum_feature_template_component.stratum_feature_implementation,
-         'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.STRATUM_FEATURE_IMPLEMENTATION')) > 1);
+         ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN 
+           TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum)) AND
+         (SIZEOF(QUERY(sftc <* USEDIN(SELF\Stratum_feature_template_component.implementation_or_resident_stratum,
+         'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM') |
+         ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_WITH_PREDEFINED_TRANSITIONS' IN TYPEOF(sftc))
+          )) > 1);
     INVERSE
       access_mechanism : SET[1:?] OF land_join_terminal FOR associated_component;
   END_ENTITY;

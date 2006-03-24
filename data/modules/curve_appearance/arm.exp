@@ -1,44 +1,20 @@
 (*
-$Id: mim.exp,v 1.2 2005/05/24 17:49:43 darla Exp $
-ISO TC184/SC4/WG12 N672 - ISO/TS 10303-1003 Curve appearance - EXPRESS ARM
+$Id: arm.exp,v 1.4 2006/02/28 10:40:22 liutkus Exp $
+ISO TC184/SC4/WG12 N4245 - ISO/TS 10303-1003 Curve appearance - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N672
 *) 
+
 
 
 SCHEMA Curve_appearance_arm; 
 
-USE FROM Colour_arm;    -- ISO/TS 10303-1002
+USE FROM Styled_curve_arm;
 
-USE FROM Elemental_geometric_shape_arm;    -- ISO/TS 10303-1004
-
-
-TYPE curve_appearance_select = SELECT
+TYPE  curve_appearance_select = SELECT
    (Curve_appearance, 
     Point_appearance, 
     Vector_appearance);
 END_TYPE; 
-
-ENTITY Curve_appearance;
-  colour : Colour;
-  font : Curve_font;
-  width : REAL;
-END_ENTITY;
-
-ENTITY Curve_font
-  SUPERTYPE OF (ONEOF (Externally_defined_curve_font,
-                       Predefined_curve_font,
-                       User_defined_curve_font));
-  curve_font_name : STRING;
-END_ENTITY;
-
-ENTITY Curve_font_pattern;
-  on_segment : REAL;
-  off_segment : REAL;
-END_ENTITY;
-
-ENTITY Externally_defined_curve_font
-  SUBTYPE OF (Curve_font);
-  curve_font_reference : STRING;
-END_ENTITY;
 
 ENTITY Externally_defined_marker
   SUBTYPE OF (Marker);
@@ -51,7 +27,6 @@ ENTITY Externally_defined_terminator
 END_ENTITY;
 
 ENTITY Marker;
-  marker_name : STRING;
 END_ENTITY;
 
 ENTITY Point_appearance;
@@ -60,32 +35,7 @@ ENTITY Point_appearance;
   size : REAL;
 END_ENTITY;
 
-ENTITY Predefined_curve_font
-  SUBTYPE OF (Curve_font);
-WHERE
-  WR1: SELF.curve_font_name IN ['continuous', 'chain', 'chain double dash', 'dashed', 'dotted'];
-END_ENTITY;
-
-ENTITY Predefined_marker
-  SUBTYPE OF (Marker);
-WHERE
-  WR1: SELF.marker_name IN ['asterisk', 'circle', 'dot', 'plus', 'square', 'triangle', 'x'];
-END_ENTITY;
-
-ENTITY Predefined_terminator
-  SUBTYPE OF (Terminator);
-WHERE
-  WR1: SELF.terminator_name IN ['blanked arrow', 'blanked box', 'dimension origin', 'filled arrow', 'filled box', 'filled dot', 'integral symbol', 'open arrow', 'slash', 'unfilled arrow'] ;
-END_ENTITY;
-
 ENTITY Terminator;
-  terminator_name : STRING;
-END_ENTITY;
-
-ENTITY User_defined_curve_font
-  SUBTYPE OF (Curve_font);
-  pattern : SET[1:?] OF Curve_font_pattern;
-  segment_symbol : Geometric_model;
 END_ENTITY;
 
 ENTITY User_defined_marker

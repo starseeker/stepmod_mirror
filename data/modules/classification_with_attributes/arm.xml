@@ -1,211 +1,89 @@
-<?xml version="1.0"?> 
-<!-- $Id: arm.xml,v 1.10 2005/02/03 11:49:18 rocc Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd"> 
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2005/02/03 11:49:18 $"
-  rcs.revision="$Revision: 1.10 $">
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.30"
-    source="../data/modules/classification_with_attributes/arm.exp"/>
-
-  <schema name="Classification_with_attributes_arm">
-    <interface
-      kind="use"
-      schema="Class_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Classification_assignment_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="External_class_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Extended_measure_representation_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Plib_class_reference_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Part_and_version_identification_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Part_view_definition_arm">
-    </interface>
-
-    <type name="classification_item_extended">
-      <select
-        extensible="YES"
-        genericentity="YES"
-        basedon="classification_item"
-        selectitems="Part Part_version Part_view_definition">
-      </select>
-
-    </type>
-    <type name="classified_element_select">
-      <select
-        extensible="YES"
-        genericentity="YES"
-        selectitems="Part Part_version Part_view_definition">
-      </select>
-
-    </type>
-    <type name="external_class_select">
-      <select
-        selectitems="Plib_class_reference External_class">
-      </select>
-
-    </type>
-    <type name="definable_objects">
-      <select
-        selectitems="Part Part_version Part_view_definition">
-      </select>
-
-    </type>
-    <entity
-      name="Class_with_attributes"
-      supertypes="Class">
-      <explicit
-        name="version_id"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="used_classification_system"
-        optional="YES">
-        <typename
-          name="Classification_system"/>
-      </explicit>
-      <inverse
-        name="characterization_attributes"
-        entity="Classification_attribute"
-        attribute="characterized_class">
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-      </inverse>
-    </entity>
-
-    <entity
-      name="Class_hierarchy">
-      <explicit
-        name="super_class">
-        <typename
-          name="Class_with_attributes"/>
-      </explicit>
-      <explicit
-        name="sub_class">
-        <typename
-          name="Class_with_attributes"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Classification_association"
-      supertypes="Classification_assignment">
-      <explicit
-        name="assigned_class">
-        <typename
-          name="Class_with_attributes"/>
-        <redeclaration
-          entity-ref="Classification_assignment"/>
-        </explicit>
-        <explicit
-          name="definitional">
-          <builtintype
-            type="LOGICAL"/>
-        </explicit>
-        <where
-          label="WR1"
-          expression="SIZEOF(QUERY(it&lt;* SELF\Classification_assignment.items |     NOT('CLASSIFICATION_WITH_ATTRIBUTES_ARM.DEFINABLE_OBJECTS' IN TYPEOF(it)) AND definitional ))=0">
-        </where>
-        <where
-          label="WR2"
-          expression="SIZEOF(QUERY(it&lt;* SELF\Classification_assignment.items |     NOT('CLASSIFICATION_WITH_ATTRIBUTES_ARM.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF(it)) )) =0">
-        </where>
+<express language_version="2" rcs.date="$Date: 2006/02/23 11:56:05 $" rcs.revision="$Revision: 1.2 $" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="classification_with_attributes_arm schema_instance"/>
+   <schema name="Classification_with_attributes_arm">
+      <interface kind="use" schema="Class_arm"/>
+      <interface kind="use" schema="Classification_assignment_arm"/>
+      <interface kind="use" schema="External_class_arm"/>
+      <interface kind="use" schema="Extended_measure_representation_arm"/>
+      <interface kind="use" schema="Plib_class_reference_arm"/>
+      <interface kind="use" schema="Part_and_version_identification_arm"/>
+      <interface kind="use" schema="Part_view_definition_arm"/>
+      <type name="classification_item_extended">
+         <select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="Part Part_version Part_view_definition"/>
+      </type>
+      <type name="classified_element_select">
+         <select extensible="YES" genericentity="YES" selectitems="Part Part_version Part_view_definition"/>
+      </type>
+      <type name="definable_objects">
+         <select selectitems="Part Part_version Part_view_definition"/>
+      </type>
+      <type name="external_class_select">
+         <select selectitems="Plib_class_reference External_class"/>
+      </type>
+      <entity name="Class_hierarchy">
+         <explicit name="super_class">
+            <typename name="Class_with_attributes"/>
+         </explicit>
+         <explicit name="sub_class">
+            <typename name="Class_with_attributes"/>
+         </explicit>
       </entity>
-
-      <entity
-        name="Classification_attribute">
-        <explicit
-          name="id">
-          <builtintype
-            type="STRING"/>
-        </explicit>
-        <explicit
-          name="name"
-          optional="YES">
-          <builtintype
-            type="STRING"/>
-        </explicit>
-        <explicit
-          name="description"
-          optional="YES">
-          <builtintype
-            type="STRING"/>
-        </explicit>
-        <explicit
-          name="allowed_values"
-          optional="YES">
-          <aggregate
-            type="SET"
-            lower="1"
-            upper="?"/>
-          <typename
-            name="Measure_item"/>
-        </explicit>
-        <explicit
-          name="characterized_class">
-          <typename
-            name="Class_with_attributes"/>
-        </explicit>
+      <entity name="Class_with_attributes" supertypes="Class">
+         <explicit name="version_id" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="used_classification_system" optional="YES">
+            <typename name="Classification_system"/>
+         </explicit>
+         <inverse name="characterization_attributes" entity="Classification_attribute" attribute="characterized_class">
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
+         </inverse>
       </entity>
-
-      <entity
-        name="Classification_system">
-        <explicit
-          name="id">
-          <builtintype
-            type="STRING"/>
-        </explicit>
-        <explicit
-          name="description"
-          optional="YES">
-          <builtintype
-            type="STRING"/>
-        </explicit>
+      <entity name="Classification_association" supertypes="Classification_assignment">
+         <explicit name="assigned_class">
+            <typename name="Class_with_attributes"/>
+            <redeclaration entity-ref="Classification_assignment"/>
+         </explicit>
+         <explicit name="definitional">
+            <builtintype type="LOGICAL"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(it&lt;* SELF\Classification_assignment.items |&#10;     NOT('CLASSIFICATION_WITH_ATTRIBUTES_ARM.DEFINABLE_OBJECTS' IN TYPEOF(it)) AND definitional ))=0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(it&lt;* SELF\Classification_assignment.items |&#10;     NOT('CLASSIFICATION_WITH_ATTRIBUTES_ARM.CLASSIFIED_ELEMENT_SELECT' IN TYPEOF(it)) )) =0"/>
       </entity>
-
-      <entity
-        name="External_class_with_attributes"
-        supertypes="Class_with_attributes">
-        <explicit
-          name="source">
-          <typename
-            name="external_class_select"/>
-        </explicit>
+      <entity name="Classification_attribute">
+         <explicit name="id">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="name" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="allowed_values" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Measure_item"/>
+         </explicit>
+         <explicit name="characterized_class">
+            <typename name="Class_with_attributes"/>
+         </explicit>
       </entity>
-
-    </schema>
-
-  </express>
+      <entity name="Classification_system">
+         <explicit name="id">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="External_class_with_attributes" supertypes="Class_with_attributes">
+         <explicit name="source">
+            <typename name="external_class_select"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

@@ -1,99 +1,33 @@
-<?xml version="1.0"?> 
-<!-- $Id: mim.xml,v 1.7 2004/11/24 07:57:06 rocc Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
- <express language_version="2" description.file="mim_descriptions.xml" 
- rcs.date="$Date: 2004/11/24 07:57:06 $" rcs.revision="$Revision: 1.7 $">
-	<application 
-	name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" 
-	version="1.26" source="../data/modules/item_definition_structure/mim.exp"/>
-	<schema name="Item_definition_structure_mim">   
-		<interface kind="use" schema="Effectivity_application_mim"/>
-		<interface kind="use" schema="Product_occurrence_mim"/>
-		<interface kind="use" schema="Product_structure_mim"/>
-		<interface kind="reference" schema="Single_part_representation_mim">
-			<interfaced.item name="categories_of_product"/>
-		</interface>   
-
-    
-
-    <type name="effectivity_item_for_replacement">
-      <select
-        basedon="effectivity_item"
-        selectitems="product_definition_relationship">
-      </select>
-
-    </type>
- 
-
-	
-		<rule name="restrict_assembly_category" appliesto="product_definition">
-			<algorithm>
- 
-LOCAL
+<express language_version="2" rcs.date="$Date: 2006/02/23 11:56:04 $" rcs.revision="$Revision: 1.2 $" description.file="mim_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="item_definition_structure_mim schema_instance"/>
+   <schema name="Item_definition_structure_mim">
+      <interface kind="use" schema="Effectivity_application_mim"/>
+      <interface kind="use" schema="Part_occurrence_mim"/>
+      <interface kind="use" schema="Product_structure_mim"/>
+      <interface kind="reference" schema="Single_part_representation_mim">
+         <interfaced.item name="categories_of_product"/>
+      </interface>
+      <type name="effectivity_item_for_replacement">
+         <select basedon="effectivity_item" selectitems="product_definition_relationship"/>
+      </type>
+      <rule name="product_definition_replacement_requires_effectivity_assignment" appliesto="product_definition_relationship">
+         <where label="WR1" expression="SIZEOF( QUERY( pdr &lt;* product_definition_relationship | &#10;	(pdr.name = 'definition replacement') AND &#10;	(SIZEOF( USEDIN(pdr,'ITEM_DEFINITION_STRUCTURE_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))&#10;	 = 0"/>
+      </rule>
+      <rule name="restrict_assembly_category" appliesto="product_definition">
+         <algorithm>LOCAL
   assembly_definitions: SET OF product_definition := [];
 END_LOCAL;
   assembly_definitions :=  QUERY( pd &lt;* product_definition | 
-    SIZEOF( QUERY( pdca &lt;* 
-		USEDIN( pd, 'ITEM_DEFINITION_STRUCTURE_MIM.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
-    pdca.frame_of_reference.name= 'assembly definition')) &gt; 0 );
-      </algorithm>
- 
-
-      <where
-        label="WR1"
-        expression="SIZEOF( QUERY( pd &lt;* assembly_definitions |    NOT ('assembly' IN categories_of_product(pd.formation.of_product)) ))= 0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="restrict_product_definitions_for_part_definition_relationship"
-      appliesto="product_definition_relationship">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |     
-				( pdr.name IN [ 'geometrical relationship' , 'definition replacement' ] ) 
-				AND 	( ( pdr.relating_product_definition.frame_of_reference.name &lt;&gt;
-				'part definition' ) OR 	( pdr.related_product_definition.frame_of_reference.name &lt;&gt;
-				'part definition' ) ) ) ) =0">
-      </where>
-
-    </rule>
-
-    <rule
-      name="product_definition_replacement_requires_effectivity_assignment"
-      appliesto="product_definition_relationship">
-      <algorithm>
-      </algorithm>
-
-      <where
-        label="WR1"
-        expression="SIZEOF( QUERY( pdr &lt;* product_definition_relationship | 	
-				(pdr.name = 'definition replacement') 
-				AND 	(SIZEOF
-				( USEDIN(pdr,'ITEM_DEFINITION_STRUCTURE_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT.ITEMS')
-				 ) = 0) ))	 = 0">
-      </where>
-
-    </rule>
-
- 
- 		<rule 
-		name="restrict_product_definitions_for_part_definition_relationship" 
-		appliesto="product_definition_relationship">
-		<algorithm>
-			</algorithm>
- 
-			<where 
-			label="WR1" 
-			expression="SIZEOF( QUERY( pd &lt;* assembly_definitions |    
-			NOT ('assembly' IN types_of_product(pd.formation.of_product)) ))= 0"/>
-		  	
-		</rule>
-		</schema>
- </express>
+    SIZEOF( QUERY( pdca &lt;* USEDIN( pd, 'ITEM_DEFINITION_STRUCTURE_MIM.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
+    pdca.frame_of_reference.name= 'assembly definition')) &gt; 0 );</algorithm>
+         <where label="WR1" expression="SIZEOF( QUERY( pd &lt;* assembly_definitions | &#10;   NOT ('assembly' IN categories_of_product(pd.formation.of_product)) ))= 0"/>
+      </rule>
+      <rule name="restrict_product_definitions_for_part_definition_relationship" appliesto="product_definition_relationship">
+         <where label="WR1" expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |&#10;     ( pdr.name IN [ 'geometrical relationship' , 'definition replacement' ] ) AND &#10;	( ( pdr.relating_product_definition.frame_of_reference.name &lt;&gt;'part definition' ) OR &#10;	( pdr.related_product_definition.frame_of_reference.name &lt;&gt;'part definition' ) ) ) ) =0"/>
+      </rule>
+   </schema>
+</express>

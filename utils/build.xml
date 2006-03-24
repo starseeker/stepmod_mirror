@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.59 2005/08/04 17:26:35 thendrix Exp $ -->
+<!-- $Id: build.xml,v 1.60 2005/08/29 21:27:23 thendrix Exp $ -->
 
 <!-- ================================================= -->
 <!-- build.xml for the STEP modules repository         -->
@@ -176,6 +176,8 @@ tar.gz format)
     <property name="RESOURCESDIR" value="data/resources"/>
     <property name="RESOURCES" value="${RESOURCESDIR}/**"/>
     <property name="MODULESDIR" value="data/modules"/>
+    <property name="FIXEDMODULESDIR" value="etc/fixed_modules"/>
+    <property name="FIXEDMODULES" value="${FIXEDMODULESDIR}/**"/>
     <property name="MODULES" value="${MODULESDIR}/**"/>
 
     <property name="APDIR" value="data/application_protocols"/>
@@ -203,6 +205,8 @@ tar.gz format)
     <property name="BALLOTSTYLES" value="ballots/xsl"/>
     <property name="BALLOTDTDDIR" value="ballots/dtd"/>
     <property name="BALLOTS" value="ballots/ballots/**"/>
+    <property name="CVSLOG" value="logs/cvslog_${DSTAMP}.txt"/>
+
   </target>
 
   <target name="clean" depends="init" description="delete generated files">
@@ -1946,10 +1950,18 @@ stepmod/data/**, stepmod/help/**, stepmod/images/**"
     />
   </target>
 
+  <target name="cvs_stepmod_tag_ssh" depends="init"
+    description="tag a module.">
+    <echo level="info">Tagging Stepmod. Log: ${CVSLOG}</echo>
+    <cvs cvsroot=":ext:sforge_ssh2:/cvsroot/stepmod" command="tag test-of-ant-cvs-r1 ${MODULESDIR}/activity/sys/1_scope.xml"/> 
+  </target>
+
+
+
   <target name="cvsupdate" depends="init" 
           description="update local copy of repository through anonymous CVS">
     <cvs
-	 cvsRoot=":pserver:anonymous@${SFCVSROOT}" 
+	 cvsroot=":pserver:anonymous@${SFCVSROOT}" 
          command="update" compression="true" dest=".."
 	 package="stepmod" />
   </target>
@@ -1959,6 +1971,25 @@ stepmod/data/**, stepmod/help/**, stepmod/images/**"
     <get
 	 src="${SFTARBALL}" dest="../stepmod-cvsroot-${DSTAMP}.tar.gz"
 	 verbose="true"/>
+  </target>
+
+  <target name="copy_fixed_modules" depends="init"
+	  description="copy fixed modules to data modules directory">
+
+    <!--  
+	 <copy todir="${MODULESDIR}">
+	 <fileset dir="${FIXEDMODULES}">
+	 <not>
+	 <filename name="cvs/*"/>
+	 </not>
+	 </fileset>
+	 </copy>
+    -->
+    <copy todir="${MODULESDIR}">
+      <fileset dir="${FIXEDMODULESDIR}">
+	<exclude name="cvs/*.*"/>
+      </fileset>
+    </copy>
   </target>
 
   <target name="help"
@@ -2093,7 +2124,5 @@ downloads most recent CVS repository backup from SourceForge (in
 tar.gz format)
     </echo>
   </target>
-
-
 </project>
 

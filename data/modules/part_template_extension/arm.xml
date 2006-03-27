@@ -18,9 +18,6 @@
       <type name="extend_or_truncate">
          <enumeration items="truncate extend"/>
       </type>
-      <type name="primitive_2d_planar_path_with_parameters_or_axis_placement_2d">
-         <select selectitems="Primitive_2d_planar_path_with_parameters Axis_placement_2d"/>
-      </type>
       <type name="square_or_round">
          <enumeration items="square round"/>
       </type>
@@ -102,25 +99,26 @@
          </explicit>
       </entity>
       <entity name="Planar_closed_path_shape_model_with_parameters" supertypes="Planar_path_shape_model_with_parameters">
-         <where label="WR1" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;                        ('BASIC_CURVE_ARM.CLOSED_CURVE' in TYPEOF(it))&#10;                   )) = 1"/>
-         <where label="WR2" expression="'PART_TEMPLATE_EXTENSION_ARM.CLOSED_CURVE_STYLE_PARAMETERS' IN &#10;            TYPEOF(SELF\Planar_path_shape_model_with_parameters.parameters\Trace_template.trace_style)"/>
-      </entity>
-      <entity name="Planar_path_shape_model_with_parameters" supertypes="Single_area_csg_2d_model">
-         <explicit name="parameters">
-            <typename name="Trace_template"/>
-         </explicit>
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="primitive_2d_planar_path_with_parameters_or_axis_placement_2d"/>
-            <redeclaration entity-ref="Representation"/>
-         </explicit>
-      </entity>
-      <entity name="Primitive_2d_planar_path_with_parameters" supertypes="Detailed_geometric_model_element">
-         <explicit name="centerline">
-            <typename name="Curve"/>
+         <explicit name="centreline">
+            <typename name="Closed_curve"/>
+            <redeclaration entity-ref="Planar_path_shape_model_with_parameters"/>
          </explicit>
          <explicit name="parameters">
             <typename name="Closed_curve_style_parameters"/>
+            <redeclaration entity-ref="Planar_path_shape_model_with_parameters"/>
+         </explicit>
+      </entity>
+      <entity name="Planar_path_shape_model_with_parameters" supertypes="Single_area_csg_2d_model">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Axis_placement_2d"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <explicit name="centreline">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="parameters">
+            <typename name="Curve_style_parameters"/>
          </explicit>
       </entity>
       <entity name="Snowball_template" supertypes="Teardrop_template">

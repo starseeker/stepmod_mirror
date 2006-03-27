@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.218 2006/03/23 08:15:10 liutkus Exp $
+   $Id: arm.exp,v 1.220 2006/03/23 22:43:17 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -287,7 +287,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     UNIQUE
       UR1 : SELF\Component_feature.element_name, SELF\Component_feature.associated_component;
     WHERE
-      WR2 : NOT EXISTS(SELF\Shape_element.description);
+      WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element_terminal_link;
@@ -1049,21 +1049,16 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1: NOT EXISTS(SELF\Product_view_definition.name);
       WR2: NOT(is_final) OR
          ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum));
-     -- TODO    
-    (* can't implement next rule because we don't have access to assembly_component_shape_model in this module.
-      WR3: if shape of SELF is empty, then stratum_feature_implementation shall
-       be of type Stratum; TT_LK_VK ok
-     *)         
-      WR4 : NOT(SIZEOF(replaced_by) > 1) OR
+      WR3 : NOT(SIZEOF(replaced_by) > 1) OR
         ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum));
-      WR5: NOT(is_final) OR
+      WR4: NOT(is_final) OR
          (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) = 0);
-      WR6: (SIZEOF(replaced_by) = 0) OR (SIZEOF(QUERY(rp <* replaced_by | resident_stratum :<>: get_resident_stratum(rp)
+      WR5: (SIZEOF(replaced_by) = 0) OR (SIZEOF(QUERY(rp <* replaced_by | resident_stratum :<>: get_resident_stratum(rp)
           )) = 0); 
-      WR7: NOT (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) >= 0) OR
+      WR6: NOT (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) >= 0) OR
           NOT(is_final);
-      WR8: NOT(SELF IN replaced_by);
-      WR9: NOT(replaced_component IN replaced_by);
+      WR7: NOT(SELF IN replaced_by);
+      WR8: NOT(replaced_component IN replaced_by);
   END_ENTITY;
 
   ENTITY Stratum_stack_model_to_interconnect_assignment

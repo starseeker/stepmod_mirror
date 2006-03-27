@@ -7,6 +7,9 @@
    <schema name="Edge_shape_feature_arm">
       <interface kind="use" schema="Layered_2d_shape_arm"/>
       <interface kind="use" schema="Characteristic_arm"/>
+      <type name="board_side">
+         <enumeration items="primary secondary"/>
+      </type>
       <entity name="Bevel_edge_feature_shape_model" supertypes="Edge_shape_model">
          <explicit name="bevel_width">
             <typename name="Length_tolerance_characteristic"/>
@@ -18,6 +21,9 @@
          <where label="WR2" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(bevel_angle)) OR&#10;        (SIZEOF(QUERY(it &lt;* bevel_angle\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(bevel_angle\Representation.items))&#10;           )) = 1)"/>
       </entity>
       <entity name="Edge_shape_model" abstract.supertype="YES" supertypes="Planar_shape_model" super.expression="ONEOF (Bevel_edge_feature_shape_model, Step_edge_feature_shape_model, Radius_edge_feature_shape_model)">
+         <explicit name="applied_surface">
+            <typename name="board_side"/>
+         </explicit>
          <where label="WR1" expression="SIZEOF(QUERY(escss &lt;* USEDIN(SELF,&#10; 'LAYERED_3D_SHAPE_ARM.SHAPE_DEFINITION_3D_INTERSECTION.SURFACE_INTERSECTION_RESULT') | NOT ('EDGE_SHAPE_FEATURE_ARM.EDGE_SEGMENT_CROSS_SECTION' IN TYPEOF(escss)))) = 0"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Representation.name)"/>
       </entity>

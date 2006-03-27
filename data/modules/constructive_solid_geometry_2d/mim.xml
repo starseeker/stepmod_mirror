@@ -13,6 +13,9 @@
       <interface kind="use" schema="geometric_model_schema">
          <interfaced.item name="boolean_result"/>
          <interfaced.item name="csg_solid"/>
+         <interfaced.item name="elliptic_area"/>
+         <interfaced.item name="polygonal_area"/>
+         <interfaced.item name="rectangular_area"/>
          <interfaced.item name="half_space_2d"/>
          <interfaced.item name="primitive_2d"/>
       </interface>
@@ -69,8 +72,10 @@
          <where label="WR1" expression="base_curve.closed_curve"/>
          <where label="WR2" expression="NOT(base_curve.self_intersect)"/>
       </entity>
+      <entity name="complex_area" abstract.supertype="YES" supertypes="primitive_2d" super.expression="area_with_outer_boundary" abstract.entity="NO"/>
       <entity name="csg_2d_shape_representation" supertypes="shape_representation" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="items" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="csg_2d_shape_select"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
@@ -90,8 +95,16 @@
             <redeclaration entity-ref="csg_solid"/>
          </explicit>
       </entity>
+      <entity name="primitive_2d_with_inner_boundary" supertypes="primitive_2d compound_representation_item" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="inner_boundary" optional="NO">
+            <typename name="compound_inner_area_boundary"/>
+            <redeclaration entity-ref="compound_representation_item" old_name="item_element"/>
+         </explicit>
+         <where label="WR1" expression="['GEOMETRIC_MODEL_SCHEMA.CIRCULAR_AREA', 'GEOMETRIC_MODEL_SCHEMA.ELLIPTIC_AREA', 'GEOMETRIC_MODEL_SCHEMA.RECTANGULAR_AREA',&#10;      'GEOMETRIC_MODEL_SCHEMA.POLYGONAL_AREA', 'CONSTRUCTIVE_SOLID_GEOMETRY_2D.COMPLEX_AREA'] IN TYPEOF(SELF)"/>
+      </entity>
       <entity name="single_area_csg_2d_shape_representation" supertypes="csg_2d_shape_representation" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="items" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="csg_2d_area_select"/>
             <redeclaration entity-ref="representation"/>
          </explicit>
@@ -101,5 +114,6 @@
       <entity name="single_boundary_csg_2d_shape_representation" supertypes="single_area_csg_2d_shape_representation" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="SIZEOF(QUERY ( it &lt;* SELF.items |&#10;      (('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.CSG_PRIMITIVE_SOLID_2D' IN TYPEOF(it)) AND&#10;      (NOT (( 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.AREA_WITH_COMPLEX_BOUNDARY') IN&#10;      TYPEOF(it\csg_primitive_solid_2d.tree_root_expression)))) )) = 0"/>
       </entity>
+      <subtype.constraint name="primitive_2d_subtypes" entity="primitive_2d" super.expression="ONEOF (elliptic_area, rectangular_area, polygonal_area, complex_area)" abstract.supertype="NO"/>
    </schema>
 </express>

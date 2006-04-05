@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.51 2006/02/07 12:03:37 liutkus Exp $
+   $Id: arm.exp,v 1.52 2006/02/07 15:43:06 liutkus Exp $
    ISO TC184/SC4/WG12 N4131 - ISO/TS 10303-1728 Physical unit design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3567
 *)
@@ -12,6 +12,7 @@ SCHEMA Physical_unit_design_view_arm;
 
 	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
+	REFERENCE FROM Physical_unit_usage_view_arm(unique_assembly_component_relationship);	-- ISO/TS 10303-1732
 
 	SUBTYPE_CONSTRAINT pudv_connection_zone_subtypes FOR Connection_zone;     
 		 ONEOF (Connection_zone_in_usage_view,
@@ -136,19 +137,6 @@ SCHEMA Physical_unit_design_view_arm;
    END_REPEAT;  
   WHERE
    WR1 : SIZEOF(acr) = SIZEOF(bag_to_set(acr));
-  END_RULE;
-
-  RULE unique_assembly_component_relationship FOR (Assembly_component_relationship);
-   LOCAL
-     gee : SET OF GENERIC_ENTITY := [];
-     gei : SET OF GENERIC_ENTITY := [];
-   END_LOCAL;
-   REPEAT i := 1 to SIZEOF(Assembly_component_relationship) by 1;
-     gee  := gee + Assembly_component_relationship[i]\View_definition_relationship.related_view;
-     gei  := gei + Assembly_component_relationship[i]\View_definition_relationship.relating_view;
-   END_REPEAT;  
-  WHERE
-    WR1: (SIZEOF(gee) = SIZEOF(gei)) AND (SIZEOF(gee) = SIZEOF(Assembly_component_relationship));
   END_RULE;
 
 END_SCHEMA;

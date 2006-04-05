@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.222 2006/04/05 06:18:09 liutkus Exp $
+   $Id: arm.exp,v 1.223 2006/04/05 08:39:13 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -445,7 +445,8 @@ SCHEMA Layered_interconnect_module_design_arm;
       name                                         : STRING;
       current_associated_definition                : Interconnect_module;
       prior_associated_definition                  : OPTIONAL SET[1:?] OF Interconnect_module;      
-      connectivity_requirement_element             : SET[2:?] OF Laminate_component_join_terminal;
+      connectivity_requirement_element             : SET[1:?] OF Laminate_component_join_terminal;
+      unrouted_connectivity_requirement_element    : OPTIONAL SET[1:?] OF Unrouted_join_relationship;
     UNIQUE
       UR1 : name,
  current_associated_definition;
@@ -885,10 +886,10 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Routed_physical_network
     SUBTYPE OF (Generic_physical_network);
-      reference_connected_terminals             : OPTIONAL Part_connected_terminals_definition;    
-      routed_connectivity_requirement_element 	: SET[1:?] OF Routed_join_relationship;
-      unrouted_connectivity_requirement_element : OPTIONAL SET[1:?] OF Unrouted_join_relationship;      
-      probe                                     : OPTIONAL SET[1:?] OF Probe_access_area;
+      SELF\Generic_physical_network.connectivity_requirement_element : SET[2:?] OF Laminate_component_join_terminal;    
+      reference_connected_terminals                                  : OPTIONAL Part_connected_terminals_definition;    
+      routed_connectivity_requirement_element 	                     : SET[1:?] OF Routed_join_relationship;
+      probe                                                          : OPTIONAL SET[1:?] OF Probe_access_area;
     DERIVE
     	complete	: BOOLEAN := NOT EXISTS(unrouted_connectivity_requirement_element);
     WHERE
@@ -1138,9 +1139,9 @@ ENTITY Structured_layout_component_sub_assembly_relationship
       unrouted_paa       : OPTIONAL SET[1:?] OF Probe_access_area;
       unrouted_via       : OPTIONAL SET[1:?] OF Via_terminal;
     INVERSE
-      network_topology : Routed_physical_network FOR unrouted_connectivity_requirement_element;
+      network_topology : Generic_physical_network FOR unrouted_connectivity_requirement_element;
     WHERE
-      WR1 : (SIZEOF(unrouted_terminals) + SIZEOF(unrouted_lcp) + SIZEOF(unrouted_paa) + SIZEOF(unrouted_via) + SIZEOF(unrouted_junction)) > 1;
+      WR1: (SIZEOF(unrouted_terminals) + SIZEOF(unrouted_lcp) + SIZEOF(unrouted_paa) + SIZEOF(unrouted_via) + SIZEOF(unrouted_junction)) > 0;
   END_ENTITY;
 
   ENTITY Unrouted_physical_network

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.38 2006/01/30 13:22:23 liutkus Exp $
+   $Id: arm.exp,v 1.39 2006/01/31 07:41:16 liutkus Exp $
    ISO TC184/SC4/WG12 N4014 - ISO/TS 10303-1689 Interconnect physical requirement allocation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3456
 *)
@@ -20,11 +20,6 @@
   TYPE electrical_isolation_removal_structure_or_template = EXTENSIBLE GENERIC_ENTITY SELECT
     (Electrical_isolation_removal_template);
   END_TYPE;
-
-	SUBTYPE_CONSTRAINT material_removal_feature_template_subtypes FOR Material_removal_feature_template; 
-	    (ONEOF (Electrical_isolation_removal_template,
-	 	Thermal_isolation_removal_template));
-	END_SUBTYPE_CONSTRAINT;
 
  	TYPE thermal_isolation_removal_structure_or_template = EXTENSIBLE GENERIC_ENTITY SELECT
  		(Thermal_isolation_removal_template);
@@ -49,6 +44,10 @@
       WR1: SIZEOF(QUERY(eisr <* electrical_isolation_spacing_requirement |
          NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.ELECTRICAL_ISOLATION_REQUIREMENT'
         IN TYPEOF(eisr)) )) =0;
+      WR2: SIZEOF(QUERY(s <* SELF\Geometric_template.shapes |
+        ('PART_TEMPLATE_EXTENSION_ARM.PLANAR_CLOSED_PATH_SHAPE_MODEL_WITH_PARAMETERS' IN TYPEOF(s)))) = 0;
+      WR3: SIZEOF(QUERY(s <* SELF\Geometric_template.shapes |
+        NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(s)))) = 0;        
   END_ENTITY;
 
   ENTITY Electrical_isolation_requirement

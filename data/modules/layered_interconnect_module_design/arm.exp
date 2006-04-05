@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.220 2006/03/23 22:43:17 thomasrthurman Exp $
+   $Id: arm.exp,v 1.221 2006/03/27 07:28:41 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -82,11 +82,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       (Material_removal_feature_template, Parametric_template);
     END_TYPE;
 
-    TYPE pattern_role = ENUMERATION OF (
-         removal_only,
-         addition_and_removal);
-    END_TYPE;
-           
     TYPE special_symbol_component = SELECT
       (Single_stratum_special_symbol_component, Multi_stratum_special_symbol_component);
     END_TYPE;
@@ -389,7 +384,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : (NOT (primary_design_layer_stratum) AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
  'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 0)) OR ((primary_design_layer_stratum) AND (SIZEOF(QUERY(imps <* USEDIN(SELF,
  'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 1));
-      WR2 : SELF\Stratum.permissible_pattern_role = pattern_role.addition_and_removal;
   END_ENTITY;
 
   ENTITY Dielectric_material_passage
@@ -403,13 +397,6 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Documentation_layer_stratum
     SUBTYPE OF (Stratum);
       SELF\Stratum.of_technology : Documentation_layer_technology;
-    WHERE
-      WR1 : NOT (EXISTS(of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose) AND
-               (of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose IN 
-               [predefined_documentation_layer_purpose.soldermask,
-               predefined_documentation_layer_purpose.gluemask,
-               predefined_documentation_layer_purpose.pastemask])) OR
-               (SELF\Stratum.permissible_pattern_role = pattern_role.removal_only);
   END_ENTITY;
 
   ENTITY Electrical_isolation_laminate_component
@@ -930,7 +917,6 @@ SCHEMA Layered_interconnect_module_design_arm;
  Design_layer_stratum))
     SUBTYPE OF (Part_view_definition, Item_shape);
       SELF\Product_view_definition.id : STRING;
-      permissible_pattern_role  : pattern_role;
       of_technology 			: Stratum_technology;
     DERIVE
       of_average_surface 	: SET[0:1] OF stratum_average_surface := 
@@ -1011,8 +997,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, resident_stratum;
     WHERE
-      WR1 : resident_stratum\Stratum.permissible_pattern_role = pattern_role.addition_and_removal;
-      WR2 : SIZEOF(query ( ac <* USEDIN(SELF,'') |
+      WR1 : SIZEOF(query ( ac <* USEDIN(SELF,'') |
                   ('PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT' IN TYPEOF(ac))
                    AND
                   (get_assemblies(ac) <> get_ims(resident_stratum))

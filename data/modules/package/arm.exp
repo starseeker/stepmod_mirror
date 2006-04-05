@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.58 2006/01/20 08:43:40 liutkuviene Exp $
+   $Id: arm.exp,v 1.59 2006/01/31 07:41:16 liutkus Exp $
    ISO TC184/SC4/WG12 N4068 - ISO/TS 10303-1707 Package - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3498
 *)
@@ -109,16 +109,17 @@ SCHEMA Package_arm;
       cutout_required                       : BOOLEAN := (maximum_body_height_below_seating_plane\Value_with_unit.value_component > 0.0);
       maximum_installed_height              : length_data_element := add_data_element(maximum_body_height_above_seating_plane,
  maximum_seating_plane_installation_offset);
+      one_orientation_feature               : BOOLEAN := (SIZEOF(orientation_feature) = 1);
+      two_orientation_features              : BOOLEAN := (SIZEOF(orientation_feature) = 2);
+      three_orientation_features            : BOOLEAN := (SIZEOF(orientation_feature) = 3);
     INVERSE
       body                                  : SET[0:1] OF Package_body FOR associated_definition;
 	  external_surface_mount_lead_form 		: SET[0:1] OF External_source_identification FOR item;            
       package_seating_plane                 : Seating_plane FOR scope;
       interface_plane                       : SET[0:?] OF Interface_plane FOR scope;
       package_accesses                      : SET[0:?] OF Package_terminal FOR associated_definition;
-      package_polarity_indication           : SET[0:1] OF Polarity_indication_feature FOR containing_shape;
-      package_primary_orientation_feature   : SET[0:1] OF Primary_orientation_feature FOR containing_shape;
-      package_secondary_orientation_feature : SET[0:1] OF Secondary_orientation_feature FOR containing_shape;
-      package_tertiary_orientation_feature  : SET[0:1] OF Tertiary_orientation_feature FOR containing_shape;
+      package_polarity_indication           : SET[0:1] OF Polarity_indication_feature FOR associated_definition;
+      orientation_feature                   : SET[0:3] OF Package_orientation_feature FOR associated_definition;
     WHERE
       WR1  : NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)));
       WR2  : NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\Value_with_unit.value_component > 0.0);
@@ -134,6 +135,17 @@ SCHEMA Package_arm;
 	  WR10 : SIZEOF(QUERY(nt <* package_accesses |
 	                     (SIZEOF(nt\Part_feature.subsequent_feature) = 1)
 	               )) = (SIZEOF(package_accesses) - 1);
+      WR11 : NOT one_orientation_feature    OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orientation_feature[1]));
+      WR12 : NOT two_orientation_features   OR ((SIZEOF(QUERY(orf <* orientation_feature |
+                                                  ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND
+                                                (SIZEOF(QUERY(orf <* orientation_feature |
+                                                  ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1));
+      WR13 : NOT three_orientation_features OR ((SIZEOF(QUERY(orf <* orientation_feature |
+                                                  ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND
+                                                (SIZEOF(QUERY(orf <* orientation_feature |
+                                                  ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND
+                                                (SIZEOF(QUERY(orf <* orientation_feature |
+                                                  ('PACKAGE_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1));
   END_ENTITY;
 
   ENTITY Package_body
@@ -185,6 +197,7 @@ INVERSE
     ABSTRACT SUPERTYPE OF (ONEOF(Primary_orientation_feature, Secondary_orientation_feature, Tertiary_orientation_feature))
     SUBTYPE OF (Part_feature, Datum_feature);    
            associated_body_vertical_extent : OPTIONAL SET [1:2] OF Package_body_surface;
+      SELF\Part_feature.associated_definition : Package;
   END_ENTITY;
 
   ENTITY Package_terminal
@@ -235,6 +248,7 @@ INVERSE
     SUBTYPE OF (Part_feature);
       associated_body_vertical_extent : OPTIONAL SET[1:2] OF Package_body_surface;
       associated_terminal             : Package_terminal;
+      SELF\Part_feature.associated_definition : Package;
   END_ENTITY;
 
   ENTITY Primary_orientation_feature

@@ -396,6 +396,9 @@
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Laminate_component_join_terminal"/>
          </explicit>
+         <explicit name="reference_connected_terminals" optional="YES">
+            <typename name="Part_connected_terminals_definition"/>
+         </explicit>
          <explicit name="unrouted_connectivity_requirement_element" optional="YES">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Unrouted_join_relationship"/>
@@ -840,9 +843,6 @@
             <typename name="Laminate_component_join_terminal"/>
             <redeclaration entity-ref="Generic_physical_network"/>
          </explicit>
-         <explicit name="reference_connected_terminals" optional="YES">
-            <typename name="Part_connected_terminals_definition"/>
-         </explicit>
          <explicit name="routed_connectivity_requirement_element" optional="NO">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Routed_join_relationship"/>
@@ -896,6 +896,9 @@
          <inverse name="stratum_usage" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
+         <inverse name="material_product" entity="Make_from_relationship" attribute="related_view">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
          <where label="WR1" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) &lt;= 1"/>
          <where label="WR2" expression="NOT(SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 1) OR&#10;            (SIZEOF(of_surface) &lt; 3)"/>
          <where label="WR3" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) &lt;= 1"/>
@@ -905,6 +908,7 @@
          <where label="WR7" expression="SIZEOF(QUERY(asse &lt;* assembly |&#10;                NOT(asse.assembly.defined_version.of_product = assembly[1].assembly.defined_version.of_product)&#10;         )) = 0"/>
          <where label="WR8" expression="SIZEOF(of_product_version) = SIZEOF(assembly)"/>
          <where label="WR9" expression="SELF\Product_view_definition.defined_version IN of_product_version"/>
+         <where label="WR10" expression="NOT ( SIZEOF(material_product)= 1) OR (material_product[1].relating_view IN               &#10;          of_technology.stratum_material.items)"/>
       </entity>
       <entity name="Stratum_average_surface" supertypes="Stratum_surface" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="SELF\Stratum_surface.name = stratum_surface_designation.average_surface"/>
@@ -1223,7 +1227,6 @@ RETURN (pvd);</algorithm>
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Product_view_definition"/>
          <algorithm>LOCAL
-
   imsar : SET OF Interconnect_module_stratum_assembly_relationship := input.assembly;
   pvd : SET OF Product_view_definition := [];
 END_LOCAL;

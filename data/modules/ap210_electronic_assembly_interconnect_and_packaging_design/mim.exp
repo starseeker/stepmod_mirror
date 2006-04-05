@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.61 2006/03/20 14:17:43 liutkus Exp $
+   $Id: mim.exp,v 1.62 2006/03/22 09:01:51 liutkus Exp $
    ISO TC184/SC4/WG3 N1997 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG3 N1639
 *)
@@ -275,6 +275,55 @@ USEDIN(ac,'APPLICATION_CONTEXT_SCHEMA.APPLICATION_PROTOCOL_DEFINITION.APPLICATIO
 'electronic_assembly_interconnect_and_packaging_design'
                 )) > 0)
               )) > 0;
+END_RULE;
+
+RULE cartesian_coordinate_system_constraint FOR
+     (global_unit_assigned_context,
+      geometric_representation_context);
+LOCAL
+   guac_inst : SET OF global_unit_assigned_context :=
+               QUERY ( guac <* global_unit_assigned_context |
+             ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+              'GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF (guac)));
+END_LOCAL;
+WHERE
+   WR1: SIZEOF (QUERY (guac <* guac_inst |
+        NOT (SIZEOF (guac.units) <= 3))) = 0;
+   WR2: SIZEOF (QUERY (guac <* guac_inst | (NOT (
+        (SIZEOF (QUERY (u <* guac.units |
+        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.LENGTH_UNIT'
+        IN TYPEOF (u)))) = 1)
+        AND
+        (SIZEOF (QUERY (u <* guac.units |
+     ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'PLANE_ANGLE_UNIT'
+        IN TYPEOF (u)))) = 1)
+        AND
+        (SIZEOF (QUERY (u <* guac.units |
+    ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'SOLID_ANGLE_UNIT'
+        IN TYPEOF (u)) )) <= 1)
+        )))) = 0;
+   WR3: SIZEOF( QUERY( grc <* guac_inst |
+        NOT( (grc.coordinate_space_dimension = 2) OR
+        (grc.coordinate_space_dimension = 3)))) = 0;
+   WR4: SIZEOF (QUERY (guac <* guac_inst |
+        NOT (SIZEOF (QUERY (u <* guac.units |NOT(
+    NOT((
+     'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+     'PLANE_ANGLE_UNIT' IN TYPEOF(u)) AND
+    ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+     'CONVERSION_BASED_UNIT' IN TYPEOF(u)) AND
+     (u\conversion_based_unit.name = 'degree'))
+   OR
+       ((abs(u\conversion_based_unit.
+           conversion_factor\measure_with_unit.value_component -
+               0.0174532925) <= 0.001) AND
+        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+         'PLANE_ANGLE_MEASURE_WITH_UNIT'
+        IN TYPEOF(u\conversion_based_unit.conversion_factor)))
+   ))) = 0)
+   )) = 0;
 END_RULE;
 
 RULE shape_representation_requires_origin FOR (shape_representation);

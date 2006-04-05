@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.221 2006/03/27 07:28:41 liutkus Exp $
+   $Id: arm.exp,v 1.222 2006/04/05 06:18:09 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -84,11 +84,6 @@ SCHEMA Layered_interconnect_module_design_arm;
 
     TYPE special_symbol_component = SELECT
       (Single_stratum_special_symbol_component, Multi_stratum_special_symbol_component);
-    END_TYPE;
-
-    TYPE inter_stratum_feature_template_or_trace_template = SELECT
-      (Inter_stratum_feature_template,
-       Trace_template);
     END_TYPE;
 
     TYPE stratum_feature_template_or_parametric_template = SELECT
@@ -340,11 +335,10 @@ SCHEMA Layered_interconnect_module_design_arm;
  Plated_cutout,
  Partially_plated_cutout))
     SUBTYPE OF (Inter_stratum_feature);
-      SELF\Definition_based_product_occurrence.derived_from : Trace_template;
     WHERE
-      WR1 : NOT EXISTS(SELF\Product_view_definition.name);
-      WR2 : 'PART_TEMPLATE_EXTENSION_ARM.CLOSED_CURVE_STYLE_PARAMETERS' IN 
-             TYPEOF(SELF.derived_from\Trace_template.trace_style);
+      WR1: NOT EXISTS(SELF\Product_view_definition.name);
+      WR2: SIZEOF(QUERY(shape <* SELF\Inter_stratum_feature.derived_from\Geometric_template.shapes |
+        NOT ('Constructive_solid_geometry_2d_arm.Single_boundary_csg_2d_model' IN TYPEOF(shape)))) = 0;      
   END_ENTITY;
 
   ENTITY Cutout_edge_segment
@@ -478,19 +472,18 @@ SCHEMA Layered_interconnect_module_design_arm;
 		ABSTRACT SUPERTYPE OF (ONEOF (Unsupported_passage,
 			Plated_inter_stratum_feature))  
     SUBTYPE OF (Laminate_component);
-      feature_of_size                          : BOOLEAN;
-      vertical_extent : Passage_technology_allocation_to_stack_model;
-      SELF\Definition_based_product_occurrence.derived_from : inter_stratum_feature_template_or_trace_template;
+      feature_of_size                                       : BOOLEAN;
+      vertical_extent                                       : OPTIONAL Passage_technology_allocation_to_stack_model;
+      SELF\Definition_based_product_occurrence.derived_from : Inter_stratum_feature_template;
     WHERE
-      WR1 : NOT('PART_TEMPLATE_EXTENSION_ARM.TRACE_TEMPLATE' IN TYPEOF(derived_from)) OR
-            ((derived_from.trace_style.curve_width\Value_with_unit.value_component = 0.0) AND
-             (derived_from.trace_style.width_uncertainty\Value_with_unit.value_component = 0.0) AND
-             (derived_from.trace_style.corner_style = extend_or_chord_2_extend_or_truncate_or_round.truncate));        
-      WR2 : SIZEOF(QUERY(nauor <* SELF\Assembly_component.occurrence_contexts |
-              NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(nauor\View_definition_relationship.relating_view)) AND             
+      WR1: NOT EXISTS(vertical_extent) OR SIZEOF(QUERY(nauor <* SELF\Assembly_component.occurrence_contexts |
+         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(nauor\View_definition_relationship.relating_view)) AND             
               (vertical_extent\Passage_technology_allocation_to_stack_model.associated_stackup =
                    nauor\View_definition_relationship.relating_view.stackup_model[1].concept))
-                   )) = 0;                   
+                   )) = 0;
+      WR2: NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CUTOUT' IN 
+       TYPEOF(SELF)) OR (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_EDGE' IN 
+       TYPEOF(SELF)) XOR EXISTS(vertical_extent));  
   END_ENTITY;
 
   ENTITY Inter_stratum_join_relationship
@@ -530,10 +523,9 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUPERTYPE OF (ONEOF (Partially_plated_interconnect_module_edge,
  Plated_interconnect_module_edge))
     SUBTYPE OF (Inter_stratum_feature);
-      SELF\Definition_based_product_occurrence.derived_from : Trace_template;
     WHERE
-      WR1 : 'PART_TEMPLATE_EXTENSION_ARM.CLOSED_CURVE_STYLE_PARAMETERS' IN 
-             TYPEOF(SELF.derived_from\Trace_template.trace_style);
+      WR1: SIZEOF(QUERY(shape <* SELF\Inter_stratum_feature.derived_from\Geometric_template.shapes |
+        NOT ('Constructive_solid_geometry_2d_arm.Single_boundary_csg_2d_model' IN TYPEOF(shape)))) = 0;
   END_ENTITY;
 
   ENTITY Interconnect_module_edge_segment

@@ -115,6 +115,15 @@
          <derived name="maximum_installed_height" expression="add_data_element(maximum_body_height_above_seating_plane,&#10; maximum_seating_plane_installation_offset)">
             <typename name="Length_data_element"/>
          </derived>
+         <derived name="one_orientation_feature" expression="(SIZEOF(orientation_feature) = 1)">
+            <builtintype type="BOOLEAN"/>
+         </derived>
+         <derived name="two_orientation_features" expression="(SIZEOF(orientation_feature) = 2)">
+            <builtintype type="BOOLEAN"/>
+         </derived>
+         <derived name="three_orientation_features" expression="(SIZEOF(orientation_feature) = 3)">
+            <builtintype type="BOOLEAN"/>
+         </derived>
          <inverse name="body" entity="Package_body" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
@@ -131,14 +140,8 @@
          <inverse name="package_polarity_indication" entity="Polarity_indication_feature" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <inverse name="package_primary_orientation_feature" entity="Primary_orientation_feature" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
-         <inverse name="package_secondary_orientation_feature" entity="Secondary_orientation_feature" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
-         <inverse name="package_tertiary_orientation_feature" entity="Tertiary_orientation_feature" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         <inverse name="orientation_feature" entity="Package_orientation_feature" attribute="associated_definition">
+            <inverse.aggregate type="SET" lower="0" upper="3"/>
          </inverse>
          <where label="WR1" expression="NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)))"/>
          <where label="WR2" expression="NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\Value_with_unit.value_component &gt; 0.0)"/>
@@ -150,6 +153,9 @@
          <where label="WR8" expression="(EXISTS (surface_mount_lead_form)) XOR ((SIZEOF(external_surface_mount_lead_form)) = 1)"/>
          <where label="WR9" expression="SIZEOF(QUERY(nt &lt;* package_accesses |&#10;	                      EXISTS(nt\Part_feature.precedent_feature)&#10;	               )) = (SIZEOF(package_accesses) - 1)"/>
          <where label="WR10" expression="SIZEOF(QUERY(nt &lt;* package_accesses |&#10;	                     (SIZEOF(nt\Part_feature.subsequent_feature) = 1)&#10;	               )) = (SIZEOF(package_accesses) - 1)"/>
+         <where label="WR11" expression="NOT one_orientation_feature    OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orientation_feature[1]))"/>
+         <where label="WR12" expression="NOT two_orientation_features   OR ((SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND&#10;                                                (SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1))"/>
+         <where label="WR13" expression="NOT three_orientation_features OR ((SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND&#10;                                                (SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND&#10;                                                (SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1))"/>
       </entity>
       <entity name="Package_body" supertypes="Part_feature">
          <explicit name="associated_definition">
@@ -186,6 +192,10 @@
          <explicit name="associated_body_vertical_extent" optional="YES">
             <aggregate type="SET" lower="1" upper="2"/>
             <typename name="Package_body_surface"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <typename name="Package"/>
+            <redeclaration entity-ref="Part_feature"/>
          </explicit>
       </entity>
       <entity name="Package_terminal" supertypes="Part_feature Placed_feature">
@@ -260,6 +270,10 @@
          </explicit>
          <explicit name="associated_terminal">
             <typename name="Package_terminal"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <typename name="Package"/>
+            <redeclaration entity-ref="Part_feature"/>
          </explicit>
       </entity>
       <entity name="Primary_orientation_feature" supertypes="Package_orientation_feature"/>

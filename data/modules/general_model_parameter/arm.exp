@@ -1,8 +1,10 @@
 (*
-   $Id: arm.exp,v 1.8 2006/03/22 14:50:38 dmprice Exp $
+   $Id: arm.exp,v 1.9 2006/03/22 18:56:35 dmprice Exp $
    N - ISO/WD - 10303- general_model_parameter - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA General_model_parameter_arm;
+
+USE FROM Class_arm;
 
 USE FROM Classification_assignment_arm;
 
@@ -26,6 +28,11 @@ END_TYPE;
 
 ENTITY Constrained_general_parameter_relationship
 SUBTYPE OF (Independent_property_relationship);
+  SELF\Independent_property_relationship.relating : General_model_parameter;
+  SELF\Independent_property_relationship.related : General_model_parameter;
+  required_class : Class;
+WHERE
+    WR1: (required_class.id IN CLASSOF(related)) AND (required_class.id IN CLASSOF(relating));
 END_ENTITY;
 
 ENTITY General_model_parameter
@@ -36,5 +43,23 @@ ENTITY Parameter_value_representation_item
 SUBTYPE OF (Representation_item);
   parameter_value : parameter_value_select;
 END_ENTITY;
+
+FUNCTION CLASSOF(the_instance : GENERIC_ENTITY:ininst) : SET OF STRING;
+
+  LOCAL
+    result : SET OF STRING;
+    classifications : BAG OF Classification_assignment;
+  END_LOCAL;
+
+  result := TYPEOF(the_instance);
+  classifications := USEDIN(the_instance,'GENERAL_MODEL_PARAMETER_ARM.CLASSIFICATION_ASSIGNMENT.ITEMS');
+
+  REPEAT i := LOINDEX(classifications) TO HIINDEX(classifications);
+    result := result + classifications[i].ASSIGNED_CLASS.ID;
+  END_REPEAT;
+
+  RETURN (result);
+
+END_FUNCTION;
 
 END_SCHEMA;

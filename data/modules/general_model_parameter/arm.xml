@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: arm.xml,v 1.8 2006/03/22 14:50:38 dmprice Exp $ -->
+<!-- $Id: arm.xml,v 1.9 2006/03/22 18:56:35 dmprice Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 <express
    language_version="2"
-   rcs.date="$Date: 2006/03/22 14:50:38 $"
-   rcs.revision="$Revision: 1.8 $"
+   rcs.date="$Date: 2006/03/22 18:56:35 $"
+   rcs.revision="$Revision: 1.9 $"
 	 description.file="arm_descriptions.xml">
-  <schema name="General_model_parameter_arm">
+   <schema name="General_model_parameter_arm">
+    <interface
+      kind="use"
+      schema="Class_arm">
+    </interface>
     <interface
       kind="use"
       schema="Classification_assignment_arm">
@@ -43,18 +47,38 @@ href="../../../xsl/express.xsl" ?>
         selectitems="Constrained_general_parameter_relationship General_model_parameter Parameter_value_representation_item"/>
       <graphic.element
         page="3"
-        xcoord="354"
-        ycoord="467"/>
+        xcoord="361"
+        ycoord="481"/>
     </type>
 
     <entity
       name="Constrained_general_parameter_relationship"
       supertypes="Independent_property_relationship"      >
 
+      <explicit
+        name="relating">
+        <typename name="General_model_parameter"/>
+        <redeclaration
+          entity-ref="Independent_property_relationship"/>
+      </explicit>
+      <explicit
+        name="related">
+        <typename name="General_model_parameter"/>
+        <redeclaration
+          entity-ref="Independent_property_relationship"/>
+      </explicit>
+      <explicit
+        name="required_class">
+        <typename name="Class"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="(required_class.id IN CLASSOF(related)) AND (required_class.id IN CLASSOF(relating))">
+      </where>
       <graphic.element
         page="3"
-        xcoord="467"
-        ycoord="248"/>
+        xcoord="459"
+        ycoord="676"/>
     </entity>
 
     <entity
@@ -63,8 +87,8 @@ href="../../../xsl/express.xsl" ?>
 
       <graphic.element
         page="3"
-        xcoord="306"
-        ycoord="644"/>
+        xcoord="99"
+        ycoord="666"/>
     </entity>
 
     <entity
@@ -77,14 +101,39 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <graphic.element
         page="3"
-        xcoord="201"
-        ycoord="325"/>
+        xcoord="116"
+        ycoord="418"/>
     </entity>
 
+			   <function name="CLASSOF">
+      <parameter name="the_instance">
+        <builtintype type="GENERIC_ENTITY" typelabel="ininst"  />
+      </parameter>
+      <aggregate type="SET"  />
+      <builtintype type="STRING"  />
+      <algorithm>
+  LOCAL
+    result : SET OF STRING;
+    classifications : BAG OF Classification_assignment;
+  END_LOCAL;
+
+  result := TYPEOF(the_instance);
+  classifications := USEDIN(the_instance,'GENERAL_MODEL_PARAMETER_ARM.CLASSIFICATION_ASSIGNMENT.ITEMS');
+
+  REPEAT i := LOINDEX(classifications) TO HIINDEX(classifications);
+    result := result + classifications[i].ASSIGNED_CLASS.ID;
+  END_REPEAT;
+
+  RETURN (result);
+	</algorithm>
+    </function>
+
+		
     <graphic.element
       page="1"
-      xcoord="212"
-      ycoord="680"/>
+      xcoord="205"
+      ycoord="758"/>
+			
+			
   </schema>
-
 </express>

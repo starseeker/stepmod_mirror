@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: ballot_checklist.xsl,v 1.9 2003/10/01 16:26:49 robbod Exp $
+$Id: ballot_checklist.xsl,v 1.10 2005/02/17 02:20:31 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited http://www.eurostep.com
   Purpose: To display a table summarising the modules in a ballot package
@@ -93,6 +93,8 @@ $Id: ballot_checklist.xsl,v 1.9 2003/10/01 16:26:49 robbod Exp $
           <td><b>MIM</b></td>
           <td><b>Mapping</b></td>
           <td><b>QC complete</b></td>
+          <td><b>ARM dvlp file</b></td>
+          <td><b>MIM dvlp file</b></td>
         </tr>
         <tr>
           <td><small><i>&#160;</i></small></td>
@@ -100,6 +102,8 @@ $Id: ballot_checklist.xsl,v 1.9 2003/10/01 16:26:49 robbod Exp $
           <td align="right"><small>file:</small></td>
           <td><small><i>module.xml</i></small></td>
           <!-- URL <td>&#160;</td> -->
+          <td><small><i>module.xml</i></small></td>
+          <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
           <td><small><i>module.xml</i></small></td>
@@ -633,6 +637,23 @@ $Id: ballot_checklist.xsl,v 1.9 2003/10/01 16:26:49 robbod Exp $
         
         <!-- QC complete -->
         <td>&#160;</td>
+        
+        <!-- ARM dvlp file -->
+        <td>
+          <xsl:call-template name="get_dvlp_file">
+            <xsl:with-param name="module" select="@name"/>
+            <xsl:with-param name="arm_or_mim" select="'arm'"/>
+          </xsl:call-template>
+	</td>
+
+        
+        <!-- MIM dvlp file -->
+          <td>
+          <xsl:call-template name="get_dvlp_file">
+            <xsl:with-param name="module" select="@name"/>
+            <xsl:with-param name="arm_or_mim" select="'mim'"/>
+          </xsl:call-template>
+	</td>
       </tr>
     </xsl:when>
 
@@ -1065,6 +1086,21 @@ $Id: ballot_checklist.xsl,v 1.9 2003/10/01 16:26:49 robbod Exp $
       </xsl:variable>
       <xsl:value-of select="$ret_val"/>
   </xsl:template>
+
+<xsl:template name="get_dvlp_file">
+  <xsl:param name="module"/>
+  <xsl:param name="arm_or_mim"/>
+  <xsl:variable name="dvlp_file"
+    select="document(concat('../../data/modules/',$module,'/',$arm_or_mim,'.xml'))/express/application/@source"/>
+  <xsl:choose>
+    <xsl:when test="$dvlp_file">
+      <xsl:value-of select="$dvlp_file"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="'-'"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
   
 </xsl:stylesheet>

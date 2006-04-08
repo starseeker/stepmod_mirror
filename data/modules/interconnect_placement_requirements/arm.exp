@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.28 2006/02/05 21:15:54 thomasrthurman Exp $
+   $Id: arm.exp,v 1.29 2006/03/22 09:01:53 liutkus Exp $
    ISO TC184/SC4/WG12 N4017 - ISO/TS 10303-1690 Interconnect placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3459
 *)
@@ -25,7 +25,8 @@ SCHEMA Interconnect_placement_requirements_arm;
      Conductive_filled_area,
      Stratum_feature,
      Laminate_component,
-     Inter_stratum_feature);
+     Inter_stratum_feature,
+     Printed_component);
   END_TYPE;
 
   TYPE interconnect_module_design_object_category = EXTENSIBLE ENUMERATION OF
@@ -187,21 +188,24 @@ SCHEMA Interconnect_placement_requirements_arm;
 
   ENTITY Layout_spacing_requirement_occurrence
     SUBTYPE OF (Predefined_requirement_view_definition);
-      reference_design_object_category                                    : pca_product_design_object_category;
-      dependent_design_object_category                                    : pca_product_design_object_category;
-      SELF\Predefined_requirement_view_definition.required_characteristic : Tolerance_characteristic;
+      design_object_category_1                                    : pca_product_design_object_category;
+      design_object_category_2                                    : pca_product_design_object_category;
+      SELF\Predefined_requirement_view_definition.required_characteristic RENAMED spacing : Length_tolerance_characteristic;
       of_spacing_type                                                     : spacing_type;
-    UNIQUE
-      UR1 : reference_design_object_category,
- dependent_design_object_category;
     WHERE
       WR1 : 'VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Predefined_requirement_view_definition.required_characteristic.items[1]);
   END_ENTITY;
 
   ENTITY Layout_spacing_requirement_non_conforming_design_object;
       non_conformant_design_object : SET[1:?] OF assembly_or_interconnect_design_object_select;
-      reference_design_object      : assembly_or_interconnect_design_object_select;
+      design_object_1              : assembly_or_interconnect_design_object_select;
+      design_object_2              : assembly_or_interconnect_design_object_select;
       design_requirement           : Layout_spacing_requirement_occurrence;
+      violation_value              : OPTIONAL Length_data_element;
+      violation_shape              : OPTIONAL Geometric_model;
+      intersection_violation       : LOGICAL;
+    WHERE
+     WR1: EXISTS(violation_value) OR EXISTS(violation_shape);      
   END_ENTITY;
 
   FUNCTION valid_non_conformant_design_object_context(input1 : SET OF interconnect_module_design_object_select;

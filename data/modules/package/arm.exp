@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.59 2006/01/31 07:41:16 liutkus Exp $
+   $Id: arm.exp,v 1.60 2006/04/05 02:47:12 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4068 - ISO/TS 10303-1707 Package - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3498
 *)
@@ -23,7 +23,8 @@ SCHEMA Package_arm;
 	END_TYPE; 
 
  	TYPE pa_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Package);
+		(Package_terminal_template_definition,
+		 Package);
 	END_TYPE;
  
  	TYPE pa_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select  WITH
@@ -92,7 +93,6 @@ SCHEMA Package_arm;
     SUBTYPE OF (Part_usage_view);
       mounting_technology                        : mounting_technology_type;
       maximum_seating_plane_installation_offset  : OPTIONAL Length_data_element;
-      surface_mount_lead_form                    : OPTIONAL predefined_lead_form;
       nominal_mounting_lead_pitch                : OPTIONAL Length_data_element;
       nominal_mounting_lead_span                 : OPTIONAL Length_data_element;
       maximum_body_height_above_seating_plane    : Length_data_element;
@@ -114,7 +114,6 @@ SCHEMA Package_arm;
       three_orientation_features            : BOOLEAN := (SIZEOF(orientation_feature) = 3);
     INVERSE
       body                                  : SET[0:1] OF Package_body FOR associated_definition;
-	  external_surface_mount_lead_form 		: SET[0:1] OF External_source_identification FOR item;            
       package_seating_plane                 : Seating_plane FOR scope;
       interface_plane                       : SET[0:?] OF Interface_plane FOR scope;
       package_accesses                      : SET[0:?] OF Package_terminal FOR associated_definition;
@@ -124,23 +123,21 @@ SCHEMA Package_arm;
       WR1  : NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)));
       WR2  : NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\Value_with_unit.value_component > 0.0);
       WR3  : NOT (EXISTS(least_lead_length_below_seating_plane)) OR (least_lead_length_below_seating_plane\Value_with_unit.value_component > 0.0);
-      WR4  : (NOT (mounting_technology = surface_mount) AND NOT (EXISTS(surface_mount_lead_form))) OR ((mounting_technology = surface_mount) AND (EXISTS(surface_mount_lead_form)));
-      WR5  : package_seating_plane\Shape_element.element_name = 'package seating plane';
-      WR6  : 'package' IN types_of_product(SELF\Product_view_definition.defined_version.of_product);
-      WR7  : SIZEOF(QUERY(pa <* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1;
-	  WR8  : (EXISTS (surface_mount_lead_form)) XOR ((SIZEOF(external_surface_mount_lead_form)) = 1);
-	  WR9  : SIZEOF(QUERY(nt <* package_accesses |
+      WR4  : package_seating_plane\Shape_element.element_name = 'package seating plane';
+      WR5  : 'package' IN types_of_product(SELF\Product_view_definition.defined_version.of_product);
+      WR6  : SIZEOF(QUERY(pa <* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1;
+	  WR7  : SIZEOF(QUERY(nt <* package_accesses |
 	                      EXISTS(nt\Part_feature.precedent_feature)
 	               )) = (SIZEOF(package_accesses) - 1);
-	  WR10 : SIZEOF(QUERY(nt <* package_accesses |
+	  WR8  : SIZEOF(QUERY(nt <* package_accesses |
 	                     (SIZEOF(nt\Part_feature.subsequent_feature) = 1)
 	               )) = (SIZEOF(package_accesses) - 1);
-      WR11 : NOT one_orientation_feature    OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orientation_feature[1]));
-      WR12 : NOT two_orientation_features   OR ((SIZEOF(QUERY(orf <* orientation_feature |
+      WR9  : NOT one_orientation_feature    OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orientation_feature[1]));
+      WR10 : NOT two_orientation_features   OR ((SIZEOF(QUERY(orf <* orientation_feature |
                                                   ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND
                                                 (SIZEOF(QUERY(orf <* orientation_feature |
                                                   ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1));
-      WR13 : NOT three_orientation_features OR ((SIZEOF(QUERY(orf <* orientation_feature |
+      WR11 : NOT three_orientation_features OR ((SIZEOF(QUERY(orf <* orientation_feature |
                                                   ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND
                                                 (SIZEOF(QUERY(orf <* orientation_feature |
                                                   ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND
@@ -212,6 +209,7 @@ INVERSE
     SUBTYPE OF (Part_feature_template_definition);
       external_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_part_feature_template_definition;
       internal_connection_zone                : OPTIONAL SET[1:?] OF Connection_zone_in_part_feature_template_definition;
+      lead_form                               : OPTIONAL predefined_lead_form;
       seating_plane_intersection              : seating_plane_intersection_type;
       terminal_characteristic                 : OPTIONAL SET[1:?] OF characteristic;
       terminal_diametrical_extent             : Length_tolerance_characteristic;
@@ -226,6 +224,8 @@ INVERSE
      'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
      (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
  	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'terminal surface material')) = 1)));
+ 	INVERSE
+	  external_lead_form                      : SET[0:1] OF External_source_identification FOR item;            
     WHERE
       WR1 : NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.derived_zone = cz))) = 1);
       WR2 : NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.mating_zone = cz))) = 1);
@@ -234,8 +234,9 @@ INVERSE
       WR8 : NOT (SIZEOF(terminal_core_material) = 1) OR
                 ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_core_material[1]));
       WR9 : EXISTS(terminal_core_material);
-      WR10 : NOT EXISTS(terminal_surface_material) OR
+      WR10: NOT EXISTS(terminal_surface_material) OR
                 ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_surface_material[1]));
+	  WR11: (EXISTS (lead_form)) XOR ((SIZEOF(external_lead_form)) = 1);
   END_ENTITY;
 
   ENTITY Package_terminal_surface_constituent_relationship

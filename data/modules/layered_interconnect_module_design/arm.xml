@@ -124,6 +124,31 @@
          <where label="WR4" expression="NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(precedent_item)) OR &#10;                (precedent_item.name = stratum_surface_designation.secondary_surface)"/>
          <where label="WR5" expression="NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(subsequent_item)) OR &#10;                (precedent_item.name = stratum_surface_designation.primary_surface)"/>
       </entity>
+      <entity name="Area_component" supertypes="Stratum_feature_template_component" super.expression="Connected_area_component" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="is_base" optional="NO">
+            <builtintype type="BOOLEAN" fixed="NO"/>
+         </explicit>
+         <explicit name="replaced_component" optional="YES">
+            <typename name="Area_component"/>
+         </explicit>
+         <explicit name="derived_from" optional="NO">
+            <typename name="Fill_area_template"/>
+            <redeclaration entity-ref="Definition_based_product_occurrence"/>
+         </explicit>
+         <derived name="is_final" expression="SIZEOF(replaced_by) = 0">
+            <builtintype type="BOOLEAN" fixed="NO"/>
+         </derived>
+         <inverse name="replaced_by" entity="Area_component" attribute="replaced_component">
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
+         </inverse>
+         <where label="WR1" expression="NOT((is_final) XOR&#10;       ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum)))"/>
+         <where label="WR2" expression="NOT(SIZEOF(replaced_by) &gt; 0) OR&#10;       ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM' IN TYPEOF(implementation_or_resident_stratum))"/>
+         <where label="WR3" expression="(SIZEOF(replaced_by) = 0) OR (SIZEOF(QUERY(rp &lt;* replaced_by | resident_stratum :&lt;&gt;: get_resident_stratum(rp))) = 0)"/>
+         <where label="WR4" expression="NOT(SELF IN replaced_by)"/>
+         <where label="WR5" expression="NOT(replaced_component IN replaced_by)"/>
+      <where label="IP1"/>
+         <where label="IP2"/>
+      </entity>
       <entity name="Breakout_occurrence" supertypes="Footprint_occurrence" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
             <typename name="Breakout_footprint_definition"/>
@@ -246,7 +271,7 @@
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
-      <entity name="Connected_area_component" supertypes="Stratum_feature_template_component" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Connected_area_component" supertypes="Area_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="associated_layer_connection_point" optional="NO">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Layer_connection_point"/>
@@ -887,6 +912,10 @@
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Product_version"/>
          </derived>
+         <derived name="base_component" expression="get_base_component(SELF)">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Area_component"/>
+         </derived>
          <inverse name="of_surface" entity="Stratum_surface" attribute="of_stratum">
             <inverse.aggregate type="SET" lower="1" upper="3"/>
          </inverse>
@@ -909,6 +938,7 @@
          <where label="WR8" expression="SIZEOF(of_product_version) = SIZEOF(assembly)"/>
          <where label="WR9" expression="SELF\Product_view_definition.defined_version IN of_product_version"/>
          <where label="WR10" expression="NOT ( SIZEOF(material_product)= 1) OR (material_product[1].relating_view IN               &#10;          of_technology.stratum_material.items)"/>
+         <where label="WR11" expression="SIZEOF(base_component) &lt; 2"/>
       </entity>
       <entity name="Stratum_average_surface" supertypes="Stratum_surface" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="SELF\Stratum_surface.name = stratum_surface_designation.average_surface"/>
@@ -988,31 +1018,13 @@
          <explicit name="implementation_or_resident_stratum" optional="NO">
             <typename name="stratum_feature_or_stratum"/>
          </explicit>
-         <explicit name="replaced_component" optional="YES">
-            <typename name="Stratum_feature_template_component"/>
-         </explicit>
          <explicit name="causal_item" optional="YES">
             <typename name="restriction_basis_item"/>
          </explicit>
-         <derived name="is_final" expression="SIZEOF(replaced_by) = 0">
-            <builtintype type="BOOLEAN" fixed="NO"/>
-         </derived>
          <derived name="resident_stratum" expression="get_resident_stratum(SELF)">
             <typename name="Stratum"/>
          </derived>
-         <inverse name="replaced_by" entity="Stratum_feature_template_component" attribute="replaced_component">
-            <inverse.aggregate type="SET" lower="0" upper="?"/>
-         </inverse>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
-         <where label="WR2" expression="NOT(is_final) OR&#10;         ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum))"/>
-         <where label="WR3" expression="NOT(SIZEOF(replaced_by) &gt; 1) OR&#10;        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum))"/>
-         <where label="WR4" expression="NOT(is_final) OR&#10;         (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) = 0)"/>
-         <where label="WR5" expression="(SIZEOF(replaced_by) = 0) OR (SIZEOF(QUERY(rp &lt;* replaced_by | resident_stratum :&lt;&gt;: get_resident_stratum(rp)&#10;          )) = 0)"/>
-         <where label="WR6" expression="NOT (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) &gt;= 0) OR&#10;          NOT(is_final)"/>
-         <where label="WR7" expression="NOT(SELF IN replaced_by)"/>
-         <where label="WR8" expression="NOT(replaced_component IN replaced_by)"/>
-      <where label="IP1"/>
-         <where label="IP2"/>
       </entity>
       <entity name="Stratum_stack_model_to_interconnect_assignment" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="concept" optional="NO">
@@ -1219,6 +1231,34 @@ REPEAT i := 1 TO HIINDEX(acr) BY 1;
 END_REPEAT;
 
 RETURN (pvd);</algorithm>
+      </function>
+      <function name="get_base_component">
+         <parameter name="input">
+            <typename name="Stratum"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Area_component"/>
+         <algorithm>LOCAL
+   sf : SET OF Stratum_feature := bag_to_set(USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE.RESIDENT_STRATUM'));
+   sftc : SET OF Stratum_feature_template_component := bag_to_set(
+            USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM'));
+   i : INTEGER := 0;
+   ac: SET OF Area_component;
+END_LOCAL;
+   REPEAT i := 1 TO HIINDEX(sf) BY 1;
+   ac := bag_to_set(QUERY(temp &lt;* USEDIN(sf[i],
+                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM') | 
+                    (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(temp)) AND
+                     (temp.is_base = TRUE))));
+   END_REPEAT;
+   REPEAT i := 1 to HIINDEX(sftc) BY 1;
+      IF(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(sftc[i])) AND
+         (sftc[i].is_base = TRUE))
+      THEN
+       ac := ac + sftc[i];
+      END_IF;
+   END_REPEAT;
+  RETURN(ac);</algorithm>
       </function>
       <function name="get_ims">
          <parameter name="input">

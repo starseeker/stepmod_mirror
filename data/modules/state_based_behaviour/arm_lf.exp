@@ -1,18 +1,18 @@
 (*
-   $Id: arm_lf.exp,v 1.3 2006/02/27 02:18:44 dmprice Exp $
+   $Id: arm_lf.exp,v 1.4 2006/03/01 10:33:26 dmprice Exp $
    N - ISO/WD - 10303- state_based_behaviour - EXPRESS ARM_LF*)
 (* UNDER DEVELOPMENT *)
 SCHEMA state_based_behaviour_arm_lf; 
 
 (*
-EDITORS NOTE: David Price 2006-02-25
+EDITORS NOTE: David Price 2006-04-11
 
 Note: The schema below is a pseudo long form constructed on the assumption that 
       all USE constructs call out the complete schema. 
 This long form was produced using simple STEPMod ARM Long form view XSLT, not an EXPRESS tool.
 This long form is not accurate but gives an idea of the current scope of SBB in preparation for AP233 WD2.
 
-*) 
+*)
 
 TYPE alias_identification_item = SELECT 
 (Behaviour,
@@ -26,7 +26,9 @@ TYPE any_string_value = STRING;
 END_TYPE; 
 
 TYPE assigned_name_select = SELECT 
-(Condition,
+(Activity_method,
+Condition,
+Description_text_assignment,
 External_class_library,
 General_model_parameter,
 Product,
@@ -54,16 +56,25 @@ TYPE behaviour_view_definition_identification_item = SELECT
 END_TYPE; 
 
 TYPE classification_item = SELECT 
-(Condition,
+(Activity_method,
+Applied_state_definition_assignment,
+Behaviour,
+Behaviour_view_definition,
+Condition,
 Condition_assignment,
 Condition_parameter,
 Condition_relationship,
+Constrained_general_parameter_relationship,
+Description_text,
+Description_text_assignment,
 General_model_parameter,
+Parameter_value_representation_item,
 Product,
 Product_version,
 Product_view_definition,
+State_based_behaviour_model,
 State_definition,
-State_transition_definition); 
+State_definition_relationship); 
 END_TYPE; 
 
 TYPE condition_classification_item = SELECT 
@@ -81,8 +92,26 @@ TYPE condition_parameter_item = SELECT
 (Condition_relationship,
 Generic_expression,
 Product_view_definition,
-State_based_behaviour_model,
 Value_with_unit); 
+END_TYPE; 
+
+TYPE description_item = SELECT 
+(Activity_method,
+Behaviour,
+Behaviour_version,
+Behaviour_view_definition,
+Condition,
+General_model_parameter,
+Product,
+Product_version,
+Product_view_definition,
+State_based_behaviour_model,
+State_definition,
+State_definition_relationship); 
+END_TYPE; 
+
+TYPE expression_assignment_item = SELECT 
+(Condition); 
 END_TYPE; 
 
 TYPE external_class_assigned_name_select = SELECT 
@@ -90,14 +119,18 @@ TYPE external_class_assigned_name_select = SELECT
 END_TYPE; 
 
 TYPE gmp_classification_item = SELECT 
-(General_model_parameter); 
+(Constrained_general_parameter_relationship,
+General_model_parameter,
+Parameter_value_representation_item); 
 END_TYPE; 
 
 TYPE identification_item = SELECT 
-(Behaviour_view_definition,
+(Activity_method,
+Behaviour_view_definition,
 Product,
 Product_version,
-Product_view_definition); 
+Product_view_definition,
+State_based_behaviour_model); 
 END_TYPE; 
 
 TYPE length_measure = REAL;
@@ -113,7 +146,6 @@ END_TYPE;
 TYPE parameter_value_select = SELECT 
 (Generic_expression,
 Product_view_definition,
-State_based_behaviour_model,
 Value_with_unit); 
 END_TYPE; 
 
@@ -122,15 +154,23 @@ END_TYPE;
 
 TYPE property_assignment_select = SELECT 
 (Activity_method,
-Behaviour_view_definition); 
+Behaviour_view_definition,
+Product_view_definition); 
+END_TYPE; 
+
+TYPE represented_definition = SELECT 
+(Assigned_property,
+Independent_property); 
 END_TYPE; 
 
 TYPE sbb_assigned_name_select = SELECT 
-(behaviour_model,
+(Activity_method,
 Condition,
+Description_text_assignment,
 General_model_parameter,
 Product,
 Product_view_definition,
+State_based_behaviour_model,
 State_definition,
 State_transition_definition); 
 END_TYPE; 
@@ -140,11 +180,20 @@ TYPE sbb_behaviour_model = SELECT
 END_TYPE; 
 
 TYPE sbb_classification_item = SELECT 
-(Product,
+(Activity_method,
+Applied_state_definition_assignment,
+Behaviour,
+Behaviour_view_definition,
+Condition,
+Description_text,
+Description_text_assignment,
+General_model_parameter,
+Product,
 Product_version,
 Product_view_definition,
+State_based_behaviour_model,
 State_definition,
-State_transition_definition); 
+State_definition_relationship); 
 END_TYPE; 
 
 TYPE sbb_condition_item = SELECT 
@@ -153,29 +202,46 @@ END_TYPE;
 
 TYPE sbb_condition_parameter_item = SELECT 
 (Condition_relationship,
-Generic_expression,
-parameter_value_select,
+parameter_value_select); 
+END_TYPE; 
+
+TYPE sbb_description_item = SELECT 
+(Activity_method,
+Behaviour,
+Behaviour_version,
+Behaviour_view_definition,
+Condition,
+General_model_parameter,
+Product,
+Product_version,
 Product_view_definition,
 State_based_behaviour_model,
-Value_with_unit); 
+State_definition,
+State_definition_relationship); 
+END_TYPE; 
+
+TYPE sbb_expression_assignment_item = SELECT 
+(Condition); 
 END_TYPE; 
 
 TYPE sbb_identification_item = SELECT 
-(Product,
+(Activity_method,
+Product,
 Product_version,
-Product_view_definition); 
+Product_view_definition,
+State_based_behaviour_model); 
 END_TYPE; 
 
 TYPE sbb_parameter_value_select = SELECT 
-(behaviour_model,
-Generic_expression,
+(Generic_expression,
 Product_view_definition,
 Value_with_unit); 
 END_TYPE; 
 
 TYPE sbb_property_assignment_select = SELECT 
 (Activity_method,
-Behaviour_view_definition); 
+Behaviour_view_definition,
+Product_view_definition); 
 END_TYPE; 
 
 TYPE sbb_state_definition_of_item = SELECT 
@@ -219,7 +285,7 @@ SUBTYPE OF (Identification_assignment);
 DERIVE
 SELF\Identification_assignment.role : STRING := 'alias';
 WHERE
-WR1: SIZEOF (QUERY( item <* SELF\Identification_assignment.items | NOT ('STATE_BASED_BEHAVIOUR_ARM_LF.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item) ) )) = 0;
+WR1: SIZEOF (QUERY( item <* SELF\Identification_assignment.items | NOT ('ALIAS_IDENTIFICATION_ARM.ALIAS_IDENTIFICATION_ITEM' IN TYPEOF(item) ) )) = 0;
 END_ENTITY;
 
 (* Amount_of_substance_unit from schema Value_with_unit_arm *) 
@@ -246,8 +312,8 @@ END_ENTITY;
 (* Applied_state_definition_assignment from schema Foundation_state_definition_arm *) 
 
 ENTITY Applied_state_definition_assignment;
-assigned_to : state_definition_of_item;
 described_state_definition : State_definition;
+assigned_to : state_definition_of_item;
 role : State_definition_role;
 END_ENTITY;
 
@@ -427,7 +493,7 @@ Like_expression))
 SUBTYPE OF (Boolean_expression, Binary_generic_expression);
 SELF\Binary_generic_expression.operands : LIST[2:2] OF Expression;
 WHERE
-WR1: (('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR(('STATE_BASED_BEHAVIOUR_ARM_LF.BOOLEAN_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND('STATE_BASED_BEHAVIOUR_ARM_LF.BOOLEAN_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR(('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[2])));
+WR1: (('NUMERIC_EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND('NUMERIC_EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR(('BOOLEAN_EXPRESSION_ARM.BOOLEAN_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND('BOOLEAN_EXPRESSION_ARM.BOOLEAN_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR(('STRING_EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND('STRING_EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(SELF\Binary_generic_expression.operands[2])));
 END_ENTITY;
 
 (* Comparison_greater from schema Expression_arm *) 
@@ -464,8 +530,8 @@ END_ENTITY;
 
 ENTITY Composition_of_state_definition
 SUBTYPE OF (State_definition_relationship);
-SELF\State_definition_relationship.related RENAMED part : SET[1:?] OF State_definition;
 SELF\State_definition_relationship.relating RENAMED whole : SET[1:?] OF State_definition;
+SELF\State_definition_relationship.related RENAMED part : SET[1:?] OF State_definition;
 END_ENTITY;
 
 (* Concat_expression from schema Expression_arm *) 
@@ -489,13 +555,6 @@ assigned_condition : Condition;
 item : condition_item;
 END_ENTITY;
 
-(* Condition_expression_assignment from schema State_based_behaviour_arm *) 
-
-ENTITY Condition_expression_assignment;
-assigned_expression : Boolean_expression;
-specified_condition : Condition;
-END_ENTITY;
-
 (* Condition_parameter from schema Condition_arm *) 
 
 ENTITY Condition_parameter;
@@ -512,6 +571,17 @@ name : STRING;
 description : OPTIONAL STRING;
 relating_condition : Condition;
 related_condition : Condition;
+END_ENTITY;
+
+(* Constrained_general_parameter_relationship from schema General_model_parameter_arm *) 
+
+ENTITY Constrained_general_parameter_relationship
+SUBTYPE OF (Independent_property_relationship);
+SELF\Independent_property_relationship.relating : General_model_parameter;
+SELF\Independent_property_relationship.related : General_model_parameter;
+required_class : Class;
+WHERE
+WR1: (required_class.id IN CLASSOF(related)) AND (required_class.id IN CLASSOF(relating));
 END_ENTITY;
 
 (* Context_dependent_unit from schema Value_with_unit_arm *) 
@@ -557,6 +627,19 @@ base_unit : Unit;
 exponent : REAL;
 END_ENTITY;
 
+(* Description_text from schema Description_assignment_arm *) 
+
+ENTITY Description_text;
+description : STRING;
+END_ENTITY;
+
+(* Description_text_assignment from schema Description_assignment_arm *) 
+
+ENTITY Description_text_assignment;
+description : Description_text;
+items : SET[1:?] OF description_item;
+END_ENTITY;
+
 (* Div_expression from schema Expression_arm *) 
 
 ENTITY Div_expression
@@ -568,7 +651,7 @@ END_ENTITY;
 ENTITY Duration
 SUBTYPE OF (Value_with_unit);
 WHERE
-WR1: 'STATE_BASED_BEHAVIOUR_ARM_LF.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
+WR1: 'VALUE_WITH_UNIT_ARM.' + 'TIME_UNIT' IN TYPEOF(SELF\Value_with_unit.unit);
 END_ENTITY;
 
 (* Electric_current_unit from schema Value_with_unit_arm *) 
@@ -605,6 +688,13 @@ String_expression))
 SUBTYPE OF (Generic_expression);
 END_ENTITY;
 
+(* Expression_assignment from schema Expression_assignment_arm *) 
+
+ENTITY Expression_assignment;
+expression : Expression;
+item : expression_assignment_item;
+END_ENTITY;
+
 (* External_class from schema External_class_arm *) 
 
 ENTITY External_class
@@ -627,14 +717,13 @@ DERIVE
 value_to_format : Generic_expression := SELF\Binary_generic_expression.operands[1];
 format_string : Generic_expression := SELF\Binary_generic_expression.operands[2];
 WHERE
-WR1: (('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION') IN TYPEOF(value_to_format)) AND (('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION') IN TYPEOF(format_string));
+WR1: (('EXPRESSION_ARM.NUMERIC_EXPRESSION') IN TYPEOF(value_to_format)) AND (('EXPRESSION_ARM.STRING_EXPRESSION') IN TYPEOF(format_string));
 END_ENTITY;
 
 (* General_model_parameter from schema General_model_parameter_arm *) 
 
 ENTITY General_model_parameter
 SUBTYPE OF (Independent_property);
-default_value : OPTIONAL parameter_value_select;
 END_ENTITY;
 
 (* Generic_expression from schema Generic_expression_arm *) 
@@ -692,11 +781,9 @@ END_ENTITY;
 
 (* Independent_property_representation from schema Independent_property_representation_arm *) 
 
-ENTITY Independent_property_representation;
-description : OPTIONAL STRING;
-property : Independent_property;
-rep : Representation;
-role : OPTIONAL STRING;
+ENTITY Independent_property_representation
+SUBTYPE OF (Property_definition_representation);
+SELF\Property_definition_representation.definition RENAMED property : Independent_property;
 END_ENTITY;
 
 (* Index_expression from schema Expression_arm *) 
@@ -707,7 +794,7 @@ DERIVE
 operand : Generic_expression := SELF\Binary_generic_expression.operands[1];
 index : Generic_expression := SELF\Binary_generic_expression.operands[2];
 WHERE
-WR1: ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(operand)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(index));
+WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(operand)) AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(index));
 WR2: is_int_expr (index);
 END_ENTITY;
 
@@ -746,8 +833,8 @@ interval_low : Generic_expression := SELF\Multiple_arity_generic_expression.oper
 interval_item : Generic_expression := SELF\Multiple_arity_generic_expression.operands[2];
 interval_high : Generic_expression := SELF\Multiple_arity_generic_expression.operands[3];
 WHERE
-WR1: ('STATE_BASED_BEHAVIOUR_ARM_LF.EXPRESSION' IN TYPEOF(interval_low)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.EXPRESSION' IN TYPEOF(interval_item)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.EXPRESSION' IN TYPEOF(interval_high));
-WR2: (('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF (SELF.Interval_low)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF (SELF.Interval_high)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF (SELF.Interval_item))) OR(('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(SELF.Interval_low)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(SELF.Interval_item)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(SELF.Interval_high)));
+WR1: ('EXPRESSION_ARM.EXPRESSION' IN TYPEOF(interval_low)) AND ('EXPRESSION_ARM.EXPRESSION' IN TYPEOF(interval_item)) AND ('EXPRESSION_ARM.EXPRESSION' IN TYPEOF(interval_high));
+WR2: (('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF (SELF.Interval_low)) AND ('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF (SELF.Interval_high)) AND ('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF (SELF.Interval_item))) OR(('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(SELF.Interval_low)) AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(SELF.Interval_item)) AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(SELF.Interval_high)));
 END_ENTITY;
 
 (* Length_function from schema Numeric_function_arm *) 
@@ -768,7 +855,7 @@ END_ENTITY;
 ENTITY Like_expression
 SUBTYPE OF (Comparison_expression);
 WHERE
-WR1: ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(SELF\Comparison_expression.operands[1])) AND('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(SELF\Comparison_expression.operands[2]));
+WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(SELF\Comparison_expression.operands[1])) AND('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(SELF\Comparison_expression.operands[2]));
 END_ENTITY;
 
 (* Literal_number from schema Expression_arm *) 
@@ -888,6 +975,14 @@ role : STRING;
 items : assigned_name_select;
 END_ENTITY;
 
+(* Named_variable_semantics from schema Parameter_value_specification_arm *) 
+
+ENTITY Named_variable_semantics
+SUBTYPE OF (Variable_semantics);
+name : STRING;
+variable_context : Generic_expression;
+END_ENTITY;
+
 (* Not_expression from schema Expression_arm *) 
 
 ENTITY Not_expression
@@ -920,7 +1015,7 @@ SUPERTYPE OF (ONEOF (Int_numeric_variable,
 Real_numeric_variable))
 SUBTYPE OF (Simple_numeric_expression, Variable);
 WHERE
-WR1: ('STATE_BASED_BEHAVIOUR_ARM_LF.INT_NUMERIC_VARIABLE' IN TYPEOF(SELF)) OR('STATE_BASED_BEHAVIOUR_ARM_LF.REAL_NUMERIC_VARIABLE' IN TYPEOF(SELF));
+WR1: ('EXPRESSION_ARM.INT_NUMERIC_VARIABLE' IN TYPEOF(SELF)) OR('EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' IN TYPEOF(SELF));
 END_ENTITY;
 
 (* Numerical_representation_context from schema Foundation_representation_arm *) 
@@ -944,6 +1039,13 @@ END_ENTITY;
 
 ENTITY Or_expression
 SUBTYPE OF (Multiple_arity_boolean_expression);
+END_ENTITY;
+
+(* Parameter_value_representation_item from schema General_model_parameter_arm *) 
+
+ENTITY Parameter_value_representation_item
+SUBTYPE OF (Representation_item);
+parameter_value : parameter_value_select;
 END_ENTITY;
 
 (* Plane_angle_unit from schema Value_with_unit_arm *) 
@@ -1005,18 +1107,19 @@ END_ENTITY;
 (* Product_version_relationship from schema Product_version_relationship_arm *) 
 
 ENTITY Product_version_relationship;
-relation_type : STRING;
+relation_type : OPTIONAL STRING;
 description : OPTIONAL STRING;
 relating_version : Product_version;
 related_version : Product_version;
 WHERE
 WR1: relating_version :<>: related_version;
+WR2: EXISTS(relation_type) OR (TYPEOF(SELF\Product_version_relationship) <> TYPEOF(SELF));
 END_ENTITY;
 
 (* Product_view_definition from schema Product_view_definition_arm *) 
 
 ENTITY Product_view_definition;
-id : STRING;
+id : OPTIONAL STRING;
 name : OPTIONAL STRING;
 additional_characterization : OPTIONAL STRING;
 initial_context : View_definition_context;
@@ -1024,15 +1127,24 @@ additional_contexts : SET[0:?] OF View_definition_context;
 defined_version : Product_version;
 WHERE
 WR1: NOT (initial_context IN additional_contexts);
+WR2: EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) <> TYPEOF(SELF));
+END_ENTITY;
+
+(* Property_definition_representation from schema Property_assignment_arm *) 
+
+ENTITY Property_definition_representation
+ABSTRACT SUPERTYPE ;
+description : OPTIONAL STRING;
+definition : represented_definition;
+rep : Representation;
+role : OPTIONAL STRING;
 END_ENTITY;
 
 (* Property_representation from schema Property_assignment_arm *) 
 
-ENTITY Property_representation;
-description : OPTIONAL STRING;
-property : Assigned_property;
-rep : Representation;
-role : OPTIONAL STRING;
+ENTITY Property_representation
+SUBTYPE OF (Property_definition_representation);
+SELF\Property_definition_representation.definition RENAMED property : Assigned_property;
 END_ENTITY;
 
 (* Ratio_unit from schema Value_with_unit_arm *) 
@@ -1065,10 +1177,12 @@ END_ENTITY;
 
 ENTITY Representation;
 id : OPTIONAL STRING;
-name : STRING;
+name : OPTIONAL STRING;
 description : OPTIONAL STRING;
 context_of_items : Representation_context;
 items : SET[1:?] OF Representation_item;
+WHERE
+WR1: EXISTS(name) OR (TYPEOF(SELF\Representation) <> TYPEOF(SELF));
 END_ENTITY;
 
 (* Representation_context from schema Foundation_representation_arm *) 
@@ -1084,16 +1198,19 @@ END_ENTITY;
 
 ENTITY Representation_item
 ABSTRACT SUPERTYPE ;
-name : STRING;
+name : OPTIONAL STRING;
 END_ENTITY;
 
 (* Representation_relationship from schema Foundation_representation_arm *) 
 
 ENTITY Representation_relationship;
-relation_type : STRING;
-description : STRING;
+relation_type : OPTIONAL STRING;
+description : OPTIONAL STRING;
 rep_1 : Representation;
 rep_2 : Representation;
+WHERE
+WR1: EXISTS(relation_type) OR (TYPEOF(SELF\Representation_relationship) <> TYPEOF(SELF));
+WR2: EXISTS(description) OR (TYPEOF(SELF\Representation_relationship) <> TYPEOF(SELF));
 END_ENTITY;
 
 (* Simple_boolean_expression from schema Expression_arm *) 
@@ -1259,7 +1376,7 @@ operand : Generic_expression := SELF\Multiple_arity_generic_expression.operands[
 index1 : Generic_expression := SELF\Multiple_arity_generic_expression.operands[2];
 index2 : Generic_expression := SELF\Multiple_arity_generic_expression.operands[3];
 WHERE
-WR1: ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION' IN TYPEOF(operand)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(index1)) AND ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION' IN TYPEOF(index2));
+WR1: ('EXPRESSION_ARM.STRING_EXPRESSION' IN TYPEOF(operand)) AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(index1)) AND ('EXPRESSION_ARM.NUMERIC_EXPRESSION' IN TYPEOF(index2));
 WR2: SIZEOF(SELF\Multiple_arity_generic_expression.operands)=3;
 WR3: is_int_expr (index1);
 WR4: is_int_expr (index2);
@@ -1391,6 +1508,8 @@ ENTITY View_definition_context;
 application_domain : STRING;
 life_cycle_stage : STRING;
 description : OPTIONAL STRING;
+WHERE
+WR1: (SIZEOF (USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.' + 'PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT')) > 0) OR (SIZEOF (USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.' + 'PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS')) > 0);
 END_ENTITY;
 
 (* Xor_expression from schema Expression_arm *) 
@@ -1407,7 +1526,7 @@ FUNCTION Acyclic
 LOCAL
 result: BOOLEAN;
 END_LOCAL;
-IF ('STATE_BASED_BEHAVIOUR_ARM_LF.SIMPLE_GENERIC_EXPRESSION'
+IF ('GENERIC_EXPRESSION_ARM.SIMPLE_GENERIC_EXPRESSION'
 IN TYPEOF (arg1))
 THEN
 RETURN (TRUE);
@@ -1416,13 +1535,13 @@ IF arg1 IN arg2
 THEN
 RETURN (FALSE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.UNARY_GENERIC_EXPRESSION'
+IF 'GENERIC_EXPRESSION_ARM.UNARY_GENERIC_EXPRESSION'
 IN TYPEOF (arg1)
 THEN
 RETURN
 (Acyclic(arg1\Unary_generic_expression.operand,arg2+[arg1]));
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.BINARY_GENERIC_EXPRESSION'
+IF 'GENERIC_EXPRESSION_ARM.BINARY_GENERIC_EXPRESSION'
 IN TYPEOF (arg1)
 THEN
 RETURN
@@ -1431,7 +1550,7 @@ AND
 Acyclic(arg1\Binary_generic_expression.operands[2],arg2+[arg1]));
 END_IF;
 IF
-'STATE_BASED_BEHAVIOUR_ARM_LF.MULTIPLE_ARITY_GENERIC_EXPRESSION'
+'GENERIC_EXPRESSION_ARM.MULTIPLE_ARITY_GENERIC_EXPRESSION'
 IN TYPEOF (arg1)
 THEN
 result := TRUE;
@@ -1443,6 +1562,26 @@ END_REPEAT;
 RETURN (result);
 END_IF;
       
+END_FUNCTION; 
+
+(* CLASSOF from schema General_model_parameter_arm *) 
+
+FUNCTION CLASSOF
+(the_instance : GENERIC_ENTITY : ininst) : SET OF STRING; 
+  LOCAL
+    result : SET OF STRING;
+    classifications : BAG OF Classification_assignment;
+  END_LOCAL;
+
+  result := TYPEOF(the_instance);
+  classifications := USEDIN(the_instance,'GENERAL_MODEL_PARAMETER_ARM.CLASSIFICATION_ASSIGNMENT.ITEMS');
+
+  REPEAT i := LOINDEX(classifications) TO HIINDEX(classifications);
+    result := result + classifications[i].ASSIGNED_CLASS.ID;
+  END_REPEAT;
+
+  RETURN (result);
+	
 END_FUNCTION; 
 
 (* Is_Acyclic from schema Generic_expression_arm *) 
@@ -1460,23 +1599,23 @@ FUNCTION Is_int_expr
 LOCAL
 i: INTEGER;
 END_LOCAL;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.INT_LITERAL' IN TYPEOF(arg)
+IF 'EXPRESSION_ARM.INT_LITERAL' IN TYPEOF(arg)
 THEN
 RETURN (TRUE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.REAL_LITERAL' IN TYPEOF(arg)
+IF 'EXPRESSION_ARM.REAL_LITERAL' IN TYPEOF(arg)
 THEN
 RETURN (FALSE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.INT_NUMERIC_VARIABLE' IN TYPEOF(arg)
+IF 'EXPRESSION_ARM.INT_NUMERIC_VARIABLE' IN TYPEOF(arg)
 THEN
 RETURN (TRUE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.REAL_NUMERIC_VARIABLE' IN TYPEOF(arg)
+IF 'EXPRESSION_ARM.REAL_NUMERIC_VARIABLE' IN TYPEOF(arg)
 THEN
 RETURN (FALSE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.ABS_FUNCTION' IN TYPEOF(arg)
+IF 'NUMERIC_FUNCTION_ARM.ABS_FUNCTION' IN TYPEOF(arg)
 THEN
 RETURN (Is_int_expr(arg\Unary_numeric_expression.operand));
 END_IF;
@@ -1484,27 +1623,27 @@ IF 'NUMERIC_FUNCTION.MINUS_FUNCTION' IN TYPEOF(arg)
 THEN
 RETURN (Is_int_expr(arg\Unary_numeric_expression.operand));
 END_IF;
-IF ('STATE_BASED_BEHAVIOUR_ARM_LF.SIN_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COS_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.TAN_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.ASIN_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.ACOS_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.Atan_function' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.EXP_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG2_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG10_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.SQUARE_ROOT_FUNCTION'
+IF ('NUMERIC_FUNCTION_ARM.SIN_FUNCTION' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.COS_FUNCTION' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.TAN_FUNCTION' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.ASIN_FUNCTION' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.ACOS_FUNCTION' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.Atan_function' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.EXP_FUNCTION' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.LOG_FUNCTION' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.LOG2_FUNCTION' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.LOG10_FUNCTION' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.SQUARE_ROOT_FUNCTION'
 IN TYPEOF(arg))
 THEN
 RETURN (FALSE);
 END_IF;
-IF 	('STATE_BASED_BEHAVIOUR_ARM_LF.PLUS_EXPRESSION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.MULT_EXPRESSION'
+IF 	('EXPRESSION_ARM.PLUS_EXPRESSION' IN TYPEOF(arg))
+OR ('NUMERIC_FUNCTION_ARM.MULT_EXPRESSION'
 IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.MAXIMUM_FUNCTION'
+OR ('NUMERIC_FUNCTION_ARM.MAXIMUM_FUNCTION'
 IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.MINIMUM_FUNCTION'
+OR ('NUMERIC_FUNCTION_ARM.MINIMUM_FUNCTION'
 IN TYPEOF(arg))
 THEN
 REPEAT i :=1 TO SIZEOF (
@@ -1517,29 +1656,29 @@ END_IF;
 END_REPEAT;
 RETURN (TRUE);
 END_IF;
-IF 	('STATE_BASED_BEHAVIOUR_ARM_LF.MINUS_EXPRESSION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.POWER_EXPRESSION'
+IF 	('EXPRESSION_ARM.MINUS_EXPRESSION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.POWER_EXPRESSION'
 IN TYPEOF(arg))
 THEN
 RETURN (Is_int_expr(arg\Binary_numeric_expression.operands[1])
 AND Is_int_expr(arg\Binary_numeric_expression.operands[2]));
 END_IF;
-IF	('STATE_BASED_BEHAVIOUR_ARM_LF.DIV_EXPRESSION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.MOD_EXPRESSION' IN TYPEOF(arg))
+IF	('EXPRESSION_ARM.DIV_EXPRESSION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.MOD_EXPRESSION' IN TYPEOF(arg))
 THEN
 RETURN(TRUE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.SLASH_EXPRESSION' IN TYPEOF(arg)
+IF 'EXPRESSION_ARM.SLASH_EXPRESSION' IN TYPEOF(arg)
 THEN
 RETURN (FALSE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.LENGTH_FUNCTION' IN TYPEOF(arg)
+IF 'NUMERIC_FUNCTION_ARM.LENGTH_FUNCTION' IN TYPEOF(arg)
 THEN
 RETURN (TRUE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.VALUE_FUNCTION' IN TYPEOF(arg)
+IF 'NUMERIC_FUNCTION_ARM.VALUE_FUNCTION' IN TYPEOF(arg)
 THEN
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.INT_VALUE_FUNCTION'
+IF 'NUMERIC_FUNCTION_ARM.INT_VALUE_FUNCTION'
 IN TYPEOF(arg)
 THEN
 RETURN (TRUE);
@@ -1547,21 +1686,21 @@ ELSE
 RETURN (FALSE);
 END_IF;
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.INTEGER_DEFINED_FUNCTION'
+IF 'NUMERIC_FUNCTION_ARM.INTEGER_DEFINED_FUNCTION'
 IN TYPEOF(arg)
 THEN
 RETURN(TRUE) ;
 END_IF;
-IF'STATE_BASED_BEHAVIOUR_ARM_LF.REAL_DEFINED_FUNCTION' IN TYPEOF(arg)
+IF'NUMERIC_FUNCTION_ARM.REAL_DEFINED_FUNCTION' IN TYPEOF(arg)
 THEN
 RETURN(FALSE) ;
 END_IF ;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.BOOLEAN_DEFINED_FUNCTION'
+IF 'EXPRESSION_ARM.BOOLEAN_DEFINED_FUNCTION'
 IN TYPEOF(arg)
 THEN
 RETURN(FALSE) ;
 END_IF ;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.STRING_DEFINED_FUNCTION'
+IF 'EXPRESSION_ARM.STRING_DEFINED_FUNCTION'
 IN TYPEOF(arg)
 THEN
 RETURN (FALSE) ;
@@ -1577,44 +1716,44 @@ FUNCTION Is_sql_mappable
 LOCAL
 i: INTEGER;
 END_LOCAL;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.SIMPLE_NUMERIC_EXPRESSION'
+IF 'EXPRESSION_ARM.SIMPLE_NUMERIC_EXPRESSION'
 IN TYPEOF (arg)
 THEN
 RETURN (TRUE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.SQL_MAPPABLE_DEFINED_FUNCTION'
+IF 'EXPRESSION_ARM.SQL_MAPPABLE_DEFINED_FUNCTION'
 IN TYPEOF (arg)
 THEN
 RETURN (TRUE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.MINUS_FUNCTION' IN TYPEOF(arg)
+IF 'EXPRESSION_ARM.MINUS_FUNCTION' IN TYPEOF(arg)
 THEN
 RETURN (Is_sql_mappable(arg\Unary_numeric_expression.operand));
 END_IF;
-IF ('STATE_BASED_BEHAVIOUR_ARM_LF.ABS_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.SIN_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COS_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.TAN_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.ASIN_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.ACOS_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.ATAN_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.EXP_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG2_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LOG10_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.SQUARE_ROOT_FUNCTION'
+IF ('EXPRESSION_ARM.ABS_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.SIN_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.COS_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.TAN_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.ASIN_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.ACOS_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.ATAN_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.EXP_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.LOG_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.LOG2_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.LOG10_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.SQUARE_ROOT_FUNCTION'
 IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.VALUE_FUNCTION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LENGTH_FUNCTION'
+OR ('EXPRESSION_ARM.VALUE_FUNCTION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.LENGTH_FUNCTION'
 IN TYPEOF(arg))
 THEN
 RETURN (FALSE);
 END_IF;
-IF ('STATE_BASED_BEHAVIOUR_ARM_LF.PLUS_EXPRESSION' IN TYPEOF(arg))
-OR('STATE_BASED_BEHAVIOUR_ARM_LF.MULT_EXPRESSION' IN TYPEOF(arg))
-OR('STATE_BASED_BEHAVIOUR_ARM_LF.MAXIMUM_FUNCTION'
+IF ('EXPRESSION_ARM.PLUS_EXPRESSION' IN TYPEOF(arg))
+OR('EXPRESSION_ARM.MULT_EXPRESSION' IN TYPEOF(arg))
+OR('EXPRESSION_ARM.MAXIMUM_FUNCTION'
 IN TYPEOF(arg))
-OR('STATE_BASED_BEHAVIOUR_ARM_LF.MAXIMUM_FUNCTION'
+OR('EXPRESSION_ARM.MAXIMUM_FUNCTION'
 IN TYPEOF(arg))
 THEN
 REPEAT i :=1 TO SIZEOF (
@@ -1627,38 +1766,38 @@ END_IF;
 END_REPEAT;
 RETURN (TRUE);
 END_IF;
-IF ('STATE_BASED_BEHAVIOUR_ARM_LF.MINUS_EXPRESSION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.SLASH_EXPRESSION' IN
+IF ('EXPRESSION_ARM.MINUS_EXPRESSION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.SLASH_EXPRESSION' IN
 TYPEOF(arg))
 THEN
 RETURN (Is_sql_mappable(
 arg\Binary_numeric_expression.operands[1])
 AND Is_sql_mappable(arg\Binary_numeric_expression.operands[2]));
 END_IF;
-IF ('STATE_BASED_BEHAVIOUR_ARM_LF.DIV_EXPRESSION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.MOD_EXPRESSION' IN TYPEOF(arg))
-OR('STATE_BASED_BEHAVIOUR_ARM_LF.POWER_EXPRESSION'
+IF ('EXPRESSION_ARM.DIV_EXPRESSION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.MOD_EXPRESSION' IN TYPEOF(arg))
+OR('EXPRESSION_ARM.POWER_EXPRESSION'
 IN TYPEOF(arg))
 THEN
 RETURN (FALSE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.SIMPLE_BOOLEAN_EXPRESSION'
+IF 'EXPRESSION_ARM.SIMPLE_BOOLEAN_EXPRESSION'
 IN TYPEOF (arg)
 THEN
 RETURN (TRUE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.NOT_EXPRESSION' IN TYPEOF (arg)
+IF 'EXPRESSION_ARM.NOT_EXPRESSION' IN TYPEOF (arg)
 THEN
 RETURN (Is_sql_mappable (arg\UNARY_GENERIC_EXPRESSION.OPERAND));
 END_IF;
-IF ('STATE_BASED_BEHAVIOUR_ARM_LF.ODD_FUNCTION'IN TYPEOF (arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.XOR_EXPRESSION'
+IF ('EXPRESSION_ARM.ODD_FUNCTION'IN TYPEOF (arg))
+OR ('EXPRESSION_ARM.XOR_EXPRESSION'
 IN TYPEOF (arg))
 THEN
 RETURN (FALSE);
 END_IF;
-IF ('STATE_BASED_BEHAVIOUR_ARM_LF.AND_EXPRESSION' IN TYPEOF (arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.OR_EXPRESSION' IN TYPEOF (arg))
+IF ('EXPRESSION_ARM.AND_EXPRESSION' IN TYPEOF (arg))
+OR ('EXPRESSION_ARM.OR_EXPRESSION' IN TYPEOF (arg))
 THEN
 REPEAT i:=1 TO SIZEOF (
 arg\MULTIPLE_ARITY_BOOLEAN_EXPRESSION.OPERANDS);
@@ -1670,56 +1809,56 @@ END_IF;
 END_REPEAT;
 RETURN (TRUE);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.EQUALS_EXPRESSION' IN TYPEOF (arg)
+IF 'EXPRESSION_ARM.EQUALS_EXPRESSION' IN TYPEOF (arg)
 THEN
 RETURN(Is_sql_mappable (
 arg\Binary_generic_expression.OPERANDS [1])
 AND Is_sql_mappable(
 arg\Binary_generic_expression.OPERANDS [2]));
 END_IF;
-IF	('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_EQUAL' IN TYPEOF (arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_GREATER'
+IF	('EXPRESSION_ARM.COMPARISON_EQUAL' IN TYPEOF (arg))
+OR ('EXPRESSION_ARM.COMPARISON_GREATER'
 IN TYPEOF (arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_GREATER_EQUAL'
+OR ('EXPRESSION_ARM.COMPARISON_GREATER_EQUAL'
 IN TYPEOF (arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_LESS'
+OR ('EXPRESSION_ARM.COMPARISON_LESS'
 IN TYPEOF (arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_LESS_EQUAL'
+OR ('EXPRESSION_ARM.COMPARISON_LESS_EQUAL'
 IN TYPEOF (arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.COMPARISON_NOT_EQUAL'
+OR ('EXPRESSION_ARM.COMPARISON_NOT_EQUAL'
 IN TYPEOF (arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.LIKE_EXPRESSION'
+OR ('EXPRESSION_ARM.LIKE_EXPRESSION'
 IN TYPEOF (arg))
 THEN
 RETURN (Is_sql_mappable (arg\COMPARISON_EXPRESSION.OPERANDS[1])
 AND Is_sql_mappable (arg\COMPARISON_EXPRESSION.OPERANDS[2]));
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.INTERVAL_EXPRESSION' IN TYPEOF(arg)
+IF 'EXPRESSION_ARM.INTERVAL_EXPRESSION' IN TYPEOF(arg)
 THEN
 RETURN (Is_sql_mappable(arg\Interval_expression.interval_low)
 AND Is_sql_mappable(arg\Interval_expression.interval_high)
 AND Is_sql_mappable(arg\Interval_expression.interval_item));
 END_IF;
-IF ('STATE_BASED_BEHAVIOUR_ARM_LF.NUMERIC_DEFINED_FUNCTION'
+IF ('NUMERIC_FUNCTION_ARM.NUMERIC_DEFINED_FUNCTION'
 IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.BOOLEAN_DEFINED_FUNCTION'
+OR ('EXPRESSION_ARM.BOOLEAN_DEFINED_FUNCTION'
 IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.STRING_DEFINED_FUNCTION'
+OR ('EXPRESSION_ARM.STRING_DEFINED_FUNCTION'
 IN TYPEOF(arg))
 THEN
 RETURN (FALSE) ;
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.SIMPLE_STRING_EXPRESSION'
+IF 'EXPRESSION_ARM.SIMPLE_STRING_EXPRESSION'
 IN TYPEOF(ARG)
 THEN
 RETURN (TRUE);
 END_IF;
-IF 	('STATE_BASED_BEHAVIOUR_ARM_LF.INDEX_EXPRESSION' IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.SUBSTRING_EXPRESSION'
+IF 	('EXPRESSION_ARM.INDEX_EXPRESSION' IN TYPEOF(arg))
+OR ('EXPRESSION_ARM.SUBSTRING_EXPRESSION'
 IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.CONCAT_EXPRESSION'
+OR ('EXPRESSION_ARM.CONCAT_EXPRESSION'
 IN TYPEOF(arg))
-OR ('STATE_BASED_BEHAVIOUR_ARM_LF.FORMAT_FUNCTION'
+OR ('EXPRESSION_ARM.FORMAT_FUNCTION'
 IN TYPEOF(arg))
 THEN
 RETURN (FALSE);
@@ -1738,7 +1877,7 @@ FUNCTION types_of_product
  	i: INTEGER;
  END_LOCAL;
  
- category_assignments := USEDIN(obj,'STATE_BASED_BEHAVIOUR_ARM_LF.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
+ category_assignments := USEDIN(obj,'PRODUCT_IDENTIFICATION_ARM.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
     
  REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
        categories := categories + category_assignments[i].category.name;
@@ -1755,24 +1894,24 @@ FUNCTION Used_variables
 LOCAL
 result : SET OF Generic_variable := [];
 END_LOCAL;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.GENERIC_VARIABLE'
+IF 'GENERIC_EXPRESSION_ARM.GENERIC_VARIABLE'
 IN TYPEOF (arg)
 THEN
 RETURN ([arg]);
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.UNARY_GENERIC_EXPRESSION'
+IF 'GENERIC_EXPRESSION_ARM.UNARY_GENERIC_EXPRESSION'
 IN TYPEOF (arg)
 THEN
 RETURN (Used_variables (arg\Unary_generic_expression.operand));
 END_IF;
-IF 'STATE_BASED_BEHAVIOUR_ARM_LF.BINARY_GENERIC_EXPRESSION'
+IF 'GENERIC_EXPRESSION_ARM.BINARY_GENERIC_EXPRESSION'
 IN TYPEOF (arg)
 THEN
 RETURN(Used_variables(arg\Binary_generic_expression.operands[1])
 + Used_variables (arg\Binary_generic_expression.operands[2]));
 END_IF;
 IF
-'STATE_BASED_BEHAVIOUR_ARM_LF.MULTIPLE_ARITY_GENERIC_EXPRESSION'
+'GENERIC_EXPRESSION_ARM.MULTIPLE_ARITY_GENERIC_EXPRESSION'
 IN TYPEOF (arg)
 THEN
 REPEAT i := 1 TO

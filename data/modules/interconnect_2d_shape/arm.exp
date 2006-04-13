@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.32 2006/03/22 09:01:49 liutkus Exp $
+   $Id: arm.exp,v 1.33 2006/04/13 04:38:08 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3993 - ISO/TS 10303-1682 Interconnect 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3435
 *)
@@ -31,9 +31,18 @@ SCHEMA Interconnect_2d_shape_arm;
 
 RULE no_component_assembly_2d_location_for_area_component FOR (Area_component);
 WHERE
-  WR1:  SIZEOF(QUERY( ac <* Area_component | NOT((in_2d_assembly_context(ac)) AND
-       (SIZEOF(USEDIN(ac,'Physical_unit_2d_design_view_arm.Assembly_component_2d_shape_model.shape_characterized_component')) > 0)) 
+  WR1:  SIZEOF(QUERY( ac <* Area_component | NOT(
+       (SIZEOF(USEDIN(ac,'Physical_unit_2d_design_view_arm.Assembly_component_2d_shape_model.shape_characterized_component')) = 0) OR
+       (no_location_for_component(ac))) 
   )) = 0;
+END_RULE;  
+
+RULE component_in_assembly_2d_context FOR (Area_component);
+WHERE
+  WR1:  SIZEOF(QUERY( ac <* Area_component | NOT(
+       (SIZEOF(USEDIN(ac,'Physical_unit_2d_design_view_arm.Assembly_component_2d_shape_model.shape_characterized_component')) = 0) OR 
+        (in_2d_assembly_context(ac)))
+          )) = 0;
 END_RULE;  
 
 FUNCTION in_2d_assembly_context(comp : Assembly_component) : BOOLEAN;
@@ -69,5 +78,28 @@ assemblies;
   
   RETURN (SIZEOF(shapes) > 0);
 END_FUNCTION;
+
+FUNCTION no_location_for_component(comp : Assembly_component) : BOOLEAN;
+  LOCAL
+    i, j : INTEGER;
+    cis : SET OF Contextual_item_shape;
+    loc : SET OF Component_2d_location;
+  END_LOCAL;
+  
+  REPEAT i := 1 TO SIZEOF(comp.occurrence_contexts);
+    cis := USEDIN(comp.occurrence_contexts[i],
+'SHAPE_PROPERTY_ASSIGNMENT_ARM.CONTEXTUAL_ITEM_SHAPE.DESCRIBED_ELEMENT');
+    REPEAT j := 1 TO SIZEOF(cis);
+      loc := USEDIN(cis[j],
+'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.COMPONENT_2D_LOCATION.CONTEXTUAL_SHAPE');
+      IF SIZEOF(loc) > 0 THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+
+  RETURN (TRUE);
+END_FUNCTION;
+
 
 END_SCHEMA;

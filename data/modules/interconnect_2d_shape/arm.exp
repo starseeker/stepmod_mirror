@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.31 2006/02/17 20:00:50 thomasrthurman Exp $
+   $Id: arm.exp,v 1.32 2006/03/22 09:01:49 liutkus Exp $
    ISO TC184/SC4/WG12 N3993 - ISO/TS 10303-1682 Interconnect 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3435
 *)
@@ -28,5 +28,46 @@ SCHEMA Interconnect_2d_shape_arm;
    SUBTYPE OF (Assembly_component_2d_shape_model);
       SELF\Assembly_component_2d_shape_model.shape_characterized_component : SET[1:?] OF Connected_area_component;
   END_ENTITY;
+
+RULE no_component_assembly_2d_location_for_area_component FOR (Area_component);
+WHERE
+  WR1:  SIZEOF(QUERY( ac <* Area_component | NOT((in_2d_assembly_context(ac)) AND
+       (SIZEOF(USEDIN(ac,'Physical_unit_2d_design_view_arm.Assembly_component_2d_shape_model.shape_characterized_component')) > 0)) 
+  )) = 0;
+END_RULE;  
+
+FUNCTION in_2d_assembly_context(comp : Assembly_component) : BOOLEAN;
+  LOCAL
+    shapes : SET OF Assembly_component_2d_shape_model;
+    shapes_in_context : SET OF Physical_unit_planar_shape_model;
+    assemblies : SET OF Product_view_definition := [];
+    i, j : INTEGER;
+    in_context : BOOLEAN;
+  END_LOCAL;
+  
+  REPEAT i := 1 TO SIZEOF(comp.occurrence_contexts);
+    assemblies := assemblies + comp.occurrence_contexts[i].relating_view;
+  END_REPEAT;
+
+  shapes := USEDIN(SELF,
+'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT');
+  REPEAT i := 1 TO SIZEOF(shapes);
+    shapes_in_context := USEDIN(shapes[i].context_of_items,
+'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL.CONTEXT_OF_ITEMS');
+    in_context := FALSE;
+    j := 1;
+    REPEAT WHILE ((j <= SIZEOF(shapes_in_context)) AND (NOT (in_context)));
+      in_context := shapes_in_context[j].shape_characterised_definition IN
+assemblies;
+      j := j + 1;
+    END_REPEAT;
+    
+    IF NOT (in_context) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_REPEAT;
+  
+  RETURN (SIZEOF(shapes) > 0);
+END_FUNCTION;
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.226 2006/04/05 13:16:44 liutkus Exp $
+   $Id: arm.exp,v 1.227 2006/04/07 09:22:45 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -222,17 +222,18 @@ SCHEMA Layered_interconnect_module_design_arm;
       replaced_component : OPTIONAL Area_component;
       SELF\Definition_based_product_occurrence.derived_from : Fill_area_template;
     DERIVE
-      is_final : BOOLEAN := SIZEOF(replaced_by) = 0;
+      is_final : BOOLEAN := (SIZEOF(replaced_by) = 0);
     INVERSE
       replaced_by : SET [0:?] OF Area_component FOR replaced_component;
     WHERE
-      WR1: NOT((is_final) XOR
+      WR1: NOT(is_final XOR
        ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum)));
-      WR2: NOT(SIZEOF(replaced_by) > 0) OR
+      WR2: is_final OR
        ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM' IN TYPEOF(implementation_or_resident_stratum));
-      WR3: (SIZEOF(replaced_by) = 0) OR (SIZEOF(QUERY(rp <* replaced_by | resident_stratum :<>: get_resident_stratum(rp))) = 0);
+      WR3: is_final OR (SIZEOF(QUERY(rp <* replaced_by | resident_stratum :<>: get_resident_stratum(rp))) = 0);
       WR4: NOT(SELF IN replaced_by);
       WR5: NOT(replaced_component IN replaced_by);
+      WR6: is_final XOR (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) > 0);
   END_ENTITY;
 
   ENTITY Breakout_occurrence

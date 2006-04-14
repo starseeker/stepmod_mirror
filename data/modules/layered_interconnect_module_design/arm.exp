@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.230 2006/04/14 11:20:19 liutkus Exp $
+   $Id: arm.exp,v 1.231 2006/04/14 12:18:34 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -529,7 +529,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Assembly_definition, Part_design_view);
     INVERSE
       of_fabrication_thickness_requirement : SET[0:?] OF requirement_assignment FOR assigned_to;
-      stackup_model : SET[1:1] OF stratum_stack_model_to_interconnect_assignment FOR design;
+      stackup_model : SET[0:1] OF Stratum_stack_model_to_interconnect_assignment FOR design;
     WHERE
       WR1 : SIZEOF(QUERY(ftr <* of_fabrication_thickness_requirement | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FABRICATION_THICKNESS_REQUIREMENT_OCCURRENCE' IN TYPEOF(ftr\Requirement_assignment.assigned_requirement)))) = 0;
       WR2 : (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY')) = 0)
@@ -830,6 +830,8 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Pcb
     SUBTYPE OF (Interconnect_module);
       SELF\Part_design_view.usage_view : OPTIONAL Pcb_usage_view;
+    INVERSE
+      SELF\Interconnect_module.stackup_model : SET [1:1] OF Stratum_stack_model_to_interconnect_assignment FOR design;
   END_ENTITY;
 
   ENTITY Physical_connectivity_interrupting_cutout

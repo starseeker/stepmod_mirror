@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.122 2006/03/22 12:31:10 liutkus Exp $
+   $Id: arm.exp,v 1.123 2006/04/05 02:35:10 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -52,6 +52,12 @@ SCHEMA Part_template_2d_shape_arm;
    (Stratum_technology_occurrence,
     Stratum_technology);
   END_TYPE;
+
+  ENTITY Complex_passage_padstack_definition
+   SUBTYPE OF (Stratum_stack_dependent_template, Passage_padstack_definition);
+   INVERSE
+     SELF\Passage_padstack_definition.reference_isft : SET [2:?] OF Inter_stratum_feature_template_location FOR assembly;
+  END_ENTITY;
 
   ENTITY Dependent_template_location_in_padstack_definition
     SUBTYPE OF (Template_location_in_structured_template);
@@ -177,11 +183,12 @@ SCHEMA Part_template_2d_shape_arm;
 
   ENTITY Passage_padstack_definition
     SUBTYPE OF (Padstack_definition);
-    DERIVE
-      reference_isft : SET [1:?] OF Inter_stratum_feature_template_location := bag_to_set(QUERY(tlict <* SELF\Structured_template.templates |
-         ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))));
+    INVERSE
+      reference_isft : Inter_stratum_feature_template_location FOR assembly;    
     WHERE
-      WR1 : SIZEOF(reference_isft) = 1;
+      WR1: (NOT ('FABRICATION_TECHNOLOGY_ARM.STRUCTURED_INTER_STRATUM_FEATURE_TEMPLATE' IN
+       TYPEOF(reference_isft))) XOR
+      ('PART_TEMPLATE_2D_SHAPE_ARM.COMPLEX_PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF));      
   END_ENTITY;
 
   ENTITY Passage_technology_allocation_to_stack_model;
@@ -266,6 +273,7 @@ SCHEMA Part_template_2d_shape_arm;
   END_ENTITY;
 
   ENTITY Stratum_stack_dependent_template
+    SUPERTYPE OF (ONEOF (Complex_passage_padstack_definition, Structured_inter_stratum_feature_template))
     SUBTYPE OF (Multi_stratum_structured_template);
       stack : library_stack_model;
   WHERE
@@ -277,6 +285,10 @@ SCHEMA Part_template_2d_shape_arm;
             )
           )) = 0;
     WR2 : TYPEOF(SELF) <> TYPEOF(SELF\Stratum_stack_dependent_template);          
+  END_ENTITY;
+
+  ENTITY Structured_inter_stratum_feature_template
+    SUBTYPE OF (Inter_stratum_feature_template, Stratum_stack_dependent_template);
   END_ENTITY;
 
   ENTITY Structured_template

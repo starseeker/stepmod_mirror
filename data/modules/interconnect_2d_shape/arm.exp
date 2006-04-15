@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.33 2006/04/13 04:38:08 thomasrthurman Exp $
+   $Id: arm.exp,v 1.34 2006/04/13 22:35:40 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3993 - ISO/TS 10303-1682 Interconnect 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3435
 *)
@@ -9,6 +9,8 @@ SCHEMA Interconnect_2d_shape_arm;
 	USE FROM Fabrication_joint_arm;	-- ISO/TS 10303-1668
 	USE FROM Physical_unit_2d_design_view_arm;	-- ISO/TS 10303-1724
 
+	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+    
   ENTITY Component_2d_embedded_location
     SUBTYPE OF (Component_2d_location);
       precedent_surface  : Adjacent_stratum_surface_embedded_physical_component_surface_definition;
@@ -32,42 +34,39 @@ SCHEMA Interconnect_2d_shape_arm;
 RULE no_component_assembly_2d_location_for_area_component FOR (Area_component);
 WHERE
   WR1:  SIZEOF(QUERY( ac <* Area_component | NOT(
-       (SIZEOF(USEDIN(ac,'Physical_unit_2d_design_view_arm.Assembly_component_2d_shape_model.shape_characterized_component')) = 0) OR
-       (no_location_for_component(ac))) 
+       (SIZEOF(USEDIN(ac,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT')) = 0) OR
+       (no_2d_location_for_component(ac))) 
   )) = 0;
 END_RULE;  
 
 RULE component_in_assembly_2d_context FOR (Area_component);
 WHERE
   WR1:  SIZEOF(QUERY( ac <* Area_component | NOT(
-       (SIZEOF(USEDIN(ac,'Physical_unit_2d_design_view_arm.Assembly_component_2d_shape_model.shape_characterized_component')) = 0) OR 
+       (SIZEOF(USEDIN(ac,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT')) = 0) OR 
         (in_2d_assembly_context(ac)))
           )) = 0;
 END_RULE;  
 
 FUNCTION in_2d_assembly_context(comp : Assembly_component) : BOOLEAN;
   LOCAL
-    shapes : SET OF Assembly_component_2d_shape_model;
-    shapes_in_context : SET OF Physical_unit_planar_shape_model;
+    shapes : SET OF Assembly_component_2d_shape_model := [];
+    shapes_in_context : SET OF Physical_unit_planar_shape_model := [];
     assemblies : SET OF Product_view_definition := [];
-    i, j : INTEGER;
-    in_context : BOOLEAN;
+    i, j : INTEGER := 0;
+    in_context : BOOLEAN := TRUE;
   END_LOCAL;
   
   REPEAT i := 1 TO SIZEOF(comp.occurrence_contexts);
     assemblies := assemblies + comp.occurrence_contexts[i].relating_view;
   END_REPEAT;
 
-  shapes := USEDIN(SELF,
-'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT');
+  shapes := bag_to_set(USEDIN(comp,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT'));
   REPEAT i := 1 TO SIZEOF(shapes);
-    shapes_in_context := USEDIN(shapes[i].context_of_items,
-'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL.CONTEXT_OF_ITEMS');
+    shapes_in_context := bag_to_set(USEDIN(shapes[i]\Geometric_model.context_of_items,'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL.CONTEXT_OF_ITEMS'));
     in_context := FALSE;
     j := 1;
-    REPEAT WHILE ((j <= SIZEOF(shapes_in_context)) AND (NOT (in_context)));
-      in_context := shapes_in_context[j].shape_characterised_definition IN
-assemblies;
+    REPEAT WHILE ((j <= SIZEOF(shapes_in_context)) AND (NOT(in_context)));
+      in_context := (shapes_in_context[j].shape_characterized_definition IN assemblies);
       j := j + 1;
     END_REPEAT;
     
@@ -79,7 +78,7 @@ assemblies;
   RETURN (SIZEOF(shapes) > 0);
 END_FUNCTION;
 
-FUNCTION no_location_for_component(comp : Assembly_component) : BOOLEAN;
+FUNCTION no_2d_location_for_component(comp : Assembly_component) : BOOLEAN;
   LOCAL
     i, j : INTEGER;
     cis : SET OF Contextual_item_shape;
@@ -87,12 +86,10 @@ FUNCTION no_location_for_component(comp : Assembly_component) : BOOLEAN;
   END_LOCAL;
   
   REPEAT i := 1 TO SIZEOF(comp.occurrence_contexts);
-    cis := USEDIN(comp.occurrence_contexts[i],
-'SHAPE_PROPERTY_ASSIGNMENT_ARM.CONTEXTUAL_ITEM_SHAPE.DESCRIBED_ELEMENT');
+    cis := bag_to_set(USEDIN(comp.occurrence_contexts[i],'SHAPE_PROPERTY_ASSIGNMENT_ARM.CONTEXTUAL_ITEM_SHAPE.DESCRIBED_ELEMENT'));
     REPEAT j := 1 TO SIZEOF(cis);
-      loc := USEDIN(cis[j],
-'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.COMPONENT_2D_LOCATION.CONTEXTUAL_SHAPE');
-      IF SIZEOF(loc) > 0 THEN
+      loc := bag_to_set(USEDIN(cis[j],'CONTEXTUAL_SHAPE_POSITIONING_ARM.CONTEXTUAL_SHAPE_REPRESENTATION.CONTEXTUAL_SHAPE'));
+      IF (SIZEOF(loc) > 0) THEN
         RETURN (FALSE);
       END_IF;
     END_REPEAT;
@@ -100,6 +97,5 @@ FUNCTION no_location_for_component(comp : Assembly_component) : BOOLEAN;
 
   RETURN (TRUE);
 END_FUNCTION;
-
 
 END_SCHEMA;

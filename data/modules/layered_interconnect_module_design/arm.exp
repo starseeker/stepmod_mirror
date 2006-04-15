@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.231 2006/04/14 12:18:34 liutkus Exp $
+   $Id: arm.exp,v 1.232 2006/04/14 13:19:51 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -58,6 +58,11 @@ SCHEMA Layered_interconnect_module_design_arm;
 	SUBTYPE_CONSTRAINT component_terminal_subtypes FOR Component_terminal;     
 		 ONEOF (Physical_component_terminal,
 		 Laminate_component_join_terminal);
+	END_SUBTYPE_CONSTRAINT;
+
+	SUBTYPE_CONSTRAINT inter_stratum_feature_subtypes FOR Inter_stratum_feature;     
+		 ONEOF (Cutout,
+		 Interconnect_module_edge);
 	END_SUBTYPE_CONSTRAINT;
 
 	SUBTYPE_CONSTRAINT interconnect_module_terminal_subtypes FOR Interconnect_module_terminal;     
@@ -230,12 +235,11 @@ SCHEMA Layered_interconnect_module_design_arm;
     INVERSE
       replaced_by : SET [0:?] OF Area_component FOR replaced_component;
     WHERE
-      WR1: NOT(is_final XOR
-       ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum)));
-      WR2: SIZEOF(QUERY(rp <* replaced_by | resident_stratum :<>:get_resident_stratum(rp))) = 0;      
+      WR1: NOT(is_final XOR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum)));
+      WR2: is_final OR (SIZEOF(QUERY(rp <* replaced_by | resident_stratum :<>:get_resident_stratum(rp))) = 0);
       WR3: NOT(SELF IN replaced_by);
       WR4: NOT(replaced_component IN replaced_by);
-      WR5: is_final XOR (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) > 0);
+      WR5: is_final XOR (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) > 0);
   END_ENTITY;
 
   ENTITY Breakout_occurrence
@@ -358,10 +362,12 @@ SCHEMA Layered_interconnect_module_design_arm;
  Plated_cutout,
  Partially_plated_cutout))
     SUBTYPE OF (Inter_stratum_feature);
+    vertical_reference : OPTIONAL Interconnect_module_edge;
     WHERE
       WR1: NOT EXISTS(SELF\Product_view_definition.name);
       WR2: SIZEOF(QUERY(shape <* SELF\Inter_stratum_feature.derived_from\Geometric_template.shapes |
         NOT ('Constructive_solid_geometry_2d_arm.Single_boundary_csg_2d_model' IN TYPEOF(shape)))) = 0;      
+      WR3: EXISTS(SELF\Inter_stratum_feature.vertical_extent) XOR EXISTS(vertical_reference);
   END_ENTITY;
 
   ENTITY Cutout_edge_segment
@@ -501,14 +507,11 @@ SCHEMA Layered_interconnect_module_design_arm;
       vertical_extent                                       : OPTIONAL Passage_technology_allocation_to_stack_model;
       SELF\Definition_based_product_occurrence.derived_from : Inter_stratum_feature_template;
     WHERE
-      WR1: NOT EXISTS(vertical_extent) OR SIZEOF(QUERY(nauor <* SELF\Assembly_component.occurrence_contexts |
+      WR1: NOT EXISTS(vertical_extent) OR (SIZEOF(QUERY(nauor <* SELF\Assembly_component.occurrence_contexts |
          NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(nauor\View_definition_relationship.relating_view)) AND             
               (vertical_extent\Passage_technology_allocation_to_stack_model.associated_stackup =
                    nauor\View_definition_relationship.relating_view.stackup_model[1].concept))
-                   )) = 0;
-      WR2: NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CUTOUT' IN 
-       TYPEOF(SELF)) OR (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_EDGE' IN 
-       TYPEOF(SELF)) XOR EXISTS(vertical_extent));  
+                   )) = 0);
   END_ENTITY;
 
   ENTITY Inter_stratum_join_relationship
@@ -551,6 +554,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     WHERE
       WR1: SIZEOF(QUERY(shape <* SELF\Inter_stratum_feature.derived_from\Geometric_template.shapes |
         NOT ('Constructive_solid_geometry_2d_arm.Single_boundary_csg_2d_model' IN TYPEOF(shape)))) = 0;
+      WR2: NOT EXISTS(SELF\Inter_stratum_feature.vertical_extent);
   END_ENTITY;
 
   ENTITY Interconnect_module_edge_segment

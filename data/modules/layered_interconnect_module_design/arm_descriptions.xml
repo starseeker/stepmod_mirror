@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="layered_interconnect_module_design" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/04/07 09:40:21 $" rcs.revision="$Revision: 1.170 $">
+<ext_descriptions module_directory="layered_interconnect_module_design" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/04/11 11:02:45 $" rcs.revision="$Revision: 1.171 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Layered_interconnect_module_design_arm
    <express_ref linkend="layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm"/>
@@ -306,25 +306,22 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 
 <!-- WR2 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Area_component.wr:WR2">
-	If size of <b>replaced_by</b> is more than one, then 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature_template_component.implementation_or_resident_stratum"/>
-	shall be of type 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum"/>.
+	The <b>replaced_by</b> and SELF must be on the same stratum.
 </ext_description>
 
 <!-- WR3 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Area_component.wr:WR3">
-	The <b>replaced_by</b> and SELF must be on the same stratum.
+	SELF shall not be in <b>replaced_by</b>.
 </ext_description>
 
 <!-- WR4 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Area_component.wr:WR4">
-	SELF shall not be in <b>replaced_by</b>.
+	SELF shall not be a <b>replaced_component</b> in <b>replaced_by</b>.	
 </ext_description>
 
 <!-- WR5 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Area_component.wr:WR5">
-	SELF shall not be a <b>replaced_component</b> in <b>replaced_by</b>.	
+		
 </ext_description>
 
 <!-- IP1 -->
@@ -811,9 +808,7 @@ of <b>Internal_stratum_accesses</b>.
 	<note>
 	The shape of the <b>Stratum_feature</b> is the result of evaluating the individual contributions including addition and subtraction of individual 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Laminate_component"/> 
-	that contribute to the <b>Stratum_feature</b>, as well as 
-	<express_ref linkend="Layered_interconnect_module_with_design_intent_modifications:arm:Layered_interconnect_module_with_design_intent_modifications_arm.Design_intent_modification"/> 
-	that modify the <b>Stratum_feature</b>.
+	that contribute to the <b>Stratum_feature</b>.
 	</note>
 	<example>
 	<p>
@@ -2398,7 +2393,7 @@ The combination of <b>assembly</b> and <b>reference_designation</b> shall be uni
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_stack_model_to_interconnect_assignment"/> 
 	that specifies the <b>Interconnect_module</b> as its 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_stack_model_to_interconnect_assignment.design"/>.  
-	There shall exist exactly one  
+	There shall exist not more than one  
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_stack_model_to_interconnect_assignment"/> 
 	for an <b>Interconnect_module</b>.
 </ext_description>
@@ -3586,9 +3581,11 @@ internal interconnect structure implements a connection to the  <express_ref lin
 	A <b>Material_removal_laminate_component</b> may be an
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Electrical_isolation_laminate_component"/> 
 	The requirement shall be interpreted mathematically as a requirement for application of the regularized Boolean subtraction operation.  
+	<!-- 
 	A <b>Material_removal_laminate_component</b> may participate in a relationship with a 
 	<express_ref linkend="Layered_interconnect_module_with_design_intent_modifications:arm:Layered_interconnect_module_with_design_intent_modifications_arm.Design_intent_modification_sequence"/> 
 	in the case of complex layout arrangements to resolve the order of the Boolean operations.
+	-->
 </ext_description>
 
 <!-- causal_item -->
@@ -4035,6 +4032,17 @@ A printed circuit board is nearly a synonym for printed wiring board, except tha
 	for the <b>Pcb</b>. The value of this attribute need not be specified.
 </ext_description>
 
+<!-- stackup_model -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Pcb.stackup_model">
+	an inverse relationship that specifies that the existence of the <b>Pcb</b> is dependent on the existence of the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_stack_model_to_interconnect_assignment"/> 
+	that specifies the <b>Pcb</b> as its 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_stack_model_to_interconnect_assignment.design"/>.
+	There shall exist exactly one
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_stack_model_to_interconnect_assignment"/> 
+	for the <b>Pcb</b>.
+</ext_description>
+
 <!-- +++++++++++ Plated_inter_stratum_feature +++++++++++ -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Plated_inter_stratum_feature">
 <p>
@@ -4280,11 +4288,15 @@ A printed circuit board is nearly a synonym for printed wiring board, except tha
 	A <b>Structured_layout_component</b> is a type of 
 	<express_ref linkend="Component_grouping:arm:Component_grouping_arm.Assembly_group_component"/>. 
 	A <b>Structured_layout_component</b> is either a 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Padstack_occurrence"/>
-	or a
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/>
 	or a
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Single_stratum_special_symbol_component"/>.  
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Material_removal_structured_component"/>
+	or a
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Multi_stratum_special_symbol_component"/>
+	or a
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Padstack_occurrence"/>
+	or a
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Single_stratum_special_symbol_component"/>.
 </ext_description>
 
 <!-- derived_from -->

@@ -1,7 +1,7 @@
 (*
- $Id: arm.exp,v 1.27 2003/10/09 14:29:10 robbod Exp $
- ISO TC184/SC4/WG12 N3172 - ISO/TS 10303-1255 State definition - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2363
+ $Id: arm.exp,v 1.28 2004/11/19 21:37:41 robbod Exp $
+ ISO TC184/SC4/WG12 Nxxxx - ISO/TS 10303-1255 State definition - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N3172
 *) 
 
 
@@ -10,6 +10,8 @@ SCHEMA State_definition_arm;
 USE FROM Activity_arm;    -- ISO/TS 10303-1047
 
 USE FROM Classification_assignment_arm;    -- ISO/TS 10303-1114
+
+USE FROM Foundation_state_definition_arm;    -- ISO/WD 10303-xxxx
 
 USE FROM Identification_assignment_arm;    -- ISO/TS 10303-1021
 
@@ -29,23 +31,8 @@ TYPE state_definition_identification_item = EXTENSIBLE SELECT BASED_ON identific
     State_definition_relationship);
 END_TYPE; 
 
-TYPE state_definition_of_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
-
 ENTITY And_state_cause_effect_definition
   SUBTYPE OF (State_cause_effect_definition);
-END_ENTITY;
-
-ENTITY Applied_state_definition_assignment;
-  described_state_definition : State_definition;
-  assigned_to : state_definition_of_item;
-  role : State_definition_role;
-END_ENTITY;
-
-ENTITY Composition_of_state_definition
-  SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.relating RENAMED whole : SET[1:?] OF State_definition;
-  SELF\State_definition_relationship.related RENAMED part : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY Or_state_cause_effect_definition
@@ -71,23 +58,6 @@ ENTITY State_complement_definition
   set_2 : SET[1:?] OF State_definition;
 END_ENTITY;
 
-ENTITY State_definition;
-  name : STRING;
-  description : OPTIONAL STRING;
-END_ENTITY;
-
-ENTITY State_definition_relationship;
-  name : STRING;
-  description : OPTIONAL STRING;
-  relating : SET[1:?] OF State_definition;
-  related : SET[1:?] OF State_definition;
-END_ENTITY;
-
-ENTITY State_definition_role;
-  name : STRING;
-  description : OPTIONAL STRING;
-END_ENTITY;
-
 ENTITY State_proper_subset_definition
   SUBTYPE OF (State_definition_relationship);
   SELF\State_definition_relationship.related RENAMED proper_subset : SET[1:?] OF State_definition;
@@ -104,12 +74,6 @@ ENTITY State_symptom_definition
   SUBTYPE OF (State_definition_relationship);
   SELF\State_definition_relationship.relating RENAMED symptom_effect : SET[1:?] OF State_definition;
   SELF\State_definition_relationship.related RENAMED symptom_cause : SET[1:?] OF State_definition;
-END_ENTITY;
-
-ENTITY State_transition_definition
-  SUBTYPE OF (State_definition_relationship);
-  SELF\State_definition_relationship.relating RENAMED end_state : SET[1:?] OF State_definition;
-  SELF\State_definition_relationship.related RENAMED start_state : SET[1:?] OF State_definition;
 END_ENTITY;
 
 ENTITY Xor_state_cause_effect_definition

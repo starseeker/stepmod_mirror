@@ -23,7 +23,7 @@
          <select extensible="YES" genericentity="YES" basedon="ee_product_definition_with_annotation_elements" selectitems="Package"/>
       </type>
       <type name="pa_external_identification_item">
-         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Package"/>
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Package_terminal_template_definition Package"/>
       </type>
       <type name="pa_material_item_select">
          <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Package_body Package_terminal_template_definition"/>
@@ -79,9 +79,6 @@
          <explicit name="maximum_seating_plane_installation_offset" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="surface_mount_lead_form" optional="YES">
-            <typename name="predefined_lead_form"/>
-         </explicit>
          <explicit name="nominal_mounting_lead_pitch" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
@@ -127,9 +124,6 @@
          <inverse name="body" entity="Package_body" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <inverse name="external_surface_mount_lead_form" entity="External_source_identification" attribute="item">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
          <inverse name="package_seating_plane" entity="Seating_plane" attribute="scope"/>
          <inverse name="interface_plane" entity="Interface_plane" attribute="scope">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
@@ -146,16 +140,14 @@
          <where label="WR1" expression="NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)))"/>
          <where label="WR2" expression="NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\Value_with_unit.value_component &gt; 0.0)"/>
          <where label="WR3" expression="NOT (EXISTS(least_lead_length_below_seating_plane)) OR (least_lead_length_below_seating_plane\Value_with_unit.value_component &gt; 0.0)"/>
-         <where label="WR4" expression="(NOT (mounting_technology = surface_mount) AND NOT (EXISTS(surface_mount_lead_form))) OR ((mounting_technology = surface_mount) AND (EXISTS(surface_mount_lead_form)))"/>
-         <where label="WR5" expression="package_seating_plane\Shape_element.element_name = 'package seating plane'"/>
-         <where label="WR6" expression="'package' IN types_of_product(SELF\Product_view_definition.defined_version.of_product)"/>
-         <where label="WR7" expression="SIZEOF(QUERY(pa &lt;* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1"/>
-         <where label="WR8" expression="(EXISTS (surface_mount_lead_form)) XOR ((SIZEOF(external_surface_mount_lead_form)) = 1)"/>
-         <where label="WR9" expression="SIZEOF(QUERY(nt &lt;* package_accesses |&#10;	                      EXISTS(nt\Part_feature.precedent_feature)&#10;	               )) = (SIZEOF(package_accesses) - 1)"/>
-         <where label="WR10" expression="SIZEOF(QUERY(nt &lt;* package_accesses |&#10;	                     (SIZEOF(nt\Part_feature.subsequent_feature) = 1)&#10;	               )) = (SIZEOF(package_accesses) - 1)"/>
-         <where label="WR11" expression="NOT one_orientation_feature    OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orientation_feature[1]))"/>
-         <where label="WR12" expression="NOT two_orientation_features   OR ((SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND&#10;                                                (SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1))"/>
-         <where label="WR13" expression="NOT three_orientation_features OR ((SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND&#10;                                                (SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND&#10;                                                (SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1))"/>
+         <where label="WR4" expression="package_seating_plane\Shape_element.element_name = 'package seating plane'"/>
+         <where label="WR5" expression="'package' IN types_of_product(SELF\Product_view_definition.defined_version.of_product)"/>
+         <where label="WR6" expression="SIZEOF(QUERY(pa &lt;* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1"/>
+         <where label="WR7" expression="SIZEOF(QUERY(nt &lt;* package_accesses |&#10;	                      EXISTS(nt\Part_feature.precedent_feature)&#10;	               )) = (SIZEOF(package_accesses) - 1)"/>
+         <where label="WR8" expression="SIZEOF(QUERY(nt &lt;* package_accesses |&#10;	                     (SIZEOF(nt\Part_feature.subsequent_feature) = 1)&#10;	               )) = (SIZEOF(package_accesses) - 1)"/>
+         <where label="WR9" expression="NOT one_orientation_feature    OR ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orientation_feature[1]))"/>
+         <where label="WR10" expression="NOT two_orientation_features   OR ((SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND&#10;                                                (SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1))"/>
+         <where label="WR11" expression="NOT three_orientation_features OR ((SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.PRIMARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND&#10;                                                (SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.SECONDARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1) AND&#10;                                                (SIZEOF(QUERY(orf &lt;* orientation_feature |&#10;                                                  ('PACKAGE_ARM.TERTIARY_ORIENTATION_FEATURE' IN TYPEOF(orf)))) = 1))"/>
       </entity>
       <entity name="Package_body" supertypes="Part_feature">
          <explicit name="associated_definition">
@@ -231,6 +223,9 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Connection_zone_in_part_feature_template_definition"/>
          </explicit>
+         <explicit name="lead_form" optional="YES">
+            <typename name="predefined_lead_form"/>
+         </explicit>
          <explicit name="seating_plane_intersection">
             <typename name="seating_plane_intersection_type"/>
          </explicit>
@@ -255,6 +250,9 @@
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="Material_identification"/>
          </derived>
+         <inverse name="external_lead_form" entity="External_source_identification" attribute="item">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
          <where label="WR1" expression="NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz &lt;* external_connection_zone | (seating_plane_zone.derived_zone = cz))) = 1)"/>
          <where label="WR2" expression="NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz &lt;* external_connection_zone | (seating_plane_zone.mating_zone = cz))) = 1)"/>
          <where label="WR4" expression="NOT EXISTS(seating_plane_zone) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection))"/>
@@ -262,6 +260,7 @@
          <where label="WR8" expression="NOT (SIZEOF(terminal_core_material) = 1) OR&#10;                ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_core_material[1]))"/>
          <where label="WR9" expression="EXISTS(terminal_core_material)"/>
          <where label="WR10" expression="NOT EXISTS(terminal_surface_material) OR&#10;                ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_surface_material[1]))"/>
+         <where label="WR11" expression="(EXISTS (lead_form)) XOR ((SIZEOF(external_lead_form)) = 1)"/>
       </entity>
       <entity name="Polarity_indication_feature" supertypes="Part_feature">
          <explicit name="associated_body_vertical_extent" optional="YES">

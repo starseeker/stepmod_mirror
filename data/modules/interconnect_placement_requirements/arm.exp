@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.29 2006/03/22 09:01:53 liutkus Exp $
+   $Id: arm.exp,v 1.30 2006/04/08 18:08:34 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4017 - ISO/TS 10303-1690 Interconnect placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3459
 *)
@@ -36,6 +36,11 @@ SCHEMA Interconnect_placement_requirements_arm;
      interconnect_module_fill_area,
      interconnect_module_stratum_feature);
   END_TYPE;
+
+  TYPE interconnect_module_design_object_category_or_group = SELECT(
+     interconnect_module_design_object_category,
+     Group);
+  END_TYPE;    
 
 	TYPE ipr_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
 	    (Interconnect_module_constraint_region);
@@ -136,6 +141,11 @@ SCHEMA Interconnect_placement_requirements_arm;
      via_terminal_category);
   END_TYPE;
 
+  TYPE pca_product_design_object_category_or_group = SELECT(
+     pca_product_design_object_category,
+     Group);
+  END_TYPE;    
+
   TYPE spacing_type = ENUMERATION OF
     (nearest_boundary,
      centroid,
@@ -171,7 +181,7 @@ SCHEMA Interconnect_placement_requirements_arm;
       SELF\Non_feature_shape_element.scope             : Interconnect_module;
       design_specific_purpose                          : STRING; 
       associated_stratum_extent                        : SET[1:?] OF Inter_stratum_extent;
-      constrained_design_object_category               : interconnect_module_design_object_category;
+      constrained_design_object_category               : interconnect_module_design_object_category_or_group;
     INVERSE
       precedent_version_constraint_region : SET[0:1] OF non_feature_shape_element_relationship FOR related;
       requirement : SET[1:1] OF requirement_assignment FOR assigned_to;
@@ -188,10 +198,10 @@ SCHEMA Interconnect_placement_requirements_arm;
 
   ENTITY Layout_spacing_requirement_occurrence
     SUBTYPE OF (Predefined_requirement_view_definition);
-      design_object_category_1                                    : pca_product_design_object_category;
-      design_object_category_2                                    : pca_product_design_object_category;
+      design_object_category_1                                                            : pca_product_design_object_category_or_group;
+      design_object_category_2                                                            : pca_product_design_object_category_or_group;
       SELF\Predefined_requirement_view_definition.required_characteristic RENAMED spacing : Length_tolerance_characteristic;
-      of_spacing_type                                                     : spacing_type;
+      of_spacing_type                                                                     : spacing_type;
     WHERE
       WR1 : 'VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(SELF\Predefined_requirement_view_definition.required_characteristic.items[1]);
   END_ENTITY;

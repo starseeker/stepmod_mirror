@@ -39,7 +39,7 @@
          <select extensible="YES" genericentity="YES" basedon="feature_select" selectitems="Printed_part_template_terminal Land_template_terminal Component_termination_passage_template_terminal Via_template_terminal Part_terminal_external_reference"/>
       </type>
       <type name="limd_groupable_item">
-         <select basedon="groupable_item" selectitems="Generic_physical_network" genericentity="NO" extensible="NO"/>
+         <select basedon="groupable_item" selectitems="Generic_physical_network Stratum" genericentity="NO" extensible="NO"/>
       </type>
       <type name="limd_physical_feature_or_part_template">
          <select extensible="YES" genericentity="YES" basedon="physical_feature_or_part_template" selectitems="Part_feature Physical_component_feature Laminate_component Template_definition Stratum_feature"/>
@@ -144,11 +144,11 @@
          <inverse name="replaced_by" entity="Area_component" attribute="replaced_component">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
-         <where label="WR1" expression="NOT(is_final XOR&#10;       ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum)))"/>
-         <where label="WR2" expression="SIZEOF(QUERY(rp &lt;* replaced_by | resident_stratum :&lt;&gt;:get_resident_stratum(rp))) = 0"/>
+         <where label="WR1" expression="NOT(is_final XOR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum)))"/>
+         <where label="WR2" expression="is_final OR (SIZEOF(QUERY(rp &lt;* replaced_by | resident_stratum :&lt;&gt;:get_resident_stratum(rp))) = 0)"/>
          <where label="WR3" expression="NOT(SELF IN replaced_by)"/>
          <where label="WR4" expression="NOT(replaced_component IN replaced_by)"/>
-         <where label="WR5" expression="is_final XOR (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) &gt; 0)"/>
+         <where label="WR5" expression="is_final XOR (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) &gt; 0)"/>
       <where label="IP1"/>
          <where label="IP2"/>
       </entity>
@@ -290,8 +290,12 @@
          </explicit>
       </entity>
       <entity name="Cutout" supertypes="Inter_stratum_feature" super.expression="ONEOF (Physical_connectivity_interrupting_cutout, Plated_cutout, Partially_plated_cutout)" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="vertical_reference" optional="YES">
+            <typename name="Interconnect_module_edge"/>
+         </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
          <where label="WR2" expression="SIZEOF(QUERY(shape &lt;* SELF\Inter_stratum_feature.derived_from\Geometric_template.shapes |&#10;        NOT ('Constructive_solid_geometry_2d_arm.Single_boundary_csg_2d_model' IN TYPEOF(shape)))) = 0"/>
+         <where label="WR3" expression="EXISTS(SELF\Inter_stratum_feature.vertical_extent) XOR EXISTS(vertical_reference)"/>
       </entity>
       <entity name="Cutout_edge_segment" supertypes="Inter_stratum_feature" super.expression="Plated_cutout_edge_segment" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_cutout" optional="NO">
@@ -464,8 +468,7 @@
             <typename name="Inter_stratum_feature_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(vertical_extent) OR SIZEOF(QUERY(nauor &lt;* SELF\Assembly_component.occurrence_contexts |&#10;         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(nauor\View_definition_relationship.relating_view)) AND             &#10;              (vertical_extent\Passage_technology_allocation_to_stack_model.associated_stackup =&#10;                   nauor\View_definition_relationship.relating_view.stackup_model[1].concept))&#10;                   )) = 0"/>
-         <where label="WR2" expression="NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CUTOUT' IN &#10;       TYPEOF(SELF)) OR (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_EDGE' IN &#10;       TYPEOF(SELF)) XOR EXISTS(vertical_extent))"/>
+         <where label="WR1" expression="NOT EXISTS(vertical_extent) OR (SIZEOF(QUERY(nauor &lt;* SELF\Assembly_component.occurrence_contexts |&#10;         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(nauor\View_definition_relationship.relating_view)) AND             &#10;              (vertical_extent\Passage_technology_allocation_to_stack_model.associated_stackup =&#10;                   nauor\View_definition_relationship.relating_view.stackup_model[1].concept))&#10;                   )) = 0)"/>
       </entity>
       <entity name="Inter_stratum_join_relationship" supertypes="Routed_join_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="points_to_be_connected" optional="NO">
@@ -504,6 +507,7 @@
       </entity>
       <entity name="Interconnect_module_edge" supertypes="Inter_stratum_feature" super.expression="ONEOF (Partially_plated_interconnect_module_edge, Plated_interconnect_module_edge)" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="SIZEOF(QUERY(shape &lt;* SELF\Inter_stratum_feature.derived_from\Geometric_template.shapes |&#10;        NOT ('Constructive_solid_geometry_2d_arm.Single_boundary_csg_2d_model' IN TYPEOF(shape)))) = 0"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Inter_stratum_feature.vertical_extent)"/>
       </entity>
       <entity name="Interconnect_module_edge_segment" supertypes="Inter_stratum_feature" super.expression="ONEOF (Plated_interconnect_module_edge_segment, Unplated_interconnect_module_edge_segment)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_edge" optional="NO">
@@ -1198,6 +1202,7 @@
       <subtype.constraint name="assembly_group_component_subtypes" entity="Assembly_group_component" super.expression="(Interfaced_group_component ANDOR Array_placement_group ANDOR ONEOF (Footprint_occurrence, Padstack_occurrence))" abstract.supertype="NO"/>
       <subtype.constraint name="component_feature_subtypes" entity="Component_feature" super.expression="ONEOF (Physical_component_feature, Laminate_component_feature)" abstract.supertype="NO"/>
       <subtype.constraint name="component_terminal_subtypes" entity="Component_terminal" super.expression="ONEOF (Physical_component_terminal, Laminate_component_join_terminal)" abstract.supertype="NO"/>
+      <subtype.constraint name="inter_stratum_feature_subtypes" entity="Inter_stratum_feature" super.expression="ONEOF (Cutout, Interconnect_module_edge)" abstract.supertype="NO"/>
       <subtype.constraint name="interconnect_module_terminal_subtypes" entity="Interconnect_module_terminal" super.expression="ONEOF (Interconnect_module_interface_terminal, Interconnect_module_macro_terminal)" abstract.supertype="NO"/>
       <subtype.constraint name="limd_part_view_definition_subtypes" entity="Part_view_definition" super.expression="ONEOF (Part_usage_view, Part_design_view, Stratum)" abstract.supertype="NO"/>
       <subtype.constraint name="limd_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF ((ONEOF (Printed_part_template, Special_symbol_template) ANDOR Geometric_template), Non_conductive_cross_section_template, Part_string_template, Printed_part_cross_section_template, Parametric_template, Part_text_template, Stratum_stack_model)" abstract.supertype="NO"/>

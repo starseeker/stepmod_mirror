@@ -1,439 +1,199 @@
-<?xml version="1.0"?>
-<!-- $Id: presentation_resource_schema.xml,v 1.8 2006/02/15 11:39:02 liutkuviene Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-46"
-  description.file="descriptions.xml"
-  rcs.date="$Date: 2006/02/15 11:39:02 $"
-  rcs.revision="$Revision: 1.8 $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/presentation_resource_schema/presentation_resource_schema.exp"/>
-
-  <schema name="presentation_resource_schema">
-    <interface
-      kind="reference"
-      schema="external_reference_schema">
-      <interfaced.item
-        name="externally_defined_item"/>
-      <interfaced.item
-        name="pre_defined_item"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="geometry_schema">
-      <interfaced.item
-        name="axis2_placement"/>
-      <interfaced.item
-        name="curve"/>
-      <interfaced.item
-        name="geometric_representation_item"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="measure_schema">
-      <interfaced.item
-        name="length_measure"/>
-      <interfaced.item
-        name="positive_length_measure"/>
-      <interfaced.item
-        name="positive_ratio_measure"/>
-      <interfaced.item
-        name="ratio_measure"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="presentation_definition_schema">
-      <interfaced.item
-        name="annotation_fill_area"/>
-      <interfaced.item
-        name="symbol_representation"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="representation_schema">
-      <interfaced.item
-        name="item_in_context"/>
-      <interfaced.item
-        name="representation"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="identifier"/>
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-    </interface>
-
-    
-    <type name="font_select">
-      <select
-        selectitems="pre_defined_text_font externally_defined_text_font">
-      </select>
-
-    </type>
-    
-    <type name="presentable_text">
-      <builtintype
-        type="STRING">
-      </builtintype>
-	  <where label="IP1"/>
-
-    </type>
-    
-    <type name="staircase_or_linear">
-      <enumeration
-        items="staircase linear">
-      </enumeration>
-
-
-    </type>
-    
-    <entity
-      name="character_glyph_font_usage">
-      <explicit
-        name="character">
-        <typename
-          name="character_glyph_symbol"/>
-      </explicit>
-      <explicit
-        name="font">
-        <typename
-          name="text_font"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="character_glyph_symbol"
-      supertypes="symbol_representation">
-      <explicit
-        name="character_box">
-        <typename
-          name="planar_extent"/>
-      </explicit>
-      <explicit
-        name="baseline_ratio">
-        <typename
-          name="ratio_measure"/>
-      </explicit>
-      <derived
-        name="box_height"
-        expression="character_box.size_in_y">
-        <typename
-          name="length_measure"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="{0.0 &lt;= baseline_ratio &lt;= 1.0}">
-      </where>
-      <where
-        label="WR2"
-        expression="item_in_context(SELF.character_box,                        SELF\representation.context_of_items)">
-      </where>
-      <where
-        label="WR3"
-        expression="'MEASURE_SCHEMA.POSITIVE_LENGTH_MEASURE'        IN TYPEOF (SELF.box_height)">
-      </where>
-    </entity>
-    
-    <entity
-      name="character_glyph_symbol_outline"
-      supertypes="character_glyph_symbol">
-      <explicit
-        name="outlines">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="annotation_fill_area"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF.outlines &lt;= SELF\representation.items">
-      </where>
-    </entity>
-
-    <entity
-      name="character_glyph_symbol_stroke"
-      supertypes="character_glyph_symbol">
-      <explicit
-        name="strokes">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="curve"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF.strokes &lt;= SELF\representation.items">
-      </where>
-    </entity>
-    
-    <entity
-      name="colour">
-    </entity>
-    
-    <entity
-      name="colour_associated"
-      supertypes="colour">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="variable_to_be_shown">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="REAL"/>
-      </explicit>
-      <explicit
-        name="mapping">
-        <typename
-          name="colour_association_table"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="colour_association_table">
-      <explicit
-        name="discrete_states_with_colours">
-        <aggregate
-          type="LIST"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="state_variable_with_colour"/>
-      </explicit>
-      <explicit
-        name="interpolation_type">
-        <typename
-          name="staircase_or_linear"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="colour_rgb"
-      supertypes="colour_specification">
-      <explicit
-        name="red">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-      <explicit
-        name="green">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-      <explicit
-        name="blue">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="{0.0 &lt;= red &lt;= 1.0}">
-      </where>
-      <where
-        label="WR2"
-        expression="{0.0 &lt;= green &lt;= 1.0}">
-      </where>
-      <where
-        label="WR3"
-        expression="{0.0 &lt;= blue &lt;= 1.0}">
-      </where>
-    </entity>
-    
-    <entity
-      name="colour_specification"
-      supertypes="colour">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="draughting_pre_defined_colour"
-      supertypes="pre_defined_colour">
-      <where
-        label="WR1"
-        expression="SELF.name IN      ['red',       'green',       'blue',       'yellow',       'magenta',       'cyan',       'black',       'white']">
-      </where>
-    </entity>
-
-    <entity
-      name="draughting_pre_defined_text_font"
-      supertypes="pre_defined_text_font">
-      <where
-        label="WR1"
-        expression="SELF.name IN ['ISO 3098']">
-      </where>
-    </entity>
-    
-     <entity
-      name="externally_defined_text_font"
-      supertypes="externally_defined_item">
-    </entity>
-    
-    <entity
-      name="planar_box"
-      supertypes="planar_extent">
-      <explicit
-        name="placement">
-        <typename
-          name="axis2_placement"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="planar_extent"
-      supertypes="geometric_representation_item">
-      <explicit
-        name="size_in_x">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="size_in_y">
-        <typename
-          name="length_measure"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="pre_defined_colour"
-      supertypes="pre_defined_item colour">
-    </entity>
-    
-    <entity
-      name="pre_defined_text_font"
-      supertypes="pre_defined_item">
-    </entity>
-    
-    <entity
-      name="presentation_scaled_placement"
-      supertypes="geometric_representation_item">
-      <explicit
-        name="placement">
-        <typename
-          name="axis2_placement"/>
-      </explicit>
-      <explicit
-        name="scaling">
-        <typename
-          name="positive_ratio_measure"/>
-      </explicit>
-    </entity>
-    
-     <entity
-      name="state_variable_with_colour">
-      <explicit
-        name="state_variable">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-      <explicit
-        name="associated_colour">
-        <typename
-          name="colour_specification"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="text_font">
-      <explicit
-        name="id">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <inverse
-        name="glyphs"
-        entity="character_glyph_font_usage"
-        attribute="font">
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-      </inverse>
-    </entity>
-
-    <entity
-      name="text_font_family">
-      <explicit
-        name="id">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <inverse
-        name="fonts"
-        entity="text_font_in_family"
-        attribute="family">
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-      </inverse>
-    </entity>
-
-    <entity
-      name="text_font_in_family">
-      <explicit
-        name="font">
-        <typename
-          name="text_font"/>
-      </explicit>
-      <explicit
-        name="family">
-        <typename
-          name="text_font_family"/>
-      </explicit>
-    </entity>
-
-   
-    
-
-  </schema>
-
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="../data/resources/presentation_resource_schema/presentation_resource_schema.exp"/>
+   <schema name="presentation_resource_schema">
+      <interface kind="reference" schema="external_reference_schema">
+         <interfaced.item name="externally_defined_item"/>
+         <interfaced.item name="pre_defined_item"/>
+      </interface>
+      <interface kind="reference" schema="geometry_schema">
+         <interfaced.item name="axis2_placement"/>
+         <interfaced.item name="curve"/>
+         <interfaced.item name="geometric_representation_item"/>
+      </interface>
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="length_measure"/>
+         <interfaced.item name="positive_length_measure"/>
+         <interfaced.item name="positive_ratio_measure"/>
+         <interfaced.item name="ratio_measure"/>
+      </interface>
+      <interface kind="reference" schema="presentation_definition_schema">
+         <interfaced.item name="annotation_fill_area"/>
+         <interfaced.item name="symbol_representation"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="item_in_context"/>
+         <interfaced.item name="representation"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="identifier"/>
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+      </interface>
+      <type name="font_select">
+         <select selectitems="pre_defined_text_font externally_defined_text_font text_font" genericentity="NO" extensible="NO"/>
+      </type>
+      <type name="presentable_text">
+         <builtintype type="STRING" fixed="NO"/>
+         <where label="IP1"/>
+      </type>
+      <type name="staircase_or_linear">
+         <enumeration items="staircase linear" extensible="NO"/>
+      </type>
+      <entity name="character_glyph_font_usage" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="character" optional="NO">
+            <typename name="generic_character_glyph_symbol"/>
+         </explicit>
+         <explicit name="font" optional="NO">
+            <typename name="text_font"/>
+         </explicit>
+      </entity>
+      <entity name="character_glyph_symbol" supertypes="generic_character_glyph_symbol" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="character_box" optional="NO">
+            <typename name="planar_extent"/>
+         </explicit>
+         <explicit name="baseline_ratio" optional="NO">
+            <typename name="ratio_measure"/>
+         </explicit>
+         <derived name="box_height" expression="character_box.size_in_y">
+            <typename name="length_measure"/>
+         </derived>
+         <where label="WR1" expression="{0.0 &lt;= baseline_ratio &lt;= 1.0}"/>
+         <where label="WR2" expression="item_in_context(SELF.character_box, &#10;                       SELF\representation.context_of_items)"/>
+         <where label="WR3" expression="'MEASURE_SCHEMA.POSITIVE_LENGTH_MEASURE'&#10;        IN TYPEOF (SELF.box_height)"/>
+      </entity>
+      <entity name="character_glyph_symbol_outline" supertypes="character_glyph_symbol" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="outlines" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="annotation_fill_area"/>
+         </explicit>
+         <where label="WR1" expression="SELF.outlines &lt;= SELF\representation.items"/>
+      </entity>
+      <entity name="character_glyph_symbol_stroke" supertypes="character_glyph_symbol" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="strokes" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="curve"/>
+         </explicit>
+         <where label="WR1" expression="SELF.strokes &lt;= SELF\representation.items"/>
+      </entity>
+      <entity name="colour" abstract.supertype="NO" abstract.entity="NO"/>
+      <entity name="colour_associated" supertypes="colour" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="variable_to_be_shown" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <builtintype type="REAL" fixed="NO"/>
+         </explicit>
+         <explicit name="mapping" optional="NO">
+            <typename name="colour_association_table"/>
+         </explicit>
+      </entity>
+      <entity name="colour_association_table" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="discrete_states_with_colours" optional="NO">
+            <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="state_variable_with_colour"/>
+         </explicit>
+         <explicit name="interpolation_type" optional="NO">
+            <typename name="staircase_or_linear"/>
+         </explicit>
+      </entity>
+      <entity name="colour_rgb" supertypes="colour_specification" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="red" optional="NO">
+            <builtintype type="REAL" fixed="NO"/>
+         </explicit>
+         <explicit name="green" optional="NO">
+            <builtintype type="REAL" fixed="NO"/>
+         </explicit>
+         <explicit name="blue" optional="NO">
+            <builtintype type="REAL" fixed="NO"/>
+         </explicit>
+         <where label="WR1" expression="{0.0 &lt;= red &lt;= 1.0}"/>
+         <where label="WR2" expression="{0.0 &lt;= green &lt;= 1.0}"/>
+         <where label="WR3" expression="{0.0 &lt;= blue &lt;= 1.0}"/>
+      </entity>
+      <entity name="colour_specification" supertypes="colour" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+      </entity>
+      <entity name="draughting_pre_defined_colour" supertypes="pre_defined_colour" abstract.supertype="NO" abstract.entity="NO">
+         <where label="WR1" expression="SELF.name IN&#10;      ['red',&#10;       'green',&#10;       'blue',&#10;       'yellow',&#10;       'magenta',&#10;       'cyan',&#10;       'black',&#10;       'white']"/>
+      </entity>
+      <entity name="draughting_pre_defined_text_font" supertypes="pre_defined_text_font" abstract.supertype="NO" abstract.entity="NO">
+         <where label="WR1" expression="SELF.name IN ['ISO 3098']"/>
+      </entity>
+      <entity name="externally_defined_text_font" supertypes="externally_defined_item" abstract.supertype="NO" abstract.entity="NO"/>
+      <entity name="generic_character_glyph_symbol" abstract.supertype="YES" supertypes="symbol_representation" abstract.entity="NO"/>
+      <entity name="planar_box" supertypes="planar_extent" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="placement" optional="NO">
+            <typename name="axis2_placement"/>
+         </explicit>
+      </entity>
+      <entity name="planar_extent" supertypes="geometric_representation_item" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="size_in_x" optional="NO">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="size_in_y" optional="NO">
+            <typename name="length_measure"/>
+         </explicit>
+      </entity>
+      <entity name="pre_defined_colour" supertypes="pre_defined_item colour" abstract.supertype="NO" abstract.entity="NO"/>
+      <entity name="pre_defined_text_font" supertypes="pre_defined_item" abstract.supertype="NO" abstract.entity="NO"/>
+      <entity name="presentation_scaled_placement" supertypes="geometric_representation_item" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="placement" optional="NO">
+            <typename name="axis2_placement"/>
+         </explicit>
+         <explicit name="scaling" optional="NO">
+            <typename name="positive_ratio_measure"/>
+         </explicit>
+      </entity>
+      <entity name="state_variable_with_colour" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="state_variable" optional="NO">
+            <builtintype type="REAL" fixed="NO"/>
+         </explicit>
+         <explicit name="associated_colour" optional="NO">
+            <typename name="colour_specification"/>
+         </explicit>
+      </entity>
+      <entity name="text_font" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="id" optional="NO">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="NO">
+            <typename name="text"/>
+         </explicit>
+         <inverse name="glyphs" entity="character_glyph_font_usage" attribute="font">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="text_font_family" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="id" optional="NO">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="NO">
+            <typename name="text"/>
+         </explicit>
+         <inverse name="fonts" entity="text_font_in_family" attribute="family">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="text_font_in_family" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="font" optional="NO">
+            <typename name="text_font"/>
+         </explicit>
+         <explicit name="family" optional="NO">
+            <typename name="text_font_family"/>
+         </explicit>
+      </entity>
+   </schema>
 </express>

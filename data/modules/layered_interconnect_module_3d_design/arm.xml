@@ -5,8 +5,11 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_3d_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_3d_design_arm">
-      <interface kind="use" schema="Physical_unit_3d_shape_arm"/>
+      <interface kind="use" schema="Physical_unit_3d_design_view_arm"/>
       <interface kind="use" schema="Stratum_non_planar_shape_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <type name="stratum_feature_3d_shape_select">
          <select selectitems="Stratum_feature_non_planar_2d_shape_model Stratum_feature_3d_shape_model"/>
       </type>
@@ -44,5 +47,68 @@
             <unique.attribute attribute="stratum_component"/>
          </unique>
       </entity>
+      <rule name="component_in_assembly_3d_context" appliesto="Area_component">
+         <where label="WR1" expression="SIZEOF(QUERY( ac &lt;* Area_component | NOT(&#10;       (SIZEOF(USEDIN(ac,'PHYSICAL_UNIT_3D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_3D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT')) = 0) OR &#10;        (in_3d_assembly_context(ac)))&#10;          )) = 0"/>
+      </rule>
+      <rule name="no_component_assembly_3d_location_for_area_component" appliesto="Area_component">
+         <where label="WR1" expression="SIZEOF(QUERY( ac &lt;* Area_component | NOT(&#10;       (SIZEOF(USEDIN(ac,'PHYSICAL_UNIT_3D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_3D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT')) = 0) OR&#10;       (no_3d_location_for_component(ac))) &#10;  )) = 0"/>
+      </rule>
+      <function name="in_3d_assembly_context">
+         <parameter name="comp">
+            <typename name="Assembly_component"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+    shapes : SET OF Assembly_component_3d_shape_model := [];
+    shapes_in_context : SET OF Physical_unit_3d_shape_model := [];
+    assemblies : SET OF Product_view_definition := [];
+    i, j : INTEGER := 0;
+    in_context : BOOLEAN := TRUE;
+  END_LOCAL;
+  
+  REPEAT i := 1 TO SIZEOF(comp.occurrence_contexts);
+    assemblies := assemblies + comp.occurrence_contexts[i].relating_view;
+  END_REPEAT;
+
+  shapes := bag_to_set(USEDIN(comp,'PHYSICAL_UNIT_3D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_3D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT'));
+  REPEAT i := 1 TO SIZEOF(shapes);
+    shapes_in_context := bag_to_set(USEDIN(shapes[i]\Geometric_model.context_of_items,'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL.CONTEXT_OF_ITEMS'));
+    in_context := FALSE;
+    j := 1;
+    REPEAT WHILE ((j &lt;= SIZEOF(shapes_in_context)) AND (NOT (in_context)));
+      in_context := (shapes_in_context[j].shape_characterized_definition IN assemblies);
+      j := j + 1;
+    END_REPEAT;
+    
+    IF NOT (in_context) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_REPEAT;
+  
+  RETURN (SIZEOF(shapes) &gt; 0);</algorithm>
+      </function>
+      <function name="no_3d_location_for_component">
+         <parameter name="comp">
+            <typename name="Assembly_component"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+    i, j : INTEGER := 0;
+    cis : SET OF Contextual_item_shape := [];
+    loc : SET OF Component_3d_location := [];
+  END_LOCAL;
+  
+  REPEAT i := 1 TO SIZEOF(comp.occurrence_contexts);
+    cis := bag_to_set(USEDIN(comp.occurrence_contexts[i],'SHAPE_PROPERTY_ASSIGNMENT_ARM.CONTEXTUAL_ITEM_SHAPE.DESCRIBED_ELEMENT'));
+    REPEAT j := 1 TO SIZEOF(cis);
+      loc := bag_to_set(USEDIN(cis[j],'CONTEXTUAL_SHAPE_POSITIONING_ARM.CONTEXTUAL_SHAPE_REPRESENTATION.CONTEXTUAL_SHAPE'));
+      IF (SIZEOF(loc) &gt; 0) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  END_REPEAT;
+
+  RETURN (TRUE);</algorithm>
+      </function>
    </schema>
 </express>

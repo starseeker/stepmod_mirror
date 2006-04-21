@@ -8,15 +8,15 @@
       Generates the HTML for the modules listed in ballot_index.xml
       Errors are reported an stored in 
       stepmod/design_material_aspects_ant_check_[yyyymmdd].txt-->
-<project name="ballotchecks" default="all" basedir=".">
+<project name="ballotchecks" default="all" basedir="../../..">
       
    <target name="init">
       <tstamp/>
-      <dirname property="BALLOTDIR" file="ballot_index.xml"/>
       <property name="BALLOTNAME" value="design_material_aspects"/>
+      <dirname property="BALLOTDIR" file="ballots\ballots\${BALLOTNAME}\ballot_index.xml"/>
       <property name="MODULESDIR" value="data/modules/"/>
       <property name="RESDIR" value="data/resource_docs/"/>
-      <property name="UTILSDIR" value="../../../utils/"/>
+      <property name="UTILSDIR" value="utils"/>
       <property name="CHECKDIR" value="${BALLOTDIR}\check_${BALLOTNAME}_${DSTAMP}"/>
       <property name="ANTERR" value="${CHECKDIR}\ant_check_${BALLOTNAME}_${DSTAMP}.txt"/>
       <property name="EXPRESSCOMP" value="C:/apps/eep/Eep.exe"/>
@@ -43,44 +43,15 @@
       
    <target name="checks" depends="init">
       <echo>
-	  Outputting to: stepmod/${ANTERR}
+	  Outputting to: ${ANTERR}
 	</echo>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULES=${MODULESDIR}design_material_aspect"/>
-         <arg value="clean_module"/>
-      </exec>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULES=${MODULESDIR}design_material_aspect"/>
-         <arg value="modules"/>
-      </exec>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULES=${MODULESDIR}design_material_aspect"/>
-         <arg value="mapping"/>
-      </exec>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULESDIR=${MODULESDIR}design_material_aspect"/>
-         <arg value="valid_modules"/>
-      </exec>
+      <ant dir="${UTILSDIR}" output="${ANTERR}">
+         <target name="clean_module"/>
+         <target name="modules"/>
+         <target name="mapping"/>
+         <target name="valid_modules"/>
+         <property name="MODULES" value="../${MODULESDIR}composite_constituent_shape"/>
+      </ant>
       <fixcrlf srcdir="${CHECKDIR}" includes="**/*.txt"/>
    </target>
    <target name="getexpress" depends="init">
@@ -94,7 +65,7 @@
    <target name="checkmodule" depends="init">
       <exec executable="cscript" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
          <arg value="./checkModule.wsf"/>
-         <arg value="design_material_aspect"/>
+         <arg value="composite_constituent_shape"/>
       </exec>
    </target>
    <target name="compileexpress" depends="getexpress">

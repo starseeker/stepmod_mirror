@@ -1,11 +1,12 @@
 (*
-   $Id: arm.exp,v 1.47 2006/01/25 22:02:00 thomasrthurman Exp $
+   $Id: arm.exp,v 1.48 2006/01/31 07:41:16 liutkus Exp $
    ISO TC184/SC4/WG12 N4119 - ISO/TS 10303-1724 Physical unit 2d design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3546
 *)
 
 SCHEMA Physical_unit_2d_design_view_arm;
 
+	USE FROM Part_template_shape_with_parameters_arm;  -- ISO/TS 10303-1720
 	USE FROM Physical_unit_2d_shape_arm;	-- ISO/TS 10303-1726
 	USE FROM Physical_unit_design_view_arm;	-- ISO/TS 10303-1728
 	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
@@ -30,13 +31,13 @@ SCHEMA Physical_unit_2d_design_view_arm;
    WHERE
      WR1: EXISTS (component);  
      WR2: NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' IN TYPEOF(component_model)) OR
-     (component\Next_assembly_usage_occurrence_relationship.related_view IN component_model.shape_characterized_component);
+     (component\Next_assembly_usage_occurrence_relationship.related_view IN component_model\Assembly_component_2d_shape_model.shape_characterized_component);
      WR3: NOT('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF(component_model)) OR
-     (component_model.shape_characterized_definition :=: 
+     (component_model\Physical_unit_shape_model.shape_characterized_definition :=: 
      component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from);
      WR4: NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN TYPEOF(component_model)) OR
-     (component_model.shape_characterized_definition :=: 
-     component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from);
+     (component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from IN
+      component_model\Part_template_shape_model.shape_characterized_definition);
   END_ENTITY;
 
   ENTITY Component_part_2d_geometric_representation_relationship

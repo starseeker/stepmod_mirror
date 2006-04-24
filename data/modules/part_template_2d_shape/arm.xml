@@ -17,6 +17,9 @@
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
+      <type name="location_stratum_technology_occurrence_or_stratum_technology">
+         <select selectitems="stratum_technology_occurrence_or_stratum_technology Template_location_in_structured_template"/>
+      </type>
       <type name="pt2ds_ee_product_definition_with_annotation_elements">
          <select extensible="YES" genericentity="YES" basedon="ee_product_definition_with_annotation_elements" selectitems="Structured_template"/>
       </type>
@@ -36,16 +39,20 @@
          <enumeration items="top bottom symmetrical swappable"/>
       </type>
       <entity name="Complex_passage_padstack_definition" supertypes="Stratum_stack_dependent_template Passage_padstack_definition"/>
-      <entity name="Dependent_template_location_in_padstack_definition" supertypes="Template_location_in_structured_template">
+      <entity name="Dependent_template_location_in_padstack_definition" supertypes="Stratum_specific_template_location">
          <explicit name="reference_location">
-            <typename name="Template_location_in_structured_template"/>
+            <typename name="location_stratum_technology_occurrence_or_stratum_technology"/>
          </explicit>
          <explicit name="assembly">
-            <typename name="Padstack_definition"/>
+            <typename name="Multi_stratum_structured_template"/>
             <redeclaration entity-ref="Template_location_in_structured_template"/>
          </explicit>
-         <where label="WR1" expression="SELF &lt;&gt; reference_location"/>
-         <where label="WR2" expression="SELF\Template_location_in_structured_template.assembly :=: reference_location.assembly"/>
+         <where label="WR1" expression="SELF\Stratum_specific_template_location.bound_stratum :&lt;&gt;: reference_location"/>
+         <where label="WR2" expression="SELF &lt;&gt; reference_location"/>
+         <where label="WR3" expression="SELF\Template_location_in_structured_template.assembly :=: reference_location.assembly"/>
+         <where label="WR4" expression="NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(reference_location)) OR&#10;           ((reference_location IN &#10;           SELF\Template_location_in_structured_template.assembly.composing_occurrence) AND&#10;           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF&#10;          (SELF\Template_location_in_structured_template.assembly.composing_occurrence)))"/>
+         <where label="WR5" expression="NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(reference_location)) OR&#10;           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(bound_stratum))"/>
+         <where label="WR6" expression="NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN &#10;           TYPEOF(reference_location)) OR (SIZEOF &#10;           (['FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE',&#10;           'FABRICATION_TECHNOLOGY_ARM.PASSAGE_PADSTACK_DEFINITION'] * TYPEOF&#10;           (SELF\Template_location_in_structured_template.assembly)) = 2)"/>
       </entity>
       <entity name="Design_stack_model" supertypes="Stratum_stack_model">
          <explicit name="reference_model" optional="YES">

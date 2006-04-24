@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="layered_interconnect_module_design" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/04/18 14:40:07 $" rcs.revision="$Revision: 1.173 $">
+<ext_descriptions module_directory="layered_interconnect_module_design" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/04/19 12:12:30 $" rcs.revision="$Revision: 1.174 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Layered_interconnect_module_design_arm
    <express_ref linkend="layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm"/>
@@ -254,12 +254,22 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature_template_component"/>.
 	An <b>Area_component</b> may be a
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Connected_area_component"/>.
+	An <b>Area_component</b> is a node in a graph of material additions and removals that contribute to a 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/>.
+	An <b>Area_component</b> may be partially or completely removed or replaced by 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Material_removal_laminate_component"/>
+	or by <b>Area_component</b>, respectively.
+</ext_description>
+
+<!-- explicitly_created -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Area_component.explicitly_created">
+	an attribute shall be set only for case where there is no predefined requirement that is related to a template shape.
 </ext_description>
 
 <!-- is_base -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Area_component.is_base">
 	specifies a BOOLEAN value that specifies that the <b>Area_component</b> is a 
-	synthetic component that is the root element in a tree of material removals.
+	synthetic component that is the root element in a tree of material additions and removals.
 	The base is created to comply with the ISO 10303-210 paradigm of positive 
 	material in the case when the originating CAD geometry is represented using 
 	negative images.
@@ -270,6 +280,7 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 	specifies a role of the
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Area_component"/>
 	for the <b>Area_component</b>.
+	The <b>replaced_component</b> attribute establishes an arc in the graph of material additions and removals.
 	The value of this attribute need not be specified.
 </ext_description>
 
@@ -300,6 +311,7 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 	that specifies the <b>Area_component</b>
 	as its 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Area_component.replaced_component"/>.
+	The <b>replaced_by</b> references other nodes in the graph of material additions and removals that replace the <b>Area_component</b>.
 	There shall exist zero or more
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Area_component">Area_components</express_ref> 
 	for the <b>Area_component</b>.
@@ -307,15 +319,24 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 
 <!-- WR1 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Area_component.wr:WR1">
-	The <b>is_final</b> shall be TRUE if and only if the 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature_template_component.implementation_or_resident_stratum"/>
-	is a 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/>.
+	A 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+	shall be in the role of 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature_template_component.implementation_or_resident_stratum"/> 
+	if and only if <b>is_final</b> is TRUE.
 </ext_description>
 
 <!-- WR2 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Area_component.wr:WR2">
-	The <b>replaced_by</b> and SELF must be on the same stratum.
+	If the <b>Area_component</b> is not a leaf element then the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum"/> 
+	referenced by the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature_template_component.resident_stratum"/>
+	attribute inherited from the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature_template_component"/> 
+	supertype shall be in the members of 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum"/> 
+	referenced directly or indirectly by the members of <b>Area_component</b> that replace the <b>Area_component</b>.
 </ext_description>
 
 <!-- WR3 -->
@@ -330,11 +351,12 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 
 <!-- WR5 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Area_component.wr:WR5">
-	The <b>Area_component</b> shall have <b>is_final</b> attribute evaluated to TRUE, or it shall be used in role of 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Material_removal_laminate_component.design_intent"/> 
-	by at least one 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Material_removal_laminate_component"/>. 
-	But both shall not be TRUE at the same time.
+	Either an <b>Area_component</b> shall be a leaf element or it shall be 
+	referenced by at least one 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Material_removal_laminate_component"/> 
+	in the role of 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Material_removal_laminate_component.design_intent"/>  
+	but not both shall be true for a specific <b>Area_component</b>.
 </ext_description>
 
 <!-- IP1 -->
@@ -3620,7 +3642,6 @@ internal interconnect structure implements a connection to the  <express_ref lin
 <!-- explicitly_created -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Material_removal_laminate_component.explicitly_created">
 	an attribute shall be set only for case where there is no predefined requirement that is related to a template shape.
-	
 </ext_description>
 
 <!-- +++++++++++ Material_removal_structured_component +++++++++++ -->

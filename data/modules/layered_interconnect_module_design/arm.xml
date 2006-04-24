@@ -74,6 +74,9 @@
       <type name="stratum_feature_or_stratum">
          <select selectitems="Stratum_feature Stratum" genericentity="NO" extensible="NO"/>
       </type>
+      <type name="stratum_feature_template_component_or_stratum">
+         <select selectitems="Stratum_feature_template_component Stratum" genericentity="NO" extensible="NO"/>
+      </type>
       <type name="stratum_feature_template_or_parametric_template">
          <select selectitems="Stratum_feature_template Parametric_template" genericentity="NO" extensible="NO"/>
       </type>
@@ -128,6 +131,9 @@
          <where label="WR5" expression="NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(subsequent_item)) OR &#10;                (precedent_item.name = stratum_surface_designation.primary_surface)"/>
       </entity>
       <entity name="Area_component" supertypes="Stratum_feature_template_component" super.expression="Connected_area_component" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="explicitly_created" optional="NO">
+            <builtintype type="BOOLEAN" fixed="NO"/>
+         </explicit>
          <explicit name="is_base" optional="NO">
             <builtintype type="BOOLEAN" fixed="NO"/>
          </explicit>
@@ -145,7 +151,7 @@
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <where label="WR1" expression="NOT(is_final XOR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum)))"/>
-         <where label="WR2" expression="is_final OR (SIZEOF(QUERY(rp &lt;* replaced_by | resident_stratum :&lt;&gt;:get_resident_stratum(rp))) = 0)"/>
+         <where label="WR2" expression="is_final OR (SIZEOF(QUERY(rp &lt;* replaced_by | SELF\Stratum_feature_template_component.resident_stratum :&lt;&gt;: &#10;        get_resident_stratum(rp))) = 0)"/>
          <where label="WR3" expression="NOT(SELF IN replaced_by)"/>
          <where label="WR4" expression="NOT(replaced_component IN replaced_by)"/>
          <where label="WR5" expression="is_final XOR (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) &gt; 0)"/>
@@ -736,7 +742,7 @@
          </explicit>
          <explicit name="design_intent" optional="NO">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="Stratum_feature_template_component"/>
+            <typename name="stratum_feature_template_component_or_stratum"/>
          </explicit>
          <explicit name="derived_from" optional="NO">
             <typename name="material_removal_feature_template_or_parametric_template"/>
@@ -745,6 +751,7 @@
          <explicit name="explicitly_created" optional="NO">
             <builtintype type="BOOLEAN" fixed="NO"/>
          </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(sa &lt;* design_intent | NOT(&#10;         NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(sa)) OR&#10;           (SIZEOF(design_intent) = 1)))) = 0"/>
       </entity>
       <entity name="Material_removal_structured_component" supertypes="Structured_layout_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">

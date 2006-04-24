@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.127 2006/04/19 16:00:21 thomasrthurman Exp $
+   $Id: arm.exp,v 1.128 2006/04/23 04:47:20 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -48,6 +48,11 @@ SCHEMA Part_template_2d_shape_arm;
      swappable);
   END_TYPE;
 
+  TYPE location_stratum_technology_occurrence_or_stratum_technology = SELECT
+    (stratum_technology_occurrence_or_stratum_technology,
+    Template_location_in_structured_template);
+  END_TYPE;
+  
   TYPE stratum_technology_occurrence_or_stratum_technology = SELECT
    (Stratum_technology_occurrence,
     Stratum_technology);
@@ -58,12 +63,27 @@ SCHEMA Part_template_2d_shape_arm;
   END_ENTITY;
 
   ENTITY Dependent_template_location_in_padstack_definition
-    SUBTYPE OF (Template_location_in_structured_template);
-    reference_location : Template_location_in_structured_template;
-    SELF\Template_location_in_structured_template.assembly : Padstack_definition;
+    SUBTYPE OF (Stratum_specific_template_location);
+    reference_location : location_stratum_technology_occurrence_or_stratum_technology;    
+    SELF\Template_location_in_structured_template.assembly : Multi_stratum_structured_template;
     WHERE
-      WR1 : SELF <> reference_location;
-      WR2 : SELF\Template_location_in_structured_template.assembly :=: reference_location.assembly;
+      WR1: SELF\Stratum_specific_template_location.bound_stratum :<>: reference_location;     
+      WR2: SELF <> reference_location;
+      WR3: SELF\Template_location_in_structured_template.assembly :=: reference_location.assembly;
+      WR4: NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(reference_location)) OR
+           ((reference_location IN 
+           SELF\Template_location_in_structured_template.assembly.composing_occurrence) AND
+           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF
+          (SELF\Template_location_in_structured_template.assembly.composing_occurrence)));
+      WR5 : NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN 
+           TYPEOF(reference_location)) OR
+           ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN 
+           TYPEOF(bound_stratum));
+      WR6 : NOT('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN 
+           TYPEOF(reference_location)) OR (SIZEOF 
+           (['FABRICATION_TECHNOLOGY_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE',
+           'FABRICATION_TECHNOLOGY_ARM.PASSAGE_PADSTACK_DEFINITION'] * TYPEOF
+           (SELF\Template_location_in_structured_template.assembly)) = 2);
   END_ENTITY;
 
   ENTITY Design_stack_model -- choose some of the Stratum_technology_occurrence

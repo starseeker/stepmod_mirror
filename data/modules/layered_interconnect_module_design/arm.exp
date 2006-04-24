@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.236 2006/04/24 08:38:32 liutkus Exp $
+   $Id: arm.exp,v 1.237 2006/04/24 11:46:32 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -33,6 +33,10 @@ SCHEMA Layered_interconnect_module_design_arm;
       Stratum);
     END_TYPE;
 
+    TYPE stratum_feature_template_component_or_stratum = SELECT
+      (Stratum_feature_template_component, Stratum);
+    END_TYPE;
+    
 	SUBTYPE_CONSTRAINT limd_assembly_component_subtypes FOR Assembly_component; 
 	    (ONEOF (Physical_component,
 	 	Laminate_component));
@@ -767,9 +771,13 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUPERTYPE OF (Electrical_isolation_laminate_component)
     SUBTYPE OF (Laminate_component);
       causal_item                                           : OPTIONAL restriction_basis_item;
-      design_intent                                         : SET[1:?] OF Stratum_feature_template_component;
+      design_intent                                         : SET[1:?] OF stratum_feature_template_component_or_stratum;
       SELF\Definition_based_product_occurrence.derived_from : material_removal_feature_template_or_parametric_template;
       explicitly_created                                    : BOOLEAN;
+    WHERE
+      WR1:   SIZEOF(QUERY(sa <* design_intent | NOT(
+         NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(sa)) OR
+           (SIZEOF(design_intent) = 1)))) = 0;
   END_ENTITY;
 
   ENTITY Material_removal_structured_component

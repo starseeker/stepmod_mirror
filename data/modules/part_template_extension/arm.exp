@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.59 2006/04/05 07:51:05 liutkus Exp $
+   $Id: arm.exp,v 1.60 2006/04/18 15:06:18 liutkus Exp $
    ISO TC184/SC4/WG12 N4101 - ISO/TS 10303-1718 Part template extension - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3525
 *)
@@ -171,10 +171,15 @@ TYPE text_alignment = ENUMERATION OF(
   END_ENTITY;
 
   ENTITY Teardrop_template
-    ABSTRACT SUPERTYPE OF (ONEOF (Snowball_template,
+    SUPERTYPE OF (ONEOF (Snowball_template,
       Teardrop_by_angle_template,
       Teardrop_by_length_template))
     SUBTYPE OF (Parametric_template);
+    WHERE
+      WR1 : (SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.SNOWBALL_TEMPLATE',
+            'PART_TEMPLATE_EXTENSION_ARM.TEARDROP_BY_ANGLE_TEMPLATE',
+            'PART_TEMPLATE_EXTENSION_ARM.TEARDROP_BY_LENGTH_TEMPLATE'] * TYPEOF(SELF)) = 1) OR
+            ('PRODUCT_IDENTIFICATION_EXTENSION_ARM.EXTERNALLY_DEFINED_VIEW_DEFINITION' IN TYPEOF(SELF));
   END_ENTITY;
 
   ENTITY Trace_template

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.238 2006/04/24 12:03:29 liutkus Exp $
+   $Id: arm.exp,v 1.239 2006/04/24 12:15:39 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -927,14 +927,19 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Routed_physical_network
     SUBTYPE OF (Generic_physical_network);
-      SELF\Generic_physical_network.connectivity_requirement_element : SET[2:?] OF Laminate_component_join_terminal;    
       routed_connectivity_requirement_element 	                     : SET[1:?] OF Routed_join_relationship;
       probe                                                          : OPTIONAL SET[1:?] OF Probe_access_area;
     DERIVE
     	complete	: BOOLEAN := NOT EXISTS(unrouted_connectivity_requirement_element);
+        valid_net   : BOOLEAN := (SIZEOF(SELF\Generic_physical_network.connectivity_requirement_element) > 1 );
     WHERE
-      WR1 : SIZEOF(QUERY(cre <* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0;
-      WR2: reference_connected_terminals.associated_definition = SELF\Generic_physical_network.current_associated_definition\Part_design_view.usage_view;
+      WR1 : SIZEOF(QUERY(cre <* SELF\Generic_physical_network.connectivity_requirement_element | NOT 
+      (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR 
+           (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * 
+            ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0;
+      WR2: NOT EXISTS(SELF\Generic_physical_network.reference_connected_terminals) OR
+                     (SELF\Generic_physical_network.reference_connected_terminals.associated_definition = 
+                      SELF\Generic_physical_network.current_associated_definition\Part_design_view.usage_view);
   END_ENTITY; 
 
   ENTITY Single_stratum_special_symbol_component

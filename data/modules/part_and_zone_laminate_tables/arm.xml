@@ -1,12 +1,249 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.44 2005/07/04 09:06:08 robbod Exp $ -->
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2005/07/04 09:06:08 $"
-   rcs.revision="$Revision: 1.44 $">
-  <schema name="Part_and_zone_laminate_tables_arm">
-  </schema>
+<?xml version="1.0"?>
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: 2006/04/20 13:49:40 $" rcs.revision="$Revision: 1.6 $" description.file="arm_descriptions.xml">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.20" source="composite_constituent_shape_arm_v009.vsd" />
+<schema name="Part_and_zone_laminate_tables_arm">
+<description>
+      
+   ------------------------------------------------------------
+C:\Repository\prod\stepmod\ballots\ballots\design_material_aspects\check_design_material_aspects_20060424\express\arm\part_and_zone_laminate_tables_arm.exp
+   ------------------------------------------------------------
+
+    </description>
+<interface kind="use" schema="Composite_constituent_shape_arm">
+</interface>
+<interface kind="use" schema="Fea_material_aspects_arm">
+</interface>
+<interface kind="use" schema="Ply_orientation_specification_arm">
+</interface>
+<type name="component_class_for_assembly">
+<select selectitems="Composite_assembly Filament_laminate Ply Ply_laminate Processed_core" />
+<graphic.element page="49" xcoord="322" ycoord="194" />
+</type>
+<type name="cross_section_shape_select">
+<select selectitems="Shape_description_association" />
+<graphic.element page="49" xcoord="510" ycoord="354" />
+</type>
+<type name="thickness_laminate_table_component">
+<select selectitems="Filament_laminate Ply Processed_core" />
+<graphic.element page="49" xcoord="272" ycoord="375" />
+</type>
+<entity name="Composite_assembly" supertypes="Constituent_part">
+<explicit name="layup_part">
+<typename name="Composite_assembly_table" />
+</explicit>
+<explicit name="shape" optional="YES">
+<typename name="composite_assembly_shape" />
+</explicit>
+<graphic.element page="46" xcoord="368" ycoord="99" />
+</entity>
+<entity name="Composite_assembly_sequence_definition">
+<explicit name="components_in_sequence">
+<aggregate type="BAG" lower="1" upper="?" />
+<typename name="component_class_for_assembly" />
+</explicit>
+<explicit name="properties" optional="YES">
+<typename name="Fea_material_property" />
+</explicit>
+<graphic.element page="46" xcoord="114" ycoord="212" />
+</entity>
+<entity name="Composite_assembly_table" supertypes="Part_laminate_table">
+<explicit name="sequence_groups">
+<aggregate type="LIST" lower="2" upper="?" />
+<typename name="Composite_assembly_sequence_definition" />
+</explicit>
+<graphic.element page="46" xcoord="240" ycoord="152" />
+</entity>
+<entity name="Constituent_part" supertypes="Product_view_definition" super.expression="ONEOF(Ply, Ply_piece, Ply_laminate, Filament_laminate, Processed_core, Composite_assembly)">
+<explicit name="constituent_part_identification">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="of_part">
+<typename name="Product_version" />
+</explicit>
+<explicit name="weight" optional="YES">
+<typename name="any_number_value" />
+</explicit>
+<graphic.element page="46" xcoord="470" ycoord="354" />
+</entity>
+<entity name="Edge_zone_shape" supertypes="Zone_structural_makeup_shape_representation">
+<explicit name="boundary">
+<typename name="boundary_class_zone" />
+</explicit>
+<graphic.element page="46" xcoord="64" ycoord="478" />
+</entity>
+<entity name="Filament_laminate" supertypes="Constituent_part">
+<explicit name="made_from">
+<typename name="Filament_assembly" />
+</explicit>
+<explicit name="shape" optional="YES">
+<typename name="Filament_laminate_shape" />
+</explicit>
+<graphic.element page="46" xcoord="524" ycoord="137" />
+</entity>
+<entity name="Filament_laminate_shape">
+<explicit name="cross_section">
+<typename name="cross_section_shape_select" />
+</explicit>
+<graphic.element page="46" xcoord="532" ycoord="74" />
+</entity>
+<entity name="Laminate_table" supertypes="Product_view_definition" super.expression="ONEOF(Part_laminate_table, Zone_structural_makeup)">
+<explicit name="base_surface" optional="YES">
+<typename name="Surface_with_direction" />
+</explicit>
+<explicit name="basis">
+<typename name="Reinforcement_orientation_basis" />
+</explicit>
+<explicit name="properties" optional="YES">
+<typename name="Fea_material_property" />
+</explicit>
+<explicit name="resulting_surface" optional="YES">
+<typename name="Surface" />
+</explicit>
+<graphic.element page="46" xcoord="79" ycoord="361" />
+</entity>
+<entity name="Part_laminate_table" supertypes="Laminate_table" super.expression="ONEOF(Composite_assembly_table, Ply_laminate_table)">
+<graphic.element page="46" xcoord="85" ycoord="119" />
+</entity>
+<entity name="Percentage_laminate_table" supertypes="Zone_structural_makeup">
+<explicit name="table_components">
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="Percentage_ply" />
+</explicit>
+<explicit name="total_thickness">
+<typename name="length_measure" />
+</explicit>
+<graphic.element page="47" xcoord="99" ycoord="666" />
+</entity>
+<entity name="Percentage_ply">
+<explicit name="strength_orientation" optional="YES">
+<typename name="Ply_orientation_angle" />
+</explicit>
+<explicit name="material">
+<typename name="Stock_material" />
+</explicit>
+<explicit name="makeup_and_properties" optional="YES">
+<typename name="Zone_structural_makeup" />
+</explicit>
+<explicit name="volume_percent">
+<typename name="any_number_value" />
+</explicit>
+<graphic.element page="47" xcoord="255" ycoord="609" />
+</entity>
+<entity name="Ply" supertypes="Constituent_part">
+<explicit name="constituents" optional="YES">
+<aggregate type="LIST" lower="1" upper="?" />
+<typename name="Ply_piece" />
+</explicit>
+<explicit name="material_type">
+<typename name="ply_stock_material" />
+</explicit>
+<explicit name="material_orientation">
+<typename name="Ply_orientation_angle" />
+</explicit>
+<explicit name="ply_thickness">
+<typename name="length_measure" />
+</explicit>
+<explicit name="shape" optional="YES">
+<typename name="Ply_shape" />
+</explicit>
+<graphic.element page="47" xcoord="148" ycoord="319" />
+</entity>
+<entity name="Ply_laminate" supertypes="Constituent_part">
+<explicit name="ply_table">
+<typename name="Ply_laminate_table" />
+</explicit>
+<explicit name="shape" optional="YES">
+<typename name="ply_laminate_shape" />
+</explicit>
+<graphic.element page="47" xcoord="549" ycoord="347" />
+</entity>
+<entity name="Ply_laminate_sequence_definition">
+<explicit name="plies_in_sequence">
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="Ply" />
+</explicit>
+<explicit name="properties" optional="YES">
+<typename name="Fea_material_property" />
+</explicit>
+<graphic.element page="47" xcoord="372" ycoord="280" />
+</entity>
+<entity name="Ply_laminate_table" supertypes="Part_laminate_table">
+<explicit name="sequence">
+<aggregate type="LIST" lower="2" upper="?" />
+<typename name="Ply_laminate_sequence_definition" />
+</explicit>
+<graphic.element page="47" xcoord="439" ycoord="368" />
+</entity>
+<entity name="Ply_piece" supertypes="Constituent_part">
+<explicit name="shape" optional="YES">
+<typename name="ply_piece_shape" />
+</explicit>
+<explicit name="warp_surface">
+<builtintype type="LOGICAL" />
+</explicit>
+<graphic.element page="47" xcoord="212" ycoord="192" />
+</entity>
+<entity name="Point_zone_shape" supertypes="Zone_structural_makeup_shape_representation">
+<explicit name="location">
+<typename name="point_select" />
+</explicit>
+<graphic.element page="47" xcoord="524" ycoord="708" />
+</entity>
+<entity name="Processed_core" supertypes="Constituent_part">
+<explicit name="added_material" optional="YES">
+<aggregate type="LIST" lower="0" upper="?" />
+<typename name="Ply" />
+</explicit>
+<explicit name="cell_direction">
+<typename name="Ply_orientation_angle" />
+</explicit>
+<explicit name="made_from_stock">
+<typename name="Stock_core" />
+</explicit>
+<explicit name="made_from_processed_core" optional="YES">
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="Processed_core" />
+</explicit>
+<explicit name="shape" optional="YES">
+<typename name="core_shape" />
+</explicit>
+<graphic.element page="47" xcoord="161" ycoord="439" />
+</entity>
+<entity name="Smeared_material" supertypes="Zone_structural_makeup">
+<explicit name="total_thickness">
+<typename name="length_measure" />
+</explicit>
+<graphic.element page="48" xcoord="205" ycoord="117" />
+</entity>
+<entity name="Surface_with_direction">
+<explicit name="defining_surface">
+<typename name="Surface" />
+</explicit>
+<explicit name="material_direction">
+<typename name="Direction" />
+</explicit>
+<graphic.element page="48" xcoord="147" ycoord="318" />
+</entity>
+<entity name="Thickness_laminate_table" supertypes="Zone_structural_makeup">
+<explicit name="table_components">
+<aggregate type="LIST" lower="2" upper="?" />
+<typename name="thickness_laminate_table_component" />
+</explicit>
+<graphic.element page="48" xcoord="340" ycoord="117" />
+</entity>
+<entity name="Zone_structural_makeup" supertypes="Laminate_table" super.expression="ONEOF((Thickness_laminate_table AND Smeared_material), (Percentage_laminate_table AND Smeared_material), Thickness_laminate_table, Percentage_laminate_table, Smeared_material)">
+<explicit name="boundary" optional="YES">
+<typename name="Zone_structural_makeup_shape_representation" />
+</explicit>
+<graphic.element page="48" xcoord="379" ycoord="181" />
+</entity>
+<entity name="Zone_structural_makeup_shape_representation" super.expression="ONEOF(Point_zone_shape, Edge_zone_shape)">
+<graphic.element page="48" xcoord="474" ycoord="117" />
+</entity>
+<graphic.element page="73" xcoord="179" ycoord="99" />
+</schema>
 </express>

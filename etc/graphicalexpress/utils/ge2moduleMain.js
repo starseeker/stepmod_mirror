@@ -1,4 +1,4 @@
-//$Id: ge2moduleMain.js,v 1.7 2005/10/07 19:30:36 thendrix Exp $
+//$Id: ge2moduleMain.js,v 1.8 2006/02/10 22:36:54 thendrix Exp $
 //  Author: Rob Bodington, Eurostep Limited
 //  Owner:  Developed by Eurostep 
 //  Purpose:  JScript to copy all the express files from the repository to
@@ -177,19 +177,23 @@ function getSchemaNameFromXML(geDir) {
 
 	// Get the schema out of model.xml
 	var schemaNodes = xml.selectNodes("/express/schema");
+	//default is first schema
 	var node = schemaNodes(0);
 
 	// Search for schema name contained in file name
-	var members = schemaNodes.length;
-	var schema, module;
-	for (var i = 0; i < members; i++) {
-	  var tmpnode = schemaNodes(i);
-	  schemaName = tmpnode.attributes.getNamedItem("name").nodeValue;
-	  schemaName = schemaName.toLowerCase();
-      reg = new RegExp(schemaName);
-	  var token = sourceFileName.match(reg);
-	  if (token) node = tmpnode;
-	}
+	// this is obsolete since 1.3.20 because ]
+	// GE can publish one module at a time, 
+	//	var members = schemaNodes.length;
+	//var members = 1;
+	//var schema, module;
+	//for (var i = 0; i < members; i++) {
+	//  var tmpnode = schemaNodes(i);
+	//  schemaName = tmpnode.attributes.getNamedItem("name").nodeValue;
+	//  schemaName = schemaName.toLowerCase();
+	//  reg = new RegExp(schemaName);
+	//  var token = sourceFileName.match(reg);
+	//  if (token) node = tmpnode;
+	//}
 	    
 	schemaName = node.attributes.getNamedItem("name").nodeValue;
 	//userMessage("Schema: "+schemaName);
@@ -209,6 +213,9 @@ function copyAllImgMaps(geDir, dstDir) {
     var geFldr = fso.GetFolder(geDir);
     var dstFldr = fso.GetFolder(dstDir);
     var fc = new Enumerator(geFldr.files);
+    // need to find first time a new schema is encountered
+    var schema_old="";
+
     // Iterate though all the graphics.xml files excluding graphics1.xml 
     // which is the schema diagram
     for (; !fc.atEnd(); fc.moveNext()) {
@@ -233,7 +240,8 @@ function copyAllImgMaps(geDir, dstDir) {
 	    var expr = "/imgfile.content";
 	    var imgfileNodes = xml.selectNodes(expr);
 	    var members = imgfileNodes.length;
-	    var schema, module;
+	    var schema;
+	    var module;
 	    for (var i = 0; i < members; i++) {
 		var node = imgfileNodes(i);
 		node = node.attributes.getNamedItem("schema");
@@ -247,6 +255,9 @@ function copyAllImgMaps(geDir, dstDir) {
 		}
 	    }
 	    
+	    if(schema_old != schema)
+	      {new_schema_index = i 
+	      }
 	    // Get the gif file that goes with the image map
 	    expr = "/imgfile.content/img";
 	    var imgNodes = xml.selectNodes(expr);
@@ -289,7 +300,7 @@ function renameAllImgMaps(dstDir) {
 	var fName = fso.GetFileName(f);
 	var imgArray = new Array();
 	var imgCnt = 0;
-
+	var firstOldCount = 0;
 	// Collect the graphics file names
 	var graphicsC = new Enumerator(f.files);
 	for (; !graphicsC.atEnd(); graphicsC.moveNext()) {
@@ -305,6 +316,9 @@ function renameAllImgMaps(dstDir) {
 	}
 	// Sort the gif files
 	var sortedImgArray = imgArray.sort(sortImgArr);
+	var firstGraphicsFBaseName =  fso.GetBaseName(sortedImgArray[0]);
+	firstOldCount = firstGraphicsFBaseName.substr(8);
+
 
 	// Output a dummy module.xml that details the arm
 	var replace = true; var unicode = false; //output file properties
@@ -312,7 +326,7 @@ function renameAllImgMaps(dstDir) {
 	var moduleXml = fso.CreateTextFile( moduleXmlFile, replace, unicode );
 	moduleXml.writeLine("<express-g>");
 	var expgIndex = 2;
-
+	var count = 0;
 	for (var i=0; i < sortedImgArray.length; i++) {
 	    var graphicsXml = sortedImgArray[i];
 	    graphicsFName = fso.GetFileName(graphicsXml);
@@ -325,7 +339,7 @@ function renameAllImgMaps(dstDir) {
 	    fso.MoveFile(oldGraphicsGif,newGraphicsGif);
 
 	    // Note fName is the name of the schema
-	    convertImgFile(graphicsXml,newGraphicsXml,fName);
+	    convertImgFile(graphicsXml,newGraphicsXml,fName,firstOldCount);
 
 	    moduleXml.writeLine("  <imgfile file=\""+newF+".xml"+"\"/>");
 
@@ -359,7 +373,7 @@ function sortImgArr(a,b) {
 // GE exports the HREFS on the image map as: ../model_doc.xml#
 // replace these with the HREF for the modules
 // newImgFile is passed in as a hack to deal with object proxies.
-function convertHref(href,newImgFile) {
+function convertHref(href,newImgFile,firstOldCount) {
 
     if (href.indexOf('../model_doc.xml#') !=-1) {
 	var expressRef = href.replace('../model_doc.xml#','');
@@ -392,14 +406,13 @@ function convertHref(href,newImgFile) {
 	var fName = fso.GetBaseName(newImgFile);
 	// get armexpg or mimexpg
 	var base = fName.substr(0,7);
-	// href ./graphics3.xml
+	// href ./graphics3.xml 
 	var count = fso.GetBaseName(href);
-	count = href.substr(10);
-	href = "./"+base+count;
+	count = (parseInt(href.substr(10)) - parseInt(firstOldCount).toString() + 2);
+	href = "./"+base+count +".xml";
     }
     return(href);
 }
-
 
 // GE exports the HREFS on the image map as: ../model_doc.xml#
 // replace these with the HREF for the schema page
@@ -442,7 +455,7 @@ function convertHrefSchema(href,schemaName) {
 }
 
 // If a schemaname is given, then it is a schema page
-function convertImgFile(imgFile, newImgFile, schemaName) {
+function convertImgFile(imgFile, newImgFile, schemaName,firstOldCount) {
     var fso = new ActiveXObject("Scripting.FileSystemObject");    
     // Load in the image xml file    
     var imgXml = new ActiveXObject("Msxml2.DOMDocument.3.0");
@@ -472,7 +485,7 @@ function convertImgFile(imgFile, newImgFile, schemaName) {
 	if (schemaPage) 
 	    href = convertHrefSchema(href,schemaName);
 	else
-	    href = convertHref(href,newImgFile);
+	    href = convertHref(href,newImgFile,firstOldCount);
 	node.setAttribute("href",href);
     } 
 
@@ -687,7 +700,7 @@ function extractSchemaFromXML(geDir,expr) {
 	result.async = false;
  
 	schemaXml.WriteLine("<?xml version=\"1.0\"?>"); 
-	schemaXml.write( theXml );
+	schemaXml.write( theXml);
     }
 
     // Copy across the image maps and gifs
@@ -726,7 +739,6 @@ function convertAll(geDir) {
 	}
     }
 }
-
 
 
 

@@ -1,18 +1,18 @@
-<?xml version='1.0' encoding='UTF-8'?>  
-<!-- $Id: mim.xml,v 1.9 2005/05/02 10:47:40 rocc Exp $ -->
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
   description.file="mim_descriptions.xml"
-  rcs.date="$Date: 2005/05/02 10:47:40 $"
-  rcs.revision="$Revision: 1.9 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
-    name="express2xml.js"
+    name="express2xml2.js"
     owner="Eurostep Limited"
     url="http://www.eurostep.com"
-    version="1.33"
+    version="1.38"
     source="../data/modules/external_properties/mim.exp"/>
 
   <schema name="External_properties_mim">
@@ -76,8 +76,6 @@
     <rule
       name="external_version_assignments_are_valid"
       appliesto="applied_external_identification_assignment">
-      <algorithm>
-      </algorithm>
       <where
         label="WR1"
         expression="SIZEOF(QUERY(aia &lt;* applied_external_identification_assignment | NOT external_version_assignment_is_valid(aia)))=0">
@@ -93,10 +91,11 @@ plib_properties : SET OF externally_defined_general_property := [];
 END_LOCAL;
 plib_properties := QUERY (edgp &lt;* externally_defined_general_property |
 ('EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' IN TYPEOF (edgp.source)) AND
-(known_source\pre_defined_item.name = 'ISO 13584 library'));      </algorithm>
+('EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' + '\PRE_DEFINED_ITEM.NAME' = 'ISO 13584 library'));
+      </algorithm>
       <where
         label="WR1"
-        expression="SIZEOF(QUERY(edgp &lt;* plib_properties | (SIZEOF(QUERY(edir &lt;* USEDIN(edgp, 'EXTERNAL_PROPERTIES_MIM' + '.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | (edir.role.name = 'version'))) &lt;&gt; 1))) = 0">
+        expression="SIZEOF(QUERY(edgp &lt;* plib_properties |(SIZEOF(QUERY(edir &lt;* USEDIN(edgp, 'EXTERNAL_PROPERTIES_MIM' + '.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') |(edir.role.name = 'version'))) &lt;&gt; 1))) = 0">
       </where>
     </rule>
 
@@ -108,10 +107,11 @@ LOCAL
 known_sourced_properties : SET OF externally_defined_general_property;
 END_LOCAL;
 known_sourced_properties := QUERY(edc &lt;* externally_defined_general_property |
-'EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' IN TYPEOF(edc.source));      </algorithm>
+'PLIB_CLASS_REFERENCE_MIM' + '.KNOWN_SOURCE' IN TYPEOF(edc.source));
+      </algorithm>
       <where
         label="WR1"
-        expression="SIZEOF (QUERY (edgp &lt;* known_sourced_properties | (SIZEOF (QUERY (edir &lt;* USEDIN (edgp, 'EXTERNAL_PROPERTIES_MIM' + '.EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM')| (edir.name = 'name scope') AND ('EXTERNAL_PROPERTIES_MIM' + '.EXTERNALLY_DEFINED_CLASS' IN TYPEOF (edir.related_item)) AND ('EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' IN TYPEOF (edir.related_item.source)))) &lt;&gt;1))) = 0">
+        expression="SIZEOF (QUERY (edgp &lt;* known_sourced_properties |(SIZEOF (QUERY (edir &lt;* USEDIN (edgp, 'EXTERNAL_REFERENCE_SCHEMA' + '.EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM')|(edir.name = 'name scope') AND('EXTERNAL_CLASS_MIM' + '.EXTERNALLY_DEFINED_CLASS' IN TYPEOF (edir.related_item)) AND('PLIB_CLASS_REFERENCE_MIM' + '.KNOWN_SOURCE' IN TYPEOF (edir.related_item.source)))) &lt;&gt;1))) = 0">
       </where>
     </rule>
 
@@ -129,22 +129,19 @@ LOCAL
 item: identification_item;
 role: identification_role;
 END_LOCAL;
-
 role:= aia.role;
 IF role.name='version' THEN
 REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
 item:= aia.items[i];
-
 IF (SIZEOF(['EXTERNAL_PROPERTIES_MIM.' + 'EXTERNALLY_VERSIONED_ITEM']*TYPEOF(item))=0) THEN
-(* item invalid if item does not belong to versionable types *)
 RETURN(FALSE);
 END_IF;
 END_REPEAT;
 RETURN(TRUE);
-
-ELSE		 (* case where aia does not convey a version id *)
+ELSE
 RETURN(TRUE);
-END_IF;      </algorithm>
+END_IF;
+      </algorithm>
     </function>
 
   </schema>

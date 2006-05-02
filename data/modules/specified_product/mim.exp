@@ -1,5 +1,5 @@
 (*
- $Id: checkModuleMain.js,v 1.16 2005/03/09 01:07:43 rocc Exp $
+ $Id: mim.exp,v 1.8 2005/07/04 15:12:29 rocc Exp $
  ISO TC184/SC4/WG12 N2590 - ISO/TS 10303-1104 Specified product - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N1724
 *)
@@ -29,16 +29,23 @@ END_TYPE;
 
 ENTITY product_identification
   SUBTYPE OF (configuration_item, characterized_object);
-  SELF\configuration_item.item_concept : product_class;
+	SELF\configuration_item.item_concept : product_class;
 WHERE
-WR1 : SIZEOF(QUERY ( cd <* USEDIN ( SELF ,'SPECIFIED_PRODUCT_MIM.CONFIGURATION_DESIGN.CONFIGURATION' ) |
-     ( 'SPECIFIED_PRODUCT_MIM.'+ 'PRODUCT_DEFINITION_FORMATION' IN TYPEOF ( cd. design ) ) AND 
-    ( SIZEOF ( QUERY ( prpc <* USEDIN ( cd. design\product_definition_formation.of_product ,
-     'SPECIFIED_PRODUCT_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | 
-         prpc. name IN ['part' , 'raw material' , 'tool'] ) ) >0
-     ) ) ) <=1;
-WR2 : NOT ( 'SPECIFIED_PRODUCT_MIM.'+ 'CONFIGURABLE_ITEM' IN TYPEOF( SELF ) ) XOR 
-    ( 'SPECIFIED_PRODUCT_MIM.'+ 'PRODUCT_SPECIFICATION' IN TYPEOF ( SELF ) ) ;
+	WR1 : SIZEOF(QUERY 
+								( cd <* USEDIN ( SELF ,'CONFIGURATION_MANAGEMENT_SCHEMA.CONFIGURATION_DESIGN.CONFIGURATION' ) 
+								|
+     						( 'PRODUCT_DEFINITION_SCHEMA.'+ 'PRODUCT_DEFINITION_FORMATION' IN TYPEOF ( cd. design ) ) 
+     						AND 
+    						( SIZEOF ( QUERY 
+    												( 
+    													prpc <* USEDIN ( cd. design\product_definition_formation.of_product , 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') 
+    													| 
+         											prpc. name IN ['part' , 'raw material' , 'tool'] ) ) >0
+     													) 
+     												) 
+     											) <=1;
+	WR2 : NOT ( 'CONFIGURATION_MANAGEMENT_SCHEMA.'+ 'CONFIGURABLE_ITEM' IN TYPEOF( SELF ) ) 
+				XOR ( 'SPECIFIED_PRODUCT_MIM.'+ 'PRODUCT_SPECIFICATION' IN TYPEOF ( SELF ) ) ;
 END_ENTITY;
 
 ENTITY product_specification

@@ -1,34 +1,88 @@
-<?xml version="1.0"?>  
-<!-- $Id: mim.xml,v 1.5 2005/02/15 09:39:14 rocc Exp $ -->
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" description.file="mim_descriptions.xml" rcs.date="$Date: 2005/02/15 09:39:14 $" rcs.revision="$Revision: 1.5 $">
-	<application name="express2xml.js" owner="Eurostep Limited" url="http://www.eurostep.com" version="1.22" source="../data/modules/specified_product/mim.exp"/>
-	<schema name="Specified_product_mim">
-		<interface kind="use" schema="Configuration_item_mim"/>
-		<interface kind="use" schema="Identification_assignment_mim"/>
-		<interface kind="use" schema="Product_class_mim"/>
-		<interface kind="use" schema="Product_version_mim"/>
-		<interface kind="use" schema="configuration_management_schema">
-			<interfaced.item name="configurable_item"/>
-		</interface>
-		<interface kind="use" schema="product_property_definition_schema">
-			<interfaced.item name="characterized_object"/>
-		</interface>
-		<type name="id_for_product_identification">
-			<select basedon="identification_item" selectitems="product_identification"/>
-		</type>
-		<type name="version_for_product_identification">
-			<select basedon="versionable_item" selectitems="product_identification"/>
-		</type>
-		<entity name="product_identification" supertypes="configuration_item characterized_object">
-			<explicit name="item_concept">
-				<typename name="product_class"/>
-				<redeclaration entity-ref="configuration_item"/>
-			</explicit>
-			<where label="WR1" expression="SIZEOF(QUERY ( cd &lt;* USEDIN ( SELF ,'SPECIFIED_PRODUCT_MIM.CONFIGURATION_DESIGN.CONFIGURATION' ) |     ( 'SPECIFIED_PRODUCT_MIM.'+ 'PRODUCT_DEFINITION_FORMATION' IN TYPEOF ( cd. design ) ) AND     ( SIZEOF ( QUERY ( prpc &lt;* USEDIN ( cd. design\product_definition_formation.of_product ,     'SPECIFIED_PRODUCT_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') |          prpc. name IN ['part' , 'raw material' , 'tool'] ) ) &gt;0     ) ) ) &lt;=1"/>
-			<where label="WR2" expression="NOT ( 'SPECIFIED_PRODUCT_MIM.'+ 'CONFIGURABLE_ITEM' IN TYPEOF( SELF ) ) XOR     ( 'SPECIFIED_PRODUCT_MIM.'+ 'PRODUCT_SPECIFICATION' IN TYPEOF ( SELF ) ) "/>
-		</entity>
-		<entity name="product_specification" supertypes="product_identification configurable_item"/>
-	</schema>
-</express>
+<express
+  language_version="2"
+  description.file="mim_descriptions.xml"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml2.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.38"
+    source="../data/modules/specified_product/mim.exp"/>
+
+  <schema name="Specified_product_mim">
+
+    <interface
+      kind="use"
+      schema="Configuration_item_mim">
+    </interface>
+    <interface
+      kind="use"
+      schema="Identification_assignment_mim">
+    </interface>
+    <interface
+      kind="use"
+      schema="Product_class_mim">
+    </interface>
+    <interface
+      kind="use"
+      schema="Product_version_mim">
+    </interface>
+    <interface
+      kind="use"
+      schema="configuration_management_schema">
+      <interfaced.item
+        name="configurable_item"/>
+    </interface>
+    <interface
+      kind="use"
+      schema="product_property_definition_schema">
+      <interfaced.item
+        name="characterized_object"/>
+    </interface>
+    <type name="id_for_product_identification">
+      <select
+        basedon="identification_item"
+        selectitems="product_identification">
+      </select>
+    </type>
+
+    <type name="version_for_product_identification">
+      <select
+        basedon="versionable_item"
+        selectitems="product_identification">
+      </select>
+    </type>
+
+    <entity
+      name="product_identification"
+      supertypes="configuration_item characterized_object">
+      <explicit
+        name="item_concept">
+        <typename
+          name="product_class"/>
+        <redeclaration
+          entity-ref="configuration_item"/>
+        </explicit>
+        <where
+          label="WR1"
+          expression="SIZEOF(QUERY(cd &lt;* USEDIN (SELF ,'CONFIGURATION_MANAGEMENT_SCHEMA.CONFIGURATION_DESIGN.CONFIGURATION')|('PRODUCT_DEFINITION_SCHEMA.'+ 'PRODUCT_DEFINITION_FORMATION' IN TYPEOF (cd. design)) AND(SIZEOF (QUERY(prpc &lt;* USEDIN (cd. design\product_definition_formation.of_product , 'PRODUCT_DEFINITION_SCHEMA.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS')| prpc. name IN ['part' , 'raw material' , 'tool'])) &gt;0))) &lt;=1">
+        </where>
+        <where
+          label="WR2"
+          expression="NOT ('CONFIGURATION_MANAGEMENT_SCHEMA.'+ 'CONFIGURABLE_ITEM' IN TYPEOF(SELF)) XOR ('SPECIFIED_PRODUCT_MIM.'+ 'PRODUCT_SPECIFICATION' IN TYPEOF (SELF))">
+        </where>
+      </entity>
+
+      <entity
+        name="product_specification"
+        supertypes="product_identification configurable_item">
+      </entity>
+
+    </schema>
+  </express>

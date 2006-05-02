@@ -76,6 +76,10 @@
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Part_feature"/>
          </derived>
+         <derived name="reference_designation" expression="reference_feature\Shape_element.element_name">
+            <builtintype type="STRING" fixed="NO"/>
+            <redeclaration entity-ref="Template_location_in_structured_template"/>
+         </derived>
          <where label="WR1" expression="SIZEOF(QUERY( arf &lt;* all_reference_feature | NOT(reference_feature.associated_definition :=: arf.associated_definition))) = 0"/>
       </entity>
       <entity name="Stratum_feature_template_location_in_breakout_footprint_definition" supertypes="Stratum_specific_template_location" abstract.supertype="NO" abstract.entity="NO">
@@ -113,23 +117,23 @@
     END_LOCAL;
 
     REPEAT i := 1 TO SIZEOF(tlist) BY 1;
-      IF tlist[i].template\Multi_stratum_structured_template.location = template_arrangement.top THEN
+      IF (tlist[i].template\Multi_stratum_structured_template.location = template_arrangement.top) THEN
         pabt := pabt + 'top';
       END_IF;
-      IF tlist[i].template\Multi_stratum_structured_template.location = template_arrangement.bottom THEN
+      IF (tlist[i].template\Multi_stratum_structured_template.location = template_arrangement.bottom) THEN
         pabb := pabb + 'bottom';
       END_IF;
-      IF tlist[i].template\Multi_stratum_structured_template.location = template_arrangement.symmetrical THEN
+      IF (tlist[i].template\Multi_stratum_structured_template.location = template_arrangement.symmetrical) THEN
         pabs := pabs + 'symmetrical';
       END_IF;
     END_REPEAT;
-    IF (SIZEOF(pabt) &gt; 0) AND (SIZEOF(pabb) = 0) THEN
+    IF ((SIZEOF(pabt) &gt; 0) AND (SIZEOF(pabb) = 0)) THEN
       RETURN(template_arrangement.top);
     END_IF;
-    IF (SIZEOF(pabb) &gt; 0) AND (SIZEOF(pabt) = 0) THEN
+    IF ((SIZEOF(pabb) &gt; 0) AND (SIZEOF(pabt) = 0)) THEN
       RETURN(template_arrangement.bottom);
     END_IF;
-    IF (SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabs) &gt; 0) THEN
+    IF ((SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabs) &gt; 0)) THEN
       RETURN(template_arrangement.symmetrical);
     END_IF;
     RETURN(?);</algorithm>

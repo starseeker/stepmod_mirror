@@ -121,12 +121,16 @@
          <derived name="three_orientation_features" expression="(SIZEOF(orientation_feature) = 3)">
             <builtintype type="BOOLEAN"/>
          </derived>
+         <derived name="package_seating_plane" expression="bag_to_set(QUERY(nfse &lt;* USEDIN(SELF, 'NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_ELEMENT.SCOPE')|&#10;                                                'NON_FEATURE_SHAPE_ELEMENT_ARM.SEATING_PLANE' IN TYPEOF(nfse)))">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Seating_plane"/>
+         </derived>
+         <derived name="interface_plane" expression="bag_to_set(QUERY(nfse &lt;* USEDIN(SELF, 'NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_ELEMENT.SCOPE')|&#10;                                                'NON_FEATURE_SHAPE_ELEMENT_ARM.INTERFACE_PLANE' IN TYPEOF(nfse)))">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Interface_plane"/>
+         </derived>
          <inverse name="body" entity="Package_body" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
-         <inverse name="package_seating_plane" entity="Seating_plane" attribute="scope"/>
-         <inverse name="interface_plane" entity="Interface_plane" attribute="scope">
-            <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <inverse name="package_accesses" entity="Package_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
@@ -140,7 +144,7 @@
          <where label="WR1" expression="NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)))"/>
          <where label="WR2" expression="NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\Value_with_unit.value_component &gt; 0.0)"/>
          <where label="WR3" expression="NOT (EXISTS(least_lead_length_below_seating_plane)) OR (least_lead_length_below_seating_plane\Value_with_unit.value_component &gt; 0.0)"/>
-         <where label="WR4" expression="package_seating_plane\Shape_element.element_name = 'package seating plane'"/>
+         <where label="WR4" expression="SIZEOF(package_seating_plane) = 1"/>
          <where label="WR5" expression="'package' IN types_of_product(SELF\Product_view_definition.defined_version.of_product)"/>
          <where label="WR6" expression="SIZEOF(QUERY(pa &lt;* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1"/>
          <where label="WR7" expression="SIZEOF(QUERY(nt &lt;* package_accesses |&#10;	                      EXISTS(nt\Part_feature.precedent_feature)&#10;	               )) = (SIZEOF(package_accesses) - 1)"/>

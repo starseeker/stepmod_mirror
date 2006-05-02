@@ -881,11 +881,6 @@
          <inverse name="network_topology" entity="Routed_physical_network" attribute="routed_connectivity_requirement_element"/>
       </entity>
       <entity name="Routed_physical_network" supertypes="Generic_physical_network" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="connectivity_requirement_element" optional="NO">
-            <aggregate type="SET" lower="2" upper="?" unique="NO" optional="NO"/>
-            <typename name="Laminate_component_join_terminal"/>
-            <redeclaration entity-ref="Generic_physical_network"/>
-         </explicit>
          <explicit name="routed_connectivity_requirement_element" optional="NO">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Routed_join_relationship"/>
@@ -897,8 +892,11 @@
          <derived name="complete" expression="NOT EXISTS(unrouted_connectivity_requirement_element)">
             <builtintype type="BOOLEAN" fixed="NO"/>
          </derived>
-         <where label="WR1" expression="SIZEOF(QUERY(cre &lt;* connectivity_requirement_element | NOT (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0"/>
-         <where label="WR2" expression="reference_connected_terminals.associated_definition = SELF\Generic_physical_network.current_associated_definition\Part_design_view.usage_view"/>
+         <derived name="valid_net" expression="(SIZEOF(SELF\Generic_physical_network.connectivity_requirement_element) &gt; 1 )">
+            <builtintype type="BOOLEAN" fixed="NO"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(QUERY(cre &lt;* SELF\Generic_physical_network.connectivity_requirement_element | NOT &#10;      (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL' IN TYPEOF(cre)) OR &#10;           (SIZEOF(TYPEOF(cre\Component_feature.associated_component) * &#10;            ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONTACT_SIZE_DEPENDENT_LAND']) = 1)))) = 0"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Generic_physical_network.reference_connected_terminals) OR&#10;                     (SELF\Generic_physical_network.reference_connected_terminals.associated_definition = &#10;                      SELF\Generic_physical_network.current_associated_definition\Part_design_view.usage_view)"/>
       <where label="IP1"/>
          <where label="IP2"/>
          <where label="IP3"/>

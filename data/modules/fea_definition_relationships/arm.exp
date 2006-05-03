@@ -1,6 +1,148 @@
-(*
-   $Id: mkmodule.js,v 1.44 2005/07/04 09:06:08 robbod Exp $
-   N - ISO/CD-TS - 10303- fea_definition_relationships - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
-SCHEMA Fea_definition_relationships_arm;
+SCHEMA FEA_defintion_relationships_arm;
+
+USE FROM Activity_arm;
+
+USE FROM Analysis_arm;
+
+USE FROM Elemental_topology_arm;
+
+USE FROM Finite_elements_arm;
+
+USE FROM Finite_element_analysis_arm;
+
+USE FROM Independent_property_arm;
+
+USE FROM Product_analysis_arm;
+
+USE FROM Product_view_definition_arm;
+
+USE FROM Property_assignment_arm;
+
+USE FROM State_definition_arm;
+
+TYPE discretised_action_model_select = EXTENSIBLE SELECT 
+  (fe_analysis_control_step,
+   model_action_domain);
+END_TYPE;
+
+TYPE idealised_action_select = EXTENSIBLE SELECT 
+  (activity,
+   physical_action_domain);
+END_TYPE;
+
+ENTITY action_view_relationship;
+  id : string;
+  name : string;
+  description : OPTIONAL string;
+  discretised_model : discretised_action_model_select;
+  idealised_action : idealised_action_select;
+END_ENTITY;
+
+ENTITY same_discretised_action_model;
+  id : string;
+  name : string;
+  description : OPTIONAL string;
+  equivalent_records : SET [2 : ?] OF discretised_action_model_select;
+
+END_ENTITY;
+
+ENTITY same_idealised_action;
+  id : string;
+  name : string;
+  description : OPTIONAL string;
+  equivalent_records : SET [2 : ?] OF idealised_action_select;
+END_ENTITY;
+
+ENTITY element_topological_relationship;
+  aspect : element_shape_aspect;
+  element_ref : element;
+  item : Detailed_topological_model_element;
+END_ENTITY;
+
+ENTITY fea_beam_section_idealisation_relationship;
+  id : string;
+  name : string;
+  description : OPTIONAL string;
+  idealised : indepenent_property;
+  idealising : curve_section_properties;
+END_ENTITY;
+
+ENTITY fea_model_topological_relationship;
+  item : Detailed_topological_model_element;
+  model_ref : fea_model;
+END_ENTITY;
+
+ENTITY fea_shell_section_distribution_idealisation_relationship;
+  id : string;
+  name : string;
+  description : OPTIONAL string;
+  idealised : applied_independent_property;
+  idealising : surface_property;
+END_ENTITY;
+
+ENTITY fea_shell_section_idealisation_relationship;
+  id : string;
+  name : string;
+  description : OPTIONAL string;
+  idealised : independent_property;
+  idealising : surface_property;
+END_ENTITY;
+
+ENTITY node_topological_relationship;
+  item : Detailed_topological_model_element;
+  node_ref : node;
+END_ENTITY;
+
+TYPE discretised_product_model_select = EXTENSIBLE SELECT 
+  (fea_model,
+   model_product_domain);
+END_TYPE;
+
+TYPE idealised_product_select = EXTENSIBLE SELECT 
+  (physical_product_domain,
+   product_view_definition);
+END_TYPE;
+
+ENTITY product_view_relationship;
+  id : string;
+  name : string;
+  description : OPTIONAL string;
+  discretised_model : discretised_product_model_select;
+  idealised_product : idealised_product_select;
+
+END_ENTITY;
+
+TYPE discretised_state_model_select = EXTENSIBLE SELECT 
+  (model_state_domain,
+   fe_analysis_state);
+END_TYPE;
+
+TYPE idealised_state_select = EXTENSIBLE SELECT 
+  (physical_state_domain,
+   state_type);
+END_TYPE;
+
+ENTITY same_discretised_state_model;
+  id : string;
+  name : string;
+  description : OPTIONAL string;
+  equivalent_records : SET [2 : ?] OF discretised_state_model_select;
+END_ENTITY;
+
+ENTITY same_idealised_state;
+  id : string;
+  name : string;
+  description : OPTIONAL string;
+  equivalent_records : SET [2 : ?] OF idealised_state_select;
+END_ENTITY;
+
+ENTITY state_view_relationship;
+  id : string;
+  name : string;  
+  description : OPTIONAL string;
+  discretised_model : discretised_state_model_select;
+  idealised_state : idealised_state_select;
+END_ENTITY;
+
 END_SCHEMA;
+

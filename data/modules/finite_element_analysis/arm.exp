@@ -1,6 +1,180 @@
-(*
-   $Id: mkmodule.js,v 1.44 2005/07/04 09:06:08 robbod Exp $
-   N - ISO/CD-TS - 10303- finite_element_analysis - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
 SCHEMA Finite_element_analysis_arm;
+
+USE FROM Analysis_characterized_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+USE FROM Finite_elements_arm;
+
+TYPE FE_Analysis_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysis_approval_item WITH
+  (FE_Analysis,
+   FE_Analysis_results);
+END_TYPE;
+
+TYPE constraint_definition_reference = SELECT
+          (Detailed_geometric_model_element,
+           group,
+           node);
+END_TYPE;
+
+TYPE definition_reference = SELECT
+          (element,
+           Detailed_geometric_model_element,
+           group,
+           node);
+END_TYPE;
+
+ENTITY analysis_message
+  SUBTYPE OF (fe_analysis_state_definition);
+ message_level  : STRING;
+ quality        : STRING;
+END_ENTITY;
+
+ENTITY analysis_report_representation
+  SUPERTYPE OF (graphical_representation ANDOR 
+                tabular_representation);
+ control    : OPTIONAL fe_analysis;
+ model_ref  : fea_model;
+ result     : OPTIONAL fe_analysis_results;
+END_ENTITY;
+
+ENTITY calculated_state
+  SUBTYPE OF (fe_analysis_state);
+END_ENTITY;
+
+ENTITY constraint
+  SUPERTYPE OF (ONEOF (single_point_constraint,
+                       linear_constraint_equation,
+                       nodal_degree_of_freedom_reduction));
+ identification  : IDENTIFIER;
+ steps           : SET [1:?] OF fe_analysis_control_step;
+END_ENTITY;
+
+ENTITY element_field_variable_definition
+  SUBTYPE OF (fe_analysis_state_definition);
+END_ENTITY;
+
+ENTITY element_nodal_freedom_actions
+  SUBTYPE OF (fe_analysis_state_definition);
+END_ENTITY;
+
+ENTITY fe_analysis;
+ approved_by             : OPTIONAL FE_Analysis_approval_item;
+ intended_analysis_code  : STRING;   
+ model_ref               : fea_model;
+END_ENTITY; 
+
+ENTITY fe_analysis_control_step
+  SUPERTYPE OF (ONEOF (modes_and_frequencies_control_step,
+                       static_control_step));
+ analysis             : fe_analysis;
+ identification       : STRING;
+ initial_input_state  : fe_analysis_state;
+ sequence             : INTEGER;
+END_ENTITY;
+
+ENTITY fe_analysis_results;
+ approved_by  : OPTIONAL FE_Analysis_approval_iteml;
+END_ENTITY;
+
+ENTITY fe_analysis_results_step
+  SUPERTYPE OF (ONEOF (modes_and_frequencies_results_step,
+                       static_results_step));
+ control  : fe_analysis_control_step;
+ result   : fe_analysis_results;
+END_ENTITY;
+
+ENTITY fe_analysis_state
+  SUPERTYPE OF (ONEOF (calculated_state,
+                       linearly_superimposed_state,
+                       output_request_state,
+                       specified_state));
+ definitions  : SET [1:?] OF fe_analysis_state_definition;
+END_ENTITY;
+
+ENTITY fe_analysis_state_definition
+  SUPERTYPE OF (ONEOF (analysis_message,
+                       element_field_variable_definition,
+                       element_nodal_freedom_actions,
+                       linear_constraint_equation_value,
+                       nodal_freedom_definitions,
+                       single_point_constraint_values));
+ ref  : definition_reference;
+END_ENTITY;
+
+ENTITY graphical_representation
+  SUBTYPE OF (analysis_report_representation);
+ graphical_filename  : STRING;
+END_ENTITY;
+
+ENTITY linear_constraint_equation
+  SUBTYPE OF (constraint);
+ freedoms_and_coefficients_nodes : SET [1:?] OF
+                                   constraint_definition_reference;
+END_ENTITY;
+
+ENTITY linear_constraint_equation_value
+  SUBTYPE OF (fe_analysis_state_definition);
+ equation  : linear_constraint_equation;
+END_ENTITY;
+
+ENTITY linearly_superimposed_state
+  SUBTYPE OF (fe_analysis_state);
+END_ENTITY;
+
+ENTITY modes_and_frequencies_control_step
+  SUBTYPE OF (fe_analysis_control_step);
+ final_input_state  : fe_analysis_state;
+ frequency_range    : LIST [1:2] OF REAL;
+ number_of_modes    : INTEGER;
+END_ENTITY;
+
+ENTITY modes_and_frequencies_results_step
+  SUBTYPE OF (fe_analysis_results_step);
+ resulting_states  : SET [1:?] OF calculated_state;
+END_ENTITY;
+
+ENTITY nodal_degree_of_freedom_reduction
+  SUBTYPE OF (constraint);
+ node  : constraint_definition_reference;
+END_ENTITY;
+
+ENTITY nodal_freedom_definitions
+  SUBTYPE OF (fe_analysis_state_definition);
+END_ENTITY;
+
+ENTITY output_request_state
+  SUBTYPE OF (fe_analysis_state);
+ steps  : SET [1:?] OF fe_analysis_control_step;
+END_ENTITY;
+
+ENTITY single_point_constraint
+  SUBTYPE OF (constraint);
+ required_node  : constraint_definition_reference;
+END_ENTITY;
+
+ENTITY single_point_constraint_values
+  SUBTYPE OF (fe_analysis_state_definition);
+ element  : single_point_constraint;
+END_ENTITY;
+
+ENTITY specified_state
+  SUBTYPE OF (fe_analysis_state);
+END_ENTITY;
+
+ENTITY static_control_step
+  SUBTYPE OF (fe_analysis_control_step);
+ final_input_state  : fe_analysis_state;
+END_ENTITY;
+
+ENTITY static_results_step
+  SUBTYPE OF (fe_analysis_results_step);
+ resulting_state  : calculated_state;
+END_ENTITY;
+
+ENTITY tabular_representation
+  SUBTYPE OF (analysis_report_representation);
+ tabular_filename  : STRING;
+END_ENTITY;
+
 END_SCHEMA;

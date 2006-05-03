@@ -1,6 +1,58 @@
-(*
-   $Id: mkmodule.js,v 1.44 2005/07/04 09:06:08 robbod Exp $
-   N - ISO/CD-TS - 10303- mesh_function - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
 SCHEMA Mesh_function_arm;
+  
+USE FROM mesh_topology_arm;
+ 
+USE FROM Generic_expressions_arm;
+
+ENTITY application_defined_function;
+END_ENTITY;
+
+ENTITY function_is_table;
+END_ENTITY;
+
+ENTITY maths_function;
+END_ENTITY;
+
+ENTITY mesh_function
+  SUBTYPE OF (application_defined_function,
+              unary_generic_expression);
+  mesh          : mesh;
+  basis         : LIST OF mesh_function_basis;
+  uniform       : BOOLEAN;
+  vertex_values : BOOLEAN;
+DERIVE
+  control_values : maths_function := SELF\unary_generic_function.operand;
+WHERE
+  wr1 : function_is_table(control_values);
+  wr2 : (uniform AND (SIZEOF(basis) = 1)) XOR
+        (NOT uniform);
+END_ENTITY;
+
+ENTITY mesh_function_basis
+  SUBTYPE OF (application_defined_function,
+              unary_generic_expression);
+  cell_topological_dimension : INTEGER;
+  value_array_dimension      : INTEGER;
+  value_array_order          : ARRAY [1:value_array_dimension] OF INTEGER;
+DERIVE
+  value_positions : maths_function := SELF\unary_generic_function.operand;
+WHERE
+  value_positions_as_table : function_is_table(value_positions);
+END_ENTITY;
+
+SUBTYPE_CONSTRAINT sc1_application_defined_function FOR
+                   application_defined_function;
+  ONEOF(mesh_function,
+        mesh_function_basis);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT sc1_unary_generic_expression FOR
+                   unary_generic_expression;
+  ONEOF(mesh_function,
+        mesh_function_basis);
+END_SUBTYPE_CONSTRAINT;
+
+ENTITY unary_generic_function;
+END_ENTITY
+
 END_SCHEMA;

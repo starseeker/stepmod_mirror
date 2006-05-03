@@ -1,25 +1,183 @@
-(*
-   $Id: mkmodule.js,v 1.44 2005/07/04 09:06:08 robbod Exp $
-   N - ISO/CD-TS - 10303- finite_elements - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Finite_elements_arm;
+
+USE FROM Analysis_characterized_arm;
+
+USE FROM Analysis_identification_arm;
+
+USE FROM Analysis_shape_arm;
+
+USE FROM Elemental_geometric_shape_arm;
 
 USE FROM Shape_property_assignment_arm;
 
 TYPE definition_element = SELECT
-          (Curve_element,
-           Shape_element,
-           Surface_element,
-           Volume_element);
+          (curve_element,
+           shape_element,
+           surface_element,
+           volume_element);
 END_TYPE;
 
-ENTITY Curve_element;
+TYPE element_property_select = SELECT
+          (curve_property,
+           surface_property);
+END_TYPE;
+
+TYPE FE_model_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysis_approval_item WITH
+  (FEA_Model);
+END_TYPE;
+
+ENTITY curve_element
+  SUBTYPE OF (element);
 END_ENTITY;
 
-ENTITY Surface_element;
+ENTITY curve_property;
+ defined_elements   : SET [1:?] OF curve_element;
 END_ENTITY;
 
-ENTITY Volume_element;
+ENTITY curve_section_properties;
+ property  : curve_property; 
+END_ENTITY;
+
+ENTITY damping_matrix
+  SUBTYPE OF (matrix);
+END_ENTITY;
+
+ENTITY directionally_explicit_element
+  SUBTYPE OF (element);
+ associated_matrix  : matrix;
+END_ENTITY;
+
+ENTITY element
+  SUPERTYPE OF (ONEOF (volume_element,
+                       surface_element,
+                       substructure_element,
+                       curve_element,
+                       point_element,
+                       directionally_explicit_element,
+                       explicit_element));
+ description             : OPTIONAL element_description;
+ element_identification  : STRING;
+ model_ref               : fea_model;
+ node_list               : LIST [1:?] OF node;
+END_ENTITY;
+
+ENTITY element_description;
+ description  : TEXT;
+END_ENTITY;
+
+ENTITY element_property_geometric_relationship;
+ geometry_ref  : Detailed_geometric_model_element;
+ section_ref   : element_property_aspect;
+END_ENTITY;
+
+ENTITY element_shape_aspect;
+END_ENTITY;
+
+ENTITY element_shape_relationship;
+ element_aspect     : element_shape_aspect;
+ element_reference  : element;
+ role               : STRING;
+ shape              : Detailed_geometric_model_element;
+END_ENTITY;
+
+ENTITY explicit_element
+  SUBTYPE OF (element);
+ associated_matrix  : matrix;
+END_ENTITY;
+
+ENTITY fea_model;
+ analysis_type           : STRING;
+ approved_by             : OPTIONAL FE_model_approval_item;
+ cae_filename            : OPTIONAL STRING;
+ creating_software       : STRING;
+ definition              : analysis_discipline_definition;
+ description             : fea_model_description;
+ identification          : STRING;
+ intended_analysis_code  : STRING;
+END_ENTITY;
+
+ENTITY fea_model_description;
+ description  : TEXT;
+END_ENTITY;
+
+ENTITY group;
+ description           : STRING;
+ elements              : OPTIONAL SET [1:?] OF element;
+ group_identification  : STRING;
+ nodes                 : OPTIONAL SET [1:?] OF node;
+END_ENTITY;
+
+ENTITY group_relationship;
+ related_group   : group;
+ relating_group  : group;
+END_ENTITY;
+
+ENTITY mass_matrix
+  SUBTYPE OF (matrix);
+END_ENTITY;
+
+ENTITY matrix
+  SUPERTYPE OF (ONEOF (mass_matrix,
+                       stiffness_matrix,
+                       damping_matrix));
+END_ENTITY;
+
+ENTITY nodal_results_coordinate_system;
+END_ENTITY;
+
+ENTITY node;
+ description               : OPTIONAL node_description;
+ location                  : Detailed_geometric_model_element;
+ model_ref                 : fea_model;
+ node_identification       : STRING;
+ results_coordinate_space  : OPTIONAL nodal_results_coordinate_system;
+END_ENTITY;
+
+ENTITY node_description;
+ description  : TEXT;
+END_ENTITY;
+
+ENTITY node_shape_relationship;
+ node_reference  : node;
+ role            : STRING;
+ shape           : Detailed_geometric_model_element;
+END_ENTITY;
+
+ENTITY point_element
+  SUBTYPE OF (element);
+ associated_matrix  : matrix;
+END_ENTITY;
+
+ENTITY stiffness_matrix
+  SUBTYPE OF (matrix);
+END_ENTITY;
+
+ENTITY substructure_element
+  SUBTYPE OF (element);
+ substructure_model_ref  : fea_model;
+END_ENTITY;
+
+ENTITY substructure_node_relationship;
+ related_node   : node;
+ relating_node  : node;
+END_ENTITY;
+
+ENTITY surface_element
+  SUBTYPE OF (element);
+END_ENTITY;
+
+ENTITY surface_property;
+ defined_elements  : SET [1:?] OF surface_element;
+END_ENTITY;
+
+ENTITY surface_thickness;
+ property   : surface_property;
+ thickness  : LENGTH_MEASURE;
+END_ENTITY;
+
+ENTITY volume_element
+  SUBTYPE OF (element);
 END_ENTITY;
 
 END_SCHEMA;

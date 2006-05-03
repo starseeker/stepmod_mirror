@@ -1,6 +1,136 @@
-(*
-   $Id: mkmodule.js,v 1.44 2005/07/04 09:06:08 robbod Exp $
-   N - ISO/CD-TS - 10303- cfd_model - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
-SCHEMA Cfd_model_arm;
-END_SCHEMA;
+SCHEMA CDF_model_arm;
+
+USE FROM Analysis_arm;
+
+USE FROM CFD_conditions_arm;
+
+USE FROM CFD_equations_arm;
+
+USE FROM CFD_model_arm;
+
+USE FROM CFD_results_arm;
+ 
+USE FROM Mesh_connectivity_arm;
+
+USE FROM Mesh_topology_arm;
+
+
+
+ENTITY fd_step
+  SUBTYPE OF (mbna_step);
+  SELF\mbna_step.equations : SET OF flow_equation_set;  
+  SELF\mbna_step.zones     : LIST OF fd_zone;
+END_ENTITY;
+
+ENTITY fd_zone
+  SUBTYPE OF (mbna_zone);
+  SELF\mbna_zone.conditions : SET OF fd_zone_bc;
+  SELF\mbna_zone.equations  : SET OF flow_equation_set;
+END_ENTITY;
+
+ENTITY mbna_model
+  SUBTYPE OF (numerical_model);
+  data               : SET OF mbna_integral_data;
+  equations          : SET OF mbna_equation_set;  
+  steps              : LIST OF mbna_step;
+INVERSE
+  history : SET OF mbna_history for domain;  
+END_ENTITY;
+
+ENTITY mbna_step
+  SUBTYPE OF (model_action_domain);
+  data               : SET OF mbna_integral_data;
+  equations          : SET OF mbna_equation_set;  
+  families           : SET OF mbna_family;
+  refstate           : SET OF mbna_reference_state;
+  zones              : LIST OF mbna_zone;
+INVERSE
+  history : SET OF mbna_history for domain;  
+END_ENTITY;
+
+ENTITY mbna_structured_zone
+  SUBTYPE OF (mbna_zone);
+  SELF\model_product_domain_with_mesh.model_mesh : structured_mesh;
+END_ENTITY;
+
+ENTITY mbna_unstructured_zone
+  SUBTYPE OF (mbna_zone);
+  SELF\model_product_domain_with_mesh.model_mesh : unstructured_mesh;
+END_ENTITY;
+
+ENTITY mbna_zone
+  SUBTYPE OF (model_product_domain_with_mesh);
+  cell_dimension     : INTEGER;
+  conditions         : SET OF mbna_zone_bc;
+  equations          : SET OF mbna_equation_set;
+  families           : SET OF mbna_family;
+  global_data        : SET OF mbna_integral_data;
+  grid_connectivity  : OPTIONAL multiple_mesh_block;
+  nindices           : INTEGER;
+  physical_dimension : INTEGER;
+  rstate             : SET OF mbna_reference_state;
+INVERSE
+  coordinates : SET OF grid_coordinates FOR domain;
+  field_data  : SET OF mbna_discrete_data FOR domain;
+  history     : SET OF mbna_history FOR domain;
+  solution    : SET OF mbna_solution FOR domain;
+END_ENTITY;
+
+SUBTYPE_CONSTRAINT sc1_mbna_zone FOR mbna_zone;
+  ABSTRACT SUPERTYPE;
+  ONEOF(mbna_structured_zone,
+        mbna_unstructured_zone);
+END_SUBTYPE_CONSTRAINT;
+
+END_SCHEMA;  -- end of hierarchy_schema
+
+SCHEMA domain_schema;
+  REFERENCE FROM analysis_schema                  -- ISO 10303-53
+                 (model_product_domain_with_mesh,
+                  model_property_distribution);
+  REFERENCE FROM basis_schema                     -- ISO 10303-110
+                 (specified_general_property);
+  REFERENCE FROM mathematical_description_of_distribution_schema  -- ISO 10303-51
+                 (property_distribution_description);
+  REFERENCE FROM mesh_topology_schema             -- ISO 10303-52
+                 (rind);
+
+TYPE coordinate_data_name = EXTENSIBLE ENUMERATION OF
+     (coordinate_x,
+      coordinate_y,
+      coordinate_z,
+      coordinate_r,
+      coordinate_theta,
+      coordinate_phi,
+      coordinate_normal,
+      coordinate_tangential,
+      coordinate_xi,
+      coordinate_eta,
+      coordinate_zeta,
+      coordinate_transform);
+END_TYPE;
+
+ENTITY grid_coordinates
+  SUBTYPE OF (model_property_distribution);
+  SELF\model_property_distribution.domain : model_product_domain_with_mesh;
+  SELF\model_property_distribution.range  : specified_general_property;
+INVERSE
+  data : SET OF property_distribution_description FOR physical_function;
+WHERE
+  wr1 : is_coordinate_property(range);
+END_ENTITY;
+
+ENTITY grid_coordinates_with_rind
+  SUBTYPE OF (grid_coordinates);
+  rind_planes : rind;
+END_ENTITY;
+
+FUNCTION is_coordinate_property(arg : specified_general_property) : BOOLEAN;
+  IF ('EXTERNAL_REFERENCE_SCHEMA.EXTERNALLY_DEFINED_ITEM' IN
+      TYPEOF(arg) ) THEN
+    RETURN(TRUE);
+  END_IF;
+  RETURN ('DOMAIN_SCHEMA.COORDINATE_DATA_NAME' IN TYPEOF(arg));
+END_FUNCTION;
+
+END_SCHEMA;  -- end of domain_schema

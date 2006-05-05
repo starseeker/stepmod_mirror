@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.17 2005/10/13 10:07:12 rocc Exp $
+   $Id: mim.exp,v 1.18 2005/11/15 17:05:29 rocc Exp $
    ISO/TC184/SC4 WG3N1304 - ISO/CD-TS 10303-1351 catalog_data_information - EXPRESS MIM
 *)
 
@@ -877,11 +877,11 @@ WR1: SIZEOF ( QUERY ( ent <* document_type |
 END_RULE;
 
 RULE restrict_class_system_assignment_for_planar_extent FOR
-    (planar_extent);
+ (planar_extent);
 WHERE
 WR1: SIZEOF ( QUERY ( pe <* planar_extent | 
-	( pe\representation_item.name = 'size format' ) AND 
-	NOT at_most_one_class_system(ent) ))=0; 
+				( pe\representation_item.name = 'size format' ) AND 
+				NOT at_most_one_class_system(pe) ))=0; 
 END_RULE;
 
 RULE restrict_class_system_assignment_for_security_classification_level FOR
@@ -917,7 +917,7 @@ RULE restrict_document_reference FOR
 WHERE
 WR1: SIZEOF(QUERY(adr <* applied_document_reference |
  (adr.role.name = 'general tolerance definition') AND 
- (NOT item_correlation (applied_document_reference.items, ['REPRESENTATION']))
+ (NOT item_correlation (adr.items, ['REPRESENTATION']))
 	))=0; 
 WR2: SIZEOF(QUERY(adr <* applied_document_reference |
   NOT ((adr.role.name = 'general tolerance definition') OR 
@@ -1024,7 +1024,7 @@ WR2: SIZEOF(QUERY(aeia <* applied_group_assignment |
   (NOT item_correlation (aeia.items, ['GEOMETRIC_REPRESENTATION_ITEM', 'SHAPE_ASPECT'])) 
 	))=0; 
 WR3: SIZEOF(QUERY(aeia <* applied_group_assignment |
-(aeia.role.name = 'group membership')) AND
+ (aeia.role.name = 'group membership') AND
  (NOT  ((SIZEOF(aeia.items) = SIZEOF( QUERY( i <* aeia.items | 'CATALOG_DATA_INFORMATION_MIM' + '.GEOMETRIC_REPRESENTATION_ITEM' IN TYPEOF(i)))) OR 
   (SIZEOF(aeia.items) = SIZEOF( QUERY( i <* aeia.items | 'CATALOG_DATA_INFORMATION_MIM' + '.SHAPE_ASPECT' IN TYPEOF(i)))))) 
 	))=0; 
@@ -1971,32 +1971,33 @@ RETURN (SIZEOF(items) = c_hit);
 END_FUNCTION;
 
 FUNCTION allowed_translations ( ent: GENERIC_ENTITY; translatable_attributes: SET OF STRING): LOGICAL;
-LOCAL
-  mlaa: SET OF multi_language_attribute_assignment;
-  ala: SET OF attribute_language_assignment;
-END_LOCAL;
 
-IF (SIZEOF(translatable_attributes)=0) THEN
-  RETURN(UNKNOWN);
-END_IF;
-
-mlaa:= USEDIN ( ent , 'CATALOG_DATA_INFORMATION_MIM' + '.MULTI_LANGUAGE_ATTRIBUTE_ASSIGNMENT.ITEMS' );
-
-REPEAT i:=1 TO HIINDEX(mlaa);
-  IF NOT (mlaa[i].attribute_name IN translatable_attributes) THEN
-	RETURN(FALSE);
-  END_IF;
-END_REPEAT;
-
-ala:= USEDIN ( ent , 'CATALOG_DATA_INFORMATION_MIM' + '.ATTRIBUTE_LANGUAGE_ASSIGNMENT.ITEMS' );
-
-REPEAT i:=1 TO HIINDEX(ala);
-  IF NOT (ala[i].attribute_name IN translatable_attributes) THEN
-	RETURN(FALSE);
-  END_IF;
-END_REPEAT;
-
-RETURN(TRUE);
+	LOCAL
+	  mlaa: BAG OF multi_language_attribute_assignment;
+	  ala: BAG OF attribute_language_assignment;
+	END_LOCAL;
+			
+	IF (SIZEOF(translatable_attributes)=0) THEN
+	  RETURN(UNKNOWN);
+	END_IF;
+			
+	mlaa:= USEDIN ( ent , 'CATALOG_DATA_INFORMATION_MIM' + '.MULTI_LANGUAGE_ATTRIBUTE_ASSIGNMENT.ITEMS' );
+			
+	REPEAT i:=1 TO HIINDEX(mlaa);
+	  IF NOT (mlaa[i].attribute_name IN translatable_attributes) THEN
+		RETURN(FALSE);
+	  END_IF;
+	END_REPEAT;
+			
+	ala:= USEDIN ( ent , 'CATALOG_DATA_INFORMATION_MIM' + '.ATTRIBUTE_LANGUAGE_ASSIGNMENT.ITEMS' );
+			
+	REPEAT i:=1 TO HIINDEX(ala);
+	  IF NOT (ala[i].attribute_name IN translatable_attributes) THEN
+		RETURN(FALSE);
+	  END_IF;
+	END_REPEAT;
+			
+	RETURN(TRUE);
 END_FUNCTION;
 
 END_SCHEMA;

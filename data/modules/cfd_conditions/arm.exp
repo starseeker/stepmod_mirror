@@ -1,10 +1,8 @@
-SCHEMA CFD_conditions_arm;
+(* Genenerated from: ..\ballots\ballots\analysis\check_analysis_20060505\express\arm_20060505v1.exp *)
 
-USE FROM Analysis_arm;
+SCHEMA Cfd_conditions_arm;
 
-USE FROM CFD_specified_general_property_arm;
-
-USE FROM Mesh_topology_arm;
+USE FROM Cfd_specified_general_property_arm;
 
 TYPE fd_bc_type_compound = EXTENSIBLE ENUMERATION 
      BASED_ON mbna_bc_type_compound WITH
@@ -61,7 +59,7 @@ TYPE mbna_bc_type_simple = EXTENSIBLE ENUMERATION OF
       bc_symmetry_plane);
 END_TYPE;
 
-TYPE Riemann_1D_data_name = EXTENSIBLE ENUMERATION OF  
+TYPE riemann_1d_data_name = EXTENSIBLE ENUMERATION OF  
      (Riemann_invariant_plus,
       Riemann_invariant_minus,
       characteristic_entropy,
@@ -71,75 +69,75 @@ TYPE Riemann_1D_data_name = EXTENSIBLE ENUMERATION OF
       characteristic_acoustic_minus);
 END_TYPE;
 
-ENTITY elements_bc
+ENTITY Elements_bc
   SUBTYPE OF (mbna_bc);
   elements : LIST OF vertex_defined_cell;
 END_ENTITY;
 
-ENTITY fd_bc
-  SUBTYPE OF (mbna_bc);
+ENTITY Fd_bc
+  SUBTYPE OF (Mbna_bc);
   SELF\mbna_bc.datasets : SET OF fd_bc_dataset;
 END_ENTITY;
 
-ENTITY fd_bc_dataset
-  SUBTYPE OF (mbna_bc_dataset);
+ENTITY Fd_bc_dataset
+  SUBTYPE OF (Mbna_bc_dataset);
   SELF\mbna_bc_dataset.the_type : fd_bc_type_simple;
 END_ENTITY;
 
-ENTITY fd_zone_bc
-  SUBTYPE OF (mbna_zone_bc);
+ENTITY Fd_zone_bc
+  SUBTYPE OF (Mbna_zone_bc);
   SELF\mbna_zone_bc.conditions : SET OF fd_bc;
 END_ENTITY;
 
-ENTITY indexed_elements_bc
-  SUBTYPE OF (mbna_bc);
+ENTITY Indexed_elements_bc
+  SUBTYPE OF (Mbna_bc);
   element_indices : indices_group;
 END_ENTITY;
 
-ENTITY indexed_points_bc
-  SUBTYPE OF (mbna_bc);
+ENTITY Indexed_points_bc
+  SUBTYPE OF (Mbna_bc);
   point_indices : indices_group;
 END_ENTITY;
 
-ENTITY mbna_bc
+ENTITY Mbna_bc
   SUBTYPE OF (mbna_condition);
-  datasets            : SET OF mbna_bc_dataset;
-  family              : SET OF mbna_family;
-  gridloc             : mesh_location;
+  datasets            : SET OF Mbna_bc_dataset;
+  family              : SET OF Mbna_family;
+  gridloc             : Mesh_location;
   inward_normal_index : OPTIONAL ijk_minmax;
   inward_normal_list  : OPTIONAL indices_list;
-  rstate              : SET OF mbna_reference_state;
+  rstate              : SET OF Mbna_reference_state;
   the_type            : mbna_bc_type;
 END_ENTITY;
 
-SUBTYPE_CONSTRAINT sc1_mbna_bc FOR mbna_bc;
+SUBTYPE_CONSTRAINT sc1_mbna_bc FOR mBna_bc;
   ONEOF(elements_bc,
         indexed_elements_bc,
         indexed_points_bc);
 END_SUBTYPE_CONSTRAINT;
 
-ENTITY mbna_bc_data
-  SUBTYPE OF (mbna_condition);
+ENTITY Mbna_bc_data
+  SUBTYPE OF (Mbna_condition);
 END_ENTITY;
 
-SUBTYPE_CONSTRAINT sc1_mbna_bc_data FOR mbna_bc_data;
+SUBTYPE_CONSTRAINT sc1_mbna_bc_data FOR Mbna_bc_data;
   ABSTRACT SUPERTYPE;
 END_SUBTYPE_CONSTRAINT;
 
-ENTITY mbna_bc_data_global
-  SUBTYPE OF (mbna_bc_data);
+ENTITY Mbna_bc_data_global
+  SUBTYPE OF (Mbna_bc_data);
 INVERSE
-  data_global : SET OF model_property_distribution FOR domain;
+  data_global : SET OF model_property_distribution FOR Domain;
 END_ENTITY;
 
-ENTITY mbna_bc_data_local
-  SUBTYPE OF (mbna_bc_data);
+ENTITY Mbna_bc_data_local
+  SUBTYPE OF (Mbna_bc_data);
 INVERSE
-  data_local : SET OF model_property_distribution FOR domain;
+  data_local : SET OF model_property_distribution FOR Domain;
 END_ENTITY;
 
-ENTITY mbna_bc_dataset
-  SUBTYPE OF (mbna_condition);
+ENTITY Mbna_bc_dataset
+  SUBTYPE OF (Mbna_condition);
   gridloc  : mesh_location;
   rstate   : SET OF mbna_reference_state;
   the_type : mbna_bc_type_simple;
@@ -150,53 +148,53 @@ SUBTYPE_CONSTRAINT sc1_mbna_bc_dataset FOR mbna_bc_dataset;
         mbna_Neumann_bc_dataset);
 END_SUBTYPE_CONSTRAINT;
 
-ENTITY mbna_condition
-  SUBTYPE OF (model_state_domain);
+ENTITY Mbna_condition
+  SUBTYPE OF (Model_state_domain);
 END_ENTITY;
 
-SUBTYPE_CONSTRAINT sc1_mbna_condition FOR mbna_condition;
+SUBTYPE_CONSTRAINT sc1_mbna_condition FOR Mbna_condition;
   ABSTRACT SUPERTYPE;
-  ONEOF(mbna_zone_bc,
-        mbna_bc,
-        mbna_bc_dataset,
-        mbna_bc_data,
-        mbna_reference_state,
-        mbna_integral_data);
+  ONEOF(Mbna_zone_bc,
+        Mbna_bc,
+        Mbna_bc_dataset,
+        Mbna_bc_data,
+        Mbna_reference_state,
+        Mbna_integral_data);
 END_SUBTYPE_CONSTRAINT;
 
 ENTITY mbna_Dirichlet_bc_dataset
-  SUBTYPE OF (mbna_bc_dataset);
+  SUBTYPE OF (Mbna_bc_dataset);
   data : mbna_bc_data;
 END_ENTITY;
 
 ENTITY mbna_family;
-  description  : string;
-  id           : string;
+  description  : STRING;
+  id           : STRING;
   conditions   : SET OF mbna_bc_type;
-  geometry     : SET OF geometry_reference;
+  geometry     : SET OF Geometry_reference;
 END_ENTITY;
 
-ENTITY mbna_integral_data
-  SUBTYPE OF (mbna_condition);
+ENTITY Mbna_integral_data
+  SUBTYPE OF (Mbna_condition);
 INVERSE
-  data : SET OF model_property_distribution FOR domain;
+  data : SET OF model_property_distribution FOR Domain;
 END_ENTITY;
 
-ENTITY mbna_Neumann_bc_dataset
-  SUBTYPE OF (mbna_bc_dataset);
+ENTITY Mbna_neumann_bc_dataset
+  SUBTYPE OF (Mbna_bc_dataset);
   data : mbna_bc_data;
 END_ENTITY;
 
-ENTITY mbna_reference_state
-  SUBTYPE OF (mbna_condition);
+ENTITY Mbna_reference_state
+  SUBTYPE OF (Mbna_condition);
 INVERSE
-  data : SET OF model_property_distribution FOR domain;
+  data : SET OF model_property_distribution FOR Domain;
 END_ENTITY;
 
-ENTITY mbna_zone_bc
-  SUBTYPE OF (mbna_condition);
-  conditions : SET OF mbna_bc;
-  rstate     : SET OF mbna_reference_state;
+ENTITY Mbna_zone_bc
+  SUBTYPE OF (Mbna_condition);
+  conditions : SET OF Mbna_bc;
+  rstate     : SET OF Mbna_reference_state;
 END_ENTITY;
 
 END_SCHEMA;  -- end of conditions_schema

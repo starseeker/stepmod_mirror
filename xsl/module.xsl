@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.195 2006/03/20 21:17:43 dmprice Exp $
+$Id: module.xsl,v 1.196 2006/03/20 22:22:47 dmprice Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4136,54 +4136,35 @@ $module_ok,' Check the normatives references')"/>
     <xsl:apply-templates select="." mode="check_phrase"/> 
     <xsl:apply-templates/>
   </xsl:template>
-	
-<xsl:template match="usage_guide">
-
-  <xsl:apply-templates />
-  <!-- output any issues -->
-  <xsl:apply-templates select=".." mode="output_clause_issue">
-    <xsl:with-param name="clause" select="'usage_guide'"/>
-  </xsl:apply-templates>
-
-</xsl:template>
 
 
-<xsl:template match="usage_guide[.//guide_subclause]">
+  <xsl:template match="usage_guide" >
+    <xsl:apply-templates select="*[name(.)!='guide_subclause']" />
 
-    <xsl:apply-templates select="p | ul" />
+    <!-- usage guide with sub-clauses -->
+    <xsl:for-each select="./guide_subclause">		
+      <xsl:variable name="sect_no">
+	<xsl:number/>
+      </xsl:variable>
+      <xsl:apply-templates select=".">
+	<xsl:with-param name="sect_no" select="$sect_no" />
+      </xsl:apply-templates>
+    </xsl:for-each>
 
-<!-- usage guide with sub-clauses -->
-  <xsl:for-each select="./guide_subclause">		
-		<xsl:variable name="sect_no">
-			<xsl:number/>
-		</xsl:variable>
-	  <xsl:apply-templates select=".">
-      <xsl:with-param name="sect_no" select="$sect_no" />
-  	</xsl:apply-templates>
-  </xsl:for-each>
-
- <!-- output any issues -->
-  <xsl:apply-templates select=".." mode="output_clause_issue">
-    <xsl:with-param name="clause" select="'usage_guide'"/>
-  </xsl:apply-templates>
-
-</xsl:template>
+    <!-- output any issues -->
+    <xsl:apply-templates select=".." mode="output_clause_issue">
+      <xsl:with-param name="clause" select="'usage_guide'"/>
+    </xsl:apply-templates>
 
 
- <xsl:template match="guide_subclause">
-    <xsl:param name="sect_no"/>
-		
-		<xsl:variable name="title">
-		<xsl:value-of select="@title"/>
-		</xsl:variable>
-		
-		<a name="{$title}"><h2><xsl:value-of select="concat('F.',$sect_no,' ')"/>
-			<xsl:value-of select="@title"/></h2></a>			
-		 <xsl:apply-templates/>
-</xsl:template>
+  </xsl:template>
 
-<xsl:template match="guide_subclause[.//guide_subclause]">
+
+
+
+<xsl:template match="guide_subclause">
 <!-- sub-level of usage guide sub-clauses -->
+
     <xsl:param name="sect_no"/>
 		
 		<xsl:variable name="title">
@@ -4193,11 +4174,13 @@ $module_ok,' Check the normatives references')"/>
 		<A name="{$title}"><h2><xsl:value-of select="concat('F.',$sect_no,' ')"/>
 			<xsl:value-of select="@title"/></h2></A>
 
-	    <xsl:apply-templates select="p | ul" />
+    <xsl:apply-templates select="*[not(name(.)='guide_subclause')]" />
 			
 			<xsl:variable name="sect_sup">
 		<xsl:value-of select="concat('F.',$sect_no,'.')"/>
 			</xsl:variable>
+
+ 
 			<xsl:for-each select="./guide_subclause">	
 						<xsl:variable name="sect_nos">
 						<xsl:number/>
@@ -4210,10 +4193,12 @@ $module_ok,' Check the normatives references')"/>
 						<A name="{$subtitle}"><h4>
 						<xsl:value-of select="concat($sect_sup,$sect_nos,' ')"/>
 						<xsl:value-of select="@title"/></h4></A>
+
 			      <xsl:apply-templates/>
 				</xsl:for-each>
 
 </xsl:template>	
+
 	
 <xsl:template match="express-g">
     <xsl:apply-templates select="imgfile|img" mode="expressg"/>

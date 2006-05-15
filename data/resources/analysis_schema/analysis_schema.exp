@@ -12,71 +12,74 @@ SCHEMA analysis_schema;
      identifier,
      label,
      text);
+SCHEMA analysis_schema;
+
+REFERENCE FROM mesh_topology_schema;
+
+REFERENCE FROM product_property_definition_schema;
+
+REFERENCE FROM support_resource_schema;
 
 ENTITY behavioural_decomposition_of_numerical_model;
-  parts : SET [2:?] OF numerical_model;
+  parts : SET [2 : ?] OF numerical_model;
   whole : numerical_model;
 END_ENTITY;
 
 ENTITY model_action_domain
-  SUBTYPE OF (numerical_model);
-  initial   : model_state_domain;
-  final     : model_state_domain;
+SUBTYPE OF (numerical_model);
+  final : model_state_domain;
+  initial : model_state_domain;
 END_ENTITY;
 
 ENTITY model_product_domain
-  SUBTYPE OF (numerical_model);
-  temporal_parts : SET OF model_action_domain;
+SUBTYPE OF (numerical_model);
+  temporal_parts : SET [0 : ?] OF model_action_domain;
 END_ENTITY;
 
 ENTITY model_product_domain_with_mesh
-  SUBTYPE OF (model_product_domain);
+SUBTYPE OF (model_product_domain);
   model_mesh : mesh;
 END_ENTITY;
 
 ENTITY model_property_distribution;
   creating_software : text;
-  domain            : numerical_model;
-  range             : general_property;
+  domain : numerical_model;
+  range : general_property;
 END_ENTITY;
 
 ENTITY model_state_domain
-  SUBTYPE OF (numerical_model);
+SUBTYPE OF (numerical_model);
 END_ENTITY;
 
 ENTITY numerical_model;
-  description            : text;
-  id                     : identifier;
-  name                   : label;
-  creating_software      : text;
-  intended_analysis_code : SET [1:?] OF text;
-  analysis_type          : text;
-WHERE
-  wr1 : temporal_spatial_domain_for_model(SELF);
+  analysis_type : text;
+  creating_software : text;
+  description : text;
+  id : identifier;
+  intended_analysis_code : SET [0 : ?] OF text;
 END_ENTITY;
-
-SUBTYPE_CONSTRAINT sc1_numerical_model FOR
-                   numerical_model;
-  ABSTRACT SUPERTYPE;
-END_SUBTYPE_CONSTRAINT;
 
 ENTITY simulation_run;
   description : text;
-  id          : identifier;
-  name        : label;
-  simulated   : numerical_model;
-  results     : SET OF model_property_distribution;
+  id : identifier;
+  name : label;
+  results : SET [0 : ?] OF model_property_distribution;
+  simulated : numerical_model;
 END_ENTITY;
 
 ENTITY spatial_decomposition_of_numerical_model;
-  parts : SET [2:?] OF numerical_model;
+  parts : LIST [2 : ?] OF numerical_model;
   whole : numerical_model;
 END_ENTITY;
 
 ENTITY temporal_decomposition_of_model_action;
-  parts : LIST [2:?] OF model_action_domain;
+  parts : LIST [2 : ?] OF model_action_domain;
   whole : model_action_domain;
 END_ENTITY;
+
+SUBTYPE_CONSTRAINT sc1_numerical_model FOR numerical_model;
+  ABSTRACT SUPERTYPE;
+END_SUBTYPE_CONSTRAINT;
 
 FUNCTION temporal_spatial_domain_for_model
          (domain : numerical_model): BOOLEAN;
@@ -124,3 +127,5 @@ FUNCTION temporal_spatial_domain_for_model
 END_FUNCTION; -- temporal_spatial_domain_for_model
 
 END_SCHEMA; -- end of analysis_schema
+
+

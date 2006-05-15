@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.157 2005/07/11 21:05:54 thendrix Exp $
+$Id: xsdquery.xsl,v 1.1 2005/08/05 23:50:18 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -26,7 +26,7 @@ $Id: common.xsl,v 1.157 2005/07/11 21:05:54 thendrix Exp $
 -->
 
 
-    <xsl:variable name="doc_node" select="document('PLMXMLAnnotationSchema.xsd')//*"/>
+    <xsl:variable name="doc_node" select="document('../xsd/PLMXMLAnnotationSchema.xsd')//*"/>
     <xsl:for-each select="$doc_node">
       <xsl:value-of select="@name" />
     </xsl:for-each>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: extract_schema.xsl,v 1.6 2005/06/01 18:41:39 thendrix Exp $
+$Id: extract_schema.xsl,v 1.1 2005/08/05 23:50:18 thendrix Exp $
 
 Author: Tom Hendrix, adapted from GE version.
 Owner:  sourceforge stepmod

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: xsd2expressxml.xsl,v 1.9 2005/08/16 20:14:08 thendrix Exp $
+$Id: xsd2expressxml.xsl,v 1.10 2005/08/16 21:17:47 thendrix Exp $
 
 Author: Tom Hendrix
 Owner:  sourceforge stepmod
@@ -519,7 +519,7 @@ Sorry, this does not invert the mapping in stepmod/xsl/p28xsd/
 
   <!-- test only set aside later -->
   <xsl:template match="query" >
-    <xsl:variable name="doc_node" select="document(concat('xsd','/',@schema,'.xsd'))"/>
+    <xsl:variable name="doc_node" select="document(concat('../xsd/',@schema,'.xsd'))"/>
     <xsl:apply-templates select="$doc_node"/>
   </xsl:template>
 

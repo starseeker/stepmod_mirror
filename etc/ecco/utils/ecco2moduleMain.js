@@ -1,4 +1,4 @@
-//$Id: ecco2moduleMain.js,v 1.2 2005/05/27 00:24:30 thendrix Exp $
+//$Id: ecco2moduleMain.js,v 1.3 2005/06/01 18:41:38 thendrix Exp $
 //  Author: Tom Hendrix, Boeing
 //  Purpose:  JScript to convert ECCO pseudo part 28 PDTS to XML for repository
 
@@ -90,12 +90,17 @@ function getModulePath(schemaName) {
        var dir = stepmodHome+"\\data\\modules\\"+module;
     }
 
-
+;   popupInform("dir: " +dir);
     userMessage(dir);
     var fso = new ActiveXObject("Scripting.FileSystemObject");
-    var fldr = fso.GetFolder(dir);
+    if (fso.FolderExists(dir)) {
+    } else {
+      fso.CreateFolder(dir);
+    }
     userMessage(dir);
+    fldr= fso.GetFolder(dir);
     return(fldr.Path);
+
 }
 
 function getFileExt(f) {

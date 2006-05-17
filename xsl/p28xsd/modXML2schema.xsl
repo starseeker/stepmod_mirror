@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-	$Id: p28xsd.xsl,v 1.11 2006/02/23 08:49:14 mikeward Exp $
+	$Id: modXML2schema.xsl,v 1.59 2006/02/23 09:32:20 mikeward Exp $
 	Author:  Mike Ward, Eurostep Limited
 	Owner:   Developed by Eurostep.
-	Purpose:     geneartion of p28 XSD from expressXML
+	Purpose:     generation of p28 XSD from expressXML
 -->
 
 
@@ -180,6 +180,12 @@
 			</xs:element>
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
+                                            <!-- SYNTHETIC ENTITIES -->
+                                            <xsl:variable name="configuration" select="document(concat($directory_path, '/p28_config.xml'))"/>
+                    	                <xsl:for-each select="$configuration//exp:entity"/>
+                    	                    
+                    	               
+                    	       
 		</xsl:element>
 	</xsl:template>
 	
@@ -1601,7 +1607,7 @@
 									<xs:restriction base="exp:hexBinary">
 										<xs:maxLength value="{$schema_length}"/>
 										<xs:minLength value="{$schema_length}"/>
-										<xs:attribute use="optional" type="xs:integer" name="extrabits"/>
+										
 									</xs:restriction>
 								</xs:simpleContent>
 							</xs:complexType>
@@ -1613,7 +1619,7 @@
 								<xs:simpleContent>
 									<xs:restriction base="exp:hexBinary">
 										<xs:maxLength value="{$schema_length}"/>
-										<xs:attribute use="optional" type="xs:integer" name="extrabits"/>
+										
 									</xs:restriction>
 								</xs:simpleContent>
 							</xs:complexType>

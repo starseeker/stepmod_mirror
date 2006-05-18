@@ -1,4 +1,4 @@
-//$Id: splitresource.js,v 1.2 2001/12/28 16:10:45 robbod Exp $
+//$Id: splitmodules.js,v 1.1 2006/05/05 00:59:57 thendrix Exp $
 // JScript to split an EXPRESS file into its constituent schemas.
 // A directory will be created for each schema with the same name as the
 // schema. The EXPRESS for the schema will be stored in the schema
@@ -86,7 +86,7 @@ function readStatement(line, ts) {
 
     // remove any trailing -- comments
     pos = line.search("--");
-    if (pos != -1) {
+   if (pos != -1) {
 	line = line.substr(0,pos);
     }
     if (ts.AtEndOfStream) 
@@ -218,6 +218,8 @@ function OutputSchemas(expFile, moduleNames,bp) {
   var expF = fso.GetFile(expFile);
   var expTs = expF.OpenAsTextStream(ForReading, TristateUseDefault);
   var modulesFldr = expFile.replace("\.exp","");
+  var moduleNamesSplit = new Array();
+  split_count = 0;
   if (!fso.FolderExists(modulesFldr))
     fso.CreateFolder(modulesFldr);
     
@@ -238,6 +240,8 @@ function OutputSchemas(expFile, moduleNames,bp) {
 	  if (module == moduleNames[i]) {
 	    var schemaFldr = modulesFldr+"/"+module;
 	    var schemaFile = schemaFldr+"/"+ArmOrMim+".exp";
+	    moduleNamesSplit[split_count]= module;
+	    split_count = split_count + 1;
 	  } 
 	}
 	if (!fso.FolderExists(schemaFldr))
@@ -253,6 +257,7 @@ function OutputSchemas(expFile, moduleNames,bp) {
 	break;
       }
     }
+  userMessage("Split into "+split_count+" modules:\n"+moduleNamesSplit); 
 }
 
 // ------------------------------------------------------------
@@ -261,11 +266,11 @@ function OutputSchemas(expFile, moduleNames,bp) {
 function Main() {
     var cArgs = WScript.Arguments;
     if ( !((cArgs.length == 2)) )  {
-	var msg="Incorrect arguments\n"+usageMessage;
-	ErrorMessage(msg);
-	return(false);
+      var msg="Incorrect arguments\n"+usageMessage;
+      ErrorMessage(msg);
+      return(false);
     } else {
-	SplitModules(cArgs(0),cArgs(1));
+      SplitModules(cArgs(0),cArgs(1));
     }
     
 }

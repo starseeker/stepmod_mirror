@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.41 2004/10/12 00:02:32 thendrix Exp $
+$Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -663,8 +663,15 @@ $Id: module_toc.xsl,v 1.41 2004/10/12 00:02:32 thendrix Exp $
             </A><BR/>
           </xsl:if>
 
+ 					
 
         </small>
+				       <xsl:if test="./refdata">
+        <!-- use #annexa to link direct -->
+          <A HREF="{$module_root}/sys/6_refdata{$FILE_EXT}">
+            6 Module reference data</A><BR/>
+        </xsl:if>
+
       </p>
       </TD>
       <TD valign="TOP">

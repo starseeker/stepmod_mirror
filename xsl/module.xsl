@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.196 2006/03/20 22:22:47 dmprice Exp $
+$Id: module.xsl,v 1.197 2006/05/12 21:11:31 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4138,6 +4138,77 @@ $module_ok,' Check the normatives references')"/>
   </xsl:template>
 
 
+  <xsl:template match="refdata" >
+    <xsl:apply-templates select="*[name(.)!='refdata_subclause']" />
+
+    <!-- refdata with sub-clauses -->
+    <xsl:for-each select="./refdata_subclause">		
+      <xsl:variable name="sect_no">
+      	<xsl:number/>
+      </xsl:variable>
+      <xsl:apply-templates select=".">
+	<xsl:with-param name="sect_no" select="$sect_no" />
+      </xsl:apply-templates>
+    </xsl:for-each>
+
+    <!-- output any issues -->
+    <xsl:apply-templates select=".." mode="output_clause_issue">
+      <xsl:with-param name="clause" select="'refdata'"/>
+    </xsl:apply-templates>
+
+  </xsl:template>
+
+<xsl:template match="refdata_subclause">
+<!-- sub-level of refdata sub-clauses -->
+
+    <xsl:param name="sect_no"/>
+		
+		<xsl:variable name="title">
+		<xsl:value-of select="@title"/>
+		</xsl:variable>
+	
+		<A name="{$title}"><h2><xsl:value-of select="concat('6.',$sect_no,' ')"/>
+			<xsl:value-of select="@title"/></h2></A>
+
+    <xsl:apply-templates select="*[not(name(.)='refdata_subclause')]" />
+			
+			<xsl:variable name="sect_sup">
+		<xsl:value-of select="concat('6.',$sect_no,'.')"/>
+			</xsl:variable>
+
+ 
+			<xsl:for-each select="./refdata_subclause">	
+						<xsl:variable name="sect_nos">
+						<xsl:number/>
+						</xsl:variable>
+	
+			<xsl:variable name="subtitle">
+			<xsl:value-of select="@title"/>
+			</xsl:variable>
+									
+						<A name="{$subtitle}"><h4>
+						<xsl:value-of select="concat($sect_sup,$sect_nos,' ')"/>
+						<xsl:value-of select="@title"/></h4></A>
+
+			      <xsl:apply-templates/>
+				</xsl:for-each>
+
+</xsl:template>	
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
   <xsl:template match="usage_guide" >
     <xsl:apply-templates select="*[name(.)!='guide_subclause']" />
 

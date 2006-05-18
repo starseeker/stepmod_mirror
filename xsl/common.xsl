@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.163 2006/03/16 21:25:42 thendrix Exp $
+$Id: common.xsl,v 1.164 2006/03/21 23:12:58 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3886,6 +3886,12 @@ is case sensitive.')"/>
       <xsl:when test="$table_fig_node/ancestor::ext_descriptions[1][@schema_file='mim.xml']">
         <xsl:value-of select="concat('5_mim',$FILE_EXT)"/>
       </xsl:when>
+			
+      <xsl:when test="$table_fig_node/ancestor::refdata[1]">
+        <xsl:value-of select="concat('6_refdata',$FILE_EXT)"/>
+      </xsl:when>
+
+			
       <xsl:when test="$table_fig_node/ancestor::usage_guide[1]">
         <xsl:value-of select="concat('f_guide',$FILE_EXT)"/>
       </xsl:when>

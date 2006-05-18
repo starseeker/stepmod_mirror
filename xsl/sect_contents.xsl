@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.36 2004/11/04 16:47:17 robbod Exp $
+$Id: sect_contents.xsl,v 1.37 2005/03/02 10:45:42 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -771,7 +771,15 @@ $Id: sect_contents.xsl,v 1.36 2004/11/04 16:47:17 robbod Exp $
       </A>
     <br/>
   </xsl:if>
-  
+
+	 <xsl:if test="./refdata">
+      <!-- use #defns to link direct -->
+          <A HREF="./6_refdata{$FILE_EXT}">
+          6 Module reference data
+        </A>
+        <br/>
+    </xsl:if>
+
   <!-- use #annexa to link direct -->
     <A HREF="./a_short_names{$FILE_EXT}">
       Annex A AM MIM short names</A>
@@ -1001,6 +1009,7 @@ $Id: sect_contents.xsl,v 1.36 2004/11/04 16:47:17 robbod Exp $
   <xsl:apply-templates select="./purpose//figure" mode="toc"/>
   <xsl:apply-templates select="./inscope//figure" mode="toc"/>
   <xsl:apply-templates select="./outscope//figure" mode="toc"/>
+  <xsl:apply-templates select="./refdata//figure" mode="toc"/>
   <xsl:choose>
     <xsl:when test="$arm_desc_xml">
       <xsl:apply-templates select="document($arm_desc_xml)//figure" mode="toc"/>
@@ -1023,6 +1032,7 @@ $Id: sect_contents.xsl,v 1.36 2004/11/04 16:47:17 robbod Exp $
   <!-- collect up the EXpressG figures from the MIM -->
   <xsl:apply-templates 
     select="./mim/express-g/imgfile" mode="expressg_figure"/>
+
   <xsl:apply-templates select="./usage_guide//figure" mode="toc"/>
 
   <h2>Tables</h2>
@@ -1045,6 +1055,9 @@ $Id: sect_contents.xsl,v 1.36 2004/11/04 16:47:17 robbod Exp $
       <xsl:apply-templates select="document($mim_xml)//table" mode="toc"/>
     </xsl:otherwise>
   </xsl:choose>
+	
+	<xsl:apply-templates select="./refdata//table" mode="toc"/>
+	
   <xsl:apply-templates select="./mim/shortnames" mode="toc"/>
     <a href="./e_exp{$FILE_EXT}#table_e1">
       Table E.1 &#8212; ARM and MIM EXPRESS listings

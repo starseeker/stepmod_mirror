@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.197 2006/05/12 21:11:31 thendrix Exp $
+$Id: module.xsl,v 1.198 2006/05/18 16:17:23 dmprice Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4186,9 +4186,9 @@ $module_ok,' Check the normatives references')"/>
 			<xsl:value-of select="@title"/>
 			</xsl:variable>
 									
-						<A name="{$subtitle}"><h4>
+						<A name="{$subtitle}"><h2>
 						<xsl:value-of select="concat($sect_sup,$sect_nos,' ')"/>
-						<xsl:value-of select="@title"/></h4></A>
+						<xsl:value-of select="@title"/></h2></A>
 
 			      <xsl:apply-templates/>
 				</xsl:for-each>

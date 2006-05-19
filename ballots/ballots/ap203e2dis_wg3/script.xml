@@ -8,15 +8,15 @@
       Generates the HTML for the modules listed in ballot_index.xml
       Errors are reported an stored in 
       stepmod/ap203e2dis_wg3_ant_check_[yyyymmdd].txt-->
-<project name="ballotchecks" default="all" basedir=".">
+<project name="ballotchecks" default="all" basedir="../../..">
       
    <target name="init">
       <tstamp/>
-      <dirname property="BALLOTDIR" file="ballot_index.xml"/>
       <property name="BALLOTNAME" value="ap203e2dis_wg3"/>
+      <dirname property="BALLOTDIR" file="ballots\ballots\${BALLOTNAME}\ballot_index.xml"/>
       <property name="MODULESDIR" value="data/modules/"/>
       <property name="RESDIR" value="data/resource_docs/"/>
-      <property name="UTILSDIR" value="../../../utils/"/>
+      <property name="UTILSDIR" value="utils"/>
       <property name="CHECKDIR" value="${BALLOTDIR}\check_${BALLOTNAME}_${DSTAMP}"/>
       <property name="ANTERR" value="${CHECKDIR}\ant_check_${BALLOTNAME}_${DSTAMP}.txt"/>
       <property name="EXPRESSCOMP" value="C:/apps/eep/Eep.exe"/>
@@ -43,80 +43,22 @@
       
    <target name="checks" depends="init">
       <echo>
-	  Outputting to: stepmod/${ANTERR}
+	  Outputting to: ${ANTERR}
 	</echo>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULES=${MODULESDIR}extended_configuration_controlled_3d_parts_and_assemblies"/>
-         <arg value="clean_module"/>
-      </exec>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULES=${MODULESDIR}extended_configuration_controlled_3d_parts_and_assemblies"/>
-         <arg value="modules"/>
-      </exec>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULES=${MODULESDIR}extended_configuration_controlled_3d_parts_and_assemblies"/>
-         <arg value="mapping"/>
-      </exec>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULESDIR=${MODULESDIR}extended_configuration_controlled_3d_parts_and_assemblies"/>
-         <arg value="valid_modules"/>
-      </exec>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULES=${MODULESDIR}ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies"/>
-         <arg value="clean_module"/>
-      </exec>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULES=${MODULESDIR}ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies"/>
-         <arg value="modules"/>
-      </exec>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULES=${MODULESDIR}ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies"/>
-         <arg value="mapping"/>
-      </exec>
-      <exec executable="bash" failifexecutionfails="false" dir="${UTILSDIR}" output="${ANTERR}" append="true">
-         <arg value="ant"/>
-         <arg value="-emacs"/>
-         <arg value="-q"/>
-         <arg value="-buildfile"/>
-         <arg value="build.xml"/>
-         <arg value="-DMODULESDIR=${MODULESDIR}ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies"/>
-         <arg value="valid_modules"/>
-      </exec>
+      <ant dir="${UTILSDIR}" output="${ANTERR}">
+         <target name="clean_module"/>
+         <target name="modules"/>
+         <target name="mapping"/>
+         <target name="valid_modules"/>
+         <property name="MODULES" value="../${MODULESDIR}extended_configuration_controlled_3d_parts_and_assemblies"/>
+      </ant>
+      <ant dir="${UTILSDIR}" output="${ANTERR}">
+         <target name="clean_module"/>
+         <target name="modules"/>
+         <target name="mapping"/>
+         <target name="valid_modules"/>
+         <property name="MODULES" value="../${MODULESDIR}ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies"/>
+      </ant>
       <fixcrlf srcdir="${CHECKDIR}" includes="**/*.txt"/>
    </target>
    <target name="getexpress" depends="init">
@@ -146,7 +88,6 @@
          <arg value="${EXPRESSARG4}"/>
          <arg value="${ARMEXPRESS}"/>
       </exec>
-      <copy verbose="true" overwrite="true" file="${ARMEXPRESS}" todir="${CHECKDIR}"/>
     
       <echo>Compiling EXPRESS: ${MIMEXPRESS}</echo>
       <exec executable="${EXPRESSCOMP}" dir="${EXPRESSDIR}" output="${MIMERR}">
@@ -156,7 +97,6 @@
          <arg value="${EXPRESSARG4}"/>
          <arg value="${MIMEXPRESS}"/>
       </exec>
-      <copy verbose="true" overwrite="true" file="${MIMEXPRESS}" todir="${CHECKDIR}"/>
     
       <fixcrlf srcdir="${CHECKDIR}" includes="*.txt, **/*.exp"/>
    </target>

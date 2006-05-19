@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.37 2005/03/02 10:45:42 robbod Exp $
+$Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -773,11 +773,12 @@ $Id: sect_contents.xsl,v 1.37 2005/03/02 10:45:42 robbod Exp $
   </xsl:if>
 
 	 <xsl:if test="./refdata">
-      <!-- use #defns to link direct -->
           <A HREF="./6_refdata{$FILE_EXT}">
           6 Module reference data
         </A>
         <br/>
+		    <xsl:apply-templates 
+      select="./refdata/refdata_subclause" mode="contents"/>		
     </xsl:if>
 
   <!-- use #annexa to link direct -->
@@ -926,6 +927,18 @@ $Id: sect_contents.xsl,v 1.37 2005/03/02 10:45:42 robbod Exp $
           <xsl:value-of select="concat($clause_number, '.', position(), ' ', @name)"/>
         </a>
 
+  <br/>
+</xsl:template>
+
+<xsl:template match="refdata_subclause" mode="contents">
+  <xsl:variable name="xref">
+       <xsl:value-of select="concat('./6_refdata',$FILE_EXT,'#',@title)"/>
+    </xsl:variable>
+
+    &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+    <A HREF="{$xref}">
+      <xsl:value-of select="concat('6.', position(), ' ', @title)"/>
+    </A>
   <br/>
 </xsl:template>
 

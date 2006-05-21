@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2006/05/18 14:08:15 liutkus Exp $
+   $Id: arm.exp,v 1.14 2006/05/19 23:14:13 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3981 - ISO/TS 10303-1678 Functional decomposition with nodal representation to packaged mapping - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3429
 *)
@@ -9,21 +9,8 @@ SCHEMA Functional_decomposition_with_nodal_representation_to_packaged_mapping_ar
 	USE FROM Functional_decomposition_to_design_arm; -- ISO/TS 10303-1676
 	USE FROM Physical_connectivity_definition_arm;	-- ISO/TS 10303-1755
 
-   TYPE design_composition_path_or_root = SELECT
-    (Design_composition_path,
-     Functional_unit_network_definition);
-  END_TYPE;
-
   ENTITY Aggregate_connectivity_requirement;
       connectivity_requirement : SET [1:?] OF Functional_unit_network_node_definition;
-      design_definition_path   : design_composition_path_or_root;
-    UNIQUE
-      UR1 : design_definition_path, connectivity_requirement;
-    WHERE
-      WR1 : NOT ('NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.FUNCTIONAL_UNIT_NETWORK_DEFINITION' IN TYPEOF(design_definition_path)) OR 
-      ((connectivity_requirement[1].associated_functional_unit_definition = design_definition_path) AND (SIZEOF(connectivity_requirement) = 1));
-      WR2 : NOT ('FUNCTIONAL_DECOMPOSITION_TO_DESIGN_ARM.DESIGN_COMPOSITION_PATH' IN TYPEOF(design_definition_path)) OR 
-        valid_connectivity_requirement_path(connectivity_requirement,design_definition_path);
   END_ENTITY;
 
   ENTITY Connectivity_allocation;
@@ -32,25 +19,6 @@ SCHEMA Functional_decomposition_with_nodal_representation_to_packaged_mapping_ar
     UNIQUE
       UR1 : implementation;
   END_ENTITY;
-
-FUNCTION valid_connectivity_requirement_path(input1 : SET OF Functional_unit_network_node_definition;
-                                             input2 : Design_composition_path) : BOOLEAN;
-LOCAL
-  path_elements : SET OF Functional_unit := input2.path_element + input2.design_functional_unit;
-  path_based_network_definition_elements : SET OF Functional_unit_network_definition := [];
-  node_based_network_definition_elements : SET OF Functional_unit_network_definition := [];
-  pass : BOOLEAN := FALSE;
-END_lOCAL;           
-REPEAT i := 1 to SIZEOF(input1);
-  node_based_network_definition_elements := node_based_network_definition_elements + input1[i].associated_functional_unit_definition;
-END_REPEAT;
-REPEAT i := 1 to SIZEOF(path_elements);
-  path_based_network_definition_elements := path_based_network_definition_elements + path_elements[i].composed_network;
-END_REPEAT;
-RETURN((path_based_network_definition_elements = node_based_network_definition_elements) AND
-  (SIZEOF(node_based_network_definition_elements) = SIZEOF(input1)) AND
-  (SIZEOF(node_based_network_definition_elements) = SIZEOF(path_elements)));
-END_FUNCTION;                                             
 
 END_SCHEMA;
 

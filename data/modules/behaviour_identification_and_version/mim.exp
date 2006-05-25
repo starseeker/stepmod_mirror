@@ -1,6 +1,41 @@
 (*
-   $Id: mkmodule.js,v 1.44 2005/07/04 09:06:08 robbod Exp $
-   N - ISO/CD-TS - 10303- behaviour_identification_and_version - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
+   $Id: mim.exp,v 1.1 2005/11/28 15:41:49 philsp Exp $
+   ISO TC184/SC4/WG12 N - ISO/CD-TS 10303-xxxx Behaviour identification and version - EXPRESS MIM
+*) 
+
+
 SCHEMA Behaviour_identification_and_version_mim;
-END_SCHEMA;
+
+USE FROM Alias_identification_mim;    -- ISO/TS 10303-1025
+
+USE FROM Identification_assignment_mim;    -- ISO/TS 10303-1021
+
+USE FROM product_definition_schema   -- ISO 10303-41
+  (product,
+   product_definition_formation,
+   product_definition_formation_relationship); 
+
+USE FROM Product_version_relationship_mim;    -- ISO/TS 10303-1020
+
+
+TYPE behaviour_and_version_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
+   (behaviour, 
+    behaviour_definition_formation);
+END_TYPE; 
+
+ENTITY behaviour
+  SUBTYPE OF (product);
+END_ENTITY;
+
+ENTITY behaviour_definition_formation
+  SUBTYPE OF (product_definition_formation);
+  SELF\product_definition_formation.of_product : behaviour;
+END_ENTITY;
+
+ENTITY behaviour_definition_formation_sequence
+  SUBTYPE OF (product_definition_formation_relationship);
+  SELF\product_definition_formation_relationship.related_product_definition_formation : behaviour_definition_formation;
+  SELF\product_definition_formation_relationship.relating_product_definition_formation : behaviour_definition_formation;
+END_ENTITY;
+
+END_SCHEMA;  -- Behaviour_identification_and_version_mim

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.55 2006/04/25 11:46:51 liutkus Exp $
+   $Id: arm.exp,v 1.56 2006/05/18 14:47:06 liutkus Exp $
    ISO TC184/SC4/WG12 N4131 - ISO/TS 10303-1728 Physical unit design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3567
 *)
@@ -18,6 +18,17 @@ SCHEMA Physical_unit_design_view_arm;
 		 Connection_zone_in_layout_template);
 	END_SUBTYPE_CONSTRAINT;
 
+	TYPE assembly_component_or_item_number = SELECT
+    	(Assembly_item_number,
+    	 Assembly_component_relationship,
+    	 Next_assembly_usage);
+	END_TYPE;
+	
+	TYPE assembly_item_number_or_process_specification = SELECT
+    	(Assembly_item_number,
+    	 Process_specification);
+	END_TYPE;
+	
 	TYPE pudv_groupable_item = SELECT BASED_ON groupable_item WITH 
 	   (Assembly_component);
 	END_TYPE; 
@@ -37,7 +48,8 @@ SCHEMA Physical_unit_design_view_arm;
 
 	TYPE pudv_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
     	(Assembly_item_number,
-    	 Assembly_component_relationship);
+    	 Assembly_component_relationship,
+    	 Component_bonding_relationship);
 	END_TYPE;
 	
 	TYPE textual_quantity_specification = STRING;
@@ -75,6 +87,30 @@ SCHEMA Physical_unit_design_view_arm;
       WR1 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0;
       WR2 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.related_view = assembly))) = 0;
   END_ENTITY;
+
+  ENTITY Component_bonding_relationship;
+      associated_design : Part_design_view;  
+      component_1   : assembly_component_or_item_number;
+      component_2   : assembly_component_or_item_number;
+      bond_material : assembly_component_or_item_number;
+      specification : assembly_item_number_or_process_specification;
+    WHERE
+      WR1 : component_1 <> component_2;
+      WR2 : component_1 <> bond_material;
+      WR3 : component_1 <> specification;
+      WR4 : component_2 <> bond_material;
+      WR5 : component_2 <> specification;
+      WR6 : bond_material <> specification;
+      WR7 : valid_assembly_context_for_bond(associated_design, component_1);
+      WR8 : valid_assembly_context_for_bond(associated_design, component_2);
+      WR9 : valid_assembly_context_for_bond(associated_design, bond_material);
+     WR10 : valid_assembly_context_for_bond(associated_design, specification);
+  END_ENTITY;
+
+FUNCTION valid_assembly_context_for_bond(input1 : Part_design_view;
+                                         input2 : GENERIC_ENTITY) : BOOLEAN;
+RETURN(TRUE);
+END_FUNCTION;                                         
 
   ENTITY Component_make_from_relationship
 		SUBTYPE OF (View_definition_relationship);  

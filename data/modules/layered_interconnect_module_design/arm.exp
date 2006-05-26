@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.239 2006/04/24 12:15:39 liutkus Exp $
+   $Id: arm.exp,v 1.240 2006/04/27 18:49:51 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -328,7 +328,9 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element_with_pre_defined_transitions
-    SUPERTYPE OF (Join_two_physical_connectivity_definition_supporting_printed_component)
+    SUPERTYPE OF (ONEOF 
+      (Join_two_physical_connectivity_definition_supporting_printed_component,
+      Join_two_physical_network_supporting_printed_component))
     SUBTYPE OF (Conductive_interconnect_element);
       centreline_shape                                                           : Planar_path_shape_model_with_parameters;
       SELF\Definition_based_product_occurrence.derived_from                      : Trace_template;
@@ -643,6 +645,11 @@ SCHEMA Layered_interconnect_module_design_arm;
       joined_definitions : SET[2:2] OF Physical_connectivity_definition;
   END_ENTITY;
 
+  ENTITY Join_two_physical_network_supporting_printed_component
+    SUBTYPE OF (Conductive_interconnect_element_with_pre_defined_transitions);
+      joined_networks : SET[2:2] OF Generic_physical_network;
+  END_ENTITY;
+  
   ENTITY Laminate_component
 		SUPERTYPE OF (ONEOF (Conductive_interconnect_element,
 		    Material_removal_laminate_component,
@@ -697,9 +704,10 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Laminate_text_component
+    ABSTRACT SUPERTYPE OF (ONEOF (Positive_laminate_text_component,
+      Negative_laminate_text_component))
     SUBTYPE OF (Laminate_component);
       SELF\Definition_based_product_occurrence.derived_from : Part_text_template;
-      stratum_feature_implementation           : SET[1:?] OF Stratum_feature;
 	DERIVE
       of_character : STRING(1) := SELF\laminate_text_component.derived_from.of_character.character;      
     WHERE
@@ -815,6 +823,15 @@ SCHEMA Layered_interconnect_module_design_arm;
         :=: derived_layer_geometry.reference_stratum_feature.resident_stratum;
   END_ENTITY;
 
+  ENTITY Negative_laminate_text_component
+    SUBTYPE OF (Laminate_text_component);
+      design_intent : SET [1:?] OF stratum_feature_template_component_or_stratum;
+    WHERE
+      WR1: SIZEOF(QUERY(sa <* design_intent | NOT(
+         NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(sa)) OR
+           (SIZEOF(design_intent) = 1)))) = 0;
+  END_ENTITY;
+
   ENTITY Padstack_occurrence
     SUBTYPE OF (Structured_layout_component);
       SELF\Definition_based_product_occurrence.derived_from : Padstack_definition;
@@ -895,6 +912,13 @@ SCHEMA Layered_interconnect_module_design_arm;
     SUBTYPE OF (Plated_inter_stratum_feature);
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
+  END_ENTITY;
+
+  ENTITY Positive_laminate_text_component
+    SUBTYPE OF (Laminate_text_component);
+      stratum_feature_implementation : SET [1:?] OF Stratum_feature;
+    WHERE
+      WR1: SIZEOF(QUERY(sf <* stratum_feature_implementation | sf.resident_stratum :<>: stratum_feature_implementation[1].resident_stratum)) = 0;
   END_ENTITY;
 
   ENTITY Primary_stratum_indicator_symbol

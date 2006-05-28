@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.60 2006/05/28 03:51:16 thomasrthurman Exp $
+   $Id: arm.exp,v 1.61 2006/05/28 06:14:55 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4158 - ISO/TS 10303-1737 Printed physical layout template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3582
 *)
@@ -16,7 +16,6 @@ SCHEMA Printed_physical_layout_template_arm;
 
 	SUBTYPE_CONSTRAINT pplt_template_definition_subtypes FOR Template_definition; 
 		ONEOF (Printed_part_template,
-		 Printed_part_cross_section_template,
 		 Non_conductive_cross_section_template);
 	END_SUBTYPE_CONSTRAINT;
 
@@ -91,6 +90,7 @@ SCHEMA Printed_physical_layout_template_arm;
                   )) = 0;
       WR6 : NOT EXISTS(SELF\Product_view_definition.name);
       WR7 : EXISTS(horizontal_material_link) OR EXISTS(vertical_material_link);
+      WR8 : NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_CONNECTOR_TEMPLATE' IN TYPEOF(SELF));
   END_ENTITY;
 
   ENTITY Printed_part_cross_section_template_terminal
@@ -126,7 +126,7 @@ SCHEMA Printed_physical_layout_template_arm;
 
   ENTITY Printed_part_template
    ABSTRACT SUPERTYPE OF (ONEOF (Basic_multi_stratum_printed_part_template,
-    Structured_printed_part_template) ANDOR Printed_connector_template ANDOR Printed_part_cross_section_template)
+    Structured_printed_part_template,Printed_part_cross_section_template) ANDOR Printed_connector_template)
       SUBTYPE OF (Template_definition);
          implemented_function : OPTIONAL Functional_unit_usage_view;
       INVERSE

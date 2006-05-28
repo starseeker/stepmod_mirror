@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.59 2006/04/25 11:46:51 liutkus Exp $
+   $Id: arm.exp,v 1.60 2006/05/28 03:51:16 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4158 - ISO/TS 10303-1737 Printed physical layout template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3582
 *)
@@ -69,7 +69,7 @@ SCHEMA Printed_physical_layout_template_arm;
   END_ENTITY;
 
   ENTITY Printed_part_cross_section_template
-    SUBTYPE OF (Template_definition);
+    SUBTYPE OF (Printed_part_template);
       horizontal_material_link                 : OPTIONAL SET[1:?] OF Printed_part_template_material_link;
       vertical_material_link                   : OPTIONAL SET[1:?] OF Printed_part_template_material_link;
       transmission_line_model                  : Analytical_model_definition;
@@ -78,25 +78,30 @@ SCHEMA Printed_physical_layout_template_arm;
       width                                    : Length_tolerance_characteristic;
       unit_length                              : Length_data_element;
     INVERSE
-      using_terminal : SET[1:?] OF Printed_part_cross_section_template_terminal FOR cross_section_definition;
+      access_mechanisms : SET[1:?] OF Printed_part_cross_section_template_terminal FOR associated_definition;
     WHERE
       WR1 : SIZEOF(QUERY(hml <* horizontal_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['right']))) = 0;
       WR2 : SIZEOF(QUERY(hml <* horizontal_material_link | NOT (hml.subsequent_material\Shape_element.element_name IN ['left']))) = 0;
       WR3 : SIZEOF(QUERY(hml <* vertical_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['bottom']))) = 0;
       WR4 : SIZEOF(QUERY(hml <* vertical_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['top']))) = 0;
-      WR5 : horizontal_material_link :<>: vertical_material_link;
+      WR5 : SIZEOF(QUERY(hml <* horizontal_material_link |
+              (SIZEOF(QUERY(vml <* vertical_material_link |
+                          (vml :=: hml)
+                    )) > 0)
+                  )) = 0;
       WR6 : NOT EXISTS(SELF\Product_view_definition.name);
+      WR7 : EXISTS(horizontal_material_link) OR EXISTS(vertical_material_link);
   END_ENTITY;
 
   ENTITY Printed_part_cross_section_template_terminal
     SUBTYPE OF (Printed_part_template_terminal);
-      cross_section_definition       : Printed_part_cross_section_template;
+      SELF\Printed_part_template.associated_definition    : Printed_part_cross_section_template;
       material_to_left_of_terminal   : OPTIONAL Printed_part_template_material_link;
       material_to_right_of_terminal  : OPTIONAL Printed_part_template_material_link;
       material_to_top_of_terminal    : OPTIONAL Printed_part_template_material_link;
       material_to_bottom_of_terminal : OPTIONAL Printed_part_template_material_link;
     UNIQUE
-      UR1 : cross_section_definition,
+      UR1 : associated_definition,
  material_to_left_of_terminal,
  material_to_right_of_terminal,
  material_to_top_of_terminal,
@@ -109,11 +114,19 @@ SCHEMA Printed_physical_layout_template_arm;
       WR5 : NOT (EXISTS(material_to_right_of_terminal) AND EXISTS(material_to_top_of_terminal)) OR (material_to_right_of_terminal :<>: material_to_top_of_terminal);
       WR6 : NOT (EXISTS(material_to_right_of_terminal) AND EXISTS(material_to_bottom_of_terminal)) OR (material_to_right_of_terminal :<>: material_to_bottom_of_terminal);
       WR7 : NOT (EXISTS(material_to_top_of_terminal) AND EXISTS(material_to_bottom_of_terminal)) OR (material_to_top_of_terminal :<>: material_to_bottom_of_terminal);
+      WR8 : NOT EXISTS(material_to_left_of_terminal) OR  
+                      (material_to_left_of_terminal\Printed_part_template_material_link.precedent_material\Shape_element.element_name = 'right');
+      WR9 : NOT EXISTS(material_to_right_of_terminal) OR
+                      (material_to_right_of_terminal\Printed_part_template_material_link.subsequent_material\Shape_element.element_name = 'left');
+     WR10 : NOT EXISTS(material_to_bottom_of_terminal) OR
+                      (material_to_bottom_of_terminal\Printed_part_template_material_link.subsequent_material\Shape_element.element_name = 'top');
+     WR11 : NOT EXISTS(material_to_top_of_terminal) OR
+                      (material_to_top_of_terminal\Printed_part_template_material_link.precedent_material\Shape_element.element_name = 'bottom');
   END_ENTITY;
 
   ENTITY Printed_part_template
    ABSTRACT SUPERTYPE OF (ONEOF (Basic_multi_stratum_printed_part_template,
-    Structured_printed_part_template) ANDOR Printed_connector_template)
+    Structured_printed_part_template) ANDOR Printed_connector_template ANDOR Printed_part_cross_section_template)
       SUBTYPE OF (Template_definition);
          implemented_function : OPTIONAL Functional_unit_usage_view;
       INVERSE
@@ -170,14 +183,13 @@ SCHEMA Printed_physical_layout_template_arm;
       precedent_material  : Template_material_cross_section_boundary;
       subsequent_material : Template_material_cross_section_boundary;
     UNIQUE
-      UR1 : precedent_material,
- subsequent_material;
+      UR1 : precedent_material, subsequent_material;
     WHERE
       WR1 : precedent_material :<>: subsequent_material;
-      WR2 : precedent_material\Shape_element.element_name IN ['bottom',
- 'right'];
-      WR3 : subsequent_material\Shape_element.element_name IN ['top',
- 'left'];
+      WR2 : precedent_material\Shape_element.element_name IN ['bottom', 'right'];
+      WR3 : subsequent_material\Shape_element.element_name IN ['top', 'left'];
+      WR4 : NOT((precedent_material\Shape_element.element_name IN ['bottom']) XOR (subsequent_material\Shape_element.element_name IN ['top']));
+      WR5 : NOT((precedent_material\Shape_element.element_name IN ['right']) XOR (subsequent_material\Shape_element.element_name IN ['left']));
   END_ENTITY;
 
   ENTITY Printed_part_template_terminal
@@ -191,8 +203,7 @@ SCHEMA Printed_physical_layout_template_arm;
       connection_requirement            : SET[0:1] OF printed_part_template_connected_terminals_definition FOR connected_terminals;
       functional_usage_view_terminal    : SET[0:1] OF functional_usage_view_to_printed_part_template_terminal_assignment FOR physical_usage_view_terminal;
     UNIQUE
-      UR1 : SELF\Shape_element.element_name,
- associated_definition;
+      UR1 : SELF\Shape_element.element_name, associated_definition;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
@@ -231,8 +242,7 @@ SCHEMA Printed_physical_layout_template_arm;
     SUBTYPE OF (Non_feature_shape_element);
       associated_definition : Printed_part_template_material;
     UNIQUE
-      UR1 : associated_definition,
- SELF\Shape_element.element_name;
+      UR1 : associated_definition, SELF\Shape_element.element_name;
     WHERE
       WR1 : SELF\Shape_element.element_name IN ['top', 'bottom', 'left', 'right'];
   END_ENTITY;

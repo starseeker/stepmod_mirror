@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.58 2006/02/20 10:15:33 liutkuviene Exp $
+   $Id: arm.exp,v 1.59 2006/04/25 11:46:51 liutkus Exp $
    ISO TC184/SC4/WG12 N4158 - ISO/TS 10303-1737 Printed physical layout template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3582
 *)
@@ -64,10 +64,8 @@ SCHEMA Printed_physical_layout_template_arm;
       interface_terminal : Printed_part_template_interface_terminal;
       connector          : Printed_connector_template;
     UNIQUE
-      UR1 : join_terminal,
- connector;
-      UR2 : interface_terminal,
- connector;
+      UR1 : join_terminal, connector;
+      UR2 : interface_terminal, connector;
   END_ENTITY;
 
   ENTITY Printed_part_cross_section_template
@@ -78,8 +76,7 @@ SCHEMA Printed_physical_layout_template_arm;
       maximum_transmission_line_characteristic : OPTIONAL SET[1:?] OF Analytical_model_application;
       minimum_transmission_line_characteristic : OPTIONAL SET[1:?] OF Analytical_model_application;
       width                                    : Length_tolerance_characteristic;
-      start_vertex                             : Edge_segment_vertex;
-      end_vertex                               : Edge_segment_vertex;
+      unit_length                              : Length_data_element;
     INVERSE
       using_terminal : SET[1:?] OF Printed_part_cross_section_template_terminal FOR cross_section_definition;
     WHERE
@@ -88,8 +85,7 @@ SCHEMA Printed_physical_layout_template_arm;
       WR3 : SIZEOF(QUERY(hml <* vertical_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['bottom']))) = 0;
       WR4 : SIZEOF(QUERY(hml <* vertical_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['top']))) = 0;
       WR5 : horizontal_material_link :<>: vertical_material_link;
-      WR6 : start_vertex :<>: end_vertex;
-      WR7 : NOT EXISTS(SELF\Product_view_definition.name);
+      WR6 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
   ENTITY Printed_part_cross_section_template_terminal
@@ -238,10 +234,7 @@ SCHEMA Printed_physical_layout_template_arm;
       UR1 : associated_definition,
  SELF\Shape_element.element_name;
     WHERE
-      WR1 : SELF\Shape_element.element_name IN ['top',
- 'bottom',
- 'left',
- 'right'];
+      WR1 : SELF\Shape_element.element_name IN ['top', 'bottom', 'left', 'right'];
   END_ENTITY;
 
 END_SCHEMA;

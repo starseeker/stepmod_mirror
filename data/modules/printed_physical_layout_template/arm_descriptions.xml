@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="printed_physical_layout_template" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/05/26 15:44:21 $" rcs.revision="$Revision: 1.41 $">
+<ext_descriptions module_directory="printed_physical_layout_template" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/05/27 17:02:03 $" rcs.revision="$Revision: 1.42 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Printed_physical_layout_template_arm
    <express_ref linkend="printed_physical_layout_template:arm:Printed_physical_layout_template_arm"/>
@@ -206,13 +206,15 @@ The combination of <b>interface_terminal</b> and <b>connector</b> shall be uniqu
 <ext_description linkend="Printed_physical_layout_template_arm.Printed_part_cross_section_template">
 <p>
 	A <b>Printed_part_cross_section_template</b> is a type of 
-	<express_ref linkend="Physical_layout_template:arm:Physical_layout_template_arm.Template_definition"/> 
-	that describes a cross sectional view of a  
-	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template"/>.
-    The structure is a directed acyclic graph whose leaf elements
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template"/> 
+	that describes a cross sectional view of a transmission line unit element including dielectric, metallic and geometric properties.
+    The template structure is a directed acyclic graph whose leaf elements
 	are <express_ref linkend="Printed_physical_layout_template_arm:arm:Printed_physical_layout_template_arm.Printed_part_template_material"/>.
-	A <b>Printed_part_cross_section_template</b> provides a binding between a set of simulation models that describe boundary
-	conditions in time and frequency domain of the behaviour of the template and the structural model. 
+	The graph may not be a tree since it is possible to reuse a member of
+	<express_ref linkend="Printed_physical_layout_template_arm:arm:Printed_physical_layout_template_arm.Printed_part_template_material"/>.
+	A <b>Printed_part_cross_section_template</b> provides a binding between a set of simulation models of the template and the structural model. 
+	The simulation model set may be used to form a specification of the allowed maximum and minimum variation of the behaviour of the transmission line in time
+	and/or frequency.
 </p>
 	<note number="1">
 		Models that need the finite element approach may be exchanged using ISO 10303-209. In that case the 
@@ -245,6 +247,8 @@ The combination of <b>interface_terminal</b> and <b>connector</b> shall be uniqu
 	dielectric rectangular element in the instance diagram will actually be implemented in the design with two dielectric layers with the
 	same electrical properties and one 
 	metallic layer if the design is defined in a tool that adheres to the generic industry standard layered CAD model.
+	The two metallic elements marked "+" and "-" are two applications of the same 
+			<express_ref linkend="Printed_physical_layout_template_arm:arm:Printed_physical_layout_template_arm.Printed_part_template_material"/>.	
 </p>
 </example>
 	<figure number="3" id="ppcst">
@@ -420,9 +424,36 @@ The combination of <b>interface_terminal</b> and <b>connector</b> shall be uniqu
 <!-- +++++++++++ Printed_part_cross_section_template_terminal +++++++++++ -->
 <ext_description linkend="Printed_physical_layout_template_arm.Printed_part_cross_section_template_terminal">
 <p>
-A <b>Printed_part_cross_section_template_terminal</b> is a type of <express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_terminal"/> that is the 
-terminal of the <express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_cross_section_template"/>.
-</p></ext_description>
+A <b>Printed_part_cross_section_template_terminal</b> is a type of 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_terminal"/> that is the 
+terminal of the 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_cross_section_template"/>.
+	The terminal provides the ability to identify the location of the application of a member of
+	<express_ref linkend="Printed_physical_layout_template_arm:arm:Printed_physical_layout_template_arm.Printed_part_template_material"/> in
+	the context of a member of 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_cross_section_template"/>.
+	The instantiation of the transmission line in the design model would include terminals which would reference a member of
+	<b>Printed_part_cross_section_template_terminal</b>.  This reference will permit an application to connect the DC ports of the transmission
+	line to the conductors in the layout design as necessary.
+</p>
+	<note>
+		The description includes references to metallic elements for clarity.  The actual energy or information transfer mechanism is dependent on the
+		material selected for the connectivity function in the layout design.
+	</note>
+
+<example number="1">
+<p>
+	<module_ref linkend="printed_physical_layout_template:4_entities:figure:ppcst">Figure 3</module_ref> 
+	illustrates an example instance diagram of the rectangular element model used for a section of an offset transmission line.  The rectangle
+	marked with a "+" is a conductor which is an application of
+	<express_ref linkend="Printed_physical_layout_template_arm:arm:Printed_physical_layout_template_arm.Printed_part_template_material"/> in the
+	context of the transmission line model.  It is identified in that context by a member of 
+	<b>Printed_part_cross_section_template_terminal</b>.
+</p>
+</example>
+
+
+</ext_description>
 <ext_description linkend="Printed_physical_layout_template_arm.Printed_part_cross_section_template_terminal.material_to_bottom_of_terminal">
 <p>
 specifies a role of the <express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_material_link"/> for the <b>Printed_part_cross_section_template_terminal</b>. The value of this attribute need not be specified.
@@ -802,7 +833,13 @@ of <b>subsequent_printed_part_template</b> shall be one.
 <ext_description linkend="Printed_physical_layout_template_arm.Printed_part_template_material_link">
 A <b>Printed_part_template_material_link</b> is a link that establishes an adjacency relationship
 between two material boundaries in the cross section view of a template. The link is directed, and helps
-to compose an unambiguous boundary element based definition of a cross section.
+to compose an unambiguous boundary element based definition of a cross section.  The link is an edge in the directed acyclic graph
+	of the cross section template.  Multiple links may reference the same 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_material"/> because it
+	is the link whose uniqueness properties are controlled in 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_cross_section_template"/>
+	and in
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_cross_section_template_terminal"/>.
 </ext_description>
 <ext_description linkend="Printed_physical_layout_template_arm.Printed_part_template_material_link.subsequent_material">
 specifies a role of the <express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Template_material_cross_section_boundary"/> for the <b>Printed_part_template_material_link</b>.

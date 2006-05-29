@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.240 2006/04/27 18:49:51 thomasrthurman Exp $
+   $Id: arm.exp,v 1.241 2006/05/26 07:32:18 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -655,7 +655,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 		    Material_removal_laminate_component,
 			Stratum_feature_template_component ANDOR Probe_access_area,
 			Inter_stratum_feature,
-			Laminate_text_component,
+			Generic_laminate_text_component,
 			Laminate_text_string_component) ANDOR
 			Fiducial)
     SUBTYPE OF (Assembly_component);
@@ -703,13 +703,13 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   END_ENTITY;
 
-  ENTITY Laminate_text_component
-    ABSTRACT SUPERTYPE OF (ONEOF (Positive_laminate_text_component,
-      Negative_laminate_text_component))
+  ENTITY Generic_laminate_text_component
+    ABSTRACT SUPERTYPE OF (ONEOF (Additive_laminate_text_component,
+      Material_removal_laminate_text_component))
     SUBTYPE OF (Laminate_component);
       SELF\Definition_based_product_occurrence.derived_from : Part_text_template;
 	DERIVE
-      of_character : STRING(1) := SELF\laminate_text_component.derived_from.of_character.character;      
+      of_character : STRING(1) := SELF\Definition_based_product_occurrence.derived_from.of_character.character;      
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
@@ -721,7 +721,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       message_contents            : Text_literal_with_extent;
     WHERE
       WR1 : SIZEOF(QUERY(sar <* SELF\Assembly_group_component.components | 
-            NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_TEXT_COMPONENT' IN  TYPEOF(sar.related_view)) )) = 0;  
+            NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.GENERIC_LAMINATE_TEXT_COMPONENT' IN  TYPEOF(sar.related_view)) )) = 0;  
       WR2 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
@@ -823,8 +823,8 @@ SCHEMA Layered_interconnect_module_design_arm;
         :=: derived_layer_geometry.reference_stratum_feature.resident_stratum;
   END_ENTITY;
 
-  ENTITY Negative_laminate_text_component
-    SUBTYPE OF (Laminate_text_component);
+  ENTITY Material_removal_laminate_text_component
+    SUBTYPE OF (Generic_laminate_text_component);
       design_intent : SET [1:?] OF stratum_feature_template_component_or_stratum;
     WHERE
       WR1: SIZEOF(QUERY(sa <* design_intent | NOT(
@@ -914,8 +914,8 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
   END_ENTITY;
 
-  ENTITY Positive_laminate_text_component
-    SUBTYPE OF (Laminate_text_component);
+  ENTITY Additive_laminate_text_component
+    SUBTYPE OF (Generic_laminate_text_component);
       stratum_feature_implementation : SET [1:?] OF Stratum_feature;
     WHERE
       WR1: SIZEOF(QUERY(sf <* stratum_feature_implementation | sf.resident_stratum :<>: stratum_feature_implementation[1].resident_stratum)) = 0;

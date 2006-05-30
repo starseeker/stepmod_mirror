@@ -69,7 +69,7 @@
             <unique.attribute attribute="connector"/>
          </unique>
       </entity>
-      <entity name="Printed_part_cross_section_template" supertypes="Template_definition" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Printed_part_cross_section_template" supertypes="Printed_part_template" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="horizontal_material_link" optional="YES">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Printed_part_template_material_link"/>
@@ -92,26 +92,26 @@
          <explicit name="width" optional="NO">
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
-         <explicit name="start_vertex" optional="NO">
-            <typename name="Edge_segment_vertex"/>
+         <explicit name="unit_length" optional="NO">
+            <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="end_vertex" optional="NO">
-            <typename name="Edge_segment_vertex"/>
-         </explicit>
-         <inverse name="using_terminal" entity="Printed_part_cross_section_template_terminal" attribute="cross_section_definition">
+         <inverse name="access_mechanisms" entity="Printed_part_cross_section_template_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
+            <redeclaration entity-ref="Printed_part_template"/>
          </inverse>
          <where label="WR1" expression="SIZEOF(QUERY(hml &lt;* horizontal_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['right']))) = 0"/>
          <where label="WR2" expression="SIZEOF(QUERY(hml &lt;* horizontal_material_link | NOT (hml.subsequent_material\Shape_element.element_name IN ['left']))) = 0"/>
          <where label="WR3" expression="SIZEOF(QUERY(hml &lt;* vertical_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['bottom']))) = 0"/>
          <where label="WR4" expression="SIZEOF(QUERY(hml &lt;* vertical_material_link | NOT (hml.precedent_material\Shape_element.element_name IN ['top']))) = 0"/>
-         <where label="WR5" expression="horizontal_material_link :&lt;&gt;: vertical_material_link"/>
-         <where label="WR6" expression="start_vertex :&lt;&gt;: end_vertex"/>
-         <where label="WR7" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+         <where label="WR5" expression="SIZEOF(QUERY(hml &lt;* horizontal_material_link |&#10;              (SIZEOF(QUERY(vml &lt;* vertical_material_link |&#10;                          (vml :=: hml)&#10;                    )) &gt; 0)&#10;                  )) = 0"/>
+         <where label="WR6" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+         <where label="WR7" expression="EXISTS(horizontal_material_link) OR EXISTS(vertical_material_link)"/>
+         <where label="WR8" expression="NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_CONNECTOR_TEMPLATE' IN TYPEOF(SELF))"/>
       </entity>
       <entity name="Printed_part_cross_section_template_terminal" supertypes="Printed_part_template_terminal" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="cross_section_definition" optional="NO">
+         <explicit name="associated_definition" optional="NO">
             <typename name="Printed_part_cross_section_template"/>
+            <redeclaration entity-ref="Printed_part_template_terminal"/>
          </explicit>
          <explicit name="material_to_left_of_terminal" optional="YES">
             <typename name="Printed_part_template_material_link"/>
@@ -126,7 +126,7 @@
             <typename name="Printed_part_template_material_link"/>
          </explicit>
          <unique label="UR1">
-            <unique.attribute attribute="cross_section_definition"/>
+            <unique.attribute attribute="associated_definition"/>
             <unique.attribute attribute="material_to_left_of_terminal"/>
             <unique.attribute attribute="material_to_right_of_terminal"/>
             <unique.attribute attribute="material_to_top_of_terminal"/>
@@ -139,8 +139,12 @@
          <where label="WR5" expression="NOT (EXISTS(material_to_right_of_terminal) AND EXISTS(material_to_top_of_terminal)) OR (material_to_right_of_terminal :&lt;&gt;: material_to_top_of_terminal)"/>
          <where label="WR6" expression="NOT (EXISTS(material_to_right_of_terminal) AND EXISTS(material_to_bottom_of_terminal)) OR (material_to_right_of_terminal :&lt;&gt;: material_to_bottom_of_terminal)"/>
          <where label="WR7" expression="NOT (EXISTS(material_to_top_of_terminal) AND EXISTS(material_to_bottom_of_terminal)) OR (material_to_top_of_terminal :&lt;&gt;: material_to_bottom_of_terminal)"/>
+         <where label="WR8" expression="NOT EXISTS(material_to_left_of_terminal) OR  &#10;                      (material_to_left_of_terminal\Printed_part_template_material_link.precedent_material\Shape_element.element_name = 'right')"/>
+         <where label="WR9" expression="NOT EXISTS(material_to_right_of_terminal) OR&#10;                      (material_to_right_of_terminal\Printed_part_template_material_link.subsequent_material\Shape_element.element_name = 'left')"/>
+         <where label="WR10" expression="NOT EXISTS(material_to_bottom_of_terminal) OR&#10;                      (material_to_bottom_of_terminal\Printed_part_template_material_link.subsequent_material\Shape_element.element_name = 'top')"/>
+         <where label="WR11" expression="NOT EXISTS(material_to_top_of_terminal) OR&#10;                      (material_to_top_of_terminal\Printed_part_template_material_link.precedent_material\Shape_element.element_name = 'bottom')"/>
       </entity>
-      <entity name="Printed_part_template" abstract.supertype="YES" supertypes="Template_definition" super.expression="ONEOF (Basic_multi_stratum_printed_part_template, Structured_printed_part_template) ANDOR Printed_connector_template" abstract.entity="NO">
+      <entity name="Printed_part_template" abstract.supertype="YES" supertypes="Template_definition" super.expression="ONEOF (Basic_multi_stratum_printed_part_template, Structured_printed_part_template, Printed_part_cross_section_template) ANDOR Printed_connector_template" abstract.entity="NO">
          <explicit name="implemented_function" optional="YES">
             <typename name="Functional_unit_usage_view"/>
          </explicit>
@@ -210,8 +214,10 @@
             <unique.attribute attribute="subsequent_material"/>
          </unique>
          <where label="WR1" expression="precedent_material :&lt;&gt;: subsequent_material"/>
-         <where label="WR2" expression="precedent_material\Shape_element.element_name IN ['bottom',&#10; 'right']"/>
-         <where label="WR3" expression="subsequent_material\Shape_element.element_name IN ['top',&#10; 'left']"/>
+         <where label="WR2" expression="precedent_material\Shape_element.element_name IN ['bottom', 'right']"/>
+         <where label="WR3" expression="subsequent_material\Shape_element.element_name IN ['top', 'left']"/>
+         <where label="WR4" expression="NOT((precedent_material\Shape_element.element_name IN ['bottom']) XOR (subsequent_material\Shape_element.element_name IN ['top']))"/>
+         <where label="WR5" expression="NOT((precedent_material\Shape_element.element_name IN ['right']) XOR (subsequent_material\Shape_element.element_name IN ['left']))"/>
       </entity>
       <entity name="Printed_part_template_terminal" abstract.supertype="YES" supertypes="Shape_feature" super.expression="(ONEOF (Printed_part_template_join_terminal, Printed_part_template_interface_terminal) ANDOR Printed_part_cross_section_template_terminal) ANDOR Structured_printed_part_template_terminal" abstract.entity="NO">
          <explicit name="associated_definition" optional="NO">
@@ -270,8 +276,8 @@
             <unique.attribute attribute="associated_definition"/>
             <unique.attribute entity-ref="Non_feature_shape_element" attribute="element_name"/>
          </unique>
-         <where label="WR1" expression="SELF\Shape_element.element_name IN ['top',&#10; 'bottom',&#10; 'left',&#10; 'right']"/>
+         <where label="WR1" expression="SELF\Shape_element.element_name IN ['top', 'bottom', 'left', 'right']"/>
       </entity>
-      <subtype.constraint name="pplt_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Printed_part_template, Printed_part_cross_section_template, Non_conductive_cross_section_template)" abstract.supertype="NO"/>
+      <subtype.constraint name="pplt_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Printed_part_template, Non_conductive_cross_section_template)" abstract.supertype="NO"/>
    </schema>
 </express>

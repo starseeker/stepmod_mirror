@@ -10,29 +10,35 @@
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
+      <type name="assembly_component_or_item_number">
+         <select selectitems="Assembly_item_number Assembly_component_relationship Next_assembly_usage" genericentity="NO" extensible="NO"/>
+      </type>
+      <type name="assembly_item_number_or_process_specification">
+         <select selectitems="Assembly_item_number Process_specification" genericentity="NO" extensible="NO"/>
+      </type>
       <type name="pudv_extended_value_with_unit">
-         <select extensible="YES" basedon="extended_value_with_unit" selectitems="textual_quantity_specification"/>
+         <select extensible="YES" basedon="extended_value_with_unit" selectitems="textual_quantity_specification" genericentity="NO"/>
       </type>
       <type name="pudv_groupable_item">
-         <select basedon="groupable_item" selectitems="Assembly_component"/>
+         <select basedon="groupable_item" selectitems="Assembly_component" genericentity="NO" extensible="NO"/>
       </type>
       <type name="pudv_physical_unit">
          <select extensible="YES" genericentity="YES" basedon="physical_unit" selectitems="Part_design_view"/>
       </type>
       <type name="pudv_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Assembly_item_number Assembly_component_relationship"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Assembly_item_number Assembly_component_relationship Component_bonding_relationship"/>
       </type>
       <type name="textual_quantity_specification">
-         <builtintype type="STRING"/>
+         <builtintype type="STRING" fixed="NO"/>
       </type>
-      <entity name="Assembly_alternate_product" supertypes="Alternate_product_relationship">
-         <explicit name="basis_context">
+      <entity name="Assembly_alternate_product" supertypes="Alternate_product_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="basis_context" optional="NO">
             <typename name="Part_design_view"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS (SELF\Alternate_product_relationship.criteria)"/>
       </entity>
-      <entity name="Assembly_component" abstract.supertype="YES" supertypes="Definition_based_product_occurrence Item_shape">
-         <explicit name="derived_from">
+      <entity name="Assembly_component" abstract.supertype="YES" supertypes="Definition_based_product_occurrence Item_shape" abstract.entity="NO">
+         <explicit name="derived_from" optional="NO">
             <typename name="physical_unit_or_part_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
@@ -47,13 +53,13 @@
          <where label="WR1" expression="NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from)) OR ((('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))))"/>
          <where label="WR2" expression="SELF\Product_view_definition.defined_version :=: SELF\Definition_based_product_occurrence.derived_from.defined_version"/>
       </entity>
-      <entity name="Assembly_item_number">
-         <explicit name="assembly_usage">
-            <aggregate type="SET" lower="1" upper="?"/>
+      <entity name="Assembly_item_number" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="assembly_usage" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Assembly_component_relationship"/>
          </explicit>
-         <explicit name="item_number">
-            <builtintype type="STRING"/>
+         <explicit name="item_number" optional="NO">
+            <builtintype type="STRING" fixed="NO"/>
          </explicit>
          <derived name="assembly" expression="assembly_usage[1].related_view">
             <typename name="Product_view_definition"/>
@@ -68,37 +74,65 @@
          <where label="WR1" expression="SIZEOF(QUERY(au &lt;* assembly_usage | NOT (au.relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0"/>
          <where label="WR2" expression="SIZEOF(QUERY(au &lt;* assembly_usage | NOT (au.related_view = assembly))) = 0"/>
       </entity>
-      <entity name="Component_make_from_relationship" supertypes="View_definition_relationship">
-         <explicit name="reusable_component">
+      <entity name="Component_bonding_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="associated_design" optional="NO">
+            <typename name="Part_design_view"/>
+         </explicit>
+         <explicit name="component_1" optional="NO">
+            <typename name="assembly_component_or_item_number"/>
+         </explicit>
+         <explicit name="component_2" optional="NO">
+            <typename name="assembly_component_or_item_number"/>
+         </explicit>
+         <explicit name="bond_material" optional="NO">
+            <typename name="assembly_component_or_item_number"/>
+         </explicit>
+         <explicit name="specification" optional="NO">
+            <typename name="assembly_item_number_or_process_specification"/>
+         </explicit>
+         <where label="WR1" expression="component_1 &lt;&gt; component_2"/>
+         <where label="WR2" expression="component_1 &lt;&gt; bond_material"/>
+         <where label="WR3" expression="component_1 &lt;&gt; specification"/>
+         <where label="WR4" expression="component_2 &lt;&gt; bond_material"/>
+         <where label="WR5" expression="component_2 &lt;&gt; specification"/>
+         <where label="WR6" expression="bond_material &lt;&gt; specification"/>
+         <where label="WR7" expression="valid_assembly_context_for_bond(associated_design, component_1)"/>
+         <where label="WR8" expression="valid_assembly_context_for_bond(associated_design, component_2)"/>
+         <where label="WR9" expression="valid_assembly_context_for_bond(associated_design, bond_material)"/>
+         <where label="WR10" expression="valid_assembly_context_for_bond(associated_design, specification)"/>
+      <where label="IP1"/>
+      </entity>
+      <entity name="Component_make_from_relationship" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="reusable_component" optional="NO">
             <typename name="Assembly_component"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
          </explicit>
-         <explicit name="resultant_component">
+         <explicit name="resultant_component" optional="NO">
             <typename name="Assembly_component"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
          </explicit>
          <where label="WR1" expression="resultant_component &lt;&gt; reusable_component"/>
       </entity>
-      <entity name="Component_to_physical_usage_view_assignment" supertypes="View_definition_relationship">
-         <explicit name="design_view_component">
+      <entity name="Component_to_physical_usage_view_assignment" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="design_view_component" optional="NO">
             <typename name="Assembly_component"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
          </explicit>
-         <explicit name="usage_view_component">
+         <explicit name="usage_view_component" optional="NO">
             <typename name="Assembly_component"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
          </explicit>
          <where label="WR1" expression="design_view_component &lt;&gt; usage_view_component"/>
          <where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
       </entity>
-      <entity name="Connection_zone_in_design_view" supertypes="Connection_zone">
+      <entity name="Connection_zone_in_design_view" supertypes="Connection_zone" abstract.supertype="NO" abstract.entity="NO">
          <derived name="associated_definition" expression="SELF\Shape_element.containing_shape.described_element">
             <typename name="Part_design_view"/>
          </derived>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.element_name)"/>
       </entity>
-      <entity name="Next_assembly_usage_occurrence_relationship" supertypes="Next_assembly_usage">
-         <explicit name="related_view">
+      <entity name="Next_assembly_usage_occurrence_relationship" supertypes="Next_assembly_usage" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="related_view" optional="NO">
             <typename name="Product_occurrence"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
@@ -107,7 +141,7 @@
             <unique.attribute entity-ref="Assembly_component_relationship" attribute="location_indicator"/>
          </unique>
       </entity>
-      <entity name="Part_design_view" supertypes="Item_shape Part_view_definition">
+      <entity name="Part_design_view" supertypes="Item_shape Part_view_definition" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="usage_view" optional="YES">
             <typename name="Part_usage_view"/>
          </explicit>
@@ -118,10 +152,10 @@
          <where label="WR1" expression="('LAYOUT_MACRO_DEFINITION_ARM.LAYOUT_MACRO_DEFINITION' IN TYPEOF(SELF)) OR EXISTS(usage_view)"/>
          <where label="WR2" expression="SIZEOF(QUERY(nauo &lt;* USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATING_VIEW') |&#10;                 (('PHYSICAL_UNIT_DESIGN_VIEW_ARM.NEXT_ASSEMBLY_USAGE_OCCURRENCE_RELATIONSHIP' IN TYPEOF(nauo)) XOR&#10;                  ('ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE' IN TYPEOF(nauo)))                 &#10;                 )) = 0"/>
       </entity>
-      <entity name="Physical_component" supertypes="Assembly_component Definition_based_part_occurrence"/>
-      <entity name="Thermal_component" supertypes="Assembly_component"/>
-      <subtype.constraint name="pudv_connection_zone_subtypes" entity="Connection_zone" super.expression="ONEOF (Connection_zone_in_usage_view, Connection_zone_in_design_view, Connection_zone_in_layout_template)"/>
-      <subtype.constraint name="pudv_part_view_definition_subtypes" entity="Part_view_definition" super.expression="ONEOF (Part_usage_view, Part_design_view)"/>
+      <entity name="Physical_component" supertypes="Assembly_component Definition_based_part_occurrence" abstract.supertype="NO" abstract.entity="NO"/>
+      <entity name="Thermal_component" supertypes="Assembly_component" abstract.supertype="NO" abstract.entity="NO"/>
+      <subtype.constraint name="pudv_connection_zone_subtypes" entity="Connection_zone" super.expression="ONEOF (Connection_zone_in_usage_view, Connection_zone_in_design_view, Connection_zone_in_layout_template)" abstract.supertype="NO"/>
+      <subtype.constraint name="pudv_part_view_definition_subtypes" entity="Part_view_definition" super.expression="ONEOF (Part_usage_view, Part_design_view)" abstract.supertype="NO"/>
       <rule name="unique_assembly_item_number" appliesto="Assembly_item_number">
          <algorithm>LOCAL
      acr : BAG OF Assembly_component_relationship := [];
@@ -131,5 +165,15 @@
    END_REPEAT;</algorithm>
          <where label="WR1" expression="SIZEOF(acr) = SIZEOF(bag_to_set(acr))"/>
       </rule>
+      <function name="valid_assembly_context_for_bond">
+         <parameter name="input1">
+            <typename name="Part_design_view"/>
+         </parameter>
+         <parameter name="input2">
+            <builtintype type="GENERICENTITY" fixed="NO"/>
+         </parameter>
+         <builtintype type="BOOLEAN" fixed="NO"/>
+         <algorithm>RETURN(TRUE);</algorithm>
+      </function>
    </schema>
 </express>

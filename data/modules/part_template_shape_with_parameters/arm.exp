@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.23 2006/01/24 23:59:02 thomasrthurman Exp $
+   $Id: arm.exp,v 1.24 2006/02/07 20:13:09 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4107 - ISO/TS 10303-1720 Part template shape with parameters - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3531
 *)
@@ -32,6 +32,12 @@ SCHEMA Part_template_shape_with_parameters_arm;
     SUBTYPE OF (Template_definition);
   INVERSE
     shapes : SET [0:?] OF Part_template_shape_model FOR shape_characterized_definition;
+    WHERE
+     WR1 : SIZEOF(QUERY( gm <* USEDIN(SELF,'')|
+        (('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(gm)) AND 
+        NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN
+        TYPEOF(gm)))
+        )) = 0;
   END_ENTITY;
 
   ENTITY Part_template_keepout_shape_model

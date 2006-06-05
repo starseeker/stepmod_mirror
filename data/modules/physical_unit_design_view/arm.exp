@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.57 2006/05/26 22:31:15 thomasrthurman Exp $
+   $Id: arm.exp,v 1.58 2006/05/29 08:54:57 liutkus Exp $
    ISO TC184/SC4/WG12 N4131 - ISO/TS 10303-1728 Physical unit design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3567
 *)
@@ -71,7 +71,8 @@ SCHEMA Physical_unit_design_view_arm;
     INVERSE
       SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF assembly_component_relationship FOR related_view;
     WHERE
-      WR1 : NOT (EXISTS(SELF\Definition_based_product_occurrence.derived_from)) OR ((('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))) OR (NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) AND NOT ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from))));
+      WR1 : NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) XOR ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR 
+            NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) XOR ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)));
       WR2 : SELF\Product_view_definition.defined_version :=: SELF\Definition_based_product_occurrence.derived_from.defined_version;
   END_ENTITY;
 

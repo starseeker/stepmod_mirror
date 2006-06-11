@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.241 2006/05/26 07:32:18 liutkus Exp $
+   $Id: arm.exp,v 1.242 2006/05/29 11:20:35 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -328,9 +328,7 @@ SCHEMA Layered_interconnect_module_design_arm;
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element_with_pre_defined_transitions
-    SUPERTYPE OF (ONEOF 
-      (Join_two_physical_connectivity_definition_supporting_printed_component,
-      Join_two_physical_network_supporting_printed_component))
+    SUPERTYPE OF (Join_two_physical_connectivity_definition_supporting_conductive_interconnect_element)
     SUBTYPE OF (Conductive_interconnect_element);
       centreline_shape                                                           : Planar_path_shape_model_with_parameters;
       SELF\Definition_based_product_occurrence.derived_from                      : Trace_template;
@@ -350,9 +348,12 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Conductor
     SUBTYPE OF (Stratum_feature);
       SELF\Stratum_feature.resident_stratum : Design_layer_stratum;
-      implementation_requirement            : Intra_stratum_join_relationship;
+      implementation_requirement            : SET [1:?] OF Intra_stratum_join_relationship;
+    INVERSE
+      join_component : SET [0:?] OF Join_two_physical_network_supporting_single_stratum_printed_component FOR stratum_feature_implementation;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
+      WR2 : SIZEOF(implementation_requirement) - SIZEOF(join_component) = 1;
   END_ENTITY;
 
   ENTITY Connected_area_component
@@ -363,7 +364,11 @@ SCHEMA Layered_interconnect_module_design_arm;
   ENTITY Connected_filled_area
     SUBTYPE OF (Conductive_filled_area);
       SELF\Stratum_feature.resident_stratum : Design_layer_stratum;
-      implementation_requirement            : Intra_stratum_join_relationship;
+      implementation_requirement            : SET [1:?] OF Intra_stratum_join_relationship;
+    INVERSE
+      join_component : SET [1:?] OF Join_two_physical_network_supporting_single_stratum_printed_component FOR stratum_feature_implementation;
+    WHERE
+      WR1 : SIZEOF(implementation_requirement) - SIZEOF(join_component) = 1;
   END_ENTITY;
 
   ENTITY Cutout
@@ -640,16 +645,11 @@ SCHEMA Layered_interconnect_module_design_arm;
       associated_layout : Interconnect_module;
   END_ENTITY;
 
-  ENTITY Join_two_physical_connectivity_definition_supporting_printed_component
+  ENTITY Join_two_physical_connectivity_definition_supporting_conductive_interconnect_element
     SUBTYPE OF (Conductive_interconnect_element_with_pre_defined_transitions);
       joined_definitions : SET[2:2] OF Physical_connectivity_definition;
   END_ENTITY;
 
-  ENTITY Join_two_physical_network_supporting_printed_component
-    SUBTYPE OF (Conductive_interconnect_element_with_pre_defined_transitions);
-      joined_networks : SET[2:2] OF Generic_physical_network;
-  END_ENTITY;
-  
   ENTITY Laminate_component
 		SUPERTYPE OF (ONEOF (Conductive_interconnect_element,
 		    Material_removal_laminate_component,
@@ -742,7 +742,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       reference_network : Generic_physical_network := aggregate_join[1].network_topology;
     INVERSE
       inter_join_path         : SET[0:1] OF Inter_stratum_join_relationship FOR points_to_be_connected;
-      intra_join_path         : SET [0:1] OF Intra_stratum_join_relationship FOR points_to_be_connected;
+      intra_join_path         : SET [0:?] OF Intra_stratum_join_relationship FOR points_to_be_connected;
       embedded_physical_component_path : SET[0:?] OF Stratum_embedded_physical_component_join_relationship FOR point_to_be_connected;
       unrouted_join_path         : SET [0:1] OF Unrouted_join_relationship FOR unrouted_lcp;
     UNIQUE
@@ -751,9 +751,10 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : EXISTS(location_2d) OR EXISTS(location_3d);
       WR2 : NOT (EXISTS(location_2d)) OR ((SIZEOF(location_2d\Cartesian_point.coordinates)) = 2);
       WR3 : NOT (EXISTS(location_3d)) OR ((SIZEOF(location_3d\Cartesian_point.coordinates)) = 3);
-      WR4 : SIZEOF(QUERY(jr <* aggregate_join | jr.network_topology <> reference_network)) = 0;
-      WR5 : EXISTS(reference_network); 
-      WR6: NOT EXISTS (SELF\Shape_element.description);
+      WR4 : EXISTS(reference_network); 
+      WR5 : NOT EXISTS (SELF\Shape_element.description);
+      WR6 : SIZEOF(QUERY(ijp <* intra_join_path | NOT(resident_design_layer_stratum :=: ijp.associated_stratum)
+                  )) = 0;
   END_ENTITY;
 
   ENTITY Layout_junction;

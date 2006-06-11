@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.34 2006/04/14 11:20:19 liutkus Exp $
+   $Id: arm.exp,v 1.35 2006/06/06 13:37:14 liutkus Exp $
    ISO TC184/SC4/WG12 N4047 - ISO/TS 10303-1700 Layered interconnect module with printed component design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3486
 *)
@@ -10,6 +10,11 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
 
  	TYPE limwpcd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
 		(Printed_component);
+	END_TYPE;
+
+ 	TYPE conductor_or_conductive_filled_area = SELECT
+		(Conductor, 
+		 Conductive_filled_area);
 	END_TYPE;
 
 	SUBTYPE_CONSTRAINT limwpcd_assembly_component_subtypes FOR Assembly_component; 
@@ -36,6 +41,44 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
       stratum_feature_implementation : Stratum_feature := material_stack.reference_stratum_feature;
   END_ENTITY;
 
+  ENTITY Join_two_physical_network_supporting_single_stratum_printed_component
+    SUBTYPE OF (Single_stratum_printed_component);
+      joined_networks : SET[2:2] OF Generic_physical_network;
+      SELF\Single_stratum_printed_component.stratum_feature_implementation : SET [1:1] OF conductor_or_conductive_filled_area;
+    WHERE
+     WR1 : SIZEOF(SELF\Printed_component.access_mechanism) = 2;
+     WR2 : SIZEOF(QUERY(ac <* access_mechanism |
+         NOT(ac\Printed_component_join_terminal.
+         stratum_concept_implementation\Stratum_feature_template_component
+         .resident_stratum = stratum_feature_implementation[1]\Stratum_feature.resident_stratum)
+               )) = 0;
+    WR3 : SIZEOF(QUERY(jn <* joined_networks |
+                 NOT(SIZEOF(SELF\Printed_component.access_mechanism * jn\Generic_physical_network.connectivity_requirement_element) = 1 )
+                 )) = 0;               
+  END_ENTITY;
+  
+  ENTITY Join_two_physical_network_supporting_multi_stratum_printed_component
+    SUBTYPE OF (Multi_stratum_special_symbol_component);
+    DERIVE
+      tiebar_component : SET [1:1] OF Join_two_physical_network_supporting_single_stratum_printed_component :=
+                 (QUERY(co <* components |
+                 ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.JOIN_TWO_PHYSICAL_NETWORK_SUPPORTING_SINGLE_STRATUM_PRINTED_COMPONENT' IN
+                  TYPEOF(co.relating_view))
+                 ));
+      joined_networks : SET[2:2] OF Generic_physical_network := 
+                        tiebar_component[1]\Join_two_physical_network_supporting_single_stratum_printed_component.joined_networks;
+         INVERSE
+    SELF\Assembly_group_component.components  : SET [3:3] OF Structured_layout_component_sub_assembly_relationship FOR related_view;
+    WHERE
+     WR1 : SIZEOF(QUERY(co <* components |
+                 ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.JOIN_TWO_PHYSICAL_NETWORK_SUPPORTING_SINGLE_STRATUM_PRINTED_COMPONENT' IN
+                  TYPEOF(co.relating_view))
+                 )) = 1;
+     WR2 : SIZEOF(QUERY(co <* components |
+                 ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(co))
+                 )) = 2;                  
+  END_ENTITY;
+  
   ENTITY Multi_stratum_printed_component
     SUBTYPE OF (Printed_component, Structured_layout_component);
       SELF\Printed_component.derived_from : Multi_stratum_printed_part_template;

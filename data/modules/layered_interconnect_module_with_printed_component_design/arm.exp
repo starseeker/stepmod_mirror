@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.36 2006/06/11 22:23:49 thomasrthurman Exp $
+   $Id: arm.exp,v 1.37 2006/06/11 23:20:53 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4047 - ISO/TS 10303-1700 Layered interconnect module with printed component design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3486
 *)
@@ -57,28 +57,44 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
                  )) = 0;               
   END_ENTITY;
   
-  ENTITY Join_two_physical_network_supporting_multi_stratum_printed_component
+  ENTITY Join_multiple_physical_network_supporting_multi_stratum_printed_component
     SUBTYPE OF (Multi_stratum_special_symbol_component);
     DERIVE
+      joined_networks : SET OF Generic_physical_network := get_gpn(SELF\Printed_component.access_mechanism);
       tiebar_component_sub_assembly_relationship : SET [1:1] OF Structured_layout_component_sub_assembly_relationship :=
                  (QUERY(co <* components |
-                 ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.JOIN_TWO_PHYSICAL_NETWORK_SUPPORTING_SINGLE_STRATUM_PRINTED_COMPONENT' IN
+                 ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.SINGLE_STRATUM_PRINTED_COMPONENT' IN
                   TYPEOF(co.relating_view))
                  ));
-      tiebar_component : Join_two_physical_network_supporting_single_stratum_printed_component := tiebar_component_sub_assembly_relationship[1].related_view;
-      joined_networks : SET[2:2] OF Generic_physical_network := 
-                        tiebar_component\Join_two_physical_network_supporting_single_stratum_printed_component.joined_networks;
-         INVERSE
+      tiebar_component : Single_stratum_printed_component := tiebar_component_sub_assembly_relationship[1].related_view;
+   INVERSE
     SELF\Assembly_group_component.components  : SET [3:3] OF Structured_layout_component_sub_assembly_relationship FOR related_view;
     WHERE
      WR1 : SIZEOF(QUERY(co <* components |
-                 ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.JOIN_TWO_PHYSICAL_NETWORK_SUPPORTING_SINGLE_STRATUM_PRINTED_COMPONENT' IN
+                 ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.SINGLE_STRATUM_PRINTED_COMPONENT' IN
                   TYPEOF(co.relating_view))
                  )) = 1;
      WR2 : SIZEOF(QUERY(co <* components |
                  ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(co))
-                 )) = 2;                  
+                 )) = 2;             
+     WR3 : SIZEOF(tiebar_component\Single_stratum_printed_component.stratum_feature_implementation) = 1;       
+     WR4 : SIZEOF(joined_networks) > 1;
+     WR5 : (SIZEOF(get_gpn(tiebar_component.access_mechanism)) = 0) OR 
+              ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.JOIN_TWO_PHYSICAL_NETWORK_SUPPORTING_SINGLE_STRATUM_PRINTED_COMPONENT' IN TYPEOF(tiebar_component));
   END_ENTITY;
+  
+FUNCTION get_gpn(
+	input : SET OF printed_component_join_terminal) : SET OF Generic_physical_network; 
+LOCAL
+	gpn : SET[0:?] OF Generic_physical_network := [];  --this gives us access to the information base
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+		gpn := gpn + bag_to_set(USEDIN(input[i],'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.GENERIC_PHYSICAL_NETWORK.CONNECTIVITY_REQUIREMENT_ELEMENT'));
+	END_REPEAT;
+
+	RETURN(gpn);
+END_FUNCTION;
   
   ENTITY Multi_stratum_printed_component
     SUBTYPE OF (Printed_component, Structured_layout_component);

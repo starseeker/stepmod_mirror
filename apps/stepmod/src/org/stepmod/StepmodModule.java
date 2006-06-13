@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.6 2006/06/12 15:32:45 JPearce Exp $
+ * $Id: StepmodModule.java,v 1.1 2006/06/12 15:31:08 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -42,8 +42,8 @@ public class StepmodModule extends StepmodPart {
     
     
     
-    /** 
-     * Creates a new instance of StepmodModule 
+    /**
+     * Creates a new instance of StepmodModule
      */
     public StepmodModule(STEPmod stepMod, String partName) {
         this.setName(partName);
@@ -52,7 +52,7 @@ public class StepmodModule extends StepmodPart {
         // read the CM record
         this.readCmRecord();
         stepMod.addModule(this);
-
+        
         // now read module.xml for the part populating the attributes
         DefaultHandler handler = new ModuleSaxHandler(this, stepMod);
         // Use the default (non-validating) parser
@@ -142,7 +142,7 @@ public class StepmodModule extends StepmodPart {
     public CmRelease mkCmRelease() {
         return(getCmRecord().makeCmRelease());
     }
-        
+    
     public String getWgNumberArm() {
         return wgNumberArm;
     }
@@ -224,7 +224,19 @@ public class StepmodModule extends StepmodPart {
         summary = summary + "</body></html>";
         return(summary);
     }
-
-
+    
+    /**
+     * Generates the ANT build file that is used to generate the HTML that is to be published
+     */
+    public void publicationCreatePackage() {
+        getStepMod().getStepModGui().toBeDone("StepmodModule.publicationCreatePackage");
+    }
+    
+    /**
+     * Generates the HTML for the module that is to be published
+     */
+    public void publicationGenerateHtml() {
+        getStepMod().getStepModGui().toBeDone("StepmodModule.publicationGenerateHtml");
+    }
     
 }

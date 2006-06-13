@@ -17,6 +17,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
@@ -35,6 +36,7 @@ import org.stepmod.CmRelease;
 import org.stepmod.STEPmod;
 import org.stepmod.StepmodApplicationProtocol;
 import org.stepmod.StepmodModule;
+import org.stepmod.StepmodPart;
 import org.stepmod.StepmodResource;
 import org.stepmod.StepmodResourceDoc;
 
@@ -44,13 +46,21 @@ import org.stepmod.StepmodResourceDoc;
  */
 public class STEPModFrame extends javax.swing.JFrame {
     
-    
+    /**
+     * The popup menu associated with a module in the module tree
+     */
     private PopupMenuWithObject modulePopupMenu;
+    
+    /**
+     * The popup menu associated with teh list of modules n the module tree
+     */
+    private PopupMenuWithObject allModulesPopupMenu;
     
     /**
      * The STEPmod object that this is the GUI for.
      */
     private STEPmod stepMod;
+    
     
     /**
      * Creates new form STEPModFrame
@@ -85,13 +95,25 @@ public class STEPModFrame extends javax.swing.JFrame {
      * Cell renderer for the STEPmod repository tree
      */
     private class RepositoryTreeRenderer extends DefaultTreeCellRenderer {
-        Icon moduleIcon;
+        Icon publishedIcon;
+        Icon releasedIcon;
+        Icon developmentIcon;
         
         public RepositoryTreeRenderer() {
-            java.net.URL moduleIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/module.png");
-            moduleIcon = null;
-            if (moduleIconURL != null) {
-                moduleIcon= new ImageIcon(moduleIconURL);
+            java.net.URL publishedIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/bullet_go.png");
+            publishedIcon = null;
+            if (publishedIconURL != null) {
+                publishedIcon= new ImageIcon(publishedIconURL);
+            }
+            java.net.URL releasedIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/bullet_key.png");
+            releasedIcon = null;
+            if (releasedIconURL != null) {
+                releasedIcon= new ImageIcon(releasedIconURL);
+            }
+            java.net.URL developmentIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/bullet_wrench.png");
+            developmentIcon = null;
+            if (developmentIconURL != null) {
+                developmentIcon= new ImageIcon(developmentIconURL);
             }
         }
         
@@ -111,10 +133,17 @@ public class STEPModFrame extends javax.swing.JFrame {
             
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
             if (node != null) {
-                Object procNode = (Object)node.getUserObject();
-                if (procNode instanceof StepmodModule) {
-                    StepmodModule moduleNode = (StepmodModule) procNode;
-                    setIcon(moduleIcon);
+                Object userNode = (Object)node.getUserObject();
+                if (userNode instanceof StepmodModule) {
+                    StepmodModule moduleNode = (StepmodModule) userNode;
+                    // Need to get the state
+                    if (moduleNode.getCvsState() == StepmodPart.CVSSTATE_DEVELOPMENT) {
+                        setIcon(developmentIcon);
+                    } else if (moduleNode.getCvsState() == StepmodPart.CVSSTATE_RELEASE) {
+                        setIcon(releasedIcon);
+                    } else if (moduleNode.getCvsState() == StepmodPart.CVSSTATE_PUBLISHED) {
+                        setIcon(publishedIcon);
+                    }
                     setToolTipText("Display ,???");
                     // TODO - need to work out from CVS which release is active if any
                     // Probably need a readonly icon to show stickiness
@@ -122,7 +151,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                         // Make the text red if the state of cm_record has been changed, but not saved
                         setForeground(Color.RED);
                     }
-                } else if (procNode instanceof CmRelease) {
+                } else if (userNode instanceof CmRelease) {
                     setIcon(null);
                     // TODO set checkout release some color
                     // Needs to query CVS and set a variable
@@ -141,6 +170,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     public void initialise() {
         // TODO probably should display a splash screen with progress bar as it takes a while to load
         initRepositoryTree();
+        initAllModulesPopupMenu();
         initModulePopupMenu();
         setVisible(true);
     }
@@ -225,6 +255,10 @@ public class STEPModFrame extends javax.swing.JFrame {
             resourceSchemasTreeNode.add(resourceTreeNode);
         }
         
+        
+        DefaultMutableTreeNode frameworkTreeNode = new DefaultMutableTreeNode("STEPmod Framework");
+        rootTreeNode.add(frameworkTreeNode);
+        
         // Set up the renderer that displays the icons in the tree
         repositoryJTree.setCellRenderer(new RepositoryTreeRenderer());
         
@@ -258,6 +292,10 @@ public class STEPModFrame extends javax.swing.JFrame {
                         // Make sure that the menu knows about the tree node
                         modulePopupMenu.setUserObject(node);
                         modulePopupMenu.show(e.getComponent(), e.getX(), e.getY());
+                    } else if (nodeObject instanceof String) {
+                        if (nodeObject.equals("Modules")) {
+                            allModulesPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+                        }
                     }
                 }
             }
@@ -265,8 +303,50 @@ public class STEPModFrame extends javax.swing.JFrame {
         repositoryJTree.setModel( new DefaultTreeModel(rootTreeNode) );
     }
     
-    private void initModulePopupMenu() {
+    
+    private void initAllModulesPopupMenu() {
         // Setup the popoup menu associated with the modules
+        allModulesPopupMenu = new PopupMenuWithObject();
+        
+        // Update to development revisions
+        javax.swing.JMenuItem createCvsUpdateAllDevelopmentRevisionMenuItem;
+        createCvsUpdateAllDevelopmentRevisionMenuItem = new javax.swing.JMenuItem("Update ALL modules to latest develop revisions");
+        createCvsUpdateAllDevelopmentRevisionMenuItem.setToolTipText("Update all the modules to the latest revisions from CVS.");
+        createCvsUpdateAllDevelopmentRevisionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stepMod.cvsUpdateAllModulesDevelopmentRevision();
+            }
+        });
+        allModulesPopupMenu.add(createCvsUpdateAllDevelopmentRevisionMenuItem);
+        
+        // Update all to latest releases
+        javax.swing.JMenuItem createCvsUpdateAllLatestRevisionMenuItem;
+        createCvsUpdateAllLatestRevisionMenuItem = new javax.swing.JMenuItem("Update ALL modules to latest releases");
+        createCvsUpdateAllLatestRevisionMenuItem.setToolTipText("Update all the modules to the latest released versions.");
+        createCvsUpdateAllLatestRevisionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stepMod.cvsUpdateAllModulesLatestRevision();
+            }
+        });
+        allModulesPopupMenu.add(createCvsUpdateAllLatestRevisionMenuItem);
+        
+        
+        // Update all to latest published edition
+        javax.swing.JMenuItem createCvsUpdateAllLatestPublicationsMenuItem;
+        createCvsUpdateAllLatestPublicationsMenuItem = new javax.swing.JMenuItem("Update ALL modules to latest published editions");
+        createCvsUpdateAllLatestPublicationsMenuItem.setToolTipText("Update all the modules to the latest published edition (CD, DIS, TS, IS). If not published");
+        createCvsUpdateAllLatestPublicationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stepMod.cvsUpdateAllModulesLatestPublications();
+            }
+        });
+        allModulesPopupMenu.add(createCvsUpdateAllLatestPublicationsMenuItem);
+        
+    }
+    
+    
+    private void initModulePopupMenu() {
+        // Setup the popoup menu associated with individual modules
         modulePopupMenu = new PopupMenuWithObject();
         
         // Update development revision
@@ -335,6 +415,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         });
         modulePopupMenu.add(createCvsCoPublishedReleaseMenuItem);
         
+        modulePopupMenu.add(new JSeparator());
         // Commit CM record option
         javax.swing.JMenuItem createCmRecordMenuItem;
         createCmRecordMenuItem = new javax.swing.JMenuItem("Commit CM Record");
@@ -349,6 +430,33 @@ public class STEPModFrame extends javax.swing.JFrame {
         });
         modulePopupMenu.add(createCmRecordMenuItem);
         
+        modulePopupMenu.add(new JSeparator());
+        
+        // Create publication package
+        javax.swing.JMenuItem createModulePublicationPackage;
+        createModulePublicationPackage = new javax.swing.JMenuItem("Create publication package (ANT build)");
+        createModulePublicationPackage.setToolTipText("Creates the ANT build file for generating the publication package");
+        createModulePublicationPackage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                StepmodModule module = (StepmodModule) node.getUserObject();
+                module.publicationCreatePackage();
+            }
+        });
+        modulePopupMenu.add(createModulePublicationPackage);
+        
+        // Generate HTML for publication package
+        javax.swing.JMenuItem genHtmlModulePublicationPackage;
+        genHtmlModulePublicationPackage = new javax.swing.JMenuItem("Generate HTML for publication package ");
+        genHtmlModulePublicationPackage.setToolTipText("Generates the HTML for the publication package");
+        genHtmlModulePublicationPackage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                StepmodModule module = (StepmodModule) node.getUserObject();
+                module.publicationGenerateHtml();
+            }
+        });
+        modulePopupMenu.add(genHtmlModulePublicationPackage);
     }
     
     /**
@@ -366,6 +474,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         treeModel.nodeChanged(releasesNode.getParent());
     }
     
+    
     /**
      * Output the string
      */
@@ -373,6 +482,8 @@ public class STEPModFrame extends javax.swing.JFrame {
         stepModOutputTextArea.append("\n"+string);
         stepModOutputTextArea.setCaretPosition(stepModOutputTextArea.getDocument().getLength());
     }
+    
+    
     
     /**
      * Display a popup warning that the functionality is still to be implemented.

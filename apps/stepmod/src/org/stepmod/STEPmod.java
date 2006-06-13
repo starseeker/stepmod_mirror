@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.5 2006/06/09 09:35:35 RobB Exp $
+ * $Id: STEPmod.java,v 1.1 2006/06/12 15:31:07 robbod Exp $
  *
  * STEPmod.java
  *
@@ -259,7 +259,27 @@ public class STEPmod {
     public TreeMap getResourcesHash() {
         return(hasResources);
     }
+        
+    /**
+     * Runs a CVS update to force the check out of the latest development revisions of all the modules.
+     */
+    public void cvsUpdateAllModulesDevelopmentRevision() {
+        toBeDone("org.stepmod.STEPModFrame.cvsUpdateAllModulesDevelopmentRevision");
+    }
     
+    /**
+     * Runs a CVS update to force the check out of the latest released revisions of all the modules.
+     */
+    public void cvsUpdateAllModulesLatestRevision() {
+        toBeDone("org.stepmod.STEPModFrame.cvsUpdateAllModulesLatestRevision");
+    }
+    
+    /**
+     * Runs a CVS update to force the check out of the latest published, i.e. standard revisions of all the modules.
+     */
+    public void cvsUpdateAllModulesLatestPublications() {
+        toBeDone("org.stepmod.STEPModFrame.cvsUpdateAllModulesLatestPublications");
+    }
     
     
     /**
@@ -369,7 +389,7 @@ public class STEPmod {
     public static void main(String[] args) {
         int i = 0;
         String stepmodRoot = "";
-        String appDir = "";        
+        String appDir = "";
         while(i < args.length) {
             if(args[i].startsWith("-")) {
                 if(args[i].equals("-appDdir")) {
@@ -424,6 +444,8 @@ public class STEPmod {
     public void help() {
         this.toBeDone("STEPmod.help");
     }
+    
+    
     
 }
 

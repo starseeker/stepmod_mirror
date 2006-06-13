@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.12 2006/06/12 15:24:34 JPearce Exp $
+ * $Id: StepmodPart.java,v 1.1 2006/06/12 15:31:08 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -47,6 +47,21 @@ public class StepmodPart {
     private CmRecord cmRecord;
     private STEPmod stepMod;
     
+    /**
+     * The latest revision of the STEPmod part has been checked out
+     */
+    final public static int CVSSTATE_DEVELOPMENT = 1;
+    
+    /**
+     * A release of the STEPmod part has been checked out
+     */
+    final public static int CVSSTATE_RELEASE = 2;
+    
+    /**
+     * An ISO published release of the STEPmod part has been checked out
+     */
+    final public static int CVSSTATE_PUBLISHED = 3;
+    
     /** Creates a new instance of StepmodPart */
     public StepmodPart(STEPmod stepMod, String partName) {
         setName(partName);
@@ -81,10 +96,10 @@ public class StepmodPart {
         this.name = name;
     }
     
-   /**
-    * Returns the French name of StepmodPart
-    * @return return the French name of StepmodPart
-    */
+    /**
+     * Returns the French name of StepmodPart
+     * @return return the French name of StepmodPart
+     */
     public String getNameFrench() {
         return nameFrench;
     }
@@ -98,9 +113,9 @@ public class StepmodPart {
     }
     
     /**
-     * Returns a part number 
-     * @return return a part number 
-     * 
+     * Returns a part number
+     * @return return a part number
+     *
      */
     public String getPartNumber() {
         return partNumber;
@@ -108,7 +123,7 @@ public class StepmodPart {
     
     /**
      * Sets a part number
-     * @param partNumber a String representing a partNumber 
+     * @param partNumber a String representing a partNumber
      */
     public void setPartNumber(String partNumber) {
         this.partNumber = partNumber;
@@ -141,7 +156,7 @@ public class StepmodPart {
     
     /**
      * Returns the wgNumber of the StepmodPart
-     * @return return  the wgNumber of the StepmodPart  
+     * @return return  the wgNumber of the StepmodPart
      */
     
     public String getWgNumber() {
@@ -192,7 +207,7 @@ public class StepmodPart {
     
     /**
      *  Returns the checklist for a Project leader of the StepmodPart
-     *  @return return the checklist for a Project Leader of the StepmodPart  
+     *  @return return the checklist for a Project Leader of the StepmodPart
      */
     public String getChecklistProjectLeader() {
         return checklistProjectLeader;
@@ -217,7 +232,7 @@ public class StepmodPart {
     
     /**
      * Sets the checklistConvener of the StepmodPart
-     * @param checklistConvener a String representing the checklistConvener 
+     * @param checklistConvener a String representing the checklistConvener
      * of the StepmodPart
      */
     
@@ -243,15 +258,15 @@ public class StepmodPart {
     
     /**
      * Returns the language of the StepmodPart
-     * @return return the language of the StepmodPart 
+     * @return return the language of the StepmodPart
      */
     public String getLanguage() {
         return language;
     }
     
-    /** 
+    /**
      * Sets the language of the StepmodPart
-     * @param language a String representig the language of the StepmodPart 
+     * @param language a String representig the language of the StepmodPart
      */
     
     public void setLanguage(String language) {
@@ -259,7 +274,7 @@ public class StepmodPart {
     }
     
     /**
-     * Return the publication year 
+     * Return the publication year
      * @return return the year of publication for the StepmodPart
      */
     public String getPublicationYear() {
@@ -267,7 +282,7 @@ public class StepmodPart {
     }
     
     /**
-     * Sets the publication year 
+     * Sets the publication year
      * @param publicationYear a String representing the year of publication of the StepmodPart
      */
     public void setPublicationYear(String publicationYear) {
@@ -282,11 +297,11 @@ public class StepmodPart {
         return publicationDate;
     }
     
-    /** 
+    /**
      * Sets the publication date
      * @param publicationDate a String representing the date of publication for
      * the StepmodPart
-     */ 
+     */
     public void setPublicationDate(String publicationDate) {
         this.publicationDate = publicationDate;
     }
@@ -299,10 +314,10 @@ public class StepmodPart {
         return published;
     }
     
-    /** 
+    /**
      * Sets whether the StepmodPart has been published or not
-     * @param published a boolean stating true or false 
-     */ 
+     * @param published a boolean stating true or false
+     */
     public void setPublished(Boolean published) {
         this.published = published;
     }
@@ -346,9 +361,9 @@ public class StepmodPart {
     public STEPmod getStepMod() {
         return stepMod;
     }
-   
+    
     /**
-     * Sets the value of Stepmod to the created instance 
+     * Sets the value of Stepmod to the created instance
      * @param stepMod is an instance of StepMod
      */
     public void setStepMod(STEPmod stepMod) {
@@ -356,7 +371,17 @@ public class StepmodPart {
     }
     
     
-  
+    /**
+     * Returns the cvs configuration state of the part
+     */
+    public int getCvsState() {
+        // check if the part has a Tag file in the CVS directory.
+        // If No then it is a development version
+        // If yes, findout whether the Tag corresponds to a release or a publication
+        return(this.CVSSTATE_PUBLISHED);
+    }
+    
+    
     
     
     
@@ -366,13 +391,13 @@ public class StepmodPart {
      * Creates a new instance of StepmodAnt and executes the method runCvs
      * passing in the paramaters based on the module selected
      */
-    public void cvsUpdateDevelopmentRevision() {        
+    public void cvsUpdateDevelopmentRevision() {
         StepmodAnt stpAnt = new StepmodAnt();
         stpAnt.runCvs( getStepMod(), getName(), "data/modules/"+getName(), "update" );
     }
     
     /**
-     * Use StepModAnt to execute a CVS checkout of 
+     * Use StepModAnt to execute a CVS checkout of
      * a specified release
      *
      */
@@ -382,7 +407,7 @@ public class StepmodPart {
     }
     
     /**
-     * Use StepModAnt to execute a CVS checkout of the 
+     * Use StepModAnt to execute a CVS checkout of the
      * latest release
      *
      */
@@ -393,7 +418,7 @@ public class StepmodPart {
     }
     
     /**
-     * Use StepModAnt to execute a CVS checkout of the latest 
+     * Use StepModAnt to execute a CVS checkout of the latest
      * published release
      *
      */

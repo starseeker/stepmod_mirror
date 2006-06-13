@@ -281,6 +281,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                 }
             }
         });
+        
         repositoryJTree.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {

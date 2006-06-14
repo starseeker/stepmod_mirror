@@ -1,4 +1,4 @@
-$Id: $
+$Id: readme.txt,v 1.1 2006/06/12 15:35:51 robbod Exp $
 
 To set up Netbeans to develop Stepmod
 
@@ -21,6 +21,11 @@ To set up Netbeans to develop Stepmod
 
    Run:
    Main Class = org.stepmod.STEPmod
-   Arguments = -root D:/users/rbn/sforge/stepmod
+  
+   The arguments passed in need to point to the local root of stepmod i.e.
+
+   Arguments = -root C:\**\**\stepmod
+        
+   
 
 4) Copy stepmod/apps/stepmod/etc/netbeans/build.xml to the Netbeans project

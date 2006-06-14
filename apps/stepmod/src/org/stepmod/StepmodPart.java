@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.1 2006/06/12 15:31:08 robbod Exp $
+ * $Id: StepmodPart.java,v 1.2 2006/06/13 08:34:36 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -43,7 +43,7 @@ public class StepmodPart {
     private String language;
     private String publicationYear;
     private String publicationDate;
-    private Boolean published;
+    private boolean published;
     private CmRecord cmRecord;
     private STEPmod stepMod;
     
@@ -318,7 +318,7 @@ public class StepmodPart {
      * Sets whether the StepmodPart has been published or not
      * @param published a boolean stating true or false
      */
-    public void setPublished(Boolean published) {
+    public void setPublished(boolean published) {
         this.published = published;
     }
     

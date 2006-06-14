@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.2 2006/06/13 08:34:36 robbod Exp $
+ * $Id: StepmodPart.java,v 1.3 2006/06/14 09:49:53 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -310,7 +310,7 @@ public class StepmodPart {
      * Returns whether the StepmodPart has been published or not
      * @return boolean published
      */
-    public Boolean getPublished() {
+    public boolean getPublished() {
         return published;
     }
     

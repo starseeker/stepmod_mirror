@@ -12,22 +12,26 @@
       <type name="usage_concept">
          <select extensible="YES" genericentity="YES"/>
       </type>
-      <entity name="Usage_concept_usage_relationship" supertypes="Geometric_model_constituent_relationship" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Usage_concept_usage_relationship" supertypes="Geometric_placement_operation" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="associating_usage_shape" optional="NO">
             <typename name="feature_or_non_feature_usage"/>
+            <redeclaration entity-ref="Geometric_placement_operation" old_name="template_definition"/>
          </explicit>
          <explicit name="associated_usage" optional="NO">
             <typename name="usage_concept"/>
-            <redeclaration entity-ref="Geometric_model_constituent_relationship" old_name="constituent_element"/>
          </explicit>
          <explicit name="associated_shape_definition" optional="NO">
             <typename name="Geometric_model"/>
-            <redeclaration entity-ref="Geometric_model_constituent_relationship" old_name="constituent_model"/>
          </explicit>
-         <where label="WR1" expression="(  ('NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_MODEL' IN &#10;                 TYPEOF(associated_shape_definition)) AND &#10;               ('NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_MODEL' IN &#10;                 TYPEOF(associating_usage_shape))) OR &#10;            (('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN &#10;               TYPEOF(associated_shape_definition)) AND &#10;             ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(associating_usage_shape)))"/>
-         <where label="WR2" expression="NOT &#10;          ( ('PART_FEATURE_LOCATION_ARM.GEOMETRIC_OPERATOR_TRANSFORMATION' IN&#10;              TYPEOF(SELF)) AND&#10;            ('PART_FEATURE_LOCATION_ARM.CARTESIAN_TRANSFORMATION_2D' IN &#10;              TYPEOF(SELF\Geometric_operator_transformation.target))) OR &#10;            ('NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_MODEL' IN &#10;              TYPEOF(associating_usage_shape))"/>
-         <where label="WR3" expression="associating_usage_shape = SELF\Geometric_model_constituent_relationship.composed_model[1]"/>
+         <inverse name="composed_model" entity="Geometric_model" attribute="items">
+            <inverse.aggregate type="SET" lower="1" upper="1"/>
+         </inverse>
+         <where label="WR1" expression="(  ('NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_MODEL' IN TYPEOF(associated_shape_definition)) AND &#10;                ('NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_MODEL' IN TYPEOF(associating_usage_shape))) OR &#10;             (('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(associated_shape_definition)) AND &#10;              ('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(associating_usage_shape)))"/>
+         <where label="WR2" expression="NOT ( ('PART_FEATURE_LOCATION_ARM.GEOMETRIC_OPERATOR_TRANSFORMATION' IN&#10;               TYPEOF(SELF)) AND ('PART_FEATURE_LOCATION_ARM.CARTESIAN_TRANSFORMATION_2D' IN &#10;               TYPEOF(SELF\Geometric_operator_transformation.target))) OR &#10;             ('NON_FEATURE_SHAPE_ELEMENT_ARM.NON_FEATURE_SHAPE_MODEL' IN TYPEOF(associating_usage_shape))"/>
+         <where label="WR3" expression="associating_usage_shape = composed_model[1]"/>
          <where label="WR4" expression="NOT EXISTS(SELF\Representation_item.name)"/>
+         <where label="WR5" expression="('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT' IN TYPEOF(SELF)) OR&#10;             ('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_OPERATOR_TRANSFORMATION' IN TYPEOF(SELF))"/>
+         <where label="WR6" expression="NOT('CONTEXTUAL_SHAPE_POSITIONING_ARM.GEOMETRIC_PLACEMENT_MODEL' IN TYPEOF(composed_model[1]))"/>
       <where label="IP1"/>
       </entity>
    </schema>

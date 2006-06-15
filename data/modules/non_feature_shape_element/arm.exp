@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.55 2006/06/11 23:16:08 thomasrthurman Exp $
+   $Id: arm.exp,v 1.56 2006/06/15 12:16:25 liutkus Exp $
    ISO TC184/SC4/WG12 N4065 - ISO/TS 10303-1706 Non feature shape element - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3495
 *)
@@ -61,8 +61,9 @@ SCHEMA Non_feature_shape_element_arm;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, scope;
     WHERE
-      WR1 : SIZEOF(QUERY(ucur <* associated_usage_concept | NOT(ucur\Usage_concept_usage_relationship.associated_shape_definition IN element_shape))) = 0;
-      WR2 : 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN TYPEOF(scope);
+      WR1 : NOT ((SIZEOF(associated_usage_concept) > 0) XOR (SIZEOF(element_shape) > 0));
+      WR2 : SIZEOF(QUERY(ucur <* associated_usage_concept | NOT(ucur\Usage_concept_usage_relationship.associated_shape_definition IN element_shape))) = 0;
+      WR3 : 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN TYPEOF(scope);
   END_ENTITY;
 
   ENTITY Non_feature_shape_element_relationship

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.24 2006/01/20 08:43:43 liutkuviene Exp $
+   $Id: mim.exp,v 1.25 2006/05/01 13:53:55 liutkus Exp $
    ISO TC184/SC4/WG12 N3898 - ISO/TS 10303-1650 Bare die - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3316
 *)
@@ -115,74 +115,6 @@ WHERE
        'PART_CONNECTED_TERMINALS_DEFINITION'
        IN TYPEOF (mct.relating_shape_aspect))) <= 1;
 END_ENTITY;
-
-RULE bare_die_unique_constraint FOR
- ( bare_die); --, externally_defined_bare_die, library_defined_bare_die );
-LOCAL
-  bd : BAG OF physical_unit := QUERY( r <* bare_die |
-(r.frame_of_reference.name = 'physical design usage') );
-(**  edbd : BAG OF physical_unit := QUERY( r <* externally_defined_bare_die |
-(r.frame_of_reference.name = 'physical design usage') );
-  ldbd : BAG OF physical_unit := QUERY( r <* library_defined_bare_die |
-(r.frame_of_reference.name = 'physical design usage') ); *)
-  pu : BAG OF physical_unit;
-  pdr_bag : BAG OF product_definition_relationship;
-  fu_bag : BAG OF functional_unit := [];
-  pu_bag : BAG OF physical_unit;
-  ut_bag : BAG OF property_definition;
-  pass : BOOLEAN := TRUE;
-  pd_bag : BAG OF property_definition;
-END_LOCAL;
-
-pu := bd; -- + edbd + ldbd;
-REPEAT i := 1 to SIZEOF(pu) by 1;
-  pdr_bag := QUERY( pdr <* USEDIN( pu[i],
-'BARE_DIE_MIM.' +
-'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) |
-( (pdr\product_definition_relationship.name = 'implemented function') AND
-(pdr.relating_product_definition.frame_of_reference.name = 
-         'functional design usage')
-AND ('BARE_DIE_MIM.' +
-'FUNCTIONAL_UNIT' IN TYPEOF(pdr.relating_product_definition)) ) );
-  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
-    IF EXISTS( pdr_bag[j].relating_product_definition ) THEN
-      IF( NOT( pdr_bag[j].relating_product_definition IN fu_bag ) ) THEN
-        fu_bag := fu_bag + pdr_bag[j].relating_product_definition;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(fu_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  pu_bag := QUERY( r <* pu | (SIZEOF(QUERY(pdr <* USEDIN( fu_bag[i],
-'BARE_DIE_MIM.' +
-'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION' ) |
-((pdr\product_definition_relationship.name = 'implemented function')AND
-        (pdr.related_product_definition :=: r)) ))>0) );
-  pd_bag := [];
-  REPEAT j := 1 to SIZEOF(pu_bag) by 1;
-    IF ( NOT pass ) THEN ESCAPE;
-    END_IF;
-    ut_bag := QUERY( pd <* USEDIN( pu_bag[j],
-'BARE_DIE_MIM.' +
-'PROPERTY_DEFINITION.DEFINITION' ) | (pd\property_definition.name = 'unit technology') );
-    REPEAT k := 1 to SIZEOF(ut_bag) by 1;
-      IF EXISTS( ut_bag[k] ) THEN
-        IF ( ut_bag[k] IN pd_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          pd_bag := pd_bag + ut_bag[k];
-        END_IF;
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;
-WHERE
-  WR1: pass;
-END_RULE;
 
 END_SCHEMA;
 

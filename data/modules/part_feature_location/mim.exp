@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.10 2005/11/17 22:22:02 liutkus Exp $
+   $Id: mim.exp,v 1.11 2006/01/20 08:43:42 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4090 - ISO/TS 10303-1714 Part feature location - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3517
 *)
@@ -7,7 +7,17 @@
 
 SCHEMA Part_feature_location_mim;
 	USE FROM Shape_feature_mim;	-- ISO/TS 10303-xxxx
---	USE FROM Non_feature_shape_element_mim;	-- ISO/TS 10303-1706
+	USE FROM product_property_representation_schema(item_identified_representation_usage);
+
+  ENTITY usage_concept_usage_relationship
+    SUBTYPE OF (mapped_item, item_identified_representation_usage);
+      SELF\item_identified_representation_usage.used_representation : shape_representation;
+      SELF\item_identified_representation_usage.definition          : shape_aspect;
+    DERIVE
+      SELF\item_identified_representation_usage.identified_item : representation_item := SELF;
+    WHERE
+      WR1: SELF IN SELF\item_identified_representation_usage.used_representation.items;
+  END_ENTITY;
 	
 END_SCHEMA;
 

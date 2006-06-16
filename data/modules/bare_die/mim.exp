@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.25 2006/05/01 13:53:55 liutkus Exp $
+   $Id: mim.exp,v 1.26 2006/06/15 16:38:28 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3898 - ISO/TS 10303-1650 Bare die - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3316
 *)
@@ -30,11 +30,8 @@ END_ENTITY;
 ENTITY bare_die_edge_surface
  SUBTYPE OF (bare_die_surface);
 WHERE
-  WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
-       ['BARE_DIE_MIM.' +
-       'BARE_DIE']) = 1;
-  WR2: SELF\shape_aspect.product_definitional;
-  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+  WR1: SELF\shape_aspect.product_definitional;
+  WR2: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
        SELF\part_mounting_feature ||
        SELF\bare_die_edge_surface ||
        SELF\bare_die_surface)) = 0;
@@ -45,34 +42,13 @@ ENTITY bare_die_surface
                          bare_die_top_surface, 
                         bare_die_edge_surface))
  SUBTYPE OF (part_mounting_feature);
-WHERE
-  WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
-       ['BARE_DIE_MIM.' +
-       'BARE_DIE']) = 1;
-  WR2: SELF\shape_aspect.product_definitional;
+   SELF\shape_aspect.of_shape : bare_die;
+ WHERE
+   WR1: SELF\shape_aspect.product_definitional;
 END_ENTITY;
 
 ENTITY bare_die_terminal
   SUBTYPE OF (minimally_defined_bare_die_terminal, placed_feature);
-WHERE
-  WR1: 'BARE_DIE_MIM.' +
-       'BARE_DIE' IN 
-       TYPEOF (SELF.of_shape.definition);
-  WR2: SIZEOF (QUERY (eca <* QUERY (sar <* USEDIN (SELF,
-       'BARE_DIE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'external connection area') |
-       eca.related_shape_aspect\shape_aspect.description = 'connection zone')) = 1;
-  WR3: SIZEOF (USEDIN (SELF, 
-       'BARE_DIE_MIM.' +
-       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1;
-  WR4: SIZEOF (QUERY (eca <* QUERY (sar <* USEDIN (SELF,
-       'BARE_DIE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'seating plane zone') |
-       'BARE_DIE_MIM.' +
-       'CONNECTION_ZONE_INTERFACE_PLANE_RELATIONSHIP' IN 
-       TYPEOF (eca.related_shape_aspect))) <= 1;
 END_ENTITY;
 
 ENTITY bare_die_template_terminal
@@ -82,11 +58,8 @@ END_ENTITY;
 ENTITY bare_die_top_surface
  SUBTYPE OF (bare_die_surface);
 WHERE
-  WR1: SIZEOF (TYPEOF (SELF.of_shape.definition) *
-       ['BARE_DIE_MIM.' +
-       'BARE_DIE']) = 1;
-  WR2: SELF\shape_aspect.product_definitional;
-  WR3: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
+  WR1: SELF\shape_aspect.product_definitional;
+  WR2: SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||
        SELF\part_mounting_feature ||
        SELF\bare_die_top_surface ||
        SELF\bare_die_surface)) = 0;
@@ -95,25 +68,7 @@ END_ENTITY;
 ENTITY minimally_defined_bare_die_terminal
   SUPERTYPE OF (bare_die_terminal)
   SUBTYPE OF (shape_aspect);
-WHERE
-  WR1: 'BARE_DIE_MIM.' +
-       'BARE_DIE' IN 
-       TYPEOF (SELF.of_shape.definition);
-  WR2: SIZEOF (QUERY (eca <* QUERY (sar <* USEDIN (SELF,
-       'BARE_DIE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'external connection area') |
-       eca.related_shape_aspect\shape_aspect.description = 'connection zone')) <= 1;
-  WR3: SIZEOF (USEDIN (SELF, 
-       'BARE_DIE_MIM.' +
-       'MATERIAL_DESIGNATION.DEFINITIONS')) <= 1;
-  WR4: SIZEOF (QUERY (mct <* QUERY (sar <* USEDIN (SELF,
-       'BARE_DIE_MIM.' +
-       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |
-       sar\shape_aspect_relationship.name = 'member connected terminal') |
-       'BARE_DIE_MIM.' +
-       'PART_CONNECTED_TERMINALS_DEFINITION'
-       IN TYPEOF (mct.relating_shape_aspect))) <= 1;
+    SELF\shape_aspect.of_shape : bare_die;
 END_ENTITY;
 
 END_SCHEMA;

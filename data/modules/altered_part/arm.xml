@@ -8,15 +8,11 @@
       <interface kind="use" schema="Altered_package_arm"/>
       <interface kind="use" schema="Packaged_part_black_box_model_arm"/>
       <entity name="Altered_packaged_part" supertypes="Packaged_part">
-         <explicit name="used_package">
-            <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="Altered_package"/>
-            <redeclaration entity-ref="Packaged_part"/>
-         </explicit>
          <explicit name="base_packaged_part">
             <typename name="Packaged_part"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+         <where label="WR2" expression="((SIZEOF(SELF\Packaged_part.used_package) = 1) AND ('ALTERED_PACKAGE_ARM.ALTERED_PACKAGE' IN TYPEOF(used_package[1]))) OR&#10;            (EXISTS(SELF\Packaged_part.implemented_function) AND&#10;            (SELF\Packaged_part.implemented_function :&lt;&gt;: base_packaged_part\Packaged_part.implemented_function))"/>
       </entity>
    </schema>
 </express>

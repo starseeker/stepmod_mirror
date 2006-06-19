@@ -23,96 +23,27 @@
          <where label="WR1" expression="SELF\shape_aspect_relationship.relating_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.related_shape_aspect"/>
       </entity>
       <entity name="bare_die_edge_surface" supertypes="bare_die_surface">
-         <where label="WR1" expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *&#10;       ['BARE_DIE_MIM.' +&#10;       'BARE_DIE']) = 1"/>
-         <where label="WR2" expression="SELF\shape_aspect.product_definitional"/>
-         <where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||&#10;       SELF\part_mounting_feature ||&#10;       SELF\bare_die_edge_surface ||&#10;       SELF\bare_die_surface)) = 0"/>
+         <where label="WR1" expression="SELF\shape_aspect.product_definitional"/>
+         <where label="WR2" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||&#10;       SELF\part_mounting_feature ||&#10;       SELF\bare_die_edge_surface ||&#10;       SELF\bare_die_surface)) = 0"/>
       </entity>
       <entity name="bare_die_surface" abstract.supertype="YES" supertypes="part_mounting_feature" super.expression="ONEOF (bare_die_bottom_surface, bare_die_top_surface, bare_die_edge_surface)">
-         <where label="WR1" expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *&#10;       ['BARE_DIE_MIM.' +&#10;       'BARE_DIE']) = 1"/>
-         <where label="WR2" expression="SELF\shape_aspect.product_definitional"/>
+         <explicit name="of_shape">
+            <typename name="bare_die"/>
+            <redeclaration entity-ref="shape_aspect"/>
+         </explicit>
+         <where label="WR1" expression="SELF\shape_aspect.product_definitional"/>
       </entity>
       <entity name="bare_die_template_terminal" supertypes="part_feature_template_definition shape_aspect"/>
-      <entity name="bare_die_terminal" supertypes="minimally_defined_bare_die_terminal placed_feature">
-         <where label="WR1" expression="'BARE_DIE_MIM.' +&#10;       'BARE_DIE' IN &#10;       TYPEOF (SELF.of_shape.definition)"/>
-         <where label="WR2" expression="SIZEOF (QUERY (eca &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'external connection area') |&#10;       eca.related_shape_aspect\shape_aspect.description = 'connection zone')) = 1"/>
-         <where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'BARE_DIE_MIM.' +&#10;       'MATERIAL_DESIGNATION.DEFINITIONS')) = 1"/>
-         <where label="WR4" expression="SIZEOF (QUERY (eca &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'seating plane zone') |&#10;       'BARE_DIE_MIM.' +&#10;       'CONNECTION_ZONE_INTERFACE_PLANE_RELATIONSHIP' IN &#10;       TYPEOF (eca.related_shape_aspect))) &lt;= 1"/>
-      </entity>
+      <entity name="bare_die_terminal" supertypes="minimally_defined_bare_die_terminal placed_feature"/>
       <entity name="bare_die_top_surface" supertypes="bare_die_surface">
-         <where label="WR1" expression="SIZEOF (TYPEOF (SELF.of_shape.definition) *&#10;       ['BARE_DIE_MIM.' +&#10;       'BARE_DIE']) = 1"/>
-         <where label="WR2" expression="SELF\shape_aspect.product_definitional"/>
-         <where label="WR3" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||&#10;       SELF\part_mounting_feature ||&#10;       SELF\bare_die_top_surface ||&#10;       SELF\bare_die_surface)) = 0"/>
+         <where label="WR1" expression="SELF\shape_aspect.product_definitional"/>
+         <where label="WR2" expression="SIZEOF(TYPEOF(SELF) - TYPEOF(SELF\shape_aspect ||&#10;       SELF\part_mounting_feature ||&#10;       SELF\bare_die_top_surface ||&#10;       SELF\bare_die_surface)) = 0"/>
       </entity>
       <entity name="minimally_defined_bare_die_terminal" supertypes="shape_aspect" super.expression="bare_die_terminal">
-         <where label="WR1" expression="'BARE_DIE_MIM.' +&#10;       'BARE_DIE' IN &#10;       TYPEOF (SELF.of_shape.definition)"/>
-         <where label="WR2" expression="SIZEOF (QUERY (eca &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATING_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'external connection area') |&#10;       eca.related_shape_aspect\shape_aspect.description = 'connection zone')) &lt;= 1"/>
-         <where label="WR3" expression="SIZEOF (USEDIN (SELF, &#10;       'BARE_DIE_MIM.' +&#10;       'MATERIAL_DESIGNATION.DEFINITIONS')) &lt;= 1"/>
-         <where label="WR4" expression="SIZEOF (QUERY (mct &lt;* QUERY (sar &lt;* USEDIN (SELF,&#10;       'BARE_DIE_MIM.' +&#10;       'SHAPE_ASPECT_RELATIONSHIP.RELATED_SHAPE_ASPECT') |&#10;       sar\shape_aspect_relationship.name = 'member connected terminal') |&#10;       'BARE_DIE_MIM.' +&#10;       'PART_CONNECTED_TERMINALS_DEFINITION'&#10;       IN TYPEOF (mct.relating_shape_aspect))) &lt;= 1"/>
+         <explicit name="of_shape">
+            <typename name="bare_die"/>
+            <redeclaration entity-ref="shape_aspect"/>
+         </explicit>
       </entity>
-      <rule name="bare_die_unique_constraint" appliesto="bare_die">
-         <algorithm>LOCAL
-  bd : BAG OF physical_unit := QUERY( r &lt;* bare_die |
-(r.frame_of_reference.name = 'physical design usage') );
-(**  edbd : BAG OF physical_unit := QUERY( r &lt;* externally_defined_bare_die |
-(r.frame_of_reference.name = 'physical design usage') );
-  ldbd : BAG OF physical_unit := QUERY( r &lt;* library_defined_bare_die |
-(r.frame_of_reference.name = 'physical design usage') ); *)
-  pu : BAG OF physical_unit;
-  pdr_bag : BAG OF product_definition_relationship;
-  fu_bag : BAG OF functional_unit := [];
-  pu_bag : BAG OF physical_unit;
-  ut_bag : BAG OF property_definition;
-  pass : BOOLEAN := TRUE;
-  pd_bag : BAG OF property_definition;
-END_LOCAL;
-
-pu := bd; -- + edbd + ldbd;
-REPEAT i := 1 to SIZEOF(pu) by 1;
-  pdr_bag := QUERY( pdr &lt;* USEDIN( pu[i],
-'BARE_DIE_MIM.' +
-'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) |
-( (pdr\product_definition_relationship.name = 'implemented function') AND
-(pdr.relating_product_definition.frame_of_reference.name = 
-         'functional design usage')
-AND ('BARE_DIE_MIM.' +
-'FUNCTIONAL_UNIT' IN TYPEOF(pdr.relating_product_definition)) ) );
-  REPEAT j := 1 to SIZEOF(pdr_bag) by 1;
-    IF EXISTS( pdr_bag[j].relating_product_definition ) THEN
-      IF( NOT( pdr_bag[j].relating_product_definition IN fu_bag ) ) THEN
-        fu_bag := fu_bag + pdr_bag[j].relating_product_definition;
-      END_IF;
-    END_IF;
-  END_REPEAT;
-END_REPEAT;
-
-REPEAT i := 1 to SIZEOF(fu_bag) by 1;
-  IF ( NOT pass ) THEN ESCAPE;
-  END_IF;
-  pu_bag := QUERY( r &lt;* pu | (SIZEOF(QUERY(pdr &lt;* USEDIN( fu_bag[i],
-'BARE_DIE_MIM.' +
-'PRODUCT_DEFINITION_RELATIONSHIP.RELATING_PRODUCT_DEFINITION' ) |
-((pdr\product_definition_relationship.name = 'implemented function')AND
-        (pdr.related_product_definition :=: r)) ))&gt;0) );
-  pd_bag := [];
-  REPEAT j := 1 to SIZEOF(pu_bag) by 1;
-    IF ( NOT pass ) THEN ESCAPE;
-    END_IF;
-    ut_bag := QUERY( pd &lt;* USEDIN( pu_bag[j],
-'BARE_DIE_MIM.' +
-'PROPERTY_DEFINITION.DEFINITION' ) | (pd\property_definition.name = 'unit technology') );
-    REPEAT k := 1 to SIZEOF(ut_bag) by 1;
-      IF EXISTS( ut_bag[k] ) THEN
-        IF ( ut_bag[k] IN pd_bag ) THEN
-          pass := FALSE;
-          ESCAPE;
-        ELSE
-          pd_bag := pd_bag + ut_bag[k];
-        END_IF;
-      END_IF;
-    END_REPEAT;
-  END_REPEAT;
-END_REPEAT;</algorithm>
-         <where label="WR1" expression="pass"/>
-      </rule>
    </schema>
 </express>

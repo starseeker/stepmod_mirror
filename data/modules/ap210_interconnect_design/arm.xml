@@ -5,22 +5,27 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ap210_interconnect_design_arm schema_instance"/>
    <schema name="Ap210_interconnect_design_arm">
-      <interface kind="use" schema="Design_product_data_management_arm"/>
-      <interface kind="use" schema="Chemical_substance_arm"/>
-      <interface kind="use" schema="Connectivity_allocation_to_physical_network_arm"/>
-      <interface kind="use" schema="Design_specific_assignment_to_interconnect_usage_view_arm"/>
-      <interface kind="use" schema="Device_marking_arm"/>
-      <interface kind="use" schema="Interconnect_2d_shape_arm"/>
-      <interface kind="use" schema="Interconnect_non_planar_shape_arm"/>
-      <interface kind="use" schema="Interconnect_module_to_assembly_module_relationship_arm"/>
-      <interface kind="use" schema="Layered_interconnect_module_2d_design_arm"/>
-      <interface kind="use" schema="Layered_interconnect_module_3d_design_arm"/>
-      <interface kind="use" schema="Layout_macro_definition_arm"/>
-      <interface kind="use" schema="Pre_defined_datum_symbol_arm"/>
-      <interface kind="use" schema="Via_component_arm"/>
-      <subtype.constraint name="laminate_component_interface_terminal_subtypes" entity="Laminate_component_interface_terminal" super.expression="ONEOF (Printed_connector_component_interface_terminal, Component_termination_passage_interface_terminal, Land_interface_terminal)"/>
-      <subtype.constraint name="laminate_component_join_terminal_subtypes" entity="Laminate_component_join_terminal" super.expression="ONEOF (Component_termination_passage_join_terminal, Land_join_terminal, Embedded_physical_component_terminal, Printed_component_join_terminal)"/>
-      <subtype.constraint name="planar_projected_shape_model_subtypes" entity="Planar_projected_shape_model" super.expression="ONEOF ((Assembly_component_2d_shape_model ANDOR ONEOF (Part_template_planar_shape_model, Physical_unit_planar_shape_model)), Stratum_planar_shape_model)"/>
-      <subtype.constraint name="shape_definition_3d_intersection_subtypes" entity="Shape_definition_3d_intersection" super.expression="ONEOF (Edge_segment_cross_section, Pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship, Pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship, Pre_defined_parallel_datum_axis_symbol_3d_2d_relationship)"/>
+      <interface kind="use" schema="Ap210_interconnect_design_for_microwave_arm"/>
+      <rule name="non_conductive_cross_section_template_population_constraint" appliesto="Template_definition">
+         <where label="WR1" expression="SIZEOF( QUERY( td &lt;* Template_definition |&#10;('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.NON_CONDUCTIVE_CROSS_SECTION_TEMPLATE' IN TYPEOF(td))&#10;              )) = 0"/>
+      </rule>
+      <rule name="printed_part_cross_section_template_population_constraint" appliesto="Template_definition">
+         <where label="WR1" expression="SIZEOF( QUERY( td &lt;* Template_definition |&#10;('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE' IN TYPEOF(td))&#10;              )) = 0"/>
+      </rule>
+      <rule name="printed_part_cross_section_template_terminal_population_constraint" appliesto="Printed_part_template_terminal">
+         <where label="WR1" expression="SIZEOF( QUERY( pptt &lt;* Printed_part_template_terminal |&#10;('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE_TERMINAL' IN TYPEOF(pptt))&#10;              )) = 0"/>
+      </rule>
+      <rule name="printed_part_template_material_link_population_constraint" appliesto="Printed_part_template_material_link">
+         <where label="WR1" expression="SIZEOF(Printed_part_template_material_link) = 0"/>
+      </rule>
+      <rule name="printed_part_template_material_population_constraint" appliesto="Printed_part_template_material">
+         <where label="WR1" expression="SIZEOF(Printed_part_template_material) = 0"/>
+      </rule>
+      <rule name="printed_part_template_terminal_class_population_constraint" appliesto="Printed_part_template_terminal">
+         <where label="WR1" expression="SIZEOF( QUERY( pptt &lt;* Printed_part_template_terminal |&#10;NOT(pptt.connection_zone_category = printed_part_template_terminal_class.surface_point)&#10;              )) = 0"/>
+      </rule>
+      <rule name="template_material_cross_section_boundary_population_constraint" appliesto="Template_material_cross_section_boundary">
+         <where label="WR1" expression="SIZEOF(Template_material_cross_section_boundary) = 0"/>
+      </rule>
    </schema>
 </express>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.80 2004/12/03 13:50:50 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.81 2004/12/30 12:10:07 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -369,7 +369,7 @@ the specification of the relationships between MIM elements, when the mapping of
       </tr>
       <tr valign="top">
         <td valign="top">&lt;-</td>
-        <td valign="top">
+	<td valign="top" >
           the entity or select type, whose name precedes the &lt;- symbol, is referenced by the entity attribute whose name follows the &lt;- symbol;
         </td>
       </tr>
@@ -433,10 +433,14 @@ the select or enumeration type, whose name precedes the *&gt; symbol, is
         <td valign="top">&lt;*</td>
         <td valign="top">
 the select or enumeration type, whose name precedes the &lt;* symbol, is an
-          extension of the select or enumeration type whose name follows the &lt;* symbol.
+          extension of the select or enumeration type whose name follows the &lt;* symbol;
         </td>
       </tr>
-
+      <tr valign="top">
+        <td valign="top" nowrap='t'>!{}</td>
+        <td valign="top">
+ section enclosed by {} indicates a negative constraint placed on the mapping.</td>
+      </tr>
     </tbody>
   </table>
   The definition and use of mapping templates is not supported in the

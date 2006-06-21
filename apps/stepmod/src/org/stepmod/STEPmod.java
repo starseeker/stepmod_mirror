@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.1 2006/06/12 15:31:07 robbod Exp $
+ * $Id: STEPmod.java,v 1.2 2006/06/13 08:34:36 robbod Exp $
  *
  * STEPmod.java
  *
@@ -16,7 +16,7 @@
 
 package org.stepmod;
 
-import java.io.File;
+import java.io.*;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,6 +24,7 @@ import javax.swing.UIManager;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.stepmod.gui.STEPModFrame;
+import org.stepmod.gui.StepmodPropsMenu; // added in by  jpe
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -40,6 +41,7 @@ public class STEPmod {
     private TreeMap hasResourceDocs;
     private TreeMap hasResources;
     private STEPModFrame stepModGui;
+    
     
     private String applicationDir;
     
@@ -259,7 +261,7 @@ public class STEPmod {
     public TreeMap getResourcesHash() {
         return(hasResources);
     }
-        
+    
     /**
      * Runs a CVS update to force the check out of the latest development revisions of all the modules.
      */
@@ -446,6 +448,56 @@ public class STEPmod {
     }
     
     
+    /**
+     * Reads the property file stepmod.properties
+     * @return return the file stepmod.properties in the form of a String
+     *
+     */
+    public String readProps(){
+        
+        
+        
+        StringBuffer temp = new StringBuffer();
+        
+        
+        try{
+            BufferedReader in = new BufferedReader(new FileReader(getRootDirectory()+"/"+"stepmod.properties"));
+            String temp2;
+            
+            while((temp2=in.readLine())!=null){
+                temp.append(temp2);
+                temp.append("\n");
+            }
+            in.close();
+        } catch (IOException e) {
+            
+            e.printStackTrace();
+        }
+        
+        
+        return temp.toString();
+    }
+    
+    
+    
+    /**
+     * Writes the contents of the textArea to the stepmod.properties file
+     * @param String stepmodText a String representing the contents of the
+     * textArea
+     */
+    
+    public void writeProps(String stepmodText){
+        
+        try{
+            BufferedWriter out = new BufferedWriter(new FileWriter(getRootDirectory() + "/"+"stepmod.properties"));
+            out.write(stepmodText);
+            
+            out.close();
+            
+        } catch(IOException ex){
+            
+        }
+    }
     
 }
 

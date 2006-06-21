@@ -533,6 +533,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         mkModuleMenuItem = new javax.swing.JMenuItem();
         mkApMenuItem = new javax.swing.JMenuItem();
         mkdResDocMenuItem = new javax.swing.JMenuItem();
+        setStepModProps = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         contentsMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
@@ -625,6 +626,16 @@ public class STEPModFrame extends javax.swing.JFrame {
 
         toolsMenu.add(mkdResDocMenuItem);
 
+        setStepModProps.setText("Set stepmod properties");
+        setStepModProps.setToolTipText("Change the contents of the stepmod properties file ");
+        setStepModProps.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                setStepModPropsActionPerformed(evt);
+            }
+        });
+
+        toolsMenu.add(setStepModProps);
+
         menuBar.add(toolsMenu);
 
         helpMenu.setText("Help");
@@ -667,6 +678,23 @@ public class STEPModFrame extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
+    /**
+     * Display a new smaller gui to display the contents of stepmod.properties
+     *
+     */
+    private void setStepModPropsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setStepModPropsActionPerformed
+        
+        
+        
+        STEPModPropsFrame stepprops = new STEPModPropsFrame(stepMod);
+        stepprops.stepmodText.setText(stepMod.readProps());
+        stepprops.setSize(700,500);
+        stepprops.setVisible(true);
+        
+        
+        
+    }//GEN-LAST:event_setStepModPropsActionPerformed
     
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
         stepMod.about();
@@ -715,6 +743,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JSplitPane repositorySplitPane;
     private javax.swing.JTextPane repositoryTextPane;
     private javax.swing.JScrollPane repositoryTreeScrollPane;
+    private javax.swing.JMenuItem setStepModProps;
     private javax.swing.JPanel stepModOutputPanel;
     private javax.swing.JScrollPane stepModOutputScrollPane;
     private javax.swing.JTextArea stepModOutputTextArea;

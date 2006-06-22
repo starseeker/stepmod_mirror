@@ -20,6 +20,9 @@
       <type name="ft_material_item_select">
          <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Filled_via_template Passage_technology Stratum_technology"/>
       </type>
+      <type name="ft_property_assignment_select">
+         <select basedon="property_assignment_select" selectitems="Stratum_technology Passage_technology" genericentity="NO" extensible="NO"/>
+      </type>
       <type name="ft_requirement_assignment_item">
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Passage_technology Stratum_technology Stratum_technology_occurrence"/>
       </type>
@@ -110,13 +113,13 @@
          </explicit>
       </entity>
       <entity name="Default_attachment_size_based_land_physical_template" supertypes="Land_physical_template Shape_feature" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="maximum_attachment_region_size" optional="YES">
+            <typename name="Connection_zone_in_layout_template"/>
+         </explicit>
          <explicit name="minimum_attachment_region_size" optional="YES">
             <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
             <typename name="Connection_zone_in_layout_template"/>
             <redeclaration entity-ref="Shape_feature" old_name="connection_area"/>
-         </explicit>
-         <explicit name="maximum_attachment_region_size" optional="YES">
-            <typename name="Connection_zone_in_layout_template"/>
          </explicit>
          <derived name="containing_shape" expression="SELF">
             <typename name="Default_attachment_size_based_land_physical_template"/>
@@ -264,6 +267,10 @@
       </entity>
       <entity name="Land_template_join_terminal" supertypes="Land_template_terminal" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Land_template_terminal" abstract.supertype="YES" supertypes="Shape_feature" super.expression="ONEOF (Land_template_join_terminal, Land_template_interface_terminal)" abstract.entity="NO">
+         <explicit name="connection_zone_category" optional="YES">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="land_template_terminal_class"/>
+         </explicit>
          <explicit name="associated_definition" optional="NO">
             <typename name="Land_physical_template"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
@@ -272,10 +279,6 @@
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Connection_zone_in_layout_template"/>
             <redeclaration entity-ref="Shape_feature"/>
-         </explicit>
-         <explicit name="connection_zone_category" optional="YES">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="land_template_terminal_class"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Shape_feature" attribute="element_name"/>
@@ -461,13 +464,13 @@
          </inverse>
       </entity>
       <entity name="Via_template_terminal" supertypes="Shape_feature" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="associated_definition" optional="NO">
-            <typename name="Via_template"/>
-            <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
-         </explicit>
          <explicit name="disallowed_inter_stratum_extent" optional="YES">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Stratum_technology_occurrence_link"/>
+         </explicit>
+         <explicit name="associated_definition" optional="NO">
+            <typename name="Via_template"/>
+            <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
          <explicit name="connection_area" optional="YES">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>

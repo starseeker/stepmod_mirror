@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.41 2005/03/29 20:57:53 thendrix Exp $
+$Id: common.xsl,v 1.42 2005/07/11 21:05:55 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -798,6 +798,7 @@ $Id: common.xsl,v 1.41 2005/03/29 20:57:53 thendrix Exp $
       <xsl:choose>
         <xsl:when test="$section_tmp='purpose'
                        or $section_tmp='scope'
+                       or $section_tmp='definition'
                        or $section_tmp='inforeqt'
                        or $section_tmp='fundamentals'
                        or $section_tmp='aam'
@@ -956,6 +957,19 @@ $Id: common.xsl,v 1.41 2005/03/29 20:57:53 thendrix Exp $
             Clause <a href="1_scope{$FILE_EXT}">1</a>
           </xsl:otherwise>
         </xsl:choose>
+      </xsl:when>
+
+      <xsl:when test="$section='definition'">
+        <xsl:variable name="def_href" select="concat('term-',substring-after(@linkend,':'))"/>
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="3_defs{$FILE_EXT}#{$def_href}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Clause <a href="3_defs{$FILE_EXT}"></a>
+          </xsl:otherwise>
+        </xsl:choose>
+
       </xsl:when>
 
       <xsl:when test="$section='inforeqt'">

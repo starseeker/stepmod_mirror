@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.2 2006/06/13 08:34:36 robbod Exp $
+ * $Id: STEPmod.java,v 1.3 2006/06/21 14:18:15 joshpearce2005 Exp $
  *
  * STEPmod.java
  *
@@ -24,7 +24,6 @@ import javax.swing.UIManager;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.stepmod.gui.STEPModFrame;
-import org.stepmod.gui.StepmodPropsMenu; // added in by  jpe
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;

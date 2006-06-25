@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="physical_unit_design_view" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/06/06 13:33:30 $" rcs.revision="$Revision: 1.42 $">
+<ext_descriptions module_directory="physical_unit_design_view" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/06/24 20:41:10 $" rcs.revision="$Revision: 1.43 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Physical_unit_design_view_arm
    <express_ref linkend="physical_unit_design_view:arm:Physical_unit_design_view_arm"/>
@@ -222,6 +222,10 @@ An <b>Assembly_component</b> is the occurrence of a <express_ref linkend="Part_v
 or <express_ref linkend="Physical_layout_template:arm:Physical_layout_template_arm.Template_definition"/> in an 
 assembly or in an interconnect. An <b>Assembly_component</b> 
 may include additional product data over that defined in  <express_ref linkend="Part_view_definition:arm:Part_view_definition_arm.Part_view_definition"/> or  <express_ref linkend="Physical_layout_template:arm:Physical_layout_template_arm.Template_definition"/>.  An <b>Assembly_component</b> that is no other type is intended to be an instance of a  <express_ref linkend="Part_view_definition:arm:Part_view_definition_arm.Part_view_definition"/> and not of a  <express_ref linkend="Physical_layout_template:arm:Physical_layout_template_arm.Template_definition"/>.
+	Requirements and parameters may be assigned directly to an <b>Assembly_component</b> in which case the interpretation
+	shall be that the assignment is valid for all design views related to the <b>Assembly_component</b>.
+	Requirements and parameters may be assigned through a member of <express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/>
+	in which case the interpretation shall be that the assignment is valid for only that design view.
 </p><example>
 <p>
 <module_ref linkend="physical_unit_design_view:4_entities:figure:ac">
@@ -242,7 +246,7 @@ An <b>Assembly_component</b> may be assembled onto an  <express_ref linkend="Ass
 in the realization of an <express_ref linkend="Assembly_module_design:arm:Assembly_module_design_arm.Assembly_module"/>. 
 An <b>Assembly_component</b> may be an occurrence of an <express_ref linkend="Assembly_module_usage_view:arm:Assembly_module_usage_view_arm.Assembly_module_usage_view"/>. 
 An <b>Assembly_component</b> may be an occurrence of an <express_ref linkend="Interconnect_module_usage_view:arm:Interconnect_module_usage_view_arm.Interconnect_module_usage_view"/>. 
-For the purposes of this model, the current interpretation is to treat an embedded component as a 
+For the purposes of this model, the current interpretation is to treat an embedded discrete component as a 
  <express_ref linkend="Assembly_module_design:arm:Assembly_module_design_arm.Packaged_component"/>. The <express_ref linkend="Assembly_module_with_interconnect_component:arm:Assembly_module_with_interconnect_component_arm.Interconnect_module_component_terminal"/> that mates 
 with the <express_ref linkend="Assembly_module_design:arm:Assembly_module_design_arm.Packaged_component_join_terminal"/> 
 of the embedded component is not visible when the  <express_ref linkend="Assembly_module_design:arm:Assembly_module_design_arm.Assembly_module"/> is assembled, 
@@ -250,8 +254,10 @@ but the  <express_ref linkend="Assembly_module_with_interconnect_component:arm:A
 to the  <express_ref linkend="Assembly_module_with_interconnect_component:arm:Assembly_module_with_interconnect_component_arm.Interconnect_module_component"/> for the embedded component.
 </note>
 <note number="2">
-The view supports the fact that the embedded component is installed 
-during part of the sequential manufacturing process for the <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Interconnect_module"/>.
+A discrete component that is installed or embedded
+during part of the sequential manufacturing process for the <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Interconnect_module"/>
+	is considered to be an <b>Assembly_component</b> since the form of the component is not realized
+	during the sequential manufacturing process.
 </note>
 <note number="3">
 A  <express_ref linkend="Physical_layout_template:arm:Physical_layout_template_arm.Template_definition"/> occurrence is not permitted in an assembly definition.
@@ -264,11 +270,18 @@ computer processor. The processor may choose to support traceability by using th
 corresponds to the component in the design.
 </note>
 <note number="5">
-Parameters may be assigned to <b>Assembly_component</b> by the  
+Planned parameters may be assigned to <b>Assembly_component</b> by the parameter assignment to
+	<express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/> by the 
 <express_ref linkend="Planned_characteristic:arm:Planned_characteristic_arm.Planned_characteristic"/> object through the 
-<express_ref linkend="Requirement_assignment:arm:Requirement_assignment_arm.Requirement_assignment"/>.
+<express_ref linkend="Requirement_assignment:arm:Requirement_assignment_arm.Requirement_assignment"/>  or
+	may be assigned directly.
 </note>
-
+<note number="5">
+Requirements may be assigned to <b>Assembly_component</b> by the requirement assignment to
+	<express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/> by the 
+<express_ref linkend="Requirement_assignment:arm:Requirement_assignment_arm.Requirement_assignment"/> or
+	may be assigned directly.
+</note>
 </ext_description>
 
 <!-- occurrence_contexts -->
@@ -399,63 +412,76 @@ thermoelectric cooler.
 <ext_description linkend="Physical_unit_design_view_arm.Assembly_item_number">
 <p>
 	An <b>Assembly_item_number</b> is an association of a set of <express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/>
-	with an identifier in the context of a phyiscal design.
+	with an identifier in the context of a physical design.  The identifier shall not contain any spaces or punctuation.
+	All members of the set of <express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/> reference
+	the same part with the consequence that an <b>Assembly_item_number</b> collects all applications of
+	a part in a design into one item.
 </p>
-<note>
+<note number="1">
 	Requirements and instructions may apply to a set of <express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/>,
 	not just to an individual.
 </note>
+	<note number="2">
+		An INTEGER is normally used as an item number.
+	</note>
 </ext_description>
 <ext_description linkend="Physical_unit_design_view_arm.Assembly_item_number.assembly_usage">
 <p>
-specifies a role of the <express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/> for the <b>Assembly_item_number</b>.
+specifies the role of the <express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/> for the <b>Assembly_item_number</b>.
 </p>
 </ext_description>
 <ext_description linkend="Physical_unit_design_view_arm.Assembly_item_number.item_number">
 <p>
-specifies an integer to identify <b>Assembly_item_number</b>.
+specifies a string to identify <b>Assembly_item_number</b>.
 </p>
 </ext_description>
 <ext_description linkend="Physical_unit_design_view_arm.Assembly_item_number.assembly">
-specifies the <express_ref linkend="Product_view_definition:arm:Product_view_definition_arm.Product_view_definition"/>, that
-is <express_ref linkend="product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship.related_view"/>
-for all members of <b>assembly_usage</b>.
+specifies the role of the <express_ref linkend="Product_view_definition:arm:Product_view_definition_arm.Product_view_definition"/>
+	that is in the role of 
+assembly for <b>Assembly_item_number</b>.
 </ext_description>
 <ext_description linkend="Physical_unit_design_view_arm.Assembly_item_number.part">
-specifies the <express_ref linkend="product_identification:arm:Product_identification_arm.Product"/>, that is
-the <express_ref linkend="product_version:arm:Product_version_arm.Product_version.of_product"/> of
-<express_ref linkend="product_view_definition:arm:Product_view_definition_arm.Product_view_definition.defined_version"/> of
-<express_ref linkend="Generic_product_occurrence:arm:Generic_product_occurrence_arm.Definition_based_product_occurrence.derived_from"/> of
-<express_ref linkend="product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship.relating_view"/>
-of all members of <b>assembly_usage</b>.
+specifies the role of the
+	<express_ref linkend="product_identification:arm:Product_identification_arm.Product"/>
+	 that is in the role of part for the <b>Assembly_item_number</b>.
 </ext_description>
 <ext_description linkend="Physical_unit_design_view_arm.Assembly_item_number.ur:UR1">
 The combination of 
 <express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_item_number.item_number"/> 
 and 
-<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_item_number.assembly"/> s
-hall be unique within a population of <b>Assembly_item_numbers</b>.
+<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_item_number.assembly"/> 
+	shall be unique within a population of <b>Assembly_item_numbers</b>.
 </ext_description>
 <ext_description linkend="Physical_unit_design_view_arm.Assembly_item_number.wr:WR1">
 The <express_ref linkend="product_version:arm:Product_version_arm.Product_version.of_product"/> of
 <express_ref linkend="product_view_definition:arm:Product_view_definition_arm.Product_view_definition.defined_version"/> of
 <express_ref linkend="Generic_product_occurrence:arm:Generic_product_occurrence_arm.Definition_based_product_occurrence.derived_from"/> of
-<express_ref linkend="product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship.relating_view"/>
+<express_ref linkend="product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship.related_view"/>
 of all members of <b>assembly_usage</b> shall refer same <express_ref linkend="product_identification:arm:Product_identification_arm.Product"/>
-and this <express_ref linkend="product_identification:arm:Product_identification_arm.Product"/> will be <express_ref linkend="physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_item_number.part"/>
+and that <express_ref linkend="product_identification:arm:Product_identification_arm.Product"/> will be 
+	in the role of <express_ref linkend="physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_item_number.part"/>
 for <b>Assembly_item_number</b>.
 </ext_description>
 <ext_description linkend="Physical_unit_design_view_arm.Assembly_item_number.wr:WR2">
 All members of <b>assembly_usage</b> shall refer same <express_ref linkend="physical_unit_design_view:arm:Physical_unit_design_view_arm.Part_design_view"/>
-as <express_ref linkend="product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship.related_view"/> and
-that <express_ref linkend="physical_unit_design_view:arm:Physical_unit_design_view_arm.Part_design_view"/> shall be <express_ref linkend="physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_item_number.assembly"/>
+as <express_ref linkend="product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship.relating_view"/> and
+that <express_ref linkend="physical_unit_design_view:arm:Physical_unit_design_view_arm.Part_design_view"/> shall be 
+	in the role of <express_ref linkend="physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_item_number.assembly"/>
 for <b>Assembly_item_number</b>.
 </ext_description>
 
 <!-- +++++++++++ Assembly_alternate_product +++++++++++ -->
 <ext_description linkend="Physical_unit_design_view_arm.Assembly_alternate_product">
-	An <b>Assembly_alternate_product</b> is a type of 
-	<express_ref linkend="Product_replacement:arm:Product_replacement_arm.Alternate_product_relationship"/>. 
+<p>
+		An <b>Assembly_alternate_product</b> is a type of 
+	<express_ref linkend="Product_replacement:arm:Product_replacement_arm.Alternate_product_relationship"/>
+	where the alternate relationship is limited to the scope of a specific design definition. 
+</p>
+	<note>
+		A product may be an alternate within the context of a consumer product intended for casual use
+		but not within the context of a commercial product that requires guaranteed availability
+		levels.
+	</note>
 </ext_description>
 
 <!-- basis_context -->

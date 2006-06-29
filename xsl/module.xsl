@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.198 2006/05/18 16:17:23 dmprice Exp $
+$Id: module.xsl,v 1.199 2006/05/19 10:39:45 dmprice Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -78,18 +78,19 @@ $Id: module.xsl,v 1.198 2006/05/18 16:17:23 dmprice Exp $
     select="translate(translate($wgnumber,$LOWER,$UPPER),$UPPER,$ERR)"/>
 
   <xsl:choose>
-    <xsl:when test="not($wgnumber)">
+    <xsl:when test="not($wgnumber) or normalize-space($wgnumber) = ''">
       Error WG-1: No WG number provided.
     </xsl:when>
 
-    <xsl:when test="$wgnumber = 00000">
+    <xsl:when test="contains($wgnumber_check,'*')">
+      Error WG-3: WG number must be an integer.
+    </xsl:when>
+    
+    <xsl:when test="$wgnumber = 0">
       <!-- the default provided by mkmodule -->
       Error WG-2: No WG number provided (0 is invalid).
     </xsl:when>
    
-    <xsl:when test="contains($wgnumber_check,'*')">
-      Error WG-3: WG number must be an integer.
-    </xsl:when>
     <xsl:otherwise>
       'OK'
     </xsl:otherwise>

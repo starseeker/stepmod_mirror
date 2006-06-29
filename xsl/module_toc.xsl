@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
+$Id: module_toc.xsl,v 1.43 2006/05/18 16:17:23 dmprice Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -105,7 +105,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
             </xsl:call-template>
           </xsl:variable>
 
-          <xsl:if test="$interface_clause != 0">
+          <xsl:if test="normalize-space($interface_clause) != '0'">
           <xsl:choose>
             <xsl:when test="count($arm_schema_xml/interface)>1">          
               &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#interfaces">
@@ -130,7 +130,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$constant_clause != 0">
+          <xsl:if test="normalize-space($constant_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($arm_schema_xml/constant)>1">
                 &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#constants">
@@ -155,7 +155,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_constant_clause != 0">
+          <xsl:if test="normalize-space($imported_constant_clause) != '0'">
             &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_constant">
               <xsl:value-of select="concat($imported_constant_clause,
                                     ' ARM imported constant modifications')"/>
@@ -171,7 +171,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$type_clause != 0">
+          <xsl:if test="normalize-space($type_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($arm_schema_xml/type)>1">
                 &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#types">
@@ -196,7 +196,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_type_clause != 0">
+          <xsl:if test="normalize-space($imported_type_clause) != '0'">
             &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_type">
               <xsl:value-of select="concat($imported_type_clause,
                                     ' ARM imported type modifications')"/>
@@ -212,7 +212,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$entity_clause != 0">
+          <xsl:if test="normalize-space($entity_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($arm_schema_xml/entity)>1">
                 &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#entities">
@@ -238,7 +238,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_entity_clause != 0">
+          <xsl:if test="normalize-space($imported_entity_clause) != '0'">
             &#160; &#160;
             <A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_entity">
               <xsl:value-of select="concat($imported_entity_clause,
@@ -255,7 +255,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>          
-          <xsl:if test="$subtype_constraint_clause != 0">
+          <xsl:if test="normalize-space($subtype_constraint_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($arm_schema_xml/subtype.constraint)>1">
                 &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#subtype_constraints">
@@ -280,7 +280,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$function_clause !=0">
+          <xsl:if test="normalize-space($function_clause) !=0">
             <xsl:choose>
               <xsl:when test="count($arm_schema_xml/function)>1">
                 &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#functions">
@@ -304,7 +304,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_function_clause != 0">
+          <xsl:if test="normalize-space($imported_function_clause) != '0'">
             &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_function">
               <xsl:value-of select="concat($imported_function_clause,
                                     ' ARM imported function modifications')"/>
@@ -319,7 +319,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$rule_clause !=0">
+          <xsl:if test="normalize-space($rule_clause) !=0">
             <xsl:choose>
               <xsl:when test="count($arm_schema_xml/rule)>1">
                 &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#rules">
@@ -343,7 +343,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_rule_clause != 0">
+          <xsl:if test="normalize-space($imported_rule_clause) != '0'">
             &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_rule">
               <xsl:value-of select="concat($imported_rule_clause,
                                     ' ARM imported rule modifications')"/>
@@ -358,7 +358,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$procedure_clause != 0">
+          <xsl:if test="normalize-space($procedure_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($arm_schema_xml/procedure)>1">
                 &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#procedures">
@@ -382,7 +382,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$arm_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_procedure_clause != 0">
+          <xsl:if test="normalize-space($imported_procedure_clause) != '0'">
             &#160; &#160;<A HREF="{$module_root}/sys/4_info_reqs{$FILE_EXT}#imported_procedure">
               <xsl:value-of select="concat($imported_procedure_clause,
                                     ' ARM imported procedure modifications')"/>
@@ -406,7 +406,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
             </xsl:call-template>
           </xsl:variable>
 
-          <xsl:if test="$constant_mim_clause != 0">
+          <xsl:if test="normalize-space($constant_mim_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($mim_schema_xml/constant)>1">
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#constants">
@@ -430,7 +430,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_constant_mim_clause != 0">
+          <xsl:if test="normalize-space($imported_constant_mim_clause) != '0'">
             &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_constant">
               <xsl:value-of select="concat($imported_constant_mim_clause,
                                     ' MIM imported constant modifications')"/>
@@ -446,7 +446,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$type_mim_clause != 0">
+          <xsl:if test="normalize-space($type_mim_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($mim_schema_xml/type)>1">
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#types">
@@ -470,7 +470,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_mim_type_clause != 0">
+          <xsl:if test="normalize-space($imported_mim_type_clause) != '0'">
             &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_type">
               <xsl:value-of select="concat($imported_mim_type_clause,
                                     ' MIM imported type modifications')"/>
@@ -485,7 +485,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$entity_mim_clause != 0">
+          <xsl:if test="normalize-space($entity_mim_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($mim_schema_xml/entity)>1">
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#entities">
@@ -510,7 +510,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_mim_entity_clause != 0">
+          <xsl:if test="normalize-space($imported_mim_entity_clause) != '0'">
             &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_entity">
               <xsl:value-of select="concat($imported_mim_entity_clause,
                                     ' MIM imported entity modifications')"/>
@@ -526,7 +526,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>          
-          <xsl:if test="$subtype_constraint_mim_clause != 0">
+          <xsl:if test="normalize-space($subtype_constraint_mim_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($mim_schema_xml/subtype.constraint)>1">
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#subtype_constraints">
@@ -552,7 +552,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$function_mim_clause != 0">
+          <xsl:if test="normalize-space($function_mim_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($mim_schema_xml/function)>1">
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#functions">
@@ -576,7 +576,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_mim_function_clause != 0">
+          <xsl:if test="normalize-space($imported_mim_function_clause) != '0'">
             &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_function">
               <xsl:value-of select="concat($imported_mim_function_clause,
                                     ' MIM imported function modifications')"/>
@@ -593,7 +593,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$rule_mim_clause != 0">
+          <xsl:if test="normalize-space($rule_mim_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($mim_schema_xml/rule)>1">
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#rules">
@@ -617,7 +617,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_mim_rule_clause != 0">
+          <xsl:if test="normalize-space($imported_mim_rule_clause) != '0'">
             &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_rule">
               <xsl:value-of select="concat($imported_mim_rule_clause,
                                     ' MIM imported rule modifications')"/>
@@ -632,7 +632,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$procedure_mim_clause != 0">
+          <xsl:if test="normalize-space($procedure_mim_clause) != '0'">
             <xsl:choose>
               <xsl:when test="count($mim_schema_xml/procedure)>1">
                 &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#procedures">
@@ -656,7 +656,7 @@ $Id: module_toc.xsl,v 1.42 2004/10/15 02:15:11 thendrix Exp $
               <xsl:with-param name="schema_name" select="$mim_schema_name"/>
             </xsl:call-template>
           </xsl:variable>
-          <xsl:if test="$imported_mim_procedure_clause != 0">
+          <xsl:if test="normalize-space($imported_mim_procedure_clause) != '0'">
             &#160; &#160; &#160;<A HREF="{$module_root}/sys/5_mim{$FILE_EXT}#imported_procedure">
               <xsl:value-of select="concat($imported_mim_procedure_clause,
                                     ' MIM imported procedure modifications')"/>

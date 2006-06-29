@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
+$Id: sect_contents.xsl,v 1.39 2006/05/19 10:58:00 dmprice Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -100,7 +100,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$interface_clause != 0">
+  <xsl:if test="normalize-space($interface_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/interface)>1">          
         &#160; &#160;
@@ -129,7 +129,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$constant_clause != 0">
+  <xsl:if test="normalize-space($constant_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/constant)>1">
           &#160; &#160;
@@ -161,7 +161,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_constant_clause != 0">
+  <xsl:if test="normalize-space($imported_constant_clause) != '0'">
       &#160; &#160;
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_constant">
         <xsl:value-of select="concat($imported_constant_clause,
@@ -180,7 +180,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:if test="$type_clause != 0">
+  <xsl:if test="normalize-space($type_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/type)>1">
           &#160; &#160;
@@ -211,7 +211,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_type_clause != 0">
+  <xsl:if test="normalize-space($imported_type_clause) != '0'">
       &#160; &#160; 
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_type">
         <xsl:value-of select="concat($imported_type_clause,
@@ -229,7 +229,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$entity_clause != 0">
+  <xsl:if test="normalize-space($entity_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/entity)>1">
           &#160; &#160;
@@ -260,7 +260,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_entity_clause != 0">
+  <xsl:if test="normalize-space($imported_entity_clause) != '0'">
       &#160; &#160;
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_entity">
         <xsl:value-of select="concat($imported_entity_clause,
@@ -278,7 +278,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$subtype_constraint_clause != 0">
+  <xsl:if test="normalize-space($subtype_constraint_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/subtype.constraint)>1">
           &#160; &#160;
@@ -310,7 +310,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$function_clause !=0">
+  <xsl:if test="normalize-space($function_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/function)>1">
           &#160; &#160;
@@ -340,7 +340,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_function_clause != 0">
+  <xsl:if test="normalize-space($imported_function_clause) != '0'">
       &#160; &#160;
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_function">
         <xsl:value-of select="concat($imported_function_clause,
@@ -357,7 +357,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$rule_clause !=0">
+  <xsl:if test="normalize-space($rule_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/rule)>1">
           &#160; &#160;
@@ -387,7 +387,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_rule_clause != 0">
+  <xsl:if test="normalize-space($imported_rule_clause) != '0'">
       &#160; &#160;
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_rule">
         <xsl:value-of select="concat($imported_rule_clause,
@@ -404,7 +404,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$procedure_clause != 0">
+  <xsl:if test="normalize-space($procedure_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($arm_schema_xml/procedure)>1">
           &#160; &#160;
@@ -434,7 +434,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$arm_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_procedure_clause != 0">
+  <xsl:if test="normalize-space($imported_procedure_clause) != '0'">
       &#160; &#160;
       <A HREF="./4_info_reqs{$FILE_EXT}#imported_procedure">
         <xsl:value-of select="concat($imported_procedure_clause,
@@ -466,7 +466,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
     </xsl:call-template>
   </xsl:variable>
   
-  <xsl:if test="$constant_mim_clause != 0">
+  <xsl:if test="normalize-space($constant_mim_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/constant)>1">
           &#160; &#160; &#160;
@@ -496,7 +496,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_constant_mim_clause != 0">
+  <xsl:if test="normalize-space($imported_constant_mim_clause) != '0'">
       &#160; &#160; &#160;
       <A HREF="./5_mim{$FILE_EXT}#imported_constant">
         <xsl:value-of select="concat($imported_constant_mim_clause,
@@ -514,7 +514,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$type_mim_clause != 0">
+  <xsl:if test="normalize-space($type_mim_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/type)>1">
           &#160; &#160; &#160;
@@ -544,7 +544,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_mim_type_clause != 0">
+  <xsl:if test="normalize-space($imported_mim_type_clause) != '0'">
       &#160; &#160; &#160;                              
       <A HREF="./5_mim{$FILE_EXT}#imported_type">
         <xsl:value-of select="concat($imported_mim_type_clause,
@@ -561,7 +561,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$entity_mim_clause != 0">
+  <xsl:if test="normalize-space($entity_mim_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/entity)>1">
           &#160; &#160; &#160;
@@ -592,7 +592,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_mim_entity_clause != 0">
+  <xsl:if test="normalize-space($imported_mim_entity_clause) != '0'">
       &#160; &#160; &#160;
       <A HREF="./5_mim{$FILE_EXT}#imported_entity">
         <xsl:value-of select="concat($imported_mim_entity_clause,
@@ -609,7 +609,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$subtype_constraint_mim_clause != 0">
+  <xsl:if test="normalize-space($subtype_constraint_mim_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/subtype.constraint)>1">
           &#160; &#160; &#160;
@@ -640,7 +640,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$function_mim_clause != 0">
+  <xsl:if test="normalize-space($function_mim_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/function)>1">
           &#160; &#160; &#160;
@@ -670,7 +670,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_mim_function_clause != 0">
+  <xsl:if test="normalize-space($imported_mim_function_clause) != '0'">
       &#160; &#160; &#160;
       <A HREF="./5_mim{$FILE_EXT}#imported_function">
         <xsl:value-of select="concat($imported_mim_function_clause,
@@ -688,7 +688,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$rule_mim_clause != 0">
+  <xsl:if test="normalize-space($rule_mim_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/rule)>1">
           &#160; &#160; &#160;
@@ -718,7 +718,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_mim_rule_clause != 0">
+  <xsl:if test="normalize-space($imported_mim_rule_clause) != '0'">
       &#160; &#160; &#160;
       <A HREF="./5_mim{$FILE_EXT}#imported_rule">
         <xsl:value-of select="concat($imported_mim_rule_clause,
@@ -735,7 +735,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$procedure_mim_clause != 0">
+  <xsl:if test="normalize-space($procedure_mim_clause) != '0'">
     <xsl:choose>
       <xsl:when test="count($mim_schema_xml/procedure)>1">
           &#160; &#160; &#160;
@@ -763,7 +763,7 @@ $Id: sect_contents.xsl,v 1.38 2006/05/18 16:17:23 dmprice Exp $
       <xsl:with-param name="schema_name" select="$mim_schema_name"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:if test="$imported_mim_procedure_clause != 0">
+  <xsl:if test="normalize-space($imported_mim_procedure_clause) != '0'">
       &#160; &#160; &#160;
       <A HREF="./5_mim{$FILE_EXT}#imported_procedure">
         <xsl:value-of select="concat($imported_mim_procedure_clause,

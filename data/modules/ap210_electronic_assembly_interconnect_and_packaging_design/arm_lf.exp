@@ -2422,8 +2422,7 @@ SUBTYPE OF (physical_component);
   SELF\definition_based_product_occurrence.derived_from : 
   assembly_module_usage_view;
 INVERSE
-  access_mechanisms : SET [2:?] OF assembly_module_component_terminal FOR 
-  associated_component;
+  access_mechanisms : SET [2:?] OF assembly_module_component_terminal FOR associated_component;
 WHERE
   wr1 : NOT EXISTS(SELF\product_view_definition.name);
 END_ENTITY;
@@ -3386,19 +3385,15 @@ ENTITY component_external_reference;
   reference_designation : STRING;
 END_ENTITY;
  
-ENTITY component_feature
-ABSTRACT SUPERTYPE OF (ONEOF (physical_component_feature, 
-laminate_component_feature))
-SUBTYPE OF (shape_element);
-  definition :  OPTIONAL feature_select;
-  SELF\shape_element.containing_shape : assembly_component;
-  SELF\shape_element.element_name : STRING;
-DERIVE
-  associated_component : assembly_component := SELF\shape_element.
-  containing_shape;
-UNIQUE
-  ur1 : definition, associated_component;
-  ur2 : SELF\shape_element.element_name, associated_component;
+ENTITY Component_feature
+  ABSTRACT SUPERTYPE
+  SUBTYPE OF (Shape_element);
+    definition           : OPTIONAL feature_select;
+    SELF\Shape_element.containing_shape RENAMED associated_component : Assembly_component;
+    SELF\Shape_element.element_name : STRING;
+  UNIQUE
+    UR1 : definition,associated_component;
+    UR2 : SELF\Shape_element.element_name, associated_component;
 END_ENTITY;
  
 ENTITY component_feature_external_reference;
@@ -3720,21 +3715,16 @@ SUBTYPE OF (component_termination_passage_template_terminal);
   stratum_technology_occurrence_link;
 END_ENTITY;
  
-ENTITY component_termination_passage_template_terminal
-ABSTRACT SUPERTYPE OF (ONEOF (
-component_termination_passage_template_interface_terminal, 
-component_termination_passage_template_join_terminal))
-SUBTYPE OF (shape_feature);
-  SELF\shape_element.containing_shape : component_termination_passage_template;
-  SELF\shape_feature.connection_area :  OPTIONAL SET [1:?] OF 
-  connection_zone_in_layout_template;
-DERIVE
-  associated_definition : component_termination_passage_template := SELF\
-  shape_element.containing_shape;
-UNIQUE
-  ur1 : SELF\shape_element.element_name, associated_definition;
-WHERE
-  wr1 : NOT EXISTS(SELF\shape_element.description);
+ENTITY Component_termination_passage_template_terminal
+  ABSTRACT SUPERTYPE OF (ONEOF (Component_termination_passage_template_interface_terminal,
+   Component_termination_passage_template_join_terminal))
+  SUBTYPE OF (Shape_feature);
+    SELF\Shape_element.containing_shape RENAMED associated_definition : Component_termination_passage_template;
+    SELF\Shape_feature.connection_area                                : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
+  UNIQUE
+    UR1 : SELF\Shape_element.element_name, associated_definition;
+  WHERE
+    WR1 : NOT EXISTS(SELF\Shape_element.description);
 END_ENTITY;
  
 ENTITY component_to_physical_usage_view_assignment
@@ -7219,26 +7209,18 @@ ENTITY land_template_join_terminal
 SUBTYPE OF (land_template_terminal);
 END_ENTITY;
  
-ENTITY land_template_terminal
-ABSTRACT SUPERTYPE OF (ONEOF (land_template_join_terminal, 
-land_template_interface_terminal))
-SUBTYPE OF (shape_feature);
-  SELF\shape_element.containing_shape : land_physical_template;
-  SELF\shape_feature.connection_area :  OPTIONAL SET [1:?] OF 
-  connection_zone_in_layout_template;
-  connection_zone_category :  OPTIONAL SET [1:?] OF 
-  land_template_terminal_class;
-DERIVE
-  associated_definition : land_physical_template := SELF\shape_element.
-  containing_shape;
-UNIQUE
-  ur1 : SELF\shape_element.element_name, associated_definition;
-WHERE
-  wr1 : NOT EXISTS(SELF\shape_feature.connection_area) OR EXISTS(
-    connection_zone_category);
-  wr2 : NOT EXISTS(SELF\shape_feature.connection_area) OR (SIZEOF(SELF\
-    shape_feature.connection_area) = SIZEOF(connection_zone_category));
-  wr3 : NOT EXISTS(SELF\shape_element.description);
+ENTITY Land_template_terminal
+  ABSTRACT SUPERTYPE OF (ONEOF (Land_template_join_terminal, Land_template_interface_terminal))
+  SUBTYPE OF (Shape_feature);
+    SELF\Shape_element.containing_shape RENAMED associated_definition : Land_physical_template;
+    SELF\Shape_feature.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;      
+    connection_zone_category                                          : OPTIONAL SET[1:?] OF land_template_terminal_class;
+  UNIQUE
+    UR1 : SELF\Shape_element.element_name, associated_definition;
+  WHERE
+    WR1 : NOT (EXISTS(SELF\Shape_feature.connection_area)) OR EXISTS(connection_zone_category);
+    WR2 : NOT (EXISTS(SELF\Shape_feature.connection_area)) OR (SIZEOF(SELF\Shape_feature.connection_area) = SIZEOF(connection_zone_category));
+    WR3 : NOT EXISTS(SELF\Shape_element.description);
 END_ENTITY;
  
 ENTITY language;
@@ -7260,44 +7242,36 @@ WHERE
   wr1 : NOT EXISTS(SELF\product_view_definition.additional_characterization);
 END_ENTITY;
  
-ENTITY layer_connection_point
-ABSTRACT SUPERTYPE OF (ONEOF (explicitly_located_layer_connection_point, 
-dependently_located_layer_connection_point))
-SUBTYPE OF (shape_element);
-  SELF\shape_element.element_name : STRING;
-  location_2d :  OPTIONAL cartesian_point;
-  location_3d :  OPTIONAL cartesian_point;
-  SELF\shape_element.containing_shape : design_layer_stratum;
-DERIVE
-  aggregate_join : SET [1:?] OF join_relationship := make_aggregate_join(
-  inter_join_path, intra_join_path, embedded_physical_component_path, 
-  unrouted_join_path);
-  reference_network : generic_physical_network := aggregate_join[1].
-  network_topology;
-  resident_design_layer_stratum : design_layer_stratum := SELF\shape_element.
-  containing_shape;
-INVERSE
-  inter_join_path : SET [0:1] OF inter_stratum_join_relationship FOR 
-  points_to_be_connected;
-  intra_join_path : SET OF intra_stratum_join_relationship FOR 
-  points_to_be_connected;
-  embedded_physical_component_path : SET OF 
-  stratum_embedded_physical_component_join_relationship FOR 
-  point_to_be_connected;
-  unrouted_join_path : SET [0:1] OF unrouted_join_relationship FOR unrouted_lcp
-  ;
-UNIQUE
-  ur1 : SELF\shape_element.element_name, resident_design_layer_stratum;
-WHERE
-  wr1 : EXISTS(location_2d) OR EXISTS(location_3d);
-  wr2 : NOT EXISTS(location_2d) OR (SIZEOF(location_2d\cartesian_point.
-    coordinates) = 2);
-  wr3 : NOT EXISTS(location_3d) OR (SIZEOF(location_3d\cartesian_point.
-    coordinates) = 3);
-  wr4 : EXISTS(reference_network);
-  wr5 : NOT EXISTS(SELF\shape_element.description);
-  wr6 : SIZEOF(QUERY(ijp <* intra_join_path | NOT (containing_shape :=: ijp.
-    associated_stratum))) = 0;
+ENTITY Layer_connection_point
+  ABSTRACT SUPERTYPE
+  SUBTYPE OF (Shape_element);
+    SELF\Shape_element.element_name : STRING;
+    location_2d                   : OPTIONAL Cartesian_point;
+    location_3d                   : OPTIONAL Cartesian_point;
+    SELF\Shape_element.containing_shape RENAMED resident_design_layer_stratum : Design_layer_stratum;
+  DERIVE
+    aggregate_join    : SET[1:?] OF join_relationship := 
+         make_aggregate_join(
+             inter_join_path,
+             intra_join_path,
+             embedded_physical_component_path,
+             unrouted_join_path);
+    reference_network : Generic_physical_network := aggregate_join[1].network_topology;
+  INVERSE
+    inter_join_path         : SET[0:1] OF Inter_stratum_join_relationship FOR points_to_be_connected;
+    intra_join_path         : SET [0:?] OF Intra_stratum_join_relationship FOR points_to_be_connected;
+    embedded_physical_component_path : SET[0:?] OF Stratum_embedded_physical_component_join_relationship FOR point_to_be_connected;
+    unrouted_join_path         : SET [0:1] OF Unrouted_join_relationship FOR unrouted_lcp;
+  UNIQUE
+    UR1 : SELF\Shape_element.element_name, resident_design_layer_stratum;
+  WHERE
+    WR1 : EXISTS(location_2d) OR EXISTS(location_3d);
+    WR2 : NOT (EXISTS(location_2d)) OR ((SIZEOF(location_2d\Cartesian_point.coordinates)) = 2);
+    WR3 : NOT (EXISTS(location_3d)) OR ((SIZEOF(location_3d\Cartesian_point.coordinates)) = 3);
+    WR4 : EXISTS(reference_network); 
+    WR5 : NOT EXISTS (SELF\Shape_element.description);
+    WR6 : SIZEOF(QUERY(ijp <* intra_join_path | NOT(resident_design_layer_stratum :=: ijp.associated_stratum)
+                )) = 0;
 END_ENTITY;
  
 ENTITY layer_qualified_layout_spacing_requirement_occurrence
@@ -8068,33 +8042,19 @@ WHERE
   wr1 : NOT EXISTS(SELF\product_view_definition.name);
 END_ENTITY;
  
-ENTITY non_feature_shape_element
-SUPERTYPE OF (ONEOF (derived_non_feature_shape_element, directed_axis, 
-positional_boundary, positional_boundary_member, tolerance_zone_boundary, 
-tolerance_zone_boundary_member, viewing_plane, seating_plane, 
-reference_graphic_registration_mark))
-SUBTYPE OF (shape_element);
-  SELF\shape_element.element_name : STRING;
-  SELF\shape_element.containing_shape : 
-  ee_product_definition_with_annotation_elements;
-DERIVE
-  scope : ee_product_definition_with_annotation_elements := SELF\shape_element.
-  containing_shape;
-INVERSE
-  element_shape : SET OF non_feature_shape_model FOR associated_element;
-  associated_usage_concept : SET OF usage_concept_usage_relationship FOR 
-  associated_usage;
-UNIQUE
-  ur1 : SELF\shape_element.element_name, scope;
-WHERE
-  wr1 : NOT ((SIZEOF(associated_usage_concept) > 0) XOR (SIZEOF(element_shape)
-     > 0));
-  wr2 : SIZEOF(QUERY(ucur <* associated_usage_concept | NOT (ucur\
-    usage_concept_usage_relationship.associated_shape_definition IN 
-    element_shape))) = 0;
-  wr3 : 
-    'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.ITEM_SHAPE'
-     IN TYPEOF(containing_shape);
+ENTITY Non_feature_shape_element
+  SUBTYPE OF (Shape_element);
+    SELF\Shape_element.element_name : STRING;
+    SELF\Shape_element.containing_shape RENAMED scope : ee_product_definition_with_annotation_elements;
+  INVERSE
+    element_shape            : SET[0:?] OF non_feature_shape_model FOR associated_element;
+    associated_usage_concept : SET[0:?] OF usage_concept_usage_relationship FOR associated_usage;
+  UNIQUE
+    UR1 : SELF\Shape_element.element_name, scope;
+  WHERE
+    WR1 : NOT ((SIZEOF(associated_usage_concept) > 0) XOR (SIZEOF(element_shape) > 0));
+    WR2 : SIZEOF(QUERY(ucur <* associated_usage_concept | NOT(ucur\Usage_concept_usage_relationship.associated_shape_definition IN element_shape))) = 0;
+    WR3 : 'AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_ARM_LF.ITEM_SHAPE' IN TYPEOF(scope);
 END_ENTITY;
  
 ENTITY non_feature_shape_element_relationship
@@ -8639,21 +8599,17 @@ UNIQUE
   ur1 : used_bare_die_terminal, terminated_device;
 END_ENTITY;
  
-ENTITY part_feature
-SUPERTYPE OF (ONEOF (package_orientation_feature, package_body))
-SUBTYPE OF (shape_feature);
-  SELF\shape_element.containing_shape : part_usage_view;
-  material_state_change :  OPTIONAL material_state_change_enumeration;
-  precedent_feature :  OPTIONAL part_feature;
-DERIVE
-  associated_definition : part_usage_view := SELF\shape_element.
-  containing_shape;
-INVERSE
-  subsequent_feature : SET [0:1] OF part_feature FOR precedent_feature;
-WHERE
-  wr1 : NOT EXISTS(precedent_feature) OR NOT (precedent_feature IN 
-    subsequent_feature);
-  wr2 : NOT EXISTS(SELF\shape_element.description);
+ENTITY Part_feature
+  SUBTYPE OF (Shape_feature);
+    SELF\Shape_element.containing_shape RENAMED associated_definition : Part_usage_view;
+    material_state_change   : OPTIONAL material_state_change_enumeration;
+    precedent_feature       : OPTIONAL Part_feature;
+  INVERSE
+    subsequent_feature      : SET [0:1] OF Part_feature for precedent_feature;
+  WHERE
+    WR1 : NOT EXISTS(precedent_feature) OR
+              NOT( precedent_feature IN subsequent_feature);    
+    WR2 : NOT EXISTS(SELF\Shape_element.description);
 END_ENTITY;
  
 ENTITY part_feature_based_template_location
@@ -10208,29 +10164,20 @@ WHERE
     subsequent_material\shape_element.element_name IN ['left']));
 END_ENTITY;
  
-ENTITY printed_part_template_terminal
-ABSTRACT SUPERTYPE OF (ONEOF (printed_part_template_join_terminal, 
-printed_part_template_interface_terminal) ANDOR 
-printed_part_cross_section_template_terminal ANDOR 
-structured_printed_part_template_terminal)
-SUBTYPE OF (shape_feature);
-  SELF\shape_element.containing_shape : printed_part_template;
-  connection_zone_category : printed_part_template_terminal_class;
-  SELF\shape_feature.connection_area :  OPTIONAL SET [1:?] OF 
-  connection_zone_in_layout_template;
-DERIVE
-  associated_definition : printed_part_template := SELF\shape_element.
-  containing_shape;
-INVERSE
-  connection_requirement : SET [0:1] OF 
-  printed_part_template_connected_terminals_definition FOR connected_terminals;
-  functional_usage_view_terminal : SET [0:1] OF 
-  functional_usage_view_to_printed_part_template_terminal_assignment FOR 
-  physical_usage_view_terminal;
-UNIQUE
-  ur1 : SELF\shape_element.element_name, associated_definition;
-WHERE
-  wr1 : NOT EXISTS(SELF\shape_element.description);
+ENTITY Printed_part_template_terminal
+  ABSTRACT SUPERTYPE OF (((ONEOF (Printed_part_template_join_terminal, Printed_part_template_interface_terminal))
+    ANDOR (Printed_part_cross_section_template_terminal)) ANDOR Structured_printed_part_template_terminal)
+  SUBTYPE OF (Shape_feature);
+    SELF\Shape_element.containing_shape RENAMED associated_definition    : Printed_part_template;
+    connection_zone_category : printed_part_template_terminal_class;
+    SELF\Shape_feature.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;      
+  INVERSE
+    connection_requirement            : SET[0:1] OF printed_part_template_connected_terminals_definition FOR connected_terminals;
+    functional_usage_view_terminal    : SET[0:1] OF functional_usage_view_to_printed_part_template_terminal_assignment FOR physical_usage_view_terminal;
+  UNIQUE
+    UR1 : SELF\Shape_element.element_name, associated_definition;
+  WHERE
+    WR1 : NOT EXISTS(SELF\Shape_element.description);
 END_ENTITY;
  
 ENTITY printed_part_template_terminal_relationship;
@@ -11993,19 +11940,14 @@ INVERSE
   composing_link : SET [1:?] OF stratum_technology_occurrence_link FOR scope;
 END_ENTITY;
  
-ENTITY stratum_stack_model_to_interconnect_assignment
-SUBTYPE OF (view_definition_relationship);
-  SELF\view_definition_relationship.relating_view : design_stack_model;
-  SELF\view_definition_relationship.related_view : interconnect_module;
-DERIVE
-  concept : design_stack_model := SELF\view_definition_relationship.
-  relating_view;
-  design : interconnect_module := SELF\view_definition_relationship.
-  related_view;
-WHERE
-  wr1 : NOT EXISTS(SELF\view_definition_relationship.relation_type);
+ENTITY Stratum_stack_model_to_interconnect_assignment
+  SUBTYPE OF (View_definition_relationship);
+   SELF\View_definition_relationship.relating_view RENAMED concept : Design_stack_model;
+   SELF\View_definition_relationship.related_view RENAMED design   : Interconnect_module;
+  WHERE
+   WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
 END_ENTITY;
- 
+
 ENTITY stratum_surface;
   name : stratum_surface_designation;
   of_stratum : stratum;

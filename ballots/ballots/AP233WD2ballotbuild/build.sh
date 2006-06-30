@@ -1,4 +1,12 @@
 #!/bin/sh
+# $Id:$
+#
+# $Log:$
+#
+#
+#
+
+
 
 ANT_HOME=/usr/local/ant ; export ANT_HOME
 ANT_OPTS=-Xmx1024m ; export ANT_OPTS

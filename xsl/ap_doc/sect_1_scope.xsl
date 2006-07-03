@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_1_scope.xsl,v 1.15 2003/10/10 12:44:21 robbod Exp $
+$Id: sect_1_scope.xsl,v 1.16 2005/07/11 19:52:56 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -42,7 +42,16 @@ $Id: sect_1_scope.xsl,v 1.15 2003/10/10 12:44:21 robbod Exp $
 			</p>	
     <!-- TODO - need to check whether there are any notes in the inscope
          statements, if so the note will need to be numbered -->
-    <xsl:variable name="note_number" select="''"/>
+    <xsl:variable name="note_number">
+      <xsl:choose>
+        <xsl:when test="(count(./inscope//note) = 0) or (count(./outscope//note) = 0)">
+          <xsl:value-of select="''"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="'1'"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
     <p class="note">
       <small>
         NOTE&#160;

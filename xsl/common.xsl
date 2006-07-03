@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.164 2006/03/21 23:12:58 thendrix Exp $
+$Id: common.xsl,v 1.165 2006/05/18 16:17:23 dmprice Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -660,7 +660,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
 </xsl:template>
 
 <!-- called from <note> to deal with first paragraph -->
-<xsl:template match="p" mode="first_paragraphutput_men_note">
+<xsl:template match="p" mode="first_paragraph_note">
   <xsl:param name="id"/>
   <xsl:param name="number"/>
   <xsl:variable name="aname">

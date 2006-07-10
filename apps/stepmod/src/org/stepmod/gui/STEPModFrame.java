@@ -587,6 +587,10 @@ public class STEPModFrame extends javax.swing.JFrame {
         outputPopupMenu = new javax.swing.JPopupMenu();
         clearOutputMenuItem = new javax.swing.JMenuItem();
         stepmodMainSplitPane = new javax.swing.JSplitPane();
+        jPanel1 = new javax.swing.JPanel();
+        jToolBar1 = new javax.swing.JToolBar();
+        jLabel1 = new javax.swing.JLabel();
+        findPartjTextField = new javax.swing.JTextField();
         repositorySplitPane = new javax.swing.JSplitPane();
         repositoryTreeScrollPane = new javax.swing.JScrollPane();
         repositoryJTree = new javax.swing.JTree();
@@ -621,22 +625,54 @@ public class STEPModFrame extends javax.swing.JFrame {
         setTitle("STEPMod App");
         stepmodMainSplitPane.setDividerLocation(500);
         stepmodMainSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        stepmodMainSplitPane.setOneTouchExpandable(true);
         stepmodMainSplitPane.setPreferredSize(new java.awt.Dimension(302, 400));
         stepmodMainSplitPane.setRequestFocusEnabled(false);
-        repositorySplitPane.setBorder(javax.swing.BorderFactory.createTitledBorder("STEPmod Repository"));
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("STEPmod Repository"));
+        jPanel1.setMinimumSize(new java.awt.Dimension(0, 0));
+        jPanel1.setPreferredSize(new java.awt.Dimension(150, 200));
+        jToolBar1.setFloatable(false);
+        jToolBar1.setMinimumSize(new java.awt.Dimension(0, 0));
+        jLabel1.setText("Part number: ");
+        jToolBar1.add(jLabel1);
+
+        findPartjTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                findPartjTextFieldActionPerformed(evt);
+            }
+        });
+
+        jToolBar1.add(findPartjTextField);
+
+        jPanel1.add(jToolBar1, java.awt.BorderLayout.NORTH);
+
+        repositorySplitPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         repositorySplitPane.setDividerLocation(400);
-        repositorySplitPane.setPreferredSize(new java.awt.Dimension(300, 600));
+        repositorySplitPane.setMinimumSize(new java.awt.Dimension(0, 0));
+        repositorySplitPane.setOneTouchExpandable(true);
+        repositorySplitPane.setPreferredSize(new java.awt.Dimension(100, 500));
+        repositoryTreeScrollPane.setAutoscrolls(true);
+        repositoryTreeScrollPane.setMinimumSize(new java.awt.Dimension(0, 0));
+        repositoryTreeScrollPane.setPreferredSize(new java.awt.Dimension(75, 200));
         repositoryTreeScrollPane.setViewportView(repositoryJTree);
 
         repositorySplitPane.setLeftComponent(repositoryTreeScrollPane);
 
+        repositoryScrollPane.setAutoscrolls(true);
+        repositoryScrollPane.setMinimumSize(new java.awt.Dimension(0, 0));
+        repositoryScrollPane.setPreferredSize(new java.awt.Dimension(75, 200));
         repositoryScrollPane.setViewportView(repositoryTextPane);
 
         repositorySplitPane.setRightComponent(repositoryScrollPane);
 
-        stepmodMainSplitPane.setLeftComponent(repositorySplitPane);
+        jPanel1.add(repositorySplitPane, java.awt.BorderLayout.CENTER);
+
+        stepmodMainSplitPane.setLeftComponent(jPanel1);
 
         stepModOutputPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("STEPmod output"));
+        stepModOutputPanel.setMinimumSize(new java.awt.Dimension(0, 0));
         stepModOutputTextArea.setColumns(20);
         stepModOutputTextArea.setRows(5);
         stepModOutputScrollPane.setViewportView(stepModOutputTextArea);
@@ -649,7 +685,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         );
         stepModOutputPanelLayout.setVerticalGroup(
             stepModOutputPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(stepModOutputScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
+            .add(stepModOutputScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 23, Short.MAX_VALUE)
         );
         stepmodMainSplitPane.setRightComponent(stepModOutputPanel);
 
@@ -753,10 +789,15 @@ public class STEPModFrame extends javax.swing.JFrame {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .add(stepmodMainSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 656, Short.MAX_VALUE))
+                .add(stepmodMainSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 703, Short.MAX_VALUE))
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void findPartjTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_findPartjTextFieldActionPerformed
+        toBeDone("findPartjTextFieldActionPerformed");
+        
+    }//GEN-LAST:event_findPartjTextFieldActionPerformed
     
     private void testCVSMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testCVSMenuItemActionPerformed
         StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
@@ -816,7 +857,11 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem contentsMenuItem;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
+    private javax.swing.JTextField findPartjTextField;
     private javax.swing.JMenu helpMenu;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JToolBar jToolBar1;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem mkApMenuItem;
     private javax.swing.JMenuItem mkModuleMenuItem;

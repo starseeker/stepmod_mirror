@@ -318,23 +318,24 @@ public class STEPModFrame extends javax.swing.JFrame {
         });
         allModulesPopupMenu.add(openModuleNodesMenuItem);
         
-        // Open all module selected nodes        
+        // Open all module selected nodes
         javax.swing.JMenuItem openSelectedModuleNodesMenuItem;
         openSelectedModuleNodesMenuItem = new javax.swing.JMenuItem("Open all selected module nodes");
         openSelectedModuleNodesMenuItem.setToolTipText("Open all module nodes that have been in the tree.");
         openSelectedModuleNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                
+                openAllSelectedModuleNodes();
             }
         });
         allModulesPopupMenu.add(openSelectedModuleNodesMenuItem);
         
-        // Clear all module selected nodes      
+        // Clear all module selected nodes
         javax.swing.JMenuItem clearSelectedModuleNodesMenuItem;
         clearSelectedModuleNodesMenuItem = new javax.swing.JMenuItem("Clear all selected module nodes");
         clearSelectedModuleNodesMenuItem.setToolTipText("Clear all module nodes that have been in the tree.");
         clearSelectedModuleNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearAllSelectedModuleNodes();
             }
         });
         allModulesPopupMenu.add(clearSelectedModuleNodesMenuItem);
@@ -391,6 +392,14 @@ public class STEPModFrame extends javax.swing.JFrame {
     
     private void openAllModuleNodes() {
         toBeDone("STEPModFrame.openAllModuleNodes");
+    }
+    
+    private void openAllSelectedModuleNodes() {
+        toBeDone("STEPModFrame.openAllSelectedModuleNodes");
+    }
+    
+    private void clearAllSelectedModuleNodes() {
+        toBeDone("STEPModFrame.clearAllSelectedModuleNodes");
     }
     
     private void initModulePopupMenu() {

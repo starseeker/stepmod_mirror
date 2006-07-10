@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.3 2006/06/14 09:49:53 robbod Exp $
+ * $Id: StepmodPart.java,v 1.4 2006/06/14 10:25:19 joshpearce2005 Exp $
  *
  * StepmodPart.java
  *
@@ -16,11 +16,14 @@
 
 package org.stepmod;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.BufferedWriter;
-import org.stepmod.cvschk.StepmodAnt;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
 
 /**
  *
@@ -39,7 +42,7 @@ public class StepmodPart {
     private String checklistInternalReview;
     private String checklistProjectLeader;
     private String checklistConvener;
-    private String status;
+    private String isoStatus;
     private String language;
     private String publicationYear;
     private String publicationDate;
@@ -241,19 +244,19 @@ public class StepmodPart {
     }
     
     /**
-     * Returns the status of the StepmodPart
-     * @return return status
+     * Returns the ISO status of the part. E.g. CD CD-TS TS DIS FDIS IS
+     * @return return ISO stage of the part.
      */
-    public String getStatus() {
-        return status;
+    public String getIsoStatus() {
+        return isoStatus;
     }
     
     /**
-     * Sets the status of the StepmodPart
-     * @param status a String representing the status of the StepmodPart
+     * Sets the ISO status of the part. E.g. CD CD-TS TS DIS FDIS IS
+     * @param status a String representing the status of the part
      */
-    public void setStatus(String status) {
-        this.status = status;
+    public void setIsoStatus(String status) {
+        this.isoStatus = status;
     }
     
     /**
@@ -382,20 +385,6 @@ public class StepmodPart {
     }
     
     
-    
-    
-    
-    /**
-     * @rbn
-     * Use StepModAnt to execute a CVS update
-     * Creates a new instance of StepmodAnt and executes the method runCvs
-     * passing in the paramaters based on the module selected
-     */
-    public void cvsUpdateDevelopmentRevision() {
-        StepmodAnt stpAnt = new StepmodAnt();
-        stpAnt.runCvs( getStepMod(), getName(), "data/modules/"+getName(), "update" );
-    }
-    
     /**
      * Use StepModAnt to execute a CVS checkout of
      * a specified release
@@ -435,6 +424,78 @@ public class StepmodPart {
         
         getStepMod().getStepModGui().toBeDone("StepmodPart.cvsTagRecord");
     }
+    
+    
+    /**
+     * Updates the cm_record.xml file with the new releases that are stored in CmRecord class
+     */
+    public void updateCmRecordFile() {
+        getStepMod().getStepModGui().toBeDone("STEPmod.updateCmRecordFile");
+    }
+    
+    
+    
+    /**
+     * Generates the identifier for a release of a part
+     *
+     * @return The release identifier.
+     */
+    public String getNextReleaseId() {
+        // Get today's date
+        Date date = new Date();
+        Format formatter = new SimpleDateFormat("yyyyMMdd");
+        String formattedDate = formatter.format(date);
+        
+        String type = "";
+        if (this instanceof StepmodModule) {
+            type = "mod";
+        } else {
+            
+        }
+        
+        /*
+         * Count the number of releases of a part at a given edition and stage
+         * increment. This is a component used to create the release identifier.
+         */
+        int relCount = 0;
+        for (Iterator it = this.getCmRecord().getHasCmReleases().iterator(); it.hasNext();) {
+            CmRelease cmRelease = (CmRelease) it.next();
+            if (cmRelease.getEdition().equals(this.getVersion()) &&
+                    cmRelease.getIsoStatus().equals(this.getIsoStatus())) {
+                relCount++;
+            }
+        }
+        String releaseSeq = "r"+relCount++;
+        
+        String releaseId =
+                type + "-" + this.getName() +
+                "-ed" + this.getVersion()  +
+                "-" + this.getIsoStatus() +
+                "-" + releaseSeq +
+                "-" + formattedDate;
+        return(releaseId);
+    }
+    
+    /**
+     * Generates the release date for the part
+     */
+    public String getReleaseDate() {
+        Date date = new Date();
+        Format formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss");
+        return(formatter.format(date));
+    }
+    
+    
+    /**
+     * Creates a new release for the module. This will make a new instance of CmRelease.
+     * The cm_record.xml file will not be updated until the updateCmRecordFile operation is invoked.
+     * @return the CmRelease just created
+     */
+    public CmRelease mkCmRelease(String who, String releaseStatus, String releaseDesciption) {
+        CmRelease cmRel = new CmRelease(this, who, releaseStatus, releaseDesciption);
+        return(cmRel);
+    }
+    
     
     
 }

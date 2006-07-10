@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.3 2006/06/21 14:18:15 joshpearce2005 Exp $
+ * $Id: STEPmod.java,v 1.4 2006/06/22 09:15:54 robbod Exp $
  *
  * STEPmod.java
  *
@@ -17,8 +17,11 @@
 package org.stepmod;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.TreeMap;
 import javax.swing.UIManager;
 import javax.xml.parsers.SAXParser;
@@ -40,7 +43,7 @@ public class STEPmod {
     private TreeMap hasResourceDocs;
     private TreeMap hasResources;
     private STEPModFrame stepModGui;
-    
+    private Properties properties = new Properties();
     
     private String applicationDir;
     
@@ -54,6 +57,8 @@ public class STEPmod {
         hasApplicationProtocols  = new TreeMap();
         hasResourceDocs = new TreeMap();
         hasResources = new TreeMap();
+        
+        readStepmodProperties();
     }
     
     /**
@@ -446,6 +451,43 @@ public class STEPmod {
         this.toBeDone("STEPmod.help");
     }
     
+    /**
+     * Read the Stepmod.properties file
+     */
+    public void readStepmodProperties() {
+        try {
+            properties.load(new FileInputStream(getRootDirectory()+"/stepmod.properties"));
+        } catch (IOException e) {
+        }
+    }
+    
+    /**
+     * Write the Stepmod.properties file
+     */
+    public void writeStepmodProperties() {
+        try {
+            properties.store(new FileOutputStream("filename.properties"), null);
+        } catch (IOException e) {
+        }
+    }
+    
+    /**
+     * Get a property from the Stepmod.properties file
+     * @param propName the name of the property whose value is being returned
+     * @return returns the value of the property
+     */
+    public String getStepmodProperty(String propName) {
+        return(properties.getProperty(propName));
+    }
+    
+    /**
+     * Set a property from the Stepmod.properties file
+     * @param propName the name of the property whose value is being set
+     * @param propValue the value being set to the property
+     */
+    public void setStepmodProperty(String propName, String propValue) {
+        properties.setProperty(propName, propValue);
+    }
     
     /**
      * Reads the property file stepmod.properties
@@ -472,8 +514,6 @@ public class STEPmod {
             
             e.printStackTrace();
         }
-        
-        
         return temp.toString();
     }
     
@@ -496,6 +536,13 @@ public class STEPmod {
         } catch(IOException ex){
             
         }
+    }
+    
+    /**
+     * Returns the release of STEPmod that is currently checked out.
+     */
+    String getStepmodRelease() {
+        return null;
     }
     
 }

@@ -15,20 +15,15 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Style;
-import javax.swing.text.StyledDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import org.stepmod.CmRecord;
@@ -39,6 +34,7 @@ import org.stepmod.StepmodModule;
 import org.stepmod.StepmodPart;
 import org.stepmod.StepmodResource;
 import org.stepmod.StepmodResourceDoc;
+import org.stepmod.cvschk.StepmodCvs;
 
 /**
  *
@@ -191,7 +187,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         // Iterate through all the modules creating nodes and adding them to the tree
         DefaultMutableTreeNode modulesTreeNode = new DefaultMutableTreeNode("Modules");
         rootTreeNode.add(modulesTreeNode);
-        for (Iterator it=stepMod.getModulesHash().entrySet().iterator(); it.hasNext(); ) {
+        for (Iterator it=getStepMod().getModulesHash().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             StepmodModule moduleNode = (StepmodModule)entry.getValue();
             DefaultMutableTreeNode moduleTreeNode = new DefaultMutableTreeNode(moduleNode);
@@ -220,14 +216,14 @@ public class STEPModFrame extends javax.swing.JFrame {
             moduleTreeNode.add(releasesTreeNode);
             for (Iterator j = moduleNode.getCmRecord().getHasCmReleases().iterator(); j.hasNext();) {
                 CmRelease cmRelease = (CmRelease) j.next();
-                addReleaseToTree(cmRelease, moduleTreeNode);
+                addReleaseToTree(cmRelease, moduleTreeNode, false);
             }
         }
         
         // Iterate through all the Application protocols creating nodes and adding them to the tree
         DefaultMutableTreeNode applicationProtocolsTreeNode = new DefaultMutableTreeNode("Application protocols");
         rootTreeNode.add(applicationProtocolsTreeNode);
-        for (Iterator it=stepMod.getApplicationProtocolsHash().entrySet().iterator(); it.hasNext(); ) {
+        for (Iterator it=getStepMod().getApplicationProtocolsHash().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             StepmodApplicationProtocol applicationProtocolNode = (StepmodApplicationProtocol)entry.getValue();
             DefaultMutableTreeNode applicationProtocolTreeNode = new DefaultMutableTreeNode(applicationProtocolNode);
@@ -238,7 +234,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         // Iterate through all the Resource documents creating nodes and adding them to the tree
         DefaultMutableTreeNode resourceDocsTreeNode = new DefaultMutableTreeNode("Resource documents");
         rootTreeNode.add(resourceDocsTreeNode);
-        for (Iterator it=stepMod.getResourceDocsHash().entrySet().iterator(); it.hasNext(); ) {
+        for (Iterator it=getStepMod().getResourceDocsHash().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             StepmodResourceDoc resourceDocNode = (StepmodResourceDoc)entry.getValue();
             DefaultMutableTreeNode resourceDocTreeNode = new DefaultMutableTreeNode(resourceDocNode);
@@ -248,7 +244,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         // Iterate through all the Resource schemas creating nodes and adding them to the tree
         DefaultMutableTreeNode resourceSchemasTreeNode = new DefaultMutableTreeNode("Resource schemas");
         rootTreeNode.add(resourceSchemasTreeNode);
-        for (Iterator it=stepMod.getResourcesHash().entrySet().iterator(); it.hasNext(); ) {
+        for (Iterator it=getStepMod().getResourcesHash().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             StepmodResource resourceNode = (StepmodResource)entry.getValue();
             DefaultMutableTreeNode resourceTreeNode = new DefaultMutableTreeNode(resourceNode);
@@ -305,9 +301,45 @@ public class STEPModFrame extends javax.swing.JFrame {
     }
     
     
+    /**
+     * Setup the popup menu associated with the modules
+     */
     private void initAllModulesPopupMenu() {
-        // Setup the popoup menu associated with the modules
         allModulesPopupMenu = new PopupMenuWithObject();
+        
+        // Open all module nodes
+        javax.swing.JMenuItem openModuleNodesMenuItem;
+        openModuleNodesMenuItem = new javax.swing.JMenuItem("Open all module nodes");
+        openModuleNodesMenuItem.setToolTipText("Open all module nodes in the tree.");
+        openModuleNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openAllModuleNodes();
+            }
+        });
+        allModulesPopupMenu.add(openModuleNodesMenuItem);
+        
+        // Open all module selected nodes        
+        javax.swing.JMenuItem openSelectedModuleNodesMenuItem;
+        openSelectedModuleNodesMenuItem = new javax.swing.JMenuItem("Open all selected module nodes");
+        openSelectedModuleNodesMenuItem.setToolTipText("Open all module nodes that have been in the tree.");
+        openSelectedModuleNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                
+            }
+        });
+        allModulesPopupMenu.add(openSelectedModuleNodesMenuItem);
+        
+        // Clear all module selected nodes      
+        javax.swing.JMenuItem clearSelectedModuleNodesMenuItem;
+        clearSelectedModuleNodesMenuItem = new javax.swing.JMenuItem("Clear all selected module nodes");
+        clearSelectedModuleNodesMenuItem.setToolTipText("Clear all module nodes that have been in the tree.");
+        clearSelectedModuleNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            }
+        });
+        allModulesPopupMenu.add(clearSelectedModuleNodesMenuItem);
+        
+        allModulesPopupMenu.add(new javax.swing.JSeparator());
         
         // Update to development revisions
         javax.swing.JMenuItem createCvsUpdateAllDevelopmentRevisionMenuItem;
@@ -315,7 +347,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         createCvsUpdateAllDevelopmentRevisionMenuItem.setToolTipText("Update all the modules to the latest revisions from CVS.");
         createCvsUpdateAllDevelopmentRevisionMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stepMod.cvsUpdateAllModulesDevelopmentRevision();
+                getStepMod().cvsUpdateAllModulesDevelopmentRevision();
             }
         });
         allModulesPopupMenu.add(createCvsUpdateAllDevelopmentRevisionMenuItem);
@@ -326,7 +358,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         createCvsUpdateAllLatestRevisionMenuItem.setToolTipText("Update all the modules to the latest released versions.");
         createCvsUpdateAllLatestRevisionMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stepMod.cvsUpdateAllModulesLatestRevision();
+                getStepMod().cvsUpdateAllModulesLatestRevision();
             }
         });
         allModulesPopupMenu.add(createCvsUpdateAllLatestRevisionMenuItem);
@@ -338,13 +370,28 @@ public class STEPModFrame extends javax.swing.JFrame {
         createCvsUpdateAllLatestPublicationsMenuItem.setToolTipText("Update all the modules to the latest published edition (CD, DIS, TS, IS). If not published");
         createCvsUpdateAllLatestPublicationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stepMod.cvsUpdateAllModulesLatestPublications();
+                getStepMod().cvsUpdateAllModulesLatestPublications();
             }
         });
         allModulesPopupMenu.add(createCvsUpdateAllLatestPublicationsMenuItem);
         
+        // Update all to selected revisions
+        javax.swing.JMenuItem createCvsUpdateAllModulesSelectedRevisionsMenuItem;
+        createCvsUpdateAllModulesSelectedRevisionsMenuItem = new javax.swing.JMenuItem("Update ALL modules to selected revisions");
+        createCvsUpdateAllModulesSelectedRevisionsMenuItem.setToolTipText("Update all the modules to the revisions selected.");
+        createCvsUpdateAllModulesSelectedRevisionsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                // TODO - iterate through all the selected revsions and update.
+                //getStepMod().cvsUpdateAllModulesSelectedRevisions();
+            }
+        });
+        allModulesPopupMenu.add(createCvsUpdateAllModulesSelectedRevisionsMenuItem);
+        
     }
     
+    private void openAllModuleNodes() {
+        toBeDone("STEPModFrame.openAllModuleNodes");
+    }
     
     private void initModulePopupMenu() {
         // Setup the popoup menu associated with individual modules
@@ -358,24 +405,12 @@ public class STEPModFrame extends javax.swing.JFrame {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
                 StepmodModule module = (StepmodModule) node.getUserObject();
-                module.cvsUpdateDevelopmentRevision();
+                StepmodCvs stepmodCvs = new StepmodCvs(module.getStepMod());
+                stepmodCvs.cvsUpdate(module.getDirectory());
             }
         });
         modulePopupMenu.add(createCvsUpdateDevelopmentRevisionMenuItem);
         
-        // Make a new release option
-        javax.swing.JMenuItem createCmReleaseMenuItem;
-        createCmReleaseMenuItem = new javax.swing.JMenuItem("Create new release");
-        createCmReleaseMenuItem.setToolTipText("Creates a new release of the module. The saved record and CVS will only be updated after it has been committed");
-        createCmReleaseMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
-                StepmodModule module = (StepmodModule) node.getUserObject();
-                CmRelease cmRelease = module.mkCmRelease();
-                module.getStepMod().getStepModGui().addReleaseToTree(cmRelease, node);
-            }
-        });
-        modulePopupMenu.add(createCmReleaseMenuItem);
         
         // Checkout a given release
         javax.swing.JMenuItem createCvsCoReleaseMenuItem;
@@ -417,6 +452,21 @@ public class STEPModFrame extends javax.swing.JFrame {
         modulePopupMenu.add(createCvsCoPublishedReleaseMenuItem);
         
         modulePopupMenu.add(new JSeparator());
+        // Make a new release option
+        javax.swing.JMenuItem createCmReleaseMenuItem;
+        createCmReleaseMenuItem = new javax.swing.JMenuItem("Create new release");
+        createCmReleaseMenuItem.setToolTipText("Creates a new release of the module. The saved record and CVS will only be updated after it has been committed");
+        createCmReleaseMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                StepmodModule module = (StepmodModule) node.getUserObject();
+                new STEPModMkReleaseDialog(module, node).setVisible(true);
+                //CmRelease cmRelease = module.mkCmRelease();
+                //module.getStepMod().getStepModGui().addReleaseToTree(cmRelease, node);
+            }
+        });
+        modulePopupMenu.add(createCmReleaseMenuItem);
+        
         // Commit CM record option
         javax.swing.JMenuItem createCmRecordMenuItem;
         createCmRecordMenuItem = new javax.swing.JMenuItem("Commit CM Record");
@@ -463,7 +513,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     /**
      * Add the release to the tree node of releases for a given StepmodPart
      */
-    public void addReleaseToTree(CmRelease cmRelease, DefaultMutableTreeNode stepPartNode) {
+    public void addReleaseToTree(CmRelease cmRelease, DefaultMutableTreeNode stepPartNode, boolean shouldBeVisible) {
         // Find the release nodes - always the last one
         DefaultMutableTreeNode releasesNode = (DefaultMutableTreeNode) stepPartNode.getLastChild();
         DefaultMutableTreeNode releaseNode = new DefaultMutableTreeNode(cmRelease);
@@ -472,8 +522,14 @@ public class STEPModFrame extends javax.swing.JFrame {
         treeModel.insertNodeInto(releaseNode, releasesNode, releasesNode.getChildCount());
         TreePath path = new TreePath(releaseNode.getPath());
         repositoryJTree.expandPath(path);
+        //Make sure the user can see the lovely new node.
+        if (shouldBeVisible) {
+            repositoryJTree.scrollPathToVisible(path);
+            repositoryJTree.setSelectionPath(path);
+        }
         treeModel.nodeChanged(releasesNode.getParent());
     }
+    
     
     
     /**
@@ -508,6 +564,10 @@ public class STEPModFrame extends javax.swing.JFrame {
                 JOptionPane.WARNING_MESSAGE);
     }
     
+    public STEPmod getStepMod() {
+        return stepMod;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -534,6 +594,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         mkApMenuItem = new javax.swing.JMenuItem();
         mkdResDocMenuItem = new javax.swing.JMenuItem();
         setStepModProps = new javax.swing.JMenuItem();
+        testCVSMenuItem = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         contentsMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
@@ -636,6 +697,15 @@ public class STEPModFrame extends javax.swing.JFrame {
 
         toolsMenu.add(setStepModProps);
 
+        testCVSMenuItem.setText("Test CVS connection");
+        testCVSMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                testCVSMenuItemActionPerformed(evt);
+            }
+        });
+
+        toolsMenu.add(testCVSMenuItem);
+
         menuBar.add(toolsMenu);
 
         helpMenu.setText("Help");
@@ -679,6 +749,11 @@ public class STEPModFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
+    private void testCVSMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testCVSMenuItemActionPerformed
+        StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
+        stepmodCvs.testCVSconnection();
+    }//GEN-LAST:event_testCVSMenuItemActionPerformed
+    
     /**
      * Display a new smaller gui to display the contents of stepmod.properties
      *
@@ -687,8 +762,8 @@ public class STEPModFrame extends javax.swing.JFrame {
         
         
         
-        STEPModPropsFrame stepprops = new STEPModPropsFrame(stepMod);
-        stepprops.stepmodText.setText(stepMod.readProps());
+        STEPModPropsFrame stepprops = new STEPModPropsFrame(getStepMod());
+        stepprops.stepmodText.setText(getStepMod().readProps());
         stepprops.setSize(700,500);
         stepprops.setVisible(true);
         
@@ -697,19 +772,19 @@ public class STEPModFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_setStepModPropsActionPerformed
     
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
-        stepMod.about();
+        getStepMod().about();
     }//GEN-LAST:event_aboutMenuItemActionPerformed
     
     private void contentsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contentsMenuItemActionPerformed
-        stepMod.help();
+        getStepMod().help();
     }//GEN-LAST:event_contentsMenuItemActionPerformed
     
     private void mkdResDocMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mkdResDocMenuItemActionPerformed
-        stepMod.mkNewResourceDoc();
+        getStepMod().mkNewResourceDoc();
     }//GEN-LAST:event_mkdResDocMenuItemActionPerformed
     
     private void mkApMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mkApMenuItemActionPerformed
-        stepMod.mkNewApplicationProtocol();
+        getStepMod().mkNewApplicationProtocol();
     }//GEN-LAST:event_mkApMenuItemActionPerformed
     
     private void clearOutputMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearOutputMenuItemActionPerformed
@@ -717,7 +792,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_clearOutputMenuItemActionPerformed
     
     private void mkModuleMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mkModuleMenuItemActionPerformed
-        stepMod.mkNewModule();
+        getStepMod().mkNewModule();
     }//GEN-LAST:event_mkModuleMenuItemActionPerformed
     
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
@@ -748,6 +823,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane stepModOutputScrollPane;
     private javax.swing.JTextArea stepModOutputTextArea;
     private javax.swing.JSplitPane stepmodMainSplitPane;
+    private javax.swing.JMenuItem testCVSMenuItem;
     private javax.swing.JMenu toolsMenu;
     // End of variables declaration//GEN-END:variables
     

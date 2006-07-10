@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.3 2006/05/02 18:24:53 RobB Exp $
+ * $Id: CmRecord.java,v 1.1 2006/06/12 15:31:07 robbod Exp $
  *
  * STEPmod.java
  *
@@ -180,6 +180,7 @@ public class CmRecord {
         
         private String cmReleaseId;
         private String cmReleaseDescription;
+        private String cmReleaseIsoStatus;
         private String cmReleaseStatus;
         private String cmReleaseWho;
         private String cmReleaseEdition;
@@ -210,33 +211,19 @@ public class CmRecord {
             } else if (currentElement.equals("cm_release")) {
                 cmReleaseId = attrs.getValue("release");
                 cmReleaseDescription = attrs.getValue("description");
-                cmReleaseStatus = attrs.getValue("status");
+                cmReleaseIsoStatus = attrs.getValue("iso_status");
+                cmReleaseStatus = attrs.getValue("release_status");
                 cmReleaseWho = attrs.getValue("who");
                 cmReleaseEdition = attrs.getValue("edition");
                 cmReleaseReleaseSequence = attrs.getValue("release_sequence");
                 cmReleaseStepmodRelease = attrs.getValue("stepmod_release");
                 cmReleaseReleaseDate = attrs.getValue("when");
-                new CmRelease(cmRecord, cmReleaseId, cmReleaseDescription, cmReleaseStatus,
+                new CmRelease(cmRecord, cmReleaseId, cmReleaseDescription,
+                        cmReleaseIsoStatus, cmReleaseStatus,
                         cmReleaseWho, cmReleaseEdition, cmReleaseReleaseSequence,
                         cmReleaseStepmodRelease, cmReleaseReleaseDate);
             }
         }
-    }
-    
-    /**
-     * Create a new release for the part CmRelease
-     * Note - a release must be explicitly written to the cm_record.xml file by
-     * writing the record invoking the {@link updateCmRecordFile} on the StepmodPart
-     * @return the CmRelese object that has been created.
-     */
-    public CmRelease makeCmRelease() {
-        CmRelease cmRel = new CmRelease(this);
-        try {
-            this.setModified(CM_RECORD_CHANGED_NOT_SAVED);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return(cmRel);
     }
     
     /**
@@ -309,7 +296,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.3 2006/05/02 18:24:53 RobB Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.1 2006/06/12 15:31:07 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -339,7 +326,7 @@ public class CmRecord {
         out.write("           the person who created the release\n");
         out.write("         when\n");
         out.write("           the date when the release was created\n");
-        out.write("         status\n");
+        out.write("         release_status\n");
         out.write("           A record of the status of the release. The status of the release\n");
         out.write("           will only change if it passes a review with no changes. If there\n");
         out.write("           are any changes required during the review, then a new release will be\n");

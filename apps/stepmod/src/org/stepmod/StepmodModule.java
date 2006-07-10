@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.1 2006/06/12 15:31:08 robbod Exp $
+ * $Id: StepmodModule.java,v 1.2 2006/06/13 08:34:36 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -109,7 +109,7 @@ public class StepmodModule extends StepmodPart {
                 module.setChecklistProjectLeader(attrs.getValue("checklist.project_leader"));
                 module.setSc4WorkingGroup(attrs.getValue("sc4.working_group"));
                 module.setChecklistConvener(attrs.getValue("checklist.convener"));
-                module.setStatus(attrs.getValue("status"));
+                module.setIsoStatus(attrs.getValue("status"));
                 module.setPublicationYear(attrs.getValue("publication.year"));
                 module.setPublicationDate(attrs.getValue("publication.date"));
                 String published = attrs.getValue("published");
@@ -127,21 +127,7 @@ public class StepmodModule extends StepmodPart {
         this.stepmodType = "module";
     }
     
-    
-    /**
-     * Updates the cm_record.xml file with the new releases that are stored in CmRecord class
-     */
-    public void updateCmRecordFile() {
-        getStepMod().getStepModGui().toBeDone("STEPmod.updateCmRecordFile");
-    }
-    
-    /**
-     * Creates a new release for the module. This will make a new instance of CmRelease.
-     * The cm_record.xml file will not be updated until the updateCmRecordFile operation is invoked.
-     */
-    public CmRelease mkCmRelease() {
-        return(getCmRecord().makeCmRelease());
-    }
+   
     
     public String getWgNumberArm() {
         return wgNumberArm;
@@ -220,7 +206,7 @@ public class StepmodModule extends StepmodPart {
      */
     public String summaryHtml() {
         String summary = "<html><body>";
-        summary = summary + "<h1>"+getName() +"</h1>";
+        summary = summary + "<h1>Module ISO 10303-"+getPartNumber()+" "+getName() +"</h1>";
         summary = summary + "</body></html>";
         return(summary);
     }
@@ -237,6 +223,15 @@ public class StepmodModule extends StepmodPart {
      */
     public void publicationGenerateHtml() {
         getStepMod().getStepModGui().toBeDone("StepmodModule.publicationGenerateHtml");
+    }
+    
+    /**
+     * Returns the full path to the module directory
+     * @return The ull path to the module directory
+     */
+    public String getDirectory() {
+        String dir = this.getStepMod().getRootDirectory()+"/data/modules/" + this.getName();
+        return(dir);
     }
     
 }

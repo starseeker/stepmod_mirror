@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.2 2006/07/10 08:19:15 robbod Exp $
+ * $Id: CmRecord.java,v 1.3 2006/07/11 12:08:15 robbod Exp $
  *
  * STEPmod.java
  *
@@ -289,6 +289,10 @@ public class CmRecord {
         this.hasCmReleases = hasCmReleases;
     }
     
+    /** 
+     * Return the CmRelease that has been checked out
+     * If no CmRelease found, then the development revision has been checked out.
+     */
     public CmRelease getCheckedOutRelease() {
         String currentRelTag = this.getStepmodPart().getCvsTag();
         CmRelease cmCheckedOutRelease = null;
@@ -307,7 +311,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.2 2006/07/10 08:19:15 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.3 2006/07/11 12:08:15 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");

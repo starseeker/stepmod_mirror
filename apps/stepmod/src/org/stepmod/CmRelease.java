@@ -6,7 +6,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 /*
- * $Id: CmRelease.java,v 1.2 2006/07/10 08:19:15 robbod Exp $
+ * $Id: CmRelease.java,v 1.3 2006/07/11 12:08:15 robbod Exp $
  *
  * STEPmod.java
  *
@@ -142,6 +142,20 @@ public class CmRelease {
         this.releaseStatus = status;
     }
     
+    /**
+     * Set the release status, updating the Cmrecord of the fact that a release has been modified
+     */
+    public void setReleaseStatus(String status, boolean cmRecordUpdate) {
+        if (cmRecordUpdate && (this.releaseStatus != status)) {
+            this.releaseStatus = status;
+            try {
+                getInRecord().setModified(CmRecord.CM_RECORD_CHANGED_NOT_SAVED);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    
     public String getWho() {
         return who;
     }
@@ -202,8 +216,20 @@ public class CmRelease {
         return(id);
     }
     
+    /**
+     * Return true if this release is the one that has been checked out by CVS
+     */
     public boolean isCheckedOutRelease() {
         return(getInRecord().getCheckedOutRelease() == this);
+    }
+    
+    /**
+     * Return true if this release has been published by ISO
+     * Note - publication is determined by the release_status in the cm_record.xml
+     * being not by anything recorded in the module
+     */
+    public boolean isPublishedIsoRelease() {
+        return(getReleaseStatus().equals("ISO publication"));
     }
     
     /**
@@ -228,4 +254,5 @@ public class CmRelease {
                 + "</body></html>";
         return(summary);
     }
+    
 }

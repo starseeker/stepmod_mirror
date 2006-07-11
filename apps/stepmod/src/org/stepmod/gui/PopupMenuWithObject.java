@@ -1,5 +1,5 @@
 /**
- * $Id: PopupMenuWithObject.java,v 1.1 2006/04/26 08:54:38 RobB Exp $
+ * $Id: PopupMenuWithObject.java,v 1.1 2006/06/12 15:32:22 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -19,7 +19,7 @@ package org.stepmod.gui;
 import javax.swing.JPopupMenu;
 
 /**
- * PopupMenuWithObject extends JPopupMenu by associating a user defnied object with the menu.
+ * PopupMenuWithObject extends JPopupMenu by associating a user defined object with the menu.
  * @author Rob Bodington
  */
 public class PopupMenuWithObject extends JPopupMenu {

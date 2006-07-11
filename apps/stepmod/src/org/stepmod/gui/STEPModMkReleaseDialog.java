@@ -22,9 +22,10 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
     
     private StepmodPart part;
     private DefaultMutableTreeNode node;
+    private CmRelease cmRelease;
     
     /**
-     * Creates new form STEPModMkReleaseDialog
+     * Creates new form STEPModMkReleaseDialog for creating a new release
      */
     public STEPModMkReleaseDialog(StepmodPart part, DefaultMutableTreeNode node) {
         super(part.getStepMod().getStepModGui(), true);
@@ -33,9 +34,27 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
         this.node = node;
         releasePartNamejTextField.setText(part.getName());
         releasePartNumberjTextField.setText("ISO 10303-"+part.getPartNumber());
-        releasePartIsoStatusjTextField.setText(part.getIsoStatus());        
-        releaseDatejTextField.setText(part.getReleaseDate());        
-        releaseIdjTextField.setText(part.getNextReleaseId());        
+        releasePartIsoStatusjTextField.setText(part.getIsoStatus());
+        releaseDatejTextField.setText(part.getReleaseDate());
+        releaseIdjTextField.setText(part.getNextReleaseId());
+        releaseWhojTextField.setText(part.getStepMod().getStepmodProperty("SFORGE_USERNAME"));
+    }
+    
+    /**
+     * Creates new form STEPModMkReleaseDialog for altering the sttaus of a new release
+     */
+    public STEPModMkReleaseDialog(StepmodPart part, DefaultMutableTreeNode node, CmRelease cmRelease) {
+        super(part.getStepMod().getStepModGui(), true);
+        initComponents();
+        this.part = part;
+        this.node = node;
+        this.cmRelease = cmRelease;
+        this.titleLabel.setText("Change the status of release");
+        releasePartNamejTextField.setText(part.getName());
+        releasePartNumberjTextField.setText("ISO 10303-"+part.getPartNumber());
+        releasePartIsoStatusjTextField.setText(part.getIsoStatus());
+        releaseDatejTextField.setText(cmRelease.getReleaseDate());
+        releaseIdjTextField.setText(cmRelease.getId());
         releaseWhojTextField.setText(part.getStepMod().getStepmodProperty("SFORGE_USERNAME"));
     }
     
@@ -50,7 +69,7 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
         canceljButton = new javax.swing.JButton();
         okjButton = new javax.swing.JButton();
         releaseStatusjComboBox = new javax.swing.JComboBox();
-        jLabel2 = new javax.swing.JLabel();
+        titleLabel = new javax.swing.JLabel();
         releaseDatejLabel = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -86,8 +105,8 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
 
         releaseStatusjComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Team review", "Convener review", "Secretariat review", "ISO review", "Ballot", "ISO publication" }));
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 12));
-        jLabel2.setText("Create a new release");
+        titleLabel.setFont(new java.awt.Font("Tahoma", 1, 12));
+        titleLabel.setText("Create a new release");
 
         releaseDatejLabel.setText("Release date:");
 
@@ -165,7 +184,7 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
                                             .add(releaseStatusjComboBox, 0, 238, Short.MAX_VALUE))))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
                         .add(23, 23, 23))
-                    .add(jLabel2)
+                    .add(titleLabel)
                     .add(layout.createSequentialGroup()
                         .add(22, 22, 22)
                         .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 349, Short.MAX_VALUE)
@@ -179,7 +198,7 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel2)
+                .add(titleLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel6)
@@ -227,13 +246,17 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_canceljButtonActionPerformed
     
     private void okjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okjButtonActionPerformed
-        CmRecord cmRecord= part.getCmRecord();
-        String releaseSequence = "r"+cmRecord.getHasCmReleases().size();
-        CmRelease cmRelease = new CmRelease(part,
-                releaseWhojTextField.getText(),
-                (String)releaseStatusjComboBox.getSelectedItem(),
-                releaseDescriptionjEditorPane.getText());
-        part.getStepMod().getStepModGui().addReleaseToTree(part, cmRelease, node, true);
+        if (cmRelease == null) {
+            CmRecord cmRecord= part.getCmRecord();
+            String releaseSequence = "r"+cmRecord.getHasCmReleases().size();
+            CmRelease cmRelease = new CmRelease(part,
+                    releaseWhojTextField.getText(),
+                    (String)releaseStatusjComboBox.getSelectedItem(),
+                    releaseDescriptionjEditorPane.getText());
+            part.getStepMod().getStepModGui().addReleaseToTree(part, cmRelease, node, true);
+        } else {
+            part.getStepMod().getStepModGui().updateReleaseStatus(part, cmRelease, (String)releaseStatusjComboBox.getSelectedItem(), node, true);
+        }
         this.setVisible(false);
         this.dispose();
     }//GEN-LAST:event_okjButtonActionPerformed
@@ -242,7 +265,6 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton canceljButton;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -260,6 +282,7 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
     private javax.swing.JTextField releasePartNumberjTextField;
     private javax.swing.JComboBox releaseStatusjComboBox;
     private javax.swing.JTextField releaseWhojTextField;
+    private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
     
 }

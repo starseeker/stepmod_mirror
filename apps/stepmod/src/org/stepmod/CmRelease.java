@@ -6,7 +6,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 /*
- * $Id: CmRelease.java,v 1.1 2006/06/12 15:31:07 robbod Exp $
+ * $Id: CmRelease.java,v 1.2 2006/07/10 08:19:15 robbod Exp $
  *
  * STEPmod.java
  *
@@ -202,14 +202,18 @@ public class CmRelease {
         return(id);
     }
     
+    public boolean isCheckedOutRelease() {
+        return(getInRecord().getCheckedOutRelease() == this);
+    }
+    
     /**
-     * Generate a summary of the release in HTML 
+     * Generate a summary of the release in HTML
      * @return am HTML summary
      */
     public String summaryHtml() {
         String summary = "<html><body>";
         StepmodPart part = getInRecord().getStepmodPart();
-        summary = summary + "<h1>Part: "+ part.getName() + "</h1>" 
+        summary = summary + "<h1>Part: "+ part.getName() + "</h1>"
                 + "<ul>"
                 + "<li> Part number: ISO 10303-" +  part.getPartNumber() + "</li>"
                 + "<li> Part ISO status: "  +  part.getIsoStatus() + "</li>"

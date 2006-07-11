@@ -251,6 +251,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                     boolean checkedOutrel = false;
                     CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
                     if (cmRelease == null) {
+                        // The part has no tag therefore must be a development release
                         checkedOutrel = cmReleaseTreeNode.getStepmodPart().getCvsTag().length() == 0;
                     } else  {
                         checkedOutrel = cmRelease.isCheckedOutRelease();

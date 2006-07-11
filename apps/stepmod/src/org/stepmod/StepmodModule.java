@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.2 2006/06/13 08:34:36 robbod Exp $
+ * $Id: StepmodModule.java,v 1.3 2006/07/10 08:19:15 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -17,7 +17,10 @@
 package org.stepmod;
 import javax.xml.parsers.SAXParser;
 import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.xml.parsers.SAXParserFactory;
+import org.stepmod.cvschk.CvsStatus;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -52,6 +55,8 @@ public class StepmodModule extends StepmodPart {
         // read the CM record
         this.readCmRecord();
         stepMod.addModule(this);
+        
+        this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), "module.xml"));
         
         // now read module.xml for the part populating the attributes
         DefaultHandler handler = new ModuleSaxHandler(this, stepMod);
@@ -127,7 +132,7 @@ public class StepmodModule extends StepmodPart {
         this.stepmodType = "module";
     }
     
-   
+    
     
     public String getWgNumberArm() {
         return wgNumberArm;
@@ -205,9 +210,22 @@ public class StepmodModule extends StepmodPart {
      * Proved an HTML summary of the module
      */
     public String summaryHtml() {
-        String summary = "<html><body>";
-        summary = summary + "<h1>Module ISO 10303-"+getPartNumber()+" "+getName() +"</h1>";
-        summary = summary + "</body></html>";
+        String cvsStateDscr = "";
+        int cvsState = getCvsState();
+        if (cvsState == CvsStatus.CVSSTATE_UNKNOWN) {
+            cvsStateDscr = "<dd>ERROR -- Release status cannot be established</dd>";
+        } else if (cvsState == CvsStatus.CVSSTATE_DEVELOPMENT) {
+            cvsStateDscr = "<dd>Latest development release</dd>";
+        } else if (cvsState == CvsStatus.CVSSTATE_RELEASE) {
+            cvsStateDscr = "<dd>Release ("+ this.getCvsTag() +")</dd>";
+        }
+        String summary = "<html><body>"
+                + "<h2>Module ISO 10303-"+getPartNumber()+"</h2>"
+                + "<table>"
+                + "<tr><td>Number:</td><td>ISO 10303-"+getPartNumber()+"</td></tr>"
+                + "<tr><td>Name:</td><td>"+getName()+"</td></tr>"
+                + "<tr><td>Release status:</td><td>" + cvsStateDscr +"</td></tr>"
+                + "</table></body></html>";
         return(summary);
     }
     
@@ -233,5 +251,12 @@ public class StepmodModule extends StepmodPart {
         String dir = this.getStepMod().getRootDirectory()+"/data/modules/" + this.getName();
         return(dir);
     }
+    
+    public boolean isDevelopmentRevision() {
+        return(true);
+    }
+
+    
+    
     
 }

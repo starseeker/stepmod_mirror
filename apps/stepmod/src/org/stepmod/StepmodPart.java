@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.4 2006/06/14 10:25:19 joshpearce2005 Exp $
+ * $Id: StepmodPart.java,v 1.5 2006/07/10 08:19:15 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -16,14 +16,11 @@
 
 package org.stepmod;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import org.stepmod.cvschk.CvsStatus;
 
 /**
  *
@@ -49,29 +46,20 @@ public class StepmodPart {
     private boolean published;
     private CmRecord cmRecord;
     private STEPmod stepMod;
+    private CvsStatus cvsStatusObject;
     
-    /**
-     * The latest revision of the STEPmod part has been checked out
+    
+    /** 
+     * Creates a new instance of StepmodPart 
      */
-    final public static int CVSSTATE_DEVELOPMENT = 1;
-    
-    /**
-     * A release of the STEPmod part has been checked out
-     */
-    final public static int CVSSTATE_RELEASE = 2;
-    
-    /**
-     * An ISO published release of the STEPmod part has been checked out
-     */
-    final public static int CVSSTATE_PUBLISHED = 3;
-    
-    /** Creates a new instance of StepmodPart */
     public StepmodPart(STEPmod stepMod, String partName) {
         setName(partName);
         setStepMod(stepMod);
     }
     
-    /** Creates a new instance of StepmodPart */
+    /** 
+     * Creates a new instance of StepmodPart 
+     */
     public StepmodPart() {
     }
     
@@ -374,16 +362,6 @@ public class StepmodPart {
     }
     
     
-    /**
-     * Returns the cvs configuration state of the part
-     */
-    public int getCvsState() {
-        // check if the part has a Tag file in the CVS directory.
-        // If No then it is a development version
-        // If yes, findout whether the Tag corresponds to a release or a publication
-        return(this.CVSSTATE_PUBLISHED);
-    }
-    
     
     /**
      * Use StepModAnt to execute a CVS checkout of
@@ -495,7 +473,22 @@ public class StepmodPart {
         CmRelease cmRel = new CmRelease(this, who, releaseStatus, releaseDesciption);
         return(cmRel);
     }
+
+    public CvsStatus getCvsStatusObject() {
+        return cvsStatusObject;
+    }
+
+    public void setCvsStatusObject(CvsStatus cvsStatus) {
+        this.cvsStatusObject = cvsStatus;
+    }
+    
+    public int getCvsState() {
+        return(this.getCvsStatusObject().getCvsState());
+    }
     
     
+    public String getCvsTag() {
+        return (this.getCvsStatusObject().getCvsTag());
+    }
     
 }

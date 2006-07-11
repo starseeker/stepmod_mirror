@@ -26,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TreeSelectionEvent;
@@ -270,10 +271,10 @@ public class STEPModFrame extends javax.swing.JFrame {
                     // Need to get the state
                     if (moduleNode.getCvsState() == CvsStatus.CVSSTATE_DEVELOPMENT) {
                         setIcon(developmentIcon);
+                    } else if (moduleNode.getCmRecord().getCheckedOutRelease().isPublishedIsoRelease()) {
+                        setIcon(publishedIcon);
                     } else if (moduleNode.getCvsState() == CvsStatus.CVSSTATE_RELEASE) {
                         setIcon(releasedIcon);
-                        //} else if (moduleNode.getCvsState() == CvsStatus.CVSSTATE_PUBLISHED) {
-                        //    setIcon(publishedIcon);
                     }
                     setToolTipText("Display ,???");
                     // TODO - need to work out from CVS which release is active if any
@@ -283,8 +284,8 @@ public class STEPModFrame extends javax.swing.JFrame {
                         setForeground(Color.RED);
                     }
                 } else if (userNode instanceof CmReleaseTreeNode) {
-                    setIcon(null);
-                    
+                    setIcon(null);                    
+                    setToolTipText("Display ,???");
                     String stringValue = tree.convertValueToText(value, selected,
                             expanded, leaf, row, false);
                     CmReleaseTreeNode cmReleaseTreeNode = (CmReleaseTreeNode) node.getUserObject();
@@ -299,19 +300,20 @@ public class STEPModFrame extends javax.swing.JFrame {
                         // The part has no tag therefore must be a development release
                         checkedOutrel = cmReleaseTreeNode.getStepmodPart().getCvsTag().length() == 0;
                         leafRenderer.setIcon(developmentIconUnSelected);
-                        leafRenderer.setSelectedIcon(developmentIconSelected);
+                        leafRenderer.setSelectedIcon(developmentIconSelected);                        
+                            leafRenderer.setToolTipText("Development revision");
                     } else  {
                         checkedOutrel = cmRelease.isCheckedOutRelease();
                         if (cmRelease.isPublishedIsoRelease()) {
                             leafRenderer.setIcon(publishedIconUnSelected);
                             leafRenderer.setSelectedIcon(publishedIconSelected);
+                            leafRenderer.setToolTipText("Release is published by ISO");
                         } else {
                             leafRenderer.setIcon(releasedIconUnSelected);
-                            leafRenderer.setSelectedIcon(releasedIconSelected);
+                            leafRenderer.setSelectedIcon(releasedIconSelected);                            
+                            leafRenderer.setToolTipText("Release");
                         }
                     }
-                    
-                    
                     
                     
                     if (sel) {
@@ -532,6 +534,8 @@ public class STEPModFrame extends javax.swing.JFrame {
         repositoryJTree.setEditable(true);
         repositoryJTree.setExpandsSelectedPaths(true);
         repositoryJTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        
+        ToolTipManager.sharedInstance().registerComponent(repositoryJTree);
         
         // Set up the renderer that displays the icons in the tree
         RepositoryTreeRenderer renderer = new RepositoryTreeRenderer();

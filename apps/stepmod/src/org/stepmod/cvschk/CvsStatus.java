@@ -1,5 +1,5 @@
 /**
- * $Id: AbstractModuleAction.java,v 1.3 2004/11/08 12:07:44 Patrick Exp $
+ * $Id: CvsStatus.java,v 1.1 2006/07/11 12:10:27 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -77,7 +77,7 @@ public class CvsStatus {
     }
     
     /**
-     * Sets up the CVS status by reading from the Entires file in the CVS directory
+     * Sets up the CVS status by reading from the Entries file in the CVS directory
      * Sets the cvsState and cvTag
      * @return returns 0 if the CVS information was successuly reads. 
      * returns -1 if not.

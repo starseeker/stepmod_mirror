@@ -1,5 +1,5 @@
 /**
- * $Id: AbstractModuleAction.java,v 1.3 2004/11/08 12:07:44 Patrick Exp $
+ * $Id: StepmodCvs.java,v 1.1 2006/07/10 08:18:13 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -36,11 +36,17 @@ import org.stepmod.gui.STEPModFrame;
  */
 public class StepmodCvs {
     
-    STEPmod stepMod;
+    private STEPmod stepMod;
+    private String cvsCommand;
+    private int cvsExitVal;
+    private String cvsMessages;
+    private String cvsExecDirectory;
+    private boolean cvsConnectionState = true;
+            
     
     /** Creates a new instance of StepmodCvs */
     public StepmodCvs(STEPmod stepMod) {
-        this.stepMod = stepMod;
+        this.setStepMod(stepMod);
     }
    
     /**
@@ -49,9 +55,9 @@ public class StepmodCvs {
      *
      */
     public int executeCvsCommand(List<String> command, String directory) throws IOException, InterruptedException {
-        String cvsCmd = stepMod.getStepmodProperty("CVSEXE");
+        String cvsCmd = getStepMod().getStepmodProperty("CVSEXE");
         String cvsRoot = ":ssh:"
-                + stepMod.getStepmodProperty("SFORGE_USERNAME")
+                + getStepMod().getStepmodProperty("SFORGE_USERNAME")
                 + "@stepmod.cvs.sourceforge.net:/cvsroot/stepmod";
         command.add(0,cvsCmd);
         command.add(1,"-q");
@@ -63,38 +69,39 @@ public class StepmodCvs {
         builder.redirectErrorStream(true);
         
         Map<String, String> environ = builder.environment();
-        environ.put("CVS_RSH", stepMod.getStepmodProperty("CVS_RSH"));
+        environ.put("CVS_RSH", getStepMod().getStepmodProperty("CVS_RSH"));
         
         builder.directory( new File(directory));
         
-        String commandString = "Executing command: ";
+        
+        cvsCommand = "";
         for (Iterator it = command.iterator(); it.hasNext();) {
             String elem = (String) it.next();
-            commandString += elem + " ";
+            cvsCommand += elem + " ";
         }
-        commandString += "\nin directory: " +directory;
-        System.out.println(commandString);
+        
+        setCvsExecDirectory(directory);
         Process cvsProc = builder.start();
         
         InputStream is = cvsProc.getInputStream();
         InputStreamReader isr = new InputStreamReader(is);
         BufferedReader br = new BufferedReader(isr);
         String line="";
-        System.out.printf("Output of running %s is:\n",command);
         int c;
         while ((c = br.read()) != -1) {
             line = line + (char)c;
             if (line.endsWith("'s password:")) {
                 // CVS is asking for a password, so SSH is not set
                 line = line + "\nCVS is asking for a password, so SSH is not setup correctly\n";
+                setCvsConnectionState(false);
                 cvsProc.destroy();
             }
         }
-        int exitVal = cvsProc.waitFor();
+        setCvsExitVal(cvsProc.waitFor());
         is.close();
-        System.out.print(line);
-        System.out.println("Program terminated with code " + exitVal);
-        return(exitVal);
+        
+        setCvsMessages(line);
+        return(getCvsExitVal());
     }
     
     
@@ -125,11 +132,59 @@ public class StepmodCvs {
             command.add("status");
             command.add("--");
             command.add("repository_index.xml");
-            exitVal = executeCvsCommand(command, stepMod.getRootDirectory());
+            exitVal = executeCvsCommand(command, getStepMod().getRootDirectory());
         } catch (Throwable t) {
             t.printStackTrace();
         }
         return(exitVal);
+    }
+
+    public STEPmod getStepMod() {
+        return stepMod;
+    }
+
+    public void setStepMod(STEPmod stepMod) {
+        this.stepMod = stepMod;
+    }
+
+    public String getCvsCommand() {
+        return cvsCommand;
+    }
+
+    public void setCvsCommand(String cvsCommand) {
+        this.cvsCommand = cvsCommand;
+    }
+
+    public int getCvsExitVal() {
+        return cvsExitVal;
+    }
+
+    public void setCvsExitVal(int cvsExitVal) {
+        this.cvsExitVal = cvsExitVal;
+    }
+
+    public String getCvsMessages() {
+        return cvsMessages;
+    }
+
+    public void setCvsMessages(String cvsMessages) {
+        this.cvsMessages = cvsMessages;
+    }
+
+    public String getCvsExecDirectory() {
+        return cvsExecDirectory;
+    }
+
+    public void setCvsExecDirectory(String cvsExecDirectory) {
+        this.cvsExecDirectory = cvsExecDirectory;
+    }
+
+    public boolean isCvsConnectionState() {
+        return cvsConnectionState;
+    }
+
+    public void setCvsConnectionState(boolean cvsConnectionState) {
+        this.cvsConnectionState = cvsConnectionState;
     }
     
     

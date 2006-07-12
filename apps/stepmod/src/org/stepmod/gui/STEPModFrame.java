@@ -14,6 +14,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.Iterator;
@@ -37,7 +41,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import org.stepmod.CmRecord;
 import org.stepmod.CmRelease;
 import org.stepmod.STEPmod;
 import org.stepmod.StepmodApplicationProtocol;
@@ -70,6 +73,10 @@ public class STEPModFrame extends javax.swing.JFrame {
     private STEPmod stepMod;
     
     
+    private PipedInputStream piOut;
+    private PipedInputStream piErr;
+    private PipedOutputStream poOut;
+    private PipedOutputStream poErr;
     /**
      * Creates new form STEPModFrame
      */
@@ -95,7 +102,63 @@ public class STEPModFrame extends javax.swing.JFrame {
                 }
             }
         });
+        // THIS DOES NOT WORK YET
+        // initSystemOut();
     }
+    
+    // THIS DOES NOT WORK YET
+    public void initSystemOut() {
+        try {
+            // Set up System.out
+            piOut = new PipedInputStream();
+            poOut = new PipedOutputStream(piOut);
+            System.setOut(new PrintStream(poOut, true));
+            
+            // Set up System.err
+            piErr = new PipedInputStream();
+            poErr = new PipedOutputStream(piErr);
+            System.setErr(new PrintStream(poErr, true));
+            
+            // Create reader threads
+            new ReaderThread(piOut).start();
+            new ReaderThread(piErr).start();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    // THIS DOES NOT WORK YET
+    class ReaderThread extends Thread {
+        PipedInputStream pi;
+        
+        ReaderThread(PipedInputStream pi) {
+            this.pi = pi;
+        }
+        
+        public void run() {
+            final byte[] buf = new byte[1024];
+            try {
+                while (true) {
+                    final int len = pi.read(buf);
+                    if (len == -1) {
+                        break;
+                    }
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            stepModOutputTextArea.append(new String(buf, 0, len));
+                            // Make sure the last line is always visible
+                            stepModOutputTextArea.setCaretPosition(stepModOutputTextArea.getDocument().getLength());
+                        }
+                    });
+                }
+            } catch (IOException e) {
+            }
+        }
+    }
+    
+    
+    
+    
     
     
     /**
@@ -1009,6 +1072,19 @@ public class STEPModFrame extends javax.swing.JFrame {
         part.cvsUpdate();
     }
     
+    public void outputCvsResults(StepmodCvs stepmodCvs) {
+        output("** CVS **");
+        output(stepmodCvs.getCvsCommand());
+        output(stepmodCvs.getCvsMessages());
+        output("CVS exiting with: "+stepmodCvs.getCvsExitVal());
+        if (!stepmodCvs.isCvsConnectionState()) {
+            JOptionPane.showMessageDialog(this,
+                    "Unable to connect to CVS @ SourceForge\nCVS is asking for a password, so SSH is not setup correctly",
+                    "Warning",
+                    JOptionPane.WARNING_MESSAGE);
+        }
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -1233,7 +1309,8 @@ public class STEPModFrame extends javax.swing.JFrame {
     
     private void testCVSMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testCVSMenuItemActionPerformed
         StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
-        stepmodCvs.testCVSconnection();
+        int extitVal = stepmodCvs.testCVSconnection();
+        outputCvsResults(stepmodCvs);
     }//GEN-LAST:event_testCVSMenuItemActionPerformed
     
     /**

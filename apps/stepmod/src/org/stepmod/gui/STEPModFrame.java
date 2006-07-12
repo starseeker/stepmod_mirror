@@ -1318,16 +1318,8 @@ public class STEPModFrame extends javax.swing.JFrame {
      *
      */
     private void setStepModPropsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setStepModPropsActionPerformed
-        
-        
-        
         STEPModPropsFrame stepprops = new STEPModPropsFrame(getStepMod());
-      
-        stepprops.setSize(700,500);
         stepprops.setVisible(true);
-        
-        
-        
     }//GEN-LAST:event_setStepModPropsActionPerformed
     
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed

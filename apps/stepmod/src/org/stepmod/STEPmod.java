@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.5 2006/07/10 08:19:15 robbod Exp $
+ * $Id: STEPmod.java,v 1.6 2006/07/12 10:40:28 joshpearce2005 Exp $
  *
  * STEPmod.java
  *
@@ -488,56 +488,7 @@ public class STEPmod {
     public void setStepmodProperty(String propName, String propValue) {
         properties.setProperty(propName, propValue);
     }
-    
-    /**
-     * Reads the property file stepmod.properties
-     * @return return the file stepmod.properties in the form of a String
-     *
-     */
-    public String readProps(){
         
-        
-        
-        StringBuffer temp = new StringBuffer();
-        
-        
-        try{
-            BufferedReader in = new BufferedReader(new FileReader(getRootDirectory()+"/"+"stepmod.properties"));
-            String temp2;
-            
-            while((temp2=in.readLine())!=null){
-                temp.append(temp2);
-                temp.append("\n");
-            }
-            in.close();
-        } catch (IOException e) {
-            
-            e.printStackTrace();
-        }
-        return temp.toString();
-    }
-    
-    
-    
-    /**
-     * Writes the contents of the textArea to the stepmod.properties file
-     * @param String stepmodText a String representing the contents of the
-     * textArea
-     */
-    
-    public void writeProps(String stepmodText){
-        
-        try{
-            BufferedWriter out = new BufferedWriter(new FileWriter(getRootDirectory() + "/"+"stepmod.properties"));
-            out.write(stepmodText);
-            
-            out.close();
-            
-        } catch(IOException ex){
-            
-        }
-    }
-    
     /**
      * Returns the release of STEPmod that is currently checked out.
      */

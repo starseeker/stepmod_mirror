@@ -36,8 +36,7 @@ public class STEPModPropsFrame extends javax.swing.JFrame{
         cvsExe.setText(stepMod.getStepmodProperty("CVSEXE"));
         cvsrsh.setText(stepMod.getStepmodProperty("CVS_RSH")); 
         userName.setText(stepMod.getStepmodProperty("SFORGE_USERNAME"));
-        
-    }
+         }
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -67,7 +66,8 @@ public class STEPModPropsFrame extends javax.swing.JFrame{
 
         jLabel3.setText("Path to CVS executable:");
 
-        jButton2.setText("jButton2");
+        jButton2.setText("...");
+        jButton2.setToolTipText("Browse for the path to the CVS executable");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browse(evt);
@@ -76,7 +76,8 @@ public class STEPModPropsFrame extends javax.swing.JFrame{
 
         jLabel4.setText("Path to CVS_RSH executable:");
 
-        jButton3.setText("jButton2");
+        jButton3.setText("...");
+        jButton3.setToolTipText("Browse for the path to the CVS_RSH executable");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browsefor(evt);
@@ -84,13 +85,15 @@ public class STEPModPropsFrame extends javax.swing.JFrame{
         });
 
         jButton4.setText("Cancel");
+        jButton4.setToolTipText("Exit without saving changes");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancel(evt);
             }
         });
 
-        jButton5.setText("OK");
+        jButton5.setText("Save");
+        jButton5.setToolTipText("Save Changes and exit");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 save(evt);
@@ -106,51 +109,49 @@ public class STEPModPropsFrame extends javax.swing.JFrame{
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel4)
-                            .add(jLabel3))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(cvsExe, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(cvsrsh, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))))
                     .add(jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(jLabel8)
-                        .add(35, 35, 35)
-                        .add(userName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(jButton5)
                         .add(4, 4, 4)
                         .add(jButton4))
-                    .add(jLabel1))
+                    .add(jLabel1)
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel8)
+                        .add(35, 35, 35)
+                        .add(userName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel4)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cvsrsh, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel3)
+                        .add(30, 30, 30)
+                        .add(jButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cvsExe, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3)
+                    .add(jLabel8)
+                    .add(userName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(cvsExe, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(cvsExe, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel3))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel4)
+                    .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(cvsrsh, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(userName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel8))
                 .add(18, 18, 18)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jButton5)
@@ -160,19 +161,28 @@ public class STEPModPropsFrame extends javax.swing.JFrame{
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    /**
+     * Opens a new file chooser at the toplevel directory of a users machine
+     * A user can then select the path to the appropriate executable
+     */
     private void browsefor(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browsefor
           JFileChooser rsh = new JFileChooser(new File("C:/"));
           rsh.showOpenDialog(this);
           File selectedFile = rsh.getSelectedFile();
           cvsrsh.setText(selectedFile.toString());
     }//GEN-LAST:event_browsefor
-
+    /**
+     * Sets the action for the cancel button 
+     * Will dispose of the StepMod properties window
+     */
     private void cancel(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancel
           this.setVisible(false);      
           this.dispose();
     }//GEN-LAST:event_cancel
-
+    /**
+     * Sets the action for the save button
+     * The save button will save the contents of the window to the Stepmod properties file
+     */
     private void save(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save
         stepMod.setStepmodProperty("CVSEXE",cvsExe.getText());
         stepMod.setStepmodProperty("CVS_RSH",cvsrsh.getText());
@@ -181,7 +191,10 @@ public class STEPModPropsFrame extends javax.swing.JFrame{
         this.setVisible(false);
         this.dispose();
     }//GEN-LAST:event_save
-
+    /**
+     *  Opens a new file chooser at the toplevel directory of a users machine
+     *  A user can then select the path to the appropriate executable
+     */
     private void browse(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browse
           JFileChooser cvsexe = new JFileChooser(new File("C:/"));
           cvsexe.showOpenDialog(this);

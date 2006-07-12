@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.5 2006/07/10 08:19:15 robbod Exp $
+ * $Id: StepmodPart.java,v 1.6 2006/07/11 12:08:15 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -21,12 +21,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import org.stepmod.cvschk.CvsStatus;
+import org.stepmod.cvschk.StepmodCvs;
 
 /**
  *
  * @author rbn
  */
-public class StepmodPart {
+public abstract class StepmodPart {
     
     private String name;
     private String nameFrench;
@@ -49,16 +50,16 @@ public class StepmodPart {
     private CvsStatus cvsStatusObject;
     
     
-    /** 
-     * Creates a new instance of StepmodPart 
+    /**
+     * Creates a new instance of StepmodPart
      */
     public StepmodPart(STEPmod stepMod, String partName) {
         setName(partName);
         setStepMod(stepMod);
     }
     
-    /** 
-     * Creates a new instance of StepmodPart 
+    /**
+     * Creates a new instance of StepmodPart
      */
     public StepmodPart() {
     }
@@ -361,6 +362,15 @@ public class StepmodPart {
         this.stepMod = stepMod;
     }
     
+    /**
+     * Execute a CVS update on this part
+     *
+     */
+    public void cvsUpdate() {
+        StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
+        stepmodCvs.cvsUpdate(this.getDirectory());
+    }
+    
     
     
     /**
@@ -369,7 +379,6 @@ public class StepmodPart {
      *
      */
     public void cvsCoRelease() {
-        
         getStepMod().getStepModGui().toBeDone("StepmodPart.cvsCoRelease");
     }
     
@@ -473,11 +482,11 @@ public class StepmodPart {
         CmRelease cmRel = new CmRelease(this, who, releaseStatus, releaseDesciption);
         return(cmRel);
     }
-
+    
     public CvsStatus getCvsStatusObject() {
         return cvsStatusObject;
     }
-
+    
     public void setCvsStatusObject(CvsStatus cvsStatus) {
         this.cvsStatusObject = cvsStatus;
     }
@@ -490,5 +499,34 @@ public class StepmodPart {
     public String getCvsTag() {
         return (this.getCvsStatusObject().getCvsTag());
     }
+    
+    /**
+     * Answer if the revisions of the part checked out is a development revision
+     * @return true if the revisions of the part checked out is a development revision
+     */
+    public boolean isCheckedOutDevelopment() {
+        return(getCvsState() == CvsStatus.CVSSTATE_DEVELOPMENT);
+    }
+    
+    /**
+     * Answer if the revisions of the part checked out is a release published by ISO
+     * @return true if the revisions of the part checked out is a release published by ISO
+     */
+    public boolean isCheckedOutPublishedIsoRelease() {
+        return(getCmRecord().getCheckedOutRelease().isPublishedIsoRelease());
+    }
+    
+    /**
+     * Answer if the revisions of the part checked out is a revision that has been released.
+     * I.e. Tagged in CVS and releases
+     * @return true if the revisions of the part checked out is a revision that has been released
+     */
+    public boolean isCheckedOutRelease() {
+        return(getCvsState() == CvsStatus.CVSSTATE_RELEASE);
+    }
+    
+    public abstract String summaryHtml();
+    protected abstract void setStepmodType();
+    public abstract String getDirectory();
     
 }

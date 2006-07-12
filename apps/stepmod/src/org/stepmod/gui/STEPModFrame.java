@@ -284,7 +284,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                         setForeground(Color.RED);
                     }
                 } else if (userNode instanceof CmReleaseTreeNode) {
-                    setIcon(null);                    
+                    setIcon(null);
                     setToolTipText("Display ,???");
                     String stringValue = tree.convertValueToText(value, selected,
                             expanded, leaf, row, false);
@@ -293,15 +293,15 @@ public class STEPModFrame extends javax.swing.JFrame {
                     leafRenderer.setSelected(cmReleaseTreeNode.isSelected());
                     leafRenderer.setEnabled(tree.isEnabled());
                     // make sure that the icon is as far left as possible
-                    leafRenderer.setMargin(new Insets(0,-1,0,0));
+                    leafRenderer.setMargin(new Insets(0,-2,0,0));
                     CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
                     boolean checkedOutrel = false;
                     if (cmRelease == null) {
                         // The part has no tag therefore must be a development release
                         checkedOutrel = cmReleaseTreeNode.getStepmodPart().getCvsTag().length() == 0;
                         leafRenderer.setIcon(developmentIconUnSelected);
-                        leafRenderer.setSelectedIcon(developmentIconSelected);                        
-                            leafRenderer.setToolTipText("Development revision");
+                        leafRenderer.setSelectedIcon(developmentIconSelected);
+                        leafRenderer.setToolTipText("Development revision");
                     } else  {
                         checkedOutrel = cmRelease.isCheckedOutRelease();
                         if (cmRelease.isPublishedIsoRelease()) {
@@ -310,7 +310,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                             leafRenderer.setToolTipText("Release is published by ISO");
                         } else {
                             leafRenderer.setIcon(releasedIconUnSelected);
-                            leafRenderer.setSelectedIcon(releasedIconSelected);                            
+                            leafRenderer.setSelectedIcon(releasedIconSelected);
                             leafRenderer.setToolTipText("Release");
                         }
                     }
@@ -789,9 +789,10 @@ public class STEPModFrame extends javax.swing.JFrame {
         changeCmReleaseMenuItem.setToolTipText("Allows the status if the release to be changed. The saved record and CVS will only be updated after it has been committed");
         changeCmReleaseMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
+                
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
                 StepmodModule module = (StepmodModule) node.getUserObject();
-                
+                STEPModFrame frame = module.getStepMod().getStepModGui();
                 // get the release nodes, then find the selected node
                 // the last child is "releases"
                 CmReleaseTreeNode selectedCmReleaseTreeNode = null;
@@ -805,9 +806,20 @@ public class STEPModFrame extends javax.swing.JFrame {
                     }
                 }
                 if (selectedCmReleaseTreeNode != null) {
-                    new STEPModMkReleaseDialog(module, node, selectedCmReleaseTreeNode.getCmRelease()).setVisible(true);
+                    CmRelease selectedCmRelease = selectedCmReleaseTreeNode.getCmRelease();
+                    if (selectedCmRelease != null) {
+                        new STEPModMkReleaseDialog(module, node, selectedCmRelease).setVisible(true);
+                    } else {
+                        JOptionPane.showMessageDialog(frame,
+                                "Trying to change the development revision - choose a release",
+                                "Warning",
+                                JOptionPane.WARNING_MESSAGE);
+                    }
                 } else {
-                    System.out.println("NOTHING SLEECTED");
+                        JOptionPane.showMessageDialog(frame,
+                                "No release selected",
+                                "Warning",
+                                JOptionPane.WARNING_MESSAGE);                    
                 }
                 //CmRelease cmRelease = module.mkCmRelease();
                 //module.getStepMod().getStepModGui().addReleaseToTree(cmRelease, node);

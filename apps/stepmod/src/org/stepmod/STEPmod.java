@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.4 2006/06/22 09:15:54 robbod Exp $
+ * $Id: STEPmod.java,v 1.5 2006/07/10 08:19:15 robbod Exp $
  *
  * STEPmod.java
  *
@@ -466,7 +466,7 @@ public class STEPmod {
      */
     public void writeStepmodProperties() {
         try {
-            properties.store(new FileOutputStream("filename.properties"), null);
+            properties.store(new FileOutputStream(getRootDirectory()+"/stepmod.properties"), null);
         } catch (IOException e) {
         }
     }

@@ -1322,7 +1322,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         
         
         STEPModPropsFrame stepprops = new STEPModPropsFrame(getStepMod());
-        stepprops.stepmodText.setText(getStepMod().readProps());
+      
         stepprops.setSize(700,500);
         stepprops.setVisible(true);
         

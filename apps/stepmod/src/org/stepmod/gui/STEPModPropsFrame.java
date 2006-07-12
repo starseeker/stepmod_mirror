@@ -17,6 +17,7 @@ package org.stepmod.gui;
 
 import org.stepmod.*;
 import java.io.*;
+import javax.swing.*;
 
 /**
  * STEPModPropsFrame creates a new GUI window in which the contents of
@@ -25,15 +26,17 @@ import java.io.*;
  * @author  jpe
  */
 public class STEPModPropsFrame extends javax.swing.JFrame{
-    // for this gui
+    
     private STEPmod stepMod;
     /** Creates new form STEPModPropsFrame */
     public STEPModPropsFrame(STEPmod stepMod) {
-        this.stepMod = stepMod;
        
-        
+        this.stepMod = stepMod;
         initComponents();
-      
+        cvsExe.setText(stepMod.getStepmodProperty("CVSEXE"));
+        cvsrsh.setText(stepMod.getStepmodProperty("CVS_RSH")); 
+        userName.setText(stepMod.getStepmodProperty("SFORGE_USERNAME"));
+        
     }
     
     /** This method is called from within the constructor to
@@ -43,106 +46,166 @@ public class STEPModPropsFrame extends javax.swing.JFrame{
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        savePanel = new javax.swing.JPanel();
-        saveButton = new javax.swing.JButton();
-        exitButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        stepmodText = new javax.swing.JTextArea();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        cvsExe = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jButton3 = new javax.swing.JButton();
+        cvsrsh = new javax.swing.JTextField();
+        jButton4 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        jLabel8 = new javax.swing.JLabel();
+        userName = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("stepmod.properties");
         setAlwaysOnTop(true);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        saveButton.setText("Save");
-        saveButton.setToolTipText("Save any changes made to the stepmod.properties file and close this window");
-        saveButton.addActionListener(new java.awt.event.ActionListener() {
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12));
+        jLabel1.setText("StepMod Properties");
+
+        jLabel3.setText("Path to CVS executable:");
+
+        jButton2.setText("jButton2");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                browse(evt);
+            }
+        });
+
+        jLabel4.setText("Path to CVS_RSH executable:");
+
+        jButton3.setText("jButton2");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                browsefor(evt);
+            }
+        });
+
+        jButton4.setText("Cancel");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancel(evt);
+            }
+        });
+
+        jButton5.setText("OK");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 save(evt);
             }
         });
 
-        exitButton.setText("Exit");
-        exitButton.setToolTipText("Exit this window without saving any changes");
-        exitButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exit(evt);
-            }
-        });
-
-        org.jdesktop.layout.GroupLayout savePanelLayout = new org.jdesktop.layout.GroupLayout(savePanel);
-        savePanel.setLayout(savePanelLayout);
-        savePanelLayout.setHorizontalGroup(
-            savePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(savePanelLayout.createSequentialGroup()
-                .add(saveButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(exitButton)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        savePanelLayout.setVerticalGroup(
-            savePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(savePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                .add(saveButton)
-                .add(exitButton))
-        );
-
-        stepmodText.setColumns(20);
-        stepmodText.setRows(5);
-        jScrollPane1.setViewportView(stepmodText);
+        jLabel8.setText("User name on SourceForge:");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(123, 123, 123)
-                        .add(savePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jLabel4)
+                            .add(jLabel3))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(cvsExe, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))
+                            .add(layout.createSequentialGroup()
+                                .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(cvsrsh, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))))
+                    .add(jLabel2)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(jLabel8)
+                        .add(35, 35, 35)
+                        .add(userName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(jButton5)
+                        .add(4, 4, 4)
+                        .add(jButton4))
+                    .add(jLabel1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(savePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel3)
+                    .add(jButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(cvsExe, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel4)
+                    .add(cvsrsh, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(userName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel8))
+                .add(18, 18, 18)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jButton5)
+                    .add(jButton4))
+                .add(14, 14, 14)
+                .add(jLabel2))
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * If the save button is selected write the contents of the TextArea 
-     * to the file stepmod.properties
-     *
-     */
+    private void browsefor(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browsefor
+          JFileChooser rsh = new JFileChooser(new File("C:/"));
+          rsh.showOpenDialog(this);
+          File selectedFile = rsh.getSelectedFile();
+          cvsrsh.setText(selectedFile.toString());
+    }//GEN-LAST:event_browsefor
+
+    private void cancel(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancel
+          this.setVisible(false);      
+          this.dispose();
+    }//GEN-LAST:event_cancel
+
     private void save(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save
-      
-        stepMod.writeProps(stepmodText.getText());
-        System.out.println("changes saved...now closing");
-        dispose();
+        stepMod.setStepmodProperty("CVSEXE",cvsExe.getText());
+        stepMod.setStepmodProperty("CVS_RSH",cvsrsh.getText());
+        stepMod.setStepmodProperty("SFORGE_USERNAME",userName.getText());
+        stepMod.writeStepmodProperties();
+        this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_save
 
-    /**
-     * If the exit button is selected dispose of the gui window
-     *
-     */
-    private void exit(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exit
-      dispose();
-    }//GEN-LAST:event_exit
-    
+    private void browse(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browse
+          JFileChooser cvsexe = new JFileChooser(new File("C:/"));
+          cvsexe.showOpenDialog(this);
+          File selectFile = cvsexe.getSelectedFile();
+          cvsExe.setText(selectFile.toString());
+
+    }//GEN-LAST:event_browse
+
+
+  
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton exitButton;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JButton saveButton;
-    private javax.swing.JPanel savePanel;
-    public javax.swing.JTextArea stepmodText;
+    private javax.swing.JTextField cvsExe;
+    private javax.swing.JTextField cvsrsh;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JTextField userName;
     // End of variables declaration//GEN-END:variables
     
 }

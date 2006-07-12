@@ -64,6 +64,17 @@ public abstract class StepmodPart {
     public StepmodPart() {
     }
     
+    
+    public abstract String summaryHtml();
+    
+    protected abstract void setStepmodType();
+    
+    /**
+     * Returns the full path to the module directory
+     * @return The full path to the module directory
+     */
+    public abstract String getDirectory();
+    
     /**
      *  Read the cm_record.xml into the Cmrecord instance
      */
@@ -525,8 +536,5 @@ public abstract class StepmodPart {
         return(getCvsState() == CvsStatus.CVSSTATE_RELEASE);
     }
     
-    public abstract String summaryHtml();
-    protected abstract void setStepmodType();
-    public abstract String getDirectory();
     
 }

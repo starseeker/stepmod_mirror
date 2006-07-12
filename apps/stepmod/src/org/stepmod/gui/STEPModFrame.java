@@ -973,7 +973,7 @@ public class STEPModFrame extends javax.swing.JFrame {
      * Output the string
      */
     public void output(String string) {
-        stepModOutputTextArea.append("\n"+string);
+        stepModOutputTextArea.append(string+"\n");
         stepModOutputTextArea.setCaretPosition(stepModOutputTextArea.getDocument().getLength());
     }
     

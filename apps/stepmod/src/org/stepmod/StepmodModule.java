@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.3 2006/07/10 08:19:15 robbod Exp $
+ * $Id: StepmodModule.java,v 1.4 2006/07/11 12:08:15 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -128,7 +128,7 @@ public class StepmodModule extends StepmodPart {
         }
     }
     
-    private void setStepmodType() {
+    protected void setStepmodType() {
         this.stepmodType = "module";
     }
     
@@ -213,11 +213,11 @@ public class StepmodModule extends StepmodPart {
         String cvsStateDscr = "";
         int cvsState = getCvsState();
         if (cvsState == CvsStatus.CVSSTATE_UNKNOWN) {
-            cvsStateDscr = "<dd>ERROR -- Release status cannot be established</dd>";
+            cvsStateDscr = "ERROR -- Release status cannot be established";
         } else if (cvsState == CvsStatus.CVSSTATE_DEVELOPMENT) {
-            cvsStateDscr = "<dd>Latest development release</dd>";
+            cvsStateDscr = "Latest development release";
         } else if (cvsState == CvsStatus.CVSSTATE_RELEASE) {
-            cvsStateDscr = "<dd>Release ("+ this.getCvsTag() +")</dd>";
+            cvsStateDscr = "Release ("+ this.getCvsTag() +")";
         }
         String summary = "<html><body>"
                 + "<h2>Module ISO 10303-"+getPartNumber()+"</h2>"
@@ -245,18 +245,13 @@ public class StepmodModule extends StepmodPart {
     
     /**
      * Returns the full path to the module directory
-     * @return The ull path to the module directory
+     * @return The full path to the module directory
      */
     public String getDirectory() {
         String dir = this.getStepMod().getRootDirectory()+"/data/modules/" + this.getName();
         return(dir);
     }
-    
-    public boolean isDevelopmentRevision() {
-        return(true);
-    }
 
-    
     
     
 }

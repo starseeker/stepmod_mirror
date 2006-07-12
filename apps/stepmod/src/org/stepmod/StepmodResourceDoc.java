@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResourceDoc.java,v 1.2 2006/04/26 08:55:50 RobB Exp $
+ * $Id: StepmodResourceDoc.java,v 1.1 2006/06/12 15:31:08 robbod Exp $
  *
  * StepmodResourceDoc.java
  *
@@ -34,8 +34,23 @@ public class StepmodResourceDoc extends StepmodPart {
         // now read resource.xml for the part populating the attributes
     }
     
-    private void setStepmodType() {
+    protected void setStepmodType() {
         this.stepmodType = "resource_doc";
     }
     
+    /**
+     * Returns the full path to the apDoc directory
+     * @return The full path to the apDoc directory
+     */
+    public String getDirectory() {
+        String dir = this.getStepMod().getRootDirectory()+"/data/resource_docs/" + this.getName();
+        return(dir);
+    }
+    
+    /**
+     * Proved an HTML summary of the module
+     */
+    public String summaryHtml() {
+        return("");
+    }
 }

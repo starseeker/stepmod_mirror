@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodApplicationProtocol.java,v 1.1 2006/06/12 15:31:07 robbod Exp $
+ * $Id: StepmodApplicationProtocol.java,v 1.2 2006/07/12 09:57:12 robbod Exp $
  *
  * StepmodApplicationProtocol.java
  *
@@ -38,25 +38,26 @@ public class StepmodApplicationProtocol extends StepmodPart {
         // read the CM record
         this.readCmRecord();
         stepMod.addApplicationProtocol(this);
-        
+        this.loadXml();
         this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), "application_protocol.xml"));
-        
+    }
+    
+    
+    public void loadXml() {
         // now read application_protocol.xml for the part populating the attributes
-        DefaultHandler handler = new ApDocSaxHandler(this, stepMod);
+        DefaultHandler handler = new ApDocSaxHandler(this, this.getStepMod());
         // Use the default (non-validating) parser
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
             // Parse the input
             SAXParser saxParser = factory.newSAXParser();
             String apDocFilename = this.getDirectory()+"/application_protocol.xml";
-            System.out.println(apDocFilename);
             File apDocFile =  new File(apDocFilename);
             saxParser.parse( apDocFile, handler );
         } catch (Throwable t) {
             t.printStackTrace();
         }
     }
-    
     
     /**
      * Instantiate a SAX handler to read in apDoc.xml

@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.4 2006/07/11 12:08:15 robbod Exp $
+ * $Id: StepmodModule.java,v 1.5 2006/07/12 09:57:12 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -57,16 +57,22 @@ public class StepmodModule extends StepmodPart {
         stepMod.addModule(this);
         
         this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), "module.xml"));
-        
+        this.loadXml();
+    }
+    
+    
+    /**
+     * Reads the module.xml file and populates the relevant attributes
+     */
+    public void loadXml() {        
         // now read module.xml for the part populating the attributes
-        DefaultHandler handler = new ModuleSaxHandler(this, stepMod);
+        DefaultHandler handler = new ModuleSaxHandler(this, this.getStepMod());
         // Use the default (non-validating) parser
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
             // Parse the input
             SAXParser saxParser = factory.newSAXParser();
-            String stepModDir = stepMod.getRootDirectory();
-            String moduleFilename = stepModDir+"/data/modules/" + partName + "/module.xml";
+            String moduleFilename = this.getDirectory() + "/module.xml";
             File moduleFile =  new File(moduleFilename);
             saxParser.parse( moduleFile, handler );
         } catch (Throwable t) {
@@ -207,7 +213,7 @@ public class StepmodModule extends StepmodPart {
     }
     
     /**
-     * Proved an HTML summary of the module
+     * Provide an HTML summary of the module
      */
     public String summaryHtml() {
         String cvsStateDscr = "";

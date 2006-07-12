@@ -1,5 +1,5 @@
 /**
- * $Id: StepmodCvs.java,v 1.1 2006/07/10 08:18:13 robbod Exp $
+ * $Id: StepmodCvs.java,v 1.2 2006/07/12 10:46:38 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -114,6 +114,24 @@ public class StepmodCvs {
         try {
             List<String> command = new ArrayList<String>();
             command.add("update");
+            command.add("-A");
+            exitVal = executeCvsCommand(command, dir);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return(exitVal);
+    }
+    
+        /**
+     * Runs CVS update -r (Check out a tagged version) on a directory
+     */
+    public int cvsCoRelease(String dir, String tag) {
+        int exitVal = -1;
+        try {
+            List<String> command = new ArrayList<String>();
+            command.add("update");
+            command.add("-r");
+            command.add(tag);
             exitVal = executeCvsCommand(command, dir);
         } catch (Throwable t) {
             t.printStackTrace();

@@ -6,7 +6,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 /*
- * $Id: CmRelease.java,v 1.3 2006/07/11 12:08:15 robbod Exp $
+ * $Id: CmRelease.java,v 1.4 2006/07/11 16:29:10 robbod Exp $
  *
  * STEPmod.java
  *
@@ -229,7 +229,12 @@ public class CmRelease {
      * being not by anything recorded in the module
      */
     public boolean isPublishedIsoRelease() {
-        return(getReleaseStatus().equals("ISO publication"));
+        String relStatus = getReleaseStatus();
+        if (relStatus != null) {
+            return(relStatus.equals("ISO publication"));
+        } else {
+            return(false);
+        }
     }
     
     /**

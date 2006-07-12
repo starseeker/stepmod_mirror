@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.3 2006/07/11 12:08:15 robbod Exp $
+ * $Id: CmRecord.java,v 1.4 2006/07/11 16:29:10 robbod Exp $
  *
  * STEPmod.java
  *
@@ -289,7 +289,7 @@ public class CmRecord {
         this.hasCmReleases = hasCmReleases;
     }
     
-    /** 
+    /**
      * Return the CmRelease that has been checked out
      * If no CmRelease found, then the development revision has been checked out.
      */
@@ -311,7 +311,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.3 2006/07/11 12:08:15 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.4 2006/07/11 16:29:10 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -380,5 +380,31 @@ public class CmRecord {
         } else {
             throw new Exception("Cannot set modified - use predefined constants");
         }
+    }
+    
+    /**
+     * Get the latest release in the record
+     */
+    public CmRelease getLatestRelease() {
+        CmRelease latestRelease = null;
+        ArrayList releases = getHasCmReleases();
+        if (releases.size() > 0 ) {
+            latestRelease = (CmRelease) releases.get(releases.size()-1);
+        }
+        return (latestRelease);
+    }
+    
+    /**
+     * Get the latest release that has been published
+     */
+    public CmRelease getLatestPublishedRelease() {
+        CmRelease pubRelease = null;
+        for (Iterator it = hasCmReleases.iterator(); it.hasNext();) {
+            CmRelease cmRelease = (CmRelease) it.next();
+            if (cmRelease.isPublishedIsoRelease()) {
+                pubRelease = cmRelease;
+            }
+        }
+        return pubRelease;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResourceDoc.java,v 1.1 2006/06/12 15:31:08 robbod Exp $
+ * $Id: StepmodResourceDoc.java,v 1.2 2006/07/12 09:57:12 robbod Exp $
  *
  * StepmodResourceDoc.java
  *
@@ -32,6 +32,11 @@ public class StepmodResourceDoc extends StepmodPart {
         this.setStepmodType();
         stepMod.addResourceDoc(this);
         // now read resource.xml for the part populating the attributes
+        this.loadXml();
+    }
+    
+    
+    public void loadXml() {
     }
     
     protected void setStepmodType() {

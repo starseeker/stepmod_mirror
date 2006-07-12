@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.6 2006/07/11 12:08:15 robbod Exp $
+ * $Id: StepmodPart.java,v 1.8 2006/07/12 09:57:58 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -64,7 +64,9 @@ public abstract class StepmodPart {
     public StepmodPart() {
     }
     
-    
+    /**
+     * Provide an HTML summary of the part
+     */
     public abstract String summaryHtml();
     
     protected abstract void setStepmodType();
@@ -74,6 +76,12 @@ public abstract class StepmodPart {
      * @return The full path to the module directory
      */
     public abstract String getDirectory();
+    
+    /**
+     * Reads the module.xml, application_protocol.xml file and populates 
+     * the relevant attributes
+     */
+    public abstract void loadXml();
     
     /**
      *  Read the cm_record.xml into the Cmrecord instance
@@ -377,9 +385,13 @@ public abstract class StepmodPart {
      * Execute a CVS update on this part
      *
      */
-    public void cvsUpdate() {
+    public StepmodCvs cvsUpdate() {
         StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
         stepmodCvs.cvsUpdate(this.getDirectory());
+        // The part may well have changed so reload it.
+        this.loadXml();
+        this.getCvsStatusObject().updateCvsStatus();
+        return stepmodCvs;
     }
     
     
@@ -389,19 +401,25 @@ public abstract class StepmodPart {
      * a specified release
      *
      */
-    public void cvsCoRelease() {
-        getStepMod().getStepModGui().toBeDone("StepmodPart.cvsCoRelease");
+    public StepmodCvs cvsCoRelease(CmRelease cmRelease) {
+        String tag = cmRelease.getId();
+        StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
+        stepmodCvs.cvsCoRelease(this.getDirectory(), tag);
+        // The part may well have changed so reload it.
+        this.loadXml();
+        this.getCvsStatusObject().updateCvsStatus();
+        return stepmodCvs;
     }
     
     /**
      * Use StepModAnt to execute a CVS checkout of the
      * latest release
      *
-     */
-    
-    public void cvsCoLatestRelease() {
-        
-        getStepMod().getStepModGui().toBeDone("StepmodPart.cvsCoLatestRelease");
+     */    
+    public StepmodCvs cvsCoLatestRelease() {  
+        // TODO - get the release
+        CmRelease cmRelease = null;
+        return(cvsCoRelease(cmRelease));
     }
     
     /**
@@ -409,9 +427,10 @@ public abstract class StepmodPart {
      * published release
      *
      */
-    public void cvsCoPublishedRelease() {
-        
-        getStepMod().getStepModGui().toBeDone("StepmodPart.cvsCoPublishedRelease");
+    public StepmodCvs cvsCoPublishedRelease() {  
+        // TODO - get the release      
+        CmRelease cmRelease = null;
+        return(cvsCoRelease(cmRelease));
     }
     
     /**

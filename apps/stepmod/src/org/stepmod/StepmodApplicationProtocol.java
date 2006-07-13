@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodApplicationProtocol.java,v 1.2 2006/07/12 09:57:12 robbod Exp $
+ * $Id: StepmodApplicationProtocol.java,v 1.3 2006/07/12 18:10:24 robbod Exp $
  *
  * StepmodApplicationProtocol.java
  *
@@ -57,6 +57,22 @@ public class StepmodApplicationProtocol extends StepmodPart {
         } catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+    
+    /**
+     * Provide the HTML body that is the summary of the part
+     */
+    public String summaryHtmlBody() {
+        return "";
+    }
+    
+    /**
+     * Returns a string containing the full part number.
+     * E.g. "Application protocol: ISO 10303-239"
+     * @return a string containing the full part number
+     */
+    public String getPartNumberString() {
+        return("Application protocol: ISO 10303-"+getPartNumber());
     }
     
     /**

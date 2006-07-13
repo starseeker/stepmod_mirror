@@ -1,5 +1,5 @@
 /**
- * $Id: CvsStatus.java,v 1.1 2006/07/11 12:10:27 robbod Exp $
+ * $Id: CvsStatus.java,v 1.2 2006/07/12 10:46:38 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -55,17 +55,17 @@ public class CvsStatus {
      * It is not known what CVS state STEPmod part is in
      * Need to query the Root file to find out
      */
-    final public static int CVSSTATE_UNKNOWN= 0;
+     public static final int CVSSTATE_UNKNOWN= 0;
     
     /**
      * The latest revision of the STEPmod part has been checked out
      */
-    final public static int CVSSTATE_DEVELOPMENT = 1;
+    public static final int CVSSTATE_DEVELOPMENT = 1;
     
     /**
      * A release of the STEPmod part has been checked out
      */
-    final public static int CVSSTATE_RELEASE = 2;
+    public static final int CVSSTATE_RELEASE = 2;
     
     
     /** Creates a new instance of CvsStatus */

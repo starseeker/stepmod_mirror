@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.8 2006/07/12 09:57:58 robbod Exp $
+ * $Id: StepmodPart.java,v 1.9 2006/07/12 18:10:24 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -64,10 +64,11 @@ public abstract class StepmodPart {
     public StepmodPart() {
     }
     
+    
     /**
-     * Provide an HTML summary of the part
+     * Provide the HTML body that is the summary of the part
      */
-    public abstract String summaryHtml();
+    public abstract String summaryHtmlBody();
     
     protected abstract void setStepmodType();
     
@@ -78,10 +79,31 @@ public abstract class StepmodPart {
     public abstract String getDirectory();
     
     /**
-     * Reads the module.xml, application_protocol.xml file and populates 
+     * Returns a string containing the full part number.
+     * E.g. "Module: ISO 10303-439"
+     * @return a string containing the full part number
+     */
+    public abstract String getPartNumberString();
+    
+    /**
+     * Reads the module.xml, application_protocol.xml file and populates
      * the relevant attributes
      */
     public abstract void loadXml();
+    
+    
+    
+    /**
+     * Provide an HTML summary of the part
+     */
+    public String summaryHtml() {
+        String summary = "<html><body>"
+                + "<h2>"+getPartNumberString()+"</h2>"
+                + this.summaryHtmlBody()
+                + "</body></html>";
+        return(summary);
+    }
+    
     
     /**
      *  Read the cm_record.xml into the Cmrecord instance
@@ -415,8 +437,8 @@ public abstract class StepmodPart {
      * Use StepModAnt to execute a CVS checkout of the
      * latest release
      *
-     */    
-    public StepmodCvs cvsCoLatestRelease() {  
+     */
+    public StepmodCvs cvsCoLatestRelease() {
         // TODO - get the release
         CmRelease cmRelease = null;
         return(cvsCoRelease(cmRelease));
@@ -427,8 +449,8 @@ public abstract class StepmodPart {
      * published release
      *
      */
-    public StepmodCvs cvsCoPublishedRelease() {  
-        // TODO - get the release      
+    public StepmodCvs cvsCoPublishedRelease() {
+        // TODO - get the release
         CmRelease cmRelease = null;
         return(cvsCoRelease(cmRelease));
     }

@@ -1,5 +1,5 @@
 /**
- * $Id: StepmodCvs.java,v 1.2 2006/07/12 10:46:38 robbod Exp $
+ * $Id: StepmodCvs.java,v 1.3 2006/07/12 18:10:24 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -39,69 +39,125 @@ public class StepmodCvs {
     private STEPmod stepMod;
     private String cvsCommand;
     private int cvsExitVal;
+    private int cvsErrorVal ;
     private String cvsMessages;
     private String cvsExecDirectory;
-    private boolean cvsConnectionState = true;
-            
+    
+    /**
+     * CVS properties stored in stepmod.properties OK
+     */
+    public static final int CVS_ERROR_OK = 0;
+    
+    /**
+     * SFORGE_USERNAME CVS properties stored in stepmod.properties incorrect
+     */
+    public static final int CVS_ERROR_PROPS_SFORGE_USERNAME = -1;
+    
+    /**
+     * CVSEXE CVS properties stored in stepmod.properties incorrect
+     */
+    public static final int CVS_ERROR_PROPS_CVSEXE = -2;
+    
+    /**
+     * CVS_RSH CVS properties stored in stepmod.properties incorrect
+     */
+    public static final int CVS_ERROR_PROPS_CVS_RSH = -3;
+    
+    /**
+     * The SSH connection used by CVS has failed
+     */
+    public static final int CVS_ERROR_SSH = -4;
     
     /** Creates a new instance of StepmodCvs */
     public StepmodCvs(STEPmod stepMod) {
         this.setStepMod(stepMod);
     }
-   
+    
+    /**
+     * Check that all the CVS properties stored in stepmod.properties
+     * point an execuables etc.
+     * 
+     * 
+     * @return CVS_ERROR_OK if properties OK,
+     * CVS_ERROR_PROPS_SFORGE_USERNAME if SFORGE_USERNAME CVS property incorrect
+     * CVS_ERROR_PROPS_CVSEXE if CVSEXE CVS property incorrect
+     * CVS_ERROR_PROPS_CVS_RSH if CVS_RSH CVS property incorrect
+     * The return value is also set in cvsErrorVal
+     */
+    public int testCvsProperties() {
+        int retVal = StepmodCvs.CVS_ERROR_OK;
+        String SFORGE_USERNAME = getStepMod().getStepmodProperty("SFORGE_USERNAME");
+        String CVSEXE = getStepMod().getStepmodProperty("CVSEXE");
+        String CVS_RSH = getStepMod().getStepmodProperty("CVS_RSH");
+        if ((SFORGE_USERNAME == null) ||  (SFORGE_USERNAME.length() == 0)) {
+            retVal = StepmodCvs.CVS_ERROR_PROPS_SFORGE_USERNAME;
+        } else if (!(new File(CVSEXE)).exists()) {
+            retVal = StepmodCvs.CVS_ERROR_PROPS_CVSEXE;
+        } else if ((CVS_RSH == null) ||  (CVS_RSH.length() == 0)) {
+            retVal = StepmodCvs.CVS_ERROR_PROPS_CVS_RSH;
+        }
+        setCvsErrorVal(retVal);
+        return (retVal);
+    }
+    
     /**
      * Executes a CVS command using SSH. executeCvsCommand reads stepmod.properties to set the CVS
      * executable and the sourceforge user name
      *
      */
     public int executeCvsCommand(List<String> command, String directory) throws IOException, InterruptedException {
-        String cvsCmd = getStepMod().getStepmodProperty("CVSEXE");
-        String cvsRoot = ":ssh:"
-                + getStepMod().getStepmodProperty("SFORGE_USERNAME")
-                + "@stepmod.cvs.sourceforge.net:/cvsroot/stepmod";
-        command.add(0,cvsCmd);
-        command.add(1,"-q");
-        command.add(2,"-d");
-        command.add(3,cvsRoot);
-        command.add(4,"-q");
-        
-        ProcessBuilder builder = new ProcessBuilder(command);
-        builder.redirectErrorStream(true);
-        
-        Map<String, String> environ = builder.environment();
-        environ.put("CVS_RSH", getStepMod().getStepmodProperty("CVS_RSH"));
-        
-        builder.directory( new File(directory));
-        
-        
-        cvsCommand = "";
-        for (Iterator it = command.iterator(); it.hasNext();) {
-            String elem = (String) it.next();
-            cvsCommand += elem + " ";
-        }
-        
-        setCvsExecDirectory(directory);
-        Process cvsProc = builder.start();
-        
-        InputStream is = cvsProc.getInputStream();
-        InputStreamReader isr = new InputStreamReader(is);
-        BufferedReader br = new BufferedReader(isr);
-        String line="";
-        int c;
-        while ((c = br.read()) != -1) {
-            line = line + (char)c;
-            if (line.endsWith("'s password:")) {
-                // CVS is asking for a password, so SSH is not set
-                line = line + "\nCVS is asking for a password, so SSH is not setup correctly\n";
-                setCvsConnectionState(false);
-                cvsProc.destroy();
+        int cvsProps = testCvsProperties();
+        if (cvsProps != CVS_ERROR_OK) {
+            return(cvsProps);
+        } else {
+            String cvsCmd = getStepMod().getStepmodProperty("CVSEXE");
+            String cvsRoot = ":ssh:"
+                    + getStepMod().getStepmodProperty("SFORGE_USERNAME")
+                    + "@stepmod.cvs.sourceforge.net:/cvsroot/stepmod";
+            command.add(0,cvsCmd);
+            command.add(1,"-q");
+            command.add(2,"-d");
+            command.add(3,cvsRoot);
+            command.add(4,"-q");
+            
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            
+            Map<String, String> environ = builder.environment();
+            environ.put("CVS_RSH", getStepMod().getStepmodProperty("CVS_RSH"));
+            
+            builder.directory( new File(directory));
+            
+            
+            cvsCommand = "";
+            for (Iterator it = command.iterator(); it.hasNext();) {
+                String elem = (String) it.next();
+                cvsCommand += elem + " ";
             }
+            
+            setCvsExecDirectory(directory);
+            Process cvsProc = builder.start();
+            
+            InputStream is = cvsProc.getInputStream();
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String line="";
+            int c;
+            while ((c = br.read()) != -1) {
+                line = line + (char)c;
+                if (line.endsWith("'s password:")) {
+                    // CVS is asking for a password, so SSH is not set
+                    line = line + "\nCVS is asking for a password, so SSH is not setup correctly\n";
+                    setCvsErrorVal(CVS_ERROR_SSH);
+                    cvsProc.destroy();
+                }
+            }
+            setCvsExitVal(cvsProc.waitFor());
+            is.close();
+            
+            setCvsMessages(line);
+            return(getCvsExitVal());
         }
-        setCvsExitVal(cvsProc.waitFor());
-        is.close();
-        
-        setCvsMessages(line);
-        return(getCvsExitVal());
     }
     
     
@@ -110,7 +166,7 @@ public class StepmodCvs {
      * Runs CVS update on a directory
      */
     public int cvsUpdate(String dir) {
-        int exitVal = -1;
+        int exitVal = CVS_ERROR_OK;
         try {
             List<String> command = new ArrayList<String>();
             command.add("update");
@@ -122,11 +178,11 @@ public class StepmodCvs {
         return(exitVal);
     }
     
-        /**
+    /**
      * Runs CVS update -r (Check out a tagged version) on a directory
      */
     public int cvsCoRelease(String dir, String tag) {
-        int exitVal = -1;
+        int exitVal = CVS_ERROR_OK;
         try {
             List<String> command = new ArrayList<String>();
             command.add("update");
@@ -144,7 +200,7 @@ public class StepmodCvs {
      * SourceForge
      */
     public int testCVSconnection() {
-        int exitVal = -1;
+        int exitVal = CVS_ERROR_OK;
         try {
             List<String> command = new ArrayList<String>();
             command.add("status");
@@ -156,53 +212,53 @@ public class StepmodCvs {
         }
         return(exitVal);
     }
-
+    
     public STEPmod getStepMod() {
         return stepMod;
     }
-
+    
     public void setStepMod(STEPmod stepMod) {
         this.stepMod = stepMod;
     }
-
+    
     public String getCvsCommand() {
         return cvsCommand;
     }
-
+    
     public void setCvsCommand(String cvsCommand) {
         this.cvsCommand = cvsCommand;
     }
-
+    
     public int getCvsExitVal() {
         return cvsExitVal;
     }
-
+    
     public void setCvsExitVal(int cvsExitVal) {
         this.cvsExitVal = cvsExitVal;
     }
-
+    
     public String getCvsMessages() {
         return cvsMessages;
     }
-
+    
     public void setCvsMessages(String cvsMessages) {
         this.cvsMessages = cvsMessages;
     }
-
+    
     public String getCvsExecDirectory() {
         return cvsExecDirectory;
     }
-
+    
     public void setCvsExecDirectory(String cvsExecDirectory) {
         this.cvsExecDirectory = cvsExecDirectory;
     }
-
-    public boolean isCvsConnectionState() {
-        return cvsConnectionState;
+    
+    public int getCvsErrorVal() {
+        return cvsErrorVal;
     }
-
-    public void setCvsConnectionState(boolean cvsConnectionState) {
-        this.cvsConnectionState = cvsConnectionState;
+    
+    public void setCvsErrorVal(int cvsPropsVal) {
+        this.cvsErrorVal = cvsPropsVal;
     }
     
     

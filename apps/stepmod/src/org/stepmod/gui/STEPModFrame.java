@@ -39,7 +39,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellEditor;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import org.stepmod.CmRecord;
@@ -85,6 +84,10 @@ public class STEPModFrame extends javax.swing.JFrame {
      */
     private STEPmod stepMod;
     
+    /**
+     * The object being currently displaed in the ouput pane
+     */
+    private Object currentDisplayedObject;
     
     private PipedInputStream piOut;
     private PipedInputStream piErr;
@@ -707,23 +710,14 @@ public class STEPModFrame extends javax.swing.JFrame {
                     // Display a summary of the module in the repositoryTextPane
                     String summary = part.summaryHtml();
                     repositoryTextPane.setText(summary);
+                    setCurrentDisplayedObject(nodeObject);
                 } else if (nodeObject instanceof CmReleaseTreeNode) {
                     CmReleaseTreeNode cmReleaseTreeNode = (CmReleaseTreeNode) nodeObject;
                     CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
-                    StepmodPart part = cmReleaseTreeNode.getStepmodPart();
-                    String summary = "";
-                    if (cmRelease == null) {
-                        summary = "<html><body>";
-                        summary = summary + "<h1>Part: "+ part.getName() + "</h1>"
-                                + "<ul>"
-                                + "<li> Part number: ISO 10303-" +  part.getPartNumber() + "</li>"
-                                + "<li> Part ISO status: "  +  part.getIsoStatus() + "</li>"
-                                + "<li> CM release: Development revisions</li>"
-                                + "</body></html>";
-                    } else {
-                        summary = cmRelease.summaryHtml();
-                    }
+                    CmRecord cmRecord = cmReleaseTreeNode.getStepmodPart().getCmRecord();
+                    String summary = cmRecord.summaryHtml(cmRelease);
                     repositoryTextPane.setText(summary);
+                    setCurrentDisplayedObject(nodeObject);
                 }
             }
         });
@@ -853,21 +847,38 @@ public class STEPModFrame extends javax.swing.JFrame {
     
     
     /**
-     * Forces a redraw on the part node in teh tree and all its children
+     * Forces a redraw on the part node in the tree and all its children
      */
     private void updateNode(StepmodPart stepmodPart) {
         DefaultMutableTreeNode node
                 = findNodeByPart((DefaultMutableTreeNode)repositoryJTree.getModel().getRoot(), stepmodPart);
         updateNode(node);
+        
+        // Now refresh the HTML display in the output pane
+        Object displayedObject = getCurrentDisplayedObject();
+        if (displayedObject != null) {
+            if (displayedObject instanceof StepmodPartTreeNode) {
+                StepmodPart part = ((StepmodPartTreeNode)displayedObject).getStepmodPart();
+                String summary = part.summaryHtml();
+                repositoryTextPane.setText(summary);
+            } else if (displayedObject instanceof CmReleaseTreeNode) {
+                CmReleaseTreeNode cmReleaseTreeNode = (CmReleaseTreeNode)displayedObject;
+                CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
+                StepmodPart part = cmReleaseTreeNode.getStepmodPart();
+                String summary = part.getCmRecord().summaryHtml(cmRelease);
+                repositoryTextPane.setText(summary);
+            }
+        }
     }
     
+    /**
+     * Forces a redraw on the  node in the tree and all its children
+     */
     private void updateNode(DefaultMutableTreeNode node) {
         DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
         treeModel.nodeChanged(node);
-        System.out.println("CC:"+node);
         for (Enumeration e=node.children(); e.hasMoreElements(); ) {
             DefaultMutableTreeNode child = (DefaultMutableTreeNode)e.nextElement();
-            System.out.println("CC:"+child);
             treeModel.nodeChanged(child);
             updateNode(child);
         }
@@ -1162,7 +1173,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         createCvsUpdateDevelopmentRevisionMenuItem.setToolTipText("Checks out the latest revisions of the module from CVS for development.");
         createCvsUpdateDevelopmentRevisionMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) releasePopupMenu.getUserObject();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) devRevisionPopupMenu.getUserObject();
                 CmReleaseTreeNode cmReleaseTreeNode = ((CmReleaseTreeNode) node.getUserObject());
                 StepmodPart part = cmReleaseTreeNode.getStepmodPart();
                 STEPModFrame frame = part.getStepMod().getStepModGui();
@@ -1256,17 +1267,25 @@ public class STEPModFrame extends javax.swing.JFrame {
             updateNode(part);
             outputCvsResults(stepmodCvs);
         } else {
-           JOptionPane.showMessageDialog(this,
+            JOptionPane.showMessageDialog(this,
                     "There are no releases",
                     "Warning",
-                    JOptionPane.WARNING_MESSAGE); 
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
     
-    private void cvsCoPublishedRelease(StepmodPart part) {
-        StepmodCvs stepmodCvs = part.cvsCoPublishedRelease();
-        updateNode(part);
-        outputCvsResults(stepmodCvs);
+    private void cvsCoPublishedRelease(StepmodPart part) {        
+        CmRelease cmRelease = part.getCmRecord().getLatestPublishedRelease();
+        if (cmRelease != null) {
+            StepmodCvs stepmodCvs = part.cvsCoPublishedRelease();
+            updateNode(part);
+            outputCvsResults(stepmodCvs);
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "There are no releases published by ISO",
+                    "Warning",
+                    JOptionPane.WARNING_MESSAGE);
+        }
     }
     
     
@@ -1275,13 +1294,39 @@ public class STEPModFrame extends javax.swing.JFrame {
         output(stepmodCvs.getCvsCommand());
         output(stepmodCvs.getCvsMessages());
         output("CVS exiting with: "+stepmodCvs.getCvsExitVal());
-        if (!stepmodCvs.isCvsConnectionState()) {
-            JOptionPane.showMessageDialog(this,
-                    "Unable to connect to CVS @ SourceForge\nCVS is asking for a password, so SSH is not setup correctly",
-                    "Warning",
-                    JOptionPane.WARNING_MESSAGE);
+        String message = null;
+        int cvsError = stepmodCvs.getCvsErrorVal();
+        switch (cvsError) {
+            case StepmodCvs.CVS_ERROR_PROPS_CVSEXE:
+                message = "Property CVSEXE is not set. Setup StepMod properties";
+                break;
+            case StepmodCvs.CVS_ERROR_PROPS_CVS_RSH:
+                message = "Property CVS_RSH is not set. Setup StepMod properties";
+                break;
+            case StepmodCvs.CVS_ERROR_PROPS_SFORGE_USERNAME:
+                message = "Property SFORGE_USERNAME is not set. Setup StepMod properties";
+                break;
+            case StepmodCvs.CVS_ERROR_SSH:
+                message =
+                        "Unable to connect to CVS @ SourceForge\nCVS is asking for a password, so SSH is not setup correctly";
+                break;
+        }
+        if (message != null) {
+            output("CVS error: "+message);
+            JOptionPane.showMessageDialog(this, message, "Warning",JOptionPane.WARNING_MESSAGE);
         }
     }
+    
+    
+    public Object getCurrentDisplayedObject() {
+        return currentDisplayedObject;
+    }
+    
+    public void setCurrentDisplayedObject(Object currentDisplayedObject) {
+        this.currentDisplayedObject = currentDisplayedObject;
+    }
+    
+    
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -1532,8 +1577,14 @@ public class STEPModFrame extends javax.swing.JFrame {
     
     private void testCVSMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testCVSMenuItemActionPerformed
         StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
-        int extitVal = stepmodCvs.testCVSconnection();
+        int exitVal = stepmodCvs.testCVSconnection();
         outputCvsResults(stepmodCvs);
+        if (stepmodCvs.getCvsErrorVal() == StepmodCvs.CVS_ERROR_OK) {
+            JOptionPane.showMessageDialog(this,
+                    "Succesfully connected to CVS @ SourceForge",
+                    "CVS OK",
+                    JOptionPane.PLAIN_MESSAGE);
+        }
     }//GEN-LAST:event_testCVSMenuItemActionPerformed
     
     /**
@@ -1605,5 +1656,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem testCVSMenuItem;
     private javax.swing.JMenu toolsMenu;
     // End of variables declaration//GEN-END:variables
+    
+    
     
 }

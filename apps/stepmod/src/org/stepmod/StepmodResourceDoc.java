@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResourceDoc.java,v 1.2 2006/07/12 09:57:12 robbod Exp $
+ * $Id: StepmodResourceDoc.java,v 1.3 2006/07/12 18:10:24 robbod Exp $
  *
  * StepmodResourceDoc.java
  *
@@ -37,6 +37,22 @@ public class StepmodResourceDoc extends StepmodPart {
     
     
     public void loadXml() {
+    }
+    
+    /**
+     * Provide the HTML body that is the summary of the part
+     */
+    public String summaryHtmlBody() {
+        return "";
+    }
+    
+    /**
+     * Returns a string containing the full part number.
+     * E.g. "Resource documen: ISO 10303-239"
+     * @return a string containing the full part number
+     */
+    public String getPartNumberString() {
+        return("Resource document: ISO 10303-"+getPartNumber());
     }
     
     protected void setStepmodType() {

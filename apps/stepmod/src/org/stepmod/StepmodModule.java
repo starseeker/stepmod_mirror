@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.5 2006/07/12 09:57:12 robbod Exp $
+ * $Id: StepmodModule.java,v 1.6 2006/07/12 18:10:24 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -213,9 +213,19 @@ public class StepmodModule extends StepmodPart {
     }
     
     /**
-     * Provide an HTML summary of the module
+     * Returns a string containing the full part number.
+     * E.g. "Module: ISO 10303-439"
+     * @return a string containing the full part number
      */
-    public String summaryHtml() {
+    public String getPartNumberString() {
+        return("Module: ISO 10303-"+getPartNumber());
+    }
+    
+    
+     /**
+     * Provide the HTML body that is the summary of the part
+     */
+    public String summaryHtmlBody() {
         String cvsStateDscr = "";
         int cvsState = getCvsState();
         if (cvsState == CvsStatus.CVSSTATE_UNKNOWN) {
@@ -223,18 +233,18 @@ public class StepmodModule extends StepmodPart {
         } else if (cvsState == CvsStatus.CVSSTATE_DEVELOPMENT) {
             cvsStateDscr = "Latest development release";
         } else if (cvsState == CvsStatus.CVSSTATE_RELEASE) {
-            cvsStateDscr = "Release ("+ this.getCvsTag() +")";
+            cvsStateDscr =  this.getCvsTag();
         }
-        String summary = "<html><body>"
-                + "<h2>Module ISO 10303-"+getPartNumber()+"</h2>"
-                + "<table>"
-                + "<tr><td>Number:</td><td>ISO 10303-"+getPartNumber()+"</td></tr>"
-                + "<tr><td>Name:</td><td>"+getName()+"</td></tr>"
-                + "<tr><td>Release status:</td><td>" + cvsStateDscr +"</td></tr>"
-                + "</table></body></html>";
+        String summary = 
+                "<table>"
+                + "<tr><td>Part Number:</td><td>ISO 10303-"+getPartNumber()+"</td></tr>"
+                + "<tr><td>Part Name:</td><td>"+getName()+"</td></tr>"
+                + "<tr><td>Checked out release:</td><td>" + cvsStateDscr +"</td></tr>"
+                + "</table>";
         return(summary);
     }
     
+
     /**
      * Generates the ANT build file that is used to generate the HTML that is to be published
      */

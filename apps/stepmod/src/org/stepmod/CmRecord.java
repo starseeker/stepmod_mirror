@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.4 2006/07/11 16:29:10 robbod Exp $
+ * $Id: CmRecord.java,v 1.5 2006/07/12 18:10:23 robbod Exp $
  *
  * STEPmod.java
  *
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.stepmod.cvschk.CvsStatus;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -311,7 +312,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.4 2006/07/11 16:29:10 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.5 2006/07/12 18:10:23 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -406,5 +407,49 @@ public class CmRecord {
             }
         }
         return pubRelease;
+    }
+    
+    
+    
+    /**
+     * Generate a summary of the release in HTML
+     * @return am HTML summary
+     */
+    public String summaryHtml(CmRelease cmRelease) {
+        String id = "";
+        if (cmRelease == null) {
+            id = "Latest development release";
+        } else {
+            id = cmRelease.getId();
+        }
+        
+        StepmodPart part = this.getStepmodPart();
+        String cvsStateDscr = "";
+        int cvsState = part.getCvsState();
+        if (cvsState == CvsStatus.CVSSTATE_UNKNOWN) {
+            cvsStateDscr = "ERROR -- Release status cannot be established";
+        } else if (cvsState == CvsStatus.CVSSTATE_DEVELOPMENT) {
+            cvsStateDscr = "Latest development release";
+        } else if (cvsState == CvsStatus.CVSSTATE_RELEASE) {
+            cvsStateDscr =  part.getCvsTag();
+        }
+        
+        String summary = "<html><body>"
+                + "<h2>Release: " + id + "</h2>"
+                + "<table>"
+                + "<tr><td>Part Number:</td><td>ISO 10303-"+part.getPartNumber()+"</td></tr>"
+                + "<tr><td>Part Name:</td><td>"+part.getName()+"</td></tr>"
+                + "<tr><td>Checked out release:</td><td>" + cvsStateDscr +"</td></tr>";
+        if (cmRelease != null) {
+            summary +=  "<tr><td>&#160;</td><td>&#160;<td></tr>"
+                    + "<tr><td>Release identifier:</td><td>" + cmRelease.getId() + "</td></tr>"
+                    + "<tr><td>Released date:</td><td>" + cmRelease.getReleaseDate() + "</td></tr>"
+                    + "<tr><td>Release status:</td><td>" + cmRelease.getReleaseStatus() + "</td></tr>"
+                    + "<tr><td>ISO status:</td><td>" + cmRelease.getIsoStatus() + "</td></tr>"
+                    + "<tr><td>Released by:</td><td>" + cmRelease.getWho() + "</td></tr>"
+                    + "<tr><td>Description:</td><td>" + cmRelease.getDescription() + "</td></tr>";
+        }
+        summary += "</table></body></html>";
+        return(summary);
     }
 }

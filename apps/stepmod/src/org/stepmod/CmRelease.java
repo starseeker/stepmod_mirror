@@ -2,11 +2,9 @@ package org.stepmod;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.stepmod.cvschk.CvsStatus;
 /*
- * $Id: CmRelease.java,v 1.4 2006/07/11 16:29:10 robbod Exp $
+ * $Id: CmRelease.java,v 1.5 2006/07/12 18:10:24 robbod Exp $
  *
  * STEPmod.java
  *
@@ -237,27 +235,5 @@ public class CmRelease {
         }
     }
     
-    /**
-     * Generate a summary of the release in HTML
-     * @return am HTML summary
-     */
-    public String summaryHtml() {
-        String summary = "<html><body>";
-        StepmodPart part = getInRecord().getStepmodPart();
-        summary = summary + "<h1>Part: "+ part.getName() + "</h1>"
-                + "<ul>"
-                + "<li> Part number: ISO 10303-" +  part.getPartNumber() + "</li>"
-                + "<li> Part ISO status: "  +  part.getIsoStatus() + "</li>"
-                + "<li> CM release: " + getId()+"</li>"
-                + "<li> Released by: " + getWho() + "</li>"
-                + "<li> Released on: " + getReleaseDate() + "</li>"
-                + "<li> Release status: " + getReleaseStatus() + "</li>"
-                + "<li> ISO status: " + getIsoStatus() + "</li>"
-                + "</ul>"
-                + "<h3>Description:</h3>"
-                + "<p>" + getDescription() +"</p>"
-                + "</body></html>";
-        return(summary);
-    }
     
 }

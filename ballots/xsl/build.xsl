@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build.xsl,v 1.38 2005/02/09 19:46:45 thendrix Exp $
+$Id: build.xsl,v 1.39 2005/03/09 21:15:40 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -549,11 +549,11 @@ $Id: build.xsl,v 1.38 2005/02/09 19:46:45 thendrix Exp $
         </xsl:element>
 
         <xsl:element name="property">
-          <xsl:attribute name="name"></xsl:attribute>
+          <xsl:attribute name="name">REFDATAXML</xsl:attribute>
           <xsl:attribute name="value">
             <xsl:apply-templates select="ballot_package/module">
               <xsl:with-param name="prefix" select="'data/modules/'"/>
-              <xsl:with-param name="suffix" select="''"/>
+              <xsl:with-param name="suffix" select="'/sys/6_refdata.xml'"/>
             </xsl:apply-templates>
           </xsl:attribute>
         </xsl:element>
@@ -1876,6 +1876,88 @@ utable as in buildscript -->
         </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mapping.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'ballot'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${BALLOT}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_background'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_BACKGROUND}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:if test="./@background_image">
+          <xsl:element name="param">
+            <xsl:attribute name="name">
+              <xsl:value-of select="'background_image'"/>
+            </xsl:attribute>
+            <xsl:attribute name="expression">
+              <xsl:value-of select="./@background_image"/>
+            </xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${ISOMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+      
+      <!--
+<style includes="${REFDATAXML}" destdir="${ISODIR}"
+        extension=".htm"
+        style="${STEPMODSTYLES}/sect_6_refdata.xsl">
+        <param name="output_type" expression="HTM"/>
+        <param name="output_rcs" expression="${OUTPUT_RCS}"/>
+        <param name="menubar_file" expression="${ISOMENU}"/>
+</style> -->
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${REFDATAXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_6_refdata.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">

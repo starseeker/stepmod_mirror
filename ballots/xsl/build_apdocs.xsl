@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.40 2005/04/12 16:26:46 thendrix Exp $
+$Id: build_apdocs.xsl,v 1.41 2005/07/28 22:01:12 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -1477,6 +1477,16 @@ $Id: build_apdocs.xsl,v 1.40 2005/04/12 16:26:46 thendrix Exp $
         <xsl:apply-templates select="ballot_package/module">
           <xsl:with-param name="prefix" select="'data/modules/'"/>
           <xsl:with-param name="suffix" select="'/sys/5_mapping.xml'"/>
+		</xsl:apply-templates>
+      </xsl:attribute>
+    </xsl:element>
+    
+    <xsl:element name="property">
+      <xsl:attribute name="name">REFDATAXML</xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:apply-templates select="ballot_package/module">
+          <xsl:with-param name="prefix" select="'data/modules/'"/>
+          <xsl:with-param name="suffix" select="'/sys/6_refdata.xml'"/>
 		</xsl:apply-templates>
       </xsl:attribute>
     </xsl:element>
@@ -7957,6 +7967,18 @@ $Id: build_apdocs.xsl,v 1.40 2005/04/12 16:26:46 thendrix Exp $
         </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${STEPMODSTYLES}/sect_5_mapping.xsl'"/>
+        </xsl:attribute>
+        <xsl:apply-templates select="." mode="modules_target_style_attributes">
+          <xsl:with-param name="menu" select="$menu"/>
+        </xsl:apply-templates>
+      </xsl:element>
+      
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${REFDATAXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${STEPMODSTYLES}/sect_6_refdata.xsl'"/>
         </xsl:attribute>
         <xsl:apply-templates select="." mode="modules_target_style_attributes">
           <xsl:with-param name="menu" select="$menu"/>

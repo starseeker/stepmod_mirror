@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.9 2006/07/12 18:10:24 robbod Exp $
+ * $Id: StepmodPart.java,v 1.10 2006/07/13 09:02:12 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -439,8 +439,7 @@ public abstract class StepmodPart {
      *
      */
     public StepmodCvs cvsCoLatestRelease() {
-        // TODO - get the release
-        CmRelease cmRelease = null;
+        CmRelease cmRelease = this.getCmRecord().getLatestRelease();
         return(cvsCoRelease(cmRelease));
     }
     
@@ -450,18 +449,17 @@ public abstract class StepmodPart {
      *
      */
     public StepmodCvs cvsCoPublishedRelease() {
-        // TODO - get the release
-        CmRelease cmRelease = null;
+        CmRelease cmRelease = this.getCmRecord().getLatestPublishedRelease();
         return(cvsCoRelease(cmRelease));
     }
     
     /**
-     *  Use StepModAnt to tag and commit a CMRecord
+     * Commit the CMRecord to CVS
      */
-    
-    public void cvsTagRecord() {
-        
-        getStepMod().getStepModGui().toBeDone("StepmodPart.cvsTagRecord");
+    public StepmodCvs cvsCommitRecord() {
+        CmRecord cmRecord = this.getCmRecord();
+        cmRecord.writeCmRecord();
+        return(cmRecord.cvsCommit());
     }
     
     

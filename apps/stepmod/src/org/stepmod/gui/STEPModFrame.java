@@ -85,9 +85,16 @@ public class STEPModFrame extends javax.swing.JFrame {
     private STEPmod stepMod;
     
     /**
-     * The object being currently displaed in the ouput pane
+     * The object being currently displayed in the ouput pane
      */
     private Object currentDisplayedObject;
+    
+    
+    
+    private javax.swing.JMenuItem createCmRecordMenuItem;
+    private javax.swing.JMenuItem commitCmRecordMenuItem;
+    private javax.swing.JMenuItem saveCmRecordMenuItem;
+    
     
     private PipedInputStream piOut;
     private PipedInputStream piErr;
@@ -459,15 +466,27 @@ public class STEPModFrame extends javax.swing.JFrame {
                         checkBoxRenderer.setSelectedIcon(releasedIconSelected);
                         checkBoxRenderer.setToolTipText("Release");
                     }
-                    if (stepmodPart.getCmRecord().getModified() == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
+                    
+                    Color foregroundColor = textForeground;
+                    if (stepmodPart.getCmRecord().needsCvsAction()) {
                         // Make the text red if the state of cm_record has been changed, but not saved
-                        System.out.println("CCCC");
-                        checkBoxRenderer.setForeground(Color.RED);
-                    } else if (sel) {
+                        foregroundColor = Color.RED;
+                    } else if (stepmodPart.getCmRecord().getRecordState() == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
+                        // Make the DARK_GRAY blue if cm_record file does not exist
+                        foregroundColor = Color.DARK_GRAY;
+                    } else if (stepmodPart.getCmRecord().getRecordState() == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
+                        // Make the DARK_GRAY blue if cm_record file does not exist
+                        foregroundColor = Color.GREEN;
+                    } else {
+                        foregroundColor = Color.BLUE;
+                    }
+                    
+                    
+                    if (sel) {
                         checkBoxRenderer.setForeground(selectionForeground);
                         checkBoxRenderer.setBackground(selectionBackground);
                     } else {
-                        checkBoxRenderer.setForeground(textForeground);
+                        checkBoxRenderer.setForeground(foregroundColor);
                         checkBoxRenderer.setBackground(textBackground);
                     }
                     return(checkBoxRenderer);
@@ -735,6 +754,13 @@ public class STEPModFrame extends javax.swing.JFrame {
                         if (part instanceof StepmodModule) {
                             // Make sure that the menu knows about the tree node
                             modulePopupMenu.setUserObject(node);
+                            
+                            // Only display relevant menu items
+                            int state = part.getCmRecord().getRecordState();
+                            
+                            createCmRecordMenuItem.setEnabled(false);
+                            commitCmRecordMenuItem.setEnabled(false);
+                            saveCmRecordMenuItem.setEnabled(false);
                             modulePopupMenu.show(e.getComponent(), e.getX(), e.getY());
                         }
                     } else if (nodeObject instanceof CmReleaseTreeNode) {
@@ -1000,7 +1026,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         
         javax.swing.JMenu cvsModuleSubmenu = new javax.swing.JMenu("CVS - module");
         modulePopupMenu.add(cvsModuleSubmenu);
-        javax.swing.JMenu cvsCmRecSubmenu = new javax.swing.JMenu("CVS - CMrecord");
+        javax.swing.JMenu cvsCmRecSubmenu = new javax.swing.JMenu("CM record");
         modulePopupMenu.add(cvsCmRecSubmenu);
         javax.swing.JMenu cvsReleaseSubmenu = new javax.swing.JMenu("Release");
         modulePopupMenu.add(cvsReleaseSubmenu);
@@ -1061,19 +1087,48 @@ public class STEPModFrame extends javax.swing.JFrame {
         });
         cvsReleaseSubmenu.add(createCmReleaseMenuItem);
         
+        
         // Commit CM record option
-        javax.swing.JMenuItem createCmRecordMenuItem;
-        createCmRecordMenuItem = new javax.swing.JMenuItem("Commit CM Record");
-        createCmRecordMenuItem.setToolTipText("Save any changes to the CM record to cm_record.xml and use CVS to tag release");
+        //javax.swing.JMenuItem createCmRecordMenuItem;
+        createCmRecordMenuItem = new javax.swing.JMenuItem("Create CM Record");
+        createCmRecordMenuItem.setToolTipText("Create the CM record for the part. Creates cm_record.xml");
         createCmRecordMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
-                StepmodModule module = (StepmodModule) node.getUserObject();
-                module.cvsTagRecord();
-                module.getCmRecord().writeCmRecord();
+                StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
+                StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
+                stepmodPart.getStepMod().getStepModGui().writeCmRecord(stepmodPart);
             }
         });
         cvsCmRecSubmenu.add(createCmRecordMenuItem);
+        
+        // Commit CM record option
+        //javax.swing.JMenuItem saveCmRecordMenuItem;
+        saveCmRecordMenuItem = new javax.swing.JMenuItem("Save CM Record");
+        saveCmRecordMenuItem.setToolTipText("Save any changes to the CM record to cm_record.xml");
+        saveCmRecordMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
+                StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
+                stepmodPart.getStepMod().getStepModGui().cvsCommitRecord(stepmodPart);
+            }
+        });
+        cvsCmRecSubmenu.add(saveCmRecordMenuItem);
+        
+        // Commit CM record option
+        //javax.swing.JMenuItem commitCmRecordMenuItem;
+        commitCmRecordMenuItem = new javax.swing.JMenuItem("Commit CM Record");
+        commitCmRecordMenuItem.setToolTipText("Save any changes to the CM record to cm_record.xml and use CVS to tag release");
+        commitCmRecordMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
+                StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
+                stepmodPart.getStepMod().getStepModGui().cvsCommitRecord(stepmodPart);
+            }
+        });
+        cvsCmRecSubmenu.add(commitCmRecordMenuItem);
         
         modulePopupMenu.add(new JSeparator());
         
@@ -1253,6 +1308,12 @@ public class STEPModFrame extends javax.swing.JFrame {
         outputCvsResults(stepmodCvs);
     }
     
+    private void cvsCommitRecord(StepmodPart part) {
+        StepmodCvs stepmodCvs = part.cvsCommitRecord();
+        updateNode(part);
+        outputCvsResults(stepmodCvs);
+    }
+    
     
     private void cvsCoRelease(StepmodPart part, CmRelease cmRelease) {
         StepmodCvs stepmodCvs = part.cvsCoRelease(cmRelease);
@@ -1263,7 +1324,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     private void cvsCoLatestRelease(StepmodPart part) {
         CmRelease cmRelease = part.getCmRecord().getLatestRelease();
         if (cmRelease != null) {
-            StepmodCvs stepmodCvs = part.cvsCoLatestRelease();
+            StepmodCvs stepmodCvs = part.cvsCoRelease(cmRelease);
             updateNode(part);
             outputCvsResults(stepmodCvs);
         } else {
@@ -1274,10 +1335,11 @@ public class STEPModFrame extends javax.swing.JFrame {
         }
     }
     
-    private void cvsCoPublishedRelease(StepmodPart part) {        
+    
+    private void cvsCoPublishedRelease(StepmodPart part) {
         CmRelease cmRelease = part.getCmRecord().getLatestPublishedRelease();
         if (cmRelease != null) {
-            StepmodCvs stepmodCvs = part.cvsCoPublishedRelease();
+            StepmodCvs stepmodCvs = part.cvsCoRelease(cmRelease);
             updateNode(part);
             outputCvsResults(stepmodCvs);
         } else {
@@ -1314,6 +1376,21 @@ public class STEPModFrame extends javax.swing.JFrame {
         if (message != null) {
             output("CVS error: "+message);
             JOptionPane.showMessageDialog(this, message, "Warning",JOptionPane.WARNING_MESSAGE);
+        }
+    }
+    
+    
+    private void writeCmRecord(StepmodPart part) {
+        int answer = JOptionPane.showConfirmDialog(this,
+                "Do you want to save the CM record for "+part.getName()+"?",
+                "Save CM record ....",
+                JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            CmRecord cmRecord= part.getCmRecord();
+            cmRecord.writeCmRecord();
+            updateNode(part);
+        } else if (answer == JOptionPane.NO_OPTION) {
+            // User clicked NO.
         }
     }
     

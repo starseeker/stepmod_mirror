@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.5 2006/07/12 18:10:23 robbod Exp $
+ * $Id: CmRecord.java,v 1.6 2006/07/13 09:02:11 robbod Exp $
  *
  * STEPmod.java
  *
@@ -16,14 +16,23 @@ package org.stepmod;
  */
 
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.TimeZone;
+import java.util.regex.Pattern;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.stepmod.cvschk.CvsStatus;
+import org.stepmod.cvschk.StepmodCvs;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -69,30 +78,59 @@ public class CmRecord {
     
     /**
      * A flag indicating if the cm_record has been updated in this session
-     * values are:
-     *  CmRecord.CM_RECORD_NOT_CHANGED;
-     *  CmRecord.CM_RECORD_MODIFIED_NOT_CHANGED;
-     *  CmRecord.CM_RECORD_MODIFIED_CHANGED;
      */
-    private int modified = CM_RECORD_NOT_CHANGED;
+    private int recordState = CM_RECORD_NO_CHANGE;
     
-    /**
-     * A flag indicating that the CM record has been modified by the application and not saved
-     * to cm_record.xml
+    
+     /**
+     * A flag indicating that the CM record has not been modified by the application 
      */
-    public static final int CM_RECORD_NOT_CHANGED = 0;
+    public static final int CM_RECORD_NO_CHANGE = 0;
+    
+    
     /**
      * A flag indicating that the CM record has been modified by the application and not saved
      * to cm_record.xml
      */
     public static final int CM_RECORD_CHANGED_NOT_SAVED = 1;
     
-    /**
-     * A flag indicating that the CM record has been modified by the application and saved
-     * to cm_record.xml
-     */
-    public static final int CM_RECORD_CHANGED_SAVED = 2;
     
+    
+    /**
+     * A flag indicating that the CM record file, cm_record.xml, does not exist for this part
+     */
+    public static final int CM_RECORD_FILE_NOT_EXIST = 2;
+    
+    /**
+     * A flag indicating that the CM record file, cm_record.xml, does exists for
+     * this part but has not been added to CVS
+     */
+    public static final int CM_RECORD_CVS_NOT_ADDED = 3;
+    
+    /**
+     * A flag indicating that the CM record file, cm_record.xml, for
+     * this part but has been added to CVS but not committed
+     */
+    public static final int CM_RECORD_CVS_ADDED= 4;
+    
+    /**
+     * A flag indicating that the CM record file, cm_record.xml, for
+     * this part but has been committed to CVS
+     */
+    public static final int CM_RECORD_CVS_COMMITTED = 5;
+    
+    /**
+     * A flag indicating that the CM record file, cm_record.xml, for
+     * this part has been committed to CVS but the local file has changed
+     */
+    public static final int CM_RECORD_CVS_CHANGED = 6;
+    
+    
+    /**
+     * A flag indicating that the CM record file, cm_record.xml, for
+     * this part exists, but the record directory has not been added to CVS
+     */
+    public static final int CM_RECORD_CVS_DIR_NOT_ADDED = 7;
     
     
     public CmRecord(StepmodPart part, String cvsRevision, String  cvsDate) {
@@ -116,7 +154,8 @@ public class CmRecord {
     }
     
     /**
-     * Updates an instance of the CM record by reading from the cm_record.xml for the StepmodPart part.
+     * Updates an instance of the CM record for the StepmodPart part.
+     * The CM records are stored in stepmod/config_management/<part>/cm_record.xml
      */
     public void readCmRecord() {
         
@@ -130,12 +169,14 @@ public class CmRecord {
             // Parse the input
             SAXParser saxParser = factory.newSAXParser();
             String stepModDir = stepmodPart.getStepMod().getRootDirectory();
-            String cmRecordFilename = stepModDir+"/data/"+ stepmodPart.getStepmodType() +"s/" + stepmodPart.getName()+ "/cm_record.xml";
+            String cmRecordFilename = stepModDir+"/config_management/"+ stepmodPart.getStepmodType() +"s/" + stepmodPart.getName()+ "/cm_record.xml";
             File cmRecordFile =  new File(cmRecordFilename);
             if (cmRecordFile.exists()) {
-                saxParser.parse( cmRecordFile, handler );
+                saxParser.parse( cmRecordFile, handler);
+                this.setRecordState(this.getCmRecordCvsStatus());
             } else {
                 stepmodPart.getStepMod().output("File does not exist:" + cmRecordFilename);
+                this.setRecordState(CM_RECORD_FILE_NOT_EXIST);
             }
         } catch (Throwable t) {
             t.printStackTrace();
@@ -152,15 +193,22 @@ public class CmRecord {
         // Create the cm_record.xml. Should not contain any releases.
         StepmodPart part = this.getStepmodPart();
         try {
-            String stepModDir = part.getStepMod().getRootDirectory();
-            String cmRecordFilename = stepModDir+"/data/"+ part.getStepmodType() +"s/" + part.getName()+ "/cm_record.xml";
-            File cmRecordFile =  new File(cmRecordFilename);
-            FileWriter out = new FileWriter(cmRecordFile);
-            this.writeToStream(out);
-            out.close();
-            setModified(CmRecord.CM_RECORD_CHANGED_SAVED);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            String cmDirName = part.getStepMod().getRootDirectory()+"/config_management/"+ part.getStepmodType() +"s/" + part.getName();
+            String cmRecordFilename = cmDirName+ "/cm_record.xml";
+            File cmDir = new File(cmDirName);
+            File cmRecordFile = new File(cmRecordFilename);
+            boolean success = true;
+            if (!cmRecordFile.exists()) {
+                if (!cmDir.exists()) {
+                    success = cmDir.mkdir();
+                }
+                if (success) {
+                    FileWriter out = new FileWriter(cmRecordFile);
+                    this.writeToStream(out);
+                    out.close();
+                    setRecordState(this.getCmRecordCvsStatus());
+                }
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -312,7 +360,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.5 2006/07/12 18:10:23 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.6 2006/07/13 09:02:11 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -369,19 +417,147 @@ public class CmRecord {
         out.write("</cm_record>\n");
     }
     
-    public int getModified() {
-        return modified;
+    public int getRecordState() {
+        return recordState;
     }
     
-    public void setModified(int modified) throws Exception {
-        if ((modified == CmRecord.CM_RECORD_NOT_CHANGED) ||
-                (modified == CmRecord.CM_RECORD_CHANGED_NOT_SAVED)||
-                (modified == CmRecord.CM_RECORD_CHANGED_SAVED)) {
-            this.modified = modified;
-        } else {
-            throw new Exception("Cannot set modified - use predefined constants");
-        }
+    public void setRecordState(int state) {
+        this.recordState = state;
     }
+    
+    
+    public int getCmRecordCvsStatus() {
+        int retVal = 0;
+        StepmodPart stepmodPart = this.getStepmodPart();
+        
+        String cmDirName = getStepMod().getRootDirectory()+"/config_management/"+ stepmodPart.getStepmodType() +"s/" + stepmodPart.getName();
+        String cmRecordFilename = cmDirName+ "/cm_record.xml";
+        String cvsEntriesFilename = cmDirName+ "/CVS/Entries";
+        File cmDir = new File(cmDirName);
+        File cmRecordFile = new File(cmRecordFilename);
+        File cvsEntriesFile = new File(cvsEntriesFilename);
+        if (!cmRecordFile.exists()) {
+            // The CM record file, cm_record.xml, does not exist for this part
+            retVal = CM_RECORD_FILE_NOT_EXIST;
+        } else {
+            if (!cvsEntriesFile.exists()) {
+                // The CM record file, cm_record.xml, exists but the record directory has not been added to CVS
+                retVal = CM_RECORD_CVS_DIR_NOT_ADDED;
+            } else {
+                // Directory under CVS control, so check CVS status of cm_record.xml
+                try {
+                    BufferedReader in = new BufferedReader(new FileReader(cvsEntriesFile));
+                    String str;
+                    Pattern mainfilePattern = Pattern.compile("^/cm_record.xml/.*$");
+                    boolean foundCmRecordEntry = false;
+                    String datestamp = null;
+                    while ((str = in.readLine()) != null) {
+                        String[] fields = str.split("/");
+                        if (fields.length > 2) {
+                            if (fields[1].equals("cm_record.xml")) {
+                                foundCmRecordEntry = true;
+                                // Found the line with the cm_record.xml
+                                if (foundCmRecordEntry) {
+                                    datestamp = fields[3];
+                                }
+                            }
+                        }
+                    }
+                    in.close();
+                    
+                    if (!foundCmRecordEntry) {
+                        // Cannot find cm_record.xml in CVS/Entries
+                        //The CM record file, cm_record.xml, exists but has not been added to CVS
+                        retVal = CmRecord.CM_RECORD_CVS_NOT_ADDED;
+                    } else if (datestamp.equals("dummy timestamp")) {
+                        // If contains dummy timestamp, then added but not committed
+                        //The CM record file, cm_record.xml, has been added to CVS but not committed;
+                        retVal = CmRecord.CM_RECORD_CVS_ADDED;
+                    } else {
+                        SimpleDateFormat cvsDateFormat = new SimpleDateFormat("EEE MMM dd H:mm:ss yyyy");
+                        try {
+                            TimeZone tz = TimeZone.getDefault();
+                            Date cvsDate = cvsDateFormat.parse(datestamp);
+                            Calendar cvsGcCal = new GregorianCalendar(tz);
+                            cvsGcCal.setTime(cvsDate);
+                            
+                            //System.out.println("CVS date " + cvsDateFormat.format(cvsGcCal.getTime()));
+                            
+                            // This is a bit of a hack
+                            // the CVS client seems to ignore daylight savings, so the comparisons are wrong
+                            if (tz.inDaylightTime(cvsDate)) {
+                                cvsGcCal.add(Calendar.MILLISECOND, tz.getDSTSavings());
+                                //System.out.println("CVS date + savings" + cvsDateFormat.format(cvsGcCal.getTime()));
+                            }
+                            
+                            Date fileDate = new Date(cmRecordFile.lastModified());
+                            Calendar fileGcCal = new GregorianCalendar(tz);
+                            fileGcCal.setTime(fileDate);
+                            //System.out.println("File date " + cvsDateFormat.format(fileDate));/
+                            //System.out.println("CVS before File " + cvsGcCal.before(fileGcCal));
+                            //System.out.println("File before CVS " + cvsGcCal.after(fileGcCal));
+                            //System.out.println("==" + (cvsGcCal.getTimeInMillis() - fileGcCal.getTimeInMillis()));
+                            
+                            // The calendar times do not seem to exactly equal, so give 3 minutes marhin of error
+                            long diff = java.lang.Math.abs(cvsGcCal.getTimeInMillis() - fileGcCal.getTimeInMillis());
+                            if (diff < 180) {
+                                //The CM record file, cm_record.xml, has been committed to CVS/
+                                retVal = CmRecord.CM_RECORD_CVS_COMMITTED;
+                            } else {
+                                //The CM record file, cm_record.xml, has  been committed to CVS but the local file has changed
+                                retVal = CmRecord.CM_RECORD_CVS_CHANGED;
+                            }
+                        } catch(java.text.ParseException p) {
+                            System.out.println(p.toString());
+                        }
+                    }
+                } catch (IOException e) {
+                    retVal = -1;
+                }
+            }
+        }
+        return(retVal);
+    }
+    
+    /**
+     * return true if the CMrecord needs CVS action
+     * The CVS commands wil work out what needs to be doen and do it
+     */    
+    public boolean needsCvsAction() {
+        int cvsState = this.getCmRecordCvsStatus();
+        return((cvsState == CM_RECORD_CVS_DIR_NOT_ADDED) ||
+                (cvsState == CM_RECORD_CVS_CHANGED) ||
+                (cvsState == CM_RECORD_CVS_NOT_ADDED));
+    }
+    
+    public STEPmod getStepMod(){
+        return(this.getStepmodPart().getStepMod());
+    }
+    
+    public StepmodCvs cvsCommit() {
+        StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
+        StepmodPart stepmodPart = this.getStepmodPart();
+        String partCmDir = getStepMod().getRootDirectory()+"/config_management/"+ stepmodPart.getStepmodType() +"s/";
+        String cmDirName = partCmDir + stepmodPart.getName();
+        String cmRecordFilename = cmDirName+ "/cm_record.xml";
+        
+        int cvsStatus = getCmRecordCvsStatus();
+        if (cvsStatus == CM_RECORD_CVS_DIR_NOT_ADDED) {
+            // Add the part directory
+            int result = stepmodCvs.cvsAdd(partCmDir, stepmodPart.getName());
+            // Add the cm_record file
+            result = stepmodCvs.cvsAdd(cmDirName, "cm_record.xml");
+            // Commit the cm_record file
+            result = stepmodCvs.cvsCommit(cmDirName, "cm_record.xml");
+        } else if (cvsStatus == CM_RECORD_CVS_NOT_ADDED) {
+            System.out.println("CM_RECORD_CVS_NOT_ADDED");
+            // Commit the cm_record file
+            int result = stepmodCvs.cvsCommit(cmDirName, "cm_record.xml");
+        }
+        return(stepmodCvs);
+    }
+    
+    
     
     /**
      * Get the latest release in the record
@@ -452,4 +628,5 @@ public class CmRecord {
         summary += "</table></body></html>";
         return(summary);
     }
+    
 }

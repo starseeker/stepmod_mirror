@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.6 2006/07/12 18:10:24 robbod Exp $
+ * $Id: StepmodModule.java,v 1.7 2006/07/13 09:02:11 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -64,7 +64,7 @@ public class StepmodModule extends StepmodPart {
     /**
      * Reads the module.xml file and populates the relevant attributes
      */
-    public void loadXml() {        
+    public void loadXml() {
         // now read module.xml for the part populating the attributes
         DefaultHandler handler = new ModuleSaxHandler(this, this.getStepMod());
         // Use the default (non-validating) parser
@@ -222,7 +222,7 @@ public class StepmodModule extends StepmodPart {
     }
     
     
-     /**
+    /**
      * Provide the HTML body that is the summary of the part
      */
     public String summaryHtmlBody() {
@@ -235,16 +235,43 @@ public class StepmodModule extends StepmodPart {
         } else if (cvsState == CvsStatus.CVSSTATE_RELEASE) {
             cvsStateDscr =  this.getCvsTag();
         }
-        String summary = 
+        
+        String cmDescr = "";
+        int cmRecordState = getCmRecord().getCmRecordCvsStatus();
+//        if (cmRecordState == CmRecord.CM_RECORD_NOT_CHANGED) {
+//            cmDescr = "CM record modified but not saved to cm_record.xml";
+//        } else 
+        if (cmRecordState == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
+            cmDescr = "CM record modified but not saved to cm_record.xml";
+        } 
+//        else if (cmRecordState == CmRecord.CM_RECORD_CHANGED_SAVED) {
+//            cmDescr = " CM record modified and saved to cm_record.xml";
+//        }else 
+        else if (cmRecordState == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
+            cmDescr = "The CM record file, cm_record.xml, does not exist for this part";
+        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_NOT_ADDED) {
+            cmDescr = "The CM record file, cm_record.xml, exists but has not been added to CVS";
+        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_ADDED) {
+            cmDescr = "The CM record file, cm_record.xml, has been added to CVS but not committed";
+        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_COMMITTED) {
+            cmDescr = "The CM record file, cm_record.xml, has been committed to CVS";
+        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_CHANGED) {
+            cmDescr = "The CM record file, cm_record.xml, has  been committed to CVS but the local file has changed";
+        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_DIR_NOT_ADDED) {
+            cmDescr = " The CM record file, cm_record.xml, exists but the record directory has not been added to CVS";
+        }
+        
+        String summary =
                 "<table>"
-                + "<tr><td>Part Number:</td><td>ISO 10303-"+getPartNumber()+"</td></tr>"
+                + "<tr><td>Part Number:</td><td>"+getPartNumberString()+"</td></tr>"
                 + "<tr><td>Part Name:</td><td>"+getName()+"</td></tr>"
                 + "<tr><td>Checked out release:</td><td>" + cvsStateDscr +"</td></tr>"
+                + "<tr><td>CM record:</td><td>" + cmDescr +"</td></tr>"
                 + "</table>";
         return(summary);
     }
     
-
+    
     /**
      * Generates the ANT build file that is used to generate the HTML that is to be published
      */
@@ -267,7 +294,7 @@ public class StepmodModule extends StepmodPart {
         String dir = this.getStepMod().getRootDirectory()+"/data/modules/" + this.getName();
         return(dir);
     }
-
+    
     
     
 }

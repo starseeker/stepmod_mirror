@@ -1,5 +1,5 @@
 /**
- * $Id: StepmodCvs.java,v 1.3 2006/07/12 18:10:24 robbod Exp $
+ * $Id: StepmodCvs.java,v 1.4 2006/07/13 09:02:12 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -76,8 +76,8 @@ public class StepmodCvs {
     /**
      * Check that all the CVS properties stored in stepmod.properties
      * point an execuables etc.
-     * 
-     * 
+     *
+     *
      * @return CVS_ERROR_OK if properties OK,
      * CVS_ERROR_PROPS_SFORGE_USERNAME if SFORGE_USERNAME CVS property incorrect
      * CVS_ERROR_PROPS_CVSEXE if CVSEXE CVS property incorrect
@@ -177,6 +177,44 @@ public class StepmodCvs {
         }
         return(exitVal);
     }
+    
+    /**
+     * Runs CVS commit on a file in a given drectory
+     */
+    public int cvsCommit(String dir, String Filename) {
+        int exitVal = CVS_ERROR_OK;
+        try {
+            List<String> command = new ArrayList<String>();
+            command.add("commit");
+            command.add("-m");
+            command.add("Initial revision");
+            command.add(Filename);
+            exitVal = executeCvsCommand(command, dir);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return(exitVal);
+    }
+            
+    /**
+     * Adds a directory or file to CVS
+     */
+    public int cvsAdd(String directoryPath, String directoryName) {
+        int exitVal = CVS_ERROR_OK;
+        System.out.println("cvs add " + directoryPath + " " + directoryName);
+        try {
+            List<String> command = new ArrayList<String>();
+            command.add("add");
+            command.add(directoryName);
+            exitVal = executeCvsCommand(command, directoryPath);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return(exitVal);
+    }
+    
+      
+    
     
     /**
      * Runs CVS update -r (Check out a tagged version) on a directory

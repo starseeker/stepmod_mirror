@@ -4,7 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import org.stepmod.cvschk.CvsStatus;
 /*
- * $Id: CmRelease.java,v 1.5 2006/07/12 18:10:24 robbod Exp $
+ * $Id: CmRelease.java,v 1.6 2006/07/13 09:02:11 robbod Exp $
  *
  * STEPmod.java
  *
@@ -78,19 +78,15 @@ public class CmRelease {
         CmRecord cmRecord = part.getCmRecord();
         setInRecord(cmRecord);
         cmRecord.addCmReleaseToReleases(this);
-        
-        try {
-            cmRecord.setModified(CmRecord.CM_RECORD_CHANGED_NOT_SAVED);
-            setReleaseDate(part.getReleaseDate());
-            setEdition(part.getVersion());
-            setIsoStatus(part.getIsoStatus());
-            setReleaseStatus(releaseStatus);
-            setId(part.getNextReleaseId());
-            setWho(who);
-            setStepmodRelease(part.getStepMod().getStepmodRelease());
-            setDescription(description);} catch (Exception ex) {
-                ex.printStackTrace();
-            }
+        cmRecord.setRecordState(CmRecord.CM_RECORD_CHANGED_NOT_SAVED);
+        setReleaseDate(part.getReleaseDate());
+        setEdition(part.getVersion());
+        setIsoStatus(part.getIsoStatus());
+        setReleaseStatus(releaseStatus);
+        setId(part.getNextReleaseId());
+        setWho(who);
+        setStepmodRelease(part.getStepMod().getStepmodRelease());
+        setDescription(description);
     }
     
     void writeToStream(FileWriter out) throws IOException {
@@ -146,11 +142,7 @@ public class CmRelease {
     public void setReleaseStatus(String status, boolean cmRecordUpdate) {
         if (cmRecordUpdate && (this.releaseStatus != status)) {
             this.releaseStatus = status;
-            try {
-                getInRecord().setModified(CmRecord.CM_RECORD_CHANGED_NOT_SAVED);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            getInRecord().setRecordState(CmRecord.CM_RECORD_CHANGED_NOT_SAVED);
         }
     }
     

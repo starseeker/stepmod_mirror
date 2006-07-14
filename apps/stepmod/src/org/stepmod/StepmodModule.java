@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.7 2006/07/13 09:02:11 robbod Exp $
+ * $Id: StepmodModule.java,v 1.8 2006/07/14 07:27:23 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -52,12 +52,12 @@ public class StepmodModule extends StepmodPart {
         this.setName(partName);
         this.setStepmodType();
         this.setStepMod(stepMod);
-        // read the CM record
-        this.readCmRecord();
         stepMod.addModule(this);
         
         this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), "module.xml"));
         this.loadXml();
+        // read the CM record
+        this.readCmRecord();
     }
     
     
@@ -266,7 +266,9 @@ public class StepmodModule extends StepmodPart {
                 + "<tr><td>Part Number:</td><td>"+getPartNumberString()+"</td></tr>"
                 + "<tr><td>Part Name:</td><td>"+getName()+"</td></tr>"
                 + "<tr><td>Checked out release:</td><td>" + cvsStateDscr +"</td></tr>"
-                + "<tr><td>CM record:</td><td>" + cmDescr +"</td></tr>"
+                + "<tr><td>CM record revision:</td><td>" + getCmRecord().getCvsRevision() +"</td></tr>"
+                + "<tr><td>CM record date:</td><td>" + getCmRecord().getCvsDate() +"</td></tr>"
+                + "<tr><td>CM record status:</td><td>" + cmDescr +"</td></tr>"
                 + "</table>";
         return(summary);
     }

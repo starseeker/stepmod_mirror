@@ -23,11 +23,15 @@ import java.util.EventObject;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.AbstractCellEditor;
+import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -35,6 +39,8 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -307,15 +313,31 @@ public class STEPModFrame extends javax.swing.JFrame {
      * Cell renderer for the STEPmod repository tree
      */
     private class RepositoryTreeRenderer extends DefaultTreeCellRenderer {
-        private Icon publishedIcon;
-        private Icon releasedIcon;
-        private Icon developmentIcon;
         private Icon publishedIconSelected;
         private Icon releasedIconSelected;
         private Icon developmentIconSelected;
         private Icon publishedIconUnSelected;
         private Icon releasedIconUnSelected;
         private Icon developmentIconUnSelected;
+        
+        private Icon devSelCvsModIcon;
+        private Icon devUnSelCvsModIcon;
+        private Icon relSelCvsModIcon;
+        private Icon relUnSelCvsModIcon;
+        private Icon pubSelCvsModIcon;
+        private Icon pubUnSelCvsModIcon;
+        private Icon devSelCvsIcon;
+        private Icon devUnSelCvsIcon;
+        private Icon relSelCvsIcon;
+        private Icon relUnSelCvsIcon;
+        private Icon pubSelCvsIcon;
+        private Icon pubUnSelCvsIcon;
+        private Icon devSelCvsUnknownIcon;
+        private Icon devUnSelCvsUnknownIcon;
+        private Icon devSelCvsAddIcon;
+        private Icon devUnSelCvsAddIcon;
+        private Icon devSelCvsNoFileIcon;
+        private Icon devUnSelCvsNoFileIcon;
         
         private JCheckBox checkBoxRenderer = new JCheckBox();
         private Color selectionForeground;
@@ -325,52 +347,122 @@ public class STEPModFrame extends javax.swing.JFrame {
         private Color currentBackground;
         
         public RepositoryTreeRenderer() {
-            java.net.URL publishedIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/published.png");
-            publishedIcon = null;
-            if (publishedIconURL != null) {
-                publishedIcon= new ImageIcon(publishedIconURL);
+            java.net.URL devSelCvsModIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/dev_selected_cvsmod.png");
+            devSelCvsModIcon = null;
+            if (devSelCvsModIconURL != null) {
+                devSelCvsModIcon= new ImageIcon(devSelCvsModIconURL);
             }
-            java.net.URL releasedIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/released.png");
-            releasedIcon = null;
-            if (releasedIconURL != null) {
-                releasedIcon= new ImageIcon(releasedIconURL);
+            java.net.URL devUnSelCvsModIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/dev_unselected_cvsmod.png");
+            devUnSelCvsModIcon = null;
+            if (devUnSelCvsModIconURL != null) {
+                devUnSelCvsModIcon= new ImageIcon(devUnSelCvsModIconURL);
             }
-            java.net.URL developmentIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/development.png");
-            developmentIcon = null;
-            if (developmentIconURL != null) {
-                developmentIcon= new ImageIcon(developmentIconURL);
+            java.net.URL relSelCvsModIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/rel_selected_cvsmod.png");
+            relSelCvsModIcon = null;
+            if (relSelCvsModIconURL != null) {
+                relSelCvsModIcon= new ImageIcon(relSelCvsModIconURL);
+            }
+            java.net.URL relUnSelCvsModIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/rel_unselected_cvsmod.png");
+            relUnSelCvsModIcon = null;
+            if (relUnSelCvsModIconURL != null) {
+                relUnSelCvsModIcon= new ImageIcon(relUnSelCvsModIconURL);
+            }
+            java.net.URL pubSelCvsModIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/pub_selected_cvsmod.png");
+            pubSelCvsModIcon = null;
+            if (pubSelCvsModIconURL != null) {
+                pubSelCvsModIcon= new ImageIcon(pubSelCvsModIconURL);
+            }
+            java.net.URL pubUnSelCvsModIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/pub_unselected_cvsmod.png");
+            pubUnSelCvsModIcon = null;
+            if (pubUnSelCvsModIconURL != null) {
+                pubUnSelCvsModIcon= new ImageIcon(pubUnSelCvsModIconURL);
             }
             
+            java.net.URL devSelCvsIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/dev_selected_cvs.png");
+            devSelCvsIcon = null;
+            if (devSelCvsIconURL != null) {
+                devSelCvsIcon= new ImageIcon(devSelCvsIconURL);
+            }
+            java.net.URL devUnSelCvsIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/dev_unselected_cvs.png");
+            devUnSelCvsIcon = null;
+            if (devUnSelCvsIconURL != null) {
+                devUnSelCvsIcon= new ImageIcon(devUnSelCvsIconURL);
+            }
+            java.net.URL relSelCvsIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/rel_selected_cvs.png");
+            relSelCvsIcon = null;
+            if (relSelCvsIconURL != null) {
+                relSelCvsIcon= new ImageIcon(relSelCvsIconURL);
+            }
+            java.net.URL relUnSelCvsIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/rel_unselected_cvs.png");
+            relUnSelCvsIcon = null;
+            if (relUnSelCvsIconURL != null) {
+                relUnSelCvsIcon= new ImageIcon(relUnSelCvsIconURL);
+            }
+            java.net.URL pubSelCvsIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/pub_selected_cvs.png");
+            pubSelCvsIcon = null;
+            if (pubSelCvsIconURL != null) {
+                pubSelCvsIcon= new ImageIcon(pubSelCvsIconURL);
+            }
+            java.net.URL pubUnSelCvsIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/pub_unselected_cvs.png");
+            pubUnSelCvsIcon = null;
+            if (pubUnSelCvsIconURL != null) {
+                pubUnSelCvsIcon= new ImageIcon(pubUnSelCvsIconURL);
+            }
+            java.net.URL devSelCvsUnknownIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/dev_selected_cvsunknown.png");
+            devSelCvsUnknownIcon = null;
+            if (devSelCvsUnknownIconURL != null) {
+                devSelCvsUnknownIcon= new ImageIcon(devSelCvsUnknownIconURL);
+            }
+            java.net.URL devUnSelCvsUnknownIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/dev_unselected_cvsunknown.png");
+            devUnSelCvsUnknownIcon = null;
+            if (devUnSelCvsUnknownIconURL != null) {
+                devUnSelCvsUnknownIcon= new ImageIcon(devUnSelCvsUnknownIconURL);
+            }
+            java.net.URL devSelCvsAddIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/dev_selected_cvsadd.png");
+            devSelCvsAddIcon = null;
+            if (devSelCvsAddIconURL != null) {
+                devSelCvsAddIcon= new ImageIcon(devSelCvsAddIconURL);
+            }
+            java.net.URL devUnSelCvsAddIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/dev_unselected_cvsadd.png");
+            devUnSelCvsAddIcon = null;
+            if (devUnSelCvsAddIconURL != null) {
+                devUnSelCvsAddIcon= new ImageIcon(devUnSelCvsAddIconURL);
+            }
+            java.net.URL devSelCvsNoFileIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/dev_selected_cvsnofile.png");
+            devSelCvsNoFileIcon = null;
+            if (devSelCvsNoFileIconURL != null) {
+                devSelCvsNoFileIcon= new ImageIcon(devSelCvsNoFileIconURL);
+            }
+            java.net.URL devUnSelCvsNoFileIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/dev_unselected_cvsnofile.png");
+            devUnSelCvsNoFileIcon = null;
+            if (devUnSelCvsNoFileIconURL != null) {
+                devUnSelCvsNoFileIcon= new ImageIcon(devUnSelCvsNoFileIconURL);
+            }
             java.net.URL publishedIconUnSelectedURL = STEPModFrame.class.getResource("/org/stepmod/resources/published_box.png");
             publishedIconUnSelected = null;
             if (publishedIconUnSelectedURL != null) {
                 publishedIconUnSelected= new ImageIcon(publishedIconUnSelectedURL);
             }
-            
             java.net.URL releasedIconUnSelectedURL = STEPModFrame.class.getResource("/org/stepmod/resources/released_box.png");
             releasedIconUnSelected = null;
             if (releasedIconUnSelectedURL != null) {
                 releasedIconUnSelected= new ImageIcon(releasedIconUnSelectedURL);
             }
-            
             java.net.URL developmentIconUnSelectedURL = STEPModFrame.class.getResource("/org/stepmod/resources/development_box.png");
             developmentIconUnSelected = null;
             if (developmentIconUnSelectedURL != null) {
                 developmentIconUnSelected= new ImageIcon(developmentIconUnSelectedURL);
             }
-            
             java.net.URL publishedIconSelectedURL = STEPModFrame.class.getResource("/org/stepmod/resources/published_box_selected.png");
             publishedIconSelected = null;
             if (publishedIconSelectedURL != null) {
                 publishedIconSelected= new ImageIcon(publishedIconSelectedURL);
             }
-            
             java.net.URL releasedIconSelectedURL = STEPModFrame.class.getResource("/org/stepmod/resources/released_box_selected.png");
             releasedIconSelected = null;
             if (releasedIconSelectedURL != null) {
                 releasedIconSelected= new ImageIcon(releasedIconSelectedURL);
             }
-            
             java.net.URL developmentIconSelectedURL = STEPModFrame.class.getResource("/org/stepmod/resources/development_box_selected.png");
             developmentIconSelected = null;
             if (developmentIconSelectedURL != null) {
@@ -386,6 +478,129 @@ public class STEPModFrame extends javax.swing.JFrame {
         
         protected JCheckBox getCheckBoxRenderer() {
             return checkBoxRenderer;
+        }
+        
+        /**
+         * Called from getTreeCellRendererComponent. Draws the nodes for the cmReleaseTreeNode in the tree
+         */
+        private void setupIconsForCmRelease(JTree tree, boolean sel, CmReleaseTreeNode cmReleaseTreeNode) {
+            StepmodPart stepmodPart = cmReleaseTreeNode.getStepmodPart();
+            checkBoxRenderer.setText(cmReleaseTreeNode.toString());
+            checkBoxRenderer.setSelected(cmReleaseTreeNode.isSelected());
+            checkBoxRenderer.setEnabled(tree.isEnabled());
+            // make sure that the icon is as far left as possible
+            checkBoxRenderer.setMargin(new Insets(0,-2,0,0));
+            CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
+            boolean checkedOutrel = false;
+            if (cmRelease == null) {
+                // The part has no tag therefore must be a development release
+                checkedOutrel = cmReleaseTreeNode.getStepmodPart().getCvsTag().length() == 0;
+                checkBoxRenderer.setIcon(developmentIconUnSelected);
+                checkBoxRenderer.setSelectedIcon(developmentIconSelected);
+                checkBoxRenderer.setToolTipText("Development revision");
+            } else  {
+                checkedOutrel = cmRelease.isCheckedOutRelease();
+                if (cmRelease.isPublishedIsoRelease()) {
+                    checkBoxRenderer.setIcon(publishedIconUnSelected);
+                    checkBoxRenderer.setSelectedIcon(publishedIconSelected);
+                    checkBoxRenderer.setToolTipText("Release is published by ISO");
+                } else {
+                    checkBoxRenderer.setIcon(releasedIconUnSelected);
+                    checkBoxRenderer.setSelectedIcon(releasedIconSelected);
+                    checkBoxRenderer.setToolTipText("Release");
+                }
+            }
+            // Highlight according to whether the tree node is selected (as opposed to the checkbox)
+            if (sel) {
+                checkBoxRenderer.setForeground(selectionForeground);
+                checkBoxRenderer.setBackground(selectionBackground);
+            } else if (checkedOutrel) {
+                checkBoxRenderer.setForeground(textForeground);
+                checkBoxRenderer.setBackground(currentBackground);
+            } else {
+                checkBoxRenderer.setForeground(textForeground);
+                checkBoxRenderer.setBackground(textBackground);
+            }
+        }
+        
+        /**
+         * Called from getTreeCellRendererComponent. Draws the nodes for the stepmod part in the tree
+         */
+        private void setupIconsForStepmodPart(JTree tree, boolean sel, StepmodPartTreeNode stepmodPartTreeNode) {
+            StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
+            checkBoxRenderer.setText(stepmodPartTreeNode.toString());
+            checkBoxRenderer.setSelected(stepmodPartTreeNode.isSelected());
+            checkBoxRenderer.setEnabled(tree.isEnabled());
+            
+            // Color the text according to the state of the record in memory, as opposed to
+            // to the cm_record file
+            Color foregroundColor = textForeground;
+            int cmRecordState = stepmodPart.getCmRecord().getRecordState();
+            if (cmRecordState == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
+                // Make the text red if the state of cm_record has been changed, but not saved
+                foregroundColor = Color.RED;
+            } else if (cmRecordState == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
+                // Make the text DARK_GRAY if cm_record file does not exist
+                foregroundColor = Color.DARK_GRAY;
+            } else {
+                foregroundColor = Color.BLUE;
+            }
+            
+            // Highlight according to whether the tree node is selected (as opposed to the checkbox)
+            if (sel) {
+                checkBoxRenderer.setForeground(selectionForeground);
+                checkBoxRenderer.setBackground(selectionBackground);
+            } else {
+                checkBoxRenderer.setForeground(foregroundColor);
+                checkBoxRenderer.setBackground(textBackground);
+            }
+            // make sure that the icon is as far left as possible
+            checkBoxRenderer.setMargin(new Insets(0,-2,0,0));
+            int cvsStatus = stepmodPart.getCmRecord().getCmRecordCvsStatus();
+            if (stepmodPart.isCheckedOutDevelopment()) {
+                if ((cvsStatus == CmRecord.CM_RECORD_CVS_NOT_ADDED) || (cvsStatus == CmRecord.CM_RECORD_CVS_DIR_NOT_ADDED)){
+                    // cm record file does not exist
+                    checkBoxRenderer.setIcon(devUnSelCvsUnknownIcon);
+                    checkBoxRenderer.setSelectedIcon(devSelCvsUnknownIcon);
+                    checkBoxRenderer.setToolTipText("Development revision. Cm record file exists, but has not been committed to CVS");
+                } else if (cvsStatus == CmRecord.CM_RECORD_CVS_CHANGED) {
+                    checkBoxRenderer.setIcon(devUnSelCvsModIcon);
+                    checkBoxRenderer.setSelectedIcon(devSelCvsModIcon);
+                    checkBoxRenderer.setToolTipText("Development revision. Cm record file has been modified and changes not commited to CVS");
+                } else if (cvsStatus == CmRecord.CM_RECORD_CVS_ADDED) {
+                    checkBoxRenderer.setIcon(devUnSelCvsAddIcon);
+                    checkBoxRenderer.setSelectedIcon(devSelCvsAddIcon);
+                    checkBoxRenderer.setToolTipText("Development revision. Cm record file exists, but has not been added to CVS");
+                } else if (cvsStatus == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
+                    checkBoxRenderer.setIcon(devUnSelCvsNoFileIcon);
+                    checkBoxRenderer.setSelectedIcon(devSelCvsNoFileIcon);
+                    checkBoxRenderer.setToolTipText("Development revision. Cm record file exists, but has not been added to CVS");
+                } else {
+                    checkBoxRenderer.setIcon(devUnSelCvsIcon);
+                    checkBoxRenderer.setSelectedIcon(devSelCvsIcon);
+                    checkBoxRenderer.setToolTipText("Development revision. Cm record file is committed to CVS");
+                }
+            } else if (stepmodPart.isCheckedOutPublishedIsoRelease()) {
+                if (cvsStatus == CmRecord.CM_RECORD_CVS_CHANGED) {
+                    checkBoxRenderer.setIcon(pubUnSelCvsModIcon);
+                    checkBoxRenderer.setSelectedIcon(pubSelCvsModIcon);
+                    checkBoxRenderer.setToolTipText("Release is published by ISO. Cm record file has been modified and changes not commited to CVS");
+                } else {
+                    checkBoxRenderer.setIcon(pubUnSelCvsIcon);
+                    checkBoxRenderer.setSelectedIcon(pubSelCvsIcon);
+                    checkBoxRenderer.setToolTipText("Release is published by ISO. Cm record file is committed to CVS");
+                }
+            } else if (stepmodPart.isCheckedOutRelease()) {
+                if (cvsStatus == CmRecord.CM_RECORD_CVS_CHANGED) {
+                    checkBoxRenderer.setIcon(relUnSelCvsModIcon);
+                    checkBoxRenderer.setSelectedIcon(relSelCvsModIcon);
+                    checkBoxRenderer.setToolTipText("Released revision. Cm record file has been modified and changes not commited to CVS");
+                } else {
+                    checkBoxRenderer.setIcon(pubUnSelCvsIcon);
+                    checkBoxRenderer.setSelectedIcon(pubSelCvsIcon);
+                    checkBoxRenderer.setToolTipText("Released revision. Cm record file is committed to CVS");
+                }
+            }
         }
         
         public Component getTreeCellRendererComponent(
@@ -405,90 +620,15 @@ public class STEPModFrame extends javax.swing.JFrame {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
             if (node != null) {
                 Object userNode = (Object)node.getUserObject();
+                // Get the part
+                StepmodPart stepmodPart = null;
                 if (userNode instanceof CmReleaseTreeNode) {
                     CmReleaseTreeNode cmReleaseTreeNode = (CmReleaseTreeNode) node.getUserObject();
-                    checkBoxRenderer.setText(cmReleaseTreeNode.toString());
-                    checkBoxRenderer.setSelected(cmReleaseTreeNode.isSelected());
-                    checkBoxRenderer.setEnabled(tree.isEnabled());
-                    // make sure that the icon is as far left as possible
-                    checkBoxRenderer.setMargin(new Insets(0,-2,0,0));
-                    CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
-                    boolean checkedOutrel = false;
-                    if (cmRelease == null) {
-                        // The part has no tag therefore must be a development release
-                        checkedOutrel = cmReleaseTreeNode.getStepmodPart().getCvsTag().length() == 0;
-                        checkBoxRenderer.setIcon(developmentIconUnSelected);
-                        checkBoxRenderer.setSelectedIcon(developmentIconSelected);
-                        checkBoxRenderer.setToolTipText("Development revision");
-                    } else  {
-                        checkedOutrel = cmRelease.isCheckedOutRelease();
-                        if (cmRelease.isPublishedIsoRelease()) {
-                            checkBoxRenderer.setIcon(publishedIconUnSelected);
-                            checkBoxRenderer.setSelectedIcon(publishedIconSelected);
-                            checkBoxRenderer.setToolTipText("Release is published by ISO");
-                        } else {
-                            checkBoxRenderer.setIcon(releasedIconUnSelected);
-                            checkBoxRenderer.setSelectedIcon(releasedIconSelected);
-                            checkBoxRenderer.setToolTipText("Release");
-                        }
-                    }
-                    if (sel) {
-                        checkBoxRenderer.setForeground(selectionForeground);
-                        checkBoxRenderer.setBackground(selectionBackground);
-                    } else if (checkedOutrel) {
-                        checkBoxRenderer.setForeground(textForeground);
-                        checkBoxRenderer.setBackground(currentBackground);
-                    } else {
-                        checkBoxRenderer.setForeground(textForeground);
-                        checkBoxRenderer.setBackground(textBackground);
-                    }
+                    setupIconsForCmRelease(tree,sel,cmReleaseTreeNode);
                     return(checkBoxRenderer);
                 } else if (userNode instanceof StepmodPartTreeNode) {
                     StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
-                    StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
-                    checkBoxRenderer.setText(stepmodPartTreeNode.toString());
-                    checkBoxRenderer.setSelected(stepmodPartTreeNode.isSelected());
-                    checkBoxRenderer.setEnabled(tree.isEnabled());
-                    
-                    
-                    // make sure that the icon is as far left as possible
-                    checkBoxRenderer.setMargin(new Insets(0,-2,0,0));
-                    if (stepmodPart.isCheckedOutDevelopment()) {
-                        checkBoxRenderer.setIcon(developmentIconUnSelected);
-                        checkBoxRenderer.setSelectedIcon(developmentIconSelected);
-                        checkBoxRenderer.setToolTipText("Development revision");
-                    } else if (stepmodPart.isCheckedOutPublishedIsoRelease()) {
-                        checkBoxRenderer.setIcon(publishedIconUnSelected);
-                        checkBoxRenderer.setSelectedIcon(publishedIconSelected);
-                        checkBoxRenderer.setToolTipText("Release is published by ISO");
-                    } else if (stepmodPart.isCheckedOutRelease()) {
-                        checkBoxRenderer.setIcon(releasedIconUnSelected);
-                        checkBoxRenderer.setSelectedIcon(releasedIconSelected);
-                        checkBoxRenderer.setToolTipText("Release");
-                    }
-                    
-                    Color foregroundColor = textForeground;
-                    if (stepmodPart.getCmRecord().needsCvsAction()) {
-                        // Make the text red if the state of cm_record has been changed, but not saved
-                        foregroundColor = Color.RED;
-                    } else if (stepmodPart.getCmRecord().getRecordState() == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
-                        // Make the DARK_GRAY blue if cm_record file does not exist
-                        foregroundColor = Color.DARK_GRAY;
-                    } else if (stepmodPart.getCmRecord().getRecordState() == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
-                        // Make the DARK_GRAY blue if cm_record file does not exist
-                        foregroundColor = Color.GREEN;
-                    } else {
-                        foregroundColor = Color.BLUE;
-                    }
-                    
-                    
-                    if (sel) {
-                        checkBoxRenderer.setForeground(selectionForeground);
-                        checkBoxRenderer.setBackground(selectionBackground);
-                    } else {
-                        checkBoxRenderer.setForeground(foregroundColor);
-                        checkBoxRenderer.setBackground(textBackground);
-                    }
+                    setupIconsForStepmodPart(tree,sel,stepmodPartTreeNode);
                     return(checkBoxRenderer);
                 } else {
                     setIcon(null);
@@ -590,12 +730,12 @@ public class STEPModFrame extends javax.swing.JFrame {
                         int checkBoxMinX = 100;
                         int x = mouseEvent.getX();
                         if (userObject instanceof CmReleaseTreeNode) {
-                            checkBoxMaxX = 115;
-                            checkBoxMinX = 100;
+                            checkBoxMaxX = 90;
+                            checkBoxMinX = 80;
                             returnValue = ((x < checkBoxMaxX) && (x > checkBoxMinX));
                         } else if (userObject instanceof StepmodPartTreeNode) {
-                            checkBoxMaxX = 75;
-                            checkBoxMinX = 60;
+                            checkBoxMaxX = 50;
+                            checkBoxMinX = 40;
                             returnValue = ((x < checkBoxMaxX) && (x > checkBoxMinX));
                         }
                     }
@@ -611,7 +751,8 @@ public class STEPModFrame extends javax.swing.JFrame {
      */
     public void initialise() {
         // TODO probably should display a splash screen with progress bar as it takes a while to load
-        initRepositoryTree();
+        // initRepositoryTree();
+        repositoryJTree.setVisible(false);
         initAllModulesPopupMenu();
         initModulePopupMenu();
         initReleasePopupMenu();
@@ -622,7 +763,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     /**
      * Initialise the display of the repository tree
      */
-    private void initRepositoryTree() {
+    public void initRepositoryTree() {
         DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode("STEPMod");
         // Use the tree mode to make sure that the added nodes are displayed
         DefaultTreeModel treeModel = new DefaultTreeModel(rootTreeNode);
@@ -757,10 +898,24 @@ public class STEPModFrame extends javax.swing.JFrame {
                             
                             // Only display relevant menu items
                             int state = part.getCmRecord().getRecordState();
-                            
-                            createCmRecordMenuItem.setEnabled(false);
-                            commitCmRecordMenuItem.setEnabled(false);
-                            saveCmRecordMenuItem.setEnabled(false);
+                            int cvsStatus = part.getCmRecord().getCmRecordCvsStatus();
+                            if (cvsStatus == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
+                                createCmRecordMenuItem.setEnabled(true);
+                                commitCmRecordMenuItem.setEnabled(false);
+                                saveCmRecordMenuItem.setEnabled(false);
+                            } else if (state == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
+                                createCmRecordMenuItem.setEnabled(false);
+                                commitCmRecordMenuItem.setEnabled(false);
+                                saveCmRecordMenuItem.setEnabled(true);
+                            } else if (part.getCmRecord().needsCvsAction()) {
+                                createCmRecordMenuItem.setEnabled(false);
+                                commitCmRecordMenuItem.setEnabled(true);
+                                saveCmRecordMenuItem.setEnabled(false);
+                            } else {
+                                createCmRecordMenuItem.setEnabled(false);
+                                commitCmRecordMenuItem.setEnabled(false);
+                                saveCmRecordMenuItem.setEnabled(false);
+                            }
                             modulePopupMenu.show(e.getComponent(), e.getX(), e.getY());
                         }
                     } else if (nodeObject instanceof CmReleaseTreeNode) {
@@ -909,6 +1064,7 @@ public class STEPModFrame extends javax.swing.JFrame {
             updateNode(child);
         }
     }
+    
     
     /**
      * Finds the first node that is a child of startNode that has the given stepmodPart as a userObject
@@ -1111,7 +1267,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
                 StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
                 StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
-                stepmodPart.getStepMod().getStepModGui().cvsCommitRecord(stepmodPart);
+                stepmodPart.getStepMod().getStepModGui().saveCmRecord(stepmodPart);
             }
         });
         cvsCmRecSubmenu.add(saveCmRecordMenuItem);
@@ -1302,31 +1458,83 @@ public class STEPModFrame extends javax.swing.JFrame {
         return stepMod;
     }
     
-    private void cvsUpdate(StepmodPart part) {
-        StepmodCvs stepmodCvs = part.cvsUpdate();
-        updateNode(part);
+    
+    
+    private void saveCmRecord(StepmodPart part) {
+        int answer = JOptionPane.showConfirmDialog(this,
+                "Do you want to save the CM record for "+part.getName()+" to CVS?",
+                "CVS action ....",
+                JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            part.getCmRecord().writeCmRecord();
+            updateNode(part);
+        }
+    }
+    
+    
+    private void cvsTest() {
+        StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
+        int exitVal = stepmodCvs.testCVSconnection();
+        
         outputCvsResults(stepmodCvs);
+        if (stepmodCvs.getCvsErrorVal() == StepmodCvs.CVS_ERROR_OK) {
+            JOptionPane.showMessageDialog(this,
+                    "Succesfully connected to CVS @ SourceForge",
+                    "CVS OK",
+                    JOptionPane.PLAIN_MESSAGE);
+        }
+        
+    }
+    
+    private void cvsUpdate(StepmodPart part) {
+        int answer = JOptionPane.showConfirmDialog(this,
+                "Do you want to do a CVS update on "+part.getName()+"?",
+                "CVS action ....",
+                JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            StepmodCvs stepmodCvs = part.cvsUpdate();
+            updateNode(part);
+            outputCvsResults(stepmodCvs);
+        }
     }
     
     private void cvsCommitRecord(StepmodPart part) {
-        StepmodCvs stepmodCvs = part.cvsCommitRecord();
-        updateNode(part);
-        outputCvsResults(stepmodCvs);
+        int answer = JOptionPane.showConfirmDialog(this,
+                "Do you want to commit the CM record for "+part.getName()+" to CVS?",
+                "CVS action ....",
+                JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            StepmodCvs stepmodCvs = part.cvsCommitRecord();
+            updateNode(part);
+            outputCvsResults(stepmodCvs);
+        }
     }
     
     
     private void cvsCoRelease(StepmodPart part, CmRelease cmRelease) {
-        StepmodCvs stepmodCvs = part.cvsCoRelease(cmRelease);
-        updateNode(part);
-        outputCvsResults(stepmodCvs);
+        int answer = JOptionPane.showConfirmDialog(this,
+                "Do you want to check out the release " +cmRelease.getId() + "for "+part.getName()+"?",
+                "CVS action ....",
+                JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            StepmodCvs stepmodCvs = part.cvsCoRelease(cmRelease);
+            updateNode(part);
+            outputCvsResults(stepmodCvs);
+        }
     }
     
     private void cvsCoLatestRelease(StepmodPart part) {
         CmRelease cmRelease = part.getCmRecord().getLatestRelease();
         if (cmRelease != null) {
-            StepmodCvs stepmodCvs = part.cvsCoRelease(cmRelease);
-            updateNode(part);
-            outputCvsResults(stepmodCvs);
+            int answer = JOptionPane.showConfirmDialog(this,
+                    "Do you want to check out the latest release (" +cmRelease.getId()+") for "+part.getName()+"?",
+                    "CVS action ....",
+                    JOptionPane.YES_NO_OPTION);
+            if (answer == JOptionPane.YES_OPTION) {
+                StepmodCvs stepmodCvs = part.cvsCoRelease(cmRelease);
+                updateNode(part);
+                outputCvsResults(stepmodCvs);
+            }
         } else {
             JOptionPane.showMessageDialog(this,
                     "There are no releases",
@@ -1336,12 +1544,19 @@ public class STEPModFrame extends javax.swing.JFrame {
     }
     
     
+    
     private void cvsCoPublishedRelease(StepmodPart part) {
         CmRelease cmRelease = part.getCmRecord().getLatestPublishedRelease();
         if (cmRelease != null) {
-            StepmodCvs stepmodCvs = part.cvsCoRelease(cmRelease);
-            updateNode(part);
-            outputCvsResults(stepmodCvs);
+            int answer = JOptionPane.showConfirmDialog(this,
+                    "Do you want to commit the CM record for "+part.getName()+" to CVS?",
+                    "CVS action ....",
+                    JOptionPane.YES_NO_OPTION);
+            if (answer == JOptionPane.YES_OPTION) {
+                StepmodCvs stepmodCvs = part.cvsCoRelease(cmRelease);
+                updateNode(part);
+                outputCvsResults(stepmodCvs);
+            }
         } else {
             JOptionPane.showMessageDialog(this,
                     "There are no releases published by ISO",
@@ -1349,6 +1564,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                     JOptionPane.WARNING_MESSAGE);
         }
     }
+    
     
     
     public void outputCvsResults(StepmodCvs stepmodCvs) {
@@ -1389,8 +1605,6 @@ public class STEPModFrame extends javax.swing.JFrame {
             CmRecord cmRecord= part.getCmRecord();
             cmRecord.writeCmRecord();
             updateNode(part);
-        } else if (answer == JOptionPane.NO_OPTION) {
-            // User clicked NO.
         }
     }
     
@@ -1417,6 +1631,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         stepmodMainSplitPane = new javax.swing.JSplitPane();
         jPanel1 = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
+        refreshButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         findPartjTextField = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
@@ -1430,6 +1645,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         stepModOutputTextArea = new javax.swing.JTextArea();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
+        reloadRepositoryMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
         toolsMenu = new javax.swing.JMenu();
         mkModuleMenuItem = new javax.swing.JMenuItem();
@@ -1464,7 +1680,18 @@ public class STEPModFrame extends javax.swing.JFrame {
         jPanel1.setPreferredSize(new java.awt.Dimension(150, 200));
         jToolBar1.setFloatable(false);
         jToolBar1.setMinimumSize(new java.awt.Dimension(0, 0));
+        refreshButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/stepmod/resources/action_refresh.gif")));
+        refreshButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshButtonActionPerformed(evt);
+            }
+        });
+
+        jToolBar1.add(refreshButton);
+
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Part number: ");
+        jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
         jToolBar1.add(jLabel1);
 
         findPartjTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -1530,6 +1757,16 @@ public class STEPModFrame extends javax.swing.JFrame {
         stepmodMainSplitPane.setRightComponent(stepModOutputPanel);
 
         fileMenu.setText("File");
+        reloadRepositoryMenuItem.setText("Reload repository_index.xml");
+        reloadRepositoryMenuItem.setToolTipText("Reloads all the parts identified in the repository index");
+        reloadRepositoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reloadRepositoryMenuItemActionPerformed(evt);
+            }
+        });
+
+        fileMenu.add(reloadRepositoryMenuItem);
+
         exitMenuItem.setText("Exit");
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1634,6 +1871,27 @@ public class STEPModFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
+    private void reloadRepositoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadRepositoryMenuItemActionPerformed
+        int answer = JOptionPane.showConfirmDialog(this,
+                "You are about to reload the repository_index. Do you want to continue?",
+                "Loading repository_index.xml ....",
+                JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            repositoryJTree.collapseRow(0);
+            // Clear any ouput being displayed
+            setCurrentDisplayedObject(null);
+            repositoryTextPane.setText("");
+            getStepMod().readRepositoryIndex();
+            initRepositoryTree();
+        }
+        
+    }//GEN-LAST:event_reloadRepositoryMenuItemActionPerformed
+    
+    private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
+        this.updateNode(root);
+    }//GEN-LAST:event_refreshButtonActionPerformed
+    
     private void findPartjTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_findPartjTextFieldActionPerformed
         String part = findPartjTextField.getText()+":";
         DefaultMutableTreeNode root = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
@@ -1653,15 +1911,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_findPartjTextFieldActionPerformed
     
     private void testCVSMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testCVSMenuItemActionPerformed
-        StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
-        int exitVal = stepmodCvs.testCVSconnection();
-        outputCvsResults(stepmodCvs);
-        if (stepmodCvs.getCvsErrorVal() == StepmodCvs.CVS_ERROR_OK) {
-            JOptionPane.showMessageDialog(this,
-                    "Succesfully connected to CVS @ SourceForge",
-                    "CVS OK",
-                    JOptionPane.PLAIN_MESSAGE);
-        }
+        this.cvsTest();
     }//GEN-LAST:event_testCVSMenuItemActionPerformed
     
     /**
@@ -1720,6 +1970,8 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem mkModuleMenuItem;
     private javax.swing.JMenuItem mkdResDocMenuItem;
     private javax.swing.JPopupMenu outputPopupMenu;
+    private javax.swing.JButton refreshButton;
+    private javax.swing.JMenuItem reloadRepositoryMenuItem;
     private javax.swing.JTree repositoryJTree;
     private javax.swing.JScrollPane repositoryScrollPane;
     private javax.swing.JSplitPane repositorySplitPane;

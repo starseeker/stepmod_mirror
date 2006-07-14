@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.6 2006/07/12 10:40:28 joshpearce2005 Exp $
+ * $Id: STEPmod.java,v 1.7 2006/07/12 10:55:27 robbod Exp $
  *
  * STEPmod.java
  *
@@ -52,12 +52,6 @@ public class STEPmod {
     public STEPmod(String stepModRoot, String appDir) {
         rootDirectory = stepModRoot;
         applicationDir = appDir;
-        
-        hasModules = new TreeMap();
-        hasApplicationProtocols  = new TreeMap();
-        hasResourceDocs = new TreeMap();
-        hasResources = new TreeMap();
-        
         readStepmodProperties();
     }
     
@@ -165,8 +159,12 @@ public class STEPmod {
      * Read the repository_index.xml file from the STEPmod root directory instantiating the STEPparts
      */
     public void readRepositoryIndex() {
-        //  set up a SAX handler to read repository_index.xml instantiating Stepmodparts.
+        hasModules = new TreeMap();
+        hasApplicationProtocols  = new TreeMap();
+        hasResourceDocs = new TreeMap();
+        hasResources = new TreeMap();
         
+        //  set up a SAX handler to read repository_index.xml instantiating Stepmodparts.
         String stepModDir = getRootDirectory();
         String repoFilename = stepModDir+"/repository_index.xml";
         // Use an instance of ourselves as the SAX event handler
@@ -419,8 +417,9 @@ public class STEPmod {
         // create the GUI for STEPmod
         STEPModFrame stepModGui = new STEPModFrame(stepMod);
         stepMod.setStepModGui(stepModGui);
-        stepMod.readRepositoryIndex();
         stepModGui.initialise();
+        stepMod.readRepositoryIndex();
+        stepModGui.initRepositoryTree();
     }
     
     public STEPModFrame getStepModGui() {
@@ -488,7 +487,7 @@ public class STEPmod {
     public void setStepmodProperty(String propName, String propValue) {
         properties.setProperty(propName, propValue);
     }
-        
+    
     /**
      * Returns the release of STEPmod that is currently checked out.
      */

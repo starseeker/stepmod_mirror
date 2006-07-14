@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.10 2006/07/13 09:02:12 robbod Exp $
+ * $Id: StepmodPart.java,v 1.11 2006/07/14 07:27:23 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -459,7 +459,12 @@ public abstract class StepmodPart {
     public StepmodCvs cvsCommitRecord() {
         CmRecord cmRecord = this.getCmRecord();
         cmRecord.writeCmRecord();
-        return(cmRecord.cvsCommit());
+        
+        StepmodCvs stepmodCvs = cmRecord.cvsCommit();
+        if (stepmodCvs.getCvsExitVal() == StepmodCvs.CVS_ERROR_OK) {
+            cmRecord.readCmRecord();
+        }
+        return(stepmodCvs);
     }
     
     

@@ -62,7 +62,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     /**
      * The popup menu associated with a module in the module tree
      */
-    private PopupMenuWithObject modulePopupMenu;
+    private PopupMenuWithObject stepmodPartPopupMenu;
     
     /**
      * The popup menu associated with a release in the module tree
@@ -116,10 +116,6 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem saveCmRecordMenuItem;
     
     
-    private PipedInputStream piOut;
-    private PipedInputStream piErr;
-    private PipedOutputStream poOut;
-    private PipedOutputStream poErr;
     /**
      * Creates new form STEPModFrame
      */
@@ -145,63 +141,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                 }
             }
         });
-        // THIS DOES NOT WORK YET
-        // initSystemOut();
     }
-    
-    // THIS DOES NOT WORK YET
-    public void initSystemOut() {
-        try {
-            // Set up System.out
-            piOut = new PipedInputStream();
-            poOut = new PipedOutputStream(piOut);
-            System.setOut(new PrintStream(poOut, true));
-            
-            // Set up System.err
-            piErr = new PipedInputStream();
-            poErr = new PipedOutputStream(piErr);
-            System.setErr(new PrintStream(poErr, true));
-            
-            // Create reader threads
-            new ReaderThread(piOut).start();
-            new ReaderThread(piErr).start();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
-    
-    // THIS DOES NOT WORK YET
-    class ReaderThread extends Thread {
-        PipedInputStream pi;
-        
-        ReaderThread(PipedInputStream pi) {
-            this.pi = pi;
-        }
-        
-        public void run() {
-            final byte[] buf = new byte[1024];
-            try {
-                while (true) {
-                    final int len = pi.read(buf);
-                    if (len == -1) {
-                        break;
-                    }
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            stepModOutputTextArea.append(new String(buf, 0, len));
-                            // Make sure the last line is always visible
-                            stepModOutputTextArea.setCaretPosition(stepModOutputTextArea.getDocument().getLength());
-                        }
-                    });
-                }
-            } catch (IOException e) {
-            }
-        }
-    }
-    
-    
-    
-    
     
     
     /**
@@ -768,7 +708,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         // initRepositoryTree();
         repositoryJTree.setVisible(false);
         initAllModulesPopupMenu();
-        initModulePopupMenu();
+        initStepmodPartPopupMenu();
         initReleasePopupMenu();
         initDevRevisionPopupMenu();
         setVisible(true);
@@ -797,14 +737,13 @@ public class STEPModFrame extends javax.swing.JFrame {
             StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(moduleNode, false);
             DefaultMutableTreeNode moduleTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
             hasModulesNodes.put(moduleNode.getName(), moduleTreeNode);
-            
             modulesTreeNode.add(moduleTreeNode);
             DefaultMutableTreeNode attributesTreeNode = new DefaultMutableTreeNode("Attributes");
             moduleTreeNode.add(attributesTreeNode);
             DefaultMutableTreeNode attributeTreeNode;
-            attributeTreeNode = new DefaultMutableTreeNode("Name:" + moduleNode.getName());
+            attributeTreeNode = new DefaultMutableTreeNode("Name: " + moduleNode.getName());
             attributesTreeNode.add(attributeTreeNode);
-            attributeTreeNode = new DefaultMutableTreeNode("Number:" + moduleNode.getPartNumber());
+            attributeTreeNode = new DefaultMutableTreeNode("Number: " + moduleNode.getPartNumber());
             attributesTreeNode.add(attributeTreeNode);
             
             DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
@@ -843,6 +782,38 @@ public class STEPModFrame extends javax.swing.JFrame {
                     = new DefaultMutableTreeNode(stepmodPartTreeNode);
             hasApplicationProtocolsNodes.put(applicationProtocolNode.getName(), applicationProtocolTreeNode);
             applicationProtocolsTreeNode.add(applicationProtocolTreeNode);
+            
+            DefaultMutableTreeNode attributesTreeNode = new DefaultMutableTreeNode("Attributes");
+            applicationProtocolTreeNode.add(attributesTreeNode);
+            DefaultMutableTreeNode attributeTreeNode;
+            attributeTreeNode = new DefaultMutableTreeNode("Name: " + applicationProtocolNode.getName());
+            attributesTreeNode.add(attributeTreeNode);
+            attributeTreeNode = new DefaultMutableTreeNode("Number: " + applicationProtocolNode.getPartNumber());
+            attributesTreeNode.add(attributeTreeNode);
+            
+            DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
+            applicationProtocolTreeNode.add(dependenciesTreeNode);
+            // TODO - need to deduce the depenencies and create a tree.
+            // The dependencies are the modules, resources etc.
+            // Need to write the algorithm that recurses through the ARM, and MIM express
+            
+            DefaultMutableTreeNode filesTreeNode = new DefaultMutableTreeNode("Files");
+            applicationProtocolTreeNode.add(filesTreeNode);
+            // TODO - need to list the files that make up the modules
+            // The arm, mim, sys files etc.
+            // For each file display the CVS revision and date
+            
+            DefaultMutableTreeNode releasesTreeNode = new DefaultMutableTreeNode("Releases");
+            applicationProtocolTreeNode.add(releasesTreeNode);
+            
+            // Add the development revision - a CmReleaseTreeNode with no CMRelease
+            DefaultMutableTreeNode releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(applicationProtocolNode, "Development revision", false));
+            releasesTreeNode.add(releaseNode);
+            
+            for (Iterator j = applicationProtocolNode.getCmRecord().getHasCmReleases().iterator(); j.hasNext();) {
+                CmRelease cmRelease = (CmRelease) j.next();
+                addReleaseToTree(applicationProtocolNode, cmRelease, applicationProtocolTreeNode, false);
+            }
         }
         
         // Iterate through all the Resource documents creating nodes and adding them to the tree
@@ -855,6 +826,37 @@ public class STEPModFrame extends javax.swing.JFrame {
             DefaultMutableTreeNode resourceDocTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
             hasResourceDocsNodes.put(resourceDocNode.getName(), resourceDocTreeNode);
             resourceDocsTreeNode.add(resourceDocTreeNode);
+            DefaultMutableTreeNode attributesTreeNode = new DefaultMutableTreeNode("Attributes");
+            resourceDocTreeNode.add(attributesTreeNode);
+            DefaultMutableTreeNode attributeTreeNode;
+            attributeTreeNode = new DefaultMutableTreeNode("Name: " + resourceDocNode.getName());
+            attributesTreeNode.add(attributeTreeNode);
+            attributeTreeNode = new DefaultMutableTreeNode("Number: " + resourceDocNode.getPartNumber());
+            attributesTreeNode.add(attributeTreeNode);
+            
+            DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
+            resourceDocTreeNode.add(dependenciesTreeNode);
+            // TODO - need to deduce the depenencies and create a tree.
+            // The dependencies are the modules, resources etc.
+            // Need to write the algorithm that recurses through the ARM, and MIM express
+            
+            DefaultMutableTreeNode filesTreeNode = new DefaultMutableTreeNode("Files");
+            resourceDocTreeNode.add(filesTreeNode);
+            // TODO - need to list the files that make up the modules
+            // The arm, mim, sys files etc.
+            // For each file display the CVS revision and date
+            
+            DefaultMutableTreeNode releasesTreeNode = new DefaultMutableTreeNode("Releases");
+            resourceDocTreeNode.add(releasesTreeNode);
+            
+            // Add the development revision - a CmReleaseTreeNode with no CMRelease
+            DefaultMutableTreeNode releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(resourceDocNode, "Development revision", false));
+            releasesTreeNode.add(releaseNode);
+            
+            for (Iterator j = resourceDocNode.getCmRecord().getHasCmReleases().iterator(); j.hasNext();) {
+                CmRelease cmRelease = (CmRelease) j.next();
+                addReleaseToTree(resourceDocNode, cmRelease, resourceDocTreeNode, false);
+            }
         }
         
         // Iterate through all the Resource schemas creating nodes and adding them to the tree
@@ -863,15 +865,10 @@ public class STEPModFrame extends javax.swing.JFrame {
         for (Iterator it=getStepMod().getResourcesHash().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             StepmodResource resourceNode = (StepmodResource)entry.getValue();
-            
-            System.out.println("resourceNode" + resourceNode.getName());
-            
-            // TODO - need to complete  StepmodResource
-            //StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(resourceNode, false);
-            //DefaultMutableTreeNode resourceTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
-            //hasResourceNodes.put(resourceNode.getName(), resourceTreeNode);
-            //resourceSchemasTreeNode.add(resourceTreeNode);
-            
+            StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(resourceNode, false);
+            DefaultMutableTreeNode resourceTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
+            hasResourcesNodes.put(resourceNode.getName(), resourceTreeNode);
+            resourceSchemasTreeNode.add(resourceTreeNode);
         }
         
         DefaultMutableTreeNode frameworkTreeNode = new DefaultMutableTreeNode("STEPmod Framework");
@@ -925,32 +922,30 @@ public class STEPModFrame extends javax.swing.JFrame {
                     
                     if (nodeObject instanceof StepmodPartTreeNode) {
                         StepmodPart part = ((StepmodPartTreeNode) nodeObject).getStepmodPart();
-                        if (part instanceof StepmodModule) {
-                            // Make sure that the menu knows about the tree node
-                            modulePopupMenu.setUserObject(node);
-                            
-                            // Only display relevant menu items
-                            int state = part.getCmRecord().getRecordState();
-                            int cvsStatus = part.getCmRecord().getCmRecordCvsStatus();
-                            if (cvsStatus == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
-                                createCmRecordMenuItem.setEnabled(true);
-                                commitCmRecordMenuItem.setEnabled(false);
-                                saveCmRecordMenuItem.setEnabled(false);
-                            } else if (state == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
-                                createCmRecordMenuItem.setEnabled(false);
-                                commitCmRecordMenuItem.setEnabled(false);
-                                saveCmRecordMenuItem.setEnabled(true);
-                            } else if (part.getCmRecord().needsCvsAction()) {
-                                createCmRecordMenuItem.setEnabled(false);
-                                commitCmRecordMenuItem.setEnabled(true);
-                                saveCmRecordMenuItem.setEnabled(false);
-                            } else {
-                                createCmRecordMenuItem.setEnabled(false);
-                                commitCmRecordMenuItem.setEnabled(false);
-                                saveCmRecordMenuItem.setEnabled(false);
-                            }
-                            modulePopupMenu.show(e.getComponent(), e.getX(), e.getY());
+                        // Make sure that the menu knows about the tree node
+                        stepmodPartPopupMenu.setUserObject(node);
+                        
+                        // Only display relevant menu items
+                        int state = part.getCmRecord().getRecordState();
+                        int cvsStatus = part.getCmRecord().getCmRecordCvsStatus();
+                        if (cvsStatus == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
+                            createCmRecordMenuItem.setEnabled(true);
+                            commitCmRecordMenuItem.setEnabled(false);
+                            saveCmRecordMenuItem.setEnabled(false);
+                        } else if (state == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
+                            createCmRecordMenuItem.setEnabled(false);
+                            commitCmRecordMenuItem.setEnabled(false);
+                            saveCmRecordMenuItem.setEnabled(true);
+                        } else if (part.getCmRecord().needsCvsAction()) {
+                            createCmRecordMenuItem.setEnabled(false);
+                            commitCmRecordMenuItem.setEnabled(true);
+                            saveCmRecordMenuItem.setEnabled(false);
+                        } else {
+                            createCmRecordMenuItem.setEnabled(false);
+                            commitCmRecordMenuItem.setEnabled(false);
+                            saveCmRecordMenuItem.setEnabled(false);
                         }
+                        stepmodPartPopupMenu.show(e.getComponent(), e.getX(), e.getY());
                     } else if (nodeObject instanceof CmReleaseTreeNode) {
                         if (((CmReleaseTreeNode) nodeObject).getCmRelease() != null) {
                             releasePopupMenu.setUserObject(node);
@@ -1217,18 +1212,18 @@ public class STEPModFrame extends javax.swing.JFrame {
     /**
      * Setup the menu called from a mouse click on a module
      */
-    private void initModulePopupMenu() {
+    private void initStepmodPartPopupMenu() {
         // Setup the popoup menu associated with individual modules
-        modulePopupMenu = new PopupMenuWithObject();
+        stepmodPartPopupMenu = new PopupMenuWithObject();
         
-        javax.swing.JMenu cvsModuleSubmenu = new javax.swing.JMenu("CVS - module");
-        modulePopupMenu.add(cvsModuleSubmenu);
+        javax.swing.JMenu cvsModuleSubmenu = new javax.swing.JMenu("CVS - Part");
+        stepmodPartPopupMenu.add(cvsModuleSubmenu);
         javax.swing.JMenu cvsCmRecSubmenu = new javax.swing.JMenu("CM record");
-        modulePopupMenu.add(cvsCmRecSubmenu);
+        stepmodPartPopupMenu.add(cvsCmRecSubmenu);
         javax.swing.JMenu cvsReleaseSubmenu = new javax.swing.JMenu("Release");
-        modulePopupMenu.add(cvsReleaseSubmenu);
+        stepmodPartPopupMenu.add(cvsReleaseSubmenu);
         javax.swing.JMenu cvsPublicationSubmenu = new javax.swing.JMenu("Publication");
-        modulePopupMenu.add(cvsPublicationSubmenu);
+        stepmodPartPopupMenu.add(cvsPublicationSubmenu);
         
         
         // Update development revision
@@ -1237,7 +1232,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         createCvsUpdateDevelopmentRevisionMenuItem.setToolTipText("Checks out the latest revisions of the module from CVS for development.");
         createCvsUpdateDevelopmentRevisionMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
                 StepmodPart part = ((StepmodPartTreeNode) node.getUserObject()).getStepmodPart();
                 part.getStepMod().getStepModGui().cvsUpdate(part);
             }
@@ -1251,7 +1246,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         createCvsCoLatestReleaseMenuItem.setToolTipText("Checks out the latest release of the module from CVS (Sticky).");
         createCvsCoLatestReleaseMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
                 StepmodPart part = ((StepmodPartTreeNode) node.getUserObject()).getStepmodPart();
                 part.getStepMod().getStepModGui().cvsCoLatestRelease(part);
             }
@@ -1264,7 +1259,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         createCvsCoPublishedReleaseMenuItem.setToolTipText("Checks out the latest release of the module published by ISO from CVS (Sticky).");
         createCvsCoPublishedReleaseMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
                 StepmodPart part = ((StepmodPartTreeNode) node.getUserObject()).getStepmodPart();
                 part.getStepMod().getStepModGui().cvsCoPublishedRelease(part);
             }
@@ -1277,7 +1272,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         createCmReleaseMenuItem.setToolTipText("Creates a new release of the module. The saved record and CVS will only be updated after it has been committed");
         createCmReleaseMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
                 StepmodPart part = ((StepmodPartTreeNode) node.getUserObject()).getStepmodPart();
                 new STEPModMkReleaseDialog(part, node).setVisible(true);
             }
@@ -1291,7 +1286,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         createCmRecordMenuItem.setToolTipText("Create the CM record for the part. Creates cm_record.xml");
         createCmRecordMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
                 StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
                 StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
                 stepmodPart.getStepMod().getStepModGui().writeCmRecord(stepmodPart);
@@ -1305,7 +1300,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         saveCmRecordMenuItem.setToolTipText("Save any changes to the CM record to cm_record.xml");
         saveCmRecordMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
                 StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
                 StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
                 stepmodPart.getStepMod().getStepModGui().saveCmRecord(stepmodPart);
@@ -1319,7 +1314,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         commitCmRecordMenuItem.setToolTipText("Save any changes to the CM record to cm_record.xml and use CVS to tag release");
         commitCmRecordMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
                 StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
                 StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
                 stepmodPart.getStepMod().getStepModGui().cvsCommitRecord(stepmodPart);
@@ -1327,7 +1322,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         });
         cvsCmRecSubmenu.add(commitCmRecordMenuItem);
         
-        modulePopupMenu.add(new JSeparator());
+        stepmodPartPopupMenu.add(new JSeparator());
         
         // Create publication package
         javax.swing.JMenuItem createModulePublicationPackage;
@@ -1335,7 +1330,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         createModulePublicationPackage.setToolTipText("Creates the ANT build file for generating the publication package");
         createModulePublicationPackage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
                 StepmodModule module = (StepmodModule) node.getUserObject();
                 module.publicationCreatePackage();
             }
@@ -1348,7 +1343,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         genHtmlModulePublicationPackage.setToolTipText("Generates the HTML for the publication package");
         genHtmlModulePublicationPackage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) modulePopupMenu.getUserObject();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
                 StepmodModule module = (StepmodModule) node.getUserObject();
                 module.publicationGenerateHtml();
             }
@@ -1408,6 +1403,29 @@ public class STEPModFrame extends javax.swing.JFrame {
             }
         });
         releasePopupMenu.add(changeCmReleaseMenuItem);
+        
+        // Change a release option
+        javax.swing.JMenuItem deleteCmReleaseMenuItem;
+        deleteCmReleaseMenuItem = new javax.swing.JMenuItem("Change status release");
+        deleteCmReleaseMenuItem.setToolTipText("Allows the status of the release to be changed. The saved record and CVS will only be updated after it has been committed");
+        deleteCmReleaseMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) releasePopupMenu.getUserObject();
+                CmReleaseTreeNode cmReleaseTreeNode = ((CmReleaseTreeNode) node.getUserObject());
+                StepmodPart part = cmReleaseTreeNode.getStepmodPart();
+                STEPModFrame frame = part.getStepMod().getStepModGui();
+                CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
+                if (cmRelease != null) {
+                    frame.deleteCmRelease(part, node, cmRelease);
+                } else {
+                    JOptionPane.showMessageDialog(frame,
+                            "Trying to delete the development revision - choose a release",
+                            "Warning",
+                            JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        });
+        releasePopupMenu.add(deleteCmReleaseMenuItem);
     }
     
     
@@ -1508,6 +1526,17 @@ public class STEPModFrame extends javax.swing.JFrame {
                 JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
             part.getCmRecord().writeCmRecord();
+            updateNode(part);
+        }
+    }
+    
+    private void deleteCmRelease(StepmodPart part, DefaultMutableTreeNode node, CmRelease cmRelease) {
+        int answer = JOptionPane.showConfirmDialog(this,
+                "You are about to delete the release "+cmRelease.getId()+"\nDo you want to continue?",
+                "CM release action ....",
+                JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            part.getCmRecord().deleteCmRelease(cmRelease);
             updateNode(part);
         }
     }
@@ -2002,6 +2031,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitMenuItemActionPerformed
+    
     
     
     

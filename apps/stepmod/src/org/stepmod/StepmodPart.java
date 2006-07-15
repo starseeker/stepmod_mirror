@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.12 2006/07/14 16:27:58 robbod Exp $
+ * $Id: StepmodPart.java,v 1.13 2006/07/15 08:08:37 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -554,8 +554,12 @@ public abstract class StepmodPart {
         String type = "";
         if (this instanceof StepmodModule) {
             type = "mod";
-        } else {
-            
+        } else if (this instanceof StepmodApplicationProtocol) {
+            type = "ap";
+        } else if (this instanceof StepmodResourceDoc) {
+            type = "resdoc";
+        } else if (this instanceof StepmodResource) {
+            type = "res";            
         }
         
         /*

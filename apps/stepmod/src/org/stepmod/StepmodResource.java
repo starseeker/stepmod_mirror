@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResource.java,v 1.1 2006/06/12 15:31:08 robbod Exp $
+ * $Id: StepmodResource.java,v 1.2 2006/07/15 08:08:37 robbod Exp $
  *
  * StepmodResource.java
  *
@@ -16,7 +16,15 @@
 
 package org.stepmod;
 
+import java.io.File;
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.stepmod.cvschk.CvsStatus;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  *
@@ -26,17 +34,68 @@ public class StepmodResource extends StepmodPart {
     
     /** Creates a new instance of StepmodResource */
     public StepmodResource(STEPmod stepMod, String partName) {
-        this.setName(partName);
-        this.setStepmodType();
-        this.setStepMod(stepMod);
+        super(stepMod, partName);
         stepMod.addResource(this);
         
-        this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), ".xml"));
+        this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), this.getName()+".xml"));
         // now read resource.xml for the part populating the attributes
         this.loadXml();
+        // read the CM record
+        this.readCmRecord();
     }
     
+     /**
+     * Reads the resourceDoc.xml file and populates the relevant attributes
+     */
     public void loadXml() {
+        // now read resourceDoc.xml for the part populating the attributes
+        DefaultHandler handler = new ResourceSaxHandler(this, this.getStepMod());
+        // Use the default (non-validating) parser
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        String resDocFilename = this.getDirectory() + "/" + this.getName()+".xml";
+        try {
+            // Parse the input
+            SAXParser saxParser = factory.newSAXParser();
+            File resDocFile =  new File(resDocFilename);
+            saxParser.parse( resDocFile, handler );
+        } catch (ParserConfigurationException ex) {
+            TrappedError error = this.getErrors().addError(this,resDocFilename,ex);
+            error.output();
+        } catch (SAXException ex) {
+            TrappedError error = this.getErrors().addError(this,resDocFilename,ex);
+            error.output();
+        } catch (IOException ex) {
+            TrappedError error = this.getErrors().addError(this,resDocFilename,ex);
+            error.output();
+        }
+    }
+    
+    /**
+     * Instantiate a SAX handler to read in resourceDoc.xml
+     */
+    private class ResourceSaxHandler extends DefaultHandler {
+        // Common attributes
+        private String currentElement;
+        private StepmodResource resource;
+        private STEPmod stepMod;
+        
+        /**
+         * Instantiate a Sax handler for reading the resourceDoc.xml file
+         */
+        public ResourceSaxHandler(StepmodResource resDoc, STEPmod stepMod) {
+            this.resource = resDoc;
+            this.stepMod = stepMod;
+        }
+        
+        
+        public void startElement(String namespaceURI, String sName, // simple name
+                String qName, // qualified name
+                Attributes attrs) throws SAXException {
+            currentElement = qName;
+            if (currentElement.equals("express")) {
+                resource.setPartNumber(attrs.getValue("reference"));
+            }
+        }
     }
     
     /**

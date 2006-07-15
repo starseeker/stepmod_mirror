@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodApplicationProtocol.java,v 1.3 2006/07/12 18:10:24 robbod Exp $
+ * $Id: StepmodApplicationProtocol.java,v 1.4 2006/07/13 09:02:11 robbod Exp $
  *
  * StepmodApplicationProtocol.java
  *
@@ -17,11 +17,14 @@
 package org.stepmod;
 
 import java.io.File;
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.stepmod.cvschk.CvsStatus;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -32,38 +35,39 @@ public class StepmodApplicationProtocol extends StepmodPart {
     
     /** Creates a new instance of StepmodApplicationProtocol */
     public StepmodApplicationProtocol(STEPmod stepMod, String partName) {
-        this.setName(partName);
-        this.setStepmodType();
-        this.setStepMod(stepMod);
+        super(stepMod, partName);
+        stepMod.addApplicationProtocol(this);
+        
+        this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), "application_protocol.xml"));
+        
+        // now read resource.xml for the part populating the attributes
+        this.loadXml();
         // read the CM record
         this.readCmRecord();
-        stepMod.addApplicationProtocol(this);
-        this.loadXml();
-        this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), "application_protocol.xml"));
     }
     
     
-    public void loadXml() {
+    public void loadXml()   {
         // now read application_protocol.xml for the part populating the attributes
         DefaultHandler handler = new ApDocSaxHandler(this, this.getStepMod());
         // Use the default (non-validating) parser
         SAXParserFactory factory = SAXParserFactory.newInstance();
+        String apDocFilename = this.getDirectory()+"/application_protocol.xml";
         try {
-            // Parse the input
-            SAXParser saxParser = factory.newSAXParser();
-            String apDocFilename = this.getDirectory()+"/application_protocol.xml";
+            SAXParser saxParser;
+            saxParser = factory.newSAXParser();
             File apDocFile =  new File(apDocFilename);
             saxParser.parse( apDocFile, handler );
-        } catch (Throwable t) {
-            t.printStackTrace();
+        } catch (ParserConfigurationException ex) {
+            TrappedError error = this.getErrors().addError(this,apDocFilename,ex);
+            error.output();
+        } catch (SAXException ex) {
+            TrappedError error = this.getErrors().addError(this,apDocFilename,ex);
+            error.output();
+        } catch (IOException ex) {
+            TrappedError error = this.getErrors().addError(this,apDocFilename,ex);
+            error.output();
         }
-    }
-    
-    /**
-     * Provide the HTML body that is the summary of the part
-     */
-    public String summaryHtmlBody() {
-        return "";
     }
     
     /**
@@ -132,26 +136,4 @@ public class StepmodApplicationProtocol extends StepmodPart {
         return(dir);
     }
     
-    /**
-     * Proved an HTML summary of the module
-     */
-    public String summaryHtml() {
-        String cvsStateDscr = "";
-        int cvsState = getCvsState();
-        if (cvsState == CvsStatus.CVSSTATE_UNKNOWN) {
-            cvsStateDscr = "ERROR -- Release status cannot be established";
-        } else if (cvsState == CvsStatus.CVSSTATE_DEVELOPMENT) {
-            cvsStateDscr = "Latest development release";
-        } else if (cvsState == CvsStatus.CVSSTATE_RELEASE) {
-            cvsStateDscr = "Release ("+ this.getCvsTag() +")";
-        }
-        String summary = "<html><body>"
-                + "<h2>Application protocol: ISO 10303-"+getPartNumber()+"</h2>"
-                + "<table>"
-                + "<tr><td>Number:</td><td>ISO 10303-"+getPartNumber()+"</td></tr>"
-                + "<tr><td>Name:</td><td>"+getName()+"</td></tr>"
-                + "<tr><td>Release status:</td><td>" + cvsStateDscr +"</td></tr>"
-                + "</table></body></html>";
-        return(summary);
-    }
 }

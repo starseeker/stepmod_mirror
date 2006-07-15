@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.7 2006/07/12 10:55:27 robbod Exp $
+ * $Id: STEPmod.java,v 1.8 2006/07/14 16:27:58 robbod Exp $
  *
  * STEPmod.java
  *
@@ -176,7 +176,7 @@ public class STEPmod {
             SAXParser saxParser = factory.newSAXParser();
             File repoFile =  new File(repoFilename);
             saxParser.parse( repoFile, handler );
-            System.out.println("Loaded: "+repoFile.getPath());
+            this.output("Loaded: "+repoFile.getPath());
         } catch (Throwable t) {
             t.printStackTrace();
         }

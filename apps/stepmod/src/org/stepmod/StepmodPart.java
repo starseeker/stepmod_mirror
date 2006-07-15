@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.11 2006/07/14 07:27:23 robbod Exp $
+ * $Id: StepmodPart.java,v 1.12 2006/07/14 16:27:58 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -35,6 +35,7 @@ public abstract class StepmodPart {
     private String version;
     protected String stepmodType;
     
+    private String sc4WorkingGroup;
     private String wgNumber;
     private String wgNumberSupersedes;
     private String checklistInternalReview;
@@ -45,10 +46,14 @@ public abstract class StepmodPart {
     private String publicationYear;
     private String publicationDate;
     private boolean published;
+    private String rcsDate;
+    private String rcsRevision;
+    
     private CmRecord cmRecord;
     private STEPmod stepMod;
     private CvsStatus cvsStatusObject;
     
+    private TrappedErrorMap errors;
     
     /**
      * Creates a new instance of StepmodPart
@@ -56,6 +61,8 @@ public abstract class StepmodPart {
     public StepmodPart(STEPmod stepMod, String partName) {
         setName(partName);
         setStepMod(stepMod);
+        setStepmodType();
+        errors = new TrappedErrorMap(this);
     }
     
     /**
@@ -64,11 +71,6 @@ public abstract class StepmodPart {
     public StepmodPart() {
     }
     
-    
-    /**
-     * Provide the HTML body that is the summary of the part
-     */
-    public abstract String summaryHtmlBody();
     
     protected abstract void setStepmodType();
     
@@ -92,7 +94,6 @@ public abstract class StepmodPart {
     public abstract void loadXml();
     
     
-    
     /**
      * Provide an HTML summary of the part
      */
@@ -103,6 +104,59 @@ public abstract class StepmodPart {
                 + "</body></html>";
         return(summary);
     }
+    
+    
+    /**
+     * Provide the HTML body that is the summary of the part
+     */
+    public String summaryHtmlBody() {
+        String cvsStateDscr = "";
+        int cvsState = getCvsState();
+        if (cvsState == CvsStatus.CVSSTATE_UNKNOWN) {
+            cvsStateDscr = "ERROR -- Release status cannot be established";
+        } else if (cvsState == CvsStatus.CVSSTATE_DEVELOPMENT) {
+            cvsStateDscr = "Latest development release";
+        } else if (cvsState == CvsStatus.CVSSTATE_RELEASE) {
+            cvsStateDscr =  this.getCvsTag();
+        }
+        
+        String cmDescr = "";
+        int cmRecordState = getCmRecord().getCmRecordCvsStatus();
+//        if (cmRecordState == CmRecord.CM_RECORD_NOT_CHANGED) {
+//            cmDescr = "CM record modified but not saved to cm_record.xml";
+//        } else
+        if (cmRecordState == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
+            cmDescr = "CM record modified but not saved to cm_record.xml";
+        }
+//        else if (cmRecordState == CmRecord.CM_RECORD_CHANGED_SAVED) {
+//            cmDescr = " CM record modified and saved to cm_record.xml";
+//        }else
+        else if (cmRecordState == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
+            cmDescr = "The CM record file, cm_record.xml, does not exist for this part";
+        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_NOT_ADDED) {
+            cmDescr = "The CM record file, cm_record.xml, exists but has not been added to CVS";
+        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_ADDED) {
+            cmDescr = "The CM record file, cm_record.xml, has been added to CVS but not committed";
+        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_COMMITTED) {
+            cmDescr = "The CM record file, cm_record.xml, has been committed to CVS";
+        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_CHANGED) {
+            cmDescr = "The CM record file, cm_record.xml, has  been committed to CVS but the local file has changed";
+        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_DIR_NOT_ADDED) {
+            cmDescr = " The CM record file, cm_record.xml, exists but the record directory has not been added to CVS";
+        }
+        
+        String summary =
+                "<table>"
+                + "<tr><td>Part Number:</td><td>"+getPartNumberString()+"</td></tr>"
+                + "<tr><td>Part Name:</td><td>"+getName()+"</td></tr>"
+                + "<tr><td>Checked out release:</td><td>" + cvsStateDscr +"</td></tr>"
+                + "<tr><td>CM record revision:</td><td>" + getCmRecord().getCvsRevision() +"</td></tr>"
+                + "<tr><td>CM record date:</td><td>" + getCmRecord().getCvsDate() +"</td></tr>"
+                + "<tr><td>CM record status:</td><td>" + cmDescr +"</td></tr>"
+                + "</table>";
+        return(summary);
+    }
+    
     
     
     /**
@@ -355,6 +409,15 @@ public abstract class StepmodPart {
         this.published = published;
     }
     
+    public void setSc4WorkingGroup(String sc4WorkingGroup) {
+        this.sc4WorkingGroup = sc4WorkingGroup;
+    }
+    
+    public String getSc4WorkingGroup() {
+        return sc4WorkingGroup;
+    }
+    
+    
     /**
      * Returns the configuration management record
      * @return the configuration management record for the StepmodPart
@@ -578,6 +641,26 @@ public abstract class StepmodPart {
      */
     public boolean isCheckedOutRelease() {
         return(getCvsState() == CvsStatus.CVSSTATE_RELEASE);
+    }
+    
+    public String getRcsDate() {
+        return rcsDate;
+    }
+    
+    public void setRcsDate(String rcsDate) {
+        this.rcsDate = rcsDate;
+    }
+    
+    public String getRcsRevision() {
+        return rcsRevision;
+    }
+    
+    public void setRcsRevision(String rcsRevision) {
+        this.rcsRevision = rcsRevision;
+    }
+    
+    public TrappedErrorMap getErrors() {
+        return errors;
     }
     
     

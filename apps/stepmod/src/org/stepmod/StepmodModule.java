@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.8 2006/07/14 07:27:23 robbod Exp $
+ * $Id: StepmodModule.java,v 1.9 2006/07/14 16:27:58 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -17,8 +17,7 @@
 package org.stepmod;
 import javax.xml.parsers.SAXParser;
 import java.io.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import org.stepmod.cvschk.CvsStatus;
 import org.xml.sax.Attributes;
@@ -41,7 +40,6 @@ public class StepmodModule extends StepmodPart {
     private String wgNumberMimSupersedes;
     private String wgNumberMimLfSupersedes;
     private String wgNumberMimLf;
-    private String sc4WorkingGroup;
     
     
     
@@ -49,9 +47,7 @@ public class StepmodModule extends StepmodPart {
      * Creates a new instance of StepmodModule
      */
     public StepmodModule(STEPmod stepMod, String partName) {
-        this.setName(partName);
-        this.setStepmodType();
-        this.setStepMod(stepMod);
+        super(stepMod, partName);
         stepMod.addModule(this);
         
         this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), "module.xml"));
@@ -69,14 +65,21 @@ public class StepmodModule extends StepmodPart {
         DefaultHandler handler = new ModuleSaxHandler(this, this.getStepMod());
         // Use the default (non-validating) parser
         SAXParserFactory factory = SAXParserFactory.newInstance();
+        String moduleFilename = this.getDirectory() + "/module.xml";
         try {
             // Parse the input
             SAXParser saxParser = factory.newSAXParser();
-            String moduleFilename = this.getDirectory() + "/module.xml";
             File moduleFile =  new File(moduleFilename);
             saxParser.parse( moduleFile, handler );
-        } catch (Throwable t) {
-            t.printStackTrace();
+        } catch (ParserConfigurationException ex) {
+            TrappedError error = this.getErrors().addError(this,moduleFilename,ex);
+            error.output();
+        } catch (SAXException ex) {
+            TrappedError error = this.getErrors().addError(this,moduleFilename,ex);
+            error.output();
+        } catch (IOException ex) {
+            TrappedError error = this.getErrors().addError(this,moduleFilename,ex);
+            error.output();
         }
     }
     
@@ -118,11 +121,13 @@ public class StepmodModule extends StepmodPart {
                 module.setWgNumberMimLfSupersedes(attrs.getValue("wg.number.mim_lf.supersedes"));
                 module.setChecklistInternalReview(attrs.getValue("checklist.internal_review"));
                 module.setChecklistProjectLeader(attrs.getValue("checklist.project_leader"));
-                module.setSc4WorkingGroup(attrs.getValue("sc4.working_group"));
                 module.setChecklistConvener(attrs.getValue("checklist.convener"));
+                module.setSc4WorkingGroup(attrs.getValue("sc4.working_group"));
                 module.setIsoStatus(attrs.getValue("status"));
                 module.setPublicationYear(attrs.getValue("publication.year"));
                 module.setPublicationDate(attrs.getValue("publication.date"));
+                module.setRcsDate(attrs.getValue("rcs.date"));
+                module.setRcsRevision(attrs.getValue("rcs.revision"));
                 String published = attrs.getValue("published");
                 if (published.equals("y")) {
                     module.setPublished(true);
@@ -180,10 +185,6 @@ public class StepmodModule extends StepmodPart {
         this.wgNumberMimLfSupersedes = wgNumberMimLfSupersedes;
     }
     
-    public void setSc4WorkingGroup(String sc4WorkingGroup) {
-        this.sc4WorkingGroup = sc4WorkingGroup;
-    }
-    
     public String getWgNumberArmSupersedes() {
         return wgNumberArmSupersedes;
     }
@@ -208,9 +209,6 @@ public class StepmodModule extends StepmodPart {
         return wgNumberMimLf;
     }
     
-    public String getSc4WorkingGroup() {
-        return sc4WorkingGroup;
-    }
     
     /**
      * Returns a string containing the full part number.
@@ -222,56 +220,6 @@ public class StepmodModule extends StepmodPart {
     }
     
     
-    /**
-     * Provide the HTML body that is the summary of the part
-     */
-    public String summaryHtmlBody() {
-        String cvsStateDscr = "";
-        int cvsState = getCvsState();
-        if (cvsState == CvsStatus.CVSSTATE_UNKNOWN) {
-            cvsStateDscr = "ERROR -- Release status cannot be established";
-        } else if (cvsState == CvsStatus.CVSSTATE_DEVELOPMENT) {
-            cvsStateDscr = "Latest development release";
-        } else if (cvsState == CvsStatus.CVSSTATE_RELEASE) {
-            cvsStateDscr =  this.getCvsTag();
-        }
-        
-        String cmDescr = "";
-        int cmRecordState = getCmRecord().getCmRecordCvsStatus();
-//        if (cmRecordState == CmRecord.CM_RECORD_NOT_CHANGED) {
-//            cmDescr = "CM record modified but not saved to cm_record.xml";
-//        } else 
-        if (cmRecordState == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
-            cmDescr = "CM record modified but not saved to cm_record.xml";
-        } 
-//        else if (cmRecordState == CmRecord.CM_RECORD_CHANGED_SAVED) {
-//            cmDescr = " CM record modified and saved to cm_record.xml";
-//        }else 
-        else if (cmRecordState == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
-            cmDescr = "The CM record file, cm_record.xml, does not exist for this part";
-        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_NOT_ADDED) {
-            cmDescr = "The CM record file, cm_record.xml, exists but has not been added to CVS";
-        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_ADDED) {
-            cmDescr = "The CM record file, cm_record.xml, has been added to CVS but not committed";
-        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_COMMITTED) {
-            cmDescr = "The CM record file, cm_record.xml, has been committed to CVS";
-        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_CHANGED) {
-            cmDescr = "The CM record file, cm_record.xml, has  been committed to CVS but the local file has changed";
-        } else if (cmRecordState == CmRecord.CM_RECORD_CVS_DIR_NOT_ADDED) {
-            cmDescr = " The CM record file, cm_record.xml, exists but the record directory has not been added to CVS";
-        }
-        
-        String summary =
-                "<table>"
-                + "<tr><td>Part Number:</td><td>"+getPartNumberString()+"</td></tr>"
-                + "<tr><td>Part Name:</td><td>"+getName()+"</td></tr>"
-                + "<tr><td>Checked out release:</td><td>" + cvsStateDscr +"</td></tr>"
-                + "<tr><td>CM record revision:</td><td>" + getCmRecord().getCvsRevision() +"</td></tr>"
-                + "<tr><td>CM record date:</td><td>" + getCmRecord().getCvsDate() +"</td></tr>"
-                + "<tr><td>CM record status:</td><td>" + cmDescr +"</td></tr>"
-                + "</table>";
-        return(summary);
-    }
     
     
     /**

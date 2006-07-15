@@ -22,16 +22,13 @@ import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.swing.AbstractCellEditor;
-import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
-import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -39,8 +36,6 @@ import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -96,6 +91,25 @@ public class STEPModFrame extends javax.swing.JFrame {
     private Object currentDisplayedObject;
     
     
+    /**
+     * A Map of all the module StepmodPartTreeNodes being displayed in the tree
+     */
+    private TreeMap hasModulesNodes;
+    
+    /**
+     * A Map of all the Ap StepmodPartTreeNodes being displayed in the tree
+     */
+    private TreeMap hasApplicationProtocolsNodes;
+    
+    /**
+     * A Map of all the Resource document StepmodPartTreeNodes being displayed in the tree
+     */
+    private TreeMap hasResourceDocsNodes;
+    
+    /**
+     * A Map of all the Resource schema StepmodPartTreeNodes being displayed in the tree
+     */
+    private TreeMap hasResourcesNodes;
     
     private javax.swing.JMenuItem createCmRecordMenuItem;
     private javax.swing.JMenuItem commitCmRecordMenuItem;
@@ -764,6 +778,12 @@ public class STEPModFrame extends javax.swing.JFrame {
      * Initialise the display of the repository tree
      */
     public void initRepositoryTree() {
+        
+        hasModulesNodes = new TreeMap();
+        hasApplicationProtocolsNodes  = new TreeMap();
+        hasResourceDocsNodes = new TreeMap();
+        hasResourcesNodes = new TreeMap();
+        
         DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode("STEPMod");
         // Use the tree mode to make sure that the added nodes are displayed
         DefaultTreeModel treeModel = new DefaultTreeModel(rootTreeNode);
@@ -774,7 +794,10 @@ public class STEPModFrame extends javax.swing.JFrame {
         for (Iterator it=getStepMod().getModulesHash().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             StepmodModule moduleNode = (StepmodModule)entry.getValue();
-            DefaultMutableTreeNode moduleTreeNode = new DefaultMutableTreeNode(new StepmodPartTreeNode(moduleNode, false));
+            StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(moduleNode, false);
+            DefaultMutableTreeNode moduleTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
+            hasModulesNodes.put(moduleNode.getName(), moduleTreeNode);
+            
             modulesTreeNode.add(moduleTreeNode);
             DefaultMutableTreeNode attributesTreeNode = new DefaultMutableTreeNode("Attributes");
             moduleTreeNode.add(attributesTreeNode);
@@ -815,8 +838,10 @@ public class STEPModFrame extends javax.swing.JFrame {
         for (Iterator it=getStepMod().getApplicationProtocolsHash().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             StepmodApplicationProtocol applicationProtocolNode = (StepmodApplicationProtocol)entry.getValue();
+            StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(applicationProtocolNode, false);
             DefaultMutableTreeNode applicationProtocolTreeNode
-                    = new DefaultMutableTreeNode(new StepmodPartTreeNode(applicationProtocolNode, false));
+                    = new DefaultMutableTreeNode(stepmodPartTreeNode);
+            hasApplicationProtocolsNodes.put(applicationProtocolNode.getName(), applicationProtocolTreeNode);
             applicationProtocolsTreeNode.add(applicationProtocolTreeNode);
         }
         
@@ -826,8 +851,9 @@ public class STEPModFrame extends javax.swing.JFrame {
         for (Iterator it=getStepMod().getResourceDocsHash().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             StepmodResourceDoc resourceDocNode = (StepmodResourceDoc)entry.getValue();
-            // TODO - need to change to use StepmodPartTreeNode
-            DefaultMutableTreeNode resourceDocTreeNode = new DefaultMutableTreeNode(resourceDocNode);
+            StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(resourceDocNode, false);
+            DefaultMutableTreeNode resourceDocTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
+            hasResourceDocsNodes.put(resourceDocNode.getName(), resourceDocTreeNode);
             resourceDocsTreeNode.add(resourceDocTreeNode);
         }
         
@@ -837,8 +863,15 @@ public class STEPModFrame extends javax.swing.JFrame {
         for (Iterator it=getStepMod().getResourcesHash().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             StepmodResource resourceNode = (StepmodResource)entry.getValue();
-            DefaultMutableTreeNode resourceTreeNode = new DefaultMutableTreeNode(resourceNode);
-            resourceSchemasTreeNode.add(resourceTreeNode);
+            
+            System.out.println("resourceNode" + resourceNode.getName());
+            
+            // TODO - need to complete  StepmodResource
+            //StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(resourceNode, false);
+            //DefaultMutableTreeNode resourceTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
+            //hasResourceNodes.put(resourceNode.getName(), resourceTreeNode);
+            //resourceSchemasTreeNode.add(resourceTreeNode);
+            
         }
         
         DefaultMutableTreeNode frameworkTreeNode = new DefaultMutableTreeNode("STEPmod Framework");
@@ -1065,7 +1098,6 @@ public class STEPModFrame extends javax.swing.JFrame {
         }
     }
     
-    
     /**
      * Finds the first node that is a child of startNode that has the given stepmodPart as a userObject
      */
@@ -1169,7 +1201,16 @@ public class STEPModFrame extends javax.swing.JFrame {
     }
     
     private void clearAllSelectedModuleNodes() {
-        toBeDone("STEPModFrame.clearAllSelectedModuleNodes");
+        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
+        for (Iterator it=hasModulesNodes.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry entry = (Map.Entry)it.next();
+            DefaultMutableTreeNode moduleNode = (DefaultMutableTreeNode)entry.getValue();
+            StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) moduleNode.getUserObject();
+            if (stepmodPartTreeNode.isSelected()) {
+                stepmodPartTreeNode.setSelected(false);
+                treeModel.nodeChanged(moduleNode);
+            }
+        }
     }
     
     
@@ -1617,6 +1658,18 @@ public class STEPModFrame extends javax.swing.JFrame {
         this.currentDisplayedObject = currentDisplayedObject;
     }
     
+    public TreeMap getHasModulesNodes() {
+        return hasModulesNodes;
+    }
+    
+    public TreeMap getHasApplicationProtocolsNodes() {
+        return hasApplicationProtocolsNodes;
+    }
+    
+    public TreeMap getHasResourceDocsNodes() {
+        return hasResourceDocsNodes;
+    }
+    
     
     
     /** This method is called from within the constructor to
@@ -1884,7 +1937,6 @@ public class STEPModFrame extends javax.swing.JFrame {
             getStepMod().readRepositoryIndex();
             initRepositoryTree();
         }
-        
     }//GEN-LAST:event_reloadRepositoryMenuItemActionPerformed
     
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed

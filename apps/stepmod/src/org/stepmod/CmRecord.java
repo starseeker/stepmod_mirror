@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.7 2006/07/14 07:27:23 robbod Exp $
+ * $Id: CmRecord.java,v 1.8 2006/07/14 16:27:58 robbod Exp $
  *
  * STEPmod.java
  *
@@ -152,8 +152,8 @@ public class CmRecord {
         this.partName = stepmodPart.getName();
         this.partType = stepmodPart.getStepmodType();
         this.partNumber = stepmodPart.getPartNumber();
-        this.cvsRevision = "$Revision: $";
-        this.cvsDate = "$Date: $";
+        this.cvsRevision = "$Revision: 1.8 $";
+        this.cvsDate = "$Date: 2006/07/14 16:27:58 $";
     }
     
     /**
@@ -177,7 +177,7 @@ public class CmRecord {
                 saxParser.parse( cmRecordFile, handler);
                 this.setRecordState(this.getCmRecordCvsStatus());
             } else {
-                stepmodPart.getStepMod().output("File does not exist:" + cmRecordFilename);
+                //stepmodPart.getStepMod().output("File does not exist:" + cmRecordFilename);
                 this.setRecordState(CM_RECORD_FILE_NOT_EXIST);
             }
         } catch (Throwable t) {
@@ -362,7 +362,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.7 2006/07/14 07:27:23 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.8 2006/07/14 16:27:58 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");

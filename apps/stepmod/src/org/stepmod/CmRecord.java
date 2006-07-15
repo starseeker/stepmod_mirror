@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.10 2006/07/15 09:07:10 robbod Exp $
+ * $Id: CmRecord.java,v 1.11 2006/07/15 10:25:02 robbod Exp $
  *
  * STEPmod.java
  *
@@ -152,8 +152,8 @@ public class CmRecord {
         this.partName = stepmodPart.getName();
         this.partType = stepmodPart.getStepmodType();
         this.partNumber = stepmodPart.getPartNumber();
-        this.cvsRevision = "$Revision: 1.10 $";
-        this.cvsDate = "$Date: 2006/07/15 09:07:10 $";
+        this.cvsRevision = "$Revision: "+"$";
+        this.cvsDate = "$Date: "+"$";
     }
     
     /**
@@ -362,7 +362,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.10 2006/07/15 09:07:10 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.11 2006/07/15 10:25:02 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");

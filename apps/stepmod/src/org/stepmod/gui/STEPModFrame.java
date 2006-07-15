@@ -1864,7 +1864,7 @@ public class STEPModFrame extends javax.swing.JFrame {
 
         jToolBar1.add(clearSelectedButton);
 
-        viewAllButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/stepmod/resources/action_refresh.gif")));
+        viewAllButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/stepmod/resources/arrow_refresh.png")));
         viewAllButton.setToolTipText("View all the parts");
         viewAllButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1973,7 +1973,7 @@ public class STEPModFrame extends javax.swing.JFrame {
 
         menuBar.add(fileMenu);
 
-        viewMenu.setText("Menu");
+        viewMenu.setText("View");
         clearAllMenuItem.setText("Unselect all");
         clearAllMenuItem.setToolTipText("Unselect allparts currently selected ");
         clearAllMenuItem.addActionListener(new java.awt.event.ActionListener() {

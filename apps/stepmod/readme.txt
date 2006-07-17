@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.2 2006/06/12 16:25:19 robbod Exp $
+$Id: readme.txt,v 1.3 2006/06/14 09:45:25 robbod Exp $
 
 WARNING 
 - THIS IS WORK IN PROGRESS - so no guarantees about anything
@@ -12,15 +12,20 @@ its components.
 
 INSTALLATION
 ============
-Update stepmod/stepmod.properties with your SourceForge details
-Please do not check in this file
-
-
 For Unix:
 Edit runme.sh so that -root points at your local copy of stepmod
 
 For Windows:
 Edit runme.sh so that -root points at your local copy of stepmod
+
+Make sure that you have a copy of CVSNT installed 
+See http://www.cvsnt.org/wiki/FrontPage
+
+Setup your SourceForge name, the path to the CVS executable and SSS link
+using the StepModProperties command (Tools -> Set Stepod propeorties) 
+This will modify the stepmod/stepmod.properties file
+Please do not check in this file.
+
 
 
 RUNNING THE APPLICATION

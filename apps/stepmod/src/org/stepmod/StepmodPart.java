@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.13 2006/07/15 08:08:37 robbod Exp $
+ * $Id: StepmodPart.java,v 1.14 2006/07/15 09:07:10 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -16,12 +16,20 @@
 
 package org.stepmod;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeSet;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.stepmod.cvschk.CvsStatus;
 import org.stepmod.cvschk.StepmodCvs;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -52,6 +60,16 @@ public abstract class StepmodPart {
     private CmRecord cmRecord;
     private STEPmod stepMod;
     private CvsStatus cvsStatusObject;
+    
+    /**
+     * A map of all the parts that this part dependds on.
+     */
+    private TreeSet dependencies;
+    
+    /**
+     * A map of all the parts that use this part
+     */
+    private TreeSet usedBy;
     
     private TrappedErrorMap errors;
     
@@ -93,6 +111,12 @@ public abstract class StepmodPart {
      */
     public abstract void loadXml();
     
+    
+    /**
+     * Deduce which parts this part is dependent on and store the results in
+     * the TreeMap dependencies
+     */
+    public abstract void setupDependencies();
     
     /**
      * Provide an HTML summary of the part
@@ -559,7 +583,7 @@ public abstract class StepmodPart {
         } else if (this instanceof StepmodResourceDoc) {
             type = "resdoc";
         } else if (this instanceof StepmodResource) {
-            type = "res";            
+            type = "res";
         }
         
         /*
@@ -635,7 +659,15 @@ public abstract class StepmodPart {
      * @return true if the revisions of the part checked out is a release published by ISO
      */
     public boolean isCheckedOutPublishedIsoRelease() {
-        return(getCmRecord().getCheckedOutRelease().isPublishedIsoRelease());
+        CmRecord cmRecord =  getCmRecord();
+        CmRelease coRelease = null;
+        if (cmRecord != null) {
+            coRelease = cmRecord.getCheckedOutRelease();
+            if (coRelease != null) {
+                return(coRelease.isPublishedIsoRelease());
+            }
+        }
+        return(false);
     }
     
     /**
@@ -667,5 +699,80 @@ public abstract class StepmodPart {
         return errors;
     }
     
+    /**
+     * Return the tree map that lists all the parts on which this is dependent.
+     */
+    public TreeSet getDependencies() {
+        return dependencies;
+    }
+    
+    /**
+     * Return the tree map that lists all the parts that are used by this part.
+     */
+    public TreeSet getUsedBy() {
+        return usedBy;
+    }
+    
+    public void setDependencies(TreeSet dependencies) {
+        this.dependencies = dependencies;
+    }
+    
+    public void setUsedBy(TreeSet usedBy) {
+        this.usedBy = usedBy;
+    }
+    
+    public ExpressSaxHandler readExpressInterface(String expressFileName) {
+        System.out.println("reading "+expressFileName);
+        ExpressSaxHandler expressSaxHandler = new ExpressSaxHandler(this.getStepMod(),this, expressFileName);
+        // Use the default (non-validating) parser
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        try {
+            // Parse the input
+            SAXParser saxParser = factory.newSAXParser();
+            File expressFile =  new File(expressFileName);
+            saxParser.parse(expressFile, expressSaxHandler);
+        } catch (ParserConfigurationException ex) {
+            TrappedError error = this.getErrors().addError(this,expressFileName,ex);
+            error.output();
+        } catch (SAXException ex) {
+            // a bit of a hack -- only need to read the interfaces o
+            // so  parser throws StepmodReadSAXException once all have been read
+            if (ex instanceof StepmodReadSAXException) {
+                // finished reading the interfaces
+                // for each interface, check that the module already exists,
+                if (expressSaxHandler.foundInterfacedFiles()) {
+                    for (Iterator it=expressSaxHandler.getInterfacedFiles().entrySet().iterator(); it.hasNext(); ) {
+                        Map.Entry entry = (Map.Entry)it.next();
+                        String partName = (String)entry.getKey();
+                        Object partValue = entry.getValue();
+                        StepmodPart part = null;
+                        if (partValue instanceof String) {
+                            String partType = (String) partValue;
+                            System.out.println("Loading " + partName + " " + partType);
+                            if (partType.equals("module")) {
+                                part = new StepmodModule(this.getStepMod(), partName);
+                            }
+                        } else {
+                            part = (StepmodPart) partValue;
+                        }
+                        if (part != null) {
+                            if (part.getDependencies() == null) {
+                                // Not yet loaded the dependencies, so recurse
+                                part.setupDependencies();
+                            }
+                        }
+                    }
+                }
+            } else {
+                // A real error
+                TrappedError error = this.getErrors().addError(this,expressFileName,ex);
+                error.output();
+            }
+        } catch (IOException ex) {
+            TrappedError error = this.getErrors().addError(this,expressFileName,ex);
+            error.output();
+        }
+        return(expressSaxHandler);
+    }
     
 }

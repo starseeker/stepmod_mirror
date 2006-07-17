@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.8 2006/07/14 16:27:58 robbod Exp $
+ * $Id: STEPmod.java,v 1.9 2006/07/15 08:08:37 robbod Exp $
  *
  * STEPmod.java
  *
@@ -188,10 +188,35 @@ public class STEPmod {
      * @return The StepmodModule representing the module named moduleName
      */
     public StepmodModule getModuleByName(String moduleName){
+        moduleName = moduleName.toLowerCase();
         StepmodModule module = (StepmodModule) hasModules.get(moduleName);
         return(module);
     }
     
+    /**
+     * Get the {@link StepmodPart} named partName
+     * @param partName The name of the part
+     * @return The StepmodPart representing the module named partName
+     */
+    public StepmodPart getPartByName(String partName){
+        StepmodPart part = (StepmodPart)getModuleByName(partName);
+        if (part != null) {
+            return (part);
+        }        
+        part = (StepmodPart)getResourceByName(partName);
+        if (part != null) {
+            return (part);
+        }
+        part = (StepmodPart)getApplicationProtocolByName(partName);
+        if (part != null) {
+            return (part);
+        }        
+        part = (StepmodPart)getResourceDocByName(partName);
+        if (part != null) {
+            return (part);
+        }
+        return (part);
+    }
     
     /**
      * Add a module to the module hashtable indexed by the name of the module.
@@ -215,6 +240,7 @@ public class STEPmod {
      * @return The StepmodApplicationProtocol representing the ApplicationProtocol named apName
      */
     public StepmodApplicationProtocol getApplicationProtocolByName(String apName){
+        apName = apName.toLowerCase();
         StepmodApplicationProtocol ap = (StepmodApplicationProtocol) hasApplicationProtocols.get(apName);
         return(ap);
     }
@@ -244,6 +270,7 @@ public class STEPmod {
      * @return The StepmodResource representing the resource named resourceName
      */
     public StepmodResource getResourceByName(String resourceName){
+        resourceName = resourceName.toLowerCase();
         StepmodResource resource = (StepmodResource) hasResources.get(resourceName);
         return(resource);
     }

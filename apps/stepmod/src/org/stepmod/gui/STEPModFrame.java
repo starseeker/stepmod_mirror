@@ -14,10 +14,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.Iterator;
@@ -225,6 +221,27 @@ public class STEPModFrame extends javax.swing.JFrame {
            private StepmodPart getStepmodPart() {
                return part;
            }
+       }
+       
+       
+       private class StepmodPartTreeNodeCollection {
+           private TreeMap hasStepmodPartTreeNodes;
+           private DefaultMutableTreeNode treeNode;
+           
+           public StepmodPartTreeNodeCollection(DefaultMutableTreeNode treeNode) {
+               this.treeNode = treeNode;
+               this.hasStepmodPartTreeNodes = new TreeMap();
+           }
+           
+           public TreeMap getHasStepmodPartTreeNodes() {
+               return hasStepmodPartTreeNodes;
+           }
+           
+           public void setHasStepmodPartTreeNodes(TreeMap hasStepmodPartTreeNodes) {
+               this.hasStepmodPartTreeNodes = hasStepmodPartTreeNodes;
+           }
+           
+           
        }
        
        /**
@@ -464,13 +481,23 @@ public class STEPModFrame extends javax.swing.JFrame {
                // make sure that the icon is as far left as possible
                checkBoxRenderer.setMargin(new Insets(0,-2,0,0));
                CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
+               StepmodPart part = cmReleaseTreeNode.getStepmodPart();
                boolean checkedOutrel = false;
                if (cmRelease == null) {
-                   // The part has no tag therefore must be a development release
-                   checkedOutrel = cmReleaseTreeNode.getStepmodPart().getCvsTag().length() == 0;
-                   checkBoxRenderer.setIcon(developmentIconUnSelected);
-                   checkBoxRenderer.setSelectedIcon(developmentIconSelected);
-                   checkBoxRenderer.setToolTipText("Development revision");
+                   if (cmReleaseTreeNode.getStepmodPart().getCvsState() == CvsStatus.CVSSTATE_NOT_CHECKED_OUT) {
+                       // The module has not been checked out
+                       // TODO - need to check the state correctly
+                       // Need to first see if the part file has been correctly read
+                       checkBoxRenderer.setIcon(devUnSelCvsNoFileIcon);
+                       checkBoxRenderer.setSelectedIcon(devSelCvsNoFileIcon);
+                       checkBoxRenderer.setToolTipText("Not checked out");
+                   } else {
+                       // The part has no tag therefore must be a development release
+                       checkedOutrel = cmReleaseTreeNode.getStepmodPart().getCvsTag().length() == 0;
+                       checkBoxRenderer.setIcon(developmentIconUnSelected);
+                       checkBoxRenderer.setSelectedIcon(developmentIconSelected);
+                       checkBoxRenderer.setToolTipText("Development revision");
+                   }
                } else  {
                    checkedOutrel = cmRelease.isCheckedOutRelease();
                    if (cmRelease.isPublishedIsoRelease()) {
@@ -733,6 +760,48 @@ public class STEPModFrame extends javax.swing.JFrame {
            setVisible(true);
        }
        
+       
+       
+       private DefaultMutableTreeNode addRepositoryTreeNode(StepmodPart part, DefaultMutableTreeNode partTreeRoot, TreeMap partNodeHash) {
+           StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(part, false);
+           DefaultMutableTreeNode partTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
+           
+           partNodeHash.put(part.getName(), partTreeNode);
+           partTreeRoot.add(partTreeNode);
+           DefaultMutableTreeNode attributesTreeNode = new DefaultMutableTreeNode("Attributes");
+           partTreeNode.add(attributesTreeNode);
+           DefaultMutableTreeNode attributeTreeNode;
+           attributeTreeNode = new DefaultMutableTreeNode("Name: " + part.getName());
+           attributesTreeNode.add(attributeTreeNode);
+           attributeTreeNode = new DefaultMutableTreeNode("Number: " + part.getPartNumber());
+           attributesTreeNode.add(attributeTreeNode);
+           
+           DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
+           partTreeNode.add(dependenciesTreeNode);
+           // TODO - need to deduce the depenencies and create a tree.
+           // The dependencies are the modules, resources etc.
+           // Need to write the algorithm that recurses through the ARM, and MIM express
+           
+           DefaultMutableTreeNode filesTreeNode = new DefaultMutableTreeNode("Files");
+           partTreeNode.add(filesTreeNode);
+           // TODO - need to list the files that make up the modules
+           // The arm, mim, sys files etc.
+           // For each file display the CVS revision and date
+           
+           DefaultMutableTreeNode releasesTreeNode = new DefaultMutableTreeNode("Releases");
+           partTreeNode.add(releasesTreeNode);
+           
+           // Add the development revision - a CmReleaseTreeNode with no CMRelease
+           DefaultMutableTreeNode releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(part, "Development revision", false));
+           releasesTreeNode.add(releaseNode);
+           
+           for (Iterator j = part.getCmRecord().getHasCmReleases().iterator(); j.hasNext();) {
+               CmRelease cmRelease = (CmRelease) j.next();
+               addReleaseToTree(part, cmRelease, partTreeNode, false);
+           }
+           return (partTreeNode);
+       }
+       
        /**
         * Initialise the display of the repository tree
         */
@@ -753,41 +822,7 @@ public class STEPModFrame extends javax.swing.JFrame {
            for (Iterator it=getStepMod().getModulesHash().entrySet().iterator(); it.hasNext(); ) {
                Map.Entry entry = (Map.Entry)it.next();
                StepmodModule moduleNode = (StepmodModule)entry.getValue();
-               StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(moduleNode, false);
-               DefaultMutableTreeNode moduleTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
-               hasModulesNodes.put(moduleNode.getName(), moduleTreeNode);
-               modulesTreeNode.add(moduleTreeNode);
-               DefaultMutableTreeNode attributesTreeNode = new DefaultMutableTreeNode("Attributes");
-               moduleTreeNode.add(attributesTreeNode);
-               DefaultMutableTreeNode attributeTreeNode;
-               attributeTreeNode = new DefaultMutableTreeNode("Name: " + moduleNode.getName());
-               attributesTreeNode.add(attributeTreeNode);
-               attributeTreeNode = new DefaultMutableTreeNode("Number: " + moduleNode.getPartNumber());
-               attributesTreeNode.add(attributeTreeNode);
-               
-               DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
-               moduleTreeNode.add(dependenciesTreeNode);
-               // TODO - need to deduce the depenencies and create a tree.
-               // The dependencies are the modules, resources etc.
-               // Need to write the algorithm that recurses through the ARM, and MIM express
-               
-               DefaultMutableTreeNode filesTreeNode = new DefaultMutableTreeNode("Files");
-               moduleTreeNode.add(filesTreeNode);
-               // TODO - need to list the files that make up the modules
-               // The arm, mim, sys files etc.
-               // For each file display the CVS revision and date
-               
-               DefaultMutableTreeNode releasesTreeNode = new DefaultMutableTreeNode("Releases");
-               moduleTreeNode.add(releasesTreeNode);
-               
-               // Add the development revision - a CmReleaseTreeNode with no CMRelease
-               DefaultMutableTreeNode releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(moduleNode, "Development revision", false));
-               releasesTreeNode.add(releaseNode);
-               
-               for (Iterator j = moduleNode.getCmRecord().getHasCmReleases().iterator(); j.hasNext();) {
-                   CmRelease cmRelease = (CmRelease) j.next();
-                   addReleaseToTree(moduleNode, cmRelease, moduleTreeNode, false);
-               }
+               addRepositoryTreeNode(moduleNode, modulesTreeNode, this.getHasModulesNodes());
            }
            
            // Iterate through all the Application protocols creating nodes and adding them to the tree
@@ -796,43 +831,7 @@ public class STEPModFrame extends javax.swing.JFrame {
            for (Iterator it=getStepMod().getApplicationProtocolsHash().entrySet().iterator(); it.hasNext(); ) {
                Map.Entry entry = (Map.Entry)it.next();
                StepmodApplicationProtocol applicationProtocolNode = (StepmodApplicationProtocol)entry.getValue();
-               StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(applicationProtocolNode, false);
-               DefaultMutableTreeNode applicationProtocolTreeNode
-                       = new DefaultMutableTreeNode(stepmodPartTreeNode);
-               hasApplicationProtocolsNodes.put(applicationProtocolNode.getName(), applicationProtocolTreeNode);
-               applicationProtocolsTreeNode.add(applicationProtocolTreeNode);
-               
-               DefaultMutableTreeNode attributesTreeNode = new DefaultMutableTreeNode("Attributes");
-               applicationProtocolTreeNode.add(attributesTreeNode);
-               DefaultMutableTreeNode attributeTreeNode;
-               attributeTreeNode = new DefaultMutableTreeNode("Name: " + applicationProtocolNode.getName());
-               attributesTreeNode.add(attributeTreeNode);
-               attributeTreeNode = new DefaultMutableTreeNode("Number: " + applicationProtocolNode.getPartNumber());
-               attributesTreeNode.add(attributeTreeNode);
-               
-               DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
-               applicationProtocolTreeNode.add(dependenciesTreeNode);
-               // TODO - need to deduce the depenencies and create a tree.
-               // The dependencies are the modules, resources etc.
-               // Need to write the algorithm that recurses through the ARM, and MIM express
-               
-               DefaultMutableTreeNode filesTreeNode = new DefaultMutableTreeNode("Files");
-               applicationProtocolTreeNode.add(filesTreeNode);
-               // TODO - need to list the files that make up the modules
-               // The arm, mim, sys files etc.
-               // For each file display the CVS revision and date
-               
-               DefaultMutableTreeNode releasesTreeNode = new DefaultMutableTreeNode("Releases");
-               applicationProtocolTreeNode.add(releasesTreeNode);
-               
-               // Add the development revision - a CmReleaseTreeNode with no CMRelease
-               DefaultMutableTreeNode releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(applicationProtocolNode, "Development revision", false));
-               releasesTreeNode.add(releaseNode);
-               
-               for (Iterator j = applicationProtocolNode.getCmRecord().getHasCmReleases().iterator(); j.hasNext();) {
-                   CmRelease cmRelease = (CmRelease) j.next();
-                   addReleaseToTree(applicationProtocolNode, cmRelease, applicationProtocolTreeNode, false);
-               }
+               addRepositoryTreeNode(applicationProtocolNode, applicationProtocolsTreeNode, this.getHasApplicationProtocolsNodes());
            }
            
            // Iterate through all the Resource documents creating nodes and adding them to the tree
@@ -841,41 +840,7 @@ public class STEPModFrame extends javax.swing.JFrame {
            for (Iterator it=getStepMod().getResourceDocsHash().entrySet().iterator(); it.hasNext(); ) {
                Map.Entry entry = (Map.Entry)it.next();
                StepmodResourceDoc resourceDocNode = (StepmodResourceDoc)entry.getValue();
-               StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(resourceDocNode, false);
-               DefaultMutableTreeNode resourceDocTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
-               hasResourceDocsNodes.put(resourceDocNode.getName(), resourceDocTreeNode);
-               resourceDocsTreeNode.add(resourceDocTreeNode);
-               DefaultMutableTreeNode attributesTreeNode = new DefaultMutableTreeNode("Attributes");
-               resourceDocTreeNode.add(attributesTreeNode);
-               DefaultMutableTreeNode attributeTreeNode;
-               attributeTreeNode = new DefaultMutableTreeNode("Name: " + resourceDocNode.getName());
-               attributesTreeNode.add(attributeTreeNode);
-               attributeTreeNode = new DefaultMutableTreeNode("Number: " + resourceDocNode.getPartNumber());
-               attributesTreeNode.add(attributeTreeNode);
-               
-               DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
-               resourceDocTreeNode.add(dependenciesTreeNode);
-               // TODO - need to deduce the depenencies and create a tree.
-               // The dependencies are the modules, resources etc.
-               // Need to write the algorithm that recurses through the ARM, and MIM express
-               
-               DefaultMutableTreeNode filesTreeNode = new DefaultMutableTreeNode("Files");
-               resourceDocTreeNode.add(filesTreeNode);
-               // TODO - need to list the files that make up the modules
-               // The arm, mim, sys files etc.
-               // For each file display the CVS revision and date
-               
-               DefaultMutableTreeNode releasesTreeNode = new DefaultMutableTreeNode("Releases");
-               resourceDocTreeNode.add(releasesTreeNode);
-               
-               // Add the development revision - a CmReleaseTreeNode with no CMRelease
-               DefaultMutableTreeNode releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(resourceDocNode, "Development revision", false));
-               releasesTreeNode.add(releaseNode);
-               
-               for (Iterator j = resourceDocNode.getCmRecord().getHasCmReleases().iterator(); j.hasNext();) {
-                   CmRelease cmRelease = (CmRelease) j.next();
-                   addReleaseToTree(resourceDocNode, cmRelease, resourceDocTreeNode, false);
-               }
+               addRepositoryTreeNode(resourceDocNode, resourceDocsTreeNode, this.getHasResourceDocsNodes());
            }
            
            // Iterate through all the Resource schemas creating nodes and adding them to the tree
@@ -927,6 +892,19 @@ public class STEPModFrame extends javax.swing.JFrame {
                        String summary = cmRecord.summaryHtml(cmRelease);
                        repositoryTextPane.setText(summary);
                        setCurrentDisplayedObject(nodeObject);
+                   } else if (nodeObject instanceof String) {
+                       String nodeString = nodeObject.toString();
+                       if (nodeString.equals("Dependencies")) {
+                           System.out.println("no"+nodeObject);
+                           DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
+                           StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) parentNode.getUserObject();
+                           StepmodModule part = (StepmodModule)stepmodPartNode.getStepmodPart();
+                           // get all the dependent parts
+                           part.setupDependencies();
+                           // draw the dependency tree
+                           //initDependenciesTree(part, node);
+                           addRepositoryTreeNode(part, node, part.getStepMod().getStepModGui().getHasModulesNodes());
+                       }
                    }
                }
            });
@@ -1235,30 +1213,37 @@ public class STEPModFrame extends javax.swing.JFrame {
        }
        
        
-       private void viewAllPartsHash(TreeMap treeMap, DefaultMutableTreeNode subTreeNode) {
+       
+       private void viewAllPartsHash(TreeMap partsHash, TreeMap treeNodesHash, DefaultMutableTreeNode subTreeNode) {
            DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
            DefaultMutableTreeNode root = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
            this.updateNode(root);
-           for (Iterator it=treeMap.entrySet().iterator(); it.hasNext(); ) {
+           for (Iterator it=partsHash.entrySet().iterator(); it.hasNext(); ) {
                Map.Entry entry = (Map.Entry)it.next();
-               DefaultMutableTreeNode moduleNode = (DefaultMutableTreeNode)entry.getValue();
-               StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) moduleNode.getUserObject();
-               if (moduleNode.getParent() != null) {
+               String stepmodPartName = (String)entry.getKey();
+               DefaultMutableTreeNode partNode = (DefaultMutableTreeNode)treeNodesHash.get(stepmodPartName);
+               if (partNode == null) {
+                   StepmodPart part = this.getStepMod().getPartByName(stepmodPartName);
+                   partNode = addRepositoryTreeNode(part, subTreeNode, treeNodesHash);
+               } else if (partNode.getParent() != null) {
                    // remove the parent then add the node back to ensure that the order is the same as before
-                   treeModel.removeNodeFromParent(moduleNode);
+                   treeModel.removeNodeFromParent(partNode);
                }
-               subTreeNode.add(moduleNode);
+               subTreeNode.add(partNode);
            }
            treeModel.nodeStructureChanged(subTreeNode);
            this.updateNode(subTreeNode);
        }
        
+       
+       
        private void viewAllParts() {
-           viewAllPartsHash(hasModulesNodes, modulesTreeNode);
-           viewAllPartsHash(hasApplicationProtocolsNodes, applicationProtocolsTreeNode);
-           viewAllPartsHash(hasResourceDocsNodes, resourceDocsTreeNode);
-           viewAllPartsHash(hasResourcesNodes, resourceSchemasTreeNode);
+           viewAllPartsHash(stepMod.getModulesHash(), hasModulesNodes, modulesTreeNode);
+           viewAllPartsHash(stepMod.getApplicationProtocolsHash(), hasApplicationProtocolsNodes, applicationProtocolsTreeNode);
+           viewAllPartsHash(stepMod.getResourceDocsHash(), hasResourceDocsNodes, resourceDocsTreeNode);
+           viewAllPartsHash(stepMod.getResourcesHash(), hasResourcesNodes, resourceSchemasTreeNode);
        }
+       
        
        private void viewSelectedPartsHash(TreeMap treeMap, DefaultMutableTreeNode subTreeNode) {
            DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
@@ -2098,11 +2083,11 @@ public class STEPModFrame extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void vewAllMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vewAllMenuItemActionPerformed
         viewAllParts();
     }//GEN-LAST:event_vewAllMenuItemActionPerformed
-
+    
     private void viewSelectedMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedMenuItemActionPerformed
         viewSelectedParts();
     }//GEN-LAST:event_viewSelectedMenuItemActionPerformed

@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResourceDoc.java,v 1.4 2006/07/13 09:02:12 robbod Exp $
+ * $Id: StepmodResourceDoc.java,v 1.5 2006/07/15 08:08:37 robbod Exp $
  *
  * StepmodResourceDoc.java
  *
@@ -66,8 +66,13 @@ public class StepmodResourceDoc extends StepmodPart {
             TrappedError error = this.getErrors().addError(this,resDocFilename,ex);
             error.output();
         } catch (SAXException ex) {
-            TrappedError error = this.getErrors().addError(this,resDocFilename,ex);
-            error.output();
+            // a bit of a hack -- only need to read the attributes on first element,
+            // so  parser throws StepmodReadSAXException once all have been read
+            if ( !(ex instanceof StepmodReadSAXException)) {
+                // A real error
+                TrappedError error = this.getErrors().addError(this,resDocFilename,ex);
+                error.output();
+            }
         } catch (IOException ex) {
             TrappedError error = this.getErrors().addError(this,resDocFilename,ex);
             error.output();
@@ -120,6 +125,9 @@ public class StepmodResourceDoc extends StepmodPart {
                     resourceDoc.setPublished(false);
                 }
                 resourceDoc.setLanguage(attrs.getValue("language"));
+                // a bit of a hack -- only need to read the attributes so
+                // thows StepmodReadSAXException out of the parser once all have been read
+                throw (new StepmodReadSAXException());
             }
         }
     }
@@ -163,4 +171,12 @@ public class StepmodResourceDoc extends StepmodPart {
     public void setWgNumberExpressSupersedes(String WgNumberExpressSupersedes) {
         this.WgNumberExpressSupersedes = WgNumberExpressSupersedes;
     }
+    
+    /**
+     * Deduce which parts this part is dependent on and store the results in
+     * the TreeMap dependencies
+     */
+    public void setupDependencies() {
+    }
+    
 }

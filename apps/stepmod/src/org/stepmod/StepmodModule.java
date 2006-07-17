@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.9 2006/07/14 16:27:58 robbod Exp $
+ * $Id: StepmodModule.java,v 1.10 2006/07/15 08:08:37 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -15,8 +15,11 @@
  */
 
 package org.stepmod;
+import java.util.Iterator;
+import java.util.TreeSet;
 import javax.xml.parsers.SAXParser;
 import java.io.*;
+import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import org.stepmod.cvschk.CvsStatus;
@@ -75,13 +78,19 @@ public class StepmodModule extends StepmodPart {
             TrappedError error = this.getErrors().addError(this,moduleFilename,ex);
             error.output();
         } catch (SAXException ex) {
-            TrappedError error = this.getErrors().addError(this,moduleFilename,ex);
-            error.output();
+            // a bit of a hack -- only need to read the attributes on first element,
+            // so  parser throws StepmodReadSAXException once all have been read
+            if ( !(ex instanceof StepmodReadSAXException)) {
+                // A real error
+                TrappedError error = this.getErrors().addError(this,moduleFilename,ex);
+                error.output();
+            }
         } catch (IOException ex) {
             TrappedError error = this.getErrors().addError(this,moduleFilename,ex);
             error.output();
         }
     }
+    
     
     /**
      * Instantiate a SAX handler to read in module.xml
@@ -135,6 +144,9 @@ public class StepmodModule extends StepmodPart {
                     module.setPublished(false);
                 }
                 module.setLanguage(attrs.getValue("language"));
+                // a bit of a hack -- only need to read the attributes so
+                // thows StepmodReadSAXException out of the parser once all have been read
+                throw (new StepmodReadSAXException());
             }
         }
     }
@@ -245,6 +257,22 @@ public class StepmodModule extends StepmodPart {
         return(dir);
     }
     
+    /**
+     * Deduce which parts this part is dependent on and store the results in
+     * the TreeMap dependencies
+     */
+    public void setupDependencies() {
+        if (getDependencies() != null) {
+            // Already read the dependencies, so do not need to again
+        } else {
+            this.setDependencies(new TreeSet());
+            this.setUsedBy(new TreeSet());
+            
+            // read the arm.xml
+            String armFilename = this.getDirectory() + "/arm.xml";
+            readExpressInterface(armFilename);
+        }
+    }
     
     
 }

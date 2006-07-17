@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodApplicationProtocol.java,v 1.4 2006/07/13 09:02:11 robbod Exp $
+ * $Id: StepmodApplicationProtocol.java,v 1.5 2006/07/15 08:08:37 robbod Exp $
  *
  * StepmodApplicationProtocol.java
  *
@@ -24,7 +24,6 @@ import javax.xml.parsers.SAXParserFactory;
 import org.stepmod.cvschk.CvsStatus;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -62,8 +61,13 @@ public class StepmodApplicationProtocol extends StepmodPart {
             TrappedError error = this.getErrors().addError(this,apDocFilename,ex);
             error.output();
         } catch (SAXException ex) {
-            TrappedError error = this.getErrors().addError(this,apDocFilename,ex);
-            error.output();
+            // a bit of a hack -- only need to read the attributes on first element,
+            // so  parser throws StepmodReadSAXException once all have been read
+            if ( !(ex instanceof StepmodReadSAXException)) {
+                // A real error
+                TrappedError error = this.getErrors().addError(this,apDocFilename,ex);
+                error.output();
+            }
         } catch (IOException ex) {
             TrappedError error = this.getErrors().addError(this,apDocFilename,ex);
             error.output();
@@ -119,6 +123,9 @@ public class StepmodApplicationProtocol extends StepmodPart {
                     apDoc.setPublished(false);
                 }
                 apDoc.setLanguage(attrs.getValue("language"));
+                // a bit of a hack -- only need to read the attributes so
+                // thows StepmodReadSAXException out of the parser once all have been read
+                throw (new StepmodReadSAXException());
             }
         }
     }
@@ -134,6 +141,14 @@ public class StepmodApplicationProtocol extends StepmodPart {
     public String getDirectory() {
         String dir = this.getStepMod().getRootDirectory()+"/data/application_protocols/" + this.getName();
         return(dir);
+    }
+    
+    /**
+     * Deduce which parts this part is dependent on and store the results in
+     * the TreeMap dependencies
+     */
+    public void setupDependencies() {
+        
     }
     
 }

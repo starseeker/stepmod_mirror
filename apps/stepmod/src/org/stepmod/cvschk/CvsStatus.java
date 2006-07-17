@@ -1,5 +1,5 @@
 /**
- * $Id: CvsStatus.java,v 1.2 2006/07/12 10:46:38 robbod Exp $
+ * $Id: CvsStatus.java,v 1.3 2006/07/13 09:02:12 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -55,7 +55,7 @@ public class CvsStatus {
      * It is not known what CVS state STEPmod part is in
      * Need to query the Root file to find out
      */
-     public static final int CVSSTATE_UNKNOWN= 0;
+    public static final int CVSSTATE_UNKNOWN= 0;
     
     /**
      * The latest revision of the STEPmod part has been checked out
@@ -66,6 +66,12 @@ public class CvsStatus {
      * A release of the STEPmod part has been checked out
      */
     public static final int CVSSTATE_RELEASE = 2;
+    
+        
+    /**
+     * The STEPmod part has not been checked out
+     */
+    public static final int CVSSTATE_NOT_CHECKED_OUT = 3;
     
     
     /** Creates a new instance of CvsStatus */
@@ -79,7 +85,7 @@ public class CvsStatus {
     /**
      * Sets up the CVS status by reading from the Entries file in the CVS directory
      * Sets the cvsState and cvTag
-     * @return returns 0 if the CVS information was successuly reads. 
+     * @return returns 0 if the CVS information was successuly reads.
      * returns -1 if not.
      */
     public int updateCvsStatus() {
@@ -96,10 +102,10 @@ public class CvsStatus {
                     // If the entry ends with / then it is the development version
                     // otherwise it will end with the CVS tag
                     if (str.endsWith("/")) {
-                        this.cvsState = this.CVSSTATE_DEVELOPMENT;
+                        this.cvsState = CvsStatus.CVSSTATE_DEVELOPMENT;
                         this.cvsTag = "";
                     } else {
-                        this.cvsState = this.CVSSTATE_RELEASE;
+                        this.cvsState = CvsStatus.CVSSTATE_RELEASE;
                         String tag = str.substring(str.lastIndexOf("/")+2);
                         this.setCvsTag(tag);
                     }
@@ -107,6 +113,9 @@ public class CvsStatus {
             }
             in.close();
         } catch (IOException e) {
+            // cannot read the file so set the CVS status
+            this.cvsState = CvsStatus.CVSSTATE_NOT_CHECKED_OUT;
+            this.cvsTag = "";
             retVal = -1;
         }
         return(retVal);

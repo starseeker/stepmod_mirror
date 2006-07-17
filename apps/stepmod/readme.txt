@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.3 2006/06/14 09:45:25 robbod Exp $
+$Id: readme.txt,v 1.4 2006/07/17 06:18:08 robbod Exp $
 
 WARNING 
 - THIS IS WORK IN PROGRESS - so no guarantees about anything
@@ -36,3 +36,9 @@ Execute runme.sh
 To run the program from DOS:
 Execute runme.bat
 
+TEST CVS CONNECTION
+===================
+Once the application is installed and you have set up your STEPmod
+properties (the SourceForge user name etc), you can test the SSH connection
+and CVS access to SourceForge by running Tools -> Test CVS connection
+This simply runs a cvs status on stepmod/repository_index.xml

@@ -26,7 +26,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
-import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -43,6 +42,7 @@ import org.stepmod.CmRecord;
 import org.stepmod.CmRelease;
 import org.stepmod.STEPmod;
 import org.stepmod.StepmodApplicationProtocol;
+import org.stepmod.StepmodFile;
 import org.stepmod.StepmodModule;
 import org.stepmod.StepmodPart;
 import org.stepmod.StepmodResource;
@@ -657,7 +657,21 @@ public class STEPModFrame extends javax.swing.JFrame {
                     StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
                     setupIconsForStepmodPart(tree,sel,stepmodPartTreeNode);
                     return(checkBoxRenderer);
-                } else {
+                } else if (userNode instanceof StepmodPartTreeNodeCollection) {
+                    setIcon(null);
+                    String text = userNode.toString();
+                    if (text.equals("Dependencies")) {
+                        setToolTipText("Dependencies for the part");
+                    }
+                } else if (userNode instanceof String) {
+                    setIcon(null);
+                    String text = userNode.toString();
+                    if (text.equals("Dependencies")) {
+                        setForeground(Color.GRAY);
+                    } else {
+                        setForeground(Color.BLACK);
+                    }
+                }  else {
                     setIcon(null);
                     setToolTipText("??");
                 }
@@ -801,25 +815,25 @@ public class STEPModFrame extends javax.swing.JFrame {
         partTreeRoot.add(partTreeNode);
         
         DefaultMutableTreeNode attributesTreeNode = new DefaultMutableTreeNode("Attributes");
-        //partTreeNode.add(attributesTreeNode);
         treeModel.insertNodeInto(attributesTreeNode, partTreeNode, partTreeNode.getChildCount());
         
         DefaultMutableTreeNode attributeTreeNode;
         attributeTreeNode = new DefaultMutableTreeNode("Name: " + part.getName());
-        //attributesTreeNode.add(attributeTreeNode);
         treeModel.insertNodeInto(attributeTreeNode, attributesTreeNode, attributesTreeNode.getChildCount());
         
         
         attributeTreeNode = new DefaultMutableTreeNode("Number: " + part.getPartNumber());
-        //attributesTreeNode.add(attributeTreeNode);        
         treeModel.insertNodeInto(attributeTreeNode, attributesTreeNode, attributesTreeNode.getChildCount());
         
         DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
-        // Note that the dependencies are
+        // Note that the dependencies are added on demand by a user
+        // See updateDependencies()
         //partTreeNode.add(dependenciesTreeNode);
         treeModel.insertNodeInto(dependenciesTreeNode, partTreeNode, partTreeNode.getChildCount());
         DefaultMutableTreeNode filesTreeNode = new DefaultMutableTreeNode("Files");
-        partTreeNode.add(filesTreeNode);
+        //partTreeNode.add(filesTreeNode);
+        treeModel.insertNodeInto(filesTreeNode, partTreeNode, partTreeNode.getChildCount());
+        this.updateFiles(filesTreeNode);
         // TODO - need to list the files that make up the modules
         // The arm, mim, sys files etc.
         // For each file display the CVS revision and date
@@ -829,7 +843,6 @@ public class STEPModFrame extends javax.swing.JFrame {
         
         // Add the development revision - a CmReleaseTreeNode with no CMRelease
         DefaultMutableTreeNode releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(part, "Development revision", false));
-        //releasesTreeNode.add(releaseNode);        
         treeModel.insertNodeInto(releaseNode, releasesTreeNode, releasesTreeNode.getChildCount());
         
         for (Iterator j = part.getCmRecord().getHasCmReleases().iterator(); j.hasNext();) {
@@ -839,8 +852,79 @@ public class STEPModFrame extends javax.swing.JFrame {
         return (partTreeNode);
     }
     
+    private void updateFiles(DefaultMutableTreeNode filesTreeNode) {
+        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) filesTreeNode.getParent();
+        StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) parentNode.getUserObject();
+        StepmodPart stepmodPart = (StepmodPart)stepmodPartNode.getStepmodPart();
+        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
+        
+        for (Iterator it=stepmodPart.getHasFiles().entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry entry = (Map.Entry)it.next();
+            StepmodFile file = (StepmodFile)entry.getValue();
+            DefaultMutableTreeNode fileTreeNode = new DefaultMutableTreeNode();
+            fileTreeNode.setUserObject(file);
+            treeModel.insertNodeInto(fileTreeNode, filesTreeNode, filesTreeNode.getChildCount());
+        }
+    }
+    
     
     private void updateDependencies(DefaultMutableTreeNode dependencyNode) {
+        StepmodPartTreeNodeCollection dependenciesTreeNodeCollection
+                = new StepmodPartTreeNodeCollection("Dependencies", dependencyNode);
+        dependencyNode.setUserObject(dependenciesTreeNodeCollection);
+        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) dependencyNode.getParent();
+        StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) parentNode.getUserObject();
+        StepmodPartTreeNodeCollection partsCollection = null;
+        boolean treeChanged = false;
+        StepmodPart stepmodPart = (StepmodPart)stepmodPartNode.getStepmodPart();
+        // get all the dependent parts
+        // TODO - set up monitor
+        // ProgressMonitorWindow monitor = new ProgressMonitorWindow(part.getStepMod().getStepModGui(), true);
+        // monitor.setVisible(true);
+        stepmodPart.setupDependencies();
+        // draw the dependency tree
+        for (Iterator it = stepmodPart.getDependencies().iterator(); it.hasNext();) {
+            String dependentPartName = (String)it.next();
+            StepmodPart dependentPart = stepmodPart.getStepMod().getPartByName(dependentPartName);
+            this.addRepositoryTreeNode(dependentPart, dependencyNode, dependenciesTreeNodeCollection);
+            // make sure that the node is displayed in the top listing
+            // Some parts may be loaded as not the complete repository index was loaded
+            if (dependentPart instanceof StepmodModule) {
+                partsCollection = this.getModulesTreeNodeCollection();
+            } else if (dependentPart instanceof StepmodApplicationProtocol) {
+                partsCollection = this.getApTreeNodeCollection();
+            } else if (dependentPart instanceof StepmodResourceDoc) {
+                partsCollection = this.getResourceDocsTreeNodeCollection();
+            } else if (dependentPart instanceof StepmodResource) {
+                partsCollection = this.getSchemasTreeNodeCollection();
+            }
+            DefaultMutableTreeNode partsCollectionNode = partsCollection.getTreeNode();
+            
+            DefaultMutableTreeNode partNode = partsCollection.getNodeForPart(dependentPart);
+            if (partNode == null) {
+                this.addRepositoryTreeNode(dependentPart, partsCollectionNode, partsCollection);
+                treeChanged = true;
+            }
+        }
+        DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode("STEPMod");
+        // Use the tree model to make sure that the added nodes are displayed
+        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
+        // Comented out the code to redraw the tree as it will close all the nodes.
+        // leave it t the user to redraw
+        if (treeChanged) {
+            treeModel.nodeStructureChanged(this.modulesTreeNode);
+            treeModel.nodeStructureChanged(this.resourceSchemasTreeNode);
+            TreePath path = new TreePath(dependencyNode.getPath());
+            repositoryJTree.expandPath(path);
+            repositoryJTree.scrollPathToVisible(path);
+            repositoryJTree.setSelectionPath(path);
+        }
+        //this.updateNode(modulesNode);
+    }
+    
+    
+    
+    private void updateDependenciesxxx(DefaultMutableTreeNode dependencyNode) {
         StepmodPartTreeNodeCollection dependenciesTreeNodeCollection
                 = new StepmodPartTreeNodeCollection("Dependencies", dependencyNode);
         dependencyNode.setUserObject(dependenciesTreeNodeCollection);
@@ -936,17 +1020,11 @@ public class STEPModFrame extends javax.swing.JFrame {
         schemasTreeNodeCollection = new StepmodPartTreeNodeCollection("Resource schemas", resourceSchemasTreeNode);
         resourceSchemasTreeNode.setUserObject(schemasTreeNodeCollection);
         
-        // TODO
-        //hasResourcesNodes = new TreeMap();
         for (Iterator it=getStepMod().getResourcesHash().entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             StepmodResource resourceNode = (StepmodResource)entry.getValue();
             StepmodPartTreeNode stepmodPartTreeNode = new StepmodPartTreeNode(resourceNode, false);
             addRepositoryTreeNode(resourceNode, resourceSchemasTreeNode, schemasTreeNodeCollection);
-            
-            //DefaultMutableTreeNode resourceTreeNode = new DefaultMutableTreeNode(stepmodPartTreeNode);
-            //hasResourcesNodes.put(resourceNode.getName(), resourceTreeNode);
-            //resourceSchemasTreeNode.add(resourceTreeNode);
         }
         
         DefaultMutableTreeNode frameworkTreeNode = new DefaultMutableTreeNode("STEPmod Framework");
@@ -1374,7 +1452,9 @@ public class STEPModFrame extends javax.swing.JFrame {
                 StepmodPartTreeNodeCollection partCollection = (StepmodPartTreeNodeCollection) usrObj;
                 viewPartsInCollection(treeModel, n, partCollection);
             }
-        }}
+        }
+        viewSelectedToggleButton.setSelected(false);
+    }
     
     
     
@@ -1932,7 +2012,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         jToolBar1 = new javax.swing.JToolBar();
         clearSelectedButton = new javax.swing.JButton();
         viewAllButton = new javax.swing.JButton();
-        viewSelectedButton = new javax.swing.JButton();
+        viewSelectedToggleButton = new javax.swing.JToggleButton();
         jLabel1 = new javax.swing.JLabel();
         findPartjTextField = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
@@ -2005,15 +2085,14 @@ public class STEPModFrame extends javax.swing.JFrame {
 
         jToolBar1.add(viewAllButton);
 
-        viewSelectedButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/stepmod/resources/box_selected.png")));
-        viewSelectedButton.setToolTipText("View all selected parts");
-        viewSelectedButton.addActionListener(new java.awt.event.ActionListener() {
+        viewSelectedToggleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/stepmod/resources/box_selected.png")));
+        viewSelectedToggleButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                viewSelectedButtonActionPerformed(evt);
+                viewSelectedToggleButtonActionPerformed(evt);
             }
         });
 
-        jToolBar1.add(viewSelectedButton);
+        jToolBar1.add(viewSelectedToggleButton);
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Part number: ");
@@ -2230,6 +2309,14 @@ public class STEPModFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
+    private void viewSelectedToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedToggleButtonActionPerformed
+        if (viewSelectedToggleButton.isSelected()) {
+            viewSelectedParts();
+        } else {
+            viewAllParts();
+        }
+    }//GEN-LAST:event_viewSelectedToggleButtonActionPerformed
+    
     private void vewAllMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vewAllMenuItemActionPerformed
         viewAllParts();
     }//GEN-LAST:event_vewAllMenuItemActionPerformed
@@ -2245,10 +2332,6 @@ public class STEPModFrame extends javax.swing.JFrame {
     private void clearSelectedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearSelectedButtonActionPerformed
         clearAllSelectedParts();
     }//GEN-LAST:event_clearSelectedButtonActionPerformed
-    
-    private void viewSelectedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedButtonActionPerformed
-        viewSelectedParts();
-    }//GEN-LAST:event_viewSelectedButtonActionPerformed
     
     private void reloadRepositoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadRepositoryMenuItemActionPerformed
         int answer = JOptionPane.showConfirmDialog(this,
@@ -2368,8 +2451,8 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem vewAllMenuItem;
     private javax.swing.JButton viewAllButton;
     private javax.swing.JMenu viewMenu;
-    private javax.swing.JButton viewSelectedButton;
     private javax.swing.JMenuItem viewSelectedMenuItem;
+    private javax.swing.JToggleButton viewSelectedToggleButton;
     // End of variables declaration//GEN-END:variables
     
     

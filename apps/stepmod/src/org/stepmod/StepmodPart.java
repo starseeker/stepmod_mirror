@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.15 2006/07/17 13:19:32 robbod Exp $
+ * $Id: StepmodPart.java,v 1.16 2006/07/18 12:43:58 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -16,13 +16,16 @@
 
 package org.stepmod;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -62,7 +65,7 @@ public abstract class StepmodPart {
     private CvsStatus cvsStatusObject;
     
     /**
-     * A map of all the parts that this part dependds on.
+     * A map of all the parts that this part depends on.
      */
     private TreeSet dependencies = null;
     
@@ -70,6 +73,11 @@ public abstract class StepmodPart {
      * A map of all the parts that use this part
      */
     private TreeSet usedBy;
+    
+    /**
+     * A map of all the files that this part depends on.
+     */
+    private TreeMap hasFiles = null;
     
     private TrappedErrorMap errors = null;
     
@@ -80,6 +88,7 @@ public abstract class StepmodPart {
         setName(partName);
         setStepMod(stepMod);
         setStepmodType();
+        setupFiles();
         errors = new TrappedErrorMap(this);
     }
     
@@ -117,6 +126,48 @@ public abstract class StepmodPart {
      * the TreeMap dependencies
      */
     public abstract void setupDependencies();
+    
+    public void setupFiles() {
+        hasFiles = new TreeMap();
+        setupFiles("");
+    }
+    
+    private void setupFiles(String subDirectory) {
+        String cvsEntriesFile;
+        if (subDirectory.length() == 0) {
+            cvsEntriesFile = this.getDirectory() + "/CVS/Entries";
+        } else {
+            cvsEntriesFile = this.getDirectory() + "/" + subDirectory + "/CVS/Entries";
+        }
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(cvsEntriesFile));
+            String str;
+            while ((str = in.readLine()) != null) {
+                String[] fields = str.split("/");
+                if (fields.length > 1) {
+                    if (fields[0].equals("D")) {
+                        // found a directory
+                        String subDir = fields[1];
+                        if (subDirectory.length() == 0) {
+                            setupFiles(subDir);
+                        } else {
+                            setupFiles(subDirectory+"/"+subDir);
+                        }
+                    } else {
+                        String name = fields[1];
+                        String cvsRelease = fields[2];
+                        String cvsDate = fields[3];
+                        StepmodFile file = new StepmodFile(name, subDirectory, this, cvsRelease, cvsDate);
+                        //this.hasFiles.put(file.toString(),file);
+                        this.hasFiles.put(file.toString(),file);
+                    }
+                }
+            }
+            in.close();
+        } catch (IOException e) {
+            // no file
+        }
+    }
     
     /**
      * Provide an HTML summary of the part
@@ -803,6 +854,10 @@ public abstract class StepmodPart {
             error.output();
         }
         return(expressSaxHandler);
+    }
+    
+    public TreeMap getHasFiles() {
+        return hasFiles;
     }
     
 }

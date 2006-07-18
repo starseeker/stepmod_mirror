@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodApplicationProtocol.java,v 1.5 2006/07/15 08:08:37 robbod Exp $
+ * $Id: StepmodApplicationProtocol.java,v 1.6 2006/07/17 13:19:31 robbod Exp $
  *
  * StepmodApplicationProtocol.java
  *
@@ -18,6 +18,7 @@ package org.stepmod;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.TreeSet;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -31,6 +32,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author rbn
  */
 public class StepmodApplicationProtocol extends StepmodPart {
+    
+    private String moduleName;
     
     /** Creates a new instance of StepmodApplicationProtocol */
     public StepmodApplicationProtocol(STEPmod stepMod, String partName) {
@@ -104,7 +107,8 @@ public class StepmodApplicationProtocol extends StepmodPart {
                 String qName, // qualified name
                 Attributes attrs) throws SAXException {
             currentElement = qName;
-            if (currentElement.equals("application_protocol")) {
+            if (currentElement.equals("application_protocol")) {                
+                apDoc.setModuleName(attrs.getValue("module_name"));
                 apDoc.setNameFrench(attrs.getValue("name.french"));
                 apDoc.setPartNumber(attrs.getValue("part"));
                 apDoc.setVersion(attrs.getValue("version"));
@@ -147,8 +151,30 @@ public class StepmodApplicationProtocol extends StepmodPart {
      * Deduce which parts this part is dependent on and store the results in
      * the TreeMap dependencies
      */
-    public void setupDependencies() {
-        
+    public void setupDependencies() {        
+        if (this.getDependencies() == null) {
+            this.setDependencies(new TreeSet());
+            this.setUsedBy(new TreeSet());
+            
+            // get the AP modules and all its dependencies
+            
+            StepmodModule apMod = this.getStepMod().getModuleByName(this.getModuleName());
+            if (apMod == null) {
+                // Load it
+                apMod = new StepmodModule(this.getStepMod(), this.getModuleName());
+            }
+            apMod.setupDependencies();
+            this.addDependency(apMod);
+            this.addDependencies(apMod.getDependencies());
+        }
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
     
 }

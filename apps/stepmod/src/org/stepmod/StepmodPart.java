@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.14 2006/07/15 09:07:10 robbod Exp $
+ * $Id: StepmodPart.java,v 1.15 2006/07/17 13:19:32 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -64,14 +64,14 @@ public abstract class StepmodPart {
     /**
      * A map of all the parts that this part dependds on.
      */
-    private TreeSet dependencies;
+    private TreeSet dependencies = null;
     
     /**
      * A map of all the parts that use this part
      */
     private TreeSet usedBy;
     
-    private TrappedErrorMap errors;
+    private TrappedErrorMap errors = null;
     
     /**
      * Creates a new instance of StepmodPart
@@ -703,7 +703,7 @@ public abstract class StepmodPart {
      * Return the tree map that lists all the parts on which this is dependent.
      */
     public TreeSet getDependencies() {
-        return dependencies;
+        return this.dependencies;
     }
     
     /**
@@ -721,8 +721,27 @@ public abstract class StepmodPart {
         this.usedBy = usedBy;
     }
     
+    public void addUsedBy(StepmodPart part) {
+        this.usedBy.add(part.getName());
+    }
+    
+    public void addDependency(StepmodPart part) {
+        this.dependencies.add(part.getName());
+        part.addUsedBy(this);
+    }
+    
+    public boolean isDependency(StepmodPart part) {
+        return(this.dependencies.contains(part.getName()));
+    }
+    
+    public void addDependencies(TreeSet dependencySet) {
+        this.getDependencies().addAll(dependencySet);
+    }
+    
+    
+    
+    
     public ExpressSaxHandler readExpressInterface(String expressFileName) {
-        System.out.println("reading "+expressFileName);
         ExpressSaxHandler expressSaxHandler = new ExpressSaxHandler(this.getStepMod(),this, expressFileName);
         // Use the default (non-validating) parser
         SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -748,9 +767,14 @@ public abstract class StepmodPart {
                         StepmodPart part = null;
                         if (partValue instanceof String) {
                             String partType = (String) partValue;
-                            System.out.println("Loading " + partName + " " + partType);
                             if (partType.equals("module")) {
-                                part = new StepmodModule(this.getStepMod(), partName);
+                                // make sure that the part has not been loaded elsewhere.
+                                part = this.stepMod.getModuleByName(partName);
+                                if (part == null) {
+                                    part = new StepmodModule(this.getStepMod(), partName);
+                                }
+                            } else if (partType.equals("resource")) {
+                                part = new StepmodResource(this.getStepMod(), partName);
                             }
                         } else {
                             part = (StepmodPart) partValue;
@@ -759,6 +783,12 @@ public abstract class StepmodPart {
                             if (part.getDependencies() == null) {
                                 // Not yet loaded the dependencies, so recurse
                                 part.setupDependencies();
+                            }
+                            if (!this.isDependency(part)) {
+                                // add the part
+                                this.addDependency(part);
+                                // a new dependency, so add all its dependencies
+                                this.addDependencies(part.getDependencies());
                             }
                         }
                     }

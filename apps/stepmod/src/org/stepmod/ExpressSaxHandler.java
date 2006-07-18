@@ -1,5 +1,5 @@
 /**
- * $Id: AbstractModuleAction.java,v 1.3 2004/11/08 12:07:44 Patrick Exp $
+ * $Id: ExpressSaxHandler.java,v 1.1 2006/07/17 13:20:23 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -48,7 +48,11 @@ public class ExpressSaxHandler extends DefaultHandler {
             String qName, // qualified name
             Attributes attrs) throws SAXException {
         currentElement = qName;
-        if (currentElement.equals("interface")) {
+        if (currentElement.equals("express")
+        || currentElement.equals("application")
+        || currentElement.equals("schema")) {
+            // ignore the first part of the file
+        }  else if (currentElement.equals("interface")) {
             hasInterfacedFiles = true;
             String schema = attrs.getValue("schema");
             StepmodPart part = null;
@@ -61,10 +65,28 @@ public class ExpressSaxHandler extends DefaultHandler {
                 } else {
                     interfacedFiles.put(moduleName, part);
                 }
+            } else if (schema.endsWith("_mim")) {
+                String moduleName = schema.substring(0,schema.lastIndexOf("_mim")).toLowerCase();
+                part = this.stepMod.getModuleByName(moduleName);
+                if (part == null) {
+                    // Part not loaded so add module so force it to be loaded
+                    interfacedFiles.put(moduleName, "module");
+                } else {
+                    interfacedFiles.put(moduleName, part);
+                }
+            } else {
+                part = this.stepMod.getResourceByName(schema);
+                if (part == null) {
+                    // Part not loaded so add module so force it to be loaded
+                    interfacedFiles.put(schema, "resource");
+                } else {
+                    interfacedFiles.put(schema, part);
+                }
             }
-        } else if ( currentElement.equals("type") || currentElement.equals("entity")) {
-            // a bit of a hack -- only need to read the interfaces so
-            // thows StepmodReadSAXException out of the parser once all have been read
+        } else {
+            // only interested in interface elements
+            // throw back to the caller who should trap StepmodReadSAXException
+            // and process results
             throw (new StepmodReadSAXException());
         }
     }

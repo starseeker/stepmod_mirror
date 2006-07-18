@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.10 2006/07/15 08:08:37 robbod Exp $
+ * $Id: StepmodModule.java,v 1.11 2006/07/17 13:19:31 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -257,20 +257,23 @@ public class StepmodModule extends StepmodPart {
         return(dir);
     }
     
+    
     /**
      * Deduce which parts this part is dependent on and store the results in
      * the TreeMap dependencies
      */
     public void setupDependencies() {
-        if (getDependencies() != null) {
-            // Already read the dependencies, so do not need to again
-        } else {
+        if (this.getDependencies() == null) {
             this.setDependencies(new TreeSet());
             this.setUsedBy(new TreeSet());
             
             // read the arm.xml
             String armFilename = this.getDirectory() + "/arm.xml";
             readExpressInterface(armFilename);
+            
+            // read the mim.xml
+            String mimFilename = this.getDirectory() + "/mim.xml";
+            readExpressInterface(mimFilename);
         }
     }
     

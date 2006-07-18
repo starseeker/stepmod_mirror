@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResource.java,v 1.3 2006/07/15 09:07:10 robbod Exp $
+ * $Id: StepmodResource.java,v 1.4 2006/07/17 13:19:32 robbod Exp $
  *
  * StepmodResource.java
  *
@@ -18,6 +18,7 @@ package org.stepmod;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.TreeSet;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -156,6 +157,13 @@ public class StepmodResource extends StepmodPart {
      * the TreeMap dependencies
      */
     public void setupDependencies() {
+        if (getDependencies() == null) {
+            this.setDependencies(new TreeSet());
+            this.setUsedBy(new TreeSet());            
+            // read the schema .xml
+            String schemaFilename = this.getDirectory() + "/" + this.getName()+".xml";
+            readExpressInterface(schemaFilename);
+        }
     }
     
 }

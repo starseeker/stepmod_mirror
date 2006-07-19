@@ -19,6 +19,7 @@ import java.util.EventObject;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.swing.AbstractCellEditor;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -828,23 +829,16 @@ public class STEPModFrame extends javax.swing.JFrame {
         DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
         // Note that the dependencies are added on demand by a user
         // See updateDependencies()
-        //partTreeNode.add(dependenciesTreeNode);
         treeModel.insertNodeInto(dependenciesTreeNode, partTreeNode, partTreeNode.getChildCount());
         DefaultMutableTreeNode filesTreeNode = new DefaultMutableTreeNode("Files");
-        //partTreeNode.add(filesTreeNode);
         treeModel.insertNodeInto(filesTreeNode, partTreeNode, partTreeNode.getChildCount());
         this.updateFiles(filesTreeNode);
-        // TODO - need to list the files that make up the modules
-        // The arm, mim, sys files etc.
-        // For each file display the CVS revision and date
         
         DefaultMutableTreeNode releasesTreeNode = new DefaultMutableTreeNode("Releases");
         partTreeNode.add(releasesTreeNode);
         
         // Add the development revision - a CmReleaseTreeNode with no CMRelease
-        DefaultMutableTreeNode releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(part, "Development revision", false));
-        treeModel.insertNodeInto(releaseNode, releasesTreeNode, releasesTreeNode.getChildCount());
-        
+        addReleaseToTree(part, null, partTreeNode, false);
         for (Iterator j = part.getCmRecord().getHasCmReleases().iterator(); j.hasNext();) {
             CmRelease cmRelease = (CmRelease) j.next();
             addReleaseToTree(part, cmRelease, partTreeNode, false);
@@ -853,37 +847,139 @@ public class STEPModFrame extends javax.swing.JFrame {
     }
     
     private void updateFiles(DefaultMutableTreeNode filesTreeNode) {
-        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) filesTreeNode.getParent();
-        StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) parentNode.getUserObject();
-        StepmodPart stepmodPart = (StepmodPart)stepmodPartNode.getStepmodPart();
         DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
-        
-        for (Iterator it=stepmodPart.getHasFiles().entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry entry = (Map.Entry)it.next();
-            StepmodFile file = (StepmodFile)entry.getValue();
-            DefaultMutableTreeNode fileTreeNode = new DefaultMutableTreeNode();
-            fileTreeNode.setUserObject(file);
-            treeModel.insertNodeInto(fileTreeNode, filesTreeNode, filesTreeNode.getChildCount());
+        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) filesTreeNode.getParent();
+        Object parentUsrObj = parentNode.getUserObject();
+        StepmodPart stepmodPart = null;
+        TreeMap dependentFiles = null;
+        if (parentUsrObj instanceof StepmodPartTreeNode) {
+            StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) parentUsrObj;
+            stepmodPart = (StepmodPart)stepmodPartNode.getStepmodPart();
+            dependentFiles = stepmodPart.getDependentFiles();
+        } else if (parentUsrObj instanceof CmReleaseTreeNode) {
+            // must be dependencies on the release
+            CmRelease cmRelease = ((CmReleaseTreeNode)parentUsrObj).getCmRelease();
+            if (cmRelease == null) {
+                // No release associated with the cmReleaseTreeNode so
+                // must be a development release
+                // so use the parts files
+                stepmodPart = ((CmReleaseTreeNode)parentUsrObj).getStepmodPart();
+                dependentFiles = stepmodPart.getDependentFiles();
+            } else {
+                dependentFiles = cmRelease.getDependentFiles();
+            }
+        }
+        if (dependentFiles != null) {
+            // test just in case the record has no files - shouldn't happen
+            for (Iterator it=dependentFiles.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry entry = (Map.Entry)it.next();
+                StepmodFile file = (StepmodFile)entry.getValue();
+                DefaultMutableTreeNode fileTreeNode = new DefaultMutableTreeNode();
+                fileTreeNode.setUserObject(file);
+                treeModel.insertNodeInto(fileTreeNode, filesTreeNode, filesTreeNode.getChildCount());
+            }
         }
     }
     
     
+    
     private void updateDependencies(DefaultMutableTreeNode dependencyNode) {
+        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) dependencyNode.getParent();
+        Object parentUsrObj = parentNode.getUserObject();
+        if (parentUsrObj instanceof StepmodPartTreeNode) {
+            StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) parentUsrObj;
+            updateDependencies(dependencyNode, stepmodPartNode);
+        } else if (parentUsrObj instanceof CmReleaseTreeNode) {
+            // must be dependencies on the release
+            CmReleaseTreeNode cmReleaseTreeNode = (CmReleaseTreeNode)parentUsrObj;
+            updateDependencies(dependencyNode, cmReleaseTreeNode);
+        }
+    }
+    
+    
+    
+    private void updateDependencies(DefaultMutableTreeNode dependencyNode, CmReleaseTreeNode cmReleaseTreeNode) {
+        StepmodPartTreeNodeCollection dependenciesTreeNodeCollection
+                = new StepmodPartTreeNodeCollection("Dependencies", dependencyNode);
+        dependencyNode.setUserObject(dependenciesTreeNodeCollection);
+        CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
+        TreeSet dependentParts = null;
+        StepmodPart stepmodPart = cmReleaseTreeNode.getStepmodPart();
+        if (cmRelease == null) {
+            // No release associated with the cmReleaseTreeNode so
+            // must be a development release
+            // make sure got the latest dependencies
+            stepmodPart.setupDependencies();
+            dependentParts = stepmodPart.getDependentParts();
+        } else {
+            dependentParts = cmRelease.getDependentParts();
+        }
+        STEPmod stepMod = stepmodPart.getStepMod();
+        StepmodPartTreeNodeCollection partsCollection = null;
+        boolean treeChanged = false;
+        // draw the dependency tree
+        if (dependentParts != null) {
+            // test just in case the release has no dependencies - shouldn't happen
+            for (Iterator it = dependentParts.iterator(); it.hasNext();) {
+                String dependentPartName = (String)it.next();
+                StepmodPart dependentPart = stepMod.getPartByName(dependentPartName);
+                this.addRepositoryTreeNode(dependentPart, dependencyNode, dependenciesTreeNodeCollection);
+                // make sure that the node is displayed in the top listing
+                // Some parts may be loaded as not the complete repository index was loaded
+                if (dependentPart instanceof StepmodModule) {
+                    partsCollection = this.getModulesTreeNodeCollection();
+                } else if (dependentPart instanceof StepmodApplicationProtocol) {
+                    partsCollection = this.getApTreeNodeCollection();
+                } else if (dependentPart instanceof StepmodResourceDoc) {
+                    partsCollection = this.getResourceDocsTreeNodeCollection();
+                } else if (dependentPart instanceof StepmodResource) {
+                    partsCollection = this.getSchemasTreeNodeCollection();
+                }
+                DefaultMutableTreeNode partsCollectionNode = partsCollection.getTreeNode();
+                
+                DefaultMutableTreeNode partNode = partsCollection.getNodeForPart(dependentPart);
+                if (partNode == null) {
+                    this.addRepositoryTreeNode(dependentPart, partsCollectionNode, partsCollection);
+                    treeChanged = true;
+                }
+            }
+        }
+        DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode("STEPMod");
+        // Use the tree model to make sure that the added nodes are displayed
+        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
+        // Comented out the code to redraw the tree as it will close all the nodes.
+        // leave it t the user to redraw
+        if (treeChanged) {
+            treeModel.nodeStructureChanged(this.modulesTreeNode);
+            treeModel.nodeStructureChanged(this.resourceSchemasTreeNode);
+            TreePath path = new TreePath(dependencyNode.getPath());
+            repositoryJTree.expandPath(path);
+            repositoryJTree.scrollPathToVisible(path);
+            repositoryJTree.setSelectionPath(path);
+        }
+        //this.updateNode(modulesNode);
+    }
+    
+    
+    
+    private void updateDependencies(DefaultMutableTreeNode dependencyNode, StepmodPartTreeNode stepmodPartNode) {
         StepmodPartTreeNodeCollection dependenciesTreeNodeCollection
                 = new StepmodPartTreeNodeCollection("Dependencies", dependencyNode);
         dependencyNode.setUserObject(dependenciesTreeNodeCollection);
         DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) dependencyNode.getParent();
-        StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) parentNode.getUserObject();
+        StepmodPart stepmodPart = null;
+        Object parentUsrObj = parentNode.getUserObject();
+        stepmodPart = (StepmodPart)stepmodPartNode.getStepmodPart();
         StepmodPartTreeNodeCollection partsCollection = null;
         boolean treeChanged = false;
-        StepmodPart stepmodPart = (StepmodPart)stepmodPartNode.getStepmodPart();
+        
         // get all the dependent parts
         // TODO - set up monitor
         // ProgressMonitorWindow monitor = new ProgressMonitorWindow(part.getStepMod().getStepModGui(), true);
         // monitor.setVisible(true);
         stepmodPart.setupDependencies();
         // draw the dependency tree
-        for (Iterator it = stepmodPart.getDependencies().iterator(); it.hasNext();) {
+        for (Iterator it = stepmodPart.getDependentParts().iterator(); it.hasNext();) {
             String dependentPartName = (String)it.next();
             StepmodPart dependentPart = stepmodPart.getStepMod().getPartByName(dependentPartName);
             this.addRepositoryTreeNode(dependentPart, dependencyNode, dependenciesTreeNodeCollection);
@@ -922,54 +1018,6 @@ public class STEPModFrame extends javax.swing.JFrame {
         //this.updateNode(modulesNode);
     }
     
-    
-    
-    private void updateDependenciesxxx(DefaultMutableTreeNode dependencyNode) {
-        StepmodPartTreeNodeCollection dependenciesTreeNodeCollection
-                = new StepmodPartTreeNodeCollection("Dependencies", dependencyNode);
-        dependencyNode.setUserObject(dependenciesTreeNodeCollection);
-        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) dependencyNode.getParent();
-        StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) parentNode.getUserObject();
-        StepmodPartTreeNodeCollection partsCollection = null;
-        StepmodPart stepmodPart = (StepmodPart)stepmodPartNode.getStepmodPart();
-        if (stepmodPart instanceof StepmodModule) {
-            partsCollection = this.getModulesTreeNodeCollection();
-        } else if (stepmodPart instanceof StepmodApplicationProtocol) {
-            partsCollection = this.getApTreeNodeCollection();
-        } else if (stepmodPart instanceof StepmodResourceDoc) {
-            partsCollection = this.getResourceDocsTreeNodeCollection();
-        } else if (stepmodPart instanceof StepmodResource) {
-            partsCollection = this.getSchemasTreeNodeCollection();
-        }
-        // get all the dependent parts
-        // TODO - set up monitor
-        // ProgressMonitorWindow monitor = new ProgressMonitorWindow(part.getStepMod().getStepModGui(), true);
-        // monitor.setVisible(true);
-        stepmodPart.setupDependencies();
-        DefaultMutableTreeNode modulesNode = partsCollection.getTreeNode();
-        // draw the dependency tree
-        for (Iterator it = stepmodPart.getDependencies().iterator(); it.hasNext();) {
-            String dependentPartName = (String)it.next();
-            StepmodPart dependentPart = stepmodPart.getStepMod().getPartByName(dependentPartName);
-            this.addRepositoryTreeNode(dependentPart, dependencyNode, dependenciesTreeNodeCollection);
-            // make sure that the node is displayed in the top listing
-            // Some parts may be loaded as not the complete repository index was loaded
-            DefaultMutableTreeNode partNode = partsCollection.getNodeForPart(dependentPart);
-            if (partNode == null) {
-                if (dependentPart instanceof StepmodModule) {
-                    this.addRepositoryTreeNode(dependentPart, modulesNode, partsCollection);
-                }
-            }
-        }
-        
-        DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode("STEPMod");
-        // Use the tree model to make sure that the added nodes are displayed
-        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
-        // Comented out the code to redraw the tree as it will close all the nodes.
-        // leave it t the user to redraw
-        //treeModel.nodeStructureChanged(modulesNode);
-        //this.updateNode(modulesNode);
-    }
     
     /**
      * Initialise the display of the repository tree
@@ -1036,14 +1084,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         repositoryJTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         
         
-        // Make sure that the modules node is visible
-        //repositoryJTree.scrollPathToVisible(new TreePath(modulesTreeNode.getPath()));
-        // Make sure that the Application protocols node is visible
-        //repositoryJTree.scrollPathToVisible(new TreePath(applicationProtocolsTreeNode.getPath()));
-        // Make sure that the Resource documents node is visible
-        //repositoryJTree.makeVisible(new TreePath(resourceDocsTreeNode.getPath()));
         // Make sure that the Resource schemas node is visible
-        //repositoryJTree.scrollPathToVisible(new TreePath(resourceSchemasTreeNode.getPath()));
         repositoryJTree.makeVisible(new TreePath(resourceSchemasTreeNode.getPath()));
         
         ToolTipManager.sharedInstance().registerComponent(repositoryJTree);
@@ -1739,23 +1780,35 @@ public class STEPModFrame extends javax.swing.JFrame {
      * Add the release to the tree node of releases for a given StepmodPart
      */
     public void addReleaseToTree(StepmodPart part, CmRelease cmRelease, DefaultMutableTreeNode stepPartNode, boolean shouldBeVisible) {
-        // Find the release nodes - always the last one
-        DefaultMutableTreeNode releasesNode = (DefaultMutableTreeNode) stepPartNode.getLastChild();
-        DefaultMutableTreeNode releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(part, cmRelease, false));
         // Use the tree model to make sure that the added nodes are displayed
         DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
+        // Find the release nodes - always the last one
+        DefaultMutableTreeNode releasesNode = (DefaultMutableTreeNode) stepPartNode.getLastChild();
+        DefaultMutableTreeNode releaseNode;
+        if (cmRelease == null) {
+            releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(part, "Development revision", false));
+        } else {
+            releaseNode = new DefaultMutableTreeNode(new CmReleaseTreeNode(part, cmRelease, false));
+        }
         treeModel.insertNodeInto(releaseNode, releasesNode, releasesNode.getChildCount());
         
-        TreePath path = new TreePath(releaseNode.getPath());
-        repositoryJTree.expandPath(path);
+        DefaultMutableTreeNode filesTreeNode = new DefaultMutableTreeNode("Files");
+        treeModel.insertNodeInto(filesTreeNode, releaseNode, releaseNode.getChildCount());
+        this.updateFiles(filesTreeNode);
+        
+        DefaultMutableTreeNode dependencyNode = new DefaultMutableTreeNode("Dependencies");
+        treeModel.insertNodeInto(dependencyNode, releaseNode, releaseNode.getChildCount());
         //Make sure the user can see the lovely new node.
         if (shouldBeVisible) {
+            TreePath path = new TreePath(releaseNode.getPath());
+            repositoryJTree.expandPath(path);
             repositoryJTree.scrollPathToVisible(path);
             repositoryJTree.setSelectionPath(path);
         }
         treeModel.nodeStructureChanged(releasesNode.getParent());
         //treeModel.nodeChanged(releasesNode.getParent());
     }
+    
     
     public void updateReleaseStatus(StepmodPart part, CmRelease cmRelease, String status, DefaultMutableTreeNode repoTreeNode, boolean shouldBeVisible) {
         cmRelease.setReleaseStatus(status, true);

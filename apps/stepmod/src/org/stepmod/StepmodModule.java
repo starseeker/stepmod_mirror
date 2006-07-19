@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.11 2006/07/17 13:19:31 robbod Exp $
+ * $Id: StepmodModule.java,v 1.12 2006/07/18 12:43:58 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -263,8 +263,8 @@ public class StepmodModule extends StepmodPart {
      * the TreeMap dependencies
      */
     public void setupDependencies() {
-        if (this.getDependencies() == null) {
-            this.setDependencies(new TreeSet());
+        if (this.getDependentParts() == null) {
+            this.setDependentParts(new TreeSet());
             this.setUsedBy(new TreeSet());
             
             // read the arm.xml

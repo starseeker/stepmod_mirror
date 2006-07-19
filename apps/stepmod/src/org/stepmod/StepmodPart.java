@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.16 2006/07/18 12:43:58 robbod Exp $
+ * $Id: StepmodPart.java,v 1.17 2006/07/18 17:04:10 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -67,7 +67,7 @@ public abstract class StepmodPart {
     /**
      * A map of all the parts that this part depends on.
      */
-    private TreeSet dependencies = null;
+    private TreeSet dependentParts = null;
     
     /**
      * A map of all the parts that use this part
@@ -77,7 +77,7 @@ public abstract class StepmodPart {
     /**
      * A map of all the files that this part depends on.
      */
-    private TreeMap hasFiles = null;
+    private TreeMap dependentFiles = null;
     
     private TrappedErrorMap errors = null;
     
@@ -88,7 +88,7 @@ public abstract class StepmodPart {
         setName(partName);
         setStepMod(stepMod);
         setStepmodType();
-        setupFiles();
+        setupDependentFiles();
         errors = new TrappedErrorMap(this);
     }
     
@@ -123,16 +123,16 @@ public abstract class StepmodPart {
     
     /**
      * Deduce which parts this part is dependent on and store the results in
-     * the TreeMap dependencies
+     * the TreeMap hasDependencies
      */
     public abstract void setupDependencies();
     
-    public void setupFiles() {
-        hasFiles = new TreeMap();
-        setupFiles("");
+    public void setupDependentFiles() {
+        dependentFiles = new TreeMap();
+        setupDependentFiles("");
     }
     
-    private void setupFiles(String subDirectory) {
+    private void setupDependentFiles(String subDirectory) {
         String cvsEntriesFile;
         if (subDirectory.length() == 0) {
             cvsEntriesFile = this.getDirectory() + "/CVS/Entries";
@@ -149,17 +149,16 @@ public abstract class StepmodPart {
                         // found a directory
                         String subDir = fields[1];
                         if (subDirectory.length() == 0) {
-                            setupFiles(subDir);
+                            setupDependentFiles(subDir);
                         } else {
-                            setupFiles(subDirectory+"/"+subDir);
+                            setupDependentFiles(subDirectory+"/"+subDir);
                         }
                     } else {
                         String name = fields[1];
                         String cvsRelease = fields[2];
                         String cvsDate = fields[3];
                         StepmodFile file = new StepmodFile(name, subDirectory, this, cvsRelease, cvsDate);
-                        //this.hasFiles.put(file.toString(),file);
-                        this.hasFiles.put(file.toString(),file);
+                        this.dependentFiles.put(file.toString(),file);
                     }
                 }
             }
@@ -753,8 +752,8 @@ public abstract class StepmodPart {
     /**
      * Return the tree map that lists all the parts on which this is dependent.
      */
-    public TreeSet getDependencies() {
-        return this.dependencies;
+    public TreeSet getDependentParts() {
+        return this.dependentParts;
     }
     
     /**
@@ -764,8 +763,8 @@ public abstract class StepmodPart {
         return usedBy;
     }
     
-    public void setDependencies(TreeSet dependencies) {
-        this.dependencies = dependencies;
+    public void setDependentParts(TreeSet dependencies) {
+        this.dependentParts = dependencies;
     }
     
     public void setUsedBy(TreeSet usedBy) {
@@ -776,17 +775,17 @@ public abstract class StepmodPart {
         this.usedBy.add(part.getName());
     }
     
-    public void addDependency(StepmodPart part) {
-        this.dependencies.add(part.getName());
+    public void addDependentPart(StepmodPart part) {
+        this.dependentParts.add(part.getName());
         part.addUsedBy(this);
     }
     
-    public boolean isDependency(StepmodPart part) {
-        return(this.dependencies.contains(part.getName()));
+    public boolean isDependentPart(StepmodPart part) {
+        return(this.dependentParts.contains(part.getName()));
     }
     
     public void addDependencies(TreeSet dependencySet) {
-        this.getDependencies().addAll(dependencySet);
+        this.getDependentParts().addAll(dependencySet);
     }
     
     
@@ -831,15 +830,15 @@ public abstract class StepmodPart {
                             part = (StepmodPart) partValue;
                         }
                         if (part != null) {
-                            if (part.getDependencies() == null) {
-                                // Not yet loaded the dependencies, so recurse
+                            if (part.getDependentParts() == null) {
+                                // Not yet loaded the hasDependencies, so recurse
                                 part.setupDependencies();
                             }
-                            if (!this.isDependency(part)) {
+                            if (!this.isDependentPart(part)) {
                                 // add the part
-                                this.addDependency(part);
+                                this.addDependentPart(part);
                                 // a new dependency, so add all its dependencies
-                                this.addDependencies(part.getDependencies());
+                                this.addDependencies(part.getDependentParts());
                             }
                         }
                     }
@@ -856,8 +855,8 @@ public abstract class StepmodPart {
         return(expressSaxHandler);
     }
     
-    public TreeMap getHasFiles() {
-        return hasFiles;
+    public TreeMap getDependentFiles() {
+        return dependentFiles;
     }
     
 }

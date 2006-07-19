@@ -2,9 +2,10 @@ package org.stepmod;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import org.stepmod.cvschk.CvsStatus;
+import java.util.TreeMap;
+import java.util.TreeSet;
 /*
- * $Id: CmRelease.java,v 1.6 2006/07/13 09:02:11 robbod Exp $
+ * $Id: CmRelease.java,v 1.7 2006/07/14 07:27:23 robbod Exp $
  *
  * STEPmod.java
  *
@@ -40,7 +41,18 @@ public class CmRelease {
     
     private CmRecord inRecord;
     
-    private int dependencies_ref;
+    /**
+     * A list of all the parts (modules and resource schemas) on which the released part is dependent
+     */
+    private TreeSet dependentParts = null;
+    
+    
+    /**
+     * A map of all the files that this part depends on.
+     */
+    private TreeMap dependentFiles = null;
+    
+    
     
     /**
      * Create a new release for the CM record - only used when reading releases from CM record file
@@ -66,6 +78,7 @@ public class CmRelease {
     
     /**
      * Create a new release for the CM record
+     * The release will use the dependent parts currently checked out
      * Note - a release must be explicitly written to the cm_record.xml file by
      * writing the record invoking the {@link updateCmRecordFile} on the StepmodPart
      * @param  part the part that is being release
@@ -87,9 +100,35 @@ public class CmRelease {
         setWho(who);
         setStepmodRelease(part.getStepMod().getStepmodRelease());
         setDescription(description);
+        // Make sure that the dependencies for the part are loaded
+        setupDependencies();
     }
     
-    void writeToStream(FileWriter out) throws IOException {
+    /**
+     * Return the part that this is a release for
+     */
+    public StepmodPart getStepmodPart() {
+        return(getInRecord().getStepmodPart());
+    }
+    
+    /**
+     * Return the Stepmod instance that contains this release
+     */
+    public STEPmod getStepMod() {
+        return(getInRecord().getStepMod());
+    }
+    
+    public void setupDependencies() {
+        // Make sure that the dependencies for the part are loaded
+        StepmodPart part = getStepmodPart();
+        part.setupDependencies();
+        dependentParts = new TreeSet();
+        dependentParts.addAll(part.getDependentParts());
+        dependentFiles = new TreeMap();
+        dependentFiles.putAll(part.getDependentFiles());
+    }
+    
+    public void writeToStream(FileWriter out) throws IOException {
         out.write("   <cm_release\n");
         out.write("      release=\""+ getId() +"\"");
         out.write("      who=\""+ getWho() +"\"");
@@ -194,13 +233,6 @@ public class CmRelease {
         this.inRecord = inRecord;
     }
     
-    public int getDependencies_ref() {
-        return dependencies_ref;
-    }
-    
-    public void setDependencies_ref(int dependencies_ref) {
-        this.dependencies_ref = dependencies_ref;
-    }
     
     public String toString() {
         return(id);
@@ -225,6 +257,14 @@ public class CmRelease {
         } else {
             return(false);
         }
+    }
+    
+    public TreeMap getDependentFiles() {
+        return dependentFiles;
+    }
+    
+    public TreeSet getDependentParts() {
+        return dependentParts;
     }
     
     

@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResource.java,v 1.4 2006/07/17 13:19:32 robbod Exp $
+ * $Id: StepmodResource.java,v 1.5 2006/07/18 12:43:58 robbod Exp $
  *
  * StepmodResource.java
  *
@@ -157,8 +157,8 @@ public class StepmodResource extends StepmodPart {
      * the TreeMap dependencies
      */
     public void setupDependencies() {
-        if (getDependencies() == null) {
-            this.setDependencies(new TreeSet());
+        if (getDependentParts() == null) {
+            this.setDependentParts(new TreeSet());
             this.setUsedBy(new TreeSet());            
             // read the schema .xml
             String schemaFilename = this.getDirectory() + "/" + this.getName()+".xml";

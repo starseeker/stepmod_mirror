@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.9 2006/07/15 08:08:37 robbod Exp $
+ * $Id: STEPmod.java,v 1.10 2006/07/17 13:19:31 robbod Exp $
  *
  * STEPmod.java
  *
@@ -17,9 +17,8 @@
 package org.stepmod;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -177,6 +176,13 @@ public class STEPmod {
             File repoFile =  new File(repoFilename);
             saxParser.parse( repoFile, handler );
             this.output("Loaded: "+repoFile.getPath());
+            
+            // now load the dependencies
+            for (Iterator it=getModulesHash().entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry entry = (Map.Entry)it.next();
+                StepmodModule moduleNode = (StepmodModule)entry.getValue();
+                //moduleNode.setupDependencies();
+            }
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -202,7 +208,7 @@ public class STEPmod {
         StepmodPart part = (StepmodPart)getModuleByName(partName);
         if (part != null) {
             return (part);
-        }        
+        }
         part = (StepmodPart)getResourceByName(partName);
         if (part != null) {
             return (part);
@@ -210,7 +216,7 @@ public class STEPmod {
         part = (StepmodPart)getApplicationProtocolByName(partName);
         if (part != null) {
             return (part);
-        }        
+        }
         part = (StepmodPart)getResourceDocByName(partName);
         if (part != null) {
             return (part);

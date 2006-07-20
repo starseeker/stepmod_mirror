@@ -2,10 +2,11 @@ package org.stepmod;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
 /*
- * $Id: CmRelease.java,v 1.7 2006/07/14 07:27:23 robbod Exp $
+ * $Id: CmRelease.java,v 1.8 2006/07/19 16:46:29 robbod Exp $
  *
  * STEPmod.java
  *
@@ -139,7 +140,25 @@ public class CmRelease {
         //out.write("      release_sequence=\""+ getReleaseSequence() +"\"");
         out.write("      edition=\""+ getEdition() +"\" ");
         out.write("      description=\""+ getDescription() +"\">");
+        TreeSet dependentParts = null;
+        out.write("    <dependencies>");
+        out.write("      </sources>");
+        out.write("      <sources>");
+        out.write("      <modules>");
+        STEPmod stepMod = getStepMod();
+        dependentParts = getDependentParts();
+        for (Iterator it = dependentParts.iterator(); it.hasNext();) {
+            String dependentPartName = (String)it.next();
+            StepmodPart dependentPart = stepMod.getPartByName(dependentPartName);
+            out.write("        <module name=\""+dependentPartName
+                    +"\" part=\""+dependentPart.getPartNumber()
+                    +"\" release=\""+getId()+"\"/>");
+        }
+        out.write("      </modules>");
+        out.write("      <resource_schemas>");
+        out.write("      </resource_schemas>");
         
+        out.write("    <dependencies>");
         out.write("   </cm_release>\n");
     }
     

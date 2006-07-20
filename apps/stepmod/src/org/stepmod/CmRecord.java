@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.12 2006/07/15 10:31:09 robbod Exp $
+ * $Id: CmRecord.java,v 1.13 2006/07/17 13:19:31 robbod Exp $
  *
  * STEPmod.java
  *
@@ -152,26 +152,27 @@ public class CmRecord {
         this.partName = stepmodPart.getName();
         this.partType = stepmodPart.getStepmodType();
         this.partNumber = stepmodPart.getPartNumber();
-        this.cvsRevision = "$Revision: "+" $";
-        this.cvsDate = "$Date: "+" $";
+        this.cvsRevision = "$Revision: 1.13 $";
+        this.cvsDate = "$Date: 2006/07/17 13:19:31 $";
     }
     
     /**
      * Updates an instance of the CM record for the StepmodPart part.
      * The CM records are stored in stepmod/config_management/<part>/cm_record.xml
      */
-    public void readCmRecord() {        
+    public void readCmRecord() {
         // A CM record is stored in the file "cm_record.xml" in the part directory
         // read the cm_record.xml creating the releases inserting them into hasCmReleases
         // now read cm_record.xml for the part populating the attributes
         DefaultHandler handler = new CmRecordSaxHandler(this, stepmodPart);
         // Use the default (non-validating) parser
         SAXParserFactory factory = SAXParserFactory.newInstance();
+        String stepModDir = stepmodPart.getStepMod().getRootDirectory();
+        String cmRecordFilename = stepModDir+"/config_management/"+ stepmodPart.getStepmodType() +"s/" + stepmodPart.getName()+ "/cm_record.xml";
+        
         try {
             // Parse the input
             SAXParser saxParser = factory.newSAXParser();
-            String stepModDir = stepmodPart.getStepMod().getRootDirectory();
-            String cmRecordFilename = stepModDir+"/config_management/"+ stepmodPart.getStepmodType() +"s/" + stepmodPart.getName()+ "/cm_record.xml";
             File cmRecordFile =  new File(cmRecordFilename);
             if (cmRecordFile.exists()) {
                 saxParser.parse( cmRecordFile, handler);
@@ -181,6 +182,7 @@ public class CmRecord {
                 this.setRecordState(CM_RECORD_FILE_NOT_EXIST);
             }
         } catch (Throwable t) {
+            System.out.println("fff"+cmRecordFilename);
             t.printStackTrace();
         }
     }
@@ -362,7 +364,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.12 2006/07/15 10:31:09 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.13 2006/07/17 13:19:31 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -504,8 +506,8 @@ public class CmRecord {
                             long diff = java.lang.Math.abs(cvsGcCal.getTimeInMillis() - fileGcCal.getTimeInMillis());
                             if (diff < 180) {
                                 //The CM record file, cm_record.xml, has been committed to CVS
-                                 //System.out.println("DIFF " + diff + " " + cmRecordFilename);
-                           
+                                //System.out.println("DIFF " + diff + " " + cmRecordFilename);
+                                
                                 retVal = CmRecord.CM_RECORD_CVS_COMMITTED;
                             } else {
                                 //The CM record file, cm_record.xml, has  been committed to CVS but the local file has changed
@@ -642,6 +644,6 @@ public class CmRecord {
         summary += "</table></body></html>";
         return(summary);
     }
-
+    
     
 }

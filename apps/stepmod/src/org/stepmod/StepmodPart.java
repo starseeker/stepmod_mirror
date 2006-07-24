@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.18 2006/07/19 16:46:29 robbod Exp $
+ * $Id: StepmodPart.java,v 1.19 2006/07/20 17:12:24 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -62,7 +62,13 @@ public abstract class StepmodPart {
     
     private CmRecord cmRecord;
     private STEPmod stepMod;
+    
+    /**
+     * The CVS status of the part that has been checked out
+     * The status is read from the CVS/Entries file for the part
+     */
     private CvsStatus cvsStatusObject;
+    
     
     /**
      * A map of all the parts that this part depends on.
@@ -189,7 +195,7 @@ public abstract class StepmodPart {
         if (cvsState == CvsStatus.CVSSTATE_UNKNOWN) {
             cvsStateDscr = "ERROR -- Release status cannot be established";
         } else if (cvsState == CvsStatus.CVSSTATE_DEVELOPMENT) {
-            cvsStateDscr = "Latest development release";
+            cvsStateDscr = "Development release";
         } else if (cvsState == CvsStatus.CVSSTATE_RELEASE) {
             cvsStateDscr =  this.getCvsTag();
         }
@@ -219,6 +225,12 @@ public abstract class StepmodPart {
             cmDescr = " The CM record file, cm_record.xml, exists but the record directory has not been added to CVS";
         }
         
+        String depDescr = "";
+        if (this.isDependenciesCheckedOut()) {
+            depDescr = "All dependent parts are checked out at the correct release.";
+        } else {
+            depDescr = "A number of dependent parts are not at the correct release.";
+        }
         String summary =
                 "<table>"
                 + "<tr><td>Part Number:</td><td>"+getPartNumberString()+"</td></tr>"
@@ -227,6 +239,7 @@ public abstract class StepmodPart {
                 + "<tr><td>CM record revision:</td><td>" + getCmRecord().getCvsRevision() +"</td></tr>"
                 + "<tr><td>CM record date:</td><td>" + getCmRecord().getCvsDate() +"</td></tr>"
                 + "<tr><td>CM record status:</td><td>" + cmDescr +"</td></tr>"
+                + "<tr><td>Dependency status:</td><td>" + depDescr +"</td></tr>"
                 + "</table>";
         return(summary);
     }
@@ -635,27 +648,37 @@ public abstract class StepmodPart {
         } else if (this instanceof StepmodResource) {
             type = "res";
         }
-        
+        String releaseId;
         /*
          * Count the number of releases of a part at a given edition and stage
          * increment. This is a component used to create the release identifier.
          */
         int relCount = 0;
-        for (Iterator it = this.getCmRecord().getHasCmReleases().iterator(); it.hasNext();) {
-            CmRelease cmRelease = (CmRelease) it.next();
-            if (cmRelease.getEdition().equals(this.getVersion()) &&
-                    cmRelease.getIsoStatus().equals(this.getIsoStatus())) {
-                relCount++;
+        if (this instanceof StepmodResource) {
+            relCount += this.getCmRecord().getHasCmReleases().size();
+            String releaseSeq = "r"+relCount++;
+            releaseId =
+                    type + "-" + this.getName() +
+                    "-" + releaseSeq +
+                    "-" + formattedDate;
+        } else {
+            for (Iterator it = this.getCmRecord().getHasCmReleases().iterator(); it.hasNext();) {
+                CmRelease cmRelease = (CmRelease) it.next();
+                if (cmRelease.getEdition().equals(this.getVersion()) &&
+                        cmRelease.getIsoStatus().equals(this.getIsoStatus())) {
+                    relCount++;
+                }
             }
+            String releaseSeq = "r"+relCount++;
+            releaseId =
+                    type + "-" + this.getName() +
+                    "-ed" + this.getVersion()  +
+                    "-" + this.getIsoStatus() +
+                    "-" + releaseSeq +
+                    "-" + formattedDate;
         }
-        String releaseSeq = "r"+relCount++;
         
-        String releaseId =
-                type + "-" + this.getName() +
-                "-ed" + this.getVersion()  +
-                "-" + this.getIsoStatus() +
-                "-" + releaseSeq +
-                "-" + formattedDate;
+        
         return(releaseId);
     }
     
@@ -697,7 +720,7 @@ public abstract class StepmodPart {
     }
     
     /**
-     * Answer if the revisions of the part checked out is a development revision
+     * Answer if the revision of the part checked out is a development revision
      * @return true if the revisions of the part checked out is a development revision
      */
     public boolean isCheckedOutDevelopment() {
@@ -705,7 +728,7 @@ public abstract class StepmodPart {
     }
     
     /**
-     * Answer if the revisions of the part checked out is a release published by ISO
+     * Answer if the revision of the part checked out is a release published by ISO
      * @return true if the revisions of the part checked out is a release published by ISO
      */
     public boolean isCheckedOutPublishedIsoRelease() {
@@ -727,6 +750,21 @@ public abstract class StepmodPart {
      */
     public boolean isCheckedOutRelease() {
         return(getCvsState() == CvsStatus.CVSSTATE_RELEASE);
+    }
+    
+    /**
+     * Answer true if all the dependencies of the current revision are the expected revisions
+     */
+    public boolean isDependenciesCheckedOut() {
+        if (isCheckedOutDevelopment()) {
+            return(true);
+        } else {
+            CmRelease checkedOutRel = this.getCmRecord().getCheckedOutRelease();
+            if (checkedOutRel != null) {
+                return(checkedOutRel.isDependenciesCheckedOut());
+            }
+        }
+        return(true);
     }
     
     public String getRcsDate() {

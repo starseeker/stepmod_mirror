@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.10 2006/07/17 13:19:31 robbod Exp $
+ * $Id: STEPmod.java,v 1.11 2006/07/20 17:12:24 robbod Exp $
  *
  * STEPmod.java
  *
@@ -178,10 +178,12 @@ public class STEPmod {
             this.output("Loaded: "+repoFile.getPath());
             
             // now load the dependencies
-            for (Iterator it=getModulesHash().entrySet().iterator(); it.hasNext(); ) {
+            // first take a copy of the dependencies
+            TreeMap copy = new TreeMap(getModulesHash());
+            for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry entry = (Map.Entry)it.next();
                 StepmodModule moduleNode = (StepmodModule)entry.getValue();
-                //moduleNode.setupDependencies();
+                moduleNode.setupDependencies();
             }
         } catch (Throwable t) {
             t.printStackTrace();

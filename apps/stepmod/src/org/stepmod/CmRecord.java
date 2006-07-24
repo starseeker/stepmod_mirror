@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.13 2006/07/17 13:19:31 robbod Exp $
+ * $Id: CmRecord.java,v 1.14 2006/07/20 17:12:24 robbod Exp $
  *
  * STEPmod.java
  *
@@ -152,8 +152,8 @@ public class CmRecord {
         this.partName = stepmodPart.getName();
         this.partType = stepmodPart.getStepmodType();
         this.partNumber = stepmodPart.getPartNumber();
-        this.cvsRevision = "$Revision: 1.13 $";
-        this.cvsDate = "$Date: 2006/07/17 13:19:31 $";
+        this.cvsRevision = "$Revision: "+" $";
+        this.cvsDate = "$Date: "+" $";
     }
     
     /**
@@ -241,6 +241,7 @@ public class CmRecord {
         private String cmReleaseStepmodRelease;
         private String cmReleaseReleaseDate;
         private CmRecord cmRecord;
+        private CmRelease currentCmRelease;
         
         
         /**
@@ -271,10 +272,22 @@ public class CmRecord {
                 cmReleaseReleaseSequence = attrs.getValue("release_sequence");
                 cmReleaseStepmodRelease = attrs.getValue("stepmod_release");
                 cmReleaseReleaseDate = attrs.getValue("when");
-                new CmRelease(cmRecord, cmReleaseId, cmReleaseDescription,
+                currentCmRelease = new CmRelease(cmRecord, cmReleaseId, cmReleaseDescription,
                         cmReleaseIsoStatus, cmReleaseStatus,
                         cmReleaseWho, cmReleaseEdition, cmReleaseReleaseSequence,
                         cmReleaseStepmodRelease, cmReleaseReleaseDate);
+            } else if (currentElement.equals("module")) {
+                // reading a dependent module
+                String moduleName = attrs.getValue("name");
+                String moduleNumber = attrs.getValue("part");
+                String moduleRelease= attrs.getValue("release");
+                currentCmRelease.addDependentPart(new StepmodPartCM(moduleName, moduleNumber, moduleRelease, StepmodPartCM.IS_A_MODULE, currentCmRelease));
+            } else if (currentElement.equals("resource")) {
+                // reading a dependent resource schema
+                String resourceName = attrs.getValue("name");
+                String resourceNumber = attrs.getValue("part");
+                String resourceRelease= attrs.getValue("release");
+                currentCmRelease.addDependentPart(new StepmodPartCM(resourceName, resourceNumber, resourceRelease, StepmodPartCM.IS_A_RESOURCESCHEMA, currentCmRelease));
             }
         }
     }
@@ -364,7 +377,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.13 2006/07/17 13:19:31 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.14 2006/07/20 17:12:24 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -610,7 +623,7 @@ public class CmRecord {
     public String summaryHtml(CmRelease cmRelease) {
         String id = "";
         if (cmRelease == null) {
-            id = "Latest development release";
+            id = "Development release";
         } else {
             id = cmRelease.getId();
         }
@@ -621,7 +634,7 @@ public class CmRecord {
         if (cvsState == CvsStatus.CVSSTATE_UNKNOWN) {
             cvsStateDscr = "ERROR -- Release status cannot be established";
         } else if (cvsState == CvsStatus.CVSSTATE_DEVELOPMENT) {
-            cvsStateDscr = "Latest development release";
+            cvsStateDscr = "Development release";
         } else if (cvsState == CvsStatus.CVSSTATE_RELEASE) {
             cvsStateDscr =  part.getCvsTag();
         }
@@ -633,17 +646,25 @@ public class CmRecord {
                 + "<tr><td>Part Name:</td><td>"+part.getName()+"</td></tr>"
                 + "<tr><td>Checked out release:</td><td>" + cvsStateDscr +"</td></tr>";
         if (cmRelease != null) {
+            String depDescr = "";
+            if (cmRelease.isDependenciesCheckedOut()) {
+                depDescr = "All dependent parts are checked out at the correct release.";
+            } else {
+                depDescr = "A number of dependent parts are not at the correct release.";
+            }
             summary +=  "<tr><td>&#160;</td><td>&#160;<td></tr>"
                     + "<tr><td>Release identifier:</td><td>" + cmRelease.getId() + "</td></tr>"
                     + "<tr><td>Released date:</td><td>" + cmRelease.getReleaseDate() + "</td></tr>"
                     + "<tr><td>Release status:</td><td>" + cmRelease.getReleaseStatus() + "</td></tr>"
                     + "<tr><td>ISO status:</td><td>" + cmRelease.getIsoStatus() + "</td></tr>"
                     + "<tr><td>Released by:</td><td>" + cmRelease.getWho() + "</td></tr>"
+                    + "<tr><td>Dependency status:</td><td>" + depDescr +"</td></tr>"
                     + "<tr><td>Description:</td><td>" + cmRelease.getDescription() + "</td></tr>";
         }
         summary += "</table></body></html>";
         return(summary);
     }
+    
     
     
 }

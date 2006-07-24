@@ -1,5 +1,5 @@
 /**
- * $Id: CvsStatus.java,v 1.3 2006/07/13 09:02:12 robbod Exp $
+ * $Id: CvsStatus.java,v 1.4 2006/07/17 13:19:32 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -39,13 +39,13 @@ public class CvsStatus {
     private StepmodPart part;
     
     /**
-     * The directory for in whihc all part files are stored.
+     * The directory for in which all part files are stored.
      * E.g stepmod/data/modules/actvity
      */
     private String partDirectory;
     
     /**
-     * The main file for the part whihc is used to determine the CV Status
+     * The main file for the part which is used to determine the CV Status
      * For modules: module.xml
      * For APs: applciation_protocol.xml
      */

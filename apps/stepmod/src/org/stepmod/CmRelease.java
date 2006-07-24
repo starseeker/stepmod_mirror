@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
 /*
- * $Id: CmRelease.java,v 1.8 2006/07/19 16:46:29 robbod Exp $
+ * $Id: CmRelease.java,v 1.9 2006/07/20 17:12:24 robbod Exp $
  *
  * STEPmod.java
  *
@@ -44,6 +44,7 @@ public class CmRelease {
     
     /**
      * A list of all the parts (modules and resource schemas) on which the released part is dependent
+     * These parts are not necessarily the ones loaded - they may well be at a different revision level.
      */
     private TreeSet dependentParts = null;
     
@@ -73,6 +74,9 @@ public class CmRelease {
         setReleaseSequence(releaseSequence);
         setStepmodRelease(stepmodRelease);
         setReleaseDate(releaseDate);
+        // the dependencies will be read from the file
+        dependentParts = new TreeSet();
+        dependentFiles = new TreeMap();
     }
     
     
@@ -120,45 +124,79 @@ public class CmRelease {
     }
     
     public void setupDependencies() {
+        dependentParts = new TreeSet();
         // Make sure that the dependencies for the part are loaded
         StepmodPart part = getStepmodPart();
+        STEPmod stepMod = part.getStepMod();
         part.setupDependencies();
-        dependentParts = new TreeSet();
-        dependentParts.addAll(part.getDependentParts());
+        for (Iterator it = part.getDependentParts().iterator(); it.hasNext();) {
+            String dependentPartName = (String)it.next();
+            StepmodPart dependentPart = stepMod.getPartByName(dependentPartName);
+            String partCmRelease = dependentPart.getCvsTag();
+            int partType;
+            if (dependentPart instanceof StepmodModule) {
+                partType = StepmodPartCM.IS_A_MODULE;
+            } else {
+                partType = StepmodPartCM.IS_A_RESOURCESCHEMA;
+            }
+            this.addDependentPart(new StepmodPartCM(dependentPart.getName(), dependentPart.getPartNumber(), partCmRelease, partType, this));
+        }
         dependentFiles = new TreeMap();
         dependentFiles.putAll(part.getDependentFiles());
     }
     
     public void writeToStream(FileWriter out) throws IOException {
         out.write("   <cm_release\n");
-        out.write("      release=\""+ getId() +"\"");
-        out.write("      who=\""+ getWho() +"\"");
-        out.write("      when=\""+ getReleaseDate() +"\" ");
-        out.write("      stepmod_release=\""+ getStepmodRelease() +"\"");
-        out.write("      iso_status=\""+ getIsoStatus() +"\" ");
-        out.write("      release_status=\""+ getReleaseStatus() +"\" ");
-        //out.write("      release_sequence=\""+ getReleaseSequence() +"\"");
-        out.write("      edition=\""+ getEdition() +"\" ");
-        out.write("      description=\""+ getDescription() +"\">");
+        out.write("      release=\""+ getId() +"\"\n");
+        out.write("      who=\""+ getWho() +"\"\n");
+        out.write("      when=\""+ getReleaseDate() +"\"\n");
+        out.write("      stepmod_release=\""+ getStepmodRelease() +"\"\n");
+        out.write("      iso_status=\""+ getIsoStatus() +"\"\n");
+        out.write("      release_status=\""+ getReleaseStatus() +"\"\n");
+        //out.write("      release_sequence=\""+ getReleaseSequence() +"\"\n");
+        out.write("      edition=\""+ getEdition() +"\"\n");
+        out.write("      description=\""+ getDescription() +"\">\n");
         TreeSet dependentParts = null;
-        out.write("    <dependencies>");
-        out.write("      </sources>");
-        out.write("      <sources>");
-        out.write("      <modules>");
+        out.write("    <dependencies>\n");
+        out.write("      <sources>\n");
+        out.write("      </sources>\n");
+        
         STEPmod stepMod = getStepMod();
         dependentParts = getDependentParts();
-        for (Iterator it = dependentParts.iterator(); it.hasNext();) {
-            String dependentPartName = (String)it.next();
-            StepmodPart dependentPart = stepMod.getPartByName(dependentPartName);
-            out.write("        <module name=\""+dependentPartName
-                    +"\" part=\""+dependentPart.getPartNumber()
-                    +"\" release=\""+getId()+"\"/>");
-        }
-        out.write("      </modules>");
-        out.write("      <resource_schemas>");
-        out.write("      </resource_schemas>");
         
-        out.write("    <dependencies>");
+        out.write("      <modules>\n");
+        for (Iterator it = dependentParts.iterator(); it.hasNext();) {
+            StepmodPartCM dependentPart = (StepmodPartCM)it.next();
+            String cmRelease = dependentPart.getCmRelease();
+            if (cmRelease.length() == 0) {
+                // must be a development release
+                cmRelease = "Development release";
+            }
+            
+            if (dependentPart.isaModule()) {
+                out.write("        <module name=\""+dependentPart.getName()
+                +"\" part=\""+dependentPart.getPartNumber()
+                +"\" release=\""+cmRelease+"\"/>\n");
+            }
+        }
+        out.write("      </modules>\n");
+        
+        out.write("      <resource_schemas>\n");
+        for (Iterator it = dependentParts.iterator(); it.hasNext();) {
+            StepmodPartCM dependentPart = (StepmodPartCM)it.next();
+            String cmRelease = dependentPart.getCmRelease();
+            if (cmRelease.length() == 0) {
+                // must be a development release
+                cmRelease = "Development release";
+            }
+            if (dependentPart.isaResourceSchema()) {
+                out.write("        <resource name=\""+dependentPart.getName()
+                +"\" part=\""+dependentPart.getPartNumber()
+                +"\" release=\""+cmRelease+"\"/>\n");
+            }
+        }
+        out.write("      </resource_schemas>\n");
+        out.write("    </dependencies>\n");
         out.write("   </cm_release>\n");
     }
     
@@ -286,5 +324,24 @@ public class CmRelease {
         return dependentParts;
     }
     
+    public void addDependentPart(StepmodPartCM part) {
+        dependentParts.add(part);
+    }
     
+    public void addDependentFile(StepmodFile file) {
+        dependentFiles.put(file.toString(),file);
+    }
+    
+    /**
+     * Answer true if all the dependencies of the release are the expected releases
+     */
+    public boolean isDependenciesCheckedOut() {
+        for (Iterator it = this.getDependentParts().iterator(); it.hasNext();) {
+            StepmodPartCM dependentPart = (StepmodPartCM)it.next();
+            if (!dependentPart.isCheckedOut()) {
+                return(false);
+            }
+        }
+        return(true);
+    }
 }

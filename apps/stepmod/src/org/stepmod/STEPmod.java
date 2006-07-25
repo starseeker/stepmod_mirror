@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.12 2006/07/24 21:25:46 robbod Exp $
+ * $Id: STEPmod.java,v 1.13 2006/07/25 12:20:56 robbod Exp $
  *
  * STEPmod.java
  *
@@ -17,11 +17,11 @@
 package org.stepmod;
 
 import java.io.*;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.jar.Manifest;
 import javax.swing.UIManager;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -157,36 +157,36 @@ public class STEPmod {
             SAXParser saxParser = factory.newSAXParser();
             saxParser.parse( repoFile, handler );
             this.output("Loaded: "+repoFile.getPath());
-
-
+            
+            
             TreeMap copy = new TreeMap(getResourceDocsHash());
             for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry entry = (Map.Entry)it.next();
                 StepmodResourceDoc resDocNode = (StepmodResourceDoc)entry.getValue();
                 resDocNode.setupDependencies();
-            }            
+            }
             copy = new TreeMap(getResourcesHash());
             for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry entry = (Map.Entry)it.next();
                 StepmodResource resDocNode = (StepmodResource)entry.getValue();
                 resDocNode.setupDependencies();
             }
-                        copy = new TreeMap(getApplicationProtocolsHash());
+            copy = new TreeMap(getApplicationProtocolsHash());
             for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry entry = (Map.Entry)it.next();
                 StepmodApplicationProtocol apNode = (StepmodApplicationProtocol)entry.getValue();
                 apNode.setupDependencies();
             }
-                                    
+            
             // now load the dependencies
             // first take a copy of the dependencies
-             copy = new TreeMap(getModulesHash());
+            copy = new TreeMap(getModulesHash());
             for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry entry = (Map.Entry)it.next();
                 StepmodModule moduleNode = (StepmodModule)entry.getValue();
                 moduleNode.setupDependencies();
             }
-                        
+            
             setCurrentRepositoryIndex(repoFile);
         } catch (Throwable t) {
             t.printStackTrace();
@@ -571,6 +571,44 @@ public class STEPmod {
     
     public void setPropertiesFilename(String propertiesFilename) {
         this.propertiesFilename = propertiesFilename;
+    }
+    
+    
+    /**
+     * Allows to access to the information of the application contained in a Manifest file.
+     */
+    public java.util.jar.Manifest getManifestInformation() {
+        java.util.jar.Manifest manifest = null;
+        try{
+            java.net.URL manifestURL = getClass().getResource("/org/stepmod/META_INF/MANIFEST.MF");
+            java.io.InputStream is = manifestURL.openStream();
+            manifest = new java.util.jar.Manifest(is);
+        } catch(java.io.IOException ioe){
+            ioe.printStackTrace();
+        }
+        return manifest;
+    }
+    
+    public String getBuildNumber() {
+        Manifest manifest = this.getManifestInformation();
+        java.util.jar.Attributes attributes = manifest.getMainAttributes();
+        String buildNumber = attributes.getValue("Build-Number");
+        return(buildNumber);
+    }
+    
+    /**
+     * Answer if the part exists in STEPmod, in other words there is a part directory
+     */
+    public boolean partExists(String partName, String partType) {
+        // TODO need to complete this function
+        if (partType.equals("module")) {
+            File partFile = new File( getRootDirectory()+"/data/"+partType+"s/"+partName+"/module.xml");
+            return(partFile.exists());
+        } else if (partType.equals("resource")){
+            File partFile = new File( getRootDirectory()+"/data/"+partType+"s/"+partName+"/"+partName+".xml");            
+            return(partFile.exists());
+        }
+        return(true);
     }
     
 }

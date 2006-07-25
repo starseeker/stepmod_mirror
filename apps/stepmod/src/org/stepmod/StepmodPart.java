@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.21 2006/07/25 12:20:56 robbod Exp $
+ * $Id: StepmodPart.java,v 1.22 2006/07/25 13:07:53 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -860,10 +860,22 @@ public abstract class StepmodPart implements Comparable {
                                 // make sure that the part has not been loaded elsewhere.
                                 part = this.stepMod.getModuleByName(partName);
                                 if (part == null) {
-                                    part = new StepmodModule(this.getStepMod(), partName);
+                                    if (this.getStepMod().partExists(partName, "module")) {
+                                        part = new StepmodModule(this.getStepMod(), partName);
+                                    } else {
+                                        this.getStepMod().output("Error: reading  "+ expressFileName +"\n " +partName+" does not exist");
+                                        //TrappedError error = this.getErrors().addError(this,expressFileName,ex);
+                                    }
                                 }
                             } else if (partType.equals("resource")) {
-                                part = new StepmodResource(this.getStepMod(), partName);
+                                part = this.stepMod.getResourceByName(partName);
+                                if (part == null) {
+                                    if (this.getStepMod().partExists(partName, "resource")) {
+                                        part = new StepmodResource(this.getStepMod(), partName);
+                                    } else {
+                                        this.getStepMod().output("Error: reading  "+ expressFileName +"\n " +partName+" does not exist");
+                                    }
+                                }
                             }
                         } else {
                             part = (StepmodPart) partValue;

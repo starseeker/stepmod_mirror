@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import javax.swing.AbstractCellEditor;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -2540,6 +2542,7 @@ public class STEPModFrame extends javax.swing.JFrame {
             TreePath path = new TreePath(node.getPath());
             repositoryJTree.expandPath(path);
             repositoryJTree.setSelectionPath(path);
+            repositoryJTree.scrollPathToVisible(path);
         } else {
             // not found
             JOptionPane.showMessageDialog(this,
@@ -2563,7 +2566,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_setStepModPropsActionPerformed
     
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
-        getStepMod().about();
+        displayAbout();
     }//GEN-LAST:event_aboutMenuItemActionPerformed
     
     private void contentsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contentsMenuItemActionPerformed
@@ -2589,6 +2592,15 @@ public class STEPModFrame extends javax.swing.JFrame {
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitMenuItemActionPerformed
+    
+    private void displayAbout() {
+        String aboutStr="Developed by Eurostep (http://www.eurostep.com) under contract to NIST and ATI\n";        
+        aboutStr += "Build number: = "+ getStepMod().getBuildNumber();
+        JOptionPane.showMessageDialog(this,
+                aboutStr,
+                "STEPmod CM tool",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
     
     
     

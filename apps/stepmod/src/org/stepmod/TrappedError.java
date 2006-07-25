@@ -1,5 +1,5 @@
 /**
- * $Id: AbstractModuleAction.java,v 1.3 2004/11/08 12:07:44 Patrick Exp $
+ * $Id: TrappedError.java,v 1.1 2006/07/15 08:09:45 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -80,6 +80,7 @@ public class TrappedError {
     
     public void output() {
         String errorMsg = "Error: " + getErrorId() 
+        + "\n in part: " + getStepmodPart()
         + "\n in file: " + getFilePath() 
         + "\n" + getException().getMessage();
         stepMod.output(errorMsg);

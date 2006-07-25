@@ -20,6 +20,7 @@ import java.util.EventObject;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.swing.AbstractCellEditor;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -864,6 +865,11 @@ public class STEPModFrame extends javax.swing.JFrame {
         DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
         treeModel.insertNodeInto(dependenciesTreeNode, partTreeNode, partTreeNode.getChildCount());
         // TODO this.updateDependencies(dependenciesTreeNode, stepmodPartTreeNode);
+        
+        DefaultMutableTreeNode usedByTreeNode = new DefaultMutableTreeNode("Used by");
+        treeModel.insertNodeInto(usedByTreeNode, partTreeNode, partTreeNode.getChildCount());
+        this.updateUsedBy(usedByTreeNode);
+        
         DefaultMutableTreeNode filesTreeNode = new DefaultMutableTreeNode("Files");
         treeModel.insertNodeInto(filesTreeNode, partTreeNode, partTreeNode.getChildCount());
         this.updateFiles(filesTreeNode);
@@ -878,6 +884,34 @@ public class STEPModFrame extends javax.swing.JFrame {
             addReleaseToTree(part, cmRelease, partTreeNode, false);
         }
         return (partTreeNode);
+    }
+    
+    private void updateUsedBy(DefaultMutableTreeNode usedByTreeNodes) {
+        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
+        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) usedByTreeNodes.getParent();
+        Object parentUsrObj = parentNode.getUserObject();
+        StepmodPart stepmodPart = null;
+        TreeSet usedByParts = null;
+        
+        if (parentUsrObj instanceof StepmodPartTreeNode) {
+            StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) parentUsrObj;
+            stepmodPart = (StepmodPart)stepmodPartNode.getStepmodPart();
+            usedByParts = stepmodPart.getUsedBy();
+        } else if (parentUsrObj instanceof CmReleaseTreeNode) {
+            // must be dependencies on the release
+            CmRelease cmRelease = ((CmReleaseTreeNode)parentUsrObj).getCmRelease();
+            stepmodPart = ((CmReleaseTreeNode)parentUsrObj).getStepmodPart();
+            usedByParts = stepmodPart.getUsedBy();
+        }
+        if (usedByParts != null) {
+            // test just in case the record has no files - shouldn't happen
+            for (Iterator it=usedByParts.iterator(); it.hasNext(); ) {
+                StepmodPart part = (StepmodPart)it.next();
+                DefaultMutableTreeNode usedByTreeNode = new DefaultMutableTreeNode();
+                usedByTreeNode.setUserObject(part);
+                treeModel.insertNodeInto(usedByTreeNode, usedByTreeNodes, usedByTreeNode.getChildCount());
+            }
+        }
     }
     
     private void updateFiles(DefaultMutableTreeNode filesTreeNode) {
@@ -958,7 +992,6 @@ public class STEPModFrame extends javax.swing.JFrame {
                 //treeChanged = true;
             }
         }
-        // DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode("STEPMod");
         // Use the tree model to make sure that the added nodes are displayed
         DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
         // Comented out the code to redraw the tree as it will close all the nodes.
@@ -1374,6 +1407,23 @@ public class STEPModFrame extends javax.swing.JFrame {
         return null;
     }
     
+    private DefaultMutableTreeNode findTopNodeByPrefix(String prefix) {
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
+        // Iterate thro the top level, modules, resources etc
+        for (Enumeration e1=rootNode.children(); e1.hasMoreElements(); ) {
+            DefaultMutableTreeNode n = (DefaultMutableTreeNode)e1.nextElement();
+            for (Enumeration e2=n.children(); e2.hasMoreElements(); ) {
+                DefaultMutableTreeNode partNode = (DefaultMutableTreeNode)e2.nextElement();
+                StepmodPartTreeNode partTreeNode = (StepmodPartTreeNode)partNode.getUserObject();
+                StepmodPart part = partTreeNode.getStepmodPart();
+                System.out.println(prefix+"="+part.getPartNumber() );
+                if (part.getPartNumber().startsWith(prefix)) {
+                    return(partNode);
+                }
+            }
+        }
+        return(null);
+    }
     
     /**
      * For a given part node, find the selected release
@@ -2481,10 +2531,11 @@ public class STEPModFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_viewAllButtonActionPerformed
     
     private void findPartjTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_findPartjTextFieldActionPerformed
-        String part = findPartjTextField.getText()+":";
+        String part = findPartjTextField.getText();
         DefaultMutableTreeNode root = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
         // Find the node for the part
-        DefaultMutableTreeNode node = this.findNodeByPrefix(root, part);
+        //DefaultMutableTreeNode node = this.findNodeByPrefix(root, part);
+        DefaultMutableTreeNode node = this.findTopNodeByPrefix(part);
         if (node != null) {
             TreePath path = new TreePath(node.getPath());
             repositoryJTree.expandPath(path);

@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.20 2006/07/24 21:25:46 robbod Exp $
+ * $Id: StepmodPart.java,v 1.21 2006/07/25 12:20:56 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -38,7 +38,7 @@ import org.xml.sax.SAXException;
  *
  * @author rbn
  */
-public abstract class StepmodPart {
+public abstract class StepmodPart implements Comparable {
     
     private String name;
     private String nameFrench;
@@ -811,7 +811,7 @@ public abstract class StepmodPart {
     }
     
     public void addUsedBy(StepmodPart part) {
-        this.usedBy.add(part.getName());
+        this.usedBy.add(part);
     }
     
     public void addDependentPart(StepmodPart part) {
@@ -898,4 +898,14 @@ public abstract class StepmodPart {
         return dependentFiles;
     }
     
+    public int compareTo(Object o) {
+        StepmodPart stepmodPart = (StepmodPart) o;
+        return(name.compareTo(stepmodPart.getName()));
+    }
+    
+    public int compare(Object o1, Object o2) {
+        StepmodPart stepmodPart1 = (StepmodPart) o1;
+        StepmodPart stepmodPart2 = (StepmodPart) o2;
+        return(stepmodPart1.getName().compareTo(stepmodPart2.getName()));
+    }
 }

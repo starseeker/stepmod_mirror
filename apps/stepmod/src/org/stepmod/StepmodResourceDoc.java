@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResourceDoc.java,v 1.5 2006/07/15 08:08:37 robbod Exp $
+ * $Id: StepmodResourceDoc.java,v 1.6 2006/07/17 13:19:32 robbod Exp $
  *
  * StepmodResourceDoc.java
  *
@@ -18,6 +18,9 @@ package org.stepmod;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.TreeSet;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -34,6 +37,7 @@ public class StepmodResourceDoc extends StepmodPart {
     
     private String WgNumberExpress;
     private String WgNumberExpressSupersedes;
+    private ArrayList hasSchemas = new ArrayList();
     
     /** Creates a new instance of StepmodResourceDoc */
     public StepmodResourceDoc(STEPmod stepMod, String partName) {
@@ -127,7 +131,10 @@ public class StepmodResourceDoc extends StepmodPart {
                 resourceDoc.setLanguage(attrs.getValue("language"));
                 // a bit of a hack -- only need to read the attributes so
                 // thows StepmodReadSAXException out of the parser once all have been read
-                throw (new StepmodReadSAXException());
+                //throw (new StepmodReadSAXException());
+            } else if (currentElement.equals("schema")) {
+                String schemaName = attrs.getValue("name");
+                resourceDoc.getHasSchemas().add(schemaName);
             }
         }
     }
@@ -177,6 +184,27 @@ public class StepmodResourceDoc extends StepmodPart {
      * the TreeMap dependencies
      */
     public void setupDependencies() {
+        if (this.getDependentParts() == null) {
+            this.setDependentParts(new TreeSet());
+            for (Iterator it = hasSchemas.iterator(); it.hasNext();) {
+                String schemaName = (String) it.next();
+                StepmodResource resSchema = this.getStepMod().getResourceByName(schemaName);
+                if (resSchema == null) {
+                    // Load it
+                    resSchema = new StepmodResource(this.getStepMod(), schemaName);
+                }                
+                this.addDependentPart(resSchema);
+                // read the schema.xml
+                String schemaFilename = this.getStepMod().getRootDirectory()
+                + "/data/resources/" + schemaName +"/" + schemaName + ".xml";
+                readExpressInterface(schemaFilename);
+            }
+        }
+    }
+    
+    
+    public ArrayList getHasSchemas() {
+        return hasSchemas;
     }
     
 }

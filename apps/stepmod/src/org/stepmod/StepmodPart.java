@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.19 2006/07/20 17:12:24 robbod Exp $
+ * $Id: StepmodPart.java,v 1.20 2006/07/24 21:25:46 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -95,6 +95,7 @@ public abstract class StepmodPart {
         setStepMod(stepMod);
         setStepmodType();
         errors = new TrappedErrorMap(this);
+        setUsedBy(new TreeSet());
         setupDependentFiles();
     }
     

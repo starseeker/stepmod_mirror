@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.11 2006/07/20 17:12:24 robbod Exp $
+ * $Id: STEPmod.java,v 1.12 2006/07/24 21:25:46 robbod Exp $
  *
  * STEPmod.java
  *
@@ -36,58 +36,34 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class STEPmod {
     
-    private String rootDirectory;
     private TreeMap hasModules;
     private TreeMap hasApplicationProtocols;
     private TreeMap hasResourceDocs;
     private TreeMap hasResources;
     private STEPModFrame stepModGui;
     private Properties properties = new Properties();
+    private String propertiesFilename;
     
     private String applicationDir;
     
+    /**
+     * The repositroy_index.xml that has been loaded
+     */
+    private File currentRepositoryIndex;
     
     /** Creates a new instance of STEPmod */
-    public STEPmod(String stepModRoot, String appDir) {
-        rootDirectory = stepModRoot;
-        applicationDir = appDir;
+    public STEPmod() {
         readStepmodProperties();
     }
+    
+    
     
     /**
      * Return the directory in which STEPmod is stored.
      * @return The directory in which STEPmod is stored.
      */
     public String getRootDirectory() {
-        return rootDirectory;
-    }
-    
-    /**
-     * Set the directory in which STEPmod is stored.
-     * @param rootDirectory The Stepmod directory
-     */
-    public void setRootDirectory(String rootDirectory) {
-        this.rootDirectory = rootDirectory;
-    }
-    
-    /**
-     * Sets the root directory of the STEPmod application
-     *
-     * @param dir the new application directory
-     */
-    public void setApplicationDir( String dir ) {
-        applicationDir= dir;
-    }
-    
-    /**
-     * Returns the root directory of the STEPmod application
-     *
-     * @return the application directory or empty string if <b>setApplicationDir</b> was not called
-     */
-    public String getApplicationDir( ) {
-        if(applicationDir != null)
-            return applicationDir;
-        return "";
+        return(getStepmodProperty("STEPMODROOT"));
     }
     
     
@@ -155,17 +131,23 @@ public class STEPmod {
     
     
     /**
-     * Read the repository_index.xml file from the STEPmod root directory instantiating the STEPparts
+     * Read the repository_index.xml file instantiating the STEPparts
      */
-    public void readRepositoryIndex() {
+    public void readRepositoryIndex(String repositoryIndexFilename) {
+        File repoFile =  new File(repositoryIndexFilename);
+        readRepositoryIndex(repoFile);
+    }
+    
+    /**
+     * Read the repository_index.xml file instantiating the STEPparts
+     */
+    public void readRepositoryIndex(File repoFile) {
         hasModules = new TreeMap();
         hasApplicationProtocols  = new TreeMap();
         hasResourceDocs = new TreeMap();
         hasResources = new TreeMap();
         
         //  set up a SAX handler to read repository_index.xml instantiating Stepmodparts.
-        String stepModDir = getRootDirectory();
-        String repoFilename = stepModDir+"/repository_index.xml";
         // Use an instance of ourselves as the SAX event handler
         DefaultHandler handler = new RepositorySaxHandler(this);
         // Use the default (non-validating) parser
@@ -173,18 +155,39 @@ public class STEPmod {
         try {
             // Parse the input
             SAXParser saxParser = factory.newSAXParser();
-            File repoFile =  new File(repoFilename);
             saxParser.parse( repoFile, handler );
             this.output("Loaded: "+repoFile.getPath());
-            
+
+
+            TreeMap copy = new TreeMap(getResourceDocsHash());
+            for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry entry = (Map.Entry)it.next();
+                StepmodResourceDoc resDocNode = (StepmodResourceDoc)entry.getValue();
+                resDocNode.setupDependencies();
+            }            
+            copy = new TreeMap(getResourcesHash());
+            for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry entry = (Map.Entry)it.next();
+                StepmodResource resDocNode = (StepmodResource)entry.getValue();
+                resDocNode.setupDependencies();
+            }
+                        copy = new TreeMap(getApplicationProtocolsHash());
+            for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry entry = (Map.Entry)it.next();
+                StepmodApplicationProtocol apNode = (StepmodApplicationProtocol)entry.getValue();
+                apNode.setupDependencies();
+            }
+                                    
             // now load the dependencies
             // first take a copy of the dependencies
-            TreeMap copy = new TreeMap(getModulesHash());
+             copy = new TreeMap(getModulesHash());
             for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry entry = (Map.Entry)it.next();
                 StepmodModule moduleNode = (StepmodModule)entry.getValue();
                 moduleNode.setupDependencies();
             }
+                        
+            setCurrentRepositoryIndex(repoFile);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -426,24 +429,7 @@ public class STEPmod {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        int i = 0;
-        String stepmodRoot = "";
-        String appDir = "";
-        while(i < args.length) {
-            if(args[i].startsWith("-")) {
-                if(args[i].equals("-appDdir")) {
-                    appDir = args[i+1];
-                    i++;
-                } else if (args[i].equals("-root")) {
-                    stepmodRoot = args[i+1];
-                    i++;
-                }
-            }
-            i++;
-        }
-        
-        
-        STEPmod stepMod = new STEPmod(stepmodRoot, appDir);
+        STEPmod stepMod = new STEPmod();
         try {
             UIManager.setLookAndFeel(
                     UIManager.getSystemLookAndFeelClassName());
@@ -453,8 +439,8 @@ public class STEPmod {
         STEPModFrame stepModGui = new STEPModFrame(stepMod);
         stepMod.setStepModGui(stepModGui);
         stepModGui.initialise();
-        stepMod.readRepositoryIndex();
-        stepModGui.initRepositoryTree();
+        //stepMod.readRepositoryIndex();
+        //stepModGui.initRepositoryTree();
     }
     
     public STEPModFrame getStepModGui() {
@@ -489,10 +475,48 @@ public class STEPmod {
      * Read the Stepmod.properties file
      */
     public void readStepmodProperties() {
-        try {
-            properties.load(new FileInputStream(getRootDirectory()+"/stepmod.properties"));
-        } catch (IOException e) {
+        String stepmodDirName = System.getProperty("user.home")+"/stepmod";
+        File stepmodDir = new File(stepmodDirName);
+        boolean success = true;
+        if (!stepmodDir.exists()) {
+            success = stepmodDir.mkdir();
         }
+        if (success) {
+            String stepmodPropsFilename = stepmodDirName+"/stepmod.properties";
+            File stepmodPropsFile = new File(stepmodPropsFilename);
+            if (stepmodPropsFile.exists()) {
+                // Load the properties from users home
+                // C:/Documents and Settings/user on windows
+                try {
+                    properties.load(new FileInputStream(stepmodPropsFile));
+                    setPropertiesFilename(stepmodPropsFilename);
+                } catch (FileNotFoundException ex) {
+                    ex.printStackTrace();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                setStepmodProperty("PUTTY_SESSION","");
+                setStepmodProperty("PLINK_PROTOCOL","");
+                setStepmodProperty("SFORGE_USERNAME","");
+                setStepmodProperty("CVS_RSH","");
+                setStepmodProperty("STEPMODROOT","");
+                setStepmodProperty("CVSEXE","");
+                setPropertiesFilename(stepmodPropsFilename);
+                writeStepmodProperties();
+            }
+            
+        } else {
+            System.out.println("Can not read or create directory " + stepmodDir);
+        }
+    }
+    
+    /**
+     * Answer if the stepmod root has been correctly set in the properties
+     */
+    public boolean isValidStepmodRoot() {
+        File stepmodRoot = new File(getStepmodProperty("STEPMODROOT")+"/repository_index.xml");
+        return(stepmodRoot.exists());
     }
     
     /**
@@ -500,8 +524,11 @@ public class STEPmod {
      */
     public void writeStepmodProperties() {
         try {
-            properties.store(new FileOutputStream(getRootDirectory()+"/stepmod.properties"), null);
-        } catch (IOException e) {
+            properties.store(new FileOutputStream(getPropertiesFilename()), null);
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
     
@@ -528,6 +555,22 @@ public class STEPmod {
      */
     String getStepmodRelease() {
         return null;
+    }
+    
+    public File getCurrentRepositoryIndex() {
+        return currentRepositoryIndex;
+    }
+    
+    public void setCurrentRepositoryIndex(File currentRepositoryIndex) {
+        this.currentRepositoryIndex = currentRepositoryIndex;
+    }
+    
+    public String getPropertiesFilename() {
+        return propertiesFilename;
+    }
+    
+    public void setPropertiesFilename(String propertiesFilename) {
+        this.propertiesFilename = propertiesFilename;
     }
     
 }

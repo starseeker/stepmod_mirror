@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResource.java,v 1.5 2006/07/18 12:43:58 robbod Exp $
+ * $Id: StepmodResource.java,v 1.6 2006/07/19 16:46:29 robbod Exp $
  *
  * StepmodResource.java
  *
@@ -110,9 +110,9 @@ public class StepmodResource extends StepmodPart {
     /**
      * Provide the HTML body that is the summary of the part
      */
-    public String summaryHtmlBody() {
-        return "";
-    }
+//    public String summaryHtmlBody() {
+//        return "";
+//    }
     
     /**
      * Returns the full path to the resources directory
@@ -129,7 +129,7 @@ public class StepmodResource extends StepmodPart {
      * @return a string containing the full part number
      */
     public String getPartNumberString() {
-        return("Resource document: ISO 10303-"+getPartNumber());
+        return("Resource schema: "+getPartNumber());
     }
     
     public void setStepmodType() {
@@ -158,8 +158,7 @@ public class StepmodResource extends StepmodPart {
      */
     public void setupDependencies() {
         if (getDependentParts() == null) {
-            this.setDependentParts(new TreeSet());
-            this.setUsedBy(new TreeSet());            
+            this.setDependentParts(new TreeSet());   
             // read the schema .xml
             String schemaFilename = this.getDirectory() + "/" + this.getName()+".xml";
             readExpressInterface(schemaFilename);

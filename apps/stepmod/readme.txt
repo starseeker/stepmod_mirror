@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.4 2006/07/17 06:18:08 robbod Exp $
+$Id: readme.txt,v 1.5 2006/07/17 06:43:02 robbod Exp $
 
 WARNING 
 - THIS IS WORK IN PROGRESS - so no guarantees about anything
@@ -7,7 +7,6 @@ INTRODUCTION
 ===========
 This application allows enables the configuration management of STEPmod and
 its components.
-
 
 
 INSTALLATION
@@ -21,12 +20,6 @@ Edit runme.sh so that -root points at your local copy of stepmod
 Make sure that you have a copy of CVSNT installed 
 See http://www.cvsnt.org/wiki/FrontPage
 
-Setup your SourceForge name, the path to the CVS executable and SSS link
-using the StepModProperties command (Tools -> Set Stepod propeorties) 
-This will modify the stepmod/stepmod.properties file
-Please do not check in this file.
-
-
 
 RUNNING THE APPLICATION
 =======================
@@ -35,6 +28,14 @@ Execute runme.sh
 
 To run the program from DOS:
 Execute runme.bat
+
+Setup the application properties.
+You only need to do this once and a properties file will be stored and
+reused next time you run the application.
+Use the Tools -> Set Stepod properties menu to setup the properties
+
+Setup the path to STEPmod, your SourceForge name, the path to the CVS executable and SSH link
+
 
 TEST CVS CONNECTION
 ===================

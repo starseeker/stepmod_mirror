@@ -14,16 +14,17 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import javax.swing.AbstractCellEditor;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
@@ -553,8 +554,10 @@ public class STEPModFrame extends javax.swing.JFrame {
             } else if (checkedOutrel) {
                 checkBoxRenderer.setForeground(textForeground);
                 checkBoxRenderer.setBackground(currentBackground);
-                if (!cmRelease.isDependenciesCheckedOut()) {
-                    checkBoxRenderer.setFont(fontBoldItalic);
+                if (cmRelease != null) {
+                    if (!cmRelease.isDependenciesCheckedOut()) {
+                        checkBoxRenderer.setFont(fontBoldItalic);
+                    }
                 }
             } else {
                 checkBoxRenderer.setForeground(textForeground);
@@ -825,7 +828,8 @@ public class STEPModFrame extends javax.swing.JFrame {
      */
     public void initialise() {
         // TODO probably should display a splash screen with progress bar as it takes a while to load
-        // initRepositoryTree();
+        // No repository loaded yet
+        reloadRepositoryIndexMenuItem.setEnabled(false);
         repositoryJTree.setVisible(false);
         initAllModulesPopupMenu();
         initStepmodPartPopupMenu();
@@ -1143,6 +1147,34 @@ public class STEPModFrame extends javax.swing.JFrame {
         });
     }
     
+    
+    /**
+     * Load a repository and display it
+     */
+    public void loadRepository(File repository) {
+        if (getStepMod().isValidStepmodRoot()) {
+            // TODO - should add a progress monitor
+            output("Loading "+repository);
+            repositoryJTree.collapseRow(0);
+            // Clear any ouput being displayed
+            setCurrentDisplayedObject(null);
+            repositoryTextPane.setText("");
+            getStepMod().readRepositoryIndex(repository);
+            initRepositoryTree();
+            reloadRepositoryIndexMenuItem.setEnabled(true);
+        } else {
+            warning("The properties have not been set correctly.\n"+"" +
+                    "The STEPMODROOT directory does not exist.\n"+
+                    "Set the properties in the Tools->Set stepmod properties menu");
+        }
+    }
+    
+    /**
+     * Load a repository and display it
+     */
+    public void loadRepository(String repository) {
+        loadRepository(new File(repository));
+    }
     
     /**
      * Setup the popup menu associated with the modules
@@ -2055,7 +2087,9 @@ public class STEPModFrame extends javax.swing.JFrame {
         stepModOutputTextArea = new javax.swing.JTextArea();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
-        reloadRepositoryMenuItem = new javax.swing.JMenuItem();
+        loadRepositoryMenuItem = new javax.swing.JMenuItem();
+        reloadRepositoryIndexMenuItem = new javax.swing.JMenuItem();
+        selectAndLoadRepositoryMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
         viewMenu = new javax.swing.JMenu();
         clearAllMenuItem = new javax.swing.JMenuItem();
@@ -2191,15 +2225,35 @@ public class STEPModFrame extends javax.swing.JFrame {
         stepmodMainSplitPane.setRightComponent(stepModOutputPanel);
 
         fileMenu.setText("File");
-        reloadRepositoryMenuItem.setText("Reload repository_index.xml");
-        reloadRepositoryMenuItem.setToolTipText("Reloads all the parts identified in the repository index");
-        reloadRepositoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        loadRepositoryMenuItem.setText("Load default repository_index.xml");
+        loadRepositoryMenuItem.setToolTipText("loads all the parts identified in the repository indexL");
+        loadRepositoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                reloadRepositoryMenuItemActionPerformed(evt);
+                loadRepositoryMenuItemActionPerformed(evt);
             }
         });
 
-        fileMenu.add(reloadRepositoryMenuItem);
+        fileMenu.add(loadRepositoryMenuItem);
+
+        reloadRepositoryIndexMenuItem.setText("Reload current repsoitory_index.xml ");
+        reloadRepositoryIndexMenuItem.setToolTipText("Reload the repository index that was previously loaded");
+        reloadRepositoryIndexMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reloadRepositoryIndexMenuItemActionPerformed(evt);
+            }
+        });
+
+        fileMenu.add(reloadRepositoryIndexMenuItem);
+
+        selectAndLoadRepositoryMenuItem.setText("Load repository_index.xml");
+        selectAndLoadRepositoryMenuItem.setToolTipText("Select a repository index and load it");
+        selectAndLoadRepositoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectAndLoadRepositoryMenuItemActionPerformed(evt);
+            }
+        });
+
+        fileMenu.add(selectAndLoadRepositoryMenuItem);
 
         exitMenuItem.setText("Exit");
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -2338,6 +2392,49 @@ public class STEPModFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
+    private void reloadRepositoryIndexMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadRepositoryIndexMenuItemActionPerformed
+        if (getStepMod().isValidStepmodRoot()) {
+            File currentRepo = getStepMod().getCurrentRepositoryIndex();
+            if (currentRepo != null) {
+                int answer = JOptionPane.showConfirmDialog(this,
+                        "You are about to reload the repository_index\n"+currentRepo+"\nDo you want to continue?",
+                        "Loading repository_index.xml ....",
+                        JOptionPane.YES_NO_OPTION);
+                if (answer == JOptionPane.YES_OPTION) {
+                    loadRepository(currentRepo);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this,"No repository loaded","Error ....", JOptionPane.OK_OPTION);
+            }
+        } else {
+            warning("The properties have not been set correctly.\n"+"" +
+                    "The STEPMODROOT directory does not exist.\n"+
+                    "Set the properties in the Tools->Set stepmod properties menu");
+        }
+    }//GEN-LAST:event_reloadRepositoryIndexMenuItemActionPerformed
+    
+    private void selectAndLoadRepositoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAndLoadRepositoryMenuItemActionPerformed
+        if (getStepMod().isValidStepmodRoot()) {
+            File repoFile = getStepMod().getCurrentRepositoryIndex();
+            if (repoFile == null) {
+                repoFile = new File(getStepMod().getStepmodProperty("STEPMODROOT") + "/repository_index.xml");
+            }
+            JFileChooser fileChooser = new JFileChooser(repoFile);
+            fileChooser.setSelectedFile(repoFile);
+            int result = fileChooser.showOpenDialog(this);
+            // Determine which button was clicked to close the dialog
+            if (result == JFileChooser.APPROVE_OPTION) {
+                // Approve (Open or Save) was clicked
+                File selectedFile = fileChooser.getSelectedFile();
+                loadRepository(selectedFile);
+            }
+        } else {
+            warning("The properties have not been set correctly.\n"+"" +
+                    "The STEPMODROOT directory does not exist.\n"+
+                    "Set the properties in the Tools->Set stepmod properties menu");
+        }
+    }//GEN-LAST:event_selectAndLoadRepositoryMenuItemActionPerformed
+    
     private void viewSelectedToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedToggleButtonActionPerformed
         if (viewSelectedToggleButton.isSelected()) {
             viewSelectedParts();
@@ -2362,20 +2459,22 @@ public class STEPModFrame extends javax.swing.JFrame {
         clearAllSelectedParts();
     }//GEN-LAST:event_clearSelectedButtonActionPerformed
     
-    private void reloadRepositoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadRepositoryMenuItemActionPerformed
-        int answer = JOptionPane.showConfirmDialog(this,
-                "You are about to reload the repository_index. Do you want to continue?",
-                "Loading repository_index.xml ....",
-                JOptionPane.YES_NO_OPTION);
-        if (answer == JOptionPane.YES_OPTION) {
-            repositoryJTree.collapseRow(0);
-            // Clear any ouput being displayed
-            setCurrentDisplayedObject(null);
-            repositoryTextPane.setText("");
-            getStepMod().readRepositoryIndex();
-            initRepositoryTree();
+    private void loadRepositoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadRepositoryMenuItemActionPerformed
+        if (getStepMod().isValidStepmodRoot()) {
+            String currentRepo = getStepMod().getStepmodProperty("STEPMODROOT")+"/repository_index.xml";
+            int answer = JOptionPane.showConfirmDialog(this,
+                    "You are about to load the repository_index\n "+currentRepo+"\nThis will overwrite everything already loaded.\n\nDo you want to continue?",
+                    "Loading repository_index.xml ....",
+                    JOptionPane.YES_NO_OPTION);
+            if (answer == JOptionPane.YES_OPTION) {
+                loadRepository(currentRepo);
+            }
+        } else {
+            warning("The properties have not been set correctly.\n"+"" +
+                    "The STEPMODROOT directory does not exist.\n"+
+                    "Set the properties in the Tools->Set stepmod properties menu");
         }
-    }//GEN-LAST:event_reloadRepositoryMenuItemActionPerformed
+    }//GEN-LAST:event_loadRepositoryMenuItemActionPerformed
     
     private void viewAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewAllButtonActionPerformed
         viewAllParts();
@@ -2459,17 +2558,19 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JMenuItem loadRepositoryMenuItem;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem mkApMenuItem;
     private javax.swing.JMenuItem mkModuleMenuItem;
     private javax.swing.JMenuItem mkdResDocMenuItem;
     private javax.swing.JPopupMenu outputPopupMenu;
-    private javax.swing.JMenuItem reloadRepositoryMenuItem;
+    private javax.swing.JMenuItem reloadRepositoryIndexMenuItem;
     private javax.swing.JTree repositoryJTree;
     private javax.swing.JScrollPane repositoryScrollPane;
     private javax.swing.JSplitPane repositorySplitPane;
     private javax.swing.JTextPane repositoryTextPane;
     private javax.swing.JScrollPane repositoryTreeScrollPane;
+    private javax.swing.JMenuItem selectAndLoadRepositoryMenuItem;
     private javax.swing.JMenuItem setStepModProps;
     private javax.swing.JPanel stepModOutputPanel;
     private javax.swing.JScrollPane stepModOutputScrollPane;

@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodApplicationProtocol.java,v 1.7 2006/07/18 12:43:58 robbod Exp $
+ * $Id: StepmodApplicationProtocol.java,v 1.8 2006/07/19 16:46:29 robbod Exp $
  *
  * StepmodApplicationProtocol.java
  *
@@ -154,10 +154,8 @@ public class StepmodApplicationProtocol extends StepmodPart {
     public void setupDependencies() {        
         if (this.getDependentParts() == null) {
             this.setDependentParts(new TreeSet());
-            this.setUsedBy(new TreeSet());
             
-            // get the AP modules and all its dependencies
-            
+            // get the AP modules and all its dependencies            
             StepmodModule apMod = this.getStepMod().getModuleByName(this.getModuleName());
             if (apMod == null) {
                 // Load it

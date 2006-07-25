@@ -1,1 +1,1 @@
-java -jar "Stepmod.jar" -Djava.library.path=lib -root D:\users\rbn\sforge\stepmod -appDir D:\users\rbn\sforge\stepmod\apps
+java -jar "Stepmod.jar" -Djava.library.path=lib

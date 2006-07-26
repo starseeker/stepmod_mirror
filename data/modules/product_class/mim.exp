@@ -6,14 +6,11 @@
 
 SCHEMA Product_class_mim;
 
+USE FROM Identification_assignment_mim;
+
 USE FROM Product_concept_identification_mim;
 
-USE FROM Group_schema(
-	group,
-	group_relationship);
-	
-USE FROM Management_resources_schema(
-	group_assignment);
+USE FROM Group_mim;
 
 USE FROM product_concept_schema(
 	conditional_concept_feature,
@@ -26,6 +23,21 @@ USE FROM product_property_definition_schema(
 	characterized_object);
 
 TYPE category_usage_item = SELECT (product_class);
+END_TYPE;
+
+TYPE id_for_class = SELECT BASED_ON identification_item WITH (
+	product_class, 
+	product_concept_feature);
+END_TYPE;
+
+TYPE version_for_class = SELECT BASED_ON versionable_item WITH (
+	product_class, 
+	product_concept_feature);
+END_TYPE;
+
+TYPE specification_for_category = SELECT BASED_ON groupable_item WITH (
+	package_product_concept_feature,
+	product_concept_feature);
 END_TYPE;
 
 ENTITY exclusive_product_concept_feature_category
@@ -86,6 +98,8 @@ WHERE
 									( 
 										aga <* USEDIN( SELF, 'MANAGEMENT_RESOURCES_SCHEMA.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) 
 										|
+     								('GROUP_MIM.'+ 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF(aga)) 
+     								AND
     								(
     									( aga.role.name <> 'specification category member' ) 
     									OR 

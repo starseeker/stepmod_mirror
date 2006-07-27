@@ -21,8 +21,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 import javax.swing.AbstractCellEditor;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -34,7 +32,10 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -641,8 +642,8 @@ public class STEPModFrame extends javax.swing.JFrame {
                     checkBoxRenderer.setSelectedIcon(relSelCvsModIcon);
                     checkBoxRenderer.setToolTipText("Released revision. Cm record file has been modified and changes not commited to CVS");
                 } else {
-                    checkBoxRenderer.setIcon(pubUnSelCvsIcon);
-                    checkBoxRenderer.setSelectedIcon(pubSelCvsIcon);
+                    checkBoxRenderer.setIcon(relUnSelCvsIcon);
+                    checkBoxRenderer.setSelectedIcon(relSelCvsIcon);
                     checkBoxRenderer.setToolTipText("Released revision. Cm record file is committed to CVS");
                 }
             }
@@ -866,7 +867,8 @@ public class STEPModFrame extends javax.swing.JFrame {
         
         DefaultMutableTreeNode dependenciesTreeNode = new DefaultMutableTreeNode("Dependencies");
         treeModel.insertNodeInto(dependenciesTreeNode, partTreeNode, partTreeNode.getChildCount());
-        // TODO this.updateDependencies(dependenciesTreeNode, stepmodPartTreeNode);
+        // Note the dependencies tree gets loaded by this updateDependencies(dependenciesTreeNode, stepmodPartTreeNode);
+        // This is done whenever the user opens the node therefore a TreeExpansionListener has been added
         
         DefaultMutableTreeNode usedByTreeNode = new DefaultMutableTreeNode("Used by");
         treeModel.insertNodeInto(usedByTreeNode, partTreeNode, partTreeNode.getChildCount());
@@ -958,55 +960,19 @@ public class STEPModFrame extends javax.swing.JFrame {
         dependencyNode.setUserObject(dependenciesTreeNodeCollection);
         DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) dependencyNode.getParent();
         StepmodPart stepmodPart = null;
-        Object parentUsrObj = parentNode.getUserObject();
+        //Object parentUsrObj = parentNode.getUserObject();
         stepmodPart = (StepmodPart)stepmodPartNode.getStepmodPart();
         StepmodPartTreeNodeCollection partsCollection = null;
         boolean treeChanged = false;
         
         // get all the dependent parts
-        // TODO - set up monitor
-        // ProgressMonitorWindow monitor = new ProgressMonitorWindow(part.getStepMod().getStepModGui(), true);
-        // monitor.setVisible(true);
-        stepmodPart.setupDependencies();
+        //stepmodPart.setupDependencies();
         // draw the dependency tree
         for (Iterator it = stepmodPart.getDependentParts().iterator(); it.hasNext();) {
             String dependentPartName = (String)it.next();
             StepmodPart dependentPart = stepmodPart.getStepMod().getPartByName(dependentPartName);
             this.addRepositoryTreeNode(dependentPart, dependencyNode, dependenciesTreeNodeCollection);
-            // make sure that the node is displayed in the top listing
-            // Some parts may be loaded as not the complete repository index was loaded
-            if (dependentPart instanceof StepmodModule) {
-                partsCollection = this.getModulesTreeNodeCollection();
-            } else if (dependentPart instanceof StepmodApplicationProtocol) {
-                partsCollection = this.getApTreeNodeCollection();
-            } else if (dependentPart instanceof StepmodResourceDoc) {
-                partsCollection = this.getResourceDocsTreeNodeCollection();
-            } else if (dependentPart instanceof StepmodResource) {
-                partsCollection = this.getSchemasTreeNodeCollection();
-            }
-            DefaultMutableTreeNode partsCollectionNode = partsCollection.getTreeNode();
-            
-            DefaultMutableTreeNode partNode = partsCollection.getNodeForPart(dependentPart);
-            if (partNode == null) {
-                // TODO - this method has been set up assuming that the dependencies are pulled by the user
-                // in fact it makes sense to deduce them ahead of time
-                //this.addRepositoryTreeNode(dependentPart, partsCollectionNode, partsCollection);
-                //treeChanged = true;
-            }
         }
-        // Use the tree model to make sure that the added nodes are displayed
-        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
-        // Comented out the code to redraw the tree as it will close all the nodes.
-        // leave it t the user to redraw
-        if (treeChanged) {
-            treeModel.nodeStructureChanged(this.modulesTreeNode);
-            treeModel.nodeStructureChanged(this.resourceSchemasTreeNode);
-            TreePath path = new TreePath(dependencyNode.getPath());
-            repositoryJTree.expandPath(path);
-            repositoryJTree.scrollPathToVisible(path);
-            repositoryJTree.setSelectionPath(path);
-        }
-        //this.updateNode(modulesNode);
     }
     
     
@@ -1111,19 +1077,27 @@ public class STEPModFrame extends javax.swing.JFrame {
                     String summary = stepmodPartCM.summaryHtml();
                     repositoryTextPane.setText(summary);
                     setCurrentDisplayedObject(nodeObject);
-                } else if (nodeObject instanceof String) {
-                    String nodeString = nodeObject.toString();
-                    if (nodeString.equals("Dependencies")) {
-                        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
-                        Object parentUsrObj = parentNode.getUserObject();
-                        if (parentUsrObj instanceof StepmodPartTreeNode) {
-                            // only update if the dependencies are on a part as opposed to a release
-                            StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) parentUsrObj;
-                            updateDependencies(node, stepmodPartNode);
-                        }
-                    }
                 }
             }
+        });
+        
+        // Listen for a tree expansion, then set up the dependencies tree
+        // If this is done ahead of time, end up an endless recursive loop
+        repositoryJTree.addTreeExpansionListener(new TreeExpansionListener() {
+            // Required by TreeExpansionListener interface.
+            public void treeExpanded(TreeExpansionEvent e) {
+                TreePath path = e.getPath();
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                Object nodeObject = (Object)node.getUserObject();
+                if (nodeObject instanceof StepmodPartTreeNode) {
+                    StepmodPartTreeNode stepmodPartNode = (StepmodPartTreeNode) nodeObject;
+                    DefaultMutableTreeNode dependenciesNode = (DefaultMutableTreeNode) node.getChildAt(1);
+                    updateDependencies(dependenciesNode, stepmodPartNode);
+                }
+            }
+            
+            // Required by TreeExpansionListener interface.
+            public void treeCollapsed(TreeExpansionEvent e) {}
         });
         
         repositoryJTree.addMouseListener(new MouseAdapter() {
@@ -1131,9 +1105,9 @@ public class STEPModFrame extends javax.swing.JFrame {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     JTree tree = (JTree)e.getComponent();
                     TreePath path = tree.getClosestPathForLocation(e.getX(), e.getY());
+                    tree.setSelectionPath(path);
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
                     Object nodeObject = (Object)node.getUserObject();
-                    
                     if (nodeObject instanceof StepmodPartTreeNode) {
                         StepmodPart part = ((StepmodPartTreeNode) nodeObject).getStepmodPart();
                         // Make sure that the menu knows about the tree node
@@ -1191,12 +1165,11 @@ public class STEPModFrame extends javax.swing.JFrame {
             // TODO - should add a progress monitor
             output("Loading "+repository);
             repositoryJTree.collapseRow(0);
-            // Clear any ouput being displayed
+            // Clear any output being displayed
             setCurrentDisplayedObject(null);
             repositoryTextPane.setText("");
             getStepMod().readRepositoryIndex(repository);
             initRepositoryTree();
-            reloadRepositoryIndexMenuItem.setEnabled(true);
         } else {
             warning("The properties have not been set correctly.\n"+"" +
                     "The STEPMODROOT directory does not exist.\n"+
@@ -1418,7 +1391,6 @@ public class STEPModFrame extends javax.swing.JFrame {
                 DefaultMutableTreeNode partNode = (DefaultMutableTreeNode)e2.nextElement();
                 StepmodPartTreeNode partTreeNode = (StepmodPartTreeNode)partNode.getUserObject();
                 StepmodPart part = partTreeNode.getStepmodPart();
-                System.out.println(prefix+"="+part.getPartNumber() );
                 if (part.getPartNumber().startsWith(prefix)) {
                     return(partNode);
                 }
@@ -1647,7 +1619,16 @@ public class STEPModFrame extends javax.swing.JFrame {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
                 StepmodPart part = ((StepmodPartTreeNode) node.getUserObject()).getStepmodPart();
-                new STEPModMkReleaseDialog(part, node).setVisible(true);
+                int check = part.okToRelease();
+                if (check == StepmodPart.RELEASE_CHECK_ERROR_DEPENDENT_PARTS) {
+                    warning("Cannot create a release as a number of the dependent parts are not checked out as releases.\n Check out the released versions");
+                    return;
+                } else if (check == StepmodPart.RELEASE_CHECK_ERROR_DEVELOPMENT_PART) {
+                    warning("Cannot create a release the part is checked out as a release.\nCheck out a development release");
+                    return;
+                } else {
+                    new STEPModMkReleaseDialog(part, node).setVisible(true);
+                }
             }
         });
         cvsReleaseSubmenu.add(createCmReleaseMenuItem);
@@ -1858,14 +1839,14 @@ public class STEPModFrame extends javax.swing.JFrame {
             }
             
             //Make sure the user can see the lovely new node.
+            treeModel.nodeStructureChanged(releasesNode.getParent());
+            //treeModel.nodeChanged(releasesNode.getParent());
             if (shouldBeVisible) {
                 TreePath path = new TreePath(releaseNode.getPath());
                 repositoryJTree.expandPath(path);
-                repositoryJTree.scrollPathToVisible(path);
                 repositoryJTree.setSelectionPath(path);
+                repositoryJTree.scrollPathToVisible(path);
             }
-            treeModel.nodeStructureChanged(releasesNode.getParent());
-            //treeModel.nodeChanged(releasesNode.getParent());
         }
     }
     
@@ -1942,22 +1923,28 @@ public class STEPModFrame extends javax.swing.JFrame {
     }
     
     
-    
-    
-    
-    
-    
     private void deleteCmRelease(StepmodPart part, DefaultMutableTreeNode node, CmRelease cmRelease) {
         int answer = JOptionPane.showConfirmDialog(this,
                 "You are about to delete the release "+cmRelease.getId()+"\nDo you want to continue?",
                 "CM release action ....",
                 JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
-            // Delete the release
-            part.getCmRecord().deleteCmRelease(cmRelease);
-            // Now delete the release from the tree
-            DefaultTreeModel model = (DefaultTreeModel)repositoryJTree.getModel();
-            model.removeNodeFromParent(node);
+            // Remove tag from CVS
+            StepmodCvs stepmodCvs = part.cvsDeleteTag(cmRelease.getId());
+            outputCvsResults(stepmodCvs);
+            if (stepmodCvs.getCvsErrorVal() == 0) {
+                CmRecord cmRecord = part.getCmRecord();
+                // successfully tagged the part, so delete the record
+                // Delete the release
+                cmRecord.deleteCmRelease(cmRelease);
+                // Now delete the release from the tree
+                DefaultTreeModel model = (DefaultTreeModel)repositoryJTree.getModel();
+                model.removeNodeFromParent(node);
+                // sucessfully deleted the tag, so save the record
+                cmRecord.writeCmRecord();
+            } else {
+                JOptionPane.showMessageDialog(this,"CVS delete tag action failed.","CVS action ....",JOptionPane.WARNING_MESSAGE);
+            }
             updateNode(part);
         }
     }
@@ -1988,6 +1975,9 @@ public class STEPModFrame extends javax.swing.JFrame {
             outputCvsResults(stepmodCvs);
         }
     }
+    
+    
+    
     
     private void cvsCommitRecord(StepmodPart part) {
         int answer = JOptionPane.showConfirmDialog(this,
@@ -2087,7 +2077,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     }
     
     
-    private void writeCmRecord(StepmodPart part) {
+    public void writeCmRecord(StepmodPart part) {
         int answer = JOptionPane.showConfirmDialog(this,
                 "Do you want to save the CM record for "+part.getName()+"?",
                 "Save CM record ....",
@@ -2121,7 +2111,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         outputPopupMenu = new javax.swing.JPopupMenu();
         clearOutputMenuItem = new javax.swing.JMenuItem();
         stepmodMainSplitPane = new javax.swing.JSplitPane();
-        jPanel1 = new javax.swing.JPanel();
+        stepmodPanel = new javax.swing.JPanel();
         jToolBar1 = new javax.swing.JToolBar();
         clearSelectedButton = new javax.swing.JButton();
         viewAllButton = new javax.swing.JButton();
@@ -2173,11 +2163,11 @@ public class STEPModFrame extends javax.swing.JFrame {
         stepmodMainSplitPane.setOneTouchExpandable(true);
         stepmodMainSplitPane.setPreferredSize(new java.awt.Dimension(302, 400));
         stepmodMainSplitPane.setRequestFocusEnabled(false);
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        stepmodPanel.setLayout(new java.awt.BorderLayout());
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("STEPmod Repository"));
-        jPanel1.setMinimumSize(new java.awt.Dimension(0, 0));
-        jPanel1.setPreferredSize(new java.awt.Dimension(150, 200));
+        stepmodPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("STEPmod Repository"));
+        stepmodPanel.setMinimumSize(new java.awt.Dimension(0, 0));
+        stepmodPanel.setPreferredSize(new java.awt.Dimension(150, 200));
         jToolBar1.setFloatable(false);
         jToolBar1.setMinimumSize(new java.awt.Dimension(0, 0));
         clearSelectedButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/stepmod/resources/box.png")));
@@ -2233,7 +2223,7 @@ public class STEPModFrame extends javax.swing.JFrame {
 
         jToolBar1.add(jButton1);
 
-        jPanel1.add(jToolBar1, java.awt.BorderLayout.NORTH);
+        stepmodPanel.add(jToolBar1, java.awt.BorderLayout.NORTH);
 
         repositorySplitPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         repositorySplitPane.setDividerLocation(400);
@@ -2254,9 +2244,9 @@ public class STEPModFrame extends javax.swing.JFrame {
 
         repositorySplitPane.setRightComponent(repositoryScrollPane);
 
-        jPanel1.add(repositorySplitPane, java.awt.BorderLayout.CENTER);
+        stepmodPanel.add(repositorySplitPane, java.awt.BorderLayout.CENTER);
 
-        stepmodMainSplitPane.setLeftComponent(jPanel1);
+        stepmodMainSplitPane.setLeftComponent(stepmodPanel);
 
         stepModOutputPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("STEPmod output"));
         stepModOutputPanel.setMinimumSize(new java.awt.Dimension(0, 0));
@@ -2594,7 +2584,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_exitMenuItemActionPerformed
     
     private void displayAbout() {
-        String aboutStr="Developed by Eurostep (http://www.eurostep.com) under contract to NIST and ATI\n";        
+        String aboutStr="Developed by Eurostep (http://www.eurostep.com) under contract to NIST and ATI\n";
         aboutStr += "Build number: = "+ getStepMod().getBuildNumber();
         JOptionPane.showMessageDialog(this,
                 aboutStr,
@@ -2619,7 +2609,6 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JMenu helpMenu;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JMenuItem loadRepositoryMenuItem;
     private javax.swing.JMenuBar menuBar;
@@ -2639,6 +2628,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane stepModOutputScrollPane;
     private javax.swing.JTextArea stepModOutputTextArea;
     private javax.swing.JSplitPane stepmodMainSplitPane;
+    private javax.swing.JPanel stepmodPanel;
     private javax.swing.JMenuItem testCVSMenuItem;
     private javax.swing.JMenu toolsMenu;
     private javax.swing.JMenuItem vewAllMenuItem;

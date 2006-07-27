@@ -1,5 +1,5 @@
 /**
- * $Id: StepmodCvs.java,v 1.4 2006/07/13 09:02:12 robbod Exp $
+ * $Id: StepmodCvs.java,v 1.5 2006/07/14 07:27:23 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -118,7 +118,6 @@ public class StepmodCvs {
             command.add(1,"-q");
             command.add(2,"-d");
             command.add(3,cvsRoot);
-            command.add(4,"-q");
             
             ProcessBuilder builder = new ProcessBuilder(command);
             builder.redirectErrorStream(true);
@@ -195,13 +194,47 @@ public class StepmodCvs {
         }
         return(exitVal);
     }
-            
+    
+    
+    /**
+     * Runs CVS tag on a file in a given drectory
+     */
+    public int cvsTag(String dir, String tag) {
+        int exitVal = CVS_ERROR_OK;
+        try {
+            List<String> command = new ArrayList<String>();
+            command.add("tag");
+            command.add(tag);
+            exitVal = executeCvsCommand(command, dir);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return(exitVal);
+    }
+    
+    /**
+     * Runs CVS delete tag on a file in a given drectory
+     */
+    public int cvsDeleteTag(String dir, String tag) {
+        int exitVal = CVS_ERROR_OK;
+        try {
+            List<String> command = new ArrayList<String>();
+            command.add("tag");
+            command.add("-d");
+            command.add(tag);
+            exitVal = executeCvsCommand(command, dir);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return(exitVal);
+    }
+    
+    
     /**
      * Adds a directory or file to CVS
      */
     public int cvsAdd(String directoryPath, String directoryName) {
         int exitVal = CVS_ERROR_OK;
-        System.out.println("cvs add " + directoryPath + " " + directoryName);
         try {
             List<String> command = new ArrayList<String>();
             command.add("add");
@@ -213,7 +246,7 @@ public class StepmodCvs {
         return(exitVal);
     }
     
-      
+    
     
     
     /**

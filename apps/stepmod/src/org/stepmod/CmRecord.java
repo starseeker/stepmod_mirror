@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.14 2006/07/20 17:12:24 robbod Exp $
+ * $Id: CmRecord.java,v 1.15 2006/07/24 21:25:46 robbod Exp $
  *
  * STEPmod.java
  *
@@ -152,8 +152,10 @@ public class CmRecord {
         this.partName = stepmodPart.getName();
         this.partType = stepmodPart.getStepmodType();
         this.partNumber = stepmodPart.getPartNumber();
-        this.cvsRevision = "$Revision: "+" $";
-        this.cvsDate = "$Date: "+" $";
+        this.cvsRevision = "$Revision:";
+        this.cvsRevision +=" $";
+        this.cvsDate = "$Date: ";
+        this.cvsDate +=" $";
     }
     
     /**
@@ -182,7 +184,6 @@ public class CmRecord {
                 this.setRecordState(CM_RECORD_FILE_NOT_EXIST);
             }
         } catch (Throwable t) {
-            System.out.println("fff"+cmRecordFilename);
             t.printStackTrace();
         }
     }
@@ -377,7 +378,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.14 2006/07/20 17:12:24 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.15 2006/07/24 21:25:46 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -611,8 +612,8 @@ public class CmRecord {
     
     
     public void deleteCmRelease(CmRelease cmRelease) {
+        StepmodPart part = cmRelease.getStepmodPart();
         hasCmReleases.remove(cmRelease);
-        // TODO - delete the TAG as well
     }
     
     

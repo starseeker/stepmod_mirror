@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResourceDoc.java,v 1.6 2006/07/17 13:19:32 robbod Exp $
+ * $Id: StepmodResourceDoc.java,v 1.7 2006/07/25 12:20:56 robbod Exp $
  *
  * StepmodResourceDoc.java
  *
@@ -49,6 +49,7 @@ public class StepmodResourceDoc extends StepmodPart {
         this.loadXml();
         // read the CM record
         this.readCmRecord();
+        this.setupDependencies();
     }
     
     

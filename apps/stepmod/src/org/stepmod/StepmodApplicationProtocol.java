@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodApplicationProtocol.java,v 1.8 2006/07/19 16:46:29 robbod Exp $
+ * $Id: StepmodApplicationProtocol.java,v 1.9 2006/07/25 12:20:56 robbod Exp $
  *
  * StepmodApplicationProtocol.java
  *
@@ -46,6 +46,7 @@ public class StepmodApplicationProtocol extends StepmodPart {
         this.loadXml();
         // read the CM record
         this.readCmRecord();
+        this.setupDependencies();
     }
     
     

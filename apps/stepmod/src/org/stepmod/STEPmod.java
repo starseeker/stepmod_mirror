@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.13 2006/07/25 12:20:56 robbod Exp $
+ * $Id: STEPmod.java,v 1.14 2006/07/25 17:37:55 robbod Exp $
  *
  * STEPmod.java
  *
@@ -156,37 +156,7 @@ public class STEPmod {
             // Parse the input
             SAXParser saxParser = factory.newSAXParser();
             saxParser.parse( repoFile, handler );
-            this.output("Loaded: "+repoFile.getPath());
-            
-            
-            TreeMap copy = new TreeMap(getResourceDocsHash());
-            for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry entry = (Map.Entry)it.next();
-                StepmodResourceDoc resDocNode = (StepmodResourceDoc)entry.getValue();
-                resDocNode.setupDependencies();
-            }
-            copy = new TreeMap(getResourcesHash());
-            for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry entry = (Map.Entry)it.next();
-                StepmodResource resDocNode = (StepmodResource)entry.getValue();
-                resDocNode.setupDependencies();
-            }
-            copy = new TreeMap(getApplicationProtocolsHash());
-            for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry entry = (Map.Entry)it.next();
-                StepmodApplicationProtocol apNode = (StepmodApplicationProtocol)entry.getValue();
-                apNode.setupDependencies();
-            }
-            
-            // now load the dependencies
-            // first take a copy of the dependencies
-            copy = new TreeMap(getModulesHash());
-            for (Iterator it=copy.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry entry = (Map.Entry)it.next();
-                StepmodModule moduleNode = (StepmodModule)entry.getValue();
-                moduleNode.setupDependencies();
-            }
-            
+            this.output("Loaded: "+repoFile.getPath());            
             setCurrentRepositoryIndex(repoFile);
         } catch (Throwable t) {
             t.printStackTrace();
@@ -199,7 +169,6 @@ public class STEPmod {
      * @return The StepmodModule representing the module named moduleName
      */
     public StepmodModule getModuleByName(String moduleName){
-        moduleName = moduleName.toLowerCase();
         StepmodModule module = (StepmodModule) hasModules.get(moduleName);
         return(module);
     }
@@ -251,7 +220,6 @@ public class STEPmod {
      * @return The StepmodApplicationProtocol representing the ApplicationProtocol named apName
      */
     public StepmodApplicationProtocol getApplicationProtocolByName(String apName){
-        apName = apName.toLowerCase();
         StepmodApplicationProtocol ap = (StepmodApplicationProtocol) hasApplicationProtocols.get(apName);
         return(ap);
     }
@@ -281,7 +249,6 @@ public class STEPmod {
      * @return The StepmodResource representing the resource named resourceName
      */
     public StepmodResource getResourceByName(String resourceName){
-        resourceName = resourceName.toLowerCase();
         StepmodResource resource = (StepmodResource) hasResources.get(resourceName);
         return(resource);
     }
@@ -422,26 +389,7 @@ public class STEPmod {
             System.out.println(string);
         }
     }
-    
-    
-    
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        STEPmod stepMod = new STEPmod();
-        try {
-            UIManager.setLookAndFeel(
-                    UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {}
-        
-        // create the GUI for STEPmod
-        STEPModFrame stepModGui = new STEPModFrame(stepMod);
-        stepMod.setStepModGui(stepModGui);
-        stepModGui.initialise();
-        //stepMod.readRepositoryIndex();
-        //stepModGui.initRepositoryTree();
-    }
+   
     
     public STEPModFrame getStepModGui() {
         return stepModGui;
@@ -609,6 +557,25 @@ public class STEPmod {
             return(partFile.exists());
         }
         return(true);
+    }
+    
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        STEPmod stepMod = new STEPmod();
+        try {
+            UIManager.setLookAndFeel(
+                    UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {}
+        
+        // create the GUI for STEPmod
+        STEPModFrame stepModGui = new STEPModFrame(stepMod);
+        stepMod.setStepModGui(stepModGui);
+        stepModGui.initialise();
+        //stepMod.readRepositoryIndex();
+        //stepModGui.initRepositoryTree();
     }
     
 }

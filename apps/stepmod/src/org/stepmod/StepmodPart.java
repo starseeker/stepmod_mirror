@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.22 2006/07/25 13:07:53 robbod Exp $
+ * $Id: StepmodPart.java,v 1.23 2006/07/25 17:37:55 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -62,6 +62,22 @@ public abstract class StepmodPart implements Comparable {
     
     private CmRecord cmRecord;
     private STEPmod stepMod;
+    
+    /**
+     * If the part currently checked out, is OK for release.
+     */
+    public static final int RELEASE_CHECK_OK = 0;
+    
+    /**
+     * If the part currently checked out not OK for release as some dependent parts are not released
+     */
+    public static final int RELEASE_CHECK_ERROR_DEPENDENT_PARTS = -1;
+    
+    /**
+     * If the part currently checked out not OK for release as teh part is a release
+     */
+    public static final int RELEASE_CHECK_ERROR_DEVELOPMENT_PART = -2;
+    
     
     /**
      * The CVS status of the part that has been checked out
@@ -568,6 +584,27 @@ public abstract class StepmodPart implements Comparable {
     }
     
     
+    /**
+     * Execute a CVS Tag on this part
+     *
+     */
+    public StepmodCvs cvsTag(String tag) {
+        StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
+        stepmodCvs.cvsTag(this.getDirectory(), tag);
+        this.getCvsStatusObject().updateCvsStatus();
+        return stepmodCvs;
+    }
+    
+    
+    /**
+     * Delete an existing tag on this part
+     */
+    public StepmodCvs cvsDeleteTag(String tag) {
+        StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
+        stepmodCvs.cvsDeleteTag(this.getDirectory(), tag);
+        this.getCvsStatusObject().updateCvsStatus();
+        return stepmodCvs;
+    }
     
     /**
      * Use StepModAnt to execute a CVS checkout of
@@ -693,15 +730,6 @@ public abstract class StepmodPart implements Comparable {
     }
     
     
-    /**
-     * Creates a new release for the module. This will make a new instance of CmRelease.
-     * The cm_record.xml file will not be updated until the updateCmRecordFile operation is invoked.
-     * @return the CmRelease just created
-     */
-    public CmRelease mkCmRelease(String who, String releaseStatus, String releaseDesciption) {
-        CmRelease cmRel = new CmRelease(this, who, releaseStatus, releaseDesciption);
-        return(cmRel);
-    }
     
     public CvsStatus getCvsStatusObject() {
         return cvsStatusObject;
@@ -766,6 +794,29 @@ public abstract class StepmodPart implements Comparable {
             }
         }
         return(true);
+    }
+    
+    /**
+     * Answer RELEASE_CHECK_OK if the part currently checked out, is OK for release.
+     * Checks that all dependent parts are releases. If not return RELEASE_CHECK_ERROR_DEPENDENT_PARTS
+     * Checks that the part is development part, not a release. If not return RELEASE_CHECK_ERROR_DEVELOPMENT_PART
+     */
+    public int okToRelease() {
+        if (!isCheckedOutDevelopment()) {
+            // make sure that the part is a development release
+            return(StepmodPart.RELEASE_CHECK_ERROR_DEVELOPMENT_PART);
+        } else {
+            // make sure that all dependent parts have been checked out as releases
+            for (Iterator it = this.getDependentParts().iterator(); it.hasNext();) {
+                String dependentPartName = (String)it.next();
+                StepmodPart part = stepMod.getPartByName(dependentPartName);
+                // make sure that the part is not a development release and that the hecked out release is
+                if (!part.isCheckedOutRelease()) {
+                    return(StepmodPart.RELEASE_CHECK_ERROR_DEPENDENT_PARTS);
+                }
+            }
+        }
+        return(StepmodPart.RELEASE_CHECK_OK);
     }
     
     public String getRcsDate() {
@@ -843,7 +894,7 @@ public abstract class StepmodPart implements Comparable {
             TrappedError error = this.getErrors().addError(this,expressFileName,ex);
             error.output();
         } catch (SAXException ex) {
-            // a bit of a hack -- only need to read the interfaces o
+            // a bit of a hack -- only need to read the interfaces
             // so  parser throws StepmodReadSAXException once all have been read
             if (ex instanceof StepmodReadSAXException) {
                 // finished reading the interfaces
@@ -857,6 +908,7 @@ public abstract class StepmodPart implements Comparable {
                         if (partValue instanceof String) {
                             String partType = (String) partValue;
                             if (partType.equals("module")) {
+                                // indicates that the part is a module that has not been loaded
                                 // make sure that the part has not been loaded elsewhere.
                                 part = this.stepMod.getModuleByName(partName);
                                 if (part == null) {
@@ -868,6 +920,7 @@ public abstract class StepmodPart implements Comparable {
                                     }
                                 }
                             } else if (partType.equals("resource")) {
+                                // indicates that the part is a resources schema that has not been loaded
                                 part = this.stepMod.getResourceByName(partName);
                                 if (part == null) {
                                     if (this.getStepMod().partExists(partName, "resource")) {
@@ -881,10 +934,6 @@ public abstract class StepmodPart implements Comparable {
                             part = (StepmodPart) partValue;
                         }
                         if (part != null) {
-                            if (part.getDependentParts() == null) {
-                                // Not yet loaded the hasDependencies, so recurse
-                                part.setupDependencies();
-                            }
                             if (!this.isDependentPart(part)) {
                                 // add the part
                                 this.addDependentPart(part);

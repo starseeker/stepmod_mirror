@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.13 2006/07/19 16:46:29 robbod Exp $
+ * $Id: StepmodModule.java,v 1.14 2006/07/25 12:20:56 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -57,6 +57,7 @@ public class StepmodModule extends StepmodPart {
         this.loadXml();
         // read the CM record
         this.readCmRecord();
+        this.setupDependencies();
     }
     
     

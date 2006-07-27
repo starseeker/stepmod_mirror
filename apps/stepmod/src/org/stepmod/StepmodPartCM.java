@@ -1,5 +1,5 @@
 /*
- * $Id: express_code.xsl,v 1.5 2005/06/13 16:56:06 robbod Exp $
+ * $Id: StepmodPartCM.java,v 1.1 2006/07/25 17:38:51 robbod Exp $
  *
  * StepmodPartCM.java
  *
@@ -96,7 +96,6 @@ public class StepmodPartCM implements Comparable {
     }
     
     public int compare(Object o1, Object o2) {
-        System.out.println("ccc");
         StepmodPartCM stepmodPartCM1 = (StepmodPartCM) o1;
         StepmodPartCM stepmodPartCM2 = (StepmodPartCM) o2;
         return(stepmodPartCM1.getName().compareTo(stepmodPartCM2.getName()));
@@ -184,7 +183,7 @@ public class StepmodPartCM implements Comparable {
                 cmDescr = " The CM record file, cm_record.xml, exists but the record directory has not been added to CVS";
             }
         }
-        String partRel = this.getCmRelease();
+        String partRel = this.getCmRelease();        
         if (!isCheckedOut()) {
             partRel += " <b><em>(Different to the checked out release)</b></em>";
         }

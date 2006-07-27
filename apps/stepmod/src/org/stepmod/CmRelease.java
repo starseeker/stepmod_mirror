@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
 /*
- * $Id: CmRelease.java,v 1.9 2006/07/20 17:12:24 robbod Exp $
+ * $Id: CmRelease.java,v 1.10 2006/07/24 21:25:46 robbod Exp $
  *
  * STEPmod.java
  *
@@ -92,7 +92,7 @@ public class CmRelease {
      * @param   description the description of the release
      * @return the CmRelease object that has been created.
      */
-    public CmRelease(StepmodPart part, String who, String releaseStatus, String description) {
+    public CmRelease(String id, StepmodPart part, String who, String releaseStatus, String description) {
         CmRecord cmRecord = part.getCmRecord();
         setInRecord(cmRecord);
         cmRecord.addCmReleaseToReleases(this);
@@ -101,7 +101,7 @@ public class CmRelease {
         setEdition(part.getVersion());
         setIsoStatus(part.getIsoStatus());
         setReleaseStatus(releaseStatus);
-        setId(part.getNextReleaseId());
+        setId(id);
         setWho(who);
         setStepmodRelease(part.getStepMod().getStepmodRelease());
         setDescription(description);

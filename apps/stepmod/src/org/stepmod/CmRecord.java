@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.15 2006/07/24 21:25:46 robbod Exp $
+ * $Id: CmRecord.java,v 1.16 2006/07/27 15:13:54 robbod Exp $
  *
  * STEPmod.java
  *
@@ -243,6 +243,7 @@ public class CmRecord {
         private String cmReleaseReleaseDate;
         private CmRecord cmRecord;
         private CmRelease currentCmRelease;
+        private String directoryName;
         
         
         /**
@@ -289,6 +290,14 @@ public class CmRecord {
                 String resourceNumber = attrs.getValue("part");
                 String resourceRelease= attrs.getValue("release");
                 currentCmRelease.addDependentPart(new StepmodPartCM(resourceName, resourceNumber, resourceRelease, StepmodPartCM.IS_A_RESOURCESCHEMA, currentCmRelease));
+            } else if (currentElement.equals("directory")) {
+                directoryName = attrs.getValue("name");
+            } else if (currentElement.equals("file")) {
+                String fileName = attrs.getValue("name");
+                String fileCvsRevision  = attrs.getValue("cvs_revision");
+                String fileCvsDate = attrs.getValue("cvs_date");
+                StepmodFile stepmodFile = new StepmodFile(fileName, directoryName, part, fileCvsRevision, fileCvsDate);
+                currentCmRelease.addDependentFile(stepmodFile);
             }
         }
     }
@@ -378,7 +387,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.15 2006/07/24 21:25:46 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.16 2006/07/27 15:13:54 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");

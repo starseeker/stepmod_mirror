@@ -6,6 +6,8 @@
 
 package org.stepmod.gui;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.stepmod.CmRecord;
@@ -22,12 +24,16 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
     private StepmodPart part;
     private DefaultMutableTreeNode node;
     private CmRelease cmRelease;
+    private ArrayList selectedParts;
+    
+    private STEPModFrame stepmodGui;
     
     /**
      * Creates new form STEPModMkReleaseDialog for creating a new release
      */
     public STEPModMkReleaseDialog(StepmodPart part, DefaultMutableTreeNode node) {
         super(part.getStepMod().getStepModGui(), true);
+        this.stepmodGui = part.getStepMod().getStepModGui();
         initComponents();
         this.part = part;
         this.node = node;
@@ -44,6 +50,7 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
      */
     public STEPModMkReleaseDialog(StepmodPart part, DefaultMutableTreeNode node, CmRelease cmRelease) {
         super(part.getStepMod().getStepModGui(), true);
+        this.stepmodGui = part.getStepMod().getStepModGui();
         initComponents();
         this.part = part;
         this.node = node;
@@ -55,6 +62,44 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
         releaseDatejTextField.setText(cmRelease.getReleaseDate());
         releaseIdjTextField.setText(cmRelease.getId());
         releaseWhojTextField.setText(part.getStepMod().getStepmodProperty("SFORGE_USERNAME"));
+    }
+    
+    private void createReleaseOnSinglePart() {
+        STEPModFrame stepmodGui = part.getStepMod().getStepModGui();
+        CmRecord cmRecord = part.getCmRecord();
+        if (cmRelease == null) {
+            String releaseId = part.getNextReleaseId();
+            int answer = JOptionPane.showConfirmDialog(this,
+                    "You are about to create the CVS tag \""+releaseId+"\" on \""+part.getName()+"\"\nDo you want to continue?",
+                    "CVS action ....",
+                    JOptionPane.YES_NO_OPTION);
+            if (answer == JOptionPane.YES_OPTION) {
+                StepmodCvs stepmodCvs = part.cvsTag(releaseId);
+                stepmodGui.outputCvsResults(stepmodCvs);
+                if (stepmodCvs.getCvsErrorVal() == 0) {
+                    // successfully tagged the part, so create the record
+                    String releaseSequence = "r"+cmRecord.getHasCmReleases().size();
+                    CmRelease cmRelease = new CmRelease(
+                            releaseId, part,
+                            releaseWhojTextField.getText(),
+                            (String)releaseStatusjComboBox.getSelectedItem(),
+                            releaseDescriptionjEditorPane.getText());
+                    stepmodGui.addReleaseToTree(part, cmRelease, node, true);
+                    // now check out the tagged version
+                    part.cvsCoRelease(cmRelease);
+                    stepmodGui.outputCvsResults(stepmodCvs);
+                    // Successfully tagged the part, so save the record
+                    cmRecord.writeCmRecord();
+                } else {
+                    JOptionPane.showMessageDialog(this,"CVS tagging action failed.","CVS action ....",JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        } else {
+            stepmodGui.updateReleaseStatus(part, cmRelease, (String)releaseStatusjComboBox.getSelectedItem(), node, true);
+            cmRecord.writeCmRecord();
+        }
+        this.setVisible(false);
+        this.dispose();
     }
     
     /** This method is called from within the constructor to
@@ -245,38 +290,7 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_canceljButtonActionPerformed
     
     private void okjButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okjButtonActionPerformed
-        STEPModFrame stepmodGui = part.getStepMod().getStepModGui();
-        CmRecord cmRecord = part.getCmRecord();
-        if (cmRelease == null) {
-            String releaseId = part.getNextReleaseId();
-            int answer = JOptionPane.showConfirmDialog(this,
-                    "You are about to create the CVS tag \""+releaseId+"\" on \""+part.getName()+"\"\nDo you want to continue?",
-                    "CVS action ....",
-                    JOptionPane.YES_NO_OPTION);
-            if (answer == JOptionPane.YES_OPTION) {
-                StepmodCvs stepmodCvs = part.cvsTag(releaseId);
-                stepmodGui.outputCvsResults(stepmodCvs);
-                if (stepmodCvs.getCvsErrorVal() == 0) {
-                    // successfully tagged the part, so create the record
-                    String releaseSequence = "r"+cmRecord.getHasCmReleases().size();
-                    CmRelease cmRelease = new CmRelease(
-                            releaseId, part,
-                            releaseWhojTextField.getText(),
-                            (String)releaseStatusjComboBox.getSelectedItem(),
-                            releaseDescriptionjEditorPane.getText());
-                    stepmodGui.addReleaseToTree(part, cmRelease, node, true);
-                    // Successfully taged the part, so save the record
-                    cmRecord.writeCmRecord();
-                } else {
-                    JOptionPane.showMessageDialog(this,"CVS tagging action failed.","CVS action ....",JOptionPane.WARNING_MESSAGE);
-                }
-            }
-        } else {
-            stepmodGui.updateReleaseStatus(part, cmRelease, (String)releaseStatusjComboBox.getSelectedItem(), node, true);
-            cmRecord.writeCmRecord();
-        }
-        this.setVisible(false);
-        this.dispose();
+        createReleaseOnSinglePart();
     }//GEN-LAST:event_okjButtonActionPerformed
     
     

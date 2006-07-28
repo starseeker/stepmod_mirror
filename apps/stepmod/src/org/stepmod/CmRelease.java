@@ -2,11 +2,13 @@ package org.stepmod;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 /*
- * $Id: CmRelease.java,v 1.10 2006/07/24 21:25:46 robbod Exp $
+ * $Id: CmRelease.java,v 1.11 2006/07/27 15:13:54 robbod Exp $
  *
  * STEPmod.java
  *
@@ -146,6 +148,10 @@ public class CmRelease {
     }
     
     public void writeToStream(FileWriter out) throws IOException {
+        TreeSet dependentParts = getDependentParts();
+        TreeMap dependentFiles = getDependentFiles();
+        STEPmod stepMod = getStepMod();
+        
         out.write("   <cm_release\n");
         out.write("      release=\""+ getId() +"\"\n");
         out.write("      who=\""+ getWho() +"\"\n");
@@ -156,13 +162,36 @@ public class CmRelease {
         //out.write("      release_sequence=\""+ getReleaseSequence() +"\"\n");
         out.write("      edition=\""+ getEdition() +"\"\n");
         out.write("      description=\""+ getDescription() +"\">\n");
-        TreeSet dependentParts = null;
         out.write("    <dependencies>\n");
         out.write("      <sources>\n");
-        out.write("      </sources>\n");
         
-        STEPmod stepMod = getStepMod();
-        dependentParts = getDependentParts();
+        // get a list of the sub directories
+        TreeSet dirs = new TreeSet();
+        for (Iterator it=dependentFiles.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry entry = (Map.Entry)it.next();
+            StepmodFile stepmodFile = (StepmodFile)entry.getValue();
+            dirs.add(stepmodFile.getSubDirectory());
+        }
+        
+        for (Iterator it = dirs.iterator(); it.hasNext();) {
+            String dir = (String) it.next();
+            String dirName = dir;
+            if (dir.length() == 0) {
+                dirName = ".";
+            }
+            out.write("        <directory name=\""+dirName+"\">\n");
+            for (Iterator it2=dependentFiles.entrySet().iterator(); it2.hasNext(); ) {
+                Map.Entry entry = (Map.Entry)it2.next();
+                StepmodFile stepmodFile = (StepmodFile)entry.getValue();
+                if (dir.equals(stepmodFile.getSubDirectory())) {
+                    out.write("        <file name=\""+ stepmodFile.getName()
+                    +"\" cvs_revision=\""+stepmodFile.getCvsRelease()
+                    +"\" cvs_date=\""+stepmodFile.getCvsDate()+"\"/>\n");
+                }
+            }
+            out.write("        </directory>\n");
+        }
+        out.write("      </sources>\n");
         
         out.write("      <modules>\n");
         for (Iterator it = dependentParts.iterator(); it.hasNext();) {

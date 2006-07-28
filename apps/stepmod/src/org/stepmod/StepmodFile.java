@@ -1,5 +1,5 @@
 /**
- * $Id: AbstractModuleAction.java,v 1.3 2004/11/08 12:07:44 Patrick Exp $
+ * $Id: StepmodFile.java,v 1.1 2006/07/18 17:03:39 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -39,11 +39,27 @@ public class StepmodFile {
     }
     
     public String toString() {
-        if (subDirectory.length() == 0) {
-            return(name+ " (" +cvsRelease+")");
+        if (getSubDirectory().length() == 0) {
+            return(getName()+ " (" +getCvsRelease()+")");
         } else {
-            return(subDirectory+"/"+name+ " (" +cvsRelease+")");
+            return(getSubDirectory()+"/"+getName()+ " (" +getCvsRelease()+")");
         }
+    }
+
+    public String getCvsRelease() {
+        return cvsRelease;
+    }
+
+    public String getCvsDate() {
+        return cvsDate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSubDirectory() {
+        return subDirectory;
     }
     
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.23 2006/07/25 17:37:55 robbod Exp $
+ * $Id: StepmodPart.java,v 1.24 2006/07/27 15:13:54 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -239,7 +240,7 @@ public abstract class StepmodPart implements Comparable {
         } else if (cmRecordState == CmRecord.CM_RECORD_CVS_CHANGED) {
             cmDescr = "The CM record file, cm_record.xml, has  been committed to CVS but the local file has changed";
         } else if (cmRecordState == CmRecord.CM_RECORD_CVS_DIR_NOT_ADDED) {
-            cmDescr = " The CM record file, cm_record.xml, exists but the record directory has not been added to CVS";
+            cmDescr = "The CM record file, cm_record.xml, exists but the record directory has not been added to CVS";
         }
         
         String depDescr = "";
@@ -612,7 +613,16 @@ public abstract class StepmodPart implements Comparable {
      *
      */
     public StepmodCvs cvsCoRelease(CmRelease cmRelease) {
-        String tag = cmRelease.getId();
+        String tag = cmRelease.getId(); 
+        return(cvsCoRelease(tag));
+    }
+    
+        /**
+     * Use StepModAnt to execute a CVS checkout of
+     * a specified release
+     *
+     */
+    public StepmodCvs cvsCoRelease(String tag) {
         StepmodCvs stepmodCvs = new StepmodCvs(this.getStepMod());
         stepmodCvs.cvsCoRelease(this.getDirectory(), tag);
         // The part may well have changed so reload it.

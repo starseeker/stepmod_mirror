@@ -42,10 +42,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellEditor;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import org.stepmod.CmRecord;
+import org.stepmod.CmRecordFrmwk;
 import org.stepmod.CmRelease;
+import org.stepmod.CmReleaseFrmwk;
 import org.stepmod.STEPmod;
 import org.stepmod.StepmodApplicationProtocol;
 import org.stepmod.StepmodFile;
@@ -393,9 +396,10 @@ public class STEPModFrame extends javax.swing.JFrame {
         private java.awt.Font fontPlain = new java.awt.Font("Tahoma", 0, 11);
         private java.awt.Font fontBold = new java.awt.Font("Tahoma", 1, 11);
         private java.awt.Font fontItalic = new java.awt.Font("Tahoma", 2, 11);
+        private STEPmod stepMod;
         
-        
-        public RepositoryTreeRenderer() {
+        public RepositoryTreeRenderer(STEPmod stepMod) {
+            this.stepMod = stepMod;
             java.net.URL developmentIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/development.png");
             developmentIcon = null;
             if (developmentIconURL != null) {
@@ -668,6 +672,14 @@ public class STEPModFrame extends javax.swing.JFrame {
         }
         
         
+        /**
+         * Called from getTreeCellRendererComponent. Draws the nodes for the cmReleaseTreeNode in the tree
+         */
+        private void setupIconsForCmReleaseFmwk(JTree tree, boolean sel, CmReleaseFrmwk cmRelease) {
+            
+        }
+        
+        
         
         /**
          * Called from getTreeCellRendererComponent. Draws the nodes for the stepmod part in the tree
@@ -813,6 +825,19 @@ public class STEPModFrame extends javax.swing.JFrame {
                         setToolTipText("Dependencies for the part");
                     }
                     return(checkBoxRenderer);
+                } else if (userNode instanceof CmReleaseFrmwk) {
+                    CmReleaseFrmwk cmRelease = (CmReleaseFrmwk) node.getUserObject();
+                    setFont(fontPlain);
+                    setIcon(null);
+                    // Highlight according to whether the tree node is selected (as opposed to the checkbox)
+                    // TODO - this does not seem to highlight
+                    if (cmRelease.isCheckedOutRelease()) {
+                        setForeground(textForeground);
+                        setBackground(currentBackground);
+                    } else {
+                        setForeground(textForeground);
+                        setBackground(textBackground);
+                    }
                 } else if (userNode instanceof StepmodPartTreeNode) {
                     StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
                     if (node.getParent().toString().equals("Dependencies")) {
@@ -830,6 +855,17 @@ public class STEPModFrame extends javax.swing.JFrame {
                 } else if (userNode instanceof String) {
                     setIcon(null);
                     String text = userNode.toString();
+                    
+                    if (text.equals("Development revision")) {
+                        // looking at the release of stepmod or basic
+                        TreeNode parentNode = node.getParent();
+                        String parentText = parentNode.toString();
+                        if (parentText.equals("STEPmod Framework")) {                            
+                            
+                        } else if (parentText.equals("Common files")) {
+                            
+                        }
+                    }
                     setForeground(Color.BLACK);
                     setFont(fontPlain);
                 }  else if (userNode instanceof StepmodPartCM) {
@@ -851,13 +887,11 @@ public class STEPModFrame extends javax.swing.JFrame {
     }
     
     private class RepositoryTreeCellEditor extends AbstractCellEditor  implements TreeCellEditor{
-        
-        RepositoryTreeRenderer renderer = new RepositoryTreeRenderer();
+        RepositoryTreeRenderer renderer;// = new RepositoryTreeRenderer();
         ChangeEvent changeEvent = null;
         JTree tree;
         
         public RepositoryTreeCellEditor(JTree tree, RepositoryTreeRenderer renderer) {
-            // this.renderer = renderer;
             this.tree = tree;
         }
         
@@ -1176,8 +1210,21 @@ public class STEPModFrame extends javax.swing.JFrame {
             addRepositoryTreeNode(resourceNode, resourceSchemasTreeNode, schemasTreeNodeCollection);
         }
         
+        DefaultMutableTreeNode basicTreeNode = new DefaultMutableTreeNode("Common files");
+        rootTreeNode.add(basicTreeNode);
+        addStepmodReleaseToTree(null,basicTreeNode,false);
+        for (Iterator it = getStepMod().getBasicCmRecord().getHasCmReleases().iterator(); it.hasNext();) {
+            CmReleaseFrmwk cmRel = (CmReleaseFrmwk) it.next();
+            addStepmodReleaseToTree(cmRel,basicTreeNode,false);
+        }
+        
         DefaultMutableTreeNode frameworkTreeNode = new DefaultMutableTreeNode("STEPmod Framework");
         rootTreeNode.add(frameworkTreeNode);
+        addStepmodReleaseToTree(null,frameworkTreeNode,false);
+        for (Iterator it = getStepMod().getStepmodCmRecord().getHasCmReleases().iterator(); it.hasNext();) {
+            CmReleaseFrmwk cmRel = (CmReleaseFrmwk) it.next();
+            addStepmodReleaseToTree(cmRel,frameworkTreeNode,false);
+        }
         
         repositoryTreeScrollPane.setViewportView(repositoryJTree);
         repositoryJTree.setEditable(true);
@@ -1191,7 +1238,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         ToolTipManager.sharedInstance().registerComponent(repositoryJTree);
         
         // Set up the renderer that displays the icons in the tree
-        RepositoryTreeRenderer renderer = new RepositoryTreeRenderer();
+        RepositoryTreeRenderer renderer = new RepositoryTreeRenderer(this.getStepMod());
         repositoryJTree.setCellRenderer(renderer);
         RepositoryTreeCellEditor cellEditor = new RepositoryTreeCellEditor(repositoryJTree, renderer);
         repositoryJTree.setCellEditor(cellEditor);
@@ -1213,6 +1260,12 @@ public class STEPModFrame extends javax.swing.JFrame {
                     CmReleaseTreeNode cmReleaseTreeNode = (CmReleaseTreeNode) nodeObject;
                     CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
                     CmRecord cmRecord = cmReleaseTreeNode.getStepmodPart().getCmRecord();
+                    String summary = cmRecord.summaryHtml(cmRelease);
+                    repositoryTextPane.setText(summary);
+                    setCurrentDisplayedObject(nodeObject);
+                } else if (nodeObject instanceof CmReleaseFrmwk) {
+                    CmReleaseFrmwk cmRelease = (CmReleaseFrmwk) nodeObject;
+                    CmRecordFrmwk cmRecord = cmRelease.getInRecord();
                     String summary = cmRecord.summaryHtml(cmRelease);
                     repositoryTextPane.setText(summary);
                     setCurrentDisplayedObject(nodeObject);
@@ -1983,6 +2036,32 @@ public class STEPModFrame extends javax.swing.JFrame {
     }
     
     
+    /**
+     * Add the release to the tree node of releases for a Stepmod
+     */
+    public void addStepmodReleaseToTree(CmReleaseFrmwk cmRelease, DefaultMutableTreeNode releasesNode, boolean shouldBeVisible) {
+        // Use the tree model to make sure that the added nodes are displayed
+        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
+        DefaultMutableTreeNode releaseNode;
+        if (cmRelease == null) {
+            releaseNode = new DefaultMutableTreeNode("Development revision");
+            treeModel.insertNodeInto(releaseNode, releasesNode, releasesNode.getChildCount());
+        } else {
+            releaseNode = new DefaultMutableTreeNode(cmRelease);
+            treeModel.insertNodeInto(releaseNode, releasesNode, releasesNode.getChildCount());
+            
+            //Make sure the user can see the lovely new node.
+            treeModel.nodeStructureChanged(releasesNode.getParent());
+            //treeModel.nodeChanged(releasesNode.getParent());
+            if (shouldBeVisible) {
+                TreePath path = new TreePath(releaseNode.getPath());
+                repositoryJTree.expandPath(path);
+                repositoryJTree.setSelectionPath(path);
+                repositoryJTree.scrollPathToVisible(path);
+            }
+        }
+    }
+    
     
     /**
      * Output the string
@@ -2482,8 +2561,8 @@ public class STEPModFrame extends javax.swing.JFrame {
         selectedMenu.setToolTipText("Acions that are applied to selected parts");
         cvsPartjMenu.setText("CVS - Part");
         cvsPartjMenu.setToolTipText("CVS actions on selected parts");
-        selUpdateReleaseMenuItem.setText("Update developement release of selected parts");
-        selUpdateReleaseMenuItem.setToolTipText("Checks out teh development release of the selected parts");
+        selUpdateReleaseMenuItem.setText("Update development release of selected parts");
+        selUpdateReleaseMenuItem.setToolTipText("Checks out the development release of the selected parts");
         selUpdateReleaseMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 selUpdateReleaseMenuItemActionPerformed(evt);

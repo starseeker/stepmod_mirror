@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.14 2006/07/25 17:37:55 robbod Exp $
+ * $Id: STEPmod.java,v 1.15 2006/07/27 15:13:54 robbod Exp $
  *
  * STEPmod.java
  *
@@ -47,6 +47,17 @@ public class STEPmod {
     private String applicationDir;
     
     /**
+     * The Cm record for the basic directory
+     */
+    private CmRecordFrmwk basicCmRecord; 
+    
+    
+    /**
+     * The Cm record for the basic directory
+     */
+    private CmRecordFrmwk stepmodCmRecord; 
+    
+    /**
      * The repositroy_index.xml that has been loaded
      */
     private File currentRepositoryIndex;
@@ -54,6 +65,8 @@ public class STEPmod {
     /** Creates a new instance of STEPmod */
     public STEPmod() {
         readStepmodProperties();
+        setBasicCmRecord(new CmRecordFrmwk(this, "basic"));
+        setStepmodCmRecord(new CmRecordFrmwk(this, "stepmod"));
     }
     
     
@@ -576,6 +589,22 @@ public class STEPmod {
         stepModGui.initialise();
         //stepMod.readRepositoryIndex();
         //stepModGui.initRepositoryTree();
+    }
+
+    public CmRecordFrmwk getBasicCmRecord() {
+        return basicCmRecord;
+    }
+
+    public void setBasicCmRecord(CmRecordFrmwk basicCmRecord) {
+        this.basicCmRecord = basicCmRecord;
+    }
+
+    public CmRecordFrmwk getStepmodCmRecord() {
+        return stepmodCmRecord;
+    }
+
+    public void setStepmodCmRecord(CmRecordFrmwk stepmodCmRecord) {
+        this.stepmodCmRecord = stepmodCmRecord;
     }
     
 }

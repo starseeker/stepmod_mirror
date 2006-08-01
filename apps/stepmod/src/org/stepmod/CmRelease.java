@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 /*
- * $Id: CmRelease.java,v 1.11 2006/07/27 15:13:54 robbod Exp $
+ * $Id: CmRelease.java,v 1.12 2006/07/28 13:28:28 robbod Exp $
  *
  * STEPmod.java
  *
@@ -36,9 +36,15 @@ public class CmRelease {
     
     private String edition;
     
-    private String releaseSequence;
+    /**
+     * The release Id for the common files, data/basic
+     */
+    private String stepmodCommonRelease;
     
-    private String stepmodRelease;
+    /**
+     * The release Id for the STEpmod framework, xsl, dtd 
+     */
+    private String stepmodFrameworkRelease;
     
     private String releaseDate;
     
@@ -63,8 +69,8 @@ public class CmRelease {
      */
     public CmRelease(CmRecord cmRecord, String id, String description,
             String isoStatus, String releaseStatus,
-            String who, String edition, String releaseSequence,
-            String stepmodRelease, String releaseDate) {
+            String who, String edition, String stepmodCommonRelease,
+            String stepmodFrameworkRelease, String releaseDate) {
         setInRecord(cmRecord);
         cmRecord.addCmReleaseToReleases(this);
         setId(id);
@@ -73,8 +79,8 @@ public class CmRelease {
         setReleaseStatus(releaseStatus);
         setWho(who);
         setEdition(edition);
-        setReleaseSequence(releaseSequence);
-        setStepmodRelease(stepmodRelease);
+        setStepmodFrameworkRelease(stepmodFrameworkRelease);
+        setStepmodCommonRelease(stepmodCommonRelease);
         setReleaseDate(releaseDate);
         // the dependencies will be read from the file
         dependentParts = new TreeSet();
@@ -105,7 +111,8 @@ public class CmRelease {
         setReleaseStatus(releaseStatus);
         setId(id);
         setWho(who);
-        setStepmodRelease(part.getStepMod().getStepmodRelease());
+        setStepmodCommonRelease(part.getStepMod().getStepmodCommonRelease());
+        setStepmodFrameworkRelease(part.getStepMod().getStepmodFrameworkRelease());
         setDescription(description);
         // Make sure that the dependencies for the part are loaded
         setupDependencies();
@@ -156,10 +163,10 @@ public class CmRelease {
         out.write("      release=\""+ getId() +"\"\n");
         out.write("      who=\""+ getWho() +"\"\n");
         out.write("      when=\""+ getReleaseDate() +"\"\n");
-        out.write("      stepmod_release=\""+ getStepmodRelease() +"\"\n");
+        out.write("      stepmod_common_release=\""+ getStepmodCommonRelease() +"\"\n");
+        out.write("      stepmod_framework_release=\""+ getStepmodFrameworkRelease() +"\"\n");
         out.write("      iso_status=\""+ getIsoStatus() +"\"\n");
         out.write("      release_status=\""+ getReleaseStatus() +"\"\n");
-        //out.write("      release_sequence=\""+ getReleaseSequence() +"\"\n");
         out.write("      edition=\""+ getEdition() +"\"\n");
         out.write("      description=\""+ getDescription() +"\">\n");
         out.write("    <dependencies>\n");
@@ -286,21 +293,21 @@ public class CmRelease {
     public void setEdition(String edition) {
         this.edition = edition;
     }
-    
-    public String getReleaseSequence() {
-        return releaseSequence;
+        
+    public String getStepmodCommonRelease() {
+        return stepmodCommonRelease;
     }
     
-    public void setReleaseSequence(String releaseSequence) {
-        this.releaseSequence = releaseSequence;
+    public void setStepmodCommonRelease(String stepmodRelease) {
+        this.stepmodCommonRelease = stepmodRelease;
     }
     
-    public String getStepmodRelease() {
-        return stepmodRelease;
+    public String getStepmodFrameworkRelease() {
+        return stepmodFrameworkRelease;
     }
     
-    public void setStepmodRelease(String stepmodRelease) {
-        this.stepmodRelease = stepmodRelease;
+    public void setStepmodFrameworkRelease(String stepmodRelease) {
+        this.stepmodFrameworkRelease = stepmodRelease;
     }
     
     public String getReleaseDate() {

@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.16 2006/07/31 05:55:31 robbod Exp $
+ * $Id: STEPmod.java,v 1.17 2006/08/01 14:04:08 robbod Exp $
  *
  * STEPmod.java
  *
@@ -512,10 +512,17 @@ public class STEPmod {
     }
     
     /**
-     * Returns the release of STEPmod that is currently checked out.
+     * Returns the release of the common files (data/basic) of STEPmod that is currently checked out.
      */
-    String getStepmodRelease() {
-        return null;
+    String getStepmodCommonRelease() {
+        return(getBasicCmRecord().getCheckedOutRelease().getId());
+    }
+ 
+   /**
+     * Returns the release of the STEPmod framework files (xsl, dtd) is currently checked out.
+     */
+    String getStepmodFrameworkRelease() {
+      return(getStepmodCmRecord().getCheckedOutRelease().getId());
     }
     
     public File getCurrentRepositoryIndex() {

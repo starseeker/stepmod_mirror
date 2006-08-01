@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.16 2006/07/27 15:13:54 robbod Exp $
+ * $Id: CmRecord.java,v 1.17 2006/07/28 13:28:28 robbod Exp $
  *
  * STEPmod.java
  *
@@ -231,15 +231,14 @@ public class CmRecord {
         private STEPmod stepMod;
         private String cmRecordCvsRevision;
         private String cmRecordCvsDate;
-        
         private String cmReleaseId;
         private String cmReleaseDescription;
         private String cmReleaseIsoStatus;
         private String cmReleaseStatus;
         private String cmReleaseWho;
         private String cmReleaseEdition;
-        private String cmReleaseReleaseSequence;
-        private String cmReleaseStepmodRelease;
+        private String cmReleaseStepmodCommonRelease;
+        private String cmReleaseStepmodFrameworkRelease;
         private String cmReleaseReleaseDate;
         private CmRecord cmRecord;
         private CmRelease currentCmRelease;
@@ -271,13 +270,12 @@ public class CmRecord {
                 cmReleaseStatus = attrs.getValue("release_status");
                 cmReleaseWho = attrs.getValue("who");
                 cmReleaseEdition = attrs.getValue("edition");
-                cmReleaseReleaseSequence = attrs.getValue("release_sequence");
-                cmReleaseStepmodRelease = attrs.getValue("stepmod_release");
+                cmReleaseStepmodCommonRelease = attrs.getValue("stepmod_common_release");
+                cmReleaseStepmodFrameworkRelease= attrs.getValue("stepmod_framework_release");
                 cmReleaseReleaseDate = attrs.getValue("when");
                 currentCmRelease = new CmRelease(cmRecord, cmReleaseId, cmReleaseDescription,
-                        cmReleaseIsoStatus, cmReleaseStatus,
-                        cmReleaseWho, cmReleaseEdition, cmReleaseReleaseSequence,
-                        cmReleaseStepmodRelease, cmReleaseReleaseDate);
+                        cmReleaseIsoStatus, cmReleaseStatus,cmReleaseWho, cmReleaseEdition, 
+                        cmReleaseStepmodCommonRelease, cmReleaseStepmodFrameworkRelease, cmReleaseReleaseDate);
             } else if (currentElement.equals("module")) {
                 // reading a dependent module
                 String moduleName = attrs.getValue("name");
@@ -387,7 +385,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.16 2006/07/27 15:13:54 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.17 2006/07/28 13:28:28 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -429,8 +427,6 @@ public class CmRecord {
         out.write("            - Ballot - the release distributed for ballot\n");
         out.write("            - ISO publication - the release has been published by ISO\n");
         out.write("         \n");
-        out.write("         release_sequence\n");
-        out.write("           an iterative count of the releases\n");
         out.write("         edition\n");
         out.write("           the edition of the part that has been released\n");
         out.write("         description\n");
@@ -666,6 +662,8 @@ public class CmRecord {
                     + "<tr><td>Release identifier:</td><td>" + cmRelease.getId() + "</td></tr>"
                     + "<tr><td>Released date:</td><td>" + cmRelease.getReleaseDate() + "</td></tr>"
                     + "<tr><td>Release status:</td><td>" + cmRelease.getReleaseStatus() + "</td></tr>"
+                    + "<tr><td>STEPmod framework (XSL) release status:</td><td>" + cmRelease.getStepmodFrameworkRelease() + "</td></tr>"
+                    + "<tr><td>STEPmod common (basic) release status:</td><td>" + cmRelease.getStepmodCommonRelease() + "</td></tr>"
                     + "<tr><td>ISO status:</td><td>" + cmRelease.getIsoStatus() + "</td></tr>"
                     + "<tr><td>Released by:</td><td>" + cmRelease.getWho() + "</td></tr>"
                     + "<tr><td>Dependency status:</td><td>" + depDescr +"</td></tr>"

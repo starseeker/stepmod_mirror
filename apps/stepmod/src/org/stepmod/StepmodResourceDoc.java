@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodResourceDoc.java,v 1.7 2006/07/25 12:20:56 robbod Exp $
+ * $Id: StepmodResourceDoc.java,v 1.8 2006/07/27 15:13:54 robbod Exp $
  *
  * StepmodResourceDoc.java
  *
@@ -44,7 +44,7 @@ public class StepmodResourceDoc extends StepmodPart {
         super(stepMod, partName);
         stepMod.addResourceDoc(this);
         
-        this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), "resource.xml"));
+        this.setCvsStatusObject(new CvsStatus(this.getDirectory(), "resource.xml"));
         // now read resource.xml for the part populating the attributes
         this.loadXml();
         // read the CM record

@@ -1,5 +1,5 @@
 /*
- * $Id: express_code.xsl,v 1.5 2005/06/13 16:56:06 robbod Exp $
+ * $Id: CmReleaseFrmwk.java,v 1.1 2006/07/31 05:56:42 robbod Exp $
  *
  * CmReleaseFrmwk.java
  *
@@ -18,6 +18,7 @@ package org.stepmod;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import org.stepmod.cvschk.StepmodCvs;
 
 /**
  *
@@ -36,8 +37,8 @@ public class CmReleaseFrmwk {
     private CmRecordFrmwk inRecord;
     
     /** Creates a new instance of CmReleaseFrmwk */
-    public CmReleaseFrmwk(CmRecordFrmwk cmRecord, String id, String description,
-            String who, String releaseDate) {
+    public CmReleaseFrmwk(CmRecordFrmwk cmRecord, String id, 
+            String who, String releaseDate, String description) {
         setInRecord(cmRecord);
         cmRecord.addCmReleaseToReleases(this);
         setId(id);
@@ -98,10 +99,13 @@ public class CmReleaseFrmwk {
         return(id);
     }
     
-        /**
+    /**
      * Return true if this release is the one that has been checked out by CVS
      */
     public boolean isCheckedOutRelease() {
         return(getInRecord().getCheckedOutRelease() == this);
     }
+    
+    
+
 }

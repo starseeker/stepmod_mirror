@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.14 2006/07/25 12:20:56 robbod Exp $
+ * $Id: StepmodModule.java,v 1.15 2006/07/27 15:13:54 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -53,7 +53,7 @@ public class StepmodModule extends StepmodPart {
         super(stepMod, partName);
         stepMod.addModule(this);
         
-        this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), "module.xml"));
+        this.setCvsStatusObject(new CvsStatus(this.getDirectory(), "module.xml"));
         this.loadXml();
         // read the CM record
         this.readCmRecord();

@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.15 2006/07/27 15:13:54 robbod Exp $
+ * $Id: STEPmod.java,v 1.16 2006/07/31 05:55:31 robbod Exp $
  *
  * STEPmod.java
  *
@@ -49,13 +49,13 @@ public class STEPmod {
     /**
      * The Cm record for the basic directory
      */
-    private CmRecordFrmwk basicCmRecord; 
+    private CmRecordFrmwk basicCmRecord;
     
     
     /**
      * The Cm record for the basic directory
      */
-    private CmRecordFrmwk stepmodCmRecord; 
+    private CmRecordFrmwk stepmodCmRecord;
     
     /**
      * The repositroy_index.xml that has been loaded
@@ -169,7 +169,7 @@ public class STEPmod {
             // Parse the input
             SAXParser saxParser = factory.newSAXParser();
             saxParser.parse( repoFile, handler );
-            this.output("Loaded: "+repoFile.getPath());            
+            this.output("Loaded: "+repoFile.getPath());
             setCurrentRepositoryIndex(repoFile);
         } catch (Throwable t) {
             t.printStackTrace();
@@ -402,7 +402,7 @@ public class STEPmod {
             System.out.println(string);
         }
     }
-   
+    
     
     public STEPModFrame getStepModGui() {
         return stepModGui;
@@ -566,7 +566,7 @@ public class STEPmod {
             File partFile = new File( getRootDirectory()+"/data/"+partType+"s/"+partName+"/module.xml");
             return(partFile.exists());
         } else if (partType.equals("resource")){
-            File partFile = new File( getRootDirectory()+"/data/"+partType+"s/"+partName+"/"+partName+".xml");            
+            File partFile = new File( getRootDirectory()+"/data/"+partType+"s/"+partName+"/"+partName+".xml");
             return(partFile.exists());
         }
         return(true);
@@ -590,23 +590,26 @@ public class STEPmod {
         //stepMod.readRepositoryIndex();
         //stepModGui.initRepositoryTree();
     }
-
+    
     public CmRecordFrmwk getBasicCmRecord() {
         return basicCmRecord;
     }
-
+    
     public void setBasicCmRecord(CmRecordFrmwk basicCmRecord) {
         this.basicCmRecord = basicCmRecord;
     }
-
+    
     public CmRecordFrmwk getStepmodCmRecord() {
         return stepmodCmRecord;
     }
-
+    
     public void setStepmodCmRecord(CmRecordFrmwk stepmodCmRecord) {
         this.stepmodCmRecord = stepmodCmRecord;
     }
-    
+
+
+     
+        
 }
 
 

@@ -1,5 +1,5 @@
 /**
- * $Id: CvsStatus.java,v 1.4 2006/07/17 13:19:32 robbod Exp $
+ * $Id: CvsStatus.java,v 1.5 2006/07/24 21:25:46 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -33,11 +33,7 @@ public class CvsStatus {
     private int cvsState;
     private String cvsTag;
     
-    /**
-     * The part for which the CVS status is being determined
-     */
-    private StepmodPart part;
-    
+ 
     /**
      * The directory for in which all part files are stored.
      * E.g stepmod/data/modules/actvity
@@ -45,7 +41,7 @@ public class CvsStatus {
     private String partDirectory;
     
     /**
-     * The main file for the part which is used to determine the CV Status
+     * The main file for the part which is used to determine the CVS Status
      * For modules: module.xml
      * For APs: applciation_protocol.xml
      */
@@ -75,8 +71,7 @@ public class CvsStatus {
     
     
     /** Creates a new instance of CvsStatus */
-    public CvsStatus(StepmodPart part, String partDir, String partMainFile) {
-        this.part = part;
+    public CvsStatus(String partDir, String partMainFile) {
         this.partDirectory = partDir;
         this.partMainFile = partMainFile;
         this.updateCvsStatus();
@@ -147,9 +142,9 @@ public class CvsStatus {
         this.cvsTag = cvsTag;
     }
     
-    public StepmodPart getPart() {
-        return part;
-    }
+//    public StepmodPart getPart() {
+//        return part;
+//    }
     
     public String getPartDirectory() {
         return partDirectory;

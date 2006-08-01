@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodApplicationProtocol.java,v 1.9 2006/07/25 12:20:56 robbod Exp $
+ * $Id: StepmodApplicationProtocol.java,v 1.10 2006/07/27 15:13:54 robbod Exp $
  *
  * StepmodApplicationProtocol.java
  *
@@ -40,7 +40,7 @@ public class StepmodApplicationProtocol extends StepmodPart {
         super(stepMod, partName);
         stepMod.addApplicationProtocol(this);
         
-        this.setCvsStatusObject(new CvsStatus(this, this.getDirectory(), "application_protocol.xml"));
+        this.setCvsStatusObject(new CvsStatus(this.getDirectory(), "application_protocol.xml"));
         
         // now read resource.xml for the part populating the attributes
         this.loadXml();

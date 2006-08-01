@@ -1,5 +1,5 @@
 /*
- * $Id: express_code.xsl,v 1.5 2005/06/13 16:56:06 robbod Exp $
+ * $Id: CmRecordFrmwk.java,v 1.1 2006/07/31 05:56:42 robbod Exp $
  *
  * CmRecordFrmwk.java
  *
@@ -19,6 +19,7 @@ package org.stepmod;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.stepmod.cvschk.CvsStatus;
+import org.stepmod.cvschk.StepmodCvs;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -139,10 +141,10 @@ public class CmRecordFrmwk {
         
         if (type.equals("stepmod")) {
             String cmRecordDir = getStepMod().getRootDirectory() +"/xsl";
-            this.setCvsStatusObject(new CvsStatus(null, cmRecordDir,  "common.xsl"));
+            this.setCvsStatusObject(new CvsStatus(cmRecordDir,  "common.xsl"));
         } else {
             String cmRecordDir = getStepMod().getRootDirectory() +"/data/basic";
-            this.setCvsStatusObject(new CvsStatus(null, cmRecordDir,  "normrefs.xml"));
+            this.setCvsStatusObject(new CvsStatus(cmRecordDir,  "normrefs.xml"));
         }
         
         
@@ -219,8 +221,7 @@ public class CmRecordFrmwk {
                 cmReleaseDescription = attrs.getValue("description");
                 cmReleaseWho = attrs.getValue("who");
                 cmReleaseReleaseDate = attrs.getValue("when");
-                currentCmRelease = new CmReleaseFrmwk(cmRecord, cmReleaseId, cmReleaseDescription,
-                        cmReleaseWho, cmReleaseReleaseDate);
+                currentCmRelease = new CmReleaseFrmwk(cmRecord, cmReleaseId, cmReleaseWho, cmReleaseReleaseDate, cmReleaseDescription);
             }
         }
     }
@@ -328,7 +329,7 @@ public class CmRecordFrmwk {
         return(summary);
     }
     
-
+    
     
     public int getCmRecordCvsStatus() {
         int retVal = 0;
@@ -424,6 +425,60 @@ public class CmRecordFrmwk {
         return(retVal);
     }
     
+    
+    public StepmodCvs cvsCoRelease(CmReleaseFrmwk cmRelease) {
+        STEPmod stepMod = this.getStepMod();
+        StepmodCvs stepmodCvs = new StepmodCvs(stepMod);
+        if (this.getType().equals("stepmod")) {
+            String xslDir = stepMod.getRootDirectory() +"/xsl";
+            stepmodCvs.cvsCoRelease(xslDir, cmRelease.getId());
+            this.getCvsStatusObject().updateCvsStatus();
+            String dtdDir = stepMod.getRootDirectory() +"/dtd";
+            stepmodCvs.cvsCoRelease(dtdDir, cmRelease.getId());
+            this.getCvsStatusObject().updateCvsStatus();
+            return stepmodCvs;
+        } else {
+            String basicDir = stepMod.getRootDirectory() +"/data/basic";
+            stepmodCvs.cvsCoRelease(basicDir, cmRelease.getId());
+            this.getCvsStatusObject().updateCvsStatus();
+            return stepmodCvs;
+        }
+    }
+    
+    public StepmodCvs cvsUpdate() {
+        STEPmod stepMod = this.getStepMod();
+        StepmodCvs stepmodCvs = new StepmodCvs(stepMod);
+        if (this.getType().equals("stepmod")) {
+            String xslDir = stepMod.getRootDirectory() +"/xsl";
+            stepmodCvs.cvsUpdate(xslDir);
+            this.getCvsStatusObject().updateCvsStatus();
+            String dtdDir = stepMod.getRootDirectory() +"/dtd";
+            stepmodCvs.cvsUpdate(dtdDir);
+            this.getCvsStatusObject().updateCvsStatus();
+            return stepmodCvs;
+        } else {
+            String basicDir = stepMod.getRootDirectory() +"/data/basic";
+            stepmodCvs.cvsUpdate(basicDir);
+            this.getCvsStatusObject().updateCvsStatus();
+            return stepmodCvs;
+        }
+    }
+    
+    public StepmodCvs cvsCommitRecord () {
+        STEPmod stepMod = this.getStepMod();
+        StepmodCvs stepmodCvs = new StepmodCvs(stepMod);
+        String cmDir;
+        if (this.getType().equals("stepmod")) {            
+            cmDir = stepMod.getRootDirectory()+"/config_management/stepmod";
+        } else {
+            cmDir = stepMod.getRootDirectory()+"/config_management/basic"; 
+        }
+        stepmodCvs.cvsCommit(cmDir, "cm_record.xml");
+        return(stepmodCvs);
+    }
+        
+        
+    
     public STEPmod getStepMod() {
         return stepMod;
     }
@@ -455,5 +510,71 @@ public class CmRecordFrmwk {
     public void setCvsStatusObject(CvsStatus cvsStatusObject) {
         this.cvsStatusObject = cvsStatusObject;
     }
+    
+    
+    
+    /**
+     * Creates a new cm_record.xml file for the part. It overwrites the existing file.
+     */
+    public void writeCmRecord() {
+        // check that a cm_record.xml does not exist in the part directory e.g.
+        // stepmod/data/modules/{module}/cm_record.xml
+        // Create the cm_record.xml. Should not contain any releases.
+        try {
+            String stepModDir = getStepMod().getRootDirectory();
+            String cmRecordFilename = stepModDir+"/config_management/"+ this.getType() + "/cm_record.xml";
+            File cmRecordFile = new File(cmRecordFilename);
+            FileWriter out = new FileWriter(cmRecordFile);
+            this.writeToStream(out);
+            out.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    /**
+     * Write the CM record to the stream
+     */
+    void writeToStream(FileWriter out) throws IOException {
+        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+        //out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.17 2006/07/28 13:28:28 robbod Exp $ -->\n");
+        out.write("\n");
+        out.write("<!-- A configuration management record\n");
+        out.write("     part_name\n");
+        out.write("       The name of the STEP part\n");
+        out.write("     part_type\n");
+        out.write("       The type of the STEP part. Either module, application_protocol or resource_doc\n");
+        out.write("     part_number\n");
+        out.write("       The ISO part number\n");
+        out.write("     cvs_revision\n");
+        out.write("       The file revision of the cm record. (RCS keyword Revision)\n");
+        out.write("     cvs_date\n");
+        out.write("       The date of the file revision. (RCS keyword Date)\n");
+        out.write("     -->\n");
+        out.write("<cm_record\n");
+        out.write("  cvs_revision=\""+getCvsRevision()+"\"\n");
+        out.write("  cvs_date=\""+getCvsDate()+"\">\n");
+        out.write("<cm_releases>\n");
+        out.write("   <!-- A release of the part\n");
+        out.write("         release\n");
+        out.write("           the release identifier\n");
+        out.write("         stepmod_release\n");
+        out.write("           the release of  STEPmod used to create HTML for the release\n");
+        out.write("         who\n");
+        out.write("           the person who created the release\n");
+        out.write("         when\n");
+        out.write("           the date when the release was created\n");
+        out.write("         description\n");
+        out.write("           free text description of the release\n");
+        out.write("         -->\n");
+        for (Iterator it = hasCmReleases.iterator(); it.hasNext();) {
+            CmReleaseFrmwk cmRelease = (CmReleaseFrmwk) it.next();
+            cmRelease.writeToStream(out);
+        }
+        out.write("</cm_releases>\n");
+        out.write("</cm_record>\n");
+    }
+    
     
 }

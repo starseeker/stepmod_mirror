@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.17 2006/08/01 14:04:08 robbod Exp $
+ * $Id: STEPmod.java,v 1.18 2006/08/01 16:15:31 robbod Exp $
  *
  * STEPmod.java
  *
@@ -614,7 +614,9 @@ public class STEPmod {
         this.stepmodCmRecord = stepmodCmRecord;
     }
 
-
+    public String toString() {
+        return("STEPmod");
+    }
      
         
 }

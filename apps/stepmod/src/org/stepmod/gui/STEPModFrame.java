@@ -461,6 +461,9 @@ public class STEPModFrame extends javax.swing.JFrame {
         private Icon devSelCvsNoFileIcon;
         private Icon devUnSelCvsNoFileIcon;
         
+        private Icon cvsUnModifiedIcon;
+        private Icon cvsModifiedIcon;
+        
         private JCheckBox checkBoxRenderer = new JCheckBox();
         private Color selectionForeground;
         private Color selectionBackground;
@@ -475,6 +478,18 @@ public class STEPModFrame extends javax.swing.JFrame {
         
         public RepositoryTreeRenderer() {
             this.stepMod = stepMod;
+            
+            java.net.URL cvsUnModifiedIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/file-cvs-unmodified.png");
+            cvsUnModifiedIcon = null;
+            if (cvsUnModifiedIconURL != null) {
+                cvsUnModifiedIcon = new ImageIcon(cvsUnModifiedIconURL);
+            }
+            java.net.URL cvsModifiedIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/file-cvs-modified.png");
+            cvsModifiedIcon = null;
+            if (cvsModifiedIconURL != null) {
+                cvsModifiedIcon = new ImageIcon(cvsModifiedIconURL);
+            }
+            
             java.net.URL developmentIconURL = STEPModFrame.class.getResource("/org/stepmod/resources/development.png");
             developmentIcon = null;
             if (developmentIconURL != null) {
@@ -643,7 +658,6 @@ public class STEPModFrame extends javax.swing.JFrame {
             if (devUnSelCvsNoFileIconURL != null) {
                 devUnSelCvsNoFileIcon= new ImageIcon(devUnSelCvsNoFileIconURL);
             }
-            
             
             java.net.URL publishedIconUnSelectedURL = STEPModFrame.class.getResource("/org/stepmod/resources/published_box.png");
             publishedIconUnSelected = null;
@@ -904,6 +918,7 @@ public class STEPModFrame extends javax.swing.JFrame {
             setOpaque(true);
             setBackground(textBackground);
             setForeground(textForeground);
+            STEPmod stepMod = (STEPmod)((DefaultMutableTreeNode)tree.getModel().getRoot()).getUserObject();
             
             if (node != null) {
                 Object userNode = (Object)node.getUserObject();
@@ -942,10 +957,18 @@ public class STEPModFrame extends javax.swing.JFrame {
                         // looking at the release of stepmod or basic
                         TreeNode parentNode = node.getParent();
                         String parentText = parentNode.toString();
-                        if (parentText.equals("STEPmod Framework")) {
-                            
-                        } else if (parentText.equals("Common files")) {
-                            
+                        
+                    } else if (text.equals("STEPmod Framework")) {
+                        if (stepMod.getStepmodCmRecord().getCmRecordCvsStatus() == CmRecordFrmwk.CM_RECORD_CVS_CHANGED) {
+                            setIcon(cvsModifiedIcon);
+                        } else {
+                            setIcon(cvsUnModifiedIcon);
+                        }
+                    } else if (text.equals("Common files")) {
+                        if (stepMod.getBasicCmRecord().getCmRecordCvsStatus() == CmRecordFrmwk.CM_RECORD_CVS_CHANGED) {
+                            setIcon(cvsModifiedIcon);
+                        } else {
+                            setIcon(cvsUnModifiedIcon);
                         }
                     }
                     setForeground(Color.BLACK);
@@ -1242,7 +1265,7 @@ public class STEPModFrame extends javax.swing.JFrame {
      * Initialise the display of the repository tree
      */
     public void initRepositoryTree() {
-        DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode("STEPMod");
+        DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode(this.getStepMod());
         // Use the tree mode to make sure that the added nodes are displayed
         DefaultTreeModel treeModel = new DefaultTreeModel(rootTreeNode);
         repositoryJTree = new JTree(treeModel);
@@ -1326,7 +1349,13 @@ public class STEPModFrame extends javax.swing.JFrame {
         repositoryJTree.setCellRenderer(renderer);
         RepositoryTreeCellEditor cellEditor = new RepositoryTreeCellEditor(repositoryJTree, renderer);
         repositoryJTree.setCellEditor(cellEditor);
-        
+        initRepositoryTreeListeners();
+    }
+    
+    /**
+     * Initialise the listeners on the repository tree
+     */
+    public void initRepositoryTreeListeners() {
         // Setup the listeners that get fired when there are mouse events on the tree
         repositoryJTree.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
@@ -1437,6 +1466,18 @@ public class STEPModFrame extends javax.swing.JFrame {
                         String summary = cmRecord.summaryHtml(cmRelease);
                         repositoryTextPane.setText(summary);
                         setCurrentDisplayedObject(nodeObject);
+                    } else if (nodeObject instanceof String) {
+                        String text = nodeObject.toString();
+                        STEPmod stepMod = (STEPmod)((DefaultMutableTreeNode)tree.getModel().getRoot()).getUserObject();
+                        if (text.equals("Common files")) {
+                            CmRecordFrmwk cmRecordFrmwk = stepMod.getBasicCmRecord();
+                            String summary = cmRecordFrmwk.summaryHtml(cmRecordFrmwk.getCheckedOutRelease());
+                            repositoryTextPane.setText(summary);
+                        } else if (text.equals("STEPmod Framework")) {
+                            CmRecordFrmwk cmRecordFrmwk = stepMod.getStepmodCmRecord();
+                            String summary = cmRecordFrmwk.summaryHtml(cmRecordFrmwk.getCheckedOutRelease());
+                            repositoryTextPane.setText(summary);
+                        }
                     }
                 }
             }
@@ -2087,7 +2128,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         // Setup the popoup menu associated with individual modules
         frmwkNewReleasePopupMenu = new PopupMenuWithObject();
         
-                
+        
         // Commits the CM record
         javax.swing.JMenuItem commitNewReleaseMenuItem;
         commitNewReleaseMenuItem = new javax.swing.JMenuItem("Commit CM record");
@@ -2426,7 +2467,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                     "Do you want to check out the development release?",
                     "CVS action ....",
                     JOptionPane.YES_NO_OPTION);
-            if (answer == JOptionPane.YES_OPTION) {                
+            if (answer == JOptionPane.YES_OPTION) {
                 StepmodCvs stepmodCvs = cmRecord.cvsUpdate();
                 outputCvsResults(stepmodCvs);
             }

@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.5 2006/07/17 06:43:02 robbod Exp $
+$Id: readme.txt,v 1.6 2006/07/25 12:20:56 robbod Exp $
 
 WARNING 
 - THIS IS WORK IN PROGRESS - so no guarantees about anything
@@ -11,12 +11,6 @@ its components.
 
 INSTALLATION
 ============
-For Unix:
-Edit runme.sh so that -root points at your local copy of stepmod
-
-For Windows:
-Edit runme.sh so that -root points at your local copy of stepmod
-
 Make sure that you have a copy of CVSNT installed 
 See http://www.cvsnt.org/wiki/FrontPage
 

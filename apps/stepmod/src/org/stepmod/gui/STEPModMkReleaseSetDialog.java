@@ -226,7 +226,7 @@ public class STEPModMkReleaseSetDialog extends javax.swing.JDialog {
             StepmodPart part = (StepmodPart) it.next();      
             CmRelease cmRelease = part.getCmRecord().getCheckedOutRelease();            
             node = stepmodFrame.getNodeForPart(part);
-            stepmodFrame.updateReleaseStatus(part, cmRelease, (String)releaseStatusjComboBox.getSelectedItem(), node, true);
+            stepmodFrame.updateReleaseStatus(part, cmRelease, (String)releaseStatusjComboBox.getSelectedItem(), (String)releaseDescriptionjEditorPane.getText(), node, true);
             part.getCmRecord().writeCmRecord();
         }
     }

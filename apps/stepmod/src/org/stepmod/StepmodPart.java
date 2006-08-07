@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.24 2006/07/27 15:13:54 robbod Exp $
+ * $Id: StepmodPart.java,v 1.25 2006/07/28 13:28:28 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -613,11 +613,11 @@ public abstract class StepmodPart implements Comparable {
      *
      */
     public StepmodCvs cvsCoRelease(CmRelease cmRelease) {
-        String tag = cmRelease.getId(); 
+        String tag = cmRelease.getId();
         return(cvsCoRelease(tag));
     }
     
-        /**
+    /**
      * Use StepModAnt to execute a CVS checkout of
      * a specified release
      *
@@ -767,6 +767,27 @@ public abstract class StepmodPart implements Comparable {
     }
     
     /**
+     * Answer if the revision of the part checked out by a tag only and not an official CM release
+     * @return true if the revisions of the part checked out is a development revision
+     */
+    public boolean isCheckedOutTag() {
+        String tag = this.getCvsStatusObject().getCvsTag();
+        if (tag == null) {
+            return false;
+        } else if (tag.length() == 0) {
+            return false;
+        } else {
+            CmRelease release = this.getCmRecord().getNamedRelease(tag);
+            if (release != null) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+    
+    
+    /**
      * Answer if the revision of the part checked out is a release published by ISO
      * @return true if the revisions of the part checked out is a release published by ISO
      */
@@ -828,6 +849,7 @@ public abstract class StepmodPart implements Comparable {
         }
         return(StepmodPart.RELEASE_CHECK_OK);
     }
+    
     
     public String getRcsDate() {
         return rcsDate;

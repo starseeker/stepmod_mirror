@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPartCM.java,v 1.1 2006/07/25 17:38:51 robbod Exp $
+ * $Id: StepmodPartCM.java,v 1.2 2006/07/27 15:13:54 robbod Exp $
  *
  * StepmodPartCM.java
  *
@@ -132,7 +132,7 @@ public class StepmodPartCM implements Comparable {
     }
     
     
-    private String getPartRevision() {
+    public String getPartRevision() {
         StepmodPart part = getStepmodPart();
         String cvsStateDscr = "";
         if (part != null) {

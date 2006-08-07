@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.17 2006/07/28 13:28:28 robbod Exp $
+ * $Id: CmRecord.java,v 1.18 2006/08/01 16:15:30 robbod Exp $
  *
  * STEPmod.java
  *
@@ -379,13 +379,29 @@ public class CmRecord {
         return(cmCheckedOutRelease);
     }
     
+    
+    /**
+     * Return the CmRelease that has the given tag
+     */
+    public CmRelease getNamedRelease(String tag) {
+        CmRelease cmCheckedOutRelease = null;
+        for (Iterator it = hasCmReleases.iterator(); it.hasNext();) {
+            CmRelease cmRelease = (CmRelease) it.next();
+            if (cmRelease.getId().equals(tag)) {
+                cmCheckedOutRelease = cmRelease;
+            }
+        }
+        return(cmCheckedOutRelease);
+    }
+    
+    
     /**
      * Write the CM record to the stream
      */
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.17 2006/07/28 13:28:28 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.18 2006/08/01 16:15:30 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -403,8 +419,16 @@ public class CmRecord {
         out.write("  part_name=\""+getPartName()+"\"\n");
         out.write("  part_type=\""+getPartType()+"\"\n");
         out.write("  part_number=\""+getPartNumber()+"\"\n");
-        out.write("  cvs_revision=\""+getCvsRevision()+"\"\n");
-        out.write("  cvs_date=\""+getCvsDate()+"\">\n");
+        String cvsRevision = getCvsRevision();
+        if ((cvsRevision == null) || (!cvsRevision.contains("$Revision:"))) {
+            cvsRevision = "$Revision:"+ " $"; 
+        }
+        if ((cvsDate == null) || (!cvsDate.contains("$Date:"))) {
+            cvsDate = "$Date:"+ " $"; 
+        }
+        
+        out.write("  cvs_revision=\""+cvsRevision+"\"\n");
+        out.write("  cvs_date=\""+cvsDate+"\">\n");
         out.write("<cm_releases>\n");
         out.write("   <!-- A relase of the part\n");
         out.write("         release\n");

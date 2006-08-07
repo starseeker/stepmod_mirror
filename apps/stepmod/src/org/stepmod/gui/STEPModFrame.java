@@ -153,6 +153,7 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem commitCmRecordMenuItem;
     private javax.swing.JMenuItem saveCmRecordMenuItem;
     private javax.swing.JMenuItem createCmReleaseMenuItem;
+    private javax.swing.JMenuItem createCmReleaseFromTagMenuItem;
     
     
     /**
@@ -1424,18 +1425,33 @@ public class STEPModFrame extends javax.swing.JFrame {
                             createCmRecordMenuItem.setEnabled(true);
                             commitCmRecordMenuItem.setEnabled(false);
                             createCmReleaseMenuItem.setEnabled(false);
+                            createCmReleaseFromTagMenuItem.setEnabled(false);
                         } else if (state == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
                             createCmRecordMenuItem.setEnabled(false);
                             commitCmRecordMenuItem.setEnabled(false);
                             createCmReleaseMenuItem.setEnabled(true);
+                            if (part.isCheckedOutTag()) {
+                                createCmReleaseFromTagMenuItem.setEnabled(true);
+                            } else {
+                                createCmReleaseFromTagMenuItem.setEnabled(false);
+                            }
                         } else if (part.getCmRecord().needsCvsAction()) {
                             createCmRecordMenuItem.setEnabled(false);
                             commitCmRecordMenuItem.setEnabled(true);
                             createCmReleaseMenuItem.setEnabled(true);
+                            if (part.isCheckedOutTag()) {
+                            } else {
+                                createCmReleaseFromTagMenuItem.setEnabled(false);
+                            }
                         } else {
                             createCmRecordMenuItem.setEnabled(false);
                             commitCmRecordMenuItem.setEnabled(false);
                             createCmReleaseMenuItem.setEnabled(true);
+                            if (part.isCheckedOutTag()) {
+                                createCmReleaseFromTagMenuItem.setEnabled(true);
+                            } else {
+                                createCmReleaseFromTagMenuItem.setEnabled(false);
+                            }
                         }
                         stepmodPartPopupMenu.show(e.getComponent(), e.getX(), e.getY());
                     } else if (nodeObject instanceof CmReleaseTreeNode) {
@@ -1757,37 +1773,60 @@ public class STEPModFrame extends javax.swing.JFrame {
         toBeDone("STEPModFrame.openAllSelectedModuleNodes");
     }
     
-    private void clearAllSelectedPartsHash(StepmodPartTreeNodeCollection partTreeNodeCollection) {
+    private void applySelectAllPartsHash(StepmodPartTreeNodeCollection partTreeNodeCollection, boolean selection) {
         DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
         TreeMap treeMap = partTreeNodeCollection.getHasStepmodPartTreeNodes();
         for (Iterator it=treeMap.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry)it.next();
             DefaultMutableTreeNode moduleNode = (DefaultMutableTreeNode)entry.getValue();
             StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) moduleNode.getUserObject();
-            if (stepmodPartTreeNode.isSelected()) {
-                stepmodPartTreeNode.setSelected(false);
+            if (selection != stepmodPartTreeNode.isSelected()) {
+                // only change state if required
+                stepmodPartTreeNode.setSelected(selection);
                 treeModel.nodeChanged(moduleNode);
             }
         }
     }
     
-    private void clearAllSelectedParts() {
-        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
-        clearAllChildSelectedParts(root);
-    }
-    
-    private void clearAllChildSelectedParts(DefaultMutableTreeNode root) {
+    private void applySelectAllParts(DefaultMutableTreeNode root, boolean selection) {
         for (Enumeration e=root.children(); e.hasMoreElements(); ) {
             DefaultMutableTreeNode n = (DefaultMutableTreeNode)e.nextElement();
             Object userObj = n.getUserObject();
             if (userObj instanceof StepmodPartTreeNodeCollection) {
                 StepmodPartTreeNodeCollection partTreeNodeCollection = (StepmodPartTreeNodeCollection) userObj;
                 // iterate through the children of the node
-                clearAllSelectedPartsHash(partTreeNodeCollection);
+                applySelectAllPartsHash(partTreeNodeCollection, selection);
             }
         }
     }
+    
+    
+    private void clearAllSelectedParts() {
+        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
+        applySelectAllParts(root, false);
+    }
+    
+    
+    private void selectAllSelectedParts() {
+        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
+        applySelectAllParts(root, true);
+    }
+    
+    
+    private void applySelectionToSubTree(int childPos, boolean selection) {
+        DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)root.getChildAt(childPos);
+        Object userObj = node.getUserObject();
+        if (userObj instanceof StepmodPartTreeNodeCollection) {
+            StepmodPartTreeNodeCollection partTreeNodeCollection = (StepmodPartTreeNodeCollection) userObj;
+            // iterate through the children of the node
+            applySelectAllPartsHash(partTreeNodeCollection, selection);
+        }
+    }
+    
     
     private void viewPartsInCollection(DefaultTreeModel treeModel,
             DefaultMutableTreeNode collectionTreeNode, StepmodPartTreeNodeCollection partCollection) {
@@ -1871,7 +1910,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                 StepmodPartTreeNodeCollection partCollection = (StepmodPartTreeNodeCollection) usrObj;
                 for (Iterator it=partCollection.getHasStepmodPartTreeNodes().entrySet().iterator(); it.hasNext(); ) {
                     Map.Entry entry = (Map.Entry)it.next();
-                    DefaultMutableTreeNode stepPartNode = (DefaultMutableTreeNode)entry.getValue();
+                    DefaultMutableTreeNode stepPartNode = (DefaultMutableTreeNode)entry.getValue();    
                     StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) stepPartNode.getUserObject();
                     if (stepmodPartTreeNode.isSelected()) {
                         selectedParts.add(stepmodPartTreeNode.getStepmodPart());
@@ -1959,6 +1998,25 @@ public class STEPModFrame extends javax.swing.JFrame {
             }
         });
         cvsReleaseSubmenu.add(createCmReleaseMenuItem);
+        
+        // Make a new release option
+        createCmReleaseFromTagMenuItem = new javax.swing.JMenuItem("Convert tagged revision to a release");
+        createCmReleaseFromTagMenuItem.setToolTipText("Converts the existing tagged revision into a release. Useful for retrospectively created CM records");
+        createCmReleaseFromTagMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
+                StepmodPart part = ((StepmodPartTreeNode) node.getUserObject()).getStepmodPart();
+                boolean check = part.isCheckedOutTag();
+                if (!check) {
+                    warning("Cannot create a release as the part has not been checked out as a using a tag");
+                    return;
+                } else {
+                    String tag = part.getCvsTag();
+                    new STEPModMkReleaseDialog(part, node, tag).setVisible(true);
+                }
+            }
+        });
+        cvsReleaseSubmenu.add(createCmReleaseFromTagMenuItem);
         
         
         // Commit CM record option
@@ -2230,8 +2288,9 @@ public class STEPModFrame extends javax.swing.JFrame {
     }
     
     
-    public void updateReleaseStatus(StepmodPart part, CmRelease cmRelease, String status, DefaultMutableTreeNode repoTreeNode, boolean shouldBeVisible) {
+    public void updateReleaseStatus(StepmodPart part, CmRelease cmRelease, String status, String description, DefaultMutableTreeNode repoTreeNode, boolean shouldBeVisible) {
         cmRelease.setReleaseStatus(status, true);
+        cmRelease.setDescription(description);
         DefaultTreeModel treeModel = (DefaultTreeModel)repositoryJTree.getModel();
         treeModel.nodeChanged(repoTreeNode);
     }
@@ -2496,8 +2555,23 @@ public class STEPModFrame extends javax.swing.JFrame {
         }
     }
     
+    /**
+     * Run a cvs update on stepmod/config_management
+     */
+    private void cvsUpdateConfigManagement() {
+        int answer = JOptionPane.showConfirmDialog(this,
+                "Do you want to run a CVS update on stepmod/config_management?",
+                "CVS action ....",
+                JOptionPane.YES_NO_OPTION);
+        if (answer == JOptionPane.YES_OPTION) {
+            StepmodCvs stepmodCvs = getStepMod().cvsUpdateConfigManagement();
+            outputCvsResults(stepmodCvs);
+        }
+    }
+    
     public void outputCvsResults(StepmodCvs stepmodCvs) {
         output("********* CVS ***********");
+        output("Executing in directory " + stepmodCvs.getCvsExecDirectory());
         output(stepmodCvs.getCvsCommand());
         output(stepmodCvs.getCvsMessages());
         output("CVS exiting with: "+stepmodCvs.getCvsExitVal());
@@ -2575,15 +2649,27 @@ public class STEPModFrame extends javax.swing.JFrame {
         stepModOutputTextArea = new javax.swing.JTextArea();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
+        cvsUpdateCMMenuItem = new javax.swing.JMenuItem();
         loadRepositoryMenuItem = new javax.swing.JMenuItem();
         reloadRepositoryIndexMenuItem = new javax.swing.JMenuItem();
         selectAndLoadRepositoryMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
         viewMenu = new javax.swing.JMenu();
-        clearAllMenuItem = new javax.swing.JMenuItem();
         viewSelectedMenuItem = new javax.swing.JMenuItem();
         vewAllMenuItem = new javax.swing.JMenuItem();
         selectedMenu = new javax.swing.JMenu();
+        selSelectionMenu = new javax.swing.JMenu();
+        selectAllMenuItem = new javax.swing.JMenuItem();
+        selectAllModulesMenuItem = new javax.swing.JMenuItem();
+        selectAllResMenuItem = new javax.swing.JMenuItem();
+        selectAllApsMenuItem = new javax.swing.JMenuItem();
+        selectAllResDocsMenuItem = new javax.swing.JMenuItem();
+        selUnselectionjMenu = new javax.swing.JMenu();
+        unselectAllMenuItem = new javax.swing.JMenuItem();
+        unselectAllModulesMenuItem = new javax.swing.JMenuItem();
+        unselectAllResMenuItem = new javax.swing.JMenuItem();
+        unselectAllApsMenuItem = new javax.swing.JMenuItem();
+        unselectAllResDocsMenuItem = new javax.swing.JMenuItem();
         cvsPartjMenu = new javax.swing.JMenu();
         selUpdateReleaseMenuItem = new javax.swing.JMenuItem();
         selLatestReleaseMenuItem = new javax.swing.JMenuItem();
@@ -2593,6 +2679,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         selReleaseMenu = new javax.swing.JMenu();
         selRelMenuItem = new javax.swing.JMenuItem();
         selEditMenuItem = new javax.swing.JMenuItem();
+        selCreateCmReleaseFromTagMenuItem = new javax.swing.JMenuItem();
         toolsMenu = new javax.swing.JMenu();
         mkModuleMenuItem = new javax.swing.JMenuItem();
         mkApMenuItem = new javax.swing.JMenuItem();
@@ -2724,6 +2811,16 @@ public class STEPModFrame extends javax.swing.JFrame {
         stepmodMainSplitPane.setRightComponent(stepModOutputPanel);
 
         fileMenu.setText("File");
+        cvsUpdateCMMenuItem.setText("CVS update CM records");
+        cvsUpdateCMMenuItem.setToolTipText("Run a CVS update on all CM records in stepmod/config_management");
+        cvsUpdateCMMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cvsUpdateCMMenuItemActionPerformed(evt);
+            }
+        });
+
+        fileMenu.add(cvsUpdateCMMenuItem);
+
         loadRepositoryMenuItem.setText("Load default repository_index.xml");
         loadRepositoryMenuItem.setToolTipText("loads all the parts identified in the repository indexL");
         loadRepositoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -2766,16 +2863,6 @@ public class STEPModFrame extends javax.swing.JFrame {
         menuBar.add(fileMenu);
 
         viewMenu.setText("View");
-        clearAllMenuItem.setText("Unselect all");
-        clearAllMenuItem.setToolTipText("Unselect allparts currently selected ");
-        clearAllMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clearAllMenuItemActionPerformed(evt);
-            }
-        });
-
-        viewMenu.add(clearAllMenuItem);
-
         viewSelectedMenuItem.setText("View all selected parts");
         viewSelectedMenuItem.setToolTipText("Only display thel selected parts");
         viewSelectedMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -2800,6 +2887,105 @@ public class STEPModFrame extends javax.swing.JFrame {
 
         selectedMenu.setText("Selected");
         selectedMenu.setToolTipText("Acions that are applied to selected parts");
+        selSelectionMenu.setText("Select parts");
+        selSelectionMenu.setToolTipText("");
+        selectAllMenuItem.setText("Select all");
+        selectAllMenuItem.setToolTipText("Select all the parts");
+        selectAllMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectAllMenuItemActionPerformed(evt);
+            }
+        });
+
+        selSelectionMenu.add(selectAllMenuItem);
+
+        selectAllModulesMenuItem.setText("Select all modules");
+        selectAllModulesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectAllModulesMenuItemActionPerformed(evt);
+            }
+        });
+
+        selSelectionMenu.add(selectAllModulesMenuItem);
+
+        selectAllResMenuItem.setText("Select all resource schemas");
+        selectAllResMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectAllResMenuItemActionPerformed(evt);
+            }
+        });
+
+        selSelectionMenu.add(selectAllResMenuItem);
+
+        selectAllApsMenuItem.setText("Select all application protocols");
+        selectAllApsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectAllApsMenuItemActionPerformed(evt);
+            }
+        });
+
+        selSelectionMenu.add(selectAllApsMenuItem);
+
+        selectAllResDocsMenuItem.setText("Select all resource documents");
+        selectAllResDocsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectAllResDocsMenuItemActionPerformed(evt);
+            }
+        });
+
+        selSelectionMenu.add(selectAllResDocsMenuItem);
+
+        selectedMenu.add(selSelectionMenu);
+
+        selUnselectionjMenu.setText("Unselect parts");
+        unselectAllMenuItem.setText("Unselect all");
+        unselectAllMenuItem.setToolTipText("Unselect allparts currently selected ");
+        unselectAllMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                unselectAllMenuItemActionPerformed(evt);
+            }
+        });
+
+        selUnselectionjMenu.add(unselectAllMenuItem);
+
+        unselectAllModulesMenuItem.setText("Unselect all modules");
+        unselectAllModulesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                unselectAllModulesMenuItemActionPerformed(evt);
+            }
+        });
+
+        selUnselectionjMenu.add(unselectAllModulesMenuItem);
+
+        unselectAllResMenuItem.setText("Unselect all resource schemas");
+        unselectAllResMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                unselectAllResMenuItemActionPerformed(evt);
+            }
+        });
+
+        selUnselectionjMenu.add(unselectAllResMenuItem);
+
+        unselectAllApsMenuItem.setText("Unselect all application protocols");
+        unselectAllApsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                unselectAllApsMenuItemActionPerformed(evt);
+            }
+        });
+
+        selUnselectionjMenu.add(unselectAllApsMenuItem);
+
+        unselectAllResDocsMenuItem.setText("Unselect all resource documents");
+        unselectAllResDocsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                unselectAllResDocsMenuItemActionPerformed(evt);
+            }
+        });
+
+        selUnselectionjMenu.add(unselectAllResDocsMenuItem);
+
+        selectedMenu.add(selUnselectionjMenu);
+
         cvsPartjMenu.setText("CVS - Part");
         cvsPartjMenu.setToolTipText("CVS actions on selected parts");
         selUpdateReleaseMenuItem.setText("Update development release of selected parts");
@@ -2869,6 +3055,16 @@ public class STEPModFrame extends javax.swing.JFrame {
         });
 
         selReleaseMenu.add(selEditMenuItem);
+
+        selCreateCmReleaseFromTagMenuItem.setText("Convert tagged revisions of selected parts to a release");
+        selCreateCmReleaseFromTagMenuItem.setToolTipText("Converts the existing tagged revision of selected parts into a release. Useful for retrospectively created CM records\"");
+        selCreateCmReleaseFromTagMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selCreateCmReleaseFromTagMenuItemActionPerformed(evt);
+            }
+        });
+
+        selReleaseMenu.add(selCreateCmReleaseFromTagMenuItem);
 
         selectedMenu.add(selReleaseMenu);
 
@@ -2967,6 +3163,62 @@ public class STEPModFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
+    private void selCreateCmReleaseFromTagMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selCreateCmReleaseFromTagMenuItemActionPerformed
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
+        for (Iterator it = getSelectedParts().iterator(); it.hasNext();) {
+            // tag each selected part
+            StepmodPart part = (StepmodPart) it.next();
+            DefaultMutableTreeNode node = findNodeByPart(root, part);
+            boolean check = part.isCheckedOutTag();
+            if (!check) {
+                warning("Cannot create a release as the part "+ part +" has not been checked out a using a tag");
+              } else {
+                String tag = part.getCvsTag();
+                new STEPModMkReleaseDialog(part, node, tag).setVisible(true);
+            }
+        }
+    }//GEN-LAST:event_selCreateCmReleaseFromTagMenuItemActionPerformed
+    
+    private void unselectAllResMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unselectAllResMenuItemActionPerformed
+        applySelectionToSubTree(3, false);
+    }//GEN-LAST:event_unselectAllResMenuItemActionPerformed
+    
+    private void selectAllResMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllResMenuItemActionPerformed
+        applySelectionToSubTree(3, true);
+    }//GEN-LAST:event_selectAllResMenuItemActionPerformed
+    
+    private void unselectAllResDocsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unselectAllResDocsMenuItemActionPerformed
+        applySelectionToSubTree(2, false);
+    }//GEN-LAST:event_unselectAllResDocsMenuItemActionPerformed
+    
+    private void selectAllResDocsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllResDocsMenuItemActionPerformed
+        applySelectionToSubTree(2, true);
+    }//GEN-LAST:event_selectAllResDocsMenuItemActionPerformed
+    
+    private void unselectAllApsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unselectAllApsMenuItemActionPerformed
+        applySelectionToSubTree(1, false);
+    }//GEN-LAST:event_unselectAllApsMenuItemActionPerformed
+    
+    private void selectAllApsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllApsMenuItemActionPerformed
+        applySelectionToSubTree(1, true);
+    }//GEN-LAST:event_selectAllApsMenuItemActionPerformed
+    
+    private void unselectAllModulesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unselectAllModulesMenuItemActionPerformed
+        applySelectionToSubTree(0, false);
+    }//GEN-LAST:event_unselectAllModulesMenuItemActionPerformed
+    
+    private void selectAllModulesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllModulesMenuItemActionPerformed
+        applySelectionToSubTree(0, true);
+    }//GEN-LAST:event_selectAllModulesMenuItemActionPerformed
+    
+    private void selectAllMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllMenuItemActionPerformed
+        selectAllSelectedParts();
+    }//GEN-LAST:event_selectAllMenuItemActionPerformed
+    
+    private void cvsUpdateCMMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cvsUpdateCMMenuItemActionPerformed
+        cvsUpdateConfigManagement();
+    }//GEN-LAST:event_cvsUpdateCMMenuItemActionPerformed
+    
     private void selPublishedReleaseMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selPublishedReleaseMenuItemActionPerformed
         for (Iterator it = getSelectedParts().iterator(); it.hasNext();) {
             StepmodPart part = (StepmodPart) it.next();
@@ -2991,13 +3243,18 @@ public class STEPModFrame extends javax.swing.JFrame {
     private void selCommitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selCommitMenuItemActionPerformed
         for (Iterator it = getSelectedParts().iterator(); it.hasNext();) {
             StepmodPart part = (StepmodPart) it.next();
-            int cvsStatus = part.getCmRecord().getCmRecordCvsStatus();
+            CmRecord cmRecord = part.getCmRecord();
+            int cvsStatus = cmRecord.getCmRecordCvsStatus();
             if (cvsStatus == CmRecord.CM_RECORD_FILE_NOT_EXIST) {
                 writeCmRecord(part);
                 cvsCommitRecord(part);
             } else if (cvsStatus == CmRecord.CM_RECORD_CVS_NOT_ADDED) {
                 cvsCommitRecord(part);
             } else if (cvsStatus == CmRecord.CM_RECORD_CVS_DIR_NOT_ADDED) {
+                cvsCommitRecord(part);
+            } else if (cvsStatus == CmRecord.CM_RECORD_CVS_CHANGED) {
+                cvsCommitRecord(part);
+            } else if (cmRecord.getRecordState() == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {                
                 cvsCommitRecord(part);
             }
         }
@@ -3089,9 +3346,9 @@ public class STEPModFrame extends javax.swing.JFrame {
         viewSelectedParts();
     }//GEN-LAST:event_viewSelectedMenuItemActionPerformed
     
-    private void clearAllMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearAllMenuItemActionPerformed
+    private void unselectAllMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unselectAllMenuItemActionPerformed
         clearAllSelectedParts();
-    }//GEN-LAST:event_clearAllMenuItemActionPerformed
+    }//GEN-LAST:event_unselectAllMenuItemActionPerformed
     
     private void clearSelectedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearSelectedButtonActionPerformed
         clearAllSelectedParts();
@@ -3195,11 +3452,11 @@ public class STEPModFrame extends javax.swing.JFrame {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
-    private javax.swing.JMenuItem clearAllMenuItem;
     private javax.swing.JMenuItem clearOutputMenuItem;
     private javax.swing.JButton clearSelectedButton;
     private javax.swing.JMenuItem contentsMenuItem;
     private javax.swing.JMenu cvsPartjMenu;
+    private javax.swing.JMenuItem cvsUpdateCMMenuItem;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JTextField findPartjTextField;
@@ -3221,12 +3478,20 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane repositoryTreeScrollPane;
     private javax.swing.JMenu selCmRecordjMenu;
     private javax.swing.JMenuItem selCommitMenuItem;
+    private javax.swing.JMenuItem selCreateCmReleaseFromTagMenuItem;
     private javax.swing.JMenuItem selEditMenuItem;
     private javax.swing.JMenuItem selLatestReleaseMenuItem;
     private javax.swing.JMenuItem selPublishedReleaseMenuItem;
     private javax.swing.JMenuItem selRelMenuItem;
     private javax.swing.JMenu selReleaseMenu;
+    private javax.swing.JMenu selSelectionMenu;
+    private javax.swing.JMenu selUnselectionjMenu;
     private javax.swing.JMenuItem selUpdateReleaseMenuItem;
+    private javax.swing.JMenuItem selectAllApsMenuItem;
+    private javax.swing.JMenuItem selectAllMenuItem;
+    private javax.swing.JMenuItem selectAllModulesMenuItem;
+    private javax.swing.JMenuItem selectAllResDocsMenuItem;
+    private javax.swing.JMenuItem selectAllResMenuItem;
     private javax.swing.JMenuItem selectAndLoadRepositoryMenuItem;
     private javax.swing.JMenu selectedMenu;
     private javax.swing.JMenuItem setStepModProps;
@@ -3237,6 +3502,11 @@ public class STEPModFrame extends javax.swing.JFrame {
     private javax.swing.JPanel stepmodPanel;
     private javax.swing.JMenuItem testCVSMenuItem;
     private javax.swing.JMenu toolsMenu;
+    private javax.swing.JMenuItem unselectAllApsMenuItem;
+    private javax.swing.JMenuItem unselectAllMenuItem;
+    private javax.swing.JMenuItem unselectAllModulesMenuItem;
+    private javax.swing.JMenuItem unselectAllResDocsMenuItem;
+    private javax.swing.JMenuItem unselectAllResMenuItem;
     private javax.swing.JMenuItem vewAllMenuItem;
     private javax.swing.JButton viewAllButton;
     private javax.swing.JMenu viewMenu;

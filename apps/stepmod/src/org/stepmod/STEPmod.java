@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.18 2006/08/01 16:15:31 robbod Exp $
+ * $Id: STEPmod.java,v 1.19 2006/08/01 17:06:48 robbod Exp $
  *
  * STEPmod.java
  *
@@ -25,6 +25,7 @@ import java.util.jar.Manifest;
 import javax.swing.UIManager;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.stepmod.cvschk.StepmodCvs;
 import org.stepmod.gui.STEPModFrame;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -280,6 +281,16 @@ public class STEPmod {
      */
     public TreeMap getResourcesHash() {
         return(hasResources);
+    }
+    
+    
+    /**
+     * Run a cvs update on stepmod/config_management
+     */
+    public StepmodCvs cvsUpdateConfigManagement() {
+        StepmodCvs stepmodCvs = new StepmodCvs(this);
+        stepmodCvs.cvsUpdate(this.getRootDirectory()+"/config_management");
+        return stepmodCvs;
     }
     
     /**

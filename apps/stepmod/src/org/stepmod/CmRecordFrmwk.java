@@ -1,5 +1,5 @@
 /*
- * $Id: CmRecordFrmwk.java,v 1.1 2006/07/31 05:56:42 robbod Exp $
+ * $Id: CmRecordFrmwk.java,v 1.2 2006/08/01 14:04:08 robbod Exp $
  *
  * CmRecordFrmwk.java
  *
@@ -464,20 +464,20 @@ public class CmRecordFrmwk {
         }
     }
     
-    public StepmodCvs cvsCommitRecord () {
+    public StepmodCvs cvsCommitRecord() {
         STEPmod stepMod = this.getStepMod();
         StepmodCvs stepmodCvs = new StepmodCvs(stepMod);
         String cmDir;
-        if (this.getType().equals("stepmod")) {            
+        if (this.getType().equals("stepmod")) {
             cmDir = stepMod.getRootDirectory()+"/config_management/stepmod";
         } else {
-            cmDir = stepMod.getRootDirectory()+"/config_management/basic"; 
+            cmDir = stepMod.getRootDirectory()+"/config_management/basic";
         }
         stepmodCvs.cvsCommit(cmDir, "cm_record.xml");
         return(stepmodCvs);
     }
-        
-        
+    
+    
     
     public STEPmod getStepMod() {
         return stepMod;
@@ -538,7 +538,7 @@ public class CmRecordFrmwk {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         //out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.17 2006/07/28 13:28:28 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecordFrmwk.java,v 1.2 2006/08/01 14:04:08 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -553,8 +553,15 @@ public class CmRecordFrmwk {
         out.write("       The date of the file revision. (RCS keyword Date)\n");
         out.write("     -->\n");
         out.write("<cm_record\n");
-        out.write("  cvs_revision=\""+getCvsRevision()+"\"\n");
-        out.write("  cvs_date=\""+getCvsDate()+"\">\n");
+        String cvsRevision = getCvsRevision();
+        if ((cvsRevision == null) || (!cvsRevision.contains("$Revision:"))) {
+            cvsRevision = "$Revision:"+ " $";
+        }
+        if ((cvsDate == null) || (!cvsDate.contains("$Date:"))) {
+            cvsDate = "$Date:"+ " $";
+        }
+        out.write("  cvs_revision=\""+cvsRevision+"\"\n");
+        out.write("  cvs_date=\""+cvsDate+"\">\n");
         out.write("<cm_releases>\n");
         out.write("   <!-- A release of the part\n");
         out.write("         release\n");

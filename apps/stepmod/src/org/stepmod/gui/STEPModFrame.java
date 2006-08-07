@@ -15,6 +15,10 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.EventObject;
@@ -1910,7 +1914,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                 StepmodPartTreeNodeCollection partCollection = (StepmodPartTreeNodeCollection) usrObj;
                 for (Iterator it=partCollection.getHasStepmodPartTreeNodes().entrySet().iterator(); it.hasNext(); ) {
                     Map.Entry entry = (Map.Entry)it.next();
-                    DefaultMutableTreeNode stepPartNode = (DefaultMutableTreeNode)entry.getValue();    
+                    DefaultMutableTreeNode stepPartNode = (DefaultMutableTreeNode)entry.getValue();
                     StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) stepPartNode.getUserObject();
                     if (stepmodPartTreeNode.isSelected()) {
                         selectedParts.add(stepmodPartTreeNode.getStepmodPart());
@@ -2619,6 +2623,33 @@ public class STEPModFrame extends javax.swing.JFrame {
     }
     
     
+    public static void openURLinBrowser(String url) {
+        String osName = System.getProperty("os.name");
+        try {
+            if (osName.startsWith("Mac OS")) {
+                Class fileMgr = Class.forName("com.apple.eio.FileManager");
+                Method openURL = fileMgr.getDeclaredMethod("openURL",
+                        new Class[] {String.class});
+                openURL.invoke(null, new Object[] {url});
+            } else if (osName.startsWith("Windows"))
+                Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
+            else { //assume Unix or Linux
+                String[] browsers = {
+                    "firefox", "opera", "konqueror", "epiphany", "mozilla", "netscape" };
+                String browser = null;
+                for (int count = 0; count < browsers.length && browser == null; count++)
+                    if (Runtime.getRuntime().exec(
+                        new String[] {"which", browsers[count]}).waitFor() == 0)
+                        browser = browsers[count];
+                if (browser == null)
+                    throw new Exception("Could not find web browser");
+                else
+                    Runtime.getRuntime().exec(new String[] {browser, url});
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error attempting to launch web browser:\n" + e.getLocalizedMessage());
+        }
+    }
     
     
     /** This method is called from within the constructor to
@@ -3172,7 +3203,7 @@ public class STEPModFrame extends javax.swing.JFrame {
             boolean check = part.isCheckedOutTag();
             if (!check) {
                 warning("Cannot create a release as the part "+ part +" has not been checked out a using a tag");
-              } else {
+            } else {
                 String tag = part.getCvsTag();
                 new STEPModMkReleaseDialog(part, node, tag).setVisible(true);
             }
@@ -3254,7 +3285,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                 cvsCommitRecord(part);
             } else if (cvsStatus == CmRecord.CM_RECORD_CVS_CHANGED) {
                 cvsCommitRecord(part);
-            } else if (cmRecord.getRecordState() == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {                
+            } else if (cmRecord.getRecordState() == CmRecord.CM_RECORD_CHANGED_NOT_SAVED) {
                 cvsCommitRecord(part);
             }
         }
@@ -3413,7 +3444,14 @@ public class STEPModFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_aboutMenuItemActionPerformed
     
     private void contentsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contentsMenuItemActionPerformed
-        getStepMod().help();
+        // This seems a bit of a hack to get the lcoation of the help directory relative to the jar file
+        // Get the location of this class
+        Class cls = this.getClass();
+        ProtectionDomain pDomain = cls.getProtectionDomain();
+        CodeSource cSource = pDomain.getCodeSource();
+        String path = cSource.getLocation().getPath();
+        path = "file:"+path.substring(0, path.length()-12) + "/help/index.html";
+        openURLinBrowser(path);
     }//GEN-LAST:event_contentsMenuItemActionPerformed
     
     private void mkdResDocMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mkdResDocMenuItemActionPerformed

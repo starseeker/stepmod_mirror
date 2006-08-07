@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.19 2006/08/01 17:06:48 robbod Exp $
+ * $Id: STEPmod.java,v 1.20 2006/08/07 10:38:54 robbod Exp $
  *
  * STEPmod.java
  *
@@ -439,9 +439,6 @@ public class STEPmod {
         this.toBeDone("STEPmod.about");
     }
     
-    public void help() {
-        this.toBeDone("STEPmod.help");
-    }
     
     /**
      * Read the Stepmod.properties file

@@ -37,6 +37,16 @@ public class STEPModPropsFrame extends javax.swing.JFrame {
         cvsRsh.setText(stepMod.getStepmodProperty("CVS_RSH"));
         userName.setText(stepMod.getStepmodProperty("SFORGE_USERNAME"));
         stepmodRoot.setText(stepMod.getStepmodProperty("STEPMODROOT"));
+        int protocolIndex = 0;
+        String protocol = stepMod.getStepmodProperty("PROTOCOL");
+        if (protocol.equals("ext")) {
+            protocolIndex = 0;
+        } else if (protocol.equals("ssh")) {
+            protocolIndex = 1;
+        } else if (protocol.equals("pserver")) {
+            protocolIndex = 2;
+        } 
+        protocolComboBox.setSelectedIndex(protocolIndex);
     }
     
     
@@ -99,11 +109,13 @@ public class STEPModPropsFrame extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         stepmodRoot = new javax.swing.JTextField();
         stepmodRootButton = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        protocolComboBox = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setAlwaysOnTop(true);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12));
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14));
         jLabel1.setText("StepMod Properties");
 
         jLabel3.setText("Path to CVS executable:");
@@ -153,82 +165,103 @@ public class STEPModPropsFrame extends javax.swing.JFrame {
             }
         });
 
+        jLabel6.setText("Protocol:");
+
+        protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Secure shell(:ext)", "Secure shell(:ssh)", "Password serverl(:pserver)" }));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
+                .add(jLabel2)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(jButton5)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton4)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel1)
+                        .addContainerGap())
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel8)
-                            .add(jLabel4)
-                            .add(jLabel3)
-                            .add(jLabel2)
-                            .add(jLabel5))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 13, Short.MAX_VALUE)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(cvsExe)
-                            .add(cvsRsh)
-                            .add(userName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
-                            .add(stepmodRoot))))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                        .add(cvsRshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(cvsExeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(stepmodRootButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                            .add(layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jLabel8)
+                                    .add(jLabel4)
+                                    .add(jLabel3)
+                                    .add(jLabel5)
+                                    .add(jLabel6))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 13, Short.MAX_VALUE)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                    .add(protocolComboBox, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .add(cvsExe)
+                                    .add(cvsRsh)
+                                    .add(userName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 351, Short.MAX_VALUE)
+                                    .add(stepmodRoot))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                        .add(cvsRshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                            .add(cvsExeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                    .add(stepmodRootButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                            .add(layout.createSequentialGroup()
+                                .add(381, 381, 381)
+                                .add(jButton5)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jButton4)))
+                        .addContainerGap(29, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel8)
-                    .add(userName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3)
-                    .add(cvsExe, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(cvsExeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(16, 16, 16)
+                .add(15, 15, 15)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                    .add(layout.createSequentialGroup()
+                        .add(167, 167, 167)
+                        .add(jLabel2)
+                        .add(70, 70, 70))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 28, Short.MAX_VALUE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabel8)
+                            .add(userName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(18, 18, 18)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabel3)
+                            .add(cvsExe, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(cvsExeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(16, 16, 16)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel4)
                             .add(cvsRsh, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(cvsRshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(13, 13, 13)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(stepmodRoot, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(stepmodRootButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel5))
+                            .add(jLabel5)
+                            .add(stepmodRoot, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(14, 14, 14)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabel6)
+                            .add(protocolComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jButton5)
                             .add(jButton4))
-                        .add(11, 11, 11)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .add(19, 19, 19))))
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jLabel1)
+                .addContainerGap(224, Short.MAX_VALUE))
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
     private void cvsRshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cvsRshButtonActionPerformed
         fileChooser(cvsRsh);
     }//GEN-LAST:event_cvsRshButtonActionPerformed
-
+    
     private void cvsExeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cvsExeButtonActionPerformed
         fileChooser(cvsExe);
     }//GEN-LAST:event_cvsExeButtonActionPerformed
@@ -241,9 +274,9 @@ public class STEPModPropsFrame extends javax.swing.JFrame {
      * Opens a new file chooser at the toplevel directory of a users machine
      * A user can then select the path to the appropriate executable
      */    /**
-     * Sets the action for the cancel button
-     * Will dispose of the StepMod properties window
-     */
+      * Sets the action for the cancel button
+      * Will dispose of the StepMod properties window
+      */
     private void cancel(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancel
         this.setVisible(false);
         this.dispose();
@@ -257,6 +290,19 @@ public class STEPModPropsFrame extends javax.swing.JFrame {
         stepMod.setStepmodProperty("CVS_RSH",cvsRsh.getText());
         stepMod.setStepmodProperty("SFORGE_USERNAME",userName.getText());
         stepMod.setStepmodProperty("STEPMODROOT",stepmodRoot.getText());
+        String protocol = "";
+        switch (protocolComboBox.getSelectedIndex()) {
+            case 0:
+                protocol="ext";
+                break;
+            case 1:
+                protocol="ssh";
+                break;
+            case 2  :
+                protocol="pserver";
+                break;
+        }
+        stepMod.setStepmodProperty("PROTOCOL",protocol);
         stepMod.writeStepmodProperties();
         this.setVisible(false);
         this.dispose();
@@ -264,7 +310,7 @@ public class STEPModPropsFrame extends javax.swing.JFrame {
     /**
      *  Opens a new file chooser at the toplevel directory of a users machine
      *  A user can then select the path to the appropriate executable
-     */    
+     */
     
     
     
@@ -280,7 +326,9 @@ public class STEPModPropsFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JComboBox protocolComboBox;
     private javax.swing.JTextField stepmodRoot;
     private javax.swing.JButton stepmodRootButton;
     private javax.swing.JTextField userName;

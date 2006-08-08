@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.20 2006/08/07 10:38:54 robbod Exp $
+ * $Id: STEPmod.java,v 1.21 2006/08/07 13:13:35 robbod Exp $
  *
  * STEPmod.java
  *
@@ -465,8 +465,8 @@ public class STEPmod {
                     ex.printStackTrace();
                 }
             } else {
-                setStepmodProperty("PUTTY_SESSION","");
-                setStepmodProperty("PLINK_PROTOCOL","");
+                //setStepmodProperty("PUTTY_SESSION","");
+                setStepmodProperty("PROTOCOL","");
                 setStepmodProperty("SFORGE_USERNAME","");
                 setStepmodProperty("CVS_RSH","");
                 setStepmodProperty("STEPMODROOT","");

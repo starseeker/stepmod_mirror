@@ -1,5 +1,5 @@
 /**
- * $Id: StepmodCvs.java,v 1.5 2006/07/14 07:27:23 robbod Exp $
+ * $Id: StepmodCvs.java,v 1.6 2006/07/27 15:13:54 robbod Exp $
  *
  *
  * (c) Copyright 2006 Eurostep Limited
@@ -111,7 +111,7 @@ public class StepmodCvs {
             return(cvsProps);
         } else {
             String cvsCmd = getStepMod().getStepmodProperty("CVSEXE");
-            String cvsRoot = ":ssh:"
+            String cvsRoot = ":"+getStepMod().getStepmodProperty("PROTOCOL")+":"
                     + getStepMod().getStepmodProperty("SFORGE_USERNAME")
                     + "@stepmod.cvs.sourceforge.net:/cvsroot/stepmod";
             command.add(0,cvsCmd);

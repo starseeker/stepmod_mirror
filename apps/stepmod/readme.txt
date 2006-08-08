@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.6 2006/07/25 12:20:56 robbod Exp $
+$Id: readme.txt,v 1.7 2006/08/02 13:07:22 robbod Exp $
 
 WARNING 
 - THIS IS WORK IN PROGRESS - so no guarantees about anything
@@ -26,7 +26,7 @@ Execute runme.bat
 Setup the application properties.
 You only need to do this once and a properties file will be stored and
 reused next time you run the application.
-Use the Tools -> Set Stepod properties menu to setup the properties
+Use the Tools -> Set Stepmod properties menu to setup the properties
 
 Setup the path to STEPmod, your SourceForge name, the path to the CVS executable and SSH link
 

@@ -39,7 +39,9 @@ public class STEPModPropsFrame extends javax.swing.JFrame {
         stepmodRoot.setText(stepMod.getStepmodProperty("STEPMODROOT"));
         int protocolIndex = 0;
         String protocol = stepMod.getStepmodProperty("PROTOCOL");
-        if (protocol.equals("ext")) {
+        if (protocol == null) {
+            protocolIndex = 0;
+        } else if (protocol.equals("ext")) {
             protocolIndex = 0;
         } else if (protocol.equals("ssh")) {
             protocolIndex = 1;
@@ -222,7 +224,7 @@ public class STEPModPropsFrame extends javax.swing.JFrame {
                         .add(jLabel2)
                         .add(70, 70, 70))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 28, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel8)
                             .add(userName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))

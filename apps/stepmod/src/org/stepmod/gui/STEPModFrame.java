@@ -1944,7 +1944,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         
         // Update development revision
         javax.swing.JMenuItem createCvsUpdateDevelopmentRevisionMenuItem;
-        createCvsUpdateDevelopmentRevisionMenuItem = new javax.swing.JMenuItem("Update development revision");
+        createCvsUpdateDevelopmentRevisionMenuItem = new javax.swing.JMenuItem("Checkout development revision");
         createCvsUpdateDevelopmentRevisionMenuItem.setToolTipText("Checks out the latest revisions of the module from CVS for development.");
         createCvsUpdateDevelopmentRevisionMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

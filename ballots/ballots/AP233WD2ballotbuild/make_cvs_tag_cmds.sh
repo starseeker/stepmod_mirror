@@ -1,7 +1,11 @@
 #!/bin/sh
-# $Id: make_cvs_tag_cmds.sh,v 1.2 2006/06/30 03:24:23 hz0wyg Exp $
+# $Id: make_cvs_tag_cmds.sh,v 1.3 2006/07/13 19:06:57 hz0wyg Exp $
 #
 # $Log: make_cvs_tag_cmds.sh,v $
+# Revision 1.3  2006/07/13 19:06:57  hz0wyg
+# New strategy, we really only need to tag the whole
+# directories of the key parts of the balloted modules
+#
 # Revision 1.2  2006/06/30 03:24:23  hz0wyg
 # Added CVS keywords
 #
@@ -37,7 +41,7 @@ for dir in xsl ballots/xsl ${ballotdir}
 do
 	echo "Tagging \$dir"
 	cd ${stepmod_home}/\${dir}
-	#cvs tag \${TAG}
+	cvs tag -R \${TAG}
 	cvs status
 done
 EOF

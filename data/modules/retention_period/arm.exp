@@ -1,6 +1,49 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   $Id: arm.exp,v 1.1 2006/08/25 17:43:09 darla Exp $
    N - ISO/CD-TS - 10303- retention_period - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+
 SCHEMA Retention_period_arm;
+
+
+USE FROM Analysis_identification_arm;
+USE FROM Composite_material_aspects_arm;
+USE FROM Generic_material_aspects_arm;
+USE FROM Finite_elements_arm;
+USE FROM Finite_element_analysis_arm;
+USE FROM Part_and_version_identification_arm;
+USE FROM Product_view_definition_arm;
+USE FROM Stock_material_arm;
+
+TYPE Retention_period_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysis_approval_item WITH
+  (Retention_period);
+END_TYPE;
+
+TYPE Retention_data_select = SELECT 
+          (Analysis,
+           Analysis_discipline_product_definition,
+           Analysis_report_representation,
+           Analysis_version,
+           Assembly,
+           Composite_material_property,
+           Design_material,
+           FE_analysis,
+           FE_analysis_results,
+           FEA_model,
+           FEA_material_property;
+           Material_property,
+           Material_specification,
+           Part,
+           Part_version,
+           Product_view_definition);
+END_TYPE;
+
+ENTITY Retention_period;
+ earliest_end_definition  : DATE;
+ is_applied_to            : SET [1:?] OF retention_data_select;
+ latest_end_definition    : DATE;
+ retention_purpose        : OPTIONAL string;
+ start_definition         : DATE;
+END_ENTITY;
+
+
 END_SCHEMA;

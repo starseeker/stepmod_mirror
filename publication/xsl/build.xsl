@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.27 2005/08/29 21:27:01 thendrix Exp $
+<!--  $Id: build.xsl,v 1.28 2006/02/27 20:47:23 thendrix Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -4890,7 +4890,7 @@ Purpose: To build the initial ANT publication file.
 
 	 <xsl:variable name="resdoc_iso_no" select="concat('iso10303_',$resdoc_xml/resource/@part)"/>
 	 <xsl:variable name="resdoc_dir" select="concat('${PUBDIR}/',$resdoc_iso_no,'/')"/>
-	 <xsl:variable name="resdoc_express_dir" select="concat('${PUBDIR}/',$resdoc_iso_no,'express','/')"/>
+	 <xsl:variable name="resdoc_express_dir" select="concat('${PUBDIR}/',$resdoc_iso_no,'/','inserts','/')"/>
 
 	 <xsl:variable name="data_resdoc_dir" select="concat($resdoc_dir,'data/resource_docs/',@name,'/')"/>
 
@@ -5031,7 +5031,7 @@ Purpose: To build the initial ANT publication file.
 
 
 	   <xsl:variable name="express_dir">
-		  <xsl:value-of select="concat('${PUBDIR}','/iso10303_',$resdoc_xml/resource/@part,'express/')"/>
+		  <xsl:value-of select="concat('${PUBDIR}','/iso10303_',$resdoc_xml/resource/@part,'/','inserts','/')"/>
 	   </xsl:variable>
 
 
@@ -5090,7 +5090,7 @@ Purpose: To build the initial ANT publication file.
 
 	 <xsl:element name="zip">
 	   <xsl:attribute name="zipfile">
-		 <xsl:value-of select="concat('${PUBDIR}/zip/iso10303_',$resdoc_xml/resource/@part,'express.zip')"/>
+		 <xsl:value-of select="concat('${PUBDIR}/zip/iso10303_',$resdoc_xml/resource/@part,'inserts.zip')"/>
 	   </xsl:attribute>
 	   <xsl:attribute name="basedir">
 		 <xsl:value-of select="$resdoc_express_dir"/>
@@ -5225,7 +5225,7 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="$express_dir"/>
 		 </xsl:when>
 		 <xsl:otherwise>
-		   <xsl:value-of select="concat('${PUBDIR}/',$module_iso_no,'express/')"/>  
+		   <xsl:value-of select="concat('${PUBDIR}/',$module_iso_no,'/','inserts/')"/>  
 		 </xsl:otherwise>
 	   </xsl:choose>
 	 </xsl:variable>
@@ -5242,7 +5242,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:value-of select="concat('data/modules/',@name,'/arm.exp')"/>
 	   </xsl:attribute>
 	   <xsl:attribute name="tofile">
-		 <xsl:value-of select="concat($express_dir1,$prefix,$wg.number.arm,'arm.exp')"/>
+		 <xsl:value-of select="concat($express_dir1,'arm.exp')"/>
 	   </xsl:attribute>
 	 </xsl:element>
 
@@ -5264,7 +5264,7 @@ Purpose: To build the initial ANT publication file.
 		 <xsl:value-of select="concat('data/modules/',@name,'/mim.exp')"/>
 	   </xsl:attribute>
 	   <xsl:attribute name="tofile">
-		 <xsl:value-of select="concat($express_dir1,$prefix,$wg.number.mim,'mim.exp')"/>
+		 <xsl:value-of select="concat($express_dir1,'mim.exp')"/>
 	   </xsl:attribute>
 	 </xsl:element>
 
@@ -5296,7 +5296,7 @@ Purpose: To build the initial ANT publication file.
 		   <xsl:value-of select="$express_dir"/>
 		 </xsl:when>
 		 <xsl:otherwise>
-		   <xsl:value-of select="concat('${PUBDIR}/',$resdoc_iso_no,'express/')"/>  
+		   <xsl:value-of select="concat('${PUBDIR}/',$resdoc_iso_no,'/','inserts/')"/>  
 		 </xsl:otherwise>
 	   </xsl:choose>
 	 </xsl:variable>
@@ -6360,3 +6360,4 @@ Purpose: To build the initial ANT publication file.
   </xsl:template>
 
 </xsl:stylesheet>
+

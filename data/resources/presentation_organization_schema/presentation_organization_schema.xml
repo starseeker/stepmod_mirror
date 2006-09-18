@@ -1,767 +1,336 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: presentation_organization_schema.xml,v 1.9 2006/01/26 16:22:14 liutkuviene Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-46"
-  description.file="descriptions.xml"
-  rcs.date="$Date: 2006/01/26 16:22:14 $"
-  rcs.revision="$Revision: 1.9 $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="presentation_organization_schema schema_instance"/>
-    
-    <!-- ../data/resources/presentation_organization_schema/ -->
-
-  <schema name="presentation_organization_schema">
-    <interface
-      kind="reference"
-      schema="presentation_resource_schema">
-      <interfaced.item
-        name="colour"/>
-      <interfaced.item
-        name="planar_box"/>
-      <interfaced.item
-        name="planar_extent"/>
-      <interfaced.item
-        name="presentation_scaled_placement"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="presentation_definition_schema">
-      <interfaced.item
-        name="annotation_occurrence"/>
-      <interfaced.item
-        name="symbol_representation"/>
-      <interfaced.item
-        name="symbol_representation_relationship"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="presentation_appearance_schema">
-      <interfaced.item
-        name="styled_item"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="geometry_schema">
-      <interfaced.item
-        name="axis2_placement_2d"/>
-      <interfaced.item
-        name="axis2_placement_3d"/>
-      <interfaced.item
-        name="cartesian_point"/>
-      <interfaced.item
-        name="curve"/>
-      <interfaced.item
-        name="direction"/>
-      <interfaced.item
-        name="dot_product"/>
-      <interfaced.item
-        name="geometric_representation_context"/>
-      <interfaced.item
-        name="geometric_representation_item"/>
-      <interfaced.item
-        name="plane"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="representation_schema">
-      <interfaced.item
-        name="founded_item"/>
-      <interfaced.item
-        name="item_defined_transformation"/>
-      <interfaced.item
-        name="item_in_context"/>
-      <interfaced.item
-        name="mapped_item"/>
-      <interfaced.item
-        name="representation"/>
-      <interfaced.item
-        name="representation_item"/>
-      <interfaced.item
-        name="representation_map"/>
-      <interfaced.item
-        name="representation_relationship"/>
-      <interfaced.item
-        name="representation_relationship_with_transformation"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="measure_schema">
-      <interfaced.item
-        name="length_measure"/>
-      <interfaced.item
-        name="positive_ratio_measure"/>
-      <interfaced.item
-        name="positive_plane_angle_measure"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="identifier"/>
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-      <interfaced.item
-        name="bag_to_set"/>
-    </interface>
-
-    
-    <type name="area_or_view">
-      <select
-        selectitems="presentation_area presentation_view">
-      </select>
-
-    </type>
-    <type name="central_or_parallel">
-      <enumeration
-        items="central parallel">
-      </enumeration>
-
-
-    </type>
-    <type name="layered_item">
-      <select
-        selectitems="presentation_representation representation_item">
-      </select>
-    </type>
-    <type name="presentation_representation_select">
-      <select
-        selectitems="presentation_representation presentation_set">
-      </select>
-
-    </type>
-    
-    <type name="presentation_size_assignment_select">
-      <select
-        selectitems="presentation_view presentation_area area_in_set">
-      </select>
-
-    </type>
-    
-     <entity
-      name="area_dependent_annotation_representation"
-      supertypes="presentation_representation">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |       NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.' +                     'ANNOTATION_OCCURRENCE',                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] *             TYPEOF(item)) = 1       ))) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |        ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_OCCURRENCE' IN         TYPEOF (item))       )) &gt;= 1">
-      </where>
-      <where label="IP1"/>
-    </entity>
-    
-     <entity
-      name="area_in_set">
-      <explicit
-        name="area">
-        <typename
-          name="presentation_area"/>
-      </explicit>
-      <explicit
-        name="in_set">
-        <typename
-          name="presentation_set"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="background_colour"
-      supertypes="colour">
-      <explicit
-        name="presentation">
-        <typename
-          name="area_or_view"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="presentation"/>
-      </unique>
-    </entity>
-    
-    <entity
-      name="camera_image"
-      supertypes="mapped_item">
-      <where
-        label="WR1"
-        expression="'PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_USAGE'       IN TYPEOF (SELF\mapped_item.mapping_source)">
-      </where>
-      <where
-        label="WR2"
-        expression="'PRESENTATION_RESOURCE_SCHEMA.PLANAR_BOX'       IN TYPEOF (SELF\mapped_item.mapping_target)">
-      </where>
-      <where
-        label="WR3"
-        expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM'       IN TYPEOF (SELF)">
-      </where>
-    </entity> 
-
-    <entity
-      name="camera_image_3d_with_scale"
-      supertypes="camera_image">
-      <derived
-        name="scale"
-        expression="((SELF\mapped_item.mapping_target\         planar_extent.size_in_x) / (SELF\mapped_item.mapping_source.         mapping_origin\camera_model_d3.perspective_of_volume.view_window.         size_in_x))">
-        <typename
-          name="positive_ratio_measure"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="('PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_MODEL_D3'       IN TYPEOF (SELF\mapped_item.mapping_source.mapping_origin))">
-      </where>
-      <where
-        label="WR2"
-        expression="aspect_ratio(SELF\mapped_item.mapping_target) =       aspect_ratio(SELF\mapped_item.mapping_source.mapping_origin\       camera_model_d3.perspective_of_volume.view_window)">
-      </where>
-      <where
-        label="WR3"
-        expression="SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.       perspective_of_volume.front_plane_clipping       AND       SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.       perspective_of_volume.view_volume_sides_clipping">
-      </where>
-      <where
-        label="WR4"
-        expression="(SELF\mapped_item.mapping_target\planar_extent.size_in_x &gt; 0)       AND       (SELF\mapped_item.mapping_target\planar_extent.size_in_y &gt; 0)">
-      </where>
-      <where
-        label="WR5"
-        expression="(SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.       perspective_of_volume.view_window.size_in_x &gt; 0)       AND       (SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.       perspective_of_volume.view_window.size_in_y &gt; 0)">
-      </where>
-      <where
-        label="WR6"
-        expression="('GEOMETRY_SCHEMA.' +       'AXIS2_PLACEMENT_2D' IN TYPEOF (SELF\mapped_item.       mapping_target\planar_box.placement))       AND NOT ('GEOMETRY_SCHEMA.' +       'AXIS2_PLACEMENT_3D' IN TYPEOF (SELF\mapped_item.       mapping_target\planar_box.placement))">
-      </where>
-      <where label="IP1"/>
-    </entity>
-        
-    <entity
-      name="camera_model"
-      super.expression="(ONEOF(camera_model_d2, camera_model_d3))"
-      supertypes="geometric_representation_item">
-      <where
-        label="WR1"
-        expression="(SIZEOF (USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +                              'ITEM_DEFINED_TRANSFORMATION.' +                              'TRANSFORM_ITEM_1')) +        SIZEOF (USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +                              'REPRESENTATION_MAP.MAPPING_ORIGIN'))       ) &gt; 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF(USEDIN(SELF,'PRESENTATION_APPEARANCE_SCHEMA.'+                          'STYLED_ITEM.ITEM')) = 0">
-      </where>
-    </entity>
-
-    <entity
-      name="camera_model_d2"
-      supertypes="camera_model">
-      <explicit
-        name="view_window">
-        <typename
-          name="planar_box"/>
-      </explicit>
-      <explicit
-        name="view_window_clipping">
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\geometric_representation_item.dim = 2">
-      </where>
-    </entity>
-
-    <entity
-      name="camera_model_d2_shape_clipping"
-      supertypes="camera_model_d2">
-      <explicit
-        name="shape_clipping">
-        <typename
-          name="curve"/>
-      </explicit>
-      <where label="IP1"/>
-    </entity>
-
-    <entity
-      name="camera_model_d3"
-      supertypes="camera_model">
-      <explicit
-        name="view_reference_system">
-        <typename
-          name="axis2_placement_3d"/>
-      </explicit>
-      <explicit
-        name="perspective_of_volume">
-        <typename
-          name="view_volume"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(dot_product (SELF.view_reference_system.p[3],         SELF.perspective_of_volume.view_window.placement.p[3]) = 1.0)         AND       (SELF.view_reference_system.location.coordinates[3] =        SELF.perspective_of_volume.view_window.             placement.location.coordinates[3])">
-      </where>
-      <where
-        label="WR2"
-        expression="SELF\geometric_representation_item.dim = 3">
-      </where>
-    </entity>
-    
-    <entity
-      name="camera_model_d3_multi_clipping"
-      supertypes="camera_model_d3">
-      <explicit
-        name="shape_clipping">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="plane"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="camera_model_d3_with_hlhsr"
-      supertypes="camera_model_d3">
-      <explicit
-        name="hidden_line_surface_removal">
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="camera_model_with_light_sources"
-      supertypes="camera_model_d3">
-      <explicit
-        name="sources">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="light_source"/>
-      </explicit>
-    </entity>
-    
-     <entity
-      name="camera_usage"
-      supertypes="representation_map">
-      <where
-        label="WR1"
-        expression="NOT ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION'       IN TYPEOF(SELF\representation_map.mapped_representation))">
-      </where>
-      <where
-        label="WR2"
-        expression="'PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_MODEL'       IN TYPEOF (SELF\representation_map.mapping_origin)">
-      </where>
-    </entity>
-        
-     <entity
-      name="graphical_transformation"
-      supertypes="item_defined_transformation">
-      <where
-        label="WR1"
-        expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_2D' IN         TYPEOF (SELF\item_defined_transformation.transform_item_1)">
-      </where>
-      <where
-        label="WR2"
-        expression="'PRESENTATION_RESOURCE_SCHEMA.PRESENTATION_SCALED_PLACEMENT' IN         TYPEOF (SELF\item_defined_transformation.transform_item_2)">
-      </where>
-    </entity>
-    
-    <entity
-      name="light_source"
-      super.expression="(ONEOF(light_source_ambient,                      light_source_directional,                      light_source_positional,                      light_source_spot))"
-      supertypes="geometric_representation_item">
-      <explicit
-        name="light_colour">
-        <typename
-          name="colour"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF(USEDIN(SELF,'PRESENTATION_APPEARANCE_SCHEMA.'+                         'STYLED_ITEM.ITEM')) = 0">
-      </where>
-    </entity>
-
-    <entity
-      name="light_source_ambient"
-      supertypes="light_source">
-    </entity>
-
-    <entity
-      name="light_source_directional"
-      supertypes="light_source">
-      <explicit
-        name="orientation">
-        <typename
-          name="direction"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="light_source_positional"
-      supertypes="light_source">
-      <explicit
-        name="position">
-        <typename
-          name="cartesian_point"/>
-      </explicit>
-      <explicit
-        name="constant_attenuation">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-      <explicit
-        name="distance_attenuation">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="light_source_spot"
-      supertypes="light_source">
-      <explicit
-        name="position">
-        <typename
-          name="cartesian_point"/>
-      </explicit>
-      <explicit
-        name="orientation">
-        <typename
-          name="direction"/>
-      </explicit>
-      <explicit
-        name="concentration_exponent">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-      <explicit
-        name="constant_attenuation">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-      <explicit
-        name="distance_attenuation">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-      <explicit
-        name="spread_angle">
-        <typename
-          name="positive_plane_angle_measure"/>
-      </explicit>
-      <where label="IP1"/>
-    </entity>
-    
-    <entity
-      name="presentation_area"
-      supertypes="presentation_representation">
-      <where
-        label="WR1"
-        expression="((SIZEOF (QUERY (ais &lt;* USEDIN (SELF, 'PRESENTATION_ORGANIZATION_SCHEMA.' +                                             'AREA_IN_SET.AREA') |            SIZEOF (USEDIN (ais, 'PRESENTATION_ORGANIZATION_SCHEMA.' +                                'PRESENTATION_SIZE.UNIT')) =1)) &gt; 0) OR         (SIZEOF (USEDIN (SELF, 'PRESENTATION_ORGANIZATION_SCHEMA.' +                                'PRESENTATION_SIZE.UNIT')) =1))">
-      </where>
-      <where label="IP1"/>
-      <where label="IP2"/>
-    </entity>
-    
-    <entity
-      name="presentation_layer_assignment">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="assigned_items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="layered_item"/>
-      </explicit>
-    </entity>
-    
-     <entity
-      name="presentation_layer_usage">
-      <explicit
-        name="assignment">
-        <typename
-          name="presentation_layer_assignment"/>
-      </explicit>
-      <explicit
-        name="presentation">
-        <typename
-          name="presentation_representation"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="assignment"/>
-        <unique.attribute
-          attribute="presentation"/>
-      </unique>
-    </entity>
-   
-    <entity
-      name="presentation_representation"
-      supertypes="representation">
-      <where
-        label="WR1"
-        expression="SELF\representation.            context_of_items\geometric_representation_context.            coordinate_space_dimension = 2">
-      </where>
-      <where
-        label="WR2"
-        expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT'       IN TYPEOF (SELF\representation.context_of_items)">
-      </where>
-    </entity>
-    
-    <entity
-      name="presentation_representation_relationship"
-      supertypes="representation_relationship_with_transformation">
-      <where
-        label="WR1"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.PRESENTATION_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_1)">
-      </where>
-      <where
-        label="WR2"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.PRESENTATION_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_2)">
-      </where>
-      <where
-        label="WR3"
-        expression="acyclic_presentation_representation_relationship (SELF,         [SELF\representation_relationship.rep_2])">
-      </where>
-      <where
-        label="WR4"
-        expression="NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN         TYPEOF (SELF\representation_relationship.rep_1))                  AND         NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.' +                       'PRODUCT_DATA_REPRESENTATION_VIEW',                       'PRESENTATION_ORGANIZATION_SCHEMA.' +                       'VIEW_DEPENDENT_ANNOTATION_REPRESENTATION'] *         TYPEOF (SELF\representation_relationship.rep_2)) = 0))">
-      </where>
-      <where
-        label="WR5"
-        expression="NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW'         IN TYPEOF (SELF\representation_relationship.rep_1))                 AND       NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.' +                     'PRESENTATION_AREA',                     'PRESENTATION_ORGANIZATION_SCHEMA.' +                     'PRESENTATION_VIEW',                     'PRESENTATION_ORGANIZATION_SCHEMA.' +                     'AREA_DEPENDENT_ANNOTATION_REPRESENTATION'] *              TYPEOF (SELF\representation_relationship.rep_2))=0))">
-      </where>
-      <where
-        label="WR6"
-        expression="(NOT ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN         TYPEOF(SELF\representation_relationship.rep_2)))              XOR         ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA'IN         TYPEOF(SELF\representation_relationship.rep_1))">
-      </where>
-      <where
-        label="WR7"
-        expression="(NOT ('PRESENTATION_ORGANIZATION_SCHEMA.' +             'PRODUCT_DATA_REPRESENTATION_VIEW' IN         (TYPEOF(SELF\representation_relationship.rep_1) +          TYPEOF(SELF\representation_relationship.rep_2))))              XOR       ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN         TYPEOF(SELF\representation_relationship.rep_1))                AND       ('PRESENTATION_ORGANIZATION_SCHEMA.PRODUCT_DATA_REPRESENTATION_VIEW' IN         TYPEOF(SELF\representation_relationship.rep_2))">
-      </where>
-      <where
-        label="WR8"
-        expression="'PRESENTATION_ORGANIZATION_SCHEMA.GRAPHICAL_TRANSFORMATION' IN         TYPEOF(SELF\representation_relationship_with_transformation.                     transformation_operator)">
-      </where>
-    </entity>
-    
-    <entity
-      name="presentation_size">
-      <explicit
-        name="unit">
-        <typename
-          name="presentation_size_assignment_select"/>
-      </explicit>
-      <explicit
-        name="size">
-        <typename
-          name="planar_box"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION'         IN TYPEOF (SELF.unit)) AND         item_in_context (SELF.size,                           SELF.unit\representation.context_of_items)       )            OR       (        ('PRESENTATION_ORGANIZATION_SCHEMA.AREA_IN_SET'          IN TYPEOF (SELF.unit)) AND        (SIZEOF (QUERY ( ais &lt;* SELF.unit\area_in_set.in_set.areas |                NOT item_in_context (SELF.size, ais.area\representation.                                                context_of_items) )) = 0)       )">
-      </where>
-    </entity>
-    
-     <entity
-      name="presentation_set">
-      <inverse
-        name="areas"
-        entity="area_in_set"
-        attribute="in_set">
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-      </inverse>
-    </entity>
-
-    <entity
-      name="presentation_view"
-      supertypes="presentation_representation">
-    </entity>
-
-    <entity
-      name="product_data_representation_view"
-      supertypes="presentation_representation">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |       NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_IMAGE',                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] *                    TYPEOF (item)) = 1       ))) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |        ('PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_IMAGE' IN        TYPEOF (item))       )) &gt;= 1">
-      </where>
-      <where label="IP1"/>
-    </entity>
-    
-    <entity
-      name="presented_item"
-      abstract.supertype="YES">
-    </entity>
-    
-     <entity
-      name="presented_item_representation">
-      <explicit
-        name="presentation">
-        <typename
-          name="presentation_representation_select"/>
-      </explicit>
-      <explicit
-        name="item">
-        <typename
-          name="presented_item"/>
-      </explicit>
-    </entity>
-    
-     <entity
-      name="representation_item_dependent_layer_assignment"
-      supertypes="presentation_layer_assignment">
-      <explicit
-        name="item_context">
-        <typename
-          name="representation_item"/>
-      </explicit>
-      <where label="IP1"/>
-    </entity>
-
-    <entity
-      name="view_dependent_annotation_representation"
-      supertypes="presentation_representation">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |       NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.' +                     'ANNOTATION_OCCURRENCE',                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] *             TYPEOF(item)) = 1       ))) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |       ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_OCCURRENCE' IN        TYPEOF (item))       )) &gt;= 1">
-      </where>
-      <where label="IP1"/>
-    </entity>
-    
-    <entity
-      name="view_volume"
-      supertypes="founded_item">
-      <explicit
-        name="projection_type">
-        <typename
-          name="central_or_parallel"/>
-      </explicit>
-      <explicit
-        name="projection_point">
-        <typename
-          name="cartesian_point"/>
-      </explicit>
-      <explicit
-        name="view_plane_distance">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="front_plane_distance">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="front_plane_clipping">
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-      <explicit
-        name="back_plane_distance">
-        <typename
-          name="length_measure"/>
-      </explicit>
-      <explicit
-        name="back_plane_clipping">
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-      <explicit
-        name="view_volume_sides_clipping">
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-      <explicit
-        name="view_window">
-        <typename
-          name="planar_box"/>
-      </explicit>
-      <where label="IP1"/>
-      <where label="IP2"/>
-      <where label="IP3"/>
-    </entity>
-
-    <rule
-      name="symbol_representation_rule"
-      appliesto="presentation_representation_relationship">
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(each_1 &lt;* presentation_representation_relationship  |              NOT ('PRESENTATION_DEFINITION_SCHEMA.'+              'SYMBOL_REPRESENTATION_RELATIONSHIP' IN TYPEOF(each_1)) AND         (SIZEOF(QUERY(each_2 &lt;* [each_1\representation_relationship.rep_1,                                  each_1\representation_relationship.rep_2] |         'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION' IN TYPEOF(each_2)         )) &gt; 0)       )) = 0">
-      </where>
-
-    </rule>
-
-    <function
-      name="acyclic_presentation_representation_relationship">
-      <parameter
-        name="relation">
-        <typename
-          name="presentation_representation_relationship"/>
-      </parameter>
-      <parameter
-        name="children">
-        <aggregate
-          type="SET"/>
-        <typename
-          name="presentation_representation"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-
-  LOCAL
+<express language_version="2" rcs.date="$Date$" reference="ISO 10303-46" rcs.revision="$Revision$" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="presentation_organization_schema schema_instance"/>
+   <schema name="presentation_organization_schema">
+      <interface kind="reference" schema="presentation_resource_schema">
+         <interfaced.item name="colour"/>
+         <interfaced.item name="planar_box"/>
+         <interfaced.item name="planar_extent"/>
+         <interfaced.item name="presentation_scaled_placement"/>
+      </interface>
+      <interface kind="reference" schema="presentation_definition_schema">
+         <interfaced.item name="annotation_occurrence"/>
+         <interfaced.item name="symbol_representation"/>
+         <interfaced.item name="symbol_representation_relationship"/>
+      </interface>
+      <interface kind="reference" schema="presentation_appearance_schema">
+         <interfaced.item name="styled_item"/>
+      </interface>
+      <interface kind="reference" schema="geometry_schema">
+         <interfaced.item name="axis2_placement_2d"/>
+         <interfaced.item name="axis2_placement_3d"/>
+         <interfaced.item name="cartesian_point"/>
+         <interfaced.item name="curve"/>
+         <interfaced.item name="direction"/>
+         <interfaced.item name="dot_product"/>
+         <interfaced.item name="geometric_representation_context"/>
+         <interfaced.item name="geometric_representation_item"/>
+         <interfaced.item name="plane"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="founded_item"/>
+         <interfaced.item name="item_defined_transformation"/>
+         <interfaced.item name="item_in_context"/>
+         <interfaced.item name="mapped_item"/>
+         <interfaced.item name="representation"/>
+         <interfaced.item name="representation_item"/>
+         <interfaced.item name="representation_map"/>
+         <interfaced.item name="representation_relationship"/>
+         <interfaced.item name="representation_relationship_with_transformation"/>
+      </interface>
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="length_measure"/>
+         <interfaced.item name="positive_ratio_measure"/>
+         <interfaced.item name="positive_plane_angle_measure"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="identifier"/>
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <type name="area_or_view">
+         <select selectitems="presentation_area presentation_view"/>
+      </type>
+      <type name="central_or_parallel">
+         <enumeration items="central parallel"/>
+      </type>
+      <type name="layered_item">
+         <select selectitems="presentation_representation representation_item"/>
+      </type>
+      <type name="presentation_representation_select">
+         <select selectitems="presentation_representation presentation_set"/>
+      </type>
+      <type name="presentation_size_assignment_select">
+         <select selectitems="presentation_view presentation_area area_in_set"/>
+      </type>
+      <entity name="area_dependent_annotation_representation" supertypes="presentation_representation">
+         <where label="WR1" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;       NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.' +&#10;                     'ANNOTATION_OCCURRENCE',&#10;                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] * &#10;            TYPEOF(item)) = 1&#10;       ))) = 0"/>
+         <where label="WR2" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items | &#10;       ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_OCCURRENCE' IN&#10;         TYPEOF (item))&#10;       )) &gt;= 1"/>
+      </entity>
+      <entity name="area_in_set">
+         <explicit name="area">
+            <typename name="presentation_area"/>
+         </explicit>
+         <explicit name="in_set">
+            <typename name="presentation_set"/>
+         </explicit>
+      </entity>
+      <entity name="background_colour" supertypes="colour">
+         <explicit name="presentation">
+            <typename name="area_or_view"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="presentation"/>
+         </unique>
+      </entity>
+      <entity name="camera_image" supertypes="mapped_item">
+         <where label="WR1" expression="'PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_USAGE'&#10;       IN TYPEOF (SELF\mapped_item.mapping_source)"/>
+         <where label="WR2" expression="'PRESENTATION_RESOURCE_SCHEMA.PLANAR_BOX'&#10;       IN TYPEOF (SELF\mapped_item.mapping_target)"/>
+         <where label="WR3" expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM'&#10;       IN TYPEOF (SELF)"/>
+      </entity>
+      <entity name="camera_image_3d_with_scale" supertypes="camera_image">
+         <derived name="scale" expression="((SELF\mapped_item.mapping_target\&#10;         planar_extent.size_in_x) / (SELF\mapped_item.mapping_source.&#10;         mapping_origin\camera_model_d3.perspective_of_volume.view_window.&#10;         size_in_x))">
+            <typename name="positive_ratio_measure"/>
+         </derived>
+         <where label="WR1" expression="('PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_MODEL_D3'&#10;       IN TYPEOF (SELF\mapped_item.mapping_source.mapping_origin))"/>
+         <where label="WR2" expression="aspect_ratio(SELF\mapped_item.mapping_target) =&#10;       aspect_ratio(SELF\mapped_item.mapping_source.mapping_origin\&#10;       camera_model_d3.perspective_of_volume.view_window)"/>
+         <where label="WR3" expression="SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.&#10;       perspective_of_volume.front_plane_clipping&#10;       AND&#10;       SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.&#10;       perspective_of_volume.view_volume_sides_clipping"/>
+         <where label="WR4" expression="(SELF\mapped_item.mapping_target\planar_extent.size_in_x &gt; 0)&#10;       AND&#10;       (SELF\mapped_item.mapping_target\planar_extent.size_in_y &gt; 0)"/>
+         <where label="WR5" expression="(SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.&#10;       perspective_of_volume.view_window.size_in_x &gt; 0)&#10;       AND&#10;       (SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.&#10;       perspective_of_volume.view_window.size_in_y &gt; 0)"/>
+         <where label="WR6" expression="('GEOMETRY_SCHEMA.' +&#10;       'AXIS2_PLACEMENT_2D' IN TYPEOF (SELF\mapped_item.&#10;       mapping_target\planar_box.placement))&#10;       AND NOT ('GEOMETRY_SCHEMA.' +&#10;       'AXIS2_PLACEMENT_3D' IN TYPEOF (SELF\mapped_item.&#10;       mapping_target\planar_box.placement))"/>
+      </entity>
+      <entity name="camera_model" supertypes="geometric_representation_item" super.expression="ONEOF (camera_model_d2, camera_model_d3)">
+         <where label="WR1" expression="(SIZEOF (USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                              'ITEM_DEFINED_TRANSFORMATION.' +&#10;                              'TRANSFORM_ITEM_1')) +&#10;        SIZEOF (USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                              'REPRESENTATION_MAP.MAPPING_ORIGIN'))&#10;       ) &gt; 0"/>
+         <where label="WR2" expression="SIZEOF(USEDIN(SELF,'PRESENTATION_APPEARANCE_SCHEMA.'+&#10;                          'STYLED_ITEM.ITEM')) = 0"/>
+      </entity>
+      <entity name="camera_model_d2" supertypes="camera_model">
+         <explicit name="view_window">
+            <typename name="planar_box"/>
+         </explicit>
+         <explicit name="view_window_clipping">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <where label="WR1" expression="SELF\geometric_representation_item.dim = 2"/>
+      </entity>
+      <entity name="camera_model_d2_shape_clipping" supertypes="camera_model_d2">
+         <explicit name="shape_clipping">
+            <typename name="curve"/>
+         </explicit>
+      </entity>
+      <entity name="camera_model_d3" supertypes="camera_model">
+         <explicit name="view_reference_system">
+            <typename name="axis2_placement_3d"/>
+         </explicit>
+         <explicit name="perspective_of_volume">
+            <typename name="view_volume"/>
+         </explicit>
+         <where label="WR1" expression="(dot_product (SELF.view_reference_system.p[3],&#10;         SELF.perspective_of_volume.view_window.placement.p[3]) = 1.0)&#10;         AND&#10;       (SELF.view_reference_system.location.coordinates[3] =&#10;        SELF.perspective_of_volume.view_window.&#10;             placement.location.coordinates[3])"/>
+         <where label="WR2" expression="SELF\geometric_representation_item.dim = 3"/>
+      </entity>
+      <entity name="camera_model_d3_multi_clipping" supertypes="camera_model_d3">
+         <explicit name="shape_clipping">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="plane"/>
+         </explicit>
+      </entity>
+      <entity name="camera_model_d3_with_hlhsr" supertypes="camera_model_d3">
+         <explicit name="hidden_line_surface_removal">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity name="camera_model_with_light_sources" supertypes="camera_model_d3">
+         <explicit name="sources">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="light_source"/>
+         </explicit>
+      </entity>
+      <entity name="camera_usage" supertypes="representation_map">
+         <where label="WR1" expression="NOT ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION'&#10;       IN TYPEOF(SELF\representation_map.mapped_representation))"/>
+         <where label="WR2" expression="'PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_MODEL'&#10;       IN TYPEOF (SELF\representation_map.mapping_origin)"/>
+      </entity>
+      <entity name="graphical_transformation" supertypes="item_defined_transformation">
+         <where label="WR1" expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_2D' IN&#10;         TYPEOF (SELF\item_defined_transformation.transform_item_1)"/>
+         <where label="WR2" expression="'PRESENTATION_RESOURCE_SCHEMA.PRESENTATION_SCALED_PLACEMENT' IN&#10;         TYPEOF (SELF\item_defined_transformation.transform_item_2)"/>
+      </entity>
+      <entity name="light_source" supertypes="geometric_representation_item" super.expression="ONEOF (light_source_ambient, light_source_directional, light_source_positional, light_source_spot)">
+         <explicit name="light_colour">
+            <typename name="colour"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(USEDIN(SELF,'PRESENTATION_APPEARANCE_SCHEMA.'+&#10;                         'STYLED_ITEM.ITEM')) = 0"/>
+      </entity>
+      <entity name="light_source_ambient" supertypes="light_source"/>
+      <entity name="light_source_directional" supertypes="light_source">
+         <explicit name="orientation">
+            <typename name="direction"/>
+         </explicit>
+      </entity>
+      <entity name="light_source_positional" supertypes="light_source">
+         <explicit name="position">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="constant_attenuation">
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="distance_attenuation">
+            <builtintype type="REAL"/>
+         </explicit>
+      </entity>
+      <entity name="light_source_spot" supertypes="light_source">
+         <explicit name="position">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="orientation">
+            <typename name="direction"/>
+         </explicit>
+         <explicit name="concentration_exponent">
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="constant_attenuation">
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="distance_attenuation">
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="spread_angle">
+            <typename name="positive_plane_angle_measure"/>
+         </explicit>
+      </entity>
+      <entity name="presentation_area" supertypes="presentation_representation">
+         <where label="WR1" expression="((SIZEOF (QUERY (ais &lt;* USEDIN (SELF, 'PRESENTATION_ORGANIZATION_SCHEMA.' +&#10;                                             'AREA_IN_SET.AREA') | &#10;           SIZEOF (USEDIN (ais, 'PRESENTATION_ORGANIZATION_SCHEMA.' +&#10;                                'PRESENTATION_SIZE.UNIT')) =1)) &gt; 0) OR&#10;         (SIZEOF (USEDIN (SELF, 'PRESENTATION_ORGANIZATION_SCHEMA.' +&#10;                                'PRESENTATION_SIZE.UNIT')) =1))"/>
+      </entity>
+      <entity name="presentation_layer_assignment">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="assigned_items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="layered_item"/>
+         </explicit>
+      </entity>
+      <entity name="presentation_layer_usage">
+         <explicit name="assignment">
+            <typename name="presentation_layer_assignment"/>
+         </explicit>
+         <explicit name="presentation">
+            <typename name="presentation_representation"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="assignment"/>
+            <unique.attribute attribute="presentation"/>
+         </unique>
+      </entity>
+      <entity name="presentation_representation" supertypes="representation">
+         <where label="WR1" expression="SELF\representation.&#10;            context_of_items\geometric_representation_context.&#10;            coordinate_space_dimension = 2"/>
+         <where label="WR2" expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT'&#10;       IN TYPEOF (SELF\representation.context_of_items)"/>
+      </entity>
+      <entity name="presentation_representation_relationship" supertypes="representation_relationship_with_transformation">
+         <where label="WR1" expression="'PRESENTATION_DEFINITION_SCHEMA.PRESENTATION_REPRESENTATION' IN&#10;         TYPEOF (SELF\representation_relationship.rep_1)"/>
+         <where label="WR2" expression="'PRESENTATION_DEFINITION_SCHEMA.PRESENTATION_REPRESENTATION' IN&#10;         TYPEOF (SELF\representation_relationship.rep_2)"/>
+         <where label="WR3" expression="acyclic_presentation_representation_relationship (SELF,&#10;         [SELF\representation_relationship.rep_2])"/>
+         <where label="WR4" expression="NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN&#10;         TYPEOF (SELF\representation_relationship.rep_1)) &#10;                 AND&#10;         NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.' +&#10;                       'PRODUCT_DATA_REPRESENTATION_VIEW',&#10;                       'PRESENTATION_ORGANIZATION_SCHEMA.' +&#10;                       'VIEW_DEPENDENT_ANNOTATION_REPRESENTATION'] *&#10;         TYPEOF (SELF\representation_relationship.rep_2)) = 0))"/>
+         <where label="WR5" expression="NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW'&#10;         IN TYPEOF (SELF\representation_relationship.rep_1))&#10;                 AND&#10;       NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.' +&#10;                     'PRESENTATION_AREA',&#10;                     'PRESENTATION_ORGANIZATION_SCHEMA.' +&#10;                     'PRESENTATION_VIEW',&#10;                     'PRESENTATION_ORGANIZATION_SCHEMA.' +&#10;                     'AREA_DEPENDENT_ANNOTATION_REPRESENTATION'] *&#10;              TYPEOF (SELF\representation_relationship.rep_2))=0))"/>
+         <where label="WR6" expression="(NOT ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN&#10;         TYPEOF(SELF\representation_relationship.rep_2)))&#10;              XOR&#10;         ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA'IN&#10;         TYPEOF(SELF\representation_relationship.rep_1))"/>
+         <where label="WR7" expression="(NOT ('PRESENTATION_ORGANIZATION_SCHEMA.' +&#10;             'PRODUCT_DATA_REPRESENTATION_VIEW' IN&#10;         (TYPEOF(SELF\representation_relationship.rep_1) +&#10;          TYPEOF(SELF\representation_relationship.rep_2))))&#10;              XOR&#10;       ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN&#10;         TYPEOF(SELF\representation_relationship.rep_1))&#10;                AND&#10;       ('PRESENTATION_ORGANIZATION_SCHEMA.PRODUCT_DATA_REPRESENTATION_VIEW' IN&#10;         TYPEOF(SELF\representation_relationship.rep_2))"/>
+         <where label="WR8" expression="'PRESENTATION_ORGANIZATION_SCHEMA.GRAPHICAL_TRANSFORMATION' IN&#10;         TYPEOF(SELF\representation_relationship_with_transformation.&#10;                     transformation_operator)"/>
+      </entity>
+      <entity name="presentation_set">
+         <inverse name="areas" entity="area_in_set" attribute="in_set">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="presentation_size">
+         <explicit name="unit">
+            <typename name="presentation_size_assignment_select"/>
+         </explicit>
+         <explicit name="size">
+            <typename name="planar_box"/>
+         </explicit>
+         <where label="WR1" expression="(('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION'&#10;         IN TYPEOF (SELF.unit)) AND&#10;         item_in_context (SELF.size, &#10;                          SELF.unit\representation.context_of_items)&#10;       )&#10;            OR&#10;       (&#10;        ('PRESENTATION_ORGANIZATION_SCHEMA.AREA_IN_SET'&#10;          IN TYPEOF (SELF.unit)) AND&#10;        (SIZEOF (QUERY ( ais &lt;* SELF.unit\area_in_set.in_set.areas |&#10;                NOT item_in_context (SELF.size, ais.area\representation.&#10;                                                context_of_items) )) = 0)&#10;       )"/>
+      </entity>
+      <entity name="presentation_view" supertypes="presentation_representation"/>
+      <entity name="presented_item" abstract.supertype="YES"/>
+      <entity name="presented_item_representation">
+         <explicit name="presentation">
+            <typename name="presentation_representation_select"/>
+         </explicit>
+         <explicit name="item">
+            <typename name="presented_item"/>
+         </explicit>
+      </entity>
+      <entity name="product_data_representation_view" supertypes="presentation_representation">
+         <where label="WR1" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;       NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_IMAGE',&#10;                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] *&#10;                    TYPEOF (item)) = 1&#10;       ))) = 0"/>
+         <where label="WR2" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items | &#10;       ('PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_IMAGE' IN&#10;        TYPEOF (item))&#10;       )) &gt;= 1"/>
+      </entity>
+      <entity name="representation_item_dependent_layer_assignment" supertypes="presentation_layer_assignment">
+         <explicit name="item_context">
+            <typename name="representation_item"/>
+         </explicit>
+      </entity>
+      <entity name="view_dependent_annotation_representation" supertypes="presentation_representation">
+         <where label="WR1" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;       NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.' +&#10;                     'ANNOTATION_OCCURRENCE',&#10;                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] * &#10;            TYPEOF(item)) = 1&#10;       ))) = 0"/>
+         <where label="WR2" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;       ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_OCCURRENCE' IN&#10;        TYPEOF (item))&#10;       )) &gt;= 1"/>
+      </entity>
+      <entity name="view_volume" supertypes="founded_item">
+         <explicit name="projection_type">
+            <typename name="central_or_parallel"/>
+         </explicit>
+         <explicit name="projection_point">
+            <typename name="cartesian_point"/>
+         </explicit>
+         <explicit name="view_plane_distance">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="front_plane_distance">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="front_plane_clipping">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="back_plane_distance">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="back_plane_clipping">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="view_volume_sides_clipping">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="view_window">
+            <typename name="planar_box"/>
+         </explicit>
+      </entity>
+      <rule name="symbol_representation_rule" appliesto="presentation_representation_relationship">
+         <where label="WR1" expression="SIZEOF(QUERY(each_1 &lt;* presentation_representation_relationship  |&#10;              NOT ('PRESENTATION_DEFINITION_SCHEMA.'+&#10;              'SYMBOL_REPRESENTATION_RELATIONSHIP' IN TYPEOF(each_1)) AND&#10;         (SIZEOF(QUERY(each_2 &lt;* [each_1\representation_relationship.rep_1,&#10;                                  each_1\representation_relationship.rep_2] |&#10;         'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION' IN TYPEOF(each_2)&#10;         )) &gt; 0)&#10;       )) = 0"/>
+      </rule>
+      <function name="acyclic_presentation_representation_relationship">
+         <parameter name="relation">
+            <typename name="presentation_representation_relationship"/>
+         </parameter>
+         <parameter name="children">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="presentation_representation"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
     x : SET OF presentation_representation_relationship;
     local_children : SET OF presentation_representation;
   END_LOCAL;
-
   REPEAT i:=1 TO HIINDEX(children);
     IF relation\representation_relationship.rep_1 :=: children[i] THEN
        RETURN(FALSE);
     END_IF;
   END_REPEAT;
-
   x := bag_to_set (USEDIN ( relation\representation_relationship.rep_1,
                   'REPRESENTATION_SCHEMA.'+
                   'REPRESENTATION_RELATIONSHIP.REP_2'));
   local_children := children + relation\representation_relationship.rep_1;
-
   IF SIZEOF (x) &gt; 0 THEN
     REPEAT i:=1 TO HIINDEX (x);
        IF NOT acyclic_presentation_representation_relationship
@@ -770,34 +339,18 @@
        END_IF;
     END_REPEAT;
   END_IF;
-
-  RETURN (TRUE);
-
-      </algorithm>
-
-    </function>
-
-    <function
-      name="aspect_ratio">
-      <parameter
-        name="p">
-        <typename
-          name="planar_box"/>
-      </parameter>
-      <typename
-        name="positive_ratio_measure"/>
-      <algorithm>
-(* if the dimensions of the planar_box are greater than zero,
-      compute the aspect ratio and return the resulting value. *)
-   IF (p.size_in_x &gt; 0.) AND (p.size_in_y &gt; 0.) THEN
+  RETURN (TRUE);</algorithm>
+      </function>
+      <function name="aspect_ratio">
+         <parameter name="p">
+            <typename name="planar_box"/>
+         </parameter>
+         <typename name="positive_ratio_measure"/>
+         <algorithm>IF (p.size_in_x &gt; 0.) AND (p.size_in_y &gt; 0.) THEN
       RETURN (p.size_in_x / p.size_in_y);
    ELSE
       RETURN (?);
-   END_IF;
-      </algorithm>
-
-    </function>
-
-  </schema>
-
+   END_IF;</algorithm>
+      </function>
+   </schema>
 </express>

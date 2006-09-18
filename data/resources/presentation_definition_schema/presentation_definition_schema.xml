@@ -1,750 +1,317 @@
-<?xml version="1.0"?>
-<!-- $Id: presentation_definition_schema.xml,v 1.5 2005/10/13 08:49:10 liutkuviene Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-46"
-  description.file="descriptions.xml"
-  rcs.date="$Date: 2005/10/13 08:49:10 $"
-  rcs.revision="$Revision: 1.5 $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="presentation_definition_schema schema_item"/>
-
-  <schema name="presentation_definition_schema">
-    <interface
-      kind="reference"
-      schema="external_reference_schema">
-      <interfaced.item
-        name="externally_defined_item"/>
-      <interfaced.item
-        name="pre_defined_item"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="geometry_schema">
-      <interfaced.item
-        name="axis2_placement"/>
-      <interfaced.item
-        name="curve"/>
-      <interfaced.item
-        name="geometric_representation_item"/>
-      <interfaced.item
-        name="point"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="measure_schema">
-      <interfaced.item
-        name="positive_ratio_measure"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="presentation_appearance_schema">
-      <interfaced.item
-        name="styled_item"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="presentation_resource_schema">
-      <interfaced.item
-        name="character_glyph_symbol"/>
-      <interfaced.item
-        name="planar_box"/>
-      <interfaced.item
-        name="planar_extent"/>
-      <interfaced.item
-        name="font_select"/>
-      <interfaced.item
-        name="presentable_text"/>
-      <interfaced.item
-        name="text_font"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="representation_schema">
-      <interfaced.item
-        name="item_in_context"/>
-      <interfaced.item
-        name="mapped_item"/>
-      <interfaced.item
-        name="representation"/>
-      <interfaced.item
-        name="representation_item"/>
-      <interfaced.item
-        name="representation_map"/>
-      <interfaced.item
-        name="representation_relationship"/>
-      <interfaced.item
-        name="representation_relationship_with_transformation"/>
-      <interfaced.item
-        name="using_representations"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-      <interfaced.item
-        name="bag_to_set"/>
-    </interface>
-    
-    <type name="defined_glyph_select">
-      <select
-        selectitems="pre_defined_character_glyph externally_defined_character_glyph">
-      </select>
-    </type>
-    
-    <type name="defined_symbol_select">
-      <select
-        selectitems="pre_defined_symbol externally_defined_symbol">
-      </select>
-    </type>
-    
-    <type name="text_alignment">
-      <typename
-        name="label"/>
-    </type>
-
-    <type name="text_delineation">
-      <typename
-        name="label"/>
-    </type>
-    
-    <type name="text_or_character">
-      <select
-        selectitems="annotation_text annotation_text_character defined_character_glyph composite_text text_literal">
-      </select>
-    </type>
-        
-    <type name="text_path">
-      <enumeration
-        items="left right up down">
-      </enumeration>
-    </type>
-    
-    <entity
-      name="annotation_curve_occurrence"
-      supertypes="annotation_occurrence">
-      <where
-        label="WR1"
-        expression="'GEOMETRY_SCHEMA.CURVE' IN TYPEOF (SELF\styled_item.item)">
-      </where>
-    </entity>
-    
-    
-    
-    <entity
-      name="annotation_fill_area"
-      supertypes="geometric_representation_item">
-      <explicit
-        name="boundaries">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="curve"/>
-      </explicit>
-      <where label="IP1"/>
-      <where label="IP2"/>
-    </entity>
-    
-    <entity
-      name="annotation_fill_area_occurrence"
-      supertypes="annotation_occurrence">
-      <explicit
-        name="fill_style_target">
-        <typename
-          name="point"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_FILL_AREA' IN         TYPEOF (SELF.item)">
-      </where>
-    </entity>
-    
-    <entity
-      name="annotation_occurrence"
-      super.expression="(ONEOF(annotation_point_occurrence,                      annotation_curve_occurrence,                      annotation_fill_area_occurrence,                      annotation_text_occurrence,                      annotation_symbol_occurrence))"
-      supertypes="styled_item">
-      <where
-        label="WR1"
-        expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN          TYPEOF (SELF)">
-      </where>
-    </entity>
-    
-    <entity
-      name="annotation_occurrence_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_annotation_occurrence">
-        <typename
-          name="annotation_occurrence"/>
-      </explicit>
-      <explicit
-        name="related_annotation_occurrence">
-        <typename
-          name="annotation_occurrence"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="annotation_point_occurrence"
-      supertypes="annotation_occurrence">
-      <where
-        label="WR1"
-        expression="'GEOMETRY_SCHEMA.POINT' IN TYPEOF (SELF\styled_item.item)">
-      </where>
-    </entity>
-    
-    <entity
-      name="annotation_symbol"
-      supertypes="mapped_item">
-      <where
-        label="WR1"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION_MAP' IN         TYPEOF (SELF\mapped_item.mapping_source)">
-      </where>
-      <where
-        label="WR2"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_TARGET' IN         TYPEOF (SELF\mapped_item.mapping_target)">
-      </where>
-      <where
-        label="WR3"
-        expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN         TYPEOF (SELF)">
-      </where>
-    </entity>
-    
-    <entity
-      name="annotation_symbol_occurrence"
-      supertypes="annotation_occurrence">
-      <where
-        label="WR1"
-        expression="SIZEOF(         ['PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_SYMBOL',          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_SYMBOL'] *         TYPEOF(SELF\styled_item.item)) &gt; 0">
-      </where>
-    </entity>
-
-    <entity
-      name="annotation_table"
-      supertypes="annotation_symbol">
-      <where
-        label="WR1"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION' IN         TYPEOF (SELF\mapped_item.mapping_source.mapped_representation)">
-      </where>
-    </entity>
-    
-    <entity
-      name="annotation_table_occurrence"
-      supertypes="annotation_symbol_occurrence">
-      <where
-        label="WR1"
-        expression="SIZEOF (         ['PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE',          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_TABLE'] *         TYPEOF (SELF\styled_item.item)) &gt; 0">
-      </where>
-    </entity> 
-    
-     <entity
-      name="annotation_text"
-      supertypes="mapped_item">
-      <where
-        label="WR1"
-        expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN       TYPEOF( SELF\mapped_item.mapping_target)">
-      </where>
-      <where
-        label="WR2"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.TEXT_STRING_REPRESENTATION' IN       TYPEOF( SELF\mapped_item.mapping_source.mapped_representation)">
-      </where>
-      <where
-        label="WR3"
-        expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN       TYPEOF( SELF)">
-      </where>
-    </entity>
-    
-    <entity
-      name="annotation_text_character"
-      supertypes="mapped_item">
-      <explicit
-        name="alignment">
-        <typename
-          name="text_alignment"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="'PRESENTATION_RESOURCE_SCHEMA.CHARACTER_GLYPH_SYMBOL' IN         TYPEOF (SELF\mapped_item.mapping_source.mapped_representation)">
-      </where>
-      <where
-        label="WR2"
-        expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN         TYPEOF (SELF\mapped_item.mapping_target)">
-      </where>
-      <where
-        label="WR3"
-        expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN         TYPEOF (SELF)">
-      </where>
-    </entity>
-    
-    <entity
-      name="annotation_text_occurrence"
-      supertypes="annotation_occurrence">
-      <where
-        label="WR1"
-        expression="SIZEOF (         ['PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL',          'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT',          'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_CHARACTER',          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_CHARACTER_GLYPH',          'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT'] *         TYPEOF (SELF\styled_item.item)) &gt; 0">
-      </where>
-    </entity>   
-
-    <entity
-      name="annotation_text_with_associated_curves"
-      supertypes="annotation_text">
-      <explicit
-        name="associated_curves">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="curve"/>
-      </explicit>
-    </entity>
-    
-     <entity
-      name="annotation_text_with_blanking_box"
-      supertypes="annotation_text">
-      <explicit
-        name="blanking">
-        <typename
-          name="planar_box"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="annotation_text_with_delineation"
-      supertypes="annotation_text">
-      <explicit
-        name="delineation">
-        <typename
-          name="text_delineation"/>
-      </explicit>
-    </entity>    
-    
-    <entity
-      name="annotation_text_with_extent"
-      supertypes="annotation_text">
-      <explicit
-        name="extent">
-        <typename
-          name="planar_extent"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="composite_text"
-      supertypes="geometric_representation_item">
-      <explicit
-        name="collected_text">
-        <aggregate
-          type="SET"
-          lower="2"
-          upper="?"/>
-        <typename
-          name="text_or_character"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="acyclic_composite_text( SELF, SELF.collected_text)">
-      </where>
-    </entity>
-    
-    <entity
-      name="composite_text_with_associated_curves"
-      supertypes="composite_text">
-      <explicit
-        name="associated_curves">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="curve"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="composite_text_with_blanking_box"
-      supertypes="composite_text">
-      <explicit
-        name="blanking">
-        <typename
-          name="planar_box"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="composite_text_with_delineation"
-      supertypes="composite_text">
-      <explicit
-        name="delineation">
-        <typename
-          name="text_delineation"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="composite_text_with_extent"
-      supertypes="composite_text">
-      <explicit
-        name="extent">
-        <typename
-          name="planar_extent"/>
-      </explicit>
-    </entity>   
-    
-    <entity
-      name="defined_character_glyph"
-      supertypes="geometric_representation_item">
-      <explicit
-        name="definition">
-        <typename
-          name="defined_glyph_select"/>
-      </explicit>
-      <explicit
-        name="placement">
-        <typename
-          name="axis2_placement"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="defined_symbol"
-      supertypes="geometric_representation_item">
-      <explicit
-        name="definition">
-        <typename
-          name="defined_symbol_select"/>
-      </explicit>
-      <explicit
-        name="target">
-        <typename
-          name="symbol_target"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="defined_table"
-      supertypes="defined_symbol">
-    </entity>
-    
-    <entity
-      name="externally_defined_character_glyph"
-      supertypes="externally_defined_item">
-    </entity>
-    
-    <entity
-      name="externally_defined_symbol"
-      supertypes="externally_defined_item">
-    </entity>
-    
-    <entity
-      name="pre_defined_character_glyph"
-      supertypes="pre_defined_item">
-    </entity>
-    
-    <entity
-      name="pre_defined_symbol"
-      supertypes="pre_defined_item">
-    </entity>
-    
-    
-    <entity
-      name="symbol_representation"
-      supertypes="representation">
-    </entity>  
-
-    <entity
-      name="symbol_representation_map"
-      supertypes="representation_map">
-      <where
-        label="WR1"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION' IN         TYPEOF (SELF\representation_map.mapped_representation)">
-      </where>
-      <where
-        label="WR2"
-        expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN         TYPEOF (SELF\representation_map.mapping_origin)">
-      </where>
-    </entity>
-    
-    <entity
-      name="symbol_representation_relationship"
-      supertypes="representation_relationship_with_transformation">
-      <where
-        label="WR1"
-        expression="acyclic_symbol_representation_relationship (SELF,                                                   [SELF\representation_relationship.                                                         rep_2])">
-      </where>
-      <where
-        label="WR2"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_1)">
-      </where>
-      <where
-        label="WR3"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION'IN          TYPEOF (SELF\representation_relationship.rep_2)">
-      </where>
-    </entity>
-
-    <entity
-      name="symbol_representation_with_blanking_box"
-      supertypes="symbol_representation">
-      <explicit
-        name="blanking">
-        <typename
-          name="planar_box"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="item_in_context (SELF.blanking, SELF\representation.context_of_items)">
-      </where>
-    </entity>
-    
-    <entity
-      name="symbol_target"
-      supertypes="geometric_representation_item">
-      <explicit
-        name="placement">
-        <typename
-          name="axis2_placement"/>
-      </explicit>
-      <explicit
-        name="x_scale">
-        <typename
-          name="positive_ratio_measure"/>
-      </explicit>
-      <explicit
-        name="y_scale">
-        <typename
-          name="positive_ratio_measure"/>
-      </explicit>
-    </entity>    
-
-    <entity
-      name="table_record_representation"
-      supertypes="symbol_representation">
-      <where
-        label="WR1"
-        expression="(SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+                             'REPRESENTATION_RELATIONSHIP.REP_2')) &gt; 0)                         OR        (SIZEOF(QUERY( map_item &lt;* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+                                                'REPRESENTATION_MAP.'+                                                'MAPPED_REPRESENTATION') |          SIZEOF(QUERY( mi &lt;* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+                                              'MAPPED_ITEM.'+                                              'MAPPING_SOURCE') |                                                 'PRESENTATION_DEFINITION_SCHEMA.'+                                              'TABLE_REPRESENTATION' IN              TYPEOF (using_representations (mi)) )) &gt; 0))                      &gt; 0)">
-      </where>
-    </entity>
-
-    <entity
-      name="table_record_field_representation"
-      supertypes="symbol_representation">
-      <where
-        label="WR1"
-        expression="(SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+                             'REPRESENTATION_RELATIONSHIP.REP_2')) &gt; 0)                         OR        (SIZEOF(QUERY( map_item &lt;* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+                                                'REPRESENTATION_MAP.'+                                                'MAPPED_REPRESENTATION') |          SIZEOF(QUERY( mi &lt;* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+                                              'MAPPED_ITEM.'+                                              'MAPPING_SOURCE') |                                            'PRESENTATION_DEFINITION_SCHEMA.'+                                           'TABLE_RECORD_REPRESENTATION' IN              TYPEOF (using_representations (mi)) )) &gt; 0))                      &gt; 0)">
-      </where>
-    </entity>
-
-    <entity
-      name="table_record_field_representation_with_clipping_box"
-      supertypes="table_record_field_representation">
-      <explicit
-        name="clipping_box">
-        <typename
-          name="planar_box"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="item_in_context (SELF.clipping_box,                          SELF\representation.context_of_items)">
-      </where>
-    </entity>
-    
-    <entity
-      name="table_representation"
-      supertypes="symbol_representation">
-    </entity>
-
-    <entity
-      name="table_representation_relationship"
-      supertypes="symbol_representation_relationship">
-      <where
-        label="WR1"
-        expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_REPRESENTATION' IN            TYPEOF (SELF\representation_relationship.rep_1))            XOR       ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_2))">
-      </where>
-      <where
-        label="WR2"
-        expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION' IN             TYPEOF (SELF\representation_relationship.rep_1))            XOR       ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_2))">
-      </where>
-      <where
-        label="WR3"
-        expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN            TYPEOF (SELF\representation_relationship.rep_1))          XOR       ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN         TYPEOF (SELF\representation_relationship.rep_2))">
-      </where>
-    </entity>
-    
-    <entity
-      name="table_text_relationship"
-      supertypes="annotation_occurrence_relationship">
-      <explicit
-        name="field">
-        <typename
-          name="table_record_field_representation"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE_OCCURRENCE'       IN TYPEOF (SELF\annotation_occurrence_relationship.                  relating_annotation_occurrence)">
-      </where>
-      <where
-        label="WR2"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE'       IN TYPEOF (SELF\annotation_occurrence_relationship.                  relating_annotation_occurrence\styled_item.item)">
-      </where>
-      <where
-        label="WR3"
-        expression="'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_OCCURRENCE'       IN TYPEOF (SELF\annotation_occurrence_relationship.                  related_annotation_occurrence)">
-      </where>
-      <where
-        label="WR4"
-        expression="field_in_table (SELF.field,                       SELF\annotation_occurrence_relationship.                       relating_annotation_occurrence)">
-      </where>
-    </entity>
-    
-    <entity
-      name="text_literal"
-      supertypes="geometric_representation_item">
-      <explicit
-        name="literal">
-        <typename
-          name="presentable_text"/>
-      </explicit>
-      <explicit
-        name="placement">
-        <typename
-          name="axis2_placement"/>
-      </explicit>
-      <explicit
-        name="alignment">
-        <typename
-          name="text_alignment"/>
-      </explicit>
-      <explicit
-        name="path">
-        <typename
-          name="text_path"/>
-      </explicit>
-      <explicit
-        name="font">
-        <typename
-          name="font_select"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="text_literal_with_associated_curves"
-      supertypes="text_literal">
-      <explicit
-        name="associated_curves">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="curve"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="text_literal_with_blanking_box"
-      supertypes="text_literal">
-      <explicit
-        name="blanking">
-        <typename
-          name="planar_box"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="text_literal_with_delineation"
-      supertypes="text_literal">
-      <explicit
-        name="delineation">
-        <typename
-          name="text_delineation"/>
-      </explicit>
-    </entity>
-    
-    <entity
-      name="text_literal_with_extent"
-      supertypes="text_literal">
-      <explicit
-        name="extent">
-        <typename
-          name="planar_extent"/>
-      </explicit>
-    </entity>    
-
-    <entity
-      name="text_string_representation"
-      supertypes="representation">
-      <where
-        label="WR1"
-        expression="SIZEOF (         QUERY (item &lt;* SELF\representation.items |           SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL',                    'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT',                    'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_CHARACTER',                    'PRESENTATION_DEFINITION_SCHEMA.DEFINED_CHARACTER_GLYPH',                    'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT',                    'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] * TYPEOF (item)) = 0         )) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (         QUERY (item &lt;* SELF\representation.items |           NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL',                         'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT',                         'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_CHARACTER',                         'PRESENTATION_DEFINITION_SCHEMA.DEFINED_CHARACTER_GLYPH',                         'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT'] *                 TYPEOF (item)) = 0)         )) &gt;= 1">
-      </where>
-      <where
-        label="WR3"
-        expression="SIZEOF (         QUERY (a2p &lt;*            QUERY (item &lt;* SELF\representation.items |              'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN TYPEOF (item)) |           NOT ((SIZEOF (             QUERY (at &lt;*                QUERY (item &lt;* SELF\representation.items |                   'PRESENTATION_DEFINITION_SCHEMA.' +                   'ANNOTATION_TEXT' IN TYPEOF (item)) |                (at\mapped_item.mapping_target :=: a2p))) &gt;= 1) OR           (SIZEOF (             QUERY (atc &lt;*                QUERY (item &lt;* SELF\representation.items |                 'PRESENTATION_DEFINITION_SCHEMA.' +                  'ANNOTATION_TEXT_CHARACTER' IN TYPEOF (item)) |                (atc\mapped_item.mapping_target :=: a2p))) &gt;= 1)          ))) = 0">
-      </where>
-    </entity>  
-
-    <function
-      name="acyclic_composite_text">
-      <parameter
-        name="start_composite">
-        <typename
-          name="composite_text"/>
-      </parameter>
-      <parameter
-        name="child_text">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="text_or_character"/>
-      </parameter>
-      <builtintype
-        type="LOGICAL"/>
-      <algorithm>
-
-  LOCAL
+<express language_version="2" reference="ISO 10303-46" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="presentation_definition_schema schema_instance"/>
+   <schema name="presentation_definition_schema">
+      <interface kind="reference" schema="external_reference_schema">
+         <interfaced.item name="externally_defined_item"/>
+         <interfaced.item name="pre_defined_item"/>
+      </interface>
+      <interface kind="reference" schema="geometry_schema">
+         <interfaced.item name="axis2_placement"/>
+         <interfaced.item name="curve"/>
+         <interfaced.item name="geometric_representation_item"/>
+         <interfaced.item name="point"/>
+      </interface>
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="positive_ratio_measure"/>
+      </interface>
+      <interface kind="reference" schema="presentation_appearance_schema">
+         <interfaced.item name="styled_item"/>
+      </interface>
+      <interface kind="reference" schema="presentation_resource_schema">
+         <interfaced.item name="character_glyph_symbol"/>
+         <interfaced.item name="planar_box"/>
+         <interfaced.item name="planar_extent"/>
+         <interfaced.item name="font_select"/>
+         <interfaced.item name="presentable_text"/>
+         <interfaced.item name="text_font"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="item_in_context"/>
+         <interfaced.item name="mapped_item"/>
+         <interfaced.item name="representation"/>
+         <interfaced.item name="representation_item"/>
+         <interfaced.item name="representation_map"/>
+         <interfaced.item name="representation_relationship"/>
+         <interfaced.item name="representation_relationship_with_transformation"/>
+         <interfaced.item name="using_representations"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <type name="defined_glyph_select">
+         <select selectitems="pre_defined_character_glyph externally_defined_character_glyph"/>
+      </type>
+      <type name="defined_symbol_select">
+         <select selectitems="pre_defined_symbol externally_defined_symbol"/>
+      </type>
+      <type name="text_alignment">
+         <typename name="label"/>
+      </type>
+      <type name="text_delineation">
+         <typename name="label"/>
+      </type>
+      <type name="text_or_character">
+         <select selectitems="annotation_text annotation_text_character defined_character_glyph composite_text text_literal"/>
+      </type>
+      <type name="text_path">
+         <enumeration items="left right up down"/>
+      </type>
+      <entity name="annotation_curve_occurrence" supertypes="annotation_occurrence">
+         <where label="WR1" expression="'GEOMETRY_SCHEMA.CURVE' IN TYPEOF (SELF\styled_item.item)"/>
+      </entity>
+      <entity name="annotation_fill_area" supertypes="geometric_representation_item">
+         <explicit name="boundaries">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="curve"/>
+         </explicit>
+      </entity>
+      <entity name="annotation_fill_area_occurrence" supertypes="annotation_occurrence">
+         <explicit name="fill_style_target">
+            <typename name="point"/>
+         </explicit>
+         <where label="WR1" expression="'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_FILL_AREA' IN&#10;         TYPEOF (SELF.item)"/>
+      </entity>
+      <entity name="annotation_occurrence" supertypes="styled_item" super.expression="ONEOF (annotation_point_occurrence, annotation_curve_occurrence, annotation_fill_area_occurrence, annotation_text_occurrence, annotation_symbol_occurrence)">
+         <where label="WR1" expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN&#10;          TYPEOF (SELF)"/>
+      </entity>
+      <entity name="annotation_occurrence_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating_annotation_occurrence">
+            <typename name="annotation_occurrence"/>
+         </explicit>
+         <explicit name="related_annotation_occurrence">
+            <typename name="annotation_occurrence"/>
+         </explicit>
+      </entity>
+      <entity name="annotation_point_occurrence" supertypes="annotation_occurrence">
+         <where label="WR1" expression="'GEOMETRY_SCHEMA.POINT' IN TYPEOF (SELF\styled_item.item)"/>
+      </entity>
+      <entity name="annotation_symbol" supertypes="mapped_item">
+         <where label="WR1" expression="'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION_MAP' IN&#10;         TYPEOF (SELF\mapped_item.mapping_source)"/>
+         <where label="WR2" expression="'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_TARGET' IN&#10;         TYPEOF (SELF\mapped_item.mapping_target)"/>
+         <where label="WR3" expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN&#10;         TYPEOF (SELF)"/>
+      </entity>
+      <entity name="annotation_symbol_occurrence" supertypes="annotation_occurrence">
+         <where label="WR1" expression="SIZEOF(&#10;         ['PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_SYMBOL',&#10;          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_SYMBOL'] *&#10;         TYPEOF(SELF\styled_item.item)) &gt; 0"/>
+      </entity>
+      <entity name="annotation_table" supertypes="annotation_symbol">
+         <where label="WR1" expression="'PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION' IN&#10;         TYPEOF (SELF\mapped_item.mapping_source.mapped_representation)"/>
+      </entity>
+      <entity name="annotation_table_occurrence" supertypes="annotation_symbol_occurrence">
+         <where label="WR1" expression="SIZEOF (&#10;         ['PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE',&#10;          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_TABLE'] *&#10;         TYPEOF (SELF\styled_item.item)) &gt; 0"/>
+      </entity>
+      <entity name="annotation_text" supertypes="mapped_item">
+         <where label="WR1" expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN&#10;       TYPEOF( SELF\mapped_item.mapping_target)"/>
+         <where label="WR2" expression="'PRESENTATION_DEFINITION_SCHEMA.TEXT_STRING_REPRESENTATION' IN&#10;       TYPEOF( SELF\mapped_item.mapping_source.mapped_representation)"/>
+         <where label="WR3" expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN&#10;       TYPEOF( SELF)"/>
+      </entity>
+      <entity name="annotation_text_character" supertypes="mapped_item">
+         <explicit name="alignment">
+            <typename name="text_alignment"/>
+         </explicit>
+         <where label="WR1" expression="'PRESENTATION_RESOURCE_SCHEMA.CHARACTER_GLYPH_SYMBOL' IN&#10;         TYPEOF (SELF\mapped_item.mapping_source.mapped_representation)"/>
+         <where label="WR2" expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN&#10;         TYPEOF (SELF\mapped_item.mapping_target)"/>
+         <where label="WR3" expression="'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM' IN&#10;         TYPEOF (SELF)"/>
+      </entity>
+      <entity name="annotation_text_occurrence" supertypes="annotation_occurrence">
+         <where label="WR1" expression="SIZEOF (&#10;         ['PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL',&#10;          'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT',&#10;          'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_CHARACTER',&#10;          'PRESENTATION_DEFINITION_SCHEMA.DEFINED_CHARACTER_GLYPH',&#10;          'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT'] *&#10;         TYPEOF (SELF\styled_item.item)) &gt; 0"/>
+      </entity>
+      <entity name="annotation_text_with_associated_curves" supertypes="annotation_text">
+         <explicit name="associated_curves">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="curve"/>
+         </explicit>
+      </entity>
+      <entity name="annotation_text_with_blanking_box" supertypes="annotation_text">
+         <explicit name="blanking">
+            <typename name="planar_box"/>
+         </explicit>
+      </entity>
+      <entity name="annotation_text_with_delineation" supertypes="annotation_text">
+         <explicit name="delineation">
+            <typename name="text_delineation"/>
+         </explicit>
+      </entity>
+      <entity name="annotation_text_with_extent" supertypes="annotation_text">
+         <explicit name="extent">
+            <typename name="planar_extent"/>
+         </explicit>
+      </entity>
+      <entity name="composite_text" supertypes="geometric_representation_item">
+         <explicit name="collected_text">
+            <aggregate type="SET" lower="2" upper="?"/>
+            <typename name="text_or_character"/>
+         </explicit>
+         <where label="WR1" expression="acyclic_composite_text( SELF, SELF.collected_text)"/>
+      </entity>
+      <entity name="composite_text_with_associated_curves" supertypes="composite_text">
+         <explicit name="associated_curves">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="curve"/>
+         </explicit>
+      </entity>
+      <entity name="composite_text_with_blanking_box" supertypes="composite_text">
+         <explicit name="blanking">
+            <typename name="planar_box"/>
+         </explicit>
+      </entity>
+      <entity name="composite_text_with_delineation" supertypes="composite_text">
+         <explicit name="delineation">
+            <typename name="text_delineation"/>
+         </explicit>
+      </entity>
+      <entity name="composite_text_with_extent" supertypes="composite_text">
+         <explicit name="extent">
+            <typename name="planar_extent"/>
+         </explicit>
+      </entity>
+      <entity name="defined_character_glyph" supertypes="geometric_representation_item">
+         <explicit name="definition">
+            <typename name="defined_glyph_select"/>
+         </explicit>
+         <explicit name="placement">
+            <typename name="axis2_placement"/>
+         </explicit>
+      </entity>
+      <entity name="defined_symbol" supertypes="geometric_representation_item">
+         <explicit name="definition">
+            <typename name="defined_symbol_select"/>
+         </explicit>
+         <explicit name="target">
+            <typename name="symbol_target"/>
+         </explicit>
+      </entity>
+      <entity name="defined_table" supertypes="defined_symbol"/>
+      <entity name="externally_defined_character_glyph" supertypes="externally_defined_item"/>
+      <entity name="externally_defined_symbol" supertypes="externally_defined_item"/>
+      <entity name="pre_defined_character_glyph" supertypes="pre_defined_item"/>
+      <entity name="pre_defined_symbol" supertypes="pre_defined_item"/>
+      <entity name="symbol_representation" supertypes="representation"/>
+      <entity name="symbol_representation_map" supertypes="representation_map">
+         <where label="WR1" expression="'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION' IN&#10;         TYPEOF (SELF\representation_map.mapped_representation)"/>
+         <where label="WR2" expression="'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN&#10;         TYPEOF (SELF\representation_map.mapping_origin)"/>
+      </entity>
+      <entity name="symbol_representation_relationship" supertypes="representation_relationship_with_transformation">
+         <where label="WR1" expression="acyclic_symbol_representation_relationship (SELF,&#10;                                                   [SELF\representation_relationship.&#10;                                                         rep_2])"/>
+         <where label="WR2" expression="'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION' IN&#10;         TYPEOF (SELF\representation_relationship.rep_1)"/>
+         <where label="WR3" expression="'PRESENTATION_DEFINITION_SCHEMA.SYMBOL_REPRESENTATION'IN&#10;          TYPEOF (SELF\representation_relationship.rep_2)"/>
+      </entity>
+      <entity name="symbol_representation_with_blanking_box" supertypes="symbol_representation">
+         <explicit name="blanking">
+            <typename name="planar_box"/>
+         </explicit>
+         <where label="WR1" expression="item_in_context (SELF.blanking, SELF\representation.context_of_items)"/>
+      </entity>
+      <entity name="symbol_target" supertypes="geometric_representation_item">
+         <explicit name="placement">
+            <typename name="axis2_placement"/>
+         </explicit>
+         <explicit name="x_scale">
+            <typename name="positive_ratio_measure"/>
+         </explicit>
+         <explicit name="y_scale">
+            <typename name="positive_ratio_measure"/>
+         </explicit>
+      </entity>
+      <entity name="table_record_field_representation" supertypes="symbol_representation">
+         <where label="WR1" expression="(SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ &#10;                            'REPRESENTATION_RELATIONSHIP.REP_2')) &gt; 0) &#10;                        OR &#10;       (SIZEOF(QUERY( map_item &lt;* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ &#10;                                               'REPRESENTATION_MAP.'+ &#10;                                               'MAPPED_REPRESENTATION') | &#10;         SIZEOF(QUERY( mi &lt;* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+&#10;                                              'MAPPED_ITEM.'+&#10;                                              'MAPPING_SOURCE') |   &#10;                                         'PRESENTATION_DEFINITION_SCHEMA.'+&#10;                                           'TABLE_RECORD_REPRESENTATION' IN &#10;             TYPEOF (using_representations (mi)) )) &gt; 0))  &#10;                    &gt; 0)"/>
+      </entity>
+      <entity name="table_record_field_representation_with_clipping_box" supertypes="table_record_field_representation">
+         <explicit name="clipping_box">
+            <typename name="planar_box"/>
+         </explicit>
+         <where label="WR1" expression="item_in_context (SELF.clipping_box, &#10;                         SELF\representation.context_of_items)"/>
+      </entity>
+      <entity name="table_record_representation" supertypes="symbol_representation">
+         <where label="WR1" expression="(SIZEOF(USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ &#10;                            'REPRESENTATION_RELATIONSHIP.REP_2')) &gt; 0) &#10;                        OR &#10;       (SIZEOF(QUERY( map_item &lt;* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ &#10;                                               'REPRESENTATION_MAP.'+ &#10;                                               'MAPPED_REPRESENTATION') | &#10;         SIZEOF(QUERY( mi &lt;* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+&#10;                                              'MAPPED_ITEM.'+&#10;                                              'MAPPING_SOURCE') |   &#10;                                              'PRESENTATION_DEFINITION_SCHEMA.'+&#10;                                              'TABLE_REPRESENTATION' IN &#10;             TYPEOF (using_representations (mi)) )) &gt; 0))  &#10;                    &gt; 0)"/>
+      </entity>
+      <entity name="table_representation" supertypes="symbol_representation"/>
+      <entity name="table_representation_relationship" supertypes="symbol_representation_relationship">
+         <where label="WR1" expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_REPRESENTATION' IN&#10;            TYPEOF (SELF\representation_relationship.rep_1))   &#10;         XOR&#10;       ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN&#10;         TYPEOF (SELF\representation_relationship.rep_2))"/>
+         <where label="WR2" expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_REPRESENTATION' IN&#10;             TYPEOF (SELF\representation_relationship.rep_1))   &#10;         XOR&#10;       ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_REPRESENTATION' IN&#10;         TYPEOF (SELF\representation_relationship.rep_2))"/>
+         <where label="WR3" expression="NOT ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN&#10;            TYPEOF (SELF\representation_relationship.rep_1)) &#10;         XOR&#10;       ('PRESENTATION_DEFINITION_SCHEMA.TABLE_RECORD_FIELD_REPRESENTATION' IN&#10;         TYPEOF (SELF\representation_relationship.rep_2))"/>
+      </entity>
+      <entity name="table_text_relationship" supertypes="annotation_occurrence_relationship">
+         <explicit name="field">
+            <typename name="table_record_field_representation"/>
+         </explicit>
+         <where label="WR1" expression="'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE_OCCURRENCE'&#10;       IN TYPEOF (SELF\annotation_occurrence_relationship.&#10;                  relating_annotation_occurrence)"/>
+         <where label="WR2" expression="'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE'&#10;       IN TYPEOF (SELF\annotation_occurrence_relationship.&#10;                  relating_annotation_occurrence\styled_item.item)"/>
+         <where label="WR3" expression="'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_OCCURRENCE'&#10;       IN TYPEOF (SELF\annotation_occurrence_relationship.&#10;                  related_annotation_occurrence)"/>
+         <where label="WR4" expression="field_in_table (SELF.field,&#10;                       SELF\annotation_occurrence_relationship.&#10;                       relating_annotation_occurrence)"/>
+      </entity>
+      <entity name="text_literal" supertypes="geometric_representation_item">
+         <explicit name="literal">
+            <typename name="presentable_text"/>
+         </explicit>
+         <explicit name="placement">
+            <typename name="axis2_placement"/>
+         </explicit>
+         <explicit name="alignment">
+            <typename name="text_alignment"/>
+         </explicit>
+         <explicit name="path">
+            <typename name="text_path"/>
+         </explicit>
+         <explicit name="font">
+            <typename name="font_select"/>
+         </explicit>
+      </entity>
+      <entity name="text_literal_with_associated_curves" supertypes="text_literal">
+         <explicit name="associated_curves">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="curve"/>
+         </explicit>
+      </entity>
+      <entity name="text_literal_with_blanking_box" supertypes="text_literal">
+         <explicit name="blanking">
+            <typename name="planar_box"/>
+         </explicit>
+      </entity>
+      <entity name="text_literal_with_delineation" supertypes="text_literal">
+         <explicit name="delineation">
+            <typename name="text_delineation"/>
+         </explicit>
+      </entity>
+      <entity name="text_literal_with_extent" supertypes="text_literal">
+         <explicit name="extent">
+            <typename name="planar_extent"/>
+         </explicit>
+      </entity>
+      <entity name="text_string_representation" supertypes="representation">
+         <where label="WR1" expression="SIZEOF (&#10;         QUERY (item &lt;* SELF\representation.items |&#10;           SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL',&#10;                    'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT',&#10;                    'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_CHARACTER',&#10;                    'PRESENTATION_DEFINITION_SCHEMA.DEFINED_CHARACTER_GLYPH',&#10;                    'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT',&#10;                    'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] * TYPEOF (item)) = 0&#10;         )) = 0"/>
+         <where label="WR2" expression="SIZEOF (&#10;         QUERY (item &lt;* SELF\representation.items |&#10;           NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL',&#10;                         'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT',&#10;                         'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT_CHARACTER',&#10;                         'PRESENTATION_DEFINITION_SCHEMA.DEFINED_CHARACTER_GLYPH',&#10;                         'PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT'] *&#10;                 TYPEOF (item)) = 0)&#10;         )) &gt;= 1"/>
+         <where label="WR3" expression="SIZEOF (&#10;         QUERY (a2p &lt;* &#10;           QUERY (item &lt;* SELF\representation.items | &#10;             'GEOMETRY_SCHEMA.AXIS2_PLACEMENT' IN TYPEOF (item)) |&#10;           NOT ((SIZEOF (&#10;             QUERY (at &lt;* &#10;               QUERY (item &lt;* SELF\representation.items | &#10;                  'PRESENTATION_DEFINITION_SCHEMA.' + &#10;                  'ANNOTATION_TEXT' IN TYPEOF (item)) | &#10;               (at\mapped_item.mapping_target :=: a2p))) &gt;= 1) OR&#10;           (SIZEOF (&#10;             QUERY (atc &lt;* &#10;               QUERY (item &lt;* SELF\representation.items |&#10;                 'PRESENTATION_DEFINITION_SCHEMA.' + &#10;                 'ANNOTATION_TEXT_CHARACTER' IN TYPEOF (item)) | &#10;               (atc\mapped_item.mapping_target :=: a2p))) &gt;= 1)&#10;          ))) = 0"/>
+      </entity>
+      <function name="acyclic_composite_text">
+         <parameter name="start_composite">
+            <typename name="composite_text"/>
+         </parameter>
+         <parameter name="child_text">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="text_or_character"/>
+         </parameter>
+         <builtintype type="LOGICAL"/>
+         <algorithm>LOCAL
    i : INTEGER;
    local_composite_text : SET [0:?] OF composite_text;
    local_annotation_text : SET [0:?] OF annotation_text;
    local_children : SET [0:?] OF text_or_character;
   END_LOCAL;
-
   local_composite_text := QUERY (child &lt;* child_text |
                           ('PRESENTATION_DEFINITION_SCHEMA.COMPOSITE_TEXT'
                            IN TYPEOF (child)));
-
   IF (SIZEOF (local_composite_text) &gt; 0) THEN
     REPEAT i := 1 TO HIINDEX (local_composite_text);
       IF (start_composite :=: local_composite_text[i]) THEN
@@ -752,21 +319,16 @@
       END_IF;
     END_REPEAT;
   END_IF;
-
   local_children := child_text;
-
   IF (SIZEOF (local_composite_text)) &gt; 0 THEN
     REPEAT i := 1 TO HIINDEX (local_composite_text);
       local_children := local_children +
                         local_composite_text[i].collected_text;
     END_REPEAT;
   END_IF;
-
-
   local_annotation_text := QUERY (child &lt;* child_text |
                           ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TEXT'
                            IN TYPEOF (child)));
-
   IF (SIZEOF (local_annotation_text) &gt; 0) THEN
     REPEAT i := 1 TO HIINDEX (local_annotation_text);
       local_children := local_children +
@@ -777,50 +339,34 @@
                 TYPEOF(item)) &gt; 0);
     END_REPEAT;
   END_IF;
-
   IF (local_children :&lt;&gt;: child_text) THEN
     RETURN (acyclic_composite_text (start_composite, local_children));
   ELSE
     RETURN (TRUE);
-  END_IF;
-
-      </algorithm>
-
-    </function>
-
-    <function
-      name="acyclic_symbol_representation_relationship">
-      <parameter
-        name="relation">
-        <typename
-          name="symbol_representation_relationship"/>
-      </parameter>
-      <parameter
-        name="children">
-        <aggregate
-          type="SET"/>
-        <typename
-          name="symbol_representation"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-  LOCAL
+  END_IF;</algorithm>
+      </function>
+      <function name="acyclic_symbol_representation_relationship">
+         <parameter name="relation">
+            <typename name="symbol_representation_relationship"/>
+         </parameter>
+         <parameter name="children">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="symbol_representation"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
     x : SET OF symbol_representation_relationship;
     local_children : SET OF symbol_representation;
   END_LOCAL;
- 
   REPEAT i:=1 TO HIINDEX(children);
     IF relation\representation_relationship.rep_1 :=: children[i] THEN
       RETURN(FALSE);
     END_IF;
   END_REPEAT;
- 
   x := bag_to_set (USEDIN ( relation\representation_relationship.rep_1,
                 'REPRESENTATION_SCHEMA.'+
                 'REPRESENTATION_RELATIONSHIP.'+ 'REP_2'));
   local_children := children + relation\representation_relationship.rep_1;
- 
   IF SIZEOF (x) &gt; 0 THEN
     REPEAT i:=1 TO HIINDEX (x);
       IF NOT acyclic_symbol_representation_relationship(x[i] , 
@@ -829,35 +375,22 @@
       END_IF;
     END_REPEAT;
   END_IF;
- 
-  RETURN (TRUE);
- 
-      </algorithm>
-
-    </function>
-
-    <function
-      name="field_in_table">
-      <parameter
-        name="field">
-        <typename
-          name="table_record_field_representation"/>
-      </parameter>
-      <parameter
-        name="table">
-        <typename
-          name="annotation_table_occurrence"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-  LOCAL
+   RETURN (TRUE);</algorithm>
+      </function>
+      <function name="field_in_table">
+         <parameter name="field">
+            <typename name="table_record_field_representation"/>
+         </parameter>
+         <parameter name="table">
+            <typename name="annotation_table_occurrence"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
     table_rep : table_representation;
     symbol_rep_rel_set : SET OF symbol_representation_relationship;
     mapped_item_set : SET OF mapped_item;
     table_record_rep_set : SET OF table_record_representation := [];
   END_LOCAL;
- 
   table_rep := table\styled_item.item\mapped_item.mapping_source.
     mapped_representation;
   mapped_item_set := QUERY(item &lt;* table_rep.items |
@@ -869,22 +402,18 @@
                          TYPEOF(item\mapped_item.mapping_source.
                                     mapped_representation ))
                      );
- 
   REPEAT i := 1 TO HIINDEX(mapped_item_set);
     table_record_rep_set := table_record_rep_set +
            mapped_item_set[i].mapping_source.mapped_representation;
   END_REPEAT;
- 
-  symbol_rep_rel_set := bag_to_set (USEDIN(table_rep, 
+   symbol_rep_rel_set := bag_to_set (USEDIN(table_rep, 
                                'REPRESENTATION_SCHEMA.'+
                                'REPRESENTATION_RELATIONSHIP.REP_1'));
- 
-  REPEAT i := 1 TO HIINDEX(symbol_rep_rel_set);
+   REPEAT i := 1 TO HIINDEX(symbol_rep_rel_set);
      table_record_rep_set := table_record_rep_set +
               symbol_rep_rel_set[i]\representation_relationship.rep_2;
   END_REPEAT;
- 
-  IF SIZEOF(QUERY( table_record_rep &lt;* table_record_rep_set |
+   IF SIZEOF(QUERY( table_record_rep &lt;* table_record_rep_set |
 --              (SIZEOF(QUERY( symbol_rep_rel &lt;* USEDIN(table_record_rep,
 --                            'PRESENTATION_DEFINITION_SCHEMA.'+
 --                            'SYMBOL_REPRESENTATION_RELATIONSHIP.REP_1') |
@@ -907,13 +436,7 @@
              )) = 0 THEN
     RETURN(FALSE);
   END_IF;
- 
-  RETURN(TRUE);
- 
-      </algorithm>
-
-    </function>
-
-  </schema>
-
+  RETURN(TRUE);</algorithm>
+      </function>
+   </schema>
 </express>

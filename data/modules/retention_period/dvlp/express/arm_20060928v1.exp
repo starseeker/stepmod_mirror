@@ -1,0 +1,765 @@
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/retention_period/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+   $Id: arm.exp,v 1.3 2006/09/26 18:24:35 darla Exp $
+   N - ISO/CD-TS - 10303- retention_period - EXPRESS ARM*)
+
+SCHEMA Retention_period_arm;
+
+
+USE FROM Analysis_identification_arm;
+USE FROM Composite_material_aspects_arm;
+USE FROM Generic_material_aspects_arm;
+USE FROM Finite_elements_arm;
+USE FROM Finite_element_analysis_arm;
+USE FROM Part_and_version_identification_arm;
+USE FROM Product_view_definition_arm;
+USE FROM Stock_material_arm;
+
+TYPE Retention_period_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysis_approval_item WITH
+  (Retention_period);
+END_TYPE;
+
+TYPE Retention_data_select = SELECT 
+          (Analysis,
+           Analysis_discipline_product_definition,
+           Analysis_report_representation,
+           Analysis_version,
+           Assembly,
+           Composite_material_property,
+           Design_material,
+           FE_analysis,
+           FE_analysis_results,
+           FEA_model,
+           FEA_material_property,
+           Material_property,
+           Material_specification,
+           Part,
+           Part_version,
+           Product_view_definition);
+END_TYPE;
+
+ENTITY Retention_period;
+ earliest_end_definition  : DATE;
+ is_applied_to            : SET [1:?] OF retention_data_select;
+ latest_end_definition    : DATE;
+ retention_purpose        : OPTIONAL string;
+ start_definition         : DATE;
+END_ENTITY;
+
+
+END_SCHEMA;
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/analysis_identification/arm.exp
+   ------------------------------------------------------------
+*)
+
+(******************************************************************************)
+(*                                                                            *)
+(*        This file was produced by Eurostep GraphicalEXPRESS V1.3.20         *)
+(*                                                                            *)
+(******************************************************************************)
+
+(* Original model: ap233 wd2.vsd *)
+(* Title:  *)
+(* Author: Phil Spiby *)
+(* Comments:  *)
+
+SCHEMA Analysis_identification_arm;
+
+USE FROM Product_version_relationship_arm;
+
+USE FROM Product_view_definition_arm;
+
+ENTITY Analysis
+SUBTYPE OF (Product);
+END_ENTITY;
+
+ENTITY Analysis_discipline_definition
+SUBTYPE OF (Product_view_definition);
+  SELF\Product_view_definition.defined_version : Analysis_version;
+END_ENTITY;
+
+ENTITY Analysis_version
+SUBTYPE OF (Product_version);
+  SELF\Product_version.of_product : Analysis;
+END_ENTITY;
+
+END_SCHEMA;
+
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/composite_material_aspects/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+   $Id: arm.exp,v 1.5 2006/05/18 21:56:08 darla Exp $
+   ISO TC184/SC4/WG12 N4391 - ISO/TS 10303-1768 Composite material aspects - EXPRESS ARM
+   *)
+SCHEMA Composite_material_aspects_arm;
+
+USE FROM Design_material_aspects_arm;
+USE FROM Part_and_zone_laminate_tables_arm;
+
+TYPE composite_material_item_select = SELECT
+  (Laminate_table,
+   Anisotropic_material,
+   Isotropic_material);
+END_TYPE;
+
+ENTITY Composite_design_material;
+  material_callout : composite_material_item_select;
+  item_defined : material_item_select;
+END_ENTITY;
+
+END_SCHEMA;
+
+
+  
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/generic_material_aspects/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+   $Id: arm.exp,v 1.15 2006/03/21 08:31:27 liutkus Exp $
+   ISO TC184/SC4/WG12 N3990 - ISO/TS 10303-1681 Generic material aspects - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N3657
+*)
+
+SCHEMA Generic_material_aspects_arm;
+
+	USE FROM Independent_property_arm;	-- ISO/TS 10303-1036
+	USE FROM Independent_property_representation_arm;	-- ISO/TS 10303-1038
+	USE FROM Property_assignment_arm;	-- ISO/TS 10303-1030
+
+TYPE material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE;
+
+TYPE material_property_select = SELECT (Material_property, General_material_property);
+END_TYPE;
+
+TYPE dependent_or_independent_property_representation = SELECT(
+  Independent_property_representation,
+  Property_representation);
+END_TYPE;
+
+ ENTITY Applied_independent_material_property SUBTYPE OF
+    (Material_property, Applied_independent_property);
+     SELF\Applied_independent_property.base_independent_property: General_material_property;
+  END_ENTITY;
+
+ ENTITY Data_environment;
+  environment_name : STRING;
+  description : OPTIONAL STRING;
+  environment_characterization: SET[1:?] OF dependent_or_independent_property_representation;
+ END_ENTITY;
+
+ ENTITY Material_identification;
+  material_name : STRING;
+  items : SET[1:?] OF material_item_select;
+ END_ENTITY;
+
+ ENTITY Material_property
+  SUBTYPE OF (Assigned_property);
+ END_ENTITY;
+
+ ENTITY Material_property_association;
+  described_material : Material_identification;
+  associated_property_value : Material_property_value_representation;
+  definitional : OPTIONAL BOOLEAN;
+ END_ENTITY;
+
+ ENTITY Material_property_value_representation
+  SUBTYPE OF (Property_definition_representation);
+    environment_condition                                               : Data_environment;
+    SELF\Property_definition_representation.definition RENAMED property : material_property_select;
+ END_ENTITY;
+
+ ENTITY General_material_property
+  SUBTYPE OF (Independent_property);
+  WHERE
+    WR1:  SIZEOF(QUERY( aip <* USEDIN(SELF,'PROPERTY_ASSIGNMENT_ARM.APPLIED_INDEPENDENT_PROPERTY.'+
+                     'BASE_INDEPENDENT_PROPERTY') |
+               NOT
+			('GENERIC_MATERIAL_ASPECTS_ARM.APPLIED_INDEPENDENT_MATERIAL_PROPERTY' IN
+                    TYPEOF(aip)))) = 0;
+ END_ENTITY;
+
+
+END_SCHEMA;
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/finite_elements/arm.exp
+   ------------------------------------------------------------
+*)
+
+(* Genenerated from: check_analysis_20060503/express/arm_20060503v0.exp *)
+
+SCHEMA Finite_elements_arm;
+
+USE FROM Analysis_characterized_arm;
+
+USE FROM Analysis_identification_arm;
+
+USE FROM Analysis_shape_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+USE FROM Shape_property_assignment_arm;
+
+TYPE definition_element = SELECT
+          (curve_element,
+           shape_element,
+           surface_element,
+           volume_element);
+END_TYPE;
+
+TYPE element_property_select = SELECT
+          (curve_property,
+           surface_property);
+END_TYPE;
+
+TYPE fe_model_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysis_approval_item WITH
+  (FEA_Model);
+END_TYPE;
+
+ENTITY curve_element
+  SUBTYPE OF (element);
+END_ENTITY;
+
+ENTITY curve_property;
+ defined_elements   : SET [1:?] OF curve_element;
+END_ENTITY;
+
+ENTITY curve_section_properties;
+ property  : curve_property; 
+END_ENTITY;
+
+ENTITY damping_matrix
+  SUBTYPE OF (matrix);
+END_ENTITY;
+
+ENTITY directionally_explicit_element
+  SUBTYPE OF (element);
+ associated_matrix  : matrix;
+END_ENTITY;
+
+ENTITY element
+  SUPERTYPE OF (ONEOF (volume_element,
+                       surface_element,
+                       substructure_element,
+                       curve_element,
+                       point_element,
+                       directionally_explicit_element,
+                       explicit_element));
+ description             : OPTIONAL element_description;
+ element_identification  : STRING;
+ model_ref               : fea_model;
+ node_list               : LIST [1:?] OF node;
+END_ENTITY;
+
+ENTITY element_description;
+ description  : STRING;
+END_ENTITY;
+
+ENTITY element_property_geometric_relationship;
+ geometry_ref  : Detailed_geometric_model_element;
+ section_ref   : element_property_aspect;
+END_ENTITY;
+
+ENTITY element_shape_aspect;
+END_ENTITY;
+
+ENTITY element_shape_relationship;
+ element_aspect     : element_shape_aspect;
+ element_reference  : element;
+ role               : STRING;
+ shape              : Detailed_geometric_model_element;
+END_ENTITY;
+
+ENTITY explicit_element
+  SUBTYPE OF (element);
+ associated_matrix  : matrix;
+END_ENTITY;
+
+ENTITY fea_model;
+ analysis_type           : STRING;
+ approved_by             : OPTIONAL FE_model_approval_item;
+ cae_filename            : OPTIONAL STRING;
+ creating_software       : STRING;
+ definition              : analysis_discipline_definition;
+ description             : fea_model_description;
+ identification          : STRING;
+ intended_analysis_code  : STRING;
+END_ENTITY;
+
+ENTITY fea_model_description;
+ description  : STRING;
+END_ENTITY;
+
+ENTITY group;
+ description           : STRING;
+ elements              : OPTIONAL SET [1:?] OF element;
+ group_identification  : STRING;
+ nodes                 : OPTIONAL SET [1:?] OF node;
+END_ENTITY;
+
+ENTITY group_relationship;
+ related_group   : group;
+ relating_group  : group;
+END_ENTITY;
+
+ENTITY mass_matrix
+  SUBTYPE OF (matrix);
+END_ENTITY;
+
+ENTITY matrix
+  SUPERTYPE OF (ONEOF (mass_matrix,
+                       stiffness_matrix,
+                       damping_matrix));
+END_ENTITY;
+
+ENTITY nodal_results_coordinate_system;
+END_ENTITY;
+
+ENTITY node;
+ description               : OPTIONAL node_description;
+ location                  : Detailed_geometric_model_element;
+ model_ref                 : fea_model;
+ node_identification       : STRING;
+ results_coordinate_space  : OPTIONAL nodal_results_coordinate_system;
+END_ENTITY;
+
+ENTITY node_description;
+ description  : STRING;
+END_ENTITY;
+
+ENTITY node_shape_relationship;
+ node_reference  : node;
+ role            : STRING;
+ shape           : Detailed_geometric_model_element;
+END_ENTITY;
+
+ENTITY point_element
+  SUBTYPE OF (element);
+ associated_matrix  : matrix;
+END_ENTITY;
+
+ENTITY stiffness_matrix
+  SUBTYPE OF (matrix);
+END_ENTITY;
+
+ENTITY substructure_element
+  SUBTYPE OF (element);
+ substructure_model_ref  : fea_model;
+END_ENTITY;
+
+ENTITY substructure_node_relationship;
+ related_node   : node;
+ relating_node  : node;
+END_ENTITY;
+
+ENTITY surface_element
+  SUBTYPE OF (element);
+END_ENTITY;
+
+ENTITY surface_property;
+ defined_elements  : SET [1:?] OF surface_element;
+END_ENTITY;
+
+ENTITY surface_thickness;
+ property   : surface_property;
+ thickness  : LENGTH_MEASURE;
+END_ENTITY;
+
+ENTITY volume_element
+  SUBTYPE OF (element);
+END_ENTITY;
+
+END_SCHEMA;
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/finite_element_analysis/arm.exp
+   ------------------------------------------------------------
+*)
+
+(* Genenerated from: ..\ballots\ballots\analysis\check_analysis_20060505\express\arm_20060505v1.exp *)
+
+SCHEMA Finite_element_analysis_arm;
+
+USE FROM Analysis_characterized_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+USE FROM Finite_elements_arm;
+
+TYPE fe_analysis_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysis_approval_item WITH
+  (Fe_analysis,
+   Fe_analysis_results);
+END_TYPE;
+
+TYPE constraint_definition_reference = SELECT
+          (Detailed_geometric_model_element,
+           Group,
+           Node);
+END_TYPE;
+
+TYPE definition_reference = SELECT
+          (Element,
+           Detailed_geometric_model_element,
+           Group,
+           Node);
+END_TYPE;
+
+ENTITY Analysis_message
+  SUBTYPE OF (Fe_analysis_state_definition);
+ message_level  : STRING;
+ quality        : STRING;
+END_ENTITY;
+
+ENTITY Analysis_report_representation
+  SUPERTYPE OF (Graphical_representation ANDOR 
+                Tabular_representation);
+ control    : OPTIONAL fe_analysis;
+ model_ref  : Fea_model;
+ result     : OPTIONAL Fe_analysis_results;
+END_ENTITY;
+
+ENTITY Calculated_state
+  SUBTYPE OF (fe_analysis_state);
+END_ENTITY;
+
+ENTITY constraint
+  SUPERTYPE OF (ONEOF (Single_point_constraint,
+                       Linear_constraint_equation,
+                       Nodal_degree_of_freedom_reduction));
+ identification  : STRING;
+ steps           : SET [1:?] OF fe_analysis_control_step;
+END_ENTITY;
+
+ENTITY Element_field_variable_definition
+  SUBTYPE OF (Fe_analysis_state_definition);
+END_ENTITY;
+
+ENTITY Element_nodal_freedom_actions
+  SUBTYPE OF (Fe_analysis_state_definition);
+END_ENTITY;
+
+ENTITY fe_analysis;
+ approved_by             : OPTIONAL Fe_analysis_approval_item;
+ intended_analysis_code  : STRING;   
+ model_ref               : Fea_model;
+END_ENTITY; 
+
+ENTITY Fe_analysis_control_step
+  SUPERTYPE OF (ONEOF (Modes_and_frequencies_control_step,
+                       Static_control_step));
+ analysis             : fe_analysis;
+ identification       : STRING;
+ initial_input_state  : fe_analysis_state;
+ sequence             : INTEGER;
+END_ENTITY;
+
+ENTITY Fe_analysis_results;
+ approved_by  : OPTIONAL Fe_analysis_approval_item;
+END_ENTITY;
+
+ENTITY Fe_analysis_results_step
+  SUPERTYPE OF (ONEOF (Modes_and_frequencies_results_step,
+                       Static_results_step));
+ control  : Fe_analysis_control_step;
+ result   : Fe_analysis_results;
+END_ENTITY;
+
+ENTITY Fe_analysis_state
+  SUPERTYPE OF (ONEOF (Calculated_state,
+                       Linearly_superimposed_state,
+                       Output_request_state,
+                       Specified_state));
+ definitions  : SET [1:?] OF Fe_analysis_state_definition;
+END_ENTITY;
+
+ENTITY fe_analysis_state_definition
+  SUPERTYPE OF (ONEOF (Analysis_message,
+                       Element_field_variable_definition,
+                       Element_nodal_freedom_actions,
+                       Linear_constraint_equation_value,
+                       Nodal_freedom_definitions,
+                       Single_point_constraint_values));
+ ref  : Definition_reference;
+END_ENTITY;
+
+ENTITY Graphical_representation
+  SUBTYPE OF (Analysis_report_representation);
+ graphical_filename  : STRING;
+END_ENTITY;
+
+ENTITY Linear_constraint_equation
+  SUBTYPE OF (Constraint);
+ freedoms_and_coefficients_nodes : SET [1:?] OF
+                                   constraint_definition_reference;
+END_ENTITY;
+
+ENTITY linear_constraint_equation_value
+  SUBTYPE OF (Fe_analysis_state_definition);
+ equation  : Linear_constraint_equation;
+END_ENTITY;
+
+ENTITY linearly_superimposed_state
+  SUBTYPE OF (Fe_analysis_state);
+END_ENTITY;
+
+ENTITY modes_and_frequencies_control_step
+  SUBTYPE OF (fe_analysis_control_step);
+ final_input_state  : Fe_analysis_state;
+ frequency_range    : LIST [1:2] OF REAL;
+ number_of_modes    : INTEGER;
+END_ENTITY;
+
+ENTITY Modes_and_frequencies_results_step
+  SUBTYPE OF (Fe_analysis_results_step);
+ resulting_states  : SET [1:?] OF Calculated_state;
+END_ENTITY;
+
+ENTITY Nodal_degree_of_freedom_reduction
+  SUBTYPE OF (constraint);
+ node  : constraint_definition_reference;
+END_ENTITY;
+
+ENTITY Nodal_freedom_definitions
+  SUBTYPE OF (Fe_analysis_state_definition);
+END_ENTITY;
+
+ENTITY Output_request_state
+  SUBTYPE OF (Fe_analysis_state);
+ steps  : SET [1:?] OF Fe_analysis_control_step;
+END_ENTITY;
+
+ENTITY Single_point_constraint
+  SUBTYPE OF (Constraint);
+ required_node  : constraint_definition_reference;
+END_ENTITY;
+
+ENTITY Single_point_constraint_values
+  SUBTYPE OF (Fe_analysis_state_definition);
+ element  : Single_point_constraint;
+END_ENTITY;
+
+ENTITY Specified_state
+  SUBTYPE OF (Fe_analysis_state);
+END_ENTITY;
+
+ENTITY Static_control_step
+  SUBTYPE OF (Fe_analysis_control_step);
+ final_input_state  : Fe_analysis_state;
+END_ENTITY;
+
+ENTITY Static_results_step
+  SUBTYPE OF (Fe_analysis_results_step);
+ resulting_state  : Calculated_state;
+END_ENTITY;
+
+ENTITY Tabular_representation
+  SUBTYPE OF (Analysis_report_representation);
+ tabular_filename  : STRING;
+END_ENTITY;
+
+END_SCHEMA;
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/part_and_version_identification/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+$Id: arm.exp,v 1.16 2004/11/03 22:07:56 abf Exp $
+ISO TC184/SC4/WG12 N2917 - ISO/TS 10303-1022 Part and version identification - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N1114
+*) 
+
+
+SCHEMA Part_and_version_identification_arm;
+
+USE FROM Product_identification_arm;    -- ISO/TS 10303-1017
+
+USE FROM Product_version_arm;    -- ISO/TS 10303-1018
+
+REFERENCE FROM Product_identification_arm   -- ISO/TS 10303-1017
+  (types_of_product); 
+
+
+ENTITY Part
+  SUBTYPE OF (Product);
+WHERE
+  WR1: SIZEOF(['part', 'raw material', 'tool']*types_of_product(SELF))=1;
+END_ENTITY;
+
+ENTITY Part_version
+  SUBTYPE OF (Product_version);
+  SELF\Product_version.of_product : Part;
+END_ENTITY;
+
+RULE part_version_constraint FOR 
+(Product_version);
+WHERE
+  WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'PART_AND_VERSION_IDENTIFICATION_ARM.' + 'PART_VERSION' IN TYPEOF ( pv) ) ) AND ( 'PART_AND_VERSION_IDENTIFICATION_ARM.' + 'PART' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
+END_RULE; 
+
+END_SCHEMA;  -- Part_and_version_identification_arm
+
+
+
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/product_view_definition/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+ $Id: arm.exp,v 1.8 2006/03/24 19:03:52 thendrix Exp $
+ ISO TC184/SC4/WG12 N4351 - ISO/TS 10303-1019 Product view definition - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N1532
+*)
+   
+SCHEMA Product_view_definition_arm;
+
+USE FROM Product_version_arm;
+         
+ENTITY Product_view_definition;
+  id              	: OPTIONAL STRING;
+  name  	      	: OPTIONAL STRING;
+  additional_characterization	      : OPTIONAL STRING;
+  initial_context 	: View_definition_context;
+  additional_contexts   : SET [0:?] OF View_definition_context;
+  defined_version  	: Product_version;
+WHERE
+  WR1: NOT (initial_context IN additional_contexts);
+  WR2: EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) <> TYPEOF(SELF));
+END_ENTITY;
+   
+ENTITY View_definition_context;
+  application_domain	: STRING;
+  life_cycle_stage 	: STRING;
+  description	 	: OPTIONAL STRING;
+WHERE
+  WR1: (SIZEOF (USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.' +
+    'PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT')) > 0) OR
+    (SIZEOF (USEDIN(SELF, 'PRODUCT_VIEW_DEFINITION_ARM.' +
+    'PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS')) > 0);
+END_ENTITY;
+   
+END_SCHEMA;
+
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/stock_material/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+$Id: arm.exp,v 1.5 2006/05/17 22:03:51 darla Exp $
+ISO TC184/SC4/WG12 N7382- ISO/TS 10303-1771 Stock material - EXPRESS ARM
+*)
+
+
+SCHEMA Stock_material_arm;
+
+USE FROM Approval_arm;
+
+USE FROM Document_definition_arm;
+
+USE FROM Generic_material_aspects_arm;
+
+USE FROM Part_and_version_identification_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+TYPE sma_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH
+  (Stock_material);
+END_TYPE;
+
+TYPE ply_stock_material = SELECT
+  (Isotropic_material, Filament_assembly, Discontinuous_fiber_assembly);
+END_TYPE;
+
+ENTITY Material_specification
+  SUBTYPE OF (Document_definition);
+END_ENTITY;
+
+ENTITY Stock_material
+  SUPERTYPE OF (ONEOF(
+    Anisotropic_material,
+    Braided_assembly,
+    Discontinuous_fiber_assembly,
+    Filament_assembly,
+    Isotropic_material,
+    Stock_core,
+    Woven_assembly))
+  SUBTYPE OF (Product_view_definition);
+ property             : Material_property_value_representation;
+ reference_direction  : OPTIONAL Material_direction;
+ of_part              : Part_version;
+ specified_material   : Material_specification;
+END_ENTITY;
+
+ENTITY Material_direction;
+ material_orientation  : Direction;
+END_ENTITY;
+
+ENTITY Anisotropic_material
+  SUBTYPE OF (Stock_material);
+END_ENTITY;
+
+ENTITY Braided_assembly
+  SUBTYPE OF (Stock_material);
+END_ENTITY;
+
+ENTITY Discontinuous_fiber_assembly
+  SUBTYPE OF (Stock_material);
+END_ENTITY;
+
+ENTITY Filament_assembly
+  SUBTYPE OF (Stock_material);
+END_ENTITY;
+
+ENTITY Isotropic_material
+  SUBTYPE OF (Stock_material);
+END_ENTITY;
+
+ENTITY Stock_core
+  SUBTYPE OF (Stock_material);
+END_ENTITY;
+
+ENTITY Woven_assembly
+  SUBTYPE OF (Stock_material);
+END_ENTITY;
+
+END_SCHEMA;
+
+

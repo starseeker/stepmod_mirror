@@ -1,0 +1,384 @@
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/composite_constituent_shape/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+   $Id: arm.exp,v 1.5 2006/05/18 21:07:12 darla Exp $
+   ISO TC184/SC4/WG12 N4388 - ISO/TS 10303-1733 Component constituent shape - EXPRESS ARM
+   
+*)
+
+SCHEMA Composite_constituent_shape_arm;
+
+USE FROM Advanced_boundary_representation_arm;
+
+USE FROM Construction_geometry_arm;
+
+USE FROM Edge_based_wireframe_arm;
+
+USE FROM Elemental_topology_arm;
+
+USE FROM Faceted_boundary_representation_arm;
+
+USE FROM Geometrically_bounded_surface_arm;
+
+USE FROM Geometrically_bounded_wireframe_arm;
+
+USE FROM Manifold_surface_arm;
+
+USE FROM Shell_based_wireframe_arm;
+
+TYPE boundary_class_zone = SELECT 
+          (Boundary_curve_representation, 
+           Loop);
+END_TYPE;
+
+TYPE composite_assembly_shape = SELECT 
+          (Advanced_brep_shape_representation,
+           Three_d_geometry_set, 
+           Faceted_brep_shape_representation,
+           Manifold_surface_shape_representation,
+           Shell_based_wireframe_shape_representation,
+           Geometrically_bounded_surface_shape_representation,
+           Geometrically_bounded_wireframe_shape_representation,
+           Edge_based_wireframe_shape_representation);
+END_TYPE;
+
+TYPE core_shape = SELECT 
+          (Advanced_brep_shape_representation,
+           Beveled_sheet_representation, 
+           Faceted_brep_shape_representation);
+END_TYPE;
+
+TYPE ply_laminate_shape = SELECT 
+           (Composite_sheet_representation,
+            Three_d_geometry_set);
+END_TYPE;
+
+TYPE ply_piece_shape = SELECT 
+           (ply_shape);
+END_TYPE;
+
+TYPE projection_method = ENUMERATION OF
+           (projection_reference,
+            surface_normal);
+END_TYPE;
+
+ENTITY Beveled_sheet_representation
+  SUBTYPE OF (Constituent_shape_representation);
+ bevel_angle              : plane_angle_measure;
+ boundary_surface         : Composite_sheet_representation;
+ vertical_profile_height  : length_measure;
+END_ENTITY;
+
+ENTITY Boundary_curve_representation;
+ bounds  : SET [1:?] OF Curve;
+END_ENTITY;
+
+ENTITY Composite_sheet_representation
+  SUPERTYPE OF (ONEOF (Face_based_sheet_representation, 
+                       Geometric_sheet_representation))
+  SUBTYPE OF (Constituent_shape_representation);
+END_ENTITY;
+
+ENTITY Constituent_shape_representation
+  SUPERTYPE OF (ONEOF (Three_d_geometry_set,
+                       Composite_sheet_representation,
+                       Beveled_sheet_representation))
+  SUBTYPE OF (Geometric_model);
+END_ENTITY;
+
+ENTITY Face_based_sheet_representation
+  SUBTYPE OF (Composite_sheet_representation);
+ face_surface  : Surface;
+ inner_bounds  : OPTIONAL SET [1:?] OF Loop; 
+ outer_bound   : Loop;
+END_ENTITY;
+
+ENTITY Flat_pattern_ply_shape
+  SUBTYPE OF (Ply_shape);
+ wrapup_origin_on_flat_pattern  : Point_select;
+ wrapup_origin_on_surface       : Point_select;
+END_ENTITY;
+
+ENTITY Geometric_sheet_representation
+  SUBTYPE OF (Composite_sheet_representation);
+ basis_surface  : Surface;
+ cutouts        : OPTIONAL SET [1:?] OF Boundary_curve_representation;
+ outer_edge     : Boundary_curve_representation;
+END_ENTITY;
+
+ENTITY Loop
+  SUBTYPE OF (Detailed_topological_model_element);
+END_ENTITY;
+
+ENTITY Laid_ply_shape
+  SUBTYPE OF (Ply_shape);
+END_ENTITY;
+
+ENTITY Ply_shape
+  SUPERTYPE OF (ONEOF (Projected_ply_shape,
+                       Laid_ply_shape,
+                       Flat_pattern_ply_shape));
+ basis           : OPTIONAL Ply_shape;
+ defining_model  : Composite_sheet_representation;
+END_ENTITY;
+
+ENTITY Projected_ply_shape
+  SUPERTYPE OF (ONEOF (View_ply_shape,
+                       Surface_ply_shape))
+  SUBTYPE OF (Ply_shape);
+ method                : projection_method;
+ projection_direction  : OPTIONAL Direction;
+END_ENTITY;
+
+ENTITY Surface_ply_shape
+  SUBTYPE OF (Projected_ply_shape);
+ offset        : LENGTH_MEASURE;
+ surface_role  : string;
+END_ENTITY;
+
+ENTITY Three_d_geometry_set
+  SUBTYPE OF (Constituent_shape_representation);
+ basis_role         : string;
+ basis_surface      : Surface;
+ defining_boundary  : SET [1:?] OF Curve; 
+END_ENTITY;
+
+ENTITY View_ply_shape
+  SUBTYPE OF (Projected_ply_shape);
+END_ENTITY;
+
+END_SCHEMA;
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/advanced_boundary_representation/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+ $Id: arm.exp,v 1.8 2004/10/21 14:47:38 darla Exp $
+ ISO TC184/SC4/WG12 N1288 - ISO/TS 10303-1514 Advanced boundary representation - EXPRESS ARM
+*)
+
+SCHEMA Advanced_boundary_representation_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+ENTITY Advanced_brep_shape_representation
+	SUBTYPE OF (Geometric_model);
+END_ENTITY;
+END_SCHEMA;
+
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/construction_geometry/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+$Id: arm.exp,v 1.12 2006/03/24 19:22:09 thendrix Exp $
+ISO TC184/SC4/WG12 N4281 - ISO/TS 10303-1131 Construction geometry - EXPRESS ARM
+Supersedes ISO TC184/SC4/WG12 N2867
+*) 
+
+
+SCHEMA Construction_geometry_arm;
+
+USE FROM Basic_curve_arm;    -- ISO/TS 10303-1651
+
+USE FROM Foundation_representation_arm;    -- ISO/TS 10303-1006
+
+TYPE constructive_geometry_select = SELECT
+   (Constructive_geometry, 
+    Geometric_model);
+END_TYPE; 
+
+ENTITY Constructive_geometry
+  SUBTYPE OF (Representation);
+  SELF\Representation.context_of_items : Geometric_coordinate_space;
+WHERE
+  WR1: SIZEOF(SELF\Representation.items) = SIZEOF(QUERY (it <* SELF\Representation.items | 'CONSTRUCTION_GEOMETRY_ARM.CONSTRUCTIVE_ELEMENT_SELECT' IN TYPEOF(it)));
+END_ENTITY;
+
+ENTITY Constructive_geometry_association;
+  auxiliary_geometry : Constructive_geometry;
+  base_geometry : constructive_geometry_select;
+  description : STRING;
+WHERE
+  WR1: auxiliary_geometry\Representation.context_of_items :=: base_geometry\Representation.context_of_items;
+END_ENTITY;
+
+END_SCHEMA;  -- Construction_geometry_arm
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/edge_based_wireframe/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+ $Id: arm.exp,v 1.8 2004/10/21 17:28:28 darla Exp $
+ ISO TC184/SC4/WG12 N1267 - ISO/TS 10303-1501 Edge based wireframe - EXPRESS ARM
+*)
+
+SCHEMA Edge_based_wireframe_arm;
+
+USE FROM Elemental_geometric_shape_arm; 
+
+ENTITY Edge_based_wireframe_shape_representation
+SUBTYPE OF (Geometric_model);
+END_ENTITY;
+
+END_SCHEMA;
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/elemental_topology/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+$Id: arm.exp,v 1.2 2005/06/01 21:11:59 thendrix Exp $
+ISO TC184/SC4/WG12 N674 - ISO/TS 10303-1005 Elemental topology - EXPRESS ARM
+*)
+   
+SCHEMA Elemental_topology_arm;
+
+   
+USE FROM Foundation_representation_arm;
+
+   
+ENTITY Detailed_topological_model_element
+  ABSTRACT SUPERTYPE
+  SUBTYPE OF (Representation_item);
+END_ENTITY;
+
+   
+END_SCHEMA;
+
+(* Last update -  15 Aug 2001 *)
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/faceted_boundary_representation/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+ $Id: arm.exp,v 1.8 2004/10/21 18:05:39 darla Exp $
+ ISO TC184/SC4/WG12 N1285 - ISO/TS 10303-1512 Faceted boundary representation - EXPRESS ARM
+*)
+
+SCHEMA Faceted_boundary_representation_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+ENTITY Faceted_brep_shape_representation
+SUBTYPE OF (Geometric_model);
+END_ENTITY;
+
+END_SCHEMA;
+
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/geometrically_bounded_surface/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+ $Id: arm.exp,v 1.6 2004/10/22 13:55:12 darla Exp $
+ ISO TC184/SC4/WG12 N1273 - ISO/TS 10303-1507 Geometrically bounded surface - EXPRESS ARM
+*)
+
+SCHEMA Geometrically_bounded_surface_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+ENTITY Geometrically_bounded_surface_shape_representation
+SUBTYPE OF (Geometric_model);
+END_ENTITY;
+
+END_SCHEMA;
+
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/geometrically_bounded_wireframe/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+ $Id: arm.exp,v 1.7 2004/10/22 13:56:41 darla Exp $
+ ISO TC184/SC4/WG12 N1279 - ISO/TS 10303-1510 Geometrically bounded wireframe - EXPRESS ARM
+*)
+
+SCHEMA Geometrically_bounded_wireframe_arm;
+
+USE FROM Elemental_geometric_shape_arm; 
+
+ENTITY Geometrically_bounded_wireframe_shape_representation
+SUBTYPE OF (Geometric_model);
+END_ENTITY;
+
+END_SCHEMA;
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/manifold_surface/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+ $Id: arm.exp,v 1.6 2004/10/22 14:19:31 darla Exp $
+ ISO TC184/SC4/WG12 N1276 - ISO/TS 10303-1509 Manifold surface - EXPRESS ARM
+*)
+
+
+SCHEMA Manifold_surface_arm;
+
+USE FROM Elemental_geometric_shape_arm;
+
+ENTITY Manifold_surface_shape_representation
+SUBTYPE OF (Geometric_model);
+END_ENTITY;
+
+END_SCHEMA;
+
+
+(*
+   ------------------------------------------------------------
+../data/modules/shell_based_wireframe/arm.exp
+   ------------------------------------------------------------
+*)
+
+(*
+ $Id: arm.exp,v 1.6 2004/10/22 15:25:13 darla Exp $
+ ISO TC184/SC4/WG12 N1270 - ISO/TS 10303-1502 Shell based wireframe - EXPRESS ARM
+*)
+
+SCHEMA Shell_based_wireframe_arm;
+
+USE FROM Elemental_geometric_shape_arm; -- ISO 10303-1004
+
+ENTITY Shell_based_wireframe_shape_representation
+SUBTYPE OF (Geometric_model);
+END_ENTITY;
+
+END_SCHEMA;
+

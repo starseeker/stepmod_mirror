@@ -2506,7 +2506,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         CmRelease cmRelease = part.getCmRecord().getLatestPublishedRelease();
         if (cmRelease != null) {
             int answer = JOptionPane.showConfirmDialog(this,
-                    "Do you want to commit the CM record for "+part.getName()+" to CVS?",
+                    "Do you want to check out the CM record for "+part.getName()+" to CVS?",
                     "CVS action ....",
                     JOptionPane.YES_NO_OPTION);
             if (answer == JOptionPane.YES_OPTION) {

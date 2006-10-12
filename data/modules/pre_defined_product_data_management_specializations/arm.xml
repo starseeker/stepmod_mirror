@@ -1,12 +1,141 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2006/05/18 17:01:14 $"
-   rcs.revision="$Revision: 1.45 $">
-  <schema name="Pre_defined_product_data_management_specializations_arm">
-  </schema>
+
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="pre_defined_product_data_management_specializations_arm schema_instance"/>
+   <schema name="Pre_defined_product_data_management_specializations_arm">
+      <interface kind="use" schema="Activity_arm"/>
+      <interface kind="use" schema="Approval_arm"/>
+      <interface kind="use" schema="Date_time_assignment_arm"/>
+      <interface kind="use" schema="External_item_identification_assignment_arm"/>
+      <interface kind="use" schema="Person_organization_assignment_arm"/>
+      <interface kind="use" schema="Security_classification_arm"/>
+      <interface kind="use" schema="Work_request_arm"/>
+      <constant name="Pre_defined_activity_relationship_types" expression="[&#10;	'alternative',&#10;	'decomposition',&#10;	'derivation',&#10;	'exclusiveness',&#10;	'precedence',&#10;	'sequence',&#10;	'simultaneity']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_security_classification_types" expression="[&#10;	'unclassified',&#10;	'classified',&#10;	'proprietary',&#10;	'confidential',&#10;	'secret',&#10;	'top secret']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_address_assignment_types" expression="[&#10;	'delivery address',&#10;	'postal address',&#10;	'visitor address']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_organization_or_person_in_organization_assignment_types" expression="[&#10;	'author',&#10;	'classification officer',&#10;	'creator',&#10;	'custodian',&#10;	'customer',&#10;	'design supplier',&#10;	'editor',&#10;	'id owner',&#10;	'location',&#10;	'manufacturer',&#10;	'owner',&#10;	'read access',&#10;	'supplier',&#10;	'wholesaler',&#10;	'write access',&#10;	'organization in contract']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_approval_status_types" expression="[&#10;	'approved',&#10;	'disapproved',&#10;	'withdrawn',&#10;	'not yet approved']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_approval_types" expression="[&#10;	'disposition',&#10;	'equipment order',&#10;	'planning']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_date_or_date_time_assignment_types" expression="[&#10;	'creation',&#10;	'installation',&#10;	'production',&#10;	'registration',&#10;	'update',&#10;	'planned',&#10;	'actual',&#10;	'start date',&#10;	'end date',&#10;	'release date',&#10;	'request date']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_work_request_types" expression="[&#10;	'change of standard',&#10;	'cost reduction',&#10;	'customer rejection',&#10;	'customer request',&#10;	'durability improvement',&#10;	'government regulation',&#10;	'production alignment',&#10;	'procurement alignment',&#10;	'production relief',&#10;	'production requirement',&#10;	'quality improvement',&#10;	'security reason',&#10;	'standardization',&#10;	'supplier request',&#10;	'technical improvement',&#10;	'tool improvement']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_work_request_status_types" expression="[&#10;	'in work',&#10;	'issued',&#10;	'proposed',&#10;	'resolved']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <type name="pdpdms_external_identification_item">
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Externally_defined_activity_relationship Externally_defined_security_classification Externally_defined_address_assignment Externally_defined_organization_or_person_in_organization_assignment Externally_defined_approval_status Externally_defined_approval Externally_defined_date_or_date_time_assignment Externally_defined_work_request Externally_defined_work_request_status"/>
+      </type>
+      <entity name="Externally_defined_activity_relationship" supertypes="Activity_relationship">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+         <where label="WR1" expression="NOT (SELF\Activity_relationship.name IN Pre_defined_activity_relationship_types)"/>
+      </entity>
+      <entity name="Externally_defined_address_assignment" supertypes="Address_assignment">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+         <where label="WR1" expression="(EXISTS(SELF\Address_assignment.address_type)) AND&#10;       (NOT (SELF\Address_assignment.address_type IN Pre_defined_address_assignment_types))"/>
+      </entity>
+      <entity name="Externally_defined_approval" supertypes="Approval">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+         <where label="WR1" expression="NOT (SELF\Approval.purpose IN Pre_defined_approval_types)"/>
+      </entity>
+      <entity name="Externally_defined_approval_status" supertypes="Approval_status">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+         <where label="WR1" expression="NOT (SELF\Approval_status.status_name IN Pre_defined_approval_status_types)"/>
+      </entity>
+      <entity name="Externally_defined_date_or_date_time_assignment" supertypes="Date_or_date_time_assignment">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+         <where label="WR1" expression="NOT (SELF\Date_or_date_time_assignment.role IN Pre_defined_date_or_date_time_assignment_types)"/>
+      </entity>
+      <entity name="Externally_defined_organization_or_person_in_organization_assignment" supertypes="Organization_or_person_in_organization_assignment">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+         <where label="WR1" expression="NOT (SELF\Organization_or_person_in_organization_assignment.role IN Pre_defined_organization_or_person_in_organization_assignment_types)"/>
+      </entity>
+      <entity name="Externally_defined_security_classification" supertypes="Security_classification">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+         <where label="WR1" expression="NOT (SELF\Security_classification.classification_level IN Pre_defined_security_classification_types)"/>
+      </entity>
+      <entity name="Externally_defined_work_request" supertypes="Work_request">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+         <where label="WR1" expression="NOT (SELF\Work_request.purpose IN Pre_defined_work_request_types)"/>
+      </entity>
+      <entity name="Externally_defined_work_request_status" supertypes="Work_request_status">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+         <where label="WR1" expression="NOT (SELF\Work_request_status.status IN Pre_defined_work_request_status_types)"/>
+      </entity>
+      <entity name="Person_in_organization_relationship">
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="Person_in_organization"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Person_in_organization"/>
+         </explicit>
+         <explicit name="relation_type">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Pre_defined_activity_relationship" supertypes="Activity_relationship">
+         <where label="WR1" expression="SELF\Activity_relationship.name IN Pre_defined_activity_relationship_types"/>
+      </entity>
+      <entity name="Pre_defined_address_assignment" supertypes="Address_assignment">
+         <where label="WR1" expression="SELF\Address_assignment.address_type IN Pre_defined_address_assignment_types"/>
+      </entity>
+      <entity name="Pre_defined_approval" supertypes="Approval">
+         <where label="WR1" expression="SELF\Approval.purpose IN Pre_defined_approval_types"/>
+      </entity>
+      <entity name="Pre_defined_approval_status" supertypes="Approval_status">
+         <where label="WR1" expression="SELF\Approval_status.status_name IN Pre_defined_approval_status_types"/>
+      </entity>
+      <entity name="Pre_defined_date_or_date_time_assignment" supertypes="Date_or_date_time_assignment">
+         <where label="WR1" expression="SELF\Date_or_date_time_assignment.role IN Pre_defined_date_or_date_time_assignment_types"/>
+      </entity>
+      <entity name="Pre_defined_organization_or_person_in_organization_assignment" supertypes="Organization_or_person_in_organization_assignment">
+         <where label="WR1" expression="SELF\Organization_or_person_in_organization_assignment.role IN Pre_defined_organization_or_person_in_organization_assignment_types"/>
+      </entity>
+      <entity name="Pre_defined_security_classification" supertypes="Security_classification">
+         <where label="WR1" expression="SELF\Security_classification.classification_level IN Pre_defined_security_classification_types"/>
+      </entity>
+      <entity name="Pre_defined_work_request" supertypes="Work_request">
+         <where label="WR1" expression="SELF\Work_request.purpose IN Pre_defined_work_request_types"/>
+      </entity>
+      <entity name="Pre_defined_work_request_status" supertypes="Work_request_status">
+         <where label="WR1" expression="SELF\Work_request_status.status IN Pre_defined_work_request_status_types"/>
+      </entity>
+      <subtype.constraint name="pdpdms_activity_relationship_subtypes" entity="Activity_relationship" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_activity_relationship, Externally_defined_activity_relationship)"/>
+      <subtype.constraint name="pdpdms_security_classification_subtypes" entity="Security_classification" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_security_classification, Externally_defined_security_classification)"/>
+      <subtype.constraint name="pdpdms_address_assignment_subtypes" entity="Address_assignment" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_address_assignment, Externally_defined_address_assignment)"/>
+      <subtype.constraint name="pdpdms_organization_or_person_in_organization_assignment_subtypes" entity="Organization_or_person_in_organization_assignment" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_organization_or_person_in_organization_assignment, Externally_defined_organization_or_person_in_organization_assignment)"/>
+      <subtype.constraint name="pdpdms_approval_status_subtypes" entity="Approval_status" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_approval_status, Externally_defined_approval_status)"/>
+      <subtype.constraint name="pdpdms_approval_subtypes" entity="Approval" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_approval, Externally_defined_approval)"/>
+      <subtype.constraint name="pdpdms_date_or_date_time_assignment_subtypes" entity="Date_or_date_time_assignment" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_date_or_date_time_assignment, Externally_defined_date_or_date_time_assignment)"/>
+      <subtype.constraint name="pdpdms_work_request_subtypes" entity="Work_request" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_work_request, Externally_defined_work_request)"/>
+      <subtype.constraint name="pdpdms_work_request_status_subtypes" entity="Work_request_status" abstract.supertype="YES" super.expression="ONEOF (Pre_defined_work_request_status, Externally_defined_work_request_status)"/>
+   </schema>
 </express>

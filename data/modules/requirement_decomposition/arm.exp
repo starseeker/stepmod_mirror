@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.63 2006/04/14 17:14:08 thomasrthurman Exp $
+   $Id: arm.exp,v 1.64 2006/04/18 13:05:39 liutkus Exp $
    ISO TC184/SC4/WG12 N4167 - ISO/TS 10303-1740 Requirement decomposition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3591
 *)
@@ -47,13 +47,6 @@ END_TYPE;
 	TYPE relationship_operation = ENUMERATION OF
     	(and_operation,
 		or_operation);
-	END_TYPE;
-
-	TYPE requirement_view_relationship_type = ENUMERATION OF
-    	(derived_from,
-	     precedence,
-	     reference_to,
-    	 supplemental);
 	END_TYPE;
 
   ENTITY Constraint_occurrence
@@ -119,9 +112,10 @@ END_TYPE;
      SUBTYPE OF (View_definition_relationship);
        SELF\View_definition_relationship.relating_view RENAMED primary  : Requirement_view_definition;
        SELF\View_definition_relationship.related_view RENAMED secondary : Requirement_view_definition;
-       relationship_type                                                : requirement_view_relationship_type;
+       SELF\View_definition_relationship.relation_type                  : STRING;
      WHERE
        WR1 : primary :<>: secondary;
+       WR2 : SELF\View_definition_relationship.relation_type IN ['derived from', 'precedence', 'reference to', 'supplemental'];
   END_ENTITY;
 
   ENTITY Shape_and_view_based_constraint_occurrence

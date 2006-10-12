@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.245 2006/06/14 15:25:22 liutkus Exp $
+   $Id: arm.exp,v 1.246 2006/06/15 14:05:46 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -17,6 +17,11 @@ SCHEMA Layered_interconnect_module_design_arm;
 	USE FROM Assembly_component_placement_requirements_arm;	-- ISO/TS 10303-1634	
 
 	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+
+   TYPE area_component_templates = SELECT (
+     Stratum_feature_template, -- when area_component comes from library
+     Fill_area_template); -- when area_component is defined in place
+   END_TYPE;
 
 	TYPE limd_groupable_item = SELECT BASED_ON groupable_item WITH 
 	   (Generic_physical_network,
@@ -222,7 +227,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       explicitly_created : BOOLEAN;    
       is_base : BOOLEAN;
       replaced_component : OPTIONAL Area_component;
-      SELF\Definition_based_product_occurrence.derived_from : Fill_area_template;
+      SELF\Definition_based_product_occurrence.derived_from : area_component_templates;
     DERIVE
       is_final : BOOLEAN := (SIZEOF(replaced_by) = 0);
     INVERSE
@@ -1082,6 +1087,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       resident_stratum : Stratum := get_resident_stratum(SELF);
     WHERE
       WR1: NOT EXISTS(SELF\Product_view_definition.name);
+      WR2: NOT('PART_TEMPLATE_EXTENSION_ARM.TRACE_TEMPLATE' IN TYPEOF(derived_from));
   END_ENTITY;
 
   ENTITY Stratum_stack_model_to_interconnect_assignment

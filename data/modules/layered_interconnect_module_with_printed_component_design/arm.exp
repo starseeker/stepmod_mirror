@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.41 2006/06/14 02:44:58 thomasrthurman Exp $
+   $Id: arm.exp,v 1.42 2006/10/13 13:37:59 liutkus Exp $
    ISO TC184/SC4/WG12 N4047 - ISO/TS 10303-1700 Layered interconnect module with printed component design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3486
 *)
@@ -66,15 +66,16 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
       tiebar_component_sub_assembly_relationship : SET [1:1] OF Structured_layout_component_sub_assembly_relationship :=
                  (QUERY(co <* components |
                  ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.SINGLE_STRATUM_PRINTED_COMPONENT' IN
-                  TYPEOF(co.relating_view))
+                  TYPEOF(co.related_view))
                  ));
       tiebar_component : Single_stratum_printed_component := tiebar_component_sub_assembly_relationship[1].related_view;
    INVERSE
-    SELF\Assembly_group_component.components  : SET [3:3] OF Structured_layout_component_sub_assembly_relationship FOR related_view;
+    SELF\Assembly_group_component.components  : 
+             SET [3:3] OF Structured_layout_component_sub_assembly_relationship FOR relating_view;
     WHERE
      WR1 : SIZEOF(QUERY(co <* components |
                  ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.SINGLE_STRATUM_PRINTED_COMPONENT' IN
-                  TYPEOF(co.relating_view))
+                  TYPEOF(co.related_view))
                  )) = 1;
      WR2 : SIZEOF(QUERY(co <* components |
                  ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(co))

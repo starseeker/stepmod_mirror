@@ -17,10 +17,10 @@
          <interfaced.item name="bag_to_set"/>
       </interface>
       <type name="characteristic_select">
-         <select selectitems="Property_value_representation characteristic"/>
+         <select selectitems="Property_value_representation characteristic" genericentity="NO" extensible="NO"/>
       </type>
       <type name="material_conductivity_classification">
-         <enumeration items="conductive resistive semi_conductive non_conductive"/>
+         <enumeration items="conductive resistive semi_conductive non_conductive" extensible="NO"/>
       </type>
       <type name="rd_documented_element_select">
          <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Predefined_requirement_view_definition"/>
@@ -35,57 +35,57 @@
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Group Group_relationship"/>
       </type>
       <type name="relationship_operation">
-         <enumeration items="and_operation or_operation"/>
+         <enumeration items="and_operation or_operation" extensible="NO"/>
       </type>
-      <entity name="Constraint_occurrence" supertypes="Predefined_requirement_view_definition" super.expression="View_based_constraint_occurrence">
+      <entity name="Constraint_occurrence" supertypes="Predefined_requirement_view_definition" super.expression="View_based_constraint_occurrence" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="logical_relation" optional="YES">
             <typename name="Complex_clause"/>
          </explicit>
          <where label="WR1" expression="(('REQUIREMENT_DECOMPOSITION_ARM.' + 'VIEW_BASED_CONSTRAINT_OCCURRENCE') IN TYPEOF(SELF)) OR EXISTS(logical_relation)"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.id)"/>
       </entity>
-      <entity name="Design_characteristic_occurrence" supertypes="Predefined_requirement_view_definition"/>
-      <entity name="Material_electrical_conductivity_requirement_occurrence" supertypes="Predefined_requirement_view_definition">
-         <explicit name="electrical_conductivity_characteristic">
+      <entity name="Design_characteristic_occurrence" supertypes="Predefined_requirement_view_definition" abstract.supertype="NO" abstract.entity="NO"/>
+      <entity name="Material_electrical_conductivity_requirement_occurrence" supertypes="Predefined_requirement_view_definition" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="electrical_conductivity_characteristic" optional="NO">
             <typename name="material_conductivity_classification"/>
          </explicit>
       </entity>
-      <entity name="Operational_requirement_occurrence_relationship" supertypes="Assigned_property View_definition_relationship">
-         <explicit name="operand_1">
+      <entity name="Operational_requirement_occurrence_relationship" supertypes="Assigned_property View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="operand_1" optional="NO">
             <typename name="Requirement_view_definition"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
          </explicit>
-         <explicit name="operand_2">
+         <explicit name="operand_2" optional="NO">
             <typename name="Requirement_view_definition"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
          </explicit>
-         <explicit name="result">
+         <explicit name="result" optional="NO">
             <typename name="Requirement_view_definition"/>
             <redeclaration entity-ref="Assigned_property" old_name="described_element"/>
          </explicit>
-         <explicit name="relationship_type">
+         <explicit name="relationship_type" optional="NO">
             <typename name="relationship_operation"/>
          </explicit>
          <where label="WR1" expression="operand_1 :&lt;&gt;: operand_2"/>
       </entity>
-      <entity name="Predefined_requirement_view_definition" supertypes="Requirement_view_definition" super.expression="ONEOF (Constraint_occurrence, Design_characteristic_occurrence)">
+      <entity name="Predefined_requirement_view_definition" supertypes="Requirement_view_definition" super.expression="ONEOF (Constraint_occurrence, Design_characteristic_occurrence)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="required_analytical_representation" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Analytical_model_application"/>
          </explicit>
          <explicit name="required_functional_specification" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Functional_specification"/>
          </explicit>
          <explicit name="required_characteristic" optional="YES">
             <typename name="characteristic_select"/>
          </explicit>
-         <derived name="requirement_specification" expression="get_document_definition(SELF, 'requirement specification', &#10;  			'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION')">
-            <aggregate type="SET" lower="1" upper="?"/>
+         <derived name="requirement_specification" expression="get_document_definition(SELF, 'requirement specification', &#10;     'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION')">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Document_definition"/>
          </derived>
-         <derived name="reference_clause" expression="get_document_definition(SELF, 'reference clause', &#10;  			'SPECIFICATION_DOCUMENT_ARM.DOCUMENT_DEFINITION')">
-            <aggregate type="SET" lower="0" upper="1"/>
+         <derived name="reference_clause" expression="get_document_definition(SELF, 'reference clause', &#10;     'SPECIFICATION_DOCUMENT_ARM.DOCUMENT_DEFINITION')">
+            <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
             <typename name="Document_definition"/>
          </derived>
          <inverse name="required_material" entity="Material_identification" attribute="items">
@@ -96,31 +96,32 @@
          <where label="WR3" expression="SELF\Product_view_definition.initial_context.life_cycle_stage in ['design', 'qualify', 'inspect', 'test']"/>
          <where label="WR4" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
-      <entity name="Requirement_view_definition_relationship" supertypes="View_definition_relationship">
-         <explicit name="primary">
+      <entity name="Requirement_view_definition_relationship" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="primary" optional="NO">
             <typename name="Requirement_view_definition"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
          </explicit>
-         <explicit name="secondary">
+         <explicit name="secondary" optional="NO">
             <typename name="Requirement_view_definition"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
          </explicit>
-         <explicit name="relation_type">
-            <builtintype type="STRING"/>
+         <explicit name="relation_type" optional="NO">
+            <builtintype type="STRING" fixed="NO"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
          <where label="WR1" expression="primary :&lt;&gt;: secondary"/>
          <where label="WR2" expression="SELF\View_definition_relationship.relation_type IN ['derived from', 'precedence', 'reference to', 'supplemental']"/>
+      <where label="IP1"/>
       </entity>
-      <entity name="Shape_and_view_based_constraint_occurrence" supertypes="View_based_constraint_occurrence">
-         <explicit name="constraining_shape">
-            <aggregate type="SET" lower="1" upper="?"/>
+      <entity name="Shape_and_view_based_constraint_occurrence" supertypes="View_based_constraint_occurrence" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="constraining_shape" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Geometric_model"/>
          </explicit>
          <where label="WR1" expression="valid_constraining_shape(constraining_shape,&#10; SELF\View_based_constraint_occurrence.constraining_part)"/>
       </entity>
-      <entity name="View_based_constraint_occurrence" supertypes="Constraint_occurrence" super.expression="Shape_and_view_based_constraint_occurrence">
-         <explicit name="constraining_part">
+      <entity name="View_based_constraint_occurrence" supertypes="Constraint_occurrence" super.expression="Shape_and_view_based_constraint_occurrence" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="constraining_part" optional="NO">
             <typename name="Product_view_definition"/>
          </explicit>
       </entity>
@@ -129,9 +130,9 @@
             <typename name="requirement_assignment_item"/>
          </parameter>
          <parameter name="id">
-            <builtintype type="STRING"/>
+            <builtintype type="STRING" fixed="NO"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Requirement_view_definition"/>
          <algorithm>LOCAL
 	rvd : SET[0:?] OF Requirement_view_definition := [];  --this gives us access to the information base
@@ -149,13 +150,13 @@ END_LOCAL;
       </function>
       <function name="valid_constraining_shape">
          <parameter name="sd">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
             <typename name="Geometric_model"/>
          </parameter>
          <parameter name="eepd">
             <typename name="Product_view_definition"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype type="BOOLEAN" fixed="NO"/>
          <algorithm>RETURN(TRUE);</algorithm>
       </function>
    </schema>

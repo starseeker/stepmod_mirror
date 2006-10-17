@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.22 2006/01/17 12:20:29 liutkus Exp $
+   $Id: mim.exp,v 1.23 2006/01/20 08:43:38 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4057 - ISO/TS 10303-1703 Model parameter - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3493
 *)
@@ -13,6 +13,8 @@ SCHEMA Model_parameter_mim;
 	USE FROM Group_mim;	-- ISO/TS 10303-1113	
 	
 	USE FROM Specification_document_mim;	-- ISO/TS 10303-1747
+
+	USE FROM product_property_definition_schema(characterized_definition);  -- ISO 10303-41
 
 TYPE mp_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH 
   (test_method_based_parameter_assignment);
@@ -31,7 +33,9 @@ TYPE model_parameter_assigned_item = SELECT
 END_TYPE;
 
 ENTITY category_model_parameter 
- SUBTYPE OF (model_parameter);
+ SUBTYPE OF (model_parameter, property_definition);
+ DERIVE
+   SELF\property_definition.definition: characterized_definition := SELF;
 END_ENTITY;
 
 ENTITY model_parameter 

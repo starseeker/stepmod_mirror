@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: pub_readme.xsl,v 1.9 2005/08/18 07:54:25 robbod Exp $
+$Id: pub_readme.xsl,v 1.10 2006/02/22 23:01:13 thendrix Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
    Purpose: To output the readme file for a published module.
@@ -80,7 +80,7 @@ The MIM long form EXPRESS listing for part <xsl:value-of select="@part"/> is con
       </xsl:if>
 -->
 
-The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')"/>
+<!-- The abstract for part <xsl:value-of select="@part"/> is contained in file: <xsl:value-of select="concat('abstracts/abstract_',@part,'.htm')" -->
 
 NOTE
 The HTML will have a number of broken links as this part is dependent on a

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.31 2006/02/22 11:41:58 liutkus Exp $
+   $Id: arm.exp,v 1.32 2006/06/04 15:42:17 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4125 - ISO/TS 10303-1726 Physical unit 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3558
 *)
@@ -56,10 +56,16 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
      thermal_analysis_output);
   END_TYPE;
 
-  TYPE shape_location = ENUMERATION OF
+  TYPE pu2ds_shape_location = ENUMERATION OF
     (above,
      below,
      congruent);
+  END_TYPE;
+
+  TYPE pu2ds_shape_side = ENUMERATION OF
+    (same_side,
+     opposite_side,
+     both_sides);
   END_TYPE;
 
   ENTITY Physical_unit_planar_keepout_shape_model
@@ -67,25 +73,30 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
  			Usage_view_level_non_feature_shape_model,
  			Physical_unit_keepout_shape_model);
       SELF\Usage_view_level_non_feature_shape_model.model_shape : Physical_unit_shape_model;
-      shape_distance_from_seating_plane                        : OPTIONAL Length_data_element;
-      shape_location_with_respect_to_seating_plane             : OPTIONAL shape_location;
+      shape_distance_from_seating_plane                        : OPTIONAL Length_tolerance_characteristic;
+      shape_location_with_respect_to_seating_plane             : OPTIONAL pu2ds_shape_location;
+      side                                                     : OPTIONAL pu2ds_shape_side;
+      extrusion                                                : OPTIONAL BOOLEAN;
+      compliant_components_permitted_inside_shape              : BOOLEAN;
 	DERIVE
   		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
 		  get_rvd(SELF, 'application technology constraint');
     WHERE
-      WR1 : NOT ((congruent = shape_location_with_respect_to_seating_plane) AND (EXISTS(shape_distance_from_seating_plane)));
+      WR1 : NOT ((pu2ds_shape_location.congruent = shape_location_with_respect_to_seating_plane) AND (EXISTS(shape_distance_from_seating_plane)));
    	  WR2 : NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1);
    	  WR3 : NOT EXISTS(SELF\Representation.name);
    	  WR4 : NOT EXISTS(SELF\Representation.description);
    	  WR5 : NOT (EXISTS(shape_distance_from_seating_plane) XOR EXISTS(shape_location_with_respect_to_seating_plane));
    	  WR6 : NOT ('PACKAGE_ARM.PACKAGE' IN TYPEOF(model_shape.shape_characterized_definition)) OR
    	        EXISTS(shape_distance_from_seating_plane);
+      WR7 : NOT EXISTS(side) OR ('PACKAGE_ARM.PACKAGE' IN TYPEOF(model_shape.shape_characterized_definition));
+      WR8 : NOT EXISTS(extrusion) OR EXISTS(side);
   END_ENTITY;
 
   ENTITY Physical_unit_planar_shape_model
     SUBTYPE OF (Planar_projected_shape_model, Physical_unit_shape_model);
       shape_distance_from_seating_plane            : OPTIONAL Length_data_element;
-      shape_location_with_respect_to_seating_plane : OPTIONAL shape_location;
+      shape_location_with_respect_to_seating_plane : OPTIONAL pu2ds_shape_location;
       shape_purpose                                : OPTIONAL predefined_planar_purpose;
 	DERIVE
   		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=

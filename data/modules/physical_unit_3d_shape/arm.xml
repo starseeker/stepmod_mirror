@@ -13,11 +13,20 @@
       <type name="predefined_3d_purpose">
          <enumeration items="analysis_input analysis_output shock_analysis_input shock_analysis_output design vibration_analysis_input vibration_analysis_output electromagnetic_compatibility_analysis_input electromagnetic_compatibility_analysis_output thermal_analysis_input thermal_analysis_output"/>
       </type>
+      <type name="pu3ds_component_application">
+         <enumeration items="compliant_components_permitted no_components_permitted"/>
+      </type>
       <type name="pu3ds_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Physical_unit_3d_shape_model"/>
       </type>
       <type name="pu3ds_physical_unit_shape_model_select">
          <select extensible="YES" genericentity="YES" basedon="physical_unit_shape_model_select" selectitems="Physical_unit_3d_shape_model"/>
+      </type>
+      <type name="pu3ds_shape_location">
+         <enumeration items="above below"/>
+      </type>
+      <type name="pu3ds_shape_side">
+         <enumeration items="same_side opposite_side both_sides"/>
       </type>
       <type name="pu3ds_view_shape_select">
          <select extensible="YES" genericentity="YES" basedon="view_shape_select" selectitems="Physical_unit_shape_model"/>
@@ -29,6 +38,22 @@
          <explicit name="shape_classification">
             <typename name="shape_class"/>
          </explicit>
+         <explicit name="model_shape">
+            <typename name="Physical_unit_3d_shape_model"/>
+            <redeclaration entity-ref="Usage_view_level_non_feature_shape_model"/>
+         </explicit>
+         <explicit name="component_application">
+            <typename name="pu3ds_component_application"/>
+         </explicit>
+         <explicit name="shape_distance_from_seating_plane" optional="YES">
+            <typename name="Length_tolerance_characteristic"/>
+         </explicit>
+         <explicit name="shape_location_with_respect_to_seating_plane" optional="YES">
+            <typename name="pu3ds_shape_location"/>
+         </explicit>
+         <explicit name="side" optional="YES">
+            <typename name="pu3ds_shape_side"/>
+         </explicit>
          <derived name="application_technology_constraint" expression="get_rvd(SELF, 'application technology constraint')">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Requirement_view_definition"/>
@@ -36,6 +61,9 @@
          <where label="WR1" expression="NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1)"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Representation.name)"/>
          <where label="WR3" expression="NOT EXISTS(SELF\Representation.description)"/>
+         <where label="WR4" expression="NOT (EXISTS(shape_distance_from_seating_plane) XOR EXISTS(shape_location_with_respect_to_seating_plane))"/>
+         <where label="WR5" expression="NOT ('PACKAGE_ARM.PACKAGE' IN TYPEOF(model_shape.shape_characterized_definition)) OR&#10;   	        EXISTS(shape_distance_from_seating_plane)"/>
+         <where label="WR6" expression="NOT EXISTS(side) OR ('PACKAGE_ARM.PACKAGE' IN TYPEOF(model_shape.shape_characterized_definition))"/>
       </entity>
       <entity name="Physical_unit_3d_shape_model" supertypes="Physical_unit_shape_model">
          <explicit name="shape_purpose" optional="YES">

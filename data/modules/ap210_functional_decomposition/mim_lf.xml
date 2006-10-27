@@ -113,7 +113,7 @@
          <select selectitems="document"/>
       </type>
       <type name="document_reference_item">
-         <select selectitems="action_method analytical_model_definition applied_external_identification_assignment assembly_component_usage characterized_object configuration_item descriptive_representation_item executed_action externally_defined_item group group_relationship material_designation measure_representation_item model_parameter product product_category product_definition product_definition_formation product_definition_formation_relationship property_definition representation representation_item shape_aspect shape_aspect_relationship versioned_action_request"/>
+         <select selectitems="action_method analytical_model_definition applied_external_identification_assignment assembly_component_usage characterized_class characterized_object configuration_item descriptive_representation_item executed_action externally_defined_item group group_relationship material_designation measure_representation_item model_parameter product product_category product_definition product_definition_formation product_definition_formation_relationship property_definition representation representation_item shape_aspect shape_aspect_relationship versioned_action_request"/>
       </type>
       <type name="effectivity_item">
          <select selectitems="product_definition product_definition_formation product_definition_relationship"/>
@@ -232,7 +232,7 @@
          <select selectitems="general_property property_definition property_definition_relationship shape_aspect shape_aspect_relationship"/>
       </type>
       <type name="requirement_assigned_item">
-         <select selectitems="component_functional_unit configuration_item descriptive_representation_item product product_definition product_definition_formation representation shape_aspect"/>
+         <select selectitems="component_functional_unit configuration_item descriptive_representation_item product product_definition product_definition_formation product_definition_relationship representation shape_aspect"/>
       </type>
       <type name="requirement_source_item">
          <select selectitems="characterized_object group group_relationship product product_definition product_definition_formation product_definition_relationship shape_aspect"/>
@@ -675,13 +675,13 @@
          </explicit>
       </entity>
       <entity name="applied_attribute_classification_assignment" supertypes="attribute_classification_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="attribute_classification_item"/>
-         </explicit>
          <explicit name="assigned_class">
             <typename name="class"/>
             <redeclaration entity-ref="attribute_classification_assignment"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="attribute_classification_item"/>
          </explicit>
       </entity>
       <entity name="applied_certification_assignment" supertypes="certification_assignment">
@@ -891,13 +891,13 @@
          <where label="WR2" expression="base :&lt;&gt;: substitute"/>
       </entity>
       <entity name="assigned_requirement" supertypes="group_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="product_definition"/>
-         </explicit>
          <explicit name="assigned_group">
             <typename name="requirement_assignment"/>
             <redeclaration entity-ref="group_assignment"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="product_definition"/>
          </explicit>
       </entity>
       <entity name="attribute_classification_assignment" abstract.supertype="YES">
@@ -912,13 +912,13 @@
          </explicit>
       </entity>
       <entity name="attribute_language_assignment" supertypes="attribute_classification_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="attribute_language_item"/>
-         </explicit>
          <explicit name="assigned_class">
             <typename name="language"/>
             <redeclaration entity-ref="attribute_classification_assignment"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="attribute_language_item"/>
          </explicit>
          <where label="WR1" expression="SELF\attribute_classification_assignment.role.name IN ['primary', 'translated']"/>
          <where label="WR2" expression="SELF\attribute_classification_assignment.attribute_name&lt;&gt; ''"/>
@@ -1464,13 +1464,13 @@
          </unique>
       </entity>
       <entity name="document_identifier_assignment" supertypes="group_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="document_identifier_assigned_item"/>
-         </explicit>
          <explicit name="assigned_group">
             <typename name="document_identifier"/>
             <redeclaration entity-ref="group_assignment"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="document_identifier_assigned_item"/>
          </explicit>
       </entity>
       <entity name="document_product_association">
@@ -2615,13 +2615,13 @@
          <where label="WR1" expression="SIZEOF(QUERY&#10;									( &#10;										aga &lt;* USEDIN( SELF, 'AP210_FUNCTIONAL_DECOMPOSITION_MIM_LF.' + 'GROUP_ASSIGNMENT.ASSIGNED_GROUP' ) &#10;										|&#10;     								('AP210_FUNCTIONAL_DECOMPOSITION_MIM_LF.'+ 'APPLIED_GROUP_ASSIGNMENT' IN TYPEOF(aga)) &#10;     								AND&#10;    								(&#10;    									( aga.role.name &lt;&gt; 'specification category member' ) &#10;    									OR &#10;    									( SIZEOF(QUERY &#10;    															( &#10;    																i &lt;* aga.items &#10;    																| &#10;    																('AP210_FUNCTIONAL_DECOMPOSITION_MIM_LF.'+ 'PRODUCT_CONCEPT_FEATURE' IN TYPEOF ( i ) ) &#10;    																AND &#10;    																NOT ('AP210_FUNCTIONAL_DECOMPOSITION_MIM_LF.'+ 'CONDITIONAL_CONCEPT_FEATURE' IN TYPEOF (i))&#10;    															)&#10;    													) &lt;&gt; SIZEOF (aga.items)&#10;    									)&#10;    								) &#10;       						) &#10;       				) =0"/>
       </entity>
       <entity name="product_concept_feature_category_usage" supertypes="group_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="category_usage_item"/>
-         </explicit>
          <explicit name="assigned_group">
             <typename name="product_concept_feature_category"/>
             <redeclaration entity-ref="group_assignment"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="category_usage_item"/>
          </explicit>
          <where label="WR1" expression="SELF.role.name IN [ 'mandatory category usage', 'optional category usage' ]"/>
       </entity>
@@ -2962,13 +2962,13 @@
          <where label="WR1" expression="SELF\representation_relationship.rep_1.context_of_items&#10;   :&lt;&gt;: SELF\representation_relationship.rep_2.context_of_items"/>
       </entity>
       <entity name="requirement_assigned_object" supertypes="group_assignment">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="requirement_assigned_item"/>
-         </explicit>
          <explicit name="assigned_group">
             <typename name="requirement_assignment"/>
             <redeclaration entity-ref="group_assignment"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="requirement_assigned_item"/>
          </explicit>
       </entity>
       <entity name="requirement_assignment" supertypes="characterized_object group"/>
@@ -3111,23 +3111,23 @@
          <where label="WR1" expression="(SELF\named_unit.dimensions.length_exponent = 0.0) AND (SELF\named_unit.dimensions.mass_exponent = 0.0) AND (SELF\named_unit.dimensions.time_exponent = 0.0) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.0) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.0) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.0) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.0)"/>
       </entity>
       <entity name="source_for_requirement" supertypes="group_assignment">
+         <explicit name="assigned_group">
+            <typename name="requirement_source"/>
+            <redeclaration entity-ref="group_assignment"/>
+         </explicit>
          <explicit name="items">
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="requirement_source_item"/>
          </explicit>
+      </entity>
+      <entity name="sourced_requirement" supertypes="group_assignment">
          <explicit name="assigned_group">
             <typename name="requirement_source"/>
             <redeclaration entity-ref="group_assignment"/>
          </explicit>
-      </entity>
-      <entity name="sourced_requirement" supertypes="group_assignment">
          <explicit name="items">
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="product_definition"/>
-         </explicit>
-         <explicit name="assigned_group">
-            <typename name="requirement_source"/>
-            <redeclaration entity-ref="group_assignment"/>
          </explicit>
       </entity>
       <entity name="specification_definition" supertypes="product_definition"/>
@@ -3165,7 +3165,7 @@
       <entity name="table_representation_item" supertypes="compound_representation_item characterized_object">
          <where label="WR1" expression="SIZEOF(QUERY(itet &lt;* SELF\compound_representation_item.item_element |&#10;       NOT('AP210_FUNCTIONAL_DECOMPOSITION_MIM_LF.ROW_REPRESENTATION_ITEM' IN TYPEOF(itet))&#10;            )) = 0"/>
       </entity>
-      <entity name="tagged_text_format" supertypes="class representation_context"/>
+      <entity name="tagged_text_format" supertypes="representation_context"/>
       <entity name="tagged_text_item" supertypes="descriptive_representation_item"/>
       <entity name="test_method_based_parameter_assignment" supertypes="parameter_assignment"/>
       <entity name="thermal_network" supertypes="functional_unit"/>

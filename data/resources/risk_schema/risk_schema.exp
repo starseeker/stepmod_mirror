@@ -45,7 +45,8 @@ REFERENCE FROM representation_schema   -- ISO 10303-43
    value_representation_item); 
 
 REFERENCE FROM state_observed_schema   -- ISO 10303-56
-  (state_observed_assignment); 
+  (state_observed,
+   state_observed_assignment); 
 
 
 TYPE mitigation_select = SELECT
@@ -270,6 +271,8 @@ ENTITY risk_perception
   SELF\product_definition.frame_of_reference RENAMED risk_perception_context : risk_perception_context;
   probability : risk_probability_assignment;
   risk_consequence : SET[1:?] OF risk_consequence;
+  risk_impact : risk_impact;
+  risk_status : risk_status;
 END_ENTITY;
 
 ENTITY risk_perception_context
@@ -324,6 +327,7 @@ END_ENTITY;
 ENTITY risk_source_assignment
   ABSTRACT SUPERTYPE ;
   assigned_risk : risk;
+  risk_context : risk_context;
 END_ENTITY;
 
 ENTITY risk_stakeholder
@@ -331,8 +335,13 @@ ENTITY risk_stakeholder
 END_ENTITY;
 
 ENTITY risk_status
+  SUBTYPE OF (state_observed);
+END_ENTITY;
+
+ENTITY risk_status_assignment
   SUBTYPE OF (state_observed_assignment);
   risk : SET[1:?] OF risk;
+  risk_status : risk_status;
 END_ENTITY;
 
 ENTITY risk_treatment

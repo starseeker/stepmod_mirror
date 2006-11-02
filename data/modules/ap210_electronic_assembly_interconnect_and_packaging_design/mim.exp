@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.67 2006/06/14 15:07:53 liutkus Exp $
+   $Id: mim.exp,v 1.68 2006/06/15 22:49:10 thomasrthurman Exp $
    ISO TC184/SC4/WG3 N1997 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG3 N1639
 *)
@@ -278,7 +278,7 @@ RULE cartesian_coordinate_system_constraint FOR
 LOCAL
    guac_inst : SET OF global_unit_assigned_context :=
                QUERY ( guac <* global_unit_assigned_context |
-             ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+             ('GEOMETRY_SCHEMA.' +
               'GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF (guac)));
 END_LOCAL;
 WHERE
@@ -286,16 +286,16 @@ WHERE
         NOT (SIZEOF (guac.units) <= 3))) = 0;
    WR2: SIZEOF (QUERY (guac <* guac_inst | (NOT (
         (SIZEOF (QUERY (u <* guac.units |
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.LENGTH_UNIT'
+        ('MEASURE_SCHEMA.LENGTH_UNIT'
         IN TYPEOF (u)))) = 1)
         AND
         (SIZEOF (QUERY (u <* guac.units |
-     ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+     ('MEASURE_SCHEMA.' +
          'PLANE_ANGLE_UNIT'
         IN TYPEOF (u)))) = 1)
         AND
         (SIZEOF (QUERY (u <* guac.units |
-    ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    ('MEASURE_SCHEMA.' +
          'SOLID_ANGLE_UNIT'
         IN TYPEOF (u)) )) <= 1)
         )))) = 0;
@@ -305,16 +305,16 @@ WHERE
    WR4: SIZEOF (QUERY (guac <* guac_inst |
         NOT (SIZEOF (QUERY (u <* guac.units |NOT(
     NOT((
-     'ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+     'MEASURE_SCHEMA.' +
      'PLANE_ANGLE_UNIT' IN TYPEOF(u)) AND
-    ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+    ('MEASURE_SCHEMA.' +
      'CONVERSION_BASED_UNIT' IN TYPEOF(u)) AND
      (u\conversion_based_unit.name = 'degree'))
    OR
        ((abs(u\conversion_based_unit.
            conversion_factor\measure_with_unit.value_component -
                0.0174532925) <= 0.001) AND
-        ('ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN.' +
+        ('MEASURE_SCHEMA.' +
          'PLANE_ANGLE_MEASURE_WITH_UNIT'
         IN TYPEOF(u\conversion_based_unit.conversion_factor)))
    ))) = 0)
@@ -341,15 +341,15 @@ c4:((it.name = 'origin') or (it.name = 'orientation')) and
 SIZEOF(QUERY ( sr <* shape_representation |  NOT(
 (SIZEOF(QUERY ( it <* sr\representation.items | (
 ((it\representation_item.name = 'origin') or (it\representation_item.name = 'orientation')) and 
-   (('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
+   (('GEOMETRY_SCHEMA.' +
     'AXIS2_PLACEMENT_2D' in TYPEOF(it))  OR
-   ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
+   ('GEOMETRY_SCHEMA.' +
     'AXIS2_PLACEMENT_2D' in TYPEOF(it)))
 ))) = 1
 ) 
 OR
 (SIZEOF(QUERY ( it <* sr\representation.items | (
-   ('AP210_ELECTRONIC_ASSEMBLY_INTERCONNECT_AND_PACKAGING_DESIGN_MIM.' +
+   ('PRESENTATION_APPEARANCE_SCHEMA.' +
     'STYLED_ITEM' in TYPEOF(it))
 ))) >= 1
 )

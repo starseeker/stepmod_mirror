@@ -5,7 +5,11 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ap210_physical_unit_physical_characterization_arm_lf schema_instance"/>
    <schema name="Ap210_physical_unit_physical_characterization_arm_LF">
-      <constant name="Pre_defined_activity_relationship_types" expression="[&#10; 'alternative',&#10; 'decomposition',&#10; 'derivation',&#10; 'exclusiveness',&#10; 'precedence',&#10; 'sequence',&#10; 'simultaneity']">
+      <constant name="Pre_defined_approval_status_types" expression="[&#10; 'approved',&#10; 'disapproved',&#10; 'withdrawn',&#10; 'not yet approved']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_security_classification_types" expression="[&#10; 'unclassified',&#10; 'classified',&#10; 'proprietary',&#10; 'confidential',&#10; 'secret',&#10; 'top secret']">
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
@@ -13,7 +17,11 @@
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
-      <constant name="Pre_defined_approval_status_types" expression="[&#10; 'approved',&#10; 'disapproved',&#10; 'withdrawn',&#10; 'not yet approved']">
+      <constant name="Pre_defined_organization_or_person_in_organization_assignment_types" expression="[&#10; 'author',&#10; 'classification officer',&#10; 'creator',&#10; 'custodian',&#10; 'customer',&#10; 'design supplier',&#10; 'editor',&#10; 'id owner',&#10; 'location',&#10; 'manufacturer',&#10; 'owner',&#10; 'read access',&#10; 'supplier',&#10; 'wholesaler',&#10; 'write access',&#10; 'organization in contract']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_activity_relationship_types" expression="[&#10; 'alternative',&#10; 'decomposition',&#10; 'derivation',&#10; 'exclusiveness',&#10; 'precedence',&#10; 'sequence',&#10; 'simultaneity']">
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
@@ -25,19 +33,11 @@
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
-      <constant name="Pre_defined_organization_or_person_in_organization_assignment_types" expression="[&#10; 'author',&#10; 'classification officer',&#10; 'creator',&#10; 'custodian',&#10; 'customer',&#10; 'design supplier',&#10; 'editor',&#10; 'id owner',&#10; 'location',&#10; 'manufacturer',&#10; 'owner',&#10; 'read access',&#10; 'supplier',&#10; 'wholesaler',&#10; 'write access',&#10; 'organization in contract']">
-         <aggregate type="SET" lower="0" upper="?"/>
-         <builtintype type="STRING"/>
-      </constant>
-      <constant name="Pre_defined_security_classification_types" expression="[&#10; 'unclassified',&#10; 'classified',&#10; 'proprietary',&#10; 'confidential',&#10; 'secret',&#10; 'top secret']">
+      <constant name="Pre_defined_work_request_types" expression="[&#10; 'change of standard',&#10; 'cost reduction',&#10; 'customer rejection',&#10; 'customer request',&#10; 'durability improvement',&#10; 'government regulation',&#10; 'production alignment',&#10; 'procurement alignment',&#10; 'production relief',&#10; 'production requirement',&#10; 'quality improvement',&#10; 'security reason',&#10; 'standardization',&#10; 'supplier request',&#10; 'technical improvement',&#10; 'tool improvement']">
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
       <constant name="Pre_defined_work_request_status_types" expression="[&#10; 'in work',&#10; 'issued',&#10; 'proposed',&#10; 'resolved']">
-         <aggregate type="SET" lower="0" upper="?"/>
-         <builtintype type="STRING"/>
-      </constant>
-      <constant name="Pre_defined_work_request_types" expression="[&#10; 'change of standard',&#10; 'cost reduction',&#10; 'customer rejection',&#10; 'customer request',&#10; 'durability improvement',&#10; 'government regulation',&#10; 'production alignment',&#10; 'procurement alignment',&#10; 'production relief',&#10; 'production requirement',&#10; 'quality improvement',&#10; 'security reason',&#10; 'standardization',&#10; 'supplier request',&#10; 'technical improvement',&#10; 'tool improvement']">
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
@@ -247,11 +247,17 @@
       <type name="property_assignment_select">
          <select selectitems="Characterizable_object Document_definition File Part_view_definition Product_view_definition Shape_element View_definition_relationship"/>
       </type>
+      <type name="pu2ds_component_application">
+         <enumeration items="compliant_components_permitted no_components_permitted"/>
+      </type>
       <type name="pu2ds_shape_location">
          <enumeration items="above below congruent"/>
       </type>
       <type name="pu2ds_shape_side">
          <enumeration items="same_side opposite_side both_sides"/>
+      </type>
+      <type name="pu3ds_component_application">
+         <enumeration items="compliant_components_permitted no_components_permitted"/>
       </type>
       <type name="pu3ds_shape_location">
          <enumeration items="above below"/>
@@ -994,11 +1000,10 @@
          <where label="WR3" expression="SIZEOF(multiplication_matrix[3]\Direction.coordinates)=3"/>
          <where label="WR4" expression="SIZEOF(translation.coordinates)=3"/>
       </entity>
-      <entity name="Category_model_parameter" supertypes="Model_parameter Classification_attribute">
-         <derived name="attribute_definition" expression="SELF">
-            <typename name="Independent_property"/>
-            <redeclaration entity-ref="Classification_attribute"/>
-         </derived>
+      <entity name="Category_model_parameter" supertypes="Model_parameter">
+         <inverse name="associated_attribute" entity="Classification_attribute" attribute="attribute_definition">
+            <inverse.aggregate type="SET" lower="1" upper="1"/>
+         </inverse>
       </entity>
       <entity name="Celsius_temperature_data_element" supertypes="Value_with_unit"/>
       <entity name="Certification">
@@ -2559,6 +2564,9 @@
             <typename name="Physical_unit_3d_shape_model"/>
             <redeclaration entity-ref="Usage_view_level_non_feature_shape_model"/>
          </explicit>
+         <explicit name="component_application">
+            <typename name="pu3ds_component_application"/>
+         </explicit>
          <explicit name="shape_distance_from_seating_plane" optional="YES">
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
@@ -2568,9 +2576,6 @@
          <explicit name="side" optional="YES">
             <typename name="pu3ds_shape_side"/>
          </explicit>
-         <explicit name="compliant_components_permitted_inside_shape">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
          <derived name="application_technology_constraint" expression="get_rvd(SELF, 'application technology constraint')">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Requirement_view_definition"/>
@@ -2579,8 +2584,8 @@
          <where label="WR2" expression="NOT EXISTS(SELF\Representation.name)"/>
          <where label="WR3" expression="NOT EXISTS(SELF\Representation.description)"/>
          <where label="WR4" expression="NOT (EXISTS(shape_distance_from_seating_plane) XOR EXISTS(shape_location_with_respect_to_seating_plane))"/>
-         <where label="WR5" expression="NOT ('PACKAGE_ARM.PACKAGE' IN TYPEOF(model_shape.shape_characterized_definition)) OR&#10;   	        EXISTS(shape_distance_from_seating_plane)"/>
-         <where label="WR6" expression="NOT EXISTS(side) OR ('PACKAGE_ARM.PACKAGE' IN TYPEOF(model_shape.shape_characterized_definition))"/>
+         <where label="WR5" expression="NOT ('AP210_PHYSICAL_UNIT_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGE' IN TYPEOF(model_shape.shape_characterized_definition)) OR&#10;   	        EXISTS(shape_distance_from_seating_plane)"/>
+         <where label="WR6" expression="NOT EXISTS(side) OR ('AP210_PHYSICAL_UNIT_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGE' IN TYPEOF(model_shape.shape_characterized_definition))"/>
       </entity>
       <entity name="Physical_unit_3d_shape_model" supertypes="Physical_unit_shape_model">
          <explicit name="shape_purpose" optional="YES">
@@ -2636,6 +2641,9 @@
             <typename name="Physical_unit_shape_model"/>
             <redeclaration entity-ref="Usage_view_level_non_feature_shape_model"/>
          </explicit>
+         <explicit name="component_application">
+            <typename name="pu2ds_component_application"/>
+         </explicit>
          <explicit name="shape_distance_from_seating_plane" optional="YES">
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
@@ -2648,9 +2656,6 @@
          <explicit name="extrusion" optional="YES">
             <builtintype type="BOOLEAN"/>
          </explicit>
-         <explicit name="compliant_components_permitted_inside_shape">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
          <derived name="application_technology_constraint" expression="get_rvd(SELF, 'application technology constraint')">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Requirement_view_definition"/>
@@ -2659,7 +2664,7 @@
          <where label="WR2" expression="NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1)"/>
          <where label="WR3" expression="NOT EXISTS(SELF\Representation.name)"/>
          <where label="WR4" expression="NOT EXISTS(SELF\Representation.description)"/>
-         <where label="WR5" expression="NOT (EXISTS(shape_distance_from_seating_plane) XOR EXISTS(shape_location_with_respect_to_seating_plane))"/>
+         <where label="WR5" expression="NOT EXISTS(shape_distance_from_seating_plane) OR EXISTS(shape_location_with_respect_to_seating_plane)"/>
          <where label="WR6" expression="NOT ('PACKAGE_ARM.PACKAGE' IN TYPEOF(model_shape.shape_characterized_definition)) OR&#10;   	        EXISTS(shape_distance_from_seating_plane)"/>
          <where label="WR7" expression="NOT EXISTS(side) OR ('PACKAGE_ARM.PACKAGE' IN TYPEOF(model_shape.shape_characterized_definition))"/>
          <where label="WR8" expression="NOT EXISTS(extrusion) OR EXISTS(side)"/>
@@ -2709,7 +2714,7 @@
          <explicit name="mass_property_quality">
             <typename name="mass_property_quality"/>
          </explicit>
-         <where label="WR1" expression="NOT ('PACKAGED_PART_BLACK_BOX_MODEL_ARM.PACKAGED_PART' IN TYPEOF(shape_characterized_definition))"/>
+         <where label="WR1" expression="NOT ('AP210_PHYSICAL_UNIT_PHYSICAL_CHARACTERIZATION_ARM_LF.PACKAGED_PART' IN TYPEOF(shape_characterized_definition))"/>
          <where label="WR2" expression="SIZEOF(USEDIN(SELF, 'AP210_PHYSICAL_UNIT_PHYSICAL_CHARACTERIZATION_ARM_LF.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0"/>
       </entity>
       <entity name="Physical_unit_shape_representation_relationship" supertypes="Geometric_model_relationship">
@@ -3612,7 +3617,7 @@
             <typename name="Numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items |&#10;        'VALUE_WITH_UNIT_EXTENSION.RATIO_DATA_ELEMENT' IN TYPEOF(ri))) = 1"/>
+         <where label="WR1" expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items |&#10;        'AP210_PHYSICAL_UNIT_PHYSICAL_CHARACTERIZATION_ARM_LF.RATIO_DATA_ELEMENT' IN TYPEOF(ri))) = 1"/>
       </entity>
       <entity name="Tagged_text_format" supertypes="Representation_context"/>
       <entity name="Tagged_text_item" supertypes="String_representation_item">

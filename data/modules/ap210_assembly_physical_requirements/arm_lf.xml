@@ -5,7 +5,11 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ap210_assembly_physical_requirements_arm_lf schema_instance"/>
    <schema name="Ap210_assembly_physical_requirements_arm_LF">
-      <constant name="Pre_defined_activity_relationship_types" expression="[&#10; 'alternative',&#10; 'decomposition',&#10; 'derivation',&#10; 'exclusiveness',&#10; 'precedence',&#10; 'sequence',&#10; 'simultaneity']">
+      <constant name="Pre_defined_approval_status_types" expression="[&#10; 'approved',&#10; 'disapproved',&#10; 'withdrawn',&#10; 'not yet approved']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_security_classification_types" expression="[&#10; 'unclassified',&#10; 'classified',&#10; 'proprietary',&#10; 'confidential',&#10; 'secret',&#10; 'top secret']">
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
@@ -13,7 +17,11 @@
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
-      <constant name="Pre_defined_approval_status_types" expression="[&#10; 'approved',&#10; 'disapproved',&#10; 'withdrawn',&#10; 'not yet approved']">
+      <constant name="Pre_defined_organization_or_person_in_organization_assignment_types" expression="[&#10; 'author',&#10; 'classification officer',&#10; 'creator',&#10; 'custodian',&#10; 'customer',&#10; 'design supplier',&#10; 'editor',&#10; 'id owner',&#10; 'location',&#10; 'manufacturer',&#10; 'owner',&#10; 'read access',&#10; 'supplier',&#10; 'wholesaler',&#10; 'write access',&#10; 'organization in contract']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <constant name="Pre_defined_activity_relationship_types" expression="[&#10; 'alternative',&#10; 'decomposition',&#10; 'derivation',&#10; 'exclusiveness',&#10; 'precedence',&#10; 'sequence',&#10; 'simultaneity']">
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
@@ -25,19 +33,11 @@
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
-      <constant name="Pre_defined_organization_or_person_in_organization_assignment_types" expression="[&#10; 'author',&#10; 'classification officer',&#10; 'creator',&#10; 'custodian',&#10; 'customer',&#10; 'design supplier',&#10; 'editor',&#10; 'id owner',&#10; 'location',&#10; 'manufacturer',&#10; 'owner',&#10; 'read access',&#10; 'supplier',&#10; 'wholesaler',&#10; 'write access',&#10; 'organization in contract']">
-         <aggregate type="SET" lower="0" upper="?"/>
-         <builtintype type="STRING"/>
-      </constant>
-      <constant name="Pre_defined_security_classification_types" expression="[&#10; 'unclassified',&#10; 'classified',&#10; 'proprietary',&#10; 'confidential',&#10; 'secret',&#10; 'top secret']">
+      <constant name="Pre_defined_work_request_types" expression="[&#10; 'change of standard',&#10; 'cost reduction',&#10; 'customer rejection',&#10; 'customer request',&#10; 'durability improvement',&#10; 'government regulation',&#10; 'production alignment',&#10; 'procurement alignment',&#10; 'production relief',&#10; 'production requirement',&#10; 'quality improvement',&#10; 'security reason',&#10; 'standardization',&#10; 'supplier request',&#10; 'technical improvement',&#10; 'tool improvement']">
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
       <constant name="Pre_defined_work_request_status_types" expression="[&#10; 'in work',&#10; 'issued',&#10; 'proposed',&#10; 'resolved']">
-         <aggregate type="SET" lower="0" upper="?"/>
-         <builtintype type="STRING"/>
-      </constant>
-      <constant name="Pre_defined_work_request_types" expression="[&#10; 'change of standard',&#10; 'cost reduction',&#10; 'customer rejection',&#10; 'customer request',&#10; 'durability improvement',&#10; 'government regulation',&#10; 'production alignment',&#10; 'procurement alignment',&#10; 'production relief',&#10; 'production requirement',&#10; 'quality improvement',&#10; 'security reason',&#10; 'standardization',&#10; 'supplier request',&#10; 'technical improvement',&#10; 'tool improvement']">
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
       </constant>
@@ -3607,7 +3607,7 @@
          <where label="WR1" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY') | ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.' + 'PACKAGE_BODY_TOP_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
          <where label="WR2" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY') | ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.' + 'PACKAGE_BODY_BOTTOM_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
          <where label="WR3" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PACKAGE_BODY_SURFACE.ASSOCIATED_PACKAGE_BODY') | ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.' + 'PACKAGE_BODY_EDGE_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
-         <where label="WR4" expression="'CONDUCTIVITY_MATERIAL_ASPECTS.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (body_material)"/>
+         <where label="WR4" expression="'AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (body_material)"/>
       </entity>
       <entity name="Package_body_bottom_surface" supertypes="Package_body_surface"/>
       <entity name="Package_body_edge_segment_surface" supertypes="Package_body_surface">
@@ -3919,7 +3919,7 @@
          <where label="WR3" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PART_TERMINAL' IN TYPEOF(SELF))"/>
          <where label="WR4" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PACKAGE_BODY' IN TYPEOF(SELF))"/>
          <where label="WR5" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PART_MOUNTING_FEATURE' IN TYPEOF(SELF))"/>
-         <where label="WR6" expression="NOT ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF))"/>
+         <where label="WR6" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF))"/>
          <where label="WR7" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PACKAGE_TERMINAL' IN TYPEOF(SELF))"/>
          <where label="WR8" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PACKAGE_BODY_SURFACE' IN TYPEOF(SELF))"/>
          <where label="WR9" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.POLARITY_INDICATION_FEATURE' IN TYPEOF(SELF))"/>
@@ -3931,7 +3931,7 @@
             <redeclaration entity-ref="Shape_feature"/>
          </explicit>
          <where label="WR1" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PART_MOUNTING_FEATURE' IN TYPEOF(SELF))"/>
-         <where label="WR2" expression="NOT ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF))"/>
+         <where label="WR2" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.INTERCONNECT_MODULE_SURFACE_FEATURE' IN TYPEOF(SELF))"/>
          <where label="WR3" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PACKAGE_TERMINAL' IN TYPEOF(SELF))"/>
          <where label="WR4" expression="NOT ('AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.PART_TERMINAL' IN TYPEOF(SELF))"/>
       </entity>
@@ -5566,7 +5566,7 @@
             <typename name="Numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items |&#10;        'VALUE_WITH_UNIT_EXTENSION.RATIO_DATA_ELEMENT' IN TYPEOF(ri))) = 1"/>
+         <where label="WR1" expression="SIZEOF(QUERY( ri &lt;* &#10;         SELF\representation.items |&#10;        'AP210_ASSEMBLY_PHYSICAL_REQUIREMENTS_ARM_LF.RATIO_DATA_ELEMENT' IN TYPEOF(ri))) = 1"/>
       </entity>
       <entity name="Symmetry_tolerance" supertypes="Geometric_tolerance">
          <explicit name="affected_plane" optional="YES">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.16 2003/07/03 06:22:12 robbod Exp $
+     $Id: express_link.xsl,v 1.17 2004/02/25 09:15:13 robbod Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -86,163 +86,98 @@
 
 
 
-<xsl:template name="build_interface_xref_list">
-  <!-- the interface nodes to be processed -->
-  <xsl:param name="interfaces"/>
-  <xsl:param name="indent" select="''"/>
-  <xsl:param name="xref_list" select="'|'"/>
-
-  <xsl:choose>
-    <xsl:when test="$interfaces">
-      <!-- ++++++++++++++++++++++++++++++++++++++++ -->      
-      <xsl:variable name="first_interface" 
-        select="$interfaces[1]"/>
-      <xsl:variable name="remaining_interfaces" 
-        select="$interfaces[position()!=1]"/>
-      <xsl:variable name="if_schema_name"
-        select="$first_interface/@schema"/>
-      
-      <!-- debug
-      <xsl:message>
-        <xsl:value-of select="concat($indent,'first:',$if_schema_name)"/>
-      </xsl:message> -->
-
-      <!-- check the express file for the schema being interfaced to -->
-      <xsl:variable name="express_file_ok">
-        <xsl:call-template name="check_express_file_to_read">
-          <xsl:with-param 
-            name="schema_name" 
-            select="$if_schema_name"/>         
-        </xsl:call-template>
-      </xsl:variable>
-      
-      <xsl:variable name="express_file_to_read">
-        <xsl:call-template name="express_file_to_read">
-          <xsl:with-param 
-            name="schema_name" 
-            select="$if_schema_name"/>
-        </xsl:call-template>
-      </xsl:variable>
-      
-      <!-- check whether the modules or resource has been indexed in
-           stepmod/repository_index. 
-           If not, then it is assumed that the file does not exist and
-           document will fail, so ignore.
-           If it does - then recurse
-           -->
-      <xsl:variable name="l1_xref_list">
-        <xsl:choose>
-          <xsl:when test="contains($express_file_ok,'ERROR')">
-            <xsl:call-template name="error_message">
-              <xsl:with-param name="message" select="$express_file_ok"/>
-              <xsl:with-param name="inline" select="'no'"/>
-            </xsl:call-template>
-            <!-- express file does not exist, so return the unmodified
-                 xref_list -->
-            <xsl:value-of select="$xref_list"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <!-- now process the schema being interfaced.
-                 Get the entities / objects in the schema that is
-                 interfaced and add them to the xref_list variable.
-                 Then recurse to the interface -->
-            <xsl:variable 
-              name="l_schema_node" 
-              select="document(string($express_file_to_read))//express/schema"/>
-            <xsl:variable name="l2_xref_list">
-              <xsl:call-template name="get_objects_in_schema">
-                <xsl:with-param name="xref_list" select="$xref_list"/>
-                <xsl:with-param name="object_nodes" select="$l_schema_node/entity|$l_schema_node/type|$l_schema_node/subtype.constraint|$l_schema_node/function|$l_schema_node/rule|$l_schema_node/procedure|$l_schema_node/constant"/>
-              </xsl:call-template> 
-            </xsl:variable>
-
-            <!-- debug  
-            <xsl:message>if schema:{<xsl:value-of
-select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>      
-            <xsl:message>l3<xsl:value-of
-            select="concat('|',$l_schema_node/interface/@schema,'.',':',$l2_xref_list)"/>l3</xsl:message> -->
-
-            <!-- only process the schema being interfaced, if:
-                 - the schema has interfaces (note the objects have already
-                 been added to xref_list) 
-                 - and the interfaced schema has not been visited already
-                 -->
-            <xsl:variable name="if_schema" 
-              select="concat('|',$l_schema_node/interface/@schema)"/>
-            <xsl:choose>
-              <!--<xsl:when test="$l_schema_node/interface">-->
-              <xsl:when
-                test="$l_schema_node/interface[not(contains($l2_xref_list,$if_schema))]">
-                <!-- debug 
-                <xsl:message>
-                  <xsl:value-of select="concat($if_schema,'-NOT-:',$l2_xref_list)"/>
-                </xsl:message> -->
-                                
-                <xsl:call-template name="build_interface_xref_list">
-                  <xsl:with-param 
-                    name="interfaces"
-                    select="$l_schema_node/interface"/>
-                  <xsl:with-param 
-                    name="xref_list"
-                    select="$l2_xref_list"/>
-                  <xsl:with-param 
-                    name="indent"
-                    select="concat($indent,' ')"/>
-                </xsl:call-template>                        
-              </xsl:when>
-              <xsl:otherwise>
-                <!-- debug 
-                <xsl:message>
-                  <xsl:value-of select="concat($if_schema,'-IN-:',$l2_xref_list)"/>
-                </xsl:message> -->
-                <xsl:value-of select="$l2_xref_list"/>
-              </xsl:otherwise>
-            </xsl:choose>
-
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable> <!-- l1_xref_list -->
-      <!--<xsl:message>l4<xsl:value-of
-           select="$l1_xref_list"/>l4</xsl:message>-->
-
-      <xsl:choose>
-        <xsl:when test="$remaining_interfaces">
-          <!-- ++++++++++++++++++++++++++++++++++++++++ -->      
-          <!-- recurse through the rest of the interfaces, adding to the
-               xref_list variable -->
-          
-          <xsl:call-template name="build_interface_xref_list">
-            <xsl:with-param 
-              name="interfaces"
-              select="$remaining_interfaces"/>
-            <xsl:with-param 
-              name="indent"
-              select="concat($indent,' ')"/>
-            <xsl:with-param 
-              name="xref_list"
-              select="$l1_xref_list"/>
-          </xsl:call-template>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="$l1_xref_list"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:when>
+    <!-- mikeward I have replaced rob's build_interface_xref_list template with my own and added build_complete_set_of_interface_nodes_and_get_objects -->
+    <!-- note these two templates could easily be merged
+            - I was planning something slighlty different when I created build_complete_set_of_interface_nodes_and_get_objects -
+           but for the moment I decided to quit while I was ahead -->
     
-    <xsl:otherwise>
-      <!-- no interfaces passed in, so end of recursion -->
-      <!--
-           <xsl:message>
-             <xsl:value-of select="concat('end-if:',@name)"/>
-           </xsl:message>
-           -->
-      <xsl:value-of select="$xref_list"/>
-    </xsl:otherwise>
-  </xsl:choose>
-  
-</xsl:template>
+    <xsl:template name="build_interface_xref_list">
+        <xsl:param name="interfaces"/>
+        <xsl:param name="indent" select="''"/>
+        <xsl:param name="xref_list" select="''"/>
+        
+        <xsl:variable name="parent_schema_name" select="$interfaces/../@name"/>
+        
+        <xsl:variable name="interface_xref_list">
+            <xsl:call-template name="build_complete_set_of_interface_nodes_and_get_objects">
+                <xsl:with-param name="interfaces_param" select="$interfaces"/>
+                <xsl:with-param name="list_of_schema_names_param" select="concat('|', $parent_schema_name)"/>
+            </xsl:call-template>
+        </xsl:variable>
+        
+        <xsl:value-of select="concat($xref_list, $interface_xref_list)"/>
+        
+    </xsl:template>
 
-
+    <xsl:template name="build_complete_set_of_interface_nodes_and_get_objects">
+        <!-- set of interface nodes -->
+        <xsl:param name="interfaces_param"/>
+        <!-- list of schema names intialized with name of schema providing initial set of interface nodes -->
+        <xsl:param name="list_of_schema_names_param"/>
+        
+        <xsl:choose>
+            <xsl:when test="$interfaces_param">
+        <!-- get first interface node -->
+        <xsl:variable name="first_interface_node" select="$interfaces_param[1]"/>
+        <!-- get rest of  interface nodes -->
+        <xsl:variable name="remaining_interface_nodes" select="$interfaces_param[not(position()=1)]"/>
+        <!-- get name of schema referenced by the interface node -->
+        <xsl:variable name="if_schema_name" select="$first_interface_node/@schema"/>
+        <!-- get name of express file containing the schema -->
+        
+        <xsl:variable name="express_file_to_read">
+            <xsl:call-template name="express_file_to_read">
+                <xsl:with-param name="schema_name" select="$if_schema_name"/>
+            </xsl:call-template>
+        </xsl:variable>
+        
+        <!-- get schema node contained in express file -->
+        <xsl:variable name="if_schema_node"
+            select="document(string($express_file_to_read))//express/schema"/>
+        
+        <!-- add separator before name of schema -->
+        <xsl:variable name="if_schema_name_list_item" select="concat('|', $if_schema_name)"/>
+        
+        <!-- get objects in schema unless the schema has already been visited  -->
+        <xsl:variable name="new_xref_list">
+            <xsl:choose>
+                <xsl:when test="contains($list_of_schema_names_param, $if_schema_name_list_item)"/>
+                <xsl:when test="$if_schema_node/entity or $if_schema_node/type or $if_schema_node/subtype.constraint or $if_schema_node/function or $if_schema_node/rule or $if_schema_node/procedure or $if_schema_node/constant">
+                    <xsl:call-template name="get_objects_in_schema">
+                        <xsl:with-param name="object_nodes" select="$if_schema_node/entity|$if_schema_node/type|$if_schema_node/subtype.constraint|$if_schema_node/function|$if_schema_node/rule|$if_schema_node/procedure|$if_schema_node/constant"/>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise/>
+            </xsl:choose>
+        </xsl:variable>
+        
+        <xsl:value-of select="substring-after($new_xref_list, '|' )"/>
+        <!-- recurse with the union of the remaining schema nodes passed to this template plus the schema nodes identified by the interfaces of the first schema node passed to this template -->
+        <xsl:choose>
+            <xsl:when test="$remaining_interface_nodes">
+                <!-- check whether schema has already been visited and only pass schma node interfaces if appropriate  -->
+                <xsl:choose>
+                    <xsl:when test="contains($list_of_schema_names_param, $if_schema_name_list_item)">
+                        <xsl:call-template name="build_complete_set_of_interface_nodes_and_get_objects">
+                            <xsl:with-param name="interfaces_param" select="$remaining_interface_nodes"/>
+                            <xsl:with-param name="list_of_schema_names_param" select="concat($list_of_schema_names_param, $if_schema_name_list_item)"/>
+                        </xsl:call-template>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:call-template name="build_complete_set_of_interface_nodes_and_get_objects">
+                            <xsl:with-param name="interfaces_param" select="$remaining_interface_nodes|$if_schema_node/interface"/>
+                            <xsl:with-param name="list_of_schema_names_param" select="concat($list_of_schema_names_param, $if_schema_name_list_item)"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise/>
+        </xsl:choose>
+            </xsl:when>
+            <xsl:otherwise></xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+<!-- end of mikeward' edit -->
 
 <xsl:template name="build_xref_list">
   <xsl:param name="express"/>
@@ -316,13 +251,9 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
   <xsl:param name="xref_list"/>
   <xsl:param name="object"/>
   
-  <xsl:variable name="schema_name"
-    select="$object/../@name"/>
+  <xsl:variable name="schema_name" select="$object/../@name"/>
 
-
-  <xsl:variable 
-    name="object_ref"
-    select="concat($schema_name,'.',$object/@name)"/>
+  <xsl:variable name="object_ref" select="concat($schema_name,'.',$object/@name)"/>
 
   <xsl:choose>
     <xsl:when test="contains($xref_list,concat('|',$object_ref,'|'))">
@@ -531,10 +462,12 @@ select="concat($indent,$l_schema_node/@name)"/>}</xsl:message>
       <A HREF="{$xref}">
         <xsl:value-of select="$lobject_name"/>
       </A>
-      <!-- debug 
+        
+       
+      
       <xsl:message>     
         <xsl:value-of select="concat('xr:{',$object_name,':',$xref,'}')"/>
-      </xsl:message> -->
+      </xsl:message>
     </xsl:when>
 
     <xsl:otherwise>

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: sect_4_express.xsl,v 1.121 2005/01/31 11:24:53 robbod Exp $
+     $Id: sect_4_express.xsl,v 1.122 2006/03/13 19:36:45 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -3038,7 +3038,10 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
       *)<br/>
       RULE <xsl:value-of select="@name"/> FOR
     <br/>
-      (<xsl:value-of select="translate(@appliesto,' ',', ')"/>);<br/>
+        
+        (<xsl:call-template name="process_FOR_arguments">
+            <xsl:with-param name="args" select="@appliesto"/>
+        </xsl:call-template>);<br/>
   </code>
     <xsl:apply-templates select="./algorithm" mode="code"/>
     <code>
@@ -3056,7 +3059,42 @@ This probably wont work because notes need to be numbered, etc. Probably need a 
   <xsl:call-template name="output_where_formal"/>
   <xsl:call-template name="output_where_informal"/>
 </xsl:template>
-
+    
+    <!-- mikeward added -->
+    <xsl:template name="process_FOR_arguments">
+        <xsl:param name="args"/>
+        <xsl:choose>
+            <!-- single argument -->
+            <xsl:when test="not(contains($args,' '))">
+                <xsl:call-template name="output_FOR_argument">
+                    <xsl:with-param name="arg" select="$args"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:variable name="arg1" select="substring-before($args,' ')"/>
+                <xsl:variable name="rest" select="substring-after($args,' ')"/>
+                <xsl:call-template name="output_FOR_argument">
+                    <xsl:with-param name="arg" select="$arg1"/>
+                </xsl:call-template>
+                <xsl:if test="$rest">
+                    <xsl:value-of select="string(', ')"/>
+                    <xsl:call-template name="process_FOR_arguments">
+                        <xsl:with-param name="args" select="$rest"/>
+                    </xsl:call-template>
+                </xsl:if>      
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    <!-- mikeward added -->
+    <xsl:template name="output_FOR_argument">
+        <xsl:param name="arg"/>
+           <xsl:call-template name="link_object">
+                <xsl:with-param name="object_name" select="$arg"/>
+                <xsl:with-param name="object_used_in_schema_name" select="../../@name"/>
+                <xsl:with-param name="clause" select="'section'"/>
+            </xsl:call-template>
+    </xsl:template>
+    
 <xsl:template name="process_rule_arguments">
   <xsl:param name="args"/>
   <xsl:choose>

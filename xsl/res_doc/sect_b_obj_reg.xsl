@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.4 2003/03/19 00:36:23 thendrix Exp $
+$Id: sect_b_obj_reg.xsl,v 1.5 2004/11/05 01:00:58 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -86,7 +86,7 @@ $Id: sect_b_obj_reg.xsl,v 1.4 2003/03/19 00:36:23 thendrix Exp $
   </p>
   <p>
     is assigned to the <xsl:value-of select="$schema"/> schema. 
-    The meaning of this value is defined in ISO 8824-1, and is described in
+    The meaning of this value is defined in ISO/IEC 8824-1, and is described in
     ISO 10303-1.  
   </p>
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_b_obj_reg.xsl,v 1.11 2004/11/02 09:56:04 robbod Exp $
+$Id: sect_b_obj_reg.xsl,v 1.12 2004/11/02 11:26:59 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -101,7 +101,7 @@ $Id: sect_b_obj_reg.xsl,v 1.11 2004/11/02 09:56:04 robbod Exp $
   </p>
   <p>
     is assigned to the <xsl:value-of select="$arm_schema"/> schema. 
-    The meaning of this value is defined in ISO 8824-1, and is described in
+    The meaning of this value is defined in ISO/IEC 8824-1, and is described in
     ISO 10303-1.  
   </p>
 
@@ -128,7 +128,7 @@ $Id: sect_b_obj_reg.xsl,v 1.11 2004/11/02 09:56:04 robbod Exp $
   </p>
   <p>
     is assigned to the <xsl:value-of select="$mim_schema"/> schema. 
-    The meaning of this value is defined in ISO 8824-1, and is described in
+    The meaning of this value is defined in ISO/IEC 8824-1, and is described in
     ISO 10303-1.  
   </p>
 
@@ -161,7 +161,7 @@ $Id: sect_b_obj_reg.xsl,v 1.11 2004/11/02 09:56:04 robbod Exp $
     </p>
     <p>
       is assigned to the <xsl:value-of select="$arm_schema_lf"/> schema. 
-      The meaning of this value is defined in ISO 8824-1, and is described in
+      The meaning of this value is defined in ISO/IEC 8824-1, and is described in
       ISO 10303-1.
     </p>
   </xsl:if>
@@ -192,7 +192,7 @@ $Id: sect_b_obj_reg.xsl,v 1.11 2004/11/02 09:56:04 robbod Exp $
     </p>
     <p>
       is assigned to the <xsl:value-of select="$mim_schema_lf"/> schema. 
-      The meaning of this value is defined in ISO 8824-1, and is described in
+      The meaning of this value is defined in ISO/IEC 8824-1, and is described in
       ISO 10303-1.
     </p>
   </xsl:if>

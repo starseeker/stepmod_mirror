@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.165 2006/05/18 16:17:23 dmprice Exp $
+$Id: common.xsl,v 1.166 2006/07/03 12:48:55 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -4466,7 +4466,7 @@ is case sensitive.')"/>
       </xsl:when>
       <xsl:when test="function-available('exslt:node-set')">
         <xsl:variable name="nodes_set" select="exslt:node-set($nodes)"/>
-        <xsl:for-each select="$nodes//x">
+        <xsl:for-each select="$nodes_set//x">
           <xsl:sort/>
           <xsl:value-of select="concat(' ',.,' ')"/>
         </xsl:for-each>

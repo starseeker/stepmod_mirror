@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.18 2006/11/07 15:21:58 mikeward Exp $
+     $Id: express_link.xsl,v 1.19 2006/11/14 21:49:24 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -157,7 +157,7 @@
         <!-- recurse with the union of the remaining schema nodes passed to this template plus the schema nodes identified by the interfaces of the first schema node passed to this template -->
         
                 <xsl:variable name="if_schema_node_interface" select="$if_schema_node/interface"></xsl:variable>
-                <xsl:message>ARSE<xsl:value-of select="$if_schema_node_interface/@schema"/>ARSE</xsl:message>
+                
          <xsl:choose>
              <xsl:when test="$remaining_interface_nodes or $if_schema_node_interface">
                 <!-- check whether schema has already been visited and only pass schema node interfaces if appropriate  -->

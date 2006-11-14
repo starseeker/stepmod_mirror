@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: express_link.xsl,v 1.17 2004/02/25 09:15:13 robbod Exp $
+     $Id: express_link.xsl,v 1.18 2006/11/07 15:21:58 mikeward Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -46,7 +46,7 @@
 
   <!-- a list of all the entities and resources defined in the resources.
        Used by link_resource_object to produce a URL
-       This variable is overwritten when exoress_link.xsl is imported
+       This variable is overwritten when express_link.xsl is imported
        into another stylesheet.
        -->
     <xsl:variable name="global_resource_xref_list"/>
@@ -66,10 +66,12 @@
 			select="$schema_node/entity|$schema_node/type|$schema_node/subtype.constraint|$schema_node/function|$schema_node/rule|$schema_node/procedure|$schema_node/constant"/>
     </xsl:call-template>        
   </xsl:variable>
+    
+   
   <!-- debug 
   <xsl:message>li{<xsl:value-of select="$l1_xref_list"/>}</xsl:message>      
   -->
-
+    
   <xsl:variable name="l2_xref_list">
     <!-- loop through all the interfaces in a schema -->
     <xsl:call-template name="build_interface_xref_list">
@@ -80,16 +82,14 @@
   <!-- debug 
   <xsl:message>l2{<xsl:value-of select="$l2_xref_list"/>}</xsl:message>      
   -->
-
+    
   <xsl:value-of select="$l2_xref_list"/>
 </xsl:template>
 
 
 
-    <!-- mikeward I have replaced rob's build_interface_xref_list template with my own and added build_complete_set_of_interface_nodes_and_get_objects -->
-    <!-- note these two templates could easily be merged
-            - I was planning something slighlty different when I created build_complete_set_of_interface_nodes_and_get_objects -
-           but for the moment I decided to quit while I was ahead -->
+    <!-- mikeward build_interface_xref_list template replaced and build_complete_set_of_interface_nodes_and_get_objects added -->
+    <!-- note these two templates could be merged -->
     
     <xsl:template name="build_interface_xref_list">
         <xsl:param name="interfaces"/>
@@ -104,6 +104,7 @@
                 <xsl:with-param name="list_of_schema_names_param" select="concat('|', $parent_schema_name)"/>
             </xsl:call-template>
         </xsl:variable>
+        
         
         <xsl:value-of select="concat($xref_list, $interface_xref_list)"/>
         
@@ -124,7 +125,8 @@
         <!-- get name of schema referenced by the interface node -->
         <xsl:variable name="if_schema_name" select="$first_interface_node/@schema"/>
         <!-- get name of express file containing the schema -->
-        
+                
+                
         <xsl:variable name="express_file_to_read">
             <xsl:call-template name="express_file_to_read">
                 <xsl:with-param name="schema_name" select="$if_schema_name"/>
@@ -153,9 +155,12 @@
         
         <xsl:value-of select="substring-after($new_xref_list, '|' )"/>
         <!-- recurse with the union of the remaining schema nodes passed to this template plus the schema nodes identified by the interfaces of the first schema node passed to this template -->
-        <xsl:choose>
-            <xsl:when test="$remaining_interface_nodes">
-                <!-- check whether schema has already been visited and only pass schma node interfaces if appropriate  -->
+        
+                <xsl:variable name="if_schema_node_interface" select="$if_schema_node/interface"></xsl:variable>
+                <xsl:message>ARSE<xsl:value-of select="$if_schema_node_interface/@schema"/>ARSE</xsl:message>
+         <xsl:choose>
+             <xsl:when test="$remaining_interface_nodes or $if_schema_node_interface">
+                <!-- check whether schema has already been visited and only pass schema node interfaces if appropriate  -->
                 <xsl:choose>
                     <xsl:when test="contains($list_of_schema_names_param, $if_schema_name_list_item)">
                         <xsl:call-template name="build_complete_set_of_interface_nodes_and_get_objects">
@@ -177,7 +182,7 @@
             <xsl:otherwise></xsl:otherwise>
         </xsl:choose>
     </xsl:template>
-<!-- end of mikeward' edit -->
+<!-- end of mikeward edit -->
 
 <xsl:template name="build_xref_list">
   <xsl:param name="express"/>
@@ -186,12 +191,10 @@
   <xsl:param name="xref_list" select="'|'"/>
 
 
-  <!-- there should only be one schema in a module, but loop just in case
-       there is more than one. -->
+  <!-- there should only be one schema in a module, but loop just in case there is more than one. -->
   <xsl:for-each select="$express/schema">
-    
-    <!-- add all the entities and types in the schema to
-         xref_list -->
+      
+    <!-- add all the entities and types in the schema to xref_list -->
     
     <!-- loop through all the interfaces in a schema-->
     <xsl:call-template name="build_schema_xref_list">
@@ -465,9 +468,9 @@
         
        
       
-      <xsl:message>     
+      <!-- xsl:message>     
         <xsl:value-of select="concat('xr:{',$object_name,':',$xref,'}')"/>
-      </xsl:message>
+      </xsl:message -->
     </xsl:when>
 
     <xsl:otherwise>

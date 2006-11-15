@@ -1,0 +1,62 @@
+SCHEMA systems_engineering_representation_schema;
+
+REFERENCE FROM action_schema    --  ISO 10303-41
+  (action_method);
+
+
+REFERENCE FROM representation_schema    --  ISO 10303-43
+  (representation,
+	 representation_context,
+	 representation_item);
+
+REFERENCE FROM support_resource_schema   -- ISO 10303-41
+  (label,
+   text);
+
+REFERENCE FROM state_type_schema;   -- ISO 10303-56
+
+TYPE state_based_behaviour_element = SELECT
+  (state_type, 
+   state_type_relationship);
+END_TYPE;
+
+ENTITY description_text;
+  description : STRING;
+END_ENTITY;
+
+ENTITY description_text_assignment;
+  ABSTRACT SUPERTYPE ;
+  description : description_text;
+END_ENTITY;
+
+ENTITY functional_model
+SUBTYPE OF (representation);
+  SELF\representation.context_of_items : functional_representation_context;
+  SELF\representation.items : SET [1 : ?] OF functional_representation_item;
+END_ENTITY;
+
+ENTITY functional_representation_context
+SUBTYPE OF (representation_context);
+END_ENTITY;
+
+ENTITY functional_representation_item
+SUBTYPE OF (representation_item);
+  item : action_method;
+END_ENTITY;
+
+ENTITY state_based_behaviour_representation_context
+  SUBTYPE OF (representation_context);
+END_ENTITY;
+
+ENTITY state_based_behaviour_model
+  SUBTYPE OF (representation);
+  SELF\representation.context_of_items : state_based_behaviour_representation_context;
+  SELF\representation.items : SET[1:?] OF state_based_behaviour_representation_item;
+END_ENTITY;
+
+ENTITY state_based_behaviour_representation_item
+  SUBTYPE OF (representation_item);
+  item : state_based_behaviour_element;
+END_ENTITY;
+
+END_SCHEMA;

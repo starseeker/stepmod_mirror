@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodPart.java,v 1.25 2006/07/28 13:28:28 robbod Exp $
+ * $Id: StepmodPart.java,v 1.26 2006/08/07 10:38:55 robbod Exp $
  *
  * StepmodPart.java
  *
@@ -1000,5 +1000,22 @@ public abstract class StepmodPart implements Comparable {
         StepmodPart stepmodPart1 = (StepmodPart) o1;
         StepmodPart stepmodPart2 = (StepmodPart) o2;
         return(stepmodPart1.getName().compareTo(stepmodPart2.getName()));
+    }
+    
+        
+    
+    
+    /**
+     * Generates the ANT build file that is used to generate the HTML that is to be published
+     */
+    public void publicationCreatePackage() {
+        getStepMod().getStepModGui().toBeDone("StepmodModule.publicationCreatePackage");
+    }
+    
+    /**
+     * Generates the HTML for the module that is to be published
+     */
+    public void publicationGenerateHtml() {
+        getStepMod().getStepModGui().toBeDone("StepmodModule.publicationGenerateHtml");
     }
 }

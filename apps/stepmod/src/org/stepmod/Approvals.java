@@ -1,4 +1,5 @@
-/*
+/* 
+ * $Id: ACTIVITY.java,v 1.4 2006/01/26 08:40:23 Patrick Exp $
  * Approvals.java
  *
  * (c) Copyright 2005 Eurostep Limited

@@ -1,5 +1,5 @@
 /*
- * $Id: StepmodModule.java,v 1.15 2006/07/27 15:13:54 robbod Exp $
+ * $Id: StepmodModule.java,v 1.16 2006/08/01 14:04:08 robbod Exp $
  *
  * StepmodModule.java
  *
@@ -232,22 +232,7 @@ public class StepmodModule extends StepmodPart {
         return("Module: ISO 10303-"+getPartNumber());
     }
     
-    
-    
-    
-    /**
-     * Generates the ANT build file that is used to generate the HTML that is to be published
-     */
-    public void publicationCreatePackage() {
-        getStepMod().getStepModGui().toBeDone("StepmodModule.publicationCreatePackage");
-    }
-    
-    /**
-     * Generates the HTML for the module that is to be published
-     */
-    public void publicationGenerateHtml() {
-        getStepMod().getStepModGui().toBeDone("StepmodModule.publicationGenerateHtml");
-    }
+
     
     /**
      * Returns the full path to the module directory

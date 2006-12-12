@@ -2060,8 +2060,9 @@ public class STEPModFrame extends javax.swing.JFrame {
         createModulePublicationPackage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
-                StepmodModule module = (StepmodModule) node.getUserObject();
-                module.publicationCreatePackage();
+                StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
+                StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
+                stepmodPart.publicationCreatePackage();
             }
         });
         cvsPublicationSubmenu.add(createModulePublicationPackage);
@@ -2073,8 +2074,9 @@ public class STEPModFrame extends javax.swing.JFrame {
         genHtmlModulePublicationPackage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
-                StepmodModule module = (StepmodModule) node.getUserObject();
-                module.publicationGenerateHtml();
+                StepmodPartTreeNode stepmodPartTreeNode = (StepmodPartTreeNode) node.getUserObject();
+                StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
+                stepmodPart.publicationGenerateHtml();
             }
         });
         cvsPublicationSubmenu.add(genHtmlModulePublicationPackage);
@@ -3450,7 +3452,9 @@ public class STEPModFrame extends javax.swing.JFrame {
         ProtectionDomain pDomain = cls.getProtectionDomain();
         CodeSource cSource = pDomain.getCodeSource();
         String path = cSource.getLocation().getPath();
+        System.out.println("p: "+path);
         path = "file:"+path.substring(0, path.length()-12) + "/help/index.html";
+        System.out.println("Opening: "+path);
         openURLinBrowser(path);
     }//GEN-LAST:event_contentsMenuItemActionPerformed
     

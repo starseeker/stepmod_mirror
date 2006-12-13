@@ -1,18 +1,12 @@
-/**
- * $Id: ExpressSaxHandler.java,v 1.1 2006/07/17 13:20:23 robbod Exp $
+/*
+ * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
  *
+ * ExpressSaxHandler.java
  *
- * (c) Copyright 2006 Eurostep Limited
- * Cwttir Lane, St Asaph, Denbighshire, UK
- * All rights reserved.
- *
- *
- * This software is the confidential and proprietary information
- * of Eurostep Limited ("Confidential Information").  You
- * shall not disclose such Confidential Information and shall use
- * it only in accordance with the terms of the license agreement
- * you entered into with Eurostep Limited.
+ * Owner: Developed by Eurostep Limited and supplied to ATI/NIST under contract.
+ * Author: Rob Bodington, Eurostep Limited
  */
+
 
 package org.stepmod;
 

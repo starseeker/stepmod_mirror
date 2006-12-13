@@ -1,8 +1,12 @@
 /*
- * STEPModMkReleaseDialog.java
+ * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
  *
- * Created on 07 July 2006, 15:05
+ * STEPModMkFrmwkReleaseDialog.java
+ *
+ * Owner: Developed by Eurostep Limited and supplied to ATI/NIST under contract.
+ * Author: Rob Bodington, Eurostep Limited
  */
+
 
 package org.stepmod.gui;
 

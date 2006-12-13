@@ -1,17 +1,12 @@
 /*
+ * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
+ *
  * StepmodAnt.java
- 
  *
- * (c) Copyright 2005 Eurostep Limited
- *
- * All rights reserved.
- *
- * This software is the confidential and proprietary information
- * of Eurostep Limited ("Confidential Information").  You
- * shall not disclose such Confidential Information and shall use
- * it only in accordance with the terms of the license agreement
- * you entered into with Eurostep Limited
+ * Owner: Developed by Eurostep Limited and supplied to ATI/NIST under contract.
+ * Author: Rob Bodington, Eurostep Limited
  */
+
 
 package org.stepmod.cvschk;
 import java.io.*;

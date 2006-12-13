@@ -1,4 +1,12 @@
 package org.stepmod;
+/*
+ * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
+ *
+ * CmRelease.java
+ *
+ * Owner: Developed by Eurostep Limited and supplied to ATI/NIST under contract.
+ * Author: Rob Bodington, Eurostep Limited
+ */
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,7 +16,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 /*
- * $Id: CmRelease.java,v 1.12 2006/07/28 13:28:28 robbod Exp $
+ * $Id: CmRelease.java,v 1.13 2006/08/01 16:15:31 robbod Exp $
  *
  * STEPmod.java
  *

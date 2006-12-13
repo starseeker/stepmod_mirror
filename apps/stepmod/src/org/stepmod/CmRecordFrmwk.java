@@ -1,11 +1,12 @@
 /*
- * $Id: CmRecordFrmwk.java,v 1.3 2006/08/07 10:39:32 robbod Exp $
+ * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
  *
  * CmRecordFrmwk.java
  *
  * Owner: Developed by Eurostep Limited and supplied to ATI/NIST under contract.
  * Author: Rob Bodington, Eurostep Limited
  */
+
 
 package org.stepmod;
 
@@ -531,7 +532,7 @@ public class CmRecordFrmwk {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         //out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecordFrmwk.java,v 1.3 2006/08/07 10:39:32 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -548,10 +549,10 @@ public class CmRecordFrmwk {
         out.write("<cm_record\n");
         String cvsRevision = getCvsRevision();
         if ((cvsRevision == null) || (!cvsRevision.contains("$Revision:"))) {
-            cvsRevision = "$Revision: 1.3 $";
+            cvsRevision = "$Revision: 1.4 $";
         }
         if ((cvsDate == null) || (!cvsDate.contains("$Date:"))) {
-            cvsDate = "$Date: 2006/08/07 10:39:32 $";
+            cvsDate = "$Date: 2006/12/12 13:59:08 $";
         }
         out.write("  cvs_revision=\""+cvsRevision+"\"\n");
         out.write("  cvs_date=\""+cvsDate+"\">\n");

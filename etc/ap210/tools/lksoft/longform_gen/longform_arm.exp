@@ -4558,6 +4558,7 @@ END_TYPE;
 
 TYPE design_pdm_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
     (Product_configuration,
+    Product_class,
     Product_view_definition,
     Product_version,
     Product,
@@ -14097,6 +14098,8 @@ SCHEMA Physical_layout_template_arm;
    
 	USE FROM Characterizable_object_arm;     -- ISO/TS 10303-xxxx
 
+    USE FROM Generic_material_aspects_arm;
+
     USE FROM Part_view_definition_arm;   -- ISO/TS 10303-1023
 
 	REFERENCE FROM product_identification_arm(types_of_product); -- ISO/TS 10303-1017 
@@ -14106,6 +14109,11 @@ SCHEMA Physical_layout_template_arm;
      characteristic);
   END_TYPE;
 
+  TYPE plp_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON
+     material_item_select  WITH
+   		(Template_definition);
+  END_TYPE;
+	
   TYPE physical_unit_or_part_template = SELECT (Part_view_definition, Template_definition);
   END_TYPE;
 
@@ -14765,7 +14773,7 @@ SCHEMA Physical_unit_design_view_arm;
 
   ENTITY Next_assembly_usage_occurrence_relationship
     SUBTYPE OF (Next_assembly_usage);
-    SELF\View_definition_relationship.related_view : Product_occurrence;
+    component : Product_occurrence;
   UNIQUE
     UR1 : SELF\View_definition_relationship.relating_view, 
           SELF\Assembly_component_relationship.location_indicator;

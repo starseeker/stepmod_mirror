@@ -7227,6 +7227,8 @@ SCHEMA Fabrication_technology_arm;
     scope          : Stratum_stack_model;
   WHERE
    WR1 : NOT (precedent_sto :=: subsequent_sto) OR (SIZEOF(scope.composing_link) = 1);
+   WR2 : acyclic_stratum_technology_occurrence_link(SELF, [subsequent_sto], 
+     'FABRICATION_TECHNOLOGY_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL_LINK');
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence_swap_relationship;
@@ -7240,6 +7242,9 @@ SCHEMA Fabrication_technology_arm;
    WR1 : primary_sto <> secondary_sto;
    WR2 : (primary_sto IN scope\Stratum_stack_model.composing_occurrence) AND
          (secondary_sto IN scope\Stratum_stack_model.composing_occurrence);
+   WR3 : acyclic_stratum_technology_occurrence_swap_relationship(SELF,
+     [secondary_sto], 
+     'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP');
   END_ENTITY;
 
   ENTITY Stratum_technology_swap_relationship;
@@ -7258,6 +7263,9 @@ SCHEMA Fabrication_technology_arm;
     WR3: primary_stratum_technology\Stratum_technology.layer_position = layer_position_type.primary;
     WR4: secondary_stratum_technology\Stratum_technology.layer_position = layer_position_type.secondary;
     WR5: primary_stratum_technology <> secondary_stratum_technology;
+    WR6: acyclic_stratum_technology_swap_relationship(SELF,
+      [secondary_stratum_technology], 
+     'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_SWAP_RELATIONSHIP');
   END_ENTITY;
 
   ENTITY Unsupported_passage_template
@@ -7287,10 +7295,82 @@ SCHEMA Fabrication_technology_arm;
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
+
+  FUNCTION acyclic_stratum_technology_occurrence_link
+    (relation : Stratum_technology_occurrence_link; 
+    relatives : SET[1:?] OF Stratum_technology_occurrence; 
+    specific_relation : STRING) : BOOLEAN; 
+  LOCAL
+     x : SET OF Stratum_technology_occurrence_link := [];
+  END_LOCAL;
+    IF relation.subsequent_sto IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.subsequent_sto,
+      'FABRICATION_TECHNOLOGY_ARM.' +
+      'STRATUM_TECHNOLOGY_OCCURRENCE_LINK.' +
+      'SUBSEQUENT_STO')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_Stratum_technology_occurrence_link(x[i], relatives +
+        relation.subsequent_sto, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
+
+  FUNCTION acyclic_stratum_technology_occurrence_swap_relationship
+    (relation : Stratum_technology_occurrence_swap_relationship; 
+    relatives : SET[1:?] OF Stratum_technology_occurrence; 
+    specific_relation : STRING) : BOOLEAN; 
+  LOCAL
+     x : SET OF Stratum_technology_occurrence_swap_relationship := [];
+  END_LOCAL;
+    IF relation.secondary_sto IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.secondary_sto,
+      'FABRICATION_TECHNOLOGY_ARM.' +
+      'STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP.' +
+      'SECONDARY_STO')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_stratum_technology_occurrence_swap_relationship(x[i],
+        relatives +
+        relation.secondary_sto, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION; 
+
+  FUNCTION acyclic_stratum_technology_swap_relationship
+    (relation : Stratum_technology_swap_relationship; 
+    relatives : SET[1:?] OF Stratum_technology; 
+    specific_relation : STRING) : BOOLEAN; 
+  LOCAL
+     x : SET OF Stratum_technology_swap_relationship := [];
+  END_LOCAL;
+
+    IF relation.secondary_stratum_technology IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.secondary_stratum_technology,
+      'FABRICATION_TECHNOLOGY_ARM.' +
+      'STRATUM_TECHNOLOGY_SWAP_RELATIONSHIP.' +
+      'SECONDARY_STRATUM_TECHNOLOGY')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_stratum_technology_swap_relationship(x[i], relatives +
+        relation.secondary_stratum_technology, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION; 
+  
 FUNCTION get_electrical_conductivity
   (mi : SET[0:?] OF Material_identification) : BOOLEAN;
 	REPEAT i := 1 to SIZEOF(mi) by 1;
-	  IF ('CONDUCTIVITY_MATERIAL_ASPECT.'+'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' 
+	  IF ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' 
 	  	IN TYPEOF (mi[i])) THEN
 		  IF((EXISTS(mi[i].electrical_conductivity_classification)) AND 
 		  (mi[i].electrical_conductivity_classification IN ['conductive', 'semi conductive', 'super conductive'])) THEN
@@ -9474,7 +9554,9 @@ SCHEMA Interconnect_placement_requirements_arm;
   END_TYPE;
 
   TYPE interconnect_module_design_object_category = EXTENSIBLE ENUMERATION OF
-    (interconnect_module_via,
+    (assembly_component_category,
+     embedded_physical_component_terminal_category,
+     interconnect_module_via,
      interconnect_module_inter_stratum_feature,
      interconnect_module_cutout,
      interconnect_module_fill_area,
@@ -10299,9 +10381,11 @@ SCHEMA Layered_interconnect_module_design_arm;
       UR1 : name;
       UR2 : precedent_surface, subsequent_surface;
     WHERE
-      WR1 : precedent_surface.name = stratum_surface_designation.secondary_surface;
-      WR2 : subsequent_surface.name = stratum_surface_designation.primary_surface;
+      WR1: precedent_surface.name = stratum_surface_designation.secondary_surface;
+      WR2: subsequent_surface.name = stratum_surface_designation.primary_surface;
       WR3: of_product :=: subsequent_surface.of_stratum\Product_view_definition.defined_version.of_product;
+      WR4: acyclic_adjacent_stratum_surface_definition(SELF, [subsequent_surface], 
+        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ADJACENT_STRATUM_SURFACE_DEFINITION');
   END_ENTITY;
 
   ENTITY Adjacent_stratum_surface_embedded_physical_component_surface_definition;
@@ -10346,6 +10430,9 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR3: NOT(SELF IN replaced_by);
       WR4: NOT(replaced_component IN replaced_by);
       WR5: is_final XOR (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) > 0);
+      WR6: NOT EXISTS(replaced_component) OR 
+            acyclic_area_component(SELF, [replaced_component], 
+            'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT');
   END_ENTITY;
 
   ENTITY Breakout_occurrence
@@ -10400,6 +10487,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR3: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FIDUCIAL' IN TYPEOF(SELF));
       WR4: correlated_terminals(SELF\Conductive_interconnect_element.access_mechanisms,
          connected_points);      
+      WR5 : (1 + SIZEOF(connected_points)) = limd_get_sz_cp(connected_points);         
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element_terminal
@@ -10424,6 +10512,9 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : precedent_point <> subsequent_point;
       WR2 : precedent_point.associated_component = associated_element;
       WR3 : subsequent_point.associated_component = associated_element;
+      WR4 : acyclic_conductive_interconnect_element_terminal_link(SELF,
+        [subsequent_point], 
+        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL_LINK');
   END_ENTITY;
 
   ENTITY Conductive_interconnect_element_with_pre_defined_transitions
@@ -11332,6 +11423,77 @@ ENTITY Structured_layout_component_sub_assembly_relationship
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
+  FUNCTION acyclic_area_component
+    (relation : Area_component; relatives : SET[1:?] OF 
+    Area_component; specific_relation : STRING) : BOOLEAN; 
+  LOCAL
+     x : SET OF Area_component;
+  END_LOCAL;
+
+    IF relation.replaced_component IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.replaced_component,
+      'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
+      'AREA_COMPONENT.' +
+      'REPLACED_COMPONENT')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_area_component(x[i], relatives +
+        relation.replaced_component, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
+
+  FUNCTION acyclic_adjacent_stratum_surface_definition
+    (relation : Adjacent_stratum_surface_definition; 
+    relatives : SET[1:?] OF Stratum_surface; 
+    specific_relation : STRING) : BOOLEAN; 
+  LOCAL
+     x : SET OF Adjacent_stratum_surface_definition := [];
+  END_LOCAL;
+
+    IF relation.subsequent_surface IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.subsequent_surface,
+      'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
+      'ADJACENT_STRATUM_SURFACE_DEFINITION.' +
+      'SUBSEQUENT_SURFACE')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_adjacent_stratum_surface_definition(x[i], relatives +
+        relation.subsequent_surface, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION; 
+  
+  FUNCTION acyclic_conductive_interconnect_element_terminal_link
+    (relation : Conductive_interconnect_element_terminal_link; 
+    relatives : SET[1:?] OF Conductive_interconnect_element_terminal; 
+    specific_relation : STRING) : BOOLEAN; 
+  LOCAL
+     x : SET OF Conductive_interconnect_element_terminal_link := [];
+  END_LOCAL;
+
+    IF relation.subsequent_point IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.subsequent_point,
+      'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
+      'CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL_LINK.' +
+      'SUBSEQUENT_POINT')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_conductive_interconnect_element_terminal_link(x[i], relatives +
+        relation.subsequent_point, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION; 
+  
   FUNCTION correlated_terminals(
     input1 : SET OF Conductive_interconnect_element_terminal ;
     input2 : SET OF Conductive_interconnect_element_terminal_link
@@ -11379,6 +11541,19 @@ END_FUNCTION;
     input2 : Stratum
   ) : SET OF Stratum;
     RETURN (?);
+  END_FUNCTION;
+
+  FUNCTION limd_get_sz_cp (
+    input : SET[1:?] OF Conductive_interconnect_element_terminal_link) : INTEGER;
+  LOCAL
+    ac : SET OF Conductive_interconnect_element_terminal := [];
+  END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input);
+      ac := ac +
+      input[i]\Conductive_interconnect_element_terminal_link.precedent_point +
+      input[i]\Conductive_interconnect_element_terminal_link.subsequent_point;
+    END_REPEAT;
+    RETURN (SIZEOF(ac));
   END_FUNCTION;
 
   FUNCTION make_aggregate_join(
@@ -13255,7 +13430,7 @@ SCHEMA Part_template_2d_shape_arm;
      WR3: SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))
                  ) = 0;
      WR4: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1); 
-     WR5: sts_vertex_degree_less_than_two(stratum_technology_sequence);
+     WR5: sts_vertex_degree_less_than_three(stratum_technology_sequence);
   END_ENTITY;
 
   ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;
@@ -13393,7 +13568,7 @@ SCHEMA Part_template_2d_shape_arm;
       WR1 : assembly_shape.shape_characterized_definition[1] :=: reference_location.assembly;
   END_ENTITY;
 
- FUNCTION sts_vertex_degree_less_than_two(input : SET OF Stratum_technology_occurrence_link) : BOOLEAN;
+ FUNCTION sts_vertex_degree_less_than_three(input : SET OF Stratum_technology_occurrence_link) : BOOLEAN;
  LOCAL
    psto : LIST OF INTEGER := [0:1000];
    ssto : LIST OF INTEGER := [0:1000];
@@ -15689,6 +15864,7 @@ SCHEMA Printed_physical_layout_template_arm;
 	USE FROM Extended_geometric_tolerance_arm;	-- ISO/TS 10303-1666
 	USE FROM Functional_usage_view_arm;	-- ISO/TS 10303-1705
 	USE FROM Part_template_2d_shape_arm; -- ISO/TS 10303-1716
+	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
 	TYPE pplt_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
 		(Printed_part_template_terminal);
@@ -15872,6 +16048,9 @@ SCHEMA Printed_physical_layout_template_arm;
       WR3 : subsequent_material\Shape_element.element_name IN ['top', 'left'];
       WR4 : NOT((precedent_material\Shape_element.element_name IN ['bottom']) XOR (subsequent_material\Shape_element.element_name IN ['top']));
       WR5 : NOT((precedent_material\Shape_element.element_name IN ['right']) XOR (subsequent_material\Shape_element.element_name IN ['left']));
+      WR6 : acyclic_printed_part_template_material_link(SELF,
+        [subsequent_material], 
+        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE_MATERIAL_LINK');
   END_ENTITY;
 
   ENTITY Printed_part_template_terminal
@@ -15924,6 +16103,30 @@ SCHEMA Printed_physical_layout_template_arm;
       WR1 : SELF\Shape_element.element_name IN ['top', 'bottom', 'left', 'right'];
   END_ENTITY;
 
+  FUNCTION acyclic_printed_part_template_material_link
+    (relation : Printed_part_template_material_link; 
+    relatives : SET[1:?] OF Template_material_cross_section_boundary; 
+    specific_relation : STRING) : BOOLEAN; 
+  LOCAL
+     x : SET OF Printed_part_template_material_link := [];
+  END_LOCAL;
+
+    IF relation.subsequent_material IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.subsequent_material,
+      'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.' +
+      'PRINTED_PART_TEMPLATE_MATERIAL_LINK.' +
+      'SUBSEQUENT_MATERIAL')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_printed_part_template_material_link(x[i], relatives +
+        relation.subsequent_material, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION;
+  
 END_SCHEMA;
 (*
  $Id: arm.exp,v 1.15 2004/10/28 19:10:55 darla Exp $

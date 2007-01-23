@@ -1,0 +1,931 @@
+<?xml version="1.0"?>
+<!-- $Id: arm.xml,v 1.7 2002/07/08 07:04:14 goset1 Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  description.file="arm_descriptions.xml"
+  rcs.date="$Date: 2002/07/08 07:04:14 $"
+  rcs.revision="$Revision: 1.7 $">
+
+  <application
+    name="express2xml.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.16"
+    source="../data/modules/solid_with_local_modification/arm.exp"/>
+
+  <schema name="Solid_with_local_modification_arm">
+    <interface
+      kind="use"
+      schema="Elemental_geometric_shape_arm">
+    </interface>
+ 
+ <interface
+       kind="use"
+       schema="Elemental_topology_arm">
+    </interface>
+   <interface
+            kind="use"
+           schema="Procedural_solid_model_arm">
+    </interface>
+ <interface
+      kind="use"
+      schema="Value_with_unit_arm">
+    </interface>
+
+ <interface
+      kind="use"
+      schema="Topologically_bounded_surface_arm">
+  </interface>
+
+ <interface
+      kind="use"
+      schema="Basic_geometric_topology_arm">
+ </interface>
+
+
+  <type name="blend_radius_variation">
+         <enumeration items="linear cubic unspecified"/>
+      </type>
+     
+ <type name="blend_end_condition">
+          <select  
+          selectitems="Detailed_geometric_model_element Vertex"/>
+       </type>
+
+   
+ <type name="solid_with_placed_feature">
+          <select  
+          selectitems="Solid_with_depression Solid_with_protrusion 
+          Solid_with_circular_pattern Solid_with_rectangular_pattern"/>
+ </type>
+
+ <type name="sculpting_surface">
+          <select  
+          selectitems="Detailed_geometric_model_element Advanced_face Advanced_open_shell"/>
+ </type>
+
+ 
+ <entity
+        name="Solid_with_edge_modification"
+        super.expression="(Path_modified_solid ANDOR (ONEOF
+               (Solid_with_fixed_radius_edge_blend,
+                Solid_with_simple_chamfer,
+                Solid_with_double_offset_chamfer,
+                Solid_with_angled_chamfer)))"
+         supertypes="Modified_solid">
+        <explicit name="blended_edges">
+            <aggregate    
+ 	 	              type="LIST"
+ 	 	              lower="1"
+ 	 	              upper="?" />
+ 	              <typename name="Edge_curve"/>
+          </explicit>
+           
+       </entity>
+   
+   <entity
+            name="Path_modified_solid"
+           supertypes="Solid_with_edge_modification">
+     </entity>
+     
+     <entity
+                name="Path_modified_solid_with_end_conditions"
+               supertypes="Path_modified_solid">
+              <explicit name="end_conditions">
+                   <aggregate    
+        	 	              type="LIST"
+        	 	              lower="2"
+        	 	              upper="2" />
+        	              <typename name="blend_end_condition"/>
+               </explicit>
+        
+        
+        </entity>
+     
+         
+      <entity
+        name="Solid_with_fixed_radius_edge_blend"
+        supertypes="Solid_with_edge_modification">
+          <explicit name="radius">
+            <typename name="length_measure"/>
+         </explicit>
+          <where
+       	          label="WR1"
+       	          expression="radius > 0.0">
+           </where>
+           
+       </entity>
+     
+      
+      <entity
+        name="Solid_with_variable_radius_edge_blend"
+        supertypes="Path_modified_solid">
+        <explicit name="interpolation_points">
+            <aggregate
+                  type="LIST"
+                  lower="2"
+                  upper="?" />
+                  <typename name="Cartesian_point"/>
+       </explicit>
+            <explicit name="radii">
+             <aggregate
+                  type="LIST"
+                  lower="1"
+                  upper="?" />
+                  <typename name="length_measure"/>
+            </explicit>
+            <explicit name="variations">
+             <aggregate
+                  type="LIST"
+                  lower="2"
+                  upper="?" />
+                  <typename name="blend_radius_variation"/>
+            </explicit>
+       <where
+       	          label="WR1"
+       	          expression="SIZEOF(interpolation_points) = SIZEOF(radii)">
+          </where>
+                <where
+       	          label="WR2"
+       	          expression="SIZEOF(variations) = SIZEOF(interpolation_points) - 1">
+           </where>
+           
+                <where
+       	          label="WR3"
+       	          expression="SIZEOF(['SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_FIXED_RADIUS_EDGE_BLEND',
+              'SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_SIMPLE_CHAMFER',
+              'SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_DOUBLE_OFFSET_CHAMFER',
+              'SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_ANGLED_CHAMFER'] * TYPEOF(SELF)) = 0">
+            </where>
+       </entity>
+     
+     
+  
+     
+     
+      <entity
+        name="Solid_with_simple_chamfer"
+        supertypes="Solid_with_edge_modification">
+         <explicit name="offset_distance">
+            <typename name="length_measure"/>
+         </explicit>
+      <where
+       	          label="WR1"
+       	          expression="offset_distance > 0.0">
+           </where>
+        </entity>
+     
+      <entity
+            name="Solid_with_double_offset_chamfer"
+            supertypes="Solid_with_edge_modification">
+            <explicit name="left_offset_distance">
+                <typename name="length_measure"/>
+            </explicit>
+           <explicit name="right_offset_distance">
+                <typename name="length_measure"/>
+            </explicit>
+               <where
+           	      label="WR1"
+           	      expression="left_offset_distance > 0.0">
+               </where>
+               <where
+ 	               label="WR2"
+ 	               expression="right_offset_distance > 0.0">
+               </where>
+            </entity>
+         
+        <entity
+            name="Solid_with_angled_chamfer"
+            supertypes="Solid_with_edge_modification">
+            <explicit name="offset_distance">
+                <typename name="length_measure"/>
+            </explicit>
+           <explicit name="left_offset">
+                 <typename name="BOOLEAN"/>
+           </explicit>      
+           <explicit name="offset_angle">
+                <typename name="plane_angle_measure"/>
+            </explicit>
+               <where
+           	      label="WR1"
+           	      expression="offset_distance > 0.0">
+               </where>
+               <where
+ 	               label="WR2"
+ 	               expression="offset_angle > 0.0">
+               </where>
+           </entity>
+           
+           
+    <entity
+       name="Solid_with_depression"
+                 abstract.supertype="YES"
+                 super.expression="(solid_with_through_depression
+                     ANDOR ONEOF (solid_with_stepped_round_hole,
+                                  solid_with_pocket,
+                                  solid_with_slot,
+                                  solid_with_groove))"
+                 supertypes="Modified_solid">
+       <explicit name="location">
+                      <typename name="Axis_placement"/>
+         </explicit>
+       <explicit name="depth">
+                      <typename name="length_measure"/>
+         </explicit>
+     <where
+             	          label="WR1"
+             	          expression="depth > 0.0">
+                 </where>        
+      </entity>
+  
+   <entity
+         name="Solid_with_through_depression"
+            supertypes="Solid_with_depression">
+         <explicit name="exit_faces">
+             <aggregate    
+  	 	              type="SET"
+  	 	              lower="1"
+  	 	              upper="?" />
+  	              <typename name="Advanced_face"/>
+           </explicit>
+     </entity>
+  
+  <entity
+           name="Solid_with_stepped_round_hole"
+      super.expression="(Solid_with_stepped_round_hole_and_conical_transitions
+  ANDOR ONEOF (Solid_with_flat_bottom_hole,
+                 Solid_with_conical_bottom_hole,
+                 Solid_with_spherical_bottom_hole))"
+      supertypes="Solid_with_depression">
+    <explicit name="segments">
+                  <typename name="INTEGER"/>
+    </explicit>    
+   <explicit name="segment_radii">
+                <aggregate    
+     	 	              type="LIST"
+     	 	              lower="1"
+     	 	              upper="segments" />
+     	              <typename name="length_measure"/>
+              </explicit>
+    <explicit name="segment_depths">
+	                    <aggregate    
+	         	 	              type="LIST"
+	         	 	              lower="1"
+	         	 	              upper="segments" />
+	         	              <typename name="length_measure"/>
+	                  </explicit>
+     <derived name="SELF\solid_with_depression.depth"
+       expression="total_hole_depth(SELF)">
+       </derived>
+     <where  label="WR1"
+  expression="NOT (('SOLID_WITH_local_modification_ARM.SOLID_WITH_THROUGH_DEPRESSION'
+         IN TYPEOF(SELF)) AND (SIZEOF(TYPEOF(SELF) *
+         ['SOLID_WITH_local_modification_ARM.SOLID_WITH_FLAT_BOTTOM_ROUND_HOLE',
+         'SOLID_WITH_local_modification_ARM.SOLID_WITH_SPHERICAL_BOTTOM_ROUND_HOLE',
+         'SOLID_WITH_local_modification_ARM.SOLID_WITH_FLAT_BOTTOM_ROUND_HOLE']) 
+       &lt;&gt; 0))"> 
+       </where>
+    </entity>
+    
+   <entity
+              name="Conical_stepped_hole_transition"
+             supertypes="Detailed_geometric_model_element">
+       <explicit name="transition_number">
+                     <typename name="INTEGER"/>
+       </explicit>
+     <explicit name="apex_angle">
+                     <typename name="plane_angle_measure"/>
+       </explicit>
+     <explicit name="cone_base_radius">
+                     <typename name="length_measure"/>
+       </explicit>
+     <where  label="WR1"
+  expression="transition_number > 0"/>
+  
+    <where  label="WR2"
+    expression="cone_base_radius > 0.0"/>
+
+  </entity>
+       
+
+   
+   
+   <entity name="Solid_with_stepped_round_hole_and_conical_transitions"
+              supertypes="Solid_with_stepped_round_hole">
+             <explicit name="conical_transitions">
+                  <aggregate
+		  	            type="SET"
+		  	             lower="1"
+		  	              upper="?"/>
+		  	          <typename name="Conical_stepped_hole_transition"/>
+          </explicit>
+                            <where
+             	          label="WR1"
+             	          expression="SIZEOF(conical_transitions) &lt;= 
+         (SELF\Solid_with_stepped_round_hole.segments + 1)">
+                 </where>
+          <where label="WR2"
+          expression=" ('SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_THROUGH_DEPRESSION'
+         IN TYPEOF(SELF)) XOR (SIZEOF(conical_transitions) &lt;= 
+         SELF\Solid_with_stepped_round_hole.segments);">
+         </where>
+         </entity>
+    
+        
+     <entity
+       name="Solid_with_flat_bottom_hole"
+         supertypes="Solid_with_stepped_round_hole">
+         <explicit name="fillet_radius">       
+	               <typename name="length_measure"/>
+        </explicit>
+       <where
+             	          label="WR1"
+             	          expression="fillet_radius &lt; 
+          SELF\Solid_with_stepped_round_hole.segment_radii[segments]">
+             	          
+         </where>
+         <where
+             	          label="WR2"
+             	          expression="fillet_radius >= 0.0"/>
+           
+   </entity>  
+   
+   <entity
+       name="Solid_with_spherical_bottom_hole"
+                supertypes="Solid_with_stepped_round_hole">
+         <explicit name="sphere_radius">       
+	               <typename name="length_measure"/>
+        </explicit>
+       <where
+             	          label="WR1"
+             	          expression="sphere_radius >= 
+          SELF\Solid_with_stepped_round_hole.segment_radii[segments]">
+             	          
+         </where>
+       </entity>  
+   
+   <entity
+          name="Solid_with_conical_bottom_hole"
+            supertypes="Solid_with_stepped_round_hole">
+            <explicit name="semi_apex_angle">       
+   	               <typename name="plane_angle_measure"/>
+           </explicit>
+            <explicit name="tip_radius">       
+   	               <typename name="length_measure"/>
+           </explicit>
+          <where
+                	          label="WR1"
+                	          expression="tip_radius &lt; 
+             SELF\Solid_with_stepped_round_hole.segment_radii[segments]">
+                	          
+            </where>
+       
+      <where
+                	          label="WR2"
+                	          expression="tip_radius >= 0.0"/>
+    </entity>  
+   
+   
+     <entity
+          name="Solid_with_pocket"
+                 abstract.supertype="YES"
+                 super.expression="(ONEOF 
+                      (solid_with_rectangular_pocket,
+                       solid_with_circular_pocket,
+                       solid_with_general_pocket))"
+                 supertypes="Solid_with_depression">
+             
+              <explicit name="floor_blend_radius">
+                <typename name="length_measure"/>
+              </explicit>
+              <explicit name="draft_angle">
+   	                <typename name="plane_angle_measure"/>
+   	              </explicit>
+              
+              <where label="WR1"
+                  expression="floor_blend_radius >= 0.0"/>
+       </entity>
+    
+   
+
+   
+   
+   
+   <entity
+       name="Solid_with_rectangular_pocket"
+          supertypes="Solid_with_pocket">
+                     
+           <explicit name="pocket_length">
+	                <typename name="length_measure"/>
+           </explicit>
+              <explicit name="pocket_width">
+             <typename name="length_measure"/>
+           </explicit> 
+           <explicit name="corner_radius">
+             <typename name="length_measure"/>
+           </explicit>
+           <where label="WR1"
+             expression="(corner_radius &lt; pocket_width/2) 
+       AND (corner_radius &lt; pocket_length/2)">
+       </where>
+       <where
+	         	          label="WR2"
+	         	          expression="pocket_length > 0.0"/>
+	  <where
+	         	          label="WR3"
+	         	          expression="pocket_width > 0.0"/>
+	  <where
+	         	          label="WR4"
+	         	          expression="corner_radius >= 0.0"/>
+	</entity>
+    
+    <entity
+           name="Solid_with_circular_pocket"
+              supertypes="Solid_with_pocket">
+              
+               <explicit name="pocket_radius">
+    	                <typename name="length_measure"/>
+               </explicit>
+                 
+               <where label="WR1"
+                 expression="floor_blend_radius &lt;= pocket_radius">
+                 </where>
+           <where
+    	         	          label="WR2"
+    	         	          expression="pocket_radius > 0.0"/>
+   	</entity>
+  
+  <entity
+            name="Solid_with_general_pocket"
+               supertypes="Solid_with_pocket">
+             
+                <explicit name="profile">
+     	                <typename name="Detailed_geometric_model_element"/>
+                </explicit>
+                <explicit name="reference_point">
+     	                <typename name="Cartesian_point"/>
+                </explicit>
+      
+ 	</entity>
+  
+     <entity
+                 name="Solid_with_slot"
+                  abstract.supertype="YES"
+                 super.expression="((ONEOF (Solid_with_straight_slot,
+                                  Solid_with_curved_slot))
+                      AND (ONEOF (Solid_with_trapezoidal_slot,
+                                  Solid_with_tee_slot)))"  
+                    supertypes="Solid_with_depression">
+                    
+                     <explicit name="slot_width">
+                       <typename name="length_measure"/>
+                     </explicit>
+                     <explicit name="closed_ends">
+          	              <aggregate
+ 		  	            type="LIST"
+ 		  	             lower="2"
+ 		  	              upper="2"/>  
+ 		  	              <typename name="LOGICAL"/>
+          	              </explicit>
+                     <explicit name="end_exit_faces">
+                     <aggregate
+ 		  	            type="LIST"
+ 		  	             lower="2"
+ 		  	              upper="2"/>
+ 	 	              <aggregate
+ 	    	            type="SET"
+ 	  	             lower="0"
+ 	  	              upper="?"/>
+          	                <typename name="Advanced_face"/>
+                     </explicit>
+                         <where
+          	         	          label="WR1"
+          	        expression="NOT(('SOLID_WITH_local_modification_ARM.SOLID_WITH_THROUGH_DEPRESSION' 
+                        IN TYPEOF(SELF)) AND (closed_ends = [FALSE,FALSE]))"/> 	          
+          	     <where
+          	         	          label="WR2"
+          	      expression=" NOT(((closed_ends[1] = TRUE) AND (SIZEOF(end_exit_faces[1]) &lt;&gt; 0))
+         OR ((closed_ends[2] = TRUE) AND (SIZEOF(end_exit_faces[2]) &lt;&gt; 0)))"/>
+                    <where
+          	         	          label="WR3"
+          	         	          expression="slot_width > 0.0"/>
+ 	</entity>
+ 	
+    
+     <entity name="Solid_with_straight_slot"
+       supertypes="Solid_with_slot">
+        
+        <explicit name="slot_length">
+	                 <typename name="length_measure"/>
+	          </explicit>
+	            <where
+	             	  label="WR1"
+	             	  expression="slot_length > 0.0"/>
+	</entity>
+    
+  <entity name="Solid_with_curved_slot"
+         supertypes="Solid_with_slot">
+          
+          <explicit name="slot_centreline">
+  	                 <typename name="Detailed_geometric_model_element"/>
+  	          </explicit>
+   </entity>
+ 
+ <entity name="Solid_with_trapezoidal_slot"
+          supertypes="Solid_with_slot">
+           
+               <explicit name="draft_angle">
+   	                 <typename name="plane_angle_measure"/>
+   	          </explicit>          
+   	          <explicit name="floor_fillet_radius">
+   	                 <typename name="length_measure"/>
+   	          </explicit>
+     <where
+   	             	  label="WR1"
+	             	  expression="floor_fillet_radius >= 0.0"/>
+   </entity>
+ 
+ <entity name="Solid_with_tee_slot"
+           supertypes="Solid_with_slot">
+            
+                <explicit name="tee_section_width">
+    	                 <typename name="length_measure"/>
+    	          </explicit>          
+    	          <explicit name="collar_depth">
+    	                 <typename name="length_measure"/>
+    	          </explicit>
+            <where
+    	             	  label="WR1"
+ 	             	  expression="tee_section_width &lt; SELF\Solid_with_depression.depth"/>
+ 	 <where
+	           	             	  label="WR2"
+ 	             	  expression="tee_section_width > SELF\solid_with_slot.slot_width"/>
+ 	 <where
+          	             	  label="WR3"
+ 	             	  expression="tee_section_width > 0.0"/>
+      <where
+    	             	  label="WR4"
+ 	             	  expression="collar_depth > 0.0"/>
+    </entity>
+  
+  <entity
+                name="Solid_with_groove"
+                 supertypes="Solid_with_depression">
+                    <explicit name="groove_radius">
+                      <typename name="length_measure"/>
+                    </explicit>
+                    <explicit name="groove_width">
+                      <typename name="length_measure"/>
+                    </explicit>
+                    <explicit name="draft_angle">
+         	     <typename name="plane_angle_measure"/>
+         	    </explicit>
+                    <explicit name="floor_fillet_radius">
+		                          <typename name="length_measure"/>
+                   </explicit>
+		          <explicit name="external_groove">
+		                 <typename name="BOOLEAN"/>
+                   </explicit>
+                    <where
+         	         	          label="WR1"
+         	        expression="NOT('SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_THROUGH_DEPRESSION' 
+                       IN TYPEOF(SELF)) "/> 	          
+         	      
+         	    <where
+         	         	          label="WR2"
+         	         	          expression="groove_radius > 0.0"/>
+         	       <where
+         	         	           label="WR3"
+         	         	          expression="groove_width > 0.0"/>    
+         	      <where
+         	         	          label="WR4"
+         	         	          expression="floor_fillet_radius >= 0.0"/>
+ 
+ </entity>
+
+ <entity
+                  name="Solid_with_protrusion"
+                  abstract.supertype="YES"
+                  super.expression="(ONEOF (Solid_with_circular_protrusion,
+                                   Solid_with_rectangular_protrusion,
+                                   Solid_with_general_protrusion))"
+                      
+                     supertypes="Modified_solid">
+                     
+                      <explicit name="location">
+                        <typename name="Axis_placement"/>
+                      </explicit>
+                      <explicit name="height">
+           	                   <typename name="length_measure"/>
+           	              </explicit>
+                      <explicit name="draft_angle">
+                                  <typename name="plane_angle_measure"/>
+                      </explicit>
+                         <where
+           	         	          label="WR1"
+           	         	          expression="height > 0.0"/>
+  	</entity>
+
+   <entity name="Solid_with_circular_protrusion"
+           supertypes="Solid_with_protrusion">
+            
+                  <explicit name="radius">
+    	                 <typename name="length_measure"/>
+    	          </explicit>
+      <where
+    	             	  label="WR1"
+ 	             	  expression="radius > 0.0"/>
+   </entity>
+ 
+ <entity name="Solid_with_rectangular_protrusion"
+            supertypes="Solid_with_protrusion">
+             
+                   <explicit name="length">
+     	                 <typename name="length_measure"/>
+     	          </explicit>
+                <explicit name="width">
+          	                 <typename name="length_measure"/>
+     	          </explicit>
+                <explicit name="corner_radius">
+               	                 <typename name="length_measure"/>
+     	          </explicit>
+                <where
+     	             	  label="WR1"
+  	             	  expression="length > 0.0"/>
+                <where
+         	             	  label="WR2"
+      	             	  expression="width > 0.0"/>
+                <where
+         	             	  label="WR3"
+      	             	  expression="corner_radius >= 0.0"/>
+    </entity>
+ 
+ <entity name="Solid_with_general_protrusion"
+            supertypes="Solid_with_protrusion">
+             
+                   <explicit name="profile">
+     	                 <typename name="Detailed_geometric_model_element"/>
+     	          </explicit>
+                  <explicit name="reference_point">
+            	                 <typename name="Cartesian_point"/>
+     	          </explicit>
+       
+  </entity>
+ 
+ <entity
+                   name="Solid_with_circular_pattern"
+                   supertypes="Modified_solid">
+                      
+                       <explicit name="location">
+                         <typename name="Axis_placement"/>
+                       </explicit>
+                       <explicit name="replicated_element">
+            	                   <typename name="solid_with_placed_feature"/>
+            	              </explicit>
+                       <explicit name="replicate_count">
+                                   <typename name="INTEGER"/>
+                       </explicit>
+                       
+                       <explicit name="angular_spacing">
+		                   <typename name="plane_angle_measure"/>
+                       </explicit>
+                       <explicit name="radial_alignment">
+		                     <typename name="BOOLEAN"/>
+                       </explicit>
+                      <explicit name="reference_point">
+		                      <typename name="Cartesian_point"/>
+		        </explicit>
+       
+                   <where
+            	         	          label="WR1"
+            	         	          expression="replicate_count > 0"/>
+  	</entity>
+ 
+ <entity
+                    name="Solid_with_rectangular_pattern"
+                    supertypes="Modified_solid">
+                       
+                        <explicit name="location">
+                          <typename name="Axis_placement"/>
+                        </explicit>
+                        <explicit name="replicated_element">
+             	                   <typename name="solid_with_placed_feature"/>
+             	              </explicit>
+                        <explicit name="row_count">
+                                    <typename name="INTEGER"/>
+                        </explicit>
+                        <explicit name="column_count">
+                                    <typename name="INTEGER"/>
+                        </explicit>
+                          
+                        <explicit name="row_spacing">
+ 		                   <typename name="length_measure"/>
+                        </explicit>
+                        <explicit name="column_spacing">
+ 		                     <typename name="length_measure"/>
+                        </explicit>
+                       
+                    <where
+             	         	label="WR1"
+             	         	expression="(row_count*column_count) > 0"/>
+  	           <where
+	             	         	label="WR2"
+             	         	expression="row_spacing > 0.0"/>
+               	 <where
+				       	label="WR3"
+             	         	expression="column_spacing > 0.0"/>
+             	         	
+  	</entity>
+  	
+  	<entity
+	                   name="Solid_with_incomplete_circular_pattern"
+	                   supertypes="Solid_with_circular_pattern">
+	                      
+	                       <explicit name="omitted_instances">
+	                         <aggregate
+				         type="SET"
+				         lower="1"
+				         upper="?"/>  		  	             
+	                         <typename name="INTEGER"/>
+	                   </explicit>   
+	                   <where
+	            	       label="WR1"
+	            	       expression="SIZEOF(omitted_instances) &lt;
+                                   SELF\Solid_with_circular_pattern.replicate_count"/>
+	  	  <where
+			       label="WR2"
+	            	       expression="SIZEOF(QUERY(q &lt;* omitted_instances | q > 
+                                 SELF\Solid_with_circular_pattern.replicate_count)) = 0"/>
+       	</entity>
+ 
+        <entity
+ 	                   name="Solid_with_incomplete_rectangular_pattern"
+ 	                   supertypes="Solid_with_rectangular_pattern">
+ 	                      
+ 	                       <explicit name="omitted_instances">
+ 	                         <aggregate
+ 				         type="SET"
+ 				         lower="1"
+ 				        upper="?"/>
+ 				   <aggregate
+ 				         type="LIST"
+ 				         lower="2"
+ 				         upper="2"/>       
+ 	                         <typename name="INTEGER"/>
+ 	                 </explicit>     
+ 	                   <where
+ 	            	       label="WR1"
+ 	            	       expression="NOT([1,1] IN omitted_instances)"/>
+ 	  	  <where
+ 			       label="WR2"
+ 	            	       expression=" SIZEOF(omitted_instances) &lt;
+                               ((SELF\Solid_with_rectangular_pattern.row_count *
+                                SELF\Solid_with_rectangular_pattern.column_count) - 1)"/>
+        	  <where
+		 			       label="WR3"
+ 	            	       expression="SIZEOF(QUERY(q &lt;* omitted_instances |   
+                               ((q[1] > SELF\Solid_with_rectangular_pattern.row_count) OR
+                              (q[2] > SELF\Solid_with_rectangular_pattern.column_count)))) = 0"/>
+        </entity>
+  
+   <entity
+         name="Advanced_open_shell"
+            supertypes="Detailed_topological_model_element">
+         <explicit name="shell_faces">
+             <aggregate    
+  	 	              type="SET"
+  	 	              lower="1"
+  	 	              upper="?" />
+  	              <typename name="Advanced_face"/>
+           </explicit>
+            
+        </entity>
+    
+    
+              
+         
+    
+    
+    <entity
+             name="Sculptured_solid"
+            supertypes="Modified_solid">
+      <explicit name="cutting_surface">
+                    <typename name="sculpting_surface"/>
+      </explicit>    
+     <explicit name="positive_side">
+                    <typename name="BOOLEAN"/>
+                 </explicit>
+     </entity>
+      
+     <entity
+                name="Sculptured_solid_with_selection"
+               supertypes="Sculptured_solid">
+         <explicit name="retained_part">
+                       <typename name="Detailed_topological_model_element"/>
+         </explicit>
+      </entity>
+         
+  
+     
+     
+     <entity name="Solid_with_offset_faces"
+                supertypes="Modified_solid">
+               <explicit name="offset_faces">
+                    <aggregate
+  		  	            type="LIST"
+  		  	             lower="1"
+  		  	              upper="?"/>
+  		  	          <aggregate    
+  		  	              type="SET"
+  		  	              lower="1"
+  		  	              upper="?" />
+  		  	              <typename name="Advanced_face"/>
+            </explicit>
+             <explicit name="offset_distances">       
+                    <aggregate    
+         	 	              type="LIST"
+         	 	              lower="1"
+         	 	              upper="?" />
+         	              <typename name="length_measure"/>
+                </explicit>
+                   <where
+               	          label="WR1"
+               	          expression="SIZEOF(offset_faces)=SIZEOF(offset_distances)">
+                   </where>
+           </entity>
+      
+          
+       <entity
+         name="Deleted_face_solid"
+         super.expression="(ONEOF(Deleted_face_solid_with_offsets, Complex_deleted_face_solid))"
+           supertypes="Modified_solid">
+           <explicit name="deleted_faces">       
+  	                   <aggregate    
+  	        	 	              type="SET"
+  	        	 	              lower="1"
+  	        	 	              upper="?" />
+  	        	              <typename name="Advanced_face"/>
+  	   </explicit>
+             <explicit name="thickness">
+             <typename name="length_measure"/>
+          </explicit>
+        </entity>
+      
+       
+       <entity
+         name="Deleted_face_solid_with_offsets"
+         supertypes="Deleted_face_solid">
+            
+             <explicit name="thickness2">
+               <typename name="length_measure"/>
+             </explicit>
+                    <where
+  	         	          label="WR1"
+  	         	          expression="thickness2 > 0.0">
+  	             </where>
+         
+               <where
+        	          label="WR2"
+        	          expression="SELF\Deleted_face_solid.thickness &lt;&gt; thickness2">
+             </where>
+        </entity>
+      
+      
+   
+      
+      
+       <entity name="Complex_deleted_face_solid"
+         supertypes="Deleted_face_solid">
+          
+          <explicit name="thickened_face_list">
+  	                  <aggregate
+  			  	            type="LIST"
+  			  	             lower="1"
+  			  	              upper="?"/>
+  			  	          <aggregate    
+  			  	              type="SET"
+  			  	              lower="1"
+  			  	              upper="?" />
+  			  	              <typename name="Advanced_face"/>
+  	          </explicit>
+  	           <explicit name="thickness_list">       
+  	                  <aggregate    
+  	       	 	              type="LIST"
+  	       	 	              lower="1"
+  	       	 	              upper="?" />
+  	       	              <typename name="length_measure"/>
+  	              </explicit>
+       
+                        <where
+  	             	  label="WR1"
+  	             	  expression="SIZEOF(thickened_face_list)=SIZEOF(thickness_list)">
+  	               </where>
+  	  </entity>
+  
+ 
+ </schema>
+
+
+</express>

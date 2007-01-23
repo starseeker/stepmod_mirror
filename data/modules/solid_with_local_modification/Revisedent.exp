@@ -1,0 +1,26 @@
+Alternative proposal for variable radius entity: 
+
+
+ENTITY Solid_with_edge_modification
+SUPERTYPE OF (Path_modified_solid ANDOR (ONEOF
+              (Solid_with_fixed_radius_edge_blend,
+               Solid_with_simple_chamfer,
+               Solid_with_double_offset_chamfer,
+               Solid_with_angled_chamfer)))
+SUBTYPE OF (Modified_solid);    
+   blended_edges : LIST [1:?] OF Edge;
+END_ENTITY;
+
+ENTITY Solid_with_variable_radius_edge_blend
+SUBTYPE OF (Path_modified_solid);
+  interpolation_points : LIST [2:?] OF Cartesian_point;
+  radii                : LIST [2:?] OF length_measure;
+  variations           : LIST [2:?] OF blend_radius_variation; 
+ WHERE
+   WR1: SIZEOF(blended_edges) = SIZEOF(radii);
+   WR2: SIZEOF(variations) = SIZEOF(interpolation_points) - 1;
+   WR3: SIZEOF(['SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_FIXED_RADIUS_EDGE_BLEND',
+              'SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_SIMPLE_CHAMFER',
+              'SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_DOUBLE_OFFSET_CHAMFER',
+              'SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_ANGLED_CHAMFER'] * TYPEOF(SELF)) = 0;
+END_ENTITY

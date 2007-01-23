@@ -1,139 +1,59 @@
-<?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.7 2002/07/08 07:04:14 goset1 Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2002/07/08 07:04:14 $"
-  rcs.revision="$Revision: 1.7 $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.16"
-    source="../data/modules/modified_swept_solid/arm.exp"/>
-
-  <schema name="Modified_swept_solid_arm">
-    
- <interface
-        kind="use"
-        schema="Basic_geometric_topology_arm">
-      </interface>
-
-   <interface
-            kind="use"
-           schema="Swept_solid_arm">
-    </interface>
- <interface
-      kind="use"
-      schema="Value_with_unit_arm">
-    </interface>
-
- 
- 
-
- <type name="trim_select">
-         <select 
-         selectitems="length_measure plane_angle_measure Advanced_face Detailed_geometric_model_element"/>
-      </type>
-
-<type name="trim_intent">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="modified_swept_solid_arm schema_instance"/>
+   <schema name="Modified_swept_solid_arm">
+      <interface kind="use" schema="Basic_geometric_topology_arm"/>
+      <interface kind="use" schema="Elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="Swept_solid_arm"/>
+      <interface kind="use" schema="Value_with_unit_arm"/>
+      <type name="trim_intent">
          <enumeration items="blind through_all up_to_next unspecified"/>
       </type>
-      
-    
-    
-    <entity
-      name="Solid_of_revolution_with_trim_conditions"
-            supertypes="Solid_of_revolution">
-     <explicit
-        name="start_condition">
-        <typename
-          name="trim_select"/>
-      </explicit> 
-      <explicit
-              name="end_condition">
-              <typename
-                name="trim_select"/>
-      </explicit>
-      
-    </entity>
-    
-    <entity
-          name="Extruded_solid_with_trim_conditions"
-          super.expression="(ONEOF(Extruded_solid_with_draft_angle, Extruded_solid_with_draft_angles))"
-         supertypes="Extruded_solid">
-            
-        <explicit
-        name="start_condition">
-        <typename
-          name="trim_select"/>
-      </explicit> 
-      <explicit
-              name="end_condition">
-              <typename
-                name="trim_select"/>
-      </explicit>
-     <explicit
-        name="start_condition_intent">
-        <typename
-          name="trim_intent"/>
-       </explicit> 
-      
-     <explicit
-        name="end_condition_intent">
-        <typename
-          name="trim_intent"/>
-      </explicit>  
-    </entity>
-       
-     <entity
-          name="Extruded_solid_with_draft_angle"
-          supertypes="Extruded_solid_with_trim_conditions">
-        
-       <explicit
-        name="draft_angle">
-        <typename
-          name="plane_angle_measure"/>
-       </explicit> 
-     </entity>
-     
-     <entity
-            name="Extruded_solid_with_multiple_draft_angles"
-            supertypes="Extruded_solid_with_trim_conditions">
-        
-       
-         <explicit
-          name="draft_edges">
-                <aggregate
-	            type="LIST"
-	             lower="2"
-	              upper="?"/>
-	          <aggregate    
-	              type="SET"
-	              lower="1"
-	              upper="2" />
-	              <typename name="Edge_curve"/>
-          </explicit>
-           <explicit
-	          name="draft_angles">
-	                <aggregate
-		            type="LIST"
-		             lower="2"
-		              upper="?"/>
-		              <typename
-		                name="plane_angle_measure"/>
-	          </explicit>
-        <where
-	          label="WR1"
-	          expression="SIZEOF (draft_edges) = SIZEOF (draft_angles)">
-      </where>
-          
-         </entity>
-  
-  
-  </schema>
-
+      <type name="trim_select">
+         <select selectitems="length_measure plane_angle_measure Advanced_face Detailed_geometric_model_element"/>
+      </type>
+      <entity name="Extruded_solid_with_draft_angle" supertypes="Extruded_solid_with_end_conditions">
+         <explicit name="draft_angle">
+            <typename name="plane_angle_measure"/>
+         </explicit>
+      </entity>
+      <entity name="Extruded_solid_with_end_conditions" supertypes="Extruded_solid" super.expression="ONEOF (Extruded_solid_with_draft_angle, Extruded_solid_with_multiple_draft_angles)">
+         <explicit name="start_condition">
+            <typename name="trim_select"/>
+         </explicit>
+         <explicit name="end_condition">
+            <typename name="trim_select"/>
+         </explicit>
+         <explicit name="start_condition_intent">
+            <typename name="trim_intent"/>
+         </explicit>
+         <explicit name="end_condition_intent">
+            <typename name="trim_intent"/>
+         </explicit>
+      </entity>
+      <entity name="Extruded_solid_with_multiple_draft_angles" supertypes="Extruded_solid_with_end_conditions">
+         <explicit name="draft_edges">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Edge_curve"/>
+         </explicit>
+         <explicit name="draft_angles">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <typename name="plane_angle_measure"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(draft_edges) = SIZEOF(draft_angles)"/>
+         <where label="WR2" expression="SIZEOF(QUERY(q &lt;* draft_angles | q = 0)) = 0"/>
+      </entity>
+      <entity name="Solid_of_revolution_with_trim_conditions" supertypes="Solid_of_revolution">
+         <explicit name="start_condition">
+            <typename name="trim_select"/>
+         </explicit>
+         <explicit name="end_condition">
+            <typename name="trim_select"/>
+         </explicit>
+      </entity>
+   </schema>
 </express>

@@ -1,164 +1,66 @@
-<?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.7 2002/07/08 07:04:14 goset1 Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2002/07/08 07:04:14 $"
-  rcs.revision="$Revision: 1.7 $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.16"
-    source="../data/modules/procedural_shape_model/arm.exp"/>
-
-  <schema name="Procedural_shape_model_arm">
-    
- <interface
-        kind="use"
-        schema="Elemental_geometric_shape_arm">
-      </interface>
-
-   
- <interface
-         kind="use"
-         schema="Elemental_topology_arm">
-       </interface>
-
-
- <type name="shape_model_element">
-         <select 
-         selectitems="Detailed_geometric_model_element Detailed_topological_model_element"/>
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="procedural_shape_model_arm schema_instance"/>
+   <schema name="Procedural_shape_model_arm">
+      <interface kind="use" schema="Elemental_geometric_shape_arm"/>
+      <interface kind="use" schema="Elemental_topology_arm"/>
+      <type name="shape_model_element">
+         <select selectitems="Detailed_topological_model_element Detailed_geometric_model_element"/>
       </type>
-
-
-      
-     <entity
-       name="Procedural_shape_representation"
-        supertypes="Geometric_model">
-        <explicit
-	          name="items">
-	            <aggregate
-	              type="SET"
-	              lower="1"
-	              upper="?"/>
-		<typename
-		  name="Procedural_shape_representation_sequence"/>
-		<redeclaration
-	            entity-ref="Representation"/>
-          </explicit>
-       </entity>
-    
-   
-    
-    <entity
-          name="Procedural_shape_representation_sequence"
-           supertypes="Detailed_geometric_element">
-      <explicit
-        name="elements">
-        <aggregate
-	            type="LIST"
-	             lower="1"
-	              upper="?"/>
-	  <typename
-          name="shape_model_element"/>
-        </explicit> 
-       <explicit
-        name="suppressed_elements">
-        <aggregate
-	            type="SET"
-	             lower="1"
-	              upper="?"/>
-	  <typename
-          name="shape_model_element"/>
-        </explicit> 
-        <explicit
-              name="rationale">
-              <typename
-                name="TEXT"/>
-      </explicit>
-   <where
-                   label="WR1"
-               expression="WR1: SIZEOF(QUERY(q &lt;* suppressed_elements | NOT (q IN elements))) = 0">
-       </where> 
-    </entity>
-       
-   <entity
-       name="Explicit_procedural_shape_representation_relationship"
-        supertypes="Representation_relationship">
-        <explicit
-	          name="rep_1">	            
-		<typename
-		  name="Procedural_shape_representation"/>
-		<redeclaration
-	            entity-ref="Representation_relationship"/>
-          </explicit>
-          <explicit
-	  	          name="rep_2">	            
-	  		<typename
-	  		  name="Geometric_model"/>
-	  		<redeclaration
-	  	            entity-ref="Representation_relationship"/>
-	   </explicit>
-       <where
-                   label="WR1"
-               expression="NOT('PROCEDURAL_SHAPE_MODEL_ARM.PROCEDURAL_SHAPE_REPRESENTATION' 
-           IN TYPEOF(rep_2))">
-       </where>
-       </entity>
-        
-   <entity
-       name="Explicit_procedural_geometric_representation_item_relationship">
-        
-        <explicit
-	          name="relating_item">	            
-		<typename
-		  name="Procedural_shape_representation_sequence"/>
-	 </explicit>
-          <explicit
-	  	          name="related_item">	            
-	  		<typename
-	  		  name="Detailed_geometric_model_element"/>
-	  </explicit>
-       <where
-                   label="WR1"
-               expression="NOT('PROCEDURAL_SHAPE_MODEL_ARM.PROCEDURAL_REPRESENTATION_SEQUENCE' 
-           IN TYPEOF(related_item))">
-       </where>
-       </entity> 
-   
-    <entity
-             name="User_selected_shape_elements">
-         <explicit
-           name="selected_items">
-           <aggregate
-   	            type="SET"
-   	             lower="1"
-   	              upper="?"/>
-   	  <typename
-             name="shape_model_element"/>
-           </explicit> 
-            
-    </entity>
-   
-   <entity
-                name="Indirectly_selected_shape_elements"
-            supertypes="User_selected_shape_elements">
-            <explicit
-              name="indirectly_selected_items">
-              <aggregate
-      	            type="SET"
-      	             lower="1"
-      	              upper="?"/>
-      	  <typename
-                name="shape_model_element"/>
-              </explicit> 
-               
-   </entity>
-   
-  </schema>
-
+      <entity name="Explicit_procedural_geometric_representation_item_relationship">
+         <explicit name="relating_item">
+            <typename name="Procedural_shape_representation_sequence"/>
+         </explicit>
+         <explicit name="related_item">
+            <typename name="Detailed_geometric_model_element"/>
+         </explicit>
+         <where label="WR1" expression="NOT('PROCEDURAL_SHAPE_MODEL_ARM.PROCEDURAL_REPRESENTATION_SEQUENCE' &#10;           IN TYPEOF(related_item))"/>
+      </entity>
+      <entity name="Explicit_procedural_shape_representation_relationship" supertypes="Representation_relationship">
+         <explicit name="rep_1">
+            <typename name="Procedural_shape_representation"/>
+            <redeclaration entity-ref="Representation_relationship"/>
+         </explicit>
+         <explicit name="rep_2">
+            <typename name="Geometric_model"/>
+            <redeclaration entity-ref="Representation_relationship"/>
+         </explicit>
+         <where label="WR1" expression="NOT('PROCEDURAL_SHAPE_MODEL_ARM.PROCEDURAL_REPRESENTATION' &#10;           in TYPEOF(rep_2))"/>
+      </entity>
+      <entity name="Indirectly_selected_shape_elements" supertypes="User_selected_shape_elements">
+         <explicit name="indirectly_selected_items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="shape_model_element"/>
+         </explicit>
+      </entity>
+      <entity name="Procedural_shape_representation" supertypes="Geometric_model">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Procedural_shape_representation_sequence"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+      </entity>
+      <entity name="Procedural_shape_representation_sequence" supertypes="Detailed_geometric_model_element">
+         <explicit name="elements">
+            <aggregate type="LIST" lower="1" upper="?"/>
+            <typename name="shape_model_element"/>
+         </explicit>
+         <explicit name="suppressed_elements">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="shape_model_element"/>
+         </explicit>
+         <explicit name="rationale">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="User_selected_shape_elements" supertypes="Representation_item">
+         <explicit name="selected_items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="shape_model_element"/>
+         </explicit>
+      </entity>
+   </schema>
 </express>

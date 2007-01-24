@@ -1,0 +1,1570 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: solid_shape_element_schema.xml,v 1.6 2006/12/12 08:10:35 robbod Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  reference="ISO 10303-111"
+  rcs.date="$Date: 2006/12/31 08:10:35 $"
+  rcs.revision="$Revision: 1.6 $">
+  
+  <schema name="solid_shape_element_schema">
+  
+   
+  <interface
+        kind="reference"
+        schema="support_resource_schema">
+      <interfaced.item
+          name="text"/>
+       </interface>
+      
+      
+       <interface
+        kind="reference"
+        schema="measure_schema">
+        <interfaced.item
+          name="length_measure"/>
+        <interfaced.item
+          name="plane_angle_measure"/>
+         <interfaced.item
+          name="positive_length_measure"/> 
+          <interfaced.item
+          name="positive_plane_angle_measure"/>
+          </interface>
+       
+       <interface
+        kind="reference"
+        schema="geometry_schema">
+        <interfaced.item
+          name="axis2_placement_3d"/>
+        <interfaced.item
+          name="bounded_curve"/>
+          <interfaced.item
+          name="curve_bounded_surface"/>
+        <interfaced.item
+          name="geometric_representation_item"/>
+        <interfaced.item
+          name="point"/>
+         <interfaced.item
+          name="point_on_curve"/>
+         <interfaced.item
+          name="surface"/>
+         </interface>
+        
+   <interface
+        kind="reference"
+        schema="topology_schema">
+        <interfaced.item
+          name="connected_face_set"/> 
+        <interfaced.item
+          name="edge_curve"/> 
+        <interfaced.item
+          name="face"/>
+          <interfaced.item
+          name="face_surface"/> 
+          <interfaced.item
+          name="open_shell"/>               
+          <interfaced.item
+          name="topological_representation_item"/> 
+          <interfaced.item
+          name="vertex"/> 
+        </interface>
+        
+  <interface
+          kind="reference"
+          schema="geometric_model_schema">
+          <interfaced.item
+          name="boolean_result"/> 
+         <interfaced.item
+          name="csg_primitive"/> 
+       <interfaced.item
+                 name="extruded_face_solid"/> 
+      <interfaced.item
+                name="primitive_2d"/> 
+      <interfaced.item
+                name="revolved_face_solid"/> 
+      <interfaced.item
+                      name="solid_model"/> 
+    </interface>
+    
+  <interface
+         kind="reference"
+         schema="representation_schema">
+         <interfaced.item
+          name="representation_item"/> 
+         <interfaced.item
+           name="using_items"/> 
+    </interface>
+    
+ <interface
+          kind="reference"
+          schema="mathematical_functions_schema">
+          <interfaced.item
+          name="positive_integer"/> 
+ </interface>
+ 
+ <interface
+           kind="reference"
+           schema="mathematical_functions_schema">
+           <interfaced.item
+           name="positive_integer"/> 
+  </interface>
+ 
+ <interface
+           kind="reference"
+           schema="explicit_geometric_constraint_schema">
+           <interfaced.item
+           name="non_negative_length_measure"/> 
+  </interface>
+ 
+ <interface
+            kind="reference"
+            schema="sketch_schema">
+            <interfaced.item
+            name="positioned_sketch"/> 
+  </interface>
+ 
+ 
+ <type name="base_solid_select">
+           <select
+             selectitems="solid_model csg_primitive boolean_result">
+           </select>
+        <where
+        label="WR1"
+        expression="NOT('GEOMETRIC_MODEL_SCHEMA.PRIMITIVE_2D' IN TYPEOF(SELF))">
+      </where> 
+   </type>
+
+ <type name="blend_end_condition_select">
+            <select
+              selectitems="point_on_curve edge_curve vertex">
+            </select>
+  </type>
+
+ 
+  <type name="generalized_surface_select">
+             <select
+               selectitems="surface face_surface surfaced_open_shell">
+             </select>
+  </type>
+  
+ <type name="trim_condition_select">
+              <select
+                selectitems="length_measure plane_angle_measure 
+                generalized_surface_select solid_model">
+              </select>
+  </type>
+ 
+ <type name="blend_radius_variation_type">
+              <enumeration
+                items="linear cubic unspecified">
+              </enumeration>
+  </type>
+  
+  
+  <type name="trim_intent">
+                <enumeration
+                  items="blind offset through_all unspecified up_to_next">
+                </enumeration>
+  </type>
+  
+  
+    
+ <entity
+      name="modified_solid"
+      abstract.entity="YES"
+      abstract.supertype="YES"
+      super.expression="(ONEOF(edge_blended_solid,
+                         sculptured_solid,
+                         shelled_solid,
+                         offset_face_solid,
+                         modified_solid_with_placed_configuration))"
+      supertypes="solid_model">
+  <explicit
+	          name="rationale">	            
+		<typename
+		  name="text"/>
+   </explicit>    
+   <explicit
+   	          name="base_solid">	            
+   		<typename
+   		  name="base_solid_select"/>
+   </explicit>  
+ </entity>
+
+ <entity
+      name="edge_blended_solid"
+      abstract="YES"
+      super.expression="(track_blended_solid ANDOR (ONEOF
+                         (solid_with_constant_radius_edge_blend,
+                          solid_with_variable_radius_edge_blend,
+                          solid_with_chamfered_edges)))"
+      supertypes="modified_solid">
+  <explicit
+	          name="blended_edges">	            
+		<aggregate
+				  type="LIST"
+				  lower="1"
+                 upper="?"/>
+		<typename
+		  unique="YES"
+		  name="edge_curve"/>
+		
+          </explicit>    
+   </entity>
+
+ <entity
+      name="track_blended_solid"
+      abstract.entity="YES"
+                 abstract.supertype="YES"
+      super.expression="(track_blended_solid_with_end_conditions)"
+      supertypes="edge_blended_solid">
+     
+      <where
+        label="WR1"
+        expression="continuous_edges(SELF\edge_blended_solid.blended_edges)">
+      </where>
+  </entity>
+
+ <entity
+      name="track_blended_solid_with_end_conditions"
+      supertypes="track_blended_solid">
+      <explicit
+	          name="end_conditions">	            
+		<aggregate
+				  type="LIST"
+				  lower="2"
+                 upper="2"/>
+                 <typename
+		  name="blend_end_condition_select"/>
+	 </explicit>    
+      <where
+        label="WR1"
+        expression=" SIZEOF(TYPEOF(SELF) *
+    ['SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_CONSTANT_RADIUS_EDGE_BLEND',
+     'SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_VARIABLE_RADIUS_EDGE_BLEND',
+     'SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_CHAMFERED_EDGES']) = 1">
+      </where>
+      <where
+        label="WR2"
+        expression="NOT (('GEOMETRY_SCHEMA.VERTEX' IN TYPEOF(end_conditions[1]))
+       AND ('GEOMETRY_SCHEMA.VERTEX' IN TYPEOF(end_conditions[2])))">
+      </where>
+   <where
+          label="WR3"
+          expression="NOT (('GEOMETRY_SCHEMA.VERTEX' IN TYPEOF(end_conditions[1]))
+       AND (NOT ((end_conditions[1] 
+            :=: SELF\edge_blended_solid.blended_edges[1].edge_start)
+            XOR (end_conditions[1] 
+            :=: SELF\edge_blended_solid.blended_edges[1].edge_end))))">
+     </where>
+     <where
+        label="WR4"
+        expression="NOT (('GEOMETRY_SCHEMA.VERTEX' IN TYPEOF(end_conditions[2]))
+       AND (NOT ((end_conditions[2] 
+            :=: SELF\edge_blended_solid.blended_edges[HIINDEX(
+                SELF\edge_blended_solid.blended_edges)].edge_start)
+            XOR (end_conditions[2] 
+            :=: SELF\edge_blended_solid.blended_edges[HIINDEX(
+                SELF\edge_blended_solid.blended_edges)].edge_end))))">
+      </where>  
+      
+  </entity>
+
+ <entity
+      name="solid_with_constant_radius_edge_blend"
+      supertypes="edge_blended_solid">
+     <explicit
+	          name="radius">	            
+		<typename
+		  name="positive_length_measure"/>
+      </explicit>    
+ </entity>
+
+
+
+ <entity
+      name="solid_with_variable_radius_edge_blend"
+      supertypes="edge_blended_solid track_blended_solid">
+  <explicit
+	          name="point_list">	            
+		<aggregate
+		  type="LIST"
+		  lower="2"
+                 upper="?"/>
+                 <typename
+		  name="point"/>
+		 </explicit>  
+	 
+	 <explicit
+	          name="radius_list">	            
+		<aggregate
+		  type="LIST"
+		  lower="2"
+                 upper="?"/>
+                 <typename
+		  name="positive_length_measure"/>
+	</explicit>   
+	 <explicit
+		          name="edge_function_list">	            
+			<aggregate
+			  type="LIST"
+			  lower="1"
+	                 upper="?"/>
+	                 <typename
+			  name="blend_radius_variation_type"/>
+	</explicit>   
+   
+     <where
+        label="WR1"
+        expression="SIZEOF(point_list) = SIZEOF(radius_list)">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF(edge_function_list) = SIZEOF(radius_list) - 1">
+      </where>
+  <where
+          label="WR3"
+          expression="NOT((point_list[1] = point_list[HIINDEX(point_list)]) AND NOT 
+         (radius_list[1] = radius_list[HIINDEX(radius_list)]))">
+      </where>
+  </entity>
+
+
+
+ <entity
+      name="solid_with_chamfered_edges"
+      abstract.entity="YES"
+      abstract.supertype="YES"
+      super.expression="(ONEOF
+                        (solid_with_single_offset_chamfer,
+                         solid_with_double_offset_chamfer,
+                         solid_with_angle_based_chamfer))"
+      supertypes="edge_blended_solid">
+  
+  </entity>
+
+ <entity
+      name="solid_with_single_offset_chamfer"
+      supertypes="solid_with_chamfered_edges">
+    <explicit
+	          name="offset_distance">	            
+		<typename
+		  name="positive_length_measure"/>
+       </explicit>    
+  </entity>
+
+
+ <entity
+      name="solid_with_double_offset_chamfer"
+      supertypes="solid_with_chamfered_edges">
+      <explicit
+	          name="left_offset_distance">	            
+		<typename
+		  name="positive_length_measure"/>
+      </explicit>    
+       <explicit
+	          name="right_offset_distance">	            
+		<typename
+		  name="positive_length_measure"/>
+      </explicit>
+  </entity>
+
+
+ <entity
+      name="solid_with_angle_based_chamfer"
+      supertypes="solid_with_chamfered_edges">
+  <explicit
+	          name="offset_distance">	            
+		<typename
+		  name="positive_length_measure"/>
+   </explicit>    
+ <explicit
+ 	          name="left_offset">	            
+ 		<builtintype
+                 type="BOOLEAN"/>
+   </explicit> 
+ <explicit
+ 	          name="offset_angle">	            
+ 		<typename
+ 		  name="positive_plane_angle_measure"/>
+   </explicit> 
+  </entity>
+
+
+ <entity
+      name="surfaced_open_shell"
+      supertypes="open_shell">
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(q &lt;* SELF\connected_face_set.cfs_faces |
+         NOT ('TOPOLOGY_SCHEMA.FACE_SURFACE' IN TYPEOF(q)))) = 0">
+      </where>
+  </entity>
+
+
+ <entity
+      name="sculptured_solid"
+      supertypes="modified_solid">
+         
+     <explicit
+	          name="sculpturing_element">	            
+		<typename
+		  name="generalized_surface_select"/>
+       </explicit>    
+    <explicit
+    	          name="positive_side">	            
+    		<builtintype
+                 type="BOOLEAN"/>
+       </explicit> 
+   </entity>
+
+
+ <entity
+      name="sculptured_solid_with_selection"
+      supertypes="sculptured_solid">
+          <explicit
+	          name="retained_solid">	            
+		<typename
+		  name="topological_representation_item"/>
+	     </explicit>    
+     </entity>
+
+
+<entity
+      name="offset_face_solid"
+      supertypes="modified_solid">
+          <explicit
+	          name="offset_faces">	            
+		<aggregate
+			  type="LIST"
+			  lower="1"
+	                 upper="?"/>
+	        <aggregate
+			  type="SET"
+			  lower="1"
+	                 upper="?"/>         
+	                 <typename
+		  name="face_surface"/>
+	     </explicit>    
+           <explicit
+                name="offset_distances">	            
+		<aggregate
+			  type="LIST"
+			  lower="1"
+	                 upper="?"/>
+	                 <typename
+		  name="length_measure"/>
+	     </explicit>    
+       <where
+               label="WR1"
+        expression="SIZEOF(offset_faces) = SIZEOF(offset_distances)"> 
+      </where>    
+    </entity>
+
+<entity
+      name="shelled_solid"
+      super.expression="double_offset_shelled_solid complex_shelled_solid"
+      supertypes="modified_solid">
+          <explicit
+                name="deleted_face_set">	            
+		<aggregate
+			  type="SET"
+			  lower="1"
+	                 upper="?"/>
+	                 <typename
+		  name="face_surface"/>
+	  </explicit> 
+	    <explicit
+	          name="thickness">	            
+		<typename
+		  name="length_measure"/>
+	     </explicit>    
+       <where
+               label="WR1"
+        expression="thickness &lt; &gt; 0"> 
+     </where>
+     </entity>
+
+<entity
+      name="double_offset_shelled_solid"
+      supertypes="shelled_solid">
+          <explicit
+	          name="thickness2">	            
+		<typename
+		  name="length_measure"/>
+	     </explicit>    
+      <where
+                    label="WR1"
+             expression="thickness2 &lt; &gt; 0"> 
+     </where>
+     <where
+                 label="WR2"
+                expression="SELF\shelled_solid.thickness &lt; &gt; thickness2"> 
+     </where>
+     </entity>
+
+<entity
+      name="complex_shelled_solid"
+      supertypes="shelled_solid">
+          <explicit
+	          name="thickened_face_list">	            
+		<aggregate
+		  type="LIST"
+		  lower="1"
+		   upper="?"/>
+		  <aggregate
+		    type="SET"
+		    lower="1"
+	             upper="?"/>  
+		<typename
+		  name="face_surface"/>
+		</explicit>    
+          <where
+                         label="WR1"
+                expression="SIZEOF(thickened_face_list) = SIZEOF(thickness_list)"> 
+          </where>
+          <where
+                      label="WR2"
+                     expression="SIZEOF(QUERY(q &lt;* thickness_list | (q = 0))) = 0"> 
+     </where>
+     </entity>
+
+
+<entity
+      name="modified_solid_with_placed_configuration"
+      abstract.entity="YES"
+      abstract.supertype="YES"
+      super.expression="(ONEOF
+                        (solid_with_depression, 
+                         solid_with_protrusion,
+                         solid_with_shape_element_pattern))"
+      supertypes="modified_solid">
+          <explicit
+	          name="placing">	            
+		<typename
+		  name="axis2_placement_3d"/>
+	     </explicit>    
+     </entity>
+
+
+<entity
+      name="solid_with_depression"
+      abstract.entity="YES"
+      abstract.supertype="YES"
+      super.expression="(solid_with_through_depression
+    ANDOR ONEOF (solid_with_hole,
+                 solid_with_pocket,
+                 solid_with_slot,
+                 solid_with_groove))"
+      supertypes="modified_solid_with_placed_configuration">
+          <explicit
+	          name="depth">	            
+		<typename
+		  name="positive_length_measure"/>
+	     </explicit>    
+     </entity>
+
+
+<entity
+      name="solid_with_through_depression"
+      supertypes="solid_with_depression">
+          <explicit
+	          name="exit_faces">	            
+		<aggregate
+		  type="SET"
+		  lower="1"
+		   upper="?"/>
+		   <typename
+		  name="face"/>
+	     </explicit>    
+          <where
+                 label="WR1"
+                  expression="SIZEOF(TYPEOF(SELF) *
+         ['SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_HOLE',
+          'SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_POCKET',
+          'SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_SLOT']) = 1"> 
+          </where>
+     </entity>
+
+<entity
+      name="solid_with_hole"
+      abstract.entity="YES"
+      abstract.supertype="YES"
+      super.expression="(solid_with_stepped_round_hole)"
+      supertypes="solid_with_depression">
+  </entity>
+
+<entity
+      name="solid_with_stepped_round_hole"
+      super.expression=" solid_with_stepped_round_hole_and_conical_transitions
+  ANDOR ONEOF (solid_with_flat_bottom_round_hole,
+               solid_with_conical_bottom_round_hole,
+               solid_with_spherical_bottom_round_hole))"     
+      supertypes="solid_with_hole">
+          <explicit
+	          name="segments">	            
+		<typename
+		  name="positive_integer"/>
+	     </explicit>
+	      <explicit
+	     	          name="segment_radii">	            
+	     	 <aggregate
+		  type="LIST"
+		  lower="1"
+		   upper="segments"/>
+		   <typename
+	     		  name="positive_length_measure"/>
+	     </explicit>    
+	      <explicit
+	     	          name="segment_depths">	            
+	     	<aggregate
+		  type="LIST"
+		  lower="1"
+		   upper="segments"/>
+		   <typename
+	     		  name="positive_length_measure"/>
+	     </explicit>    
+          <derived
+	          name="solid_with_depression.depth"
+                  expression="total_depth(SELF)">
+                 <typename
+	     	  name="positive_length_measure"/>
+         </derived>
+         <where
+                      label="WR1"
+             expression="NOT (('SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_THROUGH_DEPRESSION'
+               IN TYPEOF(SELF)) AND (SIZEOF(TYPEOF(SELF) *
+               ['SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_FLAT_BOTTOM_ROUND_HOLE',
+               'SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_SPHERICAL_BOTTOM_ROUND_HOLE',
+               'SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_FLAT_BOTTOM_ROUND_HOLE']) 
+                &lt; &gt; 0))"> 
+          </where>
+     </entity>
+
+<entity
+      name="conical_stepped_hole_transition"
+      supertypes="geometric_representation_item">
+          <explicit
+	          name="transition_number">	            
+		<typename
+		  name="positive_integer"/>
+	     </explicit>   
+	     <explicit
+	             name="cone_apex_angle">	            
+	            <typename
+	     		  name="plane_angle_measure"/>
+	     </explicit> 
+            <explicit
+	          name="cone_base_radius">	            
+		<typename
+		  name="positive_length_measure"/>
+	     </explicit>   	     
+     </entity>
+
+<entity
+      name="solid_with_stepped_round_hole_and_conical_transitions"
+      supertypes="solid_with_stepped_round_hole">
+          <explicit
+	          name="conical_transitions">	            
+		<aggregate
+		  type="SET"
+		  lower="1"
+		   upper="segments"/>
+		   <typename
+		  name="conical_stepped_hole_transition"/>
+	     </explicit>    
+     <where
+             label="WR1"
+             expression="SIZEOF (conical_transitions) &lt;= 
+         (SELF\solid_with_stepped_round_hole.segments + 1)">
+     </where>
+     <where
+                  label="WR2"
+                  expression="('SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_THROUGH_DEPRESSION'
+         IN TYPEOF(SELF)) XOR (SIZEOF(conical_transitions) &lt;= 
+         SELF\solid_with_stepped_round_hole.segments)">
+          </where>
+       <where
+                label="WR3"
+                expression="valid_countersink_radii(SELF)">
+        </where>
+    </entity>
+    
+<entity
+      name="solid_with_flat_bottom_round_hole"
+      supertypes="solid_with_stepped_round_hole">
+          <explicit
+	          name="fillet_radius">	            
+		<typename
+		  name="non_negative_length_measure"/>
+	     </explicit>    
+     <where
+                  label="WR1"
+                  expression="fillet_radius &lt; 
+          SELF\solid_with_stepped_round_hole.segment_radii[segments]">
+          </where>
+       
+     </entity>
+
+<entity
+      name="solid_with_spherical_bottom_round_hole"
+      supertypes="solid_with_stepped_round_hole">
+          <explicit
+	          name="sphere_radius">	            
+		<typename
+		  name="positive_length_measure"/>
+	     </explicit>    
+     <where
+                  label="WR1"
+                  expression="sphere_radius &gt;= 
+          SELF\solid_with_stepped_round_hole.segment_radii[segments]">
+          </where>
+     </entity>
+
+<entity
+      name="solid_with_conical_bottom_round_hole"
+      supertypes="solid_with_stepped_round_hole">
+          <explicit
+	          name="semi_apex_angle">	            
+		<typename
+		  name="positive_plane_angle_measure"/>
+	     </explicit>    
+           <explicit
+     	          name="tip_radius">	            
+     		<typename
+     		  name="non_negative_length_measure"/>
+	     </explicit> 
+     <where
+                  label="WR1"
+                  expression="tip_radius &lt; 
+          SELF\solid_with_stepped_round_hole.segment_radii[segments]">
+          </where>
+     </entity>
+
+<entity
+      name="solid_with_pocket"
+      abstract.entity="YES"
+      abstract.supertype="YES"
+      super.expression="(ONEOF 
+                      (solid_with_rectangular_pocket,
+                       solid_with_circular_pocket,
+                       solid_with_general_pocket))"
+      supertypes="solid_with_depression">
+          <explicit
+	          name="floor_blend_radius">	            
+		<typename
+		  name="non_negative_length_measure"/>
+	  </explicit>
+        <explicit
+	          name="draft_angle">	            
+		<typename
+		  name="plane_angle_measure"/>
+	  </explicit>    
+    </entity>
+
+<entity
+      name="solid_with_rectangular_pocket"
+      supertypes="solid_with_pocket">
+          <explicit
+	          name="pocket_length">	            
+		<typename
+		  name="positive_length_measure"/>
+	 <explicit
+	          name="pocket_width">	            
+		<typename
+		  name="positive_length_measure"/>
+	     </explicit>    
+         </explicit>    
+     <explicit
+	          name="corner_radius">	            
+		<typename
+		  name="non_negative_length_measure"/>
+	     </explicit>    
+     <where
+                  label="WR1"
+                  expression="(corner_radius &lt; pocket_width/2) 
+         AND (corner_radius &lt; pocket_length/2)">
+          </where>
+     </entity>
+
+<entity
+      name="solid_with_circular_pocket"
+      supertypes="solid_with_pocket">
+          <explicit
+	          name="pocket_radius">	            
+		<typename
+		  name="positive_length_measure"/>
+	     </explicit>    
+     <where
+                  label="WR1"
+                  expression="SELF\solid_with_pocket.floor_blend_radius &lt;= pocket_radius">
+          </where>
+ </entity>
+
+<entity
+      name="solid_with_general_pocket"
+      supertypes="solid_with_pocket">
+          <explicit
+	          name="profile">	            
+		<typename
+		  name="positioned_sketch"/>
+	     </explicit>    
+     <explicit
+	          name="reference_point">	            
+		<typename
+		  name="point"/>
+	     </explicit>    
+   <where
+           label="WR1"
+           expression="SIZEOF(['GEOMETRY_SCHEMA.CURVE_BOUNDED_SURFACE',
+          'TOPOLOGY_SCHEMA.FACE_SURFACE'] * TYPEOF(profile.sketch_basis)) = 1">
+    </where>
+   <where
+            label="WR2"
+            expression="profile IN using_items(reference_point,[])">
+    </where>
+    </entity>
+
+<entity
+      name="solid_with_slot"
+      abstract.entity="YES"
+      abstract.supertype="YES"
+      super.expression="((ONEOF (solid_with_straight_slot,
+                                 solid_with_curved_slot))
+                     AND (ONEOF (solid_with_trapezoidal_section_slot,
+                                 solid_with_tee_section_slot)))"
+      supertypes="solid_with_depression">
+          <explicit
+	          name="slot_width">	            
+		<typename
+		  name="positive_length_measure"/>
+	 </explicit>    
+      <explicit
+	          name="closed_ends">	            
+		<aggregate
+		  type="LIST"
+		  lower="2"
+		   upper="2"/>
+		  <builtintype
+                 type="LOGICAL"/>
+	 </explicit>    
+    <explicit
+	          name="end_exit_faces">	            
+		<aggregate
+		  type="LIST"
+		  lower="2"
+		   upper="2"/>
+		   <aggregate
+		  type="SET"
+		  lower="0"
+		   upper="?"/>
+		   <typename
+		  name="face"/>
+	 </explicit>    
+   <where
+            label="WR1"
+     expression="NOT(('SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_THROUGH_DEPRESSION' 
+                 IN TYPEOF(SELF)) AND (closed_ends = [FALSE,FALSE]))">
+     </where>
+   <where
+         label="WR2"
+     expression="NOT(((closed_ends[1] = TRUE) AND (SIZEOF(end_exit_faces[1]) &lt; &gt; 0))
+                OR ((closed_ends[2] = TRUE) AND (SIZEOF(end_exit_faces[2]) &lt; &gt; 0)))">
+     </where>
+  </entity>
+
+<entity
+      name="solid_with_straight_slot"
+      supertypes="solid_with_slot">
+          <explicit
+	          name="slot_length">	            
+		<typename
+		  name="positive_length_measure"/>
+	     </explicit>    
+   </entity>
+  
+     <entity
+      name="solid_with_curved_slot"
+      supertypes="solid_with_slot">
+          <explicit
+	          name="slot_centreline">	            
+		<typename
+		  name="bounded_curve"/>
+	     </explicit>    
+     </entity>
+
+<entity
+      name="solid_with_trapezoidal_section_slot"
+      supertypes="solid_with_slot">
+          <explicit
+	          name="draft_angle">	            
+		<typename
+		  name="plane_angle_measure"/>
+	     </explicit>    
+          <explicit
+	          name="floor_fillet_radius">	            
+		<typename
+		  name="non_negative_length_measure"/>
+	     </explicit>    
+    </entity>
+
+<entity
+      name="solid_with_tee_section_slot"
+      supertypes="solid_with_slot">
+          <explicit
+	          name="tee_section_width">	            
+		<typename
+		  name="positive_length_measure"/>
+	     </explicit>    
+         <explicit
+	        name="collar_depth">	            
+	     <typename
+		  name="positive_length_measure"/>
+	  </explicit>    
+  
+     <where
+           label="WR1"
+           expression="collar_depth &lt; SELF\solid_with_depression.depth">
+     </where>
+    <where
+           label="WR2"
+           expression="tee_section_width &gt; SELF\solid_with_slot.slot_width">
+     </where>
+     </entity>
+
+
+<entity
+      name="solid_with_groove"
+      supertypes="solid_with_depression">
+          <explicit
+	          name="groove_radius">	            
+		<typename
+		  name="positive_length_measure"/>
+	   </explicit>    
+           <explicit
+	          name="groove_width">	            
+		<typename
+		  name="positive_length_measure"/>
+	   </explicit>    
+           <explicit
+	          name="draft_angle">	            
+		<typename
+		  name="plane_angle_measure"/>
+	   </explicit>    
+           <explicit
+	          name="floor_fillet_radius">	            
+		<typename
+		  name="non_negative_length_measure"/>
+	   </explicit>    
+           <explicit
+	          name="external_groove">	            
+		<builtintype
+                 type="BOOLEAN"/>
+	   </explicit>    
+    <where
+           label="WR1"
+           expression="NOT ('SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_THROUGH_DEPRESSION'
+                       IN TYPEOF(SELF))">
+     </where>
+     </entity>
+
+<entity
+      name="solid_with_protrusion"
+      abstract.entity="YES"
+      abstract.supertype="YES"
+      super.expression="(ONEOF 
+                        (solid_with_circular_protrusion,
+                         solid_with_rectangular_protrusion,
+                         solid_with_general_protrusion))"
+      supertypes="modified_solid_with_placed_configuration">
+          <explicit
+	          name="protrusion_height">	            
+		<typename
+		  name="positive_length_measure"/>
+	     </explicit>    
+             <explicit
+	          name="protrusion_draft_angle">	            
+		<typename
+		  name="plane_angle_measure"/>
+	     </explicit>    
+     </entity>
+
+<entity
+      name="solid_with_circular_protrusion"
+      supertypes="solid_with_protrusion">
+          <explicit
+	          name="protrusion_radius">	            
+		<typename
+		  name="positive_length_measure"/>
+	     </explicit>    
+    </entity>
+
+<entity
+      name="solid_with_rectangular_protrusion"
+      supertypes="solid_with_protrusion">
+        <explicit
+	          name="protrusion_length">	            
+		<typename
+		  name="positive_length_measure"/>
+	 </explicit>    
+       <explicit
+	          name="protrusion_width">	            
+		<typename
+		  name="positive_length_measure"/>
+	     </explicit>    
+       <explicit
+	          name="protrusion_corner_radius">	            
+		<typename
+		  name="non_negative_length_measure"/>
+	     </explicit>    
+     <where
+           label="WR1"
+           expression="(protrusion_corner_radius &lt;= protrusion_width/2) 
+         AND (protrusion_corner_radius &lt;= protrusion_length/2)">
+     </where>
+     </entity>
+
+EDIT TO HERE
+
+<entity
+      name="solid_with_general_protrusion"
+      supertypes="solid_with_protrusion">
+          <explicit
+	          name="profile">	            
+		<typename
+		  name="positioned_sketch"/>
+	     </explicit>    
+             <explicit
+     	          name="reference_point">	            
+     		<typename
+     		  name="point"/>
+	     </explicit>   
+     <where
+           label="WR1"
+           expression="SIZEOF(['GEOMETRY_SCHEMA.CURVE_BOUNDED_SURFACE',
+              'TOPOLOGY_SCHEMA.FACE_SURFACE'] * TYPEOF(profile.sketch_basis)) = 1">
+     </where>
+     <where
+           label="WR2"
+           expression="profile IN using_items(reference_point,[])">
+     </where>
+   </entity>
+
+<entity
+      name="solid_with_shape_element_pattern"
+      abstract.entity="YES"
+      abstract.supertype="YES"
+      super.expression="(ONEOF
+                        (solid_with_circular_pattern,
+                         solid_with_rectangular_pattern))"
+      supertypes="modified_solid_with_placed_configuration">
+          <explicit
+	          name="replicated_element">	            
+		<typename
+		  name="modified_solid_with_placed_configuration"/>
+            </explicit>
+</entity>
+
+<entity
+      name="solid_with_circular_pattern"
+      supertypes="solid_with_incomplete_circular_pattern">
+          <explicit
+	          name="replicate_count">	            
+		<typename
+		  name="positive_integer"/>
+	     </explicit>    
+             <explicit
+     	          name="angular_spacing">	            
+     		<typename
+     		     name="plane_angle_measure"/>
+	     </explicit>   
+               <explicit
+     	         name="radial_alignment">	            
+     		<builtintype
+                 type="BOOLEAN"/>
+	     </explicit>   
+                <explicit
+                   name="reference_point">	            
+     		<typename
+     		  name="point"/>
+	     </explicit>   
+       </entity>
+
+<entity
+      name="solid_with_rectangular_pattern"
+      supertypes="solid_with_incomplete_rectangular_pattern">
+          <explicit
+	          name="row_count">	            
+		<typename
+		  name="positive_integer"/>
+	     </explicit>    
+             <explicit
+     	          name="column_count">	            
+     		<typename
+     		  name="positive_integer"/>
+	     </explicit>   
+              <explicit
+     	          name="row_spacing">	            
+     		<typename
+     		  name="length_measure"/>
+	     </explicit>   
+             <explicit
+     	          name="column_spacing">	            
+     		<typename
+     		  name="length_measure"/>
+	     </explicit>   
+       <where
+           label="WR1"
+           expression="(row_count * column_count) > 1">
+       </where>
+    </entity>
+
+<entity
+      name="solid_with_incomplete_circular_pattern"
+      supertypes="solid_with_circular_pattern">
+          <explicit
+	          name="omitted_instances">	            
+		<aggregate
+		  type="SET"
+		  lower="1"
+		   upper="?"/>
+	          <typename
+	       	  name="positive_integer"/>
+	     </explicit>    
+     <where
+           label="WR1"
+           expression="SIZEOF(omitted_instances) &lt;
+         SELF\solid_with_circular_pattern.replicate_count">
+     </where>
+     <where
+           label="WR2"
+           expression="SIZEOF(QUERY(q &lt;* omitted_instances | q &gt; 
+         SELF\solid_with_circular_pattern.replicate_count)) = 0">
+     </where>
+   </entity>
+
+<entity
+      name="solid_with_incomplete_rectangular_pattern"
+      supertypes="solid_with_rectangular_pattern">
+          <explicit
+	          name="omitted_instances">	            
+		<aggregate
+		  type="LIST"
+		  lower="1"
+		   upper="?"/>
+		   <aggregate
+		  type="LIST"
+		  lower="2"
+		   upper="2"/>
+		 <typename
+		  name="positive_integer"/>
+	     </explicit>    
+             <explicit
+     	          name="">	            
+     		<typename
+     		  name=""/>
+	     </explicit>   
+     <where
+           label="WR1"
+           expression="NOT([1,1] IN omitted_instances)">
+     </where>
+     <where
+           label="WR2"
+           expression="SIZEOF(omitted_instances) &lt;
+         ((SELF\solid_with_rectangular_pattern.row_count *
+           SELF\solid_with_rectangular_pattern.column_count) - 1)">
+     </where>
+     <where
+           label="WR3"
+           expression="SIZEOF(QUERY(q &lt;* omitted_instances |
+         ((q[1] &gt; SELF\solid_with_rectangular_pattern.row_count) OR
+          (q[2] &gt; SELF\solid_with_rectangular_pattern.column_count)))) = 0">
+     </where>
+   </entity>
+
+<entity
+      name="thickened_face_solid"
+      supertypes="solid_model">
+          <explicit
+	          name="base_element">	            
+		<typename
+		  name="generalized_surface_select"/>
+	     </explicit>    
+             <explicit
+     	          name="offset1">	            
+     		<typename
+     		  name="length_measure"/>
+	     </explicit>   
+             <explicit
+     	          name="offset2">	            
+     		<typename
+     		  name="length_measure"/>
+	     </explicit>   
+      <where
+           label="WR1"
+     expression="WR1: NOT (('GEOMETRY_SCHEMA.SURFACE' IN TYPEOF(base_element)) AND
+     (NOT ('GEOMETRY_SCHEMA.BOUNDED_SURFACE' IN TYPEOF(base_element))))">
+     </where>
+     <where
+           label="WR2"
+           expression="offset1 &lt; &gt; offset2">
+     </where>
+   </entity>
+
+<entity
+      name="extruded_face_solid_with_trim_conditions"
+      super.expression="(ONEOF
+                           (extruded_face_solid_with_draft_angle, 
+                            extruded_face_solid_with_multiple_draft_angles))"
+      supertypes="extruded_face_solid">
+               <explicit
+	          name="first_trim_condition">	            
+		<typename
+		  name="trim_condition_select"/>
+	     </explicit>    
+             <explicit
+     	          name="second_trim_condition">	            
+     		<typename
+     		  name="trim_condition_select"/>
+	     </explicit>   
+             <explicit
+     	          name="first_trim_intent">	            
+     		<typename
+     		  name="trim_intent"/>
+	     </explicit>   
+             <explicit
+	          name="second_trim_intent">	            
+		<typename
+		  name="trim_intent"/>
+	     </explicit>    
+             <explicit
+     	          name="first_offset">	            
+     		<typename
+     		  name="non_negative_length_measure"/>
+	     </explicit>   
+             <explicit
+     	          name="second_offset">	            
+     		<typename
+     		  name="non_negative_length_measure"/>
+	     </explicit>   
+     <where
+           label="WR1"
+           expression="NOT(('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE' 
+                      IN TYPEOF(first_trim_condition)) OR
+                      ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE' 
+                      IN TYPEOF(second_trim_condition)))">
+     </where>
+     <where
+           label="WR2"
+           expression="NOT ((('MEASURE_SCHEMA.LENGTH_MEASURE' 
+                      IN TYPEOF(first_trim_condition)) AND 
+                       ((first_trim_intent = offset) 
+                      OR (first_trim_intent = up_to_next))) OR  
+                      (('MEASURE_SCHEMA.LENGTH_MEASURE' 
+                      IN TYPEOF(second_trim_condition)) AND 
+                         ((second_trim_intent = offset) 
+                      OR (second_trim_intent = up_to_next))))">
+     </where>
+     <where
+           label="WR3"
+           expression="NOT (((NOT ('MEASURE_SCHEMA.LENGTH_MEASURE' 
+                      IN TYPEOF(first_trim_condition))) AND 
+                      ((first_trim_intent = blind) 
+                      OR (first_trim_intent = through_all))) OR  
+                      ((NOT('MEASURE_SCHEMA.LENGTH_MEASURE' 
+                      IN TYPEOF(second_trim_condition))) AND 
+                      ((second_trim_intent = blind) 
+                      OR (second_trim_intent = through_all))))">
+     </where>
+     <where
+           label="WR4"
+           expression="(((first_trim_intent = offset) AND (first_offset > 0)) XOR
+              ((first_trim_intent &lt; &gt; offset) AND (first_offset = 0))) AND 
+              (((second_trim_intent = offset) AND (second_offset &gt; 0)) XOR
+              ((second_trim_intent &lt; &gt; offset) AND (second_offset = 0)))">
+     </where>
+     <where
+           label="WR5"
+           expression="NOT((('MEASURE_SCHEMA.LENGTH_MEASURE' 
+                      IN TYPEOF(first_trim_condition)) AND
+                      ('MEASURE_SCHEMA.LENGTH_MEASURE' 
+                      IN TYPEOF(second_trim_condition))) AND
+                      (first_trim_condition = second_trim_condition))">
+     </where>
+ </entity>
+
+<entity
+      name="extruded_face_solid_with_draft_angle"
+      supertypes="extruded_face_solid_with_trim_conditions">
+          <explicit
+	          name="draft_angle">	            
+		<typename
+		  name="plane_angle_measure"/>
+	     </explicit>    
+      <where
+           label="WR1"
+           expression="draft_angle &lt; &gt; 0">
+     </where>
+   </entity>
+
+<entity
+      name="extruded_face_solid_with_multiple_draft_angles"
+      supertypes="extruded_face_solid_with_trim_conditions">
+          <explicit
+	          name="drafted_edges">	            
+		<aggregate
+		  type="LIST"
+		  lower="2"
+		   upper="?"/>
+		   <aggregate
+		  type="SET"
+		  lower="1"
+		   upper="?"/>
+		   <typename
+		  name="edge_curve"/>
+	     </explicit>    
+             <explicit
+     	          name="draft_angles">	            
+     		<aggregate
+		  type="LIST"
+		  lower="2"
+		   upper="?"/>
+		   <typename
+     		  name="plane_angle_measure"/>
+	     </explicit>   
+     <where
+           label="WR1"
+           expression="SIZEOF(drafted_edges) = SIZEOF(draft_angles)">
+     </where>
+     <where
+           label="WR2"
+           expression="SIZEOF(QUERY(q &lt;* draft_angles | q = 0)) = 0">
+     </where>
+     <where
+           label="WR3"
+         expression="SIZEOF(QUERY(q &lt;* drafted_edges | (SIZEOF(QUERY(r &lt;* q | NOT 
+         (SELF\swept_face_solid.swept_face IN 
+          using_items(r,[])))) &gt; 0))) = 0">
+     </where>
+ </entity>
+
+<entity
+      name="revolved_face_solid_with_trim_conditions"
+      supertypes="revolved_face_solid">
+          <explicit
+	          name="first_trim_condition">	            
+		<typename
+		  name="trim_condition_select"/>
+	     </explicit>    
+             <explicit
+     	          name="second_trim_condition">	            
+     		<typename
+     		  name="trim_condition_select"/>
+	     </explicit>   
+     <where
+           label="WR1"
+           expression="NOT (('MEASURE_SCHEMA.LENGTH_MEASURE' 
+                      IN TYPEOF(first_trim_condition)) 
+                       OR ('MEASURE_SCHEMA.LENGTH_MEASURE' 
+                      IN TYPEOF(second_trim_condition)))">
+     </where>
+     <where
+           label="WR2"
+           expression="NOT((('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE' 
+                      IN TYPEOF(first_trim_condition)) AND
+                      ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE' 
+                      IN TYPEOF(second_trim_condition))) AND
+                      (first_trim_condition = second_trim_condition))">
+     </where>
+   </entity>
+
+<entity
+      name="auxiliary_geometric_instance_aggregator"
+      supertypes="geometric_representation_item">
+          <explicit
+	          name="shape_element">	            
+		<typename
+		  name="geometric_representation_item"/>
+	     </explicit>    
+             <explicit
+     	          name="auxiliary_items">	            
+     		<aggregate
+		  type="SET"
+		  lower="1"
+		   upper="?"/>
+		   <typename
+     		     name="geometric_representation_item"/>
+	     </explicit>   
+     <where
+           label="WR1"
+           expression="SIZEOF(QUERY(q &lt;* auxiliary_items | 
+                shape_element IN using_items(q,[]))) = 0">
+     </where>
+ </entity>
+
+
+
+<function
+      name="continuous_edges">
+      <parameter
+        name="edges">
+        <aggregate
+          type="LIST"
+          unique="YES"/>
+          <typename
+          name="edge_curve"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+      <algorithm>
+     LOCAL
+    i           : INTEGER;
+    next_vertex : vertex;
+  END_LOCAL;
+
+  -- first check whether there is only one edge in the list: in this
+  -- case there is no connectivity to be checked.
+
+  IF (SIZEOF(edges) = 1)
+  THEN RETURN(TRUE);
+  END_IF;
+
+  -- otherwise, establish the matching vertices of edges 1 and 2 in 
+  -- the list, and determine the vertex of edge 2 to which edge 3, 
+  -- must be connected, if there are more than two edges in the list.
+
+  IF ((edges[2].edge_start :=: edges[1].edge_end)
+    XOR (edges[2].edge_start :=: edges[1].edge_start))
+  THEN next_vertex := edges[2].edge_end;
+  ELSE 
+    IF ((edges[2].edge_end :=: edges[1].edge_end)
+      XOR (edges[2].edge_end :=: edges[1].edge_start))
+    THEN next_vertex := edges[2].edge_start;
+    ELSE RETURN(FALSE); -- no match between any vertices of edges 1 and 2 
+    END_IF;
+  END_IF;
+
+  -- exit if there are only two edges and they are connected
+
+  IF (SIZEOF(edges) = 2)
+  THEN RETURN(TRUE);
+  END_IF;
+
+  -- otherwise, check that any remaining edges are connected in list order.
+
+  REPEAT i := 3 TO HIINDEX(edges);
+    IF (edges[i].edge_start :=: next_vertex)
+    THEN next_vertex := edges[i].edge_end;
+    ELSE
+      IF (edges[i].edge_end :=: next_vertex)
+      THEN next_vertex := edges[i].edge_start;
+      ELSE RETURN(FALSE); -- no match is found.
+      END_IF;
+    END_IF; 
+  END_REPEAT;
+
+  RETURN(TRUE); -- all edges have now been successfully checked.
+ </algorithm>
+ </function>
+ 
+<function
+      name="total_depth">
+      <parameter
+        name="swsrh">
+        <typename
+          name="solid_with_stepped_round_hole"/>
+      </parameter>
+      <typename
+        name="positive_length_measure"/>
+ <algorithm>
+   LOCAL
+    i  : INTEGER;
+    td : positive_length_measure := 0;
+  END_LOCAL;
+
+  REPEAT i := 1 TO swsrh.segments;
+    td := td + swsrh.segment_depths[i];
+  END_REPEAT;
+  RETURN(td); 
+
+
+</algorithm>
+ </function>
+ 
+ <function
+      name="valid_countersink_radii">
+      <parameter
+        name="cskhole">
+        <typename
+          name="solid_with_stepped_round_hole_and_conical_transitions"/>
+      </parameter>
+      <builtintype
+        type="BOOLEAN"/>
+ <algorithm>
+LOCAL
+    i,j             : INTEGER;
+    n               : INTEGER := 1 +
+                        cskhole\solid_with_stepped_round_hole.segments;
+    smaller, larger : positive_length_measure;
+  END_LOCAL;
+
+  REPEAT i := 1 TO SIZEOF(cskhole.conical_transitions);
+
+  -- First check whether transition i applies to the entry of the hole or 
+  -- the exit of a blind hole - those cases only need to be checked for 
+  -- the sign of the cone apex angle.
+
+  IF (((cskhole.conical_transitions[i].transition_number = 1)
+       AND (cskhole.conical_transitions[i].cone_apex_angle &lt; 0))
+    XOR ((cskhole.conical_transitions[i].transition_number = n)
+         AND (cskhole.conical_transitions[i].cone_apex_angle &gt; 0))) 
+  THEN RETURN(FALSE); 
+  ELSE
+    IF ((cskhole.conical_transitions[i].transition_number &lt;&gt; 1)
+      AND (cskhole.conical_transitions[i].transition_number &lt;&gt; n))
+    THEN
+
+  -- For all remaining transitions, check that the cone base radius 
+  -- lies in the range of validity.
+
+      BEGIN
+        j := cskhole.conical_transitions[i].transition_number;
+        IF cskhole\solid_with_stepped_round_hole.segment_radii[j] 
+          > cskhole\solid_with_stepped_round_hole.segment_radii[j-1]
+        THEN 
+          BEGIN
+            IF (cskhole.conical_transitions[i].cone_apex_angle > 0)
+            THEN RETURN(FALSE);
+            END_IF;
+            larger 
+              := cskhole\solid_with_stepped_round_hole.segment_radii[j];
+            smaller 
+              := cskhole\solid_with_stepped_round_hole.segment_radii[j-1];
+          END;
+        ELSE
+          BEGIN
+            IF (cskhole.conical_transitions[i].cone_apex_angle &lt; 0)
+            THEN RETURN(FALSE);
+            END_IF;
+            larger  
+              := cskhole\solid_with_stepped_round_hole.segment_radii[j-1];
+            smaller 
+              := cskhole\solid_with_stepped_round_hole.segment_radii[j];
+          END;
+          IF ((cskhole.conical_transitions[i].cone_base_radius &gt; larger)
+            OR (cskhole.conical_transitions[i].cone_base_radius &lt; smaller))
+          THEN RETURN(FALSE);
+          END_IF;
+        END_IF;
+      END;
+    END_IF;
+  END_IF;
+  END_REPEAT;
+  RETURN(TRUE); 
+</algorithm>
+ </function>
+ 
+  </schema>
+  </express>
+

@@ -6,8 +6,8 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="solid_with_local_modification_arm schema_instance"/>
    <schema name="Solid_with_local_modification_arm">
       <interface kind="use" schema="Basic_geometric_topology_arm"/>
-      <interface kind="use" schema="Procedural_solid_model_arm"/>
       <interface kind="use" schema="Topologically_bounded_surface_arm"/>
+      <interface kind="use" schema="Procedural_solid_model_arm"/>
       <type name="blend_end_condition">
          <select selectitems="Detailed_geometric_model_element Vertex"/>
       </type>
@@ -118,7 +118,7 @@
             <builtintype type="BOOLEAN"/>
          </explicit>
          <explicit name="reference_point">
-            <typename name="point_select"/>
+            <typename name="Cartesian_point"/>
          </explicit>
          <where label="WR1" expression="replicate_count &gt; 0"/>
       </entity>
@@ -189,7 +189,7 @@
          <where label="WR1" expression="fillet_radius &lt; &#10;          SELF\Solid_with_stepped_round_hole.segment_radii[segments]"/>
          <where label="WR2" expression="fillet_radius  &gt;= 0.0"/>
       </entity>
-      <entity name="Solid_with_general_pocket" supertypes="Solid_with_depression">
+      <entity name="Solid_with_general_pocket" supertypes="Solid_with_pocket">
          <explicit name="profile">
             <typename name="Detailed_geometric_model_element"/>
          </explicit>
@@ -316,7 +316,7 @@
          <where label="WR4" expression="corner_radius &gt;= 0.0"/>
       </entity>
       <entity name="Solid_with_rectangular_protrusion" supertypes="Solid_with_protrusion">
-         <explicit name="length_value">
+         <explicit name="protrusion_length">
             <typename name="length_measure"/>
          </explicit>
          <explicit name="width">
@@ -325,8 +325,8 @@
          <explicit name="corner_radius">
             <typename name="length_measure"/>
          </explicit>
-         <where label="WR1" expression="(corner_radius &lt;= width/2) &#10;         AND (corner_radius &lt;= length_value/2)"/>
-         <where label="WR2" expression="length_value &gt; 0.0"/>
+         <where label="WR1" expression="(corner_radius &lt;= width/2) &#10;         AND (corner_radius &lt;= protrusion_length/2)"/>
+         <where label="WR2" expression="protrusion_length &gt; 0.0"/>
          <where label="WR3" expression="width &gt; 0.0"/>
          <where label="WR4" expression="corner_radius &gt;= 0.0"/>
       </entity>
@@ -371,7 +371,7 @@
             <aggregate type="LIST" lower="1" upper="0"/>
             <typename name="length_measure"/>
          </explicit>
-         <derived name="depth" expression="total_hole_depth(SELF)">
+         <derived name="depth" expression="calculate_depth(SELF)">
             <typename name="length_measure"/>
             <redeclaration entity-ref="Solid_with_depression"/>
          </derived>
@@ -435,7 +435,7 @@
          <where label="WR2" expression="SIZEOF(variations) = SIZEOF(interpolation_points) - 1"/>
          <where label="WR3" expression="SIZEOF(['SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_FIXED_RADIUS_EDGE_BLEND',&#10;              'SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_SIMPLE_CHAMFER',&#10;              'SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_DOUBLE_OFFSET_CHAMFER',&#10;              'SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_ANGLED_CHAMFER'] * TYPEOF(SELF)) = 0"/>
       </entity>
-      <function name="total_hole_depth">
+      <function name="calculate_depth">
          <parameter name="swsrh">
             <typename name="Solid_with_stepped_round_hole"/>
          </parameter>

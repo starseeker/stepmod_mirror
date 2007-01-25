@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id$ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date$"
-   rcs.revision="$Revision$"
-   description.file="arm_descriptions.xml">
-   
-  <schema name="Picture_representation_arm">
-  </schema>
+
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="picture_representation_arm schema_instance"/>
+   <schema name="Picture_representation_arm">
+     <interface kind="use" schema="Foundation_representation_arm"/>  
+       <interface kind="use" schema="External_item_identification_assignment_arm"/> 
+    <!--   <interface kind="use" schema="Presentation_hierarchy_arm"/> -->
+      <constant name="pre_defined_picture_representation_types" expression="[ 'JPEG', 'PNG', 'TIFF', 'BMP', 'GIF']"> 
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <entity name="Binary_representation_item" supertypes="Representation_item"/>
+      <entity name="Bytes_representation_item" supertypes="Binary_representation_item"/>
+      <entity name="Externally_defined_picture_representation_item" supertypes="Picture_representation_item">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+         <where label="WR1" expression="NOT (SELF\Representation_item.name IN pre_defined_picture_representation_types)"/>
+      </entity>
+      <entity name="Picture_representation" supertypes="View_area"/>
+      <entity name="Picture_representation_item" abstract.supertype="YES" supertypes="Bytes_representation_item"/>
+      <entity name="Predefined_picture_representation_item" supertypes="Picture_representation_item">
+         <where label="WR1" expression="SELF\Representation_item.name IN pre_defined_picture_representation_types"/>
+      </entity>
+   </schema>
 </express>

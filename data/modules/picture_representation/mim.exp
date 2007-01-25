@@ -1,6 +1,68 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   $Id$
    N - ISO/CD-TS - 10303- picture_representation - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Picture_representation_mim;
+
+  USE FROM Foundation_representation_mim; 
+
+  USE FROM External_item_identification_assignment_mim;
+
+  USE FROM presentation_organization_schema (presentation_area, area_in_set) ;
+
+  USE FROM geometry_schema (axis2_placement_2d);
+   
+  CONSTANT 
+    pre_defined_picture_representation_types : SET [0:?] OF STRING := [ 'JPEG', 'PNG', 'TIFF', 'BMP', 'GIF']; 
+  END_CONSTANT;  
+ 
+  TYPE picture_representation_item_select = SELECT ( 
+    picture_representation_item, 
+    axis2_placement_2d); 
+  END_TYPE; 
+ 
+  -- to be moved into p43 later on 
+  ENTITY binary_representation_item 
+    SUBTYPE OF (representation_item); 
+      binary_value : BINARY; 
+  END_ENTITY; 
+
+  -- to be moved into p43 later on 
+  ENTITY bytes_representation_item 
+    SUBTYPE OF (binary_representation_item); 
+    DERIVE 
+      no_of_bytes : INTEGER := SELF\binary_representation_item.binary_value DIV 8; 
+    WHERE 
+      WR1: BLENGTH(SELF\binary_representation_item.binary_value) MOD 8 = 0; 
+      -- value must be a multiple of 8 bits; 
+  END_ENTITY; 
+ 
+  ENTITY picture_representation_item 
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF (bytes_representation_item);
+  END_ENTITY; 
+ 
+  ENTITY predefined_picture_representation_item 
+    SUBTYPE OF (picture_representation_item); 
+    WHERE 
+      WR1: SELF\representation_item.name IN pre_defined_picture_representation_types; 
+  END_ENTITY; 
+ 
+  ENTITY externally_defined_picture_representation_item 
+    SUBTYPE OF (picture_representation_item); 
+    INVERSE 
+      source : applied_external_identification_assignment FOR items; 
+    WHERE 
+      WR1: NOT (SELF\representation_item.name IN pre_defined_picture_representation_types); 
+  END_ENTITY; 
+ 
+  ENTITY picture_representation 
+    SUBTYPE OF (presentation_area); 
+      SELF\representation.items : SET [2:?] OF picture_representation_item_select; 
+    INVERSE 
+      size : SET[1:1] OF area_in_set FOR area;
+    WHERE 
+      WR1: SIZEOF(QUERY(items <* SELF\representation.items | 'PICTURE_REPRESENTATION_MIM.PICTURE_REPRESENTATION_ITEM' IN TYPEOF(items))) = 1;
+  END_ENTITY; 
+ 
 END_SCHEMA;

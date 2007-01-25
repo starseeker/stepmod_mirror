@@ -1,6 +1,49 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   $Id$
    N - ISO/CD-TS - 10303- picture_representation - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
+
 SCHEMA Picture_representation_arm;
+
+  USE FROM Foundation_representation_arm; 
+
+  USE FROM External_item_identification_assignment_arm;
+
+  USE FROM Presentation_hierarchy_arm;
+   
+  CONSTANT 
+    pre_defined_picture_representation_types : SET [0:?] OF STRING := [ 'JPEG', 'PNG', 'TIFF', 'BMP', 'GIF']; 
+  END_CONSTANT;  
+ 
+  ENTITY Binary_representation_item 
+    SUBTYPE OF (Representation_item); 
+  END_ENTITY; 
+
+  ENTITY Bytes_representation_item 
+    SUBTYPE OF (Binary_representation_item); 
+  END_ENTITY; 
+ 
+  ENTITY Picture_representation_item 
+    ABSTRACT SUPERTYPE
+    SUBTYPE OF (Bytes_representation_item);
+  END_ENTITY; 
+ 
+  ENTITY Predefined_picture_representation_item 
+    SUBTYPE OF (Picture_representation_item); 
+    WHERE 
+      WR1: SELF\Representation_item.name IN pre_defined_picture_representation_types; 
+  END_ENTITY; 
+ 
+  ENTITY Externally_defined_picture_representation_item 
+    SUBTYPE OF (Picture_representation_item); 
+    INVERSE 
+      source : External_source_identification FOR item; 
+    WHERE 
+      WR1: NOT (SELF\Representation_item.name IN pre_defined_picture_representation_types); 
+  END_ENTITY; 
+ 
+  ENTITY Picture_representation 
+    SUBTYPE OF (View_area); 
+  END_ENTITY; 
+ 
 END_SCHEMA;

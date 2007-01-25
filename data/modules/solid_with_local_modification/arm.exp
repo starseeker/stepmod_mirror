@@ -5,9 +5,8 @@
 
 SCHEMA Solid_with_local_modification_arm;
 
+
 USE FROM Basic_geometric_topology_arm;
-USE FROM Procedural_solid_model_arm;
-USE FROM Topologically_bounded_surface_arm;
 
 
 TYPE blend_radius_variation = ENUMERATION OF
@@ -95,9 +94,9 @@ END_ENTITY;
 
 ENTITY Solid_with_angled_chamfer
 SUBTYPE OF (Solid_with_edge_modification);
-  offset_distance             : length_measure; 
+  offset_distance             : length_measure;
   left_offset                 : BOOLEAN;
-  offset_angle                : plane_angle_measure; 
+  offset_angle                : plane_angle_measure;
 WHERE
    WR1: offset_distance > 0.0;   
    WR2: offset_angle > 0.0; 
@@ -114,7 +113,7 @@ ENTITY Sculptured_solid
 SUBTYPE OF (Modified_solid);
    cutting_surface : sculpting_surface;
    positive_side   : BOOLEAN;
-END_ENTITY;
+END_ENTITY
 
 ENTITY Sculptured_solid_with_selection
 SUBTYPE OF (Sculptured_solid);
@@ -185,7 +184,7 @@ SUBTYPE OF (Solid_with_depression);
   segment_depths     : LIST[1:segments] OF length_measure;
 DERIVE
   SELF\Solid_with_depression.depth
-                     : length_measure := total_hole_depth(SELF);
+                     : length_measure := calculate_depth(SELF);
 WHERE
   WR1: NOT (('SOLID_WITH_LOCAL_MODIFICATION_ARM.SOLID_WITH_THROUGH_DEPRESSION'
        IN TYPEOF(SELF)) AND (SIZEOF(TYPEOF(SELF) *
@@ -244,12 +243,12 @@ WHERE
   WR3 : semi_apex_angle > 0.0;  
 END_ENTITY;
 
-ENTITY Solid_with_pocket
+ENTITY solid_with_pocket
 ABSTRACT SUPERTYPE OF (ONEOF 
                       (solid_with_rectangular_pocket,
                        solid_with_circular_pocket,
                        solid_with_general_pocket))
-SUBTYPE OF (Solid_with_depression);
+SUBTYPE OF (solid_with_depression);
   floor_blend_radius : length_measure;
   draft_angle        : plane_angle_measure;
 WHERE
@@ -279,14 +278,10 @@ WHERE
 END_ENTITY;
 
 ENTITY Solid_with_general_pocket  
-  SUBTYPE OF (Solid_with_depression);
+  SUBTYPE OF (Solid_with_pocket);
     profile            : Detailed_geometric_model_element;
     reference_point    : Cartesian_point;
-(* GL- fixed - this subtype does not have attribute floor_blend_radius
-WHERE
-   WR1 : floor_blend_radius >= 0.0; 
-*)   
-END_ENTITY;
+ END_ENTITY;
 
 
 ENTITY Solid_with_slot
@@ -308,7 +303,7 @@ END_ENTITY;
 
 ENTITY Solid_with_straight_slot
   SUBTYPE OF (Solid_with_slot);
-  slot_length : length_measure; 
+  slot_length : length_measure;
 WHERE
     WR1: slot_length > 0.0; 
 END_ENTITY;
@@ -328,8 +323,8 @@ END_ENTITY;
 
 ENTITY Solid_with_tee_slot
   SUBTYPE OF (Solid_with_slot);
-  tee_section_width  : length_measure; 
-  collar_depth       : length_measure; 
+  tee_section_width  : length_measure;
+  collar_depth       : length_measure;
 WHERE
   WR1: collar_depth < SELF\Solid_with_depression.depth;
   WR2: tee_section_width > SELF\solid_with_slot.slot_width; 
@@ -374,13 +369,13 @@ END_ENTITY;
 
 ENTITY Solid_with_rectangular_protrusion
   SUBTYPE OF (Solid_with_protrusion);
-  length_value : length_measure; 
+  protrusion_length        : length_measure;
   width         : length_measure;
   corner_radius : length_measure;
 WHERE
   WR1: (corner_radius <= width/2) 
-         AND (corner_radius <= length_value/2);
-  WR2: length_value > 0.0; 
+         AND (corner_radius <= protrusion_length/2);
+  WR2: protrusion_length > 0.0; 
   WR3: width > 0.0; 
   WR4: corner_radius >= 0.0; 
 END_ENTITY;
@@ -399,7 +394,7 @@ ENTITY Solid_with_circular_pattern
   replicate_count  : INTEGER;
   angular_spacing  : plane_angle_measure;
   radial_alignment : BOOLEAN;
-  reference_point  : point_select; 
+  reference_point  : Cartesian_point;
 WHERE
    WR1 : replicate_count > 0;
 END_ENTITY;
@@ -441,7 +436,7 @@ WHERE
           (q[2] > SELF\Solid_with_rectangular_pattern.column_count)))) = 0;
 END_ENTITY;
 
-FUNCTION total_hole_depth (swsrh : Solid_with_stepped_round_hole) 
+FUNCTION calculate_depth (swsrh : Solid_with_stepped_round_hole) 
                             : length_measure;
 
   LOCAL

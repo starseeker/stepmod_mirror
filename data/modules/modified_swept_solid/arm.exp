@@ -1,14 +1,12 @@
 (*
- $Id: arm.exp,v 1.6 2004/10/22 15:27:37 darla Exp $
+ $Id: arm.exp,v 1.3 2007/01/25 11:28:21 liutkus Exp $
  ISO TC184/SC4/WG12 Nxxx - ISO/TS 10303-1xxx Swept solid - EXPRESS ARM
 *)
 
 SCHEMA Modified_swept_solid_arm;
 
 USE FROM Basic_geometric_topology_arm;
-USE FROM Elemental_geometric_shape_arm;
 USE FROM Swept_solid_arm;
-USE FROM Value_with_unit_arm;
 
 TYPE trim_select = SELECT
     (length_measure,
@@ -36,7 +34,7 @@ ENTITY Extruded_solid_with_trim_conditions
 SUPERTYPE OF (ONEOF(Extruded_solid_with_draft_angle, Extruded_solid_with_multiple_draft_angles))
 SUBTYPE OF (Extruded_solid);
  start_condition        : trim_select;
- end-condition          : trim_select;
+ end_condition          : trim_select;
  start_condition_intent : trim_intent; 
  end_condition_intent   : trim_intent; 
 END_ENTITY;
@@ -53,9 +51,11 @@ SUBTYPE OF (Extruded_solid_with_trim_conditions);
 WHERE
   WR1: SIZEOF(draft_edges) = SIZEOF(draft_angles);
   WR2: SIZEOF(QUERY(q <* draft_angles | q = 0)) = 0;
-  WR3: SIZEOF(QUERY(q &lt;* draft_edges | (SIZEOF(QUERY(r <* q | NOT 
+(*  
+  WR3: SIZEOF(QUERY(q <* draft_edges | (SIZEOF(QUERY(r <* q | NOT 
          (SELF\Swept_solid.swept_face IN 
           using_items(r,[])))) > 0))) = 0;
+*)          
 END_ENTITY;
 
 END_SCHEMA;

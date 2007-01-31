@@ -1,6 +1,6 @@
-(* THIS IS DOCUMENT ISO TC184/SC4/WG12 N4492, CONTAINING EXPRESS FOR *)
-(* ISO 10303-111, 'ELEMENTS FOR PROCEDURAL SHAPE MODELLING           *)
-(* -- 2006-12-31 -- *)                          
+(* THIS IS DOCUMENT ISO TC184/SC4/WG12 N4492, CONTAINING EXPRESS CODE FOR *)
+(* ISO 10303-111, 'ELEMENTS FOR THE PROCEDURAL MODELLING OF SOLID SHAPES  *)
+(* -- 2007-01-24 -- *)                          
 
 SCHEMA solid_shape_element_schema;
 
@@ -26,7 +26,6 @@ REFERENCE FROM geometry_schema                         -- ISO 10303-42
 REFERENCE FROM topology_schema                          --ISO 10303-42
   (connected_face_set,
    edge_curve,
-   face, 
    face_surface,
    open_shell,
    topological_representation_item,
@@ -53,7 +52,7 @@ REFERENCE FROM explicit_geometric_constraint_schema     --ISO 10303-108
 
 REFERENCE FROM sketch_schema                            --ISO 10303-108
   (positioned_sketch); 
-
+ 
 TYPE base_solid_select = SELECT
   (solid_model,
    csg_primitive,
@@ -86,7 +85,7 @@ TYPE blend_radius_variation_type = ENUMERATION OF
    cubic, 
    unspecified);
 END_TYPE;
-
+ 
 TYPE trim_intent = ENUMERATION OF
   (blind,
    offset,
@@ -120,7 +119,7 @@ ENTITY track_blended_solid
   ABSTRACT SUPERTYPE OF (track_blended_solid_with_end_conditions)
   SUBTYPE OF (edge_blended_solid);
 WHERE
-  WR1: continuous_edges(SELF\edge_blended_solid.blended_edges);
+  WR1: check_continuous_edges(SELF\edge_blended_solid.blended_edges);
 END_ENTITY; 
 
 ENTITY track_blended_solid_with_end_conditions
@@ -265,7 +264,7 @@ END_ENTITY;
 
 ENTITY solid_with_through_depression
   SUBTYPE OF (solid_with_depression);
-  exit_faces : SET[1:?] OF face;
+  exit_faces : SET[1:?] OF face_surface;
 WHERE
   WR1: SIZEOF(TYPEOF(SELF) *
          ['SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_HOLE',
@@ -289,7 +288,7 @@ SUBTYPE OF (solid_with_hole);
   segment_depths     : LIST[1:segments] OF positive_length_measure;
 DERIVE
   SELF\solid_with_depression.depth
-                     : positive_length_measure := total_depth(SELF);
+                     : positive_length_measure := compute_total_depth(SELF);
 WHERE
   WR1: NOT (('SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_THROUGH_DEPRESSION'
        IN TYPEOF(SELF)) AND (SIZEOF(TYPEOF(SELF) *
@@ -315,7 +314,7 @@ WHERE
   WR2: ('SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_THROUGH_DEPRESSION'
          IN TYPEOF(SELF)) XOR (SIZEOF(conical_transitions) <= 
          SELF\solid_with_stepped_round_hole.segments);
-  WR3: valid_countersink_radii(SELF);
+  WR3: validate_countersink_radii(SELF);
 END_ENTITY;
 
 ENTITY solid_with_flat_bottom_round_hole
@@ -388,7 +387,7 @@ ENTITY solid_with_slot
   SUBTYPE OF (solid_with_depression);
   slot_width     : positive_length_measure;
   closed_ends    : LIST[2:2] OF LOGICAL;
-  end_exit_faces : LIST[2:2] OF SET[0:?] OF face;
+  end_exit_faces : LIST[2:2] OF SET[0:?] OF face_surface;
 WHERE
   WR1: NOT(('SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_THROUGH_DEPRESSION' IN
          TYPEOF(SELF)) AND (closed_ends = [FALSE,FALSE]));
@@ -617,8 +616,8 @@ WHERE
                 shape_element IN using_items(q,[]))) = 0;
 END_ENTITY;
 
-FUNCTION continuous_edges (edges : LIST OF UNIQUE edge_curve) 
-                                 : BOOLEAN;
+FUNCTION check_continuous_edges (edges : LIST OF UNIQUE edge_curve)
+                                       : BOOLEAN;
 
   LOCAL
     i           : INTEGER;
@@ -665,13 +664,12 @@ FUNCTION continuous_edges (edges : LIST OF UNIQUE edge_curve)
       END_IF;
     END_IF; 
   END_REPEAT;
-
   RETURN(TRUE); -- all edges have now been successfully checked.
 
 END_FUNCTION;
 
-FUNCTION total_depth (swsrh : solid_with_stepped_round_hole) 
-                            : positive_length_measure;
+FUNCTION compute_total_depth (swsrh : solid_with_stepped_round_hole) 
+                                    : positive_length_measure;
 
   LOCAL
     i  : INTEGER;
@@ -685,7 +683,7 @@ FUNCTION total_depth (swsrh : solid_with_stepped_round_hole)
 
 END_FUNCTION;
 
-FUNCTION valid_countersink_radii 
+FUNCTION validate_countersink_radii 
   (cskhole : solid_with_stepped_round_hole_and_conical_transitions) 
            : BOOLEAN;
 

@@ -2,9 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" 
-		reference="ISO 10303-111"
-		rcs.date="$Date: 2007/01/25 07:46:20 $" rcs.revision="$Revision: 1.2 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="solid_shape_element_schema schema_instance"/>
    <schema name="solid_shape_element_schema">
       <interface kind="reference" schema="support_resource_schema">
@@ -29,7 +27,6 @@
       <interface kind="reference" schema="topology_schema">
          <interfaced.item name="connected_face_set"/>
          <interfaced.item name="edge_curve"/>
-         <interfaced.item name="face"/>
          <interfaced.item name="face_surface"/>
          <interfaced.item name="open_shell"/>
          <interfaced.item name="topological_representation_item"/>
@@ -434,7 +431,7 @@
          <explicit name="end_exit_faces">
             <aggregate type="LIST" lower="2" upper="2"/>
             <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="face"/>
+            <typename name="face_surface"/>
          </explicit>
          <where label="WR1" expression="NOT(('SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_THROUGH_DEPRESSION' IN&#10;         TYPEOF(SELF)) AND (closed_ends = [FALSE,FALSE]))"/>
          <where label="WR2" expression="NOT(((closed_ends[1] = TRUE) AND (SIZEOF(end_exit_faces[1]) &lt;&gt; 0))&#10;         OR ((closed_ends[2] = TRUE) AND (SIZEOF(end_exit_faces[2]) &lt;&gt; 0)))"/>
@@ -457,7 +454,7 @@
             <aggregate type="LIST" lower="1" upper="0"/>
             <typename name="positive_length_measure"/>
          </explicit>
-         <derived name="depth" expression="total_depth(SELF)">
+         <derived name="depth" expression="compute_total_depth(SELF)">
             <typename name="positive_length_measure"/>
             <redeclaration entity-ref="solid_with_depression"/>
          </derived>
@@ -470,7 +467,7 @@
          </explicit>
          <where label="WR1" expression="SIZEOF (conical_transitions) &lt;= &#10;         (SELF\solid_with_stepped_round_hole.segments + 1)"/>
          <where label="WR2" expression="('SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_THROUGH_DEPRESSION'&#10;         IN TYPEOF(SELF)) XOR (SIZEOF(conical_transitions) &lt;= &#10;         SELF\solid_with_stepped_round_hole.segments)"/>
-         <where label="WR3" expression="valid_countersink_radii(SELF)"/>
+         <where label="WR3" expression="validate_countersink_radii(SELF)"/>
       </entity>
       <entity name="solid_with_straight_slot" supertypes="solid_with_slot">
          <explicit name="slot_length">
@@ -490,7 +487,7 @@
       <entity name="solid_with_through_depression" supertypes="solid_with_depression">
          <explicit name="exit_faces">
             <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="face"/>
+            <typename name="face_surface"/>
          </explicit>
          <where label="WR1" expression="SIZEOF(TYPEOF(SELF) *&#10;         ['SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_HOLE',&#10;          'SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_POCKET',&#10;          'SOLID_SHAPE_ELEMENT_SCHEMA.SOLID_WITH_SLOT']) = 1"/>
       </entity>
@@ -536,7 +533,7 @@
          <where label="WR2" expression="offset1 &lt;&gt; offset2"/>
       </entity>
       <entity name="track_blended_solid" abstract.supertype="YES" supertypes="edge_blended_solid" super.expression="track_blended_solid_with_end_conditions">
-         <where label="WR1" expression="continuous_edges(SELF\edge_blended_solid.blended_edges)"/>
+         <where label="WR1" expression="check_continuous_edges(SELF\edge_blended_solid.blended_edges)"/>
       </entity>
       <entity name="track_blended_solid_with_end_conditions" supertypes="track_blended_solid">
          <explicit name="end_conditions">
@@ -548,7 +545,7 @@
          <where label="WR3" expression="NOT (('GEOMETRY_SCHEMA.VERTEX' IN TYPEOF(end_conditions[1]))&#10;       AND (NOT ((end_conditions[1] &#10;            :=: SELF\edge_blended_solid.blended_edges[1].edge_start)&#10;            XOR (end_conditions[1] &#10;            :=: SELF\edge_blended_solid.blended_edges[1].edge_end))))"/>
          <where label="WR4" expression="NOT (('GEOMETRY_SCHEMA.VERTEX' IN TYPEOF(end_conditions[2]))&#10;       AND (NOT ((end_conditions[2] &#10;            :=: SELF\edge_blended_solid.blended_edges[HIINDEX(&#10;                SELF\edge_blended_solid.blended_edges)].edge_start)&#10;            XOR (end_conditions[2] &#10;            :=: SELF\edge_blended_solid.blended_edges[HIINDEX(&#10;                SELF\edge_blended_solid.blended_edges)].edge_end))))"/>
       </entity>
-      <function name="continuous_edges">
+      <function name="check_continuous_edges">
          <parameter name="edges">
             <aggregate type="LIST" unique="YES" lower="0" upper="?"/>
             <typename name="edge_curve"/>
@@ -599,10 +596,9 @@
       END_IF;
     END_IF; 
   END_REPEAT;
-
   RETURN(TRUE);</algorithm>
       </function>
-      <function name="total_depth">
+      <function name="compute_total_depth">
          <parameter name="swsrh">
             <typename name="solid_with_stepped_round_hole"/>
          </parameter>
@@ -617,7 +613,7 @@
   END_REPEAT;
   RETURN(td);</algorithm>
       </function>
-      <function name="valid_countersink_radii">
+      <function name="validate_countersink_radii">
          <parameter name="cskhole">
             <typename name="solid_with_stepped_round_hole_and_conical_transitions"/>
          </parameter>

@@ -1,5 +1,5 @@
 (*
-$Id: arm.exp,v 1.16 2004/11/03 22:07:56 abf Exp $
+$Id: arm.exp,v 1.5 2006/05/17 22:03:51 darla Exp $
 ISO TC184/SC4/WG12 N7382- ISO/TS 10303-1771 Stock material - EXPRESS ARM
 *)
 
@@ -10,43 +10,21 @@ USE FROM Approval_arm;
 
 USE FROM Document_definition_arm;
 
+USE FROM Elemental_geometric_shape_arm;
+
 USE FROM Generic_material_aspects_arm;
 
 USE FROM Part_and_version_identification_arm;
 
-USE FROM Elemental_geometric_shape_arm;
+TYPE ply_stock_material = SELECT 
+  (Discontinuous_fiber_assembly,
+   Filament_assembly,
+   Isotropic_material);
+END_TYPE;
 
 TYPE sma_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH
   (Stock_material);
 END_TYPE;
-
-TYPE ply_stock_material = SELECT
-  (Isotropic_material, Filament_assembly, Discontinuous_fiber_assembly);
-END_TYPE;
-
-ENTITY Material_specification
-  SUBTYPE OF (Document_definition);
-END_ENTITY;
-
-ENTITY Stock_material
-  SUPERTYPE OF (ONEOF(
-    Anisotropic_material,
-    Braided_assembly,
-    Discontinuous_fiber_assembly,
-    Filament_assembly,
-    Isotropic_material,
-    Stock_core,
-    Woven_assembly))
-  SUBTYPE OF (Product_view_definition);
- property             : Material_property_value_representation;
- reference_direction  : OPTIONAL Material_direction;
- of_part              : Part_version;
- specified_material   : Material_specification;
-END_ENTITY;
-
-ENTITY Material_direction;
- material_orientation  : Direction;
-END_ENTITY;
 
 ENTITY Anisotropic_material
   SUBTYPE OF (Stock_material);
@@ -68,8 +46,25 @@ ENTITY Isotropic_material
   SUBTYPE OF (Stock_material);
 END_ENTITY;
 
+ENTITY Material_direction;
+  material_orientation : Direction;
+END_ENTITY;
+
+ENTITY Material_specification
+  SUBTYPE OF (Document_definition);
+END_ENTITY;
+
 ENTITY Stock_core
   SUBTYPE OF (Stock_material);
+END_ENTITY;
+
+ENTITY Stock_material
+  SUPERTYPE OF (ONEOF(Anisotropic_material, Braided_assembly, Discontinuous_fiber_assembly, Filament_assembly, Isotropic_material, Stock_core, Woven_assembly))
+  SUBTYPE OF (Product_view_definition);
+    property                                     : Material_property_value_representation;
+    reference_direction                          : OPTIONAL Material_direction;
+    SELF\Product_view_definition.defined_version : Part_version;
+    specified_material                           : Material_specification;
 END_ENTITY;
 
 ENTITY Woven_assembly

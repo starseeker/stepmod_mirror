@@ -1,7 +1,70 @@
 (*
-   $Id: mim.exp,v 1.1 2006/04/25 16:54:10 thendrix Exp $
+   $Id: mim.exp,v 1.2 2006/05/17 21:59:42 darla Exp $
    ISO TC184/SC4/WG12 N7380 - ISO/TS 10303-1770 Part_and_zone_laminate_tables MIM EXPRESS
    *)
 (* UNDER DEVELOPMENT *)
 SCHEMA Part_and_zone_laminate_tables_mim;
+
+USE FROM Analysis_shape_mim;
+
+USE FROM Composite_constituent_shape_mim;
+
+USE FROM Ply_orientation_specification_mim;
+
+USE FROM Product_version_mim;
+
+USE FROM Product_view_definition_mim;
+
+USE FROM Stock_material_mim;
+
+USE FROM Value_with_unit_mim;
+
+
+ENTITY composite_assembly_sequence_definition
+  SUBTYPE OF(product_definition);
+END_ENTITY;
+
+ENTITY composite_assembly_table
+  SUBTYPE OF (part_laminate_table);
+END_ENTITY;
+
+ENTITY laminate_table
+  SUPERTYPE OF (ONEOF(part_laminate_table, zone_structural_makeup))
+  SUBTYPE OF (product_definition);
+END_ENTITY;
+
+ENTITY part_laminate_table
+  SUPERTYPE OF (ONEOF(composite_assembly_table, ply_laminate_table))
+  SUBTYPE OF (laminate_table);
+END_ENTITY;
+
+ENTITY percentage_laminate_table
+  SUBTYPE OF (zone_structural_makeup);
+END_ENTITY;
+
+ENTITY percentage_ply_definition
+  SUBTYPE OF (product_definition);
+END_ENTITY;
+
+ENTITY ply_laminate_sequence_definition
+  SUBTYPE OF (product_definition);
+END_ENTITY;
+
+ENTITY ply_laminate_table
+  SUBTYPE OF (part_laminate_table);
+END_ENTITY;
+
+ENTITY smeared_material
+  SUBTYPE OF (zone_structural_makeup);
+END_ENTITY;
+
+ENTITY thickness_laminate_table
+  SUBTYPE OF (zone_structural_makeup);
+END_ENTITY;
+
+ENTITY zone_structural_makeup
+  SUPERTYPE OF (ONEOF((thickness_laminate_table AND smeared_material), (percentage_laminate_table AND smeared_material), thickness_laminate_table, percentage_laminate_table, smeared_material))
+  SUBTYPE OF (laminate_table);
+END_ENTITY;
+
 END_SCHEMA;

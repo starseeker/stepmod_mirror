@@ -1,0 +1,197 @@
+/*
+   Catalogue planning model
+   $Id:
+*/
+
+SCHEMA Catalogue;
+
+TYPE One_of_select = SELECT (
+  Combination,
+  Value_select
+);
+END_TYPE;
+
+TYPE Extended_value_select = SELECT (
+  Combination,
+  One_of,
+  Value_select
+);
+END_TYPE;
+
+TYPE Value_select = SELECT (
+  String_value,
+  Boolean_value,
+  Composite_value,
+  Controlled_value,
+  Currency_value,
+  Date_value,
+  Item_reference_value,
+  Localized_text_value,
+  Measure_value,
+  Numeric_value,
+  Property_reference_value,
+  Sequence_value,
+  Set_value,
+  Year_month_value,
+  Year_value
+);
+END_TYPE;
+
+ENTITY Boolean_value;
+  content : boolean;
+END_ENTITY;
+
+ENTITY Catalogue_item;
+  supplier_reference_string : STRING;
+  proprietary : boolean;
+  definition : Class;
+  characteristic : SET OF Property_value;
+END_ENTITY;
+
+ENTITY Class;
+  class_id : STRING;
+END_ENTITY;
+
+ENTITY Combination;
+  operand : SET OF Value_select;
+END_ENTITY;
+
+ENTITY Composite_value;
+  element : SET OF Property_value;
+END_ENTITY;
+
+ENTITY Controlled_value;
+  value_id : STRING;
+  definition : Value_of_property;
+END_ENTITY;
+
+ENTITY Currency;
+  currency_id : STRING;
+END_ENTITY;
+
+ENTITY Currency_value;
+  the_value : Numeric_value;
+  definition : Currency;
+END_ENTITY;
+
+ENTITY Date_value;
+  year_component : INTEGER;
+  month_component : INTEGER;
+  day_component : INTEGER;
+END_ENTITY;
+
+ENTITY Field_value;
+END_ENTITY;
+
+ENTITY Integer_value;
+  content : STRING;
+END_ENTITY;
+
+ENTITY Item_reference_value;
+  referent : Catalogue_item;
+END_ENTITY;
+
+ENTITY Language;
+  language_id : STRING;
+  iso_language_code : STRING;
+  iso_country_code : STRING;
+END_ENTITY;
+
+ENTITY Local_string;
+  the_language : Language;
+  the_string : STRING;
+END_ENTITY;
+
+ENTITY Localized_text_value;
+  content : SET [1:?] OF Local_string;
+END_ENTITY;
+
+ENTITY Measure_number_value
+SUBTYPE OF (Measure_value);
+  unqualified_value : OPTIONAL Numeric_value;
+  qualified_value : SET OF Qualified_value;
+WHERE
+  WR1: EXISTS(unqualified_value) XOR EXISTS(qualified_value);
+END_ENTITY;
+
+ENTITY Measure_value
+ABSTRACT SUPERTYPE OF (ONEOF(Measure_range_value, Measure_number_value)); 
+  definition : Unit_of_measure;
+END_ENTITY;
+
+ENTITY Measure_range_value
+SUBTYPE OF (Measure_value);
+  lower : Numeric_value;
+  upper : Numeric_value;
+END_ENTITY;
+
+ENTITY Numeric_value
+ABSTRACT SUPERTYPE OF (ONEOF(Real_value, Rational_value, Integer_value));
+END_ENTITY;
+
+ENTITY One_of;
+  operand : SET OF One_of_select;
+END_ENTITY;
+
+ENTITY Property;
+  property_id : STRING;
+END_ENTITY;
+
+ENTITY Property_reference_value;
+  referent : Property_value;
+END_ENTITY;
+
+ENTITY Property_value;
+  proprietary : BOOLEAN;
+  definition : Property;
+  the_value : Extended_value_select;
+END_ENTITY;
+
+ENTITY Qualified_value;
+  the_value : Numeric_value;
+  definition : Qualifier_of_measure;
+END_ENTITY;
+
+ENTITY Qualifier_of_measure;
+  qualifier_id : STRING;
+END_ENTITY;
+
+ENTITY Rational_value;
+  denominator : STRING;
+  numerator : STRING;
+END_ENTITY;
+
+ENTITY Real_value;
+  content : STRING;
+END_ENTITY;
+
+ENTITY Sequence_value;
+  content : LIST OF Value_select;
+END_ENTITY;
+
+ENTITY Set_value;
+  content : SET OF Value_select;
+END_ENTITY;
+
+ENTITY String_value;
+  content : STRING;
+END_ENTITY;
+
+ENTITY Unit_of_measure;
+  uom_id : STRING;
+END_ENTITY;
+
+ENTITY Value_of_property;
+  value_id : STRING;
+END_ENTITY;
+
+ENTITY Year_month_value;
+  year_component : INTEGER;
+  month_component : INTEGER;
+END_ENTITY;
+
+ENTITY Year_value;
+  year_component : INTEGER;
+END_ENTITY;
+
+END_SCHEMA;

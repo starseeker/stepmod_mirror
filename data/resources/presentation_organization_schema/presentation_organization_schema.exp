@@ -1,14 +1,4 @@
-(*
-    The following EXPRESS is for ISO 10303-46:1994
-      Technical Corrigendum 3, 2006-03-28
-    This is document ISO TC184/SC4/WG12 N4396
-    it supersedes ISO TC184/SC4/WG12 N996 (TC2)
-    The following changes are made:
-    - changed font_select
-    - changed character_glyph_symbol
-    - changed character_glyph_font_usage
-    - added generic_character_glyph_symbol
-*)
+(* Genenerated from: ../../irs/wg12n953.exp *)
 
 SCHEMA presentation_organization_schema;
 
@@ -27,7 +17,8 @@ REFERENCE FROM presentation_appearance_schema
     (styled_item);
 
 REFERENCE FROM geometry_schema
-    (axis2_placement_2d,
+    (axis2_placement,    -- LK add for area_dependent_annotation_representation
+     axis2_placement_2d,
      axis2_placement_3d,
      cartesian_point,
      curve,
@@ -37,7 +28,7 @@ REFERENCE FROM geometry_schema
      geometric_representation_item,
      plane
      );
-
+ 
 REFERENCE FROM representation_schema
     (founded_item,
      item_defined_transformation,
@@ -47,8 +38,9 @@ REFERENCE FROM representation_schema
      representation_item,
      representation_map,
      representation_relationship,
-     representation_relationship_with_transformation);
-
+     representation_relationship_with_transformation,
+     using_representations);
+ 
 REFERENCE FROM measure_schema
    (length_measure,
     positive_ratio_measure,
@@ -60,16 +52,20 @@ REFERENCE FROM support_resource_schema
      text,
      bag_to_set);
 
-TYPE presentation_size_assignment_select = SELECT 
-  (presentation_view,
-   presentation_area,
-   area_in_set);
-END_TYPE;
-
 TYPE area_or_view = SELECT 
   (presentation_area,
    presentation_view);
 END_TYPE;
+
+TYPE camera_model_d3_multi_clipping_interection_select = SELECT ( 
+  camera_model_d3_multi_clipping_union, 
+  plane); 
+END_TYPE; 
+ 
+TYPE camera_model_d3_multi_clipping_union_select = SELECT ( 
+  camera_model_d3_multi_clipping_intersection, 
+  plane); 
+END_TYPE; 
 
 TYPE central_or_parallel = ENUMERATION OF 
   (central, 
@@ -86,168 +82,141 @@ TYPE presentation_representation_select = SELECT
    presentation_set);
 END_TYPE;
 
-ENTITY presentation_set;
-INVERSE
-  areas : SET [1:?] OF area_in_set FOR in_set;
-END_ENTITY;
+TYPE presentation_size_assignment_select = SELECT 
+  (presentation_view,
+   presentation_area,
+   area_in_set);
+END_TYPE;
 
-ENTITY presentation_representation
-  SUBTYPE OF (representation);
-WHERE
-  WR1: SELF\representation.
-            context_of_items\geometric_representation_context.
-            coordinate_space_dimension = 2;
-  WR2: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT'
-       IN TYPEOF (SELF\representation.context_of_items);
-END_ENTITY;
+-- LK new:
+TYPE annotation_representation_select = EXTENSIBLE SELECT (
+  area_dependent_annotation_representation, 
+  symbol_representation,
+  view_dependent_annotation_representation);
+END_TYPE;
 
-ENTITY presentation_area
-  SUBTYPE OF (presentation_representation);
-WHERE
-  WR1: ((SIZEOF (QUERY (ais <* USEDIN (SELF, 'PRESENTATION_ORGANIZATION_SCHEMA.' +
-                                             'AREA_IN_SET.AREA') | 
-           SIZEOF (USEDIN (ais, 'PRESENTATION_ORGANIZATION_SCHEMA.' +
-                                'PRESENTATION_SIZE.UNIT')) =1)) > 0) OR
-         (SIZEOF (USEDIN (SELF, 'PRESENTATION_ORGANIZATION_SCHEMA.' +
-                                'PRESENTATION_SIZE.UNIT')) =1));
-END_ENTITY;
+TYPE area_dependent_annotation_representation_item = SELECT (annotation_occurrence, axis2_placement); END_TYPE; --LK new
 
-ENTITY area_in_set;
-  area   : presentation_area;
-  in_set : presentation_set;
-END_ENTITY;
+TYPE product_data_representation_view_item = SELECT (camera_image, axis2_placement); END_TYPE; --LK new
 
-ENTITY presentation_view
-  SUBTYPE OF (presentation_representation);
-END_ENTITY;
+TYPE view_dependent_annotation_representation_item = SELECT (annotation_occurrence, axis2_placement); END_TYPE; --LK new
 
 ENTITY area_dependent_annotation_representation
   SUBTYPE OF (presentation_representation);
+  SELF\representation.items : SET[1:?] OF area_dependent_annotation_representation_item; --LK add
 WHERE
-  WR1: SIZEOF (QUERY (item <* SELF\representation.items |
-       NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.' +
-                     'ANNOTATION_OCCURRENCE',
-                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] * 
-            TYPEOF(item)) = 1
-       ))) = 0;
+--LK  WR1: SIZEOF (QUERY (item <* SELF\representation.items |
+--LK       NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.' +
+--LK                     'ANNOTATION_OCCURRENCE',
+--LK                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] * 
+--LK            TYPEOF(item)) = 1
+--LK       ))) = 0;
   WR2: SIZEOF (QUERY (item <* SELF\representation.items | 
        ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_OCCURRENCE' IN
          TYPEOF (item))
        )) >= 1;
+--LK WRx:  it shall be contained in a presentation_area and it shall not be contained in a representation which is not a presentation_area
+--GP WR3 below is added
+  WR3: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+                                             'REPRESENTATION_RELATIONSHIP.REP_2') | 
+          'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
+          TYPEOF (prr\representation_relationship.rep_1))) > 0)
+                                  OR 
+--GL better rename internal variable                          
+--GL - don't we need a recursion for the case above?  
+--LK: recursion is not needed, but we have to enforce its usage in another area_dependent_annotation_representation or presentation_area
+-- GL: area_dependent_annotation_representation is not allowed. Here is a text from p46 description:
+-- GL: "An area_dependent_annotation_representation may be related only to a presentation_area."
+       (SIZEOF(QUERY( rm <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
+                                               'REPRESENTATION_MAP.'+ 
+                                               'MAPPED_REPRESENTATION') | 
+         SIZEOF(QUERY( mi <* USEDIN(rm, 'REPRESENTATION_SCHEMA.'+
+                                              'MAPPED_ITEM.'+
+                                              'MAPPING_SOURCE') |   
+                                              'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
+                             TYPEOF (using_representations (mi)) )) > 0))  
+                    > 0);
+-- LK: we need to test for the specific subtype presentation_representation_relationship, only this gives the needed direction and fullfils by this the usage requirements          
+-- LK: another issue is about a usage via mapped_item + representation_map
+--GL: Added a new - Require that ALL users are presentation_areas.
+  WR4: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+                                             'REPRESENTATION_RELATIONSHIP.REP_2') | 
+          NOT('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
+          TYPEOF (prr\representation_relationship.rep_1)))) = 0)
+                                  AND 
+       (SIZEOF(QUERY( rm <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
+                                               'REPRESENTATION_MAP.'+ 
+                                               'MAPPED_REPRESENTATION') | 
+         SIZEOF(QUERY( mi <* USEDIN(rm, 'REPRESENTATION_SCHEMA.'+
+                                              'MAPPED_ITEM.'+
+                                              'MAPPING_SOURCE') |   
+                                              NOT('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
+                             TYPEOF (using_representations (mi))) )) > 0))  
+                    = 0);
+
 END_ENTITY;
 
-ENTITY product_data_representation_view
-  SUBTYPE OF (presentation_representation);
-WHERE
-  WR1: SIZEOF (QUERY (item <* SELF\representation.items |
-       NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_IMAGE',
-                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] *
-                    TYPEOF (item)) = 1
-       ))) = 0;
-  WR2: SIZEOF (QUERY (item <* SELF\representation.items | 
-       ('PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_IMAGE' IN
-        TYPEOF (item))
-       )) >= 1;
+ENTITY area_in_set; --ok
+  area   : presentation_area;
+  in_set : presentation_set;
 END_ENTITY;
 
-ENTITY view_dependent_annotation_representation
-  SUBTYPE OF (presentation_representation);
-WHERE
-  WR1: SIZEOF (QUERY (item <* SELF\representation.items |
-       NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.' +
-                     'ANNOTATION_OCCURRENCE',
-                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] * 
-            TYPEOF(item)) = 1
-       ))) = 0;
-  WR2: SIZEOF (QUERY (item <* SELF\representation.items |
-       ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_OCCURRENCE' IN
-        TYPEOF (item))
-       )) >= 1;
-END_ENTITY;
-
-ENTITY presentation_size;
-  unit : presentation_size_assignment_select;
-  size : planar_box;
-WHERE
-  WR1: (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION'
-         IN TYPEOF (SELF.unit)) AND
-         item_in_context (SELF.size, 
-                          SELF.unit\representation.context_of_items)
-       )
-            OR
-       (
-        ('PRESENTATION_ORGANIZATION_SCHEMA.AREA_IN_SET'
-          IN TYPEOF (SELF.unit)) AND
-        (SIZEOF (QUERY ( ais <* SELF.unit\area_in_set.in_set.areas |
-                NOT item_in_context (SELF.size, ais.area\representation.
-                                                context_of_items) )) = 0)
-       ); 
-END_ENTITY;
-
-ENTITY background_colour
+ENTITY background_colour --ok
   SUBTYPE OF (colour);
   presentation : area_or_view;
 UNIQUE
   UR1:  presentation;
 END_ENTITY;
 
-ENTITY presentation_representation_relationship
-  SUBTYPE OF (representation_relationship_with_transformation);
+ENTITY camera_image
+  SUBTYPE OF (mapped_item); --LK we should add geometric_representation_item here and remove WR3 if we are allowed
+  SELF\mapped_item.mapping_source : camera_usage; --LK
+  SELF\mapped_item.mapping_target : planar_box; --LK
 WHERE
-  WR1: 'PRESENTATION_DEFINITION_SCHEMA.PRESENTATION_REPRESENTATION' IN
-         TYPEOF (SELF\representation_relationship.rep_1);
-  WR2: 'PRESENTATION_DEFINITION_SCHEMA.PRESENTATION_REPRESENTATION' IN
-         TYPEOF (SELF\representation_relationship.rep_2);
-  WR3: acyclic_presentation_representation_relationship (SELF,
-         [SELF\representation_relationship.rep_2]);
-  WR4: NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
-         TYPEOF (SELF\representation_relationship.rep_1)) 
-                 AND
-         NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.' +
-                       'PRODUCT_DATA_REPRESENTATION_VIEW',
-                       'PRESENTATION_ORGANIZATION_SCHEMA.' +
-                       'VIEW_DEPENDENT_ANNOTATION_REPRESENTATION'] *
-         TYPEOF (SELF\representation_relationship.rep_2)) = 0));
-  WR5: NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW'
-         IN TYPEOF (SELF\representation_relationship.rep_1))
-                 AND
-       NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.' +
-                     'PRESENTATION_AREA',
-                     'PRESENTATION_ORGANIZATION_SCHEMA.' +
-                     'PRESENTATION_VIEW',
-                     'PRESENTATION_ORGANIZATION_SCHEMA.' +
-                     'AREA_DEPENDENT_ANNOTATION_REPRESENTATION'] *
-              TYPEOF (SELF\representation_relationship.rep_2))=0));
-  WR6: (NOT ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
-         TYPEOF(SELF\representation_relationship.rep_2)))
-              XOR
-         ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA'IN
-         TYPEOF(SELF\representation_relationship.rep_1));
-  WR7: (NOT ('PRESENTATION_ORGANIZATION_SCHEMA.' +
-             'PRODUCT_DATA_REPRESENTATION_VIEW' IN
-         (TYPEOF(SELF\representation_relationship.rep_1) +
-          TYPEOF(SELF\representation_relationship.rep_2))))
-              XOR
-       ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
-         TYPEOF(SELF\representation_relationship.rep_1))
-                AND
-       ('PRESENTATION_ORGANIZATION_SCHEMA.PRODUCT_DATA_REPRESENTATION_VIEW' IN
-         TYPEOF(SELF\representation_relationship.rep_2));
-  WR8: 'PRESENTATION_ORGANIZATION_SCHEMA.GRAPHICAL_TRANSFORMATION' IN
-         TYPEOF(SELF\representation_relationship_with_transformation.
-                     transformation_operator);
+  --LK WR1: 'PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_USAGE'
+  --LK      IN TYPEOF (SELF\mapped_item.mapping_source);
+  --LK WR2: 'PRESENTATION_RESOURCE_SCHEMA.PLANAR_BOX'
+  --LK      IN TYPEOF (SELF\mapped_item.mapping_target);
+  WR3: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM'
+        IN TYPEOF (SELF);
 END_ENTITY;
 
-ENTITY graphical_transformation
-  SUBTYPE OF (item_defined_transformation);
+ENTITY camera_image_3d_with_scale
+  SUBTYPE OF (camera_image);
+DERIVE
+  scale: positive_ratio_measure := ((SELF\mapped_item.mapping_target\
+         planar_extent.size_in_x) / (SELF\mapped_item.mapping_source.
+         mapping_origin\camera_model_d3.perspective_of_volume.view_window.
+         size_in_x));
 WHERE
-  WR1: 'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_2D' IN
-         TYPEOF (SELF\item_defined_transformation.transform_item_1);
-  WR2: 'PRESENTATION_RESOURCE_SCHEMA.PRESENTATION_SCALED_PLACEMENT' IN
-         TYPEOF (SELF\item_defined_transformation.transform_item_2);
+  WR1: ('PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_MODEL_D3'
+       IN TYPEOF (SELF\mapped_item.mapping_source.mapping_origin));
+  WR2: aspect_ratio(SELF\mapped_item.mapping_target) =
+       aspect_ratio(SELF\mapped_item.mapping_source.mapping_origin\
+       camera_model_d3.perspective_of_volume.view_window);
+  WR3: SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.
+       perspective_of_volume.front_plane_clipping
+       AND
+       SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.
+       perspective_of_volume.view_volume_sides_clipping;
+  WR4: (SELF\mapped_item.mapping_target\planar_extent.size_in_x > 0)
+       AND
+       (SELF\mapped_item.mapping_target\planar_extent.size_in_y > 0);
+  WR5: (SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.
+       perspective_of_volume.view_window.size_in_x > 0)
+       AND
+       (SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.
+       perspective_of_volume.view_window.size_in_y > 0);
+  WR6: ('GEOMETRY_SCHEMA.' +
+       'AXIS2_PLACEMENT_2D' IN TYPEOF (SELF\mapped_item.
+       mapping_target\planar_box.placement))
+       AND NOT ('GEOMETRY_SCHEMA.' +
+       'AXIS2_PLACEMENT_3D' IN TYPEOF (SELF\mapped_item.
+       mapping_target\planar_box.placement));
 END_ENTITY;
 
 ENTITY camera_model
+  ABSTRACT --LK added
   SUPERTYPE OF (ONEOF(camera_model_d2, camera_model_d3))
   SUBTYPE OF (geometric_representation_item);
 WHERE
@@ -288,17 +257,19 @@ WHERE
   WR2: SELF\geometric_representation_item.dim = 3;
 END_ENTITY;
 
-ENTITY view_volume
-  SUBTYPE OF (founded_item);
-  projection_type            : central_or_parallel;
-  projection_point           : cartesian_point;
-  view_plane_distance        : length_measure;
-  front_plane_distance       : length_measure;
-  front_plane_clipping       : BOOLEAN;
-  back_plane_distance        : length_measure;
-  back_plane_clipping        : BOOLEAN;
-  view_volume_sides_clipping : BOOLEAN;
-  view_window                : planar_box;
+ENTITY camera_model_d3_multi_clipping 
+  SUBTYPE OF (camera_model_d3); 
+  shape_clipping : SET [1:?] OF camera_model_d3_multi_clipping_interection_select; 
+END_ENTITY; 
+ 
+ENTITY camera_model_d3_multi_clipping_union 
+  SUBTYPE OF (geometric_representation_item); 
+  shape_clipping : SET [2:?] OF camera_model_d3_multi_clipping_union_select; 
+END_ENTITY;   
+ 
+ENTITY camera_model_d3_multi_clipping_intersection 
+  SUBTYPE OF (geometric_representation_item); 
+  shape_clipping : SET [2:?] OF camera_model_d3_multi_clipping_interection_select; 
 END_ENTITY;
 
 ENTITY camera_model_d3_with_hlhsr
@@ -306,14 +277,30 @@ ENTITY camera_model_d3_with_hlhsr
   hidden_line_surface_removal : BOOLEAN;
 END_ENTITY;
 
-ENTITY camera_model_d3_multi_clipping
-  SUBTYPE OF (camera_model_d3);
-  shape_clipping : SET [1:?] OF plane;
-END_ENTITY;
-
 ENTITY camera_model_with_light_sources
   SUBTYPE OF (camera_model_d3);
   sources : SET [1:?] OF light_source;
+END_ENTITY;
+
+ENTITY camera_usage
+  SUBTYPE OF (representation_map);
+  SELF\representation_map.mapping_origin : camera_model; --LK
+WHERE
+  WR1: NOT ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION'
+        IN TYPEOF(SELF\representation_map.mapped_representation));
+  --LK WR2: 'PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_MODEL'
+  --LK      IN TYPEOF (SELF\representation_map.mapping_origin);
+END_ENTITY;
+
+ENTITY graphical_transformation
+  SUBTYPE OF (item_defined_transformation);
+  SELF\item_defined_transformation.transform_item_1 : axis2_placement_2d; --LK
+  SELF\item_defined_transformation.transform_item_2 : presentation_scaled_placement; --LK
+--LK WHERE
+--LK   WR1: 'GEOMETRY_SCHEMA.AXIS2_PLACEMENT_2D' IN
+--LK          TYPEOF (SELF\item_defined_transformation.transform_item_1);
+--LK   WR2: 'PRESENTATION_RESOURCE_SCHEMA.PRESENTATION_SCALED_PLACEMENT' IN
+--LK          TYPEOF (SELF\item_defined_transformation.transform_item_2);
 END_ENTITY;
 
 ENTITY light_source
@@ -354,70 +341,21 @@ ENTITY light_source_spot
   spread_angle           : positive_plane_angle_measure;
 END_ENTITY;
 
-ENTITY camera_image
-  SUBTYPE OF (mapped_item);
+ENTITY presentation_area
+  SUBTYPE OF (presentation_representation);
 WHERE
-  WR1: 'PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_USAGE'
-       IN TYPEOF (SELF\mapped_item.mapping_source);
-  WR2: 'PRESENTATION_RESOURCE_SCHEMA.PLANAR_BOX'
-       IN TYPEOF (SELF\mapped_item.mapping_target);
-  WR3: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM'
-       IN TYPEOF (SELF);
+  WR1: ((SIZEOF (QUERY (ais <* USEDIN (SELF, 'PRESENTATION_ORGANIZATION_SCHEMA.' +
+                                             'AREA_IN_SET.AREA') | 
+           SIZEOF (USEDIN (ais, 'PRESENTATION_ORGANIZATION_SCHEMA.' +
+                                'PRESENTATION_SIZE.UNIT')) =1)) > 0) OR
+         (SIZEOF (USEDIN (SELF, 'PRESENTATION_ORGANIZATION_SCHEMA.' +
+                                'PRESENTATION_SIZE.UNIT')) =1));
 END_ENTITY;
-
-ENTITY camera_usage
-  SUBTYPE OF (representation_map);
-WHERE
-  WR1: NOT ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION'
-       IN TYPEOF(SELF\representation_map.mapped_representation));
-  WR2: 'PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_MODEL'
-       IN TYPEOF (SELF\representation_map.mapping_origin);
-END_ENTITY;
-
-ENTITY camera_image_3d_with_scale
-  SUBTYPE OF (camera_image);
-DERIVE
-  scale: positive_ratio_measure := ((SELF\mapped_item.mapping_target\
-         planar_extent.size_in_x) / (SELF\mapped_item.mapping_source.
-         mapping_origin\camera_model_d3.perspective_of_volume.view_window.
-         size_in_x));
-WHERE
-  WR1: ('PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_MODEL_D3'
-       IN TYPEOF (SELF\mapped_item.mapping_source.mapping_origin));
-  WR2: aspect_ratio(SELF\mapped_item.mapping_target) =
-       aspect_ratio(SELF\mapped_item.mapping_source.mapping_origin\
-       camera_model_d3.perspective_of_volume.view_window);
-  WR3: SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.
-       perspective_of_volume.front_plane_clipping
-       AND
-       SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.
-       perspective_of_volume.view_volume_sides_clipping;
-  WR4: (SELF\mapped_item.mapping_target\planar_extent.size_in_x > 0)
-       AND
-       (SELF\mapped_item.mapping_target\planar_extent.size_in_y > 0);
-  WR5: (SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.
-       perspective_of_volume.view_window.size_in_x > 0)
-       AND
-       (SELF\mapped_item.mapping_source.mapping_origin\camera_model_d3.
-       perspective_of_volume.view_window.size_in_y > 0);
-  WR6: ('GEOMETRY_SCHEMA.' +
-       'AXIS2_PLACEMENT_2D' IN TYPEOF (SELF\mapped_item.
-       mapping_target\planar_box.placement))
-       AND NOT ('GEOMETRY_SCHEMA.' +
-       'AXIS2_PLACEMENT_3D' IN TYPEOF (SELF\mapped_item.
-       mapping_target\planar_box.placement));
-END_ENTITY;
-
 
 ENTITY presentation_layer_assignment;
   name           : label;
   description    : text;
   assigned_items : SET [1:?] OF layered_item;
-END_ENTITY;
-
-ENTITY representation_item_dependent_layer_assignment
-  SUBTYPE OF (presentation_layer_assignment);
-  item_context : representation_item;
 END_ENTITY;
 
 ENTITY presentation_layer_usage;
@@ -427,13 +365,252 @@ UNIQUE
   UR1: assignment, presentation;
 END_ENTITY;
 
+ENTITY presentation_representation --ok
+  SUBTYPE OF (representation);
+  SELF\representation.context_of_items : geometric_representation_context; --LK
+WHERE
+  WR1: SELF\representation.
+            context_of_items\geometric_representation_context.
+            coordinate_space_dimension = 2;
+--LK  WR2: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_CONTEXT'
+--LK       IN TYPEOF (SELF\representation.context_of_items);
+-- WRx: IP1: Any presentation_representation shall be presented in the context of a tree which has as its root a presentation_area. 
+-- LK: better to re-prase this to: "A presentation_representation shall either be included in another presentation_representation or it shall be an presentation_area. Note: presentation_area requires it to be used by another presentation_area or used by a presentation_set" Add this to p46
+-- (from presentation_area, via presentation_representation_relationship or mapped_item). It shall not be in any other representation
+--  WR3: check_root (SELF); --GP this where rule is for IP1 stated above
+-- LK: simply the rule(function) for new wording, we only need to check one level, 
+-- LK: but don't need to have a recursive rule. So we may not need the function at all.
+--GL: added a new:
+--GL - logic - it has to be either presentation_area or it has to be used by another presentation_representation.
+--GL - requirement that presentation_area has to be used by presentation_set is already captured in WR1 of presentation_area.
+  WR3: ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN TYPEOF (SELF))
+    OR
+    (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+                                             'REPRESENTATION_RELATIONSHIP.REP_2') | 
+          'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION' IN
+          TYPEOF (prr\representation_relationship.rep_1))) > 0)
+    OR 
+    (SIZEOF(QUERY( rm <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
+                                               'REPRESENTATION_MAP.'+ 
+                                               'MAPPED_REPRESENTATION') | 
+         SIZEOF(QUERY( mi <* USEDIN(rm, 'REPRESENTATION_SCHEMA.'+
+                                              'MAPPED_ITEM.'+
+                                              'MAPPING_SOURCE') |   
+                                              'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION' IN
+                             TYPEOF (using_representations (mi)) )) > 0))  
+                    > 0);
+END_ENTITY;
+
+
+
+ENTITY presentation_representation_relationship
+  SUBTYPE OF (representation_relationship_with_transformation);
+  SELF\representation_relationship.rep_1 : presentation_representation; --LK
+  SELF\representation_relationship.rep_2 : presentation_representation; --LK
+  SELF\representation_relationship_with_transformation.transformation_operator : graphical_transformation; --LK
+WHERE
+--LK  WR1: 'PRESENTATION_DEFINITION_SCHEMA.PRESENTATION_REPRESENTATION' IN
+--LK         TYPEOF (SELF\representation_relationship.rep_1);
+--LK  WR2: 'PRESENTATION_DEFINITION_SCHEMA.PRESENTATION_REPRESENTATION' IN
+--LK         TYPEOF (SELF\representation_relationship.rep_2);
+  WR3: acyclic_presentation_representation_relationship (SELF,
+         [SELF\representation_relationship.rep_2]);
+  WR4: NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
+         TYPEOF (SELF\representation_relationship.rep_1)) 
+                 AND
+         NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.' +
+                       'PRODUCT_DATA_REPRESENTATION_VIEW',
+                       'PRESENTATION_ORGANIZATION_SCHEMA.' +
+                       'VIEW_DEPENDENT_ANNOTATION_REPRESENTATION'] *
+         TYPEOF (SELF\representation_relationship.rep_2)) = 0));
+  WR5: NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW'
+         IN TYPEOF (SELF\representation_relationship.rep_1))
+                 AND
+       NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.' +
+                     'PRESENTATION_AREA',
+                     'PRESENTATION_ORGANIZATION_SCHEMA.' +
+                     'PRESENTATION_VIEW',
+                     'PRESENTATION_ORGANIZATION_SCHEMA.' +
+                     'AREA_DEPENDENT_ANNOTATION_REPRESENTATION'] *
+              TYPEOF (SELF\representation_relationship.rep_2))=0));
+  WR6: (NOT ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+         TYPEOF(SELF\representation_relationship.rep_2)))
+              XOR
+         ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA'IN
+         TYPEOF(SELF\representation_relationship.rep_1));
+  WR7: (NOT ('PRESENTATION_ORGANIZATION_SCHEMA.' +
+             'PRODUCT_DATA_REPRESENTATION_VIEW' IN
+         (TYPEOF(SELF\representation_relationship.rep_1) +
+          TYPEOF(SELF\representation_relationship.rep_2))))
+              XOR
+       ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+         TYPEOF(SELF\representation_relationship.rep_1))
+                AND
+       ('PRESENTATION_ORGANIZATION_SCHEMA.PRODUCT_DATA_REPRESENTATION_VIEW' IN
+         TYPEOF(SELF\representation_relationship.rep_2));
+--LK  WR8: 'PRESENTATION_ORGANIZATION_SCHEMA.GRAPHICAL_TRANSFORMATION' IN
+--LK         TYPEOF(SELF\representation_relationship_with_transformation.
+--LK                     transformation_operator);
+END_ENTITY;
+
+ENTITY presentation_set; --ok
+INVERSE
+  areas : SET [1:?] OF area_in_set FOR in_set;
+END_ENTITY;
+
+ENTITY presentation_size; -- ok
+  unit : presentation_size_assignment_select;
+  size : planar_box;
+UNIQUE
+  UR1: unit; -- added by LK
+WHERE
+  WR1: (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION'
+         IN TYPEOF (SELF.unit)) AND
+         item_in_context (SELF.size, 
+                          SELF.unit\representation.context_of_items)
+       )
+            OR
+       (
+        ('PRESENTATION_ORGANIZATION_SCHEMA.AREA_IN_SET'
+          IN TYPEOF (SELF.unit)) AND
+        (SIZEOF (QUERY ( ais <* SELF.unit\area_in_set.in_set.areas |
+                NOT item_in_context (SELF.size, ais.area\representation.
+                                                context_of_items) )) = 0)
+       ); 
+END_ENTITY;
+-- Add description: If a presentation size is available for both, an area_in_set and for a presentation_area, refered to by area_in_set, the presentation_size for the area_in_set overwrites the other one for the purpose of the presentation_set."
+
+
+ENTITY presentation_view
+  SUBTYPE OF (presentation_representation);
+END_ENTITY;
+
+ENTITY presented_item
+  ABSTRACT SUPERTYPE;
+END_ENTITY;
+
 ENTITY presented_item_representation;
   presentation : presentation_representation_select;
   item         : presented_item;
 END_ENTITY;
 
-ENTITY presented_item
-  ABSTRACT SUPERTYPE;
+ENTITY product_data_representation_view
+  SUBTYPE OF (presentation_representation);
+  SELF\representation.items : SET[1:?] OF product_data_representation_view_item;
+WHERE
+--LK  WR1: SIZEOF (QUERY (item <* SELF\representation.items |
+--LK       NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_IMAGE',
+--LK                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] *
+--LK                    TYPEOF (item)) = 1
+--LK       ))) = 0;
+  WR2: SIZEOF (QUERY (item <* SELF\representation.items | 
+       ('PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_IMAGE' IN
+        TYPEOF (item))
+       )) >= 1;
+--LK WRx: "... shall not be displayed without being placed in a presentation_view." (here only directly via rel or mapped_item)
+--GP this where rule is for WRx stated above
+--GL 'code' just captures logic 'There should be at least 1 presentatation_view refering it'
+-- Was it meant? Maybe it should restrict and dissalow other types at all?
+-- Must be used by at least one presentatation_view and only be used by presentation_representation which are presentatation_view(s).
+  WR3: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+                                             'REPRESENTATION_RELATIONSHIP.REP_2') | 
+          'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+          TYPEOF (prr\representation_relationship.rep_1))) > 0)
+                                  OR 
+-- GL - cosmetics - rename                                  
+       (SIZEOF(QUERY( rm <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
+                                               'REPRESENTATION_MAP.'+ 
+                                               'MAPPED_REPRESENTATION') | 
+         SIZEOF(QUERY( mi <* USEDIN(rm, 'REPRESENTATION_SCHEMA.'+
+                                              'MAPPED_ITEM.'+
+                                              'MAPPING_SOURCE') |   
+                                              'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+                             TYPEOF (using_representations (mi)) )) > 0))  
+                    > 0);
+-- GL added: Require that ALL users are presentation_views                                        
+  WR4: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+                                             'REPRESENTATION_RELATIONSHIP.REP_2') | 
+          NOT('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+          TYPEOF (prr\representation_relationship.rep_1)))) = 0)
+                                  AND 
+       (SIZEOF(QUERY( rm <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
+                                               'REPRESENTATION_MAP.'+ 
+                                               'MAPPED_REPRESENTATION') | 
+         SIZEOF(QUERY( mi <* USEDIN(rm, 'REPRESENTATION_SCHEMA.'+
+                                              'MAPPED_ITEM.'+
+                                              'MAPPING_SOURCE') |   
+                                              NOT('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+                             TYPEOF (using_representations (mi))) )) > 0))  
+                    = 0);
+END_ENTITY;
+
+ENTITY representation_item_dependent_layer_assignment
+  SUBTYPE OF (presentation_layer_assignment);
+  item_context : representation_item;
+END_ENTITY;
+
+ENTITY view_dependent_annotation_representation
+  SUBTYPE OF (presentation_representation);
+  SELF\representation.items : SET [1:?] OF view_dependent_annotation_representation_item;
+WHERE
+--LK  WR1: SIZEOF (QUERY (item <* SELF\representation.items |
+--LK       NOT (SIZEOF (['PRESENTATION_DEFINITION_SCHEMA.' +
+--LK                     'ANNOTATION_OCCURRENCE',
+--LK                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] * 
+--LK            TYPEOF(item)) = 1
+--LK       ))) = 0;
+  WR2: SIZEOF (QUERY (item <* SELF\representation.items |
+       ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_OCCURRENCE' IN
+        TYPEOF (item))
+       )) >= 1;
+--LK WRx: "... it shall be contained in a presentation_view", should be implemented identical to the case in product_data_representation_view. 
+--LK Must ensure that it is PLACED (mapped_item or presentation_rep) in a presentation_view
+--GP WR3 below is added for the property stated above
+-- Must be used by at least one presentatation_view and only be used by presentation_representation which are presentatation_view(s).
+  WR3: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+                                             'REPRESENTATION_RELATIONSHIP.REP_2') | 
+          'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+          TYPEOF (prr\representation_relationship.rep_1))) > 0)
+                                  OR 
+--GL cosmetic renaming                                  
+       (SIZEOF(QUERY( rm <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
+                                               'REPRESENTATION_MAP.'+ 
+                                               'MAPPED_REPRESENTATION') | 
+         SIZEOF(QUERY( mi <* USEDIN(rm, 'REPRESENTATION_SCHEMA.'+
+                                              'MAPPED_ITEM.'+
+                                              'MAPPING_SOURCE') |   
+                                              'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+                             TYPEOF (using_representations (mi)) )) > 0))  
+                    > 0);
+-- GL added: Require that ALL users are presentation_views                    
+  WR4: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+                                             'REPRESENTATION_RELATIONSHIP.REP_2') | 
+          NOT('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+          TYPEOF (prr\representation_relationship.rep_1)))) = 0)
+                                  AND 
+       (SIZEOF(QUERY( rm <* USEDIN(SELF, 'REPRESENTATION_SCHEMA.'+ 
+                                               'REPRESENTATION_MAP.'+ 
+                                               'MAPPED_REPRESENTATION') | 
+         SIZEOF(QUERY( mi <* USEDIN(rm, 'REPRESENTATION_SCHEMA.'+
+                                              'MAPPED_ITEM.'+
+                                              'MAPPING_SOURCE') |   
+                                              NOT('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+                             TYPEOF (using_representations (mi))) )) > 0))  
+                    = 0);
+                    
+END_ENTITY;
+
+ENTITY view_volume
+  SUBTYPE OF (founded_item);
+  projection_type            : central_or_parallel;
+  projection_point           : cartesian_point;
+  view_plane_distance        : length_measure;
+  front_plane_distance       : length_measure;
+  front_plane_clipping       : BOOLEAN;
+  back_plane_distance        : length_measure;
+  back_plane_clipping        : BOOLEAN;
+  view_volume_sides_clipping : BOOLEAN;
+  view_window                : planar_box;
 END_ENTITY;
 
 RULE symbol_representation_rule
@@ -449,22 +626,85 @@ WHERE
        )) = 0;
 END_RULE;
 
+
+--GP function check_root is added
+--GL we no longer need it
+(* FUNCTION check_root
+  ( tree_node : presentation_representation ) : BOOLEAN;
+
+  LOCAL
+    x : SET OF presentation_representation_relationship;
+    y : SET OF representation_map;
+    z : SET OF mapped_item;
+    w : SET OF representation;
+    count : INTEGER;
+  END_LOCAL;
+
+  count := 0;
+  x := bag_to_set (USEDIN (tree_node, 'REPRESENTATION_SCHEMA.' + 
+             'REPRESENTATION_RELATIONSHIP.REP_2'));
+  IF SIZEOF (x) > 0 THEN
+    REPEAT i:=1 TO HIINDEX (x);
+       IF NOT check_root(x[i]\representation_relationship.rep_1) THEN
+         RETURN (FALSE);
+       END_IF;
+    END_REPEAT;
+    count := SIZEOF (x);
+  END_IF;
+
+  y := bag_to_set (USEDIN (tree_node, 'REPRESENTATION_SCHEMA.' + 
+           'REPRESENTATION_MAP.MAPPED_REPRESENTATION'));
+  IF SIZEOF (y) > 0 THEN
+    REPEAT i:=1 TO HIINDEX (y);
+       z := bag_to_set (USEDIN (y[i], 'REPRESENTATION_SCHEMA.' + 
+          'MAPPING_ITEM.MAPPING_SOURCE'));
+       IF SIZEOF (z) > 0 THEN
+          REPEAT j:=1 TO HIINDEX (z);
+             w := using_representations(z[j]);
+             IF SIZEOF (w) > 0 THEN
+                REPEAT k:=1 TO HIINDEX (w);
+                   IF (NOT 'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION'
+                         IN TYPEOF (w[k])) OR (NOT check_root(w[k])) THEN
+                      RETURN (FALSE);
+                   END_IF;
+                END_REPEAT;
+                count := count + SIZEOF (w);
+             END_IF;
+          END_REPEAT;
+       END_IF;
+    END_REPEAT;
+  END_IF;
+-- if count is positive, then the current node of the tree is not the root node
+-- if the current node is root, then its type should be presentation_area
+  IF (count > 0) OR ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
+        TYPEOF (tree_node)) THEN
+    RETURN (TRUE);
+  END_IF;
+  RETURN (FALSE);
+
+END_FUNCTION;
+*)
+
 FUNCTION acyclic_presentation_representation_relationship
   ( relation : presentation_representation_relationship;
     children : SET OF presentation_representation ) : BOOLEAN;
+
   LOCAL
     x : SET OF presentation_representation_relationship;
     local_children : SET OF presentation_representation;
   END_LOCAL;
+
   REPEAT i:=1 TO HIINDEX(children);
     IF relation\representation_relationship.rep_1 :=: children[i] THEN
        RETURN(FALSE);
     END_IF;
   END_REPEAT;
+
   x := bag_to_set (USEDIN ( relation\representation_relationship.rep_1,
                   'REPRESENTATION_SCHEMA.'+
                   'REPRESENTATION_RELATIONSHIP.REP_2'));
   local_children := children + relation\representation_relationship.rep_1;
+
   IF SIZEOF (x) > 0 THEN
     REPEAT i:=1 TO HIINDEX (x);
        IF NOT acyclic_presentation_representation_relationship
@@ -473,7 +713,9 @@ FUNCTION acyclic_presentation_representation_relationship
        END_IF;
     END_REPEAT;
   END_IF;
+
   RETURN (TRUE);
+
 END_FUNCTION;
 
 FUNCTION aspect_ratio (p : planar_box) : positive_ratio_measure;

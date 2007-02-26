@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" reference="ISO 10303-46" rcs.date="$Date: 2006/09/18 14:01:30 $" rcs.revision="$Revision: 1.13 $" description.file="descriptions.xml">
+<express language_version="2" reference="ISO 10303-46" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="presentation_resource_schema schema_instance"/>
    <schema name="presentation_resource_schema">
       <interface kind="reference" schema="external_reference_schema">
@@ -38,6 +38,8 @@
       </type>
       <type name="presentable_text">
          <builtintype type="STRING" fixed="NO"/>
+         <where label="WR1" expression="control_characters_free(SELF)"/>
+         <where label="IP1"/>
       </type>
       <type name="staircase_or_linear">
          <enumeration items="staircase linear" extensible="NO"/>
@@ -123,7 +125,7 @@
          <where label="WR1" expression="SELF.name IN&#10;      ['red',&#10;       'green',&#10;       'blue',&#10;       'yellow',&#10;       'magenta',&#10;       'cyan',&#10;       'black',&#10;       'white']"/>
       </entity>
       <entity name="draughting_pre_defined_text_font" supertypes="pre_defined_text_font" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="SELF.name[1:8] = 'ISO 3098'"/>
+         <where label="WR1" expression="SELF.name IN ['ISO 3098']"/>
       </entity>
       <entity name="externally_defined_text_font" supertypes="externally_defined_item" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="generic_character_glyph_symbol" abstract.supertype="YES" supertypes="symbol_representation" abstract.entity="NO"/>
@@ -194,5 +196,22 @@
             <typename name="text_font_family"/>
          </explicit>
       </entity>
+      <function name="control_characters_free">
+         <parameter name="s">
+            <builtintype type="STRING" fixed="NO"/>
+         </parameter>
+         <builtintype type="BOOLEAN" fixed="NO"/>
+         <algorithm>LOCAL
+    ch : STRING;
+  END_LOCAL;
+
+  REPEAT i:=1 TO LENGTH(s);
+    ch := s[i];
+    IF (ch = '\x9') OR (ch = '\xA') OR (ch = '\xD') THEN
+       RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN (TRUE);</algorithm>
+      </function>
    </schema>
 </express>

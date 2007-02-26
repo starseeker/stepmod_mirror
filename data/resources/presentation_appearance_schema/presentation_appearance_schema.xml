@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" reference="ISO 10303-46" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-46" description.file="descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="presentation_appearance_schema schema_instance"/>
    <schema name="presentation_appearance_schema">
       <interface kind="reference" schema="external_reference_schema">
@@ -11,10 +11,13 @@
       </interface>
       <interface kind="reference" schema="geometry_schema">
          <interfaced.item name="axis2_placement"/>
+         <interfaced.item name="b_spline_curve"/>
          <interfaced.item name="cartesian_point"/>
+         <interfaced.item name="composite_curve"/>
          <interfaced.item name="curve"/>
          <interfaced.item name="geometric_representation_item"/>
          <interfaced.item name="point"/>
+         <interfaced.item name="polyline"/>
          <interfaced.item name="vector"/>
       </interface>
       <interface kind="reference" schema="group_schema">
@@ -53,6 +56,7 @@
          <interfaced.item name="colour"/>
       </interface>
       <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="founded_item"/>
          <interfaced.item name="mapped_item"/>
          <interfaced.item name="representation"/>
          <interfaced.item name="representation_item"/>
@@ -77,6 +81,7 @@
       </type>
       <type name="box_slant_angle">
          <typename name="plane_angle_measure"/>
+         <where label="IP1"/>
       </type>
       <type name="box_width">
          <typename name="positive_ratio_measure"/>
@@ -194,12 +199,12 @@
          <builtintype type="INTEGER"/>
          <where label="WR1" expression="SELF &gt; 1"/>
       </type>
-      <entity name="approximation_tolerance">
+      <entity name="approximation_tolerance" supertypes="founded_item">
          <explicit name="tolerance">
             <typename name="tolerance_select"/>
          </explicit>
       </entity>
-      <entity name="approximation_tolerance_deviation">
+      <entity name="approximation_tolerance_deviation" supertypes="founded_item">
          <explicit name="tessellation_type">
             <typename name="approximation_method"/>
          </explicit>
@@ -212,14 +217,14 @@
          </explicit>
          <where label="WR1" expression="(HIINDEX(SELF.tolerances) = 1)&#10;                XOR&#10;       (TYPEOF(SELF.tolerances[1]) &lt;&gt; TYPEOF(SELF.tolerances[2]))"/>
       </entity>
-      <entity name="approximation_tolerance_parameter">
+      <entity name="approximation_tolerance_parameter" supertypes="founded_item">
          <explicit name="tolerances">
             <aggregate type="SET" lower="1" upper="2"/>
             <typename name="tolerance_parameter_select"/>
          </explicit>
          <where label="WR1" expression="(HIINDEX (SELF.tolerances) = 1 )&#10;               XOR&#10;       (TYPEOF (SELF.tolerances[1]) &lt;&gt; TYPEOF (SELF.tolerances[2]))"/>
       </entity>
-      <entity name="character_glyph_style_outline">
+      <entity name="character_glyph_style_outline" supertypes="founded_item">
          <explicit name="outline_style">
             <typename name="curve_style"/>
          </explicit>
@@ -229,7 +234,7 @@
             <typename name="fill_area_style"/>
          </explicit>
       </entity>
-      <entity name="character_glyph_style_stroke">
+      <entity name="character_glyph_style_stroke" supertypes="founded_item">
          <explicit name="stroke_style">
             <typename name="curve_style"/>
          </explicit>
@@ -244,9 +249,9 @@
             <aggregate type="SET" lower="1" upper="2"/>
             <typename name="style_context_select"/>
          </explicit>
-         <where label="WR1" expression="(SIZEOF(QUERY( sc &lt;* SELF.style_context |&#10;       'REPRESENTATION_SCHEMA.REPRESENTATION' IN&#10;         TYPEOF(sc))) = 1 )&#10;                 AND&#10;       (SIZEOF(QUERY( sc &lt;* SELF.style_context |&#10;       'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN&#10;         TYPEOF(sc))) = 1)"/>
+         <where label="WR1" expression="(SIZEOF(QUERY( sc &lt;* SELF.style_context |&#10;       'REPRESENTATION_SCHEMA.REPRESENTATION' IN&#10;         TYPEOF(sc))) &lt;= 1 )&#10;                 AND&#10;       (SIZEOF(QUERY( sc &lt;* SELF.style_context |&#10;       'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN&#10;         TYPEOF(sc))) &lt;= 1)"/>
       </entity>
-      <entity name="curve_style">
+      <entity name="curve_style" supertypes="founded_item">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -273,8 +278,10 @@
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="curve_style_curve_pattern"/>
          </explicit>
+         <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="curve_style_font">
+      <entity name="curve_style_font" supertypes="founded_item">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -282,8 +289,10 @@
             <aggregate type="LIST" lower="1" upper="?"/>
             <typename name="curve_style_font_pattern"/>
          </explicit>
+         <where label="IP1"/>
+         <where label="IP2"/>
       </entity>
-      <entity name="curve_style_font_and_scaling">
+      <entity name="curve_style_font_and_scaling" supertypes="founded_item">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -294,7 +303,7 @@
             <builtintype type="REAL"/>
          </explicit>
       </entity>
-      <entity name="curve_style_font_pattern">
+      <entity name="curve_style_font_pattern" supertypes="founded_item">
          <explicit name="visible_segment_length">
             <typename name="positive_length_measure"/>
          </explicit>
@@ -333,10 +342,10 @@
       </entity>
       <entity name="externally_defined_curve_font" supertypes="externally_defined_item"/>
       <entity name="externally_defined_hatch_style" supertypes="externally_defined_item geometric_representation_item"/>
-      <entity name="externally_defined_style" supertypes="externally_defined_item"/>
+      <entity name="externally_defined_style" supertypes="externally_defined_item founded_item"/>
       <entity name="externally_defined_tile" supertypes="externally_defined_item"/>
       <entity name="externally_defined_tile_style" supertypes="externally_defined_item geometric_representation_item"/>
-      <entity name="fill_area_style">
+      <entity name="fill_area_style" supertypes="founded_item">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -378,6 +387,9 @@
          <explicit name="region_colour">
             <typename name="colour"/>
          </explicit>
+         <where label="WR1" expression="(NOT('GEOMETRY_SCHEMA.CURVE' IN TYPEOF (closed_curve))) OR &#10;       ('GEOMETRY_SCHEMA.CIRCLE' IN TYPEOF (closed_curve)) OR &#10;       ('GEOMETRY_SCHEMA.ELLIPSE' IN TYPEOF (closed_curve)) OR &#10;       ( ('GEOMETRY_SCHEMA.B_SPLINE_CURVE' IN TYPEOF (closed_curve)) &#10;            AND (closed_curve\b_spline_curve.closed_curve = TRUE) ) OR &#10;       ( ('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF (closed_curve)) &#10;            AND (closed_curve\composite_curve.closed_curve = TRUE) ) OR &#10;       ( ('GEOMETRY_SCHEMA.POLYLINE' IN TYPEOF (closed_curve)) &#10;            AND (closed_curve\polyline.points[LOINDEX(closed_curve\polyline.points)] = &#10;                 closed_curve\polyline.points[HIINDEX(closed_curve\polyline.points)]) )"/>
+      	 <where label="IP1">
+      	 </where>
       </entity>
       <entity name="fill_area_style_tile_curve_with_style" supertypes="geometric_representation_item">
          <explicit name="styled_curve">
@@ -429,7 +441,7 @@
             <typename name="styled_item"/>
          </explicit>
       </entity>
-      <entity name="point_style">
+      <entity name="point_style" supertypes="founded_item">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -447,18 +459,22 @@
       <entity name="pre_defined_curve_font" supertypes="pre_defined_item"/>
       <entity name="pre_defined_hatch_style" supertypes="pre_defined_item geometric_representation_item"/>
       <entity name="pre_defined_marker" supertypes="pre_defined_item"/>
-      <entity name="pre_defined_presentation_style" supertypes="pre_defined_item"/>
+      <entity name="pre_defined_presentation_style" supertypes="founded_item pre_defined_item"/>
       <entity name="pre_defined_size" supertypes="pre_defined_item"/>
       <entity name="pre_defined_surface_side_style" supertypes="pre_defined_item"/>
       <entity name="pre_defined_tile" supertypes="pre_defined_item"/>
       <entity name="pre_defined_tile_style" supertypes="pre_defined_item geometric_representation_item"/>
-      <entity name="presentation_style_assignment">
+      <entity name="presentation_style_assignment" supertypes="founded_item">
          <explicit name="styles">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="presentation_style_select"/>
          </explicit>
          <where label="WR1" expression="SIZEOF (QUERY (style1 &lt;* SELF.styles |&#10;         NOT (SIZEOF (QUERY (style2 &lt;* (SELF.styles - style1) |&#10;           NOT ((TYPEOF (style1) &lt;&gt; TYPEOF (style2)) OR&#10;             (SIZEOF (['PRESENTATION_APPEARANCE_SCHEMA.' +&#10;                       'SURFACE_STYLE_USAGE',&#10;                       'PRESENTATION_APPEARANCE_SCHEMA.'+&#10;                       'EXTERNALLY_DEFINED_STYLE'] *&#10;                     TYPEOF (style1)) = 1)&#10;           ))) = 0&#10;         ))) = 0"/>
          <where label="WR2" expression="SIZEOF (QUERY (style1 &lt;* SELF.styles |&#10;         'PRESENTATION_APPEARANCE_SCHEMA.SURFACE_STYLE_USAGE' IN&#10;         TYPEOF(style1)&#10;         )) &lt;= 2"/>
+         <where label="WR3" expression="SIZEOF (QUERY (style1 &lt;* SELF.styles |&#10;         ('PRESENTATION_APPEARANCE_SCHEMA.SURFACE_STYLE_USAGE' IN TYPEOF (style1)) AND &#10;         (SIZEOF (QUERY (style2 &lt;* (SELF.styles - style1) |&#10;           ('PRESENTATION_APPEARANCE_SCHEMA.SURFACE_STYLE_USAGE' IN TYPEOF (style2)) AND &#10;           ((style1\surface_style_usage.side = both) OR &#10;           (style2\surface_style_usage.side = both) OR &#10;           (style1\surface_style_usage.side = style2\surface_style_usage.side)) )) &gt; 0))) = 0"/>
+         <where label="IP1"/>
+         <where label="IP2"/>
+         <where label="IP3"/>
       </entity>
       <entity name="presentation_style_by_context" supertypes="presentation_style_assignment">
          <explicit name="style_context">
@@ -480,7 +496,7 @@
             <typename name="colour"/>
          </explicit>
       </entity>
-      <entity name="surface_side_style">
+      <entity name="surface_side_style" supertypes="founded_item">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -490,22 +506,22 @@
          </explicit>
          <where label="WR1" expression="SIZEOF(QUERY( style1 &lt;* SELF.styles |&#10;         SIZEOF(QUERY( style2 &lt;* SELF.styles - style1 |&#10;           TYPEOF(style1) = TYPEOF(style2)&#10;           )) &gt; 0&#10;         )) = 0"/>
       </entity>
-      <entity name="surface_style_boundary">
+      <entity name="surface_style_boundary" supertypes="founded_item">
          <explicit name="style_of_boundary">
             <typename name="curve_or_render"/>
          </explicit>
       </entity>
-      <entity name="surface_style_control_grid">
+      <entity name="surface_style_control_grid" supertypes="founded_item">
          <explicit name="style_of_control_grid">
             <typename name="curve_or_render"/>
          </explicit>
       </entity>
-      <entity name="surface_style_fill_area">
+      <entity name="surface_style_fill_area" supertypes="founded_item">
          <explicit name="fill_area">
             <typename name="fill_area_style"/>
          </explicit>
       </entity>
-      <entity name="surface_style_parameter_line">
+      <entity name="surface_style_parameter_line" supertypes="founded_item">
          <explicit name="style_of_parameter_lines">
             <typename name="curve_or_render"/>
          </explicit>
@@ -551,12 +567,12 @@
          </explicit>
          <where label="WR1" expression="(HIINDEX(SELF.properties) = 1)&#10;                   XOR&#10;       (TYPEOF(SELF.properties[1]) &lt;&gt; TYPEOF(SELF.properties[2]))"/>
       </entity>
-      <entity name="surface_style_segmentation_curve">
+      <entity name="surface_style_segmentation_curve" supertypes="founded_item">
          <explicit name="style_of_segmentation_curve">
             <typename name="curve_or_render"/>
          </explicit>
       </entity>
-      <entity name="surface_style_silhouette">
+      <entity name="surface_style_silhouette" supertypes="founded_item">
          <explicit name="style_of_silhouette">
             <typename name="curve_or_render"/>
          </explicit>
@@ -567,7 +583,7 @@
          </explicit>
          <where label="WR1" expression="{0.0 &lt;= transparency &lt;= 1.0}"/>
       </entity>
-      <entity name="surface_style_usage">
+      <entity name="surface_style_usage" supertypes="founded_item">
          <explicit name="side">
             <typename name="surface_side"/>
          </explicit>
@@ -580,14 +596,14 @@
             <typename name="colour"/>
          </explicit>
       </entity>
-      <entity name="symbol_element_style">
+      <entity name="symbol_element_style" supertypes="founded_item">
          <explicit name="style_of_symbol">
             <typename name="presentation_style_assignment"/>
          </explicit>
          <where label="WR1" expression="SIZEOF (QUERY ( style &lt;* SELF.style_of_symbol.styles |&#10;         'PRESENTATION_APPEARANCE_SCHEMA.SYMBOL_STYLE' IN&#10;         TYPEOF (style))) = 0"/>
          <where label="WR2" expression="NOT ('PRESENTATION_APPEARANCE_SCHEMA.' +&#10;            'PRESENTATION_STYLE_BY_CONTEXT' IN&#10;            TYPEOF (SELF.style_of_symbol)&#10;           )"/>
       </entity>
-      <entity name="symbol_style">
+      <entity name="symbol_style" supertypes="founded_item">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -595,7 +611,7 @@
             <typename name="symbol_style_select"/>
          </explicit>
       </entity>
-      <entity name="text_style">
+      <entity name="text_style" supertypes="founded_item">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -624,6 +640,7 @@
          <explicit name="mirror_placement">
             <typename name="axis2_placement"/>
          </explicit>
+         <where label="IP1"/>
       </entity>
       <entity name="text_style_with_spacing" supertypes="text_style">
          <explicit name="character_spacing">
@@ -635,6 +652,8 @@
             <typename name="vector"/>
          </explicit>
       </entity>
+      <subtype.constraint name="pas_geometric_representation_item_subtypes" entity="geometric_representation_item" super.expression="ONEOF (pre_defined_tile_style, externally_defined_tile_style, pre_defined_hatch_style, externally_defined_hatch_style)"/>
+      <subtype.constraint name="founded_item_subtypes" entity="founded_item" super.expression="ONEOF (approximation_tolerance, approximation_tolerance_deviation, approximation_tolerance_parameter, character_glyph_style_outline, character_glyph_style_stroke, curve_style, curve_style_font, curve_style_font_and_scaling, curve_style_font_pattern, externally_defined_style, fill_area_style, point_style, pre_defined_presentation_style, presentation_style_assignment, surface_side_style, surface_style_boundary, surface_style_control_grid, surface_style_fill_area, surface_style_parameter_line, surface_style_segmentation_curve, surface_style_silhouette, surface_style_usage, symbol_element_style, symbol_style, text_style)"/>
       <function name="acyclic_occlusion_precedence">
          <parameter name="relation">
             <typename name="occlusion_precedence"/>
@@ -660,7 +679,8 @@
    IF SIZEOF (x) &gt; 0 THEN
       REPEAT i:=1 TO HIINDEX (x);
          If NOT acyclic_occlusion_precedence(x[i] ,
-                                      local_set_of_lower) THEN
+ 
+                                     local_set_of_lower) THEN
             RETURN (FALSE);
          END_IF;
       END_REPEAT;

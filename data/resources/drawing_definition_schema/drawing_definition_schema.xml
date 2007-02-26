@@ -1,211 +1,97 @@
-<?xml version="1.0"?>
-<!-- $Id: drawing_definition_schema.xml,v 1.5 2002/07/14 16:43:47 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-101"
-  rcs.date="$Date: 2002/07/14 16:43:47 $"
-  rcs.revision="$Revision: 1.5 $"
-  description.file="descriptions.xml">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="../data/resources/drawing_definition_schema/drawing_definition_schema.exp"/>
-
-  <schema name="drawing_definition_schema">
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-      <interfaced.item
-        name="identifier"/>
-      <interfaced.item
-        name="bag_to_set"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="representation_schema">
-      <interfaced.item
-        name="mapped_item"/>
-      <interfaced.item
-        name="representation_relationship"/>
-      <interfaced.item
-        name="representation"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="presentation_organization_schema">
-      <interfaced.item
-        name="area_in_set"/>
-      <interfaced.item
-        name="presentation_area"/>
-      <interfaced.item
-        name="presentation_set"/>
-      <interfaced.item
-        name="presentation_representation_relationship"/>
-    </interface>
-
-    <type name="draughting_titled_item">
-      <select
-        selectitems="drawing_revision drawing_sheet_revision">
-      </select>
-
-    </type>
-    <entity
-      name="drawing_definition">
-      <explicit
-        name="drawing_number">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="drawing_type"
-        optional="YES">
-        <typename
-          name="label"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="drawing_revision"
-      supertypes="presentation_set">
-      <explicit
-        name="revision_identifier">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="drawing_identifier">
-        <typename
-          name="drawing_definition"/>
-      </explicit>
-      <explicit
-        name="intended_scale"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="revision_identifier"/>
-        <unique.attribute
-          attribute="drawing_identifier"/>
-      </unique>
-    </entity>
-
-    <entity
-      name="drawing_revision_sequence">
-      <explicit
-        name="predecessor">
-        <typename
-          name="drawing_revision"/>
-      </explicit>
-      <explicit
-        name="successor">
-        <typename
-          name="drawing_revision"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="predecessor :&lt;&gt;: successor">
-      </where>
-    </entity>
-
-    <entity
-      name="drawing_sheet_revision"
-      supertypes="presentation_area">
-      <explicit
-        name="revision_identifier">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF( QUERY(item &lt;* SELF\representation.items |       ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN (TYPEOF(item)))       AND       ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' IN       (TYPEOF(item\mapped_item.mapping_source.mapped_representation)))))=0">
-      </where>
-    </entity>
-
-    <entity
-      name="drawing_sheet_revision_sequence"
-      supertypes="representation_relationship">
-      <where
-        label="WR1"
-        expression="SELF\representation_relationship.rep_1 :&lt;&gt;:                                   SELF\representation_relationship.rep_2">
-      </where>
-      <where
-        label="WR2"
-        expression="'DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'       IN TYPEOF (SELF\representation_relationship.rep_1)">
-      </where>
-      <where
-        label="WR3"
-        expression="'DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'       IN TYPEOF (SELF\representation_relationship.rep_2)">
-      </where>
-    </entity>
-
-    <entity
-      name="drawing_sheet_revision_usage"
-      supertypes="area_in_set">
-      <explicit
-        name="sheet_number">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="sheet_number"/>
-        <unique.attribute
-          attribute="in_set"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' IN                   TYPEOF(SELF\area_in_set.area))               AND              ('DRAWING_DEFINITION_SCHEMA.DRAWING_REVISION'                IN TYPEOF (SELF\area_in_set.in_set))">
-      </where>
-    </entity>
-
-    <entity
-      name="draughting_title">
-      <explicit
-        name="items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="draughting_titled_item"/>
-      </explicit>
-      <explicit
-        name="language">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="contents">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-    <rule
-      name="drawing_sheets_not_nested"
-      appliesto="presentation_representation_relationship">
-      <where
-        label="WR1"
-        expression="SIZEOF( QUERY(p_r_r &lt;* presentation_representation_relationship |               ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'         IN (TYPEOF(p_r_r.rep_1))) AND        ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'        IN (TYPEOF( p_r_r.rep_2))))) = 0">
-      </where>
-
-    </rule>
-
-  </schema>
-
+<express language_version="2" reference="ISO 10303-101" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="drawing_definition_schema schema_instance"/>
+   <schema name="drawing_definition_schema">
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+         <interfaced.item name="identifier"/>
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="mapped_item"/>
+         <interfaced.item name="representation_relationship"/>
+         <interfaced.item name="representation"/>
+      </interface>
+      <interface kind="reference" schema="presentation_organization_schema">
+         <interfaced.item name="area_in_set"/>
+         <interfaced.item name="presentation_area"/>
+         <interfaced.item name="presentation_set"/>
+         <interfaced.item name="presentation_representation_relationship"/>
+      </interface>
+      <type name="draughting_titled_item">
+         <select selectitems="drawing_revision drawing_sheet_revision"/>
+      </type>
+      <entity name="draughting_title">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="draughting_titled_item"/>
+         </explicit>
+         <explicit name="language">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="contents">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="drawing_definition">
+         <explicit name="drawing_number">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="drawing_type" optional="YES">
+            <typename name="label"/>
+         </explicit>
+      </entity>
+      <entity name="drawing_revision" supertypes="presentation_set">
+         <explicit name="revision_identifier">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="drawing_identifier">
+            <typename name="drawing_definition"/>
+         </explicit>
+         <explicit name="intended_scale" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="revision_identifier"/>
+            <unique.attribute attribute="drawing_identifier"/>
+         </unique>
+      </entity>
+      <entity name="drawing_revision_sequence">
+         <explicit name="predecessor">
+            <typename name="drawing_revision"/>
+         </explicit>
+         <explicit name="successor">
+            <typename name="drawing_revision"/>
+         </explicit>
+         <where label="WR1" expression="predecessor :&lt;&gt;: successor"/>
+      </entity>
+      <entity name="drawing_sheet_revision" supertypes="presentation_area">
+         <explicit name="revision_identifier">
+            <typename name="identifier"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF( QUERY(item &lt;* SELF\representation.items |&#10;       ('REPRESENTATION_SCHEMA.MAPPED_ITEM' IN (TYPEOF(item)))&#10;       AND&#10;       ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' IN&#10;       (TYPEOF(item\mapped_item.mapping_source.mapped_representation)))))=0"/>
+      </entity>
+      <entity name="drawing_sheet_revision_sequence" supertypes="representation_relationship">
+         <where label="WR1" expression="SELF\representation_relationship.rep_1 :&lt;&gt;:                            &#10;       SELF\representation_relationship.rep_2"/>
+         <where label="WR2" expression="'DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'&#10;       IN TYPEOF (SELF\representation_relationship.rep_1)"/>
+         <where label="WR3" expression="'DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'&#10;       IN TYPEOF (SELF\representation_relationship.rep_2)"/>
+      </entity>
+      <entity name="drawing_sheet_revision_usage" supertypes="area_in_set">
+         <explicit name="sheet_number">
+            <typename name="identifier"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="sheet_number"/>
+            <unique.attribute entity-ref="area_in_set" attribute="in_set"/>
+         </unique>
+         <where label="WR1" expression="('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' IN &#10;                  TYPEOF(SELF\area_in_set.area)) &#10;              AND&#10;              ('DRAWING_DEFINITION_SCHEMA.DRAWING_REVISION' &#10;               IN TYPEOF (SELF\area_in_set.in_set))"/>
+      </entity>
+      <rule name="drawing_sheets_not_nested" appliesto="presentation_representation_relationship">
+         <where label="WR1" expression="SIZEOF( QUERY(p_r_r &lt;* presentation_representation_relationship |      &#10;         ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' &#10;        IN (TYPEOF(p_r_r.rep_1))) AND&#10;        ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION'&#10;        IN (TYPEOF( p_r_r.rep_2))))) = 0"/>
+      </rule>
+   </schema>
 </express>

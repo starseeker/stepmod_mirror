@@ -1,13 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id$ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date$"
-   rcs.revision="$Revision$"
-   description.file="arm_descriptions.xml">
-  <schema name="Draughting_element_arm">
-  </schema>
+
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="draughting_element_arm schema_instance"/>
+   <schema name="Draughting_element_arm">
+      <interface kind="use" schema="Associative_text_arm"/>
+      <interface kind="use" schema="Curve_appearance_arm"/>
+      <type name="draughting_callout_content_select">
+         <select extensible="YES" genericentity="YES" selectitems="Annotation_curve Text"/>
+      </type>
+      <type name="draughting_styled_model_element_select">
+         <select basedon="styled_model_element_select" selectitems="Draughting_callout"/>
+      </type>
+      <entity name="Dimension_curve" supertypes="Annotation_curve">
+         <explicit name="terminator">
+            <aggregate type="SET" lower="0" upper="2"/>
+            <typename name="Terminator"/>
+         </explicit>
+      </entity>
+      <entity name="Draughting_callout" supertypes="Representation_item">
+         <explicit name="contents">
+            <aggregate type="LIST" lower="1" upper="?"/>
+            <typename name="draughting_callout_content_select"/>
+         </explicit>
+      </entity>
+      <entity name="Fill_area" supertypes="Annotation_element">
+         <explicit name="boundary">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Annotation_curve"/>
+         </explicit>
+         <explicit name="reference_point">
+            <typename name="point_select"/>
+         </explicit>
+      </entity>
+      <entity name="Leader" supertypes="Annotation_curve">
+         <explicit name="curve">
+            <typename name="Curve"/>
+         </explicit>
+      </entity>
+      <entity name="Projection_curve" supertypes="Annotation_curve"/>
+      <subtype.constraint name="annotation_curve_subtypes" entity="Annotation_curve" super.expression="ONEOF (Leader, Projection_curve, Dimension_curve)"/>
+   </schema>
 </express>

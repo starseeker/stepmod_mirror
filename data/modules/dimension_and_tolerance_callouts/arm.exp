@@ -1,65 +1,78 @@
-(*
-  $Id: arm.exp,v 1.3 2006/03/07 01:56:48 thendrix Exp $
-  ISO TC184/SC4/WG12 N4337 - ISO/CD-TS 10303-1362 Dimension and tolerance callouts - EXPRESS ARM
-*) 
-
+-- Module arround 506 and 504
 
 SCHEMA Dimension_and_tolerance_callouts_arm;
 
-USE FROM Annotated_presentation_arm;    -- ISO/CD-TS 10303-1360
+USE FROM Draughting_element_specializations_arm; -- 506
 
-USE FROM Associative_text_arm;    -- ISO/TS 10303-1132
+USE FROM Draughting_annotation_arm; -- 504
 
-USE FROM Curve_appearance_arm;    -- ISO/TS 10303-1003
+USE FROM Dimension_tolerance_arm;
 
-USE FROM Dimension_tolerance_arm;    -- ISO/TS 10303-1050
+USE FROM Associative_draughting_elements_arm; --520
 
+USE FROM Draughting_dimension_arm;
+
+USE FROM Extended_fill_area_style_arm;
 
 TYPE dimension_callout_select = SELECT
    (Dimension_symbol, 
     Text);
 END_TYPE; 
 
-ENTITY Datum_feature_callout
-  SUBTYPE OF (Draughting_callout);
-END_ENTITY;
+TYPE datc_appearance_select = EXTENSIBLE SELECT BASED_ON appearance_select WITH 
+   (Solid_fill_area);
+END_TYPE; 
 
-ENTITY Datum_target_callout
-  SUBTYPE OF (Draughting_callout);
-END_ENTITY;
-
-ENTITY Dimension
-  SUBTYPE OF (Draughting_callout);
-  id : STRING;
-  primary_callout : Dimension_callout;
-  secondary_callout : OPTIONAL Dimension_callout;
-END_ENTITY;
-
-ENTITY Dimension_callout;
-  callout_element : SET[1:?] OF dimension_callout_select;
+ENTITY Dimension_callout;  -- AIM is draughting_element OR structured_dimension_callout / Taken from Dimension_and_tolerance_callouts_arm
+  callout_element : SET [1:?] OF dimension_callout_select;
   is_displaying : OPTIONAL Geometric_dimension;
 END_ENTITY;
 
-ENTITY Dimension_curve
-  SUBTYPE OF (Annotation_curve);
-  terminator : SET[0:2] OF Terminator;
+-- Dimension_and_tolerance_callouts_arm contains DIMENSION which propobably supposed
+-- to contain all the subtypes
+ENTITY Dimension
+    SUBTYPE OF (Draughting_callout);
+    id : STRING;
+    primary_callout : Dimension_callout;
+    secondary_callout : OPTIONAL Dimension_callout;
+END_ENTITY; -- Dimension
+
+ENTITY Dimension_sequence_pair; -- AIM is dimension_pair/ Taken from Dimension_and_tolerance_callouts_arm
+	  predecessor : Dimension;
+	  successor : Dimension;
 END_ENTITY;
 
-ENTITY Dimension_sequence_pair;
-  predecessor : Dimension;
-  successor : Dimension;
-END_ENTITY;
+------------------- Copied from associative_annotation --------------------------
+TYPE associated_element_select = EXTENSIBLE GENERIC_ENTITY SELECT
+   (Annotation_element, 
+    Detailed_geometric_model_element);
+END_TYPE; 
 
-ENTITY Geometric_tolerance_callout
+TYPE fill_area_associated_element_select = EXTENSIBLE GENERIC_ENTITY SELECT
+   (Annotation_curve, 
+    Detailed_geometric_model_element);
+END_TYPE; 
+
+ENTITY Associated_draughting_callout
   SUBTYPE OF (Draughting_callout);
+  is_associated_to : associated_element_select;
+END_ENTITY;
+-- TODiscuss - idea was to make it subtype of Shape_aspect_associativity, but one of the options goes other route
+ENTITY Associated_fill_area
+  SUBTYPE OF (Fill_area);
+  is_derived_from : SET[1:?] OF fill_area_associated_element_select;
 END_ENTITY;
 
-ENTITY Projection_curve
-  SUBTYPE OF (Annotation_curve);
+-- TODiscuss - idea was to make it subtype of Shape_aspect_associativity, but one of the options goes other route
+ENTITY Associated_leader
+  SUBTYPE OF (Leader);
+  target : associated_element_select;
 END_ENTITY;
 
-ENTITY Surface_condition_callout
-  SUBTYPE OF (Draughting_callout);
+ENTITY Associated_projection_curve
+  SUBTYPE OF (Shape_aspect_associativity);
+  is_projected_to : associated_element_select;
+  projection_curve : Projection_curve; -- TODOmapping
 END_ENTITY;
 
-END_SCHEMA;  -- Dimension_and_tolerance_callouts_arm
+END_SCHEMA;

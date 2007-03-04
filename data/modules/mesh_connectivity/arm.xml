@@ -1,12 +1,162 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.44 2005/07/04 09:06:08 robbod Exp $ -->
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2005/07/04 09:06:08 $"
-   rcs.revision="$Revision: 1.44 $">
-  <schema name="Mesh_connectivity_arm">
-  </schema>
+<?xml version="1.0"?>
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: 2006/12/08 16:17:17 $" rcs.revision="$Revision: 1.12 $" description.file="arm_descriptions.xml">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.4.0" source="AP209E2_ARM_20061218v3_Rev5.vsd" />
+<schema name="Mesh_connectivity_arm">
+<description>
+       Genenerated from: ..\ballots\ballots\analysis\check_analysis_20060505\express\arm_20060505v1.exp 
+    </description>
+<interface kind="use" schema="Mesh_topology_arm">
+</interface>
+<type name="mismatched_region_type">
+<enumeration extensible="YES" items="abutting overset" />
+<graphic.element page="138" xcoord="428" ycoord="290" />
+</type>
+<entity name="Listed_real_data">
+<graphic.element page="137" xcoord="382" ycoord="77" />
+</entity>
+<entity name="Matched_mesh_connection" supertypes="Mesh_connectivity">
+<explicit name="range">
+<typename name="Indices_range" />
+</explicit>
+<explicit name="donor">
+<typename name="Structured_mesh" />
+</explicit>
+<explicit name="donor_range">
+<typename name="Indices_range" />
+</explicit>
+<explicit name="transform">
+<aggregate type="ARRAY" lower="1" upper="index_count" />
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="current">
+<typename name="Structured_mesh" />
+<redeclaration entity-ref="Mesh_connectivity" />
+</explicit>
+<where label="wr1" expression="current :&lt;&gt;: donor">
+</where>
+<where label="wr2" expression="donor.index_count = index_count">
+</where>
+<where label="wr3" expression="range.nindices = index_count">
+</where>
+<where label="wr4" expression="donor_range.nindices = index_count">
+</where>
+<graphic.element page="137" xcoord="184" ycoord="568" />
+</entity>
+<entity name="Mesh_connectivity">
+<explicit name="name">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="description">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="id">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="current">
+<typename name="Mesh" />
+</explicit>
+<derived name="index_count" expression="current.index_count">
+<builtintype type="INTEGER" />
+</derived>
+<graphic.element page="137" xcoord="388" ycoord="667" />
+</entity>
+<entity name="Mesh_overset_hole" supertypes="Mismatched_mesh_connection">
+<graphic.element page="137" xcoord="377" ycoord="293" />
+</entity>
+<entity name="Mismatched_donor_mesh">
+<inverse name="connect" entity="Mismatched_mesh_region" attribute="donor">
+</inverse>
+<graphic.element page="137" xcoord="494" ycoord="184" />
+</entity>
+<entity name="Mismatched_mesh_connection" supertypes="Mesh_connectivity">
+<explicit name="points">
+<typename name="indices_group" />
+</explicit>
+<explicit name="gridloc">
+<typename name="mesh_location" />
+</explicit>
+<graphic.element page="137" xcoord="484" ycoord="369" />
+</entity>
+<entity name="Mismatched_mesh_region" supertypes="Mismatched_mesh_connection">
+<explicit name="donor">
+<typename name="Mismatched_donor_mesh" />
+</explicit>
+<explicit name="kind">
+<typename name="mismatched_region_type" />
+</explicit>
+<graphic.element page="137" xcoord="511" ycoord="284" />
+</entity>
+<entity name="Multiple_mesh_block">
+<description>
+         KAH Operand type incompatability...
+WHERE
+  wr1 : donor :&lt;&gt;: SELF\Mesh_connectivity.current;
+
+      </description>
+<explicit name="name">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="description">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="id">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="connectivities">
+<aggregate type="LIST" lower="0.0000" upper="?" />
+<typename name="Mesh_connectivity" />
+</explicit>
+<graphic.element page="137" xcoord="541" ycoord="752" />
+</entity>
+<entity name="Structured_donor_mesh" supertypes="Mismatched_donor_mesh">
+<explicit name="donor">
+<typename name="Structured_mesh" />
+</explicit>
+<explicit name="points">
+<typename name="Listed_real_data" />
+</explicit>
+<explicit name="vsize">
+<builtintype type="INTEGER" />
+</explicit>
+<derived name="index_count" expression="donor.index_count">
+<builtintype type="INTEGER" />
+</derived>
+<graphic.element page="137" xcoord="323" ycoord="177" />
+</entity>
+<entity name="Unstructured_donor_mesh" supertypes="Mismatched_donor_mesh">
+<explicit name="donor">
+<typename name="Unstructured_mesh" />
+</explicit>
+<explicit name="cells">
+<typename name="indices_group" />
+</explicit>
+<explicit name="interpolant">
+<typename name="Property_distribution_description" />
+</explicit>
+<explicit name="vsize">
+<builtintype type="INTEGER" />
+</explicit>
+<derived name="cell_dim" expression="donor.cell_count">
+<builtintype type="INTEGER" />
+</derived>
+<derived name="index_count" expression="donor.index_count">
+<builtintype type="INTEGER" />
+</derived>
+<graphic.element page="138" xcoord="318" ycoord="496" />
+</entity>
+<subtype.constraint name="sc1_mesh_connectivity" entity="Mesh_connectivity" abstract.supertype="YES" super.expression="ONEOF(Matched_mesh_connection, Mismatched_mesh_connection)">
+<graphic.element page="137" xcoord="260" ycoord="691" />
+</subtype.constraint>
+<subtype.constraint name="sc1_mismatched_donor_mesh" entity="Mismatched_donor_mesh" abstract.supertype="YES" super.expression="ONEOF(Structured_donor_mesh, Unstructured_donor_mesh)">
+<graphic.element page="137" xcoord="334" ycoord="238" />
+</subtype.constraint>
+<subtype.constraint name="sc1_mismatched_mesh_connection" entity="Mismatched_mesh_connection" abstract.supertype="YES" super.expression="ONEOF(Mismatched_mesh_region, Mesh_overset_hole)">
+<graphic.element page="137" xcoord="555" ycoord="442" />
+</subtype.constraint>
+<graphic.element page="1" xcoord="0" ycoord="0" />
+</schema>
 </express>

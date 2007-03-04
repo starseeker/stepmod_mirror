@@ -1,12 +1,505 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.44 2005/07/04 09:06:08 robbod Exp $ -->
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2005/07/04 09:06:08 $"
-   rcs.revision="$Revision: 1.44 $">
-  <schema name="Mesh_topology_arm">
-  </schema>
+<?xml version="1.0"?>
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: 2006/12/08 16:17:17 $" rcs.revision="$Revision: 1.12 $" description.file="arm_descriptions.xml">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.4.0" source="AP209E2_ARM_20061218v3_Rev5.vsd" />
+<schema name="Mesh_topology_arm">
+<description>
+       Genenerated from: ..\ballots\ballots\analysis\check_analysis_20060505\express\arm_20060505v1.exp 
+    </description>
+<interface kind="use" schema="Elemental_topology_arm">
+</interface>
+<interface kind="use" schema="Finite_elements_arm">
+</interface>
+<interface kind="use" schema="Maths_space_arm">
+</interface>
+<type name="cell_shape">
+<select extensible="YES" selectitems="cell_shape_0D cell_shape_1D cell_shape_2D cell_shape_3D" />
+<graphic.element page="143" xcoord="330" ycoord="320" />
+</type>
+<type name="cell_shape_0D">
+<enumeration extensible="YES" items="single" />
+<graphic.element page="143" xcoord="229" ycoord="269" />
+</type>
+<type name="cell_shape_1D">
+<enumeration extensible="YES" items="line" />
+<graphic.element page="143" xcoord="229" ycoord="229" />
+</type>
+<type name="cell_shape_2D">
+<enumeration extensible="YES" items="quadrilateral triangle polygon" />
+<graphic.element page="143" xcoord="408" ycoord="229" />
+</type>
+<type name="cell_shape_3D">
+<enumeration extensible="YES" items="hexahedron wedge tetrahedron pyramid" />
+<graphic.element page="143" xcoord="408" ycoord="269" />
+</type>
+<type name="element_order">
+<enumeration items="linear quadratic cubic" />
+<graphic.element page="143" xcoord="450" ycoord="436" />
+</type>
+<type name="indices_group">
+<select selectitems="Indices_list Indices_range" />
+<graphic.element page="143" xcoord="180" ycoord="450" />
+</type>
+<type name="mesh_location">
+<enumeration extensible="YES" items="unspecified application_defined vertices cell_center face_center iface_center jface_center kface_center edge_center" />
+<graphic.element page="143" xcoord="302" ycoord="507" />
+</type>
+<type name="mesh_maths_space_type">
+<enumeration extensible="YES" items="cells vertices" />
+<graphic.element page="143" xcoord="446" ycoord="566" />
+</type>
+<type name="structured_mesh_type">
+<enumeration extensible="YES" items="rectangular pentahedral pyramidal tetrahedral" />
+<graphic.element page="143" xcoord="170" ycoord="565" />
+</type>
+<entity name="Array_based_unstructured_mesh" supertypes="Unstructured_mesh">
+<explicit name="cells">
+<aggregate type="ARRAY" lower="1" upper="cell_count" />
+<typename name="Vertex_defined_cell" />
+</explicit>
+<where label="wr1" expression="SELF\mesh.index_count = 1">
+</where>
+<graphic.element page="140" xcoord="219" ycoord="701" />
+</entity>
+<entity name="Array_based_unstructured_mesh_and_vertices" supertypes="Array_based_unstructured_mesh">
+<explicit name="vertex_count">
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="vertices">
+<aggregate type="ARRAY" unique="YES" lower="1" upper="vertex_count" />
+<typename name="Vertex" />
+</explicit>
+<where label="wr1" expression="all_mesh_vertices(SELF)">
+</where>
+<graphic.element page="140" xcoord="345" ycoord="637" />
+</entity>
+<entity name="Cell_of_structured_mesh" supertypes="Topological_region">
+<explicit name="the_mesh">
+<typename name="Structured_mesh" />
+</explicit>
+<explicit name="cell_identifier">
+<aggregate type="ARRAY" lower="1" upper="index_count" />
+<builtintype type="INTEGER" />
+</explicit>
+<derived name="index_count" expression="the_mesh\mesh.index_count">
+<builtintype type="INTEGER" />
+</derived>
+<graphic.element page="140" xcoord="232" ycoord="403" />
+</entity>
+<entity name="Composition_of_structured_mesh">
+<explicit name="part">
+<typename name="Structured_mesh" />
+</explicit>
+<explicit name="whole">
+<typename name="Structured_mesh" />
+</explicit>
+<explicit name="lower_vertex">
+<aggregate type="ARRAY" lower="1" upper="whole_indices" />
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="lower_face">
+<aggregate type="ARRAY" optional="YES" lower="1" upper="whole_indices" />
+<builtintype type="BOOLEAN" />
+</explicit>
+<explicit name="used_indices">
+<aggregate type="ARRAY" lower="1" upper="part_indices" />
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="used_senses">
+<aggregate type="ARRAY" lower="1" upper="part_indices" />
+<builtintype type="BOOLEAN" />
+</explicit>
+<derived name="part_indices" expression="part\mesh.index_count">
+<builtintype type="INTEGER" />
+</derived>
+<derived name="whole_indices" expression="whole\mesh.index_count">
+<builtintype type="INTEGER" />
+</derived>
+<graphic.element page="140" xcoord="243" ycoord="205" />
+</entity>
+<entity name="Explicit_unstructured_mesh" supertypes="Unstructured_mesh">
+<explicit name="explicit_model">
+<typename name="Fea_model" />
+</explicit>
+<explicit name="cells">
+<aggregate type="ARRAY" unique="YES" lower="1" upper="cell_count" />
+<typename name="element" />
+</explicit>
+<graphic.element page="140" xcoord="342" ycoord="581" />
+</entity>
+<entity name="Explicitly_defined_cell_patch" supertypes="Patch">
+<explicit name="cells">
+<aggregate type="LIST" lower="1" upper="?" />
+<typename name="Vertex_defined_cell" />
+</explicit>
+<graphic.element page="140" xcoord="515" ycoord="694" />
+</entity>
+<entity name="Explicitly_defined_vertex_patch" supertypes="Patch">
+<explicit name="vertices">
+<aggregate type="LIST" lower="1" upper="?" />
+<typename name="Vertex" />
+</explicit>
+<graphic.element page="140" xcoord="517" ycoord="425" />
+</entity>
+<entity name="Indices_list">
+<explicit name="nindices">
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="indices">
+<aggregate type="LIST" lower="1" upper="?" />
+<aggregate type="ARRAY" lower="1" upper="nindices" />
+<builtintype type="INTEGER" />
+</explicit>
+<graphic.element page="140" xcoord="538" ycoord="318" />
+</entity>
+<entity name="Indices_range">
+<explicit name="nindices">
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="start">
+<aggregate type="ARRAY" lower="1" upper="nindices" />
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="finish">
+<aggregate type="ARRAY" lower="1" upper="nindices" />
+<builtintype type="INTEGER" />
+</explicit>
+<graphic.element page="140" xcoord="209" ycoord="336" />
+</entity>
+<entity name="Mesh" supertypes="Topological_representation_item">
+<explicit name="description">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="index_count">
+<builtintype type="INTEGER" />
+</explicit>
+<graphic.element page="141" xcoord="329" ycoord="467" />
+</entity>
+<entity name="Mesh_derived_maths_space" supertypes="Maths_space">
+<explicit name="description">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="name">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="id">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="the_mesh">
+<typename name="Mesh" />
+</explicit>
+<explicit name="kind">
+<typename name="mesh_maths_space_type" />
+</explicit>
+<graphic.element page="141" xcoord="295" ycoord="657" />
+</entity>
+<entity name="Patch" supertypes="Mesh">
+<graphic.element page="141" xcoord="99" ycoord="453" />
+</entity>
+<entity name="Product_of_mesh">
+<explicit name="operands">
+<aggregate type="LIST" lower="2" upper="2" />
+<typename name="Mesh" />
+</explicit>
+<explicit name="product">
+<typename name="Mesh" />
+</explicit>
+<where label="wr1" expression="(this_schema + '.STRUCTURED_MESH' IN TYPEOF(operands[1])) AND (this_schema + '.STRUCTURED_MESH' IN TYPEOF(operands[2])) AND (this_schema + '.STRUCTURED_MESH' IN TYPEOF(product))">
+</where>
+<where label="wr2" expression="operands[1].index_count = 1">
+</where>
+<where label="wr3" expression="operands[1].index_count + operands[2].index_count = product.index_count">
+</where>
+<graphic.element page="141" xcoord="490" ycoord="566" />
+</entity>
+<entity name="Property_distribution_description">
+<explicit name="id">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="name">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="description" optional="YES">
+<builtintype type="STRING" />
+</explicit>
+<graphic.element page="141" xcoord="269" ycoord="126" />
+</entity>
+<entity name="Rind">
+<explicit name="index_count">
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="planes">
+<aggregate type="ARRAY" lower="1" upper="2 * index_count" />
+<builtintype type="INTEGER" />
+</explicit>
+<graphic.element page="141" xcoord="478" ycoord="262" />
+</entity>
+<entity name="Structured_mesh" supertypes="Mesh">
+<explicit name="vertex_counts">
+<aggregate type="ARRAY" lower="1" upper="SELF\mesh.index_count" />
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="kind">
+<typename name="structured_mesh_type" />
+</explicit>
+<graphic.element page="141" xcoord="237" ycoord="403" />
+</entity>
+<entity name="Structured_mesh_with_rind" supertypes="Structured_mesh">
+<explicit name="rind_planes">
+<typename name="Rind" />
+</explicit>
+<graphic.element page="141" xcoord="478" ycoord="323" />
+</entity>
+<entity name="Topological_region" supertypes="Topological_representation_item">
+<explicit name="description">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="dimension">
+<builtintype type="INTEGER" />
+</explicit>
+<graphic.element page="141" xcoord="155" ycoord="226" />
+</entity>
+<entity name="Topological_region_with_boundary" supertypes="Topological_region">
+<explicit name="boundary">
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="Topological_representation_item" />
+</explicit>
+<graphic.element page="142" xcoord="153" ycoord="574" />
+</entity>
+<entity name="Topological_representation_item" supertypes="Detailed_topological_model_element">
+<graphic.element page="142" xcoord="153" ycoord="500" />
+</entity>
+<entity name="Unstructured_mesh" supertypes="Mesh">
+<explicit name="cell_count">
+<builtintype type="INTEGER" />
+</explicit>
+<graphic.element page="142" xcoord="421" ycoord="666" />
+</entity>
+<entity name="Vertex" supertypes="Detailed_topological_model_element">
+<graphic.element page="142" xcoord="464" ycoord="478" />
+</entity>
+<entity name="Vertex_defined_cell" supertypes="Topological_region">
+<explicit name="shape">
+<typename name="cell_shape" />
+</explicit>
+<explicit name="order">
+<typename name="element_order" />
+</explicit>
+<explicit name="vertices">
+<aggregate type="ARRAY" optional="YES" lower="1" upper="vn_count" />
+<typename name="Vertex" />
+</explicit>
+<derived name="bound_count" expression="cell_counts(SELF)[1]">
+<builtintype type="INTEGER" />
+</derived>
+<derived name="edge_node_count" expression="cell_counts(SELF)[2]">
+<builtintype type="INTEGER" />
+</derived>
+<derived name="opt_node_count" expression="cell_counts(SELF)[3]">
+<builtintype type="INTEGER" />
+</derived>
+<derived name="required_count" expression="bound_count + edge_node_count">
+<builtintype type="INTEGER" />
+</derived>
+<derived name="vn_count" expression="required_count + opt_node_count">
+<builtintype type="INTEGER" />
+</derived>
+<graphic.element page="142" xcoord="311" ycoord="340" />
+</entity>
+<entity name="Vertex_range_defined_patch" supertypes="Patch">
+<description>
+         KAH Remove here and in Part 52  
+  required_vertices : ARRAY [1:required_count] OF vertex
+                              := vertices[1:required_count];
+
+      </description>
+<explicit name="base_mesh">
+<typename name="Structured_mesh" />
+</explicit>
+<explicit name="range">
+<typename name="Indices_range" />
+</explicit>
+<graphic.element page="142" xcoord="273" ycoord="138" />
+</entity>
+<subtype.constraint name="sc1_mesh" entity="Mesh" abstract.supertype="YES" super.expression="ONEOF(patch, structured_mesh, unstructured_mesh)">
+<graphic.element page="141" xcoord="510" ycoord="487" />
+</subtype.constraint>
+<subtype.constraint name="sc1_patch" entity="Patch" abstract.supertype="YES">
+<graphic.element page="141" xcoord="119" ycoord="521" />
+</subtype.constraint>
+<subtype.constraint name="sc1_topological_region" entity="Topological_region" super.expression="ONEOF(cell_of_structured_mesh, vertex_defined_cell)">
+<graphic.element page="141" xcoord="283" ycoord="255" />
+</subtype.constraint>
+<subtype.constraint name="sc1_unstructured_mesh" entity="Unstructured_mesh" abstract.supertype="YES" super.expression="ONEOF(array_based_unstructured_mesh, explicit_unstructured_mesh)">
+<graphic.element page="142" xcoord="549" ycoord="697" />
+</subtype.constraint>
+<function name="all_mesh_vertices">
+<parameter name="arg">
+<typename name="array_based_unstructured_mesh_and_vertices" />
+</parameter>
+<builtintype type="BOOLEAN" />
+<algorithm>
+        LOCAL
+          vertex_set : SET OF Vertex := [];
+          cell : vertex_defined_cell;
+        END_LOCAL;
+
+        REPEAT i := 1 TO arg.cell_count;
+          cell := arg.cells[i];
+          REPEAT j := 1 TO cell.vn_count;
+            vertex_set := vertex_set + cell.vertices[j];
+          END_REPEAT;
+        END_REPEAT;
+        IF (SIZEOF(vertex_set) &lt;&gt; arg.index_count) THEN
+          RETURN (FALSE);
+        END_IF;
+        REPEAT i := 1 TO arg.index_count;
+          IF ( NOT (arg.vertices[i] IN vertex_set)) THEN
+            RETURN (FALSE);
+          END_IF;
+        END_REPEAT;
+        RETURN (TRUE);
+      </algorithm>
+</function>
+<function name="cell_counts">
+<parameter name="arg">
+<typename name="vertex_defined_cell" />
+</parameter>
+<aggregate type="ARRAY" lower="1" upper="3" />
+<builtintype type="INTEGER" />
+<algorithm>
+        LOCAL
+          om1 : INTEGER := 0;
+          om1sq : INTEGER := om1 * om1;
+          vts : INTEGER;
+          eds : INTEGER;
+          qf : INTEGER := 0;
+          tf : INTEGER := 0;
+          result : ARRAY[1:3] OF INTEGER := [0, 0, 0];
+        END_LOCAL;
+
+        CASE arg.order OF
+          arg.order:
+            om1 := 0;
+          0:
+            om1 := 1;
+          1:
+            om1 := 2;
+          OTHERWISE:
+            RETURN (result);
+        END_CASE;
+        om1sq := om1 * om1;
+        CASE arg.shape OF
+          arg.shape:
+            BEGIN
+              vts := 1;
+              eds := 0;
+              qf := 0;
+              tf := 0;
+              result[1] := vts;
+              result[2] := om1 * eds;
+              result[3] := 0;
+            END;
+          0:
+            BEGIN
+              vts := 2;
+              eds := 1;
+              qf := 0;
+              tf := 0;
+              result[1] := vts;
+              result[2] := om1 * eds;
+              result[3] := 0;
+            END;
+          0:
+            BEGIN
+              vts := 4;
+              eds := 4;
+              qf := 1;
+              tf := 0;
+              result[1] := vts;
+              result[2] := om1 * eds;
+              result[3] := om1sq * qf;
+            END;
+          om1sq * qf:
+            BEGIN
+              vts := 3;
+              eds := 3;
+              qf := 0;
+              tf := 1;
+              result[1] := vts;
+              result[2] := om1 * eds;
+              result[3] := (om1 - 1) * tf;
+              CASE arg.order OF
+                linear:
+                  result[3] := 0;
+              END_CASE;
+            END;
+          0:
+            BEGIN
+              result[2] := 0;
+              result[3] := 0;
+            END;
+          0:
+            BEGIN
+              vts := 8;
+              eds := 12;
+              qf := 6;
+              tf := 0;
+              result[1] := vts;
+              result[2] := om1 * eds;
+              result[3] := om1sq * (qf + om1);
+            END;
+          om1sq * (qf + om1):
+            BEGIN
+              vts := 6;
+              eds := 9;
+              qf := 3;
+              tf := 2;
+              result[1] := vts;
+              result[2] := om1 * eds;
+              result[3] := om1sq * qf + om1 * tf;
+            END;
+          om1sq * qf + om1 * tf:
+            BEGIN
+              vts := 4;
+              eds := 6;
+              qf := 0;
+              tf := 4;
+              result[1] := vts;
+              result[2] := om1 * eds;
+              result[3] := (om1 - 1) * tf;
+              CASE arg.order OF
+                linear:
+                  result[3] := 0;
+              END_CASE;
+            END;
+          0:
+            BEGIN
+              vts := 5;
+              eds := 8;
+              qf := 1;
+              tf := 4;
+              result[1] := vts;
+              result[2] := om1 * eds;
+              result[3] := om1sq * qf + (om1 - 1) * tf;
+              CASE arg.order OF
+                linear:
+                  result[3] := 0;
+              END_CASE;
+            END;
+        END_CASE;
+        RETURN (result);
+      </algorithm>
+</function>
+<function name="this_schema">
+<builtintype type="STRING" />
+<algorithm>
+        RETURN ('MESH_TOPOLOGY_SCHEMA');
+      </algorithm>
+</function>
+<graphic.element page="1" xcoord="0" ycoord="0" />
+</schema>
 </express>

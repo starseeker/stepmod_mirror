@@ -38,15 +38,6 @@ TYPE font_select = SELECT
    text_font);
 END_TYPE;
 
-TYPE presentable_text = STRING;
---LK WRx: IP1: The string shall not contain any control characters. EXAMPLE    IP1 prohibits linefeed and carriage return characters in presentable_text. 
---GP Is it possible, using Express, to enumerate all control characters?
---GP All such characters except newline character \n are out of Express definition (Clause 7.1).
---LK write function with to llop through all characters and check for 09, 0A, 0D, see 7.5.4 String literal (\x9 | \xA | \xD)
-WHERE
-  WR1: control_characters_free(SELF);
-END_TYPE;
-
 TYPE staircase_or_linear = ENUMERATION OF 
   (staircase, 
    linear);
@@ -198,22 +189,5 @@ ENTITY text_font_in_family;
   font   : text_font;
   family : text_font_family;
 END_ENTITY;
-
-FUNCTION control_characters_free 
-  (s : STRING) : BOOLEAN;
-
-  LOCAL
-    ch : STRING;
-  END_LOCAL;
-
-  REPEAT i:=1 TO LENGTH(s);
-    ch := s[i];
-    IF (ch = '\x9') OR (ch = '\xA') OR (ch = '\xD') THEN
-       RETURN(FALSE);
-    END_IF;
-  END_REPEAT;
-  RETURN (TRUE);
-
-END_FUNCTION;
 
 END_SCHEMA; -- presentation_resource_schema

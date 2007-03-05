@@ -27,7 +27,6 @@ REFERENCE FROM presentation_resource_schema
      planar_box,
      planar_extent,
      font_select,
-     presentable_text,
      text_font);
  
 REFERENCE FROM representation_schema
@@ -84,6 +83,15 @@ END_TYPE;
 TYPE annotation_table_occurrence_item = SELECT(annotation_table, defined_table); END_TYPE; --LK add
 
 TYPE annotation_text_occurrence_item = SELECT(text_literal, annotation_text, annotation_text_character, defined_character_glyph, composite_text); END_TYPE; --LK new
+
+TYPE presentable_text = STRING;
+--LK WRx: IP1: The string shall not contain any control characters. EXAMPLE    IP1 prohibits linefeed and carriage return characters in presentable_text. 
+--GP Is it possible, using Express, to enumerate all control characters?
+--GP All such characters except newline character \n are out of Express definition (Clause 7.1).
+--LK write function with to llop through all characters and check for 09, 0A, 0D, see 7.5.4 String literal (\x9 | \xA | \xD)
+WHERE
+  WR1: control_characters_free(SELF);
+END_TYPE;
 
 TYPE text_string_representation_item = SELECT(text_literal, annotation_text, annotation_text_character, defined_character_glyph, composite_text, axis2_placement); END_TYPE; --LK new
 
@@ -395,9 +403,11 @@ WHERE
          SIZEOF(QUERY( mi <* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+
                                               'MAPPED_ITEM.'+
                                               'MAPPING_SOURCE') |   
+               SIZEOF(QUERY( rep <* using_representations (mi) |                              
                                          'PRESENTATION_DEFINITION_SCHEMA.'+
-                                           'TABLE_RECORD_REPRESENTATION' IN 
-             TYPEOF (using_representations (mi)) )) > 0))  
+                                          'TABLE_RECORD_REPRESENTATION' IN 
+                                          TYPEOF (rep))) > 0
+         )) > 0))  
                     > 0);
 END_ENTITY;
 
@@ -421,9 +431,12 @@ WHERE
          SIZEOF(QUERY( mi <* USEDIN(map_item, 'REPRESENTATION_SCHEMA.'+
                                               'MAPPED_ITEM.'+
                                               'MAPPING_SOURCE') |   
-                                              'PRESENTATION_DEFINITION_SCHEMA.'+
-                                              'TABLE_REPRESENTATION' IN 
-             TYPEOF (using_representations (mi)) )) > 0))  
+	            SIZEOF(QUERY( rep <* using_representations (mi) |                              
+	                             'PRESENTATION_DEFINITION_SCHEMA.'+
+	                              'TABLE_REPRESENTATION' IN 
+	                              TYPEOF (rep))) > 0
+
+         )) > 0))  
                     > 0);
 --LK WRx:  table_record_representations may only be related by table_representation_relationships. 
 -- WR: all users of representation_relationship.rep1/2 must be of type table_representation_relationships
@@ -633,6 +646,23 @@ FUNCTION acyclic_symbol_representation_relationship
  
   RETURN (TRUE);
  
+END_FUNCTION;
+
+FUNCTION control_characters_free 
+  (s : STRING) : BOOLEAN;
+
+  LOCAL
+    ch : STRING;
+  END_LOCAL;
+
+  REPEAT i:=1 TO LENGTH(s);
+    ch := s[i];
+    IF (ch = '\x9') OR (ch = '\xA') OR (ch = '\xD') THEN
+       RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN (TRUE);
+
 END_FUNCTION;
 
 FUNCTION field_in_table (field : table_record_field_representation;

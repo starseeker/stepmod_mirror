@@ -11,12 +11,15 @@ REFERENCE FROM support_resource_schema
 REFERENCE FROM presentation_definition_schema
     (annotation_occurrence,
      annotation_curve_occurrence,
+     annotation_fill_area_occurrence, -- GL - Added, because of subtype constraint
+     annotation_point_occurrence, -- GL - Added, because of subtype constraint
      annotation_text_occurrence, 
      annotation_symbol_occurrence);
      
 -- GL added
 REFERENCE FROM presentation_appearance_schema
-    (presentation_style_assignment,
+    (invisible_item,
+    presentation_style_assignment,
     styled_item);
 
 -- GL added
@@ -41,6 +44,10 @@ END_TYPE;
 TYPE dimension_extent_usage = ENUMERATION OF
   (origin,
    target);
+END_TYPE;
+
+TYPE des_invisible_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON invisible_item WITH
+  (draughting_callout);
 END_TYPE;
 
 TYPE plane_or_planar_box = SELECT 
@@ -190,5 +197,15 @@ WHERE
       'DRAUGHTING_ELEMENT_SCHEMA.DIMENSION_CURVE' IN (TYPEOF(d_c))))=1;
   WR2: SIZEOF(SELF\draughting_callout.contents) >= 2;
 END_ENTITY;
+
+SUBTYPE_CONSTRAINT annotation_occurrence_subtypes FOR annotation_occurrence;
+ONEOF (annotation_curve_occurrence,
+       annotation_fill_area_occurrence,
+       annotation_plane,
+       annotation_point_occurrence,
+       annotation_symbol_occurrence,
+       annotation_text_occurrence);
+END_SUBTYPE_CONSTRAINT;
+
 
 END_SCHEMA; -- draughting_element_schema

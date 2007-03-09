@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_5_mapping.xsl,v 1.81 2004/12/30 12:10:07 robbod Exp $
+$Id: sect_5_mapping.xsl,v 1.82 2006/06/20 15:22:46 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -873,7 +873,7 @@ the select or enumeration type, whose name precedes the &lt;* symbol, is an
 <xsl:template match="alt" mode="specification">
   <xsl:call-template name="error_message">
     <xsl:with-param name="message">
-      'Warning &lt;alt&gt; has been deprecated. Use &lt;alt_map&gt; instead'
+      'Warning use of &lt;alt&gt; is deprecated. Use &lt;alt_map&gt; instead'
     </xsl:with-param>
   </xsl:call-template>
   <xsl:call-template name="output_string_with_linebreaks">

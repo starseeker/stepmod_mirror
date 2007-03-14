@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: arm_lf.xml,v 1.3 2006/06/20 18:16:10 abf Exp $ -->
+<!-- $Id: arm_lf.xml,v 1.4 2007/03/03 21:35:41 abhpf Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2006/06/20 18:16:10 $"
-  rcs.revision="$Revision: 1.3 $">
+  rcs.date="$Date: 2007/03/03 21:35:41 $"
+  rcs.revision="$Revision: 1.4 $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
@@ -15,12 +15,6 @@
     source="FbbLF.exp"/>
 
   <schema name="Function_based_behaviour_arm_LF">
-    <type name="required_resource_item">
-      <select
-        selectitems="Activity_method Product Product_version Product_view_definition Task_element Task_step"
-      />
-    </type>
-
     <type name="behaviour_item">
       <select
         selectitems="Behaviour_view_definition"
@@ -39,8 +33,22 @@
       />
     </type>
 
+    <type name="required_resource_item">
+      <select
+        selectitems="Activity_method Product Product_version Product_view_definition Task_element Task_step"
+      />
+    </type>
+
+    <type name="characterized_resource_select">
+      <select
+        selectitems="Required_resource Resource_item Resource_item_assignment Resource_item_relationship"
+      />
+    </type>
+
     <type name="list_of_text_based_item">
       <aggregate type="LIST"
+        lower="1"
+        upper="?"
       />
       <typename name="Textual_expression_representation_item"/>
     </type>
@@ -53,6 +61,8 @@
 
     <type name="set_of_text_based_item">
       <aggregate type="SET"
+        lower="1"
+        upper="?"
       />
       <typename name="Textual_expression_representation_item"/>
     </type>
@@ -72,6 +82,12 @@
     <type name="parameter_value_select">
       <select
         selectitems="Generic_expression Value_with_unit"
+      />
+    </type>
+
+    <type name="property_assignment_select">
+      <select
+        selectitems="Activity_method Assigned_property Behaviour_view_definition Condition_parameter Generic_expression Independent_property Independent_property_relationship Product Product_category Product_version Product_version_relationship Product_view_definition Property_definition_representation Representation Representation_context Representation_item"
       />
     </type>
 
@@ -141,51 +157,51 @@
       <typename name="activity_method_item"/>
       <where
         label="wr1"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.ACTIVITY_METHOD&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr2"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.ASSIGNED_PROPERTY&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr3"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.BEHAVIOUR_DESCRIPTION_ASSOCIATION&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr4"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.CONDITION&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr5"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.FILE&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr6"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.PRODUCT_VERSION_RELATIONSHIP&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr7"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.REQUIRED_RESOURCE&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr8"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.REQUIRED_RESOURCE_ASSIGNMENT&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr9"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.RESOURCE_ITEM&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr10"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.RESOURCE_PROPERTY&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr11"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.TASK_IO&apos; IN TYPEOF(SELF))">
       </where>
       <where
         label="wr12"
-        expression="">
+        expression="NOT (&apos;FUNCTION_BASED_BEHAVIOUR_ARM.TASK_IO_HIERARCHY&apos; IN TYPEOF(SELF))">
       </where>
     </type>
 
@@ -260,7 +276,7 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="(required_class.id IN CLASSOF(related)) AND (required_class.id IN CLASSOF(relating))">
       </where>
     </entity>
 
@@ -358,7 +374,7 @@
       </explicit>
       <derived
         name="name"
-        expression="">
+        expression="base_element_property.property_type">
         <builtintype type="STRING"
         />
         <redeclaration
@@ -380,6 +396,7 @@
       </explicit>
       <explicit
         name="described_element">
+        <typename name="characterized_resource_select"/>
       </explicit>
     </entity>
 
@@ -427,6 +444,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="1"
         />
         <typename name="text_based_item_select"/>
         <redeclaration
@@ -484,6 +503,8 @@
       <explicit
         name="operands">
         <aggregate type="LIST"
+          lower="2"
+          upper="2"
         />
         <typename name="Numeric_expression"/>
         <redeclaration
@@ -532,6 +553,8 @@
       <explicit
         name="operands">
         <aggregate type="LIST"
+          lower="2"
+          upper="2"
         />
         <typename name="Expression"/>
         <redeclaration
@@ -539,7 +562,7 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="((&apos;NUMERIC_EXPRESSION_ARM.NUMERIC_EXPRESSION&apos; IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND (&apos;NUMERIC_EXPRESSION_ARM.NUMERIC_EXPRESSION&apos; IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR ((&apos;BOOLEAN_EXPRESSION_ARM.BOOLEAN_EXPRESSION&apos; IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND (&apos;BOOLEAN_EXPRESSION_ARM.BOOLEAN_EXPRESSION&apos; IN TYPEOF(SELF\Binary_generic_expression.operands[2]))) OR ((&apos;STRING_EXPRESSION_ARM.STRING_EXPRESSION&apos; IN TYPEOF(SELF\Binary_generic_expression.operands[1])) AND (&apos;STRING_EXPRESSION_ARM.STRING_EXPRESSION&apos; IN TYPEOF(SELF\Binary_generic_expression.operands[2])))">
       </where>
     </entity>
 
@@ -574,6 +597,8 @@
       <explicit
         name="operands">
         <aggregate type="LIST"
+          lower="2"
+          upper="?"
         />
         <typename name="String_expression"/>
         <redeclaration
@@ -608,17 +633,17 @@
     >
       <derived
         name="value_to_format"
-        expression="">
+        expression="SELF\Binary_generic_expression.operands[1]">
         <typename name="Generic_expression"/>
       </derived>
       <derived
         name="format_string"
-        expression="">
+        expression="SELF\Binary_generic_expression.operands[2]">
         <typename name="Generic_expression"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="((&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION&apos;) IN TYPEOF(value_to_format)) AND ((&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION&apos;) IN TYPEOF(format_string))">
       </where>
     </entity>
 
@@ -627,21 +652,21 @@
     >
       <derived
         name="operand"
-        expression="">
+        expression="SELF\Binary_generic_expression.operands[1]">
         <typename name="Generic_expression"/>
       </derived>
       <derived
         name="index"
-        expression="">
+        expression="SELF\Binary_generic_expression.operands[2]">
         <typename name="Generic_expression"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="(&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION&apos; IN TYPEOF(operand)) AND (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION&apos; IN TYPEOF(index))">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="Is_int_expr(index)">
       </where>
     </entity>
 
@@ -667,26 +692,26 @@
     >
       <derived
         name="interval_low"
-        expression="">
+        expression="SELF\Multiple_arity_generic_expression.operands[1]">
         <typename name="Generic_expression"/>
       </derived>
       <derived
         name="interval_item"
-        expression="">
+        expression="SELF\Multiple_arity_generic_expression.operands[2]">
         <typename name="Generic_expression"/>
       </derived>
       <derived
         name="interval_high"
-        expression="">
+        expression="SELF\Multiple_arity_generic_expression.operands[3]">
         <typename name="Generic_expression"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="(&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.EXPRESSION&apos; IN TYPEOF(interval_low)) AND (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.EXPRESSION&apos; IN TYPEOF(interval_item)) AND (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.EXPRESSION&apos; IN TYPEOF(interval_high))">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="((&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION&apos; IN TYPEOF(SELF.interval_low)) AND (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION&apos; IN TYPEOF(SELF.interval_high)) AND (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION&apos; IN TYPEOF(SELF.interval_item))) OR ((&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION&apos; IN TYPEOF(SELF.interval_low)) AND (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION&apos; IN TYPEOF(SELF.interval_item)) AND (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION&apos; IN TYPEOF(SELF.interval_high)))">
       </where>
     </entity>
 
@@ -695,7 +720,7 @@
     >
       <where
         label="WR1"
-        expression="">
+        expression="(&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION&apos; IN TYPEOF(SELF\Comparison_expression.operands[1])) AND (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION&apos; IN TYPEOF(SELF\Comparison_expression.operands[2]))">
       </where>
     </entity>
 
@@ -734,6 +759,8 @@
       <explicit
         name="operands">
         <aggregate type="LIST"
+          lower="2"
+          upper="?"
         />
         <typename name="Boolean_expression"/>
         <redeclaration
@@ -755,6 +782,8 @@
       <explicit
         name="operands">
         <aggregate type="LIST"
+          lower="2"
+          upper="?"
         />
         <typename name="Numeric_expression"/>
         <redeclaration
@@ -779,13 +808,13 @@
     >
       <derived
         name="is_int"
-        expression="">
+        expression="Is_int_expr(SELF)">
         <builtintype type="BOOLEAN"
         />
       </derived>
       <derived
         name="sql_mappable"
-        expression="">
+        expression="Is_sql_mappable(SELF)">
         <builtintype type="BOOLEAN"
         />
       </derived>
@@ -797,7 +826,7 @@
     >
       <where
         label="WR1"
-        expression="">
+        expression="(&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.INT_NUMERIC_VARIABLE&apos; IN TYPEOF(SELF)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.REAL_NUMERIC_VARIABLE&apos; IN TYPEOF(SELF))">
       </where>
     </entity>
 
@@ -898,34 +927,34 @@
     >
       <derived
         name="operand"
-        expression="">
+        expression="SELF\Multiple_arity_generic_expression.operands[1]">
         <typename name="Generic_expression"/>
       </derived>
       <derived
         name="index1"
-        expression="">
+        expression="SELF\Multiple_arity_generic_expression.operands[2]">
         <typename name="Generic_expression"/>
       </derived>
       <derived
         name="index2"
-        expression="">
+        expression="SELF\Multiple_arity_generic_expression.operands[3]">
         <typename name="Generic_expression"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="(&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_EXPRESSION&apos; IN TYPEOF(operand)) AND (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION&apos; IN TYPEOF(index1)) AND (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.NUMERIC_EXPRESSION&apos; IN TYPEOF(index2))">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(SELF\Multiple_arity_generic_expression.operands) = 3">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="Is_int_expr(index1)">
       </where>
       <where
         label="WR4"
-        expression="">
+        expression="Is_int_expr(index2)">
       </where>
     </entity>
 
@@ -953,6 +982,8 @@
       <explicit
         name="operands">
         <aggregate type="LIST"
+          lower="2"
+          upper="2"
         />
         <typename name="Boolean_expression"/>
         <redeclaration
@@ -967,6 +998,8 @@
       <explicit
         name="operands">
         <aggregate type="LIST"
+          lower="2"
+          upper="2"
         />
         <typename name="Generic_expression"/>
       </explicit>
@@ -990,7 +1023,7 @@
     >
       <where
         label="WR1"
-        expression="">
+        expression="Is_Acyclic(SELF)">
       </where>
     </entity>
 
@@ -1008,7 +1041,7 @@
       <inverse
         name="interpretation"
         entity="Environment"
-        attribute="">
+        attribute="syntactic_representation">
       </inverse>
     </entity>
 
@@ -1019,6 +1052,8 @@
       <explicit
         name="operands">
         <aggregate type="LIST"
+          lower="2"
+          upper="?"
         />
         <typename name="Generic_expression"/>
       </explicit>
@@ -1090,7 +1125,7 @@
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.FILE&apos; IN TYPEOF(SELF\External_source_identification.item)">
       </where>
     </entity>
 
@@ -1106,6 +1141,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="Functional_representation_item"/>
         <redeclaration
@@ -1167,6 +1204,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="classification_item"/>
       </explicit>
@@ -1209,6 +1248,8 @@
         name="units"
         optional="YES">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="Unit"/>
       </explicit>
@@ -1216,6 +1257,8 @@
         name="accuracies"
         optional="YES">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="Uncertainty_with_unit"/>
       </explicit>
@@ -1248,12 +1291,14 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="Representation_item"/>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="EXISTS(name) OR (TYPEOF(SELF\Representation) &lt;&gt; TYPEOF(SELF))">
       </where>
     </entity>
 
@@ -1272,9 +1317,11 @@
       <inverse
         name="representations_in_context"
         entity="Representation"
-        attribute="">
+        attribute="context_of_items">
         <inverse.aggregate
           type="SET"
+          lower="1"
+          upper="?"
         />
       </inverse>
     </entity>
@@ -1327,11 +1374,11 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="EXISTS(relation_type) OR (TYPEOF(SELF\Representation_relationship) &lt;&gt; TYPEOF(SELF))">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="EXISTS(description) OR (TYPEOF(SELF\Representation_relationship) &lt;&gt; TYPEOF(SELF))">
       </where>
     </entity>
 
@@ -1399,7 +1446,7 @@
       </explicit>
       <derived
         name="property"
-        expression="">
+        expression="SELF\Property_definition_representation.definition">
         <typename name="Independent_property"/>
       </derived>
     </entity>
@@ -1427,7 +1474,7 @@
       </explicit>
       <derived
         name="name"
-        expression="">
+        expression="base_independent_property.property_type">
         <builtintype type="STRING"
         />
         <redeclaration
@@ -1456,6 +1503,7 @@
       </explicit>
       <explicit
         name="described_element">
+        <typename name="property_assignment_select"/>
       </explicit>
     </entity>
 
@@ -1495,7 +1543,7 @@
       </explicit>
       <derived
         name="property"
-        expression="">
+        expression="SELF\Property_definition_representation.definition">
         <typename name="Assigned_property"/>
       </derived>
     </entity>
@@ -1527,6 +1575,8 @@
         name="resource_items"
         optional="YES">
         <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
         <typename name="resource_item_select"/>
       </explicit>
@@ -1577,7 +1627,7 @@
     >
       <where
         label="WR1"
-        expression="">
+        expression="EXISTS(SELF\Unit.name)">
       </where>
     </entity>
 
@@ -1590,7 +1640,7 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="EXISTS(SELF\Unit.name)">
       </where>
     </entity>
 
@@ -1600,6 +1650,8 @@
       <explicit
         name="elements">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="Derived_unit_element"/>
       </explicit>
@@ -1623,7 +1675,7 @@
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.&apos; + &apos;TIME_UNIT&apos; IN TYPEOF(SELF\Value_with_unit.unit)">
       </where>
     </entity>
 
@@ -1748,12 +1800,12 @@
       </explicit>
       <derived
         name="predecessor"
-        expression="">
+        expression="SELF\Product_version_relationship.relating_version">
         <typename name="Behaviour_version"/>
       </derived>
       <derived
         name="successor"
-        expression="">
+        expression="SELF\Product_version_relationship.related_version">
         <typename name="Behaviour_version"/>
       </derived>
     </entity>
@@ -1785,6 +1837,8 @@
       <explicit
         name="additional_contexts">
         <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
         <typename name="View_definition_context"/>
       </explicit>
@@ -1794,11 +1848,11 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="NOT (initial_context IN additional_contexts)">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) &lt;&gt; TYPEOF(SELF))">
       </where>
     </entity>
 
@@ -1822,7 +1876,7 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="(SIZEOF(USEDIN(SELF, &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.&apos; + &apos;PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT&apos;)) &gt; 0) OR (SIZEOF(USEDIN(SELF, &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.&apos; + &apos;PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS&apos;)) &gt; 0)">
       </where>
     </entity>
 
@@ -1882,9 +1936,11 @@
       <inverse
         name="paths"
         entity="Decision_path"
-        attribute="">
+        attribute="defined_in">
         <inverse.aggregate
           type="SET"
+          lower="2"
+          upper="?"
         />
       </inverse>
     </entity>
@@ -1912,7 +1968,7 @@
       </explicit>
       <where
         label="wr1"
-        expression="">
+        expression="child.role = parent.role">
       </where>
     </entity>
 
@@ -1933,12 +1989,12 @@
       </explicit>
       <derived
         name="child"
-        expression="">
+        expression="SELF\Task_element_relationship.related_method">
         <typename name="Task_step"/>
       </derived>
       <derived
         name="parent"
-        expression="">
+        expression="SELF\Task_element_relationship.relating_method">
         <typename name="Task_step"/>
       </derived>
     </entity>
@@ -2080,7 +2136,7 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="Is_int_expr(SELF\Numeric_expression)">
       </where>
     </entity>
 
@@ -2133,6 +2189,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="identification_item"/>
       </explicit>
@@ -2162,11 +2220,11 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="relating_version :&lt;&gt;: related_version">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="EXISTS(relation_type) OR (TYPEOF(SELF\Product_version_relationship) &lt;&gt; TYPEOF(SELF))">
       </where>
     </entity>
 
@@ -2175,7 +2233,7 @@
     >
       <where
         label="WR1"
-        expression="">
+        expression="SELF\Product_version_relationship.relation_type IN [&apos;supplied item&apos;, &apos;supplied document&apos;]">
       </where>
     </entity>
 
@@ -2204,6 +2262,8 @@
       <explicit
         name="elements">
         <aggregate type="SET"
+          lower="2"
+          upper="?"
         />
         <typename name="Task_element"/>
       </explicit>
@@ -2307,6 +2367,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="task_item"/>
         <redeclaration
@@ -2314,7 +2376,7 @@
       </explicit>
       <derived
         name="assigned_task_element"
-        expression="">
+        expression="SELF\Applied_activity_method_assignment.assigned_activity_method">
         <typename name="Task_element"/>
       </derived>
     </entity>
@@ -2342,6 +2404,8 @@
       <explicit
         name="elements">
         <aggregate type="LIST"
+          lower="2"
+          upper="?"
         />
         <typename name="Task_element"/>
       </explicit>
@@ -2359,7 +2423,7 @@
       </explicit>
       <derived
         name="step_text"
-        expression="">
+        expression="SELF\Activity_method.description">
         <builtintype type="STRING"
         />
       </derived>
@@ -2395,6 +2459,8 @@
       <explicit
         name="products">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="Product"/>
       </explicit>
@@ -2432,6 +2498,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="activity_method_item"/>
       </explicit>
@@ -2586,6 +2654,67 @@
     i : INTEGER;
   END_LOCAL;
 
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.INT_LITERAL&apos; IN TYPEOF(arg) THEN
+    RETURN (TRUE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.REAL_LITERAL&apos; IN TYPEOF(arg) THEN
+    RETURN (FALSE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.INT_NUMERIC_VARIABLE&apos; IN TYPEOF(arg) THEN
+    RETURN (TRUE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.REAL_NUMERIC_VARIABLE&apos; IN TYPEOF(arg) THEN
+    RETURN (FALSE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.ABS_FUNCTION&apos; IN TYPEOF(arg) THEN
+    RETURN (Is_int_expr(arg\Unary_numeric_expression.operand));
+  END_IF;
+  IF &apos;NUMERIC_FUNCTION.MINUS_FUNCTION&apos; IN TYPEOF(arg) THEN
+    RETURN (Is_int_expr(arg\Unary_numeric_expression.operand));
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SIN_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.COS_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.TAN_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.ASIN_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.ACOS_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.Atan_function&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.EXP_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.LOG_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.LOG2_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.LOG10_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SQUARE_ROOT_FUNCTION&apos; IN TYPEOF(arg)) THEN
+    RETURN (FALSE);
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.PLUS_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MULT_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MAXIMUM_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MINIMUM_FUNCTION&apos; IN TYPEOF(arg)) THEN
+    REPEAT i := 1 TO SIZEOF(arg\Multiple_arity_numeric_expression.operands);
+      IF NOT Is_int_expr(arg\Multiple_arity_numeric_expression.operands[i]) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MINUS_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.POWER_EXPRESSION&apos; IN TYPEOF(arg)) THEN
+    RETURN (Is_int_expr(arg\Binary_numeric_expression.operands[1]) AND Is_int_expr(arg\Binary_numeric_expression.operands[2]));
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.DIV_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MOD_EXPRESSION&apos; IN TYPEOF(arg)) THEN
+    RETURN (TRUE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SLASH_EXPRESSION&apos; IN TYPEOF(arg) THEN
+    RETURN (FALSE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.LENGTH_FUNCTION&apos; IN TYPEOF(arg) THEN
+    RETURN (TRUE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.VALUE_FUNCTION&apos; IN TYPEOF(arg) THEN
+    IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.INT_VALUE_FUNCTION&apos; IN TYPEOF(arg) THEN
+      RETURN (TRUE);
+    ELSE
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.INTEGER_DEFINED_FUNCTION&apos; IN TYPEOF(arg) THEN
+    RETURN (TRUE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.REAL_DEFINED_FUNCTION&apos; IN TYPEOF(arg) THEN
+    RETURN (FALSE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.BOOLEAN_DEFINED_FUNCTION&apos; IN TYPEOF(arg) THEN
+    RETURN (FALSE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_DEFINED_FUNCTION&apos; IN TYPEOF(arg) THEN
+    RETURN (FALSE);
+  END_IF;
+  RETURN (FALSE);
       </algorithm>
     </function>
 
@@ -2600,6 +2729,68 @@
     i : INTEGER;
   END_LOCAL;
 
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SIMPLE_NUMERIC_EXPRESSION&apos; IN TYPEOF(arg) THEN
+    RETURN (TRUE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SQL_MAPPABLE_DEFINED_FUNCTION&apos; IN TYPEOF(arg) THEN
+    RETURN (TRUE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MINUS_FUNCTION&apos; IN TYPEOF(arg) THEN
+    RETURN (Is_sql_mappable(arg\Unary_numeric_expression.operand));
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.ABS_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SIN_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.COS_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.TAN_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.ASIN_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.ACOS_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.ATAN_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.EXP_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.LOG_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.LOG2_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.LOG10_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SQUARE_ROOT_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.VALUE_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.LENGTH_FUNCTION&apos; IN TYPEOF(arg)) THEN
+    RETURN (FALSE);
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.PLUS_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MULT_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MAXIMUM_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MAXIMUM_FUNCTION&apos; IN TYPEOF(arg)) THEN
+    REPEAT i := 1 TO SIZEOF(arg\Multiple_arity_numeric_expression.operands);
+      IF NOT Is_sql_mappable(arg\Multiple_arity_numeric_expression.operands[i]) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MINUS_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SLASH_EXPRESSION&apos; IN TYPEOF(arg)) THEN
+    RETURN (Is_sql_mappable(arg\Binary_numeric_expression.operands[1]) AND Is_sql_mappable(arg\Binary_numeric_expression.operands[2]));
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.DIV_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MOD_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.POWER_EXPRESSION&apos; IN TYPEOF(arg)) THEN
+    RETURN (FALSE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SIMPLE_BOOLEAN_EXPRESSION&apos; IN TYPEOF(arg) THEN
+    RETURN (TRUE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.NOT_EXPRESSION&apos; IN TYPEOF(arg) THEN
+    RETURN (Is_sql_mappable(arg\Unary_generic_expression.operand));
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.ODD_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.XOR_EXPRESSION&apos; IN TYPEOF(arg)) THEN
+    RETURN (FALSE);
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.AND_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.OR_EXPRESSION&apos; IN TYPEOF(arg)) THEN
+    REPEAT i := 1 TO SIZEOF(arg\Multiple_arity_boolean_expression.operands);
+      IF NOT Is_sql_mappable(arg\Multiple_arity_boolean_expression.operands[i]) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.EQUALS_EXPRESSION&apos; IN TYPEOF(arg) THEN
+    RETURN (Is_sql_mappable(arg\Binary_generic_expression.operands[1]) AND Is_sql_mappable(arg\Binary_generic_expression.operands[2]));
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.COMPARISON_EQUAL&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.COMPARISON_GREATER&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.COMPARISON_GREATER_EQUAL&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.COMPARISON_LESS&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.COMPARISON_LESS_EQUAL&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.COMPARISON_NOT_EQUAL&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.LIKE_EXPRESSION&apos; IN TYPEOF(arg)) THEN
+    RETURN (Is_sql_mappable(arg\Comparison_expression.operands[1]) AND Is_sql_mappable(arg\Comparison_expression.operands[2]));
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.INTERVAL_EXPRESSION&apos; IN TYPEOF(arg) THEN
+    RETURN (Is_sql_mappable(arg\Interval_expression.interval_low) AND Is_sql_mappable(arg\Interval_expression.interval_high) AND Is_sql_mappable(arg\Interval_expression.interval_item));
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.NUMERIC_DEFINED_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.BOOLEAN_DEFINED_FUNCTION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.STRING_DEFINED_FUNCTION&apos; IN TYPEOF(arg)) THEN
+    RETURN (FALSE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SIMPLE_STRING_EXPRESSION&apos; IN TYPEOF(arg) THEN
+    RETURN (TRUE);
+  END_IF;
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.INDEX_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SUBSTRING_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.CONCAT_EXPRESSION&apos; IN TYPEOF(arg)) OR (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.FORMAT_FUNCTION&apos; IN TYPEOF(arg)) THEN
+    RETURN (FALSE);
+  END_IF;
+  RETURN (FALSE);
       </algorithm>
     </function>
 
@@ -2609,6 +2800,9 @@
       </parameter>
       <builtintype type="BOOLEAN"
       />
+      <algorithm>
+  RETURN (Acyclic(arg, []));
+      </algorithm>
     </function>
 
     <function name="Acyclic">
@@ -2627,6 +2821,25 @@
     result : BOOLEAN;
   END_LOCAL;
 
+  IF (&apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.SIMPLE_GENERIC_EXPRESSION&apos; IN TYPEOF(arg1)) THEN
+    RETURN (TRUE);
+  END_IF;
+  IF arg1 IN arg2 THEN
+    RETURN (FALSE);
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.UNARY_GENERIC_EXPRESSION&apos; IN TYPEOF(arg1) THEN
+    RETURN (Acyclic(arg1\Unary_generic_expression.operand, arg2 + [arg1]));
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.BINARY_GENERIC_EXPRESSION&apos; IN TYPEOF(arg1) THEN
+    RETURN (Acyclic(arg1\Binary_generic_expression.operands[1], arg2 + [arg1]) AND Acyclic(arg1\Binary_generic_expression.operands[2], arg2 + [arg1]));
+  END_IF;
+  IF &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.MULTIPLE_ARITY_GENERIC_EXPRESSION&apos; IN TYPEOF(arg1) THEN
+    result := TRUE;
+    REPEAT i := 1 TO SIZEOF(arg1\Multiple_arity_generic_expression.operands);
+      result := result AND Acyclic(arg1\Multiple_arity_generic_expression.operands[i], arg2 + [arg1]);
+    END_REPEAT;
+    RETURN (result);
+  END_IF;
       </algorithm>
     </function>
 
@@ -2646,11 +2859,15 @@
     classifications : BAG OF Classification_assignment;
   END_LOCAL;
 
+  result := TYPEOF(the_instance);
+  classifications := USEDIN(the_instance, &apos;FUNCTION_BASED_BEHAVIOUR_ARM_LF.CLASSIFICATION_ASSIGNMENT.ITEMS&apos;);
+  REPEAT i := LOINDEX(classifications) TO HIINDEX(classifications);
+    result := result + classifications[i].assigned_class.id;
+  END_REPEAT;
+  RETURN (result);
       </algorithm>
     </function>
 
   </schema>
 
 </express>
-                                                                        </schema>
-                                                                      </express>

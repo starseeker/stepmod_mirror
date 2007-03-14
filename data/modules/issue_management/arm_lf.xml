@@ -1,50 +1,47 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: arm_lf.xml,v 1.2 2006/06/19 15:22:10 abf Exp $ -->
+<!-- $Id: arm_lf.xml,v 1.3 2007/03/03 21:38:51 abhpf Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2006/06/19 15:22:10 $"
-  rcs.revision="$Revision: 1.2 $">
+  rcs.date="$Date: 2007/03/03 21:38:51 $"
+  rcs.revision="$Revision: 1.3 $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
-    version="1, 3, 29, 37"
-    source="SysIsuLF.exp"/>
+    version="1, 3, 30, 37"
+    source="SysIsu4LF.exp"/>
 
   <schema name="Issue_management_arm_LF">
-    <type name="day_in_month_number">
-      <builtintype type="INTEGER"
-      />
-      <where
-        label="WR1"
-        expression="">
-      </where>
-    </type>
-
-    <type name="activity_item">
+    <type name="issue_reference_item">
       <select
-        selectitems="Activity Activity_method Applied_activity_assignment Contract Issue Product Product_version Product_view_definition"
+        selectitems="Activity Activity_method Activity_method_assignment Activity_relationship Activity_status Address Address_assignment Affected_items_assignment Applied_activity_assignment Approval Approval_assignment Approval_relationship Approval_status Approving_person_organization Attribute_translation_assignment Calendar_date Certification Certification_assignment Class Classification_assignment Contract Contract_assignment Date_or_date_time_assignment Date_time Event Event_assignment Event_relationship Identification_assignment Language Language_indication Local_time Observation Observation_consequence Observation_relationship Organization Organization_or_person_in_organization_assignment Organization_relationship Product Product_category Product_category_assignment Product_category_hierarchy Product_design_to_individual Product_design_version_to_individual Product_planned_to_realized Product_version Security_classification Security_classification_assignment Unit Value_with_unit View_definition_context Work_request Work_request_status"
       />
     </type>
 
     <type name="approval_item">
       <select
-        selectitems="Activity_actual Certification Contract Event Identification_assignment Observation Product_as_individual Product_as_planned Product_as_realized Product_design_to_individual Product_design_version_to_individual Product_planned_to_realized Product_view_definition View_definition_context Work_order Work_request"
+        selectitems="Activity_actual Certification Contract Event Identification_assignment Observation Product_as_individual Product_as_planned Product_as_realized Product_design_to_individual Product_design_version_to_individual Product_planned_to_realized Product_view_definition View_definition_context Work_request"
       />
     </type>
 
     <type name="identification_item">
       <select
-        selectitems="Activity_method alias_identification_item Approval_status Contract Disposition Organization Product_as_individual Product_as_individual_version Product_as_individual_view Product_as_planned Product_as_realized Product_category Security_classification View_definition_context"
+        selectitems="Activity_method Address Approval Approval_status Certification Contract Disposition Event Organization Organization_or_person_in_organization_assignment Person Person_in_organization Product_as_individual Product_as_individual_version Product_as_individual_view Product_as_planned Product_as_realized Product_category Project Security_classification Security_classification_assignment View_definition_context"
       />
     </type>
 
-    <type name="affected_item_select">
+    <type name="observation_recorder">
       <select
-        selectitems="Activity_method Contract Organization Person Person_in_organization Product Product_version Product_view_definition"
+        selectitems="Product_as_realized"
+      />
+    </type>
+
+    <type name="observed_context">
+      <select
+        selectitems="Activity Activity_method Applied_activity_assignment Approval_assignment Certification_assignment Contract_assignment Event_assignment Issue Observation_consequence Product Product_design_to_individual Product_planned_to_realized Product_version Product_view_definition Project Project_assignment Security_classification_assignment"
       />
     </type>
 
@@ -54,12 +51,21 @@
       />
     </type>
 
+    <type name="day_in_month_number">
+      <builtintype type="INTEGER"
+      />
+      <where
+        label="WR1"
+        expression="{1 &lt;= SELF &lt;= 31}">
+      </where>
+    </type>
+
     <type name="hour_in_day">
       <builtintype type="INTEGER"
       />
       <where
         label="WR1"
-        expression="">
+        expression="{0 &lt;= SELF &lt; 24}">
       </where>
     </type>
 
@@ -68,7 +74,7 @@
       />
       <where
         label="WR1"
-        expression="">
+        expression="{0 &lt;= SELF &lt;= 59}">
       </where>
     </type>
 
@@ -77,7 +83,7 @@
       />
       <where
         label="WR1"
-        expression="">
+        expression="{1 &lt;= SELF &lt;= 12}">
       </where>
     </type>
 
@@ -92,7 +98,7 @@
       />
       <where
         label="WR1"
-        expression="">
+        expression="{0 &lt;= SELF &lt;= 60.000000}">
       </where>
     </type>
 
@@ -107,9 +113,9 @@
       />
     </type>
 
-    <type name="observation_recorder">
+    <type name="activity_item">
       <select
-        selectitems="Product_as_realized"
+        selectitems="Activity Activity_method Applied_activity_assignment Contract Issue Product Product_version Product_view_definition"
       />
     </type>
 
@@ -119,10 +125,34 @@
       />
     </type>
 
-    <type name="alias_identification_item">
+    <type name="affected_item_select">
       <select
-        selectitems="Address Approval Approval_status Certification Contract Event Organization Organization_or_person_in_organization_assignment Person Person_in_organization Product_as_individual Product_as_individual_view Product_as_planned Product_as_realized Project Security_classification Security_classification_assignment"
+        selectitems="Activity_method Contract Organization Person Person_in_organization Product Product_version Product_view_definition"
       />
+    </type>
+
+    <type name="alias_identification_item">
+      <typename name="identification_item"/>
+      <where
+        label="wr1"
+        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.ACTIVITY_METHOD&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr2"
+        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.DISPOSITION&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr3"
+        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.PRODUCT_AS_INDIVIDUAL_VERSION&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr4"
+        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.PRODUCT_CATEGORY&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr5"
+        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.VIEW_DEFINITION_CONTEXT&apos; IN TYPEOF(SELF))">
+      </where>
     </type>
 
     <type name="certification_item">
@@ -173,6 +203,12 @@
       />
     </type>
 
+    <type name="event_item">
+      <select
+        selectitems="Observation"
+      />
+    </type>
+
     <type name="any_number_value">
       <builtintype type="NUMBER"
       />
@@ -199,134 +235,32 @@
       />
     </type>
 
-    <entity name="Class"
-      super.expression="ONEOF(Class_by_extension, Class_by_intension)"
+    <entity name="Class_by_extension"
+      supertypes="Class"
     >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
     </entity>
 
-    <entity name="Activity"
+    <entity name="Issue"
+      supertypes="Observation"
     >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="chosen_method">
-        <typename name="Activity_method"/>
-      </explicit>
     </entity>
 
-    <entity name="Activity_relationship"
+    <entity name="Issue_consequence"
+      supertypes="Observation_consequence"
     >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="relating_activity">
-        <typename name="Activity"/>
-      </explicit>
-      <explicit
-        name="related_activity">
-        <typename name="Activity"/>
-      </explicit>
     </entity>
 
-    <entity name="Activity_status"
+    <entity name="Issue_reference"
+      supertypes="Observation_item"
     >
       <explicit
-        name="assigned_activity">
-        <typename name="Activity"/>
-      </explicit>
-      <explicit
-        name="status">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Applied_activity_assignment"
-    >
-      <explicit
-        name="assigned_activity">
-        <typename name="Activity"/>
-      </explicit>
-      <explicit
-        name="items">
+        name="item">
         <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
-        <typename name="activity_item"/>
+        <typename name="issue_reference_item"/>
       </explicit>
-      <explicit
-        name="role">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Activity_actual"
-      supertypes="Activity"
-    >
-    </entity>
-
-    <entity name="Activity_happening"
-      supertypes="Activity_relationship"
-    >
-      <explicit
-        name="relating_activity">
-        <typename name="Activity_actual"/>
-        <redeclaration
-          entity-ref="Activity_relationship"/>
-      </explicit>
-      <derived
-        name="actual"
-        expression="">
-        <typename name="Activity_actual"/>
-      </derived>
-      <derived
-        name="predicted"
-        expression="">
-        <typename name="Activity"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="">
-      </where>
     </entity>
 
     <entity name="Approval"
@@ -361,6 +295,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="approval_item"/>
       </explicit>
@@ -448,151 +384,127 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="identification_item"/>
       </explicit>
     </entity>
 
-    <entity name="Issue"
-      supertypes="Observation"
-    >
-    </entity>
-
-    <entity name="Issue_consequence"
-      supertypes="Observation_consequence"
-    >
-    </entity>
-
-    <entity name="Issue_reference"
-      supertypes="Observation_item"
+    <entity name="Observation"
     >
       <explicit
-        name="item">
-        <aggregate type="SET"
+        name="id">
+        <builtintype type="STRING"
         />
       </explicit>
-    </entity>
-
-    <entity name="Directed_activity"
-      supertypes="Activity"
-    >
-      <explicit
-        name="directive">
-        <typename name="Work_order"/>
-      </explicit>
-    </entity>
-
-    <entity name="Work_order"
-    >
       <explicit
         name="name">
         <builtintype type="STRING"
         />
       </explicit>
       <explicit
-        name="description"
-        optional="YES">
+        name="description">
         <builtintype type="STRING"
         />
       </explicit>
       <explicit
-        name="in_response_to">
+        name="applies_to">
         <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
-        <typename name="Work_request"/>
-      </explicit>
-    </entity>
-
-    <entity name="Activity_method_assignment"
-    >
-      <explicit
-        name="relation_type">
-        <builtintype type="STRING"
-        />
+        <typename name="Observation_item"/>
       </explicit>
       <explicit
-        name="assigned_method">
-        <typename name="Activity_method"/>
-      </explicit>
-      <explicit
-        name="associated_request">
-        <typename name="Work_request"/>
-      </explicit>
-    </entity>
-
-    <entity name="Affected_items_assignment"
-    >
-      <explicit
-        name="assigned_work_request">
-        <typename name="Work_request"/>
-      </explicit>
-      <explicit
-        name="items">
+        name="in_context">
         <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
-        <typename name="affected_item_select"/>
-      </explicit>
-    </entity>
-
-    <entity name="Work_request"
-    >
-      <explicit
-        name="request_id">
-        <builtintype type="STRING"
-        />
+        <typename name="observed_context"/>
       </explicit>
       <explicit
-        name="version_id">
-        <builtintype type="STRING"
+        name="observed_by">
+        <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
+        <typename name="observation_recorder"/>
       </explicit>
       <explicit
-        name="description"
+        name="observed_during"
         optional="YES">
-        <builtintype type="STRING"
-        />
+        <typename name="Activity_actual"/>
       </explicit>
       <explicit
-        name="purpose">
-        <builtintype type="STRING"
+        name="related_records">
+        <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
+        <typename name="Observation_item"/>
       </explicit>
     </entity>
 
-    <entity name="Work_request_status"
+    <entity name="Observation_consequence"
     >
       <explicit
-        name="status">
+        name="id">
         <builtintype type="STRING"
         />
       </explicit>
-      <explicit
-        name="work_request">
-        <typename name="Work_request"/>
-      </explicit>
-    </entity>
-
-    <entity name="Activity_method"
-    >
       <explicit
         name="name">
         <builtintype type="STRING"
         />
       </explicit>
       <explicit
-        name="description"
-        optional="YES">
+        name="infered_from">
+        <typename name="Observation"/>
+      </explicit>
+      <explicit
+        name="requests">
+        <typename name="Work_request"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Observation_item"
+    >
+      <explicit
+        name="access_comment">
         <builtintype type="STRING"
         />
       </explicit>
       <explicit
-        name="consequence"
-        optional="YES">
+        name="item_identifier">
         <builtintype type="STRING"
         />
       </explicit>
       <explicit
-        name="purpose">
+        name="item_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Observation_relationship"
+    >
+      <explicit
+        name="relating">
+        <typename name="Observation"/>
+      </explicit>
+      <explicit
+        name="related">
+        <typename name="Observation"/>
+      </explicit>
+      <explicit
+        name="role">
         <builtintype type="STRING"
         />
       </explicit>
@@ -667,21 +579,21 @@
       </explicit>
       <derived
         name="actual_minute_offset"
-        expression="">
+        expression="NVL(minute_offset, 0)">
         <builtintype type="INTEGER"
         />
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="{0 &lt;= hour_offset &lt; 24}">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="{0 &lt;= actual_minute_offset &lt;= 59}">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="NOT (((hour_offset &lt;&gt; 0) OR (actual_minute_offset &lt;&gt; 0)) AND (sense = exact))">
       </where>
     </entity>
 
@@ -773,7 +685,7 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="(EXISTS(street_number) OR EXISTS(street) OR EXISTS(postal_box) OR EXISTS(town) OR EXISTS(region) OR EXISTS(postal_code) OR EXISTS(country) OR EXISTS(internal_location) OR EXISTS(facsimile_number) OR EXISTS(telephone_number) OR EXISTS(electronic_mail_address) OR EXISTS(telex_number))">
       </where>
     </entity>
 
@@ -792,6 +704,8 @@
       <explicit
         name="located_person_organizations">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="organization_or_person_in_organization_select"/>
       </explicit>
@@ -852,6 +766,8 @@
         name="middle_names"
         optional="YES">
         <aggregate type="LIST"
+          lower="1"
+          upper="?"
         />
         <builtintype type="STRING"
         />
@@ -860,6 +776,8 @@
         name="prefix_titles"
         optional="YES">
         <aggregate type="LIST"
+          lower="1"
+          upper="?"
         />
         <builtintype type="STRING"
         />
@@ -868,6 +786,8 @@
         name="suffix_titles"
         optional="YES">
         <aggregate type="LIST"
+          lower="1"
+          upper="?"
         />
         <builtintype type="STRING"
         />
@@ -891,54 +811,37 @@
       </explicit>
     </entity>
 
-    <entity name="Observation"
+    <entity name="Activity_actual"
+      supertypes="Activity"
+    >
+    </entity>
+
+    <entity name="Activity_happening"
+      supertypes="Activity_relationship"
     >
       <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="applies_to">
-        <aggregate type="SET"
-        />
-        <typename name="Observation_item"/>
-      </explicit>
-      <explicit
-        name="in_context">
-        <aggregate type="SET"
-        />
-      </explicit>
-      <explicit
-        name="observed_by">
-        <aggregate type="SET"
-        />
-        <typename name="observation_recorder"/>
-      </explicit>
-      <explicit
-        name="observed_during"
-        optional="YES">
+        name="relating_activity">
         <typename name="Activity_actual"/>
+        <redeclaration
+          entity-ref="Activity_relationship"/>
       </explicit>
-      <explicit
-        name="related_records">
-        <aggregate type="SET"
-        />
-        <typename name="Observation_item"/>
-      </explicit>
+      <derived
+        name="actual"
+        expression="SELF\Activity_relationship.relating_activity">
+        <typename name="Activity_actual"/>
+      </derived>
+      <derived
+        name="predicted"
+        expression="SELF\Activity_relationship.related_activity">
+        <typename name="Activity"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="NOT (&apos;ACTIVITY_AS_REALIZED.ACTIVITY_ACTUAL&apos; IN TYPEOF(predicted))">
+      </where>
     </entity>
 
-    <entity name="Observation_consequence"
+    <entity name="Activity"
     >
       <explicit
         name="id">
@@ -951,12 +854,66 @@
         />
       </explicit>
       <explicit
-        name="infered_from">
-        <typename name="Observation"/>
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
       </explicit>
       <explicit
-        name="requests">
-        <typename name="Work_request"/>
+        name="chosen_method">
+        <typename name="Activity_method"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_relationship"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="related_activity">
+        <typename name="Activity"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_status"
+    >
+      <explicit
+        name="assigned_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="status">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Applied_activity_assignment"
+    >
+      <explicit
+        name="assigned_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="activity_item"/>
       </explicit>
       <explicit
         name="role">
@@ -965,37 +922,27 @@
       </explicit>
     </entity>
 
-    <entity name="Observation_item"
+    <entity name="Activity_method"
     >
       <explicit
-        name="access_comment">
+        name="name">
         <builtintype type="STRING"
         />
       </explicit>
       <explicit
-        name="item_identifier">
+        name="description"
+        optional="YES">
         <builtintype type="STRING"
         />
       </explicit>
       <explicit
-        name="item_type">
+        name="consequence"
+        optional="YES">
         <builtintype type="STRING"
         />
       </explicit>
-    </entity>
-
-    <entity name="Observation_relationship"
-    >
       <explicit
-        name="relating">
-        <typename name="Observation"/>
-      </explicit>
-      <explicit
-        name="related">
-        <typename name="Observation"/>
-      </explicit>
-      <explicit
-        name="role">
+        name="purpose">
         <builtintype type="STRING"
         />
       </explicit>
@@ -1010,6 +957,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="classification_item"/>
       </explicit>
@@ -1096,6 +1045,98 @@
       </explicit>
     </entity>
 
+    <entity name="Activity_method_assignment"
+    >
+      <explicit
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="assigned_method">
+        <typename name="Activity_method"/>
+      </explicit>
+      <explicit
+        name="associated_request">
+        <typename name="Work_request"/>
+      </explicit>
+    </entity>
+
+    <entity name="Affected_items_assignment"
+    >
+      <explicit
+        name="assigned_work_request">
+        <typename name="Work_request"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="affected_item_select"/>
+      </explicit>
+    </entity>
+
+    <entity name="Work_request"
+    >
+      <explicit
+        name="request_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="version_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="purpose">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Work_request_status"
+    >
+      <explicit
+        name="status">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="work_request">
+        <typename name="Work_request"/>
+      </explicit>
+    </entity>
+
+    <entity name="Class"
+      super.expression="ONEOF(Class_by_extension, Class_by_intension)"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
     <entity name="Disposition"
       supertypes="Approval"
     >
@@ -1104,11 +1145,6 @@
         <builtintype type="STRING"
         />
       </explicit>
-    </entity>
-
-    <entity name="Class_by_extension"
-      supertypes="Class"
-    >
     </entity>
 
     <entity name="Class_by_intension"
@@ -1122,6 +1158,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="alias_identification_item"/>
         <redeclaration
@@ -1129,7 +1167,7 @@
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="&apos;alias&apos;">
         <builtintype type="STRING"
         />
         <redeclaration
@@ -1166,6 +1204,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="certification_item"/>
       </explicit>
@@ -1204,6 +1244,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="contract_item"/>
       </explicit>
@@ -1223,6 +1265,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="date_or_date_time_item"/>
       </explicit>
@@ -1243,6 +1287,8 @@
       </explicit>
       <unique
         label="UR1">
+        <unique.attribute
+          attribute="language_code"/>
       </unique>
     </entity>
 
@@ -1285,6 +1331,12 @@
       </explicit>
       <unique
         label="UR1">
+        <unique.attribute
+          attribute="considered_instance"/>
+        <unique.attribute
+          attribute="considered_attribute"/>
+        <unique.attribute
+          attribute="translation_language"/>
       </unique>
     </entity>
 
@@ -1302,6 +1354,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="organization_or_person_in_organization_item"/>
       </explicit>
@@ -1328,6 +1382,8 @@
       <explicit
         name="responsible_organizations">
         <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
         <typename name="Organization"/>
       </explicit>
@@ -1367,6 +1423,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="project_item"/>
       </explicit>
@@ -1419,6 +1477,8 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="security_classification_item"/>
       </explicit>
@@ -1454,6 +1514,8 @@
       <explicit
         name="products">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="Product"/>
       </explicit>
@@ -1505,6 +1567,8 @@
       <explicit
         name="additional_contexts">
         <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
         <typename name="View_definition_context"/>
       </explicit>
@@ -1514,11 +1578,11 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="NOT (initial_context IN additional_contexts)">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) &lt;&gt; TYPEOF(SELF))">
       </where>
     </entity>
 
@@ -1542,7 +1606,7 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="(SIZEOF(USEDIN(SELF, &apos;ISSUE_MANAGEMENT_ARM_LF.&apos; + &apos;PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT&apos;)) &gt; 0) OR (SIZEOF(USEDIN(SELF, &apos;ISSUE_MANAGEMENT_ARM_LF.&apos; + &apos;PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS&apos;)) &gt; 0)">
       </where>
     </entity>
 
@@ -1621,7 +1685,10 @@
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
+        <typename name="event_item"/>
       </explicit>
       <explicit
         name="role">
@@ -1673,7 +1740,7 @@
     >
       <where
         label="WR1"
-        expression="">
+        expression="EXISTS(SELF\Unit.name)">
       </where>
     </entity>
 
@@ -1686,7 +1753,7 @@
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="EXISTS(SELF\Unit.name)">
       </where>
     </entity>
 
@@ -1696,6 +1763,8 @@
       <explicit
         name="elements">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="Derived_unit_element"/>
       </explicit>
@@ -1719,7 +1788,7 @@
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;ISSUE_MANAGEMENT_ARM_LF.&apos; + &apos;TIME_UNIT&apos; IN TYPEOF(SELF\Value_with_unit.unit)">
       </where>
     </entity>
 

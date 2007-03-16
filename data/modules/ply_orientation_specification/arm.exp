@@ -1,12 +1,14 @@
 (* Genenerated from: check_analysis_20060503/express/arm_20060503v0.exp
 (*
- $Id: arm.exp,v 1.5 2006/05/17 22:07:30 darla Exp $
+ $Id: arm.exp,v 1.6 2007/02/14 16:31:00 liutkus Exp $
  ISO TC184/SC4/WG12 N4385 - ISO/TS 10303-1772 Ply_orientation_specification - EXPRESS ARM
  *)
 
 SCHEMA Ply_orientation_specification_arm;
 
 USE FROM Construction_geometry_arm;
+
+USE FROM Part_and_zone_laminate_tables_arm; --GL - just because of INVERSE at Reinforcement_orientation_basis
 
 TYPE angle_select = SELECT 
   (Curve,
@@ -24,23 +26,29 @@ END_ENTITY;
 
 ENTITY Ply_orientation_angle
   SUPERTYPE OF (ONEOF(Draped_orientation_angle, 
-    Laid_orientation_angle));
+    Laid_orientation_angle))
+  SUBTYPE OF (Geometric_model);  
   angle_reference : angle_select;
   basis : Reinforcement_orientation_basis;
 END_ENTITY;
 
-ENTITY Point_and_vector;
+ENTITY Point_and_vector
+  SUBTYPE OF (Detailed_geometric_model_element);
   location : point_select;
   vector : LIST [1 : 2] OF Direction;
 END_ENTITY;
 
-ENTITY Point_path;
-  directions : LIST [1 : ?] OF Point_and_vector;
+ENTITY Point_path
+  SUBTYPE OF (Detailed_geometric_model_element);
+    directions : LIST [1 : ?] OF Point_and_vector;
 END_ENTITY;
 
-ENTITY Reinforcement_orientation_basis;
+ENTITY Reinforcement_orientation_basis
+SUBTYPE OF (Geometric_model); 
   basis_location : point_select;
   orientation : Direction;
+INVERSE 
+  tables : SET[1:?] OF Laminate_table FOR basis;
 END_ENTITY;
 
 END_SCHEMA;

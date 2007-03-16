@@ -1,31 +1,49 @@
 (*
-   $Id: mim.exp,v 1.2 2006/05/17 22:07:50 darla Exp $
+   $Id: mim.exp,v 1.3 2007/02/14 16:31:00 liutkus Exp $
     ISO TC184/SC4/WG12 N4386 - ISO/TS 10303-1772 - EXPRESS MIM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Ply_orientation_specification_mim;
 
 USE FROM Construction_geometry_mim;
 
+USE FROM Part_and_zone_laminate_tables_mim;
+
+USE FROM geometry_schema (point);
+
+USE FROM representation_schema(compound_representation_item);
+
+  TYPE point_and_vector_member = SELECT (point, direction);
+  END_TYPE;
+  
+  TYPE point_and_vector_members = LIST [2:3] OF point_and_vector_member;
+  END_TYPE;
+
+  TYPE point_path_members = LIST [1:?] OF point_and_vector;
+  END_TYPE;
+
+
 ENTITY draped_defined_transformation
-  SUBTYPE OF (transformation_with_derived_angle);
+  SUBTYPE OF (ply_orientation_angle);
 END_ENTITY;
 
 ENTITY laid_defined_transformation
-  SUBTYPE OF (transformation_with_derived_angle);
+  SUBTYPE OF (ply_orientation_angle);
 END_ENTITY;
 
-ENTITY transformation_with_derived_angle
+ENTITY ply_orientation_angle
   SUPERTYPE OF (ONEOF(draped_defined_transformation, 
     laid_defined_transformation))
-  SUBTYPE OF (item_defined_transformation);
+  SUBTYPE OF (shape_representation);
 END_ENTITY;
 
 ENTITY point_and_vector
-  SUBTYPE OF (shape_representation);
+  SUBTYPE OF (compound_representation_item);
+    SELF\compound_representation_item.item_element : point_and_vector_members;
 END_ENTITY;
 
 ENTITY point_path
-  SUBTYPE OF (shape_representation);
+  SUBTYPE OF (compound_representation_item);
+    SELF\compound_representation_item.item_element : point_path_members;
 END_ENTITY;
 
 END_SCHEMA;

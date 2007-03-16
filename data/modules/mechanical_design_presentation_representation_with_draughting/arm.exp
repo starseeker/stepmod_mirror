@@ -1,6 +1,46 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   $Id$
    N - ISO/CD-TS - 10303- mechanical_design_presentation_representation_with_draughting - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Mechanical_design_presentation_representation_with_draughting_arm;
+
+USE FROM Mechanical_design_geometric_presentation_arm; -- ~AIC517
+
+USE FROM Mechanical_design_shaded_presentation_arm; -- ~AIC518
+
+USE FROM Associative_draughting_elements_arm; -- ~AIC520
+
+ TYPE mechanical_design_and_draughting_relationship_select = EXTENSIBLE GENERIC_ENTITY SELECT ( 
+   Draughting_model, -- AIC520 
+   Mechanical_representation_styled_model, -- AIC517 
+   Mechanical_design_shaped_styled_model, -- AIC518 
+   Mechanical_design_presentation_representation_with_draughting, -- new 
+   Geometric_model); 
+ END_TYPE; 
+
+ ENTITY Mechanical_design_presentation_representation_with_draughting -- mdprwd 
+   SUBTYPE of (Representation); 
+ END_ENTITY;  
+ 
+ ENTITY Mechanical_design_and_draughting_relationship -- mdadr 
+   SUBTYPE OF(Definitional_representation_relationship); 
+   SELF\representation_relationship.rep_1 : mechanical_design_and_draughting_relationship_select; 
+   SELF\representation_relationship.rep_2 : mechanical_design_and_draughting_relationship_select; 
+ WHERE    
+   -- wr1: if rep_2 is a draughting_model then rep_1 must also be a draughting_model or a shape_representation(subtype) 
+   WR1: NOT('ASSOCIATIVE_DRAUGHTING_ELEMENTS_ARM.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_2)) OR 
+     (['ASSOCIATIVE_DRAUGHTING_ELEMENTS_ARM.'+'DRAUGHTING_MODEL', 
+     'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] IN TYPEOF(rep_1));
+   -- wr2: if rep_2 is a mdgpr then rep_1 must also be a mdgpr or a shape_representation(subtype) 
+   WR2: NOT('MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_ARM.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL' IN TYPEOF(rep_2)) 
+     OR (['MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_ARM.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL', 
+     'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] IN TYPEOF(rep_1));
+   -- wr3: if rep_2 is a mdgspr then rep_1 must also be a mdgspr or a shape_representation(subtype) 
+   WR3: NOT('MECHANICAL_DESIGN_SHADED_PRESENTATION_ARM.'+'MECHANICAL_DESIGN_SHAPED_STYLED_MODEL' IN TYPEOF(rep_2)) 
+     OR (['MECHANICAL_DESIGN_SHADED_PRESENTATION_ARM.'+'MECHANICAL_DESIGN_SHAPED_STYLED_MODEL',
+     'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] IN TYPEOF(rep_1));
+ END_ENTITY;  
+-- only the mdprwd is allowed to combine all together into one 
+
+
 END_SCHEMA;

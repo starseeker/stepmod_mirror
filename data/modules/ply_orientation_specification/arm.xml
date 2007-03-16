@@ -6,12 +6,13 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ply_orientation_specification_arm schema_instance"/>
    <schema name="Ply_orientation_specification_arm">
       <interface kind="use" schema="Construction_geometry_arm"/>
+      <interface kind="use" schema="Part_and_zone_laminate_tables_arm"/>
       <type name="angle_select">
          <select selectitems="Curve Direction Point_path"/>
       </type>
       <entity name="Draped_orientation_angle" supertypes="Ply_orientation_angle"/>
       <entity name="Laid_orientation_angle" supertypes="Ply_orientation_angle"/>
-      <entity name="Ply_orientation_angle" super.expression="ONEOF (Draped_orientation_angle, Laid_orientation_angle)">
+      <entity name="Ply_orientation_angle" supertypes="Geometric_model" super.expression="ONEOF (Draped_orientation_angle, Laid_orientation_angle)">
          <explicit name="angle_reference">
             <typename name="angle_select"/>
          </explicit>
@@ -19,7 +20,7 @@
             <typename name="Reinforcement_orientation_basis"/>
          </explicit>
       </entity>
-      <entity name="Point_and_vector">
+      <entity name="Point_and_vector" supertypes="Detailed_geometric_model_element">
          <explicit name="location">
             <typename name="point_select"/>
          </explicit>
@@ -28,19 +29,22 @@
             <typename name="Direction"/>
          </explicit>
       </entity>
-      <entity name="Point_path">
+      <entity name="Point_path" supertypes="Detailed_geometric_model_element">
          <explicit name="directions">
             <aggregate type="LIST" lower="1" upper="?"/>
             <typename name="Point_and_vector"/>
          </explicit>
       </entity>
-      <entity name="Reinforcement_orientation_basis">
+      <entity name="Reinforcement_orientation_basis" supertypes="Geometric_model">
          <explicit name="basis_location">
             <typename name="point_select"/>
          </explicit>
          <explicit name="orientation">
             <typename name="Direction"/>
          </explicit>
+         <inverse name="tables" entity="Laminate_table" attribute="basis">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
       </entity>
    </schema>
 </express>

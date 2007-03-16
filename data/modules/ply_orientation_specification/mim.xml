@@ -6,10 +6,38 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ply_orientation_specification_mim schema_instance"/>
    <schema name="Ply_orientation_specification_mim">
       <interface kind="use" schema="Construction_geometry_mim"/>
-      <entity name="draped_defined_transformation" supertypes="transformation_with_derived_angle"/>
-      <entity name="laid_defined_transformation" supertypes="transformation_with_derived_angle"/>
-      <entity name="point_and_vector" supertypes="shape_representation"/>
-      <entity name="point_path" supertypes="shape_representation"/>
-      <entity name="transformation_with_derived_angle" supertypes="item_defined_transformation" super.expression="ONEOF (draped_defined_transformation, laid_defined_transformation)"/>
+      <interface kind="use" schema="Part_and_zone_laminate_tables_mim"/>
+      <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="point"/>
+      </interface>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="compound_representation_item"/>
+      </interface>
+      <type name="point_and_vector_member">
+         <select selectitems="point direction"/>
+      </type>
+      <type name="point_and_vector_members">
+         <aggregate type="LIST" lower="2" upper="3"/>
+         <typename name="point_and_vector_member"/>
+      </type>
+      <type name="point_path_members">
+         <aggregate type="LIST" lower="1" upper="?"/>
+         <typename name="point_and_vector"/>
+      </type>
+      <entity name="draped_defined_transformation" supertypes="ply_orientation_angle"/>
+      <entity name="laid_defined_transformation" supertypes="ply_orientation_angle"/>
+      <entity name="ply_orientation_angle" supertypes="shape_representation" super.expression="ONEOF (draped_defined_transformation, laid_defined_transformation)"/>
+      <entity name="point_and_vector" supertypes="compound_representation_item">
+         <explicit name="item_element">
+            <typename name="point_and_vector_members"/>
+            <redeclaration entity-ref="compound_representation_item"/>
+         </explicit>
+      </entity>
+      <entity name="point_path" supertypes="compound_representation_item">
+         <explicit name="item_element">
+            <typename name="point_path_members"/>
+            <redeclaration entity-ref="compound_representation_item"/>
+         </explicit>
+      </entity>
    </schema>
 </express>

@@ -1,32 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mim_lf.xml,v 1.1 2007/01/14 21:33:01 abhpf Exp $ -->
+<!-- $Id: mim_lf.xml,v 1.2 2007/03/03 22:11:54 abhpf Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 <express
    language_version="2"
-   rcs.date="$Date: 2007/01/14 21:33:01 $"
-   rcs.revision="$Revision: 1.1 $">
+   rcs.date="$Date: 2007/03/03 22:11:54 $"
+   rcs.revision="$Revision: 1.2 $">
+
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
-    version="1, 3, 29, 37"
-    source="StrMimLF.exp"/>
+    version="1, 3, 30, 37"
+    source="StrMim3LF.exp"/>
 
   <schema name="System_structure_mim_LF">
     <constant
       name="dummy_gri"
-      expression="">
+      expression="representation_item(&apos;&apos;)||geometric_representation_item()">
       <typename name="geometric_representation_item"/>
     </constant>
+    <type name="supported_item">
+      <select
+        selectitems="action action_directive action_method"
+      />
+    </type>
+
     <type name="groupable_item">
       <select
         selectitems="hierarchical_interface_connection interface_connection interface_connector_definition interface_connector_occurrence interface_definition_connection interface_definition_for product_definition product_definition_relationship"
       />
       <where
         label="WR1"
-        expression="">
+        expression="NOT (&apos;SYSTEM_STRUCTURE_MIM_LF.GROUP&apos; IN TYPEOF(SELF))">
       </where>
     </type>
 
@@ -229,7 +236,7 @@ href="../../../xsl/express.xsl" ?>
 
     <type name="characterized_action_definition">
       <select
-        selectitems="action action_method action_relationship"
+        selectitems="action action_method action_method_relationship action_relationship"
       />
     </type>
 
@@ -308,7 +315,7 @@ href="../../../xsl/express.xsl" ?>
       <typename name="length_measure"/>
       <where
         label="WR1"
-        expression="">
+        expression="SELF &gt; 0.000000">
       </where>
     </type>
 
@@ -316,7 +323,7 @@ href="../../../xsl/express.xsl" ?>
       <typename name="plane_angle_measure"/>
       <where
         label="WR1"
-        expression="">
+        expression="SELF &gt; 0.000000">
       </where>
     </type>
 
@@ -324,7 +331,7 @@ href="../../../xsl/express.xsl" ?>
       <typename name="ratio_measure"/>
       <where
         label="WR1"
-        expression="">
+        expression="SELF &gt; 0.000000">
       </where>
     </type>
 
@@ -379,12 +386,16 @@ href="../../../xsl/express.xsl" ?>
 
     <type name="list_representation_item">
       <aggregate type="LIST"
+        lower="1"
+        upper="?"
       />
       <typename name="representation_item"/>
     </type>
 
     <type name="set_representation_item">
       <aggregate type="SET"
+        lower="1"
+        upper="?"
       />
       <typename name="representation_item"/>
     </type>
@@ -421,7 +432,7 @@ href="../../../xsl/express.xsl" ?>
       />
       <where
         label="WR1"
-        expression="">
+        expression="{1 &lt;= SELF &lt;= 31}">
       </where>
     </type>
 
@@ -430,7 +441,7 @@ href="../../../xsl/express.xsl" ?>
       />
       <where
         label="WR1"
-        expression="">
+        expression="{1 &lt;= SELF &lt;= 12}">
       </where>
     </type>
 
@@ -439,7 +450,7 @@ href="../../../xsl/express.xsl" ?>
       />
       <where
         label="WR1"
-        expression="">
+        expression="{0 &lt;= SELF &lt; 24}">
       </where>
     </type>
 
@@ -448,7 +459,7 @@ href="../../../xsl/express.xsl" ?>
       />
       <where
         label="WR1"
-        expression="">
+        expression="{0 &lt;= SELF &lt;= 59}">
       </where>
     </type>
 
@@ -457,7 +468,7 @@ href="../../../xsl/express.xsl" ?>
       />
       <where
         label="WR1"
-        expression="">
+        expression="{0 &lt;= SELF &lt;= 60.000000}">
       </where>
     </type>
 
@@ -532,7 +543,7 @@ href="../../../xsl/express.xsl" ?>
       />
       <where
         label="WR1"
-        expression="">
+        expression="SELF &gt; 0">
       </where>
     </type>
 
@@ -542,8 +553,13 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <entity name="founded_item"
+    <entity name="descriptive_representation_item"
+      supertypes="representation_item"
     >
+      <explicit
+        name="description">
+        <typename name="text"/>
+      </explicit>
     </entity>
 
     <entity name="system__pmri_characterizable_applied_document_usage_constraint_assignment"
@@ -562,7 +578,7 @@ href="../../../xsl/express.xsl" ?>
     </entity>
 
     <entity name="system__pmri_characterizable_organizational_project"
-      supertypes="organizational_project"
+      supertypes="organizational_project characterized_object"
     >
     </entity>
 
@@ -790,7 +806,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="defined_version"
-        expression="">
+        expression="SELF\product_definition.formation">
         <typename name="product_as_individual_version"/>
       </derived>
     </entity>
@@ -816,12 +832,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="individual_product"
-        expression="">
+        expression="SELF\product_relationship.related_product">
         <typename name="product_as_individual"/>
       </derived>
       <derived
         name="product_design"
-        expression="">
+        expression="SELF\product_relationship.relating_product">
         <typename name="product"/>
       </derived>
     </entity>
@@ -837,12 +853,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="individual_product"
-        expression="">
+        expression="SELF\product_definition_formation_relationship.related_product_definition_formation">
         <typename name="product_as_individual_version"/>
       </derived>
       <derived
         name="product_design_version"
-        expression="">
+        expression="SELF\product_definition_formation_relationship.relating_product_definition_formation">
         <typename name="product_definition_formation"/>
       </derived>
     </entity>
@@ -864,12 +880,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="planned_product"
-        expression="">
+        expression="SELF\product_definition_formation_relationship.relating_product_definition_formation">
         <typename name="product_as_planned"/>
       </derived>
       <derived
         name="realized_product"
-        expression="">
+        expression="SELF\product_definition_formation_relationship.related_product_definition_formation">
         <typename name="product_as_realized"/>
       </derived>
     </entity>
@@ -912,6 +928,292 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
+    <entity name="action"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="chosen_method">
+        <typename name="action_method"/>
+      </explicit>
+      <derived
+        name="id"
+        expression="get_id_value(SELF)">
+        <typename name="identifier"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.IDENTIFIED_ITEM&apos;)) &lt;= 1">
+      </where>
+    </entity>
+
+    <entity name="action_directive"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="analysis">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="comment">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="requests">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="versioned_action_request"/>
+      </explicit>
+    </entity>
+
+    <entity name="action_method"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="consequence">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="purpose">
+        <typename name="text"/>
+      </explicit>
+    </entity>
+
+    <entity name="action_method_relationship"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="relating_method">
+        <typename name="action_method"/>
+      </explicit>
+      <explicit
+        name="related_method">
+        <typename name="action_method"/>
+      </explicit>
+    </entity>
+
+    <entity name="action_relationship"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="relating_action">
+        <typename name="action"/>
+      </explicit>
+      <explicit
+        name="related_action">
+        <typename name="action"/>
+      </explicit>
+    </entity>
+
+    <entity name="action_request_solution"
+    >
+      <explicit
+        name="method">
+        <typename name="action_method"/>
+      </explicit>
+      <explicit
+        name="request">
+        <typename name="versioned_action_request"/>
+      </explicit>
+      <derived
+        name="description"
+        expression="get_description_value(SELF)">
+        <typename name="text"/>
+      </derived>
+      <derived
+        name="name"
+        expression="get_name_value(SELF)">
+        <typename name="label"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
+      </where>
+      <where
+        label="WR2"
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;NAME_ATTRIBUTE.NAMED_ITEM&apos;)) &lt;= 1">
+      </where>
+    </entity>
+
+    <entity name="action_request_status"
+    >
+      <explicit
+        name="status">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="assigned_request">
+        <typename name="versioned_action_request"/>
+      </explicit>
+    </entity>
+
+    <entity name="action_resource"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="usage">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="supported_item"/>
+      </explicit>
+      <explicit
+        name="kind">
+        <typename name="action_resource_type"/>
+      </explicit>
+    </entity>
+
+    <entity name="action_resource_relationship"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="relating_resource">
+        <typename name="action_resource"/>
+      </explicit>
+      <explicit
+        name="related_resource">
+        <typename name="action_resource"/>
+      </explicit>
+    </entity>
+
+    <entity name="action_resource_type"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+    </entity>
+
+    <entity name="action_status"
+    >
+      <explicit
+        name="status">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="assigned_action">
+        <typename name="executed_action"/>
+      </explicit>
+    </entity>
+
+    <entity name="directed_action"
+      supertypes="executed_action"
+    >
+      <explicit
+        name="directive">
+        <typename name="action_directive"/>
+      </explicit>
+    </entity>
+
+    <entity name="executed_action"
+      supertypes="action"
+    >
+    </entity>
+
+    <entity name="versioned_action_request"
+    >
+      <explicit
+        name="id">
+        <typename name="identifier"/>
+      </explicit>
+      <explicit
+        name="version">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="purpose">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+    </entity>
+
+    <entity name="versioned_action_request_relationship"
+    >
+      <explicit
+        name="id">
+        <typename name="identifier"/>
+      </explicit>
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="relating_versioned_action_request">
+        <typename name="versioned_action_request"/>
+      </explicit>
+      <explicit
+        name="related_versioned_action_request">
+        <typename name="versioned_action_request"/>
+      </explicit>
+    </entity>
+
     <entity name="group"
     >
       <explicit
@@ -925,12 +1227,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="id"
-        expression="">
+        expression="get_id_value(SELF)">
         <typename name="identifier"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.IDENTIFIED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -955,12 +1257,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="name"
-        expression="">
+        expression="get_name_value(SELF)">
         <typename name="label"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;NAME_ATTRIBUTE.NAMED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -981,6 +1283,10 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <unique
         label="UR1">
+        <unique.attribute
+          attribute="id"/>
+        <unique.attribute
+          attribute="of_product"/>
       </unique>
     </entity>
 
@@ -1026,6 +1332,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="1"
         />
         <typename name="product_definition_or_breakdown_element_usage"/>
       </explicit>
@@ -1063,6 +1371,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="1"
         />
         <typename name="product_definition_or_product_definition_relationship"/>
       </explicit>
@@ -1074,6 +1384,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="identification_item"/>
       </explicit>
@@ -1097,6 +1409,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="frame_of_reference">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="product_context"/>
       </explicit>
@@ -1152,184 +1466,14 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="action"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="chosen_method">
-        <typename name="action_method"/>
-      </explicit>
-      <derived
-        name="id"
-        expression="">
-        <typename name="identifier"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="">
-      </where>
-    </entity>
-
-    <entity name="action_directive"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="analysis">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="comment">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="requests">
-        <aggregate type="SET"
-        />
-        <typename name="versioned_action_request"/>
-      </explicit>
-    </entity>
-
-    <entity name="action_method"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="consequence">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="purpose">
-        <typename name="text"/>
-      </explicit>
-    </entity>
-
-    <entity name="action_relationship"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="relating_action">
-        <typename name="action"/>
-      </explicit>
-      <explicit
-        name="related_action">
-        <typename name="action"/>
-      </explicit>
-    </entity>
-
-    <entity name="action_request_solution"
-    >
-      <explicit
-        name="method">
-        <typename name="action_method"/>
-      </explicit>
-      <explicit
-        name="request">
-        <typename name="versioned_action_request"/>
-      </explicit>
-      <derived
-        name="description"
-        expression="">
-        <typename name="text"/>
-      </derived>
-      <derived
-        name="name"
-        expression="">
-        <typename name="label"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="">
-      </where>
-      <where
-        label="WR2"
-        expression="">
-      </where>
-    </entity>
-
-    <entity name="action_request_status"
-    >
-      <explicit
-        name="status">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="assigned_request">
-        <typename name="versioned_action_request"/>
-      </explicit>
-    </entity>
-
-    <entity name="directed_action"
-      supertypes="executed_action"
-    >
-      <explicit
-        name="directive">
-        <typename name="action_directive"/>
-      </explicit>
-    </entity>
-
-    <entity name="executed_action"
-      supertypes="action"
-    >
-    </entity>
-
-    <entity name="versioned_action_request"
-    >
-      <explicit
-        name="id">
-        <typename name="identifier"/>
-      </explicit>
-      <explicit
-        name="version">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="purpose">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-    </entity>
-
     <entity name="applied_action_assignment"
       supertypes="action_assignment"
     >
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="action_items"/>
       </explicit>
@@ -1391,6 +1535,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="approval_item"/>
       </explicit>
@@ -1472,6 +1618,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="certification_item"/>
       </explicit>
@@ -1507,6 +1655,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="classification_item"/>
       </explicit>
@@ -1526,10 +1676,18 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <unique
         label="UR1">
+        <unique.attribute
+          attribute="configuration"/>
+        <unique.attribute
+          entity-ref="product_definition_effectivity"
+          attribute="usage"/>
+        <unique.attribute
+          entity-ref="effectivity"
+          attribute="id"/>
       </unique>
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.PRODUCT_DEFINITION_USAGE&apos; IN TYPEOF(SELF\product_definition_effectivity.usage)">
       </where>
     </entity>
 
@@ -1565,6 +1723,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="contract_item"/>
       </explicit>
@@ -1592,6 +1752,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="date_and_time_item"/>
       </explicit>
@@ -1603,6 +1765,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="date_item"/>
       </explicit>
@@ -1621,7 +1785,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="valid_calendar_date(SELF)">
       </where>
     </entity>
 
@@ -1645,12 +1809,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -1662,12 +1826,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -1694,6 +1858,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="document_reference_item"/>
       </explicit>
@@ -1705,6 +1871,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="document_reference_item"/>
       </explicit>
@@ -1715,19 +1883,19 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="SELF\document_product_association.name = &apos;equivalence&apos;">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="NOT (&apos;SYSTEM_STRUCTURE_MIM_LF.PRODUCT&apos; IN TYPEOF(SELF\document_product_association.related_product)) OR ((SELF\document_product_association.relating_document.kind.product_data_type = &apos;configuration controlled document&apos;) AND (SIZEOF(QUERY(prpc &lt;* USEDIN(SELF\document_product_association.related_product, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS&apos;) | prpc.name = &apos;document&apos;)) = 1))">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="NOT (&apos;SYSTEM_STRUCTURE_MIM_LF.PRODUCT_DEFINITION_FORMATION&apos; IN TYPEOF(SELF.related_product)) OR ((SELF\document_product_association.relating_document.kind.product_data_type = &apos;configuration controlled document version&apos;) AND (SIZEOF(QUERY(prpc &lt;* USEDIN(SELF.related_product\product_definition_formation.of_product, &apos;SYSTEM_STRUCTURE_MIM_LF.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS&apos;) | prpc.name = &apos;document&apos;)) = 1))">
       </where>
       <where
         label="WR4"
-        expression="">
+        expression="NOT (&apos;SYSTEM_STRUCTURE_MIM_LF.PRODUCT_DEFINITION&apos; IN TYPEOF(SELF.related_product)) OR ((SELF\document_product_association.relating_document.kind.product_data_type = &apos;configuration controlled document definition&apos;) AND (SIZEOF(QUERY(prpc &lt;* USEDIN(SELF\document_product_association.related_product\product_definition.formation.of_product, &apos;SYSTEM_STRUCTURE_MIM_LF.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS&apos;) | prpc.name = &apos;document&apos;)) = 1))">
       </where>
     </entity>
 
@@ -1758,6 +1926,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="effectivity_item"/>
       </explicit>
@@ -1772,21 +1942,21 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="name"
-        expression="">
+        expression="get_name_value(SELF)">
         <typename name="label"/>
       </derived>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;NAME_ATTRIBUTE.NAMED_ITEM&apos;)) &lt;= 1">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -1796,6 +1966,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="event_occurrence_item"/>
       </explicit>
@@ -1817,6 +1989,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="external_identification_item"/>
       </explicit>
@@ -1830,12 +2004,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -1844,15 +2018,15 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="SELF\characterized_object.name = &apos;&apos;">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="NOT EXISTS(SELF\characterized_object.description)">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="SIZEOF(QUERY(drt &lt;* SELF\document.representation_types | drt.name IN [&apos;digital&apos;, &apos;physical&apos;])) = 1">
       </where>
     </entity>
 
@@ -1961,21 +2135,23 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="elements">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="derived_unit_element"/>
       </explicit>
       <derived
         name="name"
-        expression="">
+        expression="get_name_value(SELF)">
         <typename name="label"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="(SIZEOF(elements) &gt; 1) OR ((SIZEOF(elements) = 1) AND (elements[1].exponent &lt;&gt; 1.000000))">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;NAME_ATTRIBUTE.NAMED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -1992,7 +2168,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="valid_units(SELF)">
       </where>
     </entity>
 
@@ -2010,7 +2186,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="SELF\group.name &lt;&gt; &apos;&apos;">
       </where>
     </entity>
 
@@ -2026,16 +2202,18 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="attribute_language_item"/>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="SELF\attribute_classification_assignment.role.name IN [&apos;primary&apos;, &apos;translated&apos;]">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SELF\attribute_classification_assignment.attribute_name &lt;&gt; &apos;&apos;">
       </where>
     </entity>
 
@@ -2045,41 +2223,45 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="multi_language_attribute_item"/>
       </explicit>
       <derived
         name="translation_language"
-        expression="">
+        expression="language_indication[1]\attribute_classification_assignment.assigned_class">
         <typename name="language"/>
       </derived>
       <inverse
         name="language_indication"
         entity="attribute_language_assignment"
-        attribute="">
+        attribute="items">
         <inverse.aggregate
           type="SET"
+          lower="1"
+          upper="1"
         />
       </inverse>
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\attribute_value_assignment.role.name = &apos;alternate language&apos;)">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(QUERY(ala &lt;* language_indication | (ala\attribute_classification_assignment.attribute_name = &apos;attribute_value&apos;) AND (ala\attribute_classification_assignment.role.name = &apos;translated&apos;))) = 1">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="SELF\attribute_value_assignment.attribute_name &lt;&gt; &apos;&apos;">
       </where>
       <where
         label="WR4"
-        expression="">
+        expression="SIZEOF(QUERY(ci &lt;* items | SIZEOF(QUERY(ata &lt;* USEDIN(ci, &apos;SYSTEM_STRUCTURE_MIM_LF.MULTI_LANGUAGE_ATTRIBUTE_ASSIGNMENT.ITEMS&apos;) | (ata\attribute_value_assignment.attribute_name = SELF\attribute_value_assignment.attribute_name) AND (ata.translation_language :=: translation_language))) &gt; 1)) = 0">
       </where>
       <where
         label="WR5"
-        expression="">
+        expression="SIZEOF(QUERY(ci &lt;* items | SIZEOF(QUERY(ata &lt;* USEDIN(ci, &apos;SYSTEM_STRUCTURE_MIM_LF.ATTRIBUTE_LANGUAGE_ASSIGNMENT.ITEMS&apos;) | (ata\attribute_classification_assignment.role.name = &apos;primary&apos;) AND (ata\attribute_classification_assignment.attribute_name = SELF\attribute_value_assignment.attribute_name) AND (ata\attribute_classification_assignment.assigned_class :=: translation_language))) &gt; 0)) = 0">
       </where>
     </entity>
 
@@ -2098,6 +2280,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="organization_item"/>
       </explicit>
@@ -2109,6 +2293,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="person_and_organization_item"/>
       </explicit>
@@ -2120,6 +2306,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="organizations">
         <aggregate type="SET"
+          lower="1"
+          upper="1"
         />
         <typename name="organization"/>
         <redeclaration
@@ -2128,6 +2316,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="people">
         <aggregate type="SET"
+          lower="1"
+          upper="1"
         />
         <typename name="person"/>
         <redeclaration
@@ -2135,7 +2325,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(QUERY(pao &lt;* USEDIN(SELF\personal_address.people[1], &apos;SYSTEM_STRUCTURE_MIM_LF.PERSON_AND_ORGANIZATION.THE_PERSON&apos;) | pao.the_organization :=: SELF\organizational_address.organizations[1])) = 1">
       </where>
     </entity>
 
@@ -2203,17 +2393,17 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="name"
-        expression="">
+        expression="get_name_value(SELF)">
         <typename name="label"/>
       </derived>
       <derived
         name="url"
-        expression="">
+        expression="get_id_value(SELF)">
         <typename name="identifier"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="EXISTS(internal_location) OR EXISTS(street_number) OR EXISTS(street) OR EXISTS(postal_box) OR EXISTS(town) OR EXISTS(region) OR EXISTS(postal_code) OR EXISTS(country) OR EXISTS(facsimile_number) OR EXISTS(telephone_number) OR EXISTS(electronic_mail_address) OR EXISTS(telex_number)">
       </where>
     </entity>
 
@@ -2262,6 +2452,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="organizations">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="organization"/>
       </explicit>
@@ -2286,17 +2478,19 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="responsible_organizations">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="organization"/>
       </explicit>
       <derived
         name="id"
-        expression="">
+        expression="get_id_value(SELF)">
         <typename name="identifier"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.IDENTIFIED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -2341,6 +2535,8 @@ href="../../../xsl/express.xsl" ?>
         name="middle_names"
         optional="YES">
         <aggregate type="LIST"
+          lower="1"
+          upper="?"
         />
         <typename name="label"/>
       </explicit>
@@ -2348,6 +2544,8 @@ href="../../../xsl/express.xsl" ?>
         name="prefix_titles"
         optional="YES">
         <aggregate type="LIST"
+          lower="1"
+          upper="?"
         />
         <typename name="label"/>
       </explicit>
@@ -2355,12 +2553,14 @@ href="../../../xsl/express.xsl" ?>
         name="suffix_titles"
         optional="YES">
         <aggregate type="LIST"
+          lower="1"
+          upper="?"
         />
         <typename name="label"/>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="EXISTS(last_name) OR EXISTS(first_name)">
       </where>
     </entity>
 
@@ -2376,21 +2576,21 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="name"
-        expression="">
+        expression="get_name_value(SELF)">
         <typename name="label"/>
       </derived>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;NAME_ATTRIBUTE.NAMED_ITEM&apos;)) &lt;= 1">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -2431,6 +2631,8 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <unique
         label="UR1">
+        <unique.attribute
+          attribute="id"/>
       </unique>
     </entity>
 
@@ -2447,12 +2649,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="id"
-        expression="">
+        expression="get_id_value(SELF)">
         <typename name="identifier"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.IDENTIFIED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -2520,12 +2722,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="id"
-        expression="">
+        expression="get_id_value(SELF)">
         <typename name="identifier"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.IDENTIFIED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -2551,12 +2753,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="id"
-        expression="">
+        expression="get_id_value(SELF)">
         <typename name="identifier"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.IDENTIFIED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -2581,12 +2783,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="id"
-        expression="">
+        expression="get_id_value(SELF)">
         <typename name="identifier"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.IDENTIFIED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -2602,21 +2804,21 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <derived
         name="name"
-        expression="">
+        expression="get_name_value(SELF)">
         <typename name="label"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;NAME_ATTRIBUTE.NAMED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -2645,10 +2847,14 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <unique
         label="UR1">
+        <unique.attribute
+          attribute="alternate"/>
+        <unique.attribute
+          attribute="base"/>
       </unique>
       <where
         label="WR1"
-        expression="">
+        expression="alternate :&lt;&gt;: base">
       </where>
     </entity>
 
@@ -2684,14 +2890,18 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <unique
         label="UR1">
+        <unique.attribute
+          attribute="base"/>
+        <unique.attribute
+          attribute="substitute"/>
       </unique>
       <where
         label="WR1"
-        expression="">
+        expression="base.relating_product_definition :=: substitute.relating_product_definition">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="base :&lt;&gt;: substitute">
       </where>
     </entity>
 
@@ -2701,18 +2911,16 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="project_item"/>
       </explicit>
     </entity>
 
-    <entity name="descriptive_representation_item"
-      supertypes="representation_item"
+    <entity name="system__pmri_characterizable_applied_document_reference"
+      supertypes="applied_document_reference characterized_object"
     >
-      <explicit
-        name="description">
-        <typename name="text"/>
-      </explicit>
     </entity>
 
     <entity name="measure_representation_item"
@@ -2720,8 +2928,7 @@ href="../../../xsl/express.xsl" ?>
     >
     </entity>
 
-    <entity name="system__pmri_characterizable_applied_document_reference"
-      supertypes="applied_document_reference characterized_object"
+    <entity name="founded_item"
     >
     </entity>
 
@@ -2734,6 +2941,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="representation_item"/>
       </explicit>
@@ -2743,21 +2952,21 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="id"
-        expression="">
+        expression="get_id_value(SELF)">
         <typename name="identifier"/>
       </derived>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.IDENTIFIED_ITEM&apos;)) &lt;= 1">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -2774,9 +2983,11 @@ href="../../../xsl/express.xsl" ?>
       <inverse
         name="representations_in_context"
         entity="representation"
-        attribute="">
+        attribute="context_of_items">
         <inverse.aggregate
           type="SET"
+          lower="1"
+          upper="?"
         />
       </inverse>
     </entity>
@@ -2789,7 +3000,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(using_representations(SELF)) &gt; 0">
       </where>
     </entity>
 
@@ -2807,7 +3018,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="valid_measure_value(SELF\measure_with_unit.value_component)">
       </where>
     </entity>
 
@@ -2817,6 +3028,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="security_classification_item"/>
       </explicit>
@@ -2844,6 +3057,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
         <typename name="time_interval_item"/>
       </explicit>
@@ -2855,6 +3070,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="action_request_item"/>
       </explicit>
@@ -2866,6 +3083,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="items">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="groupable_item"/>
       </explicit>
@@ -2877,6 +3096,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="products">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="product"/>
       </explicit>
@@ -2916,10 +3137,19 @@ href="../../../xsl/express.xsl" ?>
     >
       <unique
         label="UR1">
+        <unique.attribute
+          entity-ref="product_definition_relationship"
+          attribute="id"/>
+        <unique.attribute
+          entity-ref="product_definition_relationship"
+          attribute="relating_product_definition"/>
+        <unique.attribute
+          entity-ref="product_definition_relationship"
+          attribute="related_product_definition"/>
       </unique>
       <where
         label="WR1"
-        expression="">
+        expression="acyclic_product_definition_relationship(SELF, [SELF\product_definition_relationship.related_product_definition], &apos;SYSTEM_STRUCTURE_MIM_LF.PRODUCT_DEFINITION_USAGE&apos;)">
       </where>
     </entity>
 
@@ -2953,12 +3183,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3004,11 +3234,11 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(derived_definition, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;GENERAL_PROPERTY_ASSOCIATION.&apos; + &apos;DERIVED_DEFINITION&apos;)) = 1">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="derived_definition.name = base_definition.name">
       </where>
     </entity>
 
@@ -3017,23 +3247,14 @@ href="../../../xsl/express.xsl" ?>
     >
       <unique
         label="UR1">
+        <unique.attribute
+          entity-ref="property_definition"
+          attribute="definition"/>
       </unique>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF([&apos;SYSTEM_STRUCTURE_MIM_LF.CHARACTERIZED_PRODUCT_DEFINITION&apos;, &apos;SYSTEM_STRUCTURE_MIM_LF.CHARACTERIZED_OBJECT&apos;] * TYPEOF(SELF\property_definition.definition)) &gt; 0">
       </where>
-    </entity>
-
-    <entity name="action_status"
-    >
-      <explicit
-        name="status">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="assigned_action">
-        <typename name="executed_action"/>
-      </explicit>
     </entity>
 
     <entity name="id_attribute"
@@ -3057,12 +3278,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3078,12 +3299,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3095,12 +3316,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3125,12 +3346,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3153,7 +3374,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="(NOT (&apos;NUMBER&apos; IN TYPEOF(quantity.value_component))) OR (quantity.value_component &gt; 0)">
       </where>
     </entity>
 
@@ -3170,26 +3391,30 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <unique
         label="UR1">
+        <unique.attribute
+          attribute="upper_usage"/>
+        <unique.attribute
+          attribute="next_usage"/>
       </unique>
       <where
         label="WR1"
-        expression="">
+        expression="SELF :&lt;&gt;: upper_usage">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SELF\product_definition_relationship.relating_product_definition :=: upper_usage.relating_product_definition">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="SELF\product_definition_relationship.related_product_definition :=: next_usage.related_product_definition">
       </where>
       <where
         label="WR4"
-        expression="">
+        expression="(upper_usage.related_product_definition :=: next_usage.relating_product_definition) OR (SIZEOF(QUERY(pdr &lt;* USEDIN(upper_usage.related_product_definition, &apos;SYSTEM_STRUCTURE_MIM_LF.PRODUCT_DEFINITION_RELATIONSHIP.&apos; + &apos;RELATED_PRODUCT_DEFINITION&apos;) | pdr.relating_product_definition :=: next_usage.relating_product_definition)) = 1)">
       </where>
       <where
         label="WR5"
-        expression="">
+        expression="SIZEOF([&apos;SYSTEM_STRUCTURE_MIM_LF.NEXT_ASSEMBLY_USAGE_OCCURRENCE&apos;, &apos;SYSTEM_STRUCTURE_MIM_LF.SPECIFIED_HIGHER_USAGE_OCCURRENCE&apos;] * TYPEOF(upper_usage)) = 1">
       </where>
     </entity>
 
@@ -3202,12 +3427,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3246,24 +3471,28 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="name"
-        expression="">
+        expression="get_name_value(SELF)">
         <typename name="label"/>
       </derived>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <unique
         label="UR1">
+        <unique.attribute
+          attribute="configuration"/>
+        <unique.attribute
+          attribute="design"/>
       </unique>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;NAME_ATTRIBUTE.NAMED_ITEM&apos;)) &lt;= 1">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3276,12 +3505,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3304,21 +3533,21 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="actual_minute_offset"
-        expression="">
+        expression="NVL(minute_offset, 0)">
         <builtintype type="INTEGER"
         />
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="{0 &lt;= hour_offset &lt; 24}">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="{0 &lt;= actual_minute_offset &lt;= 59}">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="NOT (((hour_offset &lt;&gt; 0) OR (actual_minute_offset &lt;&gt; 0)) AND (sense = exact))">
       </where>
     </entity>
 
@@ -3364,12 +3593,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3418,9 +3647,11 @@ href="../../../xsl/express.xsl" ?>
       <inverse
         name="representation_types"
         entity="document_representation_type"
-        attribute="">
+        attribute="represented_document">
         <inverse.aggregate
           type="SET"
+          lower="0"
+          upper="?"
         />
       </inverse>
     </entity>
@@ -3517,12 +3748,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3603,6 +3834,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="units">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="unit"/>
       </explicit>
@@ -3614,6 +3847,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="uncertainty">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="uncertainty_measure_with_unit"/>
       </explicit>
@@ -3649,7 +3884,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(QUERY(rep &lt;* using_representations(SELF) | NOT (&apos;SYSTEM_STRUCTURE_MIM_LF.GLOBAL_UNIT_ASSIGNED_CONTEXT&apos; IN TYPEOF(rep.context_of_items)))) = 0">
       </where>
     </entity>
 
@@ -3696,12 +3931,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3723,7 +3958,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="(NOT (&apos;NUMBER&apos; IN TYPEOF(quantity.value_component))) OR (quantity.value_component &gt; 0)">
       </where>
     </entity>
 
@@ -3733,6 +3968,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="people">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="person"/>
       </explicit>
@@ -3751,12 +3988,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3768,12 +4005,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3844,7 +4081,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="acyclic_product_category_relationship(SELF, [SELF.sub_category])">
       </where>
     </entity>
 
@@ -3887,12 +4124,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -3902,6 +4139,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="coordinates">
         <aggregate type="LIST"
+          lower="1"
+          upper="3"
         />
         <typename name="length_measure"/>
       </explicit>
@@ -3913,13 +4152,15 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="direction_ratios">
         <aggregate type="LIST"
+          lower="2"
+          upper="3"
         />
         <builtintype type="REAL"
         />
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(QUERY(tmp &lt;* direction_ratios | tmp &lt;&gt; 0.000000)) &gt; 0">
       </where>
     </entity>
 
@@ -3933,14 +4174,16 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="p"
-        expression="">
+        expression="build_2axes(ref_direction)">
         <aggregate type="LIST"
+          lower="2"
+          upper="2"
         />
         <typename name="direction"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SELF\geometric_representation_item.dim = 2">
       </where>
     </entity>
 
@@ -3959,26 +4202,28 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="p"
-        expression="">
+        expression="build_axes(axis, ref_direction)">
         <aggregate type="LIST"
+          lower="3"
+          upper="3"
         />
         <typename name="direction"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SELF\placement.location.dim = 3">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="(NOT (EXISTS(axis))) OR (axis.dim = 3)">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="(NOT (EXISTS(ref_direction))) OR (ref_direction.dim = 3)">
       </where>
       <where
         label="WR4"
-        expression="">
+        expression="(NOT (EXISTS(axis))) OR (NOT (EXISTS(ref_direction))) OR (cross_product(axis, ref_direction).magnitude &gt; 0.000000)">
       </where>
     </entity>
 
@@ -3997,12 +4242,12 @@ href="../../../xsl/express.xsl" ?>
     >
       <derived
         name="dim"
-        expression="">
+        expression="dimension_of(SELF)">
         <typename name="dimension_count"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(QUERY(using_rep &lt;* using_representations(SELF) | NOT (&apos;SYSTEM_STRUCTURE_MIM_LF.GEOMETRIC_REPRESENTATION_CONTEXT&apos; IN TYPEOF(using_rep.context_of_items)))) = 0">
       </where>
     </entity>
 
@@ -4011,14 +4256,16 @@ href="../../../xsl/express.xsl" ?>
     >
       <derived
         name="u"
-        expression="">
+        expression="base_axis(2, SELF\cartesian_transformation_operator.axis1, SELF\cartesian_transformation_operator.axis2, ?)">
         <aggregate type="LIST"
+          lower="2"
+          upper="2"
         />
         <typename name="direction"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SELF\geometric_representation_item.dim = 2">
       </where>
     </entity>
 
@@ -4032,14 +4279,16 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="u"
-        expression="">
+        expression="base_axis(3, SELF\cartesian_transformation_operator.axis1, SELF\cartesian_transformation_operator.axis2, axis3)">
         <aggregate type="LIST"
+          lower="3"
+          upper="3"
         />
         <typename name="direction"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SELF\geometric_representation_item.dim = 3">
       </where>
     </entity>
 
@@ -4053,7 +4302,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.SHAPE_REPRESENTATION&apos; IN (TYPEOF(SELF\representation_relationship.rep_1) + TYPEOF(SELF\representation_relationship.rep_2))">
       </where>
     </entity>
 
@@ -4083,11 +4332,11 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(&apos;SYSTEM_STRUCTURE_MIM_LF.PRODUCT_DEFINITION_SHAPE&apos; IN TYPEOF(SELF.definition)) OR (&apos;SYSTEM_STRUCTURE_MIM_LF.SHAPE_DEFINITION&apos; IN TYPEOF(SELF.definition.definition))">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.SHAPE_REPRESENTATION&apos; IN TYPEOF(SELF.used_representation)">
       </where>
     </entity>
 
@@ -4096,15 +4345,15 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(&apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;SET_REPRESENTATION_ITEM&apos; IN TYPEOF(item_element)) AND value_range_wr1(item_element)">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="value_range_wr2(item_element)">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="value_range_wr3(item_element)">
       </where>
     </entity>
 
@@ -4192,11 +4441,11 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="NOT (EXISTS(secondary_bound) AND EXISTS(duration))">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="EXISTS(primary_bound) OR EXISTS(secondary_bound)">
       </where>
     </entity>
 
@@ -4205,7 +4454,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.AMOUNT_OF_SUBSTANCE_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4214,7 +4463,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 0.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 1.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4223,7 +4472,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.AREA_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4232,7 +4481,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 2.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4241,7 +4490,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.THERMODYNAMIC_TEMPERATURE_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4302,7 +4551,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.ELECTRIC_CURRENT_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4311,7 +4560,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 0.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 1.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4320,7 +4569,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.LENGTH_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4329,7 +4578,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 1.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4338,7 +4587,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.LUMINOUS_INTENSITY_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4347,7 +4596,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 0.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 1.000000)">
       </where>
     </entity>
 
@@ -4356,7 +4605,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.MASS_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4365,7 +4614,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 0.000000) AND (SELF\named_unit.dimensions.mass_exponent = 1.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4374,7 +4623,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.PLANE_ANGLE_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4383,7 +4632,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 0.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4392,7 +4641,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.RATIO_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4401,7 +4650,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 0.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4419,7 +4668,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="dimensions"
-        expression="">
+        expression="dimensions_for_si_unit(name)">
         <typename name="dimensional_exponents"/>
         <redeclaration
           entity-ref="named_unit"/>
@@ -4431,7 +4680,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.SOLID_ANGLE_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4440,7 +4689,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 0.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4449,7 +4698,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.THERMODYNAMIC_TEMPERATURE_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4458,7 +4707,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 0.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 1.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4467,7 +4716,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.TIME_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4476,7 +4725,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 0.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 1.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4485,7 +4734,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.VOLUME_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -4494,7 +4743,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="(SELF\named_unit.dimensions.length_exponent = 3.000000) AND (SELF\named_unit.dimensions.mass_exponent = 0.000000) AND (SELF\named_unit.dimensions.time_exponent = 0.000000) AND (SELF\named_unit.dimensions.electric_current_exponent = 0.000000) AND (SELF\named_unit.dimensions.thermodynamic_temperature_exponent = 0.000000) AND (SELF\named_unit.dimensions.amount_of_substance_exponent = 0.000000) AND (SELF\named_unit.dimensions.luminous_intensity_exponent = 0.000000)">
       </where>
     </entity>
 
@@ -4507,12 +4756,12 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="role"
-        expression="">
+        expression="get_role(SELF)">
         <typename name="object_role"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -4522,6 +4771,8 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="documentation_ids">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="document"/>
       </explicit>
@@ -4532,7 +4783,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="acyclic_representation_relationship(SELF, [SELF\representation_relationship.rep_2], &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;REPRESENTATION&apos;)">
       </where>
     </entity>
 
@@ -4541,10 +4792,16 @@ href="../../../xsl/express.xsl" ?>
     >
       <unique
         label="UR1">
+        <unique.attribute
+          entity-ref="representation_item_relationship"
+          attribute="relating_representation_item"/>
+        <unique.attribute
+          entity-ref="representation_item_relationship"
+          attribute="related_representation_item"/>
       </unique>
       <where
         label="WR1"
-        expression="">
+        expression="SELF\representation_item_relationship.relating_representation_item :&lt;&gt;: SELF\representation_item_relationship.related_representation_item">
       </where>
     </entity>
 
@@ -4560,25 +4817,25 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <derived
         name="name"
-        expression="">
+        expression="get_name_value(SELF)">
         <typename name="label"/>
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.PRODUCT_DEFINITION_RELATIONSHIP&apos; IN TYPEOF(SELF.represented_product_relation.definition)">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;NAME_ATTRIBUTE.NAMED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -4604,7 +4861,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="SELF\representation_relationship.rep_1.context_of_items :&lt;&gt;: SELF\representation_relationship.rep_2.context_of_items">
       </where>
     </entity>
 
@@ -4621,7 +4878,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="acyclic_mapped_representation(using_representations(SELF), [SELF])">
       </where>
     </entity>
 
@@ -4640,12 +4897,14 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="qualifiers">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="value_qualifier"/>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(QUERY(temp &lt;* qualifiers | &apos;SYSTEM_STRUCTURE_MIM_LF.PRECISION_QUALIFIER&apos; IN TYPEOF(temp))) &lt; 2">
       </where>
     </entity>
 
@@ -4732,14 +4991,16 @@ href="../../../xsl/express.xsl" ?>
       <inverse
         name="map_usage"
         entity="mapped_item"
-        attribute="">
+        attribute="mapping_source">
         <inverse.aggregate
           type="SET"
+          lower="1"
+          upper="?"
         />
       </inverse>
       <where
         label="WR1"
-        expression="">
+        expression="item_in_context(SELF.mapping_origin, SELF.mapped_representation.context_of_items)">
       </where>
     </entity>
 
@@ -4756,7 +5017,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="magnitude &gt;= 0.000000">
       </where>
     </entity>
 
@@ -4796,7 +5057,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="dir.dim = pnt.dim">
       </where>
     </entity>
 
@@ -4830,15 +5091,15 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(reference_to_curve\representation.items) = 1">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.CURVE&apos; IN TYPEOF(reference_to_curve\representation.items[1])">
       </where>
       <where
         label="WR3"
-        expression="">
+        expression="reference_to_curve\representation.items[1]\geometric_representation_item.dim = 2">
       </where>
     </entity>
 
@@ -4887,29 +5148,31 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="description"
-        expression="">
+        expression="get_description_value(SELF)">
         <typename name="text"/>
       </derived>
       <derived
         name="id"
-        expression="">
+        expression="get_id_value(SELF)">
         <typename name="identifier"/>
       </derived>
       <inverse
         name="context_elements"
         entity="application_context_element"
-        attribute="">
+        attribute="frame_of_reference">
         <inverse.aggregate
           type="SET"
+          lower="1"
+          upper="?"
         />
       </inverse>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM&apos;)) &lt;= 1">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.IDENTIFIED_ITEM&apos;)) &lt;= 1">
       </where>
     </entity>
 
@@ -4922,7 +5185,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;EFFECTIVITY_ASSIGNMENT.ASSIGNED_EFFECTIVITY&apos;)) = 0">
       </where>
     </entity>
 
@@ -4956,7 +5219,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <where
         label="WR1"
-        expression="">
+        expression="valid_time(SELF)">
       </where>
     </entity>
 
@@ -5078,13 +5341,13 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <derived
         name="scl"
-        expression="">
+        expression="NVL(scale, 1.000000)">
         <builtintype type="REAL"
         />
       </derived>
       <where
         label="WR1"
-        expression="">
+        expression="scl &gt; 0.000000">
       </where>
     </entity>
 
@@ -5102,7 +5365,7 @@ href="../../../xsl/express.xsl" ?>
     >
       <where
         label="WR1"
-        expression="">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.PARAMETRIC_REPRESENTATION_CONTEXT&apos; IN TYPEOF(SELF\representation.context_of_items)">
       </where>
     </entity>
 
@@ -5116,19 +5379,12 @@ href="../../../xsl/express.xsl" ?>
     result : direction;
   END_LOCAL;
 
-      </algorithm>
-    </function>
-
-    <function name="get_name_value">
-      <parameter name="obj">
-        <typename name="name_attribute_select"/>
-      </parameter>
-      <typename name="label"/>
-      <algorithm>
-  LOCAL
-    name_bag : BAG OF name_attribute;
-  END_LOCAL;
-
+  IF (vec.dim &lt;&gt; 2) OR NOT EXISTS(vec) THEN
+    RETURN (?);
+  ELSE
+    result := dummy_gri||direction([ - vec.direction_ratios[2], vec.direction_ratios[1]]);
+    RETURN (result);
+  END_IF;
       </algorithm>
     </function>
 
@@ -5139,9 +5395,32 @@ href="../../../xsl/express.xsl" ?>
       <typename name="text"/>
       <algorithm>
   LOCAL
-    description_bag : BAG OF description_attribute;
+    description_bag : BAG OF description_attribute := (USEDIN(obj, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;DESCRIPTION_ATTRIBUTE.&apos; + &apos;DESCRIBED_ITEM&apos;));
   END_LOCAL;
 
+  IF SIZEOF(description_bag) = 1 THEN
+    RETURN (description_bag[1].attribute_value);
+  ELSE
+    RETURN (?);
+  END_IF;
+      </algorithm>
+    </function>
+
+    <function name="get_name_value">
+      <parameter name="obj">
+        <typename name="name_attribute_select"/>
+      </parameter>
+      <typename name="label"/>
+      <algorithm>
+  LOCAL
+    name_bag : BAG OF name_attribute := (USEDIN(obj, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;NAME_ATTRIBUTE.&apos; + &apos;NAMED_ITEM&apos;));
+  END_LOCAL;
+
+  IF SIZEOF(name_bag) = 1 THEN
+    RETURN (name_bag[1].attribute_value);
+  ELSE
+    RETURN (?);
+  END_IF;
       </algorithm>
     </function>
 
@@ -5151,6 +5430,41 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <builtintype type="LOGICAL"
       />
+      <algorithm>
+  CASE date.month_component OF 
+    1:
+      RETURN ({1 &lt;= date.day_component &lt;= 31});
+    2:
+      BEGIN
+        IF (leap_year(date.year_component)) THEN
+          RETURN ({1 &lt;= date.day_component &lt;= 29});
+        ELSE
+          RETURN ({1 &lt;= date.day_component &lt;= 28});
+        END_IF;
+      END;
+    3:
+      RETURN ({1 &lt;= date.day_component &lt;= 31});
+    4:
+      RETURN ({1 &lt;= date.day_component &lt;= 30});
+    5:
+      RETURN ({1 &lt;= date.day_component &lt;= 31});
+    6:
+      RETURN ({1 &lt;= date.day_component &lt;= 30});
+    7:
+      RETURN ({1 &lt;= date.day_component &lt;= 31});
+    8:
+      RETURN ({1 &lt;= date.day_component &lt;= 31});
+    9:
+      RETURN ({1 &lt;= date.day_component &lt;= 30});
+    10:
+      RETURN ({1 &lt;= date.day_component &lt;= 31});
+    11:
+      RETURN ({1 &lt;= date.day_component &lt;= 30});
+    12:
+      RETURN ({1 &lt;= date.day_component &lt;= 31});
+  END_CASE;
+  RETURN (FALSE);
+      </algorithm>
     </function>
 
     <function name="leap_year">
@@ -5159,6 +5473,13 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <builtintype type="BOOLEAN"
       />
+      <algorithm>
+  IF ((((year MOD 4) = 0) AND ((year MOD 100) &lt;&gt; 0)) OR ((year MOD 400) = 0)) THEN
+    RETURN (TRUE);
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+      </algorithm>
     </function>
 
     <function name="valid_time">
@@ -5167,6 +5488,13 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <builtintype type="BOOLEAN"
       />
+      <algorithm>
+  IF EXISTS(time.second_component) THEN
+    RETURN (EXISTS(time.minute_component));
+  ELSE
+    RETURN (TRUE);
+  END_IF;
+      </algorithm>
     </function>
 
     <function name="valid_units">
@@ -5175,6 +5503,84 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <builtintype type="BOOLEAN"
       />
+      <algorithm>
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.LENGTH_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.MASS_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.TIME_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.ELECTRIC_CURRENT_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.THERMODYNAMIC_TEMPERATURE_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.CELSIUS_TEMPERATURE_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.AMOUNT_OF_SUBSTANCE_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.LUMINOUS_INTENSITY_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.PLANE_ANGLE_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.SOLID_ANGLE_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.AREA_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(2.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.VOLUME_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(3.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.RATIO_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.POSITIVE_LENGTH_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.POSITIVE_PLANE_ANGLE_MEASURE&apos; IN TYPEOF(m.value_component) THEN
+    IF derive_dimensional_exponents(m.unit_component) &lt;&gt; dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_IF;
+  RETURN (TRUE);
+      </algorithm>
     </function>
 
     <function name="derive_dimensional_exponents">
@@ -5184,9 +5590,23 @@ href="../../../xsl/express.xsl" ?>
       <typename name="dimensional_exponents"/>
       <algorithm>
   LOCAL
-    result : dimensional_exponents;
+    result : dimensional_exponents := dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000);
   END_LOCAL;
 
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.DERIVED_UNIT&apos; IN TYPEOF(x) THEN
+    REPEAT i := LOINDEX(x.elements) TO HIINDEX(x.elements);
+      result.length_exponent := result.length_exponent + (x.elements[i].exponent * x.elements[i].unit.dimensions.length_exponent);
+      result.mass_exponent := result.mass_exponent + (x.elements[i].exponent * x.elements[i].unit.dimensions.mass_exponent);
+      result.time_exponent := result.time_exponent + (x.elements[i].exponent * x.elements[i].unit.dimensions.time_exponent);
+      result.electric_current_exponent := result.electric_current_exponent + (x.elements[i].exponent * x.elements[i].unit.dimensions.electric_current_exponent);
+      result.thermodynamic_temperature_exponent := result.thermodynamic_temperature_exponent + (x.elements[i].exponent * x.elements[i].unit.dimensions.thermodynamic_temperature_exponent);
+      result.amount_of_substance_exponent := result.amount_of_substance_exponent + (x.elements[i].exponent * x.elements[i].unit.dimensions.amount_of_substance_exponent);
+      result.luminous_intensity_exponent := result.luminous_intensity_exponent + (x.elements[i].exponent * x.elements[i].unit.dimensions.luminous_intensity_exponent);
+    END_REPEAT;
+  ELSE
+    result := x.dimensions;
+  END_IF;
+  RETURN (result);
       </algorithm>
     </function>
 
@@ -5204,6 +5624,25 @@ href="../../../xsl/express.xsl" ?>
     intermediate_items : SET OF founded_item_select;
   END_LOCAL;
 
+  results := [];
+  result_bag := USEDIN(item, &apos;SYSTEM_STRUCTURE_MIM_LF.REPRESENTATION.ITEMS&apos;);
+  IF SIZEOF(result_bag) &gt; 0 THEN
+    REPEAT i := 1 TO HIINDEX(result_bag);
+      results := results + result_bag[i];
+    END_REPEAT;
+  END_IF;
+  intermediate_items := using_items(item, []);
+  IF SIZEOF(intermediate_items) &gt; 0 THEN
+    REPEAT i := 1 TO HIINDEX(intermediate_items);
+      result_bag := USEDIN(intermediate_items[i], &apos;SYSTEM_STRUCTURE_MIM_LF.REPRESENTATION.ITEMS&apos;);
+      IF SIZEOF(result_bag) &gt; 0 THEN
+        REPEAT j := 1 TO HIINDEX(result_bag);
+          results := results + result_bag[j];
+        END_REPEAT;
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  RETURN (results);
       </algorithm>
     </function>
 
@@ -5226,6 +5665,17 @@ href="../../../xsl/express.xsl" ?>
     next_items : SET OF founded_item_select;
   END_LOCAL;
 
+  result_items := [];
+  new_check_items := checked_items + item;
+  next_items := QUERY(z &lt;* bag_to_set(USEDIN(item, &apos;&apos;)) | (&apos;SYSTEM_STRUCTURE_MIM_LF.REPRESENTATION_ITEM&apos; IN TYPEOF(z)) OR (&apos;SYSTEM_STRUCTURE_MIM_LF.FOUNDED_ITEM&apos; IN TYPEOF(z)));
+  IF SIZEOF(next_items) &gt; 0 THEN
+    REPEAT i := 1 TO HIINDEX(next_items);
+      IF NOT (next_items[i] IN new_check_items) THEN
+        result_items := result_items + next_items[i] + using_items(next_items[i], new_check_items);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  RETURN (result_items);
       </algorithm>
     </function>
 
@@ -5244,9 +5694,15 @@ href="../../../xsl/express.xsl" ?>
       />
       <algorithm>
   LOCAL
-    the_set : SET OF GENERIC:intype;
+    the_set : SET OF GENERIC:intype := [];
   END_LOCAL;
 
+  IF SIZEOF(the_bag) &gt; 0 THEN
+    REPEAT i := 1 TO HIINDEX(the_bag);
+      the_set := the_set + the_bag[i];
+    END_REPEAT;
+  END_IF;
+  RETURN (the_set);
       </algorithm>
     </function>
 
@@ -5256,6 +5712,17 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <builtintype type="BOOLEAN"
       />
+      <algorithm>
+  IF (&apos;REAL&apos; IN TYPEOF(m)) THEN
+    RETURN (m &gt; 0.000000);
+  ELSE
+    IF (&apos;INTEGER&apos; IN TYPEOF(m)) THEN
+      RETURN (m &gt; 0);
+    ELSE
+      RETURN (TRUE);
+    END_IF;
+  END_IF;
+      </algorithm>
     </function>
 
     <function name="acyclic_product_definition_relationship">
@@ -5264,6 +5731,8 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <parameter name="relatives">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="product_definition"/>
       </parameter>
@@ -5278,6 +5747,16 @@ href="../../../xsl/express.xsl" ?>
     x : SET OF product_definition_relationship;
   END_LOCAL;
 
+  IF relation.relating_product_definition IN relatives THEN
+    RETURN (FALSE);
+  END_IF;
+  x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.relating_product_definition, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;PRODUCT_DEFINITION_RELATIONSHIP.&apos; + &apos;RELATED_PRODUCT_DEFINITION&apos;)) | specific_relation IN TYPEOF(pd));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_product_definition_relationship(x[i], relatives + relation.relating_product_definition, specific_relation) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN (TRUE);
       </algorithm>
     </function>
 
@@ -5288,9 +5767,14 @@ href="../../../xsl/express.xsl" ?>
       <typename name="object_role"/>
       <algorithm>
   LOCAL
-    role_bag : BAG OF role_association;
+    role_bag : BAG OF role_association := (USEDIN(obj, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.&apos; + &apos;ITEM_WITH_ROLE&apos;));
   END_LOCAL;
 
+  IF SIZEOF(role_bag) = 1 THEN
+    RETURN (role_bag[1].role);
+  ELSE
+    RETURN (?);
+  END_IF;
       </algorithm>
     </function>
 
@@ -5311,6 +5795,21 @@ href="../../../xsl/express.xsl" ?>
     local_children : SET OF product_category;
   END_LOCAL;
 
+  REPEAT i := 1 TO HIINDEX(children);
+    IF relation.category :=: children[i] THEN
+      RETURN (FALSE);
+    END_IF;
+  END_REPEAT;
+  x := bag_to_set(USEDIN(relation.category, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;PRODUCT_CATEGORY_RELATIONSHIP.SUB_CATEGORY&apos;));
+  local_children := children + relation.category;
+  IF SIZEOF(x) &gt; 0 THEN
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_product_category_relationship(x[i], local_children) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  RETURN (TRUE);
       </algorithm>
     </function>
 
@@ -5319,13 +5818,16 @@ href="../../../xsl/express.xsl" ?>
         <typename name="direction"/>
       </parameter>
       <aggregate type="LIST"
+        lower="2"
+        upper="2"
       />
       <typename name="direction"/>
       <algorithm>
   LOCAL
-    d : direction;
+    d : direction := NVL(normalise(ref_direction), dummy_gri||direction([1.000000, 0.000000]));
   END_LOCAL;
 
+  RETURN ([d, orthogonal_complement(d)]);
       </algorithm>
     </function>
 
@@ -5343,6 +5845,42 @@ href="../../../xsl/express.xsl" ?>
     mag : REAL;
   END_LOCAL;
 
+  IF NOT EXISTS(arg) THEN
+    result := ?;
+  ELSE
+    ndim := arg.dim;
+    IF &apos;SYSTEM_STRUCTURE_MIM_LF.VECTOR&apos; IN TYPEOF(arg) THEN
+      BEGIN
+        v := dummy_gri||direction(arg.orientation.direction_ratios);
+        IF arg.magnitude = 0.000000 THEN
+          RETURN (?);
+        ELSE
+          vec := dummy_gri||vector(v, 1.000000);
+        END_IF;
+      END;
+    ELSE
+      v := dummy_gri||direction(arg.direction_ratios);
+    END_IF;
+    mag := 0.000000;
+    REPEAT i := 1 TO ndim;
+      mag := mag + v.direction_ratios[i] * v.direction_ratios[i];
+    END_REPEAT;
+    IF mag &gt; 0.000000 THEN
+      mag := SQRT(mag);
+      REPEAT i := 1 TO ndim;
+        v.direction_ratios[i] := v.direction_ratios[i] / mag;
+      END_REPEAT;
+      IF &apos;SYSTEM_STRUCTURE_MIM_LF.VECTOR&apos; IN TYPEOF(arg) THEN
+        vec.orientation := v;
+        result := vec;
+      ELSE
+        result := v;
+      END_IF;
+    ELSE
+      RETURN (?);
+    END_IF;
+  END_IF;
+  RETURN (result);
       </algorithm>
     </function>
 
@@ -5353,9 +5891,14 @@ href="../../../xsl/express.xsl" ?>
       <typename name="identifier"/>
       <algorithm>
   LOCAL
-    id_bag : BAG OF id_attribute;
+    id_bag : BAG OF id_attribute := (USEDIN(obj, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.&apos; + &apos;IDENTIFIED_ITEM&apos;));
   END_LOCAL;
 
+  IF SIZEOF(id_bag) = 1 THEN
+    RETURN (id_bag[1].attribute_value);
+  ELSE
+    RETURN (?);
+  END_IF;
       </algorithm>
     </function>
 
@@ -5367,6 +5910,8 @@ href="../../../xsl/express.xsl" ?>
         <typename name="direction"/>
       </parameter>
       <aggregate type="LIST"
+        lower="3"
+        upper="3"
       />
       <typename name="direction"/>
       <algorithm>
@@ -5375,6 +5920,9 @@ href="../../../xsl/express.xsl" ?>
     d2 : direction;
   END_LOCAL;
 
+  d1 := NVL(normalise(axis), dummy_gri||direction([0.000000, 0.000000, 1.000000]));
+  d2 := first_proj_axis(d1, ref_direction);
+  RETURN ([d2, normalise(cross_product(d1, d2)).orientation, d1]);
       </algorithm>
     </function>
 
@@ -5394,6 +5942,31 @@ href="../../../xsl/express.xsl" ?>
     x_vec : vector;
   END_LOCAL;
 
+  IF (NOT EXISTS(z_axis)) THEN
+    RETURN (?);
+  ELSE
+    z := normalise(z_axis);
+    IF NOT EXISTS(arg) THEN
+      IF ((z.direction_ratios &lt;&gt; [1.000000, 0.000000, 0.000000]) AND (z.direction_ratios &lt;&gt; [ - 1.000000, 0.000000, 0.000000])) THEN
+        v := dummy_gri||direction([1.000000, 0.000000, 0.000000]);
+      ELSE
+        v := dummy_gri||direction([0.000000, 1.000000, 0.000000]);
+      END_IF;
+    ELSE
+      IF (arg.dim &lt;&gt; 3) THEN
+        RETURN (?);
+      END_IF;
+      IF ((cross_product(arg, z).magnitude) = 0.000000) THEN
+        RETURN (?);
+      ELSE
+        v := normalise(arg);
+      END_IF;
+    END_IF;
+    x_vec := scalar_times_vector(dot_product(v, z), z);
+    x_axis := vector_difference(v, x_vec).orientation;
+    x_axis := normalise(x_axis);
+  END_IF;
+  RETURN (x_axis);
       </algorithm>
     </function>
 
@@ -5409,11 +5982,30 @@ href="../../../xsl/express.xsl" ?>
   LOCAL
     mag : REAL;
     res : direction;
-    v1 : LIST OF REAL;
-    v2 : LIST OF REAL;
+    v1 : LIST [3:3] OF REAL;
+    v2 : LIST [3:3] OF REAL;
     result : vector;
   END_LOCAL;
 
+  IF (NOT EXISTS(arg1) OR (arg1.dim = 2)) OR (NOT EXISTS(arg2) OR (arg2.dim = 2)) THEN
+    RETURN (?);
+  ELSE
+    BEGIN
+      v1 := normalise(arg1).direction_ratios;
+      v2 := normalise(arg2).direction_ratios;
+      res := dummy_gri||direction([(v1[2] * v2[3] - v1[3] * v2[2]), (v1[3] * v2[1] - v1[1] * v2[3]), (v1[1] * v2[2] - v1[2] * v2[1])]);
+      mag := 0.000000;
+      REPEAT i := 1 TO 3;
+        mag := mag + res.direction_ratios[i] * res.direction_ratios[i];
+      END_REPEAT;
+      IF (mag &gt; 0.000000) THEN
+        result := dummy_gri||vector(res, SQRT(mag));
+      ELSE
+        result := dummy_gri||vector(arg1, 0.000000);
+      END_IF;
+      RETURN (result);
+    END;
+  END_IF;
       </algorithm>
     </function>
 
@@ -5433,6 +6025,25 @@ href="../../../xsl/express.xsl" ?>
     result : vector;
   END_LOCAL;
 
+  IF NOT EXISTS(scalar) OR NOT EXISTS(vec) THEN
+    RETURN (?);
+  ELSE
+    IF &apos;SYSTEM_STRUCTURE_MIM_LF.VECTOR&apos; IN TYPEOF(vec) THEN
+      v := dummy_gri||direction(vec.orientation.direction_ratios);
+      mag := scalar * vec.magnitude;
+    ELSE
+      v := dummy_gri||direction(vec.direction_ratios);
+      mag := scalar;
+    END_IF;
+    IF (mag &lt; 0.000000) THEN
+      REPEAT i := 1 TO SIZEOF(v.direction_ratios);
+        v.direction_ratios[i] :=  - v.direction_ratios[i];
+      END_REPEAT;
+      mag :=  - mag;
+    END_IF;
+    result := dummy_gri||vector(normalise(v), mag);
+  END_IF;
+  RETURN (result);
       </algorithm>
     </function>
 
@@ -5453,6 +6064,24 @@ href="../../../xsl/express.xsl" ?>
     ndim : INTEGER;
   END_LOCAL;
 
+  IF NOT EXISTS(arg1) OR NOT EXISTS(arg2) THEN
+    scalar := ?;
+  ELSE
+    IF (arg1.dim &lt;&gt; arg2.dim) THEN
+      scalar := ?;
+    ELSE
+      BEGIN
+        vec1 := normalise(arg1);
+        vec2 := normalise(arg2);
+        ndim := arg1.dim;
+        scalar := 0.000000;
+        REPEAT i := 1 TO ndim;
+          scalar := scalar + vec1.direction_ratios[i] * vec2.direction_ratios[i];
+        END_REPEAT;
+      END;
+    END_IF;
+  END_IF;
+  RETURN (scalar);
       </algorithm>
     </function>
 
@@ -5476,6 +6105,41 @@ href="../../../xsl/express.xsl" ?>
     ndim : INTEGER;
   END_LOCAL;
 
+  IF ((NOT EXISTS(arg1)) OR (NOT EXISTS(arg2))) OR (arg1.dim &lt;&gt; arg2.dim) THEN
+    RETURN (?);
+  ELSE
+    BEGIN
+      IF &apos;SYSTEM_STRUCTURE_MIM_LF.VECTOR&apos; IN TYPEOF(arg1) THEN
+        mag1 := arg1.magnitude;
+        vec1 := arg1.orientation;
+      ELSE
+        mag1 := 1.000000;
+        vec1 := arg1;
+      END_IF;
+      IF &apos;SYSTEM_STRUCTURE_MIM_LF.VECTOR&apos; IN TYPEOF(arg2) THEN
+        mag2 := arg2.magnitude;
+        vec2 := arg2.orientation;
+      ELSE
+        mag2 := 1.000000;
+        vec2 := arg2;
+      END_IF;
+      vec1 := normalise(vec1);
+      vec2 := normalise(vec2);
+      ndim := SIZEOF(vec1.direction_ratios);
+      mag := 0.000000;
+      res := dummy_gri||direction(vec1.direction_ratios);
+      REPEAT i := 1 TO ndim;
+        res.direction_ratios[i] := mag1 * vec1.direction_ratios[i] + mag2 * vec2.direction_ratios[i];
+        mag := mag + (res.direction_ratios[i] * res.direction_ratios[i]);
+      END_REPEAT;
+      IF (mag &gt; 0.000000) THEN
+        result := dummy_gri||vector(res, SQRT(mag));
+      ELSE
+        result := dummy_gri||vector(vec1, 0.000000);
+      END_IF;
+    END;
+  END_IF;
+  RETURN (result);
       </algorithm>
     </function>
 
@@ -5491,6 +6155,22 @@ href="../../../xsl/express.xsl" ?>
     dim : dimension_count;
   END_LOCAL;
 
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.CARTESIAN_POINT&apos; IN TYPEOF(item) THEN
+    dim := SIZEOF(item\cartesian_point.coordinates);
+    RETURN (dim);
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.DIRECTION&apos; IN TYPEOF(item) THEN
+    dim := SIZEOF(item\direction.direction_ratios);
+    RETURN (dim);
+  END_IF;
+  IF &apos;SYSTEM_STRUCTURE_MIM_LF.VECTOR&apos; IN TYPEOF(item) THEN
+    dim := SIZEOF(item\vector.orientation\direction.direction_ratios);
+    RETURN (dim);
+  END_IF;
+  x := using_representations(item);
+  y := x[1].context_of_items;
+  dim := y\geometric_representation_context.coordinate_space_dimension;
+  RETURN (dim);
       </algorithm>
     </function>
 
@@ -5509,16 +6189,45 @@ href="../../../xsl/express.xsl" ?>
         <typename name="direction"/>
       </parameter>
       <aggregate type="LIST"
+        lower="2"
+        upper="3"
       />
       <typename name="direction"/>
       <algorithm>
   LOCAL
-    u : LIST OF direction;
+    u : LIST [2:3] OF direction;
     factor : REAL;
     d1 : direction;
     d2 : direction;
   END_LOCAL;
 
+  IF (dim = 3) THEN
+    d1 := NVL(normalise(axis3), dummy_gri||direction([0.000000, 0.000000, 1.000000]));
+    d2 := first_proj_axis(d1, axis1);
+    u := [d2, second_proj_axis(d1, d2, axis2), d1];
+  ELSE
+    IF EXISTS(axis1) THEN
+      d1 := normalise(axis1);
+      u := [d1, orthogonal_complement(d1)];
+      IF EXISTS(axis2) THEN
+        factor := dot_product(axis2, u[2]);
+        IF (factor &lt; 0.000000) THEN
+          u[2].direction_ratios[1] :=  - u[2].direction_ratios[1];
+          u[2].direction_ratios[2] :=  - u[2].direction_ratios[2];
+        END_IF;
+      END_IF;
+    ELSE
+      IF EXISTS(axis2) THEN
+        d1 := normalise(axis2);
+        u := [orthogonal_complement(d1), d1];
+        u[1].direction_ratios[1] :=  - u[1].direction_ratios[1];
+        u[1].direction_ratios[2] :=  - u[1].direction_ratios[2];
+      ELSE
+        u := [dummy_gri||direction([1.000000, 0.000000]), dummy_gri||direction([0.000000, 1.000000])];
+      END_IF;
+    END_IF;
+  END_IF;
+  RETURN (u);
       </algorithm>
     </function>
 
@@ -5540,6 +6249,17 @@ href="../../../xsl/express.xsl" ?>
     temp : vector;
   END_LOCAL;
 
+  IF NOT EXISTS(arg) THEN
+    v := dummy_gri||direction([0.000000, 1.000000, 0.000000]);
+  ELSE
+    v := arg;
+  END_IF;
+  temp := scalar_times_vector(dot_product(v, z_axis), z_axis);
+  y_axis := vector_difference(v, temp);
+  temp := scalar_times_vector(dot_product(v, x_axis), x_axis);
+  y_axis := vector_difference(y_axis, temp);
+  y_axis := normalise(y_axis);
+  RETURN (y_axis.orientation);
       </algorithm>
     </function>
 
@@ -5549,6 +6269,15 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <builtintype type="BOOLEAN"
       />
+      <algorithm>
+  BEGIN
+    IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY(i1 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.MEASURE_REPRESENTATION_ITEM&apos; IN TYPEOF(i1)))) = 2) OR (SIZEOF(QUERY(i2 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.VALUE_REPRESENTATION_ITEM&apos; IN TYPEOF(i2)))) = 2)) THEN
+      RETURN (TRUE);
+    ELSE
+      RETURN (FALSE);
+    END_IF;
+  END;
+      </algorithm>
     </function>
 
     <function name="value_range_wr2">
@@ -5557,6 +6286,15 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <builtintype type="BOOLEAN"
       />
+      <algorithm>
+  BEGIN
+    IF (SIZEOF(QUERY(i &lt;* agg | (i.name = &apos;upper limit&apos;))) = 1) AND (SIZEOF(QUERY(i &lt;* agg | (i.name = &apos;lower limit&apos;))) = 1) THEN
+      RETURN (TRUE);
+    ELSE
+      RETURN (FALSE);
+    END_IF;
+  END;
+      </algorithm>
     </function>
 
     <function name="value_range_wr3">
@@ -5565,6 +6303,15 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <builtintype type="BOOLEAN"
       />
+      <algorithm>
+  BEGIN
+    IF (SIZEOF(QUERY(i1 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.MEASURE_REPRESENTATION_ITEM&apos; IN TYPEOF(i1)) AND (SIZEOF(QUERY(i2 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.MEASURE_REPRESENTATION_ITEM&apos; IN TYPEOF(i2)) AND (i1 :&lt;&gt;: i2) AND (i1\measure_with_unit.unit_component :=: i2\measure_with_unit.unit_component))) = 1))) = 2) THEN
+      RETURN (TRUE);
+    ELSE
+      RETURN (FALSE);
+    END_IF;
+  END;
+      </algorithm>
     </function>
 
     <function name="dimensions_for_si_unit">
@@ -5572,6 +6319,68 @@ href="../../../xsl/express.xsl" ?>
         <typename name="si_unit_name"/>
       </parameter>
       <typename name="dimensional_exponents"/>
+      <algorithm>
+  CASE n OF 
+    metre:
+      RETURN (dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    gram:
+      RETURN (dimensional_exponents(0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    second:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    ampere:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000));
+    kelvin:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000));
+    mole:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000));
+    candela:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
+    radian:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    steradian:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    hertz:
+      RETURN (dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    newton:
+      RETURN (dimensional_exponents(1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    pascal:
+      RETURN (dimensional_exponents( - 1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    joule:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    watt:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    coulomb:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 1.000000, 1.000000, 0.000000, 0.000000, 0.000000));
+    volt:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
+    farad:
+      RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 1.000000, 0.000000, 0.000000, 0.000000));
+    ohm:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
+    siemens:
+      RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 3.000000, 2.000000, 0.000000, 0.000000, 0.000000));
+    weber:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
+    tesla:
+      RETURN (dimensional_exponents(0.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
+    henry:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
+    degree_Celsius:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000));
+    lumen:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
+    lux:
+      RETURN (dimensional_exponents( - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
+    becquerel:
+      RETURN (dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    gray:
+      RETURN (dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    sievert:
+      RETURN (dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    OTHERWISE:
+      RETURN (?);
+  END_CASE;
+      </algorithm>
     </function>
 
     <function name="acyclic_representation_relationship">
@@ -5580,6 +6389,8 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <parameter name="relatives">
         <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
         <typename name="representation"/>
       </parameter>
@@ -5594,6 +6405,16 @@ href="../../../xsl/express.xsl" ?>
     x : SET OF representation_relationship;
   END_LOCAL;
 
+  IF relation.rep_1 IN relatives THEN
+    RETURN (FALSE);
+  END_IF;
+  x := QUERY(r &lt;* bag_to_set(USEDIN(relation.rep_1, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;REPRESENTATION_RELATIONSHIP.&apos; + &apos;REP_2&apos;)) | specific_relation IN TYPEOF(r));
+  REPEAT i := 1 TO HIINDEX(x);
+    IF NOT acyclic_representation_relationship(x[i], relatives + relation.rep_1, specific_relation) THEN
+      RETURN (FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN (TRUE);
       </algorithm>
     </function>
 
@@ -5616,6 +6437,27 @@ href="../../../xsl/express.xsl" ?>
     y : SET OF representation_item;
   END_LOCAL;
 
+  x := QUERY(z &lt;* children_set | &apos;SYSTEM_STRUCTURE_MIM_LF.MAPPED_ITEM&apos; IN TYPEOF(z));
+  IF SIZEOF(x) &gt; 0 THEN
+    REPEAT i := 1 TO HIINDEX(x);
+      IF x[i]\mapped_item.mapping_source.mapped_representation IN parent_set THEN
+        RETURN (FALSE);
+      END_IF;
+      IF NOT acyclic_mapped_representation(parent_set + x[i]\mapped_item.mapping_source.mapped_representation, x[i]\mapped_item.mapping_source.mapped_representation.items) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  x := children_set - x;
+  IF SIZEOF(x) &gt; 0 THEN
+    REPEAT i := 1 TO HIINDEX(x);
+      y := QUERY(z &lt;* bag_to_set(USEDIN(x[i], &apos;&apos;)) | &apos;SYSTEM_STRUCTURE_MIM_LF.REPRESENTATION_ITEM&apos; IN TYPEOF(z));
+      IF NOT acyclic_mapped_representation(parent_set, y) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  END_IF;
+  RETURN (TRUE);
       </algorithm>
     </function>
 
@@ -5633,6 +6475,19 @@ href="../../../xsl/express.xsl" ?>
     y : BAG OF representation_item;
   END_LOCAL;
 
+  IF SIZEOF(USEDIN(item, &apos;SYSTEM_STRUCTURE_MIM_LF.REPRESENTATION.ITEMS&apos;) * cntxt.representations_in_context) &gt; 0 THEN
+    RETURN (TRUE);
+  ELSE
+    y := QUERY(z &lt;* USEDIN(item, &apos;&apos;) | &apos;SYSTEM_STRUCTURE_MIM_LF.REPRESENTATION_ITEM&apos; IN TYPEOF(z));
+    IF SIZEOF(y) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(y);
+        IF item_in_context(y[i], cntxt) THEN
+          RETURN (TRUE);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+  END_IF;
+  RETURN (FALSE);
       </algorithm>
     </function>
 
@@ -5653,6 +6508,22 @@ href="../../../xsl/express.xsl" ?>
       </parameter>
       <builtintype type="LOGICAL"
       />
+      <algorithm>
+  IF ((NOT EXISTS(the_type)) OR (NOT ({0 &lt;= criterion &lt;= 3})) OR (SIZEOF(sub_names) = 0)) THEN
+    RETURN (UNKNOWN);
+  ELSE
+    CASE criterion OF 
+      0:
+        RETURN (SIZEOF(sub_names * TYPEOF(the_type)) &gt; 0);
+      1:
+        RETURN (SIZEOF(sub_names * TYPEOF(the_type)) = 0);
+      2:
+        RETURN (SIZEOF(sub_names * TYPEOF(the_type)) = 1);
+      3:
+        RETURN (SIZEOF(sub_names * TYPEOF(the_type)) &lt;= 1);
+    END_CASE;
+  END_IF;
+      </algorithm>
     </function>
 
     <function name="dependently_instantiated">
@@ -5682,58 +6553,99 @@ href="../../../xsl/express.xsl" ?>
   LOCAL
     number_of_input_instances : INTEGER;
     number_of_referring_instances : INTEGER;
-    bag_of_referring_instances : BAG OF GENERIC:igen;
+    bag_of_referring_instances : BAG OF GENERIC:igen := [];
     dependently_instantiated_flag : BOOLEAN;
-    previous_in_chain_plus : LIST OF GENERIC:cgen;
-    result : BOOLEAN;
-    set_of_types : SET OF STRING;
+    previous_in_chain_plus : LIST OF GENERIC:cgen := [];
+    result : BOOLEAN := TRUE;
+    set_of_types : SET OF STRING := [];
   END_LOCAL;
 
+  IF EXISTS(set_of_input_instances) THEN
+    number_of_input_instances := SIZEOF(set_of_input_instances);
+    set_of_input_types := set_of_input_types + &apos;GENERIC&apos;;
+    REPEAT i := 1 TO number_of_input_instances;
+      bag_of_referring_instances := USEDIN(set_of_input_instances[i], &apos;&apos;);
+      IF EXISTS(bag_of_referring_instances) THEN
+        number_of_referring_instances := SIZEOF(bag_of_referring_instances);
+        dependently_instantiated_flag := FALSE;
+        REPEAT j := 1 TO number_of_referring_instances;
+          set_of_types := TYPEOF(bag_of_referring_instances[j]);
+          IF set_of_types &lt;= set_of_input_types THEN
+            IF NOT (bag_of_referring_instances[j] IN previous_in_chain) THEN
+              previous_in_chain_plus := previous_in_chain + set_of_input_instances[i];
+              IF dependently_instantiated([bag_of_referring_instances[j]], set_of_input_types, previous_in_chain_plus) THEN
+                dependently_instantiated_flag := TRUE;
+                ESCAPE;
+              ELSE
+                SKIP;
+              END_IF;
+            END_IF;
+          ELSE
+            dependently_instantiated_flag := TRUE;
+            ESCAPE;
+          END_IF;
+        END_REPEAT;
+        IF NOT dependently_instantiated_flag THEN
+          RETURN (FALSE);
+        END_IF;
+      ELSE
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  ELSE
+    RETURN (FALSE);
+  END_IF;
+  RETURN (TRUE);
       </algorithm>
     </function>
 
     <rule name="compatible_dimension"
-      appliesto="">
+      appliesto="cartesian_point direction representation_context geometric_representation_context">
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(QUERY(x &lt;* cartesian_point | SIZEOF(QUERY(y &lt;* geometric_representation_context | item_in_context(x, y) AND (HIINDEX(x.coordinates) &lt;&gt; y.coordinate_space_dimension))) &gt; 0)) = 0">
       </where>
       <where
         label="WR2"
-        expression="">
+        expression="SIZEOF(QUERY(x &lt;* direction | SIZEOF(QUERY(y &lt;* geometric_representation_context | item_in_context(x, y) AND (HIINDEX(x.direction_ratios) &lt;&gt; y.coordinate_space_dimension))) &gt; 0)) = 0">
       </where>
     </rule>
 
     <rule name="subtype_exclusiveness_representation_item"
-      appliesto="">
+      appliesto="representation_item">
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(QUERY(cri &lt;* representation_item | NOT (type_check_function(cri, [&apos;SYSTEM_STRUCTURE_MIM_LF.MEASURE_REPRESENTATION_ITEM&apos;, &apos;SYSTEM_STRUCTURE_MIM_LF.VALUE_REPRESENTATION_ITEM&apos;, &apos;SYSTEM_STRUCTURE_MIM_LF.COMPOUND_REPRESENTATION_ITEM&apos;], 3)))) = 0">
       </where>
     </rule>
 
     <rule name="restrict_language_assignment_per_attribute"
-      appliesto="">
+      appliesto="attribute_language_assignment">
       <where
         label="WR1"
-        expression="">
+        expression="SIZEOF(QUERY(ala1 &lt;* attribute_language_assignment | SIZEOF(QUERY(it &lt;* ala1.items | SIZEOF(QUERY(ala2 &lt;* USEDIN(it, &apos;SYSTEM_STRUCTURE_MIM_LF.ATTRIBUTE_LANGUAGE_ASSIGNMENT.ITEMS&apos;) | (ala1\attribute_classification_assignment.attribute_name = ala2\attribute_classification_assignment.attribute_name) AND (ala1\attribute_classification_assignment.assigned_class :=: ala2\attribute_classification_assignment.assigned_class))) &gt; 1)) &gt; 0)) = 0">
       </where>
     </rule>
 
     <rule name="validate_dependently_instantiable_entity_data_types"
-      appliesto="">
+      appliesto="application_context application_context_element attribute_value_role cartesian_transformation_operator classification_role contract_type definitional_representation document_type document_usage_constraint elementary_surface event_occurrence_role local_time placement point product_context product_definition_context_role product_definition_effectivity">
       <algorithm>
   LOCAL
     number_of_input_instances : INTEGER;
-    previous_in_chain : LIST OF GENERIC;
-    set_of_input_types : SET OF STRING;
-    all_instances : SET OF GENERIC;
+    previous_in_chain : LIST OF GENERIC := [];
+    set_of_input_types : SET OF STRING := [];
+    all_instances : SET OF GENERIC := [];
   END_LOCAL;
 
+  all_instances := ;
+  number_of_input_instances := SIZEOF(all_instances);
+  REPEAT i := 1 TO number_of_input_instances;
+    set_of_input_types := set_of_input_types + TYPEOF(all_instances[i]);
+  END_REPEAT;
       </algorithm>
       <where
         label="WR1"
-        expression="">
+        expression="dependently_instantiated(all_instances, set_of_input_types, previous_in_chain)">
       </where>
     </rule>
 

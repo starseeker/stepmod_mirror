@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.3 2007/03/06 18:30:15 mikeward Exp $
+   $Id: mim.exp,v 1.4 2007/03/06 21:14:03 mikeward Exp $
   ISO TC184/SC4/WG3 N - ISO/WD 10303-1371 State based behaviour - EXPRESS MIM
 *) 
 
@@ -14,13 +14,14 @@ USE FROM Activity_method_mim;    -- ISO/TS 10303-1049
 USE FROM Alias_identification_mim;    -- ISO/TS 10303-1025
 
 USE FROM basic_attribute_schema   -- ISO 10303-41
-  (description_attribute); 
+  (description_attribute,
+   description_attribute_select); 
 
-USE FROM Behaviour_description_assignment_mim;    -- ISO/WD 10303-1483
+USE FROM Behaviour_description_assignment_mim;    -- ISO/CD-TS 10303-xxxx
 
-USE FROM Behaviour_identification_and_version_mim;    -- ISO/CD-TS 10303-1482
+USE FROM Behaviour_identification_and_version_mim;    -- ISO/CD-TS 10303-xxxx
 
-USE FROM Behaviour_view_definition_mim;    -- ISO/CD-TS 10303-1481
+USE FROM Behaviour_view_definition_mim;    -- ISO/CD-TS 10303-xxxx
 
 USE FROM Class_mim;    -- ISO/TS 10303-1070
 
@@ -97,7 +98,6 @@ USE FROM Textual_expression_representation_mim;    -- ISO/CD-TS 10303-1367
 
 USE FROM Value_with_unit_mim;    -- ISO/TS 10303-1054
 
-
 TYPE sbb_assignment_target_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON assignment_target_select WITH 
    (condition);
 END_TYPE; 
@@ -125,10 +125,82 @@ TYPE sbb_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classif
     state_type_relationship);
 END_TYPE; 
 
-TYPE sbb_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH 
-   (parameter_value_select, 
+
+TYPE sbb_pmri_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+	(conversion_based_unit,
+	derived_unit,
+	external_class_library,
+	applied_external_identification_assignment,
+	applied_external_identification_assignment,
+	product_definition_formation_relationship);
+END_TYPE;
+
+TYPE sbb_ss_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+	(property_definition);
+END_TYPE;
+
+TYPE sbb_condition_action_method_items = SELECT BASED_ON condition_action_method_items WITH
+  (state_type_relationship);
+END_TYPE;
+
+
+TYPE sbb_ss_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH
+	(property_definition,
+	state_type,
+	state_type_relationship);
+END_TYPE;
+
+(*TYPE sbb2_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH 
+   (parameter_value_select);
+END_TYPE;*) 
+
+TYPE sbb_pmri_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH
+	(applied_classification_assignment,
+	applied_identification_assignment,
+	property_definition_representation,
+	product,
+	product_related_product_category,
+	product_definition_formation,
+	product_definition,
+	representation);
+END_TYPE;
+
+TYPE sbb3_ss_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH
+	(action_method,
+	property_definition,
+	property_definition_representation,
+	state_type);
+END_TYPE;
+
+
+(*TYPE sbb_description_item = SELECT BASED_ON description_item WITH
+   (action_method, 
+    behaviour, 
+    behaviour_definition, 
+    behaviour_definition_formation, 
+    condition, 
+    general_model_parameter, 
+    product, 
+    product_definition, 
+    product_definition_formation, 
+    representation, 
+    state_based_behaviour_model, 
+    state_type, 
     state_type_relationship);
-END_TYPE; 
+END_TYPE; *)
+
+(*TYPE sbb_ap233_description_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON description_item WITH
+	(behaviour_model);
+END_TYPE;*)
+
+(*TYPE sbb_expression_assignment_item = SELECT BASED_ON expression_assignment_item WITH
+  (condition);
+END_TYPE;*)
+
+TYPE sbb_ap233_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH
+	(product);
+END_TYPE;
+
 
 TYPE sbb_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH 
    (action_method, 
@@ -146,17 +218,133 @@ TYPE sbb_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identif
     state_type_relationship);
 END_TYPE; 
 
+TYPE sbb_pmri_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH
+	(document_file,
+	external_class_library,
+	applied_external_identification_assignment,
+	document_file,
+	general_property,
+	general_property_relationship,
+	product_category,
+	representation,
+	product_definition_context);
+END_TYPE;
+
+TYPE sbb_ss_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH
+	(state_type,
+	state_type_relationship);
+END_TYPE;
+
+TYPE sbb_ap233_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH
+	(state_type_assignment);
+END_TYPE;
+
+
 TYPE sbb_parameter_value_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON parameter_value_select WITH 
    (product_definition);
 END_TYPE; 
 
-TYPE sbb_state_type_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_type_of_item WITH 
-   (product_definition);
-END_TYPE; 
+TYPE sbb_ap233_parameter_value_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON parameter_value_select WITH
+	(representation,
+	representation_item,
+	state_type);
+END_TYPE;
+
+(*TYPE sbb_property_assignment_select = SELECT BASED_ON property_assignment_select WITH
+  (Activity_method,
+   Behaviour_view_definition,
+   Product_view_definition);
+END_TYPE;
+
+is captured by:*)
 
 ENTITY characterized_action_method
   SUBTYPE OF (action_method, characterized_object);
 END_ENTITY;
 
-END_SCHEMA;  -- State_based_behaviour_mim
+ENTITY characterized_behaviour_definition
+  SUBTYPE OF (behaviour_definition, characterized_object);
+END_ENTITY;
 
+ENTITY characterized_product_definition
+  SUBTYPE OF (characterized_object, product_definition);
+END_ENTITY;
+
+(*TYPE sbb_ap233_property_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH
+	(property_definition,
+	applied_action_method_assignment,
+	generic_expression,
+	general_property,
+	general_property_relationship,
+	product,
+	product_category,
+	product_definition_formation,
+	product_definition_formation_relationship,
+	property_definition_representation,
+	representation,
+	representation_context,
+	representation_item);
+END_TYPE;
+
+is captured by:*)
+
+
+ENTITY characterized_property_definition
+  SUBTYPE OF (characterized_object, property_definition);
+END_ENTITY;
+
+ENTITY characterized_applied_action_method_assignment
+  SUBTYPE OF (characterized_object, applied_action_method_assignment);
+END_ENTITY;
+
+ENTITY characterized_generic_expression	
+  SUBTYPE OF (characterized_object, generic_expression);
+END_ENTITY;
+
+ENTITY characterized_general_property
+  SUBTYPE OF (characterized_object, general_property);
+END_ENTITY;
+
+ENTITY characterized_general_property_relationship
+  SUBTYPE OF (characterized_object, general_property_relationship);
+END_ENTITY;
+
+ENTITY characterized_product
+  SUBTYPE OF (characterized_object, product);
+END_ENTITY;
+
+ENTITY characterized_product_category
+  SUBTYPE OF (characterized_object, product_category);
+END_ENTITY;
+
+ENTITY characterized_product_definition_formation
+  SUBTYPE OF (characterized_object, product_definition_formation);
+END_ENTITY;
+
+ENTITY characterized_product_definition_formation_relationship
+  SUBTYPE OF (characterized_object, product_definition_formation_relationship);
+END_ENTITY;
+
+ENTITY characterized_property_definition_representation
+  SUBTYPE OF (characterized_object, property_definition_representation);
+END_ENTITY;
+
+ENTITY characterized_representation
+  SUBTYPE OF (characterized_object, representation);
+END_ENTITY;
+
+ENTITY characterized_representation_context
+  SUBTYPE OF (characterized_object, representation_context);
+END_ENTITY;
+
+ENTITY characterized_representation_item
+  SUBTYPE OF (characterized_object, representation_item);
+END_ENTITY;
+
+
+TYPE sbb_state_type_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_type_of_item WITH 
+   (product_definition);
+END_TYPE; 
+
+
+END_SCHEMA;  -- State_based_behaviour_mim

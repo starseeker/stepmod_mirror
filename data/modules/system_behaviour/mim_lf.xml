@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mim_lf.xml,v 1.1 2006/03/22 22:56:27 philsp Exp $ -->
+<!-- $Id: mim_lf.xml,v 1.2 2007/03/03 22:04:26 abhpf Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 <express
    language_version="2"
-   rcs.date="$Date: 2006/03/22 22:56:27 $"
-   rcs.revision="$Revision: 1.1 $">
+   rcs.date="$Date: 2007/03/03 22:04:26 $"
+   rcs.revision="$Revision: 1.2 $">
+
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
-    version="1, 3, 29, 37"
-    source="SbMimLF.exp"/>
-
+    version="1, 3, 30, 37"
+    source="SbMim3LF.exp"/>
+    
   <schema name="System_behaviour_mim_LF">
-    <type name="external_identification_item">
-      <select
-        selectitems="document_file product product_definition"
-      />
-    </type>
-
     <type name="text_based_item_select">
       <select
         selectitems="included_text_based_representation textual_expression_composition textual_expression_representation_item"
@@ -45,6 +40,12 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
+    <type name="external_identification_item">
+      <select
+        selectitems="document_file product product_definition"
+      />
+    </type>
+
     <type name="state_type_of_item">
       <select
         selectitems="product_definition"
@@ -59,7 +60,7 @@ href="../../../xsl/express.xsl" ?>
 
     <type name="parameter_value_select">
       <select
-        selectitems="generic_expression measure_with_unit product_definition"
+        selectitems="generic_expression measure_with_unit product_definition representation representation_item state_type"
       />
     </type>
 
@@ -71,7 +72,7 @@ href="../../../xsl/express.xsl" ?>
 
     <type name="groupable_item">
       <select
-        selectitems="behaviour_definition generic_expression named_variable_semantics parameter_value_representation_item parameter_value_select state_based_behaviour_model state_based_behaviour_representation_item state_type state_type_relationship"
+        selectitems="behaviour_definition functional_model generic_expression named_variable_semantics parameter_value_representation_item parameter_value_select state_based_behaviour_model state_based_behaviour_representation_item state_type state_type_relationship"
       />
       <where
         label="WR1"
@@ -87,7 +88,7 @@ href="../../../xsl/express.xsl" ?>
 
     <type name="action_method_items">
       <select
-        selectitems="action_method action_method_relationship action_resource action_resource_relationship action_resource_requirement action_resource_requirement_relationship applied_action_method_assignment applied_classification_assignment applied_identification_assignment condition document_file group parameter_value_select product product_definition product_definition_formation product_definition_formation_relationship product_related_product_category property_definition property_definition_representation representation resource_property resource_property_representation state_type state_type_relationship task_element task_element_relationship task_step"
+        selectitems="action_method action_method_relationship action_resource action_resource_relationship action_resource_requirement action_resource_requirement_relationship applied_action_method_assignment applied_classification_assignment applied_identification_assignment condition document_file group parameter_value_select product product_definition product_definition_formation product_definition_formation_relationship product_related_product_category property_definition property_definition_representation representation resource_property resource_property_representation state_type state_type_relationship task_element task_element_relationship task_io_hierarchy task_step"
       />
     </type>
 
@@ -316,28 +317,13 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <entity name="action_resource_requirement_relationship"
+    <entity name="descriptive_representation_item"
+      supertypes="representation_item"
     >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
       <explicit
         name="description">
         <typename name="text"/>
       </explicit>
-      <explicit
-        name="relating_action_resource_requirement">
-        <typename name="action_resource_requirement"/>
-      </explicit>
-      <explicit
-        name="related_action_resource_requirement">
-        <typename name="action_resource_requirement"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="">
-      </where>
     </entity>
 
     <entity name="characterized_behaviour_definition"
@@ -514,6 +500,7 @@ href="../../../xsl/express.xsl" ?>
 
     <entity name="task_element"
       supertypes="action_method"
+      super.expression="ONEOF(concurrent_task_element, end_task, exit_loop, looping_element, task_element_sequence, task_step)"
     >
     </entity>
 
@@ -1600,9 +1587,28 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="characterized_action_method"
-      supertypes="action_method characterized_object"
+    <entity name="action_resource_requirement_relationship"
     >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="relating_action_resource_requirement">
+        <typename name="action_resource_requirement"/>
+      </explicit>
+      <explicit
+        name="related_action_resource_requirement">
+        <typename name="action_resource_requirement"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="">
+      </where>
     </entity>
 
     <entity name="requirement_for_action_resource"
@@ -1693,13 +1699,9 @@ href="../../../xsl/express.xsl" ?>
       </where>
     </entity>
 
-    <entity name="descriptive_representation_item"
-      supertypes="representation_item"
+    <entity name="characterized_action_method"
+      supertypes="action_method characterized_object"
     >
-      <explicit
-        name="description">
-        <typename name="text"/>
-      </explicit>
     </entity>
 
     <entity name="compound_representation_item"
@@ -1752,6 +1754,112 @@ href="../../../xsl/express.xsl" ?>
         label="WR1"
         expression="">
       </where>
+    </entity>
+
+    <entity name="task_io"
+    >
+    </entity>
+
+    <entity name="task_io_hierarchy"
+    >
+    </entity>
+
+    <entity name="task_step_hierarchy"
+    >
+    </entity>
+
+    <entity name="global_unit_assigned_context"
+      supertypes="representation_context"
+    >
+      <explicit
+        name="units">
+        <aggregate type="SET"
+        />
+        <typename name="unit"/>
+      </explicit>
+    </entity>
+
+    <entity name="global_uncertainty_assigned_context"
+      supertypes="representation_context"
+    >
+      <explicit
+        name="uncertainty">
+        <aggregate type="SET"
+        />
+        <typename name="uncertainty_measure_with_unit"/>
+      </explicit>
+    </entity>
+
+    <entity name="representation_relationship"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="rep_1">
+        <typename name="representation"/>
+      </explicit>
+      <explicit
+        name="rep_2">
+        <typename name="representation"/>
+      </explicit>
+    </entity>
+
+    <entity name="uncertainty_measure_with_unit"
+      supertypes="measure_with_unit"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="">
+      </where>
+    </entity>
+
+    <entity name="functional_model"
+      supertypes="representation"
+    >
+      <explicit
+        name="context_of_items">
+        <typename name="functional_representation_context"/>
+        <redeclaration
+          entity-ref="representation"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+        />
+        <typename name="functional_representation_item"/>
+        <redeclaration
+          entity-ref="representation"/>
+      </explicit>
+    </entity>
+
+    <entity name="functional_representation_context"
+      supertypes="representation_context"
+    >
+    </entity>
+
+    <entity name="functional_representation_item"
+      supertypes="representation_item"
+    >
+      <explicit
+        name="item">
+        <typename name="action_method"/>
+      </explicit>
     </entity>
 
     <entity name="identification_assignment"
@@ -2002,67 +2110,6 @@ href="../../../xsl/express.xsl" ?>
         name="represented_document">
         <typename name="document"/>
       </explicit>
-    </entity>
-
-    <entity name="global_unit_assigned_context"
-      supertypes="representation_context"
-    >
-      <explicit
-        name="units">
-        <aggregate type="SET"
-        />
-        <typename name="unit"/>
-      </explicit>
-    </entity>
-
-    <entity name="global_uncertainty_assigned_context"
-      supertypes="representation_context"
-    >
-      <explicit
-        name="uncertainty">
-        <aggregate type="SET"
-        />
-        <typename name="uncertainty_measure_with_unit"/>
-      </explicit>
-    </entity>
-
-    <entity name="representation_relationship"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="rep_1">
-        <typename name="representation"/>
-      </explicit>
-      <explicit
-        name="rep_2">
-        <typename name="representation"/>
-      </explicit>
-    </entity>
-
-    <entity name="uncertainty_measure_with_unit"
-      supertypes="measure_with_unit"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="">
-      </where>
     </entity>
 
     <entity name="binary_generic_expression"
@@ -2884,6 +2931,31 @@ href="../../../xsl/express.xsl" ?>
         label="WR1"
         expression="">
       </where>
+    </entity>
+
+    <entity name="concurrent_task_element"
+      supertypes="task_element"
+    >
+    </entity>
+
+    <entity name="end_task"
+      supertypes="task_element"
+    >
+    </entity>
+
+    <entity name="exit_loop"
+      supertypes="task_element"
+    >
+    </entity>
+
+    <entity name="looping_element"
+      supertypes="task_element"
+    >
+    </entity>
+
+    <entity name="task_element_sequence"
+      supertypes="task_element"
+    >
     </entity>
 
     <entity name="document_product_association"

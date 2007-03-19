@@ -111,13 +111,13 @@ WHERE
 --LK                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] * 
 --LK            TYPEOF(item)) = 1
 --LK       ))) = 0;
-  WR2: SIZEOF (QUERY (item <* SELF\representation.items | 
+  WR1: SIZEOF (QUERY (item <* SELF\representation.items | 
        ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_OCCURRENCE' IN
          TYPEOF (item))
        )) >= 1;
 --LK WRx:  it shall be contained in a presentation_area and it shall not be contained in a representation which is not a presentation_area
 --GP WR3 below is added
-  WR3: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+  WR2: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
                                              'REPRESENTATION_RELATIONSHIP.REP_2') | 
           'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
           TYPEOF (prr\representation_relationship.rep_1))) > 0)
@@ -142,7 +142,7 @@ WHERE
 -- LK: we need to test for the specific subtype presentation_representation_relationship, only this gives the needed direction and fullfils by this the usage requirements          
 -- LK: another issue is about a usage via mapped_item + representation_map
 --GL: Added a new - Require that ALL users are presentation_areas.
-  WR4: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+  WR3: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
                                              'REPRESENTATION_RELATIONSHIP.REP_2') | 
           NOT('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
           TYPEOF (prr\representation_relationship.rep_1)))) = 0)
@@ -163,12 +163,12 @@ WHERE
 
 END_ENTITY;
 
-ENTITY area_in_set; --ok
+ENTITY area_in_set;
   area   : presentation_area;
   in_set : presentation_set;
 END_ENTITY;
 
-ENTITY background_colour --ok
+ENTITY background_colour
   SUBTYPE OF (colour);
   presentation : area_or_view;
 UNIQUE
@@ -184,7 +184,7 @@ WHERE
   --LK      IN TYPEOF (SELF\mapped_item.mapping_source);
   --LK WR2: 'PRESENTATION_RESOURCE_SCHEMA.PLANAR_BOX'
   --LK      IN TYPEOF (SELF\mapped_item.mapping_target);
-  WR3: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM'
+  WR1: 'GEOMETRY_SCHEMA.GEOMETRIC_REPRESENTATION_ITEM'
         IN TYPEOF (SELF);
 END_ENTITY;
 
@@ -372,7 +372,7 @@ UNIQUE
   UR1: assignment, presentation;
 END_ENTITY;
 
-ENTITY presentation_representation --ok
+ENTITY presentation_representation
   SUPERTYPE OF (ONEOF(area_dependent_annotation_representation,
     presentation_area,
     presentation_view,
@@ -395,7 +395,7 @@ WHERE
 --GL: added a new:
 --GL - logic - it has to be either presentation_area or it has to be used by another presentation_representation.
 --GL - requirement that presentation_area has to be used by presentation_set is already captured in WR1 of presentation_area.
-  WR3: ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN TYPEOF (SELF))
+  WR2: ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN TYPEOF (SELF))
     OR
     (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
                                              'REPRESENTATION_RELATIONSHIP.REP_2') | 
@@ -428,9 +428,9 @@ WHERE
 --LK         TYPEOF (SELF\representation_relationship.rep_1);
 --LK  WR2: 'PRESENTATION_DEFINITION_SCHEMA.PRESENTATION_REPRESENTATION' IN
 --LK         TYPEOF (SELF\representation_relationship.rep_2);
-  WR3: acyclic_presentation_representation_relationship (SELF,
+  WR1: acyclic_presentation_representation_relationship (SELF,
          [SELF\representation_relationship.rep_2]);
-  WR4: NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
+  WR2: NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
          TYPEOF (SELF\representation_relationship.rep_1)) 
                  AND
          NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.' +
@@ -438,7 +438,7 @@ WHERE
                        'PRESENTATION_ORGANIZATION_SCHEMA.' +
                        'VIEW_DEPENDENT_ANNOTATION_REPRESENTATION'] *
          TYPEOF (SELF\representation_relationship.rep_2)) = 0));
-  WR5: NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW'
+  WR3: NOT (('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW'
          IN TYPEOF (SELF\representation_relationship.rep_1))
                  AND
        NOT (SIZEOF (['PRESENTATION_ORGANIZATION_SCHEMA.' +
@@ -448,12 +448,12 @@ WHERE
                      'PRESENTATION_ORGANIZATION_SCHEMA.' +
                      'AREA_DEPENDENT_ANNOTATION_REPRESENTATION'] *
               TYPEOF (SELF\representation_relationship.rep_2))=0));
-  WR6: (NOT ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
+  WR4: (NOT ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
          TYPEOF(SELF\representation_relationship.rep_2)))
               XOR
          ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA'IN
          TYPEOF(SELF\representation_relationship.rep_1));
-  WR7: (NOT ('PRESENTATION_ORGANIZATION_SCHEMA.' +
+  WR5: (NOT ('PRESENTATION_ORGANIZATION_SCHEMA.' +
              'PRODUCT_DATA_REPRESENTATION_VIEW' IN
          (TYPEOF(SELF\representation_relationship.rep_1) +
           TYPEOF(SELF\representation_relationship.rep_2))))
@@ -468,7 +468,7 @@ WHERE
 --LK                     transformation_operator);
 END_ENTITY;
 
-ENTITY presentation_set; --ok
+ENTITY presentation_set;
 INVERSE
   areas : SET [1:?] OF area_in_set FOR in_set;
 END_ENTITY;
@@ -518,7 +518,7 @@ WHERE
 --LK                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] *
 --LK                    TYPEOF (item)) = 1
 --LK       ))) = 0;
-  WR2: SIZEOF (QUERY (item <* SELF\representation.items | 
+  WR1: SIZEOF (QUERY (item <* SELF\representation.items | 
        ('PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_IMAGE' IN
         TYPEOF (item))
        )) >= 1;
@@ -527,7 +527,7 @@ WHERE
 --GL 'code' just captures logic 'There should be at least 1 presentatation_view refering it'
 -- Was it meant? Maybe it should restrict and dissalow other types at all?
 -- Must be used by at least one presentatation_view and only be used by presentation_representation which are presentatation_view(s).
-  WR3: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+  WR2: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
                                              'REPRESENTATION_RELATIONSHIP.REP_2') | 
           'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
           TYPEOF (prr\representation_relationship.rep_1))) > 0)
@@ -546,7 +546,7 @@ WHERE
          )) > 0))  
                     > 0);
 -- GL added: Require that ALL users are presentation_views                                        
-  WR4: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+  WR3: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
                                              'REPRESENTATION_RELATIONSHIP.REP_2') | 
           NOT('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
           TYPEOF (prr\representation_relationship.rep_1)))) = 0)
@@ -580,7 +580,7 @@ WHERE
 --LK                     'GEOMETRY_SCHEMA.AXIS2_PLACEMENT'] * 
 --LK            TYPEOF(item)) = 1
 --LK       ))) = 0;
-  WR2: SIZEOF (QUERY (item <* SELF\representation.items |
+  WR1: SIZEOF (QUERY (item <* SELF\representation.items |
        ('PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_OCCURRENCE' IN
         TYPEOF (item))
        )) >= 1;
@@ -588,7 +588,7 @@ WHERE
 --LK Must ensure that it is PLACED (mapped_item or presentation_rep) in a presentation_view
 --GP WR3 below is added for the property stated above
 -- Must be used by at least one presentatation_view and only be used by presentation_representation which are presentatation_view(s).
-  WR3: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+  WR2: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
                                              'REPRESENTATION_RELATIONSHIP.REP_2') | 
           'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
           TYPEOF (prr\representation_relationship.rep_1))) > 0)
@@ -607,7 +607,7 @@ WHERE
          )) > 0))  
                     > 0);
 -- GL added: Require that ALL users are presentation_views                    
-  WR4: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
+  WR3: (SIZEOF (QUERY (prr <* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +
                                              'REPRESENTATION_RELATIONSHIP.REP_2') | 
           NOT('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_VIEW' IN
           TYPEOF (prr\representation_relationship.rep_1)))) = 0)
@@ -652,65 +652,6 @@ WHERE
          )) > 0)
        )) = 0;
 END_RULE;
-
-
---GP function check_root is added
---GL we no longer need it
-(* FUNCTION check_root
-  ( tree_node : presentation_representation ) : BOOLEAN;
-
-  LOCAL
-    x : SET OF presentation_representation_relationship;
-    y : SET OF representation_map;
-    z : SET OF mapped_item;
-    w : SET OF representation;
-    count : INTEGER;
-  END_LOCAL;
-
-  count := 0;
-  x := bag_to_set (USEDIN (tree_node, 'REPRESENTATION_SCHEMA.' + 
-             'REPRESENTATION_RELATIONSHIP.REP_2'));
-  IF SIZEOF (x) > 0 THEN
-    REPEAT i:=1 TO HIINDEX (x);
-       IF NOT check_root(x[i]\representation_relationship.rep_1) THEN
-         RETURN (FALSE);
-       END_IF;
-    END_REPEAT;
-    count := SIZEOF (x);
-  END_IF;
-
-  y := bag_to_set (USEDIN (tree_node, 'REPRESENTATION_SCHEMA.' + 
-           'REPRESENTATION_MAP.MAPPED_REPRESENTATION'));
-  IF SIZEOF (y) > 0 THEN
-    REPEAT i:=1 TO HIINDEX (y);
-       z := bag_to_set (USEDIN (y[i], 'REPRESENTATION_SCHEMA.' + 
-          'MAPPING_ITEM.MAPPING_SOURCE'));
-       IF SIZEOF (z) > 0 THEN
-          REPEAT j:=1 TO HIINDEX (z);
-             w := using_representations(z[j]);
-             IF SIZEOF (w) > 0 THEN
-                REPEAT k:=1 TO HIINDEX (w);
-                   IF (NOT 'PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_REPRESENTATION'
-                         IN TYPEOF (w[k])) OR (NOT check_root(w[k])) THEN
-                      RETURN (FALSE);
-                   END_IF;
-                END_REPEAT;
-                count := count + SIZEOF (w);
-             END_IF;
-          END_REPEAT;
-       END_IF;
-    END_REPEAT;
-  END_IF;
--- if count is positive, then the current node of the tree is not the root node
--- if the current node is root, then its type should be presentation_area
-  IF (count > 0) OR ('PRESENTATION_ORGANIZATION_SCHEMA.PRESENTATION_AREA' IN
-        TYPEOF (tree_node)) THEN
-    RETURN (TRUE);
-  END_IF;
-  RETURN (FALSE);
-
-END_FUNCTION;
-*)
 
 FUNCTION acyclic_presentation_representation_relationship
   ( relation : presentation_representation_relationship;

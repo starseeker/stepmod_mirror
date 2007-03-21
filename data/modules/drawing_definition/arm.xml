@@ -1,13 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id$ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date$"
-   rcs.revision="$Revision$"
-   description.file="arm_descriptions.xml">
-  <schema name="Drawing_definition_arm">
-  </schema>
+
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="drawing_definition_arm schema_instance"/>
+   <schema name="Drawing_definition_arm">
+      <interface kind="use" schema="Presentation_hierarchy_arm"/>
+      <type name="draughting_titled_item">
+         <select selectitems="Drawing Drawing_sheet"/>
+      </type>
+      <entity name="Draughting_title">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="draughting_titled_item"/>
+         </explicit>
+         <explicit name="language">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="contents">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Drawing" supertypes="Presentation_set">
+         <explicit name="revision_identifier">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="drawing_identifier">
+            <typename name="Drawing_definition"/>
+         </explicit>
+         <explicit name="intended_scale" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="revision_identifier"/>
+            <unique.attribute attribute="drawing_identifier"/>
+         </unique>
+      </entity>
+      <entity name="Drawing_definition">
+         <explicit name="drawing_number">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="drawing_type" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Drawing_sequence">
+         <explicit name="predecessor">
+            <typename name="Drawing"/>
+         </explicit>
+         <explicit name="successor">
+            <typename name="Drawing"/>
+         </explicit>
+         <where label="WR1" expression="predecessor :&lt;&gt;: successor"/>
+      </entity>
+      <entity name="Drawing_sheet" supertypes="View_area">
+         <explicit name="revision_identifier">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Drawing_sheet_sequence" supertypes="View_area_relationship">
+         <explicit name="relating">
+            <typename name="Drawing_sheet"/>
+            <redeclaration entity-ref="View_area_relationship"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="Drawing_sheet"/>
+            <redeclaration entity-ref="View_area_relationship"/>
+         </explicit>
+         <where label="WR1" expression="SELF\View_area_relationship.relating :&lt;&gt;: SELF\View_area_relationship.related"/>
+      </entity>
+   </schema>
 </express>

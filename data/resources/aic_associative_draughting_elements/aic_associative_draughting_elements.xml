@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkresource.js,v 1.12 2006/03/11 01:21:31 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../res_doc/xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2006/03/11 01:21:31 $"
-   rcs.revision="$Revision: 1.12 $"
-   reference="ISO 10303-101"
-   description.file="descriptions.xml">
-  <schema name="aic_associative_draughting_elements">
+
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="aic_associative_draughting_elements schema_instance"/>
+   <schema name="aic_associative_draughting_elements">
       <interface kind="use" schema="measure_schema">
          <interfaced.item name="derived_unit"/>
          <interfaced.item name="named_unit"/>
       </interface>
       <interface kind="use" schema="product_property_definition_schema">
+         <interfaced.item name="property_definition"/>
+         <interfaced.item name="shape_aspect"/>
          <interfaced.item name="shape_aspect_relationship"/>
       </interface>
       <interface kind="use" schema="product_property_representation_schema">
@@ -54,6 +51,7 @@ href="../../../res_doc/xsl/express.xsl" ?>
          <interfaced.item name="shape_dimension_representation"/>
       </interface>
       <interface kind="use" schema="draughting_element_schema">
+         <interfaced.item name="annotation_plane"/>
          <interfaced.item name="draughting_callout"/>
          <interfaced.item name="leader_curve"/>
          <interfaced.item name="projection_curve"/>
@@ -64,15 +62,12 @@ href="../../../res_doc/xsl/express.xsl" ?>
       <interface kind="reference" schema="representation_schema">
          <interfaced.item name="using_representations"/>
       </interface>
-      
-      <!-- 
       <type name="aade_annotation_representation_select">
          <select extensible="YES" genericentity="YES" basedon="annotation_representation_select" selectitems="draughting_model"/>
       </type>
       <type name="draughting_model_item_select">
          <select selectitems="mapped_item styled_item axis2_placement camera_model draughting_callout"/>
       </type>
-      
       <entity name="annotation_occurrence_associativity" supertypes="annotation_occurrence_relationship">
          <where label="WR1" expression="SIZEOF (TYPEOF (SELF.related_annotation_occurrence) *&#10;                ['AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.ANNOTATION_FILL_AREA_OCCURRENCE',&#10;                'AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.PROJECTION_CURVE',&#10;                'AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.LEADER_CURVE']) = 1"/>
       </entity>
@@ -94,11 +89,23 @@ href="../../../res_doc/xsl/express.xsl" ?>
          <where label="WR2" expression="SIZEOF (QUERY (smi &lt;* QUERY (si &lt;* QUERY (it &lt;* SELF.items |&#10;                 ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.STYLED_ITEM' IN TYPEOF(it))) |&#10;                 ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.MAPPED_ITEM' IN&#10;                     TYPEOF(si\styled_item.item))) |&#10;                 (NOT (('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.SHAPE_REPRESENTATION' IN&#10;                          TYPEOF(smi\styled_item.item\mapped_item.&#10;                                 mapping_source.mapped_representation))&#10;                     AND&#10;                      (SIZEOF (QUERY (sty &lt;* smi\styled_item.styles |&#10;                        (NOT (SIZEOF (QUERY (psa &lt;* sty.styles |&#10;                               (NOT ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.CURVE_STYLE' IN TYPEOF(psa))))) = 1&#10;                     )))) = 1)))&#10;               )) = 0"/>
       </entity>
       <entity name="shape_aspect_associativity" supertypes="shape_aspect_relationship">
+         <derived name="callouts" expression="get_callouts_for_shape_aspect(SELF.related_shape_aspect)">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="draughting_callout"/>
+         </derived>
          <where label="WR1" expression="SELF.relating_shape_aspect.product_definitional"/>
          <where label="WR2" expression="NOT (SELF.related_shape_aspect.product_definitional)"/>
+         <where label="WR3" expression="(NOT('AIC_DRAUGHTING_ELEMENTS.'+'DATUM_FEATURE_CALLOUT' IN TYPEOF(callouts[1])) OR&#10;       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DATUM_FEATURE' IN TYPEOF(SELF.relating_shape_aspect)))"/>
+         <where label="WR4" expression="(NOT('AIC_DRAUGHTING_ELEMENTS.'+'DATUM_TARGET_CALLOUT' IN TYPEOF(callouts[1])) OR&#10;       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DATUM_TARGET' IN TYPEOF(SELF.relating_shape_aspect)))"/>
+         <where label="WR5" expression="(NOT('AIC_DRAUGHTING_ELEMENTS.'+'ANGULAR_DIMENSION' IN TYPEOF(callouts[1])) OR&#10;       ('SHAPE_DIMENSION_SCHEMA.'+'ANGULAR_SIZE' IN TYPEOF(SELF.relating_shape_aspect)))"/>
+         <where label="WR6" expression="((NOT('AIC_DRAUGHTING_ELEMENTS.'+'CURVE_DIMENSION' IN TYPEOF(callouts[1])) OR&#10;       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF.relating_shape_aspect))) AND&#10;       (SELF.relating_shape_aspect.name = 'curve dimension'))"/>
+         <where label="WR7" expression="((NOT('AIC_DRAUGHTING_ELEMENTS.'+'DIAMETER_DIMENSION' IN TYPEOF(callouts[1])) OR&#10;       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF.relating_shape_aspect))) AND&#10;       (SELF.relating_shape_aspect.name = 'diameter'))"/>
+         <where label="WR8" expression="((NOT('AIC_DRAUGHTING_ELEMENTS.'+'LINEAR_DIMENSION' IN TYPEOF(callouts[1])) OR&#10;       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF.relating_shape_aspect))) AND&#10;       ((SELF.relating_shape_aspect.name = 'heigth') OR &#10;       (SELF.relating_shape_aspect.name = 'length') OR&#10;       (SELF.relating_shape_aspect.name = 'width')))"/>
+         <where label="WR9" expression="((NOT('AIC_DRAUGHTING_ELEMENTS.'+'RADIUS_DIMENSION' IN TYPEOF(callouts[1])) OR&#10;       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF.relating_shape_aspect))) AND&#10;       (SELF.relating_shape_aspect.name = 'radius'))"/>
+         <where label="WR10" expression="(NOT('AIC_DRAUGHTING_ELEMENTS.'+'GEOMETRICAL_TOLERANCE_CALLOUT' IN TYPEOF(callouts[1])) OR&#10;       ('SHAPE_TOLERANCE_SCHEMA.'+'GEOMETRIC_TOLERANCE' IN TYPEOF(SELF.relating_shape_aspect)))"/>
+         <where label="WR11" expression="(NOT('SHAPE_DIMENSION_SCHEMA.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF.relating_shape_aspect)) OR&#10;        (['DRAUGHTING_DIMENSION_SCHEMA.'+'DIMENSION_CALLOUT',&#10;        'DRAUGHTING_ELEMENT_SCHEMA.'+'DIMENSION_CURVE_DIRECTED_CALLOUT',&#10;        'AIC_DRAUGHTING_ELEMENTS.'+'LEADER_DIRECTED_DIMENSION',&#10;        'AIC_DRAUGHTING_ELEMENTS.'+'ORDINATE_DIMENSION',&#10;        'AIC_DRAUGHTING_ELEMENTS.'+'STRUCTURED_DIMENSION_CALLOUT'] IN TYPEOF(callouts[1])))"/>
       </entity>
-       -->
-       <function name="check_associative_shape_aspects">
+      <function name="check_associative_shape_aspects">
          <parameter name="sdr">
             <typename name="shape_definition_representation"/>
          </parameter>
@@ -160,8 +167,46 @@ href="../../../res_doc/xsl/express.xsl" ?>
   END_REPEAT;
   RETURN(FALSE);</algorithm>
       </function>
-      
-            <function name="representations_mapped_into">
+      <function name="get_callouts_for_shape_aspect">
+         <parameter name="sa">
+            <typename name="shape_aspect"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="draughting_callout"/>
+         <algorithm>LOCAL
+    pd      : SET OF property_definition;
+    sdr     : SET OF shape_definition_representation;
+    r       : representation;
+    ri      : representation_item;
+    result  : SET OF draughting_callout;
+  END_LOCAL;
+  -- Find shape_aspect &lt;- property_defintiion
+  pd := bag_to_set(USEDIN(sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                    'PROPERTY_DEFINITION.DEFINITION'));
+  -- Find property_defininition &lt;- shape_description_representation
+  REPEAT i := 1 TO HIINDEX(pd);
+  	sdr := sdr + bag_to_set(QUERY (pdr &lt;* (USEDIN(pd[i], 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +
+                    'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) | 
+		'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+
+		'SHAPE_DEFINITION_REPRESENTATION' IN TYPEOF (pdr)));
+  END_REPEAT;                    
+  
+  -- Find shape_description_representation -&gt; shape_representation -&gt; draughting_callout
+  REPEAT i := 1 TO HIINDEX(sdr);
+    r := sdr[i].used_representation;
+    IF ('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN TYPEOF(r)) THEN
+      REPEAT j := 1 TO HIINDEX(r.items);
+        ri := r.items[j];
+        IF ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT' IN TYPEOF(ri)) THEN
+          result := result + ri;  
+        END_IF;
+      END_REPEAT;                            
+    END_IF;
+  END_REPEAT;                 
+  
+  RETURN(result);</algorithm>
+      </function>
+      <function name="representations_mapped_into">
          <parameter name="rep">
             <typename name="representation"/>
          </parameter>
@@ -187,5 +232,5 @@ href="../../../res_doc/xsl/express.xsl" ?>
   END_REPEAT;
   RETURN(results);</algorithm>
       </function>
-  </schema>
+   </schema>
 </express>

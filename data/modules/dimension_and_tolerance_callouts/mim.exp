@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.4 2006/03/07 17:09:27 thendrix Exp $
+ $Id: mim.exp,v 1.5 2007/03/02 12:23:52 liutkus Exp $
  ISO TC184/SC4/WG12 N4338 - ISO/CD-TS 10303-1362 Dimension and tolerance callouts - EXPRESS MIM
 *) 
 
@@ -39,7 +39,7 @@ END_RULE;
 -- this because if not really requires always a draughting_annotation_occurrence .
 -- GL Note - Rule is not 1:1 taken from AP214. It is only partially reused.
 
-RULE draughting_model_contains_draughting_annotation_occurrence_only FOR (draughting_model);
+RULE draughting_model_items_constraint FOR (draughting_model);
 WHERE
 -- logic - there should be 0 items, which are annotation_occurrences and which are not draughting_annotation_occurrences
    WR1: SIZEOF(QUERY(it1 <* draughting_model.items |
@@ -48,18 +48,13 @@ WHERE
         AND
         NOT('AIC_DRAUGHTING_ANNOTATION.' + 'DRAUGHTING_ANNOTATION_OCCURRENCE' 
              IN TYPEOF(it1))) = 0);
-END_RULE;
-
-RULE draughting_callout_contains_draughting_annotation_occurrence_only FOR (draughting_callout);
-WHERE
 -- logic - there should be 0 items, which are annotation_occurrences and which are not draughting_annotation_occurrences
-   WR1: SIZEOF(QUERY(it1 <* draughting_callout.contents |
+   WR2: SIZEOF(QUERY(it1 <* draughting_callout.contents |
         ('DRAUGHTING_ELEMENT_SCHEMA.ANNOTATION_OCCURRENCE'
         IN TYPEOF(it1))
         AND
         NOT('AIC_DRAUGHTING_ANNOTATION.' + 'DRAUGHTING_ANNOTATION_OCCURRENCE' 
              IN TYPEOF(it1))) = 0);
 END_RULE;
-
 
 END_SCHEMA;  -- Dimension_and_tolerance_callouts_mim

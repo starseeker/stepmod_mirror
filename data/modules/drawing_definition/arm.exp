@@ -1,6 +1,69 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   $Id$
    N - ISO/CD-TS - 10303- drawing_definition - EXPRESS ARM*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Drawing_definition_arm;
+
+USE FROM Presentation_hierarchy_arm;
+
+TYPE draughting_titled_item = SELECT 
+  (Drawing,
+   Drawing_sheet);
+END_TYPE;
+
+ENTITY Drawing_definition; -- maps to drawing_definition
+  drawing_number : STRING;
+  drawing_type   : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Drawing -- maps to drawing_revision
+  SUBTYPE OF (Presentation_set);
+  revision_identifier : STRING;
+  drawing_identifier  : Drawing_definition;
+  intended_scale      : OPTIONAL STRING;
+UNIQUE
+  UR1: revision_identifier, drawing_identifier;
+END_ENTITY;
+
+ENTITY Drawing_sequence; -- maps to drawing_revision_sequence
+  predecessor : Drawing;
+  successor   : Drawing;
+WHERE
+  WR1: predecessor :<>: successor;
+END_ENTITY;
+
+ENTITY Drawing_sheet -- maps to drawing_sheet_revision
+  SUBTYPE OF (View_area);
+  revision_identifier : STRING;
+END_ENTITY;
+
+ENTITY Drawing_sheet_sequence -- maps to drawing_sheet_revision_sequence. In the MIM it is representation_relationship
+  SUBTYPE OF (View_area_relationship);
+    SELF\View_area_relationship.relating : Drawing_sheet;
+    SELF\View_area_relationship.related  : Drawing_sheet;
+WHERE
+  WR1: SELF\View_area_relationship.relating :<>: SELF\View_area_relationship.related;
+END_ENTITY;
+
+(* Area_in_set is not modelled in the ARM, link is achieved by direct attribute at presentation_set.
+Having this sheet_number as attribute would cause more problems 
+ENTITY Drawing_sheet_revision_usage
+  SUBTYPE OF (area_in_set);
+  sheet_number : identifier;
+UNIQUE
+  UR1: sheet_number, in_set;
+WHERE
+  WR1: ('DRAWING_DEFINITION_SCHEMA.DRAWING_SHEET_REVISION' IN 
+                  TYPEOF(SELF\area_in_set.area)) 
+              AND
+              ('DRAWING_DEFINITION_SCHEMA.DRAWING_REVISION' 
+               IN TYPEOF (SELF\area_in_set.in_set));
+END_ENTITY; *)
+
+ENTITY Draughting_title; -- maps to Draughting_title
+  items    : SET [1:?] OF draughting_titled_item;
+  language : STRING;
+  contents : STRING;
+END_ENTITY;
+
 END_SCHEMA;

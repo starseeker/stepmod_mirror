@@ -11,6 +11,8 @@ SCHEMA Picture_representation_mim;
   USE FROM presentation_organization_schema (presentation_area, area_in_set) ;
 
   USE FROM geometry_schema (axis2_placement_2d);
+  
+  USE FROM representation_schema(bytes_representation_item);
    
   CONSTANT 
     pre_defined_picture_representation_types : SET [0:?] OF STRING := [ 'JPEG', 'PNG', 'TIFF', 'BMP', 'GIF']; 
@@ -20,22 +22,6 @@ SCHEMA Picture_representation_mim;
     picture_representation_item, 
     axis2_placement_2d); 
   END_TYPE; 
- 
-  -- to be moved into p43 later on 
-  ENTITY binary_representation_item 
-    SUBTYPE OF (representation_item); 
-      binary_value : BINARY; 
-  END_ENTITY; 
-
-  -- to be moved into p43 later on 
-  ENTITY bytes_representation_item 
-    SUBTYPE OF (binary_representation_item); 
-    DERIVE 
-      no_of_bytes : INTEGER := SELF\binary_representation_item.binary_value DIV 8; 
-    WHERE 
-      WR1: BLENGTH(SELF\binary_representation_item.binary_value) MOD 8 = 0; 
-      -- value must be a multiple of 8 bits; 
-  END_ENTITY; 
  
   ENTITY picture_representation_item 
     ABSTRACT SUPERTYPE

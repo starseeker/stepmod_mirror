@@ -1,6 +1,34 @@
-(*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
-   N - ISO/CD-TS - 10303- camera_view_3d - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+--============================
+-- Make a new module Camera_view containing Model_image, Clipping_region
 SCHEMA Camera_view_3d_arm;
+
+USE FROM Presentation_hierarchy_arm;
+
+-- USE FROM Value_with_unit_arm;
+
+-- GL - extension moved to mechanical_design_geometric_presentation as it USE FROMS both this module and Styled_model
+TYPE presented_model_select = EXTENSIBLE GENERIC_ENTITY SELECT; 
+END_TYPE;  
+
+TYPE view_projection_type = ENUMERATION OF 
+   (central,
+    parallel);
+END_TYPE; 
+ 
+  ENTITY Model_image_3d; 
+    name : OPTIONAL STRING; 
+    is_displaying : presented_model_select; 
+    is_presented_in : View; 
+    scale : OPTIONAL Value_with_unit; 
+    view_projection : view_projection_type; 
+    clipping : OPTIONAL SET[1:?] OF Clipping_plane; 
+    hidden_line_removal : BOOLEAN; 
+-- GL removed as there is inverse pointing to it in the module using it    
+--    illumination : OPTIONAL SET [1:?] OF Light_source; 
+  END_ENTITY;  
+   
+  ENTITY Clipping_plane -- map to plane or union_xxx or intersection_xx 
+    SUBTYPE OF (Detailed_geometric_model_element);
+  END_ENTITY; 
+   
 END_SCHEMA;

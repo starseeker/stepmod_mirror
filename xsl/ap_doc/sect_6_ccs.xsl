@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.21 2005/01/27 20:45:36 thendrix Exp $
+$Id: sect_6_ccs.xsl,v 1.22 2005/02/06 06:42:43 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -645,7 +645,7 @@ conformance class')"/>
     </h2>
 
     <p>
-      The conformance class, 
+      The conformance class 
       <b>
         <xsl:value-of select="@name"/>
       </b>

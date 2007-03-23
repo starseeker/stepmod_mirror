@@ -8,7 +8,9 @@ SCHEMA aic_associative_draughting_elements;
   named_unit);
 
  USE FROM product_property_definition_schema        -- ISO 10303-41
-  (shape_aspect_relationship);
+  (property_definition, -- GL added
+  shape_aspect, -- GL added
+  shape_aspect_relationship);
 
  USE FROM product_property_representation_schema    -- ISO 10303-41
    (shape_definition_representation);
@@ -54,7 +56,8 @@ SCHEMA aic_associative_draughting_elements;
   shape_dimension_representation);
 
  USE FROM draughting_element_schema                 -- ISO 10303-101
-  (draughting_callout,
+  (annotation_plane,
+  draughting_callout,
   leader_curve,
   projection_curve);
 
@@ -132,9 +135,49 @@ END_ENTITY;
 
 ENTITY shape_aspect_associativity
   SUBTYPE OF (shape_aspect_relationship);
+  -- GL - we need this kind of path so often in WRs 3 and 4, 
+  -- so we better calulcate it only once in a DERIVED attribute
+  -- shape_aspect <- property_definition.definition <- shape_definition_representation.definition
+  -- shape_definition_representation.used_representation -> shape_representation.items -> xxx_callout
+  DERIVE
+    callouts : SET[1:?] OF draughting_callout := get_callouts_for_shape_aspect(SELF.related_shape_aspect);
 WHERE
   WR1:  SELF.relating_shape_aspect.product_definitional;
   WR2:  NOT (SELF.related_shape_aspect.product_definitional);
+  -- Idea, have 2 group of rules - because cardinality callout vs GD&T is not 1:1
+  -- WRs capturing callout <-> GD&T type for 1:N1 links as callouts maybe combined in complex and
+  -- There are no callout -> GD&T type for 1:N.
+  WR3: (NOT('AIC_DRAUGHTING_ELEMENTS.'+'DATUM_FEATURE_CALLOUT' IN TYPEOF(callouts[1])) OR
+       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DATUM_FEATURE' IN TYPEOF(SELF.relating_shape_aspect)));
+  WR4: (NOT('AIC_DRAUGHTING_ELEMENTS.'+'DATUM_TARGET_CALLOUT' IN TYPEOF(callouts[1])) OR
+       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DATUM_TARGET' IN TYPEOF(SELF.relating_shape_aspect)));
+  WR5: (NOT('AIC_DRAUGHTING_ELEMENTS.'+'ANGULAR_DIMENSION' IN TYPEOF(callouts[1])) OR
+       ('SHAPE_DIMENSION_SCHEMA.'+'ANGULAR_SIZE' IN TYPEOF(SELF.relating_shape_aspect)));
+       -- Names are from Recommended practices on GD&T      
+  WR6: ((NOT('AIC_DRAUGHTING_ELEMENTS.'+'CURVE_DIMENSION' IN TYPEOF(callouts[1])) OR
+       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF.relating_shape_aspect))) AND
+       (SELF.relating_shape_aspect.name = 'curve dimension'));
+  WR7: ((NOT('AIC_DRAUGHTING_ELEMENTS.'+'DIAMETER_DIMENSION' IN TYPEOF(callouts[1])) OR
+       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF.relating_shape_aspect))) AND
+       (SELF.relating_shape_aspect.name = 'diameter'));
+  WR8: ((NOT('AIC_DRAUGHTING_ELEMENTS.'+'LINEAR_DIMENSION' IN TYPEOF(callouts[1])) OR
+       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF.relating_shape_aspect))) AND
+       ((SELF.relating_shape_aspect.name = 'heigth') OR 
+       (SELF.relating_shape_aspect.name = 'length') OR
+       (SELF.relating_shape_aspect.name = 'width')));
+  WR9: ((NOT('AIC_DRAUGHTING_ELEMENTS.'+'RADIUS_DIMENSION' IN TYPEOF(callouts[1])) OR
+       ('SHAPE_ASPECT_DEFINITION_SCHEMA.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF.relating_shape_aspect))) AND
+       (SELF.relating_shape_aspect.name = 'radius'));
+  WR10: (NOT('AIC_DRAUGHTING_ELEMENTS.'+'GEOMETRICAL_TOLERANCE_CALLOUT' IN TYPEOF(callouts[1])) OR
+       ('SHAPE_TOLERANCE_SCHEMA.'+'GEOMETRIC_TOLERANCE' IN TYPEOF(SELF.relating_shape_aspect)));
+  -- WRs capturing callout <- GD&T type for N:1 links and       
+  WR11: (NOT('SHAPE_DIMENSION_SCHEMA.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF.relating_shape_aspect)) OR
+        (['DRAUGHTING_DIMENSION_SCHEMA.'+'DIMENSION_CALLOUT',
+        'DRAUGHTING_ELEMENT_SCHEMA.'+'DIMENSION_CURVE_DIRECTED_CALLOUT',
+        'AIC_DRAUGHTING_ELEMENTS.'+'LEADER_DIRECTED_DIMENSION',
+        'AIC_DRAUGHTING_ELEMENTS.'+'ORDINATE_DIMENSION',
+        'AIC_DRAUGHTING_ELEMENTS.'+'STRUCTURED_DIMENSION_CALLOUT'] IN TYPEOF(callouts[1])));
+-- TODO - discuss with LK what I wrote above.
 END_ENTITY;
 
 FUNCTION check_associative_shape_aspects
@@ -219,5 +262,42 @@ FUNCTION representations_mapped_into
   END_REPEAT;
   RETURN(results);
 END_FUNCTION;
+
+FUNCTION get_callouts_for_shape_aspect 
+  (sa : shape_aspect) : SET of draughting_callout;
+  LOCAL
+    pd      : SET OF property_definition;
+    sdr     : SET OF shape_definition_representation;
+    r       : representation;
+    ri      : representation_item;
+    result  : SET OF draughting_callout;
+  END_LOCAL;
+  -- Find shape_aspect <- property_defintiion
+  pd := bag_to_set(USEDIN(sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
+                    'PROPERTY_DEFINITION.DEFINITION'));
+  -- Find property_defininition <- shape_description_representation
+  REPEAT i := 1 TO HIINDEX(pd);
+  	sdr := sdr + bag_to_set(QUERY (pdr <* (USEDIN(pd[i], 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +
+                    'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) | 
+		'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+
+		'SHAPE_DEFINITION_REPRESENTATION' IN TYPEOF (pdr)));
+  END_REPEAT;                    
+  
+  -- Find shape_description_representation -> shape_representation -> draughting_callout
+  REPEAT i := 1 TO HIINDEX(sdr);
+    r := sdr[i].used_representation;
+    IF ('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN TYPEOF(r)) THEN
+      REPEAT j := 1 TO HIINDEX(r.items);
+        ri := r.items[j];
+        IF ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT' IN TYPEOF(ri)) THEN
+          result := result + ri;  
+        END_IF;
+      END_REPEAT;                            
+    END_IF;
+  END_REPEAT;                 
+  
+  RETURN(result);
+END_FUNCTION;
+
 
 END_SCHEMA;  

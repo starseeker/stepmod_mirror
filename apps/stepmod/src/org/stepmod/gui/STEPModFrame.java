@@ -1,5 +1,5 @@
 /*
- * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
+ * $Id: STEPModFrame.java,v 1.44 2006/12/13 15:23:50 joshpearce2005 Exp $
  *
  * STEPModFrame.java
  *
@@ -3108,6 +3108,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         toolsMenu.setText("Tools");
         mkModuleMenuItem.setText("Create new module");
         mkModuleMenuItem.setToolTipText("Creates all files necessary for a new module");
+        mkModuleMenuItem.setEnabled(false);
         mkModuleMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 mkModuleMenuItemActionPerformed(evt);
@@ -3118,6 +3119,7 @@ public class STEPModFrame extends javax.swing.JFrame {
 
         mkApMenuItem.setText("Create new Application protocol");
         mkApMenuItem.setToolTipText("Creates all files necessary for a new application protocol");
+        mkApMenuItem.setEnabled(false);
         mkApMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 mkApMenuItemActionPerformed(evt);
@@ -3128,6 +3130,7 @@ public class STEPModFrame extends javax.swing.JFrame {
 
         mkdResDocMenuItem.setText("Create new Resource document");
         mkdResDocMenuItem.setToolTipText("Creates all files necessary for a new reosurce document");
+        mkdResDocMenuItem.setEnabled(false);
         mkdResDocMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 mkdResDocMenuItemActionPerformed(evt);

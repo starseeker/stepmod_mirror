@@ -1,5 +1,5 @@
 /*
- * $Id: STEPModFrame.java,v 1.44 2006/12/13 15:23:50 joshpearce2005 Exp $
+ * $Id: STEPModFrame.java,v 1.45 2007/03/26 16:09:21 joshpearce2005 Exp $
  *
  * STEPModFrame.java
  *
@@ -2059,6 +2059,9 @@ public class STEPModFrame extends javax.swing.JFrame {
         javax.swing.JMenuItem createModulePublicationPackage;
         createModulePublicationPackage = new javax.swing.JMenuItem("Create publication package (ANT build)");
         createModulePublicationPackage.setToolTipText("Creates the ANT build file for generating the publication package");
+        //JPE Greyed out the option to create publication package as creation of publication package has yet to be enabled.
+        //In an attempt to avoid user confusion
+        createModulePublicationPackage.setEnabled(false);
         createModulePublicationPackage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();
@@ -2066,6 +2069,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                 StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
                 stepmodPart.publicationCreatePackage();
             }
+          
         });
         cvsPublicationSubmenu.add(createModulePublicationPackage);
         
@@ -2073,6 +2077,9 @@ public class STEPModFrame extends javax.swing.JFrame {
         javax.swing.JMenuItem genHtmlModulePublicationPackage;
         genHtmlModulePublicationPackage = new javax.swing.JMenuItem("Generate HTML for publication package ");
         genHtmlModulePublicationPackage.setToolTipText("Generates the HTML for the publication package");
+        //JPE Greyed out the option to create HTML for publication package as creation of HTML for publication package has yet to be enabled.
+        //In attempt to avoid user confusion
+        genHtmlModulePublicationPackage.setEnabled(false);
         genHtmlModulePublicationPackage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) stepmodPartPopupMenu.getUserObject();

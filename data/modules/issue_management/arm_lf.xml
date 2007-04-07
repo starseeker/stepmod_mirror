@@ -1,24 +1,56 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: arm_lf.xml,v 1.3 2007/03/03 21:38:51 abhpf Exp $ -->
+<!-- $Id: arm_lf.xml,v 1.4 2007/03/14 20:43:11 abhpf Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2007/03/03 21:38:51 $"
-  rcs.revision="$Revision: 1.3 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
     version="1, 3, 30, 37"
-    source="SysIsu4LF.exp"/>
+    source="SysIsuCDLF.exp"/>
 
   <schema name="Issue_management_arm_LF">
-    <type name="issue_reference_item">
+    <type name="classification_item">
       <select
-        selectitems="Activity Activity_method Activity_method_assignment Activity_relationship Activity_status Address Address_assignment Affected_items_assignment Applied_activity_assignment Approval Approval_assignment Approval_relationship Approval_status Approving_person_organization Attribute_translation_assignment Calendar_date Certification Certification_assignment Class Classification_assignment Contract Contract_assignment Date_or_date_time_assignment Date_time Event Event_assignment Event_relationship Identification_assignment Language Language_indication Local_time Observation Observation_consequence Observation_relationship Organization Organization_or_person_in_organization_assignment Organization_relationship Product Product_category Product_category_assignment Product_category_hierarchy Product_design_to_individual Product_design_version_to_individual Product_planned_to_realized Product_version Security_classification Security_classification_assignment Unit Value_with_unit View_definition_context Work_request Work_request_status"
+        selectitems="Activity Activity_relationship Applied_activity_assignment Conversion_based_unit Derived_unit Observation Observation_relationship Product Product_as_individual Product_as_realized Product_category Product_design_to_individual Product_design_version_to_individual Product_planned_to_realized Product_version Product_view_definition Uncertainty_with_unit View_definition_context"
       />
+    </type>
+
+    <type name="activity_item">
+      <select
+        selectitems="Activity Activity_method Applied_activity_assignment Contract Issue Product Product_version Product_view_definition"
+      />
+    </type>
+
+    <type name="activity_method_item">
+      <select
+        selectitems="Approval_assignment Certification Date_or_date_time_assignment Observation Security_classification"
+      />
+    </type>
+
+    <type name="alias_identification_item">
+      <typename name="identification_item"/>
+      <where
+        label="wr1"
+        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.ACTIVITY_METHOD&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr2"
+        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.PRODUCT_AS_INDIVIDUAL_VERSION&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr3"
+        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.PRODUCT_CATEGORY&apos; IN TYPEOF(SELF))">
+      </where>
+      <where
+        label="wr4"
+        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.VIEW_DEFINITION_CONTEXT&apos; IN TYPEOF(SELF))">
+      </where>
     </type>
 
     <type name="approval_item">
@@ -27,21 +59,15 @@
       />
     </type>
 
-    <type name="identification_item">
+    <type name="certification_item">
       <select
-        selectitems="Activity_method Address Approval Approval_status Certification Contract Disposition Event Organization Organization_or_person_in_organization_assignment Person Person_in_organization Product_as_individual Product_as_individual_version Product_as_individual_view Product_as_planned Product_as_realized Product_category Project Security_classification Security_classification_assignment View_definition_context"
+        selectitems="Product_as_individual Product_as_planned Product_as_realized Project"
       />
     </type>
 
-    <type name="observation_recorder">
+    <type name="contract_item">
       <select
-        selectitems="Product_as_realized"
-      />
-    </type>
-
-    <type name="observed_context">
-      <select
-        selectitems="Activity Activity_method Applied_activity_assignment Approval_assignment Certification_assignment Contract_assignment Event_assignment Issue Observation_consequence Product Product_design_to_individual Product_planned_to_realized Product_version Product_view_definition Project Project_assignment Security_classification_assignment"
+        selectitems="organization_or_person_in_organization_item Product_as_individual Product_as_planned Product_as_realized Product_version"
       />
     </type>
 
@@ -107,75 +133,57 @@
       />
     </type>
 
-    <type name="organization_or_person_in_organization_select">
-      <select
-        selectitems="Organization Person_in_organization"
-      />
-    </type>
-
-    <type name="activity_item">
-      <select
-        selectitems="Activity Activity_method Applied_activity_assignment Contract Issue Product Product_version Product_view_definition"
-      />
-    </type>
-
-    <type name="classification_item">
-      <select
-        selectitems="Activity Activity_relationship Applied_activity_assignment Conversion_based_unit Derived_unit Observation Observation_relationship Product Product_as_planned Product_as_realized Product_category Product_design_to_individual Product_design_version_to_individual Product_planned_to_realized Product_version Product_view_definition Uncertainty_with_unit Unit Value_with_unit View_definition_context"
-      />
-    </type>
-
-    <type name="affected_item_select">
-      <select
-        selectitems="Activity_method Contract Organization Person Person_in_organization Product Product_version Product_view_definition"
-      />
-    </type>
-
-    <type name="alias_identification_item">
-      <typename name="identification_item"/>
-      <where
-        label="wr1"
-        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.ACTIVITY_METHOD&apos; IN TYPEOF(SELF))">
-      </where>
-      <where
-        label="wr2"
-        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.DISPOSITION&apos; IN TYPEOF(SELF))">
-      </where>
-      <where
-        label="wr3"
-        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.PRODUCT_AS_INDIVIDUAL_VERSION&apos; IN TYPEOF(SELF))">
-      </where>
-      <where
-        label="wr4"
-        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.PRODUCT_CATEGORY&apos; IN TYPEOF(SELF))">
-      </where>
-      <where
-        label="wr5"
-        expression="NOT (&apos;ISSUE_MANAGEMENT_ARM.VIEW_DEFINITION_CONTEXT&apos; IN TYPEOF(SELF))">
-      </where>
-    </type>
-
-    <type name="certification_item">
-      <select
-        selectitems="Product_as_individual Product_as_planned Product_as_realized Project"
-      />
-    </type>
-
-    <type name="contract_item">
-      <select
-        selectitems="organization_or_person_in_organization_item Product_as_individual Product_as_planned Product_as_realized Product_version"
-      />
-    </type>
-
     <type name="date_or_date_time_item">
       <select
         selectitems="Certification Contract Identification_assignment Observation Organization_or_person_in_organization_assignment Product_as_planned Product_as_realized Product_design_to_individual Product_design_version_to_individual Product_planned_to_realized Product_version Product_view_definition Security_classification_assignment View_definition_context"
       />
     </type>
 
+    <type name="date_or_event">
+      <select
+        selectitems="Calendar_date Date_time Event"
+      />
+    </type>
+
+    <type name="event_item">
+      <select
+        selectitems="Observation"
+      />
+    </type>
+
+    <type name="identification_item">
+      <select
+        selectitems="Activity_method Address Approval Approval_status Certification Contract Organization Organization_or_person_in_organization_assignment Person Person_in_organization Product_as_individual Product_as_individual_version Product_as_individual_view Product_as_planned Product_as_realized Product_category Project Security_classification Security_classification_assignment View_definition_context"
+      />
+    </type>
+
+    <type name="issue_reference_item">
+      <select
+        selectitems="Activity Activity_method Activity_method_assignment Activity_relationship Activity_status Address Address_assignment Affected_items_assignment Applied_activity_assignment Approval Approval_assignment Approval_relationship Approval_status Approving_person_organization Attribute_translation_assignment Calendar_date Certification Certification_assignment Class Classification_assignment Contract Contract_assignment Date_or_date_time_assignment Date_time Event Event_assignment Event_relationship Identification_assignment Language Language_indication Local_time Observation Observation_consequence Observation_relationship Organization Organization_or_person_in_organization_assignment Organization_relationship Product Product_category Product_category_assignment Product_category_hierarchy Product_design_to_individual Product_design_version_to_individual Product_planned_to_realized Product_version Security_classification Security_classification_assignment Unit Value_with_unit View_definition_context Work_request Work_request_status"
+      />
+    </type>
+
     <type name="string_select">
       <select
         selectitems="Approval Approval_relationship Approval_status Certification Contract Date_or_date_time_assignment Identification_assignment Organization_relationship Person_in_organization Product_as_individual Product_as_individual_version Product_as_individual_view Project Project_assignment Project_relationship"
+      />
+    </type>
+
+    <type name="observation_recorder">
+      <select
+        selectitems="Product_as_realized"
+      />
+    </type>
+
+    <type name="observed_context">
+      <select
+        selectitems="Activity Activity_method Applied_activity_assignment Approval_assignment Certification_assignment Contract_assignment Event_assignment Issue Observation_consequence Product Product_design_to_individual Product_planned_to_realized Product_version Product_view_definition Project Project_assignment Security_classification_assignment"
+      />
+    </type>
+
+    <type name="organization_or_person_in_organization_select">
+      <select
+        selectitems="Organization Person_in_organization"
       />
     </type>
 
@@ -193,19 +201,7 @@
 
     <type name="security_classification_item">
       <select
-        selectitems="Product_as_individual Product_as_individual_view Product_as_planned Product_as_realized Product_design_to_individual Product_design_version_to_individual Product_version Product_view_definition Project_relationship"
-      />
-    </type>
-
-    <type name="date_or_event">
-      <select
-        selectitems="Calendar_date Date_time Event"
-      />
-    </type>
-
-    <type name="event_item">
-      <select
-        selectitems="Observation"
+        selectitems="Product_as_individual Product_as_individual_version Product_as_planned Product_as_realized Product_design_version_to_individual Product_version Product_view_definition Project_relationship"
       />
     </type>
 
@@ -235,32 +231,213 @@
       />
     </type>
 
-    <entity name="Class_by_extension"
-      supertypes="Class"
-    >
-    </entity>
+    <type name="affected_item_select">
+      <select
+        selectitems="Contract Organization Person Person_in_organization Product Product_version Product_view_definition"
+      />
+    </type>
 
-    <entity name="Issue"
-      supertypes="Observation"
-    >
-    </entity>
-
-    <entity name="Issue_consequence"
-      supertypes="Observation_consequence"
-    >
-    </entity>
-
-    <entity name="Issue_reference"
-      supertypes="Observation_item"
+    <entity name="Organization_relationship"
     >
       <explicit
-        name="item">
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_organization">
+        <typename name="Organization"/>
+      </explicit>
+      <explicit
+        name="related_organization">
+        <typename name="Organization"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_relationship"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="related_activity">
+        <typename name="Activity"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_status"
+    >
+      <explicit
+        name="assigned_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="status">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Applied_activity_assignment"
+    >
+      <explicit
+        name="assigned_activity">
+        <typename name="Activity"/>
+      </explicit>
+      <explicit
+        name="items">
         <aggregate type="SET"
-          lower="0"
+          lower="1"
           upper="?"
         />
-        <typename name="issue_reference_item"/>
+        <typename name="activity_item"/>
       </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Activity_actual"
+      supertypes="Activity"
+    >
+    </entity>
+
+    <entity name="Activity_happening"
+      supertypes="Activity_relationship"
+    >
+      <explicit
+        name="relating_activity">
+        <typename name="Activity_actual"/>
+        <redeclaration
+          entity-ref="Activity_relationship"/>
+      </explicit>
+      <derived
+        name="actual"
+        expression="SELF\Activity_relationship.relating_activity">
+        <typename name="Activity_actual"/>
+      </derived>
+      <derived
+        name="predicted"
+        expression="SELF\Activity_relationship.related_activity">
+        <typename name="Activity"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="NOT (&apos;ACTIVITY_AS_REALIZED.ACTIVITY_ACTUAL&apos; IN TYPEOF(predicted))">
+      </where>
+    </entity>
+
+    <entity name="Activity_method"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="consequence"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="purpose">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Activity_method_relationship"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_method">
+        <typename name="Activity_method"/>
+      </explicit>
+      <explicit
+        name="related_method">
+        <typename name="Activity_method"/>
+      </explicit>
+    </entity>
+
+    <entity name="Applied_activity_method_assignment"
+    >
+      <explicit
+        name="assigned_activity_method">
+        <typename name="Activity_method"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="activity_method_item"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Alias_identification"
+      supertypes="Identification_assignment"
+    >
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="alias_identification_item"/>
+        <redeclaration
+          entity-ref="Identification_assignment"/>
+      </explicit>
+      <derived
+        name="role"
+        expression="&apos;alias&apos;">
+        <builtintype type="STRING"
+        />
+        <redeclaration
+          entity-ref="Identification_assignment"/>
+      </derived>
     </entity>
 
     <entity name="Approval"
@@ -363,6 +540,330 @@
       </explicit>
     </entity>
 
+    <entity name="Certification"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="kind">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Certification_assignment"
+    >
+      <explicit
+        name="assigned_certification">
+        <typename name="Certification"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="certification_item"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Class"
+      super.expression="ONEOF(Class_by_extension, Class_by_intension)"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Class_by_extension"
+      supertypes="Class"
+    >
+    </entity>
+
+    <entity name="Class_by_intension"
+      supertypes="Class"
+    >
+    </entity>
+
+    <entity name="Classification_assignment"
+    >
+      <explicit
+        name="assigned_class">
+        <typename name="Class"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="classification_item"/>
+      </explicit>
+      <explicit
+        name="role"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Contract"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="purpose">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="kind">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Contract_assignment"
+    >
+      <explicit
+        name="assigned_contract">
+        <typename name="Contract"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="contract_item"/>
+      </explicit>
+    </entity>
+
+    <entity name="Calendar_date"
+    >
+      <explicit
+        name="year_component">
+        <typename name="year_number"/>
+      </explicit>
+      <explicit
+        name="month_component">
+        <typename name="month_in_year_number"/>
+      </explicit>
+      <explicit
+        name="day_component">
+        <typename name="day_in_month_number"/>
+      </explicit>
+    </entity>
+
+    <entity name="Date_time"
+    >
+      <explicit
+        name="date_component">
+        <typename name="Calendar_date"/>
+      </explicit>
+      <explicit
+        name="time_component">
+        <typename name="Local_time"/>
+      </explicit>
+    </entity>
+
+    <entity name="Local_time"
+    >
+      <explicit
+        name="hour_component">
+        <typename name="hour_in_day"/>
+      </explicit>
+      <explicit
+        name="minute_component"
+        optional="YES">
+        <typename name="minute_in_hour"/>
+      </explicit>
+      <explicit
+        name="second_component"
+        optional="YES">
+        <typename name="second_in_minute"/>
+      </explicit>
+      <explicit
+        name="zone">
+        <typename name="Time_offset"/>
+      </explicit>
+    </entity>
+
+    <entity name="Time_offset"
+    >
+      <explicit
+        name="hour_offset">
+        <builtintype type="INTEGER"
+        />
+      </explicit>
+      <explicit
+        name="minute_offset"
+        optional="YES">
+        <builtintype type="INTEGER"
+        />
+      </explicit>
+      <explicit
+        name="sense">
+        <typename name="offset_orientation"/>
+      </explicit>
+      <derived
+        name="actual_minute_offset"
+        expression="NVL(minute_offset, 0)">
+        <builtintype type="INTEGER"
+        />
+      </derived>
+      <where
+        label="WR1"
+        expression="{0 &lt;= hour_offset &lt; 24}">
+      </where>
+      <where
+        label="WR2"
+        expression="{0 &lt;= actual_minute_offset &lt;= 59}">
+      </where>
+      <where
+        label="WR3"
+        expression="NOT (((hour_offset &lt;&gt; 0) OR (actual_minute_offset &lt;&gt; 0)) AND (sense = exact))">
+      </where>
+    </entity>
+
+    <entity name="Date_or_date_time_assignment"
+    >
+      <explicit
+        name="assigned_date">
+        <typename name="date_or_date_time_select"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="date_or_date_time_item"/>
+      </explicit>
+    </entity>
+
+    <entity name="Event"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="actual_start_date"
+        optional="YES">
+        <typename name="date_or_date_time_select"/>
+      </explicit>
+      <explicit
+        name="planned_start_date"
+        optional="YES">
+        <typename name="date_or_date_time_select"/>
+      </explicit>
+    </entity>
+
+    <entity name="Event_relationship"
+    >
+      <explicit
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_event">
+        <typename name="Event"/>
+      </explicit>
+      <explicit
+        name="related_event">
+        <typename name="Event"/>
+      </explicit>
+    </entity>
+
+    <entity name="Relative_event"
+      supertypes="Event"
+    >
+      <explicit
+        name="base_event">
+        <typename name="Event"/>
+      </explicit>
+      <explicit
+        name="offset">
+        <typename name="Duration"/>
+      </explicit>
+    </entity>
+
+    <entity name="Event_assignment"
+    >
+      <explicit
+        name="assigned_event">
+        <typename name="Event"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="event_item"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
     <entity name="Identification_assignment"
     >
       <explicit
@@ -389,6 +890,97 @@
         />
         <typename name="identification_item"/>
       </explicit>
+    </entity>
+
+    <entity name="Issue"
+      supertypes="Observation"
+    >
+    </entity>
+
+    <entity name="Issue_consequence"
+      supertypes="Observation_consequence"
+    >
+    </entity>
+
+    <entity name="Issue_reference"
+      supertypes="Observation_item"
+    >
+      <explicit
+        name="item">
+        <aggregate type="SET"
+          lower="0"
+          upper="?"
+        />
+        <typename name="issue_reference_item"/>
+      </explicit>
+    </entity>
+
+    <entity name="Language"
+    >
+      <explicit
+        name="language_code">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="country_code"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="language_code"/>
+      </unique>
+    </entity>
+
+    <entity name="Language_indication"
+    >
+      <explicit
+        name="considered_instance">
+        <typename name="string_select"/>
+      </explicit>
+      <explicit
+        name="considered_attribute">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="used_language">
+        <typename name="Language"/>
+      </explicit>
+    </entity>
+
+    <entity name="Attribute_translation_assignment"
+    >
+      <explicit
+        name="considered_instance">
+        <typename name="string_select"/>
+      </explicit>
+      <explicit
+        name="considered_attribute">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="translation_text">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="translation_language">
+        <typename name="Language"/>
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="considered_instance"/>
+        <unique.attribute
+          attribute="considered_attribute"/>
+        <unique.attribute
+          attribute="translation_language"/>
+      </unique>
     </entity>
 
     <entity name="Observation"
@@ -508,93 +1100,6 @@
         <builtintype type="STRING"
         />
       </explicit>
-    </entity>
-
-    <entity name="Calendar_date"
-    >
-      <explicit
-        name="year_component">
-        <typename name="year_number"/>
-      </explicit>
-      <explicit
-        name="month_component">
-        <typename name="month_in_year_number"/>
-      </explicit>
-      <explicit
-        name="day_component">
-        <typename name="day_in_month_number"/>
-      </explicit>
-    </entity>
-
-    <entity name="Date_time"
-    >
-      <explicit
-        name="date_component">
-        <typename name="Calendar_date"/>
-      </explicit>
-      <explicit
-        name="time_component">
-        <typename name="Local_time"/>
-      </explicit>
-    </entity>
-
-    <entity name="Local_time"
-    >
-      <explicit
-        name="hour_component">
-        <typename name="hour_in_day"/>
-      </explicit>
-      <explicit
-        name="minute_component"
-        optional="YES">
-        <typename name="minute_in_hour"/>
-      </explicit>
-      <explicit
-        name="second_component"
-        optional="YES">
-        <typename name="second_in_minute"/>
-      </explicit>
-      <explicit
-        name="zone">
-        <typename name="Time_offset"/>
-      </explicit>
-    </entity>
-
-    <entity name="Time_offset"
-    >
-      <explicit
-        name="hour_offset">
-        <builtintype type="INTEGER"
-        />
-      </explicit>
-      <explicit
-        name="minute_offset"
-        optional="YES">
-        <builtintype type="INTEGER"
-        />
-      </explicit>
-      <explicit
-        name="sense">
-        <typename name="offset_orientation"/>
-      </explicit>
-      <derived
-        name="actual_minute_offset"
-        expression="NVL(minute_offset, 0)">
-        <builtintype type="INTEGER"
-        />
-      </derived>
-      <where
-        label="WR1"
-        expression="{0 &lt;= hour_offset &lt; 24}">
-      </where>
-      <where
-        label="WR2"
-        expression="{0 &lt;= actual_minute_offset &lt;= 59}">
-      </where>
-      <where
-        label="WR3"
-        expression="NOT (((hour_offset &lt;&gt; 0) OR (actual_minute_offset &lt;&gt; 0)) AND (sense = exact))">
-      </where>
     </entity>
 
     <entity name="Address"
@@ -726,10 +1231,15 @@
       </explicit>
     </entity>
 
-    <entity name="Organization_relationship"
+    <entity name="Activity"
     >
       <explicit
-        name="relation_type">
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
         <builtintype type="STRING"
         />
       </explicit>
@@ -740,12 +1250,8 @@
         />
       </explicit>
       <explicit
-        name="relating_organization">
-        <typename name="Organization"/>
-      </explicit>
-      <explicit
-        name="related_organization">
-        <typename name="Organization"/>
+        name="chosen_method">
+        <typename name="Activity_method"/>
       </explicit>
     </entity>
 
@@ -811,162 +1317,24 @@
       </explicit>
     </entity>
 
-    <entity name="Activity_actual"
-      supertypes="Activity"
-    >
-    </entity>
-
-    <entity name="Activity_happening"
-      supertypes="Activity_relationship"
+    <entity name="Organization_or_person_in_organization_assignment"
     >
       <explicit
-        name="relating_activity">
-        <typename name="Activity_actual"/>
-        <redeclaration
-          entity-ref="Activity_relationship"/>
-      </explicit>
-      <derived
-        name="actual"
-        expression="SELF\Activity_relationship.relating_activity">
-        <typename name="Activity_actual"/>
-      </derived>
-      <derived
-        name="predicted"
-        expression="SELF\Activity_relationship.related_activity">
-        <typename name="Activity"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="NOT (&apos;ACTIVITY_AS_REALIZED.ACTIVITY_ACTUAL&apos; IN TYPEOF(predicted))">
-      </where>
-    </entity>
-
-    <entity name="Activity"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="chosen_method">
-        <typename name="Activity_method"/>
-      </explicit>
-    </entity>
-
-    <entity name="Activity_relationship"
-    >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="relating_activity">
-        <typename name="Activity"/>
-      </explicit>
-      <explicit
-        name="related_activity">
-        <typename name="Activity"/>
-      </explicit>
-    </entity>
-
-    <entity name="Activity_status"
-    >
-      <explicit
-        name="assigned_activity">
-        <typename name="Activity"/>
-      </explicit>
-      <explicit
-        name="status">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Applied_activity_assignment"
-    >
-      <explicit
-        name="assigned_activity">
-        <typename name="Activity"/>
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="activity_item"/>
+        name="assigned_entity">
+        <typename name="organization_or_person_in_organization_select"/>
       </explicit>
       <explicit
         name="role">
         <builtintype type="STRING"
         />
       </explicit>
-    </entity>
-
-    <entity name="Activity_method"
-    >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="consequence"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="purpose">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Classification_assignment"
-    >
-      <explicit
-        name="assigned_class">
-        <typename name="Class"/>
-      </explicit>
       <explicit
         name="items">
         <aggregate type="SET"
           lower="1"
           upper="?"
         />
-        <typename name="classification_item"/>
-      </explicit>
-      <explicit
-        name="role"
-        optional="YES">
-        <builtintype type="STRING"
-        />
+        <typename name="organization_or_person_in_organization_item"/>
       </explicit>
     </entity>
 
@@ -1045,82 +1413,11 @@
       </explicit>
     </entity>
 
-    <entity name="Activity_method_assignment"
+    <entity name="Product_category"
     >
       <explicit
-        name="relation_type">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="assigned_method">
-        <typename name="Activity_method"/>
-      </explicit>
-      <explicit
-        name="associated_request">
-        <typename name="Work_request"/>
-      </explicit>
-    </entity>
-
-    <entity name="Affected_items_assignment"
-    >
-      <explicit
-        name="assigned_work_request">
-        <typename name="Work_request"/>
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="affected_item_select"/>
-      </explicit>
-    </entity>
-
-    <entity name="Work_request"
-    >
-      <explicit
-        name="request_id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="version_id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
+        name="id"
         optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="purpose">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Work_request_status"
-    >
-      <explicit
-        name="status">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="work_request">
-        <typename name="Work_request"/>
-      </explicit>
-    </entity>
-
-    <entity name="Class"
-      super.expression="ONEOF(Class_by_extension, Class_by_intension)"
-    >
-      <explicit
-        name="id">
         <builtintype type="STRING"
         />
       </explicit>
@@ -1137,350 +1434,15 @@
       </explicit>
     </entity>
 
-    <entity name="Disposition"
-      supertypes="Approval"
+    <entity name="Product_category_hierarchy"
     >
       <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Class_by_intension"
-      supertypes="Class"
-    >
-    </entity>
-
-    <entity name="Alias_identification"
-      supertypes="Identification_assignment"
-    >
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="alias_identification_item"/>
-        <redeclaration
-          entity-ref="Identification_assignment"/>
-      </explicit>
-      <derived
-        name="role"
-        expression="&apos;alias&apos;">
-        <builtintype type="STRING"
-        />
-        <redeclaration
-          entity-ref="Identification_assignment"/>
-      </derived>
-    </entity>
-
-    <entity name="Certification"
-    >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
+        name="super_category">
+        <typename name="Product_category"/>
       </explicit>
       <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="kind">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Certification_assignment"
-    >
-      <explicit
-        name="assigned_certification">
-        <typename name="Certification"/>
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="certification_item"/>
-      </explicit>
-      <explicit
-        name="role">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Contract"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="purpose">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="kind">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Contract_assignment"
-    >
-      <explicit
-        name="assigned_contract">
-        <typename name="Contract"/>
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="contract_item"/>
-      </explicit>
-    </entity>
-
-    <entity name="Date_or_date_time_assignment"
-    >
-      <explicit
-        name="assigned_date">
-        <typename name="date_or_date_time_select"/>
-      </explicit>
-      <explicit
-        name="role">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="date_or_date_time_item"/>
-      </explicit>
-    </entity>
-
-    <entity name="Language"
-    >
-      <explicit
-        name="language_code">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="country_code"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="language_code"/>
-      </unique>
-    </entity>
-
-    <entity name="Language_indication"
-    >
-      <explicit
-        name="considered_instance">
-        <typename name="string_select"/>
-      </explicit>
-      <explicit
-        name="considered_attribute">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="used_language">
-        <typename name="Language"/>
-      </explicit>
-    </entity>
-
-    <entity name="Attribute_translation_assignment"
-    >
-      <explicit
-        name="considered_instance">
-        <typename name="string_select"/>
-      </explicit>
-      <explicit
-        name="considered_attribute">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="translation_text">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="translation_language">
-        <typename name="Language"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="considered_instance"/>
-        <unique.attribute
-          attribute="considered_attribute"/>
-        <unique.attribute
-          attribute="translation_language"/>
-      </unique>
-    </entity>
-
-    <entity name="Organization_or_person_in_organization_assignment"
-    >
-      <explicit
-        name="assigned_entity">
-        <typename name="organization_or_person_in_organization_select"/>
-      </explicit>
-      <explicit
-        name="role">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="organization_or_person_in_organization_item"/>
-      </explicit>
-    </entity>
-
-    <entity name="Project"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="responsible_organizations">
-        <aggregate type="SET"
-          lower="0"
-          upper="?"
-        />
-        <typename name="Organization"/>
-      </explicit>
-      <explicit
-        name="planned_start_date"
-        optional="YES">
-        <typename name="date_or_event"/>
-      </explicit>
-      <explicit
-        name="planned_end_date"
-        optional="YES">
-        <typename name="date_or_event"/>
-      </explicit>
-      <explicit
-        name="actual_start_date"
-        optional="YES">
-        <typename name="date_or_date_time_select"/>
-      </explicit>
-      <explicit
-        name="actual_end_date"
-        optional="YES">
-        <typename name="date_or_date_time_select"/>
-      </explicit>
-    </entity>
-
-    <entity name="Project_assignment"
-    >
-      <explicit
-        name="assigned_project">
-        <typename name="Project"/>
-      </explicit>
-      <explicit
-        name="role">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="project_item"/>
-      </explicit>
-    </entity>
-
-    <entity name="Project_relationship"
-    >
-      <explicit
-        name="relation_type">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="relating_project">
-        <typename name="Project"/>
-      </explicit>
-      <explicit
-        name="related_project">
-        <typename name="Project"/>
-      </explicit>
-    </entity>
-
-    <entity name="Security_classification"
-    >
-      <explicit
-        name="classification_level">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Security_classification_assignment"
-    >
-      <explicit
-        name="classification">
-        <typename name="Security_classification"/>
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="security_classification_item"/>
+        name="sub_category">
+        <typename name="Product_category"/>
       </explicit>
     </entity>
 
@@ -1610,7 +1572,7 @@
       </where>
     </entity>
 
-    <entity name="Event"
+    <entity name="Project"
     >
       <explicit
         name="id">
@@ -1629,18 +1591,57 @@
         />
       </explicit>
       <explicit
+        name="responsible_organizations">
+        <aggregate type="SET"
+          lower="0"
+          upper="?"
+        />
+        <typename name="Organization"/>
+      </explicit>
+      <explicit
+        name="planned_start_date"
+        optional="YES">
+        <typename name="date_or_event"/>
+      </explicit>
+      <explicit
+        name="planned_end_date"
+        optional="YES">
+        <typename name="date_or_event"/>
+      </explicit>
+      <explicit
         name="actual_start_date"
         optional="YES">
         <typename name="date_or_date_time_select"/>
       </explicit>
       <explicit
-        name="planned_start_date"
+        name="actual_end_date"
         optional="YES">
         <typename name="date_or_date_time_select"/>
       </explicit>
     </entity>
 
-    <entity name="Event_relationship"
+    <entity name="Project_assignment"
+    >
+      <explicit
+        name="assigned_project">
+        <typename name="Project"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="project_item"/>
+      </explicit>
+    </entity>
+
+    <entity name="Project_relationship"
     >
       <explicit
         name="relation_type">
@@ -1654,59 +1655,19 @@
         />
       </explicit>
       <explicit
-        name="relating_event">
-        <typename name="Event"/>
+        name="relating_project">
+        <typename name="Project"/>
       </explicit>
       <explicit
-        name="related_event">
-        <typename name="Event"/>
-      </explicit>
-    </entity>
-
-    <entity name="Relative_event"
-      supertypes="Event"
-    >
-      <explicit
-        name="base_event">
-        <typename name="Event"/>
-      </explicit>
-      <explicit
-        name="offset">
-        <typename name="Duration"/>
+        name="related_project">
+        <typename name="Project"/>
       </explicit>
     </entity>
 
-    <entity name="Event_assignment"
+    <entity name="Security_classification"
     >
       <explicit
-        name="assigned_event">
-        <typename name="Event"/>
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="event_item"/>
-      </explicit>
-      <explicit
-        name="role">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Product_category"
-    >
-      <explicit
-        name="id"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
+        name="classification_level">
         <builtintype type="STRING"
         />
       </explicit>
@@ -1718,15 +1679,19 @@
       </explicit>
     </entity>
 
-    <entity name="Product_category_hierarchy"
+    <entity name="Security_classification_assignment"
     >
       <explicit
-        name="super_category">
-        <typename name="Product_category"/>
+        name="classification">
+        <typename name="Security_classification"/>
       </explicit>
       <explicit
-        name="sub_category">
-        <typename name="Product_category"/>
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="security_classification_item"/>
       </explicit>
     </entity>
 
@@ -1877,6 +1842,77 @@
       <explicit
         name="value_component">
         <typename name="measure_value"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_method_assignment"
+    >
+      <explicit
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="assigned_method">
+        <typename name="Activity_method"/>
+      </explicit>
+      <explicit
+        name="associated_request">
+        <typename name="Work_request"/>
+      </explicit>
+    </entity>
+
+    <entity name="Affected_items_assignment"
+    >
+      <explicit
+        name="assigned_work_request">
+        <typename name="Work_request"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="affected_item_select"/>
+      </explicit>
+    </entity>
+
+    <entity name="Work_request"
+    >
+      <explicit
+        name="request_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="version_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="purpose">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Work_request_status"
+    >
+      <explicit
+        name="status">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="work_request">
+        <typename name="Work_request"/>
       </explicit>
     </entity>
 

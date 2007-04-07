@@ -1,19 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: arm_lf.xml,v 1.5 2007/03/14 20:49:34 abhpf Exp $ -->
+<!-- $Id: arm_lf.xml,v 1.6 2007/03/19 00:25:24 abhpf Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2007/03/14 20:49:34 $"
-  rcs.revision="$Revision: 1.5 $">
-
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
     version="1, 3, 30, 37"
-    source="SysStr3LF.exp"/>
+    source="SysStrCDLF.exp"/>
 
   <schema name="System_structure_arm_LF">
     <type name="connection_definition_items">
@@ -4095,6 +4094,76 @@
       </derived>
     </entity>
 
+    <entity name="Time_interval"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Time_interval_relationship"
+    >
+      <explicit
+        name="relation_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_time_interval">
+        <typename name="Time_interval"/>
+      </explicit>
+      <explicit
+        name="related_time_interval">
+        <typename name="Time_interval"/>
+      </explicit>
+    </entity>
+
+    <entity name="Time_interval_with_bounds"
+      supertypes="Time_interval"
+    >
+      <explicit
+        name="primary_bound"
+        optional="YES">
+        <typename name="date_or_event"/>
+      </explicit>
+      <explicit
+        name="secondary_bound"
+        optional="YES">
+        <typename name="date_or_event"/>
+      </explicit>
+      <explicit
+        name="duration_from_primary_bound"
+        optional="YES">
+        <typename name="Duration"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="NOT (EXISTS(secondary_bound) AND EXISTS(duration_from_primary_bound))">
+      </where>
+      <where
+        label="WR2"
+        expression="EXISTS(primary_bound) OR EXISTS(secondary_bound)">
+      </where>
+    </entity>
+
     <entity name="Document"
       supertypes="Product"
     >
@@ -4280,76 +4349,6 @@
           upper="1"
         />
       </inverse>
-    </entity>
-
-    <entity name="Time_interval"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Time_interval_relationship"
-    >
-      <explicit
-        name="relation_type">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="relating_time_interval">
-        <typename name="Time_interval"/>
-      </explicit>
-      <explicit
-        name="related_time_interval">
-        <typename name="Time_interval"/>
-      </explicit>
-    </entity>
-
-    <entity name="Time_interval_with_bounds"
-      supertypes="Time_interval"
-    >
-      <explicit
-        name="primary_bound"
-        optional="YES">
-        <typename name="date_or_event"/>
-      </explicit>
-      <explicit
-        name="secondary_bound"
-        optional="YES">
-        <typename name="date_or_event"/>
-      </explicit>
-      <explicit
-        name="duration_from_primary_bound"
-        optional="YES">
-        <typename name="Duration"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="NOT (EXISTS(secondary_bound) AND EXISTS(duration_from_primary_bound))">
-      </where>
-      <where
-        label="WR2"
-        expression="EXISTS(primary_bound) OR EXISTS(secondary_bound)">
-      </where>
     </entity>
 
     <entity name="Geometric_coordinate_space"
@@ -4556,26 +4555,6 @@
       </explicit>
     </entity>
 
-    <entity name="Part"
-      supertypes="Product"
-    >
-      <where
-        label="WR1"
-        expression="SIZEOF([&apos;part&apos;, &apos;raw material&apos;, &apos;tool&apos;] * types_of_product(SELF)) = 1">
-      </where>
-    </entity>
-
-    <entity name="Part_version"
-      supertypes="Product_version"
-    >
-      <explicit
-        name="of_product">
-        <typename name="Part"/>
-        <redeclaration
-          entity-ref="Product_version"/>
-      </explicit>
-    </entity>
-
     <entity name="Contextual_shape_representation"
     >
       <explicit
@@ -4710,6 +4689,84 @@
       </explicit>
     </entity>
 
+    <entity name="Axis_placement_2d"
+      supertypes="Axis_placement"
+    >
+    </entity>
+
+    <entity name="Axis_placement_3d"
+      supertypes="Axis_placement"
+    >
+    </entity>
+
+    <entity name="Definitional_representation_relationship"
+      supertypes="Representation_relationship"
+    >
+      <where
+        label="WR1"
+        expression="acyclic_representation_relationship(SELF, [SELF\Representation_relationship.rep_2], &apos;SYSTEM_STRUCTURE_ARM_LF.&apos; + &apos;REPRESENTATION&apos;)">
+      </where>
+    </entity>
+
+    <entity name="Detailed_geometric_model_element_relationship"
+    >
+      <explicit
+        name="item_1">
+        <typename name="Detailed_geometric_model_element"/>
+      </explicit>
+      <explicit
+        name="item_2">
+        <typename name="Detailed_geometric_model_element"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="item_1 &lt;&gt; item_2">
+      </where>
+    </entity>
+
+    <entity name="Geometric_model_relationship"
+      supertypes="Representation_relationship"
+    >
+      <explicit
+        name="rep_1">
+        <typename name="Geometric_model"/>
+        <redeclaration
+          entity-ref="Representation_relationship"/>
+      </explicit>
+      <explicit
+        name="rep_2">
+        <typename name="Geometric_model"/>
+        <redeclaration
+          entity-ref="Representation_relationship"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="rep_1 &lt;&gt; rep_2">
+      </where>
+    </entity>
+
+    <entity name="Geometric_model_element_relationship"
+      supertypes="Detailed_geometric_model_element_relationship Detailed_geometric_model_element"
+    >
+    </entity>
+
+    <entity name="Vector"
+      supertypes="Detailed_geometric_model_element"
+    >
+      <explicit
+        name="orientation">
+        <typename name="Direction"/>
+      </explicit>
+      <explicit
+        name="magnitude">
+        <typename name="length_measure"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="magnitude &gt;= 0.000000">
+      </where>
+    </entity>
+
     <entity name="Characterizable_object"
     >
       <explicit
@@ -4722,6 +4779,26 @@
         optional="YES">
         <builtintype type="STRING"
         />
+      </explicit>
+    </entity>
+
+    <entity name="Part"
+      supertypes="Product"
+    >
+      <where
+        label="WR1"
+        expression="SIZEOF([&apos;part&apos;, &apos;raw material&apos;, &apos;tool&apos;] * types_of_product(SELF)) = 1">
+      </where>
+    </entity>
+
+    <entity name="Part_version"
+      supertypes="Product_version"
+    >
+      <explicit
+        name="of_product">
+        <typename name="Part"/>
+        <redeclaration
+          entity-ref="Product_version"/>
       </explicit>
     </entity>
 
@@ -4849,84 +4926,6 @@
       </explicit>
     </entity>
 
-    <entity name="Axis_placement_2d"
-      supertypes="Axis_placement"
-    >
-    </entity>
-
-    <entity name="Axis_placement_3d"
-      supertypes="Axis_placement"
-    >
-    </entity>
-
-    <entity name="Definitional_representation_relationship"
-      supertypes="Representation_relationship"
-    >
-      <where
-        label="WR1"
-        expression="acyclic_representation_relationship(SELF, [SELF\Representation_relationship.rep_2], &apos;SYSTEM_STRUCTURE_ARM_LF.&apos; + &apos;REPRESENTATION&apos;)">
-      </where>
-    </entity>
-
-    <entity name="Detailed_geometric_model_element_relationship"
-    >
-      <explicit
-        name="item_1">
-        <typename name="Detailed_geometric_model_element"/>
-      </explicit>
-      <explicit
-        name="item_2">
-        <typename name="Detailed_geometric_model_element"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="item_1 &lt;&gt; item_2">
-      </where>
-    </entity>
-
-    <entity name="Geometric_model_relationship"
-      supertypes="Representation_relationship"
-    >
-      <explicit
-        name="rep_1">
-        <typename name="Geometric_model"/>
-        <redeclaration
-          entity-ref="Representation_relationship"/>
-      </explicit>
-      <explicit
-        name="rep_2">
-        <typename name="Geometric_model"/>
-        <redeclaration
-          entity-ref="Representation_relationship"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="rep_1 &lt;&gt; rep_2">
-      </where>
-    </entity>
-
-    <entity name="Geometric_model_element_relationship"
-      supertypes="Detailed_geometric_model_element_relationship Detailed_geometric_model_element"
-    >
-    </entity>
-
-    <entity name="Vector"
-      supertypes="Detailed_geometric_model_element"
-    >
-      <explicit
-        name="orientation">
-        <typename name="Direction"/>
-      </explicit>
-      <explicit
-        name="magnitude">
-        <typename name="length_measure"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="magnitude &gt;= 0.000000">
-      </where>
-    </entity>
-
     <entity name="Curve"
       supertypes="Detailed_geometric_model_element"
     >
@@ -4964,29 +4963,6 @@
       supertypes="Detailed_geometric_model_element"
     >
     </entity>
-
-    <function name="types_of_product">
-      <parameter name="obj">
-        <typename name="Product"/>
-      </parameter>
-      <aggregate type="SET"
-      />
-      <builtintype type="STRING"
-      />
-      <algorithm>
-  LOCAL
-    category_assignments : BAG OF Product_category_assignment;
-    categories : SET OF STRING := [];
-    i : INTEGER;
-  END_LOCAL;
-
-  category_assignments := USEDIN(obj, &apos;SYSTEM_STRUCTURE_ARM_LF.&apos; + &apos;PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS&apos;);
-  REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
-    categories := categories + category_assignments[i].category.name;
-  END_REPEAT;
-  RETURN (categories);
-      </algorithm>
-    </function>
 
     <function name="acyclic_representation_relationship">
       <parameter name="relation">
@@ -5048,6 +5024,29 @@
     END_REPEAT;
   END_IF;
   RETURN (the_set);
+      </algorithm>
+    </function>
+
+    <function name="types_of_product">
+      <parameter name="obj">
+        <typename name="Product"/>
+      </parameter>
+      <aggregate type="SET"
+      />
+      <builtintype type="STRING"
+      />
+      <algorithm>
+  LOCAL
+    category_assignments : BAG OF Product_category_assignment;
+    categories : SET OF STRING := [];
+    i : INTEGER;
+  END_LOCAL;
+
+  category_assignments := USEDIN(obj, &apos;SYSTEM_STRUCTURE_ARM_LF.&apos; + &apos;PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS&apos;);
+  REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+    categories := categories + category_assignments[i].category.name;
+  END_REPEAT;
+  RETURN (categories);
       </algorithm>
     </function>
 
@@ -5123,4 +5122,3 @@
   </schema>
 
 </express>
-

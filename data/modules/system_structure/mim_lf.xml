@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mim_lf.xml,v 1.2 2007/03/03 22:11:54 abhpf Exp $ -->
+<!-- $Id: mim_lf.xml,v 1.3 2007/03/19 00:25:24 abhpf Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
+
 <express
-   language_version="2"
-   rcs.date="$Date: 2007/03/03 22:11:54 $"
-   rcs.revision="$Revision: 1.2 $">
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
     version="1, 3, 30, 37"
-    source="StrMim3LF.exp"/>
+    source="StrMimCDLF.exp"/>
 
   <schema name="System_structure_mim_LF">
     <constant
@@ -51,7 +52,7 @@ href="../../../xsl/express.xsl" ?>
 
     <type name="identification_item">
       <select
-        selectitems="action_method action_property aliasable_item applied_external_identification_assignment approval_status assembly_component_usage_substitute configuration_item contract document_file external_class_library general_property general_property_relationship interface_connection interface_connector_definition interface_connector_occurrence interface_definition_connection interface_specification_definition interface_specification_version measure_representation_item organization product product_as_individual product_as_individual_version product_as_individual_view product_as_planned product_as_realized product_category product_concept product_concept_context product_definition product_definition_context product_definition_formation product_definition_shape product_definition_usage representation security_classification_level shape_aspect_relationship shape_representation"
+        selectitems="action_method action_property applied_external_identification_assignment approval_status assembly_component_usage_substitute configuration_item contract document_file external_class_library general_property general_property_relationship interface_connection interface_connector_definition interface_connector_occurrence interface_definition_connection interface_specification_definition interface_specification_version measure_representation_item organization product product_as_individual product_as_individual_version product_as_individual_view product_as_planned product_as_realized product_category product_concept product_concept_context product_definition product_definition_context product_definition_formation product_definition_shape product_definition_usage representation security_classification security_classification_level shape_aspect_relationship shape_representation"
       />
     </type>
 
@@ -205,20 +206,15 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
+    <type name="id_attribute_select">
+      <select
+        selectitems="action address application_context group organizational_project product_category property_definition representation shape_aspect shape_aspect_relationship"
+      />
+    </type>
+
     <type name="role_select">
       <select
         selectitems="action_assignment action_request_assignment approval_assignment approval_date_time certification_assignment contract_assignment document_reference effectivity_assignment group_assignment name_assignment security_classification_assignment"
-      />
-    </type>
-
-    <type name="aliasable_item">
-      <select
-        selectitems="approval_status contract document_file organization product product_definition product_definition_formation security_classification security_classification_level"
-      />
-    </type>
-
-    <type name="identifier">
-      <builtintype type="STRING"
       />
     </type>
 
@@ -228,9 +224,8 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <type name="id_attribute_select">
-      <select
-        selectitems="action address application_context group organizational_project product_category property_definition representation shape_aspect shape_aspect_relationship"
+    <type name="identifier">
+      <builtintype type="STRING"
       />
     </type>
 
@@ -553,13 +548,40 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <entity name="descriptive_representation_item"
-      supertypes="representation_item"
+    <entity name="assembly_component_usage_substitute"
     >
       <explicit
-        name="description">
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="definition"
+        optional="YES">
         <typename name="text"/>
       </explicit>
+      <explicit
+        name="base">
+        <typename name="assembly_component_usage"/>
+      </explicit>
+      <explicit
+        name="substitute">
+        <typename name="assembly_component_usage"/>
+      </explicit>
+      <unique
+        label="UR1">
+        <unique.attribute
+          attribute="base"/>
+        <unique.attribute
+          attribute="substitute"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="base.relating_product_definition :=: substitute.relating_product_definition">
+      </where>
+      <where
+        label="WR2"
+        expression="base :&lt;&gt;: substitute">
+      </where>
     </entity>
 
     <entity name="system__pmri_characterizable_applied_document_usage_constraint_assignment"
@@ -1391,6 +1413,32 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
+    <entity name="identification_assignment"
+      abstract.supertype="YES"
+    >
+      <explicit
+        name="assigned_id">
+        <typename name="identifier"/>
+      </explicit>
+      <explicit
+        name="role">
+        <typename name="identification_role"/>
+      </explicit>
+    </entity>
+
+    <entity name="identification_role"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+    </entity>
+
     <entity name="product"
     >
       <explicit
@@ -1462,6 +1510,19 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <explicit
         name="related_product">
+        <typename name="product"/>
+      </explicit>
+    </entity>
+
+    <entity name="product_related_product_category"
+      supertypes="product_category"
+    >
+      <explicit
+        name="products">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
         <typename name="product"/>
       </explicit>
     </entity>
@@ -2057,32 +2118,6 @@ href="../../../xsl/express.xsl" ?>
     </entity>
 
     <entity name="document_usage_role"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-    </entity>
-
-    <entity name="identification_assignment"
-      abstract.supertype="YES"
-    >
-      <explicit
-        name="assigned_id">
-        <typename name="identifier"/>
-      </explicit>
-      <explicit
-        name="role">
-        <typename name="identification_role"/>
-      </explicit>
-    </entity>
-
-    <entity name="identification_role"
     >
       <explicit
         name="name">
@@ -2869,40 +2904,9 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="assembly_component_usage_substitute"
+    <entity name="system__pmri_characterizable_applied_document_reference"
+      supertypes="applied_document_reference characterized_object"
     >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="definition"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="base">
-        <typename name="assembly_component_usage"/>
-      </explicit>
-      <explicit
-        name="substitute">
-        <typename name="assembly_component_usage"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="base"/>
-        <unique.attribute
-          attribute="substitute"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="base.relating_product_definition :=: substitute.relating_product_definition">
-      </where>
-      <where
-        label="WR2"
-        expression="base :&lt;&gt;: substitute">
-      </where>
     </entity>
 
     <entity name="applied_organizational_project_assignment"
@@ -2918,9 +2922,13 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="system__pmri_characterizable_applied_document_reference"
-      supertypes="applied_document_reference characterized_object"
+    <entity name="descriptive_representation_item"
+      supertypes="representation_item"
     >
+      <explicit
+        name="description">
+        <typename name="text"/>
+      </explicit>
     </entity>
 
     <entity name="measure_representation_item"
@@ -3090,19 +3098,6 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="product_related_product_category"
-      supertypes="product_category"
-    >
-      <explicit
-        name="products">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="product"/>
-      </explicit>
-    </entity>
-
     <entity name="name_attribute"
     >
       <explicit
@@ -3267,6 +3262,31 @@ href="../../../xsl/express.xsl" ?>
         name="identified_item">
         <typename name="id_attribute_select"/>
       </explicit>
+    </entity>
+
+    <entity name="product_category_relationship"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="category">
+        <typename name="product_category"/>
+      </explicit>
+      <explicit
+        name="sub_category">
+        <typename name="product_category"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="acyclic_product_category_relationship(SELF, [SELF.sub_category])">
+      </where>
     </entity>
 
     <entity name="action_assignment"
@@ -3615,57 +3635,22 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="external_identification_assignment"
+    <entity name="effectivity_assignment"
       abstract.supertype="YES"
-      supertypes="identification_assignment"
     >
       <explicit
-        name="source">
-        <typename name="external_source"/>
+        name="assigned_effectivity">
+        <typename name="effectivity"/>
       </explicit>
-    </entity>
-
-    <entity name="document"
-    >
-      <explicit
-        name="id">
-        <typename name="identifier"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="kind">
-        <typename name="document_type"/>
-      </explicit>
-      <inverse
-        name="representation_types"
-        entity="document_representation_type"
-        attribute="represented_document">
-        <inverse.aggregate
-          type="SET"
-          lower="0"
-          upper="?"
-        />
-      </inverse>
-    </entity>
-
-    <entity name="document_representation_type"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="represented_document">
-        <typename name="document"/>
-      </explicit>
+      <derived
+        name="role"
+        expression="get_role(SELF)">
+        <typename name="object_role"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
+      </where>
     </entity>
 
     <entity name="dated_effectivity"
@@ -3739,24 +3724,6 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="effectivity_assignment"
-      abstract.supertype="YES"
-    >
-      <explicit
-        name="assigned_effectivity">
-        <typename name="effectivity"/>
-      </explicit>
-      <derived
-        name="role"
-        expression="get_role(SELF)">
-        <typename name="object_role"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
-      </where>
-    </entity>
-
     <entity name="event_occurrence_relationship"
     >
       <explicit
@@ -3825,6 +3792,59 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="source">
         <typename name="external_source"/>
+      </explicit>
+    </entity>
+
+    <entity name="external_identification_assignment"
+      abstract.supertype="YES"
+      supertypes="identification_assignment"
+    >
+      <explicit
+        name="source">
+        <typename name="external_source"/>
+      </explicit>
+    </entity>
+
+    <entity name="document"
+    >
+      <explicit
+        name="id">
+        <typename name="identifier"/>
+      </explicit>
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="kind">
+        <typename name="document_type"/>
+      </explicit>
+      <inverse
+        name="representation_types"
+        entity="document_representation_type"
+        attribute="represented_document">
+        <inverse.aggregate
+          type="SET"
+          lower="0"
+          upper="?"
+        />
+      </inverse>
+    </entity>
+
+    <entity name="document_representation_type"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="represented_document">
+        <typename name="document"/>
       </explicit>
     </entity>
 
@@ -4060,31 +4080,6 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="product_category_relationship"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="category">
-        <typename name="product_category"/>
-      </explicit>
-      <explicit
-        name="sub_category">
-        <typename name="product_category"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="acyclic_product_category_relationship(SELF, [SELF.sub_category])">
-      </where>
-    </entity>
-
     <entity name="product_concept_context"
       supertypes="application_context_element"
     >
@@ -4131,200 +4126,6 @@ href="../../../xsl/express.xsl" ?>
         label="WR1"
         expression="SIZEOF(USEDIN(SELF, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ROLE_ASSOCIATION.ITEM_WITH_ROLE&apos;)) &lt;= 1">
       </where>
-    </entity>
-
-    <entity name="cartesian_point"
-      supertypes="point"
-    >
-      <explicit
-        name="coordinates">
-        <aggregate type="LIST"
-          lower="1"
-          upper="3"
-        />
-        <typename name="length_measure"/>
-      </explicit>
-    </entity>
-
-    <entity name="direction"
-      supertypes="geometric_representation_item"
-    >
-      <explicit
-        name="direction_ratios">
-        <aggregate type="LIST"
-          lower="2"
-          upper="3"
-        />
-        <builtintype type="REAL"
-        />
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(tmp &lt;* direction_ratios | tmp &lt;&gt; 0.000000)) &gt; 0">
-      </where>
-    </entity>
-
-    <entity name="axis2_placement_2d"
-      supertypes="placement"
-    >
-      <explicit
-        name="ref_direction"
-        optional="YES">
-        <typename name="direction"/>
-      </explicit>
-      <derived
-        name="p"
-        expression="build_2axes(ref_direction)">
-        <aggregate type="LIST"
-          lower="2"
-          upper="2"
-        />
-        <typename name="direction"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SELF\geometric_representation_item.dim = 2">
-      </where>
-    </entity>
-
-    <entity name="axis2_placement_3d"
-      supertypes="placement"
-    >
-      <explicit
-        name="axis"
-        optional="YES">
-        <typename name="direction"/>
-      </explicit>
-      <explicit
-        name="ref_direction"
-        optional="YES">
-        <typename name="direction"/>
-      </explicit>
-      <derived
-        name="p"
-        expression="build_axes(axis, ref_direction)">
-        <aggregate type="LIST"
-          lower="3"
-          upper="3"
-        />
-        <typename name="direction"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SELF\placement.location.dim = 3">
-      </where>
-      <where
-        label="WR2"
-        expression="(NOT (EXISTS(axis))) OR (axis.dim = 3)">
-      </where>
-      <where
-        label="WR3"
-        expression="(NOT (EXISTS(ref_direction))) OR (ref_direction.dim = 3)">
-      </where>
-      <where
-        label="WR4"
-        expression="(NOT (EXISTS(axis))) OR (NOT (EXISTS(ref_direction))) OR (cross_product(axis, ref_direction).magnitude &gt; 0.000000)">
-      </where>
-    </entity>
-
-    <entity name="geometric_representation_context"
-      supertypes="representation_context"
-    >
-      <explicit
-        name="coordinate_space_dimension">
-        <typename name="dimension_count"/>
-      </explicit>
-    </entity>
-
-    <entity name="geometric_representation_item"
-      supertypes="representation_item"
-      super.expression="ONEOF(point, direction, vector, placement, cartesian_transformation_operator, curve, surface)"
-    >
-      <derived
-        name="dim"
-        expression="dimension_of(SELF)">
-        <typename name="dimension_count"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(using_rep &lt;* using_representations(SELF) | NOT (&apos;SYSTEM_STRUCTURE_MIM_LF.GEOMETRIC_REPRESENTATION_CONTEXT&apos; IN TYPEOF(using_rep.context_of_items)))) = 0">
-      </where>
-    </entity>
-
-    <entity name="cartesian_transformation_operator_2d"
-      supertypes="cartesian_transformation_operator"
-    >
-      <derived
-        name="u"
-        expression="base_axis(2, SELF\cartesian_transformation_operator.axis1, SELF\cartesian_transformation_operator.axis2, ?)">
-        <aggregate type="LIST"
-          lower="2"
-          upper="2"
-        />
-        <typename name="direction"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SELF\geometric_representation_item.dim = 2">
-      </where>
-    </entity>
-
-    <entity name="cartesian_transformation_operator_3d"
-      supertypes="cartesian_transformation_operator"
-    >
-      <explicit
-        name="axis3"
-        optional="YES">
-        <typename name="direction"/>
-      </explicit>
-      <derived
-        name="u"
-        expression="base_axis(3, SELF\cartesian_transformation_operator.axis1, SELF\cartesian_transformation_operator.axis2, axis3)">
-        <aggregate type="LIST"
-          lower="3"
-          upper="3"
-        />
-        <typename name="direction"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SELF\geometric_representation_item.dim = 3">
-      </where>
-    </entity>
-
-    <entity name="shape_representation"
-      supertypes="representation"
-    >
-    </entity>
-
-    <entity name="shape_representation_relationship"
-      supertypes="representation_relationship"
-    >
-      <where
-        label="WR1"
-        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.SHAPE_REPRESENTATION&apos; IN (TYPEOF(SELF\representation_relationship.rep_1) + TYPEOF(SELF\representation_relationship.rep_2))">
-      </where>
-    </entity>
-
-    <entity name="item_defined_transformation"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="transform_item_1">
-        <typename name="representation_item"/>
-      </explicit>
-      <explicit
-        name="transform_item_2">
-        <typename name="representation_item"/>
-      </explicit>
     </entity>
 
     <entity name="shape_definition_representation"
@@ -4775,6 +4576,200 @@ href="../../../xsl/express.xsl" ?>
           upper="?"
         />
         <typename name="document"/>
+      </explicit>
+    </entity>
+
+    <entity name="cartesian_point"
+      supertypes="point"
+    >
+      <explicit
+        name="coordinates">
+        <aggregate type="LIST"
+          lower="1"
+          upper="3"
+        />
+        <typename name="length_measure"/>
+      </explicit>
+    </entity>
+
+    <entity name="direction"
+      supertypes="geometric_representation_item"
+    >
+      <explicit
+        name="direction_ratios">
+        <aggregate type="LIST"
+          lower="2"
+          upper="3"
+        />
+        <builtintype type="REAL"
+        />
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(tmp &lt;* direction_ratios | tmp &lt;&gt; 0.000000)) &gt; 0">
+      </where>
+    </entity>
+
+    <entity name="axis2_placement_2d"
+      supertypes="placement"
+    >
+      <explicit
+        name="ref_direction"
+        optional="YES">
+        <typename name="direction"/>
+      </explicit>
+      <derived
+        name="p"
+        expression="build_2axes(ref_direction)">
+        <aggregate type="LIST"
+          lower="2"
+          upper="2"
+        />
+        <typename name="direction"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SELF\geometric_representation_item.dim = 2">
+      </where>
+    </entity>
+
+    <entity name="axis2_placement_3d"
+      supertypes="placement"
+    >
+      <explicit
+        name="axis"
+        optional="YES">
+        <typename name="direction"/>
+      </explicit>
+      <explicit
+        name="ref_direction"
+        optional="YES">
+        <typename name="direction"/>
+      </explicit>
+      <derived
+        name="p"
+        expression="build_axes(axis, ref_direction)">
+        <aggregate type="LIST"
+          lower="3"
+          upper="3"
+        />
+        <typename name="direction"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SELF\placement.location.dim = 3">
+      </where>
+      <where
+        label="WR2"
+        expression="(NOT (EXISTS(axis))) OR (axis.dim = 3)">
+      </where>
+      <where
+        label="WR3"
+        expression="(NOT (EXISTS(ref_direction))) OR (ref_direction.dim = 3)">
+      </where>
+      <where
+        label="WR4"
+        expression="(NOT (EXISTS(axis))) OR (NOT (EXISTS(ref_direction))) OR (cross_product(axis, ref_direction).magnitude &gt; 0.000000)">
+      </where>
+    </entity>
+
+    <entity name="geometric_representation_context"
+      supertypes="representation_context"
+    >
+      <explicit
+        name="coordinate_space_dimension">
+        <typename name="dimension_count"/>
+      </explicit>
+    </entity>
+
+    <entity name="geometric_representation_item"
+      supertypes="representation_item"
+      super.expression="ONEOF(point, direction, vector, placement, cartesian_transformation_operator, curve, surface)"
+    >
+      <derived
+        name="dim"
+        expression="dimension_of(SELF)">
+        <typename name="dimension_count"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(using_rep &lt;* using_representations(SELF) | NOT (&apos;SYSTEM_STRUCTURE_MIM_LF.GEOMETRIC_REPRESENTATION_CONTEXT&apos; IN TYPEOF(using_rep.context_of_items)))) = 0">
+      </where>
+    </entity>
+
+    <entity name="cartesian_transformation_operator_2d"
+      supertypes="cartesian_transformation_operator"
+    >
+      <derived
+        name="u"
+        expression="base_axis(2, SELF\cartesian_transformation_operator.axis1, SELF\cartesian_transformation_operator.axis2, ?)">
+        <aggregate type="LIST"
+          lower="2"
+          upper="2"
+        />
+        <typename name="direction"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SELF\geometric_representation_item.dim = 2">
+      </where>
+    </entity>
+
+    <entity name="cartesian_transformation_operator_3d"
+      supertypes="cartesian_transformation_operator"
+    >
+      <explicit
+        name="axis3"
+        optional="YES">
+        <typename name="direction"/>
+      </explicit>
+      <derived
+        name="u"
+        expression="base_axis(3, SELF\cartesian_transformation_operator.axis1, SELF\cartesian_transformation_operator.axis2, axis3)">
+        <aggregate type="LIST"
+          lower="3"
+          upper="3"
+        />
+        <typename name="direction"/>
+      </derived>
+      <where
+        label="WR1"
+        expression="SELF\geometric_representation_item.dim = 3">
+      </where>
+    </entity>
+
+    <entity name="shape_representation"
+      supertypes="representation"
+    >
+    </entity>
+
+    <entity name="shape_representation_relationship"
+      supertypes="representation_relationship"
+    >
+      <where
+        label="WR1"
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.SHAPE_REPRESENTATION&apos; IN (TYPEOF(SELF\representation_relationship.rep_1) + TYPEOF(SELF\representation_relationship.rep_2))">
+      </where>
+    </entity>
+
+    <entity name="item_defined_transformation"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="transform_item_1">
+        <typename name="representation_item"/>
+      </explicit>
+      <explicit
+        name="transform_item_2">
+        <typename name="representation_item"/>
       </explicit>
     </entity>
 
@@ -5265,14 +5260,6 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="document_type"
-    >
-      <explicit
-        name="product_data_type">
-        <typename name="label"/>
-      </explicit>
-    </entity>
-
     <entity name="event_occurrence_role"
     >
       <explicit
@@ -5283,6 +5270,14 @@ href="../../../xsl/express.xsl" ?>
         name="description"
         optional="YES">
         <typename name="text"/>
+      </explicit>
+    </entity>
+
+    <entity name="document_type"
+    >
+      <explicit
+        name="product_data_type">
+        <typename name="label"/>
       </explicit>
     </entity>
 
@@ -5369,22 +5364,20 @@ href="../../../xsl/express.xsl" ?>
       </where>
     </entity>
 
-    <function name="orthogonal_complement">
-      <parameter name="vec">
-        <typename name="direction"/>
+    <function name="value_range_wr3">
+      <parameter name="agg">
+        <typename name="compound_item_definition"/>
       </parameter>
-      <typename name="direction"/>
+      <builtintype type="BOOLEAN"
+      />
       <algorithm>
-  LOCAL
-    result : direction;
-  END_LOCAL;
-
-  IF (vec.dim &lt;&gt; 2) OR NOT EXISTS(vec) THEN
-    RETURN (?);
-  ELSE
-    result := dummy_gri||direction([ - vec.direction_ratios[2], vec.direction_ratios[1]]);
-    RETURN (result);
-  END_IF;
+  BEGIN
+    IF (SIZEOF(QUERY(i1 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.MEASURE_REPRESENTATION_ITEM&apos; IN TYPEOF(i1)) AND (SIZEOF(QUERY(i2 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.MEASURE_REPRESENTATION_ITEM&apos; IN TYPEOF(i2)) AND (i1 :&lt;&gt;: i2) AND (i1\measure_with_unit.unit_component :=: i2\measure_with_unit.unit_component))) = 1))) = 2) THEN
+      RETURN (TRUE);
+    ELSE
+      RETURN (FALSE);
+    END_IF;
+  END;
       </algorithm>
     </function>
 
@@ -5813,6 +5806,127 @@ href="../../../xsl/express.xsl" ?>
       </algorithm>
     </function>
 
+    <function name="value_range_wr1">
+      <parameter name="agg">
+        <typename name="compound_item_definition"/>
+      </parameter>
+      <builtintype type="BOOLEAN"
+      />
+      <algorithm>
+  BEGIN
+    IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY(i1 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.MEASURE_REPRESENTATION_ITEM&apos; IN TYPEOF(i1)))) = 2) OR (SIZEOF(QUERY(i2 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.VALUE_REPRESENTATION_ITEM&apos; IN TYPEOF(i2)))) = 2)) THEN
+      RETURN (TRUE);
+    ELSE
+      RETURN (FALSE);
+    END_IF;
+  END;
+      </algorithm>
+    </function>
+
+    <function name="value_range_wr2">
+      <parameter name="agg">
+        <typename name="compound_item_definition"/>
+      </parameter>
+      <builtintype type="BOOLEAN"
+      />
+      <algorithm>
+  BEGIN
+    IF (SIZEOF(QUERY(i &lt;* agg | (i.name = &apos;upper limit&apos;))) = 1) AND (SIZEOF(QUERY(i &lt;* agg | (i.name = &apos;lower limit&apos;))) = 1) THEN
+      RETURN (TRUE);
+    ELSE
+      RETURN (FALSE);
+    END_IF;
+  END;
+      </algorithm>
+    </function>
+
+    <function name="get_id_value">
+      <parameter name="obj">
+        <typename name="id_attribute_select"/>
+      </parameter>
+      <typename name="identifier"/>
+      <algorithm>
+  LOCAL
+    id_bag : BAG OF id_attribute := (USEDIN(obj, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.&apos; + &apos;IDENTIFIED_ITEM&apos;));
+  END_LOCAL;
+
+  IF SIZEOF(id_bag) = 1 THEN
+    RETURN (id_bag[1].attribute_value);
+  ELSE
+    RETURN (?);
+  END_IF;
+      </algorithm>
+    </function>
+
+    <function name="dimensions_for_si_unit">
+      <parameter name="n">
+        <typename name="si_unit_name"/>
+      </parameter>
+      <typename name="dimensional_exponents"/>
+      <algorithm>
+  CASE n OF 
+    metre:
+      RETURN (dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    gram:
+      RETURN (dimensional_exponents(0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    second:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    ampere:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000));
+    kelvin:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000));
+    mole:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000));
+    candela:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
+    radian:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    steradian:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    hertz:
+      RETURN (dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    newton:
+      RETURN (dimensional_exponents(1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    pascal:
+      RETURN (dimensional_exponents( - 1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    joule:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    watt:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    coulomb:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 1.000000, 1.000000, 0.000000, 0.000000, 0.000000));
+    volt:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
+    farad:
+      RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 1.000000, 0.000000, 0.000000, 0.000000));
+    ohm:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
+    siemens:
+      RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 3.000000, 2.000000, 0.000000, 0.000000, 0.000000));
+    weber:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
+    tesla:
+      RETURN (dimensional_exponents(0.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
+    henry:
+      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
+    degree_Celsius:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000));
+    lumen:
+      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
+    lux:
+      RETURN (dimensional_exponents( - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
+    becquerel:
+      RETURN (dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    gray:
+      RETURN (dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    sievert:
+      RETURN (dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
+    OTHERWISE:
+      RETURN (?);
+  END_CASE;
+      </algorithm>
+    </function>
+
     <function name="build_2axes">
       <parameter name="ref_direction">
         <typename name="direction"/>
@@ -5884,20 +5998,21 @@ href="../../../xsl/express.xsl" ?>
       </algorithm>
     </function>
 
-    <function name="get_id_value">
-      <parameter name="obj">
-        <typename name="id_attribute_select"/>
+    <function name="orthogonal_complement">
+      <parameter name="vec">
+        <typename name="direction"/>
       </parameter>
-      <typename name="identifier"/>
+      <typename name="direction"/>
       <algorithm>
   LOCAL
-    id_bag : BAG OF id_attribute := (USEDIN(obj, &apos;SYSTEM_STRUCTURE_MIM_LF.&apos; + &apos;ID_ATTRIBUTE.&apos; + &apos;IDENTIFIED_ITEM&apos;));
+    result : direction;
   END_LOCAL;
 
-  IF SIZEOF(id_bag) = 1 THEN
-    RETURN (id_bag[1].attribute_value);
-  ELSE
+  IF (vec.dim &lt;&gt; 2) OR NOT EXISTS(vec) THEN
     RETURN (?);
+  ELSE
+    result := dummy_gri||direction([ - vec.direction_ratios[2], vec.direction_ratios[1]]);
+    RETURN (result);
   END_IF;
       </algorithm>
     </function>
@@ -6260,126 +6375,6 @@ href="../../../xsl/express.xsl" ?>
   y_axis := vector_difference(y_axis, temp);
   y_axis := normalise(y_axis);
   RETURN (y_axis.orientation);
-      </algorithm>
-    </function>
-
-    <function name="value_range_wr1">
-      <parameter name="agg">
-        <typename name="compound_item_definition"/>
-      </parameter>
-      <builtintype type="BOOLEAN"
-      />
-      <algorithm>
-  BEGIN
-    IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY(i1 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.MEASURE_REPRESENTATION_ITEM&apos; IN TYPEOF(i1)))) = 2) OR (SIZEOF(QUERY(i2 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.VALUE_REPRESENTATION_ITEM&apos; IN TYPEOF(i2)))) = 2)) THEN
-      RETURN (TRUE);
-    ELSE
-      RETURN (FALSE);
-    END_IF;
-  END;
-      </algorithm>
-    </function>
-
-    <function name="value_range_wr2">
-      <parameter name="agg">
-        <typename name="compound_item_definition"/>
-      </parameter>
-      <builtintype type="BOOLEAN"
-      />
-      <algorithm>
-  BEGIN
-    IF (SIZEOF(QUERY(i &lt;* agg | (i.name = &apos;upper limit&apos;))) = 1) AND (SIZEOF(QUERY(i &lt;* agg | (i.name = &apos;lower limit&apos;))) = 1) THEN
-      RETURN (TRUE);
-    ELSE
-      RETURN (FALSE);
-    END_IF;
-  END;
-      </algorithm>
-    </function>
-
-    <function name="value_range_wr3">
-      <parameter name="agg">
-        <typename name="compound_item_definition"/>
-      </parameter>
-      <builtintype type="BOOLEAN"
-      />
-      <algorithm>
-  BEGIN
-    IF (SIZEOF(QUERY(i1 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.MEASURE_REPRESENTATION_ITEM&apos; IN TYPEOF(i1)) AND (SIZEOF(QUERY(i2 &lt;* agg | (&apos;SYSTEM_STRUCTURE_MIM_LF.MEASURE_REPRESENTATION_ITEM&apos; IN TYPEOF(i2)) AND (i1 :&lt;&gt;: i2) AND (i1\measure_with_unit.unit_component :=: i2\measure_with_unit.unit_component))) = 1))) = 2) THEN
-      RETURN (TRUE);
-    ELSE
-      RETURN (FALSE);
-    END_IF;
-  END;
-      </algorithm>
-    </function>
-
-    <function name="dimensions_for_si_unit">
-      <parameter name="n">
-        <typename name="si_unit_name"/>
-      </parameter>
-      <typename name="dimensional_exponents"/>
-      <algorithm>
-  CASE n OF 
-    metre:
-      RETURN (dimensional_exponents(1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    gram:
-      RETURN (dimensional_exponents(0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    second:
-      RETURN (dimensional_exponents(0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    ampere:
-      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000));
-    kelvin:
-      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000));
-    mole:
-      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000));
-    candela:
-      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
-    radian:
-      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    steradian:
-      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    hertz:
-      RETURN (dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    newton:
-      RETURN (dimensional_exponents(1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    pascal:
-      RETURN (dimensional_exponents( - 1.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    joule:
-      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    watt:
-      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    coulomb:
-      RETURN (dimensional_exponents(0.000000, 0.000000, 1.000000, 1.000000, 0.000000, 0.000000, 0.000000));
-    volt:
-      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
-    farad:
-      RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 4.000000, 1.000000, 0.000000, 0.000000, 0.000000));
-    ohm:
-      RETURN (dimensional_exponents(2.000000, 1.000000,  - 3.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
-    siemens:
-      RETURN (dimensional_exponents( - 2.000000,  - 1.000000, 3.000000, 2.000000, 0.000000, 0.000000, 0.000000));
-    weber:
-      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
-    tesla:
-      RETURN (dimensional_exponents(0.000000, 1.000000,  - 2.000000,  - 1.000000, 0.000000, 0.000000, 0.000000));
-    henry:
-      RETURN (dimensional_exponents(2.000000, 1.000000,  - 2.000000,  - 2.000000, 0.000000, 0.000000, 0.000000));
-    degree_Celsius:
-      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000));
-    lumen:
-      RETURN (dimensional_exponents(0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
-    lux:
-      RETURN (dimensional_exponents( - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000));
-    becquerel:
-      RETURN (dimensional_exponents(0.000000, 0.000000,  - 1.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    gray:
-      RETURN (dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    sievert:
-      RETURN (dimensional_exponents(2.000000, 0.000000,  - 2.000000, 0.000000, 0.000000, 0.000000, 0.000000));
-    OTHERWISE:
-      RETURN (?);
-  END_CASE;
       </algorithm>
     </function>
 

@@ -23,6 +23,7 @@ public class MakeCMRecordGui implements ActionListener {
     String moduleDir;
 
     StringIf releaseIf = new StringIf("Release", "");
+    StringIf stepmodReleaseIf = new StringIf("STEPMOD release", "");
     StringIf releaseSequenceIf = new StringIf("Release sequence", "");
     StringIf editionIf = new StringIf("Edition", "");
     StringIf whoIf = new StringIf("Who", "");
@@ -42,7 +43,7 @@ public class MakeCMRecordGui implements ActionListener {
         guiFrame.setSize(new Dimension(240, 80));
 
         //Create and set up the panel.
-        guiPanel = new JPanel(new GridLayout(8,2));
+        guiPanel = new JPanel(new GridLayout(9,2));
 
         //Add the widgets.
         addWidgets();
@@ -74,6 +75,7 @@ public class MakeCMRecordGui implements ActionListener {
 
         //Add the widgets to the container.
 	releaseIf.add(guiPanel);
+	stepmodReleaseIf.add(guiPanel);
 	releaseSequenceIf.add(guiPanel);
 	editionIf.add(guiPanel);
 	whoIf.add(guiPanel);
@@ -88,22 +90,16 @@ public class MakeCMRecordGui implements ActionListener {
 	String cmd = event.getActionCommand();
 	if (cmd.equals("create")) {
 	    try {
+		/*
+		File cmRecordFile = new File(moduleDir, "cm_record.xml");
+		if (cmRecordFile.exists()) {
+		    // Ask user if they wish to continue.
+		}
+		*/
 		String dateStr = whenIf.getValue();
 		java.util.Date date = MakeCMRecord.isoDateFormat.parse(dateStr);
-		/*
-		// The following code is needed because isoDateFormat.parse is not picking up
-		// the hours, minutes and seconds.
-		String[] comp = dateStr.split(" ");
-		String[] comp1 = comp[1].split(":");
-		GregorianCalendar cal = new GregorianCalendar();
-		cal.setTime(date);
-		cal.set(GregorianCalendar.HOUR, Integer.parseInt(comp1[0]));
-		cal.set(GregorianCalendar.MINUTE, Integer.parseInt(comp1[1]));
-		cal.set(GregorianCalendar.SECOND, Integer.parseInt(comp1[2]));
-		date = cal.getTime();
-		*/
-		makeCMRecord = new MakeCMRecord(moduleDir, "cm_record.xml", descriptionIf.getValue(), releaseIf.getValue(), statusIf.getValue(), releaseSequenceIf.getValue(), editionIf.getValue(), date, whoIf.getValue());
-		makeCMRecord.transform();
+		makeCMRecord = new MakeCMRecord(moduleDir, "cm_record.xml", descriptionIf.getValue(), releaseIf.getValue(), stepmodReleaseIf.getValue(), statusIf.getValue(), releaseSequenceIf.getValue(), editionIf.getValue(), date, whoIf.getValue());
+		makeCMRecord.generateCM();
 		makeCMRecord.write();
 
 		System.exit(1);

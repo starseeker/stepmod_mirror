@@ -10,7 +10,7 @@
 </xsl:template>
 
 <xsl:template match="module">
-  <xsl:comment> $Id: $ </xsl:comment>
+  <xsl:comment> $Id: cm-record.xsl,v 1.1 2007/04/13 01:57:37 radack Exp $ </xsl:comment>
 
   <xsl:comment> A configuration management record
      part_name
@@ -28,8 +28,8 @@
   part_name="{@name}"
   part_type="module"
   part_number="{@part}"
-  cvs_revision="$Revision: $"
-  cvs_date="$Date: $">
+  cvs_revision="$Revision: 1.1 $"
+  cvs_date="$Date: 2007/04/13 01:57:37 $">
 <cm_releases>
    <xsl:comment> A relase of the part
          release
@@ -63,8 +63,8 @@
       edition="{@version}"
       who="*** FILL IN ***"
       when="*** FILL IN ***"
-      description="*** FILL IN ***">
-      status="{@status}"
+      description="*** FILL IN ***"
+      status="*** FILL IN ***">
     <dependencies>
       <sources>
       </sources>

@@ -16,16 +16,18 @@ import org.w3c.dom.*;
 
 public class MakeCMRecord {
     File moduleRoot;
-    File moduleXML;
+    File moduleXMLFile;
     InputStream xsltStream;
     File cmRecordFile;
     String description;
     String release;
+    String stepmodRelease;
     String status;
     String releaseSequence;
     String edition;
     java.util.Date when;
     String who;
+    boolean recordExists;
 
     Document document;
     TransformerFactory transFact;
@@ -54,41 +56,31 @@ public class MakeCMRecord {
     public static final SimpleDateFormat cmrDateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy");
     public static final SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public MakeCMRecord(String directory, String cmFileName, String description, String release, String status, String releaseSequence, String edition, java.util.Date when, String who) {
+    public MakeCMRecord(String directory, String cmFileName, String description, String release, String stepmodRelease, String status, String releaseSequence, String edition, java.util.Date when, String who) {
 	// Make sure that the Saxon implementation of TransformerFactory is used.
 	System.setProperty("javax.xml.transform.TransformerFactory","net.sf.saxon.TransformerFactoryImpl");
 	moduleRoot = new File(directory);
-	moduleXML = new File(moduleRoot, "module.xml");
+	moduleXMLFile = new File(moduleRoot, "module.xml");
 	xsltStream = ClassLoader.getSystemResourceAsStream("cm-record.xsl");
 	cmRecordFile = new File(moduleRoot, cmFileName);
 	this.description = description;
 	this.release = release;
+	this.stepmodRelease = stepmodRelease;
 	this.status = status;
 	this.releaseSequence = releaseSequence;
 	this.edition = edition;
 	this.when = when;
 	this.who = who;
+	File cmRecordFile = new File(moduleRoot, "cm_record.xml");
+	recordExists = cmRecordFile.exists();
     }
 
-    public void transform() throws java.io.FileNotFoundException, java.io.IOException, javax.xml.transform.TransformerException {
+    public void generateCM() throws java.io.FileNotFoundException, java.io.IOException, javax.xml.transform.TransformerException {
 	Node rootNode;
 	Element sources;
-	String whenStr;
 
-	rootNode = transform(moduleXML, xsltStream);
+	rootNode = transform(moduleXMLFile, xsltStream);
 	document = (Document) rootNode;
-        NodeList cmReleaseList = document.getElementsByTagName("cm_release");
-	for (int i=0; i<cmReleaseList.getLength(); i++) {
-	    Element cmRelease = (Element) cmReleaseList.item(i);
-	    cmRelease.setAttribute("description", description);
-	    cmRelease.setAttribute("release", release);
-	    cmRelease.setAttribute("status", status);
-	    cmRelease.setAttribute("release_sequence", releaseSequence);
-	    cmRelease.setAttribute("edition", edition);
-	    whenStr = cmrDateFormat.format(when);
-	    cmRelease.setAttribute("when", whenStr);
-	    cmRelease.setAttribute("who", who);
-	}
 	NodeList sourcesList = document.getElementsByTagName("sources");
 	sources = (Element) sourcesList.item(0);
 	processDir(moduleRoot, moduleRoot, sources);
@@ -105,8 +97,23 @@ public class MakeCMRecord {
         // create an instance of TransformerFactory
         transFact = TransformerFactory.newInstance();
  
+	String whenStr = cmrDateFormat.format(when);
+	String recordExistsStr = "false";
+	if (recordExists) {
+	    recordExistsStr = "true";
+	}
+
         Transformer trans = transFact.newTransformer(xsltSource);
 	trans.setParameter("release", release);
+	trans.setParameter("stepmod_release", stepmodRelease);
+	trans.setParameter("release_sequence", releaseSequence);
+	trans.setParameter("edition", edition);
+	trans.setParameter("who", who);
+	trans.setParameter("when", whenStr);
+	trans.setParameter("description", description);
+	trans.setParameter("status", status);
+	trans.setParameter("record_exists", recordExistsStr);
+
         trans.transform(xmlSource, result);
 	return result.getNode();
     }
@@ -254,24 +261,6 @@ public class MakeCMRecord {
 	Transformer transformer = transFact.newTransformer(xsltSource);
 	transformer.transform(source, result);
     }
-
-    /*
-    public static void main(String[] arg) {
-	try {
-	    if (arg.length != 2) {
-		System.err.print(helpStr);
-	    }
-	    else {
-		MakeCMRecord cmr = new MakeCMRecord(arg[0], arg[1]);
-		cmr.transform();
-		cmr.write();
-	    }
-	}
-	catch (Exception e) {
-	    e.printStackTrace();
-	}
-    }
-    */
 }
 
 class Metadata {

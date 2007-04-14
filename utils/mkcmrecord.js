@@ -1,4 +1,4 @@
-//$Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+//$Id: mkcmrecord.js,v 1.1 2007/04/13 02:02:31 radack Exp $
 //  Author: Gerald Radack
 //          Adapted from mkmodule.js by Rob Bodington.
 //  Purpose: JScript to generate CM record for a module.
@@ -120,7 +120,7 @@ function MakeCmRecord(module) {
 	var env = objShell.Environment("SYSTEM");
 	var saxonHome = env("SAXON_HOME");
 	var classpath = "mkcmrecord;mkcmrecord/mkcmrecord.jar;" + saxonHome + "/saxon8.jar;" + saxonHome + "/saxon8-dom.jar";
-	var cmd = "java -classpath " + classpath + " MakeCMRecordGui " + modFldr;
+	var cmd = "java -classpath " + classpath + " MakeCMRecordGui " + stepmodHome + " " + module;
 
 	oExec = objShell.Exec(cmd);
 
@@ -143,19 +143,23 @@ function MainWindow(module) {
     if (modName.length > 1) {
 	var intRet = 1;
 
-	var modFldr = GetModuleDir(module);
-	if (fso.fileExists(modFldr+"/cm_record.xml")) {
-	    var question = "Create CM record for module " + module + "? This will overwrite the existing CM record.";
-	    intRet = objShell.Popup(question,0, "Creating CM record", 49);
+	var modFldr = GetModuleDir(modName);
+	var cmFilePath = modFldr+"cm_record.xml";
+	objShell.Popup("cmFilePath = " + cmFilePath);
+	if (fso.fileExists(cmFilePath)) {
+	    var question = "Update CM record for module " + module + "? ";
+	    intRet = objShell.Popup(question,0, "Update existing CM record", 49);
 	}
 
 	if (intRet == 1) {
 	    // OK
 	    intRet = MakeCmRecord(module);
+	    /*
 	    if (intRet = 1) {
-		objShell.Popup("Created CM record: stepmod/data/modules/"+modName+"/cm_record.xml\n",
+		objShell.Popup("CM record created or updated: stepmod/data/modules/"+modName+"/cm_record.xml\n",
 			       0, "Created CM record", 64);
 	    }
+	    */
 	}
     } else {
 	objShell.Popup("You must enter a module name");

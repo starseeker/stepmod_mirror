@@ -3,6 +3,7 @@
 /*                                                                              *
 /* Author: Gerald Radack                                                        *
 /********************************************************************************/
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
@@ -20,7 +21,7 @@ public class MakeCMRecordGui implements ActionListener {
     JFrame guiFrame;
     JPanel guiPanel;
 
-    String moduleDir;
+    File moduleDir;
 
     StringIf releaseIf = new StringIf("Release", "");
     StringIf stepmodReleaseIf = new StringIf("STEPMOD release", "");
@@ -34,7 +35,7 @@ public class MakeCMRecordGui implements ActionListener {
     JButton createButton;
     JButton cancelButton;
 
-    public MakeCMRecordGui(String moduleDir) {
+    public MakeCMRecordGui(File moduleDir) {
 	this.moduleDir = moduleDir;
 
         //Create and set up the window.
@@ -90,12 +91,6 @@ public class MakeCMRecordGui implements ActionListener {
 	String cmd = event.getActionCommand();
 	if (cmd.equals("create")) {
 	    try {
-		/*
-		File cmRecordFile = new File(moduleDir, "cm_record.xml");
-		if (cmRecordFile.exists()) {
-		    // Ask user if they wish to continue.
-		}
-		*/
 		String dateStr = whenIf.getValue();
 		java.util.Date date = MakeCMRecord.isoDateFormat.parse(dateStr);
 		makeCMRecord = new MakeCMRecord(moduleDir, "cm_record.xml", descriptionIf.getValue(), releaseIf.getValue(), stepmodReleaseIf.getValue(), statusIf.getValue(), releaseSequenceIf.getValue(), editionIf.getValue(), date, whoIf.getValue());
@@ -118,21 +113,35 @@ public class MakeCMRecordGui implements ActionListener {
      * this method should be invoked from the
      * event-dispatching thread.
      */
-    private static void createAndShowGUI(String moduleDir) {
+    private static void createAndShowGUI(File moduleDir) {
         //Make sure we have nice window decorations.
         JFrame.setDefaultLookAndFeelDecorated(true);
 
         MakeCMRecordGui gui = new MakeCMRecordGui(moduleDir);
     }
 
-    public static void main(final String[] arg) {
-        //Schedule a job for the event-dispatching thread:
-        //creating and showing this application's GUI.
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createAndShowGUI(arg[0]);
-            }
-        });
+    public static void main(String[] arg) {
+	String stepmodBasePath = arg[0];
+	String moduleName = arg[1];
+	try {
+	    moduleName = moduleName.toLowerCase().trim();
+	    moduleName = moduleName.replace(" ","_");
+	    moduleName = moduleName.replace("-","_");
+	    File stepmodBaseDir = new File((new File(stepmodBasePath)).getCanonicalPath());
+	    final File moduleDir = new File(stepmodBaseDir,"data/modules/" + moduleName);
+
+	    System.err.println("module name = " + moduleName);
+	    //Schedule a job for the event-dispatching thread:
+	    //creating and showing this application's GUI.
+	    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+			createAndShowGUI(moduleDir);
+		    }
+		});
+	}
+	catch (Exception e) {
+	    e.printStackTrace();
+	}
     }
 }
 

@@ -15,7 +15,8 @@ import javax.xml.transform.TransformerFactory;
 import org.w3c.dom.*;
 
 public class MakeCMRecord {
-    File moduleRoot;
+    String moduleName;
+    File moduleDir;
     File moduleXMLFile;
     InputStream xsltStream;
     File cmRecordFile;
@@ -56,13 +57,22 @@ public class MakeCMRecord {
     public static final SimpleDateFormat cmrDateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy");
     public static final SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public MakeCMRecord(String directory, String cmFileName, String description, String release, String stepmodRelease, String status, String releaseSequence, String edition, java.util.Date when, String who) {
+    public MakeCMRecord(File moduleDir, String cmFileName, String description, String release, String stepmodRelease, String status, String releaseSequence, String edition, java.util.Date when, String who) {
 	// Make sure that the Saxon implementation of TransformerFactory is used.
 	System.setProperty("javax.xml.transform.TransformerFactory","net.sf.saxon.TransformerFactoryImpl");
-	moduleRoot = new File(directory);
-	moduleXMLFile = new File(moduleRoot, "module.xml");
+	this.moduleDir = moduleDir;
+	try {
+	    String path = moduleDir.getCanonicalPath();
+	    System.err.println("path = " + path);
+	    System.setProperty("user.dir", path);
+	    System.err.println("user.dir = " + System.getProperty("user.dir"));
+	}
+	catch (Exception e) {
+	    e.printStackTrace();
+	}
+	moduleXMLFile = new File(moduleDir, "module.xml");
 	xsltStream = ClassLoader.getSystemResourceAsStream("cm-record.xsl");
-	cmRecordFile = new File(moduleRoot, cmFileName);
+	cmRecordFile = new File(moduleDir, cmFileName);
 	this.description = description;
 	this.release = release;
 	this.stepmodRelease = stepmodRelease;
@@ -71,7 +81,7 @@ public class MakeCMRecord {
 	this.edition = edition;
 	this.when = when;
 	this.who = who;
-	File cmRecordFile = new File(moduleRoot, "cm_record.xml");
+	File cmRecordFile = new File(moduleDir, "cm_record.xml");
 	recordExists = cmRecordFile.exists();
     }
 
@@ -82,8 +92,16 @@ public class MakeCMRecord {
 	rootNode = transform(moduleXMLFile, xsltStream);
 	document = (Document) rootNode;
 	NodeList sourcesList = document.getElementsByTagName("sources");
-	sources = (Element) sourcesList.item(0);
-	processDir(moduleRoot, moduleRoot, sources);
+	for (int i=0; i<sourcesList.getLength(); i++) {
+	    sources = (Element) sourcesList.item(i);
+	    if (sources.getTextContent().trim().equals("*** INSERT DIRECTORY ELEMENTS ***")) {
+		NodeList childList = sources.getChildNodes();
+		for (int j=0; j<childList.getLength(); j++) {
+		    sources.removeChild(childList.item(j));
+		}
+		processDir(moduleDir, moduleDir, sources);
+	    }
+	}
     }
 
     Node transform(File xmlFile, InputStream xsltStream) throws javax.xml.transform.TransformerException {

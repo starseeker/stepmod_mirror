@@ -1,5 +1,5 @@
 /*
- * $Id: STEPModFrame.java,v 1.45 2007/03/26 16:09:21 joshpearce2005 Exp $
+ * $Id: STEPModFrame.java,v 1.46 2007/03/28 10:45:08 joshpearce2005 Exp $
  *
  * STEPModFrame.java
  *
@@ -1119,6 +1119,14 @@ public class STEPModFrame extends javax.swing.JFrame {
         initFrmwkNewReleasePopupMenu();
         initDevRevisionPopupMenu();
         setVisible(true);
+        
+        //        
+        JOptionPane.showMessageDialog(this,
+                "Before using the STEPmod CM tool to create releases:\n" +
+                "1) Use the tool (or CVS) to update the CM records (stepmod/config_management)\n" +
+                "2) Ensure you have developer permissions to create the CM records (stepmod/config_management)/\n" +
+                "3) Ensure you have checked out the specified release of the common files and STEPMod framework\n\n"+
+                "Further details are found in the help files");
     }
     
     
@@ -1998,6 +2006,10 @@ public class STEPModFrame extends javax.swing.JFrame {
                 } else if (check == StepmodPart.RELEASE_CHECK_ERROR_DEVELOPMENT_PART) {
                     warning("Cannot create a release the part is checked out as a release.\nCheck out a development release");
                     return;
+                } else if ((part.getStepMod().getStepmodCommonRelease() == null)
+                || (part.getStepMod().getStepmodFrameworkRelease() == null)) {
+                    // Check to see if the STEPmod basic has been checked out
+                    warning("A released version of the Common files and STEPmod framework must be checked out before creating a release");
                 } else {
                     new STEPModMkReleaseDialog(part, node).setVisible(true);
                 }
@@ -2017,8 +2029,14 @@ public class STEPModFrame extends javax.swing.JFrame {
                     warning("Cannot create a release as the part has not been checked out as a using a tag");
                     return;
                 } else {
-                    String tag = part.getCvsTag();
-                    new STEPModMkReleaseDialog(part, node, tag).setVisible(true);
+                    if ((part.getStepMod().getStepmodCommonRelease() == null)                    
+                    || (part.getStepMod().getStepmodFrameworkRelease() == null)) {
+                        // Check to see if the STEPmod basic has been checked out
+                        warning("A released version of the Common files and STEPmod framework must be checked out before creating a release");
+                    } else {
+                        String tag = part.getCvsTag();
+                        new STEPModMkReleaseDialog(part, node, tag).setVisible(true);
+                    }
                 }
             }
         });
@@ -2069,7 +2087,7 @@ public class STEPModFrame extends javax.swing.JFrame {
                 StepmodPart stepmodPart = stepmodPartTreeNode.getStepmodPart();
                 stepmodPart.publicationCreatePackage();
             }
-          
+            
         });
         cvsPublicationSubmenu.add(createModulePublicationPackage);
         
@@ -2133,7 +2151,13 @@ public class STEPModFrame extends javax.swing.JFrame {
                 STEPModFrame frame = part.getStepMod().getStepModGui();
                 CmRelease cmRelease = cmReleaseTreeNode.getCmRelease();
                 if (cmRelease != null) {
-                    new STEPModMkReleaseDialog(part, node, cmRelease).setVisible(true);
+                    if ((part.getStepMod().getStepmodCommonRelease() == null)
+                    || (part.getStepMod().getStepmodFrameworkRelease() == null)) {
+                        // Check to see if the STEPmod basic has been checked out
+                        warning("A released version of the Common files and STEPmod framework must be checked out before creating a release");
+                    } else {
+                        new STEPModMkReleaseDialog(part, node, cmRelease).setVisible(true);
+                    }
                 } else {
                     JOptionPane.showMessageDialog(frame,
                             "Trying to change the development revision - choose a release",
@@ -3210,16 +3234,23 @@ public class STEPModFrame extends javax.swing.JFrame {
     
     private void selCreateCmReleaseFromTagMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selCreateCmReleaseFromTagMenuItemActionPerformed
         DefaultMutableTreeNode root = (DefaultMutableTreeNode)repositoryJTree.getModel().getRoot();
-        for (Iterator it = getSelectedParts().iterator(); it.hasNext();) {
-            // tag each selected part
-            StepmodPart part = (StepmodPart) it.next();
-            DefaultMutableTreeNode node = findNodeByPart(root, part);
-            boolean check = part.isCheckedOutTag();
-            if (!check) {
-                warning("Cannot create a release as the part "+ part +" has not been checked out a using a tag");
-            } else {
-                String tag = part.getCvsTag();
-                new STEPModMkReleaseDialog(part, node, tag).setVisible(true);
+        if ((this.getStepMod().getStepmodCommonRelease() == null)
+        || (this.getStepMod().getStepmodFrameworkRelease() == null)) {
+            // Check to see if the STEPmod basic has been checked out
+            warning("A released version of the Common files and STEPmod framework must be checked out before creating a release");
+        } else {
+            for (Iterator it = getSelectedParts().iterator(); it.hasNext();) {
+                // tag each selected part
+                StepmodPart part = (StepmodPart) it.next();
+                DefaultMutableTreeNode node = findNodeByPart(root, part);
+                boolean check = part.isCheckedOutTag();
+                if (!check) {
+                    warning("Cannot create a release as the part "+ part +" has not been checked out a using a tag");
+                } else {
+                    
+                    String tag = part.getCvsTag();
+                    new STEPModMkReleaseDialog(part, node, tag).setVisible(true);
+                }
             }
         }
     }//GEN-LAST:event_selCreateCmReleaseFromTagMenuItemActionPerformed
@@ -3403,7 +3434,7 @@ public class STEPModFrame extends javax.swing.JFrame {
         if (getStepMod().isValidStepmodRoot()) {
             String currentRepo = getStepMod().getStepmodProperty("STEPMODROOT")+"/repository_index.xml";
             int answer = JOptionPane.showConfirmDialog(this,
-                    "You are about to load the repository_index\n "+currentRepo+"\nThis will overwrite everything already loaded.\n\nDo you want to continue?",
+                    "You are about to load the repository_index\n "+currentRepo+"\nDo you want to continue?",
                     "Loading repository_index.xml ....",
                     JOptionPane.YES_NO_OPTION);
             if (answer == JOptionPane.YES_OPTION) {

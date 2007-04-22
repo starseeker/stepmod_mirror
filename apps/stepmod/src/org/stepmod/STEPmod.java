@@ -1,5 +1,5 @@
 /*
- * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
+ * $Id: STEPmod.java,v 1.23 2006/12/13 15:23:51 joshpearce2005 Exp $
  *
  * STEPmod.java
  *
@@ -516,15 +516,23 @@ public class STEPmod {
     /**
      * Returns the release of the common files (data/basic) of STEPmod that is currently checked out.
      */
-    String getStepmodCommonRelease() {
-        return(getBasicCmRecord().getCheckedOutRelease().getId());
+    public String getStepmodCommonRelease() {
+        String id = null;
+        if (getBasicCmRecord().getCheckedOutRelease() != null) {
+            id = getBasicCmRecord().getCheckedOutRelease().getId();
+        }
+        return(id);
     }
- 
-   /**
+    
+    /**
      * Returns the release of the STEPmod framework files (xsl, dtd) is currently checked out.
      */
-    String getStepmodFrameworkRelease() {
-      return(getStepmodCmRecord().getCheckedOutRelease().getId());
+    public String getStepmodFrameworkRelease() {
+        String id = null;
+        if (getStepmodCmRecord().getCheckedOutRelease() != null) {
+            id = getStepmodCmRecord().getCheckedOutRelease().getId();
+        }
+        return(id);
     }
     
     public File getCurrentRepositoryIndex() {
@@ -615,12 +623,12 @@ public class STEPmod {
     public void setStepmodCmRecord(CmRecordFrmwk stepmodCmRecord) {
         this.stepmodCmRecord = stepmodCmRecord;
     }
-
+    
     public String toString() {
         return("STEPmod");
     }
-     
-        
+    
+    
 }
 
 

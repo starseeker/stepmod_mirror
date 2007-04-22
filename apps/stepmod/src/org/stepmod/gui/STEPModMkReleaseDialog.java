@@ -1,5 +1,5 @@
 /*
- * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
+ * $Id: STEPModMkReleaseDialog.java,v 1.6 2006/12/13 15:23:51 joshpearce2005 Exp $
  *
  * STEPModMkReleaseDialog.java
  *
@@ -127,6 +127,7 @@ public class STEPModMkReleaseDialog extends javax.swing.JDialog {
                         "CVS action ....",
                         JOptionPane.YES_NO_OPTION);
                 if (answer == JOptionPane.YES_OPTION) {
+                    
                     CmRelease cmRelease = new CmRelease(
                             existingTag, part,
                             releaseWhojTextField.getText(),

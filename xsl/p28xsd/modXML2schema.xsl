@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-	$Id: modXML2schema.xsl,v 1.59 2006/02/23 09:32:20 mikeward Exp $
+	$Id: modXML2schema.xsl,v 1.60 2006/05/17 15:37:44 mikeward Exp $
 	Author:  Mike Ward, Eurostep Limited
 	Owner:   Developed by Eurostep.
 	Purpose:     generation of p28 XSD from expressXML
@@ -60,7 +60,7 @@
 		<xsl:element name="xs:schema">
 			<xsl:copy-of select="document('../../dtd/part28/exp_namespace.xml')/*/namespace::exp"/>
 			<xsl:copy-of select="document(concat($directory_path, '/stepmod_namespace.xml'))/*/namespace::*"/>
-			<xsl:attribute name="targetNamespace"><xsl:value-of select="concat('urn:iso10303-28:xs/', $schema_name)"/></xsl:attribute>
+			<xsl:attribute name="targetNamespace"><xsl:value-of select="concat('urn:iso10303-28:schema/', $schema_name)"/></xsl:attribute>
 			<xsl:text>&#xa;</xsl:text>
 			<xs:import namespace="urn:iso:std:iso:10303:28:ed-2:2005:schema:common" schemaLocation="{$base_schema_location}"/>
 			<xsl:text>&#xa;</xsl:text>
@@ -72,6 +72,7 @@
 							<xs:element ref="exp:Entity"/>
 							<xs:element ref="exp:edokey"/>
 						</xs:choice>
+						<!-- xs:anyAttribute namespace="##any" processContents="skip"/ -->
 					</xs:extension>
 				</xs:complexContent>
 			</xs:complexType>
@@ -236,47 +237,54 @@
 	</xsl:template>
 	
 	<xsl:template match="entity" mode="keys">
-		<xsl:variable name="raw_entity_name" select="./@name"/>
-		<xsl:variable name="corrected_entity_name">
-			<xsl:call-template name="correct_express_name">
-				<xsl:with-param name="raw_express_name_param" select="$raw_entity_name"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<xsl:text>&#xa;</xsl:text>
-		<xsl:text>&#xa;</xsl:text>
-		<xs:key name="{$schema_name}___{$corrected_entity_name}-key">
-			<xs:selector xpath="{$namespace_prefix}{$corrected_entity_name}"/>
-			<xs:field xpath="@id"/>
-		</xs:key>
-		<xsl:text>&#xa;</xsl:text>
-		<xsl:text>&#xa;</xsl:text>
-		<xs:keyref name="{$schema_name}___{$corrected_entity_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_entity_name}-key">
-			<xs:selector xpath=".//{$namespace_prefix}{$corrected_entity_name}"/>
-			<xs:field xpath="@ref"/>
-		</xs:keyref>
-		<xsl:text>&#xa;</xsl:text>
-		<xsl:text>&#xa;</xsl:text>
-		<xsl:variable name="subtypes_list">
-			<xsl:call-template name="collect_subtypes">
-				<xsl:with-param name="top_entity_name_param" select="$raw_entity_name"/>
-			</xsl:call-template>
-		</xsl:variable>
-		<!-- test whether end of recursion found -->
-		<xsl:if test="string-length($subtypes_list)!=0">
-			<xsl:text>&#xa;</xsl:text>
-			<xsl:text>&#xa;</xsl:text>
-			<xs:key name="{$schema_name}___{$corrected_entity_name}-keysub">
-				<xsl:variable name="subtypes_xpath">
-					<xsl:call-template name="generate_subtypes_xpath_for_key">
-						<xsl:with-param name="subtypes_list_param" select="$subtypes_list"/>
+		<xsl:variable name="abstract" select="./@abstract.supertype"/>
+		<xsl:choose>
+			<xsl:when test="$abstract='YES'"></xsl:when>
+			<xsl:when test="$abstract='yes'"></xsl:when>
+			<xsl:otherwise>
+				<xsl:variable name="raw_entity_name" select="./@name"/>
+				<xsl:variable name="corrected_entity_name">
+					<xsl:call-template name="correct_express_name">
+						<xsl:with-param name="raw_express_name_param" select="$raw_entity_name"/>
 					</xsl:call-template>
 				</xsl:variable>
-				<xs:selector xpath="{$namespace_prefix}{$corrected_entity_name}{$subtypes_xpath}"/>
-				<xs:field xpath="@id"/>
-			</xs:key>
-			<xsl:text>&#xa;</xsl:text>
-			<xsl:text>&#xa;</xsl:text>
-		</xsl:if>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+				<xs:key name="{$schema_name}___{$corrected_entity_name}-key">
+					<xs:selector xpath="{$namespace_prefix}{$corrected_entity_name}"/>
+					<xs:field xpath="@id"/>
+				</xs:key>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+				<xs:keyref name="{$schema_name}___{$corrected_entity_name}-keyref" refer="{$namespace_prefix}{$schema_name}___{$corrected_entity_name}-key">
+					<xs:selector xpath=".//{$namespace_prefix}{$corrected_entity_name}"/>
+					<xs:field xpath="@ref"/>
+				</xs:keyref>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:text>&#xa;</xsl:text>
+				<xsl:variable name="subtypes_list">
+					<xsl:call-template name="collect_subtypes">
+						<xsl:with-param name="top_entity_name_param" select="$raw_entity_name"/>
+					</xsl:call-template>
+				</xsl:variable>
+				<!-- test whether end of recursion found -->
+				<xsl:if test="string-length($subtypes_list)!=0">
+					<xsl:text>&#xa;</xsl:text>
+					<xsl:text>&#xa;</xsl:text>
+					<xs:key name="{$schema_name}___{$corrected_entity_name}-keysub">
+						<xsl:variable name="subtypes_xpath">
+							<xsl:call-template name="generate_subtypes_xpath_for_key">
+								<xsl:with-param name="subtypes_list_param" select="$subtypes_list"/>
+							</xsl:call-template>
+						</xsl:variable>
+						<xs:selector xpath="{$namespace_prefix}{$corrected_entity_name}{$subtypes_xpath}"/>
+						<xs:field xpath="@id"/>
+					</xs:key>
+					<xsl:text>&#xa;</xsl:text>
+					<xsl:text>&#xa;</xsl:text>
+				</xsl:if>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 	
 	<!-- DEAL WITH NON-ENTITY EXPRESS DATATYPES -->
@@ -765,6 +773,12 @@
 				<xsl:call-template name="recurse_through_subtype_tree">
 					<xsl:with-param name="raw_node_name_param" select="$raw_entity_name"/>
 				</xsl:call-template>
+			</xs:choice>
+		</xs:group>
+		<xs:group name="{$corrected_entity_name}-complexEntity-group">
+			<xs:choice>
+				<xs:group ref="{$namespace_prefix}{$corrected_entity_name}-group"/>
+				<xs:element ref="exp:complexEntity"/>
 			</xs:choice>
 		</xs:group>
 	</xsl:template>

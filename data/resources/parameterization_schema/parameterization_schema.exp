@@ -1,6 +1,6 @@
-(* THIS IS DOCUMENT ISO TC184/SC4/WG12 N2671, CONTAINING EXPRESS FOR *)
-(* ISO 10303-108, 'PARAMETERIZATION AND CONSTRAINTS FOR EXPLICIT     *)
-(* GEOMETRIC PRODUCT MODELS'                                         *)
+(* THIS IS DOCUMENT ISO TC184/SC4/WG12 N4852, CONTAINING REVISED EXPRESS FOR *)
+(* ISO 10303-108, 'PARAMETERIZATION AND CONSTRAINTS FOR EXPLICIT GEOMETRIC   *)
+(* PRODUCT MODELS' TO TAKE INTO ACCOUNT TC1 FOR THAT DOCUMENT -- 2007-04-20  *)                                          
 
 SCHEMA parameterization_schema;
 
@@ -34,9 +34,9 @@ WHERE
    WR1: validate_attribute_id(SELF);
 END_TYPE;
 
-ENTITY model_parameter
-  ABSTRACT SUPERTYPE OF (ONEOF (bound_model_parameter, 
-                                unbound_model_parameter))
+ENTITY variational_parameter
+  ABSTRACT SUPERTYPE OF (ONEOF (bound_variational_parameter, 
+                                unbound_variational_parameter))
   SUBTYPE OF (variational_representation_item, maths_variable);
   parameter_description : OPTIONAL text; 
   parameter_current_value : maths_value;
@@ -47,17 +47,17 @@ WHERE
     SELF\maths_variable.values_space);
 END_ENTITY; 
 
-ENTITY bound_model_parameter
-  SUBTYPE OF (model_parameter);
+ENTITY bound_variational_parameter
+  SUBTYPE OF (variational_parameter);
 DERIVE
-  SELF\model_parameter.parameter_current_value : maths_value := ?;
+  SELF\variational_parameter.parameter_current_value : maths_value := ?;
 WHERE
 WR1 : 'PARAMETERIZATION_SCHEMA.BOUND_PARAMETER_ENVIRONMENT'
     IN TYPEOF(SELF\generic_variable.interpretation);
 END_ENTITY; 
 
-ENTITY unbound_model_parameter
-  SUBTYPE OF (model_parameter);
+ENTITY unbound_variational_parameter
+  SUBTYPE OF (variational_parameter);
 WHERE
   WR1: 'PARAMETERIZATION_SCHEMA.UNBOUND_PARAMETER_ENVIRONMENT' 
     IN TYPEOF(SELF\generic_variable.interpretation);
@@ -66,7 +66,7 @@ END_ENTITY;
 ENTITY bound_parameter_environment
   SUBTYPE OF (environment);  
 WHERE
-  WR1: ('PARAMETERIZATION_SCHEMA.BOUND_MODEL_PARAMETER' IN
+  WR1: ('PARAMETERIZATION_SCHEMA.BOUND_VARIATIONAL_PARAMETER' IN
     TYPEOF(SELF\environment.syntactic_representation)) AND
     ('PARAMETERIZATION_SCHEMA.INSTANCE_ATTRIBUTE_REFERENCE' IN
     TYPEOF(SELF\environment.semantics));
@@ -75,9 +75,9 @@ END_ENTITY;
 ENTITY unbound_parameter_environment
   SUBTYPE OF (environment);  
 WHERE
-  WR1: ('PARAMETERIZATION_SCHEMA.UNBOUND_MODEL_PARAMETER' IN
+  WR1: ('PARAMETERIZATION_SCHEMA.UNBOUND_VARIATIONAL_PARAMETER' IN
     TYPEOF(SELF\environment.syntactic_representation)) AND
-    ('PARAMETERIZATION_SCHEMA.UNBOUND_MODEL_PARAMETER_SEMANTICS' IN
+    ('PARAMETERIZATION_SCHEMA.UNBOUND_VARIATIONAL_PARAMETER_SEMANTICS' IN
     TYPEOF(SELF\environment.semantics));
 END_ENTITY; 
 
@@ -87,7 +87,7 @@ ENTITY instance_attribute_reference
   owning_instance : representation_item;
 END_ENTITY; 
 
-ENTITY unbound_model_parameter_semantics
+ENTITY unbound_variational_parameter_semantics
   SUBTYPE OF (variable_semantics);
 END_ENTITY;
 

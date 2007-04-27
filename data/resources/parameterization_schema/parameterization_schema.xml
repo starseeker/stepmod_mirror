@@ -1,301 +1,160 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-108"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="parameterization_schema.exp"/>
-
-  <schema name="parameterization_schema">
-
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="identifier"/>
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="representation_schema">
-      <interfaced.item
-        name="representation_item"/>
-      <interfaced.item
-        name="using_representations"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="mathematical_functions_schema">
-      <interfaced.item
-        name="finite_space"/>
-      <interfaced.item
-        name="maths_number"/>
-      <interfaced.item
-        name="maths_value"/>
-      <interfaced.item
-        name="maths_variable"/>
-      <interfaced.item
-        name="member_of"/>
-      <interfaced.item
-        name="positive_integer"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="variational_representation_schema">
-      <interfaced.item
-        name="variational_representation_item"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="ISO13584_generic_expressions_schema">
-      <interfaced.item
-        name="environment"/>
-      <interfaced.item
-        name="generic_variable"/>
-      <interfaced.item
-        name="variable_semantics"/>
-    </interface>
-    <type name="attribute_identifier">
-      <typename
-        name="identifier"/>
-      <where
-        label="WR1"
-        expression="validate_attribute_id(SELF)">
-      </where>
-    </type>
-
-    <entity
-      name="model_parameter"
-      abstract.supertype="YES"
-      super.expression="(ONEOF (bound_model_parameter, unbound_model_parameter))"
-      supertypes="variational_representation_item maths_variable">
-      <explicit
-        name="parameter_description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="parameter_current_value">
-        <typename
-          name="maths_value"/>
-      </explicit>
-      <derived
-        name="name"
-        expression="SELF\representation_item.name">
-        <typename
-          name="label"/>
-        <redeclaration
-          entity-ref="maths_variable"/>
-        </derived>
-        <where
-          label="WR1"
-          expression="member_of(parameter_current_value, SELF\maths_variable.values_space)">
-        </where>
+<express language_version="2" reference="ISO 10303-108" rcs.date="$Date: 2007/04/27 14:03:51 $" rcs.revision="$Revision: 1.4 $" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="parameterization_schema schema_instance"/>
+   <schema name="parameterization_schema">
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="identifier"/>
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="representation_item"/>
+         <interfaced.item name="using_representations"/>
+      </interface>
+      <interface kind="reference" schema="mathematical_functions_schema">
+         <interfaced.item name="finite_space"/>
+         <interfaced.item name="maths_number"/>
+         <interfaced.item name="maths_value"/>
+         <interfaced.item name="maths_variable"/>
+         <interfaced.item name="member_of"/>
+         <interfaced.item name="positive_integer"/>
+      </interface>
+      <interface kind="reference" schema="variational_representation_schema">
+         <interfaced.item name="variational_representation_item"/>
+      </interface>
+      <interface kind="reference" schema="ISO13584_generic_expressions_schema">
+         <interfaced.item name="environment"/>
+         <interfaced.item name="generic_variable"/>
+         <interfaced.item name="variable_semantics"/>
+      </interface>
+      <type name="attribute_identifier">
+         <typename name="identifier"/>
+         <where label="WR1" expression="validate_attribute_id(SELF)"/>
+      </type>
+      <entity name="bound_parameter_environment" supertypes="environment">
+         <where label="WR1" expression="('PARAMETERIZATION_SCHEMA.BOUND_VARIATIONAL_PARAMETER' IN&#10;    TYPEOF(SELF\environment.syntactic_representation)) AND&#10;    ('PARAMETERIZATION_SCHEMA.INSTANCE_ATTRIBUTE_REFERENCE' IN&#10;    TYPEOF(SELF\environment.semantics))"/>
       </entity>
+      <entity name="bound_variational_parameter" supertypes="variational_parameter">
+         <derived name="parameter_current_value" expression="?">
+            <typename name="maths_value"/>
+            <redeclaration entity-ref="variational_parameter"/>
+         </derived>
+         <where label="WR1" expression="'PARAMETERIZATION_SCHEMA.BOUND_PARAMETER_ENVIRONMENT'&#10;    IN TYPEOF(SELF\generic_variable.interpretation)"/>
+      </entity>
+      <entity name="fixed_instance_attribute_set" supertypes="variational_representation_item">
+         <explicit name="fixed_attributes">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="instance_attribute_reference"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) | &#10;    SIZEOF(QUERY(r &lt;* q.items |&#10;    'PARAMETERIZATION_SCHEMA.FIXED_INSTANCE_ATTRIBUTE_SET' &#10;    IN TYPEOF(r))) &gt; 1)) = 0"/>
+      </entity>
+      <entity name="generated_finite_numeric_space" supertypes="finite_space">
+         <explicit name="start_value">
+            <typename name="maths_number"/>
+         </explicit>
+         <explicit name="increment_value">
+            <typename name="maths_number"/>
+         </explicit>
+         <explicit name="increment_number">
+            <typename name="positive_integer"/>
+         </explicit>
+         <derived name="members" expression="make_numeric_set(start_value, increment_value, increment_number)">
+            <aggregate type="SET" lower="2" upper="?"/>
+            <typename name="maths_number"/>
+            <redeclaration entity-ref="finite_space"/>
+         </derived>
+         <where label="WR1" expression="increment_value &lt;&gt; 0.0"/>
+      </entity>
+      <entity name="instance_attribute_reference" supertypes="variable_semantics">
+         <explicit name="attribute_name">
+            <typename name="attribute_identifier"/>
+         </explicit>
+         <explicit name="owning_instance">
+            <typename name="representation_item"/>
+         </explicit>
+      </entity>
+      <entity name="unbound_parameter_environment" supertypes="environment">
+         <where label="WR1" expression="('PARAMETERIZATION_SCHEMA.UNBOUND_VARIATIONAL_PARAMETER' IN&#10;    TYPEOF(SELF\environment.syntactic_representation)) AND&#10;    ('PARAMETERIZATION_SCHEMA.UNBOUND_VARIATIONAL_PARAMETER_SEMANTICS' IN&#10;    TYPEOF(SELF\environment.semantics))"/>
+      </entity>
+      <entity name="unbound_variational_parameter" supertypes="variational_parameter">
+         <where label="WR1" expression="'PARAMETERIZATION_SCHEMA.UNBOUND_PARAMETER_ENVIRONMENT' &#10;    IN TYPEOF(SELF\generic_variable.interpretation)"/>
+      </entity>
+      <entity name="unbound_variational_parameter_semantics" supertypes="variable_semantics"/>
+      <entity name="variational_parameter" abstract.supertype="YES" supertypes="variational_representation_item maths_variable" super.expression="ONEOF (bound_variational_parameter, unbound_variational_parameter)">
+         <explicit name="parameter_description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="parameter_current_value">
+            <typename name="maths_value"/>
+         </explicit>
+         <derived name="name" expression="SELF\representation_item.name">
+            <typename name="label"/>
+            <redeclaration entity-ref="maths_variable"/>
+         </derived>
+         <where label="WR1" expression="member_of(parameter_current_value, &#10;    SELF\maths_variable.values_space)"/>
+      </entity>
+      <function name="make_numeric_set">
+         <parameter name="start">
+            <typename name="maths_number"/>
+         </parameter>
+         <parameter name="delta">
+            <typename name="maths_number"/>
+         </parameter>
+         <parameter name="incs">
+            <typename name="positive_integer"/>
+         </parameter>
+         <aggregate type="SET" lower="2" upper="?"/>
+         <typename name="maths_number"/>
+         <algorithm>LOCAL
+    i : INTEGER;
+    numeric_set : SET[2:?] OF maths_number := [start, (start + delta)];
+  END_LOCAL;
 
-      <entity
-        name="bound_model_parameter"
-        supertypes="model_parameter">
-        <derived
-          name="parameter_current_value"
-          expression="?">
-          <typename
-            name="maths_value"/>
-          <redeclaration
-            entity-ref="model_parameter"/>
-          </derived>
-          <where
-            label="WR1"
-            expression="'PARAMETERIZATION_SCHEMA.BOUND_PARAMETER_ENVIRONMENT' IN TYPEOF(SELF\generic_variable.interpretation)">
-          </where>
-        </entity>
+  IF incs &gt; 1 THEN REPEAT i := 2 TO incs;
+                     numeric_set := numeric_set + (start + (i*delta));
+                   END_REPEAT;
+  END_IF;
+  RETURN(numeric_set);</algorithm>
+      </function>
+      <function name="validate_attribute_id">
+         <parameter name="attid">
+            <typename name="attribute_identifier"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>CONSTANT
+    letters      : SET[52:52] OF STRING := 
+      ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p',
+       'q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F',
+       'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V',
+       'W','X','Y','Z'];
+    numbers_etc  : SET[15:15] OF STRING := 
+      ['0','1','2','3','4','5','6','7','8','9','_','[',']','.','\'];
+    valid_chars  : SET[67:67] OF STRING := letters + numbers_etc;
+  END_CONSTANT;
 
-        <entity
-          name="unbound_model_parameter"
-          supertypes="model_parameter">
-          <where
-            label="WR1"
-            expression="'PARAMETERIZATION_SCHEMA.UNBOUND_PARAMETER_ENVIRONMENT' IN TYPEOF(SELF\generic_variable.interpretation)">
-          </where>
-        </entity>
+  LOCAL
+    id_length : INTEGER := LENGTH(attid);
+    id_valid  : BOOLEAN := TRUE;
+    i         : INTEGER;
+  END_LOCAL;
 
-        <entity
-          name="bound_parameter_environment"
-          supertypes="environment">
-          <where
-            label="WR1"
-            expression="('PARAMETERIZATION_SCHEMA.BOUND_MODEL_PARAMETER' IN TYPEOF(SELF\environment.syntactic_representation)) AND('PARAMETERIZATION_SCHEMA.INSTANCE_ATTRIBUTE_REFERENCE' IN TYPEOF(SELF\environment.semantics))">
-          </where>
-        </entity>
+  -- check that indentifier starts with a letter
 
-        <entity
-          name="unbound_parameter_environment"
-          supertypes="environment">
-          <where
-            label="WR1"
-            expression="('PARAMETERIZATION_SCHEMA.UNBOUND_MODEL_PARAMETER' IN TYPEOF(SELF\environment.syntactic_representation)) AND('PARAMETERIZATION_SCHEMA.UNBOUND_MODEL_PARAMETER_SEMANTICS' IN TYPEOF(SELF\environment.semantics))">
-          </where>
-        </entity>
+  IF NOT (attid[1] IN letters) THEN 
+    id_valid := FALSE; 
+  END_IF;
+  
+  -- check that no invalid characters occur subsequently
 
-        <entity
-          name="instance_attribute_reference"
-          supertypes="variable_semantics">
-          <explicit
-            name="attribute_name">
-            <typename
-              name="attribute_identifier"/>
-          </explicit>
-          <explicit
-            name="owning_instance">
-            <typename
-              name="representation_item"/>
-          </explicit>
-        </entity>
-
-        <entity
-          name="unbound_model_parameter_semantics"
-          supertypes="variable_semantics">
-        </entity>
-
-        <entity
-          name="fixed_instance_attribute_set"
-          supertypes="variational_representation_item">
-          <explicit
-            name="fixed_attributes">
-            <aggregate
-              type="SET"
-              lower="1"
-              upper="?"/>
-            <typename
-              name="instance_attribute_reference"/>
-          </explicit>
-          <where
-            label="WR1"
-            expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) | SIZEOF(QUERY(r &lt;* q.items |'PARAMETERIZATION_SCHEMA.FIXED_INSTANCE_ATTRIBUTE_SET' IN TYPEOF(r))) &gt; 1)) = 0">
-          </where>
-        </entity>
-
-        <entity
-          name="generated_finite_numeric_space"
-          supertypes="finite_space">
-          <explicit
-            name="start_value">
-            <typename
-              name="maths_number"/>
-          </explicit>
-          <explicit
-            name="increment_value">
-            <typename
-              name="maths_number"/>
-          </explicit>
-          <explicit
-            name="increment_number">
-            <typename
-              name="positive_integer"/>
-          </explicit>
-          <derived
-            name="members"
-            expression="make_numeric_set(start_value, increment_value, increment_number)">
-            <aggregate
-              type="SET"
-              lower="2"
-              upper="?"/>
-            <typename
-              name="maths_number"/>
-            <redeclaration
-              entity-ref="finite_space"/>
-            </derived>
-            <where
-              label="WR1"
-              expression="increment_value &lt;&gt; 0.0">
-            </where>
-          </entity>
-
-          <function
-            name="make_numeric_set">
-            <parameter
-              name="start">
-              <typename
-                name="maths_number"/>
-            </parameter>
-            <parameter
-              name="delta">
-              <typename
-                name="maths_number"/>
-            </parameter>
-            <parameter
-              name="incs">
-              <typename
-                name="positive_integer"/>
-            </parameter>
-            <aggregate
-              type="SET"
-              lower="2"
-              upper="?"/>
-            <typename
-              name="maths_number"/>
-            <algorithm>
-LOCAL
-i : INTEGER;
-numeric_set : SET[2:?] OF maths_number := [start, (start + delta)];
-END_LOCAL;
-IF incs &gt; 1 THEN REPEAT i := 2 TO incs;
-numeric_set := numeric_set + (start + (i*delta));
-END_REPEAT;
-END_IF;
-RETURN(numeric_set);
-            </algorithm>
-          </function>
-
-          <function
-            name="validate_attribute_id">
-            <parameter
-              name="attid">
-              <typename
-                name="attribute_identifier"/>
-            </parameter>
-            <builtintype
-              type="BOOLEAN"/>
-            <algorithm>
-CONSTANT
-letters : SET[52:52] OF STRING :=
-['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p',
-'q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F',
-'G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V',
-'W','X','Y','Z'];
-numbers_etc : SET[15:15] OF STRING :=
-['0','1','2','3','4','5','6','7','8','9','_','[',']','.','\'];
-valid_chars : SET[67:67] OF STRING := letters + numbers_etc;
-END_CONSTANT;
-LOCAL
-id_length : INTEGER := LENGTH(attid);
-id_valid : BOOLEAN := TRUE;
-i : INTEGER;
-END_LOCAL;
-IF NOT (attid[1] IN letters) THEN
-id_valid := FALSE;
-END_IF;
-REPEAT i := 2 TO id_length WHILE id_valid = TRUE;
-IF NOT (attid[i] IN valid_chars) THEN
-id_valid := FALSE;
-END_IF;
-END_REPEAT;
-RETURN(id_valid);
-            </algorithm>
-          </function>
-
-        </schema>
-      </express>
+  REPEAT i := 2 TO id_length WHILE id_valid = TRUE;
+    IF NOT (attid[i] IN valid_chars) THEN 
+      id_valid := FALSE;
+    END_IF;
+  END_REPEAT;
+  RETURN(id_valid);</algorithm>
+      </function>
+   </schema>
+</express>

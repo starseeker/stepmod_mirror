@@ -1,250 +1,102 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-108"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="explicit_constraint_schema.exp"/>
-
-  <schema name="explicit_constraint_schema">
-
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="text"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="representation_schema">
-      <interfaced.item
-        name="item_in_context"/>
-      <interfaced.item
-        name="representation_item"/>
-      <interfaced.item
-        name="using_representations"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="mathematical_functions_schema">
-      <interfaced.item
-        name="compatible_spaces"/>
-      <interfaced.item
-        name="maths_variable"/>
-      <interfaced.item
-        name="values_space_of"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="parameterization_schema">
-      <interfaced.item
-        name="bound_model_parameter"/>
-      <interfaced.item
-        name="model_parameter"/>
-      <interfaced.item
-        name="unbound_model_parameter"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="variational_representation_schema">
-      <interfaced.item
-        name="variational_representation_item"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="ISO13584_generic_expressions_schema">
-      <interfaced.item
-        name="used_variables"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="ISO13584_expressions_schema">
-      <interfaced.item
-        name="boolean_expression"/>
-      <interfaced.item
-        name="expression"/>
-    </interface>
-    <type name="constraint_group_member">
-      <select
-        selectitems="explicit_constraint simultaneous_constraint_group">
-      </select>
-    </type>
-
-    <entity
-      name="explicit_constraint"
-      abstract.supertype="YES"
-      super.expression="(ONEOF(defined_constraint, free_form_constraint))"
-      supertypes="variational_representation_item">
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="constrained_elements">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="representation_item"/>
-      </explicit>
-      <explicit
-        name="reference_elements">
-        <aggregate
-          type="SET"
-          lower="0"
-          upper="?"/>
-        <typename
-          name="representation_item"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF(constrained_elements * reference_elements) = 0">
-      </where>
-    </entity>
-
-    <entity
-      name="defined_constraint"
-      abstract.supertype="YES"
-      super.expression="(equal_parameter_constraint)"
-      supertypes="explicit_constraint">
-    </entity>
-
-    <entity
-      name="equal_parameter_constraint"
-      supertypes="defined_constraint">
-      <explicit
-        name="constrained_elements">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="model_parameter"/>
-        <redeclaration
-          entity-ref="explicit_constraint"/>
-        </explicit>
-        <explicit
-          name="reference_elements">
-          <aggregate
-            type="SET"
-            lower="0"
-            upper="1"/>
-          <typename
-            name="model_parameter"/>
-          <redeclaration
-            entity-ref="explicit_constraint"/>
-          </explicit>
-          <where
-            label="WR1"
-            expression="SIZEOF(SELF\explicit_constraint.constrained_elements + SELF\explicit_constraint.reference_elements) &gt;= 2">
-          </where>
-        </entity>
-
-        <entity
-          name="free_form_constraint"
-          abstract.supertype="YES"
-          super.expression="(ONEOF(free_form_assignment, free_form_relation))"
-          supertypes="explicit_constraint">
-          <explicit
-            name="constrained_elements">
-            <aggregate
-              type="SET"
-              lower="1"
-              upper="?"/>
-            <typename
-              name="model_parameter"/>
-            <redeclaration
-              entity-ref="explicit_constraint"/>
-            </explicit>
-            <explicit
-              name="reference_elements">
-              <aggregate
-                type="SET"
-                lower="0"
-                upper="?"/>
-              <typename
-                name="model_parameter"/>
-              <redeclaration
-                entity-ref="explicit_constraint"/>
-              </explicit>
-              <explicit
-                name="constraining_expression">
-                <typename
-                  name="expression"/>
-              </explicit>
-            </entity>
-
-            <entity
-              name="free_form_assignment"
-              supertypes="free_form_constraint">
-              <where
-                label="WR1"
-                expression="SIZEOF(QUERY(q &lt;* SELF\free_form_constraint.constrained_elements | q IN used_variables(SELF\free_form_constraint.constraining_expression))) = 0">
-              </where>
-              <where
-                label="WR2"
-                expression="SIZEOF(QUERY(q &lt;* SELF\free_form_constraint.reference_elements | NOT (q IN used_variables(SELF\free_form_constraint.constraining_expression)))) = 0">
-              </where>
-              <where
-                label="WR3"
-                expression="SIZEOF(SELF\free_form_constraint.reference_elements) &gt;= 1">
-              </where>
-              <where
-                label="WR4"
-                expression="SIZEOF(QUERY(q &lt;* SELF\free_form_constraint.constrained_elements | NOT (compatible_spaces(values_space_of(SELF\free_form_constraint.constraining_expression), q\maths_variable.values_space)))) = 0">
-              </where>
-            </entity>
-
-            <entity
-              name="free_form_relation"
-              supertypes="free_form_constraint">
-              <where
-                label="WR1"
-                expression="'ISO13584_EXPRESSIONS_SCHEMA.BOOLEAN_EXPRESSION' IN TYPEOF(SELF\free_form_constraint.constraining_expression)">
-              </where>
-              <where
-                label="WR2"
-                expression="SIZEOF(QUERY(q &lt;* (SELF\free_form_constraint.constrained_elements + SELF\free_form_constraint.reference_elements) | NOT (q IN used_variables(SELF\free_form_constraint.constraining_expression)))) = 0">
-              </where>
-            </entity>
-
-            <entity
-              name="simultaneous_constraint_group"
-              supertypes="variational_representation_item">
-              <explicit
-                name="constraint_group">
-                <aggregate
-                  type="SET"
-                  lower="2"
-                  upper="?"/>
-                <typename
-                  name="constraint_group_member"/>
-              </explicit>
-              <where
-                label="WR1"
-                expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) | SIZEOF(QUERY(r &lt;* q.items |('EXPLICIT_CONSTRAINT_SCHEMA.SIMULTANEOUS_CONSTRAINT_GROUP' IN TYPEOF(r)) AND (SIZEOF(QUERY(s &lt;* constraint_group |(s IN r.constraint_group) AND NOT (r :=: SELF))) &gt; 0))) &gt; 0)) = 0">
-              </where>
-              <where
-                label="WR2"
-                expression="SIZEOF(QUERY(q &lt;* using_representations(constraint_group[1]) |(SIZEOF(QUERY(r &lt;* constraint_group | item_in_context(r,q.context_of_items)))= SIZEOF(constraint_group)))) &gt; 0">
-              </where>
-              <where
-                label="WR3"
-                expression="SIZEOF(QUERY(q &lt;* constraint_group |(('EXPLICIT_CONSTRAINT_SCHEMA.EXPLICIT_CONSTRAINT' IN TYPEOF(q)) AND (SIZEOF(QUERY(r &lt;* q.constrained_elements | SIZEOF(QUERY(s &lt;* constraint_group | r IN s.reference_elements)) &gt; 0)) &gt; 0)))) = 0">
-              </where>
-            </entity>
-
-          </schema>
-        </express>
+<express language_version="2" reference="ISO 10303-108" rcs.date="$Date: 2007/04/27 13:59:50 $" rcs.revision="$Revision: 1.2 $" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="explicit_constraint_schema schema_instance"/>
+   <schema name="explicit_constraint_schema">
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="text"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="item_in_context"/>
+         <interfaced.item name="representation_item"/>
+         <interfaced.item name="using_representations"/>
+      </interface>
+      <interface kind="reference" schema="mathematical_functions_schema">
+         <interfaced.item name="compatible_spaces"/>
+         <interfaced.item name="maths_variable"/>
+         <interfaced.item name="values_space_of"/>
+      </interface>
+      <interface kind="reference" schema="parameterization_schema">
+         <interfaced.item name="bound_variational_parameter"/>
+         <interfaced.item name="variational_parameter"/>
+         <interfaced.item name="unbound_variational_parameter"/>
+      </interface>
+      <interface kind="reference" schema="variational_representation_schema">
+         <interfaced.item name="variational_representation_item"/>
+      </interface>
+      <interface kind="reference" schema="ISO13584_generic_expressions_schema">
+         <interfaced.item name="used_variables"/>
+      </interface>
+      <interface kind="reference" schema="ISO13584_expressions_schema">
+         <interfaced.item name="boolean_expression"/>
+         <interfaced.item name="expression"/>
+      </interface>
+      <type name="constraint_group_member">
+         <select selectitems="explicit_constraint simultaneous_constraint_group"/>
+      </type>
+      <entity name="defined_constraint" abstract.supertype="YES" supertypes="explicit_constraint" super.expression="equal_parameter_constraint"/>
+      <entity name="equal_parameter_constraint" supertypes="defined_constraint">
+         <explicit name="constrained_elements">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="variational_parameter"/>
+            <redeclaration entity-ref="explicit_constraint"/>
+         </explicit>
+         <explicit name="reference_elements">
+            <aggregate type="SET" lower="0" upper="1"/>
+            <typename name="variational_parameter"/>
+            <redeclaration entity-ref="explicit_constraint"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(SELF\explicit_constraint.constrained_elements +&#10;    SELF\explicit_constraint.reference_elements) &gt;= 2"/>
+      </entity>
+      <entity name="explicit_constraint" abstract.supertype="YES" supertypes="variational_representation_item" super.expression="ONEOF (defined_constraint, free_form_constraint)">
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="constrained_elements">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="representation_item"/>
+         </explicit>
+         <explicit name="reference_elements">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="representation_item"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(constrained_elements * reference_elements) = 0"/>
+      </entity>
+      <entity name="free_form_assignment" supertypes="free_form_constraint">
+         <where label="WR1" expression="SIZEOF(QUERY(q &lt;* SELF\free_form_constraint.constrained_elements | &#10;    q IN used_variables&#10;    (SELF\free_form_constraint.constraining_expression))) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(q &lt;* SELF\free_form_constraint.reference_elements | &#10;    NOT (q IN used_variables(&#10;    SELF\free_form_constraint.constraining_expression)))) = 0"/>
+         <where label="WR3" expression="SIZEOF(SELF\free_form_constraint.reference_elements) &gt;= 1"/>
+         <where label="WR4" expression="SIZEOF(QUERY(q &lt;* SELF\free_form_constraint.constrained_elements |&#10;    NOT (compatible_spaces(values_space_of(&#10;    SELF\free_form_constraint.constraining_expression),&#10;    q\maths_variable.values_space)))) = 0"/>
+      </entity>
+      <entity name="free_form_constraint" abstract.supertype="YES" supertypes="explicit_constraint" super.expression="ONEOF (free_form_assignment, free_form_relation)">
+         <explicit name="constrained_elements">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="variational_parameter"/>
+            <redeclaration entity-ref="explicit_constraint"/>
+         </explicit>
+         <explicit name="reference_elements">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="variational_parameter"/>
+            <redeclaration entity-ref="explicit_constraint"/>
+         </explicit>
+         <explicit name="constraining_expression">
+            <typename name="expression"/>
+         </explicit>
+      </entity>
+      <entity name="free_form_relation" supertypes="free_form_constraint">
+         <where label="WR1" expression="'ISO13584_EXPRESSIONS_SCHEMA.BOOLEAN_EXPRESSION' IN TYPEOF&#10;    (SELF\free_form_constraint.constraining_expression)"/>
+         <where label="WR2" expression="SIZEOF(QUERY(q &lt;* (SELF\free_form_constraint.constrained_elements + &#10;    SELF\free_form_constraint.reference_elements) | &#10;    NOT (q IN used_variables&#10;    (SELF\free_form_constraint.constraining_expression)))) = 0"/>
+      </entity>
+      <entity name="simultaneous_constraint_group" supertypes="variational_representation_item">
+         <explicit name="constraint_group">
+            <aggregate type="SET" lower="2" upper="?"/>
+            <typename name="constraint_group_member"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(q &lt;* using_representations(SELF) |&#10;    SIZEOF(QUERY(r &lt;* q.items | &#10;    ('EXPLICIT_CONSTRAINT_SCHEMA.SIMULTANEOUS_CONSTRAINT_GROUP'&#10;    IN TYPEOF(r)) AND (SIZEOF(QUERY(s &lt;* constraint_group | &#10;    (s IN r.constraint_group) AND NOT (r :=: SELF))) &gt; 0))) &gt; 0)) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(q &lt;* using_representations(constraint_group[1]) | &#10;    (SIZEOF(QUERY(r &lt;* constraint_group | &#10;    item_in_context(r,q.context_of_items)))&#10;    = SIZEOF(constraint_group)))) &gt; 0"/>
+         <where label="WR3" expression="SIZEOF(QUERY(q &lt;* constraint_group |&#10;    (('EXPLICIT_CONSTRAINT_SCHEMA.EXPLICIT_CONSTRAINT' IN TYPEOF(q)) &#10;    AND (SIZEOF(QUERY(r &lt;* q.constrained_elements |&#10;    SIZEOF(QUERY(s &lt;* constraint_group | &#10;    r IN s.reference_elements)) &gt; 0)) &gt; 0)))) = 0"/>
+      </entity>
+   </schema>
+</express>

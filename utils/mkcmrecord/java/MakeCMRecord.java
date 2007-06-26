@@ -12,6 +12,14 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stream.StreamResult; 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+
+import net.sf.saxon.FeatureKeys;
+import net.sf.saxon.trace.XSLTTraceListener;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
 import org.w3c.dom.*;
 
 public class MakeCMRecord {
@@ -57,19 +65,20 @@ public class MakeCMRecord {
     public static final SimpleDateFormat cmrDateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy");
     public static final SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public MakeCMRecord(File moduleDir, String cmFileName, String description, String release, String stepmodRelease, String status, String releaseSequence, String edition, java.util.Date when, String who) {
-	// Make sure that the Saxon implementation of TransformerFactory is used.
-	System.setProperty("javax.xml.transform.TransformerFactory","net.sf.saxon.TransformerFactoryImpl");
+    static Logger logger = Logger.getLogger("MakeCMRecord");
+
+    public MakeCMRecord(File moduleDir, String cmFileName, String description, String release, String stepmodRelease, String status, String releaseSequence, String edition, java.util.Date when, String who) throws InvalidModuleDirException {
 	this.moduleDir = moduleDir;
+	String path = "";
 	try {
-	    String path = moduleDir.getCanonicalPath();
-	    System.err.println("path = " + path);
-	    System.setProperty("user.dir", path);
-	    System.err.println("user.dir = " + System.getProperty("user.dir"));
+	    path = moduleDir.getCanonicalPath();
 	}
-	catch (Exception e) {
+	catch (java.io.IOException e) {
 	    e.printStackTrace();
+	    logger.info("Invalid module directory " + path);
+	    throw new InvalidModuleDirException();
 	}
+	System.setProperty("user.dir", path);
 	moduleXMLFile = new File(moduleDir, "module.xml");
 	xsltStream = ClassLoader.getSystemResourceAsStream("cm-record.xsl");
 	cmRecordFile = new File(moduleDir, cmFileName);
@@ -83,24 +92,34 @@ public class MakeCMRecord {
 	this.who = who;
 	File cmRecordFile = new File(moduleDir, "cm_record.xml");
 	recordExists = cmRecordFile.exists();
+	if (recordExists) {
+	    System.err.println("Updating existing CM record.");
+	}
     }
 
-    public void generateCM() throws java.io.FileNotFoundException, java.io.IOException, javax.xml.transform.TransformerException {
+    public void generateCM() throws java.io.FileNotFoundException, java.io.IOException, javax.xml.transform.TransformerException, ConnectionException, InternalErrorException {
 	Node rootNode;
 	Element sources;
 
-	rootNode = transform(moduleXMLFile, xsltStream);
-	document = (Document) rootNode;
-	NodeList sourcesList = document.getElementsByTagName("sources");
-	for (int i=0; i<sourcesList.getLength(); i++) {
-	    sources = (Element) sourcesList.item(i);
-	    if (sources.getTextContent().trim().equals("*** INSERT DIRECTORY ELEMENTS ***")) {
-		NodeList childList = sources.getChildNodes();
-		for (int j=0; j<childList.getLength(); j++) {
-		    sources.removeChild(childList.item(j));
+	try {
+	    rootNode = transform(moduleXMLFile, xsltStream);
+	    document = (Document) rootNode;
+	    NodeList sourcesList = document.getElementsByTagName("sources");
+	    for (int i=0; i<sourcesList.getLength(); i++) {
+		sources = (Element) sourcesList.item(i);
+		if (sources.getTextContent().trim().equals("*** INSERT DIRECTORY ELEMENTS ***")) {
+		    NodeList childList = sources.getChildNodes();
+		    for (int j=0; j<childList.getLength(); j++) {
+			sources.removeChild(childList.item(j));
+		    }
+		    processDir(moduleDir, moduleDir, sources);
 		}
-		processDir(moduleDir, moduleDir, sources);
 	    }
+	    write();
+	}
+	catch (FileNotUpToDateException e) {
+	    File file = e.getFile();
+	    System.err.println("Error: File " + file.getAbsolutePath() + " is not up-to-date.  Not writing CM record for directory " + moduleDir.getName());
 	}
     }
 
@@ -114,6 +133,8 @@ public class MakeCMRecord {
  
         // create an instance of TransformerFactory
         transFact = TransformerFactory.newInstance();
+	// XSLTTraceListener traceListener = new XSLTTraceListener();
+	// transFact.setAttribute(FeatureKeys.TRACE_LISTENER, traceListener);
  
 	String whenStr = cmrDateFormat.format(when);
 	String recordExistsStr = "false";
@@ -136,7 +157,7 @@ public class MakeCMRecord {
 	return result.getNode();
     }
 
-    void processDir(File current, File root, Element sources) throws java.io.FileNotFoundException, java.io.IOException {
+    void processDir(File current, File root, Element sources) throws java.io.FileNotFoundException, java.io.IOException, FileNotUpToDateException, ConnectionException, InternalErrorException {
 	File[] children = current.listFiles();
 	String rootPath = root.getPath();
 	String currentPath = current.getPath();
@@ -169,10 +190,11 @@ public class MakeCMRecord {
 	}
     }
 
-    void processFile(File current, Element dirElt) throws java.io.FileNotFoundException, java.io.IOException {
+    void processFile(File current, Element dirElt) throws java.io.FileNotFoundException, java.io.IOException, FileNotUpToDateException, ConnectionException, InternalErrorException {
 	Element element;
 	Metadata metadata;
 
+	System.err.println(current.getAbsoluteFile());
 	metadata = getMetadata(current);
 
 	element = document.createElement("file");
@@ -197,40 +219,67 @@ public class MakeCMRecord {
 	dirElt.appendChild(element);
     }
 
-    Metadata getMetadata(File file) throws java.io.FileNotFoundException, java.io.IOException {
-	BufferedReader reader = new BufferedReader(new FileReader(file));
-	String line;
-	String idStr = "";
+    Metadata getMetadata(File file) throws java.io.FileNotFoundException, java.io.IOException, FileNotUpToDateException, ConnectionException, InternalErrorException {
 	Metadata metadata = new Metadata();
+	Runtime runtime = Runtime.getRuntime();
+	String[] cmdarray = new String[3];
+	Process process;
+	String line;
+	Capturer1 capturer1;
+	Capturer2 capturer2;
+	ErrorCapturer errorCapturer;
+	int exitVal;
 
-	while ((line = reader.readLine()) != null) {
-	    if (line.contains("$Id:")) {
-		String[] comp = line.split("\\$");
-		for (int i=0; i<comp.length; i++) {
-		    if (comp[i].startsWith("Id:")) {
-			idStr = comp[i].substring(3).trim();
-			metadata.revision = getCvsRevision(idStr);
-			metadata.date = fixDate(getCvsDate(idStr));
-		    }
-		}
-	    }
-	    if (line.contains("$Date:")) {
-		String[] comp = line.split("\\$");
-		for (int i=0; i<comp.length; i++) {
-		    if (comp[i].startsWith("Date:")) {
-			metadata.date = fixDate(comp[i].substring(5).trim());
-		    }
-		}
-	    }
-	    if (line.contains("$Revision:")) {
-		String[] comp = line.split("\\$");
-		for (int i=0; i<comp.length; i++) {
-		    if (comp[i].startsWith("Revision:")) {
-			metadata.revision = comp[i].substring(9).trim();
-		    }
-		}
-	    }
+	cmdarray[0] = "cvs";
+	cmdarray[1] = "status";
+	cmdarray[2] = file.getName();
+	process = runtime.exec(cmdarray, null, file.getParentFile());
+	capturer1 = new Capturer1(process.getInputStream());
+	capturer1.start();
+	errorCapturer = new ErrorCapturer(process.getErrorStream());
+	errorCapturer.start();
+	try {
+	    exitVal = process.waitFor();
 	}
+	catch (java.lang.InterruptedException e) {
+	    e.printStackTrace();
+	    throw new InternalErrorException("Interrupted exception");
+	}
+	logger.debug("status command exited with code = " + exitVal);
+	if (!capturer1.cvsStatus.equals("Up-to-date")) {
+	    logger.info("File " + file.getAbsolutePath() + " is not up-to-date.");
+	    throw new FileNotUpToDateException(file);
+	}
+
+	if (capturer1.workingRevision.length() > 0) {
+	    metadata.revision = capturer1.workingRevision;
+	}
+	else {
+	    logger.error("Working revision not found.");
+	    throw new InternalErrorException("Could not find working revision.");
+	}
+
+	cmdarray[0] = "cvs";
+	cmdarray[1] = "log";
+	cmdarray[2] = file.getName();
+	process  = runtime.exec(cmdarray, null, file.getParentFile());
+	capturer2 = new Capturer2(process.getInputStream(), metadata.revision);
+	capturer2.start();
+	errorCapturer = new ErrorCapturer(process.getErrorStream());
+	errorCapturer.start();
+	try {
+	    exitVal = process.waitFor();
+	}
+	catch (java.lang.InterruptedException e) {
+	    e.printStackTrace();
+	    throw new InternalErrorException("Interrupted exception");
+	}	
+	logger.debug("status command exited with code = " + exitVal);
+
+	metadata.date = fixDate(capturer2.cvsDate);
+	logger.debug("metadata.revision = " + metadata.revision);
+	logger.debug("metadata.date = " + metadata.date);
+
 	return metadata;
     }
 
@@ -278,6 +327,10 @@ public class MakeCMRecord {
                 new StringReader(IDENTITY_XSLT));
 	Transformer transformer = transFact.newTransformer(xsltSource);
 	transformer.transform(source, result);
+    }
+    static {
+	// Make sure that the Saxon implementation of TransformerFactory is used.
+	System.setProperty("javax.xml.transform.TransformerFactory","net.sf.saxon.TransformerFactoryImpl");
     }
 }
 

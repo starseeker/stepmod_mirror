@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Id: cm-record.xsl,v 1.3 2007/04/13 21:50:23 radack Exp $ -->
+<!-- $Id: cm-record.xsl,v 1.4 2007/04/14 03:41:19 radack Exp $ -->
 
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
@@ -72,26 +72,6 @@
       <xsl:copy-of select="."/>
     </xsl:for-each>
   </resource_schemas>
-</xsl:template>
-
-<xsl:template match="interface">
-  <xsl:param name="visited"/>
-  <xsl:variable name="schema" select="@schema"/>
-  <xsl:if test="not(contains($visited,concat('|',$schema,'|')))">
-    <xsl:if test="document('../../../repository_index.xml')/repository_index/resources/resource[@name = $schema]">
-      <xsl:apply-templates select="document(concat('../../../data/resources/',$schema,'/',$schema,'.xml'))/express/schema" mode="resource">
-        <xsl:with-param name="visited" select="$visited"/>
-      </xsl:apply-templates>
-    </xsl:if>
-  </xsl:if>
-</xsl:template>
-
-<xsl:template match="schema" mode="resource">
-  <xsl:param name="visited"/>
-  <resource name="{@name}" part="{../@reference}" release="{$release}"/>
-  <xsl:apply-templates select="interface">
-    <xsl:with-param name="visited" select="concat($visited,@name,'|')"/>
-  </xsl:apply-templates>
 </xsl:template>
 
 <xsl:template match="cm_release">

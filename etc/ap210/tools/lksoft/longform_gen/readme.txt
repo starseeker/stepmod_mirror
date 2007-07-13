@@ -3,3 +3,5 @@
 3) Run longform.bat
 
 --tt modified to make individual arm,mim batch files.
+
+test only of using url in comment field.

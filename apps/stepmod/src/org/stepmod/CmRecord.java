@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
+ * $Id: CmRecord.java,v 1.20 2006/12/13 15:23:51 joshpearce2005 Exp $
  *
  * CmRecord.java
  *
@@ -395,7 +395,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.19 2006/08/07 10:38:54 robbod Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.20 2006/12/13 15:23:51 joshpearce2005 Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -415,10 +415,10 @@ public class CmRecord {
         out.write("  part_number=\""+getPartNumber()+"\"\n");
         String cvsRevision = getCvsRevision();
         if ((cvsRevision == null) || (!cvsRevision.contains("$Revision:"))) {
-            cvsRevision = "$Revision: 1.19 $"; 
+            cvsRevision = "$Revision: 1.20 $"; 
         }
         if ((cvsDate == null) || (!cvsDate.contains("$Date:"))) {
-            cvsDate = "$Date: 2006/08/07 10:38:54 $"; 
+            cvsDate = "$Date: 2006/12/13 15:23:51 $"; 
         }
         
         out.write("  cvs_revision=\""+cvsRevision+"\"\n");
@@ -522,7 +522,7 @@ public class CmRecord {
                             Calendar cvsGcCal = new GregorianCalendar(tz);
                             cvsGcCal.setTime(cvsDate);
                             
-                            //System.out.println("CVS date " + cvsDateFormat.format(cvsGcCal.getTime()));
+                         //   System.out.println("CVS date " + cvsDateFormat.format(cvsGcCal.getTime()));
                             
                             // This is a bit of a hack
                             // the CVS client seems to ignore daylight savings, so the comparisons are wrong
@@ -534,14 +534,14 @@ public class CmRecord {
                             Date fileDate = new Date(cmRecordFile.lastModified());
                             Calendar fileGcCal = new GregorianCalendar(tz);
                             fileGcCal.setTime(fileDate);
-                            //System.out.println("File date " + cvsDateFormat.format(fileDate));/
+                            //System.out.println("File date " + cvsDateFormat.format(fileDate));
                             //System.out.println("CVS before File " + cvsGcCal.before(fileGcCal));
                             //System.out.println("File before CVS " + cvsGcCal.after(fileGcCal));
                             //System.out.println("==" + (cvsGcCal.getTimeInMillis() - fileGcCal.getTimeInMillis()));
                             
-                            // The calendar times do not seem to exactly equal, so give 3 minutes marhin of error
+                            // The calendar times do not seem to exactly equal, so give 3 seconds of error
                             long diff = java.lang.Math.abs(cvsGcCal.getTimeInMillis() - fileGcCal.getTimeInMillis());
-                            if (diff < 180) {
+                            if (diff < 3000) {
                                 //The CM record file, cm_record.xml, has been committed to CVS
                                 //System.out.println("DIFF " + diff + " " + cmRecordFilename);
                                 

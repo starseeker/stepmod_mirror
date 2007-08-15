@@ -1,5 +1,5 @@
 /*
- * $Id: STEPmod.java,v 1.23 2006/12/13 15:23:51 joshpearce2005 Exp $
+ * $Id: STEPmod.java,v 1.24 2007/04/22 09:12:12 robbod Exp $
  *
  * STEPmod.java
  *
@@ -11,6 +11,7 @@
 package org.stepmod;
 
 import java.io.*;
+import java.text.ParseException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -595,6 +596,30 @@ public class STEPmod {
      */
     public static void main(String[] args) {
         STEPmod stepMod = new STEPmod();
+//phx        Properties props = System.getProperties();
+//phx        props.list(System.out);
+//phx        java.text.SimpleDateFormat cvsDateFormat = new java.text.SimpleDateFormat("EEE MMM dd H:mm:ss yyyy");
+//phx        String datestamp = "MON JUL 09 14:00:00 2007";
+//phx        String[] IDS = java.util.TimeZone.getAvailableIDs();
+//phx        for(int i=0;i<IDS.length;i++){
+//phx            System.out.println(IDS[i]);
+ //phx       }
+        
+ //phx       java.util.TimeZone tz = java.util.TimeZone.getTimeZone("UTC");
+//phx        System.out.println(tz);
+//phx        java.util.Date cvsDate = null;
+ //phx       try {
+ //phx           cvsDate = cvsDateFormat.parse(datestamp);
+  //phx          System.out.println(cvsDate);
+  //phx      } catch (ParseException ex) {
+  //phx          ex.printStackTrace();
+ //phx       }
+ //phx       java.util.Calendar cvsGcCal = new java.util.GregorianCalendar(tz);
+ //phx       cvsGcCal.setTime(cvsDate);
+ //phx       System.out.println(cvsGcCal);
+ //phx       java.util.Calendar now = java.util.Calendar.getInstance();
+  //phx      System.out.println(now.toString());
+//phx        System.out.println(cvsGcCal.compareTo(now));
         try {
             UIManager.setLookAndFeel(
                     UIManager.getSystemLookAndFeelClassName());
@@ -605,7 +630,7 @@ public class STEPmod {
         stepMod.setStepModGui(stepModGui);
         stepModGui.initialise();
         //stepMod.readRepositoryIndex();
-        //stepModGui.initRepositoryTree();
+       // stepModGui.initRepositoryTree();
     }
     
     public CmRecordFrmwk getBasicCmRecord() {

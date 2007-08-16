@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.23 2007/08/16 10:32:41 joshpearce2005 Exp $
+ * $Id: CmRecord.java,v 1.24 2007/08/16 12:42:45 robbod Exp $
  *
  * CmRecord.java
  *
@@ -395,7 +395,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.23 2007/08/16 10:32:41 joshpearce2005 Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.24 2007/08/16 12:42:45 robbod Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -415,10 +415,10 @@ public class CmRecord {
         out.write("  part_number=\""+getPartNumber()+"\"\n");
         String cvsRevision = getCvsRevision();
         if ((cvsRevision == null) || (!cvsRevision.contains("$Revision:"))) {
-            cvsRevision = "$Revision: 1.23 $";
+            cvsRevision = "$Revision: 1.24 $";
         }
         if ((cvsDate == null) || (!cvsDate.contains("$Date:"))) {
-            cvsDate = "$Date: 2007/08/16 10:32:41 $";
+            cvsDate = "$Date: 2007/08/16 12:42:45 $";
         }
         
         out.write("  cvs_revision=\""+cvsRevision+"\"\n");
@@ -547,10 +547,10 @@ public class CmRecord {
                             
                             long diff = java.lang.Math.abs(cmRecordFileGmtTime - cvsGmtTime);
                             if (diff < 3000) {
-                                System.out.println(diff + "cm record not changed");
+                               // System.out.println(diff + "cm record not changed");
                                 retVal = CmRecord.CM_RECORD_CVS_COMMITTED;
                             } else {
-                                System.out.println(diff+ "cm record changed");
+                               // System.out.println(diff+ "cm record changed");
                                 retVal = CmRecord.CM_RECORD_CVS_CHANGED;
                             }
                             

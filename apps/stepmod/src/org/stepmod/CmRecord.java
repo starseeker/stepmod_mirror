@@ -1,6 +1,6 @@
 package org.stepmod;
 /*
- * $Id: CmRecord.java,v 1.22 2007/08/15 17:20:12 joshpearce2005 Exp $
+ * $Id: CmRecord.java,v 1.23 2007/08/16 10:32:41 joshpearce2005 Exp $
  *
  * CmRecord.java
  *
@@ -395,7 +395,7 @@ public class CmRecord {
     void writeToStream(FileWriter out) throws IOException {
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.write("<!DOCTYPE cm_record SYSTEM \"../../../dtd/cm_record.dtd\">\n");
-        out.write("<!-- $Id: CmRecord.java,v 1.22 2007/08/15 17:20:12 joshpearce2005 Exp $ -->\n");
+        out.write("<!-- $Id: CmRecord.java,v 1.23 2007/08/16 10:32:41 joshpearce2005 Exp $ -->\n");
         out.write("\n");
         out.write("<!-- A configuration management record\n");
         out.write("     part_name\n");
@@ -415,10 +415,10 @@ public class CmRecord {
         out.write("  part_number=\""+getPartNumber()+"\"\n");
         String cvsRevision = getCvsRevision();
         if ((cvsRevision == null) || (!cvsRevision.contains("$Revision:"))) {
-            cvsRevision = "$Revision: 1.22 $";
+            cvsRevision = "$Revision: 1.23 $";
         }
         if ((cvsDate == null) || (!cvsDate.contains("$Date:"))) {
-            cvsDate = "$Date: 2007/08/15 17:20:12 $";
+            cvsDate = "$Date: 2007/08/16 10:32:41 $";
         }
         
         out.write("  cvs_revision=\""+cvsRevision+"\"\n");
@@ -516,48 +516,43 @@ public class CmRecord {
                         retVal = CmRecord.CM_RECORD_CVS_ADDED;
                     } else {
                         SimpleDateFormat cvsDateFormat = new SimpleDateFormat("EEE MMM dd H:mm:ss yyyy");
-                          try {            
-          
-            
-            Date cvsDate = cvsDateFormat.parse(datestamp);
-            
-            Calendar cvsCal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-            cvsCal.setTime(cvsDate);
-            long cvsGmtTime = cvsCal.getTimeInMillis();
-            System.out.println("cvs TZ:" + cvsCal.getTimeZone());
-            System.out.println("CVS date UTC:" + cvsDateFormat.format(cvsCal.getTime()));
-            
-            // Local file is in the local time zone
-            Date cmRecordFileDate = new Date(cmRecordFile.lastModified());    
-            Calendar cmRecordFileGcCal = new GregorianCalendar(TimeZone.getDefault()); 
-            cmRecordFileGcCal.setTime(cmRecordFileDate);       
-            System.out.println("File date " + cvsDateFormat.format(cmRecordFileDate));
-            System.out.println("local TZ:" + cmRecordFileGcCal.getTimeZone());
-            System.out.println("File calendar date (local): "+ cvsDateFormat.format(cmRecordFileGcCal.getTime()));
-            
-            // get the offset from GMT for the file modification date
-            long gmtOffset = cmRecordFileGcCal.getTimeZone().getOffset(cmRecordFileGcCal.getTimeInMillis());
-            System.out.println("Off "+gmtOffset);
-            // Convert the time to GMT
-            long cmRecordFileGmtTime = cmRecordFileGcCal.getTimeInMillis() - gmtOffset;
-            
-            // Debugging info convince me that the file time has been changed to GMT
-            Calendar foo = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-            foo.setTimeInMillis(cmRecordFileGmtTime);
-            System.out.println("File calendar date (GMT): "+ cvsDateFormat.format(foo.getTime()));
-            
-            long diff = java.lang.Math.abs(cmRecordFileGmtTime - cvsGmtTime);
-            if (diff < 3000) {
-                System.out.println(diff + "cm record not changed");
-                retVal = CmRecord.CM_RECORD_CVS_COMMITTED;
-            } else {
-                System.out.println(diff+ "cm record changed");
-                retVal = CmRecord.CM_RECORD_CVS_CHANGED;
-            }
+                        try {
+                                                        
+                            Date cvsDate = cvsDateFormat.parse(datestamp);
                             
+                            Calendar cvsCal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+                            cvsCal.setTime(cvsDate);
+                            long cvsGmtTime = cvsCal.getTimeInMillis();
+//            System.out.println("cvs TZ:" + cvsCal.getTimeZone());
+//            System.out.println("CVS date UTC:" + cvsDateFormat.format(cvsCal.getTime()));
                             
+                            // Local file is in the local time zone
+                            Date cmRecordFileDate = new Date(cmRecordFile.lastModified());
+                            Calendar cmRecordFileGcCal = new GregorianCalendar(TimeZone.getDefault());
+                            cmRecordFileGcCal.setTime(cmRecordFileDate);
+//            System.out.println("File date " + cvsDateFormat.format(cmRecordFileDate));
+//            System.out.println("local TZ:" + cmRecordFileGcCal.getTimeZone());
+//            System.out.println("File calendar date (local): "+ cvsDateFormat.format(cmRecordFileGcCal.getTime()));
                             
+                            // get the offset from GMT for the file modification date
+                            long gmtOffset = cmRecordFileGcCal.getTimeZone().getOffset(cmRecordFileGcCal.getTimeInMillis());
+//            System.out.println("Off "+gmtOffset);
+                            // Convert the time to GMT
+                            long cmRecordFileGmtTime = cmRecordFileGcCal.getTimeInMillis() - gmtOffset;
                             
+                            // Debugging info convince me that the file time has been changed to GMT
+//            Calendar foo = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+//            foo.setTimeInMillis(cmRecordFileGmtTime);
+//            System.out.println("File calendar date (GMT): "+ cvsDateFormat.format(foo.getTime()));
+                            
+                            long diff = java.lang.Math.abs(cmRecordFileGmtTime - cvsGmtTime);
+                            if (diff < 3000) {
+                                System.out.println(diff + "cm record not changed");
+                                retVal = CmRecord.CM_RECORD_CVS_COMMITTED;
+                            } else {
+                                System.out.println(diff+ "cm record changed");
+                                retVal = CmRecord.CM_RECORD_CVS_CHANGED;
+                            }
                             
                         } catch(java.text.ParseException p) {
                             System.out.println(p.toString());

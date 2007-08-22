@@ -1,26 +1,20 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: arm_lf.xml,v 1.8 2007/03/14 20:47:20 abhpf Exp $ -->
+<!-- $Id: arm_lf.xml,v 1.9 2007/04/07 17:06:08 abhpf Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2007/04/07 17:06:08 $"
+  rcs.revision="$Revision: 1.9 $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
     version="1, 3, 30, 37"
-    source="SbbCDLF.exp"/>
+    source="arm_sbbLF.exp"/>
 
   <schema name="State_based_behaviour_arm_LF">
-    <type name="classification_item">
-      <select
-        selectitems="Activity_method Applied_state_definition_assignment Assigned_property Behaviour Behaviour_view_definition Condition Condition_assignment Condition_parameter Condition_relationship Constrained_general_parameter_relationship Conversion_based_unit Derived_unit Description_text Description_text_assignment External_class_library External_item_identification External_source_identification File General_model_parameter Parameter_value_representation_item Product Product_version Product_view_definition Representation Representation_context State_based_behaviour_model State_definition State_definition_relationship Supplied_part_relationship Text_based_representation"
-      />
-    </type>
-
     <type name="alias_identification_item">
       <typename name="identification_item"/>
       <where
@@ -121,6 +115,12 @@
       </where>
     </type>
 
+    <type name="identification_item">
+      <select
+        selectitems="Activity_method Applied_state_definition_assignment Behaviour Behaviour_version Behaviour_view_definition Condition Description_text_assignment Digital_file External_class_library External_source_identification File General_model_parameter Independent_property Independent_property_relationship Product Product_category Product_version Product_view_definition Representation State_based_behaviour_model State_definition State_definition_relationship State_transition_definition View_definition_context"
+      />
+    </type>
+
     <type name="behaviour_item">
       <select
         selectitems="Behaviour_view_definition"
@@ -130,6 +130,12 @@
     <type name="behaviour_model">
       <select
         selectitems="State_based_behaviour_model"
+      />
+    </type>
+
+    <type name="classification_item">
+      <select
+        selectitems="Activity_method Applied_state_definition_assignment Assigned_property Behaviour Behaviour_view_definition Condition Condition_assignment Condition_parameter Condition_relationship Constrained_general_parameter_relationship Conversion_based_unit Derived_unit Description_text Description_text_assignment External_class_library External_item_identification External_source_identification File General_model_parameter Parameter_value_representation_item Product Product_version Product_view_definition Representation Representation_context State_based_behaviour_model State_definition State_definition_relationship Supplied_part_relationship Text_based_representation"
       />
     </type>
 
@@ -157,21 +163,53 @@
       />
     </type>
 
+    <type name="assigned_name_select">
+      <select
+        selectitems="External_class_library"
+      />
+    </type>
+
     <type name="external_identification_item">
       <select
         selectitems="File Product"
       />
     </type>
 
-    <type name="state_definition_of_item">
+    <type name="state_based_behaviour_element">
       <select
-        selectitems="Product_view_definition"
+        selectitems="State_definition State_definition_relationship"
       />
     </type>
 
-    <type name="identification_item">
+    <type name="any_number_value">
+      <builtintype type="NUMBER"
+      />
+    </type>
+
+    <type name="any_string_value">
+      <builtintype type="STRING"
+      />
+    </type>
+
+    <type name="length_measure">
+      <builtintype type="REAL"
+      />
+    </type>
+
+    <type name="measure_value">
       <select
-        selectitems="Activity_method Applied_state_definition_assignment Behaviour Behaviour_version Behaviour_view_definition Condition Description_text_assignment Digital_file External_class_library External_source_identification File General_model_parameter Independent_property Independent_property_relationship Product Product_category Product_version Product_view_definition Representation State_based_behaviour_model State_definition State_definition_relationship State_transition_definition View_definition_context"
+        selectitems="any_number_value any_string_value length_measure plane_angle_measure"
+      />
+    </type>
+
+    <type name="plane_angle_measure">
+      <builtintype type="REAL"
+      />
+    </type>
+
+    <type name="state_definition_of_item">
+      <select
+        selectitems="Product_view_definition"
       />
     </type>
 
@@ -190,12 +228,6 @@
     <type name="represented_definition">
       <select
         selectitems="Assigned_property Independent_property"
-      />
-    </type>
-
-    <type name="state_based_behaviour_element">
-      <select
-        selectitems="State_definition State_definition_relationship"
       />
     </type>
 
@@ -227,59 +259,19 @@
       />
     </type>
 
-    <type name="any_number_value">
-      <builtintype type="NUMBER"
-      />
-    </type>
-
-    <type name="any_string_value">
-      <builtintype type="STRING"
-      />
-    </type>
-
-    <type name="length_measure">
-      <builtintype type="REAL"
-      />
-    </type>
-
-    <type name="measure_value">
-      <select
-        selectitems="any_number_value any_string_value length_measure plane_angle_measure"
-      />
-    </type>
-
-    <type name="plane_angle_measure">
-      <builtintype type="REAL"
-      />
-    </type>
-
-    <type name="assigned_name_select">
-      <select
-        selectitems="External_class_library"
-      />
-    </type>
-
-    <entity name="Composition_of_state_definition"
-      supertypes="State_definition_relationship"
+    <entity name="External_class_library"
     >
-      <derived
-        name="part"
-        expression="SELF\State_definition_relationship.related">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
+      <explicit
+        name="id">
+        <builtintype type="STRING"
         />
-        <typename name="State_definition"/>
-      </derived>
-      <derived
-        name="whole"
-        expression="SELF\State_definition_relationship.relating">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
         />
-        <typename name="State_definition"/>
-      </derived>
+      </explicit>
     </entity>
 
     <entity name="Alias_identification"
@@ -305,6 +297,34 @@
       </derived>
     </entity>
 
+    <entity name="Identification_assignment"
+    >
+      <explicit
+        name="identifier">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="identification_item"/>
+      </explicit>
+    </entity>
+
     <entity name="Behaviour_description_association"
     >
       <explicit
@@ -326,6 +346,17 @@
         optional="YES">
         <builtintype type="STRING"
         />
+      </explicit>
+    </entity>
+
+    <entity name="Behaviour_view_definition"
+      supertypes="Product_view_definition"
+    >
+      <explicit
+        name="defined_version">
+        <typename name="Behaviour_version"/>
+        <redeclaration
+          entity-ref="Product_view_definition"/>
       </explicit>
     </entity>
 
@@ -372,15 +403,115 @@
       </derived>
     </entity>
 
-    <entity name="Behaviour_view_definition"
-      supertypes="Product_view_definition"
+    <entity name="Product_version_relationship"
     >
       <explicit
-        name="defined_version">
-        <typename name="Behaviour_version"/>
-        <redeclaration
-          entity-ref="Product_view_definition"/>
+        name="relation_type"
+        optional="YES">
+        <builtintype type="STRING"
+        />
       </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_version">
+        <typename name="Product_version"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Product_version"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="relating_version :&lt;&gt;: related_version">
+      </where>
+      <where
+        label="WR2"
+        expression="EXISTS(relation_type) OR (TYPEOF(SELF\Product_version_relationship) &lt;&gt; TYPEOF(SELF))">
+      </where>
+    </entity>
+
+    <entity name="Supplied_part_relationship"
+      supertypes="Product_version_relationship"
+    >
+      <where
+        label="WR1"
+        expression="SELF\Product_version_relationship.relation_type IN [&apos;supplied item&apos;, &apos;supplied document&apos;]">
+      </where>
+    </entity>
+
+    <entity name="Product_view_definition"
+    >
+      <explicit
+        name="id"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="additional_characterization"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="initial_context">
+        <typename name="View_definition_context"/>
+      </explicit>
+      <explicit
+        name="additional_contexts">
+        <aggregate type="SET"
+          lower="0"
+          upper="?"
+        />
+        <typename name="View_definition_context"/>
+      </explicit>
+      <explicit
+        name="defined_version">
+        <typename name="Product_version"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="NOT (initial_context IN additional_contexts)">
+      </where>
+      <where
+        label="WR2"
+        expression="EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) &lt;&gt; TYPEOF(SELF))">
+      </where>
+    </entity>
+
+    <entity name="View_definition_context"
+    >
+      <explicit
+        name="application_domain">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="life_cycle_stage">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <where
+        label="WR1"
+        expression="(SIZEOF(USEDIN(SELF, &apos;STATE_BASED_BEHAVIOUR_ARM_LF.&apos; + &apos;PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT&apos;)) &gt; 0) OR (SIZEOF(USEDIN(SELF, &apos;STATE_BASED_BEHAVIOUR_ARM_LF.&apos; + &apos;PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS&apos;)) &gt; 0)">
+      </where>
     </entity>
 
     <entity name="Class"
@@ -1043,6 +1174,102 @@
       </explicit>
     </entity>
 
+    <entity name="Binary_generic_expression"
+      abstract.supertype="YES"
+      supertypes="Generic_expression"
+    >
+      <explicit
+        name="operands">
+        <aggregate type="LIST"
+          lower="2"
+          upper="2"
+        />
+        <typename name="Generic_expression"/>
+      </explicit>
+    </entity>
+
+    <entity name="Environment"
+    >
+      <explicit
+        name="syntactic_representation">
+        <typename name="Generic_variable"/>
+      </explicit>
+      <explicit
+        name="semantics">
+        <typename name="Variable_semantics"/>
+      </explicit>
+    </entity>
+
+    <entity name="Generic_expression"
+      abstract.supertype="YES"
+      super.expression="ONEOF(Simple_generic_expression, Unary_generic_expression, Binary_generic_expression, Multiple_arity_generic_expression)"
+    >
+      <where
+        label="WR1"
+        expression="Is_Acyclic(SELF)">
+      </where>
+    </entity>
+
+    <entity name="Generic_literal"
+      abstract.supertype="YES"
+      supertypes="Simple_generic_expression"
+    >
+    </entity>
+
+    <entity name="Generic_variable"
+      abstract.supertype="YES"
+      supertypes="Simple_generic_expression"
+      super.expression="Variable"
+    >
+      <inverse
+        name="interpretation"
+        entity="Environment"
+        attribute="syntactic_representation">
+      </inverse>
+    </entity>
+
+    <entity name="Multiple_arity_generic_expression"
+      abstract.supertype="YES"
+      supertypes="Generic_expression"
+    >
+      <explicit
+        name="operands">
+        <aggregate type="LIST"
+          lower="2"
+          upper="?"
+        />
+        <typename name="Generic_expression"/>
+      </explicit>
+    </entity>
+
+    <entity name="Simple_generic_expression"
+      abstract.supertype="YES"
+      supertypes="Generic_expression"
+      super.expression="ONEOF(Generic_literal, Generic_variable)"
+    >
+    </entity>
+
+    <entity name="Unary_generic_expression"
+      abstract.supertype="YES"
+      supertypes="Generic_expression"
+    >
+      <explicit
+        name="operand">
+        <typename name="Generic_expression"/>
+      </explicit>
+    </entity>
+
+    <entity name="Variable"
+      abstract.supertype="YES"
+      supertypes="Generic_variable"
+    >
+    </entity>
+
+    <entity name="Variable_semantics"
+      abstract.supertype="YES"
+    >
+    </entity>
+
     <entity name="Expression_assignment"
     >
       <explicit
@@ -1064,10 +1291,10 @@
       </explicit>
     </entity>
 
-    <entity name="External_class_library"
+    <entity name="Activity_method"
     >
       <explicit
-        name="id">
+        name="name">
         <builtintype type="STRING"
         />
       </explicit>
@@ -1076,6 +1303,35 @@
         optional="YES">
         <builtintype type="STRING"
         />
+      </explicit>
+      <explicit
+        name="consequence"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="purpose">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Name_assignment"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="items">
+        <typename name="assigned_name_select"/>
       </explicit>
     </entity>
 
@@ -1162,6 +1418,41 @@
         label="WR1"
         expression="&apos;STATE_BASED_BEHAVIOUR_ARM_LF.FILE&apos; IN TYPEOF(SELF\External_source_identification.item)">
       </where>
+    </entity>
+
+    <entity name="State_based_behaviour_model"
+      supertypes="Representation"
+    >
+      <explicit
+        name="context_of_items">
+        <typename name="State_based_behaviour_representation_context"/>
+        <redeclaration
+          entity-ref="Representation"/>
+      </explicit>
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="State_based_behaviour_representation_item"/>
+        <redeclaration
+          entity-ref="Representation"/>
+      </explicit>
+    </entity>
+
+    <entity name="State_based_behaviour_representation_context"
+      supertypes="Representation_context"
+    >
+    </entity>
+
+    <entity name="State_based_behaviour_representation_item"
+      supertypes="Representation_item"
+    >
+      <explicit
+        name="item">
+        <typename name="state_based_behaviour_element"/>
+      </explicit>
     </entity>
 
     <entity name="Numerical_representation_context"
@@ -1302,6 +1593,156 @@
       </explicit>
     </entity>
 
+    <entity name="Amount_of_substance_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Context_dependent_unit"
+      supertypes="Unit"
+    >
+      <where
+        label="WR1"
+        expression="EXISTS(SELF\Unit.name)">
+      </where>
+    </entity>
+
+    <entity name="Conversion_based_unit"
+      supertypes="Unit"
+    >
+      <explicit
+        name="conversion_factor">
+        <typename name="Value_with_unit"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="EXISTS(SELF\Unit.name)">
+      </where>
+    </entity>
+
+    <entity name="Derived_unit"
+      supertypes="Unit"
+    >
+      <explicit
+        name="elements">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="Derived_unit_element"/>
+      </explicit>
+    </entity>
+
+    <entity name="Derived_unit_element"
+    >
+      <explicit
+        name="base_unit">
+        <typename name="Unit"/>
+      </explicit>
+      <explicit
+        name="exponent">
+        <builtintype type="REAL"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Duration"
+      supertypes="Value_with_unit"
+    >
+      <where
+        label="WR1"
+        expression="&apos;STATE_BASED_BEHAVIOUR_ARM_LF.&apos; + &apos;TIME_UNIT&apos; IN TYPEOF(SELF\Value_with_unit.unit)">
+      </where>
+    </entity>
+
+    <entity name="Electric_current_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Length_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Luminous_intensity_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Mass_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Plane_angle_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Ratio_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Solid_angle_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Thermodynamic_temperature_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Time_unit"
+      supertypes="Unit"
+    >
+    </entity>
+
+    <entity name="Uncertainty_with_unit"
+      supertypes="Value_with_unit"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Unit"
+      super.expression="ONEOF(Amount_of_substance_unit, Electric_current_unit, Length_unit, Luminous_intensity_unit, Mass_unit, Plane_angle_unit, Ratio_unit, Solid_angle_unit, Thermodynamic_temperature_unit, Time_unit)"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="si_unit">
+        <builtintype type="BOOLEAN"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Value_with_unit"
+    >
+      <explicit
+        name="unit">
+        <typename name="Unit"/>
+      </explicit>
+      <explicit
+        name="value_component">
+        <typename name="measure_value"/>
+      </explicit>
+    </entity>
+
     <entity name="Applied_state_definition_assignment"
     >
       <explicit
@@ -1318,30 +1759,27 @@
       </explicit>
     </entity>
 
-    <entity name="Activity_method"
+    <entity name="Composition_of_state_definition"
+      supertypes="State_definition_relationship"
     >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
+      <derived
+        name="part"
+        expression="SELF\State_definition_relationship.related">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
+        <typename name="State_definition"/>
+      </derived>
+      <derived
+        name="whole"
+        expression="SELF\State_definition_relationship.relating">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
         />
-      </explicit>
-      <explicit
-        name="consequence"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="purpose">
-        <builtintype type="STRING"
-        />
-      </explicit>
+        <typename name="State_definition"/>
+      </derived>
     </entity>
 
     <entity name="State_definition"
@@ -1467,130 +1905,6 @@
       </explicit>
     </entity>
 
-    <entity name="Binary_generic_expression"
-      abstract.supertype="YES"
-      supertypes="Generic_expression"
-    >
-      <explicit
-        name="operands">
-        <aggregate type="LIST"
-          lower="2"
-          upper="2"
-        />
-        <typename name="Generic_expression"/>
-      </explicit>
-    </entity>
-
-    <entity name="Environment"
-    >
-      <explicit
-        name="syntactic_representation">
-        <typename name="Generic_variable"/>
-      </explicit>
-      <explicit
-        name="semantics">
-        <typename name="Variable_semantics"/>
-      </explicit>
-    </entity>
-
-    <entity name="Generic_expression"
-      abstract.supertype="YES"
-      super.expression="ONEOF(Simple_generic_expression, Unary_generic_expression, Binary_generic_expression, Multiple_arity_generic_expression)"
-    >
-      <where
-        label="WR1"
-        expression="Is_Acyclic(SELF)">
-      </where>
-    </entity>
-
-    <entity name="Generic_literal"
-      abstract.supertype="YES"
-      supertypes="Simple_generic_expression"
-    >
-    </entity>
-
-    <entity name="Generic_variable"
-      abstract.supertype="YES"
-      supertypes="Simple_generic_expression"
-      super.expression="Variable"
-    >
-      <inverse
-        name="interpretation"
-        entity="Environment"
-        attribute="syntactic_representation">
-      </inverse>
-    </entity>
-
-    <entity name="Multiple_arity_generic_expression"
-      abstract.supertype="YES"
-      supertypes="Generic_expression"
-    >
-      <explicit
-        name="operands">
-        <aggregate type="LIST"
-          lower="2"
-          upper="?"
-        />
-        <typename name="Generic_expression"/>
-      </explicit>
-    </entity>
-
-    <entity name="Simple_generic_expression"
-      abstract.supertype="YES"
-      supertypes="Generic_expression"
-      super.expression="ONEOF(Generic_literal, Generic_variable)"
-    >
-    </entity>
-
-    <entity name="Unary_generic_expression"
-      abstract.supertype="YES"
-      supertypes="Generic_expression"
-    >
-      <explicit
-        name="operand">
-        <typename name="Generic_expression"/>
-      </explicit>
-    </entity>
-
-    <entity name="Variable"
-      abstract.supertype="YES"
-      supertypes="Generic_variable"
-    >
-    </entity>
-
-    <entity name="Variable_semantics"
-      abstract.supertype="YES"
-    >
-    </entity>
-
-    <entity name="Identification_assignment"
-    >
-      <explicit
-        name="identifier">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="role">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="identification_item"/>
-      </explicit>
-    </entity>
-
     <entity name="Independent_property"
     >
       <explicit
@@ -1647,6 +1961,103 @@
         name="property"
         expression="SELF\Property_definition_representation.definition">
         <typename name="Independent_property"/>
+      </derived>
+    </entity>
+
+    <entity name="Named_variable_semantics"
+      supertypes="Variable_semantics"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="variable_context">
+        <typename name="Generic_expression"/>
+      </explicit>
+    </entity>
+
+    <entity name="Applied_independent_property"
+      supertypes="Assigned_property"
+    >
+      <explicit
+        name="base_independent_property">
+        <typename name="Independent_property"/>
+      </explicit>
+      <derived
+        name="name"
+        expression="base_independent_property.property_type">
+        <builtintype type="STRING"
+        />
+        <redeclaration
+          entity-ref="Assigned_property"/>
+      </derived>
+    </entity>
+
+    <entity name="Assigned_property"
+    >
+      <explicit
+        name="id"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="described_element">
+        <typename name="property_assignment_select"/>
+      </explicit>
+    </entity>
+
+    <entity name="Property_definition_representation"
+      abstract.supertype="YES"
+    >
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="definition">
+        <typename name="represented_definition"/>
+      </explicit>
+      <explicit
+        name="rep">
+        <typename name="Representation"/>
+      </explicit>
+      <explicit
+        name="role"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Property_representation"
+      supertypes="Property_definition_representation"
+    >
+      <explicit
+        name="definition">
+        <typename name="Assigned_property"/>
+        <redeclaration
+          entity-ref="Property_definition_representation"/>
+      </explicit>
+      <derived
+        name="property"
+        expression="SELF\Property_definition_representation.definition">
+        <typename name="Assigned_property"/>
       </derived>
     </entity>
 
@@ -1801,20 +2212,6 @@
     >
     </entity>
 
-    <entity name="Named_variable_semantics"
-      supertypes="Variable_semantics"
-    >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="variable_context">
-        <typename name="Generic_expression"/>
-      </explicit>
-    </entity>
-
     <entity name="Product_category"
     >
       <explicit
@@ -1904,235 +2301,6 @@
       </explicit>
     </entity>
 
-    <entity name="Product_version_relationship"
-    >
-      <explicit
-        name="relation_type"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="relating_version">
-        <typename name="Product_version"/>
-      </explicit>
-      <explicit
-        name="related_version">
-        <typename name="Product_version"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="relating_version :&lt;&gt;: related_version">
-      </where>
-      <where
-        label="WR2"
-        expression="EXISTS(relation_type) OR (TYPEOF(SELF\Product_version_relationship) &lt;&gt; TYPEOF(SELF))">
-      </where>
-    </entity>
-
-    <entity name="Supplied_part_relationship"
-      supertypes="Product_version_relationship"
-    >
-      <where
-        label="WR1"
-        expression="SELF\Product_version_relationship.relation_type IN [&apos;supplied item&apos;, &apos;supplied document&apos;]">
-      </where>
-    </entity>
-
-    <entity name="Product_view_definition"
-    >
-      <explicit
-        name="id"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="additional_characterization"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="initial_context">
-        <typename name="View_definition_context"/>
-      </explicit>
-      <explicit
-        name="additional_contexts">
-        <aggregate type="SET"
-          lower="0"
-          upper="?"
-        />
-        <typename name="View_definition_context"/>
-      </explicit>
-      <explicit
-        name="defined_version">
-        <typename name="Product_version"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="NOT (initial_context IN additional_contexts)">
-      </where>
-      <where
-        label="WR2"
-        expression="EXISTS(id) OR (TYPEOF(SELF\Product_view_definition) &lt;&gt; TYPEOF(SELF))">
-      </where>
-    </entity>
-
-    <entity name="View_definition_context"
-    >
-      <explicit
-        name="application_domain">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="life_cycle_stage">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <where
-        label="WR1"
-        expression="(SIZEOF(USEDIN(SELF, &apos;STATE_BASED_BEHAVIOUR_ARM_LF.&apos; + &apos;PRODUCT_VIEW_DEFINITION.INITIAL_CONTEXT&apos;)) &gt; 0) OR (SIZEOF(USEDIN(SELF, &apos;STATE_BASED_BEHAVIOUR_ARM_LF.&apos; + &apos;PRODUCT_VIEW_DEFINITION.ADDITIONAL_CONTEXTS&apos;)) &gt; 0)">
-      </where>
-    </entity>
-
-    <entity name="Applied_independent_property"
-      supertypes="Assigned_property"
-    >
-      <explicit
-        name="base_independent_property">
-        <typename name="Independent_property"/>
-      </explicit>
-      <derived
-        name="name"
-        expression="base_independent_property.property_type">
-        <builtintype type="STRING"
-        />
-        <redeclaration
-          entity-ref="Assigned_property"/>
-      </derived>
-    </entity>
-
-    <entity name="Assigned_property"
-    >
-      <explicit
-        name="id"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="described_element">
-        <typename name="property_assignment_select"/>
-      </explicit>
-    </entity>
-
-    <entity name="Property_definition_representation"
-      abstract.supertype="YES"
-    >
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="definition">
-        <typename name="represented_definition"/>
-      </explicit>
-      <explicit
-        name="rep">
-        <typename name="Representation"/>
-      </explicit>
-      <explicit
-        name="role"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Property_representation"
-      supertypes="Property_definition_representation"
-    >
-      <explicit
-        name="definition">
-        <typename name="Assigned_property"/>
-        <redeclaration
-          entity-ref="Property_definition_representation"/>
-      </explicit>
-      <derived
-        name="property"
-        expression="SELF\Property_definition_representation.definition">
-        <typename name="Assigned_property"/>
-      </derived>
-    </entity>
-
-    <entity name="State_based_behaviour_model"
-      supertypes="Representation"
-    >
-      <explicit
-        name="context_of_items">
-        <typename name="State_based_behaviour_representation_context"/>
-        <redeclaration
-          entity-ref="Representation"/>
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="State_based_behaviour_representation_item"/>
-        <redeclaration
-          entity-ref="Representation"/>
-      </explicit>
-    </entity>
-
-    <entity name="State_based_behaviour_representation_context"
-      supertypes="Representation_context"
-    >
-    </entity>
-
-    <entity name="State_based_behaviour_representation_item"
-      supertypes="Representation_item"
-    >
-      <explicit
-        name="item">
-        <typename name="state_based_behaviour_element"/>
-      </explicit>
-    </entity>
-
     <entity name="Included_text_based_representation"
       supertypes="Representation_item"
     >
@@ -2180,174 +2348,6 @@
     <entity name="Textual_expression_representation_item"
       supertypes="String_representation_item"
     >
-    </entity>
-
-    <entity name="Amount_of_substance_unit"
-      supertypes="Unit"
-    >
-    </entity>
-
-    <entity name="Context_dependent_unit"
-      supertypes="Unit"
-    >
-      <where
-        label="WR1"
-        expression="EXISTS(SELF\Unit.name)">
-      </where>
-    </entity>
-
-    <entity name="Conversion_based_unit"
-      supertypes="Unit"
-    >
-      <explicit
-        name="conversion_factor">
-        <typename name="Value_with_unit"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="EXISTS(SELF\Unit.name)">
-      </where>
-    </entity>
-
-    <entity name="Derived_unit"
-      supertypes="Unit"
-    >
-      <explicit
-        name="elements">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="Derived_unit_element"/>
-      </explicit>
-    </entity>
-
-    <entity name="Derived_unit_element"
-    >
-      <explicit
-        name="base_unit">
-        <typename name="Unit"/>
-      </explicit>
-      <explicit
-        name="exponent">
-        <builtintype type="REAL"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Duration"
-      supertypes="Value_with_unit"
-    >
-      <where
-        label="WR1"
-        expression="&apos;STATE_BASED_BEHAVIOUR_ARM_LF.&apos; + &apos;TIME_UNIT&apos; IN TYPEOF(SELF\Value_with_unit.unit)">
-      </where>
-    </entity>
-
-    <entity name="Electric_current_unit"
-      supertypes="Unit"
-    >
-    </entity>
-
-    <entity name="Length_unit"
-      supertypes="Unit"
-    >
-    </entity>
-
-    <entity name="Luminous_intensity_unit"
-      supertypes="Unit"
-    >
-    </entity>
-
-    <entity name="Mass_unit"
-      supertypes="Unit"
-    >
-    </entity>
-
-    <entity name="Plane_angle_unit"
-      supertypes="Unit"
-    >
-    </entity>
-
-    <entity name="Ratio_unit"
-      supertypes="Unit"
-    >
-    </entity>
-
-    <entity name="Solid_angle_unit"
-      supertypes="Unit"
-    >
-    </entity>
-
-    <entity name="Thermodynamic_temperature_unit"
-      supertypes="Unit"
-    >
-    </entity>
-
-    <entity name="Time_unit"
-      supertypes="Unit"
-    >
-    </entity>
-
-    <entity name="Uncertainty_with_unit"
-      supertypes="Value_with_unit"
-    >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Unit"
-      super.expression="ONEOF(Amount_of_substance_unit, Electric_current_unit, Length_unit, Luminous_intensity_unit, Mass_unit, Plane_angle_unit, Ratio_unit, Solid_angle_unit, Thermodynamic_temperature_unit, Time_unit)"
-    >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="si_unit">
-        <builtintype type="BOOLEAN"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Value_with_unit"
-    >
-      <explicit
-        name="unit">
-        <typename name="Unit"/>
-      </explicit>
-      <explicit
-        name="value_component">
-        <typename name="measure_value"/>
-      </explicit>
-    </entity>
-
-    <entity name="Name_assignment"
-    >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="role">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="items">
-        <typename name="assigned_name_select"/>
-      </explicit>
     </entity>
 
     <function name="Is_sql_mappable">
@@ -2426,31 +2426,6 @@
       </algorithm>
     </function>
 
-    <function name="CLASSOF">
-      <parameter name="the_instance">
-        <builtintype type="GENERIC"
-          typelabel="ininst"
-        />
-      </parameter>
-      <aggregate type="SET"
-      />
-      <builtintype type="STRING"
-      />
-      <algorithm>
-  LOCAL
-    result : SET OF STRING;
-    classifications : BAG OF Classification_assignment;
-  END_LOCAL;
-
-  result := TYPEOF(the_instance);
-  classifications := USEDIN(the_instance, &apos;STATE_BASED_BEHAVIOUR_ARM_LF.CLASSIFICATION_ASSIGNMENT.ITEMS&apos;);
-  REPEAT i := LOINDEX(classifications) TO HIINDEX(classifications);
-    result := result + classifications[i].assigned_class.id;
-  END_REPEAT;
-  RETURN (result);
-      </algorithm>
-    </function>
-
     <function name="Is_Acyclic">
       <parameter name="arg">
         <typename name="Generic_expression"/>
@@ -2497,6 +2472,31 @@
     END_REPEAT;
     RETURN (result);
   END_IF;
+      </algorithm>
+    </function>
+
+    <function name="CLASSOF">
+      <parameter name="the_instance">
+        <builtintype type="GENERIC"
+          typelabel="ininst"
+        />
+      </parameter>
+      <aggregate type="SET"
+      />
+      <builtintype type="STRING"
+      />
+      <algorithm>
+  LOCAL
+    result : SET OF STRING;
+    classifications : BAG OF Classification_assignment;
+  END_LOCAL;
+
+  result := TYPEOF(the_instance);
+  classifications := USEDIN(the_instance, &apos;STATE_BASED_BEHAVIOUR_ARM_LF.CLASSIFICATION_ASSIGNMENT.ITEMS&apos;);
+  REPEAT i := LOINDEX(classifications) TO HIINDEX(classifications);
+    result := result + classifications[i].assigned_class.id;
+  END_REPEAT;
+  RETURN (result);
       </algorithm>
     </function>
 

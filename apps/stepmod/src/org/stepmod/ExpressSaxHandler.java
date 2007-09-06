@@ -1,5 +1,5 @@
 /*
- * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
+ * $Id: ExpressSaxHandler.java,v 1.3 2006/12/13 15:23:51 joshpearce2005 Exp $
  *
  * ExpressSaxHandler.java
  *
@@ -28,6 +28,8 @@ public class ExpressSaxHandler extends DefaultHandler {
     private String expressFile;
     private STEPmod stepMod;
     
+
+    
     /**
      * Instantiate a Sax handler for reading the module.xml file
      */
@@ -36,6 +38,10 @@ public class ExpressSaxHandler extends DefaultHandler {
         this.expressFile = expressFile;
         this.stepMod = stepMod;
     }
+    
+    
+    
+
     
     
     public void startElement(String namespaceURI, String sName, // simple name
@@ -78,13 +84,23 @@ public class ExpressSaxHandler extends DefaultHandler {
                 }
             }
         } else {
+           
             // only interested in interface elements
             // throw back to the caller who should trap StepmodReadSAXException
             // and process results
-            throw (new StepmodReadSAXException());
-        }
+            endDocument();
+            //throw (new StepmodReadSAXException());
+         
+        } 
+  
+        
+        
+        
     }
     
+    public void endDocument() throws SAXException{
+         throw (new StepmodReadSAXException());
+    }
     
     public HashMap getInterfacedFiles() {
         return(interfacedFiles);

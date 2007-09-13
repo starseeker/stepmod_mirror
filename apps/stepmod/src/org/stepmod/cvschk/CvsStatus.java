@@ -1,5 +1,5 @@
 /*
- * $Id: CmRecordFrmwk.java,v 1.4 2006/12/12 13:59:08 robbod Exp $
+ * $Id: CvsStatus.java,v 1.7 2006/12/13 15:23:51 joshpearce2005 Exp $
  *
  * CvsStatus.java
  *
@@ -83,9 +83,9 @@ public class CvsStatus {
         try {
             BufferedReader in = new BufferedReader(new FileReader(cvsEntriesFile));
             String str;
-            Pattern mainfilePattern = Pattern.compile("^/"+this.getPartMainFile()+"/.*$");
+            Pattern mainfilePattern = Pattern.compile("^/"+this.getPartMainFile().toLowerCase()+"/.*$");
             while ((str = in.readLine()) != null) {
-                Matcher m = mainfilePattern.matcher(str);
+                Matcher m = mainfilePattern.matcher(str.toLowerCase());
                 if (m.matches()) {
                     // Found the line with the mail file in. E.g. /module.xml/
                     // If the entry ends with / then it is the development version
@@ -120,6 +120,7 @@ public class CvsStatus {
         // If yes, findout whether the Tag corresponds to a release or a publication
         if (this.cvsState == this.CVSSTATE_UNKNOWN) {
             this.updateCvsStatus();
+            
         }
         return(this.cvsState);
     }

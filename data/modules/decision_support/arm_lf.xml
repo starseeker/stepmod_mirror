@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: arm_lf.xml,v 1.6 2007/08/22 19:57:04 abhpf Exp $ -->
+<!-- $Id: arm_lf.xml,v 1.7 2007/08/30 00:20:52 abhpf Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: 2007/08/22 19:57:04 $"
-  rcs.revision="$Revision: 1.6 $">
+  rcs.date="$Date: 2007/08/30 00:20:52 $"
+  rcs.revision="$Revision: 1.7 $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
     version="1, 3, 30, 37"
-    source="arm_ds3LF.exp"/>
+    source="arm_lf.exp"/>
 
   <schema name="Decision_support_arm_LF">
     <type name="contract_item">
@@ -161,12 +161,6 @@
       />
     </type>
 
-    <type name="external_identification_item">
-      <select
-        selectitems="Document_definition File Person_in_organization Product Project"
-      />
-    </type>
-
     <type name="assigned_document_select">
       <select
         selectitems="Document Document_definition Document_version File"
@@ -299,6 +293,12 @@
         label="wr28"
         expression="NOT (&apos;DECISION_SUPPORT_ARM.VIEW_DEFINITION_RELATIONSHIP&apos; IN TYPEOF(SELF))">
       </where>
+    </type>
+
+    <type name="external_identification_item">
+      <select
+        selectitems="Document_definition File Person_in_organization Product Project"
+      />
     </type>
 
     <type name="property_assignment_select">
@@ -521,19 +521,27 @@
       />
     </type>
 
-    <entity name="Descriptive_document_property"
-      supertypes="String_representation_item"
+    <entity name="Document_definition"
+      supertypes="Product_view_definition"
+      super.expression="ONEOF(Digital_document_definition, Physical_document_definition)"
     >
-      <inverse
-        name="valued_characteristic"
-        entity="Document_property_representation"
-        attribute="items">
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="1"
+      <explicit
+        name="defined_version">
+        <typename name="Document_version"/>
+        <redeclaration
+          entity-ref="Product_view_definition"/>
+      </explicit>
+      <derived
+        name="associated_document_version"
+        expression="SELF\Product_view_definition.defined_version">
+        <typename name="Document_version"/>
+      </derived>
+      <derived
+        name="description"
+        expression="SELF\Product_view_definition.name">
+        <builtintype type="STRING"
         />
-      </inverse>
+      </derived>
     </entity>
 
     <entity name="Activity_happening"
@@ -1637,330 +1645,6 @@
     >
     </entity>
 
-    <entity name="Digital_file"
-      supertypes="File"
-    >
-    </entity>
-
-    <entity name="File"
-      abstract.supertype="YES"
-      super.expression="ONEOF(Digital_file, Hardcopy)"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="version"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="contained_data_type"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Hardcopy"
-      supertypes="File"
-    >
-    </entity>
-
-    <entity name="File_location_identification"
-      supertypes="External_item_identification"
-    >
-      <where
-        label="WR1"
-        expression="&apos;DECISION_SUPPORT_ARM_LF.FILE&apos; IN TYPEOF(SELF\External_source_identification.item)">
-      </where>
-    </entity>
-
-    <entity name="External_item_identification"
-      supertypes="External_source_identification"
-    >
-      <explicit
-        name="external_id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="External_source_identification"
-    >
-      <explicit
-        name="source_id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="source_type">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="item">
-        <typename name="external_identification_item"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Requirement_view_definition"
-      supertypes="Product_view_definition"
-    >
-      <explicit
-        name="defined_version">
-        <typename name="Requirement_version"/>
-        <redeclaration
-          entity-ref="Product_view_definition"/>
-      </explicit>
-    </entity>
-
-    <entity name="Document_assignment"
-    >
-      <explicit
-        name="assigned_document">
-        <typename name="assigned_document_select"/>
-      </explicit>
-      <explicit
-        name="is_assigned_to">
-        <typename name="documented_element_select"/>
-      </explicit>
-      <explicit
-        name="role">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Partial_document_assignment"
-      supertypes="Document_assignment"
-    >
-      <explicit
-        name="document_portion">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Document"
-      supertypes="Product"
-    >
-    </entity>
-
-    <entity name="Document_version"
-      supertypes="Product_version"
-    >
-      <explicit
-        name="of_product">
-        <typename name="Document"/>
-        <redeclaration
-          entity-ref="Product_version"/>
-      </explicit>
-    </entity>
-
-    <entity name="Product"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-    </entity>
-
-    <entity name="Product_category_assignment"
-    >
-      <explicit
-        name="category">
-        <typename name="Product_category"/>
-      </explicit>
-      <explicit
-        name="products">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="Product"/>
-      </explicit>
-    </entity>
-
-    <entity name="Product_version"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="of_product">
-        <typename name="Product"/>
-      </explicit>
-    </entity>
-
-    <entity name="Digital_document_definition"
-      supertypes="Document_definition"
-    >
-      <explicit
-        name="files">
-        <aggregate type="SET"
-          lower="0"
-          upper="?"
-        />
-        <typename name="Digital_file"/>
-      </explicit>
-    </entity>
-
-    <entity name="Document_definition"
-      supertypes="Product_view_definition"
-      super.expression="ONEOF(Digital_document_definition, Physical_document_definition)"
-    >
-      <explicit
-        name="defined_version">
-        <typename name="Document_version"/>
-        <redeclaration
-          entity-ref="Product_view_definition"/>
-      </explicit>
-      <derived
-        name="associated_document_version"
-        expression="SELF\Product_view_definition.defined_version">
-        <typename name="Document_version"/>
-      </derived>
-      <derived
-        name="description"
-        expression="SELF\Product_view_definition.name">
-        <builtintype type="STRING"
-        />
-      </derived>
-    </entity>
-
-    <entity name="Document_location_identification"
-      supertypes="External_source_identification"
-    >
-      <where
-        label="WR1"
-        expression="&apos;DECISION_SUPPORT_ARM_LF.DOCUMENT_DEFINITION&apos; IN TYPEOF(SELF\External_source_identification.item)">
-      </where>
-    </entity>
-
-    <entity name="Physical_document_definition"
-      supertypes="Document_definition"
-    >
-      <explicit
-        name="components">
-        <aggregate type="SET"
-          lower="0"
-          upper="?"
-        />
-        <typename name="Hardcopy"/>
-      </explicit>
-    </entity>
-
-    <entity name="Assigned_document_property"
-      supertypes="Assigned_property"
-    >
-      <explicit
-        name="described_element">
-        <typename name="document_property_item"/>
-        <redeclaration
-          entity-ref="Assigned_property"/>
-      </explicit>
-      <derived
-        name="name"
-        expression="&apos;document property&apos;">
-        <builtintype type="STRING"
-        />
-        <redeclaration
-          entity-ref="Assigned_property"/>
-      </derived>
-      <unique
-        label="UR1">
-        <unique.attribute
-          entity-ref="Assigned_property"
-          attribute="described_element"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="SIZEOF([&apos;DECISION_SUPPORT_ARM_LF.DOCUMENT_DEFINITION&apos;, &apos;DECISION_SUPPORT_ARM_LF.FILE&apos;] * TYPEOF(SELF\Assigned_property.described_element)) = 1">
-      </where>
-    </entity>
-
-    <entity name="Activity_actual"
-      supertypes="Activity"
-    >
-    </entity>
-
-    <entity name="Document_property_representation"
-      supertypes="Representation"
-    >
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="descriptive_or_numerical"/>
-        <redeclaration
-          entity-ref="Representation"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(pr &lt;* USEDIN(SELF, &apos;DECISION_SUPPORT_ARM_LF.PROPERTY_DEFINITION_REPRESENTATION.REP&apos;) | &apos;DECISION_SUPPORT_ARM_LF.ASSIGNED_PROPERTY&apos; IN TYPEOF(pr\Property_representation.property))) &gt; 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SELF\Representation.context_of_items.kind = &apos;document parameters&apos;">
-      </where>
-      <where
-        label="WR3"
-        expression="valid_document_property_representation(SELF)">
-      </where>
-      <where
-        label="WR4"
-        expression="SIZEOF(QUERY(it1 &lt;* SELF\Representation.items | SIZEOF(QUERY(it2 &lt;* SELF\Representation.items | it1.name = it2.name)) &gt; 1)) = 0">
-      </where>
-    </entity>
-
-    <entity name="Numerical_document_property"
-      supertypes="Numerical_item_with_unit"
-    >
-      <inverse
-        name="valued_characteristic"
-        entity="Document_property_representation"
-        attribute="items">
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="1"
-        />
-      </inverse>
-    </entity>
-
     <entity name="Numerical_representation_context"
       supertypes="Representation_context"
     >
@@ -2094,6 +1778,322 @@
     >
       <explicit
         name="string_value">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Digital_file"
+      supertypes="File"
+    >
+    </entity>
+
+    <entity name="File"
+      abstract.supertype="YES"
+      super.expression="ONEOF(Digital_file, Hardcopy)"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="version"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="contained_data_type"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Hardcopy"
+      supertypes="File"
+    >
+    </entity>
+
+    <entity name="File_location_identification"
+      supertypes="External_item_identification"
+    >
+      <where
+        label="WR1"
+        expression="&apos;DECISION_SUPPORT_ARM_LF.FILE&apos; IN TYPEOF(SELF\External_source_identification.item)">
+      </where>
+    </entity>
+
+    <entity name="Requirement_view_definition"
+      supertypes="Product_view_definition"
+    >
+      <explicit
+        name="defined_version">
+        <typename name="Requirement_version"/>
+        <redeclaration
+          entity-ref="Product_view_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Document_assignment"
+    >
+      <explicit
+        name="assigned_document">
+        <typename name="assigned_document_select"/>
+      </explicit>
+      <explicit
+        name="is_assigned_to">
+        <typename name="documented_element_select"/>
+      </explicit>
+      <explicit
+        name="role">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Partial_document_assignment"
+      supertypes="Document_assignment"
+    >
+      <explicit
+        name="document_portion">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Document"
+      supertypes="Product"
+    >
+    </entity>
+
+    <entity name="Document_version"
+      supertypes="Product_version"
+    >
+      <explicit
+        name="of_product">
+        <typename name="Document"/>
+        <redeclaration
+          entity-ref="Product_version"/>
+      </explicit>
+    </entity>
+
+    <entity name="Product"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="Product_category_assignment"
+    >
+      <explicit
+        name="category">
+        <typename name="Product_category"/>
+      </explicit>
+      <explicit
+        name="products">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="Product"/>
+      </explicit>
+    </entity>
+
+    <entity name="Product_version"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="of_product">
+        <typename name="Product"/>
+      </explicit>
+    </entity>
+
+    <entity name="Digital_document_definition"
+      supertypes="Document_definition"
+    >
+      <explicit
+        name="files">
+        <aggregate type="SET"
+          lower="0"
+          upper="?"
+        />
+        <typename name="Digital_file"/>
+      </explicit>
+    </entity>
+
+    <entity name="Activity_actual"
+      supertypes="Activity"
+    >
+    </entity>
+
+    <entity name="Document_location_identification"
+      supertypes="External_source_identification"
+    >
+      <where
+        label="WR1"
+        expression="&apos;DECISION_SUPPORT_ARM_LF.DOCUMENT_DEFINITION&apos; IN TYPEOF(SELF\External_source_identification.item)">
+      </where>
+    </entity>
+
+    <entity name="Physical_document_definition"
+      supertypes="Document_definition"
+    >
+      <explicit
+        name="components">
+        <aggregate type="SET"
+          lower="0"
+          upper="?"
+        />
+        <typename name="Hardcopy"/>
+      </explicit>
+    </entity>
+
+    <entity name="Assigned_document_property"
+      supertypes="Assigned_property"
+    >
+      <explicit
+        name="described_element">
+        <typename name="document_property_item"/>
+        <redeclaration
+          entity-ref="Assigned_property"/>
+      </explicit>
+      <derived
+        name="name"
+        expression="&apos;document property&apos;">
+        <builtintype type="STRING"
+        />
+        <redeclaration
+          entity-ref="Assigned_property"/>
+      </derived>
+      <unique
+        label="UR1">
+        <unique.attribute
+          entity-ref="Assigned_property"
+          attribute="described_element"/>
+      </unique>
+      <where
+        label="WR1"
+        expression="SIZEOF([&apos;DECISION_SUPPORT_ARM_LF.DOCUMENT_DEFINITION&apos;, &apos;DECISION_SUPPORT_ARM_LF.FILE&apos;] * TYPEOF(SELF\Assigned_property.described_element)) = 1">
+      </where>
+    </entity>
+
+    <entity name="Descriptive_document_property"
+      supertypes="String_representation_item"
+    >
+      <inverse
+        name="valued_characteristic"
+        entity="Document_property_representation"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="1"
+        />
+      </inverse>
+    </entity>
+
+    <entity name="Document_property_representation"
+      supertypes="Representation"
+    >
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="descriptive_or_numerical"/>
+        <redeclaration
+          entity-ref="Representation"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="SIZEOF(QUERY(pr &lt;* USEDIN(SELF, &apos;DECISION_SUPPORT_ARM_LF.PROPERTY_DEFINITION_REPRESENTATION.REP&apos;) | &apos;DECISION_SUPPORT_ARM_LF.ASSIGNED_PROPERTY&apos; IN TYPEOF(pr\Property_representation.property))) &gt; 0">
+      </where>
+      <where
+        label="WR2"
+        expression="SELF\Representation.context_of_items.kind = &apos;document parameters&apos;">
+      </where>
+      <where
+        label="WR3"
+        expression="valid_document_property_representation(SELF)">
+      </where>
+      <where
+        label="WR4"
+        expression="SIZEOF(QUERY(it1 &lt;* SELF\Representation.items | SIZEOF(QUERY(it2 &lt;* SELF\Representation.items | it1.name = it2.name)) &gt; 1)) = 0">
+      </where>
+    </entity>
+
+    <entity name="Numerical_document_property"
+      supertypes="Numerical_item_with_unit"
+    >
+      <inverse
+        name="valued_characteristic"
+        entity="Document_property_representation"
+        attribute="items">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="1"
+        />
+      </inverse>
+    </entity>
+
+    <entity name="External_item_identification"
+      supertypes="External_source_identification"
+    >
+      <explicit
+        name="external_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+    </entity>
+
+    <entity name="External_source_identification"
+    >
+      <explicit
+        name="source_id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="source_type">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="item">
+        <typename name="external_identification_item"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
         <builtintype type="STRING"
         />
       </explicit>

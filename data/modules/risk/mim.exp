@@ -4,9 +4,9 @@
 (*                                                                            *)
 (******************************************************************************)
 
-(* Original model: Risk_mim_v014.vsd *)
-(* Title: Risk_mim_e1.2 *)
-(* Author: Hartvigsen *)
+(* Original model: Risk_mim_v016.vsd *)
+(* Title:  *)
+(* Author: TORHAR *)
 (* Comments:  *)
 
 SCHEMA Risk_mim;
@@ -56,9 +56,6 @@ USE FROM Resource_item_mim;
 USE FROM risk_schema;
 
 USE FROM State_definition_mim;
-
-TYPE probable_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
-END_TYPE;
 
 TYPE risk_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH
   (risk_evaluation,
@@ -145,9 +142,6 @@ TYPE risk_document_reference_item = EXTENSIBLE SELECT BASED_ON document_referenc
    risk_source_assignment);
 END_TYPE;
 
-TYPE risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
-END_TYPE;
-
 TYPE risk_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_item WITH
   (risk_reduction,
    risk_treatment);
@@ -205,26 +199,16 @@ TYPE risk_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_
    risk_treatment);
 END_TYPE;
 
-TYPE risk_source_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
-END_TYPE;
-
 ENTITY applied_risk_impact_assignment
 SUBTYPE OF (risk_impact_assignment);
-  items : SET [1 : ?] OF risk_impact_item;
 END_ENTITY;
 
 ENTITY applied_risk_probability_assignment
 SUBTYPE OF (risk_probability_assignment);
-  items : SET [1 : ?] OF probable_item;
 END_ENTITY;
 
 ENTITY applied_risk_source_assignment
 SUBTYPE OF (risk_source_assignment);
-  items : SET [1 : ?] OF risk_source_item;
-END_ENTITY;
-
-ENTITY risk_attitude;
-  criticality_factor : NUMBER;
 END_ENTITY;
 
 ENTITY risk_characterized_object
@@ -233,18 +217,12 @@ END_ENTITY;
 
 ENTITY risk_level
 SUBTYPE OF (risk_perception);
-  risk_attitude : risk_attitude;
-  risk_objective : risk_objective;
 END_ENTITY;
 
 ENTITY risk_level_relationship
 SUBTYPE OF (risk_perception_relationship);
-  relating_risk_level : risk_level;
-  related_risk_level : risk_level;
-END_ENTITY;
-
-ENTITY risk_objective
-SUBTYPE OF (risk_context);
+  SELF\risk_perception_relationship.relating_risk_perception : risk_level;
+  SELF\risk_perception_relationship.related_risk_perception : risk_level;
 END_ENTITY;
 
 ENTITY risk_relationship_characterized_object

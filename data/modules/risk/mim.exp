@@ -4,7 +4,7 @@
 (*                                                                            *)
 (******************************************************************************)
 
-(* Original model: Risk_mim_v016.vsd *)
+(* Original model: Risk_mim_v018.vsd *)
 (* Title:  *)
 (* Author: TORHAR *)
 (* Comments:  *)
@@ -63,8 +63,7 @@ TYPE risk_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items 
 END_TYPE;
 
 TYPE risk_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH
-  (applied_risk_source_assignment,
-   risk_analysis,
+  (risk_analysis,
    risk_assessment,
    risk_communication,
    risk_control,
@@ -74,6 +73,7 @@ TYPE risk_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action
    risk_identification,
    risk_perception,
    risk_reduction,
+   risk_source_assignment,
    risk_treatment);
 END_TYPE;
 
@@ -82,13 +82,23 @@ TYPE risk_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_ite
    risk_reduction);
 END_TYPE;
 
+TYPE risk_classification_item = EXTENSIBLE SELECT BASED_ON classification_item WITH
+  (risk,
+   risk_consequence,
+   risk_impact_assignment,
+   risk_perception,
+   risk_perception_relationship,
+   risk_probability_assignment,
+   risk_relationship,
+   risk_stakeholder);
+END_TYPE;
+
 TYPE risk_condition_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH
   (risk_status);
 END_TYPE;
 
 TYPE risk_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_and_time_item WITH
-  (applied_risk_classification_assignment,
-   risk,
+  (risk,
    risk_analysis,
    risk_assessment,
    risk_attitude,
@@ -112,8 +122,7 @@ TYPE risk_date_and_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_an
 END_TYPE;
 
 TYPE risk_date_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_item WITH
-  (applied_risk_classification_assignment,
-   risk,
+  (risk,
    risk_analysis,
    risk_assessment,
    risk_attitude,
@@ -148,8 +157,7 @@ TYPE risk_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justifi
 END_TYPE;
 
 TYPE risk_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_item WITH
-  (applied_risk_classification_assignment,
-   risk,
+  (risk,
    risk_analysis,
    risk_assessment,
    risk_attitude,
@@ -174,8 +182,7 @@ TYPE risk_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organiza
 END_TYPE;
 
 TYPE risk_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_and_organization_item WITH
-  (applied_risk_classification_assignment,
-   risk,
+  (risk,
    risk_analysis,
    risk_assessment,
    risk_attitude,
@@ -199,30 +206,14 @@ TYPE risk_person_and_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_
    risk_treatment);
 END_TYPE;
 
-ENTITY applied_risk_impact_assignment
-SUBTYPE OF (risk_impact_assignment);
-END_ENTITY;
-
-ENTITY applied_risk_probability_assignment
-SUBTYPE OF (risk_probability_assignment);
-END_ENTITY;
-
-ENTITY applied_risk_source_assignment
-SUBTYPE OF (risk_source_assignment);
-END_ENTITY;
-
 ENTITY risk_characterized_object
 SUBTYPE OF (characterized_object, risk);
 END_ENTITY;
 
-ENTITY risk_level
-SUBTYPE OF (risk_perception);
-END_ENTITY;
-
 ENTITY risk_level_relationship
 SUBTYPE OF (risk_perception_relationship);
-  SELF\risk_perception_relationship.relating_risk_perception : risk_level;
   SELF\risk_perception_relationship.related_risk_perception : risk_level;
+  SELF\risk_perception_relationship.relating_risk_perception : risk_level;
 END_ENTITY;
 
 ENTITY risk_relationship_characterized_object

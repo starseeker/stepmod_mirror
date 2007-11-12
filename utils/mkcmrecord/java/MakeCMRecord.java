@@ -22,24 +22,50 @@ import org.apache.log4j.PropertyConfigurator;
 
 import org.w3c.dom.*;
 
-public class MakeCMRecord {
-    String moduleName;
-    File moduleDir;
-    File moduleXMLFile;
-    InputStream xsltStream;
-    File cmRecordFile;
-    String description;
-    String release;
-    String stepmodRelease;
-    String status;
-    String releaseSequence;
-    String edition;
-    java.util.Date when;
-    String who;
-    boolean recordExists;
+import org.netbeans.lib.cvsclient.CVSRoot;
+import org.netbeans.lib.cvsclient.Client;
+import org.netbeans.lib.cvsclient.admin.StandardAdminHandler;
+import org.netbeans.lib.cvsclient.command.Command;
+import org.netbeans.lib.cvsclient.command.GlobalOptions;
+import org.netbeans.lib.cvsclient.command.log.LogCommand;
+import org.netbeans.lib.cvsclient.command.status.StatusCommand;
+import org.netbeans.lib.cvsclient.connection.PServerConnection;
+import org.netbeans.lib.cvsclient.event.CVSListener;
 
-    Document document;
-    TransformerFactory transFact;
+
+public class MakeCMRecord {
+    private String moduleName;
+    private File moduleDir;
+    private String moduleDirCanonicalPath;
+    private File moduleXMLFile;
+    private InputStream xsltStream;
+    private File cmRecordFile;
+    private String description;
+    private String release;
+    private String stepmodRelease;
+    private String status;
+    private String releaseSequence;
+    private String edition;
+    private java.util.Date when;
+    private String who;
+    private boolean recordExists;
+    private MetadataCollection metadataCollection;
+
+    /* DOM stuff */
+    private Document document;
+    private TransformerFactory transFact;
+
+    /* CVS stuff */
+    private CvsListener statusListener;
+    private StatusProcessor statusProcessor;
+    private CvsListener logListener;
+    private LogProcessor logProcessor;
+    private String repositoryPrefix;
+
+    private GlobalOptions globalOptions;
+    private CVSRoot cvsRoot;
+    private PServerConnection connection;
+    private Client client;
 
     private static final String IDENTITY_XSLT =
         "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' version='2.0'>"
@@ -69,16 +95,16 @@ public class MakeCMRecord {
 
     public MakeCMRecord(File moduleDir, String cmFileName, String description, String release, String stepmodRelease, String status, String releaseSequence, String edition, java.util.Date when, String who) throws InvalidModuleDirException {
 	this.moduleDir = moduleDir;
-	String path = "";
+
 	try {
-	    path = moduleDir.getCanonicalPath();
+	    moduleDirCanonicalPath = moduleDir.getCanonicalPath();
 	}
 	catch (java.io.IOException e) {
 	    e.printStackTrace();
-	    logger.info("Invalid module directory " + path);
+	    logger.info("Invalid module directory " + moduleDirCanonicalPath);
 	    throw new InvalidModuleDirException();
 	}
-	System.setProperty("user.dir", path);
+	System.setProperty("user.dir", moduleDirCanonicalPath);
 	moduleXMLFile = new File(moduleDir, "module.xml");
 	xsltStream = ClassLoader.getSystemResourceAsStream("cm-record.xsl");
 	cmRecordFile = new File(moduleDir, cmFileName);
@@ -95,11 +121,23 @@ public class MakeCMRecord {
 	if (recordExists) {
 	    System.err.println("Updating existing CM record.");
 	}
+
+	String rootStr = System.getProperty("cvs.root");
+	cvsRoot = CVSRoot.parse(rootStr);
+
+	globalOptions = new GlobalOptions();
+	globalOptions.setCVSRoot(rootStr);
     }
 
     public void generateCM() throws java.io.FileNotFoundException, java.io.IOException, javax.xml.transform.TransformerException, ConnectionException, InternalErrorException {
 	Node rootNode;
 	Element sources;
+
+	metadataCollection = new MetadataCollection();
+	statusProcessor = new StatusProcessor(metadataCollection);
+	statusListener = new CvsListener(statusProcessor);
+	logProcessor = new LogProcessor(metadataCollection);
+	logListener = new CvsListener(logProcessor);
 
 	try {
 	    rootNode = transform(moduleXMLFile, xsltStream);
@@ -112,7 +150,7 @@ public class MakeCMRecord {
 		    for (int j=0; j<childList.getLength(); j++) {
 			sources.removeChild(childList.item(j));
 		    }
-		    processDir(moduleDir, moduleDir, sources);
+		    processDirTree(moduleDir, sources);
 		}
 	    }
 	    write();
@@ -121,6 +159,7 @@ public class MakeCMRecord {
 	    File file = e.getFile();
 	    System.err.println("Error: File " + file.getAbsolutePath() + " is not up-to-date.  Not writing CM record for directory " + moduleDir.getName());
 	}
+	System.err.println("Generated CM record for " + moduleDir.getAbsolutePath());
     }
 
     Node transform(File xmlFile, InputStream xsltStream) throws javax.xml.transform.TransformerException {
@@ -155,6 +194,25 @@ public class MakeCMRecord {
 
         trans.transform(xmlSource, result);
 	return result.getNode();
+    }
+
+    void processDirTree(File root, Element sources) throws java.io.FileNotFoundException, java.io.IOException, FileNotUpToDateException, ConnectionException, InternalErrorException {
+
+	StatusCommand statusCommand = new StatusCommand();
+	statusCommand.setRecursive(true);
+	statusCommand.setBuilder(null);
+	doCvs(root, statusCommand, statusListener);
+	statusProcessor.flush();
+
+	LogCommand logCommand = new LogCommand();
+	logCommand.setRecursive(true);
+	logCommand.setBuilder(null);
+	doCvs(root, logCommand, logListener);
+	logProcessor.flush();
+
+	// metadataCollection.print();
+ 
+	processDir(root, root, sources);
     }
 
     void processDir(File current, File root, Element sources) throws java.io.FileNotFoundException, java.io.IOException, FileNotUpToDateException, ConnectionException, InternalErrorException {
@@ -194,18 +252,22 @@ public class MakeCMRecord {
 	Element element;
 	Metadata metadata;
 
-	System.err.println(current.getAbsoluteFile());
 	metadata = getMetadata(current);
+
+	if (metadata == null) {
+	    System.err.println("Metadata not found for file " + current.getCanonicalPath());
+	    return;
+	}
 
 	element = document.createElement("file");
 	element.setAttribute("name", current.getName());
 
 	if (metadata.date != null) {
-	    element.setAttribute("cvs_date", metadata.date);
+	    element.setAttribute("cvs_date", fixDate(metadata.date));
 	}
 	else {
 	    element.setAttribute("cvs_date", "*** FILL IN ***");
-	    System.err.println("Date not found in file " + current.getPath() + ".");
+	    System.err.println("Date not found for " + current.getPath() + ".");
 	}
 
 	if (metadata.revision != null) {
@@ -213,73 +275,21 @@ public class MakeCMRecord {
 	}
 	else {
 	    element.setAttribute("cvs_revision", "*** FILL IN ***");
-	    System.err.println("Revision not found in file " + current.getPath() + ".");
+	    System.err.println("Revision not found for " + current.getPath() + ".");
 	}
 
 	dirElt.appendChild(element);
     }
 
     Metadata getMetadata(File file) throws java.io.FileNotFoundException, java.io.IOException, FileNotUpToDateException, ConnectionException, InternalErrorException {
-	Metadata metadata = new Metadata();
-	Runtime runtime = Runtime.getRuntime();
-	String[] cmdarray = new String[3];
-	Process process;
 	String line;
-	Capturer1 capturer1;
-	Capturer2 capturer2;
-	ErrorCapturer errorCapturer;
-	int exitVal;
 
-	cmdarray[0] = "cvs";
-	cmdarray[1] = "status";
-	cmdarray[2] = file.getName();
-	process = runtime.exec(cmdarray, null, file.getParentFile());
-	capturer1 = new Capturer1(process.getInputStream());
-	capturer1.start();
-	errorCapturer = new ErrorCapturer(process.getErrorStream());
-	errorCapturer.start();
-	try {
-	    exitVal = process.waitFor();
-	}
-	catch (java.lang.InterruptedException e) {
-	    e.printStackTrace();
-	    throw new InternalErrorException("Interrupted exception");
-	}
-	logger.debug("status command exited with code = " + exitVal);
-	if (!capturer1.cvsStatus.equals("Up-to-date")) {
-	    logger.info("File " + file.getAbsolutePath() + " is not up-to-date.");
-	    throw new FileNotUpToDateException(file);
-	}
+	String canonicalPath = file.getCanonicalPath();
+	String relativePath = canonicalPath.substring(moduleDirCanonicalPath.length()).replace("\\","/");
 
-	if (capturer1.workingRevision.length() > 0) {
-	    metadata.revision = capturer1.workingRevision;
-	}
-	else {
-	    logger.error("Working revision not found.");
-	    throw new InternalErrorException("Could not find working revision.");
-	}
+	String repositoryPath = repositoryPrefix + relativePath;
 
-	cmdarray[0] = "cvs";
-	cmdarray[1] = "log";
-	cmdarray[2] = file.getName();
-	process  = runtime.exec(cmdarray, null, file.getParentFile());
-	capturer2 = new Capturer2(process.getInputStream(), metadata.revision);
-	capturer2.start();
-	errorCapturer = new ErrorCapturer(process.getErrorStream());
-	errorCapturer.start();
-	try {
-	    exitVal = process.waitFor();
-	}
-	catch (java.lang.InterruptedException e) {
-	    e.printStackTrace();
-	    throw new InternalErrorException("Interrupted exception");
-	}	
-	logger.debug("status command exited with code = " + exitVal);
-
-	metadata.date = fixDate(capturer2.cvsDate);
-	logger.debug("metadata.revision = " + metadata.revision);
-	logger.debug("metadata.date = " + metadata.date);
-
+	Metadata metadata = metadataCollection.get(repositoryPath);
 	return metadata;
     }
 
@@ -300,6 +310,40 @@ public class MakeCMRecord {
 	}
 	else {
 	    return null;
+	}
+    }
+
+    void doCvs(File root, Command command, CVSListener listener) throws ConnectionException, java.io.IOException {
+	try {
+	    connection = new PServerConnection(cvsRoot);
+	    connection.open();
+
+	    client = new Client(connection, new StandardAdminHandler());     
+	    repositoryPrefix = client.getRepositoryForDirectory(moduleDir.getCanonicalPath());
+
+	    client.setLocalPath(root.getCanonicalPath());
+
+	    client.getEventManager().addCVSListener(listener);
+	    client.executeCommand(command, globalOptions);
+	    client.getEventManager().removeCVSListener(listener);
+	}
+	catch (org.netbeans.lib.cvsclient.connection.AuthenticationException e) {
+	    e.printStackTrace();
+	    System.err.println("Unable to open CVS connection. Not writing CM record for directory.");
+	    throw new ConnectionException();
+	}
+	catch (org.netbeans.lib.cvsclient.command.CommandAbortedException e) {
+	    e.printStackTrace();
+	    System.err.println("CVS command aborted. Not writing CM record for directory.");
+	    throw new ConnectionException(); // !!
+	}
+	catch (org.netbeans.lib.cvsclient.command.CommandException e) {
+	    e.printStackTrace();
+	    System.err.println("CVS command error. Not writing CM record for directory.");
+	    throw new ConnectionException(); // !!
+	}
+	finally {
+	    connection.close();
 	}
     }
 
@@ -332,9 +376,4 @@ public class MakeCMRecord {
 	// Make sure that the Saxon implementation of TransformerFactory is used.
 	System.setProperty("javax.xml.transform.TransformerFactory","net.sf.saxon.TransformerFactoryImpl");
     }
-}
-
-class Metadata {
-    String date;
-    String revision;
 }

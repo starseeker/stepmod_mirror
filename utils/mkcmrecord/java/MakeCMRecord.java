@@ -159,7 +159,7 @@ public class MakeCMRecord {
 	    File file = e.getFile();
 	    System.err.println("Error: File " + file.getAbsolutePath() + " is not up-to-date.  Not writing CM record for directory " + moduleDir.getName());
 	}
-	System.err.println("Generated CM record for " + moduleDir.getAbsolutePath());
+	System.err.println("Finished generating/updating CM record.");
     }
 
     Node transform(File xmlFile, InputStream xsltStream) throws javax.xml.transform.TransformerException {

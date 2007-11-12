@@ -10,14 +10,14 @@ for distribution to SC4 for balloting.
      ant all
 
    This will create a directory:
-     stepmod/ballots/isohtml/part_58
+     stepmod/ballots/isohtml/part_58_risk
 
 4) Add the EXPRESS files into a separate directory for the ballot process:
    Run stepmod/utils/getBallotExpress.wsf
 
    This will copy all the arm.exp and mim.exp files from the modules for
    ballot into a directory:
-     stepmod/ballots/isohtml/part_58/express
+     stepmod/ballots/isohtml/part_58_risk/express
 
    Each file will be renamed: 
    part<part_no><status>_<wgnumber><mim|arm>.exp
@@ -37,17 +37,17 @@ for distribution to SC4 for balloting.
     ant zip
 
    This will create a zip file:
-     stepmod/ballots/isohtml/part_58/part_58yyyymmdd.zip
+     stepmod/ballots/isohtml/part_58_risk/part_58_riskyyyymmdd.zip
    where 
 
 6) If the package is being released for team QC review, convener review or
    submission for ballot, a CVS tag should be created.
 
    First add the name of the tag and a description to
-     stepmod/ballots/isohtml/part_58/part_58/ballot_index.xml
+     stepmod/ballots/isohtml/part_58_risk/part_58_risk/ballot_index.xml
    and check in the file.
 
-   The Tag name should be PLCS_part_58_<date>
+   The Tag name should be PLCS_part_58_risk_<date>
    where date takes the form yyyymmdd
 
    Then create the CVS tag. Using WinCVS, select the stepmod directory then

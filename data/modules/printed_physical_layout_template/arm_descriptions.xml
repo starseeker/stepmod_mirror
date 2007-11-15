@@ -3,12 +3,71 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="printed_physical_layout_template" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/10/12 13:03:33 $" rcs.revision="$Revision: 1.48 $">
+<ext_descriptions module_directory="printed_physical_layout_template" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007-09-10 13:11:39 +0300 (Pr, 10 Rgs 2007) $" rcs.revision="$Revision: 1479 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Printed_physical_layout_template_arm
    <express_ref linkend="printed_physical_layout_template:arm:Printed_physical_layout_template_arm"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <ext_description linkend="Printed_physical_layout_template_arm">
+ <p>
+  Templates used to support detailed circuit analysis include <b>Printed_part_template</b>, <b>Printed_part_template_terminal</b> and 
+  <b>Functional_usage_view_to_printed_part_template_terminal_assignment</b>.   Generic structures are used to permit arbitrary mapping to and from
+  specific CAD and CAE environments.
+ </p>
+ <p>
+  Templates used to describe primitive geometric shapes such as rectangular areas include <b>Basic_multi_stratum_printed_part_template</b> and 
+  <b>Single_stratum_printed_part_template</b>.
+ </p>
+ <p>
+  Templates used for domain specific functionality include <b>Non_conductive_cross_section_template</b>, 
+  <b>Printed_connector_template</b>, <b>Printed_connector_template_terminal_relationship</b>, <b>Printed_part_template_interface_terminal</b>,
+  <b>Printed_part_template_connected_terminals_definition</b> and <b>Printed_tiebar_template</b>.
+ </p>
+ <p>
+  Templates used to support boundary element method representation of microwave structures include 
+  <b>Printed_part_cross_section_template</b> and 
+  <b>Printed_part_cross_section_template_terminal</b>.
+ </p>
+ <p>
+  Template terminals may be classified in accordance with CAD/CAE requirements including the most common 
+  abstraction of a point on a surface, proceeding to the more complex model of an area on a surface, 
+  proceeding to a curve segment formed by the intersection of the top surface and the cross section,
+  and finally ending at an area that is part of the cross section of the material.  
+  Voids are not permitted in the area representations.
+ </p>
+ <example number="1">An offset stripline differential pair may be represented simply by the <b>Printed_part_template</b> 
+  with no specific dielectric construction details provided. 
+  In this case an assumption is made that there is only one dielectric material on a layer.
+  </example>
+<example number="2">A more complete definition of the stripline in the previous example may include an <b>Analytical_model_application</b> so as to support
+behavioural simulation with computer algebra systems.  The model would be based on more detailed knowledge than that captured in the model to 
+ensure needed accuracy.</example>
+ <example number="3">A more complex definition of the stripline in the first example may include population of <b>Printed_part_cross_section_template</b>, 
+  <b>Printed_part_cross_section_template_terminal</b> to permit a post processor to automatically derive microwave properties based on geometric properties
+ and material properties.  The advantage to this is that the user can separately manage the geometric and material properties in a model.
+ </example>
+ <example number="4">
+ A digital design CAD system may support a point on a surface terminal idealization by referencing the class of
+ <b>surface_point</b> or may choose to offer additional flexibility in connections by referencing <b>surface_area</b>
+ if it exploits area intersection concepts rather than point to point intersection concepts.
+</example>
+<note number="1">
+A CAD system may reference more than one terminal class in a design.
+</note>
+<note number="2">
+Usage guides and exchange agreements to specify needed approximations may be necessary when exchanging data between CAD systems with support for disjoint 
+terminal classes.
+</note>
+<example number="5">
+A specific approximation of the area, say the centroid, will be needed when post-processing a data set from a CAD system that uses a <b>surface_area</b> terminal class
+to the equivalent approximation afforded by a CAD system that uses a <b>surface_point</b> class.
+When going in the other direction, additional information will be needed to specify the area data needed by the
+<b>surface_area</b> terminal class and this information would typically be handled by a mapping application using external data.
+</example>
+<note number="3">
+Future editions of this part of ISO 10303 may incorporate standard mappings between the terminal classes, depending on consensus industrial requirements.
+</note>
+
 </ext_description>
 
 <!-- +++++++++++ TYPE printed_part_template_terminal_class +++++++++++ -->
@@ -975,6 +1034,13 @@ The name attribute inherited from <express_ref linkend="Shape_property_assignmen
 	The precedent name shall be 'right' if and only if the subsequent name is 'left'.
 </ext_description>
 
+<!-- WR6 -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_part_template_material_link.wr:WR6">
+	<p>
+	The graph of instances of the Application Object <b>Printed_part_template_material_link</b> shall not contain a cycle.
+	</p>
+</ext_description>
+
 <!-- +++++++++++ Printed_part_template_terminal +++++++++++ -->
 <ext_description linkend="Printed_physical_layout_template_arm.Printed_part_template_terminal">
 	A <b>Printed_part_template_terminal</b> is a type of 
@@ -1062,7 +1128,7 @@ The name attribute inherited from <express_ref linkend="Shape_property_assignmen
 	shall not be populated.
 </ext_description>
 
-<!-- +++++++++++ Printed_part_template_terminal_relationship +++++++++++ -->
+<!-- +++++++++++ Printed_part_template_terminal_relationship +++++++++++ 
 <ext_description linkend="Printed_physical_layout_template_arm.Printed_part_template_terminal_relationship">
 A <b>Printed_part_template_terminal_relationship</b> is an association 
 between two <express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_terminal"/> 
@@ -1075,6 +1141,109 @@ an instance specifies the independent <express_ref linkend="Printed_physical_lay
 <ext_description linkend="Printed_physical_layout_template_arm.Printed_part_template_terminal_relationship.related_printed_part_terminal">
 an instance specifies the dependent <express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_terminal"/> in the 
 <b>Printed_part_template_terminal_relationship</b>.
+</ext_description>-->
+
+<!-- +++++++++++ Printed_tiebar_template +++++++++++ -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template">
+	A <b>Printed_tiebar_template</b> is a type of 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Structured_printed_part_template"/> 
+	included to support an implementation of a connection between otherwise disjoint networks in a layout.  
+	A <b>Printed_tiebar_template</b> provides a flexible structure to support common use cases including metallic short 
+	implemented as part of the interconnect substrate fabrication, provision for external wire to be
+	applied during assembly, definition of the actual layer that the metallic short shall be implemented on.
+</ext_description>
+
+<!-- terminal_location -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template.terminal_location">
+	specifies a role of the
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Axis_placement_2d"/> 
+	for the <b>Printed_tiebar_template</b>.
+	There shall exist zero or more 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Axis_placement_2d"/> 
+	for the <b>Printed_tiebar_template</b>.
+</ext_description>
+
+<!-- passage_component_location -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template.passage_component_location">
+	specifies a role of the
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Axis_placement_2d"/> 
+	for the <b>Printed_tiebar_template</b>.
+	There shall exist zero or more 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Axis_placement_2d"/> 
+	for the <b>Printed_tiebar_template</b>.
+</ext_description>
+
+<!-- tiebar_shape_model -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template.tiebar_shape_model">
+	specifies a role of the
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_model"/> 
+	for the <b>Printed_tiebar_template</b>.
+	There shall exist zero or more 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_model">Geometric_models</express_ref> 
+	for the <b>Printed_tiebar_template</b>.
+</ext_description>
+
+<!-- WR1 -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template.wr:WR1">
+	<p>
+		A <b>Printed_tiebar_template</b> shall not be a 
+		<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_connector_template"/>, 
+		nor shall it be a 
+		<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Non_conductive_cross_section_template"/>, 
+		nor shall it be a 
+		<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_cross_section_template"/>.
+	</p>
+</ext_description>
+
+<!-- WR2 -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template.wr:WR2">
+	<p>
+	Only members of 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_join_terminal"/>
+	shall be included in the aggregate 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template.access_mechanisms"/> 
+	inherited from 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template"/>.	
+	</p>
+</ext_description>
+
+<!-- WR3 -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template.wr:WR3">
+	If at least one passage is provided, then for each passage, 
+	the location of that passage in the template shall be inside at least one tiebar component shape.
+</ext_description>
+
+<!-- WR4 -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template.wr:WR4">
+	There shall be at least one member of 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_feature_template"/> 
+	helping to compose a member of this AO.
+</ext_description>
+
+<!-- WR5 -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template.wr:WR5">
+	Each member of 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template.access_mechanisms"/> 
+	shall be referenced by exactly one member of 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_connected_terminals_definition"/> 
+	in the role of
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_connected_terminals_definition.connected_terminals"/>.
+</ext_description>
+
+<!-- WR6 -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template.wr:WR6">
+	Each member of 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template.access_mechanisms"/>  
+	shall reference the same member of 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_connected_terminals_definition"/> 
+	in the role of
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_connected_terminals_definition.connected_terminals"/>.
+</ext_description>
+
+<!-- WR7 -->
+<ext_description linkend="Printed_physical_layout_template_arm.Printed_tiebar_template.wr:WR7">
+	For each terminal, the location of that terminal in the template shall be the location of a passage or 
+	shall be inside at least one tiebar component shape.
 </ext_description>
 
 <!-- +++++++++++ Single_stratum_printed_part_template +++++++++++ -->
@@ -1158,5 +1327,116 @@ The combination of <b>associated_definition</b> and
 shall be unique within a population of <b>Template_material_cross_section_boundary</b>s.
 </ext_description>
 
+<!-- +++++++++++ acyclic_printed_part_template_material_link +++++++++++ -->
+<ext_description linkend="Printed_physical_layout_template_arm.acyclic_printed_part_template_material_link">
+	The <b>acyclic_printed_part_template_material_link</b> function determines whether 
+	the graph of instances of the Application Object type 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_material_link"/> 
+	that contains relation as one of its links contains a cycle.  
+	This function may be used to evaluate 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_material_link"/> 
+	or any of it's subtypes.
+</ext_description>	
 
+<!-- relation -->
+<ext_description linkend="Printed_physical_layout_template_arm.acyclic_printed_part_template_material_link.relation">
+	the specified
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template_material_link"/>.
+</ext_description>
+
+<!-- relatives -->
+<ext_description linkend="Printed_physical_layout_template_arm.acyclic_printed_part_template_material_link.relatives">
+	the set of 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Template_material_cross_section_boundary">Template_material_cross_section_boundaries</express_ref>.
+</ext_description>
+
+<!-- specific_relation -->
+<ext_description linkend="Printed_physical_layout_template_arm.acyclic_printed_part_template_material_link.specific_relation">
+	the specified STRING.
+</ext_description>
+
+<!-- +++++++++++ ap2d_geometrically_in_tiebar +++++++++++ -->
+<ext_description linkend="Printed_physical_layout_template_arm.ap2d_geometrically_in_tiebar">
+	The <b>ap2d_geometrically_in_tiebar</b> function calculates whether the 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Axis_placement_2d"/> 
+	is inside the 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_model"/> 
+	provided. 
+	It is assumed that the 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_model"/> 
+	is a Polygon.
+</ext_description>
+
+<!-- input_1 -->
+<ext_description linkend="Printed_physical_layout_template_arm.ap2d_geometrically_in_tiebar.input_1">
+	the specified 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Axis_placement_2d"/>.
+</ext_description>
+
+<!-- input_2 -->
+<ext_description linkend="Printed_physical_layout_template_arm.ap2d_geometrically_in_tiebar.input_2">
+	the specified
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_model"/>.
+</ext_description>
+
+<!-- +++++++++++ pplt_get_gm +++++++++++ -->
+<ext_description linkend="Printed_physical_layout_template_arm.pplt_get_gm">
+	The <b>pplt_get_gm</b> function returns a set of 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_model">Geometric_models</express_ref> 
+	that are the result of transforming each 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Geometric_model"/> 
+	into the 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_tiebar_template"/> 
+	shape model using the 
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Template_location_in_structured_template_transform"/>.
+	Each of the transformed models is a model for one of the set of 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_feature_template"/> 
+	that help to compose the 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_tiebar_template"/> 
+	using the 
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Template_location_in_structured_template"/>.
+</ext_description>
+
+<!-- input -->
+<ext_description linkend="Printed_physical_layout_template_arm.pplt_get_gm.input">
+	the specified
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_tiebar_template"/>.
+</ext_description>
+
+<!-- +++++++++++ pplt_get_pcl_ap2d +++++++++++ -->
+<ext_description linkend="Printed_physical_layout_template_arm.pplt_get_pcl_ap2d">
+	The <b>pplt_get_pcl_ap2d</b> function returns the set of 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Axis_placement_2d"/> 
+	that are transforming passage templates into the 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_tiebar_template"/>.
+</ext_description>
+
+<!-- input -->
+<ext_description linkend="Printed_physical_layout_template_arm.pplt_get_pcl_ap2d.input">
+	the specified
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_tiebar_template"/>.
+</ext_description>
+
+<!-- +++++++++++ pplt_get_tl_ap2d +++++++++++ -->
+<ext_description linkend="Printed_physical_layout_template_arm.pplt_get_tl_ap2d">
+	The <b>pplt_get_tl_ap2d</b> function returns the set of 
+	<express_ref linkend="Elemental_geometric_shape:arm:Elemental_geometric_shape_arm.Axis_placement_2d"/> 
+	that are transforming templates into the 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_tiebar_template"/> 
+	where the template location is used in the role of 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Structured_printed_part_template_terminal.associated_composition_relationship"/> 
+	for the 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Structured_printed_part_template_terminal"/> 
+	that act as 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_part_template.access_mechanisms"/> 
+	for the 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_tiebar_template"/>
+	that is the <b>input</b>.
+</ext_description>
+
+<!-- input -->
+<ext_description linkend="Printed_physical_layout_template_arm.pplt_get_tl_ap2d.input">
+	the specified 
+	<express_ref linkend="Printed_physical_layout_template:arm:Printed_physical_layout_template_arm.Printed_tiebar_template"/>.
+</ext_description>
 </ext_descriptions>

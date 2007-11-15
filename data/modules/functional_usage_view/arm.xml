@@ -2,10 +2,11 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-05-08 05:04:09 -0700 (An, 08 Geg 2007) $" rcs.revision="$Revision: 711 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_usage_view_arm schema_instance"/>
    <schema name="Functional_usage_view_arm">
       <interface kind="use" schema="Analytical_model_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="use" schema="Product_view_definition_relationship_arm"/>
       <interface kind="reference" schema="Product_identification_arm">
          <interfaced.item name="types_of_product"/>
@@ -62,11 +63,15 @@
             <typename name="Scalar_terminal_definition"/>
          </explicit>
       </entity>
-      <entity name="Functional_unit_definition" abstract.supertype="YES" supertypes="Information_definition">
+      <entity name="Functional_unit_definition" abstract.supertype="YES" supertypes="Information_definition Item_shape">
          <explicit name="defined_version">
             <typename name="Functional_version"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </explicit>
+         <derived name="described_element" expression="SELF">
+            <typename name="shapeable_item"/>
+            <redeclaration entity-ref="Item_shape"/>
+         </derived>
       </entity>
       <entity name="Functional_unit_make_from_relationship" supertypes="View_definition_relationship">
          <explicit name="relating_view">
@@ -77,14 +82,15 @@
             <typename name="Functional_unit_usage_view"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
+         <where label="WR1" expression="acyclic_functional_unit_make_from_relationship (SELF, [related_view], &#10;            'FUNCTIONAL_USAGE_VIEW_ARM.FUNCTIONAL_UNIT_MAKE_FROM_RELATIONSHIP')"/>
       </entity>
       <entity name="Functional_unit_usage_view" supertypes="Functional_unit_definition">
-         <derived name="analytical_model_application_reference" expression="bag_to_set(USEDIN(access_mechanism[1],'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM'))">
+         <derived name="analytical_model_application_reference" expression="get_ama(access_mechanism[1])">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Analytical_model_application"/>
          </derived>
          <inverse name="access_mechanism" entity="Functional_unit_usage_view_terminal_definition" attribute="associated_functional_unit_definition">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <where label="WR1" expression="SIZEOF(analytical_model_application_reference) &lt;= 1"/>
          <where label="WR2" expression="NOT(SIZEOF(analytical_model_application_reference) = 1) OR&#10;        (SIZEOF(QUERY( am &lt;* access_mechanism |&#10;           NOT((SIZEOF(USEDIN(am,'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM')) = 0) OR&#10;              (SIZEOF(QUERY( ampa &lt;* USEDIN(am, 'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM') |&#10;                 NOT(analytical_model_application_reference[1] :=: ampa.associated_analytical_model_application) &#10;                 )) = 0))&#10;        )) = 0)"/>
@@ -117,6 +123,9 @@
          </unique>
          <where label="WR1" expression="reusable_feature :&lt;&gt;: resultant_feature"/>
          <where label="WR2" expression="reusable_feature.associated_functional_unit_definition :&lt;&gt;: resultant_feature.associated_functional_unit_definition"/>
+         <where label="WR3" expression="reusable_feature.associated_functional_unit_definition :=: &#10;      		associated_make_from\Functional_unit_make_from_relationship.relating_view"/>
+         <where label="WR4" expression="resultant_feature.associated_functional_unit_definition :=: &#10;      		associated_make_from\Functional_unit_make_from_relationship.related_view"/>
+         <where label="WR5" expression="acyclic_functional_unit_usage_view_terminal_definition_make_from_relationship&#10;        (SELF, [resultant_feature], &#10;        'FUNCTIONAL_USAGE_VIEW_ARM.FUNCTIONAL_UNIT_USAGE_VIEW_TERMINAL_DEFINITION_MAKE_FROM_RELATIONSHIP')"/>
       </entity>
       <entity name="Functional_version" supertypes="Information_version">
          <explicit name="of_product">
@@ -137,6 +146,117 @@
             <unique.attribute attribute="subsequent_terminal_definition"/>
          </unique>
          <where label="WR1" expression="precedent_terminal_definition :&lt;&gt;: subsequent_terminal_definition"/>
+         <where label="WR2" expression="acyclic_scalar_terminal_definition_link (SELF,&#10;        [subsequent_terminal_definition],&#10;        'FUNCTIONAL_USAGE_VIEW_ARM.SCALAR_TERMINAL_DEFINITION_LINK')"/>
       </entity>
+      <function name="acyclic_functional_unit_make_from_relationship">
+         <parameter name="relation">
+            <typename name="Functional_unit_make_from_relationship"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Functional_unit_usage_view"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+     x : SET OF Functional_unit_make_from_relationship;
+  END_LOCAL;
+
+    IF relation.relating_view IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.relating_view,
+      'FUNCTIONAL_USAGE_VIEW_ARM.' + 'FUNCTIONAL_UNIT_MAKE_FROM_RELATIONSHIP.' +
+      'RELATED_VIEW')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_functional_unit_make_from_relationship(x[i], relatives +
+        relation.relating_view, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);</algorithm>
+      </function>
+      <function name="acyclic_functional_unit_usage_view_terminal_definition_make_from_relationship">
+         <parameter name="relation">
+            <typename name="Functional_unit_usage_view_terminal_definition_make_from_relationship"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Functional_unit_usage_view_terminal_definition"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+       x : SET OF Functional_unit_usage_view_terminal_definition_make_from_relationship;
+     END_LOCAL;
+    
+     IF relation.reusable_feature IN relatives THEN
+       RETURN (FALSE);
+     END_IF;
+     x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.reusable_feature,
+      'FUNCTIONAL_USAGE_VIEW_ARM.' +
+      'FUNCTIONAL_UNIT_USAGE_VIEW_TERMINAL_DEFINITION_MAKE_FROM_RELATIONSHIP.' +
+      'RESULTANT_FEATURE')) | specific_relation IN TYPEOF(pd));
+     REPEAT i := 1 TO HIINDEX(x);
+       IF NOT
+         acyclic_functional_unit_usage_view_terminal_definition_make_from_relationship(x[i],
+         relatives + relation.reusable_feature, specific_relation) THEN
+           RETURN (FALSE);
+       END_IF;
+     END_REPEAT;
+    RETURN (TRUE);</algorithm>
+      </function>
+      <function name="acyclic_scalar_terminal_definition_link">
+         <parameter name="relation">
+            <typename name="Scalar_terminal_definition_link"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Scalar_terminal_definition"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      x : SET OF Scalar_terminal_definition_link;
+    END_LOCAL;
+
+    IF relation.precedent_terminal_definition IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.precedent_terminal_definition,
+      'FUNCTIONAL_USAGE_VIEW_ARM.' + 'SCALAR_TERMINAL_DEFINITION_LINK.' +
+      'SUBSEQUENT_TERMINAL_DEFINITION')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_scalar_terminal_definition_link(x[i], relatives +
+        relation.precedent_terminal_definition, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+   RETURN (TRUE);</algorithm>
+      </function>
+      <function name="get_ama">
+         <parameter name="input">
+            <typename name="analytical_model_port_assignment_select"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Analytical_model_application"/>
+         <algorithm>LOCAL
+	ama : SET[0:?] OF Analytical_model_application := [];  --this gives us access to the information base
+	ampa : SET[0:?] OF Analytical_model_port_assignment :=[];
+   END_LOCAL;
+	ampa := bag_to_set(USEDIN (input, 'ANALYTICAL_MODEL_ARM.'+'ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM'));
+	-- iterate over ampa
+	REPEAT i := 1 to SIZEOF(ampa) by 1;
+		ama := ama + ampa[i].associated_analytical_model_application;
+	END_REPEAT;
+
+	RETURN(ama);</algorithm>
+      </function>
    </schema>
 </express>

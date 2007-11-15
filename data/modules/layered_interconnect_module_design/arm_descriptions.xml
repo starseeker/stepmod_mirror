@@ -3,15 +3,15 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="layered_interconnect_module_design" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/10/26 21:00:51 $" rcs.revision="$Revision: 1.190 $">
+<ext_descriptions module_directory="layered_interconnect_module_design" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007-10-26 01:48:42 +0300 (Pn, 26 Spl 2007) $" rcs.revision="$Revision: 1656 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Layered_interconnect_module_design_arm
    <express_ref linkend="layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm"/>
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <ext_description linkend="Layered_interconnect_module_design_arm">
 <p>
-For implementation of <b>Laminate_components</b> (e.g., <b>Land</b>), there are two mechanisms available to instantiate the component.
-The first is via a <b>Next_assembly_usage</b>; the second is via a <b>Structured_layout_component_sub_assembly_relationship</b> or the subtype of
+For implementation of <b>Laminate_components</b> (e.g., <b>Land</b>), there are three mechanisms available to instantiate the component.
+The first is via a <b>Next_assembly_usage</b>; the second is via a <b>Structured_layout_component_sub_assembly_relationship</b>; the third is via the subtype of
 <b>Structured_layout_component_sub_assembly_relationship</b> that is a <b>Footprint_occurrence_sub_assembly_relationship</b>.  In this edition of this part
 of ISO 10303, the mechanism to instantiate the component as part of a padstack is the <b>Structured_layout_component_sub_assembly_relationship</b> supertype
 and not a padstack specific subtype.</p>
@@ -21,9 +21,13 @@ All <b>Laminate_components</b> are either contributing to individual <b>Stratum<
 	will contribute to a <b>Stratum_feature</b> that contributes to a single <b>Stratum</b>.
 </p>
 <p>
-The <b>Interconnect_module</b> is composed then of the set of <b>Stratum</b> that result from the application of <b>Stratum_feature</b> on an individual basis
-and of <b>Inter_stratum_feature</b> that are applied on a collection basis.
+The <b>Interconnect_module</b> is composed of the set of <b>Stratum</b> that result from the application of <b>Stratum_feature</b> on an individual basis
+and of <b>Inter_stratum_feature</b> that are applied on a collective basis.
 </p>
+<p>
+	For CAD applications that generate negative images for material, support is provided for regularlized Boolean operations through the use of
+	<b>Material_removal_laminate_components</b> in order to accurately represent the design intent.
+</p>	
 <p><b>Stratum_feature</b> on <b>Design_layer_stratum</b> and the plated form of <b>Inter_stratum_feature</b> implement the connectivity
 required for the <b>Interconnect_module</b>.  Connectivity traceability is supported by explicit division of a <b>Physical_network</b> into horizontal and
 	vertical subnetworks represented by <b>Intra_stratum_join_relationship</b> and <b>Inter_stratum_join_relationship</b> respectively.  <b>Layer_connection_point</b>
@@ -148,16 +152,34 @@ shall be equal to <express_ref linkend="Layered_interconnect_module_design:arm:L
 <ext_description linkend="Layered_interconnect_module_design_arm.Stratum_surface">
 <p>
  A <b>Stratum_surface</b> is a means to specify the <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.stratum_surface_designation">primary_surface</express_ref> or <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.stratum_surface_designation">secondary_surface</express_ref> for a <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum"/>.
-</p></ext_description>
+</p>
+</ext_description>
+
+<!-- name -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Stratum_surface.name">
 	the words by which the <b>Stratum_surface</b> is known.
 	The <b>name</b> specifies the
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.stratum_surface_designation"/>
 	for the <b>Stratum_surface</b>.
 </ext_description>
+
+<!-- of_stratum -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Stratum_surface.of_stratum">
 specifies the <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum"/> for a <b>Stratum_surface</b>.
 </ext_description>
+
+<!-- of_technology -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Stratum_surface.of_technology">
+	specifies a 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_surface_technology"/> 
+	for the <b>Stratum_surface</b>.  
+	The 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_surface_technology"/> 
+	is optional and need not be provided. 
+	The <b>of_technology</b> provides support for specifying surface conditions of a <b>Stratum_surface</b>.
+</ext_description>
+
+<!-- UR1 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Stratum_surface.ur:UR1">
 The combination of <b>name</b> and <b>of_stratum</b> shall be unique within a population of <b>Stratum_surface</b>.
 </ext_description>
@@ -383,6 +405,15 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 	but not both shall be true for a specific <b>Area_component</b>.
 </ext_description>
 
+<!-- WR6 -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Area_component.wr:WR6">
+	<p>
+	If <b>replaced_component</b> exists then the graph of instances of the Application Object 
+	<b>Area_component</b> shall not contain a cycle.
+	
+	</p>
+</ext_description>
+
 <!-- IP1 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Area_component.wr:IP1">
 	SELF shall not be in the tree of <b>Area_component</b> referenced by <b>replaced_by</b>.
@@ -430,8 +461,8 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_probe_access_area"/>. 
 	A <b>Probe_access_area</b> is a feature incorporated into the design of an 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Interconnect_module"/> 
-	for the purpose of measuring electrical characteristics of the design. It is realized by an area of conducting material that is helping to compose 
-	the 
+	for the purpose of measuring electrical characteristics of the design. It is realized by an area of conducting material that is externally available to measurement equipment.
+	The area of conducting material may be helping to compose the 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductor"/> 
 	or 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_filled_area"/> 
@@ -493,7 +524,7 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 <ext_description linkend="Layered_interconnect_module_design_arm.Probe_access_area.probed_layout_item">
 <p>
 	specifies a role of the 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/>
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.stratum_feature_or_stratum"/>
 	for the <b>Probe_access_area</b>.
 </p>
 </ext_description>
@@ -523,6 +554,11 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 	the name of the <b>Probe_access_area</b>. It shall be ' '.
 </ext_description>
 
+<!-- id -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Probe_access_area.id">
+	the identifier of the <b>Probe_access_area</b>.
+</ext_description>	
+
 <!-- network -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Probe_access_area.network">
 	specifies an inverse relationship that specifies that the existence of the  <b>Probe_access_area</b> 
@@ -533,24 +569,95 @@ shall be <express_ref linkend="layered_interconnect_module_design:arm:Layered_in
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Routed_physical_network.probe"/>. 
 </ext_description>
 
-
 <!-- +++++++++++ Internal_probe_access_area +++++++++++ -->
-<ext_description linkend="Layered_interconnect_module_design_arm.Internal_probe_access_area"><p>
-An <b>Internal_probe_access_area</b> is a type of <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Probe_access_area"/> 
-included in the design for access to internal conductors for probing 
-purposes.
-</p><note>
-The <b>stratum_feature_implementation</b> inherited from the  <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature_template_component"/> 
-specifies a role of the <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> for the <b>Internal_probe_access_area</b>.
-This  <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> is included only to support the probe requirements and is not 
-necessarily included in a functional nodelist.
-</note>
+<ext_description linkend="Layered_interconnect_module_design_arm.Internal_probe_access_area">
+<p>
+	An <b>Internal_probe_access_area</b> is a type of 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Probe_access_area"/> 
+	included in the design for access to an internal conductor for probing purposes. 
+	The domain of the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Via"/> 
+	in the role of 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_stratum_access.inter_stratum_feature"/> 
+	for the <b>internal_access</b> shall intersect the domain of the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Probe_access_area.probed_layout_item"/> 
+	and shall intersect the domain of the <b>stratum_feature_implementation</b>.
+</p>
+	<note number="1">
+		The <b>stratum_feature_implementation</b> is included only to support the probe requirements by specifying the external target of the probe and is not included in a functional nodelist.
+	</note>
+	<note number="2">
+		A member of <b>Internal_probe_access_area</b> is itself an incomplete concept and is dependent on a member of 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_stratum_access"/> 
+		for a valid model.
+	</note>
+	<example>
+<p>
+		A 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Routed_physical_network"/> 
+		3CB022 is to be probed and the only accessible x y location is at ( 3.0, 4.0)
+		with a 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+		on layer 6.  
+	    The measurement system accesses the PWB from the top side.
+		A member of <b>Internal_probe_access_area</b> is populated with the following information:
+</p>
+		 <!-- start of first table -->
+		 <table number="1" caption="Population of Internal_probe_access_area">  	
+		<tr>
+			<th colspan="2" align="left">#2000=<b>Internal_probe_access_area</b>(referenced as SELF in following lines)</th></tr> <!-- table header row -->
+		<tr align="left">
+			<td>SELF\<express_ref linkend="Generic_product_occurrence:arm:Generic_product_occurrence_arm.Definition_based_product_occurrence.derived_from">Definition_based_product_occurrence.derived_from</express_ref></td>   
+			<td>#2222=<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_feature_template"/>;</td></tr>
+		<tr align="left">
+			<td>SELF\<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Probe_access_area.probed_layout_item">Probe_access_area.probed_layout_item</express_ref></td>               
+			<td>#2233=<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> (on layer 6 and part of implementation of net 3CB022)</td></tr>
+		<tr align="left">
+			<td>SELF\<express_ref linkend="Feature_and_connection_zone:arm:Feature_and_connection_zone_arm.Shape_feature.connection_area">Shape_feature.connection_area</express_ref></td>                      						
+			<td>#3211=<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Connection_zone_in_design_view"/>; (visible from external environment and geometrically a subset of #4444 geometry)</td></tr>
+		<tr align="left">
+			<td>SELF\<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Probe_access_area.stratum_feature_material_stackup">Probe_access_area.stratum_feature_material_stackup</express_ref></td> 
+			<td>not provided;</td></tr>
+		<tr align="left">
+			<td><b>stratum_feature_implementation</b></td>                          
+			<td>#4444=<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> composed only of one <express_ref linkend="Land:arm:Land_arm.Land"/> (on top layer). </td></tr>
+        <tr align="left">
+        	<td><b>internal_access</b></td>                                        
+        	<td>#2000 is referenced by #3000 </td></tr>
+		<!-- end of first table -->
+		</table>
+		
+<p>
+	A member of 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_stratum_access"/> 
+	is populated to specify the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Via"/> 
+	that connects the top 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+	with the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+	on layer 6.
+</p>
+		<!-- start of second table -->
+		<table number="2" caption="Population of Internal_stratum_access">
+		<tr>
+			<th colspan="2" align="left">#3000=<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_stratum_access"/>(referenced as SELF in following lines)</th></tr><!-- table header row -->
+		<tr align="left">
+			<td><express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_stratum_access.connected_probe"/></td>       
+			<td>#2000; The probe structure being implemented.</td></tr>
+		<tr align="left">
+			<td><express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_stratum_access.inter_stratum_feature"/></td> 
+			<td>#3300=<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Via"/>; Implementation feature for connecting top layer to layer 6.</td></tr>
+		</table>
+<!-- end of second table -->
+	</example>
 </ext_description>
 
 <!-- internal_access -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Internal_probe_access_area.internal_access">
 specifies an inverse relationship that specifies that the <b>Internal_probe_access_area</b> is existence dependent on the 
-the <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_stratum_access"/> for which the <b>Internal_probe_access_area</b> is in the role of <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_stratum_access.connected_probe"/>.
+the <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_stratum_access"/> for which the <b>Internal_probe_access_area</b> 
+	is in the role of <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Internal_stratum_access.connected_probe"/>.
 </ext_description>
 
 <!-- stratum_feature_implementation -->
@@ -734,17 +841,87 @@ of <b>Internal_stratum_accesses</b>.
 
 <!-- +++++++++++ Routed_join_relationship +++++++++++ -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Routed_join_relationship">
-	A <b>Routed_join_relationship</b> is a type of 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Join_relationship"/>. 
+<p>
+		A <b>Routed_join_relationship</b> is a type of 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Join_relationship"/> whose implementations are provided. 
 	A <b>Routed_join_relationship</b> is one of an 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Inter_stratum_join_relationship"/> 
 	an <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Intra_stratum_join_relationship"/>
 	or a <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_embedded_physical_component_join_relationship"/>.
+</p>
+	<note number="1">
+		In domain terms, routed refers to a completed state of the section of the 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Routed_physical_network"/>
+		controlled by the <b>Routed_join_relationship</b>.
+	</note>
+	<note number="2">
+		The implementation or implementations of a 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Join_relationship"/> 
+		may need to be determined by a query of those 
+		<express_ref linkend="Interconnect_module_connection_routing:arm:Interconnect_module_connection_routing_arm.Inter_stratum_join_implementation"/> 
+		or 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductor"/> 
+		or 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Connected_filled_area"/> 
+		or 
+		<express_ref linkend="Interconnect_module_connection_routing:arm:Interconnect_module_connection_routing_arm.Direct_stratum_component_join_implementation"/>  
+		or 
+		<express_ref linkend="Interconnect_module_connection_routing:arm:Interconnect_module_connection_routing_arm.Indirect_stratum_component_join_implementation"/>  
+		that reference that 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Join_relationship"/>.  
+		Reference the individual Application Object descriptions 
+		for the specific role of the 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Join_relationship"/> 
+		for the implementation.
+	</note>
+	<note number="3">
+		When layout feature constructs intersect to help compose an 
+		implementation of a 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Join_relationship"/>, 
+		the structure of the model based on this 
+		part of ISO 10303 may differ from the internal CAD system model structure.  
+		When layout feature constructs intersect the locations of control points in the 
+		model based on this part of ISO 10303 may vary from the locations of the trace 
+		terminus and control points in the source CAD system due to roundoff error.  A 
+		pre-processor will need to take these error sources into account and provide 
+		sufficient 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Join_relationship">Join_relationships</express_ref> 
+		to guarantee that the topology of the physical network is maintained.
+	</note>
+	<example>
+		A CAD system considers the following valid construction of a 
+		conductor: A first trace intersects at 90 degrees a second trace. 
+		The overlap is 100 nanometres. 
+		The width of each trace is 10,000 nanometres.  
+		The 
+		<express_ref linkend="Part_template_extension:arm:Part_template_extension_arm.Curve_style_parameters_with_ends.end_extension">Curve_style_parameters_with_ends.end_extension</express_ref> 
+		value is truncate for the first trace.   
+		The source CAD resolution is 10 nanometres and uses 32 bit integer math.  
+		The post-processor author determines by examination of the source CAD system specification that the 
+		<express_ref linkend="representation_schema:ir_express:representation_schema.global_uncertainty_assigned_context.uncertainty"/> 
+		is 10 nanometres and precision is not a concern in that the post-processor uses double precision arithmetic. 
+		The post-processor application evaluates the example data set and concludes that the first trace 
+		does intersect the second trace and creates an 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Intra_stratum_join_relationship"/>.
+		The post-processor converts the traces into two members of 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_with_pre_defined_transitions"/>.
+		The post-processor converts the terminal points of the traces into members of 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal"/> 
+		and 
+		<express_ref linkend="Interconnect_module_connection_routing:arm:Interconnect_module_connection_routing_arm.Explicitly_located_layer_connection_point"/>.
+		The post-processor then provides 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Intra_stratum_join_relationship"/> 
+		that collects the relevant 
+		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Layer_connection_point">Layer_connection_points</express_ref>.
+	</example>
 </ext_description>
 
 <!-- network_topology -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Routed_join_relationship.network_topology">
-	specifies an inverse relationship that specifies that the existence of the <b>Routed_join_relationship</b> is dependent on the existence of the <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Routed_physical_network"/> that specifies the <b>Routed_join_relationship</b> as its <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Routed_physical_network.routed_connectivity_requirement_element"/>.
+	specifies an inverse relationship that specifies that the existence of the <b>Routed_join_relationship</b> is dependent on the existence of the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Routed_physical_network"/> 
+	that specifies the <b>Routed_join_relationship</b> as its 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Routed_physical_network.routed_connectivity_requirement_element"/>.
 </ext_description>
 
 <!-- +++++++++++ Routed_physical_network +++++++++++ -->
@@ -1078,25 +1255,25 @@ role of <b>Fiducial_stratum_feature</b> in a design.
 <!-- join_component -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Conductor.join_component">
 	specifies an inverse relationship that specifies that the existence of the <b>Conductor</b> is dependent on the existence of the 
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component"/> 
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component"/> 
 	that specifies the <b>Conductor</b> as its 
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component.stratum_feature_implementation"/>.
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component.stratum_feature_implementation"/>.
 	There shall exist zero or more
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component">Join_two_physical_network_supporting_single_stratum_printed_component</express_ref>
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component">Single_stratum_printed_components</express_ref>
 	for the  <b>Conductor</b>.
 	Members of 
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component"/> 
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component"/> 
 	exist only when there is a requirement to merge two or more 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Generic_physical_network"/> 
 	into one <b>Conductor</b>.  
 	Each 
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component"/>  
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component"/>  
 	implements a merge between two 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Generic_physical_network"/>. 
 	Each additional 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Generic_physical_network"/> 
 	to be merged will require an additional 
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component"/> .
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component"/> .
 </ext_description>
 
 <!-- WR1 -->
@@ -1109,6 +1286,19 @@ role of <b>Fiducial_stratum_feature</b> in a design.
 <!-- WR2 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Conductor.wr:WR2">
 	There shall be one more <b>implementation_requirement</b> than there are <b>join_component</b>.
+</ext_description>
+
+<!-- WR3 -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Conductor.wr:WR3">
+	<p>
+	If there are <b>join_component</b> then each member of <b>join_component</b> shall satisfy the following:
+	IF the member of <b>join_component</b> is part of a 
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Tiebar_printed_component"/> 
+	then there shall be exactly one 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+	contributed to by that member of <b>join_component</b>.
+	
+	</p>
 </ext_description>
 
 <!-- +++++++++++ Connected_filled_area +++++++++++ -->
@@ -1127,19 +1317,7 @@ role of <b>Fiducial_stratum_feature</b> in a design.
 	There shall exist one or more 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Intra_stratum_join_relationship">Intra_stratum_join_relationship</express_ref>
 	for the <b>Connected_filled_area</b>.
-	Members of 
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component"/> 
-	exist only when there is a requirement to merge two or more 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Generic_physical_network"/> 
-	into one <b>Connected_filled_area</b>.  
-	Each 
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component"/>  
-	implements a merge between two 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Generic_physical_network"/>. 
-	Each additional 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Generic_physical_network"/> 
-	to be merged will require an additional 
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component"/> .
+	
 </ext_description>
 
 
@@ -1150,17 +1328,42 @@ an attribute inherited from the <express_ref linkend="Layered_interconnect_modul
 <!-- join_component -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Connected_filled_area.join_component">
 	specifies an inverse relationship that specifies that the existence of the <b>Connected_filled_area</b> is dependent on the existence of the 
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component"/> 
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component"/> 
 	that specifies the <b>Connected_filled_area</b> as its 
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component.stratum_feature_implementation"/>.
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component.stratum_feature_implementation"/>.
 	There shall exist zero or more
-	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Join_two_physical_network_supporting_single_stratum_printed_component">Join_two_physical_network_supporting_single_stratum_printed_component</express_ref>
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component">Single_stratum_printed_component</express_ref>
 	for the  <b>Connected_filled_area</b>.
+	Members of 
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component"/> 
+	exist only when there is a requirement to merge two or more 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Generic_physical_network"/> 
+	into one <b>Connected_filled_area</b>.  
+	Each 
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component"/>  
+	implements a merge between two 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Generic_physical_network"/>. 
+	Each additional 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Generic_physical_network"/> 
+	to be merged will require an additional 
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Single_stratum_printed_component"/> .
 </ext_description>
 
 <!-- WR1 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Connected_filled_area.wr:WR1">
 	There shall be one more <b>implementation_requirement</b> than there are <b>join_component</b>.
+</ext_description>
+
+<!-- WR2 -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Connected_filled_area.wr:WR2">
+	<p>
+	If there are <b>join_component</b> then each member of <b>join_component</b> shall satisfy the following:
+	IF the member of <b>join_component</b> is part of a 
+	<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Tiebar_printed_component"/> 
+	then there shall be exactly one 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+	contributed to by that member of <b>join_component</b>.
+	</p>
 </ext_description>
 
 <!-- +++++++++++ Conductive_filled_area +++++++++++ -->
@@ -1179,6 +1382,9 @@ an attribute inherited from the <express_ref linkend="Layered_interconnect_modul
 	<express_ref linkend="Shape_property_assignment:arm:Shape_property_assignment_arm.Shape_element.description"/>
 	shall not be populated.
 </ext_description>
+
+
+
 <!-- +++++++++++ Layout_junction +++++++++++ -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Layout_junction">
 
@@ -1803,6 +2009,13 @@ that is in role of <express_ref linkend="generic_product_occurrence:arm:Generic_
 <!-- WR3 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Adjacent_stratum_surface_definition.wr:WR3">
 	The same member <b>of_product</b> shall be referenced through the <b>precedent_surface</b> path and through the <b>subsequent_surface</b> path.
+</ext_description>
+
+<!-- WR4 -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Adjacent_stratum_surface_definition.wr:WR4">
+	<p>
+	The graph of instances of the Application Object <b>Adjacent_stratum_surface_definition</b> shall not contain a cycle.
+	</p>
 </ext_description>
 
 <!-- UR1 -->
@@ -2520,8 +2733,8 @@ The combination of <b>assembly</b> and <b>reference_designation</b> shall be uni
 	</figure>
 </ext_description>
 
-<!-- of_fabrication_thickness_requirement -->
-<ext_description linkend="Layered_interconnect_module_design_arm.Interconnect_module.of_fabrication_thickness_requirement">
+<!-- requirements -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Interconnect_module.requirements">
 	an inverse relationship that specifies that the existence of the <b>Interconnect_module</b> 
 	is dependent on the existence of the  
 	<express_ref linkend="Requirement_assignment:arm:Requirement_assignment_arm.Requirement_assignment"/> 
@@ -2547,7 +2760,7 @@ The combination of <b>assembly</b> and <b>reference_designation</b> shall be uni
 <!-- WR1 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Interconnect_module.wr:WR1">
 	The <express_ref linkend="requirement_assignment:arm:Requirement_assignment_arm.Requirement_assignment.assigned_requirement"/> 
-	of	<b>of_fabrication_thickness_requirement</b> shall be of type 
+	of	<b>requirements</b> shall be of type 
 	<express_ref linkend="fabrication_requirement:arm:Fabrication_requirement_arm.Fabrication_thickness_requirement_occurrence"/>.
 </ext_description>
 
@@ -2566,11 +2779,12 @@ The combination of <b>assembly</b> and <b>reference_designation</b> shall be uni
 </ext_description>
 
 <!-- WR4 -->
+<!-- 
 <ext_description linkend="Layered_interconnect_module_design_arm.Interconnect_module.wr:WR4">
 	There shall be exactly one 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Interconnect_module_edge"/> 
 	included as a component for an <b>Interconnect_module</b>.
-</ext_description>
+</ext_description> -->
 
 
 <!--
@@ -2819,6 +3033,16 @@ All interconnect_module_net_topology_element and connectivity_requirement_elemen
 	Terminals refered by <b>connected_points</b> shall be same terminals as in <express_ref linkend="layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element.access_mechanisms"/>.
 </ext_description>
 
+<!-- WR5 -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Conductive_interconnect_element.wr:WR5">
+	<p>
+	The members of <b>access_mechanisms</b> shall be the nodes in a connected path in the
+	graph of instances of the Application Object 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal"/>
+	where the edges in the connected path are the members of <b>connected_points</b>.
+	</p>
+</ext_description>
+
 <!-- +++++++++++ Conductive_interconnect_element_terminal +++++++++++ -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal">
 <p>
@@ -2924,6 +3148,13 @@ All interconnect_module_net_topology_element and connectivity_requirement_elemen
 	The <b>subsequent_point</b> shall be on the <b>associated_element</b>.
 </ext_description>
 
+<!-- WR4 -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal_link.wr:WR4">
+	<p>
+	The graph of instances of the Application Object <b>Conductive_interconnect_element_terminal_link</b> shall not contain a cycle.
+	</p>
+</ext_description>
+
 <!-- UR1 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal_link.ur:UR1">
 	The combination of <b>precedent_point</b> and <b>subsequent_point</b> shall be unique within
@@ -2934,8 +3165,6 @@ All interconnect_module_net_topology_element and connectivity_requirement_elemen
 <ext_description linkend="Layered_interconnect_module_design_arm.Conductive_interconnect_element_with_pre_defined_transitions"><p>
 	A <b>Conductive_interconnect_element_with_pre_defined_transitions</b> is a type of 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element"/>. 
-	A <b>Conductive_interconnect_element_with_pre_defined_transitions</b> may be a 
-	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Join_two_physical_connectivity_definition_supporting_conductive_interconnect_element"/>.
 	The data provided by <b>Conductive_interconnect_element_with_pre_defined_transitions</b> is typical data available from two dimensional CAD applications.  
 	The data does not include explicit representation of the variability in the vertical dimension that occurs in a real "planar" product due to material build up of successive layers of material.  
 	The <b>derived_from</b> is required to be orthogonal to the <b>centreline_shape</b>, but this is insufficient information in a three-dimensional layout.  
@@ -3357,6 +3586,7 @@ specifies a role of the <express_ref linkend="Layered_interconnect_module_design
 <b>Interface_access_stratum_feature_template_component</b>.
 </ext_description>
 <!-- +++++++++++ Join_two_physical_connectivity_definition_supporting_conductive_interconnect_element +++++++++++ -->
+<!-- 
 <ext_description linkend="Layered_interconnect_module_design_arm.Join_two_physical_connectivity_definition_supporting_conductive_interconnect_element"><p>
 
 A <b>Join_two_physical_connectivity_definition_supporting_conductive_interconnect_element</b> is a type 
@@ -3381,16 +3611,17 @@ This connection is usually required to be at one and only one location.
 	<note number="3">
 		There is no limitation in this part of ISO 10303 on the signals that may be joined using this Application object.
 	</note>
-</ext_description>
+</ext_description>  -->
 
 <!-- joined_definitions -->
+<!-- 
 <ext_description linkend="Layered_interconnect_module_design_arm.Join_two_physical_connectivity_definition_supporting_conductive_interconnect_element.joined_definitions">
 	specifies the 
 	<express_ref linkend="Physical_connectivity_definition:arm:Physical_connectivity_definition_arm.Physical_connectivity_definition"/> 
 	for the <b>Join_two_physical_connectivity_definition_supporting_conductive_interconnect_element</b>.  There shall be exactly two 
 	<express_ref linkend="Physical_connectivity_definition:arm:Physical_connectivity_definition_arm.Physical_connectivity_definition">Physical_connectivity_definitions</express_ref>
 	for a <b>Join_two_physical_connectivity_definition_supporting_conductive_interconnect_element</b>.
-</ext_description>
+</ext_description>  -->
 
 
 <!-- +++++++++++ Laminate_component +++++++++++ -->
@@ -3412,24 +3643,28 @@ This connection is usually required to be at one and only one location.
 	of the <b>Laminate_component</b> is the interconnect definition.
 	Not all components that are realized by the manufacturing process that produces the interconnect are <b>Laminate_component</b>.
 </p>
-	<example>
+	<note number="1">
 		A <b>Laminate_component</b> is not a  
 		<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Printed_component"/> 
 		even though both may be realized by the same manufacturing process that	produces the interconnect.
-	</example>
-	<note number="1">
-		A <b>Laminate_component</b> does not appear in an assembly definition.
+		A <b>Laminate_component</b> functionality is defined in this part of ISO 10303, whereas the functionality of a 
+		<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Printed_component"/> 
+		is typically defined in a source CAD system, although this part of ISO 10303 may define some specific types of 
+		<express_ref linkend="Layered_interconnect_module_with_printed_component_design:arm:Layered_interconnect_module_with_printed_component_design_arm.Printed_component"/>.
 	</note>
 	<note number="2">
+		A <b>Laminate_component</b> does not appear in an assembly definition; therefore a <b>Laminate_component</b> is not a phyiscal component.
+	</note>
+	<note number="3">
 		A <b>Laminate_component</b> is only one of several Application Objects that may be referenced by 
 		a <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Laminate_component_feature"/> or by subtypes of  <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Laminate_component_feature"/>.  
 	</note>
-	<note number="3">
-		A <b>Laminate_component</b> is not an embedded component because an embedded component is a discrete component with
-		separately described physical properties that is processed by the manufacturing process that produces the interconnect.
-	</note>
 	<note number="4">
-		An embedded component is not an explicit Application Object but is an implicit role 
+		A <b>Laminate_component</b> is not an embedded discrete component because an embedded discrete component is physically realized
+		separately from the manufacturing process that produces the interconnect.
+	</note>
+	<note number="5">
+		An embedded discrete component is not an explicit Application Object but is an implicit role 
 		of a discrete component established by the inclusion in an interconnect design view of a 
 		discrete component by a member of  
 		<express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Next_assembly_usage"/>.  
@@ -3471,19 +3706,6 @@ This connection is usually required to be at one and only one location.
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Interconnect_module"/>.
 </ext_description>
 
-<!-- WR2 -->
-<ext_description linkend="Layered_interconnect_module_design_arm.Laminate_component.wr:WR2">
-<p>
-	All members of 
-	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component.occurrence_contexts"/>
-	to be of the same type.
-</p>
-	<note>
-	The AOs referenced by the members of 
-	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component.occurrence_contexts"/> 
-	fully constrain the population once the TYPE consistency requirement is met.
-	</note>
-</ext_description>
 
 <!-- +++++++++++ Laminate_component_feature +++++++++++ -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Laminate_component_feature"><p>
@@ -3720,7 +3942,7 @@ internal interconnect structure implements a connection to the  <express_ref lin
 <p>
 	A <b>Material_removal_laminate_component</b> is a type of 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Laminate_component"/> 
-	that indicates that material is to be removed in the realization of the feature that is in the role of <b>design_intent</b>.
+	that indicates that material is to be removed in the realization of the item that is in the role of <b>design_intent</b>.
 	A <b>Material_removal_laminate_component</b> may be an
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Electrical_isolation_laminate_component"/> 
 	The requirement shall be interpreted mathematically as a requirement for application of the regularized Boolean subtraction operation.  
@@ -3730,14 +3952,45 @@ internal interconnect structure implements a connection to the  <express_ref lin
 	in the case of complex layout arrangements to resolve the order of the Boolean operations.
 	-->
 	If a <b>Material_removal_laminate_component</b> is created as part of an instantiation of a component for 
-	which it is a member of that component and that component has a template that 
+	which it is a member and that component has a template that 
 	specifies shape properties, the <b>explicitly_created</b> attribute shall not be set.
 </p>
-	<example>
+	<note number="1">
+		The case of a stratum being in the role of <b>design_intent</b> occurs when a member of 
+		<b>Material_removal_laminate_component</b> has no other knowledge about it's target design intent.
+		This may occur when a removal figure does not intersect with an addition figure in the source CAD system.
+		In this case, the <b>Material_removal_laminate_component</b> is provided so that a pre-processor may provide the full details of the source intent to the target
+		application.
+	</note>
+	<note number="2">
+		A <b>Material_removal_laminate_component</b> is not used to represent passages or cutouts or cavities.
+	</note>
+	<note number="3">
+		A <b>Material_removal_laminate_component</b> that is created as a result of applying a library data element is not considered to be explicitly created since the
+		definition exists in the library.
+	</note>
+	<example number="1">
+		A closed figure on a power plane layer that does not intersect any explicit plane figures will be interpreted as removing material from the overall extent of the plane.
+		In this example, the power plane is represented internally in a CAD system as a negative image, and there is another closed figure on the plane that completely
+		encapsulates the example figure. 
+	</example>
+	<example number="2">
+		A trim in 
+		<express_ref linkend="Land:arm:Land_arm.Land"/> shape
+		may occur, in which case the <express_ref linkend="Land:arm:Land_arm.Land"/> would be designated as the <b>design_intent</b>.
+	</example>
+	<example number="3">
+		An interior region in 
+		<express_ref linkend="Land:arm:Land_arm.Land"/> shape may be removed, in which case the <express_ref linkend="Land:arm:Land_arm.Land"/> would be designated as the <b>design_intent</b>.
+	</example>
+	<example number="4">
 		A <b>Material_removal_laminate_component</b> that is created as part of a 
 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/> 
 		will not have the <b>explicitly_created</b> attribute set since it is created as part of the 
 		<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/>.
+	</example>
+	<example number="5">
+		A closed figure in a power plane created by a designer will have the  <b>explicitly_created</b> attribute set because the figure is defined as part of the design.
 	</example>
 </ext_description>
 
@@ -3758,6 +4011,7 @@ internal interconnect structure implements a connection to the  <express_ref lin
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.stratum_feature_template_component_or_stratum"/> 
 	for the <b>Material_removal_laminate_component</b>.
 </ext_description>
+
 
 <!-- derived_from -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Material_removal_laminate_component.derived_from">
@@ -3887,6 +4141,12 @@ shall be of type <express_ref linkend="Layered_interconnect_module_design:arm:La
 	for the <b>Structured_layout_component_sub_assembly_relationship</b>. The value of this attribute need not be specified.
 </ext_description>
 
+<!-- design_specific_placement -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship.design_specific_placement">
+	specifies that the placement or orientation of the template in the design is different 
+	from the placement or orientation in the definition.
+</ext_description>
+
 <!-- first_location_overridden -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship.first_location_overridden">
 <p>
@@ -3999,6 +4259,14 @@ shall be of type <express_ref linkend="Layered_interconnect_module_design:arm:La
 	
 </ext_description>
 
+<!-- WR12 -->
+<ext_description linkend="Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship.wr:WR12">
+	The case of <b>design_specific_placement</b> being equal to TRUE and a
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Template_location_in_structured_template.placement_status"/> 
+	of 
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.template_location_placement_status.is_fixed"/> 
+	in the <b>first_location</b> shall not occur for a member of <b>Structured_layout_component_sub_assembly_relationship</b>.
+</ext_description>
 
 
 <!-- +++++++++++ Multi_layer_material_removal_laminate_component +++++++++++ -->
@@ -4498,7 +4766,11 @@ A printed circuit board is nearly a synonym for printed wiring board, except tha
 
 <!-- WR1 -->
 <ext_description linkend="Layered_interconnect_module_design_arm.Stratum_feature_template_component.wr:WR2">
-	A member of <b>Trace_template</b> shall not be specified by the <b>derived_from</b> attribute.
+	If a member of 
+	<express_ref linkend="Part_template_extension:arm:Part_template_extension_arm.Trace_template"/> 
+	is specified by the <b>derived_from</b> attribute then the <b>Stratum_feature_template_component</b>
+	shall be a
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_with_pre_defined_transitions"/>.
 </ext_description>
 
 <!-- +++++++++++ Structured_layout_component +++++++++++ -->
@@ -5214,6 +5486,90 @@ specifies the <express_ref linkend="Layered_interconnect_module_design:arm:Layer
 <b>Plated_interconnect_module_edge_segment</b>.
 </ext_description>
 
+<!-- +++++++++++ acyclic_adjacent_stratum_surface_definition +++++++++++ -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_adjacent_stratum_surface_definition">
+	The <b>acyclic_adjacent_stratum_surface_definition</b> function determines whether 
+	the graph of instances of the Application Object type 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Adjacent_stratum_surface_definition"/> 
+	that contains relation as one of its links contains a cycle.  
+	This function may be used to evaluate 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Adjacent_stratum_surface_definition"/> 
+	or any of it's subtypes.
+</ext_description>
+
+<!-- relation -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_adjacent_stratum_surface_definition.relation">
+	the specified
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Adjacent_stratum_surface_definition"/>.
+</ext_description>
+
+<!-- relatives -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_adjacent_stratum_surface_definition.relatives">
+	the set of specified
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_surface">Stratum_surfaces</express_ref>.
+</ext_description>
+
+<!-- specific_relation -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_adjacent_stratum_surface_definition.specific_relation">
+	the specified STRING.
+</ext_description>
+
+<!-- +++++++++++ acyclic_area_component +++++++++++ -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_area_component">
+	The <b>acyclic_area_component</b> function determines whether 
+	the graph of instances of the Application Object type 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Area_component"/> 
+	that contains relation as one of its links contains a cycle.  
+	This function may be used to evaluate 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Area_component"/> 
+	or any of it's subtypes.
+</ext_description>
+
+<!-- relation -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_area_component.relation">
+	the specified
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Area_component"/>.
+</ext_description>
+
+<!-- relatives -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_area_component.relatives">
+	the set of specified
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Area_component">Area_components</express_ref>.
+</ext_description>
+
+<!-- specific_relation -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_area_component.specific_relation">
+	the specified STRING.
+</ext_description>
+
+<!-- +++++++++++ acyclic_conductive_interconnect_element_terminal_link +++++++++++ -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_conductive_interconnect_element_terminal_link">
+	The <b>acyclic_conductive_interconnect_element_terminal_link</b> function determines whether 
+	the graph of instances of the Application Object type 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal_link"/> 
+	that contains relation as one of its links contains a cycle.  
+	This function may be used to evaluate 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal_link"/> 
+	or any of it's subtypes. 
+</ext_description>
+
+<!-- relation -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_conductive_interconnect_element_terminal_link.relation">
+	the specified
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal_link"/>.
+</ext_description>
+
+<!-- relatives -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_conductive_interconnect_element_terminal_link.relatives">
+	the set of specified
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal">Conductive_interconnect_element_terminals</express_ref>.
+</ext_description>
+
+<!-- specific_relation -->
+<ext_description linkend="Layered_interconnect_module_design_arm.acyclic_conductive_interconnect_element_terminal_link.specific_relation">
+	the specified STRING.
+</ext_description>
+
 <!-- +++++++++++ get_assemblies +++++++++++ -->
 <ext_description linkend="Layered_interconnect_module_design_arm.get_assemblies">
 	The <b>get_assemblies</b> function returns the set of 
@@ -5314,7 +5670,16 @@ specifies the <express_ref linkend="Layered_interconnect_module_design:arm:Layer
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature_template_component"/>.
 </ext_description>
 
+<!-- +++++++++++ limd_get_sz_cp +++++++++++ -->
+<ext_description linkend="Layered_interconnect_module_design_arm.limd_get_sz_cp">
+	The <b>limd_get_sz_cp</b> function returns an integer value.
+</ext_description>
 
+<!-- input -->
+<ext_description linkend="Layered_interconnect_module_design_arm.limd_get_sz_cp.input">
+	the set of specified
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element_terminal_link">Conductive_interconnect_element_terminal_links</express_ref>.
+</ext_description>
 
 </ext_descriptions>
 

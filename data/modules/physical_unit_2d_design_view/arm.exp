@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.48 2006/01/31 07:41:16 liutkus Exp $
+   $Id: arm.exp 1664 2007-11-13 10:10:51Z GiedriusLiutkus $
    ISO TC184/SC4/WG12 N4119 - ISO/TS 10303-1724 Physical unit 2d design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3546
 *)
@@ -14,6 +14,12 @@ SCHEMA Physical_unit_2d_design_view_arm;
   ENTITY Assembly_component_2d_shape_model
     SUBTYPE OF (Planar_projected_shape_model);
       shape_characterized_component : SET[1:?] OF Assembly_component;
+    DERIVE
+      equivalent_reference_shape_model : SET [0:1] OF Geometric_model_relationship :=
+        bag_to_set(QUERY( gmr <* USEDIN(SELF, 'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |
+        (gmr\Representation_relationship.relation_type = 'equivalent reference shape model')));      
+    WHERE
+      WR1 : SIZEOF(equivalent_reference_shape_model) < 2;        
   END_ENTITY;
 
   ENTITY Component_2d_location
@@ -31,12 +37,12 @@ SCHEMA Physical_unit_2d_design_view_arm;
    WHERE
      WR1: EXISTS (component);  
      WR2: NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' IN TYPEOF(component_model)) OR
-     (component\Next_assembly_usage_occurrence_relationship.related_view IN component_model\Assembly_component_2d_shape_model.shape_characterized_component);
+     (component\View_definition_relationship.related_view IN component_model\Assembly_component_2d_shape_model.shape_characterized_component);
      WR3: NOT('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF(component_model)) OR
      (component_model\Physical_unit_shape_model.shape_characterized_definition :=: 
-     component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from);
+     component\View_definition_relationship.related_view\Assembly_component.derived_from);
      WR4: NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN TYPEOF(component_model)) OR
-     (component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from IN
+     (component\View_definition_relationship.related_view\Assembly_component.derived_from IN
       component_model\Part_template_shape_model.shape_characterized_definition);
   END_ENTITY;
 
@@ -70,5 +76,24 @@ SCHEMA Physical_unit_2d_design_view_arm;
 
     RETURN(TRUE);
   END_FUNCTION;
+
+  RULE unique_physical_unit_planar_shape_model_for_part_design_and_usage_view FOR
+      (Part_design_view, Part_usage_view);
+    WHERE
+      WR1:  SIZEOF(QUERY (pdv <* Part_design_view | 
+        (SIZEOF (QUERY (pupsm1 <* USEDIN
+        (pdv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  
+        ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF
+        (pupsm1)) AND (SIZEOF (QUERY (pupsm2 <* USEDIN
+        (pdv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  
+        ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm2)) AND (pupsm1 = pupsm2))) > 1)
+        )) > 0) )) = 0;  
+      WR2:  SIZEOF(QUERY (puv <* Part_usage_view | (SIZEOF (QUERY (pupsm1 <*
+        USEDIN (puv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  
+          ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm1)) AND 
+          (SIZEOF (QUERY (pupsm2 <* USEDIN (puv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |
+          ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm2)) AND 
+          (pupsm1 = pupsm2))) > 1) )) > 0) )) = 0;  
+  END_RULE;
 
 END_SCHEMA;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-07 09:35:23 +0300 (Pn, 07 Rgs 2007) $" rcs.revision="$Revision: 1458 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_arm schema_instance"/>
    <schema name="Physical_unit_2d_design_view_arm">
       <interface kind="use" schema="Part_template_shape_with_parameters_arm"/>
@@ -51,9 +51,9 @@
             <redeclaration entity-ref="Representation_relationship"/>
          </derived>
          <where label="WR1" expression="EXISTS (component)"/>
-         <where label="WR2" expression="NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\Next_assembly_usage_occurrence_relationship.related_view IN component_model\Assembly_component_2d_shape_model.shape_characterized_component)"/>
-         <where label="WR3" expression="NOT('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component_model\Physical_unit_shape_model.shape_characterized_definition :=: &#10;     component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from)"/>
-         <where label="WR4" expression="NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\Next_assembly_usage_occurrence_relationship.related_view\Assembly_component.derived_from IN&#10;      component_model\Part_template_shape_model.shape_characterized_definition)"/>
+         <where label="WR2" expression="NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\View_definition_relationship.related_view IN component_model\Assembly_component_2d_shape_model.shape_characterized_component)"/>
+         <where label="WR3" expression="NOT('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component_model\Physical_unit_shape_model.shape_characterized_definition :=: &#10;     component\View_definition_relationship.related_view\Assembly_component.derived_from)"/>
+         <where label="WR4" expression="NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\View_definition_relationship.related_view\Assembly_component.derived_from IN&#10;      component_model\Part_template_shape_model.shape_characterized_definition)"/>
       <where label="IP1"/>
          <where label="IP2"/>
       </entity>
@@ -79,6 +79,10 @@
      ac  := ac + Assembly_component_2d_shape_model[i].shape_characterized_component;
    END_REPEAT;</algorithm>
          <where label="WR1" expression="SIZEOF(ac) = SIZEOF(bag_to_set(ac))"/>
+      </rule>
+      <rule name="unique_physical_unit_planar_shape_model_for_part_design_and_usage_view" appliesto="Part_design_view Part_usage_view">
+         <where label="WR1" expression="SIZEOF(QUERY (pdv &lt;* Part_design_view | &#10;        (SIZEOF (QUERY (pupsm1 &lt;* USEDIN&#10;        (pdv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  &#10;        ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF&#10;        (pupsm1)) AND (SIZEOF (QUERY (pupsm2 &lt;* USEDIN&#10;        (pdv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  &#10;        ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm2)) AND (pupsm1 = pupsm2))) &gt; 1)&#10;        )) &gt; 0) )) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY (puv &lt;* Part_usage_view | (SIZEOF (QUERY (pupsm1 &lt;*&#10;        USEDIN (puv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |  &#10;          ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm1)) AND &#10;          (SIZEOF (QUERY (pupsm2 &lt;* USEDIN (puv,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION') |&#10;          ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF (pupsm2)) AND &#10;          (pupsm1 = pupsm2))) &gt; 1) )) &gt; 0) )) = 0"/>
       </rule>
       <function name="substrate_in_assembly">
          <parameter name="c2dl">

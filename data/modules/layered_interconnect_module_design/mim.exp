@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.87 2006/06/21 13:55:49 thomasrthurman Exp $
+   $Id: mim.exp 1292 2007-07-02 07:44:57Z giedrius $
    ISO TC184/SC4/WG12 N4042 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3484
 *)
@@ -116,7 +116,6 @@ WHERE
 END_ENTITY; 
 
 ENTITY conductive_interconnect_element_with_pre_defined_transitions
-  SUPERTYPE OF (join_two_physical_connectivity_definition_supporting_conductive_interconnect_element)
   SUBTYPE OF (conductive_interconnect_element);
 END_ENTITY;
 
@@ -145,8 +144,20 @@ ENTITY dependent_thermal_isolation_removal_component
   SUBTYPE OF (material_removal_structured_component);
 END_ENTITY;
 
+ENTITY derived_stratum
+  SUBTYPE OF (stratum);
+END_ENTITY;
+
+ENTITY design_layer_stratum
+  SUBTYPE OF (stratum);
+END_ENTITY;
+
 ENTITY dielectric_material_passage
   SUBTYPE OF (inter_stratum_feature);
+END_ENTITY;
+
+ENTITY documentation_layer_stratum
+  SUBTYPE OF (stratum);
 END_ENTITY;
   	
 ENTITY electrical_isolation_laminate_component
@@ -215,10 +226,6 @@ END_ENTITY;
 
 ENTITY join_shape_aspect
   SUBTYPE OF (shape_aspect);
-END_ENTITY;
-
-ENTITY join_two_physical_connectivity_definition_supporting_conductive_interconnect_element
-  SUBTYPE OF (conductive_interconnect_element_with_pre_defined_transitions);
 END_ENTITY;
 
 ENTITY laminate_component
@@ -371,6 +378,8 @@ END_ENTITY;
   
 ENTITY probe_access_area
   SUBTYPE OF (laminate_component, shape_aspect);
+  DERIVE
+    SELF\shape_aspect.of_shape : probe_access_area := SELF;
 END_ENTITY;
 
 ENTITY single_stratum_special_symbol_component
@@ -379,9 +388,15 @@ ENTITY single_stratum_special_symbol_component
 END_ENTITY;
   
 ENTITY stratum
+ SUPERTYPE OF (ONEOF (documentation_layer_stratum, design_layer_stratum))
  SUBTYPE OF (product_definition, product_definition_shape);
-UNIQUE
-  UR1: SELF\product_definition.id, SELF\product_definition.formation;
+  DERIVE
+    SELF\property_definition.definition : stratum := SELF;
+  UNIQUE
+    UR1: SELF\product_definition.id, SELF\product_definition.formation;
+  WHERE
+    WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +'NAME_ATTRIBUTE.NAMED_ITEM')) = 0;
+    WR2: NOT EXISTS(SELF\property_definition.description);
 END_ENTITY;	
 
 ENTITY stratum_based_pattern

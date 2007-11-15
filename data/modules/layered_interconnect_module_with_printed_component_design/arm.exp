@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.42 2006/10/13 13:37:59 liutkus Exp $
+   $Id: arm.exp 1500 2007-09-16 17:31:51Z TomThurman $
    ISO TC184/SC4/WG12 N4047 - ISO/TS 10303-1700 Layered interconnect module with printed component design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3486
 *)
@@ -7,6 +7,7 @@
 SCHEMA Layered_interconnect_module_with_printed_component_design_arm;   
 
 	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
+	USE FROM Printed_physical_layout_template_arm;	-- ISO/TS 10303-1737
 
 	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
@@ -43,49 +44,180 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
       stratum_feature_implementation : Stratum_feature := material_stack.reference_stratum_feature;
   END_ENTITY;
 
-  ENTITY Join_two_physical_network_supporting_single_stratum_printed_component
-    SUBTYPE OF (Single_stratum_printed_component);
-      joined_networks : SET[2:2] OF Generic_physical_network;
-      SELF\Single_stratum_printed_component.stratum_feature_implementation : SET [1:1] OF conductor_or_conductive_filled_area;
-    WHERE
-     WR1 : SIZEOF(SELF\Printed_component.access_mechanism) = 2;
-     WR2 : SIZEOF(QUERY(ac <* access_mechanism |
-         NOT(ac\Printed_component_join_terminal.
-         stratum_concept_implementation\Stratum_feature_template_component
-         .resident_stratum = stratum_feature_implementation[1]\Stratum_feature.resident_stratum)
-               )) = 0;
-    WR3 : SIZEOF(QUERY(jn <* joined_networks |
-                 NOT(SIZEOF(SELF\Printed_component.access_mechanism * jn\Generic_physical_network.connectivity_requirement_element) = 1 )
-                 )) = 0;               
-  END_ENTITY;
-  
-  ENTITY Join_multiple_physical_network_supporting_multi_stratum_printed_component
-    SUBTYPE OF (Multi_stratum_printed_component);
+  ENTITY Tiebar_printed_component 
+    SUBTYPE OF (Printed_component, Structured_layout_component);
+      SELF\Printed_component.derived_from : Printed_tiebar_template;
     DERIVE
       joined_networks : SET OF Generic_physical_network := get_gpn(SELF\Printed_component.access_mechanism);
-      tiebar_component_sub_assembly_relationship : SET [1:1] OF Structured_layout_component_sub_assembly_relationship :=
-                 (QUERY(co <* components |
-                 ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.SINGLE_STRATUM_PRINTED_COMPONENT' IN
-                  TYPEOF(co.related_view))
-                 ));
-      tiebar_component : Single_stratum_printed_component := tiebar_component_sub_assembly_relationship[1].related_view;
+      tiebar_component : SET OF Area_component := limdwpcd_get_ac(components);
+      padstack_component : SET OF Laminate_component := limdwpcd_get_lc(components);
+      passage_component : SET OF Plated_passage := QUERY(pc <* padstack_component | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PLATED_PASSAGE' IN TYPEOF(pc)));
+      tiebar_resident_stratum : SET OF Stratum := limdwpcd_get_tbrs(tiebar_component);
+      passage_resident_stratum : SET OF Stratum := limdwpcd_get_prs(passage_component);
+      passage_dependent_land_component : SET OF Plated_passage_dependent_land := limdwpcd_get_ppdl(passage_component);  
    INVERSE
     SELF\Assembly_group_component.components  : 
-             SET [3:3] OF Structured_layout_component_sub_assembly_relationship FOR relating_view;
+             SET [1:?] OF Structured_layout_component_sub_assembly_relationship FOR relating_view;
     WHERE
-     WR1 : SIZEOF(QUERY(co <* components |
-                 ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.SINGLE_STRATUM_PRINTED_COMPONENT' IN
-                  TYPEOF(co.related_view))
-                 )) = 1;
-     WR2 : SIZEOF(QUERY(co <* components |
-                 ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(co))
-                 )) = 2;             
-     WR3 : SIZEOF(tiebar_component\Single_stratum_printed_component.stratum_feature_implementation) = 1;       
-     WR4 : SIZEOF(joined_networks) > 1;
-     WR5 : (SIZEOF(get_gpn(tiebar_component.access_mechanism)) = 0) OR 
-           ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.JOIN_TWO_PHYSICAL_NETWORK_SUPPORTING_SINGLE_STRATUM_PRINTED_COMPONENT' IN TYPEOF(tiebar_component));  
-  END_ENTITY;
-  
+     WR1 : (SIZEOF(tiebar_component) + SIZEOF(passage_component)) > 0;
+     WR2 : SIZEOF(components) = (SIZEOF(tiebar_component) + SIZEOF(padstack_component));             
+     WR3 : SIZEOF(padstack_component) > SIZEOF(passage_component);             
+     WR4 : SIZEOF(QUERY(tc <* tiebar_component |
+                  NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF
+                      (tc\Stratum_feature_template_component.implementation_or_resident_stratum))
+                 )) = 0;       
+     WR5 : SIZEOF(tiebar_component) = SIZEOF(tiebar_resident_stratum);       
+     WR6 : SIZEOF(joined_networks) > 1;
+     WR7 : SIZEOF(QUERY(jn <* joined_networks |
+                 NOT(SIZEOF(SELF\Printed_component.access_mechanism * jn\Generic_physical_network.connectivity_requirement_element) = 1 )
+                 )) = 0;               
+     WR8 : SIZEOF(QUERY(tc <* tiebar_component |
+           NOT(SIZEOF(USEDIN(tc,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT_JOIN_TERMINAL.ASSOCIATED_COMPONENT')) = 0)
+              )) = 0;
+    WR9 : NOT(SIZEOF(passage_component) = 1) OR
+             (SIZEOF(QUERY(pc <* passage_component | NOT((SIZEOF(tiebar_component) = 0) OR
+                (SIZEOF(tiebar_resident_stratum * passage_resident_stratum) = SIZEOF(tiebar_resident_stratum))
+                )
+               )) = 0);
+    WR10 : NOT(SIZEOF(passage_component) >= 1) OR
+              (SIZEOF(QUERY(pc <* passage_component | NOT
+                (SIZEOF(tiebar_resident_stratum * passage_resident_stratum) = SIZEOF(tiebar_resident_stratum))
+               )) = 0);
+   WR11 : SIZEOF(QUERY(am <* SELF\Printed_component.access_mechanism |
+           NOT('PRINTED_PHYSICAL_LAYOUT_TEMPLATE.STRUCTURED_PRINTED_PART_TEMPLATE_TERMINAL' IN TYPEOF(am.definition))
+            )) = 0;
+END_ENTITY;
+
+FUNCTION limdwpcd_get_ac(input : SET OF Structured_layout_component_sub_assembly_relationship) : SET OF Area_component; 
+LOCAL
+	sspc : SET OF Stratum_feature_template_component := [];  --this gives us access to the information base
+	slcsar : SET OF Structured_layout_component_sub_assembly_relationship :=
+                 (QUERY(inp <* input |
+                 ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(inp.related_view)) AND NOT
+                 ('LAND_ARM.LAND' IN TYPEOF(inp.related_view)) AND NOT
+  ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_WITH_PRE_DEFINED_TRANSITIONS' IN TYPEOF(inp.related_view)) AND NOT
+  ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERFACE_ACCESS_STRATUM_FEATURE_TEMPLATE_COMPONENT' IN TYPEOF(inp.related_view))
+                 ));
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(slcsar) by 1;
+	      sspc := sspc + slcsar[i]\Structured_layout_component_sub_assembly_relationship.related_view;
+	END_REPEAT;
+
+	RETURN(sspc);
+END_FUNCTION;
+(*
+ desc: limdwpcd_get_ac has as input a set of  
+Structured_layout_component_sub_assembly_relationship 
+The function returns the set of Area_component that are referenced as the 
+related_view for each member of the input. The function does not return an Area_component if that component is one of
+Land, Conductive_interconnect_element_with_pre_defined_transitions, Interface_access_stratum_feature_template_component.       
+*)
+
+FUNCTION limdwpcd_get_lc(input : SET OF Structured_layout_component_sub_assembly_relationship) : SET OF Laminate_component; 
+LOCAL
+	sspc : SET OF Laminate_component := [];  --this gives us access to the information base
+	slcsar : SET OF Structured_layout_component_sub_assembly_relationship :=
+                 (QUERY(inp <* input |
+                 ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_DEFINITION' IN TYPEOF
+(inp\Structured_layout_component_sub_assembly_relationship.second_location\Template_location_in_structured_template.assembly))
+                 ));
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(slcsar) by 1;
+	      sspc := sspc + slcsar[i]\Structured_layout_component_sub_assembly_relationship.related_view;
+	END_REPEAT;
+
+	RETURN(sspc);
+END_FUNCTION;
+(*
+ desc: limdwpcd_get_lc has as input a set of Structured_layout_component_sub_assembly_relationship.
+The function returns the set of Laminate_component that are referenced as a related_view for each member of input when a second_location is provided and 
+that second_location references a Padstack_definition as an assembly. 
+*)
+
+FUNCTION limdwpcd_get_ppdl(input : SET OF Plated_passage) : SET OF Plated_passage_dependent_land; 
+LOCAL
+	sspc : SET OF Plated_passage_dependent_land := [];  --this gives us access to the information base
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+	      sspc := sspc + bag_to_set(USEDIN(input[i],'LAND_ARM.PLATED_PASSAGE_DEPENDENT_LAND.REFERENCE_PLATED_PASSAGE'));
+	END_REPEAT;
+
+	RETURN(sspc);
+END_FUNCTION;
+(*
+ desc: limdwpcd_get_ppdl has as input a set of Plated_passage.
+The function returns the set of Plated_passage_dependent_land for which a member of the input is in the role of referenced_plated_passage.
+*)
+
+FUNCTION limdwpcd_get_tbrs(input : SET OF Stratum_feature_template_component) : SET OF Stratum; 
+LOCAL
+	s : SET OF Stratum := [];  --this gives us access to the information base
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+	      s := s + input[i]\Stratum_feature_template_component.resident_stratum;
+	END_REPEAT;
+
+	RETURN(s);
+END_FUNCTION;
+(*
+desc: limdwpcd_get_tbrs has as input a set of Stratum_feature_template_component. 
+The function returns a set of Stratum where each Stratum is the associated stratum for a member of the input. 
+NOTE: If more than one member of input reference the same Stratum, only one member of Stratum will be returned.
+*)
+
+FUNCTION limdwpcd_get_prs(input : SET OF Plated_passage) : SET OF Stratum; 
+LOCAL
+	s : SET OF Stratum := [];  --this gives us access to the information base
+	stol : SET OF Stratum_technology_occurrence_link := [];  --this gives us access to the information base
+	ptatsm : SET OF Passage_technology_allocation_to_stack_model := [];  --this gives us access to the information base
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+             ptatsm := ptatsm + input[i]\Inter_stratum_feature.vertical_extent;
+	END_REPEAT;
+
+	REPEAT i := 1 to SIZEOF(ptatsm) by 1;
+             stol := stol + ptatsm[i]\Passage_technology_allocation_to_stack_model.stratum_technology_sequence;
+	END_REPEAT;
+
+             s := limdwpcd_get_stolrs(stol);
+	RETURN(s);
+END_FUNCTION;
+(*
+desc: limdwpcd_get_prs has as input a set of Plated_passage. 
+The function returns a set of Stratum where each member of that set is in the vertical extent of the input. 
+*)
+
+FUNCTION limdwpcd_get_stolrs(input : SET OF Stratum_technology_occurrence_link) : SET OF Stratum; 
+LOCAL
+	s : SET OF Stratum := [];  --this gives us access to the information base
+	assd : SET OF Adjacent_stratum_surface_definition := [];  --this gives us access to the information base
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+	      assd := assd + bag_to_set(USEDIN(input[i],'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
+                                   'STRATUM_TECHNOLOGY_OCCURRENCE_TO_STRATUM_MAPPING_RELATIONSHIP.' +
+                                    'TECHNOLOGY_OCCURRENCE_LINK'));
+      	END_REPEAT;
+	REPEAT i := 1 to SIZEOF(assd) by 1;
+      	     s := s + assd[i]\Adjacent_stratum_surface_definition.precedent_surface\Stratum_surface.of_stratum +
+      	              assd[i]\Adjacent_stratum_surface_definition.subsequent_surface\Stratum_surface.of_stratum;
+        END_REPEAT;
+
+	RETURN(s);
+END_FUNCTION;
+(*
+desc: limdwpcd_get_stolrs has as input a set of Stratum_technology_occurrence_link. 
+The function returns a set of Stratum where each member of that set is referenced by a member of Adjacent_stratum_surface_definition 
+that corresponsds to a member of the input. 
+NOTE The equivalence mapping of Stratum_technology_occurrence_to_stratum_mapping_relationship is used to map from the Stratum_technology_occurrence_link
+to the Adjacent_stratum_surface_definition.
+*)
+    
 FUNCTION get_gpn(
 	input : SET OF printed_component_join_terminal) : SET OF Generic_physical_network; 
 LOCAL
@@ -134,6 +266,7 @@ END_FUNCTION;
       stratum_concept_implementation              : Stratum_feature_template_component;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
+      WR2 : associated_component.derived_from :=: definition\Printed_part_template_terminal.associated_definition;
   END_ENTITY;
 
   ENTITY Printed_connector_component
@@ -159,5 +292,31 @@ END_FUNCTION;
       component_extent                         : Inter_stratum_extent;
       curve_parameters                         : Curve_style_parameters;
   END_ENTITY;
+
+  FUNCTION limdwpcd_get_sspc(
+	input : SET OF Structured_layout_component_sub_assembly_relationship) : 
+      SET OF Single_stratum_printed_component; 
+    LOCAL
+	  sspc : SET[0:?] OF Single_stratum_printed_component := [];  --this gives us access to the information base
+    END_LOCAL;
+	REPEAT i := 1 to SIZEOF(input) by 1;
+	      sspc := sspc + input[i]\Structured_layout_component_sub_assembly_relationship.related_view;
+	END_REPEAT;
+
+	RETURN(sspc);
+  END_FUNCTION;
+
+  FUNCTION limdwpcd_get_s(
+	input : SET OF Single_stratum_printed_component) : SET OF Stratum; 
+    LOCAL
+	  s : SET[0:?] OF Stratum := [];  --this gives us access to the information base
+    END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+	      s := s + input[i]\Single_stratum_printed_component.stratum_feature_implementation[1]\Stratum_feature.resident_stratum;
+	END_REPEAT;
+
+	RETURN(s);
+  END_FUNCTION;
 
 END_SCHEMA; 

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.3 2005/11/24 11:55:19 liutkus Exp $
+   $Id: mim.exp 1292 2007-07-02 07:44:57Z giedrius $
    ISO TC184/SC4/WG12 N4063 - ISO/TS 10303-1705 Functional usage view - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3343
 *)
@@ -9,6 +9,7 @@ SCHEMA Functional_usage_view_mim;
 	USE FROM Network_functional_design_view_mim;	-- ISO/TS 10303-1704
 	USE FROM Product_identification_mim;	-- ISO/TS 10303-1017
 	USE FROM Product_view_definition_relationship_mim;	-- ISO/TS 10303-1041
+    USE FROM Shape_property_assignment_mim;    -- ISO/TS 10303-1032	
 
 -- USE FROM Date_time_schema;
 
@@ -29,15 +30,17 @@ UNIQUE
 END_ENTITY;
 
 ENTITY functional_unit
- SUBTYPE OF (product_definition);
+ SUBTYPE OF (product_definition, product_definition_shape);
+  DERIVE
+    SELF\property_definition.definition : functional_unit := SELF;
+  WHERE
+    WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +'NAME_ATTRIBUTE.NAMED_ITEM')) = 0;
+    WR2: NOT EXISTS(SELF\property_definition.description);
 END_ENTITY;
 
 ENTITY functional_unit_terminal_definition
   SUBTYPE OF (shape_aspect);
-WHERE
-  WR1: ('FUNCTIONAL_USAGE_VIEW_MIM.' +
-       'FUNCTIONAL_UNIT' IN
-       TYPEOF (SELF.of_shape.definition));
+    SELF\shape_aspect.of_shape : functional_unit;
 END_ENTITY;
 
 ENTITY make_from_functional_unit_terminal_definition_relationship

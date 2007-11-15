@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.48 2006/06/05 19:13:25 thomasrthurman Exp $
+   $Id: arm.exp 34 2007-03-21 15:24:20Z giedrius $
    ISO TC184/SC4/WG12 N3849 - ISO/TS 10303-1634 Assembly component placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3291
 *)
@@ -138,7 +138,10 @@ END_TYPE;
       mounting_surface                     : Interconnect_module_component_surface_feature;
       SELF\Non_feature_shape_element.scope : Assembly_module;
     WHERE
-      WR1 : 'ASSEMBLY_COMPONENT_PLACEMENT_REQUIREMENTS_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(SELF\Non_feature_shape_element.element_shape);
+      WR1 : (SIZEOF(SELF\Non_feature_shape_element.element_shape) = 0) OR
+            (SIZEOF(QUERY(es <* SELF\Non_feature_shape_element.element_shape | 
+             NOT ('CONSTRUCTION_GEOMETRY_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(es))
+                  )) = 0);      
   END_ENTITY;
 
   ENTITY Mounting_restriction_volume

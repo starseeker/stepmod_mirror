@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.44 2006/03/22 10:07:24 liutkus Exp $
+   $Id: mim.exp 1593 2007-09-24 17:08:33Z GiedriusLiutkus $
    ISO TC184/SC4/WG12 N3958 - ISO/TS 10303-1670 Fabrication technology - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3664
 *)
@@ -12,6 +12,7 @@ SCHEMA Fabrication_technology_mim;
 	USE FROM Requirement_decomposition_mim;	-- ISO/TS 10303-1740
 	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
 	USE FROM Part_template_shape_with_parameters_mim; -- ISO/TS 10303-1720
+	USE FROM Surface_conditions_mim; -- ISO/TS 10303-1110	
 
 TYPE ft_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
    (land_physical_template,
@@ -67,6 +68,8 @@ END_ENTITY;
   
 ENTITY default_attachment_size_based_land_physical_template
   SUBTYPE OF (land_physical_template, shape_aspect);
+  DERIVE
+    SELF\shape_aspect.of_shape : default_attachment_size_based_land_physical_template := SELF;
 END_ENTITY;
 
 ENTITY default_passage_based_land_physical_template
@@ -109,7 +112,9 @@ ENTITY material_removal_feature_template
 END_ENTITY;
 
 ENTITY passage_technology
-  SUBTYPE OF (characterized_object);
+  SUBTYPE OF (characterized_object, product_definition_shape);
+  DERIVE
+    SELF\property_definition.definition : characterized_definition := SELF;
 UNIQUE
   UR1: SELF\characterized_object.name;
 END_ENTITY;
@@ -133,8 +138,15 @@ ENTITY stratum_stack_model
   SUBTYPE OF(part_template_definition);
 END_ENTITY;
 
+ENTITY stratum_surface_technology
+  SUBTYPE OF (shape_aspect);
+    SELF\shape_aspect.of_shape RENAMED associated_technology : stratum_technology;
+END_ENTITY;
+  
 ENTITY stratum_technology
-  SUBTYPE OF (characterized_object);
+  SUBTYPE OF (characterized_object, product_definition_shape);
+  DERIVE
+    SELF\property_definition.definition : characterized_definition := SELF;
 UNIQUE
   UR1: SELF\characterized_object.name;
 END_ENTITY;

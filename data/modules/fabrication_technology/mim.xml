@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-26 10:56:23 +0300 (Tr, 26 Rgs 2007) $" rcs.revision="$Revision: 1601 $" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_mim schema_instance"/>
    <schema name="Fabrication_technology_mim">
       <interface kind="use" schema="Constructive_solid_geometry_2d_mim"/>
@@ -11,6 +11,7 @@
       <interface kind="use" schema="Requirement_decomposition_mim"/>
       <interface kind="use" schema="Extended_geometric_tolerance_mim"/>
       <interface kind="use" schema="Part_template_shape_with_parameters_mim"/>
+      <interface kind="use" schema="Surface_conditions_mim"/>
       <type name="ft_document_reference_item">
          <select extensible="YES" genericentity="YES" basedon="document_reference_item" selectitems="passage_technology stratum_technology"/>
       </type>
@@ -25,7 +26,12 @@
       <entity name="continuous_template" supertypes="geometric_template"/>
       <entity name="counterbore_passage_template" supertypes="unsupported_passage_template"/>
       <entity name="countersunk_passage_template" supertypes="unsupported_passage_template"/>
-      <entity name="default_attachment_size_based_land_physical_template" supertypes="land_physical_template shape_aspect"/>
+      <entity name="default_attachment_size_based_land_physical_template" supertypes="land_physical_template shape_aspect">
+         <derived name="of_shape" expression="SELF">
+            <typename name="default_attachment_size_based_land_physical_template"/>
+            <redeclaration entity-ref="shape_aspect"/>
+         </derived>
+      </entity>
       <entity name="default_passage_based_land_physical_template" abstract.supertype="YES" supertypes="land_physical_template" super.expression="ONEOF (default_plated_passage_based_land_physical_template, default_unsupported_passage_based_land_physical_template)"/>
       <entity name="default_plated_passage_based_land_physical_template" supertypes="default_passage_based_land_physical_template"/>
       <entity name="default_unsupported_passage_based_land_physical_template" supertypes="default_passage_based_land_physical_template"/>
@@ -34,7 +40,11 @@
       <entity name="land_physical_template" supertypes="stratum_feature_template" super.expression="ONEOF (default_passage_based_land_physical_template, default_attachment_size_based_land_physical_template)"/>
       <entity name="land_template_terminal" supertypes="shape_aspect"/>
       <entity name="material_removal_feature_template" supertypes="single_stratum_continuous_template"/>
-      <entity name="passage_technology" supertypes="characterized_object">
+      <entity name="passage_technology" supertypes="characterized_object product_definition_shape">
+         <derived name="definition" expression="SELF">
+            <typename name="characterized_definition"/>
+            <redeclaration entity-ref="property_definition"/>
+         </derived>
          <unique label="UR1">
             <unique.attribute entity-ref="characterized_object" attribute="name"/>
          </unique>
@@ -43,7 +53,17 @@
       <entity name="single_stratum_template" abstract.supertype="YES" supertypes="part_template_definition" super.expression="single_stratum_continuous_template"/>
       <entity name="stratum_feature_template" supertypes="single_stratum_continuous_template"/>
       <entity name="stratum_stack_model" abstract.supertype="YES" supertypes="part_template_definition"/>
-      <entity name="stratum_technology" supertypes="characterized_object">
+      <entity name="stratum_surface_technology" supertypes="shape_aspect">
+         <explicit name="associated_technology">
+            <typename name="stratum_technology"/>
+            <redeclaration entity-ref="shape_aspect" old_name="of_shape"/>
+         </explicit>
+      </entity>
+      <entity name="stratum_technology" supertypes="characterized_object product_definition_shape">
+         <derived name="definition" expression="SELF">
+            <typename name="characterized_definition"/>
+            <redeclaration entity-ref="property_definition"/>
+         </derived>
          <unique label="UR1">
             <unique.attribute entity-ref="characterized_object" attribute="name"/>
          </unique>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.59 2006/06/05 16:33:43 thomasrthurman Exp $
+   $Id: arm.exp 1594 2007-09-25 06:42:06Z GiedriusLiutkus $
    ISO TC184/SC4/WG12 N4131 - ISO/TS 10303-1728 Physical unit design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3567
 *)
@@ -9,6 +9,10 @@ SCHEMA Physical_unit_design_view_arm;
 	USE FROM Physical_layout_template_arm; -- ISO/TS 10303-1722
 
 	USE FROM Physical_unit_usage_view_arm;	-- ISO/TS 10303-1732
+
+	USE FROM Component_grouping_arm;	-- ISO/TS 10303-1656
+	
+	REFERENCE FROM Layered_interconnect_module_design_arm(get_assemblies); -- ISO/TS 10303-1698
 
 	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
@@ -68,12 +72,21 @@ SCHEMA Physical_unit_design_view_arm;
 	SELF\Definition_based_product_occurrence.derived_from : physical_unit_or_part_template;
     DERIVE
     	SELF\Item_shape.described_element : shapeable_item := SELF;
+		assemblies : SET OF Product_view_definition := pudv_get_assemblies(SELF);
+		groups : SET OF Assembly_group_component := pudv_get_groups(SELF);
+		versions : SET OF Product_version := pudv_get_versions(assemblies);
+		product : SET OF Product := pudv_get_products(versions);
     INVERSE
-      SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF assembly_component_relationship FOR related_view;
+      SELF\Product_occurrence.occurrence_contexts : SET[1:?] OF Assembly_component_relationship FOR related_view;
     WHERE
       WR1 : NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) XOR ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR 
             NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) XOR ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)));
       WR2 : SELF\Product_view_definition.defined_version :=: SELF\Definition_based_product_occurrence.derived_from.defined_version;
+	  WR3 : SIZEOF(assemblies) = SIZEOF(versions);
+	  WR4 : SIZEOF(product) = 1;
+      WR5 : (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1])) OR
+            (SIZEOF(groups) = 0) OR 
+            (pudv_get_group_assemblies(groups) = assemblies));
   END_ENTITY;
 
   ENTITY Assembly_item_number;
@@ -86,7 +99,7 @@ SCHEMA Physical_unit_design_view_arm;
       UR1 : assembly, item_number;
     WHERE
       WR1 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0;
-      WR2 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.related_view = assembly))) = 0;
+      WR2 : SIZEOF(QUERY(au <* assembly_usage | NOT (au.relating_view = assembly))) = 0;
   END_ENTITY;
 
   ENTITY Component_bonding_relationship;
@@ -135,7 +148,7 @@ SCHEMA Physical_unit_design_view_arm;
 
   ENTITY Next_assembly_usage_occurrence_relationship
     SUBTYPE OF (Next_assembly_usage);
-    SELF\View_definition_relationship.related_view : Product_occurrence;
+    component : Product_occurrence;
   UNIQUE
     UR1 : SELF\View_definition_relationship.relating_view, 
           SELF\Assembly_component_relationship.location_indicator;
@@ -172,6 +185,79 @@ SCHEMA Physical_unit_design_view_arm;
   WHERE
    WR1 : SIZEOF(acr) = SIZEOF(bag_to_set(acr));
   END_RULE;
+
+FUNCTION pudv_get_versions(input : SET OF Product_view_definition) : SET OF Product_version;
+LOCAL
+  pv : SET OF Product_version := [];
+END_LOCAL;
+
+REPEAT i := 1 TO HIINDEX(input) BY 1;
+  pv := pv + input[i]\Product_view_definition.defined_version; 
+END_REPEAT;
+RETURN (pv);
+END_FUNCTION;
+
+FUNCTION pudv_get_products(input : SET OF Product_version) : SET OF Product;
+LOCAL
+  p : SET OF Product := [];
+END_LOCAL;
+
+REPEAT i := 1 TO HIINDEX(input) BY 1;
+  p := p + input[i]\Product_version.of_product; 
+END_REPEAT;
+RETURN (p);
+END_FUNCTION;
+
+FUNCTION pudv_get_assemblies(input : Assembly_component) : SET OF Product_view_definition;
+LOCAL
+  acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+  pvd : SET OF Product_view_definition := [];
+END_LOCAL;
+REPEAT i := 1 TO HIINDEX(acr) BY 1;
+  IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\View_definition_relationship.relating_view))
+  THEN
+  pvd := pvd + acr[i]\View_definition_relationship.relating_view; 
+  ELSE
+  pvd := pvd + get_assemblies(acr[i]\View_definition_relationship.relating_view);
+  END_IF;
+END_REPEAT;
+RETURN (pvd);
+END_FUNCTION;
+
+FUNCTION pudv_get_groups(input : Assembly_component) : SET OF Assembly_group_component;
+LOCAL
+  acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+  agc : SET OF Assembly_group_component := [];
+END_LOCAL;
+REPEAT i := 1 TO HIINDEX(acr) BY 1;
+  IF ('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\View_definition_relationship.relating_view))
+  THEN
+  agc := agc + acr[i]\View_definition_relationship.relating_view; 
+  END_IF;
+END_REPEAT;
+RETURN (agc);
+END_FUNCTION;
+
+FUNCTION pudv_get_group_assemblies(input : SET OF Assembly_group_component) : SET OF Product_view_definition;
+LOCAL
+  acr : SET OF Assembly_component_relationship := [];
+  pvd : SET OF Product_view_definition := [];
+END_LOCAL;
+
+REPEAT i := 1 TO HIINDEX(input) BY 1;
+  acr := input[i]\Assembly_component.occurrence_contexts;
+END_REPEAT;
+
+REPEAT i := 1 TO HIINDEX(acr) BY 1;
+  IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\View_definition_relationship.relating_view))
+  THEN
+  pvd := pvd + acr[i]\View_definition_relationship.relating_view; 
+  ELSE
+  pvd := pvd + get_assemblies(acr[i]\View_definition_relationship.relating_view);
+  END_IF;
+END_REPEAT;
+RETURN (pvd);
+END_FUNCTION;
 
 FUNCTION valid_assembly_context_for_bond(input1 : Part_design_view;
                                          input2 : GENERIC_ENTITY) : BOOLEAN;

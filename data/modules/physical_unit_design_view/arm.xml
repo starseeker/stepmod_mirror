@@ -2,11 +2,15 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2006/06/24 20:41:10 $" rcs.revision="$Revision: 1.68 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-26 10:15:07 +0300 (Tr, 26 Rgs 2007) $" rcs.revision="$Revision: 1596 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_arm schema_instance"/>
    <schema name="Physical_unit_design_view_arm">
       <interface kind="use" schema="Physical_layout_template_arm"/>
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
+      <interface kind="use" schema="Component_grouping_arm"/>
+      <interface kind="reference" schema="Layered_interconnect_module_design_arm">
+         <interfaced.item name="get_assemblies"/>
+      </interface>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
@@ -46,15 +50,31 @@
             <typename name="shapeable_item"/>
             <redeclaration entity-ref="Item_shape"/>
          </derived>
+         <derived name="assemblies" expression="pudv_get_assemblies(SELF)">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Product_view_definition"/>
+         </derived>
+         <derived name="groups" expression="pudv_get_groups(SELF)">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Assembly_group_component"/>
+         </derived>
+         <derived name="versions" expression="pudv_get_versions(assemblies)">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Product_version"/>
+         </derived>
+         <derived name="product" expression="pudv_get_products(versions)">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Product"/>
+         </derived>
          <inverse name="occurrence_contexts" entity="Assembly_component_relationship" attribute="related_view">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
             <redeclaration entity-ref="Product_occurrence"/>
          </inverse>
          <where label="WR1" expression="NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(SELF)) XOR ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(derived_from))) OR &#10;            NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(SELF)) XOR ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(SELF\Definition_based_product_occurrence.derived_from)))"/>
          <where label="WR2" expression="SELF\Product_view_definition.defined_version :=: SELF\Definition_based_product_occurrence.derived_from.defined_version"/>
-      <where label="IP1"/>
-      <where label="IP2"/>
-      <where label="IP3"/>
+         <where label="WR3" expression="SIZEOF(assemblies) = SIZEOF(versions)"/>
+         <where label="WR4" expression="SIZEOF(product) = 1"/>
+         <where label="WR5" expression="(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1])) OR&#10;            (SIZEOF(groups) = 0) OR &#10;            (pudv_get_group_assemblies(groups) = assemblies))"/>
       </entity>
       <entity name="Assembly_item_number" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="assembly_usage" optional="NO">
@@ -74,7 +94,7 @@
             <unique.attribute attribute="assembly"/>
             <unique.attribute attribute="item_number"/>
          </unique>
-         <where label="WR1" expression="SIZEOF(QUERY(au &lt;* assembly_usage | NOT (au.related_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0"/>
+         <where label="WR1" expression="SIZEOF(QUERY(au &lt;* assembly_usage | NOT (au.relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0"/>
          <where label="WR2" expression="SIZEOF(QUERY(au &lt;* assembly_usage | NOT (au.relating_view = assembly))) = 0"/>
       </entity>
       <entity name="Component_bonding_relationship" abstract.supertype="NO" abstract.entity="NO">
@@ -135,9 +155,8 @@
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.element_name)"/>
       </entity>
       <entity name="Next_assembly_usage_occurrence_relationship" supertypes="Next_assembly_usage" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="related_view" optional="NO">
+         <explicit name="component" optional="NO">
             <typename name="Product_occurrence"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="View_definition_relationship" attribute="relating_view"/>
@@ -168,6 +187,102 @@
    END_REPEAT;</algorithm>
          <where label="WR1" expression="SIZEOF(acr) = SIZEOF(bag_to_set(acr))"/>
       </rule>
+      <function name="pudv_get_assemblies">
+         <parameter name="input">
+            <typename name="Assembly_component"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Product_view_definition"/>
+         <algorithm>LOCAL
+  acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+  pvd : SET OF Product_view_definition := [];
+END_LOCAL;
+REPEAT i := 1 TO HIINDEX(acr) BY 1;
+  IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\View_definition_relationship.relating_view))
+  THEN
+  pvd := pvd + acr[i]\View_definition_relationship.relating_view; 
+  ELSE
+  pvd := pvd + get_assemblies(acr[i]\View_definition_relationship.relating_view);
+  END_IF;
+END_REPEAT;
+RETURN (pvd);</algorithm>
+      </function>
+      <function name="pudv_get_group_assemblies">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Assembly_group_component"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Product_view_definition"/>
+         <algorithm>LOCAL
+  acr : SET OF Assembly_component_relationship := [];
+  pvd : SET OF Product_view_definition := [];
+END_LOCAL;
+
+REPEAT i := 1 TO HIINDEX(input) BY 1;
+  acr := input[i]\Assembly_component.occurrence_contexts;
+END_REPEAT;
+
+REPEAT i := 1 TO HIINDEX(acr) BY 1;
+  IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\View_definition_relationship.relating_view))
+  THEN
+  pvd := pvd + acr[i]\View_definition_relationship.relating_view; 
+  ELSE
+  pvd := pvd + get_assemblies(acr[i]\View_definition_relationship.relating_view);
+  END_IF;
+END_REPEAT;
+RETURN (pvd);</algorithm>
+      </function>
+      <function name="pudv_get_groups">
+         <parameter name="input">
+            <typename name="Assembly_component"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Assembly_group_component"/>
+         <algorithm>LOCAL
+  acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+  agc : SET OF Assembly_group_component := [];
+END_LOCAL;
+REPEAT i := 1 TO HIINDEX(acr) BY 1;
+  IF ('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\View_definition_relationship.relating_view))
+  THEN
+  agc := agc + acr[i]\View_definition_relationship.relating_view; 
+  END_IF;
+END_REPEAT;
+RETURN (agc);</algorithm>
+      </function>
+      <function name="pudv_get_products">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Product_version"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Product"/>
+         <algorithm>LOCAL
+  p : SET OF Product := [];
+END_LOCAL;
+
+REPEAT i := 1 TO HIINDEX(input) BY 1;
+  p := p + input[i]\Product_version.of_product; 
+END_REPEAT;
+RETURN (p);</algorithm>
+      </function>
+      <function name="pudv_get_versions">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Product_view_definition"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Product_version"/>
+         <algorithm>LOCAL
+  pv : SET OF Product_version := [];
+END_LOCAL;
+
+REPEAT i := 1 TO HIINDEX(input) BY 1;
+  pv := pv + input[i]\Product_view_definition.defined_version; 
+END_REPEAT;
+RETURN (pv);</algorithm>
+      </function>
       <function name="valid_assembly_context_for_bond">
          <parameter name="input1">
             <typename name="Part_design_view"/>

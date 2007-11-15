@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="physical_unit_design_view" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/06/25 21:48:29 $" rcs.revision="$Revision: 1.45 $">
+<ext_descriptions module_directory="physical_unit_design_view" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007-09-27 07:17:02 +0300 (Kt, 27 Rgs 2007) $" rcs.revision="$Revision: 1604 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Physical_unit_design_view_arm
    <express_ref linkend="physical_unit_design_view:arm:Physical_unit_design_view_arm"/>
@@ -104,15 +104,13 @@
 <ext_description linkend="Physical_unit_design_view_arm.Next_assembly_usage_occurrence_relationship">
 	A <b>Next_assembly_usage_occurrence_relationship</b> is a type of
 	<express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Next_assembly_usage"/>
-	that restricts the <b>related_view</b> to be a 
+	that restricts the <b>component</b> to be a 
 	<express_ref linkend="Generic_product_occurrence:arm:Generic_product_occurrence_arm.Product_occurrence"/>.
 </ext_description>
 
-<!-- related_view -->
-<ext_description linkend="Physical_unit_design_view_arm.Next_assembly_usage_occurrence_relationship.related_view">
-	an attribute inherited from the
-	<express_ref linkend="Product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship"/>
-	shall be redeclared as the 
+<!-- component -->
+<ext_description linkend="Physical_unit_design_view_arm.Next_assembly_usage_occurrence_relationship.component">
+	specifies a role of the
 	<express_ref linkend="Generic_product_occurrence:arm:Generic_product_occurrence_arm.Product_occurrence"/>
 	for the <b>Next_assembly_usage_occurrence_relationship</b>.
 </ext_description>
@@ -136,7 +134,7 @@
 	<express_ref linkend="Part_view_definition:arm:Part_view_definition_arm.Part_view_definition"/> 
 	and a type of 
 	<express_ref linkend="Shape_property_assignment:arm:Shape_property_assignment_arm.Item_shape"/>. 
-	A <b>Part_design_view</b> shall describe an item in sufficient detail to permit production of that item in a manufacturing process or 
+	A <b>Part_design_view</b> may describe an item in sufficient detail to permit production of that item in a manufacturing process or 
 	analysis of that item's response to a simulated environment in a computer based experimental environment.  
 	The case of analysis is supported by predefined analysis input and output shape models in addition to the design shape model.
 	Multiple shape models may reference the same <b>Part_design_view</b>.  When multiple shape models reference the same <b>Part_design_view</b>,
@@ -151,11 +149,28 @@
 	that this view references in the role of 
 	<b>usage_view</b>.
 </p>
-<note>
+<note number="1">
+	The decision of how much detail to incorporate in a design view is dependent on the enterprise process, in particular in the case of
+	data sharing in a supply chain.  Pre-processor implementations may be required to include information rights, information rights usages, approvals,
+	and additional contextual information inherited from <express_ref linkend="Product_view_definition:arm:Product_view_definition_arm.Product_view_definition"/> 
+	such as view definition contexts. Pre-processors intended to support analysis may be required to extract partial data when complete data sets would
+	overwhelm analysis applications.  Pre-processors intended to support supply chains may be required to convert design intent information into a form
+	less suitable for reverse engineering of the design model.  The additional contextual information is not available in CAD layout systems but will
+	need to be provided by other input to the Pre-processor.
+	</note>
+<note number="2">
 	In electrical and electronic design processes, it is common practice to analyse the design information provided to manufacturing 
 	in addition to idealizations of the design created for analysis purposes. 
 </note>
-	<example>
+	<example number="1">
+    It is typical in a supply chain process not to include template information in the model transmitted to lower tier suppliers but that information is
+    critical to the design organization.
+    </example>
+	<example number="2">
+    It is typical in a supply chain process not to include requirement allocation information in the model transmitted to lower tier suppliers but that information is
+    critical to the design organization.
+    </example>
+	<example number="3">
 	<p>
 		<module_ref linkend="physical_unit_design_view:4_entities:figure:pudv">Figure 3</module_ref> 
 		illustrates an assembly design view.
@@ -281,7 +296,7 @@ Planned parameters may be assigned to <b>Assembly_component</b> by the parameter
 <express_ref linkend="Requirement_assignment:arm:Requirement_assignment_arm.Requirement_assignment"/>  or
 	may be assigned directly.
 </note>
-<note number="5">
+<note number="6">
 Requirements may be assigned to <b>Assembly_component</b> by the requirement assignment to
 	<express_ref linkend="Assembly_structure:arm:Assembly_structure_arm.Assembly_component_relationship"/> by the 
 <express_ref linkend="Requirement_assignment:arm:Requirement_assignment_arm.Requirement_assignment"/> or
@@ -320,7 +335,27 @@ for the <b>Assembly_component</b>. The <b>described_element</b> always evaluates
 	for the <b>Assembly_component</b>.
 </ext_description>
 
-<!-- WR1 -->
+ <!-- assemblies -->
+ <ext_description linkend="Physical_unit_design_view_arm.Assembly_component.assemblies">
+  the set of assemblies the <b>Assembly_component</b> helps to directly compose.
+ </ext_description>
+ 
+ <!-- groups -->
+ <ext_description linkend="Physical_unit_design_view_arm.Assembly_component.groups">
+  the set of component groupings the <b>Assembly_component</b> helps to directly compose.
+ </ext_description>
+ 
+ <!-- versions -->
+ <ext_description linkend="Physical_unit_design_view_arm.Assembly_component.versions">
+  the set of versions of the product which the <b>Assembly_component</b> helps to define.
+ </ext_description>
+ 
+ <!-- product -->
+ <ext_description linkend="Physical_unit_design_view_arm.Assembly_component.product">
+  the product, versions of which the <b>Assembly_component</b> helps to define.
+ </ext_description>
+ 
+ <!-- WR1 -->
 <ext_description linkend="Physical_unit_design_view_arm.Assembly_component.wr:WR1">
 	Only a  
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Footprint_occurrence"/> 
@@ -346,18 +381,29 @@ the inherited attribute
 	
 </ext_description>
 
-<ext_description linkend="Physical_unit_design_view_arm.Assembly_component.wr:IP1">
-All members of assembly shall be for the same product.
+ <!-- WR3 -->
+ <ext_description linkend="Physical_unit_design_view_arm.Assembly_component.wr:WR3">
+Each member of versions shall be reference by one member of assemblies.
 </ext_description>
 
-<ext_description linkend="Physical_unit_design_view_arm.Assembly_component.wr:IP2">
-No more than one member of assembly shall be for a version of the product.
+ <!-- WR4 -->
+ <ext_description linkend="Physical_unit_design_view_arm.Assembly_component.wr:WR4">
+An <b>Assembly_component</b> shall help to compose definitions and versions for one product.
 </ext_description>
 
-<ext_description linkend="Physical_unit_design_view_arm.Assembly_component.wr:IP3">
-An <b>Assembly_component</b> shall not be both a  <express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Laminate_component"/> and an  <express_ref linkend="Interface_component:arm:Interface_component_arm.Interface_component"/>.
-</ext_description> 
-<!-- +++++++++++ Component_make_from_relationship +++++++++++ -->
+ <!-- WR5 -->
+ <ext_description linkend="Physical_unit_design_view_arm.Assembly_component.wr:WR5">
+  <p>
+   If an <b>Assembly_component</b> is not used by one or more	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Structured_layout_component_sub_assembly_relationship"/>,
+   then if an <b>Assembly_component</b> is used in one or more groups, then each group shall be used in an assembly that is in the set of assemblies
+   which the <b>Assembly_component</b> is directly helping to compose.   
+  </p> 
+ <note>
+  Some types of <b>Assembly_component</b> may have both a direct relationship to an assembly and an indirect relationship to that assembly through a grouping mechanism.
+ </note>
+ </ext_description>
+ 
+ <!-- +++++++++++ Component_make_from_relationship +++++++++++ -->
 <ext_description linkend="Physical_unit_design_view_arm.Component_make_from_relationship"><p>
 A <b>Component_make_from_relationship</b> is a type of <express_ref linkend="Product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship"/>.
  A <b>Component_make_from_relationship</b> is the association between 
@@ -461,7 +507,7 @@ and
 The <express_ref linkend="product_version:arm:Product_version_arm.Product_version.of_product"/> of
 <express_ref linkend="product_view_definition:arm:Product_view_definition_arm.Product_view_definition.defined_version"/> of
 <express_ref linkend="Generic_product_occurrence:arm:Generic_product_occurrence_arm.Definition_based_product_occurrence.derived_from"/> of
-<express_ref linkend="product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship.related_view"/>
+<express_ref linkend="product_view_definition_relationship:arm:Product_view_definition_relationship_arm.View_definition_relationship.relating_view"/>
 of all members of <b>assembly_usage</b> shall refer same <express_ref linkend="product_identification:arm:Product_identification_arm.Product"/>
 and that <express_ref linkend="product_identification:arm:Product_identification_arm.Product"/> will be 
 	in the role of <express_ref linkend="physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_item_number.part"/>
@@ -663,6 +709,85 @@ for any given <express_ref linkend="Assembly_structure:arm:Assembly_structure_ar
 <ext_description linkend="Physical_unit_design_view_arm.textual_quantity_specification">
 	A <b>textual_quantity_specification</b> is a value that is a number and that is not specific of a particular kind of quantity.
 </ext_description>
+
+<!-- +++++++++++ pudv_get_assemblies +++++++++++ -->
+<ext_description linkend="Physical_unit_design_view_arm.pudv_get_assemblies">
+	The <b>pudv_get_assemblies</b> function returns the set of 
+	<express_ref linkend="Product_view_definition:arm:Product_view_definition_arm.Product_view_definition"/> 
+	that are in the role of 
+	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component.assemblies"/> 
+	either directly or indirectly through an
+	<express_ref linkend="Component_grouping:arm:Component_grouping_arm.Assembly_group_component"/>.
+</ext_description>
+
+<!-- input -->
+<ext_description linkend="Physical_unit_design_view_arm.pudv_get_assemblies.input">
+	the set of 
+	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component">Assembly_components</express_ref>.
+</ext_description>
+
+<!-- +++++++++++ pudv_get_group_assemblies ++++++++++++ -->
+<ext_description linkend="Physical_unit_design_view_arm.pudv_get_group_assemblies">
+	The <b>pudv_get_group_assemblies</b> function returns the set of 
+	<express_ref linkend="Product_view_definition:arm:Product_view_definition_arm.Product_view_definition"/> 
+	that are in the role of 
+	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component.assemblies"/> 
+	either directly or indirectly through an
+	<express_ref linkend="Component_grouping:arm:Component_grouping_arm.Assembly_group_component"/> 
+	for each member of <b>input</b>.
+</ext_description>
+
+<!-- input -->
+<ext_description linkend="Physical_unit_design_view_arm.pudv_get_group_assemblies.input">
+	the set of
+	<express_ref linkend="Component_grouping:arm:Component_grouping_arm.Assembly_group_component">Assembly_group_components</express_ref>.
+</ext_description>
+
+<!-- +++++++++++ pudv_get_groups +++++++++++ -->
+<ext_description linkend="Physical_unit_design_view_arm.pudv_get_groups">
+	The <b>pudv_get_groups</b> function returns the set of 
+	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component">Assembly_components</express_ref> 
+	that are in the role of 
+	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component.assemblies"/> 
+	for the <b>input</b> item.
+	
+</ext_description>
+
+<!-- input -->
+<ext_description linkend="Physical_unit_design_view_arm.pudv_get_groups.input">
+	the set of 
+	<express_ref linkend="Physical_unit_design_view:arm:Physical_unit_design_view_arm.Assembly_component">Assembly_components</express_ref>.
+</ext_description>
+
+<!-- +++++++++++ pudv_get_products +++++++++++ -->
+<ext_description linkend="Physical_unit_design_view_arm.pudv_get_products">
+	The <b>pudv_get_products</b> function returns the set of 
+	<express_ref linkend="Product_identification:arm:Product_identification_arm.Product">Products</express_ref> 
+	referenced by members of <b>input</b> in the role of 
+	<express_ref linkend="Product_version:arm:Product_version_arm.Product_version.of_product"/>.
+	
+</ext_description>
+
+<!-- input -->
+<ext_description linkend="Physical_unit_design_view_arm.pudv_get_products.input">
+	the set of 
+	<express_ref linkend="Product_version:arm:Product_version_arm.Product_version">Product_versions</express_ref>.
+</ext_description>
+
+<!-- +++++++++++ pudv_get_versions +++++++++++ -->
+<ext_description linkend="Physical_unit_design_view_arm.pudv_get_versions">
+	The <b>pudv_get_versions</b> function returns the set of 
+	<express_ref linkend="Product_version:arm:Product_version_arm.Product_version">Product_versions</express_ref> 
+	referred to by members of <b>input</b> in the role of 
+	<express_ref linkend="Product_view_definition:arm:Product_view_definition_arm.Product_view_definition.defined_version"/>.
+</ext_description>
+
+<!-- input -->
+<ext_description linkend="Physical_unit_design_view_arm.pudv_get_versions.input">
+	the set of
+	<express_ref linkend="Product_view_definition:arm:Product_view_definition_arm.Product_view_definition">Product_view_definitions</express_ref>.
+</ext_description>
+
 
 </ext_descriptions>
 

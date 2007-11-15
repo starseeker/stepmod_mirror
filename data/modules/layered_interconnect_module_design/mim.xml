@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-06 15:14:10 +0300 (Kt, 06 Rgs 2007) $" rcs.revision="$Revision: 1437 $" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_mim schema_instance"/>
    <schema name="Layered_interconnect_module_design_mim">
       <interface kind="use" schema="Component_grouping_mim"/>
@@ -42,7 +42,7 @@
          </explicit>
          <where label="WR1" expression="SELF\shape_aspect_relationship.related_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.relating_shape_aspect"/>
       </entity>
-      <entity name="conductive_interconnect_element_with_pre_defined_transitions" supertypes="conductive_interconnect_element" super.expression="join_two_physical_connectivity_definition_supporting_conductive_interconnect_element"/>
+      <entity name="conductive_interconnect_element_with_pre_defined_transitions" supertypes="conductive_interconnect_element"/>
       <entity name="connected_area_component" supertypes="area_component"/>
       <entity name="cutout" supertypes="inter_stratum_feature" super.expression="ONEOF (physical_connectivity_interrupting_cutout, plated_cutout, partially_plated_cutout)"/>
       <entity name="cutout_edge_segment" supertypes="inter_stratum_feature shape_aspect_relationship" super.expression="plated_cutout_edge_segment">
@@ -57,7 +57,10 @@
          <where label="WR1" expression="SELF\shape_aspect_relationship.relating_shape_aspect :&lt;&gt;:&#10;       SELF\shape_aspect_relationship.related_shape_aspect"/>
       </entity>
       <entity name="dependent_thermal_isolation_removal_component" supertypes="material_removal_structured_component"/>
+      <entity name="derived_stratum" supertypes="stratum"/>
+      <entity name="design_layer_stratum" supertypes="stratum"/>
       <entity name="dielectric_material_passage" supertypes="inter_stratum_feature"/>
+      <entity name="documentation_layer_stratum" supertypes="stratum"/>
       <entity name="electrical_isolation_laminate_component" supertypes="material_removal_laminate_component"/>
       <entity name="fiducial" supertypes="laminate_component"/>
       <entity name="fiducial_stratum_feature" supertypes="stratum_feature"/>
@@ -84,7 +87,6 @@
       <entity name="interface_access_stratum_feature_template_component" supertypes="stratum_feature_template_component"/>
       <entity name="internal_probe_access_area" supertypes="probe_access_area"/>
       <entity name="join_shape_aspect" supertypes="shape_aspect"/>
-      <entity name="join_two_physical_connectivity_definition_supporting_conductive_interconnect_element" supertypes="conductive_interconnect_element_with_pre_defined_transitions"/>
       <entity name="laminate_component" supertypes="assembly_component" super.expression="ONEOF (material_removal_laminate_component, (stratum_feature_template_component ANDOR probe_access_area), inter_stratum_feature, generic_laminate_text_component, laminate_text_string_component) ANDOR fiducial"/>
       <entity name="laminate_component_feature" supertypes="component_feature" super.expression="ONEOF (laminate_component_interface_terminal, laminate_component_join_terminal)"/>
       <entity name="laminate_component_interface_terminal" supertypes="laminate_component_feature"/>
@@ -130,13 +132,24 @@
       <entity name="plated_interconnect_module_edge_segment" supertypes="interconnect_module_edge_segment plated_inter_stratum_feature"/>
       <entity name="plated_passage" supertypes="plated_inter_stratum_feature" super.expression="ONEOF (component_termination_passage, via)"/>
       <entity name="primary_stratum_indicator_symbol" supertypes="single_stratum_special_symbol_component"/>
-      <entity name="probe_access_area" supertypes="laminate_component shape_aspect"/>
+      <entity name="probe_access_area" supertypes="laminate_component shape_aspect">
+         <derived name="of_shape" expression="SELF">
+            <typename name="probe_access_area"/>
+            <redeclaration entity-ref="shape_aspect"/>
+         </derived>
+      </entity>
       <entity name="single_stratum_special_symbol_component" supertypes="structured_layout_component" super.expression="primary_stratum_indicator_symbol"/>
-      <entity name="stratum" supertypes="product_definition product_definition_shape">
+      <entity name="stratum" supertypes="product_definition product_definition_shape" super.expression="ONEOF (documentation_layer_stratum, design_layer_stratum)">
+         <derived name="definition" expression="SELF">
+            <typename name="stratum"/>
+            <redeclaration entity-ref="property_definition"/>
+         </derived>
          <unique label="UR1">
             <unique.attribute entity-ref="product_definition" attribute="id"/>
             <unique.attribute entity-ref="product_definition" attribute="formation"/>
          </unique>
+         <where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +'NAME_ATTRIBUTE.NAMED_ITEM')) = 0"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\property_definition.description)"/>
       </entity>
       <entity name="stratum_based_pattern" supertypes="shape_aspect">
          <unique label="UR1">

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.27 2006/01/31 07:41:16 liutkus Exp $
+   $Id: arm.exp 992 2007-05-25 22:59:22Z thomasrthurman $
    ISO TC184/SC4/WG12 N4077 - ISO/TS 10303-1710 Packaged part black box model - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3345
 *)
@@ -32,11 +32,16 @@ SCHEMA Packaged_part_black_box_model_arm;
 		     'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS') | 
 		     (SIZEOF( QUERY( cla <* USEDIN(temp,'CLASSIFICATION_ASSIGNMENT_ARM.' + 
 		 	'CLASSIFICATION_ASSIGNMENT.' + 'ITEMS') | cla.role = 'potting compound')) = 1)));
+		base_package : SET [1:?] OF Package := bag_to_set(QUERY(up <* used_package | 
+		                                       (SIZEOF(['ALTERED_PACKAGE_ARM.ALTERED_PACKAGE',
+		                                          'PART_EXTERNAL_REFERENCE_ARM.PACKAGE_EXTERNAL_REFERENCE'] * TYPEOF(up)) = 0)
+		                                          ));
     INVERSE
       access_mechanisms : SET[0:?] OF packaged_part_terminal FOR associated_definition;
     WHERE
       WR1 : NOT (EXISTS(implemented_function) XOR (SIZEOF(access_mechanisms) > 0));
-      WR2 : single_package_version(SELF);
+      WR2 : SIZEOF(base_package) = 1;
+      WR3 : single_package_product(base_package, used_package);
   END_ENTITY;
 
   ENTITY Packaged_part_join_terminal
@@ -49,20 +54,28 @@ SCHEMA Packaged_part_black_box_model_arm;
       terminal_of_package                     : SET[1:?] OF Package_terminal;
       SELF\Part_feature.associated_definition : Packaged_part;
     WHERE
-      WR1 : disjoint_package_terminals(SELF);
+      WR1 : disjoint_package_terminals(terminal_of_package);
       WR2 : NOT EXISTS(SELF\Part_feature.precedent_feature);
   END_ENTITY;
 
   FUNCTION disjoint_package_terminals(
-    input : Packaged_part_terminal
+    input : SET OF Package_terminal
   ) : BOOLEAN;
-    RETURN(TRUE);
+  LOCAL
+   pk : SET OF Package := []; -- get access to information base
+  END_LOCAL;
+  
+  REPEAT i := 1 to HIINDEX( input);
+  pk := pk + input[i].associated_definition;
+  END_REPEAT;
+  
+    RETURN(SIZEOF(input) = SIZEOF(pk));
   END_FUNCTION;
 
-  FUNCTION single_package_version(
-    input : Packaged_part
+  FUNCTION single_package_product(
+    input1 : SET OF Package;
+    input2 : SET OF package_or_package_external_reference
   ) : BOOLEAN;
-
     RETURN(TRUE);
   END_FUNCTION;
 

@@ -2,24 +2,25 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-07 15:20:52 +0300 (Pn, 07 Rgs 2007) $" rcs.revision="$Revision: 1463 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_with_printed_component_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_with_printed_component_design_arm">
       <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
+      <interface kind="use" schema="Printed_physical_layout_template_arm"/>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
       <type name="conductor_or_conductive_filled_area">
-         <select selectitems="Conductor Conductive_filled_area" genericentity="NO" extensible="NO"/>
+         <select selectitems="Conductor Conductive_filled_area"/>
       </type>
       <type name="limwpcd_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Printed_component"/>
       </type>
-      <entity name="Basic_multi_stratum_printed_component" supertypes="Printed_component" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="material_stack" optional="NO">
+      <entity name="Basic_multi_stratum_printed_component" supertypes="Printed_component">
+         <explicit name="material_stack">
             <typename name="Stratum_feature_based_derived_pattern"/>
          </explicit>
-         <explicit name="derived_from" optional="NO">
+         <explicit name="derived_from">
             <typename name="Basic_multi_stratum_printed_part_template"/>
             <redeclaration entity-ref="Printed_component"/>
          </explicit>
@@ -27,52 +28,14 @@
             <typename name="Stratum_feature"/>
          </derived>
       </entity>
-      <entity name="Join_multiple_physical_network_supporting_multi_stratum_printed_component" supertypes="Multi_stratum_printed_component" abstract.supertype="NO" abstract.entity="NO">
-         <derived name="joined_networks" expression="get_gpn(SELF\Printed_component.access_mechanism)">
-            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
-            <typename name="Generic_physical_network"/>
-         </derived>
-         <derived name="tiebar_component_sub_assembly_relationship" expression="(QUERY(co &lt;* components |&#10;                 ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.SINGLE_STRATUM_PRINTED_COMPONENT' IN&#10;                  TYPEOF(co.related_view))&#10;                 ))">
-            <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
-            <typename name="Structured_layout_component_sub_assembly_relationship"/>
-         </derived>
-         <derived name="tiebar_component" expression="tiebar_component_sub_assembly_relationship[1].related_view">
-            <typename name="Single_stratum_printed_component"/>
-         </derived>
-         <inverse name="components" entity="Structured_layout_component_sub_assembly_relationship" attribute="relating_view">
-            <inverse.aggregate type="SET" lower="3" upper="3"/>
-            <redeclaration entity-ref="Assembly_group_component"/>
-         </inverse>
-         <where label="WR1" expression="SIZEOF(QUERY(co &lt;* components |&#10;                 ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.SINGLE_STRATUM_PRINTED_COMPONENT' IN&#10;                  TYPEOF(co.related_view))&#10;                 )) = 1"/>
-         <where label="WR2" expression="SIZEOF(QUERY(co &lt;* components |&#10;                 ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(co))&#10;                 )) = 2"/>
-         <where label="WR3" expression="SIZEOF(tiebar_component\Single_stratum_printed_component.stratum_feature_implementation) = 1"/>
-         <where label="WR4" expression="SIZEOF(joined_networks) &gt; 1"/>
-         <where label="WR5" expression="(SIZEOF(get_gpn(tiebar_component.access_mechanism)) = 0) OR &#10;           ('LAYERED_INTERCONNECT_MODULE_WITH_PRINTED_COMPONENT_DESIGN_ARM.JOIN_TWO_PHYSICAL_NETWORK_SUPPORTING_SINGLE_STRATUM_PRINTED_COMPONENT' IN TYPEOF(tiebar_component))"/>
-      <where label="IP1"/>
-         <where label="IP2"/>
-      </entity>
-      <entity name="Join_two_physical_network_supporting_single_stratum_printed_component" supertypes="Single_stratum_printed_component" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="joined_networks" optional="NO">
-            <aggregate type="SET" lower="2" upper="2" unique="NO" optional="NO"/>
-            <typename name="Generic_physical_network"/>
-         </explicit>
-         <explicit name="stratum_feature_implementation" optional="NO">
-            <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
-            <typename name="conductor_or_conductive_filled_area"/>
-            <redeclaration entity-ref="Single_stratum_printed_component"/>
-         </explicit>
-         <where label="WR1" expression="SIZEOF(SELF\Printed_component.access_mechanism) = 2"/>
-         <where label="WR2" expression="SIZEOF(QUERY(ac &lt;* access_mechanism |&#10;         NOT(ac\Printed_component_join_terminal.&#10;         stratum_concept_implementation\Stratum_feature_template_component&#10;         .resident_stratum = stratum_feature_implementation[1]\Stratum_feature.resident_stratum)&#10;               )) = 0"/>
-         <where label="WR3" expression="SIZEOF(QUERY(jn &lt;* joined_networks |&#10;                 NOT(SIZEOF(SELF\Printed_component.access_mechanism * jn\Generic_physical_network.connectivity_requirement_element) = 1 )&#10;                 )) = 0"/>
-      </entity>
-      <entity name="Multi_stratum_printed_component" supertypes="Printed_component Structured_layout_component" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="derived_from" optional="NO">
+      <entity name="Multi_stratum_printed_component" supertypes="Printed_component Structured_layout_component">
+         <explicit name="derived_from">
             <typename name="Multi_stratum_printed_part_template"/>
             <redeclaration entity-ref="Printed_component"/>
          </explicit>
       </entity>
-      <entity name="Printed_component" abstract.supertype="YES" supertypes="Assembly_component" super.expression="ONEOF (Single_stratum_printed_component, Basic_multi_stratum_printed_component, Multi_stratum_printed_component)" abstract.entity="NO">
-         <explicit name="derived_from" optional="NO">
+      <entity name="Printed_component" abstract.supertype="YES" supertypes="Assembly_component" super.expression="ONEOF (Single_stratum_printed_component, Basic_multi_stratum_printed_component, Multi_stratum_printed_component)">
+         <explicit name="derived_from">
             <typename name="Printed_part_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
@@ -84,22 +47,23 @@
          </inverse>
          <where label="WR5" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
-      <entity name="Printed_component_join_terminal" supertypes="Laminate_component_join_terminal" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="definition" optional="NO">
+      <entity name="Printed_component_join_terminal" supertypes="Laminate_component_join_terminal">
+         <explicit name="definition">
             <typename name="Printed_part_template_join_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <explicit name="associated_component" optional="NO">
+         <explicit name="associated_component">
             <typename name="Printed_component"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <explicit name="stratum_concept_implementation" optional="NO">
+         <explicit name="stratum_concept_implementation">
             <typename name="Stratum_feature_template_component"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
+         <where label="WR2" expression="associated_component.derived_from :=: definition\Printed_part_template_terminal.associated_definition"/>
       </entity>
-      <entity name="Printed_connector_component" supertypes="Printed_component" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="derived_from" optional="NO">
+      <entity name="Printed_connector_component" supertypes="Printed_component">
+         <explicit name="derived_from">
             <typename name="Printed_connector_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
@@ -107,54 +71,103 @@
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
-      <entity name="Printed_connector_component_interface_terminal" supertypes="Laminate_component_interface_terminal" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="definition" optional="NO">
+      <entity name="Printed_connector_component_interface_terminal" supertypes="Laminate_component_interface_terminal">
+         <explicit name="definition">
             <typename name="Printed_part_template_interface_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <explicit name="associated_component" optional="NO">
+         <explicit name="associated_component">
             <typename name="Printed_connector_component"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <explicit name="stratum_concept_implementation" optional="NO">
+         <explicit name="stratum_concept_implementation">
             <typename name="Stratum_feature_template_component"/>
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
-      <entity name="Routed_transmission_line" supertypes="Assembly_component" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="routed_centreline_shape" optional="NO">
+      <entity name="Routed_transmission_line" supertypes="Assembly_component">
+         <explicit name="routed_centreline_shape">
             <typename name="Curve"/>
          </explicit>
-         <explicit name="derived_from" optional="NO">
+         <explicit name="derived_from">
             <typename name="Printed_part_cross_section_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <explicit name="component_extent" optional="NO">
+         <explicit name="component_extent">
             <typename name="Inter_stratum_extent"/>
          </explicit>
-         <explicit name="curve_parameters" optional="NO">
+         <explicit name="curve_parameters">
             <typename name="Curve_style_parameters"/>
          </explicit>
       </entity>
-      <entity name="Single_stratum_printed_component" supertypes="Printed_component Structured_layout_component" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="derived_from" optional="NO">
+      <entity name="Single_stratum_printed_component" supertypes="Printed_component Structured_layout_component">
+         <explicit name="derived_from">
             <typename name="Single_stratum_printed_part_template"/>
             <redeclaration entity-ref="Printed_component"/>
          </explicit>
-         <explicit name="stratum_feature_implementation" optional="NO">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+         <explicit name="stratum_feature_implementation">
+            <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Stratum_feature"/>
          </explicit>
          <where label="WR1" expression="SIZEOF(QUERY(sfi &lt;* stratum_feature_implementation |&#10;         NOT(sfi.resident_stratum = stratum_feature_implementation[1].resident_stratum)&#10;               )) = 0"/>
       </entity>
-      <subtype.constraint name="limwpcd_assembly_component_subtypes" entity="Assembly_component" super.expression="ONEOF (Physical_component, Printed_component, Laminate_component)" abstract.supertype="NO"/>
-      <subtype.constraint name="limwpcd_structured_layout_component_subtypes" entity="Structured_layout_component" super.expression="ONEOF (Footprint_occurrence, Material_removal_structured_component, Multi_stratum_printed_component, Multi_stratum_special_symbol_component, Padstack_occurrence, Single_stratum_printed_component, Single_stratum_special_symbol_component)" abstract.supertype="NO"/>
+      <entity name="Tiebar_printed_component" supertypes="Printed_component Structured_layout_component">
+         <explicit name="derived_from">
+            <typename name="Printed_tiebar_template"/>
+            <redeclaration entity-ref="Printed_component"/>
+         </explicit>
+         <derived name="joined_networks" expression="get_gpn(SELF\Printed_component.access_mechanism)">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Generic_physical_network"/>
+         </derived>
+         <derived name="tiebar_component" expression="limdwpcd_get_ac(components)">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Area_component"/>
+         </derived>
+         <derived name="padstack_component" expression="limdwpcd_get_lc(components)">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Laminate_component"/>
+         </derived>
+         <derived name="passage_component" expression="QUERY(pc &lt;* padstack_component | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PLATED_PASSAGE' IN TYPEOF(pc)))">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Plated_passage"/>
+         </derived>
+         <derived name="tiebar_resident_stratum" expression="limdwpcd_get_tbrs(tiebar_component)">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Stratum"/>
+         </derived>
+         <derived name="passage_resident_stratum" expression="limdwpcd_get_prs(passage_component)">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Stratum"/>
+         </derived>
+         <derived name="passage_dependent_land_component" expression="limdwpcd_get_ppdl(passage_component)">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Plated_passage_dependent_land"/>
+         </derived>
+         <inverse name="components" entity="Structured_layout_component_sub_assembly_relationship" attribute="relating_view">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+            <redeclaration entity-ref="Assembly_group_component"/>
+         </inverse>
+         <where label="WR1" expression="(SIZEOF(tiebar_component) + SIZEOF(passage_component)) &gt; 0"/>
+         <where label="WR2" expression="SIZEOF(components) = (SIZEOF(tiebar_component) + SIZEOF(padstack_component))"/>
+         <where label="WR3" expression="SIZEOF(padstack_component) &gt; SIZEOF(passage_component)"/>
+         <where label="WR4" expression="SIZEOF(QUERY(tc &lt;* tiebar_component |&#10;                  NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF&#10;                      (tc\Stratum_feature_template_component.implementation_or_resident_stratum))&#10;                 )) = 0"/>
+         <where label="WR5" expression="SIZEOF(tiebar_component) = SIZEOF(tiebar_resident_stratum)"/>
+         <where label="WR6" expression="SIZEOF(joined_networks) &gt; 1"/>
+         <where label="WR7" expression="SIZEOF(QUERY(jn &lt;* joined_networks |&#10;                 NOT(SIZEOF(SELF\Printed_component.access_mechanism * jn\Generic_physical_network.connectivity_requirement_element) = 1 )&#10;                 )) = 0"/>
+         <where label="WR8" expression="SIZEOF(QUERY(tc &lt;* tiebar_component |&#10;           NOT(SIZEOF(USEDIN(tc,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT_JOIN_TERMINAL.ASSOCIATED_COMPONENT')) = 0)&#10;              )) = 0"/>
+         <where label="WR9" expression="NOT(SIZEOF(passage_component) = 1) OR&#10;             (SIZEOF(QUERY(pc &lt;* passage_component | NOT((SIZEOF(tiebar_component) = 0) OR&#10;                (SIZEOF(tiebar_resident_stratum * passage_resident_stratum) = SIZEOF(tiebar_resident_stratum))&#10;                )&#10;               )) = 0)"/>
+         <where label="WR10" expression="NOT(SIZEOF(passage_component) &gt;= 1) OR&#10;              (SIZEOF(QUERY(pc &lt;* passage_component | NOT&#10;                (SIZEOF(tiebar_resident_stratum * passage_resident_stratum) = SIZEOF(tiebar_resident_stratum))&#10;               )) = 0)"/>
+         <where label="WR11" expression="SIZEOF(QUERY(am &lt;* SELF\Printed_component.access_mechanism |&#10;           NOT('PRINTED_PHYSICAL_LAYOUT_TEMPLATE.STRUCTURED_PRINTED_PART_TEMPLATE_TERMINAL' IN TYPEOF(am.definition))&#10;            )) = 0"/>
+      </entity>
+      <subtype.constraint name="limwpcd_assembly_component_subtypes" entity="Assembly_component" super.expression="ONEOF (Physical_component, Printed_component, Laminate_component)"/>
+      <subtype.constraint name="limwpcd_structured_layout_component_subtypes" entity="Structured_layout_component" super.expression="ONEOF (Footprint_occurrence, Material_removal_structured_component, Multi_stratum_printed_component, Multi_stratum_special_symbol_component, Padstack_occurrence, Single_stratum_printed_component, Single_stratum_special_symbol_component)"/>
       <function name="get_gpn">
          <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Printed_component_join_terminal"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <aggregate type="SET" lower="0" upper="?"/>
          <typename name="Generic_physical_network"/>
          <algorithm>LOCAL
 	gpn : SET[0:?] OF Generic_physical_network := [];  --this gives us access to the information base
@@ -165,6 +178,167 @@ END_LOCAL;
 	END_REPEAT;
 
 	RETURN(gpn);</algorithm>
+      </function>
+      <function name="limdwpcd_get_ac">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Structured_layout_component_sub_assembly_relationship"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Area_component"/>
+         <algorithm>LOCAL
+	sspc : SET OF Stratum_feature_template_component := [];  --this gives us access to the information base
+	slcsar : SET OF Structured_layout_component_sub_assembly_relationship :=
+                 (QUERY(inp &lt;* input |
+                 ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(inp.related_view)) AND NOT
+                 ('LAND_ARM.LAND' IN TYPEOF(inp.related_view)) AND NOT
+  ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_WITH_PRE_DEFINED_TRANSITIONS' IN TYPEOF(inp.related_view)) AND NOT
+  ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERFACE_ACCESS_STRATUM_FEATURE_TEMPLATE_COMPONENT' IN TYPEOF(inp.related_view))
+                 ));
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(slcsar) by 1;
+	      sspc := sspc + slcsar[i]\Structured_layout_component_sub_assembly_relationship.related_view;
+	END_REPEAT;
+
+	RETURN(sspc);</algorithm>
+      </function>
+      <function name="limdwpcd_get_lc">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Structured_layout_component_sub_assembly_relationship"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Laminate_component"/>
+         <algorithm>LOCAL
+	sspc : SET OF Laminate_component := [];  --this gives us access to the information base
+	slcsar : SET OF Structured_layout_component_sub_assembly_relationship :=
+                 (QUERY(inp &lt;* input |
+                 ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_DEFINITION' IN TYPEOF
+(inp\Structured_layout_component_sub_assembly_relationship.second_location\Template_location_in_structured_template.assembly))
+                 ));
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(slcsar) by 1;
+	      sspc := sspc + slcsar[i]\Structured_layout_component_sub_assembly_relationship.related_view;
+	END_REPEAT;
+
+	RETURN(sspc);</algorithm>
+      </function>
+      <function name="limdwpcd_get_ppdl">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Plated_passage"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Plated_passage_dependent_land"/>
+         <algorithm>LOCAL
+	sspc : SET OF Plated_passage_dependent_land := [];  --this gives us access to the information base
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+	      sspc := sspc + bag_to_set(USEDIN(input[i],'LAND_ARM.PLATED_PASSAGE_DEPENDENT_LAND.REFERENCE_PLATED_PASSAGE'));
+	END_REPEAT;
+
+	RETURN(sspc);</algorithm>
+      </function>
+      <function name="limdwpcd_get_prs">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Plated_passage"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Stratum"/>
+         <algorithm>LOCAL
+	s : SET OF Stratum := [];  --this gives us access to the information base
+	stol : SET OF Stratum_technology_occurrence_link := [];  --this gives us access to the information base
+	ptatsm : SET OF Passage_technology_allocation_to_stack_model := [];  --this gives us access to the information base
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+             ptatsm := ptatsm + input[i]\Inter_stratum_feature.vertical_extent;
+	END_REPEAT;
+
+	REPEAT i := 1 to SIZEOF(ptatsm) by 1;
+             stol := stol + ptatsm[i]\Passage_technology_allocation_to_stack_model.stratum_technology_sequence;
+	END_REPEAT;
+
+             s := limdwpcd_get_stolrs(stol);
+	RETURN(s);</algorithm>
+      </function>
+      <function name="limdwpcd_get_s">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Single_stratum_printed_component"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Stratum"/>
+         <algorithm>LOCAL
+	  s : SET[0:?] OF Stratum := [];  --this gives us access to the information base
+    END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+	      s := s + input[i]\Single_stratum_printed_component.stratum_feature_implementation[1]\Stratum_feature.resident_stratum;
+	END_REPEAT;
+
+	RETURN(s);</algorithm>
+      </function>
+      <function name="limdwpcd_get_sspc">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Structured_layout_component_sub_assembly_relationship"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Single_stratum_printed_component"/>
+         <algorithm>LOCAL
+	  sspc : SET[0:?] OF Single_stratum_printed_component := [];  --this gives us access to the information base
+    END_LOCAL;
+	REPEAT i := 1 to SIZEOF(input) by 1;
+	      sspc := sspc + input[i]\Structured_layout_component_sub_assembly_relationship.related_view;
+	END_REPEAT;
+
+	RETURN(sspc);</algorithm>
+      </function>
+      <function name="limdwpcd_get_stolrs">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Stratum_technology_occurrence_link"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Stratum"/>
+         <algorithm>LOCAL
+	s : SET OF Stratum := [];  --this gives us access to the information base
+	assd : SET OF Adjacent_stratum_surface_definition := [];  --this gives us access to the information base
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+	      assd := assd + bag_to_set(USEDIN(input[i],'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
+                                   'STRATUM_TECHNOLOGY_OCCURRENCE_TO_STRATUM_MAPPING_RELATIONSHIP.' +
+                                    'TECHNOLOGY_OCCURRENCE_LINK'));
+      	END_REPEAT;
+	REPEAT i := 1 to SIZEOF(assd) by 1;
+      	     s := s + assd[i]\Adjacent_stratum_surface_definition.precedent_surface\Stratum_surface.of_stratum +
+      	              assd[i]\Adjacent_stratum_surface_definition.subsequent_surface\Stratum_surface.of_stratum;
+        END_REPEAT;
+
+	RETURN(s);</algorithm>
+      </function>
+      <function name="limdwpcd_get_tbrs">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Stratum_feature_template_component"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Stratum"/>
+         <algorithm>LOCAL
+	s : SET OF Stratum := [];  --this gives us access to the information base
+END_LOCAL;
+
+	REPEAT i := 1 to SIZEOF(input) by 1;
+	      s := s + input[i]\Stratum_feature_template_component.resident_stratum;
+	END_REPEAT;
+
+	RETURN(s);</algorithm>
       </function>
    </schema>
 </express>

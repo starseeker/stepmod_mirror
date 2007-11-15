@@ -2,13 +2,14 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-06 15:09:26 +0300 (Kt, 06 Rgs 2007) $" rcs.revision="$Revision: 1435 $" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_usage_view_mim schema_instance"/>
    <schema name="Functional_usage_view_mim">
       <interface kind="use" schema="Analytical_model_mim"/>
       <interface kind="use" schema="Network_functional_design_view_mim"/>
       <interface kind="use" schema="Product_identification_mim"/>
       <interface kind="use" schema="Product_view_definition_relationship_mim"/>
+      <interface kind="use" schema="Shape_property_assignment_mim"/>
       <interface kind="use" schema="document_schema">
          <interfaced.item name="document_type"/>
       </interface>
@@ -27,9 +28,19 @@
             <unique.attribute entity-ref="group" attribute="name"/>
          </unique>
       </entity>
-      <entity name="functional_unit" supertypes="product_definition"/>
+      <entity name="functional_unit" supertypes="product_definition product_definition_shape">
+         <derived name="definition" expression="SELF">
+            <typename name="functional_unit"/>
+            <redeclaration entity-ref="property_definition"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +'NAME_ATTRIBUTE.NAMED_ITEM')) = 0"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\property_definition.description)"/>
+      </entity>
       <entity name="functional_unit_terminal_definition" supertypes="shape_aspect">
-         <where label="WR1" expression="('FUNCTIONAL_USAGE_VIEW_MIM.' +&#10;       'FUNCTIONAL_UNIT' IN&#10;       TYPEOF (SELF.of_shape.definition))"/>
+         <explicit name="of_shape">
+            <typename name="functional_unit"/>
+            <redeclaration entity-ref="shape_aspect"/>
+         </explicit>
       </entity>
       <entity name="make_from_functional_unit_terminal_definition_relationship" supertypes="shape_aspect shape_aspect_relationship">
          <unique label="UR1">

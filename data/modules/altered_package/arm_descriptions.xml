@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="altered_package" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/03/01 08:18:32 $" rcs.revision="$Revision: 1.24 $">
+<ext_descriptions module_directory="altered_package" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007-09-07 01:58:45 +0300 (Pn, 07 Rgs 2007) $" rcs.revision="$Revision: 1456 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Altered_package_arm
    <express_ref linkend="altered_package:arm:Altered_package_arm"/>
@@ -13,18 +13,66 @@
 
 <ext_description linkend="Altered_package_arm.predefined_geometric_status">
 A <b>predefined_geometric_status</b> lists the possible values of the geometric status.
+	<note number="1">The <b>predefined_geometric_status</b> is not a complete
+		specification of the transformation required to convert one geometric
+		model to another because some of the constraints on the transformation are specified
+		as constraints on the geometric relationship between the package terminals and the seating plane.
+	</note>
+	<example number="1">
+		A two pin package that is defined with both pins intersecting the seating plane in the unaltered package 
+		will need to have both pins intersect the seating plane in the altered state of the <express_ref linkend="Package:arm:Package_arm.Package"/>.  
+		The exact length
+		and other geometric properties of the pins in the altered state will be different from pins in the unaltered state
+		if the orientation is different in the altered state of the <express_ref linkend="Package:arm:Package_arm.Package"/>
+		from the unaltered state of the <express_ref linkend="Package:arm:Package_arm.Package"/>.
+	</example>
+	<note number="2">
+		The selection of datum axis or datum plane as the condition whose state is conveyed
+		depends on the geometric classification of the <express_ref linkend="Package:arm:Package_arm.Package"/>.
+	</note>
+	<example number="2">
+		A pre-processor considering application for a cylindrical package with the terminals protruding
+		from the <express_ref linkend="Package:arm:Package_arm.Package"/> on axis would use a 
+		datum axis as the <b>predefined_geometric_status</b> if a value other than <b>undefined</b> or
+		<b>standard_datum_condition</b> were to be specified because the central axis of symmetry is 
+		normally considered a 
+		<express_ref linkend="Extended_geometric_tolerance:arm:Extended_geometric_tolerance_arm.Datum_axis"/>.  
+	</example>
+	<example number="3">
+		A pre-processor considering application for a cuboid <express_ref linkend="Package:arm:Package_arm.Package"/> that has terminals protruding
+		from only one face would use a datum plane as the <b>predefined_geometric_status</b> if a value other than <b>undefined</b> or
+		<b>standard_datum_condition</b> were to be specified because the face that has the terminals
+		is typically considered a 
+		<express_ref linkend="Extended_geometric_tolerance:arm:Extended_geometric_tolerance_arm.Datum_plane"/>.
+	</example>
 </ext_description>
 <ext_description linkend="Altered_package_arm.predefined_geometric_status.undefined">
-specifies that the geometric status has not been defined previously.
+<p>
+	specifies that the geometric status is not defined.
+</p>
+	<note number="3">
+	This option is provided for the case where the authoring application does not itself contain the geometric status but a valid
+           model is desired.
+</note>
+	<example number="4">
+		A Product Data Management system may store the geometric status in a structure separate from the model. 
+	</example>
 </ext_description>
 <ext_description linkend="Altered_package_arm.predefined_geometric_status.standard_datum_condition">
-specifies that the geometric status is a standard datum condition.
+	specifies that the geometric status is a standard datum condition.  The standard datum condition shall be interpreted that the orientation of the 
+	<express_ref linkend="Package:arm:Package_arm.Package"/> in the 
+	altered state is identical to the orientation of the 
+	<express_ref linkend="Package:arm:Package_arm.Package"/> in the unaltered state.
 </ext_description>
 <ext_description linkend="Altered_package_arm.predefined_geometric_status.perpendicular_primary_datum_axis">
-specifies that the geometric status is perpendicular to the primary datum axis.
+	specifies that the geometric status is that the primary datum axis of the modified <express_ref linkend="Package:arm:Package_arm.Package"/>
+	is perpendicular to the primary datum axis
+of the unmodified <express_ref linkend="Package:arm:Package_arm.Package"/>.
 </ext_description>
 <ext_description linkend="Altered_package_arm.predefined_geometric_status.perpendicular_primary_datum_plane">
-specifies that the geometric status is perpendicular to the primary datum plane.
+	specifies that the geometric status is that the primary datum plane of the modified <express_ref linkend="Package:arm:Package_arm.Package"/>
+	is perpendicular to the primary datum plane
+of the unmodified <express_ref linkend="Package:arm:Package_arm.Package"/>.
 </ext_description>
     
 <!-- +++++++++++ ENTITY Altered_package +++++++++++ -->
@@ -40,6 +88,10 @@ specifies that the geometric status is perpendicular to the primary datum plane.
 	The material or shape properties of the <b>Altered_package</b> are different from the reference  
 	<express_ref linkend="Package:arm:Package_arm.Package"/>.
 </p>
+<note number="1">
+The reference information provided by <b>package_to_be_altered</b> is used for traceability information and is
+not used for definitional purposes.
+</note>
 	<example number="1">
 		Examples of alteration include trimming of the terminals, prebending of the terminals, tinning of the 
 		terminals for solderability, or more than one of these.
@@ -47,15 +99,22 @@ specifies that the geometric status is perpendicular to the primary datum plane.
 	<example number="2">
 		Figure 1 illustrates some of the different forms a 
 		<express_ref linkend="Package:arm:Package_arm.Package">Package</express_ref> may take when it is installed into an assembly.  
-		The original form on the left is in the role of <b>package_to_be_altered</b> for the forms on the right.  
+		For illustration purposes, the original form on the left is in the role of <b>package_to_be_altered</b> for the forms on the right.  
 		The altered forms are identified and tracked by an enterprise.
 	</example>
 	<figure id="prepac">
 		<title>Altered package</title>
 		<img src="prepac.gif"/>
 	</figure>
-	<note>
+	<note number="2">
 		Most <b>Altered_package</b>s are a result of terminal alteration.
+	</note>
+	<note number="3">
+		Although Figure 1 illustrates <express_ref linkend="Package:arm:Package_arm.Package"/> alteration of axially leaded packages with a 
+		starting condition of terminals central axis congruent with the central axis of the body,
+		two dimensional CAD interconnect layout systems typically ignore that condition because there are no terminals intersecting with the seating plane in that condition.
+		To use this part of ISO 10303 to communicate information about an altered state, at least one of the terminals of a modified <express_ref linkend="Package:arm:Package_arm.Package"/>
+		should intersect a seating plane.
 	</note>
 </ext_description>
 
@@ -172,7 +231,7 @@ A <b>Length_trimmed_terminal</b> is a type of
 <ext_description linkend="Altered_package_arm.Surface_prepped_terminal">
 	A <b>Surface_prepped_terminal</b> is a type of 
 	<express_ref linkend="Altered_package:arm:Altered_package_arm.Altered_package_terminal"/> 
-	that defines a modification to its surface condition, for solderability or other reasons, prior to its installation on an 
+	that defines the result of a modification to its surface condition, for solderability or other reasons, prior to its installation on an 
 	<express_ref linkend="Assembly_module_with_interconnect_component:arm:Assembly_module_with_interconnect_component_arm.Interconnect_module_component"/> 
 	during the assembly of a <express_ref linkend="Assembly_module_design:arm:Assembly_module_design_arm.Pca"/>.
 </ext_description>
@@ -188,7 +247,7 @@ A <b>Length_trimmed_terminal</b> is a type of
 <ext_description linkend="Altered_package_arm.Shape_formed_terminal">
 	A <b>Shape_formed_terminal</b> is a type of a 
 	<express_ref linkend="Altered_package:arm:Altered_package_arm.Altered_package_terminal"/> 
-	that defines a modification of its shape from its original 
+	that defines the result of a modification of its shape from its original 
 	<express_ref linkend="Package:arm:Package_arm.Package_terminal"/> 
 	shape. This shape modification is done in order to facilitate the installation of a 
 	<express_ref linkend="Packaged_part_black_box_model:arm:Packaged_part_black_box_model_arm.Packaged_part"/> 

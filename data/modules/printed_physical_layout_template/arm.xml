@@ -2,12 +2,15 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-10 13:11:07 +0300 (Pr, 10 Rgs 2007) $" rcs.revision="$Revision: 1478 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="printed_physical_layout_template_arm schema_instance"/>
    <schema name="Printed_physical_layout_template_arm">
       <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
       <interface kind="use" schema="Functional_usage_view_arm"/>
       <interface kind="use" schema="Part_template_2d_shape_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <type name="pplt_usage_concept">
          <select extensible="YES" genericentity="YES" basedon="usage_concept" selectitems="Printed_part_template_terminal"/>
       </type>
@@ -215,6 +218,7 @@
          <where label="WR3" expression="subsequent_material\Shape_element.element_name IN ['top', 'left']"/>
          <where label="WR4" expression="NOT((precedent_material\Shape_element.element_name IN ['bottom']) XOR (subsequent_material\Shape_element.element_name IN ['top']))"/>
          <where label="WR5" expression="NOT((precedent_material\Shape_element.element_name IN ['right']) XOR (subsequent_material\Shape_element.element_name IN ['left']))"/>
+         <where label="WR6" expression="acyclic_printed_part_template_material_link(SELF,&#10;        [subsequent_material], &#10;        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE_MATERIAL_LINK')"/>
       </entity>
       <entity name="Printed_part_template_terminal" abstract.supertype="YES" supertypes="Shape_feature" super.expression="(ONEOF (Printed_part_template_join_terminal, Printed_part_template_interface_terminal) ANDOR Printed_part_cross_section_template_terminal) ANDOR Structured_printed_part_template_terminal" abstract.entity="NO">
          <explicit name="associated_definition" optional="NO">
@@ -241,13 +245,26 @@
          </unique>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
-      <entity name="Printed_part_template_terminal_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="relating_printed_part_terminal" optional="NO">
-            <typename name="Printed_part_template_terminal"/>
-         </explicit>
-         <explicit name="related_printed_part_terminal" optional="NO">
-            <typename name="Printed_part_template_terminal"/>
-         </explicit>
+      <entity name="Printed_tiebar_template" supertypes="Structured_printed_part_template" abstract.supertype="NO" abstract.entity="NO">
+         <derived name="terminal_location" expression="pplt_get_tl_ap2d(SELF)">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Axis_placement_2d"/>
+         </derived>
+         <derived name="passage_component_location" expression="pplt_get_pcl_ap2d(SELF)">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Axis_placement_2d"/>
+         </derived>
+         <derived name="tiebar_shape_model" expression="pplt_get_gm(SELF)">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Geometric_model"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(['PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_CONNECTOR_TEMPLATE',&#10;                     'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.NON_CONDUCTIVE_CROSS_SECTION_TEMPLATE',&#10;                     'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE'] * TYPEOF(SELF)) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(am &lt;* SELF\Printed_part_template.access_mechanisms |&#10;             NOT('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(am))&#10;              )) = 0"/>
+         <where label="WR3" expression="(SIZEOF(passage_component_location) = 0) OR&#10;          (SIZEOF(QUERY(pcl &lt;* passage_component_location |&#10;          (SIZEOF(QUERY(tsm &lt;* tiebar_shape_model |&#10;          (ap2d_geometrically_in_tiebar(pcl,tsm)))) &gt; 0)&#10;          )) = SIZEOF(passage_component_location))"/>
+         <where label="WR4" expression="SIZEOF(QUERY(t &lt;* SELF\Structured_template.templates | 'FABRICATION_TECHNOLOGY_ARM.STRATUM_FEATURE_TEMPLATE' IN TYPEOF(t\Template_location_in_structured_template.template))) &gt; 0"/>
+         <where label="WR5" expression="SIZEOF(QUERY(spptt &lt;* SELF\Printed_part_template.access_mechanisms | &#10;          NOT(SIZEOF(USEDIN(spptt,'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION.CONNECTED_TERMINALS')) = 1)&#10;          )) = 0"/>
+         <where label="WR6" expression="SIZEOF(QUERY(spptt1 &lt;* SELF\Printed_part_template.access_mechanisms |&#10;          NOT(SIZEOF(QUERY(spptt2 &lt;* SELF\Printed_part_template.access_mechanisms | &#10;          (bag_to_set(USEDIN(spptt1,'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION.CONNECTED_TERMINALS')) =&#10;          bag_to_set(USEDIN(spptt2,'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION.CONNECTED_TERMINALS'))))) &#10;          = SIZEOF(SELF\Printed_part_template.access_mechanisms)))) = 0"/>
+         <where label="WR7" expression="SIZEOF(QUERY(tl &lt;* terminal_location |&#10;          (SIZEOF(QUERY(pcl &lt;* passage_component_location |&#10;          ((tl :=: pcl) OR &#10;          (SIZEOF(QUERY(tsm &lt;* tiebar_shape_model |&#10;          (ap2d_geometrically_in_tiebar(tl,tsm)))) &gt; 0)))) &gt; 0)&#10;          )) = SIZEOF(terminal_location)"/>
       </entity>
       <entity name="Single_stratum_printed_part_template" supertypes="Structured_printed_part_template Single_stratum_structured_template" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Structured_printed_part_template" abstract.supertype="YES" supertypes="Printed_part_template Structured_template" super.expression="ONEOF (Single_stratum_printed_part_template, Multi_stratum_printed_part_template)" abstract.entity="NO">
@@ -276,5 +293,79 @@
          <where label="WR1" expression="SELF\Shape_element.element_name IN ['top', 'bottom', 'left', 'right']"/>
       </entity>
       <subtype.constraint name="pplt_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Printed_part_template, Non_conductive_cross_section_template)" abstract.supertype="NO"/>
+      <function name="acyclic_printed_part_template_material_link">
+         <parameter name="relation">
+            <typename name="Printed_part_template_material_link"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="Template_material_cross_section_boundary"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING" fixed="NO"/>
+         </parameter>
+         <builtintype type="BOOLEAN" fixed="NO"/>
+         <algorithm>LOCAL
+     x : SET OF Printed_part_template_material_link := [];
+  END_LOCAL;
+
+    IF relation.precedent_material IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.precedent_material,
+      'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.' +
+      'PRINTED_PART_TEMPLATE_MATERIAL_LINK.' +
+      'SUBSEQUENT_MATERIAL')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_printed_part_template_material_link(x[i], relatives +
+        relation.precedent_material, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);</algorithm>
+      </function>
+      <function name="ap2d_geometrically_in_tiebar">
+         <parameter name="input_1">
+            <typename name="Axis_placement_2d"/>
+         </parameter>
+         <parameter name="input_2">
+            <typename name="Geometric_model"/>
+         </parameter>
+         <builtintype type="LOGICAL" fixed="NO"/>
+         <algorithm>RETURN(TRUE);</algorithm>
+      </function>
+      <function name="pplt_get_gm">
+         <parameter name="input">
+            <typename name="Printed_tiebar_template"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Geometric_model"/>
+         <algorithm>LOCAL
+	  gm : SET OF Geometric_model := [];  --this gives us access to the information base
+    END_LOCAL;
+	RETURN(gm);</algorithm>
+      </function>
+      <function name="pplt_get_pcl_ap2d">
+         <parameter name="input">
+            <typename name="Printed_tiebar_template"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Axis_placement_2d"/>
+         <algorithm>LOCAL
+	  ap2d : SET OF Axis_placement_2d := [];  --this gives us access to the information base
+    END_LOCAL;
+	RETURN(ap2d);</algorithm>
+      </function>
+      <function name="pplt_get_tl_ap2d">
+         <parameter name="input">
+            <typename name="Printed_tiebar_template"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Axis_placement_2d"/>
+         <algorithm>LOCAL
+	  ap2d : SET OF Axis_placement_2d := [];  --this gives us access to the information base
+    END_LOCAL;
+	RETURN(ap2d);</algorithm>
+      </function>
    </schema>
 </express>

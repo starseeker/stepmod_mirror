@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.25 2006/02/07 20:13:09 thomasrthurman Exp $
+   $Id: arm.exp 1664 2007-11-13 10:10:51Z GiedriusLiutkus $
    ISO TC184/SC4/WG12 N4137 - ISO/TS 10303-1730 Physical unit shape with parameters - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3576
 *)
@@ -8,6 +8,8 @@ SCHEMA Physical_unit_shape_with_parameters_arm;
 
 	USE FROM Physical_unit_usage_view_arm;	-- ISO/TS 10303-1732
 	USE FROM Shape_parameters_arm;	-- ISO/TS 10303-1743
+
+    REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   TYPE mass_property_quality = ENUMERATION OF
     (high,
@@ -56,10 +58,16 @@ SCHEMA Physical_unit_shape_with_parameters_arm;
       shape_extent                       : shape_extent;			
       shape_approximation_level          : shape_approximation_level;
       centroid_location                  : OPTIONAL Cartesian_point;
+    DERIVE
+      principal_part_shape : SET [0:1] OF Geometric_model_relationship :=
+        bag_to_set(QUERY( gmr <* USEDIN(SELF,
+        'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |
+        (gmr\Representation_relationship.relation_type = 'principal part shape')));      
     INVERSE
 	  external_shape_purpose : SET [0:1] OF External_source_identification FOR item;      
 	WHERE
 	  WR1: (EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1);
+	  WR2 : SIZEOF(principal_part_shape) < 2;
   END_ENTITY;
 
   ENTITY Physical_unit_shape_model
@@ -72,9 +80,15 @@ SCHEMA Physical_unit_shape_with_parameters_arm;
       shape_extent                   : shape_extent;      
       shape_approximation_level      : shape_approximation_level;
       mass_property_quality          : mass_property_quality;
+    DERIVE
+      principal_part_shape : SET [0:1] OF Geometric_model_relationship :=
+        bag_to_set(QUERY( gmr <* USEDIN(SELF,
+        'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |
+        (gmr\Representation_relationship.relation_type = 'principal part shape')));      
     WHERE
       WR1 : NOT ('PACKAGED_PART_BLACK_BOX_MODEL_ARM.PACKAGED_PART' IN TYPEOF(shape_characterized_definition));
       WR2 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;            
+      WR3 : SIZEOF(principal_part_shape) < 2;
   END_ENTITY;
 
   ENTITY Physical_unit_shape_representation_relationship

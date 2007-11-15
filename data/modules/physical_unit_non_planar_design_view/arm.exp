@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.17 2006/01/20 08:43:41 liutkuviene Exp $
+   $Id: arm.exp 1664 2007-11-13 10:10:51Z GiedriusLiutkus $
    ISO TC184/SC4/WG12 N3834 - ISO/TS 10303-1613 Physical unit non planar design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3573
 *)
@@ -14,8 +14,13 @@ SCHEMA Physical_unit_non_planar_design_view_arm;
   ENTITY Assembly_component_non_planar_shape_model
     SUBTYPE OF (Manifold_subsurface_model);
       shape_characterized_component : SET[1:?] OF Assembly_component;
-  WHERE
-    WR1 : NOT EXISTS(SELF\Representation.description);
+    DERIVE
+      equivalent_reference_shape_model : SET [0:1] OF Geometric_model_relationship :=
+        bag_to_set(QUERY( gmr <* USEDIN(SELF, 'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |
+        (gmr\Representation_relationship.relation_type = 'equivalent reference shape model')));      
+    WHERE
+      WR1 : NOT EXISTS(SELF\Representation.description);
+      WR2 : SIZEOF(equivalent_reference_shape_model) < 2;
   END_ENTITY;
 
 

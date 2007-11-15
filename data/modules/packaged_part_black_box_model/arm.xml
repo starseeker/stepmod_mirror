@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-06 14:39:07 +0300 (Kt, 06 Rgs 2007) $" rcs.revision="$Revision: 1431 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="packaged_part_black_box_model_arm schema_instance"/>
    <schema name="Packaged_part_black_box_model_arm">
       <interface kind="use" schema="Functional_assignment_to_part_arm"/>
@@ -30,11 +30,16 @@
             <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
             <typename name="Material_identification"/>
          </derived>
+         <derived name="base_package" expression="bag_to_set(QUERY(up &lt;* used_package | &#10;                                         (SIZEOF(['ALTERED_PACKAGE_ARM.ALTERED_PACKAGE',&#10;                                            'PART_EXTERNAL_REFERENCE_ARM.PACKAGE_EXTERNAL_REFERENCE'] * TYPEOF(up)) = 0)&#10;                                            ))">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="Package"/>
+         </derived>
          <inverse name="access_mechanisms" entity="Packaged_part_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <where label="WR1" expression="NOT (EXISTS(implemented_function) XOR (SIZEOF(access_mechanisms) &gt; 0))"/>
-         <where label="WR2" expression="single_package_version(SELF)"/>
+         <where label="WR2" expression="SIZEOF(base_package) = 1"/>
+         <where label="WR3" expression="single_package_product(base_package, used_package)"/>
       <where label="IP1"/>
          <where label="IP2"/>
       </entity>
@@ -48,19 +53,33 @@
             <typename name="Packaged_part"/>
             <redeclaration entity-ref="Part_feature"/>
          </explicit>
-         <where label="WR1" expression="disjoint_package_terminals(SELF)"/>
+         <where label="WR1" expression="disjoint_package_terminals(terminal_of_package)"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Part_feature.precedent_feature)"/>
       </entity>
       <function name="disjoint_package_terminals">
          <parameter name="input">
-            <typename name="Packaged_part_terminal"/>
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Package_terminal"/>
          </parameter>
          <builtintype type="BOOLEAN" fixed="NO"/>
-         <algorithm>RETURN(TRUE);</algorithm>
+         <algorithm>LOCAL
+   pk : SET OF Package := []; -- get access to information base
+  END_LOCAL;
+  
+  REPEAT i := 1 to HIINDEX( input);
+  pk := pk + input[i].associated_definition;
+  END_REPEAT;
+  
+    RETURN(SIZEOF(input) = SIZEOF(pk));</algorithm>
       </function>
-      <function name="single_package_version">
-         <parameter name="input">
-            <typename name="Packaged_part"/>
+      <function name="single_package_product">
+         <parameter name="input1">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Package"/>
+         </parameter>
+         <parameter name="input2">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="package_or_package_external_reference"/>
          </parameter>
          <builtintype type="BOOLEAN" fixed="NO"/>
          <algorithm>RETURN(TRUE);</algorithm>

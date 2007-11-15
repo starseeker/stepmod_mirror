@@ -2,11 +2,14 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-05-08 04:29:54 -0700 (An, 08 Geg 2007) $" rcs.revision="$Revision: 710 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_joint_arm schema_instance"/>
    <schema name="Fabrication_joint_arm">
       <interface kind="use" schema="Land_arm"/>
       <interface kind="use" schema="Layered_interconnect_module_with_printed_component_design_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <type name="fabricated_feature_select">
          <select selectitems="Component_termination_passage_join_terminal Conductive_interconnect_element_terminal Embedded_physical_component_terminal Land_join_terminal Printed_component_join_terminal Via_terminal"/>
       </type>
@@ -58,6 +61,37 @@
          <where label="WR2" expression="precedent_point.fabrication_feature_2 = associated_terminal"/>
          <where label="WR3" expression="subsequent_point.fabrication_feature_1 = associated_terminal"/>
          <where label="WR4" expression="SIZEOF(TYPEOF(associated_terminal) *&#10;            ['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + &#10;             'COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL',&#10;             'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + &#10;             'VIA_TERMINAL']) = 1"/>
+         <where label="WR5" expression="acyclic_passage_terminal_based_fabrication_joint_link (SELF,&#10;        [subsequent_point],&#10;        'FABRICATION_JOINT_ARM.PASSAGE_TERMINAL_BASED_FABRICATION_JOINT_LINK')"/>
       </entity>
+      <function name="acyclic_passage_terminal_based_fabrication_joint_link">
+         <parameter name="relation">
+            <typename name="Passage_terminal_based_fabrication_joint_link"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Fabrication_joint"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+       x : SET OF Passage_terminal_based_fabrication_joint_link;
+     END_LOCAL;
+
+     IF relation.precedent_point IN relatives THEN
+       RETURN (FALSE);
+     END_IF;
+     x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.precedent_point,
+       'FABRICATION_JOINT_ARM.' + 'PASSAGE_TERMINAL_BASED_FABRICATION_JOINT_LINK.' +
+       'SUBSEQUENT_POINT')) | specific_relation IN TYPEOF(pd));
+     REPEAT i := 1 TO HIINDEX(x);
+       IF NOT acyclic_passage_terminal_based_fabrication_joint_link(x[i],
+         relatives + relation.precedent_point, specific_relation) THEN
+         RETURN (FALSE);
+       END_IF;
+     END_REPEAT;
+   RETURN (TRUE);</algorithm>
+      </function>
    </schema>
 </express>

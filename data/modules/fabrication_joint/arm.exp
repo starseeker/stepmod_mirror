@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.19 2006/01/20 08:43:43 liutkuviene Exp $
+   $Id: arm.exp 34 2007-03-21 15:24:20Z giedrius $
    ISO TC184/SC4/WG12 N3951 - ISO/TS 10303-1668 Fabrication joint - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3402
 *)
@@ -8,6 +8,7 @@ SCHEMA Fabrication_joint_arm;
 
 	USE FROM Land_arm;	-- ISO/TS 10303-1692
 	USE FROM Layered_interconnect_module_with_printed_component_design_arm;	-- ISO/TS 10303-1700
+	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
  	TYPE fabricated_feature_select = SELECT(
  		Component_termination_passage_join_terminal,
@@ -53,7 +54,32 @@ SCHEMA Fabrication_joint_arm;
              'COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL',
              'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' + 
              'VIA_TERMINAL']) = 1;
+      WR5 : acyclic_passage_terminal_based_fabrication_joint_link (SELF,
+        [subsequent_point],
+        'FABRICATION_JOINT_ARM.PASSAGE_TERMINAL_BASED_FABRICATION_JOINT_LINK');
   END_ENTITY; 
   
+  FUNCTION acyclic_passage_terminal_based_fabrication_joint_link
+     (relation : Passage_terminal_based_fabrication_joint_link; 
+     relatives : SET[1:?] OF Fabrication_joint; 
+     specific_relation : STRING) : BOOLEAN; 
+     LOCAL
+       x : SET OF Passage_terminal_based_fabrication_joint_link;
+     END_LOCAL;
+
+     IF relation.precedent_point IN relatives THEN
+       RETURN (FALSE);
+     END_IF;
+     x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_point,
+       'FABRICATION_JOINT_ARM.' + 'PASSAGE_TERMINAL_BASED_FABRICATION_JOINT_LINK.' +
+       'SUBSEQUENT_POINT')) | specific_relation IN TYPEOF(pd));
+     REPEAT i := 1 TO HIINDEX(x);
+       IF NOT acyclic_passage_terminal_based_fabrication_joint_link(x[i],
+         relatives + relation.precedent_point, specific_relation) THEN
+         RETURN (FALSE);
+       END_IF;
+     END_REPEAT;
+   RETURN (TRUE);
+  END_FUNCTION;  
 
 END_SCHEMA;

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-19 11:51:40 +0300 (Tr, 19 Rgs 2007) $" rcs.revision="$Revision: 1539 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="non_feature_shape_element_arm schema_instance"/>
    <schema name="Non_feature_shape_element_arm">
       <interface kind="use" schema="Physical_unit_shape_with_parameters_arm"/>
@@ -50,9 +50,8 @@
             <unique.attribute attribute="element_name"/>
             <unique.attribute attribute="scope"/>
          </unique>
-         <where label="WR1" expression="NOT ((SIZEOF(associated_usage_concept) &gt; 0) XOR (SIZEOF(element_shape) &gt; 0))"/>
-         <where label="WR2" expression="SIZEOF(QUERY(ucur &lt;* associated_usage_concept | NOT(ucur\Usage_concept_usage_relationship.associated_shape_definition IN element_shape))) = 0"/>
-         <where label="WR3" expression="'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN TYPEOF(scope)"/>
+         <where label="WR1" expression="NOT ((SIZEOF(associated_usage_concept) &gt; 0) OR (SIZEOF(element_shape) &gt; 0))"/>
+         <where label="WR2" expression="'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN TYPEOF(scope)"/>
       <where label="IP1"/>
       </entity>
       <entity name="Non_feature_shape_element_relationship" supertypes="Shape_element_relationship" abstract.supertype="NO" abstract.entity="NO">
@@ -68,7 +67,6 @@
             <unique.attribute attribute="related"/>
             <unique.attribute attribute="relating"/>
          </unique>
-         <where label="WR1" expression="NOT EXISTS (SELF\Shape_element_relationship.relation_type)"/>
       </entity>
       <entity name="Non_feature_shape_model" supertypes="Geometric_model" super.expression="ONEOF (Design_view_level_non_feature_shape_model, Usage_view_level_non_feature_shape_model)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="associated_element" optional="NO">
@@ -86,6 +84,10 @@
          <where label="WR1" expression="(SELF\Shape_element.element_name = 'seating plane')"/>
       </entity>
       <entity name="Usage_view_level_non_feature_shape_model" abstract.supertype="YES" supertypes="Non_feature_shape_model" abstract.entity="NO">
+         <explicit name="associated_element" optional="NO">
+            <typename name="View_level_non_feature_shape_element"/>
+            <redeclaration entity-ref="Non_feature_shape_model"/>
+         </explicit>
          <explicit name="model_shape" optional="NO">
             <typename name="view_shape_select"/>
             <redeclaration entity-ref="Non_feature_shape_model"/>

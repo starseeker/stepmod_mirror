@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-05-23 07:57:58 -0700 (Tr, 23 Geg 2007) $" rcs.revision="$Revision: 922 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_extension_arm schema_instance"/>
    <schema name="Part_template_extension_arm">
       <interface kind="use" schema="Layered_2d_shape_arm"/>
@@ -17,9 +17,6 @@
       </type>
       <type name="square_or_round">
          <enumeration items="square round"/>
-      </type>
-      <type name="text_alignment">
-         <enumeration items="top_right top_centre top_left centre_right centre_centre centre_left bottom_right bottom_centre bottom_left"/>
       </type>
       <entity name="Closed_curve_style_parameters" supertypes="Curve_style_parameters"/>
       <entity name="Curve_style_parameters" abstract.supertype="YES" super.expression="ONEOF (Closed_curve_style_parameters, Curve_style_parameters_with_ends)">
@@ -106,17 +103,14 @@
          </explicit>
       </entity>
       <entity name="Planar_path_shape_model_with_parameters" supertypes="Single_area_csg_2d_model">
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Axis_placement_2d"/>
-            <redeclaration entity-ref="Representation"/>
-         </explicit>
          <explicit name="centreline">
             <typename name="Curve"/>
          </explicit>
          <explicit name="parameters">
             <typename name="Curve_style_parameters"/>
          </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;      ('EXTENDED_BASIC_GEOMETRY_ARM.AXIS_PLACEMENT_2D' IN TYPEOF(it))&#10;                )) = 1"/>
+         <where label="WR2" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |   &#10;      ('EXTENDED_BASIC_GEOMETRY_ARM.AXIS_PLACEMENT_2D' IN TYPEOF(it)) AND&#10;      NOT&#10;      ((it\Axis_placement.origin\Cartesian_point.coordinates[1] = 0.0) AND&#10;      (it\Axis_placement.origin\Cartesian_point.coordinates[2] = 0.0) AND&#10;      (it\Axis_placement.x_axis\Direction.coordinates[1] = 1.0) AND&#10;      (it\Axis_placement.x_axis\Direction.coordinates[2] = 0.0))&#10;                )) = 0"/>
       </entity>
       <entity name="Snowball_template" supertypes="Teardrop_template">
          <explicit name="snowball_start_distance">

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.61 2006/04/25 11:46:51 liutkus Exp $
+   $Id: arm.exp 1495 2007-09-12 20:42:48Z TomThurman $
    ISO TC184/SC4/WG12 N4143 - ISO/TS 10303-1732 Physical unit usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3579
 *)
@@ -82,8 +82,11 @@ SCHEMA Physical_unit_usage_view_arm;
     INVERSE
       subsequent_feature      : SET [0:1] OF Part_feature for precedent_feature;
     WHERE
-      WR1 : NOT EXISTS(precedent_feature) OR
-                NOT( precedent_feature IN subsequent_feature);    
+      WR1:  NOT EXISTS(precedent_feature) OR
+            (NOT (SIZEOF(subsequent_feature) = 1) OR
+            (acyclic_part_feature_precedence_relationship(SELF,
+             [subsequent_feature[1]],
+             'PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE')));
       WR2 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
@@ -103,6 +106,9 @@ SCHEMA Physical_unit_usage_view_arm;
   ENTITY Part_feature_template_definition
     SUBTYPE OF (Shape_feature_definition);
       id : STRING;
+    DERIVE
+      surface_conditions : SET OF Surface_condition := 
+	       bag_to_set(USEDIN(SELF\Shape_feature_definition.of_shape,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'));	  
     UNIQUE
       UR1 : id; 
   END_ENTITY;
@@ -113,11 +119,19 @@ SCHEMA Physical_unit_usage_view_arm;
       WR1 : NOT (SIZEOF(USEDIN(SELF, '')) > 1) OR 
        (SIZEOF(QUERY(foo <* USEDIN(SELF,'') | 
        NOT(SIZEOF(['PHYSICAL_UNIT_USAGE_VIEW_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP',
-        'PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE_TEMPLATE_DEFINITION'] * TYPEOF(foo))= 1)
+        'PHYSICAL_UNIT_USAGE_VIEW_ARM.SHAPE_DESCRIPTION_ASSOCIATION'] * TYPEOF(foo))= 1)
         )) 
         = 0);
       WR2 : NOT EXISTS(SELF\Representation.description);
-      WR3 : SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;            
+      WR3: ((SIZEOF(USEDIN(SELF,
+       'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0) OR
+       (SIZEOF(QUERY(sda <* USEDIN(SELF,
+       'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION') | 
+       NOT (('SHAPE_PROPERTY_ASSIGNMENT_ARM.' +'ITEM_SHAPE' IN
+       TYPEOF(sda.represented_characteristic)) AND 
+       ('PHYSICAL_UNIT_USAGE_VIEW_ARM.' +'PART_FEATURE_TEMPLATE_DEFINITION' IN
+       TYPEOF(sda.represented_characteristic.described_element)))
+       )) = 0));
   END_ENTITY;
 
   ENTITY Part_usage_view
@@ -147,6 +161,30 @@ SCHEMA Physical_unit_usage_view_arm;
   WHERE
    WR1 : SIZEOF(gee) = SIZEOF(gei);
   END_RULE;
+
+FUNCTION acyclic_part_feature_precedence_relationship
+  (relation : Part_feature; relatives : SET[1:?] OF
+  Part_feature; specific_relation : STRING) : BOOLEAN; 
+LOCAL
+    x : SET OF Part_feature;
+END_LOCAL;
+
+    IF relation.precedent_feature IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+      x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_feature,
+        'PHYSICAL_UNIT_USAGE_VIEW_ARM.' + 'PART_FEATURE.' +
+        'SUBSEQUENT_FEATURE')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_part_feature_precedence_relationship(x[i], relatives +
+        relation.precedent_feature, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  RETURN (TRUE);
+END_FUNCTION; 
+
+
 
 FUNCTION get_derived_shape_element( input : Part_view_definition) : SET OF Derived_shape_element;
 LOCAL

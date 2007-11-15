@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.45 2006/05/01 05:01:10 thomasrthurman Exp $
+   $Id: arm.exp 1649 2007-10-16 20:46:36Z TomThurman $
    ISO TC184/SC4/WG12 N4014 - ISO/TS 10303-1689 Interconnect physical requirement allocation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3456
 *)
@@ -24,11 +24,37 @@
   ENTITY Dependent_electrical_isolation_removal_template
     SUBTYPE OF (Electrical_isolation_removal_template);
       associated_item : land_physical_template_or_inter_stratum_feature_template;
-  END_ENTITY;
+    WHERE
+      WR1 : SIZEOF(QUERY (dtlipd <* USEDIN(SELF,'PART_TEMPLATE_2D_SHAPE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | 
+                  NOT(
+                     (SIZEOF(QUERY (tlist <* USEDIN(associated_item,'PART_TEMPLATE_2D_SHAPE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | 
+                             NOT(
+                                 (tlist\Template_location_in_structured_template.assembly :=: 
+                                  dtlipd\Template_location_in_structured_template.assembly) AND
+                                 ('PART_TEMPLATE_2D_SHAPE_ARM.DEPENDENT_TEMPLATE_LOCATION_IN_PADSTACK_DEFINITION' IN TYPEOF(dtlipd)) AND                                 
+                                 (tlist :=: dtlipd\Dependent_template_location_in_padstack_definition.reference_location)
+                                 )
+                      )) = 0)
+                      )
+             )) = 0;
+        END_ENTITY;
 
   ENTITY Dependent_thermal_isolation_removal_template
     SUBTYPE OF (Thermal_isolation_removal_template);
       associated_item : Land_physical_template;
+    WHERE
+      WR1 : SIZEOF(QUERY (dtlipd <* USEDIN(SELF,'PART_TEMPLATE_2D_SHAPE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | 
+                  NOT(
+                     (SIZEOF(QUERY (tlist <* USEDIN(associated_item,'PART_TEMPLATE_2D_SHAPE_ARM.TEMPLATE_LOCATION_IN_STRUCTURED_TEMPLATE.TEMPLATE') | 
+                             NOT(
+                                 (tlist\Template_location_in_structured_template.assembly :=: 
+                                  dtlipd\Template_location_in_structured_template.assembly) AND
+                                 ('PART_TEMPLATE_2D_SHAPE_ARM.DEPENDENT_TEMPLATE_LOCATION_IN_PADSTACK_DEFINITION' IN TYPEOF(dtlipd)) AND                                 
+                                 (tlist :=: dtlipd\Dependent_template_location_in_padstack_definition.reference_location)
+                                 )
+                      )) = 0)
+                      )
+             )) = 0;
   END_ENTITY;
 
   ENTITY Electrical_isolation_removal_template
@@ -79,8 +105,10 @@
 
   ENTITY Thermal_isolation_requirement
   	SUBTYPE OF (Requirement_view_definition);
+      thermal_bar_width : OPTIONAL Length_tolerance_characteristic;
+      number_of_bars    : OPTIONAL INTEGER;
   	DERIVE
-      effective_current_capacity_requirement : SET [1:1] OF Predefined_requirement_view_definition :=
+      effective_current_capacity_requirement : SET [0:1] OF Predefined_requirement_view_definition :=
         get_specific_requirement_view_definition_for_collector(SELF, 'effective current capacity requirement');
 
       angular_orientation_requirement : SET [1:1] OF Predefined_requirement_view_definition := 
@@ -91,6 +119,7 @@
    WHERE
      WR1 : 'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(thermal_isolation_spacing_requirement[1]);
      WR2 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
+     WR3 : NOT(EXISTS(thermal_bar_width) XOR EXISTS(number_of_bars));
   END_ENTITY;
 
 FUNCTION get_specific_requirement_view_definition_for_collector(

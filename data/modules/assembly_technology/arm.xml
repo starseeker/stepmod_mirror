@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-19 11:16:58 +0300 (Tr, 19 Rgs 2007) $" rcs.revision="$Revision: 1537 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_technology_arm schema_instance"/>
    <schema name="Assembly_technology_arm">
       <interface kind="use" schema="Assembly_module_design_arm"/>
@@ -19,6 +19,9 @@
       </type>
       <type name="at_requirement_assignment_item">
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Assembly_joint"/>
+      </type>
+      <type name="bond_feature">
+         <select selectitems="Connection_zone_in_layout_template Connection_zone_in_usage_view Default_attachment_size_based_land_physical_template Feature_definition_with_connection_area Part_feature"/>
       </type>
       <type name="degree_of_freedom">
          <enumeration items="x y z u v w"/>
@@ -48,10 +51,10 @@
             <typename name="Externally_defined_view_definition"/>
          </explicit>
          <explicit name="bonded_feature_1">
-            <typename name="Part_feature"/>
+            <typename name="bond_feature"/>
          </explicit>
          <explicit name="bonded_feature_2">
-            <typename name="Part_feature"/>
+            <typename name="bond_feature"/>
          </explicit>
          <inverse name="default_shape" entity="Default_assembly_bond_shape_model" attribute="shape_characterized_definition">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
@@ -66,6 +69,9 @@
          </unique>
          <where label="WR1" expression="bonded_feature_1 &lt;&gt; bonded_feature_2"/>
          <where label="WR2" expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (bond_material)"/>
+         <where label="WR3" expression="NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF (bonded_feature_1)) XOR&#10;        ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF(bonded_feature_2)))"/>
+         <where label="WR4" expression="NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF (bonded_feature_1)) XOR &#10;        ('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF(bonded_feature_2)))"/>
+         <where label="WR5" expression="NOT((('PHYSICAL_LAYOUT_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN&#10;        TYPEOF (bonded_feature_1)) OR&#10;        ('FABRICATION_TECHNOLOGY_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF&#10;        (bonded_feature_1)) OR&#10;        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2)))&#10;        XOR &#10;        (('PHYSICAL_LAYOUT_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN TYPEOF(bonded_feature_2)) OR&#10;        ('FABRICATION_TECHNOLOGY_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF&#10;        (bonded_feature_1)) OR&#10;        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2))))"/>
       </entity>
       <entity name="Assembly_joint" supertypes="Component_feature_joint" super.expression="Assembled_with_fasteners ANDOR Assembled_with_bonding">
          <explicit name="assembly_feature_1">
@@ -98,7 +104,7 @@
             <typename name="Assembly_joint"/>
          </explicit>
          <explicit name="constrained_degree_of_freedom">
-            <aggregate type="SET" lower="1" upper="5"/>
+            <aggregate type="SET" lower="1" upper="6"/>
             <typename name="degree_of_freedom"/>
          </explicit>
          <explicit name="of_context">

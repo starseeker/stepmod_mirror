@@ -2,10 +2,13 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-06 16:53:14 +0300 (Kt, 06 Rgs 2007) $" rcs.revision="$Revision: 1454 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_feature_grouping_arm schema_instance"/>
    <schema name="Part_feature_grouping_arm">
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <entity name="Part_array_feature" abstract.supertype="YES" supertypes="Part_group_feature" super.expression="ONEOF (Part_linear_array_feature, Part_rectangular_array_feature)"/>
       <entity name="Part_feature_placement_link">
          <explicit name="precedent_element">
@@ -15,6 +18,7 @@
             <typename name="Part_feature"/>
          </explicit>
          <inverse name="referenced_by" entity="Part_linear_array_feature" attribute="element"/>
+         <where label="WR1" expression="acyclic_part_feature_placement_link(SELF, [subsequent_element], &#10;        'PART_FEATURE_GROUPING_ARM.PART_FEATURE_PLACEMENT_LINK')"/>
       </entity>
       <entity name="Part_group_feature" supertypes="Part_feature Composite_shape_element" super.expression="Part_array_feature"/>
       <entity name="Part_linear_array_feature" supertypes="Part_array_feature">
@@ -31,6 +35,7 @@
          <explicit name="location_uncertainty">
             <typename name="Length_data_element"/>
          </explicit>
+         <where label="WR1" expression="(1 + SIZEOF(element)) = pfg_get_sz_pf(element)"/>
       </entity>
       <entity name="Part_linear_array_feature_link">
          <explicit name="precedent_element">
@@ -40,6 +45,7 @@
             <typename name="Part_linear_array_feature"/>
          </explicit>
          <inverse name="referenced_by" entity="Part_rectangular_array_feature" attribute="element"/>
+         <where label="WR1" expression="acyclic_part_linear_array_feature_link(SELF, [subsequent_element], &#10;        'PART_FEATURE_GROUPING_ARM.PART_LINEAR_ARRAY_FEATURE_LINK')"/>
       </entity>
       <entity name="Part_rectangular_array_feature" supertypes="Part_array_feature">
          <explicit name="element">
@@ -55,6 +61,97 @@
          <explicit name="location_uncertainty">
             <typename name="Length_data_element"/>
          </explicit>
+         <where label="WR1" expression="(1 + SIZEOF(element)) = pfg_get_sz_plar(element)"/>
       </entity>
+      <function name="acyclic_part_feature_placement_link">
+         <parameter name="relation">
+            <typename name="Part_feature_placement_link"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Part_feature"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      x : SET OF Part_feature_placement_link := [];
+    END_LOCAL;
+    IF relation.subsequent_element IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.subsequent_element,
+      'PART_FEATURE_GROUPING_ARM.' +
+      'PART_FEATURE_PLACEMENT_LINK.' +
+      'SUBSEQUENT_ELEMENT')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_part_feature_placement_link(x[i], relatives +
+        relation.subsequent_element, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);</algorithm>
+      </function>
+      <function name="acyclic_part_linear_array_feature_link">
+         <parameter name="relation">
+            <typename name="Part_linear_array_feature_link"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Part_linear_array_feature"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      x : SET OF Part_linear_array_feature_link := [];
+    END_LOCAL;
+    IF relation.subsequent_element IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.subsequent_element,
+      'PART_FEATURE_GROUPING_ARM.' +
+      'PART_LINEAR_ARRAY_FEATURE_LINK.' +
+      'SUBSEQUENT_ELEMENT')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_part_linear_array_feature_link(x[i], relatives +
+        relation.subsequent_element, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);</algorithm>
+      </function>
+      <function name="pfg_get_sz_pf">
+         <parameter name="input">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Part_feature_placement_link"/>
+         </parameter>
+         <builtintype type="INTEGER"/>
+         <algorithm>LOCAL
+      ac : SET OF Part_feature := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input);
+      ac := ac + input[i]\Part_feature_placement_link.precedent_element +
+        input[i]\Part_feature_placement_link.subsequent_element;
+    END_REPEAT;
+    RETURN (SIZEOF(ac));</algorithm>
+      </function>
+      <function name="pfg_get_sz_plar">
+         <parameter name="input">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Part_linear_array_feature_link"/>
+         </parameter>
+         <builtintype type="INTEGER"/>
+         <algorithm>LOCAL
+      ac : SET OF Part_linear_array_feature := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input);
+      ac := ac + input[i]\Part_linear_array_feature_link.precedent_element +
+        input[i]\Part_linear_array_feature_link.subsequent_element;
+    END_REPEAT;
+    RETURN (SIZEOF(ac));</algorithm>
+      </function>
    </schema>
 </express>

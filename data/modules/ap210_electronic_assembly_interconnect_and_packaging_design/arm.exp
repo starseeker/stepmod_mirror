@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.68 2006/06/08 03:50:41 thomasrthurman Exp $
+   $Id: arm.exp 1625 2007-10-09 02:34:09Z TomThurman $
    ISO TC184/SC4/WG3 N1995 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG3 N1638
 *)
@@ -93,7 +93,7 @@ SUBTYPE_CONSTRAINT part_design_view_subtypes FOR Part_design_view;
  Interconnect_module);
 END_SUBTYPE_CONSTRAINT;
 
-TYPE ap210_managed_design_object = EXTENSIBLE SELECT BASED_ON managed_design_object WITH 
+TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON managed_design_object WITH 
 (Adjacent_stratum_surface_definition,
  Adjacent_stratum_surface_embedded_physical_component_surface_definition,
  Alias_identification,
@@ -279,7 +279,6 @@ TYPE ap210_managed_design_object = EXTENSIBLE SELECT BASED_ON managed_design_obj
  Printed_part_template_connected_terminals_definition,
  Printed_part_template_material,
  Printed_part_template_material_link,
- Printed_part_template_terminal_relationship,
  Product_version_relationship,
  Projected_zone_and_base_relationship,
  Projected_zone_height_characteristic,
@@ -352,5 +351,15 @@ TYPE ap210_managed_design_object = EXTENSIBLE SELECT BASED_ON managed_design_obj
  Organization_or_person_in_organization_assignment
 );
   END_TYPE;
+
+RULE Physical_unit_network_definition_constraint FOR 
+(Physical_unit_network_definition);
+WHERE
+  WR1: SIZEOF ( QUERY ( fund <* Physical_unit_network_definition | 
+('ASSEMBLY_MODULE_DESIGN_ARM.' + 'ASSEMBLY_MODULE' IN TYPEOF (fund)) OR
+  (SIZEOF(USEDIN(fund,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.' + 
+'PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION')) = 0)
+    )) = SIZEOF(Physical_unit_network_definition);
+END_RULE;
 
 END_SCHEMA;

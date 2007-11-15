@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.27 2006/10/17 15:17:56 liutkus Exp $
+   $Id: arm.exp 34 2007-03-21 15:24:20Z giedrius $
    ISO TC184/SC4/WG12 N4056 - ISO/TS 10303-1703 Model parameter - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3492
 *)
@@ -33,10 +33,14 @@ SCHEMA Model_parameter_arm;
       associated_attribute : SET[1:1] OF Classification_attribute FOR attribute_definition;
   END_ENTITY;
 
+  ENTITY Independent_property_with_unit 
+    SUBTYPE OF (Independent_property);
+      unit_of_measure: SET [1:?] OF Unit;
+  END_ENTITY;
+
   ENTITY Model_parameter
    SUBTYPE OF (Independent_property);
-      unit_of_measure    : OPTIONAL Unit; -- STRING
-      valid_range        : OPTIONAL SET[1:?] OF Value_range; --coordinated_characteristic; 
+      valid_range        : OPTIONAL SET[1:?] OF Value_range;
       default_value      : OPTIONAL scalar_or_coordinated_characteristics;
 	DERIVE
 		reference_document: SET[0:?] OF Document_definition :=
@@ -59,9 +63,9 @@ SCHEMA Model_parameter_arm;
 
   ENTITY Schema_based_model_parameter
     SUBTYPE OF (Model_parameter);
-      entity_name    : STRING;
-      attribute_name : OPTIONAL STRING;
-      SELF\Independent_property.property_type RENAMED schema_identifier : STRING;
+      entity_name    : Independent_property;
+      attribute_name : OPTIONAL Independent_property;
+      schema_identifier : Independent_property;
     UNIQUE
       UR1 : entity_name,
  attribute_name,

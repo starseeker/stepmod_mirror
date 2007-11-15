@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.47 2006/06/22 08:29:47 liutkus Exp $
+   $Id: arm.exp 1497 2007-09-14 08:03:41Z GiedriusLiutkus $
    ISO TC184/SC4/WG12 N3894 - ISO/TS 10303-1649 Assembly technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3312
 *)
@@ -25,6 +25,14 @@ SCHEMA Assembly_technology_arm;
 	TYPE at_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
 	    (Assembly_joint);
 	END_TYPE; 
+
+  TYPE bond_feature = SELECT
+    (Connection_zone_in_layout_template,
+    Connection_zone_in_usage_view,
+    Default_attachment_size_based_land_physical_template,
+    Feature_definition_with_connection_area,
+    Part_feature);
+  END_TYPE;     
 	
   TYPE degree_of_freedom = ENUMERATION OF
     (x,
@@ -57,8 +65,8 @@ SCHEMA Assembly_technology_arm;
       name                                    : STRING;   
       analytical_assembly_bond_representation : OPTIONAL SET[1:?] OF Analytical_model_application;
       associated_definition                   : Externally_defined_view_definition;
-      bonded_feature_1                        : Part_feature;
-      bonded_feature_2                        : Part_feature;
+      bonded_feature_1                        : bond_feature;
+      bonded_feature_2                        : bond_feature;
     INVERSE
       default_shape : SET[0:1] OF default_assembly_bond_shape_model FOR shape_characterized_definition;
 	  bond_category	: External_source_identification FOR item;
@@ -69,6 +77,20 @@ SCHEMA Assembly_technology_arm;
     WHERE
       WR1 : bonded_feature_1 <> bonded_feature_2;
       WR2 : 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (bond_material);
+      WR3 : NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF (bonded_feature_1)) XOR
+        ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_FEATURE' IN TYPEOF(bonded_feature_2)));
+      WR4 : NOT(('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF (bonded_feature_1)) XOR 
+        ('PHYSICAL_UNIT_USAGE_VIEW_ARM.CONNECTION_ZONE_IN_USAGE_VIEW' IN TYPEOF(bonded_feature_2)));
+      WR5 : NOT((('PHYSICAL_LAYOUT_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN
+        TYPEOF (bonded_feature_1)) OR
+        ('FABRICATION_TECHNOLOGY_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF
+        (bonded_feature_1)) OR
+        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2)))
+        XOR 
+        (('PHYSICAL_LAYOUT_TEMPLATE_ARM.CONNECTION_ZONE_IN_LAYOUT_TEMPLATE' IN TYPEOF(bonded_feature_2)) OR
+        ('FABRICATION_TECHNOLOGY_ARM.DEFAULT_ATTACHMENT_SIZE_BASED_LAND_PHYSICAL_TEMPLATE' IN TYPEOF
+        (bonded_feature_1)) OR
+        ('FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA' IN TYPEOF(bonded_feature_2))));      
   END_ENTITY;
 
   ENTITY Assembly_joint
@@ -98,7 +120,7 @@ SCHEMA Assembly_technology_arm;
   ENTITY Component_mating_constraint_condition;
       name                          : STRING;  
       constraining_joint            : SET[1:3] OF Assembly_joint;
-      constrained_degree_of_freedom : SET[1:5] OF degree_of_freedom;
+      constrained_degree_of_freedom : SET[1:6] OF degree_of_freedom;
       of_context                    : Part_design_view;
     UNIQUE
       UR1 : name,

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.57 2006/06/15 15:07:32 thomasrthurman Exp $
+   $Id: arm.exp 1505 2007-09-17 03:32:36Z TomThurman $
    ISO TC184/SC4/WG12 N4065 - ISO/TS 10303-1706 Non feature shape element - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3495
 *)
@@ -25,7 +25,7 @@ SCHEMA Non_feature_shape_element_arm;
   
   ENTITY Design_view_level_non_feature_shape_model
     SUBTYPE OF (Non_feature_shape_model);
-      SELF\Non_feature_shape_model.model_shape : Physical_unit_shape_model;
+      SELF\Non_feature_shape_model.model_shape        : Physical_unit_shape_model;
     WHERE
       WR1 : SELF\Geometric_model.context_of_items :=: SELF\Non_feature_shape_model.model_shape\Geometric_model.context_of_items;
       WR2: SIZEOF(USEDIN(SELF, 'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_1')) = 0;
@@ -62,9 +62,8 @@ SCHEMA Non_feature_shape_element_arm;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, scope;
     WHERE
-      WR1 : NOT ((SIZEOF(associated_usage_concept) > 0) XOR (SIZEOF(element_shape) > 0));
-      WR2 : SIZEOF(QUERY(ucur <* associated_usage_concept | NOT(ucur\Usage_concept_usage_relationship.associated_shape_definition IN element_shape))) = 0;
-      WR3 : 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN TYPEOF(scope);
+      WR1 : NOT ((SIZEOF(associated_usage_concept) > 0) OR (SIZEOF(element_shape) > 0));
+      WR2 : 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE' IN TYPEOF(scope);
   END_ENTITY;
 
   ENTITY Non_feature_shape_element_relationship
@@ -72,10 +71,7 @@ SCHEMA Non_feature_shape_element_arm;
       SELF\Shape_element_relationship.relating : Non_feature_shape_element;    
       SELF\Shape_element_relationship.related : Non_feature_shape_element;
     UNIQUE
-      UR1 : SELF\Shape_element_relationship.related,
- SELF\Shape_element_relationship.relating;
-    WHERE
-      WR1 : NOT EXISTS (SELF\Shape_element_relationship.relation_type);
+      UR1 : SELF\Shape_element_relationship.related, SELF\Shape_element_relationship.relating;
   END_ENTITY;
 
    ENTITY Reference_graphic_registration_mark
@@ -91,7 +87,8 @@ SCHEMA Non_feature_shape_element_arm;
   ENTITY Usage_view_level_non_feature_shape_model
     ABSTRACT SUPERTYPE
     SUBTYPE OF (Non_feature_shape_model);
-      SELF\Non_feature_shape_model.model_shape : view_shape_select;
+      SELF\Non_feature_shape_model.associated_element : View_level_non_feature_shape_element;    
+      SELF\Non_feature_shape_model.model_shape        : view_shape_select;
     WHERE
       WR1 : SELF\Geometric_model.context_of_items = SELF\Non_feature_shape_model.model_shape\Geometric_model.context_of_items;
   END_ENTITY;

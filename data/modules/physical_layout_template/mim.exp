@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.19 2006/01/20 08:43:40 liutkuviene Exp $
+   $Id: mim.exp 1292 2007-07-02 07:44:57Z giedrius $
    ISO TC184/SC4/WG12 N4114 - ISO/TS 10303-1722 Physical layout template - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3538
 *)
@@ -12,6 +12,8 @@ SCHEMA Physical_layout_template_mim;
    
 	USE FROM Characterizable_object_mim;     -- ISO/TS 10303-xxxx	
 
+    USE FROM Generic_material_aspects_mim;
+
     USE FROM Part_view_definition_mim;   -- ISO/TS 10303-1023
 
 	USE FROM Application_context_schema(application_context_element);
@@ -23,6 +25,11 @@ SCHEMA Physical_layout_template_mim;
 		
 ENTITY part_template_definition
   SUBTYPE OF (product_definition, product_definition_shape);
+  DERIVE
+    SELF\property_definition.definition : part_template_definition := SELF;
+  WHERE
+    WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +'NAME_ATTRIBUTE.NAMED_ITEM')) = 0;
+    WR2: NOT EXISTS(SELF\property_definition.description);
 END_ENTITY;	
 	
 END_SCHEMA;

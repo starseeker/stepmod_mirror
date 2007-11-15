@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-06 15:46:39 +0300 (Kt, 06 Rgs 2007) $" rcs.revision="$Revision: 1451 $" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_usage_view_mim schema_instance"/>
    <schema name="Physical_unit_usage_view_mim">
       <interface kind="use" schema="Analytical_model_mim"/>
@@ -49,7 +49,14 @@
          <where label="WR1" expression="SELF\group.name = SELF\characterized_object.name"/>
          <where label="WR2" expression="SELF\group.description = SELF\characterized_object.description"/>
       </entity>
-      <entity name="physical_unit" supertypes="product_definition product_definition_shape"/>
+      <entity name="physical_unit" supertypes="product_definition product_definition_shape">
+         <derived name="definition" expression="SELF">
+            <typename name="physical_unit"/>
+            <redeclaration entity-ref="property_definition"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +'NAME_ATTRIBUTE.NAMED_ITEM')) = 0"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\property_definition.description)"/>
+      </entity>
       <entity name="usage_view_connection_zone_terminal_shape_relationship" supertypes="representation representation_relationship_with_transformation">
          <explicit name="rep_1">
             <typename name="shape_representation"/>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.62 2006/04/26 21:54:53 thomasrthurman Exp $
+   $Id: arm.exp 901 2007-05-23 11:36:59Z giedrius $
    ISO TC184/SC4/WG12 N4101 - ISO/TS 10303-1718 Part template extension - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3525
 *)
@@ -22,18 +22,6 @@ SCHEMA Part_template_extension_arm;
     (truncate,
      extend);
   END_TYPE;
-
-TYPE text_alignment = ENUMERATION OF(
-          top_right,
-          top_centre,
-          top_left,
-          centre_right,
-          centre_centre,
-          centre_left,
-          bottom_right,
-          bottom_centre,
-          bottom_left );
-   END_TYPE;
 
 	SUBTYPE_CONSTRAINT inter_stratum_feature_template_subtypes FOR Inter_stratum_feature_template;         
 	    (ONEOF (Component_termination_passage_template,
@@ -123,9 +111,20 @@ TYPE text_alignment = ENUMERATION OF(
 
   ENTITY Planar_path_shape_model_with_parameters
     SUBTYPE OF (Single_area_csg_2d_model);
-      SELF\Representation.items : SET[1:?] OF Axis_placement_2d;
       centreline : Curve;
       parameters : Curve_style_parameters;
+    WHERE
+      WR1: SIZEOF(QUERY(it <* SELF\Representation.items |
+      ('EXTENDED_BASIC_GEOMETRY_ARM.AXIS_PLACEMENT_2D' IN TYPEOF(it))
+                )) = 1;
+      WR2: SIZEOF(QUERY(it <* SELF\Representation.items |   
+      ('EXTENDED_BASIC_GEOMETRY_ARM.AXIS_PLACEMENT_2D' IN TYPEOF(it)) AND
+      NOT
+      ((it\Axis_placement.origin\Cartesian_point.coordinates[1] = 0.0) AND
+      (it\Axis_placement.origin\Cartesian_point.coordinates[2] = 0.0) AND
+      (it\Axis_placement.x_axis\Direction.coordinates[1] = 1.0) AND
+      (it\Axis_placement.x_axis\Direction.coordinates[2] = 0.0))
+                )) = 0;                
   END_ENTITY;
 
   ENTITY Planar_closed_path_shape_model_with_parameters

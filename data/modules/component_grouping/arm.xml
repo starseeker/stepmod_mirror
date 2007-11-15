@@ -2,10 +2,13 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-05-08 05:31:02 -0700 (An, 08 Geg 2007) $" rcs.revision="$Revision: 713 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="component_grouping_arm schema_instance"/>
    <schema name="Component_grouping_arm">
       <interface kind="use" schema="Interface_component_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <entity name="Array_placement_group" abstract.supertype="YES" supertypes="Assembly_group_component" super.expression="ONEOF (Linear_array_placement_group_component, Rectangular_array_placement_group_component)"/>
       <entity name="Assembly_component_placement_link">
          <explicit name="precedent_element">
@@ -15,6 +18,7 @@
             <typename name="Assembly_component"/>
          </explicit>
          <inverse name="referenced_by" entity="Linear_array_placement_group_component" attribute="element"/>
+         <where label="WR1" expression="acyclic_assembly_component_placement_link(SELF,&#10;         [subsequent_element],&#10;         'COMPONENT_GROUPING_ARM.ASSEMBLY_COMPONENT_PLACEMENT_LINK')"/>
       </entity>
       <entity name="Assembly_group_component" supertypes="Assembly_component">
          <inverse name="components" entity="Next_assembly_usage" attribute="relating_view">
@@ -43,6 +47,7 @@
          <explicit name="location_uncertainty">
             <typename name="Length_data_element"/>
          </explicit>
+         <where label="WR1" expression="(1 + SIZEOF(element)) = cg_get_sz_ac(element)"/>
       </entity>
       <entity name="Linear_array_placement_group_component_link">
          <explicit name="precedent_element">
@@ -52,6 +57,7 @@
             <typename name="Linear_array_placement_group_component"/>
          </explicit>
          <inverse name="referenced_by" entity="Rectangular_array_placement_group_component" attribute="element"/>
+         <where label="WR1" expression="acyclic_linear_array_placement_group_component_link(SELF,&#10;         [subsequent_element],&#10;         'COMPONENT_GROUPING_ARM.LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_LINK')"/>
       </entity>
       <entity name="Rectangular_array_placement_group_component" supertypes="Array_placement_group">
          <explicit name="element">
@@ -67,6 +73,99 @@
          <explicit name="location_uncertainty">
             <typename name="Length_data_element"/>
          </explicit>
+         <where label="WR1" expression="(1 + SIZEOF(element)) = cg_get_sz_lapgc(element)"/>
       </entity>
+      <function name="acyclic_assembly_component_placement_link">
+         <parameter name="relation">
+            <typename name="Assembly_component_placement_link"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Assembly_component"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+    x : SET OF Assembly_component_placement_link;
+END_LOCAL;
+
+    IF relation.precedent_element IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+      x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.precedent_element,
+        'COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_COMPONENT_PLACEMENT_LINK.' +
+        'SUBSEQUENT_ELEMENT')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_assembly_component_placement_link(x[i], relatives +
+        relation.precedent_element, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  RETURN (TRUE);</algorithm>
+      </function>
+      <function name="acyclic_linear_array_placement_group_component_link">
+         <parameter name="relation">
+            <typename name="Linear_array_placement_group_component_link"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Linear_array_placement_group_component"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      x : SET OF Linear_array_placement_group_component_link;
+END_LOCAL;
+
+    IF relation.precedent_element IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+     x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.precedent_element,
+       'COMPONENT_GROUPING_ARM.' +
+       'LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_LINK.' + 'SUBSEQUENT_ELEMENT'))
+       | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_linear_array_placement_group_component_link(x[i], relatives
+        + relation.precedent_element, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  RETURN (TRUE);</algorithm>
+      </function>
+      <function name="cg_get_sz_ac">
+         <parameter name="input">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Assembly_component_placement_link"/>
+         </parameter>
+         <builtintype type="INTEGER"/>
+         <algorithm>LOCAL
+    ac : SET OF Assembly_component := [];
+END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input);
+      ac := ac + input[i]\Assembly_component_placement_link.precedent_element +
+      input[i]\Assembly_component_placement_link.subsequent_element;
+    END_REPEAT;
+  RETURN (SIZEOF(ac));</algorithm>
+      </function>
+      <function name="cg_get_sz_lapgc">
+         <parameter name="input">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Linear_array_placement_group_component_link"/>
+         </parameter>
+         <builtintype type="INTEGER"/>
+         <algorithm>LOCAL
+  ac : SET OF Linear_array_placement_group_component := [];
+END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input);
+      ac := ac +
+        input[i]\Linear_array_placement_group_component_link.precedent_element +
+        input[i]\Linear_array_placement_group_component_link.subsequent_element;
+    END_REPEAT;
+  RETURN (SIZEOF(ac));</algorithm>
+      </function>
    </schema>
 </express>

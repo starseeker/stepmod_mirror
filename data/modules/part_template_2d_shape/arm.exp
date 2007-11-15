@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.132 2006/06/05 14:59:45 thomasrthurman Exp $
+   $Id: arm.exp 1665 2007-11-13 13:22:06Z GiedriusLiutkus $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -7,7 +7,6 @@
 SCHEMA Part_template_2d_shape_arm;
 
 	USE FROM Part_template_extension_arm;	-- ISO/TS 10303-1718
-	USE FROM Printed_physical_layout_template_arm;	-- ISO/TS 10303-1737
 	USE FROM Physical_unit_2d_shape_arm; -- ISO/TS 10303-1726
 
 	REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
@@ -58,6 +57,13 @@ SCHEMA Part_template_2d_shape_arm;
     Stratum_technology);
   END_TYPE;
 
+  TYPE template_location_placement_status = ENUMERATION OF
+    (is_fixed,
+	 must_be_moved_in_design,
+	 may_be_moved_in_design,
+	 is_unknown);
+  END_TYPE;
+  
   ENTITY Complex_passage_padstack_definition
    SUBTYPE OF (Stratum_stack_dependent_template, Passage_padstack_definition);
   END_ENTITY;
@@ -150,7 +156,7 @@ SCHEMA Part_template_2d_shape_arm;
       keepout_shape : Part_template_keepout_shape_model;
       kept_out_layers : SET [1:?] OF Stratum_technology_occurrence;
     DERIVE
-      swappable : BOOLEAN :=
+      swappable : LOGICAL :=
         (keepout_shape.shape_characterized_definition\Multi_stratum_structured_template.location
         = template_arrangement.swappable);
       stack_model : Library_stack_model :=
@@ -177,7 +183,7 @@ SCHEMA Part_template_2d_shape_arm;
   		application_technology_constraint: SET[0:?] OF Requirement_view_definition :=
 		  get_rvd(SELF, 'application technology constraint');
 	WHERE
-   		WR1 : NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1);
+   		WR1 : (SIZEOF(application_technology_constraint) <= 1);
    		WR2 : NOT EXISTS(SELF\Representation.description);
   END_ENTITY;
 
@@ -208,7 +214,7 @@ SCHEMA Part_template_2d_shape_arm;
      WR3: SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))
                  ) = 0;
      WR4: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1); 
-     WR5: sts_vertex_degree_less_than_two(stratum_technology_sequence);
+     WR5: sts_vertex_degree_less_than_three(stratum_technology_sequence);
   END_ENTITY;
 
   ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;
@@ -234,18 +240,10 @@ SCHEMA Part_template_2d_shape_arm;
   ENTITY Single_stratum_structured_template
     ABSTRACT SUPERTYPE OF (ONEOF (Material_removal_structured_template, Single_stratum_special_symbol_template))
     SUBTYPE OF (Structured_template, Single_stratum_template);
-  DERIVE
-    SELF\Single_stratum_template.of_stratum_technology : SET [1:?] OF Stratum_technology := 
-         SELF\Structured_template.templates[1]\Template_location_in_structured_template.template\Single_stratum_template.of_stratum_technology;
   WHERE
     WR1: SIZEOF (QUERY(tp <* SELF\Structured_template.templates |
                NOT ('FABRICATION_TECHNOLOGY_ARM.SINGLE_STRATUM_TEMPLATE' IN TYPEOF(tp.template))
               )) = 0;
-   WR2: SIZEOF(QUERY(tp <* SELF\Structured_template.templates |
-               NOT ((SIZEOF(of_stratum_technology * tp.template.of_stratum_technology) = SIZEOF(of_stratum_technology)) 
-                 AND (SIZEOF(tp.template.of_stratum_technology) = SIZEOF(of_stratum_technology))
-               )
-              )) = 0;              
   END_ENTITY;
 
   ENTITY Special_symbol_template
@@ -258,22 +256,17 @@ SCHEMA Part_template_2d_shape_arm;
       bound_stratum : stratum_technology_occurrence_or_stratum_technology;
       SELF\Template_location_in_structured_template.template : Single_stratum_template;
     WHERE
-      WR1: (NOT (SIZEOF(['FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY'] * TYPEOF(bound_stratum)) = 1) OR
-               (SIZEOF(QUERY(st <* template\Single_stratum_template.of_stratum_technology | st :=: bound_stratum)) = 1))
-              AND
-              (NOT (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_TECHNOLOGY_OCCURRENCE'] * TYPEOF(bound_stratum)) = 1) OR
-               (SIZEOF(QUERY(st <* template\Single_stratum_template.of_stratum_technology | st :=: bound_stratum\Stratum_technology_occurrence.definition)) = 1));
-      WR2: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(bound_stratum)) OR
+      WR1: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(bound_stratum)) OR
            (NOT EXISTS(bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose) OR
            (NOT (bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
           ('FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
-      WR3: 
+      WR2: 
           NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(bound_stratum)) AND
              ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(bound_stratum\Stratum_technology_occurrence.definition))) OR
            (NOT EXISTS(bound_stratum\Stratum_technology_occurrence.definition\Documentation_layer_technology.pre_defined_documentation_layer_purpose) OR
            (NOT (bound_stratum\Stratum_technology_occurrence.definition\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
           ('FABRICATION_TECHNOLOGY_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
-      WR4 : NOT ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(bound_stratum)) OR
+      WR3 : NOT ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(bound_stratum)) OR
              ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(SELF\Template_location_in_structured_template.assembly));
   END_ENTITY;
 
@@ -289,7 +282,9 @@ SCHEMA Part_template_2d_shape_arm;
                NOT (temp\Stratum_specific_template_location.bound_stratum IN stack\Stratum_stack_model.composing_occurrence)
             )
           )) = 0;
-    WR2 : TYPEOF(SELF) <> TYPEOF(SELF\Stratum_stack_dependent_template);          
+    WR2 : SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION',
+           'PART_TEMPLATE_2D_SHAPE_ARM.MULTI_STRATUM_SPECIAL_SYMBOL_TEMPLATE'] 
+          * TYPEOF(SELF)) > 0;          
   END_ENTITY;
 
   ENTITY Structured_inter_stratum_feature_template
@@ -300,10 +295,10 @@ SCHEMA Part_template_2d_shape_arm;
     ABSTRACT SUPERTYPE OF (ONEOF (Single_stratum_structured_template, Multi_stratum_structured_template))
     SUBTYPE OF (Geometric_template);
   DERIVE
-    empty : BOOLEAN := SIZEOF(templates) = 0;  
+    empty : LOGICAL := (SIZEOF(templates) = 0);  
   INVERSE
     SELF\Geometric_template.shapes : SET [1:?] OF Structured_template_planar_shape_model FOR shape_characterized_definition;
-    templates : SET [1:?] OF Template_location_in_structured_template FOR assembly;
+    templates : SET [0:?] OF Template_location_in_structured_template FOR assembly;
   END_ENTITY;
 
   ENTITY Structured_template_planar_shape_model
@@ -319,6 +314,7 @@ SCHEMA Part_template_2d_shape_arm;
     assembly : Structured_template;
     template : Template_definition;
     reference_designation : STRING;
+	placement_status      : template_location_placement_status;
   INVERSE
     transform : SET [0:?] OF Template_location_in_structured_template_transform FOR reference_location;
   UNIQUE
@@ -344,7 +340,7 @@ SCHEMA Part_template_2d_shape_arm;
       WR1 : assembly_shape.shape_characterized_definition[1] :=: reference_location.assembly;
   END_ENTITY;
 
- FUNCTION sts_vertex_degree_less_than_two(input : SET OF Stratum_technology_occurrence_link) : BOOLEAN;
+ FUNCTION sts_vertex_degree_less_than_three(input : SET OF Stratum_technology_occurrence_link) : BOOLEAN;
  LOCAL
    psto : LIST OF INTEGER := [0:1000];
    ssto : LIST OF INTEGER := [0:1000];
@@ -357,14 +353,14 @@ SCHEMA Part_template_2d_shape_arm;
    REPEAT j := 1 TO SIZEOF(input) BY 1;
      IF (input[j].precedent_sto :=: sto[i]) THEN 
       psto[i] := psto[i] + 1;
-      IF (psto[i] = 2) THEN 
+      IF (psto[i] = 3) THEN
        pass := FALSE; 
        ESCAPE; 
       END_IF;
      END_IF;  
      IF (input[j].subsequent_sto :=: sto[i]) THEN 
       ssto[i] := ssto[i] + 1;  
-      IF (ssto[i] = 2) THEN 
+      IF (ssto[i] = 3) THEN 
        pass := FALSE; 
        ESCAPE; 
       END_IF;

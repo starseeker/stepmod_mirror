@@ -1,11 +1,15 @@
 (*
-   $Id: mim.exp,v 1.17 2006/01/05 11:50:46 liutkus Exp $
+   $Id: mim.exp 34 2007-03-21 15:24:20Z giedrius $
    ISO TC184/SC4/WG12 N3916 - ISO/TS 10303-1656 Component grouping - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3328
 *)
 SCHEMA Component_grouping_mim;
 
 	USE FROM Interface_component_mim;	-- ISO/TS 10303-1691
+    REFERENCE FROM product_definition_schema
+    (acyclic_product_definition_relationship);
+
+
 
 ENTITY array_placement_group
   SUPERTYPE OF (ONEOF(linear_array_placement_group_component,
@@ -24,6 +28,9 @@ ENTITY assembly_group_component_definition_placement_link
 WHERE
   WR1: SELF\product_definition_relationship.related_product_definition :<>:
        SELF\product_definition_relationship.relating_product_definition;
+  WR2: acyclic_product_definition_relationship (SELF,
+      [SELF\product_definition_relationship.related_product_definition],
+      'COMPONENT_GROUPING_MIM.ASSEMBLY_GROUP_COMPONENT_DEFINITION_PLACEMENT_LINK');
 END_ENTITY; 
 
 ENTITY interfaced_group_component
@@ -37,6 +44,9 @@ ENTITY linear_array_component_definition_link
 WHERE
   WR1: SELF\product_definition_relationship.related_product_definition :<>:
        SELF\product_definition_relationship.relating_product_definition;
+  WR2: acyclic_product_definition_relationship (SELF,
+      [SELF\product_definition_relationship.related_product_definition],
+      'COMPONENT_GROUPING_MIM.LINEAR_ARRAY_COMPONENT_DEFINITION_LINK');       
 END_ENTITY; 
 
 ENTITY linear_array_placement_group_component

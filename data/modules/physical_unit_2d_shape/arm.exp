@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.34 2006/10/24 08:36:30 liutkus Exp $
+   $Id: arm.exp 1301 2007-07-03 08:26:30Z giedrius $
    ISO TC184/SC4/WG12 N4125 - ISO/TS 10303-1726 Physical unit 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3558
 *)
@@ -88,7 +88,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 		  get_rvd(SELF, 'application technology constraint');
     WHERE
       WR1 : NOT ((pu2ds_shape_location.congruent = shape_location_with_respect_to_seating_plane) AND (EXISTS(shape_distance_from_seating_plane)));
-   	  WR2 : NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1);
+   	  WR2 : (SIZEOF(application_technology_constraint) <= 1);
    	  WR3 : NOT EXISTS(SELF\Representation.name);
    	  WR4 : NOT EXISTS(SELF\Representation.description);
    	  WR5 : NOT EXISTS(shape_distance_from_seating_plane) OR EXISTS(shape_location_with_respect_to_seating_plane);
@@ -100,7 +100,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Physical_unit_planar_shape_model
     SUBTYPE OF (Planar_projected_shape_model, Physical_unit_shape_model);
-      shape_distance_from_seating_plane            : OPTIONAL Length_data_element;
+      shape_distance_from_seating_plane            : OPTIONAL Length_tolerance_characteristic;
       shape_location_with_respect_to_seating_plane : OPTIONAL pu2ds_shape_location;
       shape_purpose                                : OPTIONAL predefined_planar_purpose;
 	DERIVE
@@ -110,11 +110,11 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	  external_shape_purpose : SET [0:1] OF External_source_identification FOR item;      
 	WHERE
 	  WR1: (EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1);
-   	  WR2 : NOT EXISTS (application_technology_constraint) OR (SIZEOF(application_technology_constraint) = 1);	  
+   	  WR2 : (SIZEOF(application_technology_constraint) <= 1);	  
    	  WR3 : NOT EXISTS(SELF\Representation.description);
    	  WR4 : NOT (EXISTS(shape_distance_from_seating_plane) XOR EXISTS(shape_location_with_respect_to_seating_plane));
-   	  WR5 : NOT ('PACKAGE_ARM.PACKAGE' IN TYPEOF(SELF\Physical_unit_shape_model.shape_characterized_definition)) OR
-   	        EXISTS(shape_distance_from_seating_plane);
+      WR5 : NOT (('PACKAGE_ARM.PACKAGE' IN TYPEOF(SELF\Physical_unit_shape_model.shape_characterized_definition)) XOR
+   	        EXISTS(shape_distance_from_seating_plane));
   END_ENTITY;
 
 END_SCHEMA;

@@ -1,69 +1,85 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="../data/modules/qualified_measure/arm.exp"/>
-
-  <schema name="Qualified_measure_arm">
-
-    <interface
-      kind="use"
-      schema="External_item_identification_assignment_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="External_library_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Measure_representation_arm">
-    </interface>
-    <entity
-      name="Qualfied_numerical_item_with_unit"
-      supertypes="Numerical_item_with_unit">
-      <explicit
-        name="qualifier">
-        <aggregate
-          type="SET"/>
-        <typename
-          name="Type_qualifier"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Type_qualifier">
-      <explicit
-        name="name">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Externally_defined_type_qualifier"
-      supertypes="Type_qualifier">
-      <explicit
-        name="id">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="external_source">
-        <typename
-          name="External_library"/>
-      </explicit>
-    </entity>
-
-  </schema>
+<express language_version="2" rcs.date="$Date: 2007-09-26 10:30:32 +0300 (Tr, 26 Rgs 2007) $" rcs.revision="$Revision: 1599 $" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="qualified_measure_arm schema_instance"/>
+   <schema name="Qualified_measure_arm">
+      <interface kind="use" schema="External_library_arm"/>
+      <interface kind="use" schema="Measure_representation_arm"/>
+      <constant name="pre_defined_type_qualifiers" expression="['minimum', 'maximum',&#10;    'nominal', 'specified', 'typical', 'calculated', 'designed', 'estimated',&#10;    'measured', 'required', 'set point',&#10;    'basic', 'lower deviation', 'upper deviation']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <type name="value_qualifier">
+         <select selectitems="Precision_qualifier Type_qualifier Uncertainty_qualifier"/>
+      </type>
+      <entity name="Expanded_uncertainty" supertypes="Standard_uncertainty">
+         <explicit name="coverage_factor">
+            <builtintype type="REAL"/>
+         </explicit>
+      </entity>
+      <entity name="Externally_defined_type_qualifier" supertypes="Type_qualifier">
+         <explicit name="external_source">
+            <typename name="External_source"/>
+         </explicit>
+         <where label="WR1" expression="NOT(name IN pre_defined_type_qualifiers)"/>
+      </entity>
+      <entity name="Measure_qualification">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="description">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="qualified_measure">
+            <typename name="Value_with_unit"/>
+         </explicit>
+         <explicit name="qualifiers">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="value_qualifier"/>
+         </explicit>
+         <where label="WR1" expression="NOT('MEASURE_REPRESENTATION_ARM.'+'NUMERICAL_ITEM_WITH_UNIT' IN TYPEOF(qualified_measure))"/>
+         <where label="WR2" expression="SIZEOF(QUERY(temp &lt;* qualifiers | &#10;        'QUALIFIED_MEASURE_ARM.PRECISION_QUALIFIER' IN TYPEOF(temp))) &lt; 2"/>
+      </entity>
+      <entity name="Pre_defined_type_qualifier" supertypes="Type_qualifier">
+         <where label="WR1" expression="SELF\Type_qualifier.name IN pre_defined_type_qualifiers"/>
+      </entity>
+      <entity name="Precision_qualifier">
+         <explicit name="precision_value">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="Qualified_numerical_item_with_unit" supertypes="Numerical_item_with_unit Qualified_representation_item"/>
+      <entity name="Qualified_representation_item" abstract.supertype="YES" supertypes="Representation_item">
+         <explicit name="qualifiers">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="value_qualifier"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(temp &lt;* qualifiers | &#10;        'QUALIFIED_MEASURE_ARM.PRECISION_QUALIFIER' &#10;        IN TYPEOF(temp))) &lt; 2"/>
+      </entity>
+      <entity name="Qualitative_uncertainty" supertypes="Uncertainty_qualifier">
+         <explicit name="uncertainty_value">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Standard_uncertainty" supertypes="Uncertainty_qualifier" super.expression="Expanded_uncertainty">
+         <explicit name="uncertainty_value">
+            <builtintype type="REAL"/>
+         </explicit>
+      </entity>
+      <entity name="Type_qualifier" abstract.supertype="YES" super.expression="ONEOF (Externally_defined_type_qualifier, Pre_defined_type_qualifier)">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Uncertainty_qualifier" super.expression="ONEOF (Standard_uncertainty, Qualitative_uncertainty)">
+         <explicit name="measure_name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="description">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+   </schema>
 </express>

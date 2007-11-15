@@ -7,39 +7,84 @@
    <schema name="Draughting_element_arm">
       <interface kind="use" schema="Associative_text_arm"/>
       <interface kind="use" schema="Curve_appearance_arm"/>
+      <type name="curve_appearance_select">
+         <select basedon="appearance_select" selectitems="Curve_appearance Point_appearance Text_style"/>
+      </type>
       <type name="draughting_callout_content_select">
-         <select extensible="YES" genericentity="YES" selectitems="Annotation_curve Text"/>
+         <select extensible="YES" genericentity="YES" selectitems="Generic_annotation_curve Text"/>
       </type>
-      <type name="draughting_styled_model_element_select">
-         <select basedon="styled_model_element_select" selectitems="Draughting_callout"/>
+      <type name="plane_or_planar_box">
+         <select selectitems="Planar_box Plane"/>
       </type>
+      <entity name="Annotation_fill_area" supertypes="Detailed_geometric_model_element">
+         <explicit name="boundaries">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Curve"/>
+         </explicit>
+      </entity>
+      <entity name="Annotation_plane" supertypes="Annotation_element">
+         <explicit name="element">
+            <typename name="plane_or_planar_box"/>
+            <redeclaration entity-ref="Styled_element"/>
+         </explicit>
+      </entity>
       <entity name="Dimension_curve" supertypes="Annotation_curve">
          <explicit name="terminator">
             <aggregate type="SET" lower="0" upper="2"/>
             <typename name="Terminator"/>
          </explicit>
       </entity>
-      <entity name="Draughting_callout" supertypes="Representation_item">
+      <entity name="Dimension_curve_directed_callout" supertypes="Draughting_callout">
+         <explicit name="dimension_curve">
+            <typename name="Dimension_curve"/>
+         </explicit>
+         <where label="WR1" expression="dimension_curve IN SELF\Draughting_callout.contents"/>
+      </entity>
+      <entity name="Draughting_callout" supertypes="Representation_item" super.expression="ONEOF (Dimension_curve_directed_callout, Leader_directed_callout, Projection_directed_callout)">
          <explicit name="contents">
             <aggregate type="LIST" lower="1" upper="?"/>
             <typename name="draughting_callout_content_select"/>
          </explicit>
       </entity>
       <entity name="Fill_area" supertypes="Annotation_element">
-         <explicit name="boundary">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Annotation_curve"/>
+         <explicit name="element">
+            <typename name="Annotation_fill_area"/>
+            <redeclaration entity-ref="Styled_element"/>
          </explicit>
          <explicit name="reference_point">
             <typename name="point_select"/>
          </explicit>
       </entity>
+      <entity name="Generic_annotation_curve" supertypes="Annotation_curve"/>
       <entity name="Leader" supertypes="Annotation_curve">
          <explicit name="curve">
             <typename name="Curve"/>
          </explicit>
       </entity>
+      <entity name="Leader_directed_callout" supertypes="Draughting_callout">
+         <explicit name="leader">
+            <typename name="Leader"/>
+         </explicit>
+         <where label="WR1" expression="leader IN SELF\Draughting_callout.contents"/>
+      </entity>
       <entity name="Projection_curve" supertypes="Annotation_curve"/>
-      <subtype.constraint name="annotation_curve_subtypes" entity="Annotation_curve" super.expression="ONEOF (Leader, Projection_curve, Dimension_curve)"/>
+      <entity name="Projection_directed_callout" supertypes="Draughting_callout">
+         <explicit name="projection_curve">
+            <typename name="Projection_curve"/>
+         </explicit>
+         <where label="WR1" expression="projection_curve IN SELF\Draughting_callout.contents"/>
+      </entity>
+      <entity name="Text_style">
+         <explicit name="font_size_scale">
+            <builtintype type="REAL"/>
+         </explicit>
+         <explicit name="mirror_placement" optional="YES">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="text_colour">
+            <typename name="Colour"/>
+         </explicit>
+      </entity>
+      <subtype.constraint name="annotation_curve_subtypes" entity="Annotation_curve" super.expression="(ONEOF (Leader, Projection_curve, Dimension_curve) ANDOR Generic_annotation_curve)"/>
    </schema>
 </express>

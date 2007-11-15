@@ -5,15 +5,28 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="presentation_hierarchy_arm schema_instance"/>
    <schema name="Presentation_hierarchy_arm">
+      <interface kind="use" schema="Appearance_assignment_arm"/>
       <interface kind="use" schema="Contextual_shape_positioning_arm"/>
       <type name="area_select">
          <select extensible="YES" selectitems="View_area"/>
       </type>
       <type name="presentation_association_select">
-         <select extensible="YES"/>
+         <select extensible="YES" genericentity="YES"/>
       </type>
-      <type name="view_placement_select">
-         <select selectitems="Axis_placement_mapping Cartesian_transformation_2d Geometric_placement_operation"/>
+      <type name="view_area_element_select">
+         <select extensible="YES" genericentity="YES" selectitems="Styled_element View_area_replication Axis_placement_2d"/>
+      </type>
+      <type name="view_area_relation_type">
+         <enumeration items="copy derivation hierarchy substitution unspecified"/>
+      </type>
+      <type name="view_area_replication_model">
+         <select selectitems="View_area View"/>
+      </type>
+      <type name="view_element_select">
+         <select extensible="YES" genericentity="YES" selectitems="Styled_element Axis_placement_2d"/>
+      </type>
+      <type name="view_relation_type">
+         <enumeration items="dependency unspecified"/>
       </type>
       <entity name="Presentation_set">
          <explicit name="areas">
@@ -21,45 +34,32 @@
             <typename name="View_area"/>
          </explicit>
       </entity>
-      <entity name="View">
-         <explicit name="id" optional="YES">
-            <builtintype type="STRING"/>
+      <entity name="Presentation_set_assignment">
+         <explicit name="associated_presentation">
+            <typename name="Presentation_set"/>
          </explicit>
-         <explicit name="name">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="layout">
-            <typename name="area_select"/>
-         </explicit>
-         <explicit name="view_space">
-            <typename name="Geometric_coordinate_space"/>
-         </explicit>
-         <explicit name="view_placement">
-            <typename name="view_placement_select"/>
+         <explicit name="is_describing">
+            <typename name="presentation_association_select"/>
          </explicit>
       </entity>
-      <entity name="View_area">
-         <explicit name="id" optional="YES">
-            <builtintype type="STRING"/>
+      <entity name="View" supertypes="Styled_model">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="view_element_select"/>
+            <redeclaration entity-ref="Representation"/>
          </explicit>
-         <explicit name="name" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="description" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="area_space">
-            <typename name="Geometric_coordinate_space"/>
-         </explicit>
-         <explicit name="revision_id" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
+         <where label="WR1" expression="SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 2"/>
+      </entity>
+      <entity name="View_area" supertypes="Styled_model">
          <explicit name="size">
             <builtintype type="REAL"/>
          </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="view_area_element_select"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <where label="WR1" expression="SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 2"/>
       </entity>
       <entity name="View_area_assignment">
          <explicit name="associated_view_area">
@@ -71,7 +71,7 @@
       </entity>
       <entity name="View_area_relationship">
          <explicit name="relation_type">
-            <builtintype type="STRING"/>
+            <typename name="view_area_relation_type"/>
          </explicit>
          <explicit name="description" optional="YES">
             <builtintype type="STRING"/>
@@ -81,11 +81,17 @@
          </explicit>
          <explicit name="related">
             <typename name="View_area"/>
+         </explicit>
+      </entity>
+      <entity name="View_area_replication" supertypes="Styled_model_replication">
+         <explicit name="replicated_model">
+            <typename name="view_area_replication_model"/>
+            <redeclaration entity-ref="Styled_model_replication"/>
          </explicit>
       </entity>
       <entity name="View_relationship">
          <explicit name="relation_type">
-            <builtintype type="STRING"/>
+            <typename name="view_relation_type"/>
          </explicit>
          <explicit name="description" optional="YES">
             <builtintype type="STRING"/>
@@ -97,5 +103,6 @@
             <typename name="View"/>
          </explicit>
       </entity>
+      <subtype.constraint name="ph_styled_model_subtypes" entity="Styled_model" super.expression="ONEOF (View, View_area)"/>
    </schema>
 </express>

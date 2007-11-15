@@ -2,16 +2,13 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-06-15 00:46:51 -0700 (Pn, 15 Bir 2007) $" rcs.revision="$Revision: 1235 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_and_zone_laminate_tables_arm schema_instance"/>
    <schema name="Part_and_zone_laminate_tables_arm">
-      <interface kind="use" schema="Analysis_shape_arm"/>
       <interface kind="use" schema="Composite_constituent_shape_arm"/>
       <interface kind="use" schema="Ply_orientation_specification_arm"/>
-      <interface kind="use" schema="Product_version_arm"/>
-      <interface kind="use" schema="Product_view_definition_arm"/>
+      <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="use" schema="Stock_material_arm"/>
-      <interface kind="use" schema="Value_with_unit_arm"/>
       <type name="component_class_for_assembly">
          <select selectitems="Composite_assembly Filament_laminate Ply Ply_laminate Processed_core"/>
       </type>
@@ -38,7 +35,7 @@
             <typename name="Composite_assembly_sequence_definition"/>
          </explicit>
       </entity>
-      <entity name="Constituent_part" supertypes="Product_view_definition" super.expression="ONEOF (Ply, Ply_piece, Ply_laminate, Filament_laminate, Processed_core, Composite_assembly)">
+      <entity name="Constituent_part" supertypes="Part_view_definition" super.expression="ONEOF (Ply, Ply_piece, Ply_laminate, Filament_laminate, Processed_core, Composite_assembly)">
          <explicit name="constituent_part_identification">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Product_view_definition" old_name="id"/>
@@ -62,10 +59,10 @@
       </entity>
       <entity name="Filament_laminate_shape">
          <explicit name="cross_section">
-            <typename name="cross_section_shape_select"/>
+            <typename name="Shape_description_association"/>
          </explicit>
       </entity>
-      <entity name="Laminate_table" supertypes="Product_view_definition" super.expression="ONEOF (Part_laminate_table, Zone_structural_makeup)">
+      <entity name="Laminate_table" supertypes="Part_view_definition" super.expression="ONEOF (Part_laminate_table, Zone_structural_makeup)">
          <explicit name="basis">
             <typename name="Reinforcement_orientation_basis"/>
          </explicit>
@@ -109,7 +106,7 @@
             <typename name="Length_data_element"/>
          </explicit>
          <explicit name="material_orientation">
-            <typename name="Ply_orientation_angle"/>
+            <typename name="Direction_of_fiber_orientation_within_a_ply"/>
          </explicit>
          <explicit name="material_type">
             <typename name="ply_stock_material"/>
@@ -117,6 +114,9 @@
          <explicit name="shape" optional="YES">
             <typename name="Ply_shape"/>
          </explicit>
+         <derived name="material_orientation_angle" expression="material_orientation.orientations[1]">
+            <typename name="Ply_orientation_angle"/>
+         </derived>
       </entity>
       <entity name="Ply_laminate" supertypes="Constituent_part">
          <explicit name="shape" optional="YES">
@@ -157,7 +157,7 @@
             <typename name="Ply"/>
          </explicit>
          <explicit name="cell_direction">
-            <typename name="Ply_orientation_angle"/>
+            <typename name="Direction_of_fiber_orientation_within_a_ply"/>
          </explicit>
          <explicit name="made_from_stock">
             <typename name="Stock_core"/>
@@ -169,6 +169,9 @@
          <explicit name="shape" optional="YES">
             <typename name="core_shape"/>
          </explicit>
+         <derived name="cell_orientation_angle" expression="cell_direction.orientations[1]">
+            <typename name="Ply_orientation_angle"/>
+         </derived>
       </entity>
       <entity name="Smeared_material" supertypes="Zone_structural_makeup">
          <explicit name="total_thickness">

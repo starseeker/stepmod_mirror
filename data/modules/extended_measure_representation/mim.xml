@@ -2,19 +2,10 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-05-30 07:12:20 -0700 (Tr, 30 Geg 2007) $" rcs.revision="$Revision: 1075 $" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_measure_representation_mim schema_instance"/>
    <schema name="Extended_measure_representation_mim">
-      <interface kind="use" schema="Measure_representation_mim"/>
-      <interface kind="use" schema="qualified_measure_schema">
-         <interfaced.item name="measure_representation_item"/>
-         <interfaced.item name="precision_qualifier"/>
-         <interfaced.item name="qualified_representation_item"/>
-         <interfaced.item name="qualitative_uncertainty"/>
-         <interfaced.item name="standard_uncertainty"/>
-         <interfaced.item name="type_qualifier"/>
-         <interfaced.item name="uncertainty_qualifier"/>
-      </interface>
+      <interface kind="use" schema="Qualified_measure_mim"/>
       <interface kind="use" schema="representation_schema">
          <interfaced.item name="compound_item_definition"/>
          <interfaced.item name="compound_representation_item"/>
@@ -22,7 +13,6 @@
          <interfaced.item name="set_representation_item"/>
       </interface>
       <interface kind="use" schema="support_resource_schema"/>
-      <interface kind="use" schema="Value_with_unit_mim"/>
       <interface kind="reference" schema="support_resource_schema">
          <interfaced.item name="type_check_function"/>
       </interface>
@@ -40,17 +30,18 @@
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>BEGIN
-IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY (i1 &lt;* agg | (
-'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
-(i1)))) = 2) OR
-(SIZEOF(QUERY (i2 &lt;* agg | (
-'REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM' IN TYPEOF
-(i2)))) = 2)) THEN
-RETURN(TRUE);
-ELSE
-RETURN(FALSE);
-END_IF;
-END;</algorithm>
+      IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY (i1 &lt;* agg | (
+        'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
+        (i1)))) = 2) OR
+        (SIZEOF(QUERY (i2 &lt;* agg | (
+        'REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM' IN TYPEOF
+        (i2)))) = 2)) 
+      THEN
+        RETURN(TRUE);
+      ELSE
+        RETURN(FALSE);
+      END_IF;
+    END;</algorithm>
       </function>
       <function name="value_range_wr2">
          <parameter name="agg">
@@ -58,14 +49,14 @@ END;</algorithm>
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>BEGIN
-IF (SIZEOF(QUERY (i &lt;* agg | (i.name = 'upper limit'))) = 1)
-AND (SIZEOF(QUERY (i &lt;* agg | (i.name = 'lower limit'))) = 1)
-THEN
-RETURN(TRUE);
-ELSE
-RETURN(FALSE);
-END_IF;
-END;</algorithm>
+      IF (SIZEOF(QUERY (i &lt;* agg | (i.name = 'upper limit'))) = 1)
+        AND (SIZEOF(QUERY (i &lt;* agg | (i.name = 'lower limit'))) = 1)
+      THEN
+        RETURN(TRUE);
+      ELSE
+        RETURN(FALSE);
+      END_IF;
+    END;</algorithm>
       </function>
       <function name="value_range_wr3">
          <parameter name="agg">
@@ -73,17 +64,17 @@ END;</algorithm>
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>BEGIN
-IF (SIZEOF(QUERY(i1 &lt;* agg |
-('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i1)) AND
-(SIZEOF (QUERY (i2 &lt;* agg |
-('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i2)) AND
-(i1 :&lt;&gt;: i2) AND (i1\measure_with_unit.unit_component :=: i2\measure_with_unit.unit_component))) = 1))) = 2)
-THEN
-RETURN (TRUE);
-ELSE
-RETURN (FALSE);
-END_IF;
-END;</algorithm>
+      IF (SIZEOF(QUERY(i1 &lt;* agg |
+        ('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i1)) AND
+        (SIZEOF (QUERY (i2 &lt;* agg |
+        ('QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF (i2)) AND
+        (i1 :&lt;&gt;: i2) AND (i1\measure_with_unit.unit_component :=: i2\measure_with_unit.unit_component))) = 1))) = 2)
+      THEN
+        RETURN (TRUE);
+      ELSE
+        RETURN (FALSE);
+      END_IF;
+    END;</algorithm>
       </function>
    </schema>
 </express>

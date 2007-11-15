@@ -2,14 +2,13 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-05-30 06:27:22 -0700 (Tr, 30 Geg 2007) $" rcs.revision="$Revision: 1066 $" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="composite_constituent_shape_mim schema_instance"/>
    <schema name="Composite_constituent_shape_mim">
       <interface kind="use" schema="Advanced_boundary_representation_mim"/>
       <interface kind="use" schema="Construction_geometry_mim"/>
       <interface kind="use" schema="Edge_based_wireframe_mim"/>
       <interface kind="use" schema="Elemental_topology_mim"/>
-      <interface kind="use" schema="Faceted_boundary_representation_mim"/>
       <interface kind="use" schema="Geometrically_bounded_surface_mim"/>
       <interface kind="use" schema="Geometrically_bounded_wireframe_mim"/>
       <interface kind="use" schema="Manifold_surface_mim"/>
@@ -19,7 +18,12 @@
          <interfaced.item name="shape_representation_relationship"/>
       </interface>
       <entity name="beveled_sheet_representation" supertypes="shape_representation"/>
-      <entity name="composite_sheet_representation" supertypes="shape_representation"/>
-      <entity name="flat_pattern_ply_representation_relationship" supertypes="shape_representation_relationship"/>
+      <entity name="composite_sheet_representation" supertypes="shape_representation">
+         <where label="WR1" expression="SIZEOF (['AIC_GEOMETRICALLY_BOUNDED_SURFACE.' +&#10;        'GEOMETRICALLY_BOUNDED_SURFACE_SHAPE_REPRESENTATION',&#10;        'AIC_MANIFOLD_SURFACE.' +&#10;        'MANIFOLD_SURFACE_SHAPE_REPRESENTATION'] * TYPEOF (SELF)) = 1"/>
+      </entity>
+      <entity name="flat_pattern_ply_representation_relationship" supertypes="shape_representation_relationship">
+         <where label="WR1" expression="'STRUCTURAL_ANALYSIS_DESIGN.SHAPE_REPRESENTATION' IN&#10;        (TYPEOF (SELF\representation_relationship.rep_1) *&#10;         TYPEOF (SELF\representation_relationship.rep_2))"/>
+         <where label="WR2" expression="SELF\representation_relationship.rep_1.&#10;        context_of_items\geometric_representation_context.&#10;        coordinate_space_dimension = 3"/>
+      </entity>
    </schema>
 </express>

@@ -1,26 +1,26 @@
 (*
-   $Id: arm.exp,v 1.5 2006/05/18 21:56:08 darla Exp $
-   ISO TC184/SC4/WG12 N4391 - ISO/TS 10303-1768 Composite material aspects - EXPRESS ARM
-   *)
+   $Id: arm.exp 1151 2007-06-05 14:31:43Z giedrius $
+   ISO TC184/SC4/WG12 N4678 - ISO/CD-TS 10303-1768 Composite material aspects - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N4391
+*)
+
 SCHEMA Composite_material_aspects_arm;
 
-USE FROM Generic_material_aspects_arm;
+USE FROM Part_and_zone_laminate_tables_arm; -- ISO/CD-TS 10303-1770
 
-USE FROM Part_and_zone_laminate_tables_arm;
+  TYPE cma_material_item_select = EXTENSIBLE SELECT BASED_ON material_item_select WITH
+    (Anisotropic_material,
+     Braided_assembly,
+     Isotropic_material,
+     Laminate_table,
+     Woven_assembly);
+  END_TYPE;
 
-USE FROM Stock_material_arm;
-
-TYPE cma_material_item_select = EXTENSIBLE SELECT BASED_ON material_item_select WITH
-  (Anisotropic_material,
-   Isotropic_material,
-   Laminate_table);
-END_TYPE;
-
-ENTITY Composite_material_identification
-SUBTYPE OF (Material_identification);
-  SELF\Material_identification.items RENAMED composite_items : SET [1 : ?] OF cma_material_item_select;
-  SELF\Material_identification.material_name RENAMED composite_material_name : STRING;
-END_ENTITY;
+  ENTITY Composite_material_identification
+    SUBTYPE OF (Material_identification);
+      SELF\Material_identification.items RENAMED composite_items : SET [1 : ?] OF cma_material_item_select;
+      SELF\Material_identification.material_name RENAMED composite_material_name : STRING;
+  END_ENTITY;
 
 END_SCHEMA;
 

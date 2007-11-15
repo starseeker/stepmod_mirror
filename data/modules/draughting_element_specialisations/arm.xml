@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="$Date: 2007-05-24 03:50:26 -0700 (Kt, 24 Geg 2007) $" rcs.revision="$Revision: 953 $" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="draughting_element_specialisations_arm schema_instance"/>
+   <schema name="Draughting_element_specialisations_arm">
+      <interface kind="use" schema="Draughting_element_arm"/>
+      <type name="chained_or_parallel">
+         <enumeration items="chained parallel"/>
+      </type>
+      <type name="dimension_callout_select">
+         <select extensible="YES" genericentity="YES" selectitems="Text"/>
+      </type>
+      <type name="dimension_type">
+         <enumeration items="angular curve diameter leader_directed linear ordinate radius"/>
+      </type>
+      <type name="primary_or_secondary">
+         <enumeration items="primary secondary"/>
+      </type>
+      <entity name="Datum_feature_callout" supertypes="Draughting_element"/>
+      <entity name="Datum_target_callout" supertypes="Draughting_element"/>
+      <entity name="Dimension" abstract.supertype="YES" supertypes="Draughting_element" super.expression="Dimension_callout ANDOR Dimension_value">
+         <explicit name="id">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Dimension_callout" supertypes="Dimension">
+         <explicit name="callout_element">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="dimension_callout_select"/>
+         </explicit>
+         <explicit name="dimension_type">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="dimension_type"/>
+         </explicit>
+      </entity>
+      <entity name="Dimension_callout_relationship">
+         <explicit name="relating_draughting_callout">
+            <typename name="Dimension_callout"/>
+         </explicit>
+         <explicit name="related_draughting_callout">
+            <typename name="Dimension_value"/>
+         </explicit>
+         <explicit name="relation_type">
+            <typename name="primary_or_secondary"/>
+         </explicit>
+      </entity>
+      <entity name="Dimension_prefix" supertypes="Draughting_element">
+         <explicit name="prefix">
+            <typename name="Dimension_text"/>
+         </explicit>
+         <inverse name="parent" entity="Structured_dimension_callout" attribute="prefix"/>
+         <where label="WR1" expression="prefix IN SELF\Draughting_callout.contents"/>
+         <where label="WR2" expression="prefix\Representation_item.name = 'prefix text'"/>
+      </entity>
+      <entity name="Dimension_sequence_pair">
+         <explicit name="allignment">
+            <typename name="chained_or_parallel"/>
+         </explicit>
+         <explicit name="predecessor">
+            <typename name="Dimension_callout"/>
+         </explicit>
+         <explicit name="successor">
+            <typename name="Dimension_callout"/>
+         </explicit>
+      </entity>
+      <entity name="Dimension_suffix" supertypes="Draughting_element">
+         <explicit name="suffix">
+            <typename name="Dimension_text"/>
+         </explicit>
+         <inverse name="parent" entity="Structured_dimension_callout" attribute="suffix"/>
+         <where label="WR1" expression="suffix IN SELF\Draughting_callout.contents"/>
+         <where label="WR2" expression="suffix\Representation_item.name = 'suffix text'"/>
+      </entity>
+      <entity name="Dimension_value" supertypes="Dimension">
+         <explicit name="dimension_value">
+            <typename name="Dimension_text"/>
+         </explicit>
+         <where label="WR1" expression="dimension_value IN SELF\Draughting_callout.contents"/>
+         <where label="WR2" expression="dimension_value\Representation_item.name = 'dimension value'"/>
+      </entity>
+      <entity name="Draughting_element" supertypes="Draughting_callout" super.expression="ONEOF (Datum_feature_callout, Datum_target_callout, Dimension, Dimension_prefix, Dimension_suffix, Geometric_tolerance_callout, Surface_condition_callout)"/>
+      <entity name="Geometric_tolerance_callout" supertypes="Draughting_element"/>
+      <entity name="Structured_dimension_callout" supertypes="Dimension_value">
+         <explicit name="prefix" optional="YES">
+            <typename name="Dimension_prefix"/>
+         </explicit>
+         <explicit name="suffix" optional="YES">
+            <typename name="Dimension_suffix"/>
+         </explicit>
+         <explicit name="tolerance_value" optional="YES">
+            <typename name="Dimension_text"/>
+         </explicit>
+         <explicit name="unit_text" optional="YES">
+            <typename name="Dimension_text"/>
+         </explicit>
+         <where label="WR1" expression="tolerance_value IN SELF\Draughting_callout.contents"/>
+         <where label="WR2" expression="NOT EXISTS(tolerance_value) OR (tolerance_value\Representation_item.name = 'tolerance value')"/>
+         <where label="WR3" expression="unit_text IN SELF\Draughting_callout.contents"/>
+         <where label="WR4" expression="NOT EXISTS(unit_text) OR (unit_text\Representation_item.name = 'unit text')"/>
+      </entity>
+      <entity name="Surface_condition_callout" supertypes="Draughting_element"/>
+   </schema>
+</express>

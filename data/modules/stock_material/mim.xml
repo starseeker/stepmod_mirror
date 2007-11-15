@@ -2,13 +2,83 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-06-04 04:40:29 -0700 (Pr, 04 Bir 2007) $" rcs.revision="$Revision: 1131 $" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="stock_material_mim schema_instance"/>
    <schema name="Stock_material_mim">
       <interface kind="use" schema="Approval_mim"/>
-      <interface kind="use" schema="Document_definition_mim"/>
       <interface kind="use" schema="Elemental_geometric_shape_mim"/>
       <interface kind="use" schema="Generic_material_aspects_mim"/>
-      <interface kind="use" schema="Part_and_version_identification_mim"/>
+      <interface kind="use" schema="Part_view_definition_mim"/>
+      <interface kind="use" schema="Specification_document_mim"/>
+      <interface kind="use" schema="product_structure_schema">
+         <interfaced.item name="make_from_usage_option"/>
+      </interface>
+      <type name="sm_approval_item">
+         <select extensible="YES" genericentity="YES" basedon="approval_item" selectitems="product_definition"/>
+      </type>
+      <rule name="ply_stock_material_select" appliesto="product_related_product_category make_from_usage_option">
+         <algorithm>LOCAL
+    i,j,k,kp :  INTEGER;
+    dkuhr    :  LOGICAL;
+    nmfuo    :  INTEGER;
+    nprpc    :  INTEGER;
+    rp       :  product;
+  END_LOCAL;
+
+  dkuhr := TRUE;
+  REPEAT kp:= LOINDEX (product_related_product_category) TO
+              HIINDEX (product_related_product_category);
+ 
+    IF (product_related_product_category[kp].name = 'ply') THEN
+    REPEAT i:= LOINDEX (product_related_product_category[kp].products) TO
+               HIINDEX (product_related_product_category[kp].products);
+
+      nmfuo := 0;  
+      REPEAT j:= LOINDEX (make_from_usage_option) TO 
+                 HIINDEX (make_from_usage_option);
+
+        IF (product_related_product_category[kp].products[i] = 
+          make_from_usage_option[j].relating_product_definition.
+          formation.of_product) THEN
+
+          rp := make_from_usage_option[j].related_product_definition.
+                formation.of_product;
+          REPEAT k:= LOINDEX (product_related_product_category) TO
+                     HIINDEX (product_related_product_category);
+
+            IF ((rp IN product_related_product_category[k].products) AND
+                (product_related_product_category[k].name IN 
+                 ['isotropic material', 'filament assembly', 
+                  'discontinuous fiber assembly'])) THEN
+                nprpc := nprpc + 1;
+            END_IF;
+
+          END_REPEAT;
+
+          IF (nprpc = 1) THEN
+            nmfuo := nmfuo + 1;
+          ELSE
+            dkuhr := FALSE;
+            ESCAPE;
+          END_IF;
+
+        END_IF;
+
+      END_REPEAT;
+
+      IF (dkuhr = FALSE) THEN
+        ESCAPE; 
+      END_IF;
+      IF(nmfuo &lt;&gt; 1) THEN
+        dkuhr := FALSE;
+        ESCAPE;
+      END_IF;
+
+    END_REPEAT;
+    END_IF;
+
+  END_REPEAT;</algorithm>
+         <where label="WR1" expression="dkuhr"/>
+      </rule>
    </schema>
 </express>

@@ -2,21 +2,29 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-06-04 04:40:29 -0700 (Pr, 04 Bir 2007) $" rcs.revision="$Revision: 1131 $" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="dimension_and_tolerance_callouts_mim schema_instance"/>
    <schema name="Dimension_and_tolerance_callouts_mim">
       <interface kind="use" schema="Dimension_tolerance_mim"/>
-      <interface kind="use" schema="Draughting_element_specializations_mim"/>
+      <interface kind="use" schema="Draughting_element_specialisations_mim"/>
       <interface kind="use" schema="Draughting_annotation_mim"/>
       <interface kind="use" schema="Associative_draughting_elements_mim"/>
-      <interface kind="use" schema="Draughting_dimension_mim"/>
-      <interface kind="use" schema="Extended_fill_area_style_mim"/>
-      <rule name="draughting_model_contains_draughting_elements_only" appliesto="draughting_model">
-         <where label="WR1" expression="SIZEOF(QUERY(it1 &lt;* draughting_model.items |&#10;        ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT'&#10;        IN TYPEOF(it1))&#10;        AND&#10;        NOT('AIC_DRAUGHTING_ELEMENTS.DRAUGHTING_ELEMENTS'&#10;        IN TYPEOF(it1))) = 0)"/>
-      </rule>
+      <type name="dimensioning_standard_document_reference_item">
+         <select extensible="YES" basedon="document_reference_item" selectitems="product_definition"/>
+      </type>
+      <entity name="dimension_curve_terminator_to_projection_curve_associativity" supertypes="annotation_occurrence_associativity">
+         <explicit name="relating_annotation_occurrence">
+            <typename name="dimension_curve_terminator"/>
+            <redeclaration entity-ref="annotation_occurrence_relationship"/>
+         </explicit>
+         <explicit name="related_annotation_occurrence">
+            <typename name="projection_curve"/>
+            <redeclaration entity-ref="annotation_occurrence_relationship"/>
+         </explicit>
+      </entity>
       <rule name="draughting_model_items_constraint" appliesto="draughting_model">
-         <where label="WR1" expression="SIZEOF(QUERY(it1 &lt;* draughting_model.items |&#10;        ('DRAUGHTING_ELEMENT_SCHEMA.ANNOTATION_OCCURRENCE'&#10;        IN TYPEOF(it1))&#10;        AND&#10;        NOT('AIC_DRAUGHTING_ANNOTATION.' + 'DRAUGHTING_ANNOTATION_OCCURRENCE' &#10;             IN TYPEOF(it1))) = 0)"/>
-         <where label="WR2" expression="SIZEOF(QUERY(it1 &lt;* draughting_callout.contents |&#10;        ('DRAUGHTING_ELEMENT_SCHEMA.ANNOTATION_OCCURRENCE'&#10;        IN TYPEOF(it1))&#10;        AND&#10;        NOT('AIC_DRAUGHTING_ANNOTATION.' + 'DRAUGHTING_ANNOTATION_OCCURRENCE' &#10;             IN TYPEOF(it1))) = 0)"/>
+         <where label="WR1" expression="SIZEOF(QUERY(dm &lt;* draughting_model |&#10;        NOT(SIZEOF(QUERY(it1 &lt;* dm\representation.items |&#10;        (('DRAUGHTING_ELEMENT_SCHEMA.ANNOTATION_OCCURRENCE' IN TYPEOF(it1))&#10;        AND&#10;        NOT('AIC_DRAUGHTING_ANNOTATION.' + 'DRAUGHTING_ANNOTATION_OCCURRENCE' IN TYPEOF(it1)))&#10;          )) = 0)&#10;        )) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(dm &lt;* draughting_model |&#10;        NOT(SIZEOF(QUERY(it1 &lt;* dm\representation.items |&#10;        (('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT' IN TYPEOF(it1))&#10;        AND&#10;        NOT('AIC_DRAUGHTING_ELEMENTS.DRAUGHTING_ELEMENTS' IN TYPEOF(it1)))&#10;          )) = 0)&#10;        )) = 0"/>
       </rule>
    </schema>
 </express>

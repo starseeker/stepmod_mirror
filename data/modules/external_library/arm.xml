@@ -1,36 +1,31 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="../data/modules/external_library/arm.exp"/>
-
-  <schema name="External_library_arm">
-
-    <entity
-      name="External_library">
-      <explicit
-        name="id">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-    </entity>
-
-  </schema>
+<express language_version="2" rcs.date="$Date: 2007-05-30 07:12:20 -0700 (Tr, 30 Geg 2007) $" rcs.revision="$Revision: 1075 $" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="external_library_arm schema_instance"/>
+   <schema name="External_library_arm">
+      <interface kind="use" schema="External_properties_arm"/>
+      <interface kind="use" schema="Plib_class_reference_arm"/>
+      <type name="el_external_identification_item">
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="User_defined_library_or_dictionary"/>
+      </type>
+      <entity name="External_source" super.expression="ONEOF (Known_source, User_defined_library_or_dictionary)">
+         <explicit name="id">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Iso15926_4_rdl" supertypes="Known_source"/>
+      <entity name="Known_source" abstract.supertype="YES" supertypes="External_source" super.expression="ONEOF (Iso15926_4_rdl, Otd_catalogue, Otd_dictionary, Plib_dictionary, Plib_library)"/>
+      <entity name="Otd_catalogue" supertypes="Known_source"/>
+      <entity name="Otd_dictionary" supertypes="Known_source"/>
+      <entity name="Plib_dictionary" supertypes="Known_source"/>
+      <entity name="Plib_library" supertypes="Known_source"/>
+      <entity name="User_defined_library_or_dictionary" supertypes="External_source">
+         <inverse name="source" entity="External_source_identification" attribute="item"/>
+      </entity>
+   </schema>
 </express>

@@ -8,8 +8,14 @@
       <interface kind="use" schema="Mechanical_design_geometric_presentation_arm"/>
       <interface kind="use" schema="Mechanical_design_shaded_presentation_arm"/>
       <interface kind="use" schema="Associative_draughting_elements_arm"/>
+      <type name="mdprwd_draughting_model_element_select">
+         <select basedon="draughting_model_element_select" selectitems="Camera_model_d3"/>
+      </type>
+      <type name="mdprwd_element_select">
+         <select extensible="YES" genericentity="YES" selectitems="Axis_placement Camera_model_d3"/>
+      </type>
       <type name="mechanical_design_and_draughting_relationship_select">
-         <select extensible="YES" genericentity="YES" selectitems="Draughting_model Mechanical_representation_styled_model Mechanical_design_shaped_styled_model Mechanical_design_presentation_representation_with_draughting Geometric_model"/>
+         <select extensible="YES" genericentity="YES" selectitems="Draughting_model Mechanical_representation_styled_model Mechanical_design_shaded_styled_model Mechanical_design_presentation_representation_with_draughting Geometric_model"/>
       </type>
       <entity name="Mechanical_design_and_draughting_relationship" supertypes="Definitional_representation_relationship">
          <explicit name="rep_1">
@@ -20,10 +26,17 @@
             <typename name="mechanical_design_and_draughting_relationship_select"/>
             <redeclaration entity-ref="Representation_relationship"/>
          </explicit>
-         <where label="WR1" expression="NOT('ASSOCIATIVE_DRAUGHTING_ELEMENTS_ARM.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_2)) OR &#10;     (['ASSOCIATIVE_DRAUGHTING_ELEMENTS_ARM.'+'DRAUGHTING_MODEL', &#10;     'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] IN TYPEOF(rep_1))"/>
-         <where label="WR2" expression="NOT('MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_ARM.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL' IN TYPEOF(rep_2)) &#10;     OR (['MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_ARM.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL', &#10;     'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] IN TYPEOF(rep_1))"/>
-         <where label="WR3" expression="NOT('MECHANICAL_DESIGN_SHADED_PRESENTATION_ARM.'+'MECHANICAL_DESIGN_SHAPED_STYLED_MODEL' IN TYPEOF(rep_2)) &#10;     OR (['MECHANICAL_DESIGN_SHADED_PRESENTATION_ARM.'+'MECHANICAL_DESIGN_SHAPED_STYLED_MODEL',&#10;     'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] IN TYPEOF(rep_1))"/>
+         <where label="WR1" expression="NOT('ASSOCIATIVE_DRAUGHTING_ELEMENTS_ARM.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_2)) OR &#10;       (SIZEOF(['ASSOCIATIVE_DRAUGHTING_ELEMENTS_ARM.'+'DRAUGHTING_MODEL', &#10;       'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1)"/>
+         <where label="WR2" expression="NOT('MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_ARM.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL' IN TYPEOF(rep_2)) &#10;       OR (SIZEOF(['MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_ARM.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL', &#10;       'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1)"/>
+         <where label="WR3" expression="NOT('MECHANICAL_DESIGN_SHADED_PRESENTATION_ARM.'+'MECHANICAL_DESIGN_SHADED_STYLED_MODEL' IN TYPEOF(rep_2)) &#10;       OR (SIZEOF(['MECHANICAL_DESIGN_SHADED_PRESENTATION_ARM.'+'MECHANICAL_DESIGN_SHADED_STYLED_MODEL',&#10;       'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1)"/>
       </entity>
-      <entity name="Mechanical_design_presentation_representation_with_draughting" supertypes="Representation"/>
+      <entity name="Mechanical_design_presentation_representation_with_draughting" supertypes="Styled_model">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="mdprwd_element_select"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <where label="WR1" expression="SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 3"/>
+      </entity>
    </schema>
 </express>

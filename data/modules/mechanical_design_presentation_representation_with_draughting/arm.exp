@@ -1,46 +1,54 @@
 (*
-   $Id$
-   N - ISO/CD-TS - 10303- mechanical_design_presentation_representation_with_draughting - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   $Id: arm.exp 1151 2007-06-05 14:31:43Z giedrius $
+   ISO TC184/SC4/WG12 N4759 - ISO/CD-TS 10303-1315 Mechanical design presentation representation with draughting - EXPRESS ARM
+*)
+
 SCHEMA Mechanical_design_presentation_representation_with_draughting_arm;
 
-USE FROM Mechanical_design_geometric_presentation_arm; -- ~AIC517
+USE FROM Mechanical_design_geometric_presentation_arm; -- ISO/CD-TS 10303-1313
 
-USE FROM Mechanical_design_shaded_presentation_arm; -- ~AIC518
+USE FROM Mechanical_design_shaded_presentation_arm; -- ISO/CD-TS 10303-1314
 
-USE FROM Associative_draughting_elements_arm; -- ~AIC520
+USE FROM Associative_draughting_elements_arm; -- ISO/CD-TS 10303-1311
 
- TYPE mechanical_design_and_draughting_relationship_select = EXTENSIBLE GENERIC_ENTITY SELECT ( 
-   Draughting_model, -- AIC520 
-   Mechanical_representation_styled_model, -- AIC517 
-   Mechanical_design_shaped_styled_model, -- AIC518 
-   Mechanical_design_presentation_representation_with_draughting, -- new 
-   Geometric_model); 
- END_TYPE; 
+  TYPE mechanical_design_and_draughting_relationship_select = EXTENSIBLE GENERIC_ENTITY SELECT ( 
+    Draughting_model,
+    Mechanical_representation_styled_model,
+    Mechanical_design_shaded_styled_model, 
+    Mechanical_design_presentation_representation_with_draughting,
+    Geometric_model); 
+  END_TYPE; 
 
- ENTITY Mechanical_design_presentation_representation_with_draughting -- mdprwd 
-   SUBTYPE of (Representation); 
- END_ENTITY;  
+  TYPE mdprwd_draughting_model_element_select = SELECT BASED_ON draughting_model_element_select WITH 
+    (Camera_model_d3);
+  END_TYPE; 
+
+  TYPE mdprwd_element_select = EXTENSIBLE GENERIC_ENTITY SELECT 
+    (Axis_placement,
+    Camera_model_d3); 
+  END_TYPE;   
+
+  ENTITY Mechanical_design_presentation_representation_with_draughting
+    SUBTYPE OF (Styled_model); 
+      SELF\Representation.items : SET [1:?] OF mdprwd_element_select; 
+    WHERE 
+      WR1: SELF\Representation.context_of_items\Geometric_coordinate_space.dimension_count = 3;
+  END_ENTITY; 
  
- ENTITY Mechanical_design_and_draughting_relationship -- mdadr 
+  ENTITY Mechanical_design_and_draughting_relationship
    SUBTYPE OF(Definitional_representation_relationship); 
-   SELF\representation_relationship.rep_1 : mechanical_design_and_draughting_relationship_select; 
-   SELF\representation_relationship.rep_2 : mechanical_design_and_draughting_relationship_select; 
- WHERE    
-   -- wr1: if rep_2 is a draughting_model then rep_1 must also be a draughting_model or a shape_representation(subtype) 
-   WR1: NOT('ASSOCIATIVE_DRAUGHTING_ELEMENTS_ARM.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_2)) OR 
-     (['ASSOCIATIVE_DRAUGHTING_ELEMENTS_ARM.'+'DRAUGHTING_MODEL', 
-     'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] IN TYPEOF(rep_1));
-   -- wr2: if rep_2 is a mdgpr then rep_1 must also be a mdgpr or a shape_representation(subtype) 
-   WR2: NOT('MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_ARM.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL' IN TYPEOF(rep_2)) 
-     OR (['MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_ARM.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL', 
-     'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] IN TYPEOF(rep_1));
-   -- wr3: if rep_2 is a mdgspr then rep_1 must also be a mdgspr or a shape_representation(subtype) 
-   WR3: NOT('MECHANICAL_DESIGN_SHADED_PRESENTATION_ARM.'+'MECHANICAL_DESIGN_SHAPED_STYLED_MODEL' IN TYPEOF(rep_2)) 
-     OR (['MECHANICAL_DESIGN_SHADED_PRESENTATION_ARM.'+'MECHANICAL_DESIGN_SHAPED_STYLED_MODEL',
-     'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] IN TYPEOF(rep_1));
- END_ENTITY;  
--- only the mdprwd is allowed to combine all together into one 
-
+     SELF\representation_relationship.rep_1 : mechanical_design_and_draughting_relationship_select; 
+     SELF\representation_relationship.rep_2 : mechanical_design_and_draughting_relationship_select; 
+   WHERE    
+     WR1: NOT('ASSOCIATIVE_DRAUGHTING_ELEMENTS_ARM.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_2)) OR 
+       (SIZEOF(['ASSOCIATIVE_DRAUGHTING_ELEMENTS_ARM.'+'DRAUGHTING_MODEL', 
+       'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1);
+     WR2: NOT('MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_ARM.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL' IN TYPEOF(rep_2)) 
+       OR (SIZEOF(['MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_ARM.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL', 
+       'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1);
+     WR3: NOT('MECHANICAL_DESIGN_SHADED_PRESENTATION_ARM.'+'MECHANICAL_DESIGN_SHADED_STYLED_MODEL' IN TYPEOF(rep_2)) 
+       OR (SIZEOF(['MECHANICAL_DESIGN_SHADED_PRESENTATION_ARM.'+'MECHANICAL_DESIGN_SHADED_STYLED_MODEL',
+       'ELEMENTAL_GEOMETRIC_SHAPE_ARM.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1);
+  END_ENTITY;  
 
 END_SCHEMA;

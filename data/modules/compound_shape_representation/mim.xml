@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="$Date: 2007-05-04 02:45:07 -0700 (Pn, 04 Geg 2007) $" rcs.revision="$Revision: 636 $" description.file="mim_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="compound_shape_representation_mim schema_instance"/>
+   <schema name="Compound_shape_representation_mim">
+      <interface kind="use" schema="Edge_based_wireframe_mim"/>
+      <interface kind="use" schema="Non_manifold_surface_mim"/>
+      <entity name="compound_shape_representation" supertypes="shape_representation">
+         <where label="WR1" expression="( 'GEOMETRY_SCHEMA.'+ 'GEOMETRIC_REPRESENTATION_CONTEXT'&#10;     IN TYPEOF ( SELF.context_of_items ) ) AND (&#10;     SELF.context_of_items\&#10;     geometric_representation_context.coordinate_space_dimension&#10;     =3 )"/>
+         <where label="WR2" expression="SIZEOF ( QUERY ( cbsr_i &lt;* SELF.items | SIZEOF (&#10;     ['GEOMETRIC_MODEL_SCHEMA.'+ 'EDGE_BASED_WIREFRAME_MODEL' ,&#10;     'GEOMETRIC_MODEL_SCHEMA.'+ 'FACE_BASED_SURFACE_MODEL' ,&#10;     'REPRESENTATION_SCHEMA.'+ 'MAPPED_ITEM' , 'GEOMETRY_SCHEMA.'+&#10;     'AXIS2_PLACEMENT_3D']* TYPEOF ( cbsr_i ) ) &lt;&gt;1 ) ) =0"/>
+         <where label="WR3" expression="SIZEOF ( QUERY ( cbsr_i &lt;* SELF.items | SIZEOF (&#10;     ['GEOMETRIC_MODEL_SCHEMA.'+ 'EDGE_BASED_WIREFRAME_MODEL' ,&#10;     'GEOMETRIC_MODEL_SCHEMA.'+ 'FACE_BASED_SURFACE_MODEL' ,&#10;     'REPRESENTATION_SCHEMA.'+ 'MAPPED_ITEM']* TYPEOF ( cbsr_i ) )&#10;     =1 ) ) &gt;0"/>
+         <where label="WR4" expression="SIZEOF ( QUERY ( cbsr_i &lt;* SELF.items | (&#10;     'REPRESENTATION_SCHEMA.'+ 'MAPPED_ITEM' IN TYPEOF ( cbsr_i ) )&#10;     AND ( SIZEOF ( ['COMPOUND_SHAPE_REPRESENTATION_MIM.'+&#10;     'COMPOUND_SHAPE_REPRESENTATION' , 'AIC_EDGE_BASED_WIREFRAME.'+&#10;     'EDGE_BASED_WIREFRAME_SHAPE_REPRESENTATION' ,&#10;     'AIC_NON_MANIFOLD_SURFACE.'+&#10;     'NON_MANIFOLD_SURFACE_SHAPE_REPRESENTATION']* TYPEOF (&#10;     cbsr_i\ mapped_item.mapping_source ) ) &lt;&gt;1 ) ) ) =0"/>
+         <where label="IP1"/>
+      </entity>
+   </schema>
+</express>

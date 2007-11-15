@@ -6,36 +6,72 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="camera_view_3d_arm schema_instance"/>
    <schema name="Camera_view_3d_arm">
       <interface kind="use" schema="Presentation_hierarchy_arm"/>
-      <type name="presented_model_select">
-         <select extensible="YES" genericentity="YES"/>
+      <interface kind="use" schema="Colour_arm"/>
+      <type name="clipping_element">
+         <select selectitems="Plane Clipping_operator"/>
+      </type>
+      <type name="clipping_mode">
+         <enumeration items="union intersection"/>
+      </type>
+      <type name="cv3_view_element_select">
+         <select basedon="view_element_select" selectitems="Model_image_3d"/>
+      </type>
+      <type name="light_type">
+         <enumeration items="ambient directional spot positional"/>
       </type>
       <type name="view_projection_type">
          <enumeration items="central parallel"/>
       </type>
-      <entity name="Clipping_plane" supertypes="Detailed_geometric_model_element"/>
-      <entity name="Model_image_3d">
-         <explicit name="name" optional="YES">
-            <builtintype type="STRING"/>
+      <entity name="Camera_model_d3" supertypes="Detailed_geometric_model_element">
+         <explicit name="clipping" optional="YES">
+            <typename name="Clipping_operator"/>
          </explicit>
-         <explicit name="is_displaying">
-            <typename name="presented_model_select"/>
+         <explicit name="hidden_element_appearance" optional="YES">
+            <typename name="Appearance_assignment"/>
          </explicit>
-         <explicit name="is_presented_in">
-            <typename name="View"/>
+         <explicit name="hidden_line_removal" optional="YES">
+            <builtintype type="BOOLEAN"/>
          </explicit>
-         <explicit name="scale" optional="YES">
-            <typename name="Value_with_unit"/>
+         <explicit name="sources" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Light_source"/>
          </explicit>
          <explicit name="view_projection">
             <typename name="view_projection_type"/>
          </explicit>
-         <explicit name="clipping" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Clipping_plane"/>
+         <explicit name="view_window">
+            <typename name="Planar_box"/>
          </explicit>
-         <explicit name="hidden_line_removal">
-            <builtintype type="BOOLEAN"/>
+         <where label="WR1" expression="NOT EXISTS(hidden_element_appearance) OR EXISTS(hidden_line_removal)"/>
+      </entity>
+      <entity name="Clipping_operator" supertypes="Detailed_geometric_model_element">
+         <explicit name="elements">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="clipping_element"/>
+         </explicit>
+         <explicit name="operator">
+            <typename name="clipping_mode"/>
          </explicit>
       </entity>
+      <entity name="Light_source" supertypes="Detailed_geometric_model_element">
+         <explicit name="colour" optional="YES">
+            <typename name="Colour"/>
+         </explicit>
+         <explicit name="light_type">
+            <typename name="light_type"/>
+         </explicit>
+      </entity>
+      <entity name="Model_image_3d" supertypes="Detailed_geometric_model_element">
+         <explicit name="is_displaying">
+            <typename name="presented_model_select"/>
+         </explicit>
+         <explicit name="source">
+            <typename name="Camera_model_d3"/>
+         </explicit>
+         <explicit name="target">
+            <typename name="Planar_box"/>
+         </explicit>
+      </entity>
+      <subtype.constraint name="cv3d_detailed_geometric_model_element_subtypes" entity="Detailed_geometric_model_element" super.expression="ONEOF (Clipping_operator, Model_image_3d, Light_source, Camera_model_d3)"/>
    </schema>
 </express>

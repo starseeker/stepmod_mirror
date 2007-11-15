@@ -5,15 +5,52 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="associative_draughting_elements_arm schema_instance"/>
    <schema name="Associative_draughting_elements_arm">
-      <interface kind="use" schema="Appearance_assignment_arm"/>
       <interface kind="use" schema="Shape_property_assignment_arm"/>
       <interface kind="use" schema="Draughting_element_arm"/>
-      <entity name="Dimension_text_associativity" supertypes="Presentable_text_item"/>
+      <type name="annotation_occurrence_associativity_item">
+         <select selectitems="Fill_area Leader Projection_curve"/>
+      </type>
+      <type name="draughting_model_element_select">
+         <select extensible="YES" genericentity="YES" selectitems="Annotation_element Axis_placement Draughting_callout Styled_model_replication"/>
+      </type>
+      <type name="draughting_model_item_association_select">
+         <select selectitems="Annotation_element Draughting_callout"/>
+      </type>
+      <entity name="Annotation_occurrence_associativity">
+         <explicit name="relating_element">
+            <typename name="Annotation_element"/>
+         </explicit>
+         <explicit name="related_element">
+            <typename name="annotation_occurrence_associativity_item"/>
+         </explicit>
+      </entity>
       <entity name="Draughting_model" supertypes="Styled_model">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="draughting_model_element_select"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Representation" attribute="name"/>
          </unique>
       </entity>
-      <entity name="Shape_aspect_associativity" supertypes="Shape_element_relationship"/>
+      <entity name="Draughting_model_item_association">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="definition">
+            <typename name="Shape_element"/>
+         </explicit>
+         <explicit name="identified_item">
+            <typename name="draughting_model_item_association_select"/>
+         </explicit>
+         <explicit name="used_model">
+            <typename name="Draughting_model"/>
+         </explicit>
+         <where label="WR1" expression="(NOT('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'DATUM_FEATURE_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	       ('EXTENDED_GEOMETRIC_TOLERANCE_ARM.'+'DATUM_FEATURE' IN TYPEOF(definition)))"/>
+         <where label="WR2" expression="(NOT('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'DATUM_TARGET_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	       ('GEOMETRIC_TOLERANCE_ARM.'+'DATUM_TARGET' IN TYPEOF(definition)))"/>
+         <where label="WR3" expression="(NOT('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'GEOMETRIC_TOLERANCE_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	       ('GEOMETRIC_TOLERANCE_ARM.'+'GEOMETRIC_TOLERANCE' IN TYPEOF(definition)))"/>
+         <where label="WR4" expression="(NOT('DIMENSION_TOLERANCE_ARM.'+'SIZE_DIMENSION' IN TYPEOF(definition)) OR&#10;	        (('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'DIMENSION_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	        ('DRAUGHTING_ELEMENT_ARM.'+'DIMENSION_CURVE_DIRECTED_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	        ('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'STRUCTURED_DIMENSION_CALLOUT' IN TYPEOF(identified_item))))"/>
+      </entity>
    </schema>
 </express>

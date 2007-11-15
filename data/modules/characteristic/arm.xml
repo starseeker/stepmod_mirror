@@ -2,9 +2,10 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-09-21 10:15:31 +0300 (Pn, 21 Rgs 2007) $" rcs.revision="$Revision: 1559 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="characteristic_arm schema_instance"/>
    <schema name="Characteristic_arm">
+      <interface kind="use" schema="Basic_data_representation_arm"/>
       <interface kind="use" schema="Document_assignment_arm"/>
       <interface kind="use" schema="Extended_measure_representation_arm"/>
       <interface kind="use" schema="Characterizable_object_arm"/>
@@ -24,9 +25,6 @@
       </type>
       <type name="scalar_or_coordinated_characteristics">
          <select selectitems="Property_value_representation characteristic" genericentity="NO" extensible="NO"/>
-      </type>
-      <type name="value_qualifier">
-         <select selectitems="Precision_qualifier Type_qualifier Uncertainty_qualifier" genericentity="NO" extensible="NO"/>
       </type>
       <entity name="Characteristic_data_table" supertypes="Characterizable_object Measure_item" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="property_value" optional="NO">
@@ -50,22 +48,12 @@
             <typename name="list_characteristic"/>
          </explicit>
       </entity>
-      <entity name="Expanded_uncertainty" supertypes="Standard_uncertainty" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="coverage_factor" optional="NO">
-            <builtintype type="REAL" fixed="NO"/>
-         </explicit>
-      </entity>
       <entity name="Length_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;            ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;            ('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;         )) = 0)"/>
          <where label="WR2" expression="NOT('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;           )) = 1)"/>
          <where label="WR3" expression="NOT('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;        ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;           )) = 1)"/>
          <where label="WR4" expression="NOT EXISTS(SELF\Representation.description)"/>
-         <where label="WR5" expression="('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;          NOT(('EXTENDED_MEASURE_REPRESENTATION_ARM.VALUE_WITH_TOLERANCES' IN TYPEOF(it)) AND&#10;             ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it\Value_with_tolerances.item_value)))&#10;         )) = 0)"/>
-      </entity>
-      <entity name="Logical_representation_item" supertypes="String_representation_item" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="SELF\Representation_item.name IN ['.BOOLEAN.', '.LOGICAL.']"/>
-         <where label="WR2" expression="SELF\String_representation_item.string_value IN ['.TRUE.', '.FALSE.','.UNKNOWN.', '.UNDEFINED.']"/>
-         <where label="WR3" expression="NOT (SELF\Representation_item.name = '.BOOLEAN.') OR&#10;        (SELF\String_representation_item.string_value IN ['.TRUE.', '.FALSE.', '.UNDEFINED.'])"/>
+         <where label="WR5" expression="NOT('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;          NOT(('EXTENDED_MEASURE_REPRESENTATION_ARM.VALUE_WITH_TOLERANCES' IN TYPEOF(it)) AND&#10;             ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it\Value_with_tolerances.item_value)))&#10;         )) = 0)"/>
       </entity>
       <entity name="Maximum_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="items" optional="NO">
@@ -73,22 +61,7 @@
             <typename name="Value_limit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression="SELF\Representation.items[1]\Value_limit.limit_qualifier = limit_qualifier_list.maximum"/>
-      </entity>
-      <entity name="Measure_qualification" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="name" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
-         </explicit>
-         <explicit name="description" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
-         </explicit>
-         <explicit name="qualified_measure" optional="NO">
-            <typename name="Value_with_unit"/>
-         </explicit>
-         <explicit name="qualifiers" optional="NO">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="value_qualifier"/>
-         </explicit>
+         <where label="WR1" expression="SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'maximum'"/>
       </entity>
       <entity name="Minimum_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="items" optional="NO">
@@ -96,30 +69,21 @@
             <typename name="Value_limit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
-         <where label="WR1" expression="SELF\Representation.items[1]\Value_limit.limit_qualifier = limit_qualifier_list.minimum"/>
+         <where label="WR1" expression="SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'minimum'"/>
       </entity>
       <entity name="Nominal_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="items" optional="NO">
             <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
-            <typename name="Numerical_item_with_unit"/>
+            <typename name="Qualified_numerical_item_with_unit"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>
+         <where label="WR1" expression="SELF\Representation.items[1]\Qualified_representation_item.qualifiers[1]\Type_qualifier.name = 'nominal'"/>
       </entity>
       <entity name="Plus_minus_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="items" optional="NO">
             <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
             <typename name="Value_with_tolerances"/>
             <redeclaration entity-ref="Representation"/>
-         </explicit>
-      </entity>
-      <entity name="Precision_qualifier" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="precision_value" optional="NO">
-            <builtintype type="INTEGER" fixed="NO"/>
-         </explicit>
-      </entity>
-      <entity name="Qualitative_uncertainty" supertypes="Uncertainty_qualifier" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="uncertainty_value" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
          </explicit>
       </entity>
       <entity name="Range_characteristic" supertypes="Property_value_representation" abstract.supertype="NO" abstract.entity="NO">
@@ -134,11 +98,6 @@
          <where label="WR1" expression="TYPEOF(SELF\Representation.items[1]) =&#10;          TYPEOF(SELF\Representation.items[2])"/>
          <where label="WR2" expression="TYPEOF(SELF\Representation.items[1]\Value_with_unit.unit) =&#10;          TYPEOF(SELF\Representation.items[2]\Value_with_unit.unit)"/>
          <where label="WR3" expression="valid_range(SELF\Representation.items[1],&#10;                      SELF\Representation.items[2])"/>
-      </entity>
-      <entity name="Standard_uncertainty" supertypes="Uncertainty_qualifier" super.expression="Expanded_uncertainty" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="uncertainty_value" optional="NO">
-            <builtintype type="REAL" fixed="NO"/>
-         </explicit>
       </entity>
       <entity name="Statistical_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="items" optional="NO">
@@ -161,19 +120,6 @@
       <entity name="Tolerance_characteristic" abstract.supertype="YES" supertypes="Property_value_representation" super.expression="ONEOF (Minimum_tolerance_characteristic, Statistical_tolerance_characteristic, Symmetrical_tolerance_characteristic, Maximum_tolerance_characteristic, Plus_minus_tolerance_characteristic, Nominal_tolerance_characteristic) ANDOR Length_tolerance_characteristic" abstract.entity="NO">
          <where label="WR1" expression="SELF\Representation.context_of_items\Representation_context.id = 'tolerance values'"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Representation.name)"/>
-      </entity>
-      <entity name="Type_qualifier" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="name" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
-         </explicit>
-      </entity>
-      <entity name="Uncertainty_qualifier" super.expression="ONEOF (Standard_uncertainty, Qualitative_uncertainty)" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="measure_name" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
-         </explicit>
-         <explicit name="description" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
-         </explicit>
       </entity>
       <subtype.constraint name="exclusive_property_value_representation_characteristic" entity="Property_value_representation" super.expression="ONEOF (Range_characteristic, Tolerance_characteristic)" abstract.supertype="NO"/>
       <function name="get_value">

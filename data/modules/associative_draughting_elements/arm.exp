@@ -1,34 +1,62 @@
---==============================================
--- Associative_draughting_elements for
---  aic_associative_draughting_elements; --  ISO 10303-520
+(*
+ $Id: arm.exp 1151 2007-06-05 14:31:43Z giedrius $
+ ISO TC184/SC4/WG12 N4657 - ISO/CD-TS 10303-1311 Associative draughting elements - EXPRESS ARM
+*)
 
 SCHEMA Associative_draughting_elements_arm;
 
-USE FROM Appearance_assignment_arm;
+USE FROM Shape_property_assignment_arm; -- ISO/CD-TS 10303-1032
 
-USE FROM Shape_property_assignment_arm; -- because it has to know about Shape_element
+USE FROM Draughting_element_arm; -- ISO/CD-TS 10303-1310
 
-USE FROM Draughting_element_arm; -- TODO - review
+  TYPE annotation_occurrence_associativity_item = SELECT
+    (Fill_area,
+     Leader,
+     Projection_curve);
+  END_TYPE;
 
-(* TODO - need to adress how to support this AIC entity on the ARM?
-ENTITY Annotation_occurrence_associativity
-  SUBTYPE OF (annotation_occurrence_relationship);
-END_ENTITY;
-*)
-ENTITY Dimension_text_associativity
-  SUBTYPE OF (Presentable_text_item); -- TODiscuss - decide what to do with the fact it mapps to mapped_item as well
-END_ENTITY;
+  TYPE draughting_model_element_select = EXTENSIBLE GENERIC_ENTITY SELECT
+    (Annotation_element,
+     Axis_placement,
+     Draughting_callout,
+     Styled_model_replication);
+  END_TYPE;
 
-ENTITY Shape_aspect_associativity
-  SUBTYPE OF (Shape_element_relationship);
-END_ENTITY;
+  TYPE draughting_model_item_association_select = SELECT
+    (Annotation_element,
+     Draughting_callout);
+  END_TYPE;
 
+  ENTITY Annotation_occurrence_associativity;
+    relating_element : Annotation_element;
+    related_element  : annotation_occurrence_associativity_item;
+  END_ENTITY;
 
-ENTITY Draughting_model
-  SUBTYPE OF (Styled_model);
---  is_defined_in : Geometric_coordinate_space;  ?? from Styled_annotation_model
-UNIQUE
-  UR1:  SELF\Representation.name;
-END_ENTITY;
+  ENTITY Draughting_model
+    SUBTYPE OF (Styled_model);
+      SELF\Representation.items : SET[1:?] OF draughting_model_element_select;
+  UNIQUE
+    UR1:  SELF\Representation.name;
+  END_ENTITY;
 
-END_SCHEMA;  
+  ENTITY Draughting_model_item_association;
+    name            : STRING;
+    definition      : Shape_element;
+    identified_item : draughting_model_item_association_select;
+    used_model      : Draughting_model;
+    WHERE 
+	  WR1: (NOT('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'DATUM_FEATURE_CALLOUT' IN TYPEOF(identified_item)) OR
+	       ('EXTENDED_GEOMETRIC_TOLERANCE_ARM.'+'DATUM_FEATURE' IN TYPEOF(definition)));
+	  WR2: (NOT('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'DATUM_TARGET_CALLOUT' IN TYPEOF(identified_item)) OR
+	       ('GEOMETRIC_TOLERANCE_ARM.'+'DATUM_TARGET' IN TYPEOF(definition)));
+	       -- Names are from Recommended practices on GD&T      
+	  WR3: (NOT('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'GEOMETRIC_TOLERANCE_CALLOUT' IN TYPEOF(identified_item)) OR
+	       ('GEOMETRIC_TOLERANCE_ARM.'+'GEOMETRIC_TOLERANCE' IN TYPEOF(definition)));
+	  -- WRs capturing callout <- GD&T type for N:1 links and       
+	  WR4: (NOT('DIMENSION_TOLERANCE_ARM.'+'SIZE_DIMENSION' IN TYPEOF(definition)) OR
+	        (('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'DIMENSION_CALLOUT' IN TYPEOF(identified_item)) OR
+	        ('DRAUGHTING_ELEMENT_ARM.'+'DIMENSION_CURVE_DIRECTED_CALLOUT' IN TYPEOF(identified_item)) OR
+	        ('DRAUGHTING_ELEMENT_SPECIALISATIONS_ARM.'+'STRUCTURED_DIMENSION_CALLOUT' IN TYPEOF(identified_item))));
+  END_ENTITY;
+
+END_SCHEMA;

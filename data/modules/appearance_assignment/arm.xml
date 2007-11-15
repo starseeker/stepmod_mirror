@@ -2,19 +2,31 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2006/02/23 11:56:04 $" rcs.revision="$Revision: 1.2 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-05-23 06:20:02 -0700 (Tr, 23 Geg 2007) $" rcs.revision="$Revision: 907 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="appearance_assignment_arm schema_instance"/>
    <schema name="Appearance_assignment_arm">
       <interface kind="use" schema="Elemental_geometric_shape_arm"/>
-      <interface kind="use" schema="Foundation_representation_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <type name="appearance_context">
-         <select extensible="YES" genericentity="YES"/>
+         <select extensible="YES" genericentity="YES" selectitems="Representation"/>
       </type>
       <type name="appearance_select">
          <select extensible="YES" genericentity="YES"/>
       </type>
-      <type name="styled_model_element_select">
-         <select selectitems="Mapping_based_styled_model Styled_element Transformation_based_styled_model"/>
+      <type name="context_dependent_appearance_assignment_set">
+         <aggregate type="SET" lower="2" upper="?"/>
+         <typename name="Context_dependent_appearance_assignment"/>
+      </type>
+      <type name="overriding_style_context">
+         <select extensible="YES" genericentity="YES" selectitems="Detailed_geometric_model_element Styled_model"/>
+      </type>
+      <type name="presented_model_select">
+         <select extensible="YES" genericentity="YES" selectitems="Styled_model"/>
+      </type>
+      <type name="styled_element_appearance">
+         <select selectitems="Appearance_assignment context_dependent_appearance_assignment_set"/>
       </type>
       <entity name="Appearance_assignment">
          <explicit name="appearance_components">
@@ -27,7 +39,53 @@
             <typename name="appearance_context"/>
          </explicit>
       </entity>
-      <entity name="Mapping_based_styled_model" supertypes="Representation_item">
+      <entity name="Context_dependent_over_riding_styled_element" supertypes="Over_riding_styled_element">
+         <explicit name="context_definition">
+            <aggregate type="LIST" lower="1" upper="?"/>
+            <typename name="overriding_style_context"/>
+         </explicit>
+      </entity>
+      <entity name="Over_riding_styled_element" supertypes="Styled_element">
+         <explicit name="over_ridden_element">
+            <typename name="Styled_element"/>
+         </explicit>
+      </entity>
+      <entity name="Planar_box" supertypes="Detailed_geometric_model_element">
+         <explicit name="size_in_x">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="size_in_y">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="placement">
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity name="Styled_element" supertypes="Detailed_geometric_model_element">
+         <explicit name="appearance">
+            <typename name="styled_element_appearance"/>
+         </explicit>
+         <explicit name="element">
+            <typename name="Detailed_geometric_model_element"/>
+         </explicit>
+         <explicit name="invisible">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
+      <entity name="Styled_model" abstract.supertype="YES" supertypes="Representation">
+         <explicit name="version_id" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="context_of_items">
+            <typename name="Geometric_coordinate_space"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <derived name="styled_geometry" expression="bag_to_set(QUERY (r &lt;* (USEDIN(SELF\Representation.context_of_items,&#10;	 	'FOUNDATION_REPRESENTATION_ARM.' + &#10;	 	'REPRESENTATION.' + 'CONTEXT_OF_ITEMS')) | &#10;	 	'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(r)))">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Geometric_model"/>
+         </derived>
+      </entity>
+      <entity name="Styled_model_replication" supertypes="Detailed_geometric_model_element">
          <explicit name="replicated_model">
             <typename name="Styled_model"/>
          </explicit>
@@ -38,50 +96,6 @@
             <typename name="geometric_mapping_target"/>
          </explicit>
       </entity>
-      <entity name="Over_riding_styled_element" supertypes="Styled_element">
-         <explicit name="over_ridden_element">
-            <typename name="Styled_element"/>
-         </explicit>
-      </entity>
-      <entity name="Styled_element" abstract.supertype="YES" supertypes="Representation_item">
-         <explicit name="appearance">
-            <typename name="Appearance_assignment"/>
-         </explicit>
-         <explicit name="invisible">
-            <builtintype type="BOOLEAN"/>
-         </explicit>
-      </entity>
-      <entity name="Styled_geometric_model" supertypes="Styled_model">
-         <explicit name="styled_geometry">
-            <typename name="Geometric_model"/>
-         </explicit>
-         <derived name="context_of_items" expression="styled_geometry\Representation.context_of_items">
-            <typename name="Numerical_representation_context"/>
-            <redeclaration entity-ref="Representation"/>
-         </derived>
-      </entity>
-      <entity name="Styled_model" supertypes="Representation">
-         <explicit name="version_id" optional="YES">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="styled_model_element_select"/>
-            <redeclaration entity-ref="Representation"/>
-         </explicit>
-      </entity>
-      <entity name="Styled_model_element" supertypes="Styled_element">
-         <explicit name="element">
-            <typename name="Detailed_geometric_model_element"/>
-         </explicit>
-      </entity>
-      <entity name="Transformation_based_styled_model" supertypes="Representation_item">
-         <explicit name="replicated_model">
-            <typename name="Styled_model"/>
-         </explicit>
-         <explicit name="replication_transformation">
-            <typename name="cartesian_transformation"/>
-         </explicit>
-      </entity>
+      <subtype.constraint name="aa_detailed_geometric_model_element_subtypes" entity="Detailed_geometric_model_element" super.expression="ONEOF (Planar_box, Styled_element, Styled_model_replication)"/>
    </schema>
 </express>

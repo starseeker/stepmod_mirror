@@ -1,13 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id$ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date$"
-   rcs.revision="$Revision$"
-   description.file="mim_descriptions.xml">
-  <schema name="Picture_representation_mim">
-  </schema>
+
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="picture_representation_mim schema_instance"/>
+   <schema name="Picture_representation_mim">
+      <interface kind="use" schema="Binary_representation_mim"/>
+      <interface kind="use" schema="Presentation_hierarchy_mim"/>
+      <interface kind="use" schema="presentation_organization_schema">
+         <interfaced.item name="presentation_area"/>
+         <interfaced.item name="presentation_size"/>
+         <interfaced.item name="area_in_set"/>
+      </interface>
+      <interface kind="use" schema="presentation_resource_schema">
+         <interfaced.item name="planar_box"/>
+      </interface>
+      <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="axis2_placement_2d"/>
+      </interface>
+      <constant name="pre_defined_picture_representation_types" expression="[ 'JPEG', 'PNG', 'TIFF', 'BMP', 'GIF']">
+         <aggregate type="SET" lower="0" upper="?"/>
+         <builtintype type="STRING"/>
+      </constant>
+      <type name="picture_representation_item_select">
+         <select selectitems="styled_item picture_representation_item planar_box axis2_placement_2d"/>
+      </type>
+      <entity name="externally_defined_picture_representation_item" supertypes="picture_representation_item">
+         <inverse name="source" entity="applied_external_identification_assignment" attribute="items"/>
+         <where label="WR1" expression="NOT (SELF\representation_item.name IN pre_defined_picture_representation_types)"/>
+      </entity>
+      <entity name="picture_representation" supertypes="presentation_view">
+         <explicit name="items">
+            <aggregate type="SET" lower="2" upper="?"/>
+            <typename name="picture_representation_item_select"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
+         <inverse name="size" entity="presentation_size" attribute="unit"/>
+         <where label="WR1" expression="SIZEOF(QUERY(items &lt;* SELF\representation.items | 'PICTURE_REPRESENTATION_MIM.PICTURE_REPRESENTATION_ITEM' IN TYPEOF(items))) = 1"/>
+      </entity>
+      <entity name="picture_representation_item" abstract.supertype="YES" supertypes="bytes_representation_item" super.expression="ONEOF (externally_defined_picture_representation_item, predefined_picture_representation_item)"/>
+      <entity name="predefined_picture_representation_item" supertypes="picture_representation_item">
+         <where label="WR1" expression="SELF\representation_item.name IN pre_defined_picture_representation_types"/>
+      </entity>
+   </schema>
 </express>

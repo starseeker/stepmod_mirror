@@ -2,16 +2,18 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-05-29 06:06:08 -0700 (An, 29 Geg 2007) $" rcs.revision="$Revision: 1040 $" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_basic_geometry_mim schema_instance"/>
    <schema name="Extended_basic_geometry_mim">
       <interface kind="use" schema="Basic_geometry_mim"/>
       <interface kind="use" schema="representation_schema">
+         <interfaced.item name="definitional_representation_relationship"/>
          <interfaced.item name="mapped_item"/>
          <interfaced.item name="representation_item_relationship"/>
          <interfaced.item name="representation_map"/>
-         <interfaced.item name="representation_relationship_with_transformation"/>
-         <interfaced.item name="transformation"/>
+      </interface>
+      <interface kind="use" schema="product_property_representation_schema">
+         <interfaced.item name="shape_representation_relationship"/>
       </interface>
       <interface kind="use" schema="geometry_schema">
          <interfaced.item name="vector"/>
@@ -19,42 +21,20 @@
       <interface kind="reference" schema="support_resource_schema">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <entity name="definitional_representation_relationship" supertypes="representation_relationship">
-         <where label="WR1" expression="acyclic_representation_relationship(SELF,&#10;       [SELF\representation_relationship.rep_2],&#10;       'REPRESENTATION_SCHEMA.'+&#10;       'REPRESENTATION')"/>
-      </entity>
       <entity name="geometric_model_element_relationship" supertypes="geometric_representation_item representation_item_relationship">
+         <explicit name="relating_representation_item">
+            <typename name="geometric_representation_item"/>
+            <redeclaration entity-ref="representation_item_relationship"/>
+         </explicit>
+         <explicit name="related_representation_item">
+            <typename name="geometric_representation_item"/>
+            <redeclaration entity-ref="representation_item_relationship"/>
+         </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="representation_item_relationship" attribute="relating_representation_item"/>
-            <unique.attribute entity-ref="representation_item_relationship" attribute="related_representation_item"/>
+            <unique.attribute attribute="relating_representation_item"/>
+            <unique.attribute attribute="related_representation_item"/>
          </unique>
          <where label="WR1" expression="SELF\representation_item_relationship.relating_representation_item :&lt;&gt;: &#10;       SELF\representation_item_relationship.related_representation_item"/>
       </entity>
-      <function name="acyclic_representation_relationship">
-         <parameter name="relation">
-            <typename name="representation_relationship"/>
-         </parameter>
-         <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="representation"/>
-         </parameter>
-         <parameter name="specific_relation">
-            <builtintype type="STRING"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-      x : SET OF representation_relationship;
-    END_LOCAL;
-
-    IF relation.rep_1 IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(r &lt;* bag_to_set(USEDIN(relation.rep_1, 'REPRESENTATION_SCHEMA.' + 'REPRESENTATION_RELATIONSHIP.' + 'REP_2')) | specific_relation IN TYPEOF(r));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_representation_relationship(x[i], relatives + relation.rep_1, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);</algorithm>
-      </function>
    </schema>
 </express>

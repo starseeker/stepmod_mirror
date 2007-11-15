@@ -1,78 +1,32 @@
--- Module arround 506 and 504
+(*
+   $Id: arm.exp 1151 2007-06-05 14:31:43Z giedrius $
+   ISO TC184/SC4/WG12 N4702 - ISO/CD-TS 10303-1362 Dimension and tolerance callouts - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N4337
+*)
 
 SCHEMA Dimension_and_tolerance_callouts_arm;
 
-USE FROM Draughting_element_specializations_arm; -- 506
+USE FROM Associative_draughting_elements_arm; -- ISO/CD-TS 10303-1311
 
-USE FROM Draughting_annotation_arm; -- 504
+USE FROM Dimension_tolerance_arm; -- ISO/TS 10303-1050
 
-USE FROM Dimension_tolerance_arm;
+USE FROM Draughting_annotation_arm; -- ISO/CD-TS 10303-1206
 
-USE FROM Associative_draughting_elements_arm; --520
+USE FROM Draughting_element_specialisations_arm; -- ISO/CD-TS 10303-1312
 
-USE FROM Draughting_dimension_arm;
+  ENTITY Associated_dimension_text
+    SUBTYPE OF (Dimension_text);
+      is_displaying : Geometric_dimension;
+  END_ENTITY;
 
-USE FROM Extended_fill_area_style_arm;
-
-TYPE dimension_callout_select = SELECT
-   (Dimension_symbol, 
-    Text);
-END_TYPE; 
-
-TYPE datc_appearance_select = EXTENSIBLE SELECT BASED_ON appearance_select WITH 
-   (Solid_fill_area);
-END_TYPE; 
-
-ENTITY Dimension_callout;  -- AIM is draughting_element OR structured_dimension_callout / Taken from Dimension_and_tolerance_callouts_arm
-  callout_element : SET [1:?] OF dimension_callout_select;
-  is_displaying : OPTIONAL Geometric_dimension;
-END_ENTITY;
-
--- Dimension_and_tolerance_callouts_arm contains DIMENSION which propobably supposed
--- to contain all the subtypes
-ENTITY Dimension
-    SUBTYPE OF (Draughting_callout);
-    id : STRING;
-    primary_callout : Dimension_callout;
-    secondary_callout : OPTIONAL Dimension_callout;
-END_ENTITY; -- Dimension
-
-ENTITY Dimension_sequence_pair; -- AIM is dimension_pair/ Taken from Dimension_and_tolerance_callouts_arm
-	  predecessor : Dimension;
-	  successor : Dimension;
-END_ENTITY;
-
-------------------- Copied from associative_annotation --------------------------
-TYPE associated_element_select = EXTENSIBLE GENERIC_ENTITY SELECT
-   (Annotation_element, 
-    Detailed_geometric_model_element);
-END_TYPE; 
-
-TYPE fill_area_associated_element_select = EXTENSIBLE GENERIC_ENTITY SELECT
-   (Annotation_curve, 
-    Detailed_geometric_model_element);
-END_TYPE; 
-
-ENTITY Associated_draughting_callout
-  SUBTYPE OF (Draughting_callout);
-  is_associated_to : associated_element_select;
-END_ENTITY;
--- TODiscuss - idea was to make it subtype of Shape_aspect_associativity, but one of the options goes other route
-ENTITY Associated_fill_area
-  SUBTYPE OF (Fill_area);
-  is_derived_from : SET[1:?] OF fill_area_associated_element_select;
-END_ENTITY;
-
--- TODiscuss - idea was to make it subtype of Shape_aspect_associativity, but one of the options goes other route
-ENTITY Associated_leader
-  SUBTYPE OF (Leader);
-  target : associated_element_select;
-END_ENTITY;
-
-ENTITY Associated_projection_curve
-  SUBTYPE OF (Shape_aspect_associativity);
-  is_projected_to : associated_element_select;
-  projection_curve : Projection_curve; -- TODOmapping
-END_ENTITY;
+  ENTITY Dimension_curve_terminator_to_projection_curve_associativity
+    SUBTYPE OF(Annotation_occurrence_associativity);
+      SELF\Annotation_occurrence_associativity.relating_element : Dimension_curve_terminator;
+      SELF\Annotation_occurrence_associativity.related_element  : Projection_curve;
+  END_ENTITY;
+  
+  ENTITY Dimensioning_standard
+    SUBTYPE OF (Document_assignment);
+  END_ENTITY;
 
 END_SCHEMA;

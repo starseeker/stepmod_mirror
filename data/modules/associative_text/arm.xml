@@ -1,66 +1,59 @@
-<?xml version="1.0"?>
-<?xml-stylesheet 
-  type="text/xsl" 
-  href="../../../xsl/express.xsl"
-?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: $" rcs.revision="$Revision: $"
-  description.file="arm_descriptions.xml"
->
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="associative_text_arm_v002.vsd" />
-<schema name="Associative_text_arm">
-<interface kind="use" schema="Appearance_assignment_arm">
-</interface>
-<interface kind="use" schema="Construction_geometry_arm">
-</interface>
-<interface kind="use" schema="Elemental_geometric_shape_arm">
-</interface>
-<interface kind="use" schema="Shape_property_assignment_arm">
-</interface>
-<interface kind="use" schema="Text_appearance_arm">
-</interface>
-<type name="text_or_composite_text">
-<select selectitems="Composite_presentable_text Presentable_text_item" />
-<graphic.element page="2" xcoord="274" ycoord="198" />
-</type>
-<entity name="Annotation_curve" abstract.supertype="YES" supertypes="Annotation_element">
-<explicit name="annotation_curve_type" optional="YES">
-<builtintype type="STRING" />
-</explicit>
-<graphic.element page="2" xcoord="50" ycoord="165" />
-</entity>
-<entity name="Annotation_element" abstract.supertype="YES" supertypes="Styled_element">
-<graphic.element page="2" xcoord="113" ycoord="232" />
-</entity>
-<entity name="Item_text_association">
-<explicit name="target_geometry">
-<typename name="Detailed_geometric_model_element" />
-</explicit>
-<explicit name="target_item">
-<typename name="Shape_element" />
-</explicit>
-<explicit name="text_occurrence">
-<typename name="Text" />
-</explicit>
-<graphic.element page="2" xcoord="287" ycoord="241" />
-</entity>
-<entity name="Leader" supertypes="Annotation_curve">
-<explicit name="curve">
-<typename name="Curve" />
-</explicit>
-<graphic.element page="2" xcoord="41" ycoord="92" />
-</entity>
-<entity name="Text" supertypes="Annotation_element">
-<explicit name="text">
-<typename name="text_or_composite_text" />
-</explicit>
-<graphic.element page="2" xcoord="155" ycoord="167" />
-</entity>
-<entity name="Text_with_leader" supertypes="Text">
-<explicit name="leader">
-<typename name="Leader" />
-</explicit>
-<graphic.element page="2" xcoord="173" ycoord="104" />
-</entity>
-<graphic.element page="1" xcoord="178" ycoord="202" />
-</schema>
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="$Date: 2007-07-20 03:19:29 -0700 (Pn, 20 Lie 2007) $" rcs.revision="$Revision: 1323 $" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="associative_text_arm schema_instance"/>
+   <schema name="Associative_text_arm">
+      <interface kind="use" schema="Appearance_assignment_arm"/>
+      <interface kind="use" schema="Text_appearance_arm"/>
+      <type name="text_or_composite_text">
+         <select extensible="YES" genericentity="YES" selectitems="Annotation_text Composite_presentable_text Defined_character_glyph Text_literal"/>
+      </type>
+      <type name="text_string_representation_item_select">
+         <select extensible="YES" genericentity="YES" selectitems="Annotation_text Composite_presentable_text Text_literal"/>
+      </type>
+      <entity name="Annotation_curve" abstract.supertype="YES" supertypes="Annotation_element">
+         <explicit name="annotation_curve_type" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="element">
+            <typename name="Curve"/>
+            <redeclaration entity-ref="Styled_element"/>
+         </explicit>
+      </entity>
+      <entity name="Annotation_element" supertypes="Styled_element" super.expression="ONEOF (Text, Annotation_curve)"/>
+      <entity name="Annotation_text" supertypes="Detailed_geometric_model_element">
+         <explicit name="replicated_model">
+            <typename name="Text_string_representation"/>
+         </explicit>
+         <explicit name="source">
+            <typename name="Axis_placement"/>
+         </explicit>
+         <explicit name="target">
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity name="Defined_character_glyph" supertypes="Detailed_geometric_model_element">
+         <explicit name="placement">
+            <typename name="Axis_placement"/>
+         </explicit>
+      </entity>
+      <entity name="Dimension_text" supertypes="Text">
+         <where label="WR1" expression="name IN ['dimension value', 'tolerance value', 'unit text', 'prefix text', 'suffix text']"/>
+      </entity>
+      <entity name="Text" supertypes="Annotation_element">
+         <explicit name="text">
+            <typename name="text_or_composite_text"/>
+            <redeclaration entity-ref="Styled_element" old_name="element"/>
+         </explicit>
+      </entity>
+      <entity name="Text_string_representation" supertypes="Styled_model">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="text_string_representation_item_select"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+      </entity>
+   </schema>
 </express>

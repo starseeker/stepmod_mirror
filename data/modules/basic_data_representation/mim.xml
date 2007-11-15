@@ -1,71 +1,33 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="mim_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="../data/modules/basic_data_representation/mim.exp"/>
-
-  <schema name="Basic_data_representation_mim">
-
-    <interface
-      kind="use"
-      schema="Foundation_representation_mim">
-    </interface>
-    <interface
-      kind="use"
-      schema="representation_schema">
-    </interface>
-    <interface
-      kind="use"
-      schema="ISO13584_expressions_schema">
-    </interface>
-    <entity
-      name="boolean_representation_item"
-      supertypes="representation_item boolean_literal">
-    </entity>
-
-    <entity
-      name="integer_representation_item"
-      supertypes="representation_item int_literal">
-    </entity>
-
-    <entity
-      name="rational_representation_item"
-      supertypes="representation_item binary_numeric_expression">
-    </entity>
-
-    <entity
-      name="real_representation_item"
-      supertypes="representation_item real_literal">
-    </entity>
-
-    <entity
-      name="sequence_representation_item"
-      supertypes="compound_representation_item">
-      <where
-        label="WR1"
-        expression="'REPRESENTATION_SCHEMA.LIST_REPRESENTATION_ITEM' IN TYPEOF(SELF\compound_representation_item.item_element)">
-      </where>
-    </entity>
-
-    <entity
-      name="ensemble_representation_item"
-      supertypes="compound_representation_item">
-      <where
-        label="WR1"
-        expression="'REPRESENTATION_SCHEMA.SET_REPRESENTATION_ITEM' IN TYPEOF(SELF\compound_representation_item.item_element)">
-      </where>
-    </entity>
-
-  </schema>
+<express language_version="2" rcs.date="$Date: 2007-07-20 03:42:26 -0700 (Pn, 20 Lie 2007) $" rcs.revision="$Revision: 1327 $" description.file="mim_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="basic_data_representation_mim schema_instance"/>
+   <schema name="Basic_data_representation_mim">
+      <interface kind="use" schema="Extended_date_mim"/>
+      <interface kind="use" schema="Foundation_representation_mim"/>
+      <interface kind="use" schema="ISO13584_expressions_schema">
+         <interfaced.item name="boolean_literal"/>
+         <interfaced.item name="int_literal"/>
+         <interfaced.item name="slash_expression"/>
+         <interfaced.item name="real_literal"/>
+      </interface>
+      <interface kind="use" schema="ISO13584_generic_expressions_schema">
+         <interfaced.item name="binary_generic_expression"/>
+      </interface>
+      <interface kind="use" schema="mathematical_functions_schema">
+         <interfaced.item name="logical_literal"/>
+      </interface>
+      <entity name="boolean_representation_item" supertypes="representation_item boolean_literal"/>
+      <entity name="date_representation_item" supertypes="representation_item date"/>
+      <entity name="date_time_representation_item" supertypes="representation_item date_and_time"/>
+      <entity name="integer_representation_item" supertypes="representation_item int_literal"/>
+      <entity name="logical_representation_item" supertypes="representation_item logical_literal"/>
+      <entity name="rational_representation_item" supertypes="representation_item slash_expression">
+         <where label="WR1" expression="SIZEOF( QUERY( operand &lt;* SELF\binary_generic_expression.operands | &#10;        NOT('ISO13584_EXPRESSIONS_SCHEMA.INT_LITERAL' IN TYPEOF(operand)))) = 0"/>
+      </entity>
+      <entity name="real_representation_item" supertypes="representation_item real_literal"/>
+      <subtype.constraint name="representation_item_subtypes" entity="representation_item" super.expression="ONEOF (boolean_representation_item, date_representation_item, date_time_representation_item, integer_representation_item, logical_representation_item, rational_representation_item, real_representation_item)"/>
+   </schema>
 </express>

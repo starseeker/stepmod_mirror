@@ -6,13 +6,34 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="camera_view_3d_mim schema_instance"/>
    <schema name="Camera_view_3d_mim">
       <interface kind="use" schema="Presentation_hierarchy_mim"/>
-      <interface kind="use" schema="Value_with_unit_mim"/>
+      <interface kind="use" schema="Colour_mim"/>
       <interface kind="use" schema="presentation_organization_schema">
+         <interfaced.item name="camera_image"/>
          <interfaced.item name="camera_model_d3"/>
          <interfaced.item name="camera_model_d3_multi_clipping"/>
+         <interfaced.item name="camera_model_d3_multi_clipping_intersection"/>
+         <interfaced.item name="camera_model_d3_multi_clipping_union"/>
          <interfaced.item name="camera_model_d3_with_hlhsr"/>
          <interfaced.item name="camera_model_with_light_sources"/>
          <interfaced.item name="camera_image_3d_with_scale"/>
       </interface>
+      <interface kind="use" schema="presentation_appearance_schema">
+         <interfaced.item name="context_dependent_over_riding_styled_item"/>
+      </interface>
+      <entity name="hidden_element_over_riding_styled_item" supertypes="context_dependent_over_riding_styled_item">
+         <explicit name="style_context">
+            <aggregate type="LIST" lower="1" upper="1"/>
+            <typename name="presentation_view"/>
+            <redeclaration entity-ref="context_dependent_over_riding_styled_item"/>
+         </explicit>
+         <explicit name="item">
+            <typename name="camera_image"/>
+            <redeclaration entity-ref="styled_item"/>
+         </explicit>
+         <inverse name="container" entity="presentation_view" attribute="items">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+         <where label="WR1" expression="'PRESENTATION_ORGANIZATION_SCHEMA.CAMERA_MODEL_D3_WITH_HLHSR' IN TYPEOF&#10;                (SELF.item\mapped_item.mapping_source.mapping_origin)"/>
+      </entity>
    </schema>
 </express>

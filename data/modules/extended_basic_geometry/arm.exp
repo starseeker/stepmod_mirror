@@ -1,53 +1,37 @@
 (*
-   $Id: arm.exp,v 1.14 2006/06/14 15:25:22 liutkus Exp $
-   ISO TC184/SC4/WG12 N3948 - ISO/TS 10303-1667 Extended basic geometry - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N3672
+   $Id: arm.exp 1151 2007-06-05 14:31:43Z giedrius $
+   ISO TC184/SC4/WG12 N4726 - ISO/CD-TS 10303-1667 Extended basic geometry - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N3948
 *)
 
 SCHEMA Extended_basic_geometry_arm;
 
-	USE FROM Basic_geometry_arm;	-- ISO/TS 10303-1652
+USE FROM Basic_geometry_arm;	-- ISO/TS 10303-1652
 
-	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
-SUBTYPE_CONSTRAINT alternate_extended_geometry_items FOR
-Detailed_geometric_model_element;
-  ONEOF (Cartesian_point,
-         Direction,
-         Axis_placement,
-         Cartesian_transformation_2d,
-         Cartesian_transformation_3d,
-         Curve,
-         Point_on_curve,
-         Point_on_surface,
-         Surface,
-         Vector);
-END_SUBTYPE_CONSTRAINT;
-
-SUBTYPE_CONSTRAINT axis_placement_subtypes FOR Axis_placement;
-  ONEOF (Axis_placement_2d,
-  Axis_placement_3d);
-END_SUBTYPE_CONSTRAINT;
- 
-  ENTITY Axis_placement_2d
-    SUBTYPE OF (Axis_placement);
---  WHERE
---    WR1: NOT EXISTS (SELF\Representation_item.name);
-  END_ENTITY;
-
-  ENTITY Axis_placement_3d
-    SUBTYPE OF (Axis_placement);
---  WHERE
---    WR1: NOT EXISTS (SELF\Representation_item.name);
-  END_ENTITY;
+  SUBTYPE_CONSTRAINT alternate_extended_geometry_items FOR
+    Detailed_geometric_model_element;
+    ONEOF (Cartesian_point,
+           Direction,
+           Axis_placement,
+           Cartesian_transformation_2d,
+           Cartesian_transformation_3d,
+           Curve,
+           Geometric_model_element_relationship,
+           Point_on_curve,
+           Point_on_surface,
+           Surface,
+           Vector);
+  END_SUBTYPE_CONSTRAINT;
 
   ENTITY Definitional_representation_relationship
     SUBTYPE OF (Representation_relationship);
-   WHERE
-    WR1: acyclic_representation_relationship(SELF,
-       [SELF\representation_relationship.rep_2],
-       'FOUNDATION_REPRESENTATION_ARM.'+
-       'REPRESENTATION');
+      WHERE
+        WR1: acyclic_representation_relationship(SELF,
+          [SELF\representation_relationship.rep_2],
+          'FOUNDATION_REPRESENTATION_ARM.'+
+          'REPRESENTATION');
   END_ENTITY;  
 
   ENTITY Detailed_geometric_model_element_relationship;
@@ -69,18 +53,17 @@ END_SUBTYPE_CONSTRAINT;
     SUBTYPE OF (Detailed_geometric_model_element_relationship, Detailed_geometric_model_element);
   END_ENTITY;
 
- ENTITY Vector
+  ENTITY Vector
     SUBTYPE OF (Detailed_geometric_model_element);
       orientation: Direction;
       magnitude: length_measure;
     WHERE
       WR1 : magnitude >= 0.0 ;
---      WR2: NOT EXISTS (SELF\Representation_item.name);
- END_ENTITY;
+  END_ENTITY;
 
-FUNCTION acyclic_representation_relationship
- (relation : representation_relationship; relatives : SET[1:?] OF representation; specific_relation : STRING) : BOOLEAN; 
- LOCAL
+  FUNCTION acyclic_representation_relationship
+    (relation : representation_relationship; relatives : SET[1:?] OF representation; specific_relation : STRING) : BOOLEAN; 
+    LOCAL
       x : SET OF representation_relationship;
     END_LOCAL;
 
@@ -94,6 +77,6 @@ FUNCTION acyclic_representation_relationship
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
-END_FUNCTION; 
+  END_FUNCTION; 
 
 END_SCHEMA;

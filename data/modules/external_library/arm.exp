@@ -1,12 +1,57 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
-   N - ISO/CD-TS - 10303- external_library - EXPRESS ARM*)
-(* UNDER DEVELOPMENT *)
+   $Id: arm.exp 1151 2007-06-05 14:31:43Z giedrius $
+   ISO TC184/SC4/WG12 N4738 - ISO/CD-TS 10303-1778 External library - EXPRESS ARM
+*)
+
 SCHEMA External_library_arm;
 
-ENTITY External_library;
-  id: STRING;
-  description: OPTIONAL STRING;
-END_ENTITY;
+USE FROM External_properties_arm;  -- ISO/CD-TS 10303-1129
 
+USE FROM Plib_class_reference_arm; -- ISO/CD-TS 10303-1291
+
+  TYPE el_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+    (User_defined_library_or_dictionary);
+  END_TYPE;
+
+  ENTITY External_source 
+    SUPERTYPE OF (ONEOF(Known_source, User_defined_library_or_dictionary));
+      id          : STRING;
+      description : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Iso15926_4_rdl
+    SUBTYPE OF (Known_source); 
+  END_ENTITY; 
+
+  ENTITY Known_source 
+    ABSTRACT SUPERTYPE OF (ONEOF(Iso15926_4_rdl,
+      Otd_catalogue,
+      Otd_dictionary,
+      Plib_dictionary,
+      Plib_library))
+    SUBTYPE OF (External_source); 
+  END_ENTITY; 
+
+  ENTITY Otd_catalogue 
+    SUBTYPE OF (Known_source); 
+  END_ENTITY; 
+
+  ENTITY Otd_dictionary 
+    SUBTYPE OF (Known_source); 
+  END_ENTITY; 
+
+  ENTITY Plib_dictionary 
+    SUBTYPE OF (Known_source); 
+  END_ENTITY; 
+ 
+  ENTITY Plib_library 
+    SUBTYPE OF (Known_source); 
+  END_ENTITY; 
+  
+  ENTITY User_defined_library_or_dictionary 
+    SUBTYPE OF (External_source); 
+    INVERSE
+      source : External_source_identification FOR item;
+  END_ENTITY;
+  
 END_SCHEMA;

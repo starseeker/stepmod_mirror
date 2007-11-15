@@ -1,11 +1,11 @@
 (*
-   $Id: arm.exp,v 1.41 2006/04/05 03:31:08 thomasrthurman Exp $
-   ISO TC184/SC4/WG12 N3909 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
-   Supersedes ISO TC184/SC4/WG12 N3321
+   $Id: arm.exp 1650 2007-10-17 21:36:52Z TomThurman $
+   ISO TC184/SC4/WG12 N4714 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
+   Supersedes ISO TC184/SC4/WG12 N3909
 *)
 
 SCHEMA Characteristic_arm;
-
+    USE FROM Basic_data_representation_arm;  -- ISO/CD-TS 10303-1773
 	USE FROM Document_assignment_arm;	-- ISO/TS 10303-1122
 	USE FROM Extended_measure_representation_arm;	-- ISO/TS 10303-1106
 	USE FROM Characterizable_object_arm;     -- ISO/TS 10303-xxxx	
@@ -37,12 +37,6 @@ SCHEMA Characteristic_arm;
      characteristic);
   END_TYPE;
 
-  TYPE value_qualifier = SELECT
-    (Precision_qualifier,
-     Type_qualifier,
-     Uncertainty_qualifier);
-  END_TYPE;
-
   ENTITY Characteristic_data_table
     SUBTYPE OF (Characterizable_object, Measure_item);
       property_value : LIST[1:?] OF Characteristic_data_table_row;
@@ -60,12 +54,7 @@ SCHEMA Characteristic_arm;
 
   ENTITY Characteristic_data_table_row
     SUBTYPE OF (Measure_item);
-      property_value : LIST[1:?] OF list_characteristic;
-  END_ENTITY;
-
-  ENTITY Expanded_uncertainty
-    SUBTYPE OF (Standard_uncertainty);
-      coverage_factor : REAL;
+      property_value : list_characteristic;
   END_ENTITY;
 
   ENTITY Length_tolerance_characteristic
@@ -86,60 +75,37 @@ SCHEMA Characteristic_arm;
         ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))
            )) = 1);
       WR4 : NOT EXISTS(SELF\Representation.description);
-      WR5 : ('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
+      WR5 : NOT('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR
         (SIZEOF(QUERY(it <* SELF\Representation.items |
           NOT(('EXTENDED_MEASURE_REPRESENTATION_ARM.VALUE_WITH_TOLERANCES' IN TYPEOF(it)) AND
              ('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it\Value_with_tolerances.item_value)))
          )) = 0);
   END_ENTITY;
 
-  ENTITY Logical_representation_item
-    SUBTYPE OF (String_representation_item);
-    WHERE 
-      WR1: SELF\Representation_item.name IN ['.BOOLEAN.', '.LOGICAL.'];
-      WR2: SELF\String_representation_item.string_value IN ['.TRUE.', '.FALSE.','.UNKNOWN.', '.UNDEFINED.'];
-      WR3: NOT (SELF\Representation_item.name = '.BOOLEAN.') OR
-        (SELF\String_representation_item.string_value IN ['.TRUE.', '.FALSE.', '.UNDEFINED.']);
-  END_ENTITY;
-
   ENTITY Maximum_tolerance_characteristic
     SUBTYPE OF (Tolerance_characteristic);
       SELF\Representation.items : SET [1:1] OF Value_limit;
     WHERE
-      WR1: SELF\Representation.items[1]\Value_limit.limit_qualifier = limit_qualifier_list.maximum;
-  END_ENTITY;
-
-  ENTITY Measure_qualification;
-      name              : STRING; 
-      description       : STRING; 
-      qualified_measure : Value_with_unit;
-      qualifiers        : SET[1:?] OF value_qualifier;
+      WR1: SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'maximum';      
   END_ENTITY;
 
   ENTITY Minimum_tolerance_characteristic
     SUBTYPE OF (Tolerance_characteristic);
       SELF\Representation.items : SET [1:1] OF Value_limit;
     WHERE
-      WR1: SELF\Representation.items[1]\Value_limit.limit_qualifier = limit_qualifier_list.minimum;
+      WR1: SELF\Representation.items[1]\Value_limit.qualifiers[1]\Type_qualifier.name = 'minimum';      
   END_ENTITY;
 
   ENTITY Nominal_tolerance_characteristic
     SUBTYPE OF (Tolerance_characteristic);
-      SELF\Representation.items : SET[1:1] OF Numerical_item_with_unit;
+      SELF\Representation.items : SET[1:1] OF Qualified_numerical_item_with_unit;
+    WHERE
+      WR1: SELF\Representation.items[1]\Qualified_representation_item.qualifiers[1]\Type_qualifier.name = 'nominal';
   END_ENTITY;
 
   ENTITY Plus_minus_tolerance_characteristic
     SUBTYPE OF (Tolerance_characteristic);
       SELF\Representation.items : SET [1:1] OF Value_with_tolerances;
-  END_ENTITY;
-
-  ENTITY Precision_qualifier;
-      precision_value : INTEGER;
-  END_ENTITY;
-
-  ENTITY Qualitative_uncertainty
-    SUBTYPE OF (Uncertainty_qualifier);
-      uncertainty_value : STRING; 
   END_ENTITY;
 
   ENTITY Range_characteristic
@@ -153,12 +119,6 @@ SCHEMA Characteristic_arm;
           TYPEOF(SELF\Representation.items[2]\Value_with_unit.unit);
     WR3 : valid_range(SELF\Representation.items[1],
                       SELF\Representation.items[2]);          
-  END_ENTITY;
-
-  ENTITY Standard_uncertainty
-    SUPERTYPE OF (Expanded_uncertainty)
-    SUBTYPE OF (Uncertainty_qualifier);
-      uncertainty_value : REAL;
   END_ENTITY;
 
   ENTITY Statistical_tolerance_characteristic
@@ -190,17 +150,6 @@ SCHEMA Characteristic_arm;
     WHERE
       WR1: SELF\Representation.context_of_items\Representation_context.id = 'tolerance values';
       WR2 : NOT EXISTS(SELF\Representation.name);
-  END_ENTITY;
-
-  ENTITY Type_qualifier;
-      name : STRING;
-  END_ENTITY;
-
-  ENTITY Uncertainty_qualifier
-    SUPERTYPE OF (ONEOF (Standard_uncertainty,
- Qualitative_uncertainty));
-      measure_name : STRING; 
-      description  : STRING; 
   END_ENTITY;
 
 SUBTYPE_CONSTRAINT exclusive_property_value_representation_characteristic FOR

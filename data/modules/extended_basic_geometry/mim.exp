@@ -1,62 +1,38 @@
 (*
-   $Id: mim.exp,v 1.6 2006/01/20 08:43:41 liutkuviene Exp $
-   ISO TC184/SC4/WG12 N3949 - ISO/TS 10303-1667 Extended basic geometry - EXPRESS MIM
-   Supersedes ISO TC184/SC4/WG12 N3673
+   $Id: mim.exp 1151 2007-06-05 14:31:43Z giedrius $
+   ISO TC184/SC4/WG12 N4727 - ISO/CD-TS 10303-1667 Extended basic geometry - EXPRESS MIM
+   Supersedes ISO TC184/SC4/WG12 N3949
 *)
 
-
 SCHEMA Extended_basic_geometry_mim;
-	USE FROM Basic_geometry_mim;	-- ISO/TS 10303-1652
+
+USE FROM Basic_geometry_mim;	-- ISO/TS 10303-1652
 	
-	USE FROM Representation_schema(
-		mapped_item,
-		representation_item_relationship,
-		representation_map,
-		representation_relationship_with_transformation,
-		transformation);
-		
-	USE FROM Geometry_schema(
-		vector);	
+USE FROM representation_schema(
+  definitional_representation_relationship,
+  mapped_item,
+  representation_item_relationship,
+  representation_map);
+
+USE FROM product_property_representation_schema -- ISO 10303-41
+  (shape_representation_relationship);
+  	 		
+USE FROM geometry_schema(
+  vector);	
 
 REFERENCE FROM support_resource_schema   -- ISO 10303-41
   (bag_to_set);
 
-  ENTITY definitional_representation_relationship
-    SUBTYPE OF (representation_relationship);
-   WHERE
-    WR1: acyclic_representation_relationship(SELF,
-       [SELF\representation_relationship.rep_2],
-       'REPRESENTATION_SCHEMA.'+
-       'REPRESENTATION');
-  END_ENTITY;  
-	
-ENTITY geometric_model_element_relationship
-  SUBTYPE OF (geometric_representation_item, representation_item_relationship);
-UNIQUE
-  UR1: SELF\representation_item_relationship.relating_representation_item, 
-       SELF\representation_item_relationship.related_representation_item;
-WHERE
-  WR1: SELF\representation_item_relationship.relating_representation_item :<>: 
-       SELF\representation_item_relationship.related_representation_item;
-END_ENTITY; 
+  ENTITY geometric_model_element_relationship
+    SUBTYPE OF (geometric_representation_item, representation_item_relationship);
+      SELF\representation_item_relationship.relating_representation_item : geometric_representation_item;
+      SELF\representation_item_relationship.related_representation_item: geometric_representation_item;
+    UNIQUE
+      UR1: SELF\representation_item_relationship.relating_representation_item, 
+        SELF\representation_item_relationship.related_representation_item;
+    WHERE
+      WR1: SELF\representation_item_relationship.relating_representation_item :<>: 
+        SELF\representation_item_relationship.related_representation_item;
+  END_ENTITY; 
 
-FUNCTION acyclic_representation_relationship
- (relation : representation_relationship; relatives : SET[1:?] OF representation; specific_relation : STRING) : BOOLEAN; 
- LOCAL
-      x : SET OF representation_relationship;
-    END_LOCAL;
-
-    IF relation.rep_1 IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(r <* bag_to_set(USEDIN(relation.rep_1, 'REPRESENTATION_SCHEMA.' + 'REPRESENTATION_RELATIONSHIP.' + 'REP_2')) | specific_relation IN TYPEOF(r));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_representation_relationship(x[i], relatives + relation.rep_1, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);
-END_FUNCTION; 
-	
-	
 END_SCHEMA;

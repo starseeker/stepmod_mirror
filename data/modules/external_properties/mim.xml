@@ -1,148 +1,73 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="mim_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="../data/modules/external_properties/mim.exp"/>
-
-  <schema name="External_properties_mim">
-
-    <interface
-      kind="use"
-      schema="External_item_identification_assignment_mim">
-    </interface>
-    <interface
-      kind="use"
-      schema="Identification_assignment_mim">
-    </interface>
-    <interface
-      kind="use"
-      schema="Independent_property_mim">
-    </interface>
-    <interface
-      kind="use"
-      schema="Plib_class_reference_mim">
-    </interface>
-    <interface
-      kind="use"
-      schema="external_reference_schema">
-      <interfaced.item
-        name="externally_defined_item"/>
-      <interfaced.item
-        name="externally_defined_item_relationship"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="identifier"/>
-    </interface>
-    <type name="external_identification_for_plib_property">
-      <select
-        basedon="external_identification_item"
-        selectitems="externally_defined_general_property">
-      </select>
-    </type>
-
-    <type name="externally_versioned_item">
-      <select
-        extensible="YES"
-        genericentity="YES">
-      </select>
-    </type>
-
-    <type name="version_for_plib_property">
-      <select
-        basedon="externally_versioned_item"
-        selectitems="externally_defined_general_property">
-      </select>
-    </type>
-
-    <entity
-      name="externally_defined_general_property"
-      supertypes="general_property externally_defined_item">
-    </entity>
-
-    <rule
-      name="external_version_assignments_are_valid"
-      appliesto="applied_external_identification_assignment">
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(aia &lt;* applied_external_identification_assignment | NOT external_version_assignment_is_valid(aia)))=0">
-      </where>
-    </rule>
-
-    <rule
-      name="plib_property_reference_requires_version"
-      appliesto="externally_defined_general_property">
-      <algorithm>
-LOCAL
-plib_properties : SET OF externally_defined_general_property := [];
-END_LOCAL;
-plib_properties := QUERY (edgp &lt;* externally_defined_general_property |
-('EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' IN TYPEOF (edgp.source)) AND
-('EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' + '\PRE_DEFINED_ITEM.NAME' = 'ISO 13584 library'));
-      </algorithm>
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(edgp &lt;* plib_properties |(SIZEOF(QUERY(edir &lt;* USEDIN(edgp, 'EXTERNAL_PROPERTIES_MIM' + '.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') |(edir.role.name = 'version'))) &lt;&gt; 1))) = 0">
-      </where>
-    </rule>
-
-    <rule
-      name="plib_property_reference_requires_name_scope"
-      appliesto="externally_defined_general_property">
-      <algorithm>
-LOCAL
-known_sourced_properties : SET OF externally_defined_general_property;
-END_LOCAL;
-known_sourced_properties := QUERY(edc &lt;* externally_defined_general_property |
-'PLIB_CLASS_REFERENCE_MIM' + '.KNOWN_SOURCE' IN TYPEOF(edc.source));
-      </algorithm>
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (edgp &lt;* known_sourced_properties |(SIZEOF (QUERY (edir &lt;* USEDIN (edgp, 'EXTERNAL_REFERENCE_SCHEMA' + '.EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM')|(edir.name = 'name scope') AND('EXTERNAL_CLASS_MIM' + '.EXTERNALLY_DEFINED_CLASS' IN TYPEOF (edir.related_item)) AND('PLIB_CLASS_REFERENCE_MIM' + '.KNOWN_SOURCE' IN TYPEOF (edir.related_item.source)))) &lt;&gt;1))) = 0">
-      </where>
-    </rule>
-
-    <function
-      name="external_version_assignment_is_valid">
-      <parameter
-        name="aia">
-        <typename
-          name="applied_external_identification_assignment"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-LOCAL
-item: identification_item;
-role: identification_role;
-END_LOCAL;
-role:= aia.role;
-IF role.name='version' THEN
-REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
-item:= aia.items[i];
-IF (SIZEOF(['EXTERNAL_PROPERTIES_MIM.' + 'EXTERNALLY_VERSIONED_ITEM']*TYPEOF(item))=0) THEN
-RETURN(FALSE);
-END_IF;
-END_REPEAT;
-RETURN(TRUE);
-ELSE
-RETURN(TRUE);
-END_IF;
-      </algorithm>
-    </function>
-
-  </schema>
+<express language_version="2" rcs.date="$Date: 2007-05-30 07:12:20 -0700 (Tr, 30 Geg 2007) $" rcs.revision="$Revision: 1075 $" description.file="mim_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="external_properties_mim schema_instance"/>
+   <schema name="External_properties_mim">
+      <interface kind="use" schema="External_library_mim"/>
+      <interface kind="use" schema="Identification_assignment_mim"/>
+      <interface kind="use" schema="Independent_property_mim"/>
+      <interface kind="use" schema="Plib_class_reference_mim"/>
+      <interface kind="use" schema="external_reference_schema">
+         <interfaced.item name="externally_defined_item"/>
+         <interfaced.item name="externally_defined_item_relationship"/>
+      </interface>
+      <interface kind="use" schema="support_resource_schema">
+         <interfaced.item name="identifier"/>
+      </interface>
+      <type name="external_identification_for_plib_property">
+         <select basedon="external_identification_item" selectitems="externally_defined_general_property"/>
+      </type>
+      <type name="externally_versioned_item">
+         <select extensible="YES" genericentity="YES"/>
+      </type>
+      <type name="version_for_plib_property">
+         <select basedon="externally_versioned_item" selectitems="externally_defined_general_property"/>
+      </type>
+      <entity name="externally_defined_general_property" supertypes="general_property externally_defined_item"/>
+      <rule name="external_version_assignments_are_valid" appliesto="applied_external_identification_assignment">
+         <where label="WR1" expression="SIZEOF(QUERY(aia &lt;* applied_external_identification_assignment | &#10;        NOT external_version_assignment_is_valid(aia)))=0"/>
+      </rule>
+      <rule name="plib_property_reference_requires_name_scope" appliesto="externally_defined_general_property">
+         <algorithm>LOCAL
+      known_sourced_properties : SET OF externally_defined_general_property;
+    END_LOCAL;
+      known_sourced_properties := QUERY( edc &lt;* externally_defined_general_property | 
+	    'PLIB_CLASS_REFERENCE_MIM' + '.KNOWN_SOURCE' IN TYPEOF(edc.source) );</algorithm>
+         <where label="WR1" expression="SIZEOF ( QUERY ( edgp &lt;* known_sourced_properties | &#10;        ( SIZEOF ( QUERY ( edir &lt;* USEDIN ( edgp, 'EXTERNAL_REFERENCE_SCHEMA' + '.EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM' )| &#10;        ( edir.name =  'name scope' ) AND &#10;        ('EXTERNAL_CLASS_MIM' + '.EXTERNALLY_DEFINED_CLASS' IN  TYPEOF ( edir.related_item ) ) AND &#10;        ( 'PLIB_CLASS_REFERENCE_MIM' + '.KNOWN_SOURCE' IN TYPEOF ( edir.related_item.source ) ) ) ) &lt;&gt;1 ) ) ) =  0"/>
+      </rule>
+      <rule name="plib_property_reference_requires_version" appliesto="externally_defined_general_property">
+         <algorithm>LOCAL
+	  plib_properties : SET OF externally_defined_general_property := [];
+	END_LOCAL;
+	  plib_properties := QUERY ( edgp &lt;* externally_defined_general_property | 
+		( 'EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' IN TYPEOF ( edgp.source ) ) AND
+		( 'EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' + '\PRE_DEFINED_ITEM.NAME' = 'ISO 13584 library' ) );</algorithm>
+         <where label="WR1" expression="SIZEOF( QUERY( edgp &lt;* plib_properties | &#10;		(SIZEOF( QUERY( edir &lt;* USEDIN(edgp, 'EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM' + '.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | &#10;		(edir.role.name = 'version') )) &lt;&gt; 1) )) = 0"/>
+      </rule>
+      <function name="external_version_assignment_is_valid">
+         <parameter name="aia">
+            <typename name="applied_external_identification_assignment"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      item: identification_item;
+      role: identification_role;
+    END_LOCAL;
+      role:= aia.role;
+      IF role.name='version' THEN
+        REPEAT i:=LOINDEX(aia.items) TO HIINDEX(aia.items);
+          item:= aia.items[i];
+          IF (SIZEOF(['EXTERNAL_PROPERTIES_MIM.' + 'EXTERNALLY_VERSIONED_ITEM']*TYPEOF(item))=0) THEN
+            -- item invalid if item does not belong to versionable types
+	        RETURN(FALSE);
+          END_IF;
+        END_REPEAT;
+        RETURN(TRUE);
+      ELSE		-- case where aia does not convey a version id
+        RETURN(TRUE);
+      END_IF;</algorithm>
+      </function>
+   </schema>
 </express>

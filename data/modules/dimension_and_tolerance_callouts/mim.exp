@@ -1,60 +1,47 @@
 (*
- $Id: mim.exp,v 1.5 2007/03/02 12:23:52 liutkus Exp $
- ISO TC184/SC4/WG12 N4338 - ISO/CD-TS 10303-1362 Dimension and tolerance callouts - EXPRESS MIM
+ $Id: mim.exp 1151 2007-06-05 14:31:43Z giedrius $
+ ISO TC184/SC4/WG12 N4703 - ISO/CD-TS 10303-1362 Dimension and tolerance callouts - EXPRESS MIM
+ Supersedes ISO TC184/SC4/WG12 N4338
 *) 
 
 
 SCHEMA Dimension_and_tolerance_callouts_mim;
 
-USE FROM Dimension_tolerance_mim;    -- ISO/TS 10303-1050
+USE FROM Associative_draughting_elements_mim; -- ISO/CD-TS 10303-1311
 
-USE FROM Draughting_element_specializations_mim; -- 506
+USE FROM Dimension_tolerance_mim; -- ISO/TS 10303-1050
 
-USE FROM Draughting_annotation_mim; -- 504
+USE FROM Draughting_annotation_mim; -- ISO/CD-TS 10303-1206
 
-USE FROM Associative_draughting_elements_mim; --520
+USE FROM Draughting_element_specialisations_mim; -- ISO/CD-TS 10303-1312
 
-USE FROM Draughting_dimension_mim;
+  TYPE dimensioning_standard_document_reference_item = EXTENSIBLE SELECT BASED_ON document_reference_item WITH 
+    (product_definition);
+  END_TYPE; 
 
-USE FROM Extended_fill_area_style_mim;
+  ENTITY dimension_curve_terminator_to_projection_curve_associativity
+    SUBTYPE OF(annotation_occurrence_associativity);
+      SELF\annotation_occurrence_relationship.relating_annotation_occurrence : dimension_curve_terminator;
+      SELF\annotation_occurrence_relationship.related_annotation_occurrence  : projection_curve;
+  END_ENTITY;
 
--- add global rule on draughting_model that all included draughting_callouts are draughting_elements
--- Write SEDS on AP214 "5.2.4.259 subtype_mandatory_draughting_callout" to ensure that a 
--- draughting_callout must always be of type draughting_element (and maybe others in addition).
-
-RULE draughting_model_contains_draughting_elements_only FOR (draughting_model);
-WHERE
--- logic - there should be 0 items, which are draughting_callouts and which are not draughting_elements
-   WR1: SIZEOF(QUERY(it1 <* draughting_model.items |
-        ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT'
-        IN TYPEOF(it1))
+  RULE draughting_model_items_constraint FOR (draughting_model);
+    WHERE
+      -- logic - there should be 0 items, which are annotation_occurrences and which are not draughting_annotation_occurrences
+      WR1: SIZEOF(QUERY(dm <* draughting_model |
+        NOT(SIZEOF(QUERY(it1 <* dm\representation.items |
+        (('DRAUGHTING_ELEMENT_SCHEMA.ANNOTATION_OCCURRENCE' IN TYPEOF(it1))
         AND
-        NOT('AIC_DRAUGHTING_ELEMENTS.DRAUGHTING_ELEMENTS'
-        IN TYPEOF(it1))) = 0);
-END_RULE;
-
--- add global rule for draughting_model to ensure that all directly or indirectly referenced annotation_occurrences 
--- must be of type draughting_annotation_occurrence. 
--- See AP214 "5.2.4.253 subtype_mandatory_annotation_occurrence". Check if we have to write a SEDS on 
--- this because if not really requires always a draughting_annotation_occurrence .
--- GL Note - Rule is not 1:1 taken from AP214. It is only partially reused.
-
-RULE draughting_model_items_constraint FOR (draughting_model);
-WHERE
--- logic - there should be 0 items, which are annotation_occurrences and which are not draughting_annotation_occurrences
-   WR1: SIZEOF(QUERY(it1 <* draughting_model.items |
-        ('DRAUGHTING_ELEMENT_SCHEMA.ANNOTATION_OCCURRENCE'
-        IN TYPEOF(it1))
+        NOT('AIC_DRAUGHTING_ANNOTATION.' + 'DRAUGHTING_ANNOTATION_OCCURRENCE' IN TYPEOF(it1)))
+          )) = 0)
+        )) = 0;
+      WR2: SIZEOF(QUERY(dm <* draughting_model |
+        NOT(SIZEOF(QUERY(it1 <* dm\representation.items |
+        (('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT' IN TYPEOF(it1))
         AND
-        NOT('AIC_DRAUGHTING_ANNOTATION.' + 'DRAUGHTING_ANNOTATION_OCCURRENCE' 
-             IN TYPEOF(it1))) = 0);
--- logic - there should be 0 items, which are annotation_occurrences and which are not draughting_annotation_occurrences
-   WR2: SIZEOF(QUERY(it1 <* draughting_callout.contents |
-        ('DRAUGHTING_ELEMENT_SCHEMA.ANNOTATION_OCCURRENCE'
-        IN TYPEOF(it1))
-        AND
-        NOT('AIC_DRAUGHTING_ANNOTATION.' + 'DRAUGHTING_ANNOTATION_OCCURRENCE' 
-             IN TYPEOF(it1))) = 0);
-END_RULE;
+        NOT('AIC_DRAUGHTING_ELEMENTS.DRAUGHTING_ELEMENTS' IN TYPEOF(it1)))
+          )) = 0)
+        )) = 0;
+  END_RULE;
 
-END_SCHEMA;  -- Dimension_and_tolerance_callouts_mim
+END_SCHEMA; 

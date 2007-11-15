@@ -1,31 +1,39 @@
 (* 
-$Id: arm.exp,v 1.5 2005/05/24 18:30:53 darla Exp $
-ISO TC184/SC4/WG12 N678 - ISO/TS 10303-1009 Shape appearance layers - EXPRESS ARM
+	$Id: arm.exp 1151 2007-06-05 14:31:43Z giedrius $
+	ISO TC184/SC4/WG12 N4804 - ISO/CD-TS 10303-1009 Shape appearance layers - EXPRESS ARM
+	Supersedes ISO TC184/SC4/WG12 N678
 *)
 
 SCHEMA Shape_appearance_layers_arm;
 
-USE FROM Appearance_assignment_arm;
-USE FROM Foundation_representation_arm; 
-USE FROM General_surface_appearance_arm; 
-USE FROM Layer_assignment_arm; 
+USE FROM Appearance_assignment_arm; -- ISO/CD-TS 10303-1001
 
-TYPE shape_appearance_context_select = SELECT
-     (Representation);
-END_TYPE;
+USE FROM General_surface_appearance_arm; -- ISO/CD-TS 10303-1007
 
-TYPE shape_appearance_select = SELECT
- (Surface_appearance_wireframe,
-  Surface_colour);
-END_TYPE;
+USE FROM Layer_assignment_arm; -- ISO/CD-TS 10303-1008
 
-ENTITY Shape_appearance;
-  appearance_style: shape_appearance_select;
-END_ENTITY;
+USE FROM Fill_area_style_arm; -- ISO/TS 10303-1672
 
-ENTITY Shape_appearance_context;
-  context_for_appearance: shape_appearance_context_select;
-END_ENTITY;
+  TYPE sal_appearance_context = SELECT BASED_ON appearance_context WITH 
+     (Geometric_model_relationship,
+      Group, 
+      Layer);
+  END_TYPE; 
+
+  TYPE sal_appearance_select = SELECT BASED_ON appearance_select WITH 
+    (Solid_fill_area_style,
+     Tile_style,
+     Hatch_style);
+  END_TYPE;
+
+  TYPE sal_overriding_style_context = SELECT BASED_ON overriding_style_context WITH 
+     (Geometric_model_relationship,
+      Layer);
+  END_TYPE; 
+
+
+  ENTITY Solid_fill_area_style;
+    fill_colour : Colour; 
+  END_ENTITY;  
 
 END_SCHEMA;
-

@@ -1,345 +1,159 @@
-<?xml version='1.0' encoding='UTF-8'?>  
-<!-- $Id: arm.xml,v 1.15 2005/05/02 08:53:07 sonofre Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2005/05/02 08:53:07 $"
-  rcs.revision="$Revision: 1.15 $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="../data/modules/specification_control/arm.exp"/>
-
-  <schema name="Specification_control_arm">
-
-    <interface
-      kind="use"
-      schema="Alternative_solution_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Effectivity_application_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Functional_breakdown_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Part_collection_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Product_occurrence_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Product_placement_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Physical_breakdown_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Requirement_identification_and_version_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Specification_based_configuration_arm">
-    </interface>
-    <interface
-      kind="use"
-      schema="Specified_product_arm">
-    </interface>
-    <type name="breakdown_element_select">
-      <select
-        selectitems="Functional_element_definition Physical_element_definition">
-      </select>
-    </type>
-
-    <type name="constraint_context_select">
-      <select
-        selectitems="Product_class">
-      </select>
-    </type>
-
-    <type name="effectivity_specification_for_replacement">
-      <select
-        basedon="effectivity_item"
-        selectitems="Replaced_usage_relationship">
-      </select>
-    </type>
-
-    <type name="instance_usage_context_select">
-      <select
-        extensible="YES"
-        genericentity="YES"
-        selectitems="Collected_item_association Solution_element">
-      </select>
-    </type>
-
-    <type name="sc_configured_element">
-      <select
-        extensible="YES"
-        basedon="configured_item_select"
-        selectitems="Alternative_solution">
-      </select>
-    </type>
-
-    <entity
-      name="Breakdown_node_relationship">
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="relating">
-        <typename
-          name="complex_product_select"/>
-      </explicit>
-      <explicit
-        name="related">
-        <typename
-          name="breakdown_element_select"/>
-      </explicit>
-      <explicit
-        name="relation_type">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(NOT (relation_type IN ['functionality', 'realization'])) OR(TYPEOF(related) &lt;&gt; TYPEOF(relating))">
-      </where>
-      <where
-        label="WR2"
-        expression="(NOT (relation_type IN ['decomposition', 'specialization', 'occurrence'])) OR(aggregate1_in_aggregate2(TYPEOF(related),TYPEOF(relating)) OR aggregate1_in_aggregate2(TYPEOF(relating),TYPEOF(related)))">
-      </where>
-      <where
-        label="WR3"
-        expression="(NOT (relation_type IN ['occurrence'])) OR('SPECIFICATION_CONTROL_ARM.PHYSICAL_ELEMENT_DEFINITION' IN TYPEOF(relating))">
-      </where>
-    </entity>
-
-    <entity
-      name="Class_breakdown_association">
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="considered_class">
-        <typename
-          name="Product_class"/>
-      </explicit>
-      <explicit
-        name="breakdown_element">
-        <typename
-          name="breakdown_element_select"/>
-      </explicit>
-      <explicit
-        name="relation_type">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Complex_node_relationship">
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="relating">
-        <typename
-          name="complex_product_select"/>
-      </explicit>
-      <explicit
-        name="related">
-        <typename
-          name="complex_product_select"/>
-      </explicit>
-      <explicit
-        name="relation_type">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="(aggregate1_in_aggregate2(TYPEOF(related),TYPEOF(relating)) OR aggregate1_in_aggregate2(TYPEOF(relating),TYPEOF(related)))">
-      </where>
-    </entity>
-
-    <entity
-      name="Design_constraint_context_association">
-      <explicit
-        name="constraint_definition">
-        <typename
-          name="Design_constraint_definition"/>
-      </explicit>
-      <explicit
-        name="constraint_context">
-        <typename
-          name="constraint_context_select"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Design_constraint_association">
-      <explicit
-        name="name"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="constrained_object">
-        <typename
-          name="complex_product_select"/>
-      </explicit>
-      <explicit
-        name="constraint_definition">
-        <typename
-          name="Design_constraint_definition"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Design_constraint_definition"
-      supertypes="Product_view_definition">
-      <explicit
-        name="defined_version">
-        <typename
-          name="Requirement_version"/>
-        <redeclaration
-          entity-ref="Product_view_definition"/>
-        </explicit>
+<express language_version="2" rcs.date="$Date: 2007-05-30 23:57:58 -0700 (Tr, 30 Geg 2007) $" rcs.revision="$Revision: 1089 $" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_control_arm schema_instance"/>
+   <schema name="Specification_control_arm">
+      <interface kind="use" schema="Alternative_solution_arm"/>
+      <interface kind="use" schema="Part_collection_arm"/>
+      <interface kind="use" schema="Product_placement_arm"/>
+      <interface kind="use" schema="Requirement_identification_and_version_arm"/>
+      <interface kind="use" schema="Specification_based_configuration_arm"/>
+      <type name="breakdown_element_select">
+         <select selectitems="Functional_element_definition Physical_element_definition"/>
+      </type>
+      <type name="constraint_context_select">
+         <select selectitems="Product_class"/>
+      </type>
+      <type name="effectivity_specification_for_replacement">
+         <select basedon="effectivity_item" selectitems="Replaced_usage_relationship"/>
+      </type>
+      <type name="instance_usage_context_select">
+         <select extensible="YES" genericentity="YES" selectitems="Collected_item_association Solution_element"/>
+      </type>
+      <type name="sc_configured_element">
+         <select extensible="YES" basedon="configured_item_select" selectitems="Alternative_solution"/>
+      </type>
+      <entity name="Breakdown_node_relationship">
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="complex_product_select"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="breakdown_element_select"/>
+         </explicit>
+         <explicit name="relation_type">
+            <builtintype type="STRING"/>
+         </explicit>
+         <where label="WR1" expression="(NOT (relation_type IN ['functionality', 'realization'])) OR&#10;	(TYPEOF(related) &lt;&gt; TYPEOF(relating))"/>
+         <where label="WR2" expression="(NOT (relation_type IN ['decomposition', 'specialization', 'occurrence'])) OR&#10;	(aggregate1_in_aggregate2(TYPEOF(related),TYPEOF(relating)) OR aggregate1_in_aggregate2(TYPEOF(relating),TYPEOF(related)) )"/>
+         <where label="WR3" expression="(NOT (relation_type IN ['occurrence'])) OR &#10;	('SPECIFICATION_CONTROL_ARM.PHYSICAL_ELEMENT_DEFINITION' IN TYPEOF(relating))"/>
       </entity>
-
-      <entity
-        name="Design_constraint_relationship"
-        supertypes="View_definition_relationship">
-        <explicit
-          name="relating_view">
-          <typename
-            name="Design_constraint_definition"/>
-          <redeclaration
-            entity-ref="View_definition_relationship"/>
-          </explicit>
-          <explicit
-            name="related_view">
-            <typename
-              name="Design_constraint_definition"/>
-            <redeclaration
-              entity-ref="View_definition_relationship"/>
-            </explicit>
-          </entity>
-
-          <entity
-            name="Part_function_association"
-            supertypes="View_definition_relationship">
-            <explicit
-              name="relating_view">
-              <typename
-                name="Functional_element_definition"/>
-              <redeclaration
-                entity-ref="View_definition_relationship"/>
-              </explicit>
-              <explicit
-                name="related_view">
-                <typename
-                  name="Part_view_definition"/>
-                <redeclaration
-                  entity-ref="View_definition_relationship"/>
-                </explicit>
-              </entity>
-
-              <entity
-                name="Part_occurrence_relationship"
-                supertypes="View_definition_relationship">
-                <explicit
-                  name="relating_view">
-                  <typename
-                    name="part_occurrence_select"/>
-                  <redeclaration
-                    entity-ref="View_definition_relationship"/>
-                  </explicit>
-                  <explicit
-                    name="related_view">
-                    <typename
-                      name="part_occurrence_select"/>
-                    <redeclaration
-                      entity-ref="View_definition_relationship"/>
-                    </explicit>
-                  </entity>
-
-                  <entity
-                    name="Replaced_usage_relationship"
-                    supertypes="Part_occurrence_relationship">
-                    <explicit
-                      name="usage_context">
-                      <typename
-                        name="instance_usage_context_select"/>
-                    </explicit>
-                    <derived
-                      name="relation_type"
-                      expression="'usage replacement'">
-                      <builtintype
-                        type="STRING"/>
-                      <redeclaration
-                        entity-ref="View_definition_relationship"/>
-                      </derived>
-                    </entity>
-
-                    <entity
-                      name="Specification_category_breakdown_influence">
-                      <explicit
-                        name="influencing_category">
-                        <typename
-                          name="Class_category_association"/>
-                      </explicit>
-                      <explicit
-                        name="influenced_breakdown_node">
-                        <typename
-                          name="breakdown_element_select"/>
-                      </explicit>
-                    </entity>
-
-                    <function
-                      name="aggregate1_in_aggregate2">
-                      <parameter
-                        name="agg1">
-                        <aggregate
-                          type="AGGREGATE"/>
-                        <builtintype
-                          type="GENERIC"/>
-                      </parameter>
-                      <parameter
-                        name="agg2">
-                        <aggregate
-                          type="AGGREGATE"/>
-                        <builtintype
-                          type="GENERIC"/>
-                      </parameter>
-                      <builtintype
-                        type="LOGICAL"/>
-                      <algorithm>
-RETURN(SIZEOF(QUERY (ele &lt;* agg1 | VALUE_IN(agg2, ele)))= SIZEOF(agg1));
-                      </algorithm>
-                    </function>
-
-                  </schema>
-                </express>
+      <entity name="Class_breakdown_association">
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="considered_class">
+            <typename name="Product_class"/>
+         </explicit>
+         <explicit name="breakdown_element">
+            <typename name="breakdown_element_select"/>
+         </explicit>
+         <explicit name="relation_type">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Complex_node_relationship">
+         <explicit name="description" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="relating">
+            <typename name="complex_product_select"/>
+         </explicit>
+         <explicit name="related">
+            <typename name="complex_product_select"/>
+         </explicit>
+         <explicit name="relation_type">
+            <builtintype type="STRING"/>
+         </explicit>
+         <where label="WR1" expression="(aggregate1_in_aggregate2(TYPEOF(related),TYPEOF(relating)) OR aggregate1_in_aggregate2(TYPEOF(relating),TYPEOF(related)) )"/>
+      </entity>
+      <entity name="Design_constraint_association">
+         <explicit name="name" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="constrained_object">
+            <typename name="complex_product_select"/>
+         </explicit>
+         <explicit name="constraint_definition">
+            <typename name="Design_constraint_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Design_constraint_context_association">
+         <explicit name="constraint_definition">
+            <typename name="Design_constraint_definition"/>
+         </explicit>
+         <explicit name="constraint_context">
+            <typename name="constraint_context_select"/>
+         </explicit>
+      </entity>
+      <entity name="Design_constraint_definition" supertypes="Product_view_definition">
+         <explicit name="defined_version">
+            <typename name="Requirement_version"/>
+            <redeclaration entity-ref="Product_view_definition"/>
+         </explicit>
+      </entity>
+      <entity name="Design_constraint_relationship" supertypes="View_definition_relationship">
+         <explicit name="relating_view">
+            <typename name="Design_constraint_definition"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Design_constraint_definition"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+      </entity>
+      <entity name="Part_function_association" supertypes="View_definition_relationship">
+         <explicit name="relating_view">
+            <typename name="Functional_element_definition"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+      </entity>
+      <entity name="Part_occurrence_relationship" supertypes="View_definition_relationship">
+         <explicit name="relating_view">
+            <typename name="part_occurrence_select"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="part_occurrence_select"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+      </entity>
+      <entity name="Replaced_usage_relationship" supertypes="Part_occurrence_relationship">
+         <explicit name="usage_context">
+            <typename name="instance_usage_context_select"/>
+         </explicit>
+         <derived name="relation_type" expression="'usage replacement'">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </derived>
+      </entity>
+      <entity name="Specification_category_breakdown_influence">
+         <explicit name="influencing_category">
+            <typename name="Class_category_association"/>
+         </explicit>
+         <explicit name="influenced_breakdown_node">
+            <typename name="breakdown_element_select"/>
+         </explicit>
+      </entity>
+      <function name="aggregate1_in_aggregate2">
+         <parameter name="agg1">
+            <aggregate type="AGGREGATE"/>
+            <builtintype type="GENERIC"/>
+         </parameter>
+         <parameter name="agg2">
+            <aggregate type="AGGREGATE"/>
+            <builtintype type="GENERIC"/>
+         </parameter>
+         <builtintype type="LOGICAL"/>
+         <algorithm>RETURN(SIZEOF(QUERY (ele &lt;* agg1 | VALUE_IN(agg2, ele)))= SIZEOF(agg1));</algorithm>
+      </function>
+   </schema>
+</express>

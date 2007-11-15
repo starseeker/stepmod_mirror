@@ -2,22 +2,40 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2007-06-06 03:24:54 -0700 (Tr, 06 Bir 2007) $" rcs.revision="$Revision: 1168 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ply_orientation_specification_arm schema_instance"/>
    <schema name="Ply_orientation_specification_arm">
-      <interface kind="use" schema="Construction_geometry_arm"/>
       <interface kind="use" schema="Part_and_zone_laminate_tables_arm"/>
       <type name="angle_select">
-         <select selectitems="Curve Direction Point_path"/>
+         <select selectitems="Axis_placement_3d Curve Direction Point_path"/>
       </type>
+      <entity name="Direction_of_fiber_orientation_within_a_ply" supertypes="Representation">
+         <explicit name="context_of_items">
+            <typename name="Geometric_coordinate_space"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="angle_select"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <inverse name="orientations" entity="Ply_orientation_angle" attribute="rep_1">
+            <inverse.aggregate type="SET" lower="1" upper="1"/>
+         </inverse>
+      </entity>
       <entity name="Draped_orientation_angle" supertypes="Ply_orientation_angle"/>
       <entity name="Laid_orientation_angle" supertypes="Ply_orientation_angle"/>
-      <entity name="Ply_orientation_angle" supertypes="Geometric_model" super.expression="ONEOF (Draped_orientation_angle, Laid_orientation_angle)">
+      <entity name="Ply_orientation_angle" supertypes="Representation_relationship" super.expression="ONEOF (Draped_orientation_angle, Laid_orientation_angle)">
          <explicit name="angle_reference">
             <typename name="angle_select"/>
          </explicit>
-         <explicit name="basis">
+         <explicit name="rep_1">
+            <typename name="Direction_of_fiber_orientation_within_a_ply"/>
+            <redeclaration entity-ref="Representation_relationship"/>
+         </explicit>
+         <explicit name="rep_2">
             <typename name="Reinforcement_orientation_basis"/>
+            <redeclaration entity-ref="Representation_relationship"/>
          </explicit>
       </entity>
       <entity name="Point_and_vector" supertypes="Detailed_geometric_model_element">
@@ -35,16 +53,29 @@
             <typename name="Point_and_vector"/>
          </explicit>
       </entity>
-      <entity name="Reinforcement_orientation_basis" supertypes="Geometric_model">
-         <explicit name="basis_location">
-            <typename name="point_select"/>
+      <entity name="Reinforcement_orientation_basis" supertypes="Representation">
+         <explicit name="context_of_items">
+            <typename name="Geometric_coordinate_space"/>
+            <redeclaration entity-ref="Representation"/>
          </explicit>
-         <explicit name="orientation">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Axis_placement_3d"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+         <derived name="basis_location" expression="SELF\Representation.items[1]\Axis_placement.origin">
+            <typename name="Cartesian_point"/>
+         </derived>
+         <derived name="orientation" expression="SELF\Representation.items[1]\Axis_placement.x_axis">
             <typename name="Direction"/>
-         </explicit>
+         </derived>
          <inverse name="tables" entity="Laminate_table" attribute="basis">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
+         <inverse name="orientations" entity="Ply_orientation_angle" attribute="rep_2">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
       </entity>
+      <subtype.constraint name="pos_detailed_geometric_model_element_subtypes" entity="Detailed_geometric_model_element" super.expression="ONEOF (Point_and_vector, Point_path)"/>
    </schema>
 </express>

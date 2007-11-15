@@ -1,13 +1,13 @@
 (*
-$Id: mim.exp,v 1.10 2006/04/06 07:11:06 liutkus Exp $
-ISO TC184/SC4/WG12 N2697 - ISO/TS 10303-1136 Text appearance - EXPRESS MIM
-Supersedes ISO TC184/SC4/WG12 N1701
+$Id: mim.exp 1558 2007-09-20 11:30:21Z GiedriusLiutkus $
+ISO TC184/SC4/WG12 N4775 - ISO/CD-TS 10303-1136 Text appearance - EXPRESS MIM
+Supersedes ISO TC184/SC4/WG12 N2697
 *) 
 
 
 SCHEMA Text_appearance_mim;
 
-USE FROM Elemental_geometric_shape_mim;    -- ISO/TS 10303-1004
+USE FROM Basic_geometry_mim;   -- ISO/TS 10303-1652
 
 USE FROM presentation_appearance_schema   -- ISO 10303-46
   (box_height,
@@ -40,15 +40,11 @@ USE FROM presentation_resource_schema   -- ISO 10303-46
    pre_defined_colour,
    pre_defined_text_font); 
 
-USE FROM aic_draughting_annotation (
-  draughting_text_literal_with_delineation);    -- ISO 10303-504
-
-
-RULE text_font_usage FOR 
-(externally_defined_text_font,pre_defined_text_font);
-WHERE
-  WR1: SIZEOF (QUERY (pdtf <* pre_defined_text_font | SIZEOF (USEDIN (pdtf, 'PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL.FONT')) = 0 )) = 0;
-  WR2: SIZEOF (QUERY (edtf <* externally_defined_text_font | SIZEOF (USEDIN (edtf, 'PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL.FONT')) = 0 )) = 0;
+  RULE text_font_usage FOR 
+      (externally_defined_text_font,pre_defined_text_font);
+    WHERE
+      WR1: SIZEOF (QUERY (pdtf <* pre_defined_text_font | SIZEOF (USEDIN (pdtf, 'PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL.FONT')) = 0 )) = 0;
+      WR2: SIZEOF (QUERY (edtf <* externally_defined_text_font | SIZEOF (USEDIN (edtf, 'PRESENTATION_DEFINITION_SCHEMA.TEXT_LITERAL.FONT')) = 0 )) = 0;
 END_RULE; 
 
-END_SCHEMA;  -- Text_appearance_mim
+END_SCHEMA;  

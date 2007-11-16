@@ -1,4 +1,4 @@
-$Id: readme.txt,v 1.1 2003/05/29 15:21:48 robbod Exp $
+$Id: readme.txt 12 2007-03-20 22:17:27Z giedrius $
 
       -----------------------------
       Application Protocol document

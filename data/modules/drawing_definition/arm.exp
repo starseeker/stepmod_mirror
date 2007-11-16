@@ -1,49 +1,67 @@
 (*
-   $Id$
-   N - ISO/CD-TS - 10303- drawing_definition - EXPRESS ARM*)
+   $Id: arm.exp 836 2007-05-14 17:03:41Z giedrius $
+   ISO TC184/SC4/WG12 N4714 - ISO/CD-TS 10303-1309 Drawing definition - EXPRESS ARM
+*)
 (* UNDER DEVELOPMENT *)
 SCHEMA Drawing_definition_arm;
 
 USE FROM Presentation_hierarchy_arm;
 
-TYPE draughting_titled_item = SELECT 
-  (Drawing,
-   Drawing_sheet);
-END_TYPE;
+  TYPE draughting_titled_item = SELECT 
+    (Drawing,
+     Drawing_sheet);
+  END_TYPE;
 
-ENTITY Drawing_definition; -- maps to drawing_definition
-  drawing_number : STRING;
-  drawing_type   : OPTIONAL STRING;
-END_ENTITY;
+TYPE dd_view_element_select = SELECT BASED_ON view_element_select WITH 
+   (Camera_image_2d_with_scale);
+END_TYPE; 
 
-ENTITY Drawing -- maps to drawing_revision
-  SUBTYPE OF (Presentation_set);
-  revision_identifier : STRING;
-  drawing_identifier  : Drawing_definition;
-  intended_scale      : OPTIONAL STRING;
-UNIQUE
-  UR1: revision_identifier, drawing_identifier;
-END_ENTITY;
+  ENTITY Camera_image_2d_with_scale -- maps to camera_image_2d_with_scale
+    SUBTYPE OF (Detailed_geometric_model_element);
+      is_displaying : presented_model_select; -- see note below
+      source : Camera_model_d2;
+      target : Planar_box;
+  END_ENTITY;
 
-ENTITY Drawing_sequence; -- maps to drawing_revision_sequence
-  predecessor : Drawing;
-  successor   : Drawing;
-WHERE
-  WR1: predecessor :<>: successor;
-END_ENTITY;
+  ENTITY Camera_model_d2 -- map to Camera_model_d2
+    SUBTYPE OF (Detailed_geometric_model_element);
+      view_window : Planar_box;
+      view_window_clipping : BOOLEAN;
+  END_ENTITY;
 
-ENTITY Drawing_sheet -- maps to drawing_sheet_revision
-  SUBTYPE OF (View_area);
-  revision_identifier : STRING;
-END_ENTITY;
+  ENTITY Drawing_definition; -- maps to drawing_definition
+    drawing_number : STRING;
+    drawing_type   : OPTIONAL STRING;
+  END_ENTITY;
 
-ENTITY Drawing_sheet_sequence -- maps to drawing_sheet_revision_sequence. In the MIM it is representation_relationship
-  SUBTYPE OF (View_area_relationship);
-    SELF\View_area_relationship.relating : Drawing_sheet;
-    SELF\View_area_relationship.related  : Drawing_sheet;
-WHERE
-  WR1: SELF\View_area_relationship.relating :<>: SELF\View_area_relationship.related;
-END_ENTITY;
+  ENTITY Drawing -- maps to drawing_revision
+    SUBTYPE OF (Presentation_set);
+    revision_identifier : STRING;
+    drawing_identifier  : Drawing_definition;
+    intended_scale      : OPTIONAL STRING;
+  UNIQUE
+    UR1: revision_identifier, drawing_identifier;
+  END_ENTITY;
+  
+  ENTITY Drawing_sequence; -- maps to drawing_revision_sequence
+    predecessor : Drawing;
+    successor   : Drawing;
+  WHERE
+    WR1: predecessor :<>: successor;
+  END_ENTITY;
+ 
+  ENTITY Drawing_sheet -- maps to drawing_sheet_revision
+    SUBTYPE OF (View_area);
+    revision_identifier : STRING;
+  END_ENTITY;
+
+  ENTITY Drawing_sheet_sequence -- maps to drawing_sheet_revision_sequence. In the MIM it is representation_relationship
+    SUBTYPE OF (View_area_relationship);
+      SELF\View_area_relationship.relating : Drawing_sheet;
+      SELF\View_area_relationship.related  : Drawing_sheet;
+  WHERE
+    WR1: SELF\View_area_relationship.relating :<>: SELF\View_area_relationship.related;
+  END_ENTITY;
 
 (* Area_in_set is not modelled in the ARM, link is achieved by direct attribute at presentation_set.
 Having this sheet_number as attribute would cause more problems 
@@ -60,10 +78,15 @@ WHERE
                IN TYPEOF (SELF\area_in_set.in_set));
 END_ENTITY; *)
 
-ENTITY Draughting_title; -- maps to Draughting_title
-  items    : SET [1:?] OF draughting_titled_item;
-  language : STRING;
-  contents : STRING;
-END_ENTITY;
+  ENTITY Draughting_title; -- maps to Draughting_title
+    items    : SET [1:?] OF draughting_titled_item;
+    language : STRING;
+    contents : STRING;
+  END_ENTITY;
+
+  SUBTYPE_CONSTRAINT dd_detailed_geometric_model_element_subtypes FOR Detailed_geometric_model_element;
+    ONEOF (Camera_model_d2,
+      Camera_image_2d_with_scale);
+  END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

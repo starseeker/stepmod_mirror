@@ -6,9 +6,31 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="drawing_definition_arm schema_instance"/>
    <schema name="Drawing_definition_arm">
       <interface kind="use" schema="Presentation_hierarchy_arm"/>
+      <type name="dd_view_element_select">
+         <select basedon="view_element_select" selectitems="Camera_image_2d_with_scale"/>
+      </type>
       <type name="draughting_titled_item">
          <select selectitems="Drawing Drawing_sheet"/>
       </type>
+      <entity name="Camera_image_2d_with_scale" supertypes="Detailed_geometric_model_element">
+         <explicit name="is_displaying">
+            <typename name="presented_model_select"/>
+         </explicit>
+         <explicit name="source">
+            <typename name="Camera_model_d2"/>
+         </explicit>
+         <explicit name="target">
+            <typename name="Planar_box"/>
+         </explicit>
+      </entity>
+      <entity name="Camera_model_d2" supertypes="Detailed_geometric_model_element">
+         <explicit name="view_window">
+            <typename name="Planar_box"/>
+         </explicit>
+         <explicit name="view_window_clipping">
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+      </entity>
       <entity name="Draughting_title">
          <explicit name="items">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -69,5 +91,6 @@
          </explicit>
          <where label="WR1" expression="SELF\View_area_relationship.relating :&lt;&gt;: SELF\View_area_relationship.related"/>
       </entity>
+      <subtype.constraint name="dd_detailed_geometric_model_element_subtypes" entity="Detailed_geometric_model_element" super.expression="ONEOF (Camera_model_d2, Camera_image_2d_with_scale)"/>
    </schema>
 </express>

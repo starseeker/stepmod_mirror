@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" reference="ISO 10303-46" rcs.date="$Date: 2007-05-23 05:48:42 -0700 (Tr, 23 Geg 2007) $" rcs.revision="$Revision: 902 $" description.file="descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="presentation_appearance_schema schema_instance"/>
    <schema name="presentation_appearance_schema">
       <interface kind="reference" schema="external_reference_schema">
@@ -54,6 +54,9 @@
          <interfaced.item name="character_glyph_symbol_outline"/>
          <interfaced.item name="character_glyph_symbol_stroke"/>
          <interfaced.item name="colour"/>
+      </interface>
+      <interface kind="reference" schema="product_property_representation_schema">
+         <interfaced.item name="shape_representation_relationship"/>
       </interface>
       <interface kind="reference" schema="representation_schema">
          <interfaced.item name="founded_item"/>
@@ -158,7 +161,7 @@
          <enumeration items="squared rounded" extensible="NO"/>
       </type>
       <type name="style_context_select">
-         <select selectitems="group presentation_layer_assignment representation representation_item presentation_set" genericentity="NO" extensible="NO"/>
+         <select selectitems="group presentation_layer_assignment presentation_set representation representation_item shape_representation_relationship" genericentity="NO" extensible="NO"/>
       </type>
       <type name="surface_side">
          <enumeration items="positive negative both" extensible="NO"/>
@@ -245,10 +248,10 @@
       </entity>
       <entity name="context_dependent_over_riding_styled_item" supertypes="over_riding_styled_item" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="style_context" optional="NO">
-            <aggregate type="SET" lower="1" upper="2" unique="NO" optional="NO"/>
+            <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="style_context_select"/>
          </explicit>
-         <where label="WR1" expression="(SIZEOF(QUERY( sc &lt;* SELF.style_context |&#10;       'REPRESENTATION_SCHEMA.REPRESENTATION' IN&#10;         TYPEOF(sc))) &lt;= 1 )&#10;                 AND&#10;       (SIZEOF(QUERY( sc &lt;* SELF.style_context |&#10;       'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN&#10;         TYPEOF(sc))) &lt;= 1)"/>
+         <where label="WR1" expression="(SIZEOF(QUERY( sc &lt;* SELF.style_context |&#10;       'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN&#10;         TYPEOF(sc))) = 1) OR&#10;        (SIZEOF(QUERY( sc &lt;* SELF.style_context |&#10;       'REPRESENTATION_SCHEMA.MAPPED_ITEM' IN&#10;         TYPEOF(sc))) = SIZEOF(style_context)) OR&#10;         (SIZEOF(QUERY( sc &lt;* SELF.style_context |&#10;       'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION_RELATIONSHIP' IN&#10;         TYPEOF(sc))) = SIZEOF(style_context))"/>
       </entity>
       <entity name="curve_style" supertypes="founded_item" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="name" optional="NO">
@@ -387,7 +390,6 @@
             <typename name="colour"/>
          </explicit>
          <where label="WR1" expression="(NOT('GEOMETRY_SCHEMA.CURVE' IN TYPEOF (closed_curve))) OR &#10;       ('GEOMETRY_SCHEMA.CIRCLE' IN TYPEOF (closed_curve)) OR &#10;       ('GEOMETRY_SCHEMA.ELLIPSE' IN TYPEOF (closed_curve)) OR &#10;       ( ('GEOMETRY_SCHEMA.B_SPLINE_CURVE' IN TYPEOF (closed_curve)) &#10;            AND (closed_curve\b_spline_curve.closed_curve = TRUE) ) OR &#10;       ( ('GEOMETRY_SCHEMA.COMPOSITE_CURVE' IN TYPEOF (closed_curve)) &#10;            AND (closed_curve\composite_curve.closed_curve = TRUE) ) OR &#10;       ( ('GEOMETRY_SCHEMA.POLYLINE' IN TYPEOF (closed_curve)) &#10;            AND (closed_curve\polyline.points[LOINDEX(closed_curve\polyline.points)] = &#10;                 closed_curve\polyline.points[HIINDEX(closed_curve\polyline.points)]) )"/>
-      <where label="IP1"/>
       </entity>
       <entity name="fill_area_style_tile_curve_with_style" supertypes="geometric_representation_item" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="styled_curve" optional="NO">
@@ -471,8 +473,6 @@
          <where label="WR2" expression="SIZEOF (QUERY (style1 &lt;* SELF.styles |&#10;         'PRESENTATION_APPEARANCE_SCHEMA.SURFACE_STYLE_USAGE' IN&#10;         TYPEOF(style1)&#10;         )) &lt;= 2"/>
          <where label="WR3" expression="SIZEOF (QUERY (style1 &lt;* SELF.styles |&#10;         ('PRESENTATION_APPEARANCE_SCHEMA.SURFACE_STYLE_USAGE' IN TYPEOF (style1)) AND &#10;         (SIZEOF (QUERY (style2 &lt;* (SELF.styles - style1) |&#10;           ('PRESENTATION_APPEARANCE_SCHEMA.SURFACE_STYLE_USAGE' IN TYPEOF (style2)) AND &#10;           ((style1\surface_style_usage.side = both) OR &#10;           (style2\surface_style_usage.side = both) OR &#10;           (style1\surface_style_usage.side = style2\surface_style_usage.side)) )) &gt; 0))) = 0"/>
       <where label="IP1"/>
-         <where label="IP2"/>
-         <where label="IP3"/>
       </entity>
       <entity name="presentation_style_by_context" supertypes="presentation_style_assignment" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="style_context" optional="NO">
@@ -626,6 +626,7 @@
          <explicit name="characteristics" optional="NO">
             <aggregate type="SET" lower="1" upper="4" unique="NO" optional="NO"/>
             <typename name="box_characteristic_select"/>
+
          </explicit>
          <where label="WR1" expression="SIZEOF( QUERY( c1 &lt;* SELF.characteristics |&#10;         SIZEOF( QUERY( c2 &lt;* SELF.characteristics - c1 |&#10;           TYPEOF (c1) = TYPEOF (c2)&#10;           )) &gt; 0&#10;       )) = 0"/>
       </entity>

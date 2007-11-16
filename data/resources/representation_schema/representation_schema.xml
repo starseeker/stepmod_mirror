@@ -1,433 +1,232 @@
-<?xml version="1.0"?>
-<!-- $Id: representation_schema.xml,v 1.5 2002/07/14 16:43:51 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-43"
-  description.file="descriptions.xml"
-  rcs.date="$Date: 2002/07/14 16:43:51 $"
-  rcs.revision="$Revision: 1.5 $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.17"
-    source="representation_schema.exp"/>
-
-  <schema name="representation_schema">
-    <interface
-      kind="reference"
-      schema="basic_attribute_schema">
-      <interfaced.item
-        name="get_description_value"/>
-      <interfaced.item
-        name="get_id_value"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="measure_schema">
-      <interfaced.item
-        name="measure_value"/>
-      <interfaced.item
-        name="measure_with_unit"/>
-    </interface>
-
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="bag_to_set"/>
-      <interfaced.item
-        name="identifier"/>
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-    </interface>
-
-    <type name="compound_item_definition">
-      <select
-        selectitems="list_representation_item set_representation_item">
-      </select>
-
-    </type>
-    <type name="founded_item_select">
-      <select
-        selectitems="founded_item representation_item">
-      </select>
-
-    </type>
-    <type name="list_representation_item">
-      <aggregate
-        type="LIST"
-        lower="1"
-        upper="?"/>
-      <typename
-        name="representation_item"/>
-
-    </type>
-    <type name="set_representation_item">
-      <aggregate
-        type="SET"
-        lower="1"
-        upper="?"/>
-      <typename
-        name="representation_item"/>
-
-    </type>
-    <type name="transformation">
-      <select
-        selectitems="item_defined_transformation functionally_defined_transformation">
-      </select>
-
-    </type>
-    <entity
-      name="compound_representation_item"
-      supertypes="representation_item">
-      <explicit
-        name="item_element">
-        <typename
-          name="compound_item_definition"/>
-      </explicit>
-     
-    </entity>
-
-    <entity
-      name="definitional_representation"
-      supertypes="representation">
-      <where
-        label="WR1"
-        expression="'REPRESENTATION_SCHEMA.PARAMETRIC_REPRESENTATION_CONTEXT' IN        TYPEOF (SELF\representation.context_of_items )">
-      </where>
-    </entity>
-
-    <entity
-      name="founded_item">
-       <where label="IP1"/>
-    </entity>
-
-    <entity
-      name="functionally_defined_transformation">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="global_uncertainty_assigned_context"
-      supertypes="representation_context">
-      <explicit
-        name="uncertainty">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="uncertainty_measure_with_unit"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="item_defined_transformation">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="transform_item_1">
-        <typename
-          name="representation_item"/>
-      </explicit>
-      <explicit
-        name="transform_item_2">
-        <typename
-          name="representation_item"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="mapped_item"
-      supertypes="representation_item">
-      <explicit
-        name="mapping_source">
-        <typename
-          name="representation_map"/>
-      </explicit>
-      <explicit
-        name="mapping_target">
-        <typename
-          name="representation_item"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="acyclic_mapped_representation(using_representations(SELF), [SELF])">
-      </where>
-    </entity>
-
-    <entity
-      name="parametric_representation_context"
-      supertypes="representation_context">
+<express language_version="2" reference="ISO 10303-43" rcs.date="$Date: 2007-04-18 03:31:19 -0700 (Tr, 18 Bal 2007) $" rcs.revision="$Revision: 451 $" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="representation_schema schema_instance"/>
+   <schema name="representation_schema">
+      <interface kind="reference" schema="basic_attribute_schema">
+         <interfaced.item name="get_description_value"/>
+         <interfaced.item name="get_id_value"/>
+      </interface>
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="measure_value"/>
+         <interfaced.item name="measure_with_unit"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="bag_to_set"/>
+         <interfaced.item name="identifier"/>
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+      </interface>
+      <type name="compound_item_definition">
+         <select selectitems="list_representation_item set_representation_item" genericentity="NO" extensible="NO"/>
+      </type>
+      <type name="founded_item_select">
+         <select selectitems="founded_item representation_item" genericentity="NO" extensible="NO"/>
+      </type>
+      <type name="list_representation_item">
+         <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
+         <typename name="representation_item"/>
+      </type>
+      <type name="set_representation_item">
+         <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+         <typename name="representation_item"/>
+      </type>
+      <type name="transformation">
+         <select selectitems="item_defined_transformation functionally_defined_transformation" genericentity="NO" extensible="NO"/>
+      </type>
+      <entity name="binary_representation_item" supertypes="representation_item" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="binary_value" optional="NO">
+            <builtintype type="BINARY" fixed="NO"/>
+         </explicit>
+      </entity>
+      <entity name="bytes_representation_item" supertypes="binary_representation_item" abstract.supertype="NO" abstract.entity="NO">
+         <derived name="no_of_bytes" expression="BLENGTH(SELF\binary_representation_item.binary_value) DIV 8">
+            <builtintype type="INTEGER" fixed="NO"/>
+         </derived>
+         <where label="WR1" expression="BLENGTH(SELF\binary_representation_item.binary_value) MOD 8 = 0"/>
+      </entity>
+      <entity name="compound_representation_item" supertypes="representation_item" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="item_element" optional="NO">
+            <typename name="compound_item_definition"/>
+         </explicit>
+      </entity>
+      <entity name="definitional_representation" supertypes="representation" abstract.supertype="NO" abstract.entity="NO">
+         <where label="WR1" expression="'REPRESENTATION_SCHEMA.PARAMETRIC_REPRESENTATION_CONTEXT' IN&#10;        TYPEOF (SELF\representation.context_of_items )"/>
+      </entity>
+      <entity name="definitional_representation_relationship" supertypes="representation_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <where label="WR1" expression="acyclic_representation_relationship(SELF,&#10;     [SELF\representation_relationship.rep_2],&#10;     'REPRESENTATION_SCHEMA.'+'REPRESENTATION')"/>
+         <where label="WR2" expression="NOT('REPRESENTATION_SCHEMA.'+'DEFINITIONAL_REPRESENTATION_RELATIONSHIP_WITH_SAME_CONTEXT' &#10;    IN TYPEOF(SELF)) XOR&#10;    (SELF\representation_relationship.rep_1.context_of_items = &#10;    SELF\representation_relationship.rep_2.context_of_items)"/>
+      </entity>
+      <entity name="definitional_representation_relationship_with_same_context" supertypes="definitional_representation_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <where label="WR1" expression="acyclic_representation_relationship(SELF,&#10;     [SELF\representation_relationship.rep_2],&#10;     'REPRESENTATION_SCHEMA.'+'REPRESENTATION')"/>
+      </entity>
+      <entity name="founded_item" abstract.supertype="NO" abstract.entity="NO">
+         <derived name="users" expression="using_items(SELF,[])">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="founded_item_select"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(users) &gt; 0"/>
+         <where label="WR2" expression="NOT(SELF IN users)"/>
       <where label="IP1"/>
-    </entity>
-
-    <entity
-      name="representation">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="items">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="representation_item"/>
-      </explicit>
-      <explicit
-        name="context_of_items">
-        <typename
-          name="representation_context"/>
-      </explicit>
-      <derived
-        name="id"
-        expression="get_id_value (SELF)">
-        <typename
-          name="identifier"/>
-      </derived>
-      <derived
-        name="description"
-        expression="get_description_value (SELF)">
-        <typename
-          name="text"/>
-      </derived>
-      <where
-        label="WR1"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                             'ID_ATTRIBUTE.IDENTIFIED_ITEM'))       &lt;= 1">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +                             'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM'))       &lt;= 1">
-      </where>
-    </entity>
-
-    <entity
-      name="representation_context">
-      <explicit
-        name="context_identifier">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="context_type">
-        <typename
-          name="text"/>
-      </explicit>
-      <inverse
-        name="representations_in_context"
-        entity="representation"
-        attribute="context_of_items">
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-      </inverse>
-    </entity>
-
-    <entity
-      name="representation_item">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF(using_representations(SELF)) &gt; 0">
-      </where>
-    </entity>
-
-    <entity
-      name="representation_item_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="relating_representation_item">
-        <typename
-          name="representation_item"/>
-      </explicit>
-      <explicit
-        name="related_representation_item">
-        <typename
-          name="representation_item"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="representation_map">
-      <explicit
-        name="mapping_origin">
-        <typename
-          name="representation_item"/>
-      </explicit>
-      <explicit
-        name="mapped_representation">
-        <typename
-          name="representation"/>
-      </explicit>
-      <inverse
-        name="map_usage"
-        entity="mapped_item"
-        attribute="mapping_source">
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-      </inverse>
-      <where
-        label="WR1"
-        expression="item_in_context(SELF.mapping_origin,       SELF.mapped_representation.context_of_items)">
-      </where>
-    </entity>
-
-    <entity
-      name="representation_relationship">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="rep_1">
-        <typename
-          name="representation"/>
-      </explicit>
-      <explicit
-        name="rep_2">
-        <typename
-          name="representation"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="representation_relationship_with_transformation"
-      supertypes="representation_relationship">
-      <explicit
-        name="transformation_operator">
-        <typename
-          name="transformation"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SELF\representation_relationship.rep_1.context_of_items   :&lt;&gt;: SELF\representation_relationship.rep_2.context_of_items">
-      </where>
+      </entity>
+      <entity name="functionally_defined_transformation" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="global_uncertainty_assigned_context" supertypes="representation_context" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="uncertainty" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="uncertainty_measure_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="item_defined_transformation" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="transform_item_1" optional="NO">
+            <typename name="representation_item"/>
+         </explicit>
+         <explicit name="transform_item_2" optional="NO">
+            <typename name="representation_item"/>
+         </explicit>
+      </entity>
+      <entity name="mapped_item" supertypes="representation_item" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="mapping_source" optional="NO">
+            <typename name="representation_map"/>
+         </explicit>
+         <explicit name="mapping_target" optional="NO">
+            <typename name="representation_item"/>
+         </explicit>
+         <where label="WR1" expression="acyclic_mapped_representation(using_representations(SELF), [SELF])"/>
+      </entity>
+      <entity name="parametric_representation_context" supertypes="representation_context" abstract.supertype="NO" abstract.entity="NO">
+         <where label="IP1"/>
+      </entity>
+      <entity name="representation" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="items" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="representation_item"/>
+         </explicit>
+         <explicit name="context_of_items" optional="NO">
+            <typename name="representation_context"/>
+         </explicit>
+         <derived name="id" expression="get_id_value (SELF)">
+            <typename name="identifier"/>
+         </derived>
+         <derived name="description" expression="get_description_value (SELF)">
+            <typename name="text"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +&#10;                             'ID_ATTRIBUTE.IDENTIFIED_ITEM'))&#10;       &lt;= 1"/>
+         <where label="WR2" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +&#10;                             'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM'))&#10;       &lt;= 1"/>
+      </entity>
+      <entity name="representation_context" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="context_identifier" optional="NO">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="context_type" optional="NO">
+            <typename name="text"/>
+         </explicit>
+         <inverse name="representations_in_context" entity="representation" attribute="context_of_items">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+      </entity>
+      <entity name="representation_item" super.expression="ONEOF (binary_representation_item, compound_representation_item, mapped_item, value_representation_item)" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(using_representations(SELF)) &gt; 0"/>
+      </entity>
+      <entity name="representation_item_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating_representation_item" optional="NO">
+            <typename name="representation_item"/>
+         </explicit>
+         <explicit name="related_representation_item" optional="NO">
+            <typename name="representation_item"/>
+         </explicit>
+      </entity>
+      <entity name="representation_map" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="mapping_origin" optional="NO">
+            <typename name="representation_item"/>
+         </explicit>
+         <explicit name="mapped_representation" optional="NO">
+            <typename name="representation"/>
+         </explicit>
+         <inverse name="map_usage" entity="mapped_item" attribute="mapping_source">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+         <where label="WR1" expression="item_in_context(SELF.mapping_origin,&#10;       SELF.mapped_representation.context_of_items)"/>
+      </entity>
+      <entity name="representation_relationship" super.expression="ONEOF (definitional_representation_relationship, representation_relationship_with_transformation)" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="rep_1" optional="NO">
+            <typename name="representation"/>
+         </explicit>
+         <explicit name="rep_2" optional="NO">
+            <typename name="representation"/>
+         </explicit>
+      </entity>
+      <entity name="representation_relationship_with_transformation" supertypes="representation_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="transformation_operator" optional="NO">
+            <typename name="transformation"/>
+         </explicit>
+         <where label="WR1" expression="SELF\representation_relationship.rep_1.context_of_items&#10;   :&lt;&gt;: SELF\representation_relationship.rep_2.context_of_items"/>
+      </entity>
+      <entity name="uncertainty_assigned_representation" supertypes="representation" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="uncertainty" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="uncertainty_measure_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="uncertainty_measure_with_unit" supertypes="measure_with_unit" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="name" optional="NO">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <where label="WR1" expression="valid_measure_value (SELF\measure_with_unit.value_component)"/>
+      </entity>
+      <entity name="value_representation_item" supertypes="representation_item" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="value_component" optional="NO">
+            <typename name="measure_value"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF (QUERY (rep &lt;* using_representations (SELF) |&#10;       NOT ('MEASURE_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT'&#10;       IN TYPEOF (rep.context_of_items)&#10;       ))) = 0"/>
       <where label="IP1"/>
-    </entity>
-
-    <entity
-      name="uncertainty_assigned_representation"
-      supertypes="representation">
-      <explicit
-        name="uncertainty">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="uncertainty_measure_with_unit"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="uncertainty_measure_with_unit"
-      supertypes="measure_with_unit">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename
-          name="text"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="valid_measure_value (SELF\measure_with_unit.value_component)">
-      </where>
-    </entity>
-
-    <entity
-      name="value_representation_item"
-      supertypes="representation_item">
-      <explicit
-        name="value_component">
-        <typename
-          name="measure_value"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (rep &lt;* using_representations (SELF) |       NOT ('MEASURE_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT'       IN TYPEOF (rep.context_of_items)       ))) = 0">
-      </where>
-      <where label="IP1"/>
-    </entity>
-
-    <function
-      name="acyclic_mapped_representation">
-      <parameter
-        name="parent_set">
-        <aggregate
-          type="SET"/>
-        <typename
-          name="representation"/>
-      </parameter>
-      <parameter
-        name="children_set">
-        <aggregate
-          type="SET"/>
-        <typename
-          name="representation_item"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-  LOCAL
+      </entity>
+      <function name="acyclic_mapped_representation">
+         <parameter name="parent_set">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="representation"/>
+         </parameter>
+         <parameter name="children_set">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="representation_item"/>
+         </parameter>
+         <builtintype type="BOOLEAN" fixed="NO"/>
+         <algorithm>LOCAL
     x,y : SET OF representation_item;
   END_LOCAL;
   -- Determine the subset of children_set that are mapped_items
@@ -471,27 +270,44 @@
   END_IF;
   -- Return true when all elements are checked and
   -- no error conditions found
-  RETURN (TRUE);
-      </algorithm>
+  RETURN (TRUE);</algorithm>
+      </function>
+      <function name="acyclic_representation_relationship">
+         <parameter name="relation">
+            <typename name="representation_relationship"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="representation"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING" fixed="NO"/>
+         </parameter>
+         <builtintype type="BOOLEAN" fixed="NO"/>
+         <algorithm>LOCAL
+      x : SET OF representation_relationship;
+    END_LOCAL;
 
-    </function>
-
-    <function
-      name="item_in_context">
-      <parameter
-        name="item">
-        <typename
-          name="representation_item"/>
-      </parameter>
-      <parameter
-        name="cntxt">
-        <typename
-          name="representation_context"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-  LOCAL
+    IF relation.rep_1 IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(r &lt;* bag_to_set(USEDIN(relation.rep_1, 'REPRESENTATION_SCHEMA.' + 'REPRESENTATION_RELATIONSHIP.' + 'REP_2')) | specific_relation IN TYPEOF(r));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_representation_relationship(x[i], relatives + relation.rep_1, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);</algorithm>
+      </function>
+      <function name="item_in_context">
+         <parameter name="item">
+            <typename name="representation_item"/>
+         </parameter>
+         <parameter name="cntxt">
+            <typename name="representation_context"/>
+         </parameter>
+         <builtintype type="BOOLEAN" fixed="NO"/>
+         <algorithm>LOCAL
     y : BAG OF representation_item;
   END_LOCAL;
   -- If there is one or more representation using both the item
@@ -516,31 +332,19 @@
   END_IF;
   -- Return false when all possible branches have been checked
   -- with no success.
-  RETURN (FALSE);
-      </algorithm>
-
-    </function>
-
-    <function
-      name="using_items">
-      <parameter
-        name="item">
-        <typename
-          name="founded_item_select"/>
-      </parameter>
-      <parameter
-        name="checked_items">
-        <aggregate
-          type="SET"/>
-        <typename
-          name="founded_item_select"/>
-      </parameter>
-      <aggregate
-        type="SET"/>
-      <typename
-        name="founded_item_select"/>
-      <algorithm>
-  LOCAL
+  RETURN (FALSE);</algorithm>
+      </function>
+      <function name="using_items">
+         <parameter name="item">
+            <typename name="founded_item_select"/>
+         </parameter>
+         <parameter name="checked_items">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="founded_item_select"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="founded_item_select"/>
+         <algorithm>LOCAL
     new_check_items    : SET OF founded_item_select;
     result_items       : SET OF founded_item_select;
     next_items         : SET OF founded_item_select;
@@ -566,24 +370,15 @@
   END_IF;
   -- return the set of representation_items or founded_items
   -- in which the input item is used directly and indirectly.
-  RETURN (result_items);
-      </algorithm>
-
-    </function>
-
-    <function
-      name="using_representations">
-      <parameter
-        name="item">
-        <typename
-          name="founded_item_select"/>
-      </parameter>
-      <aggregate
-        type="SET"/>
-      <typename
-        name="representation"/>
-      <algorithm>
-  LOCAL
+  RETURN (result_items);</algorithm>
+      </function>
+      <function name="using_representations">
+         <parameter name="item">
+            <typename name="founded_item_select"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="representation"/>
+         <algorithm>LOCAL
     results            : SET OF representation;
     result_bag         : BAG OF representation;
     intermediate_items : SET OF founded_item_select;
@@ -618,22 +413,14 @@ USEDIN(item,'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS');
   -- Return the set of representation in which the input item is
   -- used directly and indirectly (through intervening
   -- representation_items or founded items).
-  RETURN (results);
-      </algorithm>
-
-    </function>
-
-    <function
-      name="valid_measure_value">
-      <parameter
-        name="m">
-        <typename
-          name="measure_value"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-  IF ('REAL' IN TYPEOF (m)) THEN
+  RETURN (results);</algorithm>
+      </function>
+      <function name="valid_measure_value">
+         <parameter name="m">
+            <typename name="measure_value"/>
+         </parameter>
+         <builtintype type="BOOLEAN" fixed="NO"/>
+         <algorithm>IF ('REAL' IN TYPEOF (m)) THEN
   RETURN (m &gt; 0.0);
   ELSE
     IF ('INTEGER' IN TYPEOF (m)) THEN
@@ -641,11 +428,7 @@ USEDIN(item,'REPRESENTATION_SCHEMA.REPRESENTATION.ITEMS');
     ELSE
       RETURN (TRUE);
     END_IF;
-  END_IF;
-      </algorithm>
-
-    </function>
-
-  </schema>
-
+  END_IF;</algorithm>
+      </function>
+   </schema>
 </express>

@@ -1,435 +1,204 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: aic_draughting_annotation.xml,v 1.2 2004/06/26 00:18:46 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-504"
-  rcs.date="$Date: 2004/06/26 00:18:46 $"
-  rcs.revision="$Revision: 1.2 $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.36"
-    source="../data/resources/aic_draughting_annotation/aic_draughting_annotation.exp"/>
+<express language_version="2" reference="ISO 10303-504" rcs.date="$Date: 2007-04-23 06:21:49 -0700 (Pr, 23 Bal 2007) $" rcs.revision="$Revision: 477 $" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="aic_draughting_annotation schema_instance"/>
+   <schema name="aic_draughting_annotation">
+      <interface kind="use" schema="draughting_element_schema">
+         <interfaced.item name="draughting_callout"/>
+         <interfaced.item name="terminator_symbol"/>
+      </interface>
+      <interface kind="use" schema="geometry_schema">
+         <interfaced.item name="axis2_placement_2d"/>
+         <interfaced.item name="geometric_representation_context"/>
+      </interface>
+      <interface kind="use" schema="measure_schema">
+         <interfaced.item name="conversion_based_unit"/>
+         <interfaced.item name="derived_unit"/>
+         <interfaced.item name="global_unit_assigned_context"/>
+         <interfaced.item name="length_measure_with_unit"/>
+         <interfaced.item name="length_unit"/>
+         <interfaced.item name="measure_with_unit"/>
+         <interfaced.item name="named_unit"/>
+         <interfaced.item name="plane_angle_unit"/>
+         <interfaced.item name="plane_angle_measure_with_unit"/>
+         <interfaced.item name="si_unit"/>
+      </interface>
+      <interface kind="use" schema="presentation_appearance_schema">
+         <interfaced.item name="box_height"/>
+         <interfaced.item name="box_rotate_angle"/>
+         <interfaced.item name="box_slant_angle"/>
+         <interfaced.item name="box_width"/>
+         <interfaced.item name="context_dependent_invisibility"/>
+         <interfaced.item name="curve_style"/>
+         <interfaced.item name="curve_style_font"/>
+         <interfaced.item name="externally_defined_curve_font"/>
+         <interfaced.item name="externally_defined_hatch_style"/>
+         <interfaced.item name="externally_defined_tile_style"/>
+         <interfaced.item name="fill_area_style"/>
+         <interfaced.item name="fill_area_style_colour"/>
+         <interfaced.item name="fill_area_style_hatching"/>
+         <interfaced.item name="fill_area_style_tile_symbol_with_style"/>
+         <interfaced.item name="fill_area_style_tiles"/>
+         <interfaced.item name="null_style"/>
+         <interfaced.item name="pre_defined_curve_font"/>
+         <interfaced.item name="presentation_style_by_context"/>
+         <interfaced.item name="symbol_colour"/>
+         <interfaced.item name="symbol_style"/>
+         <interfaced.item name="text_style"/>
+         <interfaced.item name="text_style_for_defined_font"/>
+         <interfaced.item name="text_style_with_box_characteristics"/>
+         <interfaced.item name="text_style_with_mirror"/>
+         <interfaced.item name="text_style_with_spacing"/>
+      </interface>
+      <interface kind="use" schema="presentation_definition_schema">
+         <interfaced.item name="annotation_curve_occurrence"/>
+         <interfaced.item name="annotation_fill_area"/>
+         <interfaced.item name="annotation_fill_area_occurrence"/>
+         <interfaced.item name="annotation_occurrence"/>
+         <interfaced.item name="annotation_symbol"/>
+         <interfaced.item name="annotation_symbol_occurrence"/>
+         <interfaced.item name="annotation_text_occurrence"/>
+         <interfaced.item name="composite_text"/>
+         <interfaced.item name="composite_text_with_associated_curves"/>
+         <interfaced.item name="composite_text_with_blanking_box"/>
+         <interfaced.item name="composite_text_with_extent"/>
+         <interfaced.item name="defined_symbol"/>
+         <interfaced.item name="externally_defined_symbol"/>
+         <interfaced.item name="pre_defined_symbol"/>
+         <interfaced.item name="symbol_representation"/>
+         <interfaced.item name="symbol_representation_map"/>
+         <interfaced.item name="text_alignment"/>
+         <interfaced.item name="text_literal"/>
+         <interfaced.item name="text_literal_with_associated_curves"/>
+         <interfaced.item name="text_literal_with_blanking_box"/>
+         <interfaced.item name="text_literal_with_delineation"/>
+         <interfaced.item name="text_literal_with_extent"/>
+      </interface>
+      <interface kind="use" schema="presentation_resource_schema">
+         <interfaced.item name="colour_rgb"/>
+         <interfaced.item name="externally_defined_text_font"/>
+         <interfaced.item name="font_select"/>
+         <interfaced.item name="pre_defined_colour"/>
+         <interfaced.item name="pre_defined_text_font"/>
+      </interface>
+      <interface kind="use" schema="representation_schema">
+         <interfaced.item name="mapped_item"/>
+         <interfaced.item name="representation"/>
+         <interfaced.item name="representation_item"/>
+      </interface>
+      <entity name="annotation_subfigure_occurrence" supertypes="annotation_symbol_occurrence">
+         <where label="WR1" expression="SIZEOF (QUERY (sty &lt;* SELF.styles |&#10;         NOT (SIZEOF (sty.styles) = 1)&#10;       )) = 0"/>
+         <where label="WR2" expression="SIZEOF (QUERY (sty &lt;* SELF.styles |&#10;         NOT ('AIC_DRAUGHTING_ANNOTATION.NULL_STYLE'&#10;               IN TYPEOF (sty.styles[1]))       ))=0"/>
+         <where label="WR3" expression="('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL'&#10;           IN TYPEOF (SELF.item))"/>
+         <where label="WR4" expression="('AIC_DRAUGHTING_ANNOTATION.DRAUGHTING_SUBFIGURE_REPRESENTATION'&#10;           IN TYPEOF&#10;           (SELF.item\mapped_item.mapping_source.mapped_representation))"/>
+      </entity>
+      <entity name="draughting_annotation_occurrence" supertypes="annotation_occurrence">
+         <where label="WR1" expression="(NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE'&#10;            IN TYPEOF (SELF))) OR&#10;    (SIZEOF (QUERY (sty &lt;* SELF.styles |&#10;       NOT ((SIZEOF (sty.styles) = 1)&#10;         AND ('AIC_DRAUGHTING_ANNOTATION.CURVE_STYLE'&#10;                 IN TYPEOF (sty.styles[1]))) )) = 0)"/>
+         <where label="WR2" expression="(NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_FILL_AREA_OCCURRENCE'&#10;            IN TYPEOF (SELF))) OR    (SIZEOF (QUERY (sty &lt;* SELF.styles |&#10;      NOT ((SIZEOF (sty.styles) = 1)&#10;        AND ('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE'&#10;                IN TYPEOF (sty.styles[1]))) )) = 0)"/>
+         <where label="WR3" expression="(NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_FILL_AREA_OCCURRENCE'&#10;            IN TYPEOF (SELF))) OR    (SIZEOF (QUERY (bound &lt;*&#10;                     SELF.item\annotation_fill_area.boundaries |&#10;       NOT (SIZEOF (QUERY (si &lt;*&#10;                   USEDIN (bound, 'PRESENTATION_APPEARANCE_SCHEMA.' +&#10;                                  'STYLED_ITEM.ITEM') |&#10;         ('AIC_DRAUGHTING_ANNOTATION.' +&#10;             'ANNOTATION_CURVE_OCCURRENCE' IN TYPEOF (si)))) &gt; 0))) = 0)"/>
+         <where label="WR4" expression="(NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL_OCCURRENCE'&#10;            IN TYPEOF (SELF))) OR    (SIZEOF (QUERY (sty &lt;* SELF.styles |&#10;       NOT ((SIZEOF (sty.styles) = 1)           AND&#10;            (SIZEOF (TYPEOF (sty.styles[1]) *&#10;                ['AIC_DRAUGHTING_ANNOTATION.SYMBOL_STYLE',&#10;                 'AIC_DRAUGHTING_ANNOTATION.NULL_STYLE']) = 1)) )) = 0)"/>
+         <where label="WR5" expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL_OCCURRENCE'&#10;             IN TYPEOF (SELF)) AND&#10;         ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL'&#10;             IN TYPEOF(SELF.item)))) OR&#10;         (SIZEOF (['AIC_DRAUGHTING_ANNOTATION.' +&#10;                   'DRAUGHTING_SYMBOL_REPRESENTATION',&#10;                  'AIC_DRAUGHTING_ANNOTATION.' +&#10;                  'DRAUGHTING_SUBFIGURE_REPRESENTATION'] *&#10;          TYPEOF (SELF.item\mapped_item.mapping_source.&#10;                  mapped_representation)) = 1)"/>
+         <where label="WR6" expression="(NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'&#10;            IN TYPEOF (SELF))) OR&#10;    (SIZEOF (QUERY (sty &lt;* SELF.styles |&#10;       NOT ((SIZEOF (sty.styles) = 1)&#10;        AND ('AIC_DRAUGHTING_ANNOTATION.TEXT_STYLE'&#10;                IN TYPEOF (sty.styles[1]))) )) = 0)"/>
+         <where label="WR7" expression="(NOT('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'&#10;             IN TYPEOF (SELF))) OR&#10;         (SIZEOF (TYPEOF(SELF.item) *&#10;             ['AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT',&#10;              'AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL']) = 1)"/>
+         <where label="WR8" expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'&#10;             IN TYPEOF (SELF)) AND&#10;         ('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT'&#10;             IN TYPEOF (SELF.item)))) OR    (SIZEOF (QUERY (tl &lt;*&#10;                   SELF.item\composite_text.collected_text |&#10;             NOT ('AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL' &#10;             IN TYPEOF (tl)) )) = 0)"/>
+         <where label="WR9" expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'&#10;             IN TYPEOF (SELF)) AND&#10;         ('AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL'&#10;             IN TYPEOF (SELF.item)))) OR (SELF.item\text_literal.alignment &#10;             IN ['baseline left', 'baseline centre', 'baseline right'])"/>
+         <where label="WR10" expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'&#10;             IN TYPEOF (SELF)) AND&#10;         ('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT'&#10;             IN TYPEOF (SELF.item)))) OR&#10;         (SIZEOF (QUERY (tl &lt;* QUERY (text &lt;* SELF.&#10;                  item\composite_text.collected_text&#10;             |('AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL' IN TYPEOF(text))) |&#10;          NOT (tl\text_literal.alignment IN&#10;         ['baseline left', 'baseline centre', 'baseline right']) )) = 0)"/>
+         <where label="WR11" expression="NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'&#10;             IN TYPEOF(SELF)) AND&#10;         ('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT'&#10;             IN TYPEOF (SELF.item))) OR check_text_alignment(SELF.item)"/>
+         <where label="WR12" expression="NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'&#10;             IN TYPEOF(SELF)) AND&#10;         ('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT'&#10;             IN TYPEOF (SELF.item))) OR check_text_font(SELF.item)"/>
+         <where label="WR13" expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'&#10;             IN TYPEOF(SELF)) AND&#10;         ('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT'&#10;               IN TYPEOF (SELF.item)))) OR&#10;         (SIZEOF (QUERY (tl &lt;* QUERY (text &lt;*&#10;            SELF.item\composite_text.collected_text |&#10;            ('AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL' IN TYPEOF (text))) |&#10;             NOT (SIZEOF (TYPEOF(tl) *&#10;                  ['AIC_DRAUGHTING_ANNOTATION.' +&#10;                   'TEXT_LITERAL_WITH_BLANKING_BOX',&#10;                   'AIC_DRAUGHTING_ANNOTATION.' +&#10;                   'TEXT_LITERAL_WITH_ASSOCIATED_CURVES']) = 0) )) = 0)"/>
+         <where label="WR14" expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'&#10;             IN TYPEOF (SELF)) AND&#10;         ('AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL_WITH_ASSOCIATED_CURVES'&#10;             IN TYPEOF (SELF.item)))) OR&#10;    (SIZEOF (QUERY (crv &lt;*&#10;                   SELF.item\text_literal_with_associated_curves.&#10;                   associated_curves |&#10;      NOT (SIZEOF (QUERY (si &lt;*  USEDIN (crv, &#10;             'PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM.ITEM') |&#10;        ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE'&#10;            IN TYPEOF (si)) )) &gt; 0) )) = 0)"/>
+         <where label="WR15" expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE'&#10;             IN TYPEOF (SELF)) AND&#10;         ('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT_WITH_ASSOCIATED_CURVES'&#10;             IN TYPEOF (SELF.item)))) OR&#10;          (SIZEOF (QUERY (crv &lt;*&#10;                SELF.item\composite_text_with_associated_curves.&#10;                associated_curves |&#10;           NOT (SIZEOF (QUERY (si &lt;*  USEDIN (crv,&#10;                'PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM.ITEM') |&#10;               ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE'&#10;           IN TYPEOF (si)) )) &gt; 0) )) = 0)"/>
+         <where label="WR16" expression="SIZEOF (QUERY (cs &lt;* QUERY (sty &lt;* SELF.styles |&#10;      ('AIC_DRAUGHTING_ANNOTATION.CURVE_STYLE' IN TYPEOF (sty.styles[1])))&#10;      | NOT (('AIC_DRAUGHTING_ANNOTATION.LENGTH_MEASURE_WITH_UNIT'&#10;        IN TYPEOF (cs.styles[1]\curve_style.curve_width)) AND&#10;       ('MEASURE_SCHEMA.POSITIVE_LENGTH_MEASURE'&#10;        IN TYPEOF (cs.styles[1]\curve_style.&#10;        curve_width\measure_with_unit.value_component))))) = 0"/>
+         <where label="WR17" expression="SIZEOF (QUERY (fas &lt;* QUERY (sty &lt;* SELF.styles |&#10;      ('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE'&#10;          IN TYPEOF (sty.styles[1]))) |&#10;      NOT ((SIZEOF (QUERY (fs &lt;* fas.styles[1]\fill_area_style.fill_styles&#10;                    | ('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE_TILES'&#10;                       IN TYPEOF (fs)))) &lt;= 1)&#10;       AND (SIZEOF (QUERY (fst &lt;* QUERY (fs &lt;*&#10;                           fas.styles[1]\fill_area_style.fill_styles |&#10;              ('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE_TILES'&#10;                  IN TYPEOF (fs))) |&#10;                 NOT (SIZEOF (fst\fill_area_style_tiles.tiles) = 1)&#10;           )) = 0))&#10;    )) = 0"/>
+         <where label="WR18" expression="SIZEOF (QUERY (fas &lt;* QUERY (sty &lt;* SELF.styles |&#10;           ('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE' &#10;            IN TYPEOF (sty.styles[1]))) |&#10;             NOT (SIZEOF (QUERY (fsh &lt;* QUERY (fs &lt;*&#10;                          fas.styles[1]\fill_area_style.fill_styles |&#10;             ('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE_HATCHING'&#10;               IN TYPEOF (fs))) |&#10;        NOT (fsh\fill_area_style_hatching.point_of_reference_hatch_line :=:&#10;             fsh\fill_area_style_hatching.pattern_start)  )) = 0)  )) = 0"/>
+         <where label="WR19" expression="SIZEOF (QUERY (ts &lt;* QUERY (sty &lt;* SELF.styles |&#10;         ('AIC_DRAUGHTING_ANNOTATION.TEXT_STYLE' &#10;         IN TYPEOF(sty.styles[1]))) |&#10;             NOT ('AIC_DRAUGHTING_ANNOTATION.' +&#10;                  'TEXT_STYLE_WITH_BOX_CHARACTERISTICS'&#10;             IN TYPEOF (ts.styles[1])))) = 0"/>
+         <where label="WR20" expression="SIZEOF (QUERY (ts &lt;* QUERY (sty &lt;* SELF.styles |&#10;         ('AIC_DRAUGHTING_ANNOTATION.TEXT_STYLE_WITH_BOX_CHARACTERISTICS'&#10;             IN TYPEOF (sty.styles[1]))) |&#10;           NOT (SIZEOF (ts.styles[1]\text_style_with_box_characteristics.&#10;                characteristics) = 4) )) = 0"/>
+      </entity>
+      <entity name="draughting_subfigure_representation" supertypes="symbol_representation">
+         <where label="WR1" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;         NOT (SIZEOF (['AIC_DRAUGHTING_ANNOTATION.ANNOTATION_OCCURRENCE',&#10;              'AIC_DRAUGHTING_ANNOTATION.DRAUGHTING_CALLOUT',&#10;              'GEOMETRY_SCHEMA.AXIS2_PLACEMENT']&#10;               * TYPEOF (item)) = 1))) = 0"/>
+         <where label="WR2" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;         SIZEOF (['AIC_DRAUGHTING_ANNOTATION.ANNOTATION_OCCURRENCE',&#10;                  'AIC_DRAUGHTING_ANNOTATION.DRAUGHTING_CALLOUT'] *&#10;           TYPEOF (item)) = 1)) &gt;= 1"/>
+         <where label="WR3" expression="SIZEOF (QUERY (srm &lt;* QUERY (rm &lt;*&#10;          USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                        'REPRESENTATION_MAP.MAPPED_REPRESENTATION') |&#10;          ('AIC_DRAUGHTING_ANNOTATION.SYMBOL_REPRESENTATION_MAP'&#10;             IN TYPEOF(rm))) | &#10;            NOT (SIZEOF (QUERY (a_s &lt;* QUERY (mi &lt;* srm.map_usage |&#10;            ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL' IN TYPEOF(mi)))&#10;          | NOT (SIZEOF (QUERY (aso &lt;*&#10;            USEDIN (a_s, 'PRESENTATION_APPEARANCE_SCHEMA.' + &#10;                         'STYLED_ITEM.ITEM') |&#10;          NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SUBFIGURE_OCCURRENCE'&#10;            IN TYPEOF(aso)))) = 0))) = 0))) &gt; 0"/>
+         <where label="WR4" expression="NOT (acyclic_mapped_item_usage (SELF))"/>
+         <where label="WR5" expression="SIZEOF (SELF.context_of_items.representations_in_context) = 1"/>
+      </entity>
+      <entity name="draughting_symbol_representation" supertypes="symbol_representation">
+         <unique label="UR1">
+            <unique.attribute entity-ref="representation" attribute="name"/>
+         </unique>
+         <where label="WR1" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;         NOT (SIZEOF (TYPEOF (item) *&#10;            ['AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE',&#10;             'AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL_OCCURRENCE',&#10;             'AIC_DRAUGHTING_ANNOTATION.ANNOTATION_FILL_AREA_OCCURRENCE',&#10;             'AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE',&#10;             'GEOMETRY_SCHEMA.AXIS2_PLACEMENT']) = 1)&#10;       )) = 0"/>
+         <where label="WR2" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;         (SIZEOF (TYPEOF (item) *&#10;            ['AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE',&#10;             'AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL_OCCURRENCE',&#10;             'AIC_DRAUGHTING_ANNOTATION.ANNOTATION_FILL_AREA_OCCURRENCE',&#10;             'AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE']) = 1)&#10;       )) &gt;= 1"/>
+         <where label="WR3" expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |&#10;         'AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SUBFIGURE_OCCURRENCE'&#10;          IN TYPEOF (item))) = 0"/>
+         <where label="WR4" expression="SIZEOF (QUERY (srm &lt;* QUERY (rm &lt;*&#10;          USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +&#10;                        'REPRESENTATION_MAP.MAPPED_REPRESENTATION') |&#10;          ('REPRESENTATION_SCHEMA.SYMBOL_REPRESENTATION_MAP'&#10;             IN TYPEOF(rm))) |&#10;         (SIZEOF (QUERY (a_s &lt;* QUERY (mi &lt;* srm.map_usage |&#10;           ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL' IN TYPEOF(mi))) |&#10;         NOT (SIZEOF (QUERY(aso &lt;*&#10;             USEDIN(a_s, 'PRESENTATION_APPEARANCE_SCHEMA.' +&#10;                         'STYLED_ITEM.ITEM') |&#10;             NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL_OCCURRENCE'&#10;                  IN TYPEOF(aso))&#10;          )) = 0) )) = 0) )) &gt; 0"/>
+         <where label="WR5" expression="NOT (acyclic_mapped_item_usage (SELF))"/>
+         <where label="WR6" expression="SIZEOF (SELF.context_of_items.representations_in_context) = 1"/>
+      </entity>
+      <entity name="draughting_text_literal_with_delineation" supertypes="text_literal_with_delineation">
+         <where label="WR1" expression="SELF.delineation IN ['underline', 'overline']"/>
+      </entity>
+      <function name="acyclic_mapped_item_usage">
+         <parameter name="rep">
+            <typename name="representation"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+    items : SET OF representation_item;
+  END_LOCAL;
 
-  <schema name="aic_draughting_annotation">
+  items := QUERY (item &lt;* rep.items |
+           'AIC_DRAUGHTING_ANNOTATION.MAPPED_ITEM' IN TYPEOF (item));
+  IF SIZEOF (items) = 0
+  THEN 
+    RETURN (FALSE);
+  ELSE 
+    REPEAT i := 1 TO HIINDEX (items);
+      IF items[i]\mapped_item.mapping_source.mapped_representation :=: rep
+      THEN 
+        RETURN (TRUE);
+      ELSE 
+        RETURN (acyclic_mapped_item_usage(items[i]\
+                  mapped_item.mapping_source.mapped_representation));
+      END_IF;
+    END_REPEAT;
+  RETURN (FALSE);
+  END_IF;</algorithm>
+      </function>
+      <function name="check_text_alignment">
+         <parameter name="ct">
+            <typename name="composite_text"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+    a : SET OF text_alignment := [];
+  END_LOCAL;
 
-    <interface
-      kind="use"
-      schema="draughting_element_schema">
-      <interfaced.item
-        name="draughting_callout"/>
-      <interfaced.item
-        name="terminator_symbol"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="geometry_schema">
-      <interfaced.item
-        name="axis2_placement_2d"/>
-      <interfaced.item
-        name="geometric_representation_context"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="measure_schema">
-      <interfaced.item
-        name="conversion_based_unit"/>
-      <interfaced.item
-        name="derived_unit"/>
-      <interfaced.item
-        name="global_unit_assigned_context"/>
-      <interfaced.item
-        name="length_measure_with_unit"/>
-      <interfaced.item
-        name="length_unit"/>
-      <interfaced.item
-        name="measure_with_unit"/>
-      <interfaced.item
-        name="named_unit"/>
-      <interfaced.item
-        name="plane_angle_unit"/>
-      <interfaced.item
-        name="plane_angle_measure_with_unit"/>
-      <interfaced.item
-        name="si_unit"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="presentation_appearance_schema">
-      <interfaced.item
-        name="box_height"/>
-      <interfaced.item
-        name="box_rotate_angle"/>
-      <interfaced.item
-        name="box_slant_angle"/>
-      <interfaced.item
-        name="box_width"/>
-      <interfaced.item
-        name="context_dependent_invisibility"/>
-      <interfaced.item
-        name="curve_style"/>
-      <interfaced.item
-        name="curve_style_font"/>
-      <interfaced.item
-        name="externally_defined_curve_font"/>
-      <interfaced.item
-        name="externally_defined_hatch_style"/>
-      <interfaced.item
-        name="externally_defined_tile_style"/>
-      <interfaced.item
-        name="fill_area_style"/>
-      <interfaced.item
-        name="fill_area_style_colour"/>
-      <interfaced.item
-        name="fill_area_style_hatching"/>
-      <interfaced.item
-        name="fill_area_style_tile_symbol_with_style"/>
-      <interfaced.item
-        name="fill_area_style_tiles"/>
-      <interfaced.item
-        name="null_style"/>
-      <interfaced.item
-        name="pre_defined_curve_font"/>
-      <interfaced.item
-        name="presentation_style_by_context"/>
-      <interfaced.item
-        name="symbol_colour"/>
-      <interfaced.item
-        name="symbol_style"/>
-      <interfaced.item
-        name="text_style"/>
-      <interfaced.item
-        name="text_style_for_defined_font"/>
-      <interfaced.item
-        name="text_style_with_box_characteristics"/>
-      <interfaced.item
-        name="text_style_with_mirror"/>
-      <interfaced.item
-        name="text_style_with_spacing"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="presentation_definition_schema">
-      <interfaced.item
-        name="annotation_curve_occurrence"/>
-      <interfaced.item
-        name="annotation_fill_area"/>
-      <interfaced.item
-        name="annotation_fill_area_occurrence"/>
-      <interfaced.item
-        name="annotation_occurrence"/>
-      <interfaced.item
-        name="annotation_symbol"/>
-      <interfaced.item
-        name="annotation_symbol_occurrence"/>
-      <interfaced.item
-        name="annotation_text_occurrence"/>
-      <interfaced.item
-        name="composite_text"/>
-      <interfaced.item
-        name="composite_text_with_associated_curves"/>
-      <interfaced.item
-        name="composite_text_with_blanking_box"/>
-      <interfaced.item
-        name="composite_text_with_extent"/>
-      <interfaced.item
-        name="defined_symbol"/>
-      <interfaced.item
-        name="externally_defined_symbol"/>
-      <interfaced.item
-        name="pre_defined_symbol"/>
-      <interfaced.item
-        name="symbol_representation"/>
-      <interfaced.item
-        name="symbol_representation_map"/>
-      <interfaced.item
-        name="text_alignment"/>
-      <interfaced.item
-        name="text_literal"/>
-      <interfaced.item
-        name="text_literal_with_associated_curves"/>
-      <interfaced.item
-        name="text_literal_with_blanking_box"/>
-      <interfaced.item
-        name="text_literal_with_delineation"/>
-      <interfaced.item
-        name="text_literal_with_extent"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="presentation_resource_schema">
-      <interfaced.item
-        name="colour_rgb"/>
-      <interfaced.item
-        name="externally_defined_text_font"/>
-      <interfaced.item
-        name="font_select"/>
-      <interfaced.item
-        name="pre_defined_colour"/>
-      <interfaced.item
-        name="pre_defined_text_font"/>
-    </interface>
-    <interface
-      kind="use"
-      schema="representation_schema">
-      <interfaced.item
-        name="mapped_item"/>
-      <interfaced.item
-        name="representation"/>
-      <interfaced.item
-        name="representation_item"/>
-    </interface>
-    <entity
-      name="annotation_subfigure_occurrence"
-      supertypes="annotation_symbol_occurrence">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (sty &lt;* SELF.styles | NOT (SIZEOF (sty.styles) = 1))) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (sty &lt;* SELF.styles | NOT ('AIC_DRAUGHTING_ANNOTATION.NULL_STYLE' IN TYPEOF (sty.styles[1]))))=0">
-      </where>
-      <where
-        label="WR3"
-        expression="('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL' IN TYPEOF (SELF.item))">
-      </where>
-      <where
-        label="WR4"
-        expression="('AIC_DRAUGHTING_ANNOTATION.DRAUGHTING_SUBFIGURE_REPRESENTATION' IN TYPEOF(SELF.item\mapped_item.mapping_source.mapped_representation))">
-      </where>
-    </entity>
+  -- create a set of all the alignments
+  REPEAT i := 1 TO HIINDEX (ct.collected_text);
+    a := a + [ct.collected_text[i]\text_literal.alignment];
+  END_REPEAT;
 
-    <entity
-      name="draughting_annotation_occurrence"
-      supertypes="annotation_occurrence">
-      <where
-        label="WR1"
-        expression="(NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE' IN TYPEOF (SELF))) OR(SIZEOF (QUERY (sty &lt;* SELF.styles | NOT ((SIZEOF (sty.styles) = 1) AND ('AIC_DRAUGHTING_ANNOTATION.CURVE_STYLE' IN TYPEOF (sty.styles[1]))))) = 0)">
-      </where>
-      <where
-        label="WR2"
-        expression="(NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_FILL_AREA_OCCURRENCE' IN TYPEOF (SELF))) OR (SIZEOF (QUERY (sty &lt;* SELF.styles | NOT ((SIZEOF (sty.styles) = 1) AND ('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE' IN TYPEOF (sty.styles[1]))))) = 0)">
-      </where>
-      <where
-        label="WR3"
-        expression="(NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_FILL_AREA_OCCURRENCE' IN TYPEOF (SELF))) OR (SIZEOF (QUERY (bound &lt;* SELF.item\annotation_fill_area.boundaries | NOT (SIZEOF (QUERY (si &lt;* USEDIN (bound, 'PRESENTATION_APPEARANCE_SCHEMA.' +'STYLED_ITEM.ITEM') |('AIC_DRAUGHTING_ANNOTATION.' +'ANNOTATION_CURVE_OCCURRENCE' IN TYPEOF (si)))) &gt; 0))) = 0)">
-      </where>
-      <where
-        label="WR4"
-        expression="(NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL_OCCURRENCE' IN TYPEOF (SELF))) OR (SIZEOF (QUERY (sty &lt;* SELF.styles | NOT ((SIZEOF (sty.styles) = 1) AND(SIZEOF (TYPEOF (sty.styles[1]) *['AIC_DRAUGHTING_ANNOTATION.SYMBOL_STYLE','AIC_DRAUGHTING_ANNOTATION.NULL_STYLE']) = 1)))) = 0)">
-      </where>
-      <where
-        label="WR5"
-        expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL_OCCURRENCE' IN TYPEOF (SELF)) AND('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL' IN TYPEOF(SELF.item)))) OR(SIZEOF (['AIC_DRAUGHTING_ANNOTATION.' +'DRAUGHTING_SYMBOL_REPRESENTATION','AIC_DRAUGHTING_ANNOTATION.' +'DRAUGHTING_SUBFIGURE_REPRESENTATION'] * TYPEOF (SELF.item\mapped_item.mapping_source. mapped_representation)) = 1)">
-      </where>
-      <where
-        label="WR6"
-        expression="(NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF (SELF))) OR(SIZEOF (QUERY (sty &lt;* SELF.styles | NOT ((SIZEOF (sty.styles) = 1) AND ('AIC_DRAUGHTING_ANNOTATION.TEXT_STYLE' IN TYPEOF (sty.styles[1]))))) = 0)">
-      </where>
-      <where
-        label="WR7"
-        expression="(('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF (SELF))) OR(SIZEOF (TYPEOF(SELF.item) *['AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT','AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL']) = 1)">
-      </where>
-      <where
-        label="WR8"
-        expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF (SELF)) AND('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT' IN TYPEOF (SELF.item)))) OR (SIZEOF (QUERY (tl &lt;* SELF.item\composite_text.collected_text | NOT ('AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL' IN TYPEOF (tl)))) = 0)">
-      </where>
-      <where
-        label="WR9"
-        expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF (SELF)) AND('AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL' IN TYPEOF (SELF.item)))) OR (SELF.item\text_literal.alignment IN ['baseline left', 'baseline centre', 'baseline right'])">
-      </where>
-      <where
-        label="WR10"
-        expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF (SELF)) AND('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT' IN TYPEOF (SELF.item)))) OR(SIZEOF (QUERY (tl &lt;* QUERY (text &lt;* SELF. item\composite_text.collected_text|('AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL' IN TYPEOF(text))) | NOT (tl\text_literal.alignment IN['baseline left', 'baseline centre', 'baseline right']))) = 0)">
-      </where>
-      <where
-        label="WR11"
-        expression="NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF(SELF)) AND('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT' IN TYPEOF (SELF.item))) OR check_text_alignment(SELF.item)">
-      </where>
-      <where
-        label="WR12"
-        expression="NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF(SELF)) AND('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT' IN TYPEOF (SELF.item))) OR check_text_font(SELF.item)">
-      </where>
-      <where
-        label="WR13"
-        expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF(SELF)) AND('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT' IN TYPEOF (SELF.item)))) OR(SIZEOF (QUERY (tl &lt;* QUERY (text &lt;* SELF.item\composite_text.collected_text |('AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL' IN TYPEOF (text))) | NOT (SIZEOF (TYPEOF(tl) *['AIC_DRAUGHTING_ANNOTATION.' +'TEXT_LITERAL_WITH_BLANKING_BOX','AIC_DRAUGHTING_ANNOTATION.' +'TEXT_LITERAL_WITH_ASSOCIATED_CURVES']) = 0))) = 0)">
-      </where>
-      <where
-        label="WR14"
-        expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF (SELF)) AND('AIC_DRAUGHTING_ANNOTATION.TEXT_LITERAL_WITH_ASSOCIATED_CURVES' IN TYPEOF (SELF.item)))) OR(SIZEOF (QUERY (crv &lt;* SELF.item\text_literal_with_associated_curves. associated_curves | NOT (SIZEOF (QUERY (si &lt;* USEDIN (crv,'PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM.ITEM') |('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE' IN TYPEOF (si)))) &gt; 0))) = 0)">
-      </where>
-      <where
-        label="WR15"
-        expression="(NOT (('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE' IN TYPEOF (SELF)) AND('AIC_DRAUGHTING_ANNOTATION.COMPOSITE_TEXT_WITH_ASSOCIATED_CURVES' IN TYPEOF (SELF.item)))) OR(SIZEOF (QUERY (crv &lt;* SELF.item\composite_text_with_associated_curves. associated_curves | NOT (SIZEOF (QUERY (si &lt;* USEDIN (crv,'PRESENTATION_APPEARANCE_SCHEMA.STYLED_ITEM.ITEM') |('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE' IN TYPEOF (si)))) &gt; 0))) = 0)">
-      </where>
-      <where
-        label="WR16"
-        expression="SIZEOF (QUERY (cs &lt;* QUERY (sty &lt;* SELF.styles |('AIC_DRAUGHTING_ANNOTATION.CURVE_STYLE' IN TYPEOF (sty.styles[1])))| NOT (('AIC_DRAUGHTING_ANNOTATION.LENGTH_MEASURE_WITH_UNIT' IN TYPEOF (cs.styles[1]\curve_style.curve_width)) AND('MEASURE_SCHEMA.POSITIVE_LENGTH_MEASURE' IN TYPEOF (cs.styles[1]\curve_style. curve_width\measure_with_unit.value_component))))) = 0">
-      </where>
-      <where
-        label="WR17"
-        expression="SIZEOF (QUERY (fas &lt;* QUERY (sty &lt;* SELF.styles |('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE' IN TYPEOF (sty.styles[1]))) | NOT ((SIZEOF (QUERY (fs &lt;* fas.styles[1]\fill_area_style.fill_styles| ('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE_TILES' IN TYPEOF (fs)))) &lt;= 1) AND (SIZEOF (QUERY (fst &lt;* QUERY (fs &lt;* fas.styles[1]\fill_area_style.fill_styles |('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE_TILES' IN TYPEOF (fs))) | NOT (SIZEOF (fst\fill_area_style_tiles.tiles) = 1))) = 0)))) = 0">
-      </where>
-      <where
-        label="WR18"
-        expression="SIZEOF (QUERY (fas &lt;* QUERY (sty &lt;* SELF.styles |('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE' IN TYPEOF (sty.styles[1]))) | NOT (SIZEOF (QUERY (fsh &lt;* QUERY (fs &lt;* fas.styles[1]\fill_area_style.fill_styles |('AIC_DRAUGHTING_ANNOTATION.FILL_AREA_STYLE_HATCHING' IN TYPEOF (fs))) | NOT (fsh\fill_area_style_hatching.point_of_reference_hatch_line :=: fsh\fill_area_style_hatching.pattern_start))) = 0))) = 0">
-      </where>
-      <where
-        label="WR19"
-        expression="SIZEOF (QUERY (ts &lt;* QUERY (sty &lt;* SELF.styles |('AIC_DRAUGHTING_ANNOTATION.TEXT_STYLE' IN TYPEOF(sty.styles[1]))) | NOT ('AIC_DRAUGHTING_ANNOTATION.' +'TEXT_STYLE_WITH_BOX_CHARACTERISTICS' IN TYPEOF (ts.styles[1])))) = 0">
-      </where>
-      <where
-        label="WR20"
-        expression="SIZEOF (QUERY (ts &lt;* QUERY (sty &lt;* SELF.styles |('AIC_DRAUGHTING_ANNOTATION.TEXT_STYLE_WITH_BOX_CHARACTERISTICS' IN TYPEOF (sty.styles[1]))) | NOT (SIZEOF (ts.styles[1]\text_style_with_box_characteristics. characteristics) = 4))) = 0">
-      </where>
-    </entity>
+  -- if there is more than one element in the set
+  -- then not all alignments were the same
+  RETURN (SIZEOF(a) = 1);</algorithm>
+      </function>
+      <function name="check_text_font">
+         <parameter name="ct">
+            <typename name="composite_text"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+    f : SET OF font_select := [];
+  END_LOCAL;
 
-    <entity
-      name="draughting_subfigure_representation"
-      supertypes="symbol_representation">
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items | NOT (SIZEOF (['AIC_DRAUGHTING_ANNOTATION.ANNOTATION_OCCURRENCE','AIC_DRAUGHTING_ANNOTATION.DRAUGHTING_CALLOUT','GEOMETRY_SCHEMA.AXIS2_PLACEMENT']* TYPEOF (item)) = 1))) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items | SIZEOF (['AIC_DRAUGHTING_ANNOTATION.ANNOTATION_OCCURRENCE','AIC_DRAUGHTING_ANNOTATION.DRAUGHTING_CALLOUT'] * TYPEOF (item)) = 1)) &gt;= 1">
-      </where>
-      <where
-        label="WR3"
-        expression="SIZEOF (QUERY (srm &lt;* QUERY (rm &lt;* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +'REPRESENTATION_MAP.MAPPED_REPRESENTATION') |('AIC_DRAUGHTING_ANNOTATION.SYMBOL_REPRESENTATION_MAP' IN TYPEOF(rm))) | NOT (SIZEOF (QUERY (a_s &lt;* QUERY (mi &lt;* srm.map_usage |('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL' IN TYPEOF(mi)))| NOT (SIZEOF (QUERY (aso &lt;* USEDIN (a_s, 'PRESENTATION_APPEARANCE_SCHEMA.' +'STYLED_ITEM.ITEM') | NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SUBFIGURE_OCCURRENCE' IN TYPEOF(aso)))) = 0))) = 0))) &gt; 0">
-      </where>
-      <where
-        label="WR4"
-        expression="NOT (acyclic_mapped_item_usage (SELF))">
-      </where>
-      <where
-        label="WR5"
-        expression="SIZEOF (SELF.context_of_items.representations_in_context) = 1">
-      </where>
-    </entity>
+  -- build a set of all the fonts
+  REPEAT i := 1 TO HIINDEX (ct.collected_text);
+    f := f + [ct.collected_text[i]\text_literal.font];
+  END_REPEAT;
 
-    <entity
-      name="draughting_symbol_representation"
-      supertypes="symbol_representation">
-      <unique
-        label="UR1">
-        <unique.attribute
-          entity-ref="representation"
-          attribute="name"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items | NOT (SIZEOF (TYPEOF (item) *['AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE','AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL_OCCURRENCE','AIC_DRAUGHTING_ANNOTATION.ANNOTATION_FILL_AREA_OCCURRENCE','AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE','GEOMETRY_SCHEMA.AXIS2_PLACEMENT']) = 1))) = 0">
-      </where>
-      <where
-        label="WR2"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |(SIZEOF (TYPEOF (item) *['AIC_DRAUGHTING_ANNOTATION.ANNOTATION_CURVE_OCCURRENCE','AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL_OCCURRENCE','AIC_DRAUGHTING_ANNOTATION.ANNOTATION_FILL_AREA_OCCURRENCE','AIC_DRAUGHTING_ANNOTATION.ANNOTATION_TEXT_OCCURRENCE']) = 1))) &gt;= 1">
-      </where>
-      <where
-        label="WR3"
-        expression="SIZEOF (QUERY (item &lt;* SELF\representation.items |'AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SUBFIGURE_OCCURRENCE' IN TYPEOF (item))) = 0">
-      </where>
-      <where
-        label="WR4"
-        expression="SIZEOF (QUERY (srm &lt;* QUERY (rm &lt;* USEDIN (SELF, 'REPRESENTATION_SCHEMA.' +'REPRESENTATION_MAP.MAPPED_REPRESENTATION') |('REPRESENTATION_SCHEMA.SYMBOL_REPRESENTATION_MAP' IN TYPEOF(rm))) | NOT (SIZEOF (QUERY (a_s &lt;* QUERY (mi &lt;* srm.map_usage |('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL' IN TYPEOF(mi))) | NOT (SIZEOF (QUERY(aso &lt;* USEDIN(a_s, 'PRESENTATION_APPEARANCE_SCHEMA.' +'STYLED_ITEM.ITEM') | NOT ('AIC_DRAUGHTING_ANNOTATION.ANNOTATION_SYMBOL_OCCURRENCE' IN TYPEOF(aso)))) = 0))) = 0))) &gt; 0">
-      </where>
-      <where
-        label="WR5"
-        expression="NOT (acyclic_mapped_item_usage (SELF))">
-      </where>
-      <where
-        label="WR6"
-        expression="SIZEOF (SELF.context_of_items.representations_in_context) = 1">
-      </where>
-    </entity>
-
-    <entity
-      name="draughting_text_literal_with_delineation"
-      supertypes="text_literal_with_delineation">
-      <where
-        label="WR1"
-        expression="SELF.delineation IN ['underline', 'overline']">
-      </where>
-    </entity>
-
-    <function
-      name="acyclic_mapped_item_usage">
-      <parameter
-        name="rep">
-        <typename
-          name="representation"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-LOCAL
-items : SET OF representation_item;
-END_LOCAL;
-items := QUERY (item &lt;* rep.items |
-'AIC_DRAUGHTING_ANNOTATION.MAPPED_ITEM' IN TYPEOF (item));
-IF SIZEOF (items) = 0
-THEN
-RETURN (FALSE);
-ELSE
-REPEAT i := 1 TO HIINDEX (items);
-IF items[i]\mapped_item.mapping_source.mapped_representation :=: rep
-THEN
-RETURN (TRUE);
-ELSE
-RETURN (acyclic_mapped_item_usage(items[i]\
-mapped_item.mapping_source.mapped_representation));
-END_IF;
-END_REPEAT;
-RETURN (FALSE);
-END_IF;
-      </algorithm>
-    </function>
-
-    <function
-      name="check_text_alignment">
-      <parameter
-        name="ct">
-        <typename
-          name="composite_text"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-LOCAL
-a : SET OF text_alignment := [];
-END_LOCAL;
-REPEAT i := 1 TO HIINDEX (ct.collected_text);
-a := a + [ct.collected_text[i]\text_literal.alignment];
-END_REPEAT;
-RETURN (SIZEOF(a) = 1);
-      </algorithm>
-    </function>
-
-    <function
-      name="check_text_font">
-      <parameter
-        name="ct">
-        <typename
-          name="composite_text"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-LOCAL
-f : SET OF font_select := [];
-END_LOCAL;
-REPEAT i := 1 TO HIINDEX (ct.collected_text);
-f := f + [ct.collected_text[i]\text_literal.font];
-END_REPEAT;
-RETURN (SIZEOF(f) &lt;= 1);
-      </algorithm>
-    </function>
-
-  </schema>
+  -- if there is more than one element in the set
+  -- then not all fonts were the same
+  RETURN (SIZEOF(f) &lt;= 1);</algorithm>
+      </function>
+   </schema>
 </express>

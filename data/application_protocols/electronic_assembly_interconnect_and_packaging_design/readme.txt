@@ -1,4 +1,4 @@
-$Id: mkapdoc_main.js,v 1.23 2004/11/12 07:49:20 robbod Exp $
+$Id: readme.txt 12 2007-03-20 22:17:27Z giedrius $
 
       -----------------------------
       Application Protocol document

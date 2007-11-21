@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp 1665 2007-11-13 13:22:06Z GiedriusLiutkus $
+   $Id: arm.exp,v 1.134 2007/11/15 12:43:21 liutkus Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -119,6 +119,14 @@ SCHEMA Part_template_2d_shape_arm;
       'PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE.STACK') | ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(p))));
   END_ENTITY;
 
+  ENTITY Local_linear_stack
+    SUBTYPE OF (Stratum_sub_stack);
+      SELF\Stratum_sub_stack.stratum_technology_sequence : SET[1:?] OF Stratum_technology_occurrence_link;
+    WHERE
+      WR1: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1);
+      WR2: sts_vertex_degree_less_than_three(stratum_technology_sequence);
+  END_ENTITY;
+
   ENTITY Material_removal_structured_template
     SUBTYPE OF (Single_stratum_structured_template);
   WHERE
@@ -202,19 +210,18 @@ SCHEMA Part_template_2d_shape_arm;
                ('PART_TEMPLATE_2D_SHAPE_ARM.COMPLEX_PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)));      
   END_ENTITY;
 
-  ENTITY Passage_technology_allocation_to_stack_model;
-      allocated_technology : Passage_technology;
+  ENTITY Passage_technology_allocation_to_stack_model
+    SUBTYPE OF (Stratum_sub_stack);
+      allocated_technology            : Passage_technology;
       single_stratum_passage_location : OPTIONAL Stratum_technology_occurrence;
-      stratum_technology_sequence : OPTIONAL SET [1:?] OF Stratum_technology_occurrence_link;
-      associated_stackup : Design_stack_model;
-   WHERE 
-     WR1: (NOT EXISTS(single_stratum_passage_location) OR
-               (single_stratum_passage_location IN associated_stackup.composing_occurrence));
-     WR2: EXISTS(stratum_technology_sequence) XOR EXISTS(single_stratum_passage_location);
-     WR3: SIZEOF(QUERY(sts <* stratum_technology_sequence | NOT(associated_stackup :=: sts.scope))
-                 ) = 0;
-     WR4: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1); 
-     WR5: sts_vertex_degree_less_than_three(stratum_technology_sequence);
+    WHERE
+      WR1: (NOT EXISTS(single_stratum_passage_location) OR
+        (single_stratum_passage_location IN
+        SELF\Stratum_sub_stack.associated_stackup.composing_occurrence));
+      WR2: EXISTS(SELF\Stratum_sub_stack.stratum_technology_sequence) XOR
+        EXISTS(single_stratum_passage_location);
+      WR3: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1);
+      WR4: sts_vertex_degree_less_than_three(stratum_technology_sequence);
   END_ENTITY;
 
   ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;
@@ -285,6 +292,16 @@ SCHEMA Part_template_2d_shape_arm;
     WR2 : SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION',
            'PART_TEMPLATE_2D_SHAPE_ARM.MULTI_STRATUM_SPECIAL_SYMBOL_TEMPLATE'] 
           * TYPEOF(SELF)) > 0;          
+  END_ENTITY;
+
+  ENTITY Stratum_sub_stack 
+    ABSTRACT SUPERTYPE OF (ONEOF(Local_linear_stack, 
+      Passage_technology_allocation_to_stack_model));
+      stratum_technology_sequence : OPTIONAL SET[1:?] OF Stratum_technology_occurrence_link;
+      associated_stackup          : Design_stack_model;
+    WHERE
+      WR1: SIZEOF(QUERY(sts <* stratum_technology_sequence | 
+        NOT(associated_stackup :=: sts.scope)) ) = 0;
   END_ENTITY;
 
   ENTITY Structured_inter_stratum_feature_template

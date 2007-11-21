@@ -139,26 +139,20 @@ public class MakeCMRecord {
 	logProcessor = new LogProcessor(metadataCollection);
 	logListener = new CvsListener(logProcessor);
 
-	try {
-	    rootNode = transform(moduleXMLFile, xsltStream);
-	    document = (Document) rootNode;
-	    NodeList sourcesList = document.getElementsByTagName("sources");
-	    for (int i=0; i<sourcesList.getLength(); i++) {
-		sources = (Element) sourcesList.item(i);
-		if (sources.getTextContent().trim().equals("*** INSERT DIRECTORY ELEMENTS ***")) {
-		    NodeList childList = sources.getChildNodes();
-		    for (int j=0; j<childList.getLength(); j++) {
-			sources.removeChild(childList.item(j));
-		    }
-		    processDirTree(moduleDir, sources);
+	rootNode = transform(moduleXMLFile, xsltStream);
+	document = (Document) rootNode;
+	NodeList sourcesList = document.getElementsByTagName("sources");
+	for (int i=0; i<sourcesList.getLength(); i++) {
+	    sources = (Element) sourcesList.item(i);
+	    if (sources.getTextContent().trim().equals("*** INSERT DIRECTORY ELEMENTS ***")) {
+		NodeList childList = sources.getChildNodes();
+		for (int j=0; j<childList.getLength(); j++) {
+		    sources.removeChild(childList.item(j));
 		}
+		processDirTree(moduleDir, sources);
 	    }
-	    write();
 	}
-	catch (FileNotUpToDateException e) {
-	    File file = e.getFile();
-	    System.err.println("Error: File " + file.getAbsolutePath() + " is not up-to-date.  Not writing CM record for directory " + moduleDir.getName());
-	}
+	write();
 	System.err.println("Finished generating/updating CM record.");
     }
 
@@ -196,7 +190,7 @@ public class MakeCMRecord {
 	return result.getNode();
     }
 
-    void processDirTree(File root, Element sources) throws java.io.FileNotFoundException, java.io.IOException, FileNotUpToDateException, ConnectionException, InternalErrorException {
+    void processDirTree(File root, Element sources) throws java.io.FileNotFoundException, java.io.IOException, ConnectionException, InternalErrorException {
 
 	StatusCommand statusCommand = new StatusCommand();
 	statusCommand.setRecursive(true);
@@ -215,7 +209,7 @@ public class MakeCMRecord {
 	processDir(root, root, sources);
     }
 
-    void processDir(File current, File root, Element sources) throws java.io.FileNotFoundException, java.io.IOException, FileNotUpToDateException, ConnectionException, InternalErrorException {
+    void processDir(File current, File root, Element sources) throws java.io.FileNotFoundException, java.io.IOException, ConnectionException, InternalErrorException {
 	File[] children = current.listFiles();
 	String rootPath = root.getPath();
 	String currentPath = current.getPath();
@@ -248,7 +242,7 @@ public class MakeCMRecord {
 	}
     }
 
-    void processFile(File current, Element dirElt) throws java.io.FileNotFoundException, java.io.IOException, FileNotUpToDateException, ConnectionException, InternalErrorException {
+    void processFile(File current, Element dirElt) throws java.io.FileNotFoundException, java.io.IOException, ConnectionException, InternalErrorException {
 	Element element;
 	Metadata metadata;
 
@@ -281,7 +275,7 @@ public class MakeCMRecord {
 	dirElt.appendChild(element);
     }
 
-    Metadata getMetadata(File file) throws java.io.FileNotFoundException, java.io.IOException, FileNotUpToDateException, ConnectionException, InternalErrorException {
+    Metadata getMetadata(File file) throws java.io.FileNotFoundException, java.io.IOException, ConnectionException, InternalErrorException {
 	String line;
 
 	String canonicalPath = file.getCanonicalPath();

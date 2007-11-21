@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-     $Id: ccs.dtd,v 1.3 2003/05/30 09:46:56 robbod Exp $
+     $Id: ccs.dtd 1243 2007-06-20 20:58:29Z giedrius $
      Author:  Mike Ward, David Proce, Rob Bodington, Nigel Shaw  Eurostep Limited
      Owner:   Developed by Eurostep and supplied to PDES / NIST under contract.
      Purpose: DTD for AP conformance classes
@@ -26,8 +26,9 @@
 
 
 <!-- Conformance classes -->
-<!ELEMENT conformance (cc+, arms_in_ccs?, mims_in_ccs?)>
-<!ELEMENT cc (inscope, description?)>
+<!ELEMENT conformance (cc+, co*, arms_in_ccs?, mims_in_ccs?)>
+
+<!ELEMENT cc (inscope?, description?, module*)>
 <!-- description of the scope of the CC -->
 
 <!-- 
@@ -39,7 +40,7 @@
 <!ATTLIST cc
 	id CDATA #REQUIRED
 	name CDATA #REQUIRED
-	module NMTOKEN #REQUIRED
+	module NMTOKEN #IMPLIED
 >
 
 <!-- the scope of the conformance class 
@@ -59,12 +60,10 @@
 -->
 
 <!-- a reference to an ARM entity in a conformace class -->
-<!-- no longer used ??
-<!ELEMENT arm_entity EMPTY>
-<!ATTLIST arm_entity
-	name CDATA #REQUIRED
->
--->
+<!-- no longer used ?? -->
+<!ELEMENT arm_entity (express_ref)>
+
+<!ELEMENT mim_entity (express_ref)>
 
 
 <!-- a summary of all the ARM entities in conformance classes -->
@@ -77,7 +76,7 @@
         a reference to an ARM entity and an identification of the conformance classes 
         in which the entity is present.
 -->
-<!ELEMENT arm_entity_in_cc (cc_id+)>
+<!ELEMENT arm_entity_in_cc (express_ref, cc_id*, co_ref*)>
 <!ATTLIST arm_entity_in_cc
 	name CDATA #REQUIRED
 >
@@ -86,7 +85,7 @@
         a reference to a MIM entity and an identification of the conformance classes 
         in which the entity is present.
 -->
-<!ELEMENT mim_entity_in_cc (cc_id+)>
+<!ELEMENT mim_entity_in_cc (express_ref, cc_id*, co_ref*)>
 <!ATTLIST mim_entity_in_cc
 	name CDATA #REQUIRED
 >
@@ -96,3 +95,27 @@
 <!ATTLIST cc_id
 	id  CDATA #REQUIRED
 >
+
+<!-- GL Added - Conformance Option stuff -->
+<!ELEMENT co (description?, co_ref*, module*, arm_entity*, mim_entity*)>
+<!ATTLIST co
+	name CDATA #REQUIRED
+>
+
+<!ELEMENT co_ref EMPTY>
+<!ATTLIST co_ref
+	name  CDATA #REQUIRED
+>
+
+<!ELEMENT module (arm_entity*, mim_entity*)>
+<!ATTLIST module
+	name CDATA #REQUIRED
+	completness (complete | selective | substractive) "complete"
+>
+
+<!-- Taken from text.ent, later maybe reuse from there 
+<!ELEMENT  express_ref  (#PCDATA) >
+<!ATTLIST  express_ref
+             linkend    CDATA                              #REQUIRED> -->
+
+ <!-- flag to indicate if to take all USE FROMed modules and entities -->

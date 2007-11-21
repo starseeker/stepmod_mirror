@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.42 2005/07/11 21:05:55 thendrix Exp $
+$Id: common.xsl 1274 2007-06-26 08:55:15Z giedrius $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -811,6 +811,7 @@ $Id: common.xsl,v 1.42 2005/07/11 21:05:55 thendrix Exp $
                        or $section_tmp='express_mim_lf'
                        or $section_tmp='mim_short_names'
                        or $section_tmp='object_registration'
+                       or $section_tmp='detailed_changes'
                        or $section_tmp='bibliography'">
           <xsl:value-of select="$section_tmp"/>
         </xsl:when>
@@ -862,6 +863,7 @@ $Id: common.xsl,v 1.42 2005/07/11 21:05:55 thendrix Exp $
                         or $construct_tmp='figure'
                         or $construct_tmp='table'
                         or $construct_tmp='cc'
+                        or $construct_tmp='co'                        
                         or $construct_tmp='bibitem'">
           <xsl:choose>
             <!-- test that an id has been given -->
@@ -1131,6 +1133,16 @@ $Id: common.xsl,v 1.42 2005/07/11 21:05:55 thendrix Exp $
         </xsl:choose>
       </xsl:when>
 
+      <xsl:when test="$section='detailed_changes'">
+        <xsl:choose>
+          <xsl:when test="string-length($construct)">
+            <a href="annex_changes{$FILE_EXT}"><xsl:apply-templates/></a>
+          </xsl:when>
+          <xsl:otherwise>
+            Annex <a href="annex_changes{$FILE_EXT}">H</a>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
 
       <xsl:when test="$section='bibliography'">
         <xsl:choose>

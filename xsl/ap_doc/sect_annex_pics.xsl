@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_pics.xsl,v 1.8 2005/01/09 07:08:36 robbod Exp $
+$Id: sect_annex_pics.xsl 1245 2007-06-21 13:44:33Z giedrius $
   Author:  Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -116,7 +116,7 @@ $Id: sect_annex_pics.xsl,v 1.8 2005/01/09 07:08:36 robbod Exp $
 				</xsl:if>
 			</xsl:for-each>
 		</table>
-		<h2>
+	<h2>
                   <a name="d3">
                     D.3 Implemented conformance classes
                   </a>
@@ -141,5 +141,31 @@ $Id: sect_annex_pics.xsl,v 1.8 2005/01/09 07:08:36 robbod Exp $
 				</tr>
 			</xsl:for-each>
 		</table>
+	<h2>
+		<a name="d4">
+			D.4 Implemented conformance options
+		</a>
+	</h2>
+	<table border="1">
+		<tr>
+			<th align="left">Conformance option</th>
+			<th>Preprocessor</th>
+			<th>Postprocessor</th>
+		</tr>
+		<xsl:for-each select="document(concat('../../data/application_protocols/', $ap_name, '/ccs.xml'))/conformance/co">
+			<tr>
+				<td align="left">
+					<xsl:value-of select="concat(@name, ' (co', position(), ')')"/>
+				</td>
+				<td>
+					&#160;			
+				</td>
+				<td>
+					&#160;			
+				</td>
+			</tr>
+		</xsl:for-each>
+	</table>
+		
 	</xsl:template>
 </xsl:stylesheet>

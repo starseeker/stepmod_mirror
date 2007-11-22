@@ -1,6 +1,6 @@
 (*   
-   $Id: mim.exp,v 1.9 2006/07/11 10:33:50 sonofre Exp $
-   ISO/TC184/SC4 WG12N2605 - ISO/TS 10303-1110 Surface conditions - Express MIM 
+   $Id: mim.exp,v 1.11 2006/11/15 21:20:37 ca_agostinho Exp $
+   ISO/TC184/SC4 WG12N2605 - ISO/TS 10303-1110 Surface conditions - EXPRESS MIM 
    Supersedes ISO TC184/SC4/WG12N1739
 *)
 
@@ -208,6 +208,54 @@ WHERE
      ) =1 ) ;
 END_ENTITY;
 
+ENTITY extended_visual_appearance_representation
+  SUBTYPE OF (representation);
+WHERE
+ WR1: ( {3<= SIZEOF ( SELF.items ) <=9} ) AND ( SIZEOF ( QUERY (
+     i <* items | ( 'SURFACE_CONDITIONS_MIM.'+
+     'DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND (
+     i.name IN [ 'colour id' , 'colour name' , 'lustre' , 'pattern' , 'transparency', 'orientation'] ) ) 
+     ) + SIZEOF ( QUERY ( i <* items | ( SIZEOF (
+     ['SURFACE_CONDITIONS_MIM.'+ 'MEASURE_REPRESENTATION_ITEM' ,
+     'SURFACE_CONDITIONS_MIM.'+ 'VALUE_RANGE']* TYPEOF ( i ) ) =1 )							
+     AND ( i.name IN ['refraction index' , 'opacity'] ) ) 
+     ) + SIZEOF ( QUERY ( i <* items | ( 
+     'SURFACE_CONDITIONS_MIM.'+ 'DOCUMENT_FILE' IN TYPEOF ( i ) ) 
+     AND ( i.name IN [ 'texture map' ] ) )	)
+     = SIZEOF ( SELF.items ) );                                                  
+ WR2: SIZEOF ( QUERY ( i <* SELF.items | i.name = 'colour id' )
+     ) =1;
+ WR3: SIZEOF ( QUERY ( i <* SELF.items | i.name ='lustre' ) )
+     =1;
+ WR4: SIZEOF ( QUERY ( i <* SELF.items | i.name = 'colour name'
+     ) ) <=1;
+ WR5: SIZEOF ( QUERY ( i <* SELF.items | i.name ='pattern' ) )
+     <=1;
+ WR6: SIZEOF ( QUERY ( i <* SELF.items | i.name ='transparency'
+     ) ) <=1;
+ WR7: SIZEOF ( QUERY ( i <* SELF.items | i.name = 'texture map'
+     ) ) =1;
+ WR8: SIZEOF ( QUERY ( i <* SELF.items | i.name ='refraction index' ) )
+     <=1;
+ WR9: SIZEOF ( QUERY ( i <* SELF.items | i.name ='opacity'
+     ) ) <=1;
+ WR10: SIZEOF ( QUERY ( i <* SELF.items | i.name ='orientation'
+     ) ) <=1;
+ WR11: ( SIZEOF ( USEDIN ( SELF ,
+     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+
+     'USED_REPRESENTATION' ) ) =1 ) AND ( SIZEOF ( QUERY ( pdr
+     <* USEDIN ( SELF ,
+     'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+
+     'USED_REPRESENTATION' ) | SIZEOF ( QUERY ( gpa <* USEDIN (
+     pdr. definition ,
+     'SURFACE_CONDITIONS_MIM.'+'GENERAL_PROPERTY_ASSOCIATION.'+
+     'DERIVED_DEFINITION' ) | ( 'SURFACE_CONDITIONS_MIM.'+
+     'GENERAL_PROPERTY' IN TYPEOF ( gpa. base_definition ) ) AND
+     ( gpa. base_definition.name ='surface_condition' ) ) ) =1 )
+     ) =1 ) ;
+END_ENTITY;
+
+
 FUNCTION surface_condition_correlation (pd: property_definition; rep: representation): LOGICAL;
 
 CASE pd.name OF
@@ -218,6 +266,7 @@ OTHERWISE : RETURN(UNKNOWN);
 END_CASE;
 
 END_FUNCTION;
+
 RULE restrict_representation_for_surface_condition FOR (property_definition_representation);
 WHERE
 WR1 : SIZEOF(QUERY(pdr <* property_definition_representation | 

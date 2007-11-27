@@ -1,5 +1,5 @@
 (*   
-   $Id: mim.exp,v 1.12 2007/11/22 14:08:21 ca_agostinho Exp $
+   $Id: mim.exp,v 1.13 2007/11/26 20:32:14 liutkus Exp $
    ISO/TC184/SC4 WG12N2605 - ISO/TS 10303-1110 Surface conditions - EXPRESS MIM 
    Supersedes ISO TC184/SC4/WG12N1739
 *)
@@ -10,13 +10,13 @@ USE FROM Construction_geometry_mim;
 
 USE FROM Dimension_tolerance_mim;
 
-USE FROM Document_and_version_identification_mim;
-
 USE FROM Extended_measure_representation_mim;
 
 USE FROM Measure_representation_mim;
 
 USE FROM Generic_material_aspects_mim;
+
+USE FROM Part_view_definition_mim;
 
 USE FROM Product_view_definition_mim;
 
@@ -55,8 +55,8 @@ WHERE
      pdr <* USEDIN ( SELF ,
      'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+
      'USED_REPRESENTATION' ) | ( pdr. name =
-     'contact ratio reference' ) AND ( 'SURFACE_CONDITIONS_MIM.'+
-     'PHYSICALLY_MODELLED_PRODUCT_DEFINITION' IN TYPEOF ( pdr.
+     'contact ratio reference' ) AND ( 'PRODUCT_DEFINITION_SCHEMA.'+
+     'PRODUCT_DEFINITION' IN TYPEOF ( pdr.
      definition.definition ) ) ) ) =1 ) ;
  WR3: ( SIZEOF ( USEDIN ( SELF ,
      'SURFACE_CONDITIONS_MIM.'+'PROPERTY_DEFINITION_REPRESENTATION.'+
@@ -105,13 +105,6 @@ WHERE
      ( gpa. base_definition.name ='surface_condition' ) ) ) =1 )
      ) =1 ) ;
 END_ENTITY;
-
-ENTITY physically_modelled_product_definition 
-SUBTYPE OF (product_definition); 
-WHERE 
-WR1: SELF.frame_of_reference\application_context_element.name = 'physical model occurrence'; 
-WR2: 'document' IN categories_of_product(SELF\product_definition.formation.of_product);
-END_ENTITY; 
 
 ENTITY surface_texture_representation
   SUBTYPE OF (representation);

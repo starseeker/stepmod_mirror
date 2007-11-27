@@ -1,5 +1,5 @@
 (*   
-   $Id: arm.exp,v 1.19 2007/11/22 14:08:21 ca_agostinho Exp $
+   $Id: arm.exp,v 1.20 2007/11/26 20:32:14 liutkus Exp $
    ISO/TC184/SC4 WG12N2604 - ISO/TS 10303-1110 Surface conditions - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12N1738
 *)
@@ -10,13 +10,13 @@ USE FROM Construction_geometry_arm;
 
 USE FROM Dimension_tolerance_arm;
 
-USE FROM Document_and_version_identification_arm;
-
 USE FROM Extended_measure_representation_arm;
 
 USE FROM Measure_representation_arm;
 
 USE FROM Generic_material_aspects_arm;
+
+USE FROM Part_view_definition_arm;
 
 USE FROM Product_view_definition_arm;
 
@@ -24,6 +24,9 @@ USE FROM Shape_property_assignment_arm;
 
 USE FROM Value_with_unit_extension_arm;
 
+ TYPE measuring_gauge_select = EXTENSIBLE GENERIC_ENTITY SELECT (
+   Part_view_definition);
+ END_TYPE;
 
  TYPE shaped_element_select = SELECT
       (Shape_element,Item_shape);
@@ -44,7 +47,7 @@ USE FROM Value_with_unit_extension_arm;
  ENTITY Contact_ratio
   SUBTYPE OF (Surface_condition);
   ratio_value : Measure_item;
-  measuring_gauge : Physical_model_representation;
+  measuring_gauge : measuring_gauge_select;
  END_ENTITY;
 
  ENTITY Extended_visual_appearance
@@ -63,20 +66,6 @@ USE FROM Value_with_unit_extension_arm;
   measuring_position : OPTIONAL STRING;
   hardness_value : Measure_item;
   depth : OPTIONAL Measure_item;
- END_ENTITY;
-
- ENTITY Physical_model
-  SUBTYPE OF (Document);
- END_ENTITY;
-
- ENTITY Physical_model_representation
-  SUBTYPE OF (Product_view_definition);
-  SELF\Product_view_definition.defined_version : Physical_model_version;
- END_ENTITY;
-
- ENTITY Physical_model_version
-  SUBTYPE OF (Document_version);
-  SELF\Product_version.of_product: Physical_model;
  END_ENTITY;
 
  ENTITY Surface_condition

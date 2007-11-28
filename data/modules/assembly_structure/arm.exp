@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.15 2004/11/15 20:12:04 thendrix Exp $
+ $Id: arm.exp,v 1.16 2004/11/15 21:22:40 thendrix Exp $
 ISO TC184/SC4/WG12 N3222 - ISO/TS 10303-1026 Assembly structure - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N2515
 *) 
@@ -7,24 +7,29 @@ Supersedes ISO TC184/SC4/WG12 N2515
 
 SCHEMA Assembly_structure_arm;
 
-USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
+USE FROM Generic_product_occurrence_arm;    -- ISO/TS 10303-1762
 
 USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
 
 
 ENTITY Assembly_component_relationship
-  ABSTRACT SUPERTYPE OF (ONEOF (Next_assembly_usage,
+  ABSTRACT SUPERTYPE OF (ONEOF (Next_assembly_usage, 
                                 Promissory_usage,
                                 Component_upper_level_identification))
-  SUBTYPE OF (View_definition_usage);
-  quantity : OPTIONAL Value_with_unit;
-  location_indicator : OPTIONAL STRING;
-WHERE
-  WR1: NOT(EXISTS(quantity)) OR ((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component > 0));
-END_ENTITY;
+  SUBTYPE OF (Product_occurrence_definition_relationship);
+    location_indicator : OPTIONAL STRING;
+END_ENTITY; 
 
 ENTITY Next_assembly_usage
   SUBTYPE OF (Assembly_component_relationship);
+END_ENTITY;
+
+ENTITY Product_occurrence_definition_relationship
+  ABSTRACT SUPERTYPE; 
+    relating_view : Product_view_definition;
+    related_view  : Product_occurrence;
+WHERE
+  WR1: NOT ('GENERIC_PRODUCT_OCCURRENCE_ARM.PRODUCT_OCCURRENCE' in TYPEOF(relating_view));
 END_ENTITY;
 
 ENTITY Promissory_usage
@@ -39,10 +44,16 @@ UNIQUE
   UR1: upper_assembly_relationship, sub_assembly_relationship;
 WHERE
   WR1: SELF :<>: upper_assembly_relationship ;
-  WR2: SELF\View_definition_relationship.relating_view :=: upper_assembly_relationship\View_definition_relationship.relating_view;
-  WR3: SELF\View_definition_relationship.related_view :=: sub_assembly_relationship\View_definition_relationship.related_view;
-  WR4: (upper_assembly_relationship\View_definition_relationship.related_view :=: sub_assembly_relationship\View_definition_relationship.relating_view) OR (SIZEOF (QUERY (pdr <* USEDIN (upper_assembly_relationship\View_definition_relationship.related_view , 'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') | pdr.relating_view :=: sub_assembly_relationship\View_definition_relationship.relating_view)) = 1);
+  WR2: SELF\Product_occurrence_definition_relationship.relating_view :=: upper_assembly_relationship\Product_occurrence_definition_relationship.relating_view;
+  WR3: SELF\Product_occurrence_definition_relationship.related_view :=: sub_assembly_relationship\Product_occurrence_definition_relationship.related_view;
+  WR4: (upper_assembly_relationship\Product_occurrence_definition_relationship.related_view :=: sub_assembly_relationship\Product_occurrence_definition_relationship.relating_view) OR (SIZEOF (QUERY (pdr <* USEDIN (upper_assembly_relationship\Product_occurrence_definition_relationship.related_view , 'ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW') | pdr.relating_view :=: sub_assembly_relationship\Product_occurrence_definition_relationship.relating_view)) = 1);
   WR5: SIZEOF (['ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE', 'ASSEMBLY_STRUCTURE_ARM.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship)) = 1;
 END_ENTITY;
+
+SUBTYPE_CONSTRAINT Assembly_component_relationship_constraint FOR Assembly_component_relationship;
+  ABSTRACT SUPERTYPE;
+  TOTAL_OVER (Component_upper_level_identification, Next_assembly_usage,
+    Promissory_usage);
+END_SUBTYPE_CONSTRAINT; 
 
 END_SCHEMA;  -- Assembly_structure_arm

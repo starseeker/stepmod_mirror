@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.18 2004/10/23 10:46:25 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  xmlns:exslt="http://exslt.org/common"
+  exclude-result-prefixes="msxsl exslt"
+version="1.0">
   <!--  <xsl:import href="../sect_2_refs.xsl"/> -->
   <xsl:import href="application_protocol.xsl"/>
   <xsl:import href="application_protocol_clause.xsl"/>
@@ -51,10 +55,20 @@ $Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
       <xsl:with-param name="normrefs_list" select="$normrefs"/>
     </xsl:call-template>  
   </xsl:variable>
-  <xsl:call-template name="output_normrefs_rec">
-    <xsl:with-param name="normrefs" select="$pruned_normrefs"/>
-    <xsl:with-param name="application_protocol_number" select="./@part"/>
-  </xsl:call-template>  
+  <xsl:variable name="normrefs_to_be_sorted"> 
+    <xsl:call-template name="output_normrefs_rec">
+      <xsl:with-param name="normrefs" select="$pruned_normrefs"/>
+      <xsl:with-param name="application_protocol_number" select="./@part"/>
+    </xsl:call-template>
+  </xsl:variable>
+    
+  <xsl:variable name="normrefs_to_be_sorted_set" select="msxsl:node-set($normrefs_to_be_sorted)"/>
+  <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
+    <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
+    <xsl:sort select='part'/>
+    <xsl:copy-of select="string"/>
+  </xsl:for-each>
+  
   <!-- output a footnote to say that the normative reference has not been
        published -->
   <xsl:call-template name="output_unpublished_normrefs">
@@ -101,7 +115,18 @@ $Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
       <xsl:with-param name="normref_list" select="$normref_list3"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:value-of select="concat($normref_list4,',')"/>
+  <!-- add the modules identified as having conformance options against
+       them -->
+  <xsl:variable name="co_nodes" 
+    select="document(concat('../../data/application_protocols/',@name,'/ccs.xml'))/conformance/co"/>
+  <xsl:variable name="normref_list5">
+    <xsl:call-template name="get_cc_normrefs_list">
+      <xsl:with-param name="cc_nodes" select="$co_nodes"/>
+      <xsl:with-param name="normref_list" select="$normref_list4"/>
+    </xsl:call-template>
+  </xsl:variable>
+  
+  <xsl:value-of select="concat($normref_list5,',')"/>
 </xsl:template>
 
 <xsl:template name="get_normref">
@@ -209,10 +234,67 @@ $Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
           <xsl:when test="$normref_node">
 
             <xsl:variable name="part_no" select="substring-after($normref_node/stdref/stdnumber,'-')"/>
-            <xsl:if test="$application_protocol_number!=$part_no">
-              <xsl:apply-templates 
-                select="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]"/>
-            </xsl:if>
+            <xsl:element name="normref">
+              <xsl:element name="string">
+                <xsl:if test="$application_protocol_number!=$part_no">
+                  <!-- OOUTPUT from normative references -->
+                    <xsl:apply-templates 
+                      select="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]"/>
+                </xsl:if>
+              </xsl:element>
+              <xsl:variable name="part">
+                <xsl:value-of select="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/stdref/stdnumber"/>
+              </xsl:variable>
+              <xsl:variable name="orgname">
+				<xsl:value-of select="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/stdref/orgname"/>
+              </xsl:variable>
+              <!-- eliminate status info like TS, CD-TS, etc -->
+              <xsl:variable name="orgname_cleaned">
+                <xsl:choose>
+                  <xsl:when test="contains($orgname,'ISO')">ISO</xsl:when>
+                  <xsl:otherwise><xsl:value-of select="$orgname"/></xsl:otherwise>
+                </xsl:choose>  
+              </xsl:variable>
+                <!-- Try to 'normalize' part and subpart numbers -->
+                <xsl:variable name="series" select="substring-before($part,'-')"/>
+                <!-- normalize with longest possible series (10303) -->                    
+                <xsl:variable name="series_norm">
+                <xsl:choose>
+                  <xsl:when test="string-length($series)=1">0000<xsl:value-of select="$series"/></xsl:when>
+                  <xsl:when test="string-length($series)=2">000<xsl:value-of select="$series"/></xsl:when>
+                  <xsl:when test="string-length($series)=3">00<xsl:value-of select="$series"/></xsl:when>
+                  <xsl:when test="string-length($series)=4">0<xsl:value-of select="$series"/></xsl:when>
+                  <xsl:when test="string-length($series)=5"><xsl:value-of select="$series"/></xsl:when>
+                  <xsl:otherwise>
+                    <xsl:call-template name="error_message">
+                      <xsl:with-param name="message">
+                        <xsl:value-of select="concat('Unsupported length of series number: ', $series, 'length: ', string-length($series))"/>
+                      </xsl:with-param>
+                    </xsl:call-template>
+                  </xsl:otherwise>
+                </xsl:choose>
+                </xsl:variable>
+                <!-- normalize with longest possible part (4 digits) -->                    
+                <xsl:variable name="part_norm">
+                <xsl:choose>
+                  <xsl:when test="string-length($part_no)=1">-000<xsl:value-of select="$part_no"/></xsl:when>
+                  <xsl:when test="string-length($part_no)=2">-00<xsl:value-of select="$part_no"/></xsl:when>
+                  <xsl:when test="string-length($part_no)=3">-0<xsl:value-of select="$part_no"/></xsl:when>
+                  <xsl:when test="string-length($part_no)=4">-<xsl:value-of select="$part_no"/></xsl:when>
+                  <xsl:otherwise>
+                    <xsl:call-template name="error_message">
+                      <xsl:with-param name="message">
+                        <xsl:value-of select="concat('Unsupported length of part number: ', $part_no, 'length: ', string-length($part_no))"/>
+                      </xsl:with-param>
+                    </xsl:call-template>
+                  </xsl:otherwise>
+                </xsl:choose>
+                </xsl:variable>
+                <xsl:element name="part">
+                <!-- Organization name -->
+                  <xsl:value-of select="$orgname_cleaned"/>-<xsl:value-of select="$series_norm"/><xsl:value-of select="$part_norm"/>
+                </xsl:element>
+            </xsl:element>
           </xsl:when>
           <xsl:otherwise>
             <xsl:call-template name="error_message">
@@ -227,10 +309,12 @@ $Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
       <xsl:when test="contains($first,'module:')">
         <xsl:variable name="module" select="substring-after($first,'module:')"/>
         <xsl:variable name="module_xml" select="concat('../../data/modules/',$module,'/module.xml')"/>
-        <!-- output the normative reference derived from the module -->
-        <xsl:apply-templates 
-          select="document($module_xml)/module" mode="normref">
-        </xsl:apply-templates>
+        <!-- OUTPUT the normative reference derived from the module -->
+        <xsl:element name="normref">
+            <xsl:apply-templates 
+              select="document($module_xml)/module" mode="normref">
+            </xsl:apply-templates>
+        </xsl:element>
       </xsl:when>
       
       <xsl:when test="contains($first, 'application_protocol:')">
@@ -241,16 +325,23 @@ $Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
           </xsl:call-template>
         </xsl:variable>
         <xsl:variable name="application_protocol_xml" select="concat($application_protocol_dir,'/application_protocol.xml')"/>
-        <xsl:apply-templates select="document($application_protocol_xml)/application_protocol" mode="normref"/>
+        <!-- OUTPUT from application protocol -->
+        <!-- GL: sorting is not implemented for this one as there is not a single example AND I failed to found this function, which is called here -->
+        <!-- GL: add here element'normref' and subelements 'part' and 'string' if needed to implement it -->
+          {<xsl:apply-templates select="document($application_protocol_xml)/application_protocol" mode="normref"/>}
       </xsl:when>
       <xsl:when test="contains($first,'resource:')">
         <xsl:variable name="resource" select="substring-after($first,'resource:')"/>
-        <xsl:call-template name="output_resource_normref">
-          <xsl:with-param name="resource_schema" select="$resource"/>
-        </xsl:call-template>
+        <!-- OOUTPUT from resource -->
+        <!-- GL: sorting is not implemented for this one as there is not a single example AND it looks like this would anyway result into error message, if this 'code' is reached -->
+        <!-- GL: add here element'normref' and subelements 'part' and 'string' if needed to implement it -->
+          <xsl:call-template name="output_resource_normref">
+            <xsl:with-param name="resource_schema" select="$resource"/>
+          </xsl:call-template>
       </xsl:when>
       
     </xsl:choose>
+    <!-- Go cyclic with remaining part of the string -->
     <xsl:call-template name="output_normrefs_rec">
       <xsl:with-param name="normrefs" select="$rest"/>
     </xsl:call-template>
@@ -671,6 +762,7 @@ $Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
 
 
 <xsl:template match="module" mode="normref">
+  <xsl:element name="string">
   <p>
     <xsl:variable name="part">
       <xsl:choose>
@@ -703,7 +795,7 @@ $Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
     <xsl:variable name="subtitle"
       select="concat('&#8212; Part ',$part,': Application module: ', $module_name,'.')"/>
     
-
+    <!-- Printing of standard line starts here -->
     <xsl:value-of select="$stdnumber"/>
 
     <xsl:choose>
@@ -724,11 +816,28 @@ $Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
       <xsl:value-of select="$subtitle"/>
     </i>
   </p>
-</xsl:template>
+  </xsl:element>    
+  <xsl:element name="part">
+  <!-- Need to 'normalize' the length so that we can easier sort it -->
+    <xsl:choose>
+      <xsl:when test="string-length(@part)=1">ISO-10303-000<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=2">ISO-10303-00<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=3">ISO-10303-0<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=4">ISO-10303-<xsl:value-of select="@part"/></xsl:when>      
+      <xsl:otherwise>
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message">
+                <xsl:value-of select="concat('Unsupported length of part number: ', @part, 'length: ', string-length(@part))"/>
+              </xsl:with-param>
+            </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:element>
+</xsl:template> 
 
-
+<!-- Extended for CO as well, due to the same child structure -->
 <xsl:template name="get_cc_normrefs_list">
-  <xsl:param name="cc_nodes"/>
+  <xsl:param name="cc_nodes"/> 
   <xsl:param name="normref_list"/>
   <xsl:variable name="normref_list_ret">
     <xsl:choose>
@@ -759,6 +868,17 @@ $Id: sect_2_refs.xsl,v 1.17 2004/02/24 15:09:08 robbod Exp $
         <xsl:value-of select="$normref_list"/>
       </xsl:otherwise>
     </xsl:choose>
+    <!-- NEW stuff -->
+    <xsl:variable name="normref_list2">
+	   <xsl:for-each select="$cc_nodes">                
+		   <xsl:for-each select="module">                
+		      <xsl:variable name="one_module" select="concat(',module:',@name,',')"/>
+		      <xsl:value-of select="$one_module"/> 
+		   </xsl:for-each>
+	   </xsl:for-each> 
+     </xsl:variable>		      
+	 <xsl:value-of select="$normref_list2"/>      
+	 <!-- ENDOF NEW stuff -->
   </xsl:variable>
   <xsl:value-of select="$normref_list_ret"/>
 </xsl:template>

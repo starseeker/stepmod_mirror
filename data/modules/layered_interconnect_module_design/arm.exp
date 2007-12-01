@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.250 2007/11/26 19:59:24 thomasrthurman Exp $
+   $Id: arm.exp,v 1.251 2007/11/28 12:58:18 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -360,7 +360,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR2 : SIZEOF(implementation_requirement) - SIZEOF(join_component) = 1;
       WR3 : (SIZEOF(join_component) = 0) OR
              (SIZEOF(QUERY(jc <* join_component |
-             ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.TIEBAR_PRINTED_COMPONENT' IN TYPEOF(jc\Product_occurrence.occurrence_contexts[1]\View_definition_relationship.relating_view)) AND
+             ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.TIEBAR_PRINTED_COMPONENT' IN TYPEOF(jc\Assembly_component.occurrence_contexts[1]\Product_occurrence_definition_relationship.relating_view)) AND
              (SIZEOF(jc\Single_stratum_printed_component.stratum_feature_implementation) :<>: 1)
              )) = 0);
   END_ENTITY;
@@ -380,7 +380,7 @@ SCHEMA Layered_interconnect_module_design_arm;
       WR1 : SIZEOF(implementation_requirement) - SIZEOF(join_component) = 1;
       WR2 : (SIZEOF(join_component) = 0) OR
              (SIZEOF(QUERY(jc <* join_component |
-             ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.TIEBAR_PRINTED_COMPONENT' IN TYPEOF(jc\Product_occurrence.occurrence_contexts[1]\View_definition_relationship.relating_view)) AND
+             ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.TIEBAR_PRINTED_COMPONENT' IN TYPEOF(jc\Assembly_component.occurrence_contexts[1]\Product_occurrence_definition_relationship.relating_view)) AND
              (SIZEOF(jc\Single_stratum_printed_component.stratum_feature_implementation) :<>: 1)
               )) = 0);
   END_ENTITY;
@@ -670,7 +670,7 @@ SCHEMA Layered_interconnect_module_design_arm;
     INVERSE
 	  cad_layer						: SET[0:1] OF External_source_identification FOR item;      	  
     WHERE
-    WR1:('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\View_definition_relationship.relating_view))
+    WR1:('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\Product_occurrence_definition_relationship.relating_view))
          OR
         ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]));
   END_ENTITY;
@@ -1163,27 +1163,24 @@ ENTITY Structured_layout_component_sub_assembly_relationship
       design_specific_placement : BOOLEAN;
    DERIVE
       first_location_overridden : LOGICAL := NOT EXISTS(second_location) AND
-                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
+                  (SELF\Product_occurrence_definition_relationship.related_view\Assembly_component.derived_from
                    :<>: first_location.template);      
       second_location_overridden : LOGICAL := EXISTS(second_location) AND
-                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from
+                  (SELF\Product_occurrence_definition_relationship.related_view\Assembly_component.derived_from
                    :<>: second_location.template);
     UNIQUE
       UR1 : first_location, second_location,relating_view,related_view;
     WHERE
-     WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
-     WR2 : NOT EXISTS(SELF\View_definition_relationship.id);
-     WR3 : NOT EXISTS(SELF\Assembly_component_relationship.location_indicator);
-     WR4 : NOT EXISTS(SELF\Assembly_component_relationship.quantity);
-     WR5 : first_location_overridden OR 
-          (SELF\View_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly);
-     WR6 : first_location :<>: second_location;
-     WR7 : NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view));
-     WR8 : NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view));
-     WR9 : NOT (first_location_overridden AND second_location_overridden);
-     WR10: NOT (EXISTS(overriding_shape) XOR (first_location_overridden OR second_location_overridden));
-     WR11: NOT EXISTS(overriding_shape) OR (related_view.derived_from IN overriding_shape.shape_characterized_definition);
-     WR12: NOT ((first_location\Template_location_in_structured_template.placement_status = template_location_placement_status.is_fixed) AND 
+     WR1 : NOT EXISTS(SELF\Assembly_component_relationship.location_indicator);
+     WR2 : first_location_overridden OR 
+          (SELF\Product_occurrence_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly);
+     WR3 : first_location :<>: second_location;
+     WR4 : NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view));
+     WR5 : NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view));
+     WR6 : NOT (first_location_overridden AND second_location_overridden);
+     WR7: NOT (EXISTS(overriding_shape) XOR (first_location_overridden OR second_location_overridden));
+     WR8: NOT EXISTS(overriding_shape) OR (related_view.derived_from IN overriding_shape.shape_characterized_definition);
+     WR9: NOT ((first_location\Template_location_in_structured_template.placement_status = template_location_placement_status.is_fixed) AND 
                 design_specific_placement);
   END_ENTITY;
 
@@ -1406,11 +1403,11 @@ END_LOCAL;
 REPEAT i := 1 TO HIINDEX(acr) BY 1;
   IF NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
 'STRUCTURED_LAYOUT_COMPONENT' IN
-TYPEOF(acr[i]\View_definition_relationship.relating_view))
+TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
   THEN
-  pvd := pvd + acr[i]\View_definition_relationship.relating_view; 
+  pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
   ELSE
-  pvd := pvd + get_assemblies(acr[i]\View_definition_relationship.relating_view);
+  pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
   END_IF;
 END_REPEAT;
 

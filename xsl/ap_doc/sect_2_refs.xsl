@@ -8,6 +8,7 @@ $Id: sect_2_refs.xsl,v 1.18 2004/10/23 10:46:25 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+  xmlns:saxon="http://icl.com/saxon"   
   xmlns:exslt="http://exslt.org/common"
   exclude-result-prefixes="msxsl exslt"
 version="1.0">
@@ -61,13 +62,25 @@ version="1.0">
       <xsl:with-param name="application_protocol_number" select="./@part"/>
     </xsl:call-template>
   </xsl:variable>
-    
-  <xsl:variable name="normrefs_to_be_sorted_set" select="msxsl:node-set($normrefs_to_be_sorted)"/>
-  <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
-    <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
-    <xsl:sort select='part'/>
-    <xsl:copy-of select="string"/>
-  </xsl:for-each>
+
+  <xsl:choose>
+    <xsl:when test="function-available('msxsl:node-set')">
+      <xsl:variable name="normrefs_to_be_sorted_set" select="msxsl:node-set($normrefs_to_be_sorted)"/>
+      <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
+        <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
+        <xsl:sort select='part'/>
+        <xsl:copy-of select="string"/>
+      </xsl:for-each>
+    </xsl:when>
+    <xsl:when test="function-available('saxon:node-set')">    
+      <xsl:variable name="normrefs_to_be_sorted_set" select="saxon:node-set($normrefs_to_be_sorted)"/>
+      <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
+        <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
+        <xsl:sort select='part'/>
+        <xsl:copy-of select="string"/>
+      </xsl:for-each>
+    </xsl:when>
+  </xsl:choose>
   
   <!-- output a footnote to say that the normative reference has not been
        published -->

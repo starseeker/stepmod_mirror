@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.8 2006/01/24 10:45:24 liutkuviene Exp $
+   $Id: arm.exp,v 1.9 2007/11/28 12:58:17 liutkus Exp $
    ISO TC184/SC4/WG12 N4230 - ISO/TS 10303-1762 Generic product occurrence - EXPRESS ARM
 *)
 
@@ -15,48 +15,5 @@ TYPE extended_value_with_unit = EXTENSIBLE SELECT (
      Value_limit, 
      Value_range);
 END_TYPE;
-
-	ENTITY Definition_based_product_occurrence
-		ABSTRACT SUPERTYPE
-		SUBTYPE OF (Product_occurrence);
-  		derived_from: Product_view_definition;
-  	WHERE
-			WR1: SELF\Product_view_definition.defined_version = derived_from.defined_version;
-	END_ENTITY;
-
-ENTITY Product_occurrence
-ABSTRACT SUPERTYPE OF ((ONEOF (Definition_based_product_occurrence,
-         Specification_based_product_occurrence)) AND 
-         ONEOF (Product_occurrence_with_quantity, 
-         Single_instance))
-SUBTYPE OF (Product_view_definition);
-END_ENTITY;
-
-ENTITY Product_occurrence_with_quantity
-  ABSTRACT SUPERTYPE OF (ONEOF (Quantified_instance, Selected_instance))
-  SUBTYPE OF (Product_occurrence);
-  occurrence_quantity : OPTIONAL extended_value_with_unit;
-END_ENTITY;
-
-ENTITY Quantified_instance
-  SUBTYPE OF (Product_occurrence_with_quantity);
-  SELF\Product_occurrence_with_quantity.occurrence_quantity : Value_with_unit;
-END_ENTITY;
-
-ENTITY Selected_instance
-  SUBTYPE OF (Product_occurrence_with_quantity);
-  quantity_criterion : OPTIONAL STRING;
-END_ENTITY;
-
-ENTITY Single_instance
-  SUBTYPE OF (Product_occurrence);
-END_ENTITY;
-
-ENTITY Specification_based_product_occurrence
-  ABSTRACT SUPERTYPE 
-  SUBTYPE OF (Product_occurrence);
-  SELF\Product_view_definition.defined_version : Specification_based_product_version;
-END_ENTITY;
--- IP1: further specializations of this entity have to ensure that:
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.17 2007/11/15 11:04:38 liutkus Exp $
+   $Id: arm.exp,v 1.18 2007/11/28 12:58:18 liutkus Exp $
    ISO TC184/SC4/WG12 N4699 - ISO/CD-TS 10303-1628 Design product data management - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3837
 *)
@@ -305,8 +305,12 @@ USE FROM Attribute_classification_arm; -- ISO/TS 10303-1246
   RULE product_occurrence_usage FOR
       (Product_occurrence);
     WHERE
-      WR1: SIZEOF(USEDIN(Product_occurrence,'ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW')) +
-        SIZEOF(USEDIN(Product_occurrence,'PRODUCT_BREAKDOWN_ARM.PRODUCT_DEFINITION_ELEMENT_RELATIONSHIP.PRODUCT')) > 0;
+      WR1: SIZEOF(QUERY( po <* Product_occurrence |
+      NOT (
+      (SIZEOF(USEDIN(po,'ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW')) +
+        SIZEOF(USEDIN(po,'PRODUCT_BREAKDOWN_ARM.PRODUCT_DEFINITION_ELEMENT_RELATIONSHIP.PRODUCT'))) > 0
+        )
+        )) = 0;
   END_RULE;
 
 END_SCHEMA;

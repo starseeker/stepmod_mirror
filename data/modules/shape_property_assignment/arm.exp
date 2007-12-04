@@ -1,5 +1,5 @@
 (* 
-	$Id: arm.exp 1151 2007-06-05 14:31:43Z giedrius $
+	$Id: arm.exp,v 1.23 2007/11/15 11:06:49 liutkus Exp $
 	ISO TC184/SC4/WG12 N4807 - ISO/CD-TS 10303-1032 Shape property assignment - EXPRESS ARM
 	Supersedes ISO TC184/SC4/WG12 N4357
 *)
@@ -7,12 +7,19 @@
 
 SCHEMA Shape_property_assignment_arm; 
 
+USE FROM Assembly_structure_arm; -- ISO/TS 10303-1026
+
 USE FROM Characterizable_object_arm;  -- ISO/TS 10303-1765
 
 USE FROM External_model_arm; -- ISO/TS 10303-1033
 
 USE FROM Product_view_definition_relationship_arm; -- ISO/TS 10303-1041
 
+
+  TYPE described_element_select = SELECT (
+    View_definition_usage,
+    Product_occurrence_definition_relationship);
+  END_TYPE;  
 
   TYPE geometric_item_specific_usage_select = SELECT (
     Shape_element,
@@ -43,9 +50,9 @@ USE FROM Product_view_definition_relationship_arm; -- ISO/TS 10303-1041
 
   ENTITY Contextual_item_shape
     SUBTYPE OF (Item_shape);
-      SELF\Item_shape.described_element : View_definition_usage;
+      SELF\Item_shape.described_element : described_element_select;
     DERIVE
-      shaped_product : Product_view_definition := described_element\View_definition_relationship.related_view;
+      shaped_product : Product_view_definition := spa_get_definition(SELF);
   END_ENTITY;
 
   ENTITY Geometric_item_specific_usage;
@@ -93,5 +100,19 @@ USE FROM Product_view_definition_relationship_arm; -- ISO/TS 10303-1041
     WHERE
       WR1: EXISTS(relation_type) OR (TYPEOF(SELF\Shape_element_relationship) <> TYPEOF(SELF));
   END_ENTITY;
+
+  FUNCTION spa_get_definition ( input : Contextual_item_shape ): Product_view_definition;
+    IF ('PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_USAGE'
+      IN TYPEOF(input\Item_shape.described_element))
+      THEN
+        RETURN(input\View_definition_relationship.related_view);
+    END_IF;
+    IF ('ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP' IN
+        TYPEOF(input\Item_shape.described_element))
+      THEN
+        RETURN(input\Product_occurrence_definition_relationship.related_view);
+    END_IF;    
+    RETURN(?);
+  END_FUNCTION;
 
 END_SCHEMA;  

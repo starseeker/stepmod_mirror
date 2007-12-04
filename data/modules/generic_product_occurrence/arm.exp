@@ -1,11 +1,12 @@
 (*
-   $Id: arm.exp,v 1.9 2007/11/28 12:58:17 liutkus Exp $
+   $Id: arm.exp,v 1.10 2007/12/03 23:55:43 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4230 - ISO/TS 10303-1762 Generic product occurrence - EXPRESS ARM
 *)
 
 SCHEMA Generic_product_occurrence_arm;
 
-	USE FROM Product_view_definition_arm;	-- ISO/TS 10303-1019
+	USE FROM Assembly_structure_arm;	-- ISO/TS 10303-1026
+	USE FROM Product_view_definition_relationship_arm;	-- ISO/TS 10303-1041
 	USE FROM Value_with_unit_arm;	-- ISO/TS 10303-1054	
 	USE FROM Extended_measure_representation_arm;	-- ISO/TS 10303-1106	
 	USE FROM Specified_product_arm;	-- ISO/TS 10303-1104	
@@ -15,5 +16,53 @@ TYPE extended_value_with_unit = EXTENSIBLE SELECT (
      Value_limit, 
      Value_range);
 END_TYPE;
+
+	ENTITY Definition_based_product_occurrence
+		ABSTRACT SUPERTYPE
+		SUBTYPE OF (Product_occurrence);
+  		derived_from: Product_view_definition;
+  	WHERE
+			WR1: SELF\Product_view_definition.defined_version = derived_from.defined_version;
+	END_ENTITY;
+
+ENTITY Product_occurrence
+ABSTRACT SUPERTYPE OF ((ONEOF (Definition_based_product_occurrence,
+         Specification_based_product_occurrence)) AND 
+         ONEOF (Product_occurrence_with_quantity, 
+         Single_instance))
+SUBTYPE OF (Product_view_definition);
+ INVERSE
+     occurrence_contexts : SET [0:?] OF Product_occurrence_definition_relationship FOR related_view;
+     view_definition_contexts : SET [0:?] OF View_definition_relationship FOR related_view;
+ WHERE
+     wr1: SIZEOF(occurrence_contexts) + SIZEOF(view_definition_contexts) >= 1;
+END_ENTITY;
+
+ENTITY Product_occurrence_with_quantity
+  ABSTRACT SUPERTYPE OF (ONEOF (Quantified_instance, Selected_instance))
+  SUBTYPE OF (Product_occurrence);
+  occurrence_quantity : OPTIONAL extended_value_with_unit;
+END_ENTITY;
+
+ENTITY Quantified_instance
+  SUBTYPE OF (Product_occurrence_with_quantity);
+  SELF\Product_occurrence_with_quantity.occurrence_quantity : Value_with_unit;
+END_ENTITY;
+
+ENTITY Selected_instance
+  SUBTYPE OF (Product_occurrence_with_quantity);
+  quantity_criterion : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Single_instance
+  SUBTYPE OF (Product_occurrence);
+END_ENTITY;
+
+ENTITY Specification_based_product_occurrence
+  ABSTRACT SUPERTYPE 
+  SUBTYPE OF (Product_occurrence);
+  SELF\Product_view_definition.defined_version : Specification_based_product_version;
+END_ENTITY;
+-- IP1: further specializations of this entity have to ensure that:
 
 END_SCHEMA;

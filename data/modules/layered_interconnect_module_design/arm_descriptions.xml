@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="layered_interconnect_module_design" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007/11/15 12:36:55 $" rcs.revision="$Revision: 1.192 $">
+<ext_descriptions module_directory="layered_interconnect_module_design" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007/11/25 05:56:56 $" rcs.revision="$Revision: 1.193 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Layered_interconnect_module_design_arm
    <express_ref linkend="layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm"/>
@@ -31,13 +31,20 @@ and of <b>Inter_stratum_feature</b> that are applied on a collective basis.
 <p><b>Stratum_feature</b> on <b>Design_layer_stratum</b> and the plated form of <b>Inter_stratum_feature</b> implement the connectivity
 required for the <b>Interconnect_module</b>.  Connectivity traceability is supported by explicit division of a <b>Physical_network</b> into horizontal and
 	vertical subnetworks represented by <b>Intra_stratum_join_relationship</b> and <b>Inter_stratum_join_relationship</b> respectively.  <b>Layer_connection_point</b>
-	is provided to map between the connectivity graph and the features noted above within a geometric context.  This part of ISO 10303 provides that
-	connectivity is established between two components that are implementing connectivity when a <b>Layer_connection_point</b> that is associated with
-	one of them is within the point domain of the other component. Some CAD systems require that traces shall be connected only at the terminus of
+	is provided to bind the connectivity graph to a point domain.  This part of ISO 10303 provides that
+	connectivity is established between two components of a <b>Stratum_feature</b> when a <b>Layer_connection_point</b> that is associated with
+	one component is within the point domain of the other component. Establishment of guards necessary to guarantee that a location is within a point domain
+	should take into consideration the source CAD system precision, and the capability of the intended receiving application.
+	Some CAD systems require that traces shall be connected only at the terminus of
 	the centreline of the trace and in that case a post-processor will need to create additional trace instances as part of the post processing conversion process.
 	Sufficient options are provided for representing the parameters associated with traces to ensure an unambiguous representation.  
 	</p>
-
+<p>
+	The point domain of each <b>Stratum</b> is disjoint from the point domain of any other <b>Stratum</b> in the <b>Interconnect_module</b>.
+	The point domain of each <b>Stratum_feature</b> is disjoint from the point domain of any other <b>Stratum_feature</b> in the <b>Interconnect_module</b>.
+	The vertical pattern layer irregularity due to plating or other sequential processing is ignored in the
+	layered model.
+	</p>
 
 </ext_description>
 
@@ -1671,22 +1678,44 @@ that is in role of <express_ref linkend="generic_product_occurrence:arm:Generic_
 	and is defined in the coordinate system of the  
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Interconnect_module"/>.  
 	The <b>Layer_connection_point</b> Application Object is an intersection concept between the topology requirements, 
-	placement requiremets defined in a geometric coordinate system and the  
+	the point domain that satisfies those requirements in a geometric coordinate system and the  
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum"/> 
-	material definition.
+	material definition that has the proper domain specific conductivity to enable the realized shape to support the topology requirements.
 </p>
 <note number="1">
+		The set of <b>Layer_connection_point</b> associated with a 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+	form a sample of the point domain of that 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+	In some cases centreline curves define the point domain.
+	In some cases boundary curves define the point domain.
+	In all cases it is expected that the set of <b>Layer_connection_point</b> be a subset of the defined point domain. 
+</note>
+<note number="2">
+	The <b>Layer_connection_point</b> location in an area based 
+	stratum feature should be sufficiently within the perimeter of the 
+	stratum feature to ensure unambiguous interpretation of the extent of the point domain.
+</note>
+<example>
+	A <b>Layer_connection_point</b> may be referenced by a 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Conductive_interconnect_element"/> 
+	with a truncated end condition in which case the <b>Layer_connection_point</b> is congruent with the edge of the component of the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+	In that case the <b>Layer_connection_point</b> may be located on the edge of a 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/>.
+</example>	
+<note number="3">
 	A <b>Layer_connection_point</b> may be placed in an area where the conductive material is removed since there is no information contained in this 
 	Application Object regarding vertical material processes.  
 	It is the abstraction in this standard to separate lateral material description from the vertical material modification processes.
 </note>
-<note number="2">
+<note number="4">
 	A <b>Layer_connection_point</b> should not be referenced by an  
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Inter_stratum_join_relationship"/> 
 	extending on one side of the <b>resident_design_layer_stratum</b> and an <b>embedded_physical_component_path</b> extending on the other side.  
 	Use the Same join relationship for the entire vertical extent.
 </note>
-<note number="3">
+<note number="5">
 	Both two dimensional and three dimensional locations are provided to support the case where both a two dimensional and a three dimensional representation of the
 	interconnect design exist.
 </note>

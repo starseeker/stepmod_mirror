@@ -320,26 +320,32 @@ END_ENTITY;
 ENTITY solid_with_flat_bottom_round_hole
   SUBTYPE OF (solid_with_stepped_round_hole);
   fillet_radius : non_negative_length_measure;
+DERIVE
+  fr : REAL := fillet_radius;
+  sr : REAL := SELF\solid_with_stepped_round_hole.segment_radii[segments];
 WHERE
-  WR1 : fillet_radius < 
-          SELF\solid_with_stepped_round_hole.segment_radii[segments];
+  WR1 : fr < sr;
 END_ENTITY;
 
 ENTITY solid_with_spherical_bottom_round_hole
   SUBTYPE OF (solid_with_stepped_round_hole);
   sphere_radius : positive_length_measure;
+DERIVE
+  sphr : REAL := sphere_radius;
+  sr   : REAL := SELF\solid_with_stepped_round_hole.segment_radii[segments];
 WHERE
-  WR1 : sphere_radius >= 
-          SELF\solid_with_stepped_round_hole.segment_radii[segments];
+  WR1 : sphr >= sr;
 END_ENTITY;
 
 ENTITY solid_with_conical_bottom_round_hole
   SUBTYPE OF (solid_with_stepped_round_hole);
   semi_apex_angle : positive_plane_angle_measure;
   tip_radius      : non_negative_length_measure;
+DERIVE
+  tr : REAL := tip_radius;
+  sr : REAL := SELF\solid_with_stepped_round_hole.segment_radii[segments];
 WHERE
-  WR1 : tip_radius < 
-          SELF\solid_with_stepped_round_hole.segment_radii[segments];
+  WR1 : tr < sr;
 END_ENTITY;
 
 ENTITY solid_with_pocket
@@ -357,16 +363,22 @@ ENTITY solid_with_rectangular_pocket
   pocket_length : positive_length_measure;
   pocket_width  : positive_length_measure;
   corner_radius : non_negative_length_measure;
+DERIVE
+  cr : REAL := corner_radius;
+  pw : REAL := pocket_width;
+  pl : REAL := pocket_length;
 WHERE
-  WR1: (corner_radius < pocket_width/2) 
-         AND (corner_radius < pocket_length/2);
+  WR1: (cr < pw/2) AND (cr < pl/2);
 END_ENTITY;
 
 ENTITY solid_with_circular_pocket
   SUBTYPE OF (solid_with_pocket);
-  pocket_radius: positive_length_measure; 
+  pocket_radius: positive_length_measure;
+DERIVE
+  fbr : REAL := SELF\solid_with_pocket.floor_blend_radius;
+  pr  : REAL := pocket_radius;
 WHERE 
-  WR1: SELF\solid_with_pocket.floor_blend_radius <= pocket_radius;
+  WR1: fbr <= pr;
 END_ENTITY;
 
 ENTITY solid_with_general_pocket  
@@ -616,8 +628,7 @@ WHERE
                 shape_element IN using_items(q,[]))) = 0;
 END_ENTITY;
 
-FUNCTION check_continuous_edges (edges : LIST OF UNIQUE edge_curve)
-                                       : BOOLEAN;
+FUNCTION check_continuous_edges (edges : LIST [1:?] OF edge_curve) : BOOLEAN;
 
   LOCAL
     i           : INTEGER;

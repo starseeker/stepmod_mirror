@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-09-26 10:56:23 +0300 (Tr, 26 Rgs 2007) $" rcs.revision="$Revision: 1601 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
    <schema name="Fabrication_technology_arm">
       <interface kind="use" schema="Constructive_solid_geometry_2d_arm"/>
@@ -117,14 +117,6 @@
          </explicit>
       </entity>
       <entity name="Default_attachment_size_based_land_physical_template" supertypes="Land_physical_template Shape_feature" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="minimum_attachment_region_size" optional="YES">
-            <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
-            <typename name="Connection_zone_in_layout_template"/>
-            <redeclaration entity-ref="Shape_feature" old_name="connection_area"/>
-         </explicit>
-         <explicit name="maximum_attachment_region_size" optional="YES">
-            <typename name="Connection_zone_in_layout_template"/>
-         </explicit>
          <derived name="containing_shape" expression="SELF">
             <typename name="Default_attachment_size_based_land_physical_template"/>
             <redeclaration entity-ref="Shape_element"/>
@@ -133,16 +125,16 @@
             <builtintype type="STRING" fixed="NO"/>
             <redeclaration entity-ref="Shape_feature"/>
          </derived>
-         <derived name="id" expression="SELF\Item_shape.id">
-            <builtintype type="STRING" fixed="NO"/>
-            <redeclaration entity-ref="Shape_element"/>
-         </derived>
          <inverse name="interface_access_mechanisms" entity="Land_template_interface_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <where label="WR1" expression="NOT (EXISTS(minimum_attachment_region_size) AND EXISTS(maximum_attachment_region_size)) OR (minimum_attachment_region_size[1] :&lt;&gt;: maximum_attachment_region_size)"/>
-         <where label="WR2" expression="NOT (EXISTS(minimum_attachment_region_size)) OR (SIZEOF(QUERY(mars &lt;* minimum_attachment_region_size |&#10;                 NOT(mars\Shape_element.containing_shape :=: SELF)&#10;                 )) = 0)"/>
-         <where label="WR3" expression="maximum_attachment_region_size\Shape_element.containing_shape :=: SELF"/>
+         <where label="WR1" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 0) OR &#10;                 ('minimum attachment region size' IN &#10;                  ft_get_zone_name(interface_access_mechanisms[1].connection_area))"/>
+         <where label="WR2" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 1) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  ft_get_zone_name(interface_access_mechanisms[1].connection_area)) = 1)"/>
+         <where label="WR3" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 2) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  ft_get_zone_name(interface_access_mechanisms[1].connection_area)) = 2)"/>
+         <where label="WR4" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 3) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  ft_get_zone_name(interface_access_mechanisms[1].connection_area)) = 3)"/>
+         <where label="WR5" expression="NOT EXISTS(SELF\Shape_feature.connection_area)"/>
+         <where label="WR6" expression="SIZEOF(interface_access_mechanisms) = 1"/>
+         <where label="WR7" expression="SELF\Shape_element.id = SELF\Item_shape.id"/>
       </entity>
       <entity name="Default_component_termination_passage_definition" supertypes="Passage_technology" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="allowed_component_terminal_extent" optional="NO">
@@ -249,11 +241,6 @@
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
       <entity name="Land_physical_template" supertypes="Stratum_feature_template" super.expression="ONEOF (Default_passage_based_land_physical_template, Default_attachment_size_based_land_physical_template)" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="of_stratum_technology" optional="YES">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="Design_layer_technology"/>
-            <redeclaration entity-ref="Single_stratum_template"/>
-         </explicit>
          <inverse name="access_mechanisms" entity="Land_template_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
@@ -292,6 +279,7 @@
          <where label="WR1" expression="NOT (EXISTS(SELF\Shape_feature.connection_area)) OR EXISTS(connection_zone_category)"/>
          <where label="WR2" expression="NOT (EXISTS(SELF\Shape_feature.connection_area)) OR (SIZEOF(SELF\Shape_feature.connection_area) = SIZEOF(connection_zone_category))"/>
          <where label="WR3" expression="NOT EXISTS(SELF\Shape_element.description)"/>
+         <where label="WR4" expression="SIZEOF(QUERY(ca &lt;* connection_area |&#10;            NOT(associated_definition = ca\Connection_zone_in_layout_template.containing_shape)&#10;            )) = 0"/>
       </entity>
       <entity name="Material_removal_feature_template" supertypes="Single_stratum_continuous_template" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
@@ -334,12 +322,7 @@
          <where label="WR4" expression="NOT (plated_passage) OR&#10;           (SIZEOF([deposition_material[1].electrical_conductivity_classification,&#10;                    deposition_material[1].thermal_conductivity_classification] *&#10;                   ['conductive']) &gt;= 1)"/>
       </entity>
       <entity name="Single_stratum_continuous_template" abstract.supertype="YES" supertypes="Continuous_template Single_stratum_template" super.expression="ONEOF (Stratum_feature_template, Material_removal_feature_template)" abstract.entity="NO"/>
-      <entity name="Single_stratum_template" abstract.supertype="YES" supertypes="Template_definition" super.expression="Single_stratum_continuous_template" abstract.entity="NO">
-         <explicit name="of_stratum_technology" optional="YES">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="Stratum_technology"/>
-         </explicit>
-      </entity>
+      <entity name="Single_stratum_template" abstract.supertype="YES" supertypes="Template_definition" super.expression="Single_stratum_continuous_template" abstract.entity="NO"/>
       <entity name="Stratum_feature_template" supertypes="Single_stratum_continuous_template" super.expression="Land_physical_template" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
@@ -489,7 +472,7 @@
             <redeclaration entity-ref="Inter_stratum_feature_template"/>
          </explicit>
          <inverse name="access_mechanisms" entity="Via_template_terminal" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="2" upper="?"/>
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
       </entity>
       <entity name="Via_template_terminal" supertypes="Shape_feature" abstract.supertype="NO" abstract.entity="NO">
@@ -618,6 +601,21 @@
       END_IF;
     END_REPEAT;
     RETURN (TRUE);</algorithm>
+      </function>
+      <function name="ft_get_zone_name">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Connection_zone_in_layout_template"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <builtintype type="STRING" fixed="NO"/>
+         <algorithm>LOCAL
+    s : SET OF STRING := [];
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   s := s + input[i]\Characterizable_object.name;
+  END_REPEAT;
+  RETURN(s);</algorithm>
       </function>
       <function name="get_electrical_conductivity">
          <parameter name="mi">

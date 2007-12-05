@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="part_template_2d_shape" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007-10-16 22:02:46 +0300 (An, 16 Spl 2007) $" rcs.revision="$Revision: 1647 $">
+<ext_descriptions module_directory="part_template_2d_shape" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007/11/15 12:43:22 $" rcs.revision="$Revision: 1.75 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Part_template_2d_shape_arm
    <express_ref linkend="part_template_2d_shape:arm:Part_template_2d_shape_arm"/>
@@ -234,7 +234,7 @@
 	specifies an inverse relationship that specifies that the existence of the <b>Design_stack_model</b> is dependent on the existence of the 
 	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model"/> 
 	that specifies the <b>Design_stack_model</b> as its 
-	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model.associated_stackup"/>.
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Stratum_sub_stack.associated_stackup"/>.
 	There shall exist more than one 
 	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model"/> 
 	for a <b>Design_stack_model</b>.
@@ -293,6 +293,60 @@
 	for the <b>Library_stack_model</b>.
 </ext_description>
 
+<!-- +++++++++++ Local_linear_stack +++++++++++ -->
+<ext_description linkend="Part_template_2d_shape_arm.Local_linear_stack">
+<p>
+	A <b>Local_linear_stack</b> is a type of
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Stratum_sub_stack"/>
+	that is a locally complete vertical extend of the referenced 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_stack_model"/>.
+</p>
+	<note>
+		This can be used to describe the locally different stack models of a combined rigid-flex printed circuit board.
+	</note>
+	
+	<example>
+		A rigid-flex PCB where the rigid left side has 8 layers, the middle part has 3 independent stacked flex pcbs with 2 layers each 
+		(not glued together) and the rigid right side has 10 layers.
+	</example>
+</ext_description>
+
+<!-- stratum_technology_sequence  -->
+<ext_description linkend="Part_template_2d_shape_arm.Local_linear_stack.stratum_technology_sequence">
+	an attribute inherited from the
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Stratum_sub_stack"/>
+	shall be redeclared as the
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence_link"/>
+	for the <b>Local_linear_stack</b>.
+	There shall exist one or more
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence_link">Stratum_technology_occurrence_link</express_ref>
+	for the <b>Local_linear_stack</b>.
+</ext_description>
+
+<!-- WR1 -->
+v<ext_description linkend="Part_template_2d_shape_arm.Local_linear_stack.wr:WR1">
+	The number of 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/> 
+	in the stack shall be one greater than the number of 
+	<b>stratum_technology_sequence</b>.
+</ext_description>
+
+<!-- WR2 -->
+<ext_description linkend="Part_template_2d_shape_arm.Local_linear_stack.wr:WR2">
+	<p>
+	There shall be no more than two 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence_link"/> 
+	referencing any one member of 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/> 
+	that are referenced by the <b>stratum_technology_sequence</b>.
+</p>
+	<note>
+		Rules 1, 2 together ensure that the 
+		<b>stratum_technology_sequence</b> 
+		form a directed list, and that there are no cycles in the sequence
+		and that there are no holes in the sequence.
+	</note>
+</ext_description>
 
 <!-- +++++++++++ Material_removal_structured_template +++++++++++ -->
 <ext_description linkend="Part_template_2d_shape_arm.Material_removal_structured_template">
@@ -642,6 +696,8 @@ or <express_ref linkend="part_template_2d_shape:arm:Part_template_2d_shape_arm.S
 
 <!-- +++++++++++ Passage_technology_allocation_to_stack_model +++++++++++ -->
 <ext_description linkend="Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model">
+	A <b>Passage_technology_allocation_to_stack_model</b> is a type of
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Stratum_sub_stack"/>.
 	A <b>Passage_technology_allocation_to_stack_model</b> is an assignment of a 
 	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Passage_technology"/>
 	to a specific subset of a 
@@ -670,57 +726,42 @@ or <express_ref linkend="part_template_2d_shape:arm:Part_template_2d_shape_arm.S
 	for the <b>Passage_technology_allocation_to_stack_model</b>. The value of this attribute need not be specified.
 </ext_description>
 
-<!-- stratum_technology_sequence -->
-<ext_description linkend="Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model.stratum_technology_sequence">
-	specifies a set of the
-	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence_link"/>
-	for the <b>Passage_technology_allocation_to_stack_model</b>.  The value of this attribute need not be specified.
-</ext_description>
-
-<!-- associated_stackup -->
-<ext_description linkend="Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model.associated_stackup">
-	specifies a role of the
-	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Design_stack_model"/>
-	for the <b>Passage_technology_allocation_to_stack_model</b>.  
-</ext_description>
 
 <!-- WR1 -->
 <ext_description linkend="Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model.wr:WR1">
 	If <b>single_stratum_passage_location</b> is provided then it shall be in 
-	<b>associated_stackup</b>.<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_stack_model.composing_occurrence"/>.
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Stratum_sub_stack.associated_stackup"/>.<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_stack_model.composing_occurrence"/>.
 </ext_description>
 
 <!-- WR2 -->
 <ext_description linkend="Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model.wr:WR2">
 	Either 
-	<b>stratum_technology_sequence</b> is provided or <b>single_stratum_passage_location</b>.
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Stratum_sub_stack.stratum_technology_sequence"/> 
+	is provided or <b>single_stratum_passage_location</b>.
 </ext_description>
 
 <!-- WR3 -->
 <ext_description linkend="Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model.wr:WR3">
-	Each member of 
-	<b>stratum_technology_sequence</b>.<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence_link.scope"/> 
-	shall also be in <b>associated_stackup</b>.	
+	The number of 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/> 
+	in the stack shall be one greater than the number of 
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Stratum_sub_stack.stratum_technology_sequence"/>.	
 </ext_description>
 
 <!-- WR4 -->
 <ext_description linkend="Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model.wr:WR4">
-	The number of 
-	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/> 
-	in the stack shall be one greater than the number of <b>stratum_technology_sequence</b>.	
-</ext_description>
-
-<!-- WR5 -->
-<ext_description linkend="Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model.wr:WR5">
 <p>
 	There shall be no more than two 
 	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence_link"/> 
 	referencing any one member of 
 	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/> 
-	that are referenced by the <b>stratum_technology_sequence</b>.
+	that are referenced by the 
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Stratum_sub_stack.stratum_technology_sequence"/>.
 </p>
 	<note>
-		Rules 3, 4, 5 together ensure that the <b>stratum_technology_sequence</b> form a directed list, and that there are no cycles in the sequence
+		Rules 3, 4 together ensure that the 
+		<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Stratum_sub_stack.stratum_technology_sequence"/> 
+		form a directed list, and that there are no cycles in the sequence
 		and that there are no holes in the sequence.
 	</note>
 </ext_description>
@@ -853,27 +894,11 @@ shall be <express_ref linkend="fabrication_technology:arm:Fabrication_technology
 	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Single_stratum_special_symbol_template"/>.
 </ext_description>
 
-<!-- of_stratum_technology -->
-<ext_description linkend="Part_template_2d_shape_arm.Single_stratum_structured_template.of_stratum_technology">
-	an attribute inherited from the
-	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Single_stratum_template"/>
-	shall be redeclared as the
-	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology"/>
-	for the <b>Single_stratum_structured_template</b>. There shall exist one or more
-	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology">Stratum_technologies</express_ref>
-	for the <b>Single_stratum_structured_template</b>.
-</ext_description>
-
 <!-- WR1 -->
 <ext_description linkend="Part_template_2d_shape_arm.Single_stratum_structured_template.wr:WR1">
 	Only 
 	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Single_stratum_template"/>
 	shall help to compose a <b>Single_stratum_structured_template</b>.
-</ext_description>
-
-<!-- WR2 -->
-<ext_description linkend="Part_template_2d_shape_arm.Single_stratum_structured_template.wr:WR2">
-	The technologies referenced by each template shall be the same technologies as the <b>of_stratum_technology</b>.
 </ext_description>
 
 <!-- +++++++++++ Template_location_in_structured_template_transform +++++++++++ -->
@@ -1133,15 +1158,6 @@ or <express_ref linkend="part_template_extension:arm:Part_template_extension_arm
 
 <!-- WR1 -->
 <ext_description linkend="Part_template_2d_shape_arm.Stratum_specific_template_location.wr:WR1">
-The <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology"/> directly or indirectly
-defined by <b>bound_stratum</b> shall be a member of <express_ref linkend="fabrication_technology:arm:Fabrication_technology_arm.Single_stratum_template.of_stratum_technology"/>
-of <express_ref linkend="fabrication_technology:arm:Fabrication_technology_arm.Single_stratum_template"/>
-in role of <express_ref linkend="part_template_2d_shape:arm:Part_template_2d_shape_arm.Template_location_in_structured_template.template"/>
-for <b>Stratum_specific_template_location</b>.
-</ext_description>
-
-<!-- WR2 -->
-<ext_description linkend="Part_template_2d_shape_arm.Stratum_specific_template_location.wr:WR2">
 If <b>bound_stratum</b> is of type
 <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Documentation_layer_technology"/>
 and if its <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Documentation_layer_technology.pre_defined_documentation_layer_purpose"/>
@@ -1150,8 +1166,8 @@ then type of <express_ref linkend="part_template_2d_shape:arm:Part_template_2d_s
 shall be <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Material_removal_feature_template"/>.
 </ext_description>
 
-<!-- WR3 -->
-<ext_description linkend="Part_template_2d_shape_arm.Stratum_specific_template_location.wr:WR3">
+<!-- WR2 -->
+<ext_description linkend="Part_template_2d_shape_arm.Stratum_specific_template_location.wr:WR2">
 If <b>bound_stratum</b> is of type <express_ref linkend="fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/>
 and its <express_ref linkend="fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence.definition"/>
 is of type <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Documentation_layer_technology"/>
@@ -1161,8 +1177,8 @@ then type of <express_ref linkend="part_template_2d_shape:arm:Part_template_2d_s
 shall be <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Material_removal_feature_template"/>.
 </ext_description>
 
-<!-- WR4 -->
-<ext_description linkend="Part_template_2d_shape_arm.Stratum_specific_template_location.wr:WR4">
+<!-- WR3 -->
+<ext_description linkend="Part_template_2d_shape_arm.Stratum_specific_template_location.wr:WR3">
 If type of <b>bound_stratum</b> is <express_ref linkend="fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/>,
 then type of <express_ref linkend="part_template_2d_shape:arm:Part_template_2d_shape_arm.Template_location_in_structured_template.assembly"/>
 shall be <express_ref linkend="part_template_2d_shape:arm:Part_template_2d_shape_arm.Stratum_stack_dependent_template"/>.
@@ -1200,6 +1216,35 @@ of <b>stack</b>.
 <ext_description linkend="Part_template_2d_shape_arm.Stratum_stack_dependent_template.wr:WR2">
 	A member of <b>Stratum_stack_dependent_template</b> shall also be a member of another type of 
 	<express_ref linkend="Physical_layout_template:arm:Physical_layout_template_arm.Template_definition"/>.
+</ext_description>
+
+<!-- +++++++++++ Stratum_sub_stack +++++++++++ -->
+<ext_description linkend="Part_template_2d_shape_arm.Stratum_sub_stack">
+	A <b>Stratum_sub_stack</b> is either a
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Local_linear_stack"/>
+	or a
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Passage_technology_allocation_to_stack_model"/>.
+</ext_description>
+
+<!-- stratum_technology_sequence -->
+<ext_description linkend="Part_template_2d_shape_arm.Stratum_sub_stack.stratum_technology_sequence">
+	specifies a set of the
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence_link"/>
+	for the <b>Stratum_sub_stack</b>.  The value of this attribute need not be specified.
+</ext_description>
+
+<!-- associated_stackup -->
+<ext_description linkend="Part_template_2d_shape_arm.Stratum_sub_stack.associated_stackup">
+	specifies a role of the
+	<express_ref linkend="Part_template_2d_shape:arm:Part_template_2d_shape_arm.Design_stack_model"/>
+	for the <b>Stratum_sub_stack</b>.  
+</ext_description>
+
+<!-- WR1 -->
+<ext_description linkend="Part_template_2d_shape_arm.Stratum_sub_stack.wr:WR1">
+	Each member of 
+	<b>stratum_technology_sequence</b>.<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence_link.scope"/> 
+	shall also be in <b>associated_stackup</b>.
 </ext_description>
 
 <!-- +++++++++++ Structured_inter_stratum_feature_template +++++++++++ -->

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-03-21 03:48:09 -0700 (Tr, 21 Kov 2007) $" rcs.revision="$Revision: 23 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_non_planar_design_view_arm schema_instance"/>
    <schema name="Physical_unit_non_planar_design_view_arm">
       <interface kind="use" schema="Manifold_subsurface_arm"/>
@@ -10,12 +10,18 @@
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <entity name="Assembly_component_non_planar_shape_model" supertypes="Manifold_subsurface_model">
-         <explicit name="shape_characterized_component">
-            <aggregate type="SET" lower="1" upper="?"/>
+      <entity name="Assembly_component_non_planar_shape_model" supertypes="Manifold_subsurface_model" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="shape_characterized_component" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Assembly_component"/>
          </explicit>
+         <derived name="equivalent_reference_shape_model" expression="bag_to_set(QUERY( gmr &lt;* USEDIN(SELF, 'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |&#10;        (gmr\Representation_relationship.relation_type = 'equivalent reference shape model')))">
+            <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
+            <typename name="Geometric_model_relationship"/>
+         </derived>
          <where label="WR1" expression="NOT EXISTS(SELF\Representation.description)"/>
+         <where label="WR2" expression="SIZEOF(equivalent_reference_shape_model) &lt; 2"/>
+      <where label="IP1"/>
       </entity>
       <rule name="unique_assembly_component_non_planar_shape_model" appliesto="Assembly_component_non_planar_shape_model">
          <algorithm>LOCAL

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-09-07 09:35:23 +0300 (Pn, 07 Rgs 2007) $" rcs.revision="$Revision: 1458 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_2d_design_view_arm schema_instance"/>
    <schema name="Physical_unit_2d_design_view_arm">
       <interface kind="use" schema="Part_template_shape_with_parameters_arm"/>
@@ -16,6 +16,12 @@
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Assembly_component"/>
          </explicit>
+         <derived name="equivalent_reference_shape_model" expression="bag_to_set(QUERY( gmr &lt;* USEDIN(SELF, 'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |&#10;        (gmr\Representation_relationship.relation_type = 'equivalent reference shape model')))">
+            <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
+            <typename name="Geometric_model_relationship"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(equivalent_reference_shape_model) &lt; 2"/>
+      <where label="IP1"/>
       </entity>
       <entity name="Component_2d_location" supertypes="Contextual_shape_representation Geometric_composition_with_operator_transformation" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="placement_fixed" optional="NO">
@@ -51,9 +57,9 @@
             <redeclaration entity-ref="Representation_relationship"/>
          </derived>
          <where label="WR1" expression="EXISTS (component)"/>
-         <where label="WR2" expression="NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\View_definition_relationship.related_view IN component_model\Assembly_component_2d_shape_model.shape_characterized_component)"/>
-         <where label="WR3" expression="NOT('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component_model\Physical_unit_shape_model.shape_characterized_definition :=: &#10;     component\View_definition_relationship.related_view\Assembly_component.derived_from)"/>
-         <where label="WR4" expression="NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\View_definition_relationship.related_view\Assembly_component.derived_from IN&#10;      component_model\Part_template_shape_model.shape_characterized_definition)"/>
+         <where label="WR2" expression="NOT('PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\Product_occurrence_definition_relationship.related_view IN component_model\Assembly_component_2d_shape_model.shape_characterized_component)"/>
+         <where label="WR3" expression="NOT('PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.PHYSICAL_UNIT_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component_model\Physical_unit_shape_model.shape_characterized_definition :=: &#10;     component\Product_occurrence_definition_relationship.related_view\Assembly_component.derived_from)"/>
+         <where label="WR4" expression="NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN TYPEOF(component_model)) OR&#10;     (component\Product_occurrence_definition_relationship.related_view\Assembly_component.derived_from IN&#10;      component_model\Part_template_shape_model.shape_characterized_definition)"/>
       <where label="IP1"/>
          <where label="IP2"/>
       </entity>

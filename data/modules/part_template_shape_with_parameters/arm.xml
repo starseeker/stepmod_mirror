@@ -2,12 +2,15 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-09-07 15:30:56 +0300 (Pn, 07 Rgs 2007) $" rcs.revision="$Revision: 1465 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_shape_with_parameters_arm schema_instance"/>
    <schema name="Part_template_shape_with_parameters_arm">
       <interface kind="use" schema="Non_feature_shape_element_arm"/>
       <interface kind="use" schema="Physical_layout_template_arm"/>
       <interface kind="use" schema="Shape_parameters_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <type name="ptswp_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Part_template_keepout_shape_model"/>
       </type>
@@ -17,55 +20,67 @@
       <type name="ptswp_view_shape_select">
          <select extensible="YES" genericentity="YES" basedon="view_shape_select" selectitems="Part_template_shape_model"/>
       </type>
-      <entity name="Geometric_template" abstract.supertype="YES" supertypes="Template_definition">
+      <entity name="Geometric_template" abstract.supertype="YES" supertypes="Template_definition" abstract.entity="NO">
          <inverse name="shapes" entity="Part_template_shape_model" attribute="shape_characterized_definition">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <where label="WR1" expression="SIZEOF(QUERY( gm &lt;* USEDIN(SELF,'')|&#10;        (('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(gm)) AND &#10;        NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN&#10;        TYPEOF(gm)))&#10;        )) = 0"/>
       </entity>
-      <entity name="Part_template_keepout_shape_model" abstract.supertype="YES" supertypes="Geometric_model">
-         <explicit name="constrained_design_object_category">
+      <entity name="Part_template_keepout_shape_model" abstract.supertype="YES" supertypes="Geometric_model" abstract.entity="NO">
+         <explicit name="constrained_design_object_category" optional="NO">
             <typename name="keepout_product_design_object_category"/>
          </explicit>
-         <explicit name="shape_characterized_definition">
+         <explicit name="shape_characterized_definition" optional="NO">
             <typename name="Geometric_template"/>
          </explicit>
-         <explicit name="shape_material_condition">
+         <explicit name="shape_material_condition" optional="NO">
             <typename name="material_condition"/>
          </explicit>
          <explicit name="centroid_location" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
-         <explicit name="shape_environment">
+         <explicit name="shape_environment" optional="NO">
             <typename name="application_environment"/>
          </explicit>
          <explicit name="shape_purpose" optional="YES">
             <typename name="predefined_keepout_purpose"/>
          </explicit>
+         <derived name="principal_part_shape" expression="bag_to_set(QUERY( gmr &lt;* USEDIN(SELF,&#10;        'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |&#10;         (gmr\Representation_relationship.relation_type = 'principal part shape')))">
+            <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
+            <typename name="Geometric_model_relationship"/>
+         </derived>
          <inverse name="external_shape_purpose" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression="(EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1)"/>
          <where label="WR2" expression="SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0"/>
+         <where label="WR3" expression="SIZEOF(principal_part_shape) &lt; 2"/>
+      <where label="IP1"/>
       </entity>
-      <entity name="Part_template_shape_model" abstract.supertype="YES" supertypes="Geometric_model">
-         <explicit name="shape_characterized_definition">
-            <aggregate type="SET" lower="1" upper="?"/>
+      <entity name="Part_template_shape_model" abstract.supertype="YES" supertypes="Geometric_model" abstract.entity="NO">
+         <explicit name="shape_characterized_definition" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Geometric_template"/>
          </explicit>
          <explicit name="shape_environment" optional="YES">
             <typename name="application_environment"/>
          </explicit>
-         <explicit name="shape_material_condition">
+         <explicit name="shape_material_condition" optional="NO">
             <typename name="material_condition"/>
          </explicit>
+         <derived name="principal_part_shape" expression="bag_to_set(QUERY( gmr &lt;* USEDIN(SELF,&#10;        'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |&#10;         (gmr\Representation_relationship.relation_type = 'principal part shape')))">
+            <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
+            <typename name="Geometric_model_relationship"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(principal_part_shape) &lt; 2"/>
+      <where label="IP1"/>
       </entity>
-      <entity name="Part_template_shape_representation_relationship" supertypes="Geometric_model_relationship">
-         <explicit name="principal_part_shape">
+      <entity name="Part_template_shape_representation_relationship" supertypes="Geometric_model_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="principal_part_shape" optional="NO">
             <typename name="Part_template_shape_model"/>
             <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
          </explicit>
-         <explicit name="related_part_shape">
+         <explicit name="related_part_shape" optional="NO">
             <typename name="Part_template_shape_model"/>
             <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
          </explicit>
@@ -78,7 +93,7 @@
          <where label="WR3" expression="principal_part_shape\Geometric_model.context_of_items :=: related_part_shape\Geometric_model.context_of_items"/>
          <where label="WR4" expression="principal_part_shape\Part_template_shape_model.shape_characterized_definition :=:&#10;            related_part_shape\Part_template_shape_model.shape_characterized_definition"/>
       </entity>
-      <subtype.constraint name="shape_element_subtypes" entity="Shape_element" super.expression="ONEOF (Shape_feature, Non_feature_shape_element)"/>
+      <subtype.constraint name="shape_element_subtypes" entity="Shape_element" super.expression="ONEOF (Shape_feature, Non_feature_shape_element)" abstract.supertype="NO"/>
       <rule name="unique_part_template_shape_model_for_geometric_template" appliesto="Geometric_template">
          <algorithm>LOCAL
       ptsm : SET OF Part_template_shape_model := [];

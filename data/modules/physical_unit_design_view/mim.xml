@@ -2,11 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-09-06 15:45:00 +0300 (Kt, 06 Rgs 2007) $" rcs.revision="$Revision: 1449 $" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_mim schema_instance"/>
    <schema name="Physical_unit_design_view_mim">
       <interface kind="use" schema="Physical_layout_template_mim"/>
       <interface kind="use" schema="Physical_unit_usage_view_mim"/>
+      <interface kind="use" schema="Component_grouping_mim"/>
       <interface kind="use" schema="application_context_schema">
          <interfaced.item name="application_context_element"/>
       </interface>
@@ -25,20 +26,14 @@
          <where label="WR2" expression="NOT EXISTS(SELF\property_definition.description)"/>
       </entity>
       <entity name="component_definition" supertypes="product_definition product_definition_relationship">
-         <derived name="id" expression="SELF\product_definition.id">
-            <typename name="identifier"/>
-            <redeclaration entity-ref="product_definition_relationship"/>
-         </derived>
          <derived name="related_product_definition" expression="SELF">
             <typename name="component_definition"/>
             <redeclaration entity-ref="product_definition_relationship"/>
          </derived>
-         <derived name="name" expression="SELF\product_definition.id">
-            <typename name="label"/>
-            <redeclaration entity-ref="product_definition_relationship"/>
-         </derived>
          <where label="WR1" expression="NOT EXISTS(SELF\product_definition_relationship.description)"/>
          <where label="WR2" expression="NOT EXISTS(SELF\property_definition.description)"/>
+         <where label="WR3" expression="SELF\product_definition_relationship.id = SELF\product_definition.id"/>
+         <where label="WR4" expression="SELF\product_definition_relationship.name = ''"/>
       </entity>
       <entity name="next_assembly_usage_occurrence_relationship" supertypes="next_assembly_usage_occurrence product_definition_occurrence_relationship">
          <derived name="occurrence_usage" expression="SELF">

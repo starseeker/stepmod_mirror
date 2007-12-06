@@ -2,13 +2,16 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-03-21 03:48:09 -0700 (Tr, 21 Kov 2007) $" rcs.revision="$Revision: 23 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_shape_with_parameters_arm schema_instance"/>
    <schema name="Physical_unit_shape_with_parameters_arm">
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
       <interface kind="use" schema="Shape_parameters_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <type name="mass_property_quality">
-         <enumeration items="high medium low is_unknown"/>
+         <enumeration items="high medium low is_unknown" extensible="NO"/>
       </type>
       <type name="puswp_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Physical_unit_keepout_shape_model"/>
@@ -17,72 +20,84 @@
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Physical_unit_keepout_shape_model Physical_unit_shape_model"/>
       </type>
       <type name="shape_approximation_level">
-         <enumeration items="coarse detailed is_unknown"/>
+         <enumeration items="coarse detailed is_unknown" extensible="NO"/>
       </type>
       <type name="shape_extent">
-         <enumeration items="envelope over_body over_lands over_breakout"/>
+         <enumeration items="envelope over_body over_lands over_breakout" extensible="NO"/>
       </type>
-      <entity name="Physical_unit_keepout_shape_model" abstract.supertype="YES" supertypes="Geometric_model">
-         <explicit name="constrained_design_object_category">
+      <entity name="Physical_unit_keepout_shape_model" abstract.supertype="YES" supertypes="Geometric_model" abstract.entity="NO">
+         <explicit name="constrained_design_object_category" optional="NO">
             <typename name="keepout_product_design_object_category"/>
          </explicit>
-         <explicit name="shape_characterized_definition">
+         <explicit name="shape_characterized_definition" optional="NO">
             <typename name="Part_usage_view"/>
          </explicit>
-         <explicit name="shape_material_condition">
+         <explicit name="shape_material_condition" optional="NO">
             <typename name="material_condition"/>
          </explicit>
          <explicit name="shape_purpose" optional="YES">
             <typename name="predefined_keepout_purpose"/>
          </explicit>
-         <explicit name="shape_environment">
+         <explicit name="shape_environment" optional="NO">
             <typename name="application_environment"/>
          </explicit>
-         <explicit name="shape_extent">
+         <explicit name="shape_extent" optional="NO">
             <typename name="shape_extent"/>
          </explicit>
-         <explicit name="shape_approximation_level">
+         <explicit name="shape_approximation_level" optional="NO">
             <typename name="shape_approximation_level"/>
          </explicit>
          <explicit name="centroid_location" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
+         <derived name="principal_part_shape" expression="bag_to_set(QUERY( gmr &lt;* USEDIN(SELF,&#10;        'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |&#10;        (gmr\Representation_relationship.relation_type = 'principal part shape')))">
+            <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
+            <typename name="Geometric_model_relationship"/>
+         </derived>
          <inverse name="external_shape_purpose" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression="(EXISTS (shape_purpose)) XOR ((SIZEOF(external_shape_purpose)) = 1)"/>
+         <where label="WR2" expression="SIZEOF(principal_part_shape) &lt; 2"/>
+      <where label="IP1"/>
       </entity>
-      <entity name="Physical_unit_shape_model" abstract.supertype="YES" supertypes="Geometric_model">
-         <explicit name="shape_characterized_definition">
+      <entity name="Physical_unit_shape_model" abstract.supertype="YES" supertypes="Geometric_model" abstract.entity="NO">
+         <explicit name="shape_characterized_definition" optional="NO">
             <typename name="physical_unit"/>
          </explicit>
-         <explicit name="shape_material_condition">
+         <explicit name="shape_material_condition" optional="NO">
             <typename name="material_condition"/>
          </explicit>
          <explicit name="centroid_location" optional="YES">
             <typename name="Cartesian_point"/>
          </explicit>
-         <explicit name="shape_environment">
+         <explicit name="shape_environment" optional="NO">
             <typename name="application_environment"/>
          </explicit>
-         <explicit name="shape_extent">
+         <explicit name="shape_extent" optional="NO">
             <typename name="shape_extent"/>
          </explicit>
-         <explicit name="shape_approximation_level">
+         <explicit name="shape_approximation_level" optional="NO">
             <typename name="shape_approximation_level"/>
          </explicit>
-         <explicit name="mass_property_quality">
+         <explicit name="mass_property_quality" optional="NO">
             <typename name="mass_property_quality"/>
          </explicit>
+         <derived name="principal_part_shape" expression="bag_to_set(QUERY( gmr &lt;* USEDIN(SELF,&#10;        'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_2') |&#10;        (gmr\Representation_relationship.relation_type = 'principal part shape')))">
+            <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
+            <typename name="Geometric_model_relationship"/>
+         </derived>
          <where label="WR1" expression="NOT ('PACKAGED_PART_BLACK_BOX_MODEL_ARM.PACKAGED_PART' IN TYPEOF(shape_characterized_definition))"/>
          <where label="WR2" expression="SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0"/>
+         <where label="WR3" expression="SIZEOF(principal_part_shape) &lt; 2"/>
+      <where label="IP1"/>
       </entity>
-      <entity name="Physical_unit_shape_representation_relationship" supertypes="Geometric_model_relationship">
-         <explicit name="principal_part_shape">
+      <entity name="Physical_unit_shape_representation_relationship" supertypes="Geometric_model_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="principal_part_shape" optional="NO">
             <typename name="Physical_unit_shape_model"/>
             <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_1"/>
          </explicit>
-         <explicit name="related_part_shape">
+         <explicit name="related_part_shape" optional="NO">
             <typename name="Physical_unit_shape_model"/>
             <redeclaration entity-ref="Geometric_model_relationship" old_name="rep_2"/>
          </explicit>
@@ -95,6 +110,6 @@
          <where label="WR3" expression="principal_part_shape\Geometric_model.context_of_items :=: related_part_shape\Geometric_model.context_of_items"/>
          <where label="WR4" expression="principal_part_shape\Physical_unit_shape_model.shape_characterized_definition :=:&#10;            related_part_shape\Physical_unit_shape_model.shape_characterized_definition"/>
       </entity>
-      <subtype.constraint name="puswp_geometric_model_subtypes" entity="Geometric_model" super.expression="ONEOF (Physical_unit_keepout_shape_model, Physical_unit_shape_model)"/>
+      <subtype.constraint name="puswp_geometric_model_subtypes" entity="Geometric_model" super.expression="ONEOF (Physical_unit_keepout_shape_model, Physical_unit_shape_model)" abstract.supertype="NO"/>
    </schema>
 </express>

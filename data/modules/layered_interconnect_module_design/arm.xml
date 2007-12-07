@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-09-18 13:17:08 +0300 (An, 18 Rgs 2007) $" rcs.revision="$Revision: 1512 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Component_grouping_arm"/>
@@ -293,7 +293,7 @@
          </inverse>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
          <where label="WR2" expression="SIZEOF(implementation_requirement) - SIZEOF(join_component) = 1"/>
-         <where label="WR3" expression="(SIZEOF(join_component) = 0) OR&#10;             (SIZEOF(QUERY(jc &lt;* join_component |&#10;             ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.TIEBAR_PRINTED_COMPONENT' IN TYPEOF(jc\Product_occurrence.occurrence_contexts[1]\View_definition_relationship.relating_view)) AND&#10;             (SIZEOF(jc\Single_stratum_printed_component.stratum_feature_implementation) :&lt;&gt;: 1)&#10;             )) = 0)"/>
+         <where label="WR3" expression="(SIZEOF(join_component) = 0) OR&#10;             (SIZEOF(QUERY(jc &lt;* join_component |&#10;             ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.TIEBAR_PRINTED_COMPONENT' IN TYPEOF(jc\Assembly_component.occurrence_contexts[1]\Product_occurrence_definition_relationship.relating_view)) AND&#10;             (SIZEOF(jc\Single_stratum_printed_component.stratum_feature_implementation) :&lt;&gt;: 1)&#10;             )) = 0)"/>
       </entity>
       <entity name="Connected_area_component" supertypes="Area_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="associated_layer_connection_point" optional="NO">
@@ -314,7 +314,7 @@
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
          <where label="WR1" expression="SIZEOF(implementation_requirement) - SIZEOF(join_component) = 1"/>
-         <where label="WR2" expression="(SIZEOF(join_component) = 0) OR&#10;             (SIZEOF(QUERY(jc &lt;* join_component |&#10;             ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.TIEBAR_PRINTED_COMPONENT' IN TYPEOF(jc\Product_occurrence.occurrence_contexts[1]\View_definition_relationship.relating_view)) AND&#10;             (SIZEOF(jc\Single_stratum_printed_component.stratum_feature_implementation) :&lt;&gt;: 1)&#10;              )) = 0)"/>
+         <where label="WR2" expression="(SIZEOF(join_component) = 0) OR&#10;             (SIZEOF(QUERY(jc &lt;* join_component |&#10;             ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.TIEBAR_PRINTED_COMPONENT' IN TYPEOF(jc\Assembly_component.occurrence_contexts[1]\Product_occurrence_definition_relationship.relating_view)) AND&#10;             (SIZEOF(jc\Single_stratum_printed_component.stratum_feature_implementation) :&lt;&gt;: 1)&#10;              )) = 0)"/>
       </entity>
       <entity name="Cutout" supertypes="Inter_stratum_feature" super.expression="ONEOF (Physical_connectivity_interrupting_cutout, Plated_cutout, Partially_plated_cutout)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="vertical_reference" optional="YES">
@@ -505,7 +505,7 @@
             <typename name="Inter_stratum_feature_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(vertical_extent) OR (SIZEOF(QUERY(pvd &lt;* get_assemblies(SELF) |&#10;         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(pvd)) AND             &#10;              (vertical_extent\Passage_technology_allocation_to_stack_model.associated_stackup =&#10;                   pvd\Interconnect_module.stackup_model[1]\Stratum_stack_model_to_interconnect_assignment.concept))&#10;                   )) = 0)"/>
+         <where label="WR1" expression="NOT EXISTS(vertical_extent) OR (SIZEOF(QUERY(pvd &lt;* get_assemblies(SELF) |&#10;         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(pvd)) AND             &#10;              (vertical_extent\Stratum_sub_stack.associated_stackup =&#10;                   pvd\Interconnect_module.stackup_model[1]\Stratum_stack_model_to_interconnect_assignment.concept))&#10;                   )) = 0)"/>
       </entity>
       <entity name="Inter_stratum_join_relationship" supertypes="Routed_join_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="points_to_be_connected" optional="NO">
@@ -630,7 +630,7 @@
             <typename name="Interconnect_module"/>
          </explicit>
       </entity>
-      <entity name="Laminate_component" supertypes="Assembly_component" super.expression="ONEOF (Material_removal_laminate_component, (Stratum_feature_template_component ANDOR Probe_access_area), Inter_stratum_feature, Generic_laminate_text_component, Laminate_text_string_component) ANDOR Fiducial" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Laminate_component" supertypes="Assembly_component Single_instance" super.expression="ONEOF (Material_removal_laminate_component, (Stratum_feature_template_component ANDOR Probe_access_area), Inter_stratum_feature, Generic_laminate_text_component, Laminate_text_string_component) ANDOR Fiducial" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
             <typename name="Template_definition"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
@@ -638,7 +638,7 @@
          <inverse name="cad_layer" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <where label="WR1" expression="('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\View_definition_relationship.relating_view))&#10;         OR&#10;        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]))"/>
+         <where label="WR1" expression="('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\Product_occurrence_definition_relationship.relating_view))&#10;         OR&#10;        ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]))"/>
       </entity>
       <entity name="Laminate_component_feature" abstract.supertype="YES" supertypes="Component_feature" super.expression="ONEOF (Conductive_interconnect_element_terminal, Laminate_component_interface_terminal, Laminate_component_join_terminal, Via_terminal)" abstract.entity="NO"/>
       <entity name="Laminate_component_interface_terminal" abstract.supertype="YES" supertypes="Laminate_component_feature" abstract.entity="NO"/>
@@ -660,8 +660,8 @@
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Part_definition_relationship"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(sar &lt;* SELF\Component_make_from_relationship.reusable_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar\view_definition_relationship.related_view)))) = 0"/>
-         <where label="WR2" expression="SIZEOF(QUERY(sar &lt;* SELF\Component_make_from_relationship.resultant_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar\view_definition_relationship.related_view)))) = 0"/>
+         <where label="WR1" expression="SIZEOF(QUERY(sar &lt;* SELF\Component_make_from_relationship.reusable_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar\Product_occurrence_definition_relationship.related_view)))) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(sar &lt;* SELF\Component_make_from_relationship.resultant_component.components | NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT' IN TYPEOF(sar\Product_occurrence_definition_relationship.related_view)))) = 0"/>
       </entity>
       <entity name="Laminate_text_string_component" supertypes="Array_placement_group Laminate_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
@@ -747,7 +747,7 @@
       </entity>
       <entity name="Material_removal_laminate_component" supertypes="Laminate_component" super.expression="Electrical_isolation_laminate_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="causal_item" optional="YES">
-            <typename name="restriction_basis_item"/>
+            <typename name="limd_restriction_basis_item"/>
          </explicit>
          <explicit name="design_intent" optional="NO">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
@@ -891,11 +891,8 @@
             <builtintype type="STRING" fixed="NO"/>
             <redeclaration entity-ref="Shape_feature"/>
          </derived>
-         <derived name="id" expression="SELF\Item_shape.id">
-            <builtintype type="STRING" fixed="NO"/>
-            <redeclaration entity-ref="Shape_element"/>
-         </derived>
          <inverse name="network" entity="Routed_physical_network" attribute="probe"/>
+         <where label="WR1" expression="SELF\Shape_element.id = SELF\Item_shape.id"/>
       </entity>
       <entity name="Routed_join_relationship" abstract.supertype="YES" supertypes="Join_relationship" super.expression="ONEOF (Inter_stratum_join_relationship, Intra_stratum_join_relationship, Stratum_embedded_physical_component_join_relationship)" abstract.entity="NO">
          <inverse name="network_topology" entity="Routed_physical_network" attribute="routed_connectivity_requirement_element"/>
@@ -1055,7 +1052,7 @@
             <typename name="stratum_feature_or_stratum"/>
          </explicit>
          <explicit name="causal_item" optional="YES">
-            <typename name="restriction_basis_item"/>
+            <typename name="limd_restriction_basis_item"/>
          </explicit>
          <derived name="resident_stratum" expression="get_resident_stratum(SELF)">
             <typename name="Stratum"/>
@@ -1117,11 +1114,11 @@
       <entity name="Structured_layout_component_sub_assembly_relationship" supertypes="Next_assembly_usage_occurrence_relationship" super.expression="Footprint_occurrence_sub_assembly_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="relating_view" optional="NO">
             <typename name="Structured_layout_component"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
+            <redeclaration entity-ref="Product_occurrence_definition_relationship"/>
          </explicit>
          <explicit name="related_view" optional="NO">
             <typename name="Assembly_component"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
+            <redeclaration entity-ref="Product_occurrence_definition_relationship"/>
          </explicit>
          <explicit name="first_location" optional="NO">
             <typename name="Template_location_in_structured_template"/>
@@ -1135,10 +1132,10 @@
          <explicit name="design_specific_placement" optional="NO">
             <builtintype type="BOOLEAN" fixed="NO"/>
          </explicit>
-         <derived name="first_location_overridden" expression="NOT EXISTS(second_location) AND&#10;                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from&#10;                   :&lt;&gt;: first_location.template)">
+         <derived name="first_location_overridden" expression="NOT EXISTS(second_location) AND&#10;                  (SELF\Product_occurrence_definition_relationship.related_view\Assembly_component.derived_from&#10;                   :&lt;&gt;: first_location.template)">
             <builtintype type="LOGICAL" fixed="NO"/>
          </derived>
-         <derived name="second_location_overridden" expression="EXISTS(second_location) AND&#10;                  (SELF\View_definition_relationship.related_view\Assembly_component.derived_from&#10;                   :&lt;&gt;: second_location.template)">
+         <derived name="second_location_overridden" expression="EXISTS(second_location) AND&#10;                  (SELF\Product_occurrence_definition_relationship.related_view\Assembly_component.derived_from&#10;                   :&lt;&gt;: second_location.template)">
             <builtintype type="LOGICAL" fixed="NO"/>
          </derived>
          <unique label="UR1">
@@ -1147,18 +1144,15 @@
             <unique.attribute attribute="relating_view"/>
             <unique.attribute attribute="related_view"/>
          </unique>
-         <where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.id)"/>
-         <where label="WR3" expression="NOT EXISTS(SELF\Assembly_component_relationship.location_indicator)"/>
-         <where label="WR4" expression="NOT EXISTS(SELF\Assembly_component_relationship.quantity)"/>
-         <where label="WR5" expression="first_location_overridden OR &#10;          (SELF\View_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly)"/>
-         <where label="WR6" expression="first_location :&lt;&gt;: second_location"/>
-         <where label="WR7" expression="NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view))"/>
-         <where label="WR8" expression="NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view))"/>
-         <where label="WR9" expression="NOT (first_location_overridden AND second_location_overridden)"/>
-         <where label="WR10" expression="NOT (EXISTS(overriding_shape) XOR (first_location_overridden OR second_location_overridden))"/>
-         <where label="WR11" expression="NOT EXISTS(overriding_shape) OR (related_view.derived_from IN overriding_shape.shape_characterized_definition)"/>
-         <where label="WR12" expression="NOT ((first_location\Template_location_in_structured_template.placement_status = template_location_placement_status.is_fixed) AND &#10;                design_specific_placement)"/>
+         <where label="WR1" expression="NOT EXISTS(SELF\Assembly_component_relationship.location_indicator)"/>
+         <where label="WR2" expression="first_location_overridden OR &#10;          (SELF\Product_occurrence_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly)"/>
+         <where label="WR3" expression="first_location :&lt;&gt;: second_location"/>
+         <where label="WR4" expression="NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view))"/>
+         <where label="WR5" expression="NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view))"/>
+         <where label="WR6" expression="NOT (first_location_overridden AND second_location_overridden)"/>
+         <where label="WR7" expression="NOT (EXISTS(overriding_shape) XOR (first_location_overridden OR second_location_overridden))"/>
+         <where label="WR8" expression="NOT EXISTS(overriding_shape) OR (related_view.derived_from IN overriding_shape.shape_characterized_definition)"/>
+         <where label="WR9" expression="NOT ((first_location\Template_location_in_structured_template.placement_status = template_location_placement_status.is_fixed) AND &#10;                design_specific_placement)"/>
       </entity>
       <entity name="Unplated_cutout_edge_segment" supertypes="Cutout_edge_segment" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_cutout" optional="NO">
@@ -1358,7 +1352,6 @@
 
     RETURN(pass);</algorithm>
       </function>
-
       <function name="get_assemblies">
          <parameter name="input">
             <typename name="Assembly_component"/>
@@ -1373,11 +1366,11 @@ END_LOCAL;
 REPEAT i := 1 TO HIINDEX(acr) BY 1;
   IF NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
 'STRUCTURED_LAYOUT_COMPONENT' IN
-TYPEOF(acr[i]\View_definition_relationship.relating_view))
+TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
   THEN
-  pvd := pvd + acr[i]\View_definition_relationship.relating_view; 
+  pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
   ELSE
-  pvd := pvd + get_assemblies(acr[i]\View_definition_relationship.relating_view);
+  pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
   END_IF;
 END_REPEAT;
 

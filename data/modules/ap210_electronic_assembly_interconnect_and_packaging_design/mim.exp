@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.70 2007/11/15 12:42:27 liutkus Exp $
+   $Id: mim.exp,v 1.71 2007/12/10 14:18:45 liutkus Exp $
    ISO TC184/SC4/WG3 N1997 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG3 N1639
 *)
@@ -30,6 +30,19 @@ USE FROM Ap210_assembly_requirement_allocation_mim;	-- ISO/TS 10303-1609
 USE FROM Ap210_interconnect_requirement_allocation_mim;	-- ISO/TS 10303-1621
 USE FROM Ap210_functional_requirement_allocation_mim;	-- ISO/TS 10303-1615
 USE FROM Ap210_datum_difference_based_model_definition_mim;	-- ISO/TS 10303-1759
+
+USE FROM drawing_definition_mim; -- 1309
+USE FROM dimension_and_tolerance_callouts_mim; -- 1362 
+USE FROM text_representation_mim; -- 1750
+USE FROM presentation_appearance_schema
+   (pre_defined_surface_side_style); -- ISO 10303-46????
+
+RULE not_instantiable_pre_defined_surface_side_style FOR
+    (pre_defined_surface_side_style);
+WHERE
+ WR1: SIZEOF (pre_defined_surface_side_style) = 0;
+END_RULE;
+
 
 USE FROM Application_context_schema
 	(application_context,
@@ -99,7 +112,7 @@ TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON man
       externally_defined_item,
 --      fill_area_style_colour,
       fill_area_style_hatching,
-      fill_area_style_tiles,
+--      fill_area_style_tiles,
       func,
       geometric_tolerance,
       geometric_tolerance_relationship,
@@ -255,6 +268,18 @@ TYPE ap210_managed_design_object = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON man
 	tolerance_zone_definition,
 	usage_view_connection_zone_terminal_shape_relationship,
 	vector);
+END_TYPE;
+
+TYPE ap210_presented_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON presented_item_select WITH 
+    (action,
+    action_method,
+    action_relationship,
+    product_concept,
+    product_concept_feature,
+    product_concept_feature_category,
+    product_definition,
+    product_definition_formation,
+    product_definition_relationship);
 END_TYPE;
 
 

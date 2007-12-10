@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-09-07 15:20:52 +0300 (Pn, 07 Rgs 2007) $" rcs.revision="$Revision: 1463 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="layered_interconnect_module_with_printed_component_design_arm schema_instance"/>
    <schema name="Layered_interconnect_module_with_printed_component_design_arm">
       <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
@@ -34,7 +34,7 @@
             <redeclaration entity-ref="Printed_component"/>
          </explicit>
       </entity>
-      <entity name="Printed_component" abstract.supertype="YES" supertypes="Assembly_component" super.expression="ONEOF (Single_stratum_printed_component, Basic_multi_stratum_printed_component, Multi_stratum_printed_component)">
+      <entity name="Printed_component" abstract.supertype="YES" supertypes="Assembly_component Single_instance" super.expression="ONEOF (Single_stratum_printed_component, Basic_multi_stratum_printed_component, Multi_stratum_printed_component)">
          <explicit name="derived_from">
             <typename name="Printed_part_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
@@ -85,7 +85,7 @@
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
-      <entity name="Routed_transmission_line" supertypes="Assembly_component">
+      <entity name="Routed_transmission_line" supertypes="Assembly_component Single_instance">
          <explicit name="routed_centreline_shape">
             <typename name="Curve"/>
          </explicit>
@@ -155,10 +155,10 @@
          <where label="WR5" expression="SIZEOF(tiebar_component) = SIZEOF(tiebar_resident_stratum)"/>
          <where label="WR6" expression="SIZEOF(joined_networks) &gt; 1"/>
          <where label="WR7" expression="SIZEOF(QUERY(jn &lt;* joined_networks |&#10;                 NOT(SIZEOF(SELF\Printed_component.access_mechanism * jn\Generic_physical_network.connectivity_requirement_element) = 1 )&#10;                 )) = 0"/>
-         <where label="WR8" expression="SIZEOF(QUERY(tc &lt;* tiebar_component |&#10;           NOT(SIZEOF(USEDIN(tc,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAMINATE_COMPONENT_JOIN_TERMINAL.ASSOCIATED_COMPONENT')) = 0)&#10;              )) = 0"/>
+         <where label="WR8" expression="SIZEOF(QUERY(tc &lt;* tiebar_component |&#10;           NOT(SIZEOF(USEDIN(tc,'COMPONENT_FEATURE_ARM.COMPONENT_FEATURE.ASSOCIATED_COMPONENT')) = 0)&#10;              )) = 0"/>
          <where label="WR9" expression="NOT(SIZEOF(passage_component) = 1) OR&#10;             (SIZEOF(QUERY(pc &lt;* passage_component | NOT((SIZEOF(tiebar_component) = 0) OR&#10;                (SIZEOF(tiebar_resident_stratum * passage_resident_stratum) = SIZEOF(tiebar_resident_stratum))&#10;                )&#10;               )) = 0)"/>
          <where label="WR10" expression="NOT(SIZEOF(passage_component) &gt;= 1) OR&#10;              (SIZEOF(QUERY(pc &lt;* passage_component | NOT&#10;                (SIZEOF(tiebar_resident_stratum * passage_resident_stratum) = SIZEOF(tiebar_resident_stratum))&#10;               )) = 0)"/>
-         <where label="WR11" expression="SIZEOF(QUERY(am &lt;* SELF\Printed_component.access_mechanism |&#10;           NOT('PRINTED_PHYSICAL_LAYOUT_TEMPLATE.STRUCTURED_PRINTED_PART_TEMPLATE_TERMINAL' IN TYPEOF(am.definition))&#10;            )) = 0"/>
+         <where label="WR11" expression="SIZEOF(QUERY(am &lt;* SELF\Printed_component.access_mechanism |&#10;           NOT('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.STRUCTURED_PRINTED_PART_TEMPLATE_TERMINAL' IN TYPEOF(am.definition))&#10;            )) = 0"/>
       </entity>
       <subtype.constraint name="limwpcd_assembly_component_subtypes" entity="Assembly_component" super.expression="ONEOF (Physical_component, Printed_component, Laminate_component)"/>
       <subtype.constraint name="limwpcd_structured_layout_component_subtypes" entity="Structured_layout_component" super.expression="ONEOF (Footprint_occurrence, Material_removal_structured_component, Multi_stratum_printed_component, Multi_stratum_special_symbol_component, Padstack_occurrence, Single_stratum_printed_component, Single_stratum_special_symbol_component)"/>
@@ -260,7 +260,7 @@ END_LOCAL;
 	END_REPEAT;
 
 	REPEAT i := 1 to SIZEOF(ptatsm) by 1;
-             stol := stol + ptatsm[i]\Passage_technology_allocation_to_stack_model.stratum_technology_sequence;
+             stol := stol + ptatsm[i]\Stratum_sub_stack.stratum_technology_sequence;
 	END_REPEAT;
 
              s := limdwpcd_get_stolrs(stol);

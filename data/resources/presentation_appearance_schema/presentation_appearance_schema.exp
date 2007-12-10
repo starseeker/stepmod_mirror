@@ -636,7 +636,61 @@ END_SUBTYPE_CONSTRAINT;
            ((style1\surface_style_usage.side = both) OR 
            (style2\surface_style_usage.side = both) OR 
            (style1\surface_style_usage.side = style2\surface_style_usage.side)) )) > 0))) = 0;
-  END_ENTITY;
+END_ENTITY;
+
+(*
+RULE presentation_style_assignment_constraint FOR (presentation_style_assignment);
+
+LOCAL
+  psa_1 : SET OF presentation_style_assignment := QUERY (temp <* presentation_style_assignment | 
+                (SIZEOF(QUERY(foo <* temp.styles | 
+                 ('PRESENTATION_APPEARANCE_SCHEMA.SURFACE_STYLE_USAGE' IN TYPEOF (foo))
+              )) = 2)
+              );              
+END_LOCAL;  
+WHERE
+      WR1: valid_surface_style_usage(psa_1);
+END_RULE;
+
+FUNCTION valid_surface_style_usage(input : SET OF presentation_style_assignment) : LOGICAL;
+ LOCAL
+  ssu : SET [2:2] OF surface_style_usage := [];
+ END_LOCAL;
+ REPEAT i := 1 to SIZEOF(input) BY 1;
+  ssu := QUERY(ssu <* input[i]\presentation_style_assignment.styles | 'FOO_SCHEMA.SSU' IN TYPEOF(ssu));
+
+  IF (ssu[1]\surface_style_usage.side = ssu[2]\surface_style_usage.side)
+  THEN
+   RETURN(FALSE);
+  END_IF;
+ END_REPEAT; 
+RETURN(TRUE);
+END_FUNCTION;
+*)
+
+(*
+  IF ((ssu[1]\surface_style_usage.side = surface_side.both) OR
+      (ssu[2]\surface_style_usage.side = surface_side.both))
+  THEN
+   RETURN(FALSE);
+  END_IF;
+  
+  IF ((ssu[1]\surface_style_usage.side = surface_side.positive) OR
+      (ssu[2]\surface_style_usage.side = surface_side.positive))
+  THEN
+   RETURN(FALSE);
+  END_IF;
+
+  IF ((ssu[1]\surface_style_usage.side = surface_side.negative) OR
+      (ssu[2]\surface_style_usage.side = surface_side.negative))
+  THEN
+   RETURN(FALSE);
+  END_IF;
+*)
+
+
+
+
 
   ENTITY presentation_style_by_context
     SUBTYPE OF (presentation_style_assignment);

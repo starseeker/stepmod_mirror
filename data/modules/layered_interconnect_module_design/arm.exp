@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.252 2007/12/01 09:23:13 liutkus Exp $
+   $Id: arm.exp,v 1.253 2007/12/05 10:08:34 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -21,6 +21,11 @@ SCHEMA Layered_interconnect_module_design_arm;
    TYPE area_component_templates = SELECT (
      Stratum_feature_template, -- when area_component comes from library
      Fill_area_template); -- when area_component is defined in place
+   END_TYPE;
+
+   TYPE design_or_documentation_stratum = SELECT ( 
+     Design_layer_stratum,
+     Documentation_layer_stratum);
    END_TYPE;
 
 	TYPE limd_groupable_item = SELECT BASED_ON groupable_item WITH 
@@ -120,8 +125,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 	END_TYPE; 
 
  	TYPE limd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Stratum_based_pattern,
-		Stratum_feature_based_derived_pattern,
+		(Stratum_feature_based_derived_pattern,
 		Stratum,
 		Laminate_component);
 	END_TYPE;
@@ -420,9 +424,7 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   ENTITY Derived_stratum
      SUBTYPE OF (Stratum);
-   WHERE
-     WR1: SIZEOF(QUERY(sbpise <* USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTER_STRATUM_EXTENT.INCLUDED_STRATUM')|
-                      ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_BASED_PATTERN_INTER_STRATUM_EXTENT' IN TYPEOF(sbpise))))=1;
+       derived_from : design_or_documentation_stratum;
   END_ENTITY;
 
   ENTITY Design_layer_stratum
@@ -1028,27 +1030,6 @@ SCHEMA Layered_interconnect_module_design_arm;
       SUBTYPE OF (Stratum_surface);
    WHERE
     WR1 : SELF\Stratum_surface.name = stratum_surface_designation.average_surface;
-  END_ENTITY;
-
-  ENTITY Stratum_based_pattern;
-      name        : STRING;  
-      extent      : Inter_stratum_extent;
-    INVERSE
-      layer_usage	: SET[0:1] OF External_source_identification FOR item;
-    UNIQUE
-      UR1 : name;
-  END_ENTITY;
-
-  ENTITY Stratum_based_pattern_inter_stratum_extent
-    SUBTYPE OF (Inter_stratum_extent);
-      reference_stratum : Stratum;
-    WHERE
-      WR1: reference_stratum IN SELF\Inter_stratum_extent.included_stratum;
-
-      WR2: SIZEOF(QUERY(rs <* SELF\Inter_stratum_extent.included_stratum | 
-      (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',
-               'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(rs)) = 1)
-                  )) = 1;
   END_ENTITY;
 
   ENTITY Stratum_embedded_physical_component_join_relationship

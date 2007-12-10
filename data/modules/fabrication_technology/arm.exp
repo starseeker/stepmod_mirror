@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp 1658 2007-10-26 16:43:26Z TomThurman $
+   $Id: arm.exp,v 1.123 2007/11/15 12:38:58 liutkus Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -461,20 +461,33 @@ SCHEMA Fabrication_technology_arm;
      'FABRICATION_TECHNOLOGY_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL_LINK');
   END_ENTITY;
 
-  ENTITY Stratum_technology_occurrence_swap_relationship;
-    primary_sto  : Stratum_technology_occurrence;
-    secondary_sto : Stratum_technology_occurrence;
-    scope : Stratum_stack_model;
-   UNIQUE
-    UR1 : primary_sto, scope;
-    UR2 : secondary_sto, scope;
-  WHERE
-   WR1 : primary_sto <> secondary_sto;
-   WR2 : (primary_sto IN scope\Stratum_stack_model.composing_occurrence) AND
+  ENTITY Stratum_technology_occurrence_derived_from_relationship
+    SUBTYPE OF (Stratum_technology_occurrence_relationship);
+    UNIQUE
+      UR1: primary_sto, scope; 
+  END_ENTITY;
+
+  ENTITY Stratum_technology_occurrence_relationship
+    ABSTRACT SUPERTYPE OF
+    (ONEOF(Stratum_technology_occurrence_swap_relationship,
+         Stratum_technology_occurrence_derived_from_relationship));
+      primary_sto : Stratum_technology_occurrence;
+      secondary_sto : Stratum_technology_occurrence;
+      scope : Stratum_stack_model;
+  END_ENTITY;
+
+  ENTITY Stratum_technology_occurrence_swap_relationship
+    SUBTYPE OF (Stratum_technology_occurrence_relationship);
+    UNIQUE
+      UR1 : primary_sto, scope;
+      UR2 : secondary_sto, scope;
+    WHERE
+      WR1 : primary_sto <> secondary_sto;
+      WR2 : (primary_sto IN scope\Stratum_stack_model.composing_occurrence) AND
          (secondary_sto IN scope\Stratum_stack_model.composing_occurrence);
-   WR3 : acyclic_stratum_technology_occurrence_swap_relationship(SELF,
-     [secondary_sto], 
-     'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP');
+      WR3 : acyclic_stratum_technology_occurrence_swap_relationship(SELF,
+       [secondary_sto], 
+       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP');
   END_ENTITY;
 
   ENTITY Stratum_technology_swap_relationship;

@@ -2,12 +2,16 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-05-30 23:47:25 -0700 (Tr, 30 Geg 2007) $" rcs.revision="$Revision: 1087 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="shape_property_assignment_arm schema_instance"/>
    <schema name="Shape_property_assignment_arm">
+      <interface kind="use" schema="Assembly_structure_arm"/>
+      <interface kind="use" schema="Characterizable_object_arm"/>
       <interface kind="use" schema="External_model_arm"/>
       <interface kind="use" schema="Product_view_definition_relationship_arm"/>
-      <interface kind="use" schema="Characterizable_object_arm"/>
+      <type name="described_element_select">
+         <select selectitems="View_definition_usage Product_occurrence_definition_relationship"/>
+      </type>
       <type name="geometric_item_specific_usage_select">
          <select selectitems="Shape_element Shape_element_relationship"/>
       </type>
@@ -21,14 +25,14 @@
          <select selectitems="Item_shape Shape_element Shape_element_relationship"/>
       </type>
       <type name="shapeable_item">
-         <select selectitems="Characterizable_object Product_view_definition View_definition_usage"/>
+         <select selectitems="Characterizable_object Product_occurrence_definition_relationship Product_view_definition View_definition_usage"/>
       </type>
       <entity name="Contextual_item_shape" supertypes="Item_shape">
          <explicit name="described_element">
-            <typename name="View_definition_usage"/>
+            <typename name="described_element_select"/>
             <redeclaration entity-ref="Item_shape"/>
          </explicit>
-         <derived name="shaped_product" expression="described_element\View_definition_relationship.related_view">
+         <derived name="shaped_product" expression="spa_get_definition(SELF)">
             <typename name="Product_view_definition"/>
          </derived>
       </entity>
@@ -118,5 +122,22 @@
          </explicit>
          <where label="WR1" expression="EXISTS(relation_type) OR (TYPEOF(SELF\Shape_element_relationship) &lt;&gt; TYPEOF(SELF))"/>
       </entity>
+      <function name="spa_get_definition">
+         <parameter name="input">
+            <typename name="Contextual_item_shape"/>
+         </parameter>
+         <typename name="Product_view_definition"/>
+         <algorithm>IF ('PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_USAGE'
+      IN TYPEOF(input\Item_shape.described_element))
+      THEN
+        RETURN(input\Item_shape.described_element\View_definition_relationship.related_view);
+    END_IF;
+    IF ('ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP' IN
+        TYPEOF(input\Item_shape.described_element))
+      THEN
+        RETURN(input\Item_shape.described_element\Product_occurrence_definition_relationship.related_view);
+    END_IF;    
+    RETURN(?);</algorithm>
+      </function>
    </schema>
 </express>

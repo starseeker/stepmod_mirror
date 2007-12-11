@@ -405,6 +405,12 @@
             <unique.attribute attribute="name"/>
          </unique>
       </entity>
+      <entity name="Stratum_technology_occurrence_derived_from_relationship" supertypes="Stratum_technology_occurrence_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <unique label="UR1">
+            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="primary_sto"/>
+            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="scope"/>
+         </unique>
+      </entity>
       <entity name="Stratum_technology_occurrence_link" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="precedent_sto" optional="NO">
             <typename name="Stratum_technology_occurrence"/>
@@ -418,7 +424,7 @@
          <where label="WR1" expression="NOT (precedent_sto :=: subsequent_sto) OR (SIZEOF(scope.composing_link) = 1)"/>
          <where label="WR2" expression="acyclic_stratum_technology_occurrence_link(SELF, [subsequent_sto], &#10;     'FABRICATION_TECHNOLOGY_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL_LINK')"/>
       </entity>
-      <entity name="Stratum_technology_occurrence_swap_relationship" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Stratum_technology_occurrence_relationship" abstract.supertype="YES" super.expression="ONEOF (Stratum_technology_occurrence_swap_relationship, Stratum_technology_occurrence_derived_from_relationship)" abstract.entity="NO">
          <explicit name="primary_sto" optional="NO">
             <typename name="Stratum_technology_occurrence"/>
          </explicit>
@@ -428,17 +434,19 @@
          <explicit name="scope" optional="NO">
             <typename name="Stratum_stack_model"/>
          </explicit>
+      </entity>
+      <entity name="Stratum_technology_occurrence_swap_relationship" supertypes="Stratum_technology_occurrence_relationship" abstract.supertype="NO" abstract.entity="NO">
          <unique label="UR1">
-            <unique.attribute attribute="primary_sto"/>
-            <unique.attribute attribute="scope"/>
+            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="primary_sto"/>
+            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="scope"/>
          </unique>
          <unique label="UR2">
-            <unique.attribute attribute="secondary_sto"/>
-            <unique.attribute attribute="scope"/>
+            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="secondary_sto"/>
+            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="scope"/>
          </unique>
          <where label="WR1" expression="primary_sto &lt;&gt; secondary_sto"/>
          <where label="WR2" expression="(primary_sto IN scope\Stratum_stack_model.composing_occurrence) AND&#10;         (secondary_sto IN scope\Stratum_stack_model.composing_occurrence)"/>
-         <where label="WR3" expression="acyclic_stratum_technology_occurrence_swap_relationship(SELF,&#10;     [secondary_sto], &#10;     'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP')"/>
+         <where label="WR3" expression="acyclic_stratum_technology_occurrence_swap_relationship(SELF,&#10;       [secondary_sto], &#10;       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP')"/>
       </entity>
       <entity name="Stratum_technology_swap_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="primary_stratum_technology" optional="NO">

@@ -29,6 +29,9 @@
       <type name="component_feature_or_stratum_surface">
          <select extensible="YES" genericentity="YES" selectitems="Component_feature Stratum_surface"/>
       </type>
+      <type name="design_or_documentation_stratum">
+         <select selectitems="Design_layer_stratum Documentation_layer_stratum" genericentity="NO" extensible="NO"/>
+      </type>
       <type name="limd_documented_element_select">
          <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="stratum_concept Stratum"/>
       </type>
@@ -36,7 +39,7 @@
          <select extensible="YES" genericentity="YES" basedon="ee_product_definition_with_annotation_elements" selectitems="Template_definition Part_usage_view Part_design_view Stratum"/>
       </type>
       <type name="limd_external_identification_item">
-         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Stratum_based_pattern Stratum_feature_based_derived_pattern Stratum Laminate_component"/>
+         <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Stratum_feature_based_derived_pattern Stratum Laminate_component"/>
       </type>
       <type name="limd_feature_select">
          <select extensible="YES" genericentity="YES" basedon="feature_select" selectitems="Printed_part_template_terminal Land_template_terminal Component_termination_passage_template_terminal Via_template_terminal Part_terminal_external_reference"/>
@@ -128,6 +131,7 @@
          <unique label="UR1">
             <unique.attribute attribute="name"/>
          </unique>
+
          <unique label="UR2">
             <unique.attribute attribute="precedent_item"/>
             <unique.attribute attribute="subsequent_item"/>
@@ -351,7 +355,9 @@
          <where label="WR1" expression="associated_land\Definition_based_product_occurrence.derived_from :=:&#10;            SELF\Definition_based_product_occurrence.derived_from\Dependent_thermal_isolation_removal_template.associated_item"/>
       </entity>
       <entity name="Derived_stratum" supertypes="Stratum" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="SIZEOF(QUERY(sbpise &lt;* USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTER_STRATUM_EXTENT.INCLUDED_STRATUM')|&#10;                      ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_BASED_PATTERN_INTER_STRATUM_EXTENT' IN TYPEOF(sbpise))))=1"/>
+         <explicit name="derived_from" optional="NO">
+            <typename name="design_or_documentation_stratum"/>
+         </explicit>
       </entity>
       <entity name="Design_layer_stratum" supertypes="Stratum" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="primary_design_layer_stratum" optional="NO">
@@ -975,27 +981,6 @@
       </entity>
       <entity name="Stratum_average_surface" supertypes="Stratum_surface" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="SELF\Stratum_surface.name = stratum_surface_designation.average_surface"/>
-      </entity>
-      <entity name="Stratum_based_pattern" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="name" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
-         </explicit>
-         <explicit name="extent" optional="NO">
-            <typename name="Inter_stratum_extent"/>
-         </explicit>
-         <inverse name="layer_usage" entity="External_source_identification" attribute="item">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
-         <unique label="UR1">
-            <unique.attribute attribute="name"/>
-         </unique>
-      </entity>
-      <entity name="Stratum_based_pattern_inter_stratum_extent" supertypes="Inter_stratum_extent" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="reference_stratum" optional="NO">
-            <typename name="Stratum"/>
-         </explicit>
-         <where label="WR1" expression="reference_stratum IN SELF\Inter_stratum_extent.included_stratum"/>
-         <where label="WR2" expression="SIZEOF(QUERY(rs &lt;* SELF\Inter_stratum_extent.included_stratum | &#10;      (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM',&#10;               'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_STRATUM'] * TYPEOF(rs)) = 1)&#10;                  )) = 1"/>
       </entity>
       <entity name="Stratum_embedded_physical_component_join_relationship" supertypes="Routed_join_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="terminal_to_be_connected" optional="NO">

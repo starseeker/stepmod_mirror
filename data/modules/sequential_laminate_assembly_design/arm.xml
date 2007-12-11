@@ -16,38 +16,23 @@
       <type name="slad_requirement_assignment_item">
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Derived_laminate_assignment Sequential_laminate_assembly_relationship"/>
       </type>
+      <type name="stack_or_sub_stack">
+         <select selectitems="Design_stack_model Stratum_sub_stack"/>
+      </type>
+      <type name="stratum_assembly_relationship_or_stratum_technology_occurrence">
+         <select selectitems="Interconnect_module_stratum_assembly_relationship Stratum_technology_occurrence"/>
+      </type>
       <entity name="Adjacent_stratum_surface_embedded_sequential_laminate_surface_definition" supertypes="Adjacent_stratum_surface_embedded_physical_component_surface_definition">
          <where label="WR1" expression="NOT ('COMPONENT_FEATURE_ARM.COMPONENT_FEATURE' IN TYPEOF(precedent_item)) OR &#10;                ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(precedent_item.definition))"/>
          <where label="WR2" expression="NOT ('COMPONENT_FEATURE_ARM.COMPONENT_FEATURE' IN TYPEOF(subsequent_item)) OR &#10;                ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(subsequent_item.definition))"/>
       </entity>
-      <entity name="Derived_laminate_assignment" supertypes="Group Requirement_view_definition Requirement_assignment">
+      <entity name="Derived_laminate_assignment">
          <explicit name="oem_requirement">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="Interconnect_module_stratum_assembly_relationship"/>
-            <redeclaration entity-ref="Group" old_name="elements"/>
+            <typename name="stratum_assembly_relationship_or_stratum_technology_occurrence"/>
          </explicit>
          <explicit name="solution_definition">
             <typename name="Sequential_laminate_assembly_relationship"/>
-            <redeclaration entity-ref="Requirement_assignment" old_name="assigned_to"/>
          </explicit>
-         <derived name="assigned_requirement" expression="SELF">
-            <typename name="Derived_laminate_assignment"/>
-            <redeclaration entity-ref="Requirement_assignment"/>
-         </derived>
-         <where label="WR1" expression="SIZEOF(QUERY( oer &lt;* oem_requirement | (oer.assembly = solution_definition.assembly))) = 0"/>
-         <where label="WR2" expression="valid_oem_stratum_references(SELF)"/>
-      </entity>
-      <entity name="Derived_stratum_relationship" supertypes="View_definition_relationship">
-         <explicit name="requirement_definition">
-            <typename name="Stratum"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
-         </explicit>
-         <explicit name="solution_definition">
-            <typename name="Sequential_laminate_stackup_component"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
-         </explicit>
-         <where label="WR1" expression="SIZEOF(USEDIN(solution_definition\Definition_based_product_occurrence.derived_from,&#10;               'GENERIC_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION.ITEMS')) &gt; 0"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
       </entity>
       <entity name="Interconnect_module_component_stratum_based_terminal" supertypes="Interconnect_module_component_terminal">
          <explicit name="definition">
@@ -66,7 +51,7 @@
          <where label="WR2" expression="SIZEOF(USEDIN(SELF,&#10;                         'INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + &#10;                         'INTERCONNECT_MODULE_TERMINAL_SURFACE_CONSTITUENT_RELATIONSHIP.' + 'RELATED')) = 1"/>
          <where label="WR3" expression="SIZEOF(QUERY(sct &lt;* USEDIN(SELF,&#10;          'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.' +&#10;          'STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.DEFINED_PART_FEATURE') |&#10;          'LAND_ARM.LAND' IN TYPEOF(sct.assigned_design_object)&#10;             )) = 1"/>
       </entity>
-      <entity name="Sequential_laminate_assembly_relationship" supertypes="Next_assembly_usage">
+      <entity name="Sequential_laminate_assembly_relationship" supertypes="Assembled_part_association">
          <explicit name="assembly">
             <typename name="Sequential_laminate_stackup_definition"/>
             <redeclaration entity-ref="Product_occurrence_definition_relationship" old_name="relating_view"/>
@@ -78,14 +63,14 @@
          <where label="WR1" expression="related_view\Definition_based_product_occurrence.derived_from &lt;&gt; relating_view"/>
       </entity>
       <entity name="Sequential_laminate_stackup_component" supertypes="Physical_component Single_instance">
-         <explicit name="derived_from">
-            <typename name="Interconnect_module_usage_view"/>
-            <redeclaration entity-ref="Definition_based_product_occurrence"/>
-         </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
          <where label="WR2" expression="SIZEOF(USEDIN(derived_from, 'PHYSICAL_UNIT_DESIGN_VIEW_ARM.PART_DESIGN_VIEW.USAGE_VIEW')) &gt; 0"/>
       </entity>
-      <entity name="Sequential_laminate_stackup_definition" supertypes="Interconnect_module"/>
+      <entity name="Sequential_laminate_stackup_definition" supertypes="Assembly_definition">
+         <explicit name="associated_stratum_stack">
+            <typename name="stack_or_sub_stack"/>
+         </explicit>
+      </entity>
       <entity name="Stackup_requirement_to_design_relationship" supertypes="View_definition_relationship">
          <explicit name="relating_view">
             <typename name="Interconnect_module"/>

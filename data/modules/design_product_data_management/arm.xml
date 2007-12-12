@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-06-14 05:15:14 -0700 (Kt, 14 Bir 2007) $" rcs.revision="$Revision: 1227 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="design_product_data_management_arm schema_instance"/>
    <schema name="Design_product_data_management_arm">
       <interface kind="use" schema="Classification_with_attributes_arm"/>
@@ -32,7 +32,7 @@
          <select extensible="YES" genericentity="YES" basedon="pdm_certification_item" selectitems="Alternate_product_relationship Product_version"/>
       </type>
       <type name="design_pdm_classification_item">
-         <select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="definable_objects classified_element_select Characterizable_object Information_right Information_usage_right Information_usage_right_relationship"/>
+         <select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="classified_element_select Characterizable_object Information_right Information_usage_right Information_usage_right_relationship"/>
       </type>
       <type name="design_pdm_classified_attribute_select">
          <select extensible="YES" genericentity="YES" basedon="classified_attribute_select" selectitems="Activity Activity_method Activity_method_assignment Activity_property Activity_property_representation Activity_relationship Address_assignment Affected_items_assignment Alternate_part_relationship Applied_activity_assignment Approval Approval_assignment Approval_relationship Approval_status Approving_person_organization Assigned_property Certification Certification_assignment Context_dependent_unit Contract Date_or_date_time_assignment Descriptive_document_property Digital_file Document_assignment Document_definition_relationship Document_location_identification Document_property_representation Effectivity Effectivity_assignment Event_assignment Event_relationship External_item_identification External_source_identification File_location_identification File_relationship Group Group_relationship Hardcopy Identification_assignment Independent_property Independent_property_relationship Independent_property_representation Information_right Information_usage_right Information_usage_right_relationship Language Market Numerical_document_property Organization_or_person_in_organization_assignment Organization_relationship Part_view_definition Partial_document_assignment Person_in_organization Product Product_category Product_concept Product_version Product_version_relationship Product_view_definition Project_assignment Project_relationship Property_representation Representation Representation_context Representation_item Security_classification Time_interval_relationship Uncertainty_with_unit Unit Value_with_unit View_definition_context View_definition_relationship Work_order Work_request Work_request_status"/>
@@ -53,7 +53,7 @@
          <select extensible="YES" genericentity="YES" basedon="pdm_identification_item" selectitems="Group Group_relationship Information_right Information_usage_right Information_usage_right_relationship Material_identification Organization Product Product_category Product_configuration Product_concept Product_version"/>
       </type>
       <type name="design_pdm_information_usage_right_item">
-         <select extensible="YES" genericentity="YES" basedon="information_usage_right_item" selectitems="design_pdm_identification_item design_pdm_requirement_assignment_item design_pdm_documented_element_select design_pdm_contract_item design_pdm_classification_item design_pdm_certification_item Characterizable_object"/>
+         <select extensible="YES" genericentity="YES" basedon="information_usage_right_item" selectitems="design_pdm_identification_item design_pdm_requirement_assignment_item design_pdm_documented_element_select design_pdm_classification_item design_pdm_certification_item Characterizable_object Organization Person_in_organization Product_version Work_order"/>
          <where label="WR1" expression="SIZEOF(['INFORMATION_RIGHTS_ARM.INFORMATION_RIGHT',&#10;               'INFORMATION_RIGHTS_ARM.INFORMATION_USAGE_RIGHT',&#10;               'INFORMATION_RIGHTS_ARM.INFORMATION_USAGE_RIGHT_RELATIONSHIP'] * TYPEOF(SELF)) = 0"/>
       </type>
       <type name="design_pdm_material_item_select">
@@ -74,6 +74,9 @@
       <type name="design_pdm_string_select">
          <select extensible="YES" genericentity="YES" basedon="string_select" selectitems="Information_right Information_usage_right Information_usage_right_relationship"/>
       </type>
+      <rule name="product_occurrence_usage" appliesto="Product_occurrence">
+         <where label="WR1" expression="SIZEOF(QUERY( po &lt;* Product_occurrence |&#10;      NOT (&#10;      (SIZEOF(USEDIN(po,'ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW')) +&#10;        SIZEOF(USEDIN(po,'PRODUCT_BREAKDOWN_ARM.PRODUCT_DEFINITION_ELEMENT_RELATIONSHIP.PRODUCT'))) &gt; 0&#10;        )&#10;        )) = 0"/>
+      </rule>
       <rule name="unique_document_id" appliesto="Document">
          <where label="WR1" expression="SIZEOF(QUERY (p1 &lt;* Document | SIZEOF(QUERY (p2 &lt;* Document | &#10;              (NOT(p1 :=: p2) AND (p1.id = p2.id)))) &gt; 0 )) = 0"/>
       </rule>

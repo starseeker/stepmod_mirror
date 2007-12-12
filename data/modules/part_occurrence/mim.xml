@@ -8,6 +8,9 @@
       <interface kind="use" schema="Generic_product_occurrence_mim"/>
       <interface kind="use" schema="Part_view_definition_mim"/>
       <interface kind="use" schema="Assembly_structure_mim"/>
+      <interface kind="use" schema="product_definition_schema">
+         <interfaced.item name="product_definition_relationship"/>
+      </interface>
       <interface kind="use" schema="product_property_definition_schema">
          <interfaced.item name="characterized_product_definition"/>
          <interfaced.item name="property_definition"/>
@@ -19,15 +22,17 @@
          <interfaced.item name="product_definition_occurrence_relationship"/>
          <interfaced.item name="quantified_assembly_component_usage"/>
       </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <type name="product_definition_or_assembly_relationship">
          <select selectitems="assembly_component_usage product_definition"/>
       </type>
       <rule name="restrict_part_occurrence" appliesto="product_definition">
          <algorithm>LOCAL
-  part_occurrences: SET OF product_definition := [];
-END_LOCAL;
-  part_occurrences := QUERY(pd &lt;* product_definition | 
-	( pd.frame_of_reference.name = 'part occurrence' ));</algorithm>
+  part_occurrences: SET OF product_definition := QUERY(pd &lt;* product_definition | 
+	( pd.frame_of_reference.name = 'part occurrence' ));
+END_LOCAL;</algorithm>
          <where label="WR1" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences | &#10;	( NOT( pd.name IN &#10;['single instance' , 'selected instance' ,'quantified instance' , 'specified instance' ] ) ) ) ) = 0"/>
          <where label="WR2" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences | &#10; 	(SIZEOF ( QUERY ( pdr &lt;* USEDIN ( pd ,&#10;'PART_OCCURRENCE_MIM.' + 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) | &#10;	pdr.name = 'definition usage' ) ) &lt;&gt;1 ) AND &#10;	( SIZEOF ( QUERY ( cd &lt;* USEDIN ( pd , 'PART_OCCURRENCE_MIM.' + 'CONFIGURATION_DESIGN.DESIGN' ) | &#10;	( cd.name = 'occurrence usage definition' ) AND &#10;	( NOT ('PART_OCCURRENCE_MIM.' + 'PRODUCT_IDENTIFICATION' IN TYPEOF( cd.configuration ) ) ) ) ) &lt;&gt;1 ) ) ) = 0"/>
          <where label="WR3" expression="SIZEOF ( QUERY ( pd &lt;* part_occurrences |  &#10;	(SIZEOF ( QUERY ( cd &lt;* USEDIN ( pd , 'PART_OCCURRENCE_MIM.'+ 'PRODUCT_DEFINITION_RELATIONSHIP.RELATED_PRODUCT_DEFINITION' ) |&#10; 	( 'PART_OCCURRENCE_MIM.' +'PRODUCT_DEFINITION_USAGE' IN TYPEOF ( cd ) ) ) ) = 0 )AND&#10; 	( SIZEOF ( USEDIN ( pd , 'PART_OCCURRENCE_MIM.' + 'PRODUCT_DEFINITION_OCCURRENCE_RELATIONSHIP.OCCURRENCE' ) ) = 0 ) ) ) = 0"/>
@@ -37,10 +42,9 @@ END_LOCAL;
       </rule>
       <rule name="restrict_part_occurrence_category" appliesto="product_definition">
          <algorithm>LOCAL
-  part_occurrences: SET OF product_definition := [];
-END_LOCAL;
-  part_occurrences :=  QUERY( pd &lt;* product_definition |(
-		pd.frame_of_reference.name = 'part occurrence'));</algorithm>
+  part_occurrences: SET OF product_definition := QUERY( pd &lt;* product_definition |(
+		pd.frame_of_reference.name = 'part occurrence'));
+END_LOCAL;</algorithm>
          <where label="WR1" expression="SIZEOF( QUERY( pd &lt;* part_occurrences | &#10;(SIZEOF( QUERY( prpc &lt;* USEDIN(pd.formation.of_product, 'PART_OCCURRENCE_MIM.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS') | &#10;  prpc.name IN ['part','raw material','tool'] )) = 0 ) )) = 0"/>
       </rule>
       <rule name="restrict_product_definitions_for_definition_usage" appliesto="product_definition_relationship">
@@ -48,10 +52,9 @@ END_LOCAL;
       </rule>
       <rule name="selected_instance_usage_requires_representation" appliesto="assembly_component_usage">
          <algorithm>LOCAL
-  selected_instance_usages: SET OF assembly_component_usage := [];
-END_LOCAL;
-  selected_instance_usages:=  QUERY( acr &lt;* assembly_component_usage|
-		(acr.name = 'selected instance usage'));</algorithm>
+  selected_instance_usages: SET OF assembly_component_usage := QUERY( acr &lt;* assembly_component_usage|
+		(acr.name = 'selected instance usage'));
+END_LOCAL;</algorithm>
          <where label="WR1" expression="SIZEOF ( QUERY ( acr &lt;* selected_instance_usages | &#10;	NOT valid_selected_instance_representation(acr) ))=0"/>
       </rule>
       <function name="valid_selected_instance_representation">
@@ -60,45 +63,45 @@ END_LOCAL;
          </parameter>
          <builtintype type="LOGICAL"/>
          <algorithm>LOCAL
-  properties: SET OF property_definition :=[];
-  property_definition_representations: SET OF property_definition_representation :=[];
+  properties: SET OF property_definition := bag_to_set(QUERY( prd&lt;* USEDIN ( pd ,'PART_OCCURRENCE_MIM.PROPERTY_DEFINITION.DEFINITION' ) | 
+ (prd.name = 'occurrence selection' )));
+
+  property_definition_representations: SET OF property_definition_representation := bag_to_set(QUERY ( pdr &lt;* USEDIN ( properties[1] , 'PART_OCCURRENCE_MIM.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
+	( pdr.used_representation.name = 'selection criteria' )));
+
   selected_representation: representation;
 END_LOCAL;
 
-properties :=QUERY( prd&lt;* USEDIN ( pd ,'PART_OCCURRENCE_MIM.PROPERTY_DEFINITION.DEFINITION' ) | 
- (prd.name = 'occurrence selection' ));
 IF (SIZEOF( properties)&lt;&gt;1) THEN
 	RETURN(FALSE);
 END_IF;
 
-property_definition_representations := QUERY ( pdr &lt;* USEDIN ( properties[1] , 'PART_OCCURRENCE_MIM.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') | 
-	( pdr.used_representation.name = 'selection criteria' ));
 IF (SIZEOF(property_definition_representations)&lt;&gt;1) THEN
 	RETURN(FALSE);
 END_IF;
 
-selected_representation := property_definition_representations[1].used_representation;
+selected_representation := property_definition_representations[1]\property_definition_representation.used_representation;
 
-IF (SIZEOF(selected_representation.items) &lt;1) OR (SIZEOF(selected_representation.items) &gt;2) THEN
+IF (SIZEOF(selected_representation\representation.items) &lt;1) OR (SIZEOF(selected_representation\representation.items) &gt;2) THEN
 	RETURN(FALSE);
 END_IF;
 
-IF (SIZEOF ( QUERY ( i &lt;* selected_representation.used_representation.items |
+IF (SIZEOF ( QUERY ( i &lt;* selected_representation\representation.items |
 	( SIZEOF (['PART_OCCURRENCE_MIM.MEASURE_REPRESENTATION_ITEM' ,
 			'PART_OCCURRENCE_MIM.VALUE_RANGE']* TYPEOF ( i ) ) = 1) AND
  	( i.name = 'selection quantity' ))) &lt;&gt; 1 ) THEN
 	RETURN(FALSE);
 END_IF;
 
-IF (SIZEOF ( QUERY ( i &lt;* selected_representation.used_representation.items |
+IF (SIZEOF ( QUERY ( i &lt;* selected_representation\representation.items |
 	( 'PART_OCCURRENCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF ( i ) ) AND
  	( i.name = 'selection control' )))&gt; 1) THEN
 	RETURN(FALSE);
 END_IF; --the selection control is not specified then the quantity shall be a qualified_representation_item or a value_range
-IF (SIZEOF ( QUERY ( i &lt;* selected_representation.used_representation.items |
+IF (SIZEOF ( QUERY ( i &lt;* selected_representation\representation.items |
 	( 'PART_OCCURRENCE_MIM.DESCRIPTIVE_REPRESENTATION_ITEM' IN TYPEOF( i ) ) AND
  	( i.name = 'selection control' ) ))= 0) AND 
-   (SIZEOF ( QUERY ( i &lt;* selected_representation.used_representation.items |
+   (SIZEOF ( QUERY ( i &lt;* selected_representation\representation.items |
       ( i.name = 'selection quantity' ) AND  
       ( SIZEOF(['PART_OCCURRENCE_MIM.QUALIFIED_REPRESENTATION_ITEM' ,
 		'PART_OCCURRENCE_MIM.VALUE_RANGE']* TYPEOF ( i ) ) =0 ))) &gt; 0 ) THEN

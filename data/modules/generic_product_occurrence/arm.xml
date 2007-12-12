@@ -5,6 +5,7 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="generic_product_occurrence_arm schema_instance"/>
    <schema name="Generic_product_occurrence_arm">
+      <interface kind="use" schema="Assembly_structure_arm"/>
       <interface kind="use" schema="Product_view_definition_relationship_arm"/>
       <interface kind="use" schema="Value_with_unit_arm"/>
       <interface kind="use" schema="Extended_measure_representation_arm"/>
@@ -19,9 +20,13 @@
          <where label="WR1" expression="SELF\Product_view_definition.defined_version = derived_from.defined_version"/>
       </entity>
       <entity name="Product_occurrence" abstract.supertype="YES" supertypes="Product_view_definition" super.expression="ONEOF (Definition_based_product_occurrence, Specification_based_product_occurrence) AND ONEOF (Product_occurrence_with_quantity, Single_instance)">
-         <inverse name="occurrence_contexts" entity="View_definition_relationship" attribute="related_view">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse name="occurrence_contexts" entity="Product_occurrence_definition_relationship" attribute="related_view">
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
+         <inverse name="view_definition_contexts" entity="View_definition_relationship" attribute="related_view">
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
+         </inverse>
+         <where label="WR1" expression="SIZEOF(occurrence_contexts) + SIZEOF(view_definition_contexts) &gt;= 1"/>
       </entity>
       <entity name="Product_occurrence_with_quantity" abstract.supertype="YES" supertypes="Product_occurrence" super.expression="ONEOF (Quantified_instance, Selected_instance)">
          <explicit name="occurrence_quantity" optional="YES">

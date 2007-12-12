@@ -1,106 +1,45 @@
-<?xml version="1.0"?>
-<!-- $Id: arm.xml,v 1.9 2004/10/16 00:33:09 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: 2004/10/16 00:33:09 $"
-  rcs.revision="$Revision: 1.9 $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.26"
-    source="../data/modules/assembly_structure/arm.exp"/>
-
-  <schema name="Assembly_structure_arm">
-    <interface
-      kind="use"
-      schema="Product_view_definition_relationship_arm">
-    </interface>
-
-    <interface
-      kind="use"
-      schema="Value_with_unit_arm">
-    </interface>
-
-    <entity
-      name="Assembly_component_relationship"
-      abstract.supertype="YES"
-      super.expression="(ONEOF(Next_assembly_usage, Promissory_usage, Component_upper_level_identification))"
-      supertypes="View_definition_usage">
-      <explicit
-        name="quantity"
-        optional="YES">
-        <typename
-          name="Value_with_unit"/>
-      </explicit>
-      <explicit
-        name="location_indicator"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="NOT(EXISTS(quantity)) OR 	((NOT ('NUMBER' IN TYPEOF(quantity.value_component))) XOR (quantity.value_component &gt; 0))">
-      </where>
-    </entity>
-
-    <entity
-      name="Next_assembly_usage"
-      supertypes="Assembly_component_relationship">
-    </entity>
-
-    <entity
-      name="Promissory_usage"
-      supertypes="Assembly_component_relationship">
-    </entity>
-
-    <entity
-      name="Component_upper_level_identification"
-      supertypes="Assembly_component_relationship">
-      <explicit
-        name="upper_assembly_relationship">
-        <typename
-          name="Assembly_component_relationship"/>
-      </explicit>
-      <explicit
-        name="sub_assembly_relationship">
-        <typename
-          name="Next_assembly_usage"/>
-      </explicit>
-      <unique
-        label="UR1">
-        <unique.attribute
-          attribute="upper_assembly_relationship"/>
-        <unique.attribute
-          attribute="sub_assembly_relationship"/>
-      </unique>
-      <where
-        label="WR1"
-        expression="SELF :&lt;&gt;: upper_assembly_relationship ">
-      </where>
-      <where
-        label="WR2"
-        expression="SELF\View_definition_relationship.relating_view :=:       upper_assembly_relationship\View_definition_relationship.relating_view">
-      </where>
-      <where
-        label="WR3"
-        expression="SELF\View_definition_relationship.related_view :=:       sub_assembly_relationship\View_definition_relationship.related_view">
-      </where>
-      <where
-        label="WR4"
-        expression="(upper_assembly_relationship\View_definition_relationship.related_view :=:       sub_assembly_relationship\View_definition_relationship.relating_view) OR	(SIZEOF (QUERY (pdr &lt;* USEDIN	(upper_assembly_relationship\View_definition_relationship.related_view ,	'PRODUCT_VIEW_DEFINITION_RELATIONSHIP_ARM.VIEW_DEFINITION_RELATIONSHIP.RELATED_VIEW') |	pdr.relating_view :=: sub_assembly_relationship\View_definition_relationship.relating_view)) = 1)">
-      </where>
-      <where
-        label="WR5"
-        expression="SIZEOF (['ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE',	'ASSEMBLY_STRUCTURE_ARM.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship)) = 1">
-      </where>
-    </entity>
-
-  </schema>
-
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_structure_arm schema_instance"/>
+   <schema name="Assembly_structure_arm">
+      <interface kind="use" schema="Generic_product_occurrence_arm"/>
+      <interface kind="use" schema="Value_with_unit_arm"/>
+      <entity name="Assembly_component_relationship" abstract.supertype="YES" supertypes="Product_occurrence_definition_relationship" super.expression="ONEOF (Next_assembly_usage, Promissory_usage, Component_upper_level_identification)">
+         <explicit name="location_indicator" optional="YES">
+            <builtintype type="STRING"/>
+         </explicit>
+      </entity>
+      <entity name="Component_upper_level_identification" supertypes="Assembly_component_relationship">
+         <explicit name="upper_assembly_relationship">
+            <typename name="Assembly_component_relationship"/>
+         </explicit>
+         <explicit name="sub_assembly_relationship">
+            <typename name="Next_assembly_usage"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="upper_assembly_relationship"/>
+            <unique.attribute attribute="sub_assembly_relationship"/>
+         </unique>
+         <where label="WR1" expression="SELF :&lt;&gt;: upper_assembly_relationship"/>
+         <where label="WR2" expression="SELF\Product_occurrence_definition_relationship.relating_view :=: upper_assembly_relationship\Product_occurrence_definition_relationship.relating_view"/>
+         <where label="WR3" expression="SELF\Product_occurrence_definition_relationship.related_view :=: sub_assembly_relationship\Product_occurrence_definition_relationship.related_view"/>
+         <where label="WR4" expression="(upper_assembly_relationship\Product_occurrence_definition_relationship.related_view :=: sub_assembly_relationship\Product_occurrence_definition_relationship.relating_view) OR (SIZEOF (QUERY (pdr &lt;* USEDIN (upper_assembly_relationship\Product_occurrence_definition_relationship.related_view , 'ASSEMBLY_STRUCTURE_ARM.PRODUCT_OCCURRENCE_DEFINITION_RELATIONSHIP.RELATED_VIEW') | pdr.relating_view :=: sub_assembly_relationship\Product_occurrence_definition_relationship.relating_view)) = 1)"/>
+         <where label="WR5" expression="SIZEOF (['ASSEMBLY_STRUCTURE_ARM.NEXT_ASSEMBLY_USAGE', 'ASSEMBLY_STRUCTURE_ARM.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(upper_assembly_relationship)) = 1"/>
+      </entity>
+      <entity name="Next_assembly_usage" supertypes="Assembly_component_relationship"/>
+      <entity name="Product_occurrence_definition_relationship" abstract.supertype="YES">
+         <explicit name="relating_view">
+            <typename name="Product_view_definition"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Product_occurrence"/>
+         </explicit>
+         <where label="WR1" expression="NOT ('GENERIC_PRODUCT_OCCURRENCE_ARM.PRODUCT_OCCURRENCE' in TYPEOF(relating_view))"/>
+      </entity>
+      <entity name="Promissory_usage" supertypes="Assembly_component_relationship"/>
+      <subtype.constraint name="assembly_component_relationship_constraint" entity="Assembly_component_relationship" abstract.supertype="YES" totalover="Component_upper_level_identification Next_assembly_usage Promissory_usage"/>
+   </schema>
 </express>

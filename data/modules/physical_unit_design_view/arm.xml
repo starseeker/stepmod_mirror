@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-09-26 10:15:07 +0300 (Tr, 26 Rgs 2007) $" rcs.revision="$Revision: 1596 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_arm schema_instance"/>
    <schema name="Physical_unit_design_view_arm">
       <interface kind="use" schema="Physical_layout_template_arm"/>
@@ -155,11 +155,8 @@
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.element_name)"/>
       </entity>
       <entity name="Next_assembly_usage_occurrence_relationship" supertypes="Next_assembly_usage" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="component" optional="NO">
-            <typename name="Product_occurrence"/>
-         </explicit>
          <unique label="UR1">
-            <unique.attribute entity-ref="View_definition_relationship" attribute="relating_view"/>
+            <unique.attribute entity-ref="Product_occurrence_definition_relationship" attribute="relating_view"/>
             <unique.attribute entity-ref="Assembly_component_relationship" attribute="location_indicator"/>
          </unique>
       </entity>
@@ -198,11 +195,11 @@
   pvd : SET OF Product_view_definition := [];
 END_LOCAL;
 REPEAT i := 1 TO HIINDEX(acr) BY 1;
-  IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\View_definition_relationship.relating_view))
+  IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
   THEN
-  pvd := pvd + acr[i]\View_definition_relationship.relating_view; 
+  pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
   ELSE
-  pvd := pvd + get_assemblies(acr[i]\View_definition_relationship.relating_view);
+  pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
   END_IF;
 END_REPEAT;
 RETURN (pvd);</algorithm>
@@ -224,11 +221,11 @@ REPEAT i := 1 TO HIINDEX(input) BY 1;
 END_REPEAT;
 
 REPEAT i := 1 TO HIINDEX(acr) BY 1;
-  IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\View_definition_relationship.relating_view))
+  IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
   THEN
-  pvd := pvd + acr[i]\View_definition_relationship.relating_view; 
+  pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
   ELSE
-  pvd := pvd + get_assemblies(acr[i]\View_definition_relationship.relating_view);
+  pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
   END_IF;
 END_REPEAT;
 RETURN (pvd);</algorithm>
@@ -244,9 +241,9 @@ RETURN (pvd);</algorithm>
   agc : SET OF Assembly_group_component := [];
 END_LOCAL;
 REPEAT i := 1 TO HIINDEX(acr) BY 1;
-  IF ('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\View_definition_relationship.relating_view))
+  IF ('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
   THEN
-  agc := agc + acr[i]\View_definition_relationship.relating_view; 
+  agc := agc + acr[i]\Product_occurrence_definition_relationship.relating_view; 
   END_IF;
 END_REPEAT;
 RETURN (agc);</algorithm>

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.72 2007/12/10 22:05:48 thomasrthurman Exp $
+   $Id: mim.exp,v 1.73 2007/12/11 16:53:35 thomasrthurman Exp $
    ISO TC184/SC4/WG3 N1997 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG3 N1639
 *)
@@ -31,23 +31,18 @@ USE FROM Ap210_interconnect_requirement_allocation_mim;	-- ISO/TS 10303-1621
 USE FROM Ap210_functional_requirement_allocation_mim;	-- ISO/TS 10303-1615
 USE FROM Ap210_datum_difference_based_model_definition_mim;	-- ISO/TS 10303-1759
 
-USE FROM Drawing_definition_mim; -- 1309
-USE FROM Dimension_and_tolerance_callouts_mim; -- 1362 
-USE FROM Text_representation_mim; -- 1750
+USE FROM Drawing_definition_mim; -- ISO/TS 10303-1309
+USE FROM Dimension_and_tolerance_callouts_mim; -- ISO/TS 10303-1362 
+USE FROM Text_representation_mim; -- ISO/TS 10303-1750
+
 USE FROM presentation_appearance_schema
-   (pre_defined_surface_side_style); -- ISO 10303-46????
+   (pre_defined_surface_side_style); -- ISO 10303-46
 
 USE FROM application_context_schema
 	(application_context,
 	 application_protocol_definition);
 
 USE FROM geometry_schema(offset_curve_2d);
-
-RULE not_instantiable_pre_defined_surface_side_style FOR
-    (pre_defined_surface_side_style);
-WHERE
- WR1: SIZEOF (pre_defined_surface_side_style) = 0;
-END_RULE;
 
 SUBTYPE_CONSTRAINT aeaiapd_component_terminal_subtypes FOR physical_component_terminal;         
   (ONEOF(assembly_module_macro_component_join_terminal,
@@ -342,6 +337,12 @@ WHERE
         IN TYPEOF(u\conversion_based_unit.conversion_factor)))
    ))) = 0)
    )) = 0;
+END_RULE;
+
+RULE not_instantiable_pre_defined_surface_side_style FOR
+    (pre_defined_surface_side_style);
+WHERE
+ WR1: SIZEOF (pre_defined_surface_side_style) = 0;
 END_RULE;
 
 RULE shape_representation_requires_origin FOR (shape_representation);

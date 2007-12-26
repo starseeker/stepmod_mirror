@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="fabrication_technology" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007/12/05 11:16:16 $" rcs.revision="$Revision: 1.89 $">
+<ext_descriptions module_directory="fabrication_technology" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007/12/11 12:47:45 $" rcs.revision="$Revision: 1.90 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Fabrication_technology_arm
    <express_ref linkend="fabrication_technology:arm:Fabrication_technology_arm"/>
@@ -436,17 +436,33 @@ A <b>Continuous_template</b> is a type of
 <ext_description linkend="Fabrication_technology_arm.Stratum_stack_model">
 	<p>A <b>Stratum_stack_model</b> is a type of
 	<express_ref linkend="Physical_layout_template:arm:Physical_layout_template_arm.Template_definition"/> that is included to
-		define the sequence of materials in an interconnect.  The stackup is devoid of any pattern information and is intended
-		to serve as a foundational structure upon which complete models are constructed.
+		define the sequence of materials in an interconnect.  The stackup model is a representation of a
+		graph and the represented graph has specific properties.  The graph is a directed graph.  The graph is acyclic with the 
+		sole exception being a single loop configuration for the situation where there is exactly one 
+		<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/>
+		in the model. Because the graph relates to material structures which are connected, the graph is a connected graph.  The graph may
+		have multiple roots and multiple paths from a root to a leaf element.  The convention in this part of ISO 10303 is that
+		the direction of the elements of the graph is in the negative z dimension.
+		The stackup is devoid of any pattern information and is intended
+		to serve as a foundational structure.  
 	</p>
-			<module_ref linkend="printed_physical_layout_template:4_entities:figure:tt">
+<example number="1">
+	<module_ref linkend="printed_physical_layout_template:4_entities:figure:tt">
 		Figure 4 in ISO/TS 10303-1737</module_ref> illustrates several simple stackups for microstrip design structures.
 	The parametric information related to the vertical extents of the elements in the illustration 
-	would be derived from the properties of the leaf elements of the
+	would be derived from the properties of the nodes of the
 	stackup model which are 
-	 <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology"/>.  
-The parametric information related to the horizontal extents of the elements in the illustration is unrelated to the
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/>.  The properties of
+	the <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/> are inherited from
+	the <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology"/> in the role of definition for
+	the <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/>.
+	The parametric information related to the horizontal extents of the elements in the illustration is unrelated to the
 	<b>Stratum_stack_model</b>.
+</example>
+	<example number="2">
+		A design stackup that includes different final finish materials in different regions on the top side will have multiple root elements
+		and therefore multiple paths through the graph.
+	</example>
 </ext_description>
 
 <!-- composing_occurrence -->
@@ -1517,36 +1533,49 @@ A <b>Land_template_join_terminal</b> is a type of <express_ref linkend="Fabricat
 <!-- +++++++++++ Stratum_technology_occurrence_link +++++++++++ -->
 <ext_description linkend="Fabrication_technology_arm.Stratum_technology_occurrence_link">
 <p>
-	A <b>Stratum_technology_occurrence_link</b> is a relationship that relates two 
-	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence">Stratum_technology_occurrences</express_ref>.
+	A <b>Stratum_technology_occurrence_link</b> is a relationship that specifies a directed link between two members of  
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence">Stratum_technology_occurrence</express_ref>.
+	The graph composed of a set of links for a particular stackup model is acyclic or consists of only a single loop. 
+	The link exists only in the scope of a single member of 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_stack_model"/>.
+	The link forms a z-axis dimension in the stackup model.  The normal usage is for the subsequent 
+	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/>
+		to be more negative in the z dimension than the precedent
+		<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/>.
 </p>
-	<note>
+	<note number="1">
 		While it is improbable that final design definition would include a 
-		member of <b>Stratum_technology_occurrence_link</b> which implies that there is only 
-		one stratum in a design, it is possible that test data or intermediate design 
-		data in a work flow may include only one stratum in a design definition.  
-		Therefore this part of ISO 10303 supports that configuration.
+		member of <b>Stratum_technology_occurrence_link</b> with the <b>precedent_sto</b> equal to the <b>subsequent_sto</b>, 
+		it is possible that test data or intermediate design 
+		data in a work flow may include only one stratum in a design definition and therefore the same member of
+		<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/>
+		at each end of the link, forming a loop.  
+		Therefore this part of ISO 10303 supports that configuration.  That configuration is only allowed in the case of a stackup model having
+		exactly one link.
+	</note>
+	<note number="2">
+		The <b>Stratum_technology_occurrence_link</b> constraints only enforce an acyclic constraint on graphs composed of <b>Stratum_technology_occurrence_link</b>.
+		Other constraints are contained in the <express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_stack_model"/>.
 	</note>
 </ext_description>
 
 <!-- precedent_sto -->
 <ext_description linkend="Fabrication_technology_arm.Stratum_technology_occurrence_link.precedent_sto">
-
-	specifies a role of the
+	specifies one role of a
 	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/>
 	for the <b>Stratum_technology_occurrence_link</b>.
 </ext_description>
 
 <!-- subsequent_sto -->
 <ext_description linkend="Fabrication_technology_arm.Stratum_technology_occurrence_link.subsequent_sto">
-	specifies a role of the
+	specifies one role of a
 	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_technology_occurrence"/>
 	for the <b>Stratum_technology_occurrence_link</b>.
 </ext_description>
 
 <!-- scope -->
 <ext_description linkend="Fabrication_technology_arm.Stratum_technology_occurrence_link.scope">
-	specifies a role of the
+	specifies the role of a
 	<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Stratum_stack_model"/>
 	for the <b>Stratum_technology_occurrence_link</b>.
 </ext_description>
@@ -1562,7 +1591,8 @@ A <b>Land_template_join_terminal</b> is a type of <express_ref linkend="Fabricat
 <!-- WR2 -->
 <ext_description linkend="Fabrication_technology_arm.Stratum_technology_occurrence_link.wr:WR2">
 	<p>
-	The graph of instances of the Application Object <b>Stratum_technology_occurrence_link</b> shall not contain a cycle.
+	If there is more than one link in a stackup model, the graph of instances of the Application Object <b>Stratum_technology_occurrence_link</b> that 
+		reference that stackup model in the role of <b>scope</b> shall not contain a cycle.
 	</p>
 </ext_description>
 

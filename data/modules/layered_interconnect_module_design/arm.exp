@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.254 2007/12/10 14:18:44 liutkus Exp $
+   $Id: arm.exp,v 1.255 2007/12/26 21:20:36 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -1341,10 +1341,29 @@ END_LOCAL;
 END_FUNCTION;
 
   FUNCTION get_included_stratum(
-    input1 : Stratum;
-    input2 : Stratum
-  ) : SET OF Stratum;
-    RETURN (?);
+     input1 : Stratum;
+     input2 : Stratum) : SET OF Stratum;
+  LOCAL
+   test : Stratum := [];
+   s : SET OF Stratum := [];
+   sss : SET OF Stratum_surface := bag_to_set(QUERY(ss <* USEDIN(input1,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE') | 
+                                                          ss\Stratum_surface.name = stratum_surface_designation.secondary_surface));
+   assd : SET OF Adjacent_stratum_surface_definition := [];
+   sss1 : Stratum_surface := sss[1];
+   s := s + input1;
+  END_LOCAL;
+
+  assd := bag_to_set(USEDIN(sss1,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ADJACENT_STRATUM_SURFACE_DEFINITION.PRECEDENT_SURFACE'));
+  test := assd[1]\Adjacent_stratum_surface_definition.subsequent_surface\Stratum_surface.of_stratum;
+  s : s + test;
+  IF (input2 :=: test)
+  THEN
+   RETURN(s);
+  ELSE
+   s := s + get_included_stratum(test, input2);
+   RETURN(s);
+  END_IF;
+  RETURN (?);
   END_FUNCTION;
 
   FUNCTION limd_get_sz_cp (

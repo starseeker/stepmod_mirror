@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.36 2007/12/05 10:08:33 liutkus Exp $
+   $Id: arm.exp,v 1.37 2007/12/27 05:04:29 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4017 - ISO/TS 10303-1690 Interconnect placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3459
 *)
@@ -196,22 +196,6 @@ SCHEMA Interconnect_placement_requirements_arm;
       WR3 : valid_non_conformant_design_object_context(non_conformant_interconnect_module_design_object, scope);
   END_ENTITY;
 
-  ENTITY Stratum_constraint_region
-    SUBTYPE OF (Non_feature_shape_element);
-      keepout                                          : BOOLEAN;
-      non_conformant_stratum                           : OPTIONAL SET[1:?] OF Stratum;
-      SELF\Non_feature_shape_element.scope             : Interconnect_module;
-      design_specific_purpose                          : STRING; 
-      constrained_stratum                              : SET[1:?] OF Stratum;
-    INVERSE
-      precedent_version_constraint_region : SET[0:1] OF non_feature_shape_element_relationship FOR related;
-      requirement : SET[1:1] OF requirement_assignment FOR assigned_to;
-    WHERE
-      WR1 : NOT (SIZEOF(precedent_version_constraint_region) = 1) OR ('INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.STRATUM_CONSTRAINT_REGION' IN TYPEOF(precedent_version_constraint_region[1]\Non_feature_shape_element_relationship.relating));
-      WR2 : NOT EXISTS(SELF\Shape_element.description);
-      WR3 : valid_non_conformant_stratum_context(non_conformant_stratum, scope);
-  END_ENTITY;
-
   ENTITY Layer_qualified_layout_spacing_requirement_occurrence
     SUBTYPE OF (Layout_spacing_requirement_occurrence);
       layer_context : SET[1:?] OF Inter_stratum_extent;
@@ -235,6 +219,22 @@ SCHEMA Interconnect_placement_requirements_arm;
       intersection_violation       : LOGICAL;
     WHERE
      WR1: EXISTS(violation_value) OR EXISTS(violation_shape);      
+  END_ENTITY;
+
+  ENTITY Stratum_constraint_region
+    SUBTYPE OF (Non_feature_shape_element);
+      constrained_stratum                              : SET[1:?] OF Stratum;    
+      design_specific_purpose                          : STRING;       
+      keepout                                          : BOOLEAN;
+      non_conformant_stratum                           : OPTIONAL SET[1:?] OF Stratum;
+      SELF\Non_feature_shape_element.scope             : Interconnect_module;
+    INVERSE
+      precedent_version_constraint_region : SET[0:1] OF non_feature_shape_element_relationship FOR related;
+      requirement : SET[1:1] OF requirement_assignment FOR assigned_to;
+    WHERE
+      WR1 : NOT (SIZEOF(precedent_version_constraint_region) = 1) OR ('INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.STRATUM_CONSTRAINT_REGION' IN TYPEOF(precedent_version_constraint_region[1]\Non_feature_shape_element_relationship.relating));
+      WR2 : NOT EXISTS(SELF\Shape_element.description);
+      WR3 : valid_non_conformant_stratum_context(non_conformant_stratum, scope);
   END_ENTITY;
 
   FUNCTION valid_non_conformant_design_object_context(input1 : SET OF interconnect_module_design_object_select;
@@ -274,7 +274,7 @@ SCHEMA Interconnect_placement_requirements_arm;
    REPEAT i := 1 to HIINDEX(input1);
        imsar := input1[i]\Stratum.assembly;
        pvd := [];
-      REPEAT j := 1 to HIINDEX(vdr);
+      REPEAT j := 1 to HIINDEX(pvd);
        pvd := pvd + imsar[j]\Interconnect_module_stratum_assembly_relationship.assembly;
       END_REPEAT;
        IF NOT (input2 IN pvd) 

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.257 2007/12/27 12:55:00 liutkus Exp $
+   $Id: arm.exp,v 1.258 2007/12/27 14:55:14 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -710,6 +710,17 @@ SCHEMA Layered_interconnect_module_design_arm;
 
   END_ENTITY;
 
+  ENTITY Layer_stack_region
+    SUBTYPE OF (Instanced_feature);
+      applied_stack                       : SET [1:?] OF Local_linear_stack;
+      SELF\Shape_element.containing_shape : Interconnect_module;
+    DERIVE
+      stratum_technology_occurrence : BAG OF Stratum_technology_occurrence := limd_get_sto(applied_stack);
+    WHERE
+      WR1: SIZEOF(bag_to_set(stratum_technology_occurrence)) = SIZEOF(stratum_technology_occurrence);
+      WR2: SIZEOF(SELF\Shape_feature_definition.feature_model) = 1;
+  END_ENTITY;
+
   ENTITY Generic_laminate_text_component
     ABSTRACT SUPERTYPE OF (ONEOF (Additive_laminate_text_component,
       Material_removal_laminate_text_component))
@@ -1365,6 +1376,22 @@ END_FUNCTION;
    RETURN(s);
   END_IF;
   RETURN (?);
+  END_FUNCTION;
+
+  FUNCTION limd_get_sto(input : SET OF Local_linear_stack) : BAG OF Stratum_technology_occurrence;
+    LOCAL
+      sto : BAG OF Stratum_technology_occurrence := [];
+      stol : BAG OF Stratum_technology_occurrence_link := [];
+      i : INTEGER := 0;
+    END_LOCAL; 
+    REPEAT i := 1 to SIZEOF(input) BY 1;
+      stol := stol + input[i]\Local_linear_stack.stratum_technology_sequence;
+    END_REPEAT;
+    REPEAT i := 1 to SIZEOF(stol) BY 1;
+      sto := sto + stol[i]\Stratum_technology_occurrence_link.precedent_sto;
+      sto := sto + stol[i]\Stratum_technology_occurrence_link.subsequent_sto;
+    END_REPEAT;
+    RETURN(sto);
   END_FUNCTION;
 
   FUNCTION limd_get_sz_cp (

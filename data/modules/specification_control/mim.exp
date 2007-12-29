@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp 1196 2007-06-08 15:31:32Z astaliutkuviene $
+ $Id: mim.exp,v 1.13 2007/11/15 11:08:30 liutkus Exp $
  ISO TC184/SC4/WG12 N4814 - ISO/CD-TS 10303-1112 Specification control - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N2623
 *)
@@ -67,16 +67,6 @@ USE FROM product_definition_schema (product_definition_substitute);
         pd.frame_of_reference.name =  'conceptual definition' ) ) <1) ) ) =  0;
   END_RULE;
 
-  RULE restrict_product_definitions_for_design_constraint_association FOR
-      (product_definition_relationship);
-    WHERE
-      WR1: SIZEOF ( QUERY ( pdr <* product_definition_relationship |
-        ( pdr. name = 'design constraint association' ) AND 
-	    ( (pdr. relating_product_definition.frame_of_reference.name<>'design constraint definition' ) OR 
-	    NOT ( pdr.related_product_definition.frame_of_reference.name IN 
-	    ['alternative definition' , 'functional definition' ,'conceptual definition' ] ) ) ) ) =0;
-  END_RULE;
-
   RULE constraint_definition_requires_constraint_category FOR (product_definition);
     LOCAL
       constraint_definitions: SET OF product_definition := [];
@@ -100,14 +90,6 @@ USE FROM product_definition_schema (product_definition_substitute);
 	    pd.frame_of_reference.name = 'design constraint definition' ) ) <1 ) ) ) =  0;
   END_RULE; 
 
-  RULE restrict_configuration_design_for_design_constraint FOR (configuration_design); 
-    WHERE 
-      WR1: SIZEOF ( QUERY (cd <* configuration_design | 
-	    (cd.name = 'design constraint usage') AND 
-        (NOT('SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd.design ) ) OR 
-        (cd.design\product_definition.frame_of_reference.name <> 'design constraint definition')))) = 0; 
-  END_RULE;
-
   RULE restrict_configuration_design_for_class_breakdown_association FOR
       (configuration_design);
     WHERE
@@ -125,6 +107,24 @@ USE FROM product_definition_schema (product_definition_substitute);
         ( cd.name IN ['functionality' , 'realization'] ) AND 
         ( NOT ('SPECIFICATION_CONTROL_MIM.PRODUCT_CLASS' IN TYPEOF ( cd.configuration.item_concept ) ) ) 
         ) ) =0;
+  END_RULE;
+
+  RULE restrict_configuration_design_for_design_constraint FOR (configuration_design); 
+    WHERE 
+      WR1: SIZEOF ( QUERY (cd <* configuration_design | 
+	    (cd.name = 'design constraint usage') AND 
+        (NOT('SPECIFICATION_CONTROL_MIM.PRODUCT_DEFINITION' IN TYPEOF ( cd.design ) ) OR 
+        (cd.design\product_definition.frame_of_reference.name <> 'design constraint definition')))) = 0; 
+  END_RULE;
+
+  RULE restrict_product_definitions_for_design_constraint_association FOR
+      (product_definition_relationship);
+    WHERE
+      WR1: SIZEOF ( QUERY ( pdr <* product_definition_relationship |
+        ( pdr. name = 'design constraint association' ) AND 
+	    ( (pdr. relating_product_definition.frame_of_reference.name<>'design constraint definition' ) OR 
+	    NOT ( pdr.related_product_definition.frame_of_reference.name IN 
+	    ['alternative definition' , 'functional definition' ,'conceptual definition' ] ) ) ) ) =0;
   END_RULE;
 
 END_SCHEMA;

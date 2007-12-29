@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp 1151 2007-06-05 14:31:43Z giedrius $
+ $Id: mim.exp,v 1.15 2007/11/15 11:04:45 liutkus Exp $
  ISO TC184/SC4/WG12 N4742 - ISO/CD-TS 10303-1129 External properties - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N2611
 *)
@@ -36,40 +36,6 @@ USE FROM support_resource_schema(
     SUBTYPE OF (general_property, externally_defined_item); 
   END_ENTITY; 
 
-  RULE external_version_assignments_are_valid FOR (applied_external_identification_assignment);
-    WHERE
-      WR1: SIZEOF(QUERY(aia <* applied_external_identification_assignment | 
-        NOT external_version_assignment_is_valid(aia)))=0;
-  END_RULE;
-
-  RULE plib_property_reference_requires_version FOR (externally_defined_general_property); 
-	LOCAL
-	  plib_properties : SET OF externally_defined_general_property := [];
-	END_LOCAL;
-	  plib_properties := QUERY ( edgp <* externally_defined_general_property | 
-		( 'EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' IN TYPEOF ( edgp.source ) ) AND
-		( 'EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' + '\PRE_DEFINED_ITEM.NAME' = 'ISO 13584 library' ) ); 
-	WHERE 
-	  WR1: SIZEOF( QUERY( edgp <* plib_properties | 
-		(SIZEOF( QUERY( edir <* USEDIN(edgp, 'EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM' + '.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | 
-		(edir.role.name = 'version') )) <> 1) )) = 0; 
-  END_RULE;
-
-  RULE plib_property_reference_requires_name_scope FOR (
-      externally_defined_general_property);
-    LOCAL
-      known_sourced_properties : SET OF externally_defined_general_property;
-    END_LOCAL;
-      known_sourced_properties := QUERY( edc <* externally_defined_general_property | 
-	    'PLIB_CLASS_REFERENCE_MIM' + '.KNOWN_SOURCE' IN TYPEOF(edc.source) );
-    WHERE
-      WR1: SIZEOF ( QUERY ( edgp <* known_sourced_properties | 
-        ( SIZEOF ( QUERY ( edir <* USEDIN ( edgp, 'EXTERNAL_REFERENCE_SCHEMA' + '.EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM' )| 
-        ( edir.name =  'name scope' ) AND 
-        ('EXTERNAL_CLASS_MIM' + '.EXTERNALLY_DEFINED_CLASS' IN  TYPEOF ( edir.related_item ) ) AND 
-        ( 'PLIB_CLASS_REFERENCE_MIM' + '.KNOWN_SOURCE' IN TYPEOF ( edir.related_item.source ) ) ) ) <>1 ) ) ) =  0;
-  END_RULE; 
-
   FUNCTION external_version_assignment_is_valid (aia: applied_external_identification_assignment): BOOLEAN;
     LOCAL
       item: identification_item;
@@ -89,5 +55,39 @@ USE FROM support_resource_schema(
         RETURN(TRUE);
       END_IF;
   END_FUNCTION;
+
+  RULE external_version_assignments_are_valid FOR (applied_external_identification_assignment);
+    WHERE
+      WR1: SIZEOF(QUERY(aia <* applied_external_identification_assignment | 
+        NOT external_version_assignment_is_valid(aia)))=0;
+  END_RULE;
+
+  RULE plib_property_reference_requires_name_scope FOR (
+      externally_defined_general_property);
+    LOCAL
+      known_sourced_properties : SET OF externally_defined_general_property;
+    END_LOCAL;
+      known_sourced_properties := QUERY( edc <* externally_defined_general_property | 
+	    'PLIB_CLASS_REFERENCE_MIM' + '.KNOWN_SOURCE' IN TYPEOF(edc.source) );
+    WHERE
+      WR1: SIZEOF ( QUERY ( edgp <* known_sourced_properties | 
+        ( SIZEOF ( QUERY ( edir <* USEDIN ( edgp, 'EXTERNAL_REFERENCE_SCHEMA' + '.EXTERNALLY_DEFINED_ITEM_RELATIONSHIP.RELATING_ITEM' )| 
+        ( edir.name =  'name scope' ) AND 
+        ('EXTERNAL_CLASS_MIM' + '.EXTERNALLY_DEFINED_CLASS' IN  TYPEOF ( edir.related_item ) ) AND 
+        ( 'PLIB_CLASS_REFERENCE_MIM' + '.KNOWN_SOURCE' IN TYPEOF ( edir.related_item.source ) ) ) ) <>1 ) ) ) =  0;
+  END_RULE; 
+
+  RULE plib_property_reference_requires_version FOR (externally_defined_general_property); 
+	LOCAL
+	  plib_properties : SET OF externally_defined_general_property := [];
+	END_LOCAL;
+	  plib_properties := QUERY ( edgp <* externally_defined_general_property | 
+		( 'EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' IN TYPEOF ( edgp.source ) ) AND
+		( 'EXTERNAL_PROPERTIES_MIM' + '.KNOWN_SOURCE' + '\PRE_DEFINED_ITEM.NAME' = 'ISO 13584 library' ) ); 
+	WHERE 
+	  WR1: SIZEOF( QUERY( edgp <* plib_properties | 
+		(SIZEOF( QUERY( edir <* USEDIN(edgp, 'EXTERNAL_ITEM_IDENTIFICATION_ASSIGNMENT_MIM' + '.APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT.ITEMS') | 
+		(edir.role.name = 'version') )) <> 1) )) = 0; 
+  END_RULE;
 
 END_SCHEMA;

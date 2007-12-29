@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp 1196 2007-06-08 15:31:32Z astaliutkuviene $
+ $Id: mim.exp,v 1.4 2007/11/15 11:08:41 liutkus Exp $
  ISO TC184/SC4/WG12 N4772 - ISO/CD-TS 10303-1770 Part and zone laminate tables - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N4380
 *)
@@ -145,54 +145,44 @@ USE FROM product_structure_schema (next_assembly_usage_occurrence);
   END_SUBTYPE_CONSTRAINT;
 
   RULE component_class_for_assembly_select FOR
-   (composite_assembly_sequence_definition,
-    next_assembly_usage_occurrence,
-    product_related_product_category);
-  LOCAL
-    i,j,k :  INTEGER;
-    dkuhr :  LOGICAL;
-    nnauo :  INTEGER;
-    nprpc :  INTEGER;
-    rp    :  product;
-  END_LOCAL;
-
+     (composite_assembly_sequence_definition,
+      next_assembly_usage_occurrence,
+      product_related_product_category);
+    LOCAL
+      i,j,k :  INTEGER;
+      dkuhr :  LOGICAL;
+      nnauo :  INTEGER;
+      nprpc :  INTEGER;
+      rp    :  product;
+    END_LOCAL;
     dkuhr := TRUE;
     REPEAT i:= LOINDEX (composite_assembly_sequence_definition) TO
                HIINDEX (composite_assembly_sequence_definition);
-
       nnauo := 0;  
       REPEAT j:= LOINDEX (next_assembly_usage_occurrence) TO
                  HIINDEX (next_assembly_usage_occurrence);
-
         IF (composite_assembly_sequence_definition[i] = 
           next_assembly_usage_occurrence[j].relating_product_definition) THEN
- 
           rp := next_assembly_usage_occurrence[j].related_product_definition.
                 formation.of_product;
           nprpc := 0;
           REPEAT k:= LOINDEX (product_related_product_category) TO
                      HIINDEX (product_related_product_category);
-
             IF ((rp IN product_related_product_category[k].products) AND
                 (product_related_product_category[k].name IN ['ply',
                  'ply laminate', 'filament laminate', 'processed core',
                  'composite assembly'])) THEN
                 nprpc := nprpc + 1;
             END_IF;
-  
           END_REPEAT;
-  
           IF (nprpc = 1) THEN
             nnauo := nnauo + 1;
           ELSE
             dkuhr := FALSE;
             ESCAPE;
           END_IF;
-  
         END_IF;
-  
       END_REPEAT;
-  
       IF (dkuhr = FALSE) THEN
         ESCAPE; 
       END_IF;
@@ -200,60 +190,48 @@ USE FROM product_structure_schema (next_assembly_usage_occurrence);
         dkuhr := FALSE;
         ESCAPE;
       END_IF;
-
     END_REPEAT;
-
-  WHERE
-    WR1:  dkuhr;
+    WHERE
+      WR1:  dkuhr;
   END_RULE;
 
   RULE ply_reference FOR
-   (ply_laminate_sequence_definition,
-    next_assembly_usage_occurrence,
-    product_related_product_category);
-  LOCAL
-    i,j,k :  INTEGER;
-    dkuhr :  LOGICAL;
-    nnauo :  INTEGER;
-    nprpc :  INTEGER;
-    rp    :  product;
-  END_LOCAL;
-
+     (ply_laminate_sequence_definition,
+      next_assembly_usage_occurrence,
+      product_related_product_category);
+    LOCAL
+      i,j,k :  INTEGER;
+      dkuhr :  LOGICAL;
+      nnauo :  INTEGER;
+      nprpc :  INTEGER;
+      rp    :  product;
+    END_LOCAL;
     dkuhr := TRUE;
     REPEAT i:= LOINDEX (ply_laminate_sequence_definition) TO
                HIINDEX (ply_laminate_sequence_definition);
- 
       nnauo := 0;  
       REPEAT j:= LOINDEX (next_assembly_usage_occurrence) TO 
                  HIINDEX (next_assembly_usage_occurrence);
-
         IF (ply_laminate_sequence_definition[i] = 
           next_assembly_usage_occurrence[j].relating_product_definition) THEN
-
           rp := next_assembly_usage_occurrence[j].related_product_definition.
                 formation.of_product;
           nprpc := 0;
           REPEAT k:= LOINDEX (product_related_product_category) TO
                      HIINDEX (product_related_product_category);
-
             IF ((product_related_product_category[k].name = 'ply') AND
                 (rp IN product_related_product_category[k].products)) THEN
                 nprpc := nprpc + 1;
             END_IF;
-
           END_REPEAT;
-
           IF (nprpc = 1) THEN
             nnauo := nnauo + 1;
           ELSE
             dkuhr := FALSE;
             ESCAPE;
           END_IF;
-
         END_IF;
-
       END_REPEAT;
-
       IF (dkuhr = FALSE) THEN
         ESCAPE; 
       END_IF;
@@ -261,62 +239,50 @@ USE FROM product_structure_schema (next_assembly_usage_occurrence);
         dkuhr := FALSE;
         ESCAPE;
       END_IF;
-
     END_REPEAT;
-
-  WHERE
-    WR1:  dkuhr;
+    WHERE
+      WR1:  dkuhr;
   END_RULE;
 
   RULE stock_material_reference FOR
-   (percentage_ply_definition,
-    make_from_usage_option,
-    product_related_product_category);
-  LOCAL
-    i,j,k :  INTEGER;
-    dkuhr :  LOGICAL;
-    nmfuo :  INTEGER;
-    nprpc :  INTEGER;
-    rp     :  product;
-  END_LOCAL;
-
+     (percentage_ply_definition,
+      make_from_usage_option,
+      product_related_product_category);
+    LOCAL
+      i,j,k :  INTEGER;
+      dkuhr :  LOGICAL;
+      nmfuo :  INTEGER;
+      nprpc :  INTEGER;
+      rp     :  product;
+    END_LOCAL;
     dkuhr := TRUE;
     REPEAT i:= LOINDEX (percentage_ply_definition) TO
                HIINDEX (percentage_ply_definition);
-
       nmfuo := 0;  
       REPEAT j:= LOINDEX (make_from_usage_option) TO 
                  HIINDEX (make_from_usage_option);
-
         IF (percentage_ply_definition[i] = 
           make_from_usage_option[j].relating_product_definition) THEN
-
           rp := make_from_usage_option[j].related_product_definition.
                 formation.of_product;
           nprpc := 0;
           REPEAT k:= LOINDEX (product_related_product_category) TO
                      HIINDEX (product_related_product_category);
-
             IF ((rp IN product_related_product_category[k].products) AND
                 (product_related_product_category[k].name IN 
                 ['anisotropic material', 'isotropic material', 'stock core',
                  'filament assembly', 'discontinuous fiber assembly'])) THEN
                 nprpc := nprpc + 1;
             END_IF;
- 
           END_REPEAT;
-
           IF (nprpc = 1) THEN
             nmfuo := nmfuo + 1;
           ELSE
             dkuhr := FALSE;
             ESCAPE;
           END_IF;
-
         END_IF;
-
       END_REPEAT;
-
       IF (dkuhr = FALSE) THEN
         ESCAPE; 
       END_IF;
@@ -324,61 +290,49 @@ USE FROM product_structure_schema (next_assembly_usage_occurrence);
         dkuhr := FALSE;
         ESCAPE;
       END_IF;
-
     END_REPEAT;
-
-  WHERE
-    WR1:  dkuhr;
+    WHERE
+      WR1:  dkuhr;
   END_RULE;
 
   RULE thickness_laminate_table_component_select FOR
-   (thickness_laminate_definition,
-    next_assembly_usage_occurrence,
-    product_related_product_category);
-  LOCAL
-    i,j,k :  INTEGER;
-    dkuhr :  LOGICAL;
-    nnauo :  INTEGER;
-    nprpc :  INTEGER;
-    rp    :  product;
-  END_LOCAL;
- 
+     (thickness_laminate_definition,
+      next_assembly_usage_occurrence,
+      product_related_product_category);
+    LOCAL
+      i,j,k :  INTEGER;
+      dkuhr :  LOGICAL;
+      nnauo :  INTEGER;
+      nprpc :  INTEGER;
+      rp    :  product;
+    END_LOCAL;
     dkuhr := TRUE;
     REPEAT i:= LOINDEX (thickness_laminate_definition) TO
                HIINDEX (thickness_laminate_definition);
-
       nnauo := 0;  
       REPEAT j:= LOINDEX (next_assembly_usage_occurrence) TO 
                  HIINDEX (next_assembly_usage_occurrence);
-
         IF (thickness_laminate_definition[i] = 
           next_assembly_usage_occurrence[j].relating_product_definition) THEN
-
           rp := next_assembly_usage_occurrence[j].related_product_definition.
                 formation.of_product;
           nprpc := 0;
           REPEAT k:= LOINDEX (product_related_product_category) TO
                      HIINDEX (product_related_product_category);
-
             IF ((rp IN product_related_product_category[k].products) AND
                 (product_related_product_category[k].name IN 
                  ['ply', 'filament laminate', 'processed core'])) THEN
                 nprpc := nprpc + 1;
             END_IF;
-
           END_REPEAT;
-
           IF (nprpc = 1) THEN
             nnauo := nnauo + 1;
           ELSE
             dkuhr := FALSE;
             ESCAPE;
           END_IF;
-
         END_IF;
-
       END_REPEAT;
-
       IF (dkuhr = FALSE) THEN
         ESCAPE;
       END_IF;
@@ -386,11 +340,9 @@ USE FROM product_structure_schema (next_assembly_usage_occurrence);
         dkuhr := FALSE;
         ESCAPE;
       END_IF;
-
     END_REPEAT;
-
-  WHERE
-    WR1:  dkuhr;
+    WHERE
+      WR1:  dkuhr;
   END_RULE;
 
 END_SCHEMA;

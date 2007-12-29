@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp 1151 2007-06-05 14:31:43Z giedrius $
+ $Id: mim.exp,v 1.11 2007/11/15 11:06:25 liutkus Exp $
  ISO TC184/SC4/WG12 N4844 - ISO/CD-TS 10303-1345 Item definition structure - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N4294
 *)
@@ -21,6 +21,15 @@ REFERENCE FROM Single_part_representation_mim
     (product_definition_relationship);
   END_TYPE;
 
+  RULE product_definition_replacement_requires_effectivity_assignment FOR 
+      (product_definition_relationship);
+    WHERE 
+      WR1: SIZEOF( QUERY( pdr <* product_definition_relationship | 
+        (pdr.name = 'definition replacement') AND 
+        (SIZEOF( USEDIN(pdr,'ITEM_DEFINITION_STRUCTURE_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))
+        = 0; 
+  END_RULE; 
+
   RULE restrict_assembly_category FOR (product_definition);
     LOCAL
       assembly_definitions: SET OF product_definition := [];
@@ -41,14 +50,5 @@ REFERENCE FROM Single_part_representation_mim
 	    ( ( pdr.relating_product_definition.frame_of_reference.name <>'part definition' ) OR 
         ( pdr.related_product_definition.frame_of_reference.name <>'part definition' ) ) ) ) =0;
   END_RULE;
-
-  RULE product_definition_replacement_requires_effectivity_assignment FOR 
-      (product_definition_relationship);
-    WHERE 
-      WR1: SIZEOF( QUERY( pdr <* product_definition_relationship | 
-        (pdr.name = 'definition replacement') AND 
-        (SIZEOF( USEDIN(pdr,'ITEM_DEFINITION_STRUCTURE_MIM.APPLIED_EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))
-        = 0; 
-  END_RULE; 
 
 END_SCHEMA;

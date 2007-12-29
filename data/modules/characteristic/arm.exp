@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp 1650 2007-10-17 21:36:52Z TomThurman $
+   $Id: arm.exp,v 1.43 2007/11/15 11:07:57 liutkus Exp $
    ISO TC184/SC4/WG12 N4714 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3909
 *)
@@ -18,12 +18,12 @@ SCHEMA Characteristic_arm;
     Value_set);
   END_TYPE;
 
-	TYPE c_documented_element_select = EXTENSIBLE SELECT BASED_ON documented_element_select WITH 
-	   (Property_value_representation);
-	END_TYPE; 
+  TYPE c_documented_element_select = EXTENSIBLE SELECT BASED_ON documented_element_select WITH 
+    (Property_value_representation);
+  END_TYPE; 
   
-	TYPE list_characteristic = LIST[1:?] OF characteristic;
-	END_TYPE; 
+  TYPE list_characteristic = LIST[1:?] OF characteristic;
+  END_TYPE; 
 
   TYPE range_class = ENUMERATION OF
     (closed,
@@ -39,8 +39,8 @@ SCHEMA Characteristic_arm;
 
   ENTITY Characteristic_data_table
     SUBTYPE OF (Characterizable_object, Measure_item);
+      index_value    : LIST[1:?] OF INTEGER;    
       property_value : LIST[1:?] OF Characteristic_data_table_row;
-      index_value    : LIST[1:?] OF INTEGER;
     UNIQUE
       UR1: SELF\Characterizable_object.name;
     WHERE
@@ -112,12 +112,12 @@ SCHEMA Characteristic_arm;
     SUBTYPE OF (Property_value_representation);
       SELF\Representation.items : SET[2:2] OF Numerical_item_with_unit;
       range_type				: range_class;
-  WHERE
-    WR1 : TYPEOF(SELF\Representation.items[1]) =
+    WHERE
+      WR1 : TYPEOF(SELF\Representation.items[1]) =
           TYPEOF(SELF\Representation.items[2]);
-    WR2 : TYPEOF(SELF\Representation.items[1]\Value_with_unit.unit) =
+      WR2 : TYPEOF(SELF\Representation.items[1]\Value_with_unit.unit) =
           TYPEOF(SELF\Representation.items[2]\Value_with_unit.unit);
-    WR3 : valid_range(SELF\Representation.items[1],
+      WR3 : valid_range(SELF\Representation.items[1],
                       SELF\Representation.items[2]);          
   END_ENTITY;
 
@@ -141,36 +141,35 @@ SCHEMA Characteristic_arm;
 
   ENTITY Tolerance_characteristic
     ABSTRACT SUPERTYPE OF ((ONEOF (Minimum_tolerance_characteristic,
- Statistical_tolerance_characteristic,
- Symmetrical_tolerance_characteristic,
- Maximum_tolerance_characteristic,
- Plus_minus_tolerance_characteristic,
- Nominal_tolerance_characteristic)) ANDOR Length_tolerance_characteristic)
+      Statistical_tolerance_characteristic,
+      Symmetrical_tolerance_characteristic,
+      Maximum_tolerance_characteristic,
+      Plus_minus_tolerance_characteristic,
+      Nominal_tolerance_characteristic)) ANDOR Length_tolerance_characteristic)
     SUBTYPE OF (Property_value_representation);
     WHERE
       WR1: SELF\Representation.context_of_items\Representation_context.id = 'tolerance values';
       WR2 : NOT EXISTS(SELF\Representation.name);
   END_ENTITY;
 
-SUBTYPE_CONSTRAINT exclusive_property_value_representation_characteristic FOR
-Property_value_representation;
-          ONEOF (Range_characteristic, Tolerance_characteristic);
-END_SUBTYPE_CONSTRAINT;
+  SUBTYPE_CONSTRAINT exclusive_property_value_representation_characteristic FOR Property_value_representation;
+    ONEOF (Range_characteristic, Tolerance_characteristic);
+  END_SUBTYPE_CONSTRAINT;
 
-FUNCTION get_value (
+  FUNCTION get_value (
          input1 : string;
          np : SET OF Representation_item) : Numerical_item_with_unit;
-REPEAT i := 1 to SIZEOF(np) by 1;
-  IF input1 = np[i]\Representation_item.name THEN
-       RETURN(np[i]);
-  END_IF;
-END_REPEAT;
-  RETURN(?);
-END_FUNCTION; -- get_value
+    REPEAT i := 1 to SIZEOF(np) by 1;
+      IF input1 = np[i]\Representation_item.name THEN
+        RETURN(np[i]);
+      END_IF;
+    END_REPEAT;
+    RETURN(?);
+  END_FUNCTION;
 
   FUNCTION valid_range(input1 : Numerical_item_with_unit;
                        input2 : Numerical_item_with_unit) : BOOLEAN;
-   RETURN(TRUE);
+    RETURN(TRUE);
   END_FUNCTION; 
   
 END_SCHEMA;

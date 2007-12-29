@@ -1,14 +1,14 @@
 (*
-   $Id: arm.exp,v 1.39 2007/12/27 07:24:23 liutkus Exp $
+   $Id: arm.exp,v 1.40 2007/12/28 10:58:41 liutkus Exp $
    ISO TC184/SC4/WG12 N3912 - ISO/TS 10303-1655 Chemical substance - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3372
 *)
 
 SCHEMA Chemical_substance_arm;   
 
-	USE FROM Assembly_structure_arm;	-- ISO/TS 10303-1026
-	USE FROM Generic_material_aspects_arm;	-- ISO/TS 10303-1681	
-	USE FROM Part_view_definition_arm;	-- ISO/TS 10303-1023
+USE FROM Assembly_structure_arm;	-- ISO/TS 10303-1026
+USE FROM Generic_material_aspects_arm;	-- ISO/TS 10303-1681	
+USE FROM Part_view_definition_arm;	-- ISO/TS 10303-1023
  
 REFERENCE FROM Product_identification_arm    --  ISO/TS 10303-1017 
   (types_of_product);  
@@ -16,8 +16,7 @@ REFERENCE FROM Product_identification_arm    --  ISO/TS 10303-1017
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
  
  
-CONSTANT 
- 
+  CONSTANT 
   -- normative reference: ISO 31-9, Annex A 
   -- posistion is identical to Atomic number 
   chemical_elements : LIST OF STRING := [
@@ -147,38 +146,37 @@ CONSTANT
  
   ENTITY Chemical_compound 
     SUBTYPE OF (Substance); 
-	DERIVE
-  		id_owner: SET[0:?] OF Organization_or_person_in_organization_assignment :=
-         QUERY(temp <* bag_to_set(USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+
-         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS')) |
+    DERIVE
+  	  id_owner: SET[0:?] OF Organization_or_person_in_organization_assignment :=
+        QUERY(temp <* bag_to_set(USEDIN(SELF,'PERSON_ORGANIZATION_ASSIGNMENT_ARM.'+
+        'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS')) |
                          (temp.role = 'id owner') );
-  WHERE 
-     WR1: SIZEOF([ 'chemical compound' ] * types_of_product(SELF))= 1 ; 
-     WR2 : EXISTS (id_owner) AND (SIZEOF(id_owner) = 1);
+    WHERE 
+      WR1: SIZEOF([ 'chemical compound' ] * types_of_product(SELF))= 1 ; 
+      WR2 : EXISTS (id_owner) AND (SIZEOF(id_owner) = 1);
   END_ENTITY; 
    
   ENTITY Chemical_element 
     SUBTYPE OF (Substance); 
-  WHERE 
-     WR1: SIZEOF([ 'chemical element' ] * types_of_product(SELF))= 1 ; 
+    WHERE 
+      WR1: SIZEOF([ 'chemical element' ] * types_of_product(SELF))= 1 ; 
   END_ENTITY; 
-   
  
   ENTITY Physical_particle
     SUBTYPE OF (Substance);
-  WHERE 
-     WR1: SIZEOF([ 'physical particle' ] * types_of_product(SELF))= 1 ;
+    WHERE 
+      WR1: SIZEOF([ 'physical particle' ] * types_of_product(SELF))= 1 ;
   END_ENTITY;
 
-   ENTITY Raw_material_definition_relationship
-      SUBTYPE OF (View_definition_usage);
-   		SELF\View_definition_relationship.relating_view RENAMED application : Part_view_definition;
-   		SELF\View_definition_relationship.related_view RENAMED definition   : Substance_view_definition;  
+  ENTITY Raw_material_definition_relationship
+    SUBTYPE OF (View_definition_usage);
+   	  SELF\View_definition_relationship.relating_view RENAMED application : Part_view_definition;
+      SELF\View_definition_relationship.related_view RENAMED definition   : Substance_view_definition;  
     UNIQUE
       UR1: application;      
     WHERE
       WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
-   END_ENTITY;
+  END_ENTITY;
    
   ENTITY Substance
     SUPERTYPE OF (ONEOF(Chemical_element, Chemical_compound, Physical_particle))
@@ -205,34 +203,29 @@ CONSTANT
     SUBTYPE OF (Product_version); 
     SELF\Product_version.of_product : Substance; 
   END_ENTITY; 
- 
   
   ENTITY Substance_view_definition 
     SUBTYPE OF (Product_view_definition); 
     SELF\Product_view_definition.defined_version : Substance_version; 
   END_ENTITY; 
 
-RULE substance_version_constraint FOR 
-(Product_version);
-WHERE
-  WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
-END_RULE; 
+  RULE substance_version_constraint FOR (Product_version);
+    WHERE
+      WR1: SIZEOF ( QUERY ( pv <* Product_version | ( NOT ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE' IN TYPEOF ( pv.of_product) ) ) ) =0 ;
+  END_RULE; 
 
-RULE substance_view_definition_constraint FOR 
-(Product_view_definition);
-WHERE
-  WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
-END_RULE; 
+  RULE substance_view_definition_constraint FOR (Product_view_definition);
+    WHERE
+      WR1: SIZEOF ( QUERY ( pvd <* Product_view_definition | ( NOT ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0 ;
+  END_RULE; 
 
-RULE chemical_element_constraint FOR 
-(Product);
-WHERE
-  WR1: SIZEOF ( QUERY ( p <* Product | 
+  RULE chemical_element_constraint FOR (Product);
+    WHERE
+      WR1: SIZEOF ( QUERY ( p <* Product | 
                (('CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE' IN TYPEOF (p) ) AND ((p\Product.name) IN chemical_elements) ) 
                 OR
-               (NOT('CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE' IN TYPEOF (p) ) AND NOT((p\Product.name) IN chemical_elements) )
-       )) =
-       SIZEOF ( Product);
-END_RULE; 
+               (NOT('CHEMICAL_SUBSTANCE_ARM.' + 'SUBSTANCE' IN TYPEOF (p) ) AND NOT((p\Product.name) IN chemical_elements) ))) =
+        SIZEOF ( Product);
+  END_RULE; 
 
 END_SCHEMA; 

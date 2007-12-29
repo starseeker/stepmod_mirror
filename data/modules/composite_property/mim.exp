@@ -1,8 +1,7 @@
 (*
-   $Id: mim.exp 1151 2007-06-05 14:31:43Z giedrius $
+   $Id: mim.exp,v 1.1 2007/11/15 11:07:57 liutkus Exp $
    ISO TC184/SC4/WG12 N4682 - ISO/CD-TS 10303-1774 Composite property - EXPRESS MIM
 *)
-(* UNDER DEVELOPMENT *)
 SCHEMA Composite_property_mim;
 
 USE FROM Property_assignment_mim; -- ISO/TS 10303-1030
@@ -16,6 +15,13 @@ USE FROM material_property_definition_schema(
      (property_definition);
   END_TYPE; 
 
+  ENTITY composite_property 
+    SUBTYPE OF (property_definition);
+    WHERE
+     WR1: SIZEOF ( USEDIN (SELF, 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+
+	  'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') ) =0;
+  END_ENTITY;
+
   ENTITY property_composition_relationship
     SUBTYPE OF (property_definition_relationship);
       SELF\property_definition_relationship.relating_property_definition RENAMED parent : composite_property;
@@ -26,11 +32,4 @@ USE FROM material_property_definition_schema(
       WR1: relating_property_definition.definition = related_property_definition.definition;
   END_ENTITY;
  
-  ENTITY composite_property 
-    SUBTYPE OF (property_definition);
-    WHERE
-     WR1: SIZEOF ( USEDIN (SELF, 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+
-	  'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') ) =0;
-  END_ENTITY;
-
 END_SCHEMA;

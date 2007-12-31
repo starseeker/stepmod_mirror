@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="land" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2006/05/25 20:48:14 $" rcs.revision="$Revision: 1.22 $">
+<ext_descriptions module_directory="land" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2007/12/30 18:37:48 $" rcs.revision="$Revision: 1.23 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Land_arm
    <express_ref linkend="land:arm:Land_arm"/>
@@ -17,7 +17,14 @@
 
 A <b>Contact_size_dependent_land</b> is a type of <express_ref linkend="Land:arm:Land_arm.Land"/> whose shape is 
 dependent on the size of the contact area of the <express_ref linkend="Component_feature:arm:Component_feature_arm.Component_terminal"/> that will be joined to the 
-<b>Contact_size_dependent_land</b> in the assembly.
+  <b>Contact_size_dependent_land</b> in the assembly. A <b>Contact_size_dependent_land</b> is a feature in the design view that is designed to implement an interface terminal 
+  of an interconnect.  Each <b>Contact_size_dependent_land</b> has a <b>Component_terminal_to_interconnect_module_interface_terminal_assignment</b> that associates
+  the <b>Contact_size_dependent_land</b> with the <b>Interconnect_module_interface_terminal</b> that is the usage view feature. The location of the
+  <b>Contact_size_dependent_land</b> is dependent on the location of the <b>Interconnect_module_interface_terminal</b> it is associated with.  The location is represented by
+  a <b>Dependently_located_layer_connection_point</b> that references the <b>Interconnect_module_interface_terminal</b> as it's <b>associated_design_object</b>.
+  In the case that there is a <b>Conductive_interconnect_element</b> connected to the <b>Contact_size_dependent_land</b>, 
+  the location of the <b>Conductive_interconnect_element_terminal</b> co-located with the <b>Contact_size_dependent_land</b> is also defined by that same
+  <b>Dependently_located_layer_connection_point</b>.
 </p><example>
 Figure 1 is a detail that illustrates the <b>Contact_size_dependent_land</b> in relationship to the terminal that mates with it.
 </example>
@@ -25,6 +32,29 @@ Figure 1 is a detail that illustrates the <b>Contact_size_dependent_land</b> in 
 	<title><b>Contact_size_dependent_land</b></title>
 	<img src="csdl.gif" />
 </figure>
+  <note number="1">
+    The path from the <b>Contact_size_dependent_land</b> to a <b>Conductive_interconnect_element</b> implementing internal connectivity is:
+   <!-- 
+     contact_size_dependent_land <-
+      land_interface_terminal.associated_component <- 
+        Component_terminal_to_interconnect_module_interface_terminal_assignment.assigned_terminal 
+        Component_terminal_to_interconnect_module_interface_terminal_assignment 
+        Component_terminal_to_interconnect_module_interface_terminal_assignment.usage_view_terminal ->
+        interconnect_module_interface_terminal <-
+          dependently_located_layer_connection_point.associated_design_object
+          dependently_located_layer_connection_point <=
+            layer_connection_point <-
+              Conductive_interconnect_element_terminal.location
+              Conductive_interconnect_element_terminal.associated_component ->
+              Conductive_interconnect_element
+   -->        
+    The path traverses the <b>Component_terminal_to_interconnect_module_interface_terminal_assignment</b> and also the <b>Dependently_located_layer_connection_point</b>.
+  </note>
+  <note number="2">
+    There are no more than two <b>Component_terminal_to_interconnect_module_interface_terminal_assignment</b> for each <b>Contact_size_dependent_land</b>.
+    In most scenarios there is exactly one <b>Component_terminal_to_interconnect_module_interface_terminal_assignment</b> for each <b>Contact_size_dependent_land</b>.
+    There may be several <b>Conductive_interconnect_element</b> or <b>Area_component</b> associated with a <b>Contact_size_dependent_land</b>.
+  </note>
 </ext_description>
 
 <!-- derived_from -->
@@ -46,12 +76,32 @@ specifies a role of the <express_ref linkend="Fabrication_technology:arm:Fabrica
 
 <!-- +++++++++++ Inter_stratum_feature_dependent_land +++++++++++ -->
 <ext_description linkend="Land_arm.Inter_stratum_feature_dependent_land">
-	An <b>Inter_stratum_feature_dependent_land</b> is a type of
-	<express_ref linkend="Land:arm:Land_arm.Land"/>.
-	An <b>Inter_stratum_feature_dependent_land</b> is either a 
-	<express_ref linkend="Land:arm:Land_arm.Plated_passage_dependent_land"/>
-	or an 
-	<express_ref linkend="Land:arm:Land_arm.Unsupported_passage_dependent_land"/>.
+<p>
+  An <b>Inter_stratum_feature_dependent_land</b> is a type of
+  <express_ref linkend="Land:arm:Land_arm.Land"/> included in the design to provide mechanical support to an <b>Inter_stratum_feature</b> or included in the design to 
+  provide a connection to an <b>Inter_stratum_feature</b>.
+  An <b>Inter_stratum_feature_dependent_land</b> is either a 
+  <express_ref linkend="Land:arm:Land_arm.Plated_passage_dependent_land"/>
+  or an 
+  <express_ref linkend="Land:arm:Land_arm.Unsupported_passage_dependent_land"/>.
+</p>
+  <note>
+    In the case that an <b>Inter_stratum_feature_dependent_land</b> is included in the design to support electrical connectivity and a 
+    <b>Conductive_interconnect_element</b> is attached to the <b>Inter_stratum_feature_dependent_land</b>, 
+    the path from the <b>Inter_stratum_feature_dependent_land</b> to the <b>Conductive_interconnect_element</b> is:
+    <!-- 
+      Inter_stratum_feature_dependent_land
+      Inter_stratum_feature_dependent_land.reference_passage ->
+      inter_stratum_feature <-
+      dependently_located_layer_connection_point.associated_design_object
+      dependently_located_layer_connection_point <=
+      layer_connection_point <-
+      Conductive_interconnect_element_terminal.location
+      Conductive_interconnect_element_terminal.associated_component ->
+      Conductive_interconnect_element
+    -->
+    The path traverses the <b>Dependently_located_layer_connection_point</b>.
+  </note>
 </ext_description>
 
 <!-- derived_from -->

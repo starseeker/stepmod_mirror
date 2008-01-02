@@ -1,12 +1,175 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mkmodule.js,v 1.44 2005/07/04 09:06:08 robbod Exp $ -->
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<?xml-stylesheet type="text/xsl"
-href="../../../xsl/express.xsl" ?>
-<express
-   language_version="2"
-   rcs.date="$Date: 2005/07/04 09:06:08 $"
-   rcs.revision="$Revision: 1.44 $">
-  <schema name="Cfd_model_arm">
-  </schema>
+<?xml version="1.0"?>
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: 2006/12/08 16:17:17 $" rcs.revision="$Revision: 1.12 $" description.file="arm_descriptions.xml">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.4.0" source="AP209E2_ARM_20061218v3_Rev6c.vsd" />
+<schema name="Cfd_model_arm">
+
+<interface kind="use" schema="Analysis_arm">
+</interface>
+<interface kind="use" schema="Cfd_conditions_arm">
+</interface>
+<interface kind="use" schema="Cfd_equations_arm">
+</interface>
+<interface kind="use" schema="Cfd_model_arm">
+</interface>
+<interface kind="use" schema="Cfd_results_arm">
+</interface>
+<interface kind="use" schema="Cfd_specified_general_property_arm">
+</interface>
+<interface kind="use" schema="Mesh_connectivity_arm">
+</interface>
+<interface kind="use" schema="Mesh_topology_arm">
+</interface>
+<type name="coordinate_data_name">
+<enumeration extensible="YES" items="coordinate_x coordinate_y coordinate_z coordinate_r coordinate_theta coordinate_phi coordinate_normal coordinate_tangential coordinate_xi coordinate_eta coordinate_zeta coordinate_transform" />
+<graphic.element page="32" xcoord="467" ycoord="368" />
+</type>
+<entity name="Fd_step" supertypes="Mbna_step">
+<explicit name="zones">
+<aggregate type="LIST" lower="0.0000" upper="?" />
+<typename name="Fd_zone" />
+<redeclaration entity-ref="Mbna_step" />
+</explicit>
+<explicit name="equations">
+<typename name="Flow_equation_set" />
+<redeclaration entity-ref="Mbna_step" />
+</explicit>
+<graphic.element page="32" xcoord="481" ycoord="680" />
+</entity>
+<entity name="Fd_zone" supertypes="Mbna_zone">
+<explicit name="equations">
+<aggregate type="SET" lower="0.0000" upper="?" />
+<typename name="Flow_equation_set" />
+<redeclaration entity-ref="Mbna_zone" />
+</explicit>
+<explicit name="conditions">
+<aggregate type="SET" lower="0" upper="?" />
+<typename name="Fd_zone_bc" />
+<redeclaration entity-ref="Mbna_zone" />
+</explicit>
+<graphic.element page="30" xcoord="337" ycoord="503" />
+</entity>
+<entity name="Grid_coordinates" supertypes="Model_property_distribution">
+<explicit name="domain">
+<typename name="Model_product_domain_with_mesh" />
+<redeclaration entity-ref="Model_property_distribution" />
+</explicit>
+<explicit name="range">
+<typename name="Specified_general_property" />
+<redeclaration entity-ref="Model_property_distribution" />
+</explicit>
+<graphic.element page="30" xcoord="70" ycoord="758" />
+</entity>
+<entity name="Grid_coordinates_with_rind" supertypes="Grid_coordinates">
+<description>
+         KAH Comment out to simplify ARM
+INVERSE
+  data : SET OF property_distribution_description FOR physical_function;
+WHERE
+  wr1 : is_coordinate_property(range);
+
+      </description>
+<explicit name="rind_planes">
+<typename name="Rind" />
+</explicit>
+<graphic.element page="30" xcoord="239" ycoord="758" />
+</entity>
+<entity name="Mbna_model">
+<explicit name="equations">
+<aggregate type="SET" lower="0.0000" upper="?" />
+<typename name="Mbna_equation_set" />
+</explicit>
+<explicit name="data">
+<aggregate type="SET" lower="0" upper="?" />
+<typename name="Mbna_integral_data" />
+</explicit>
+<explicit name="steps">
+<aggregate type="LIST" lower="0" upper="?" />
+<typename name="Fd_step" />
+</explicit>
+<inverse name="history" entity="Mbna_history" attribute="domain">
+<inverse.aggregate type="SET" lower="0.0000" upper="?" />
+</inverse>
+<graphic.element page="31" xcoord="177" ycoord="545" />
+</entity>
+<entity name="Mbna_step">
+<explicit name="data">
+<aggregate type="SET" lower="0.0000" upper="?" />
+<typename name="Mbna_integral_data" />
+</explicit>
+<explicit name="equations">
+<aggregate type="SET" lower="0.0000" upper="?" />
+<typename name="Mbna_equation_set" />
+</explicit>
+<explicit name="families">
+<aggregate type="SET" lower="0.0000" upper="?" />
+<typename name="Mbna_family" />
+</explicit>
+<explicit name="refstate">
+<aggregate type="SET" lower="0.0000" upper="?" />
+<typename name="Mbna_reference_state" />
+</explicit>
+<explicit name="zones">
+<aggregate type="LIST" lower="0.0000" upper="?" />
+<typename name="Mbna_zone" />
+</explicit>
+<graphic.element page="32" xcoord="341" ycoord="616" />
+</entity>
+<entity name="Mbna_structured_zone" supertypes="Mbna_zone">
+<explicit name="model_mesh">
+<typename name="Structured_mesh" />
+<redeclaration entity-ref="Model_product_domain_with_mesh" />
+</explicit>
+<graphic.element page="30" xcoord="311" ycoord="637" />
+</entity>
+<entity name="Mbna_unstructured_zone" supertypes="Mbna_zone">
+<explicit name="model_mesh">
+<typename name="Unstructured_mesh" />
+<redeclaration entity-ref="Model_product_domain_with_mesh" />
+</explicit>
+<graphic.element page="30" xcoord="354" ycoord="588" />
+</entity>
+<entity name="Mbna_zone" supertypes="Model_product_domain_with_mesh">
+<explicit name="cell_dimension">
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="conditions">
+<aggregate type="SET" lower="0" upper="?" />
+<typename name="Mbna_zone_bc" />
+</explicit>
+<explicit name="equations">
+<aggregate type="SET" lower="0.0000" upper="?" />
+<typename name="Mbna_equation_set" />
+</explicit>
+<explicit name="families">
+<aggregate type="SET" lower="0.0000" upper="?" />
+<typename name="Mbna_family" />
+</explicit>
+<explicit name="global_data">
+<aggregate type="SET" lower="0.0000" upper="?" />
+<typename name="Mbna_integral_data" />
+</explicit>
+<explicit name="grid_connectivity" optional="YES">
+<typename name="Multiple_mesh_block" />
+</explicit>
+<explicit name="nindices">
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="physical_dimension">
+<builtintype type="INTEGER" />
+</explicit>
+<explicit name="rstate">
+<aggregate type="SET" lower="0.0000" upper="?" />
+<typename name="Mbna_reference_state" />
+</explicit>
+<graphic.element page="30" xcoord="110" ycoord="496" />
+</entity>
+<subtype.constraint name="sc1_mbna_zone" entity="Mbna_zone" abstract.supertype="YES" super.expression="ONEOF(mbna_structured_zone, mbna_unstructured_zone)">
+<graphic.element page="30" xcoord="240" ycoord="538" />
+</subtype.constraint>
+<graphic.element page="205" xcoord="359" ycoord="94" />
+</schema>
 </express>

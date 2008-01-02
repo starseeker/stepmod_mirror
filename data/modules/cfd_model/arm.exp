@@ -1,5 +1,15 @@
-(* Genenerated from: ..\ballots\ballots\analysis\check_analysis_20060505\express\arm_20060505v1.exp *)
+(******************************************************************************)
+(*                                                                            *)
+(*         This file was produced by Eurostep GraphicalEXPRESS V1.4.0         *)
+(*                                                                            *)
+(******************************************************************************)
 
+(* Original model: AP209E2_ARM_20061218v3_Rev6c.vsd*)
+(* Title: AP209E2_ARM_20061218v3_Rev4*)
+(* Author: hunteka*)
+(* Comments: *)
+
+(*"Cfd_model_arm" Genenerated from: ..\ballots\ballots\analysis\check_analysis_20060505\express\arm_20060505v1.exp *)
 SCHEMA Cfd_model_arm;
 
 USE FROM Analysis_arm;
@@ -11,114 +21,100 @@ USE FROM Cfd_equations_arm;
 USE FROM Cfd_model_arm;
 
 USE FROM Cfd_results_arm;
- 
+
+USE FROM Cfd_specified_general_property_arm;
+
 USE FROM Mesh_connectivity_arm;
 
 USE FROM Mesh_topology_arm;
 
-
-TYPE coordinate_data_name = EXTENSIBLE ENUMERATION OF
-     (coordinate_x,
-      coordinate_y,
-      coordinate_z,
-      coordinate_r,
-      coordinate_theta,
-      coordinate_phi,
-      coordinate_normal,
-      coordinate_tangential,
-      coordinate_xi,
-      coordinate_eta,
-      coordinate_zeta,
-      coordinate_transform);
+TYPE coordinate_data_name = EXTENSIBLE ENUMERATION OF 
+  (coordinate_x,
+   coordinate_y,
+   coordinate_z,
+   coordinate_r,
+   coordinate_theta,
+   coordinate_phi,
+   coordinate_normal,
+   coordinate_tangential,
+   coordinate_xi,
+   coordinate_eta,
+   coordinate_zeta,
+   coordinate_transform);
 END_TYPE;
 
-ENTITY grid_coordinates
-  SUBTYPE OF (model_property_distribution);
-  SELF\model_property_distribution.domain : model_product_domain_with_mesh;
-  SELF\model_property_distribution.range  : specified_general_property;
+ENTITY Fd_step
+SUBTYPE OF (Mbna_step);
+  SELF\Mbna_step.zones : LIST [0.0000 : ?] OF Fd_zone;
+  SELF\Mbna_step.equations : Flow_equation_set;
+END_ENTITY;
+
+ENTITY Fd_zone
+SUBTYPE OF (Mbna_zone);
+  SELF\Mbna_zone.equations : SET [0.0000 : ?] OF Flow_equation_set;
+  SELF\Mbna_zone.conditions : SET [0 : ?] OF Fd_zone_bc;
+END_ENTITY;
+
+ENTITY Grid_coordinates
+SUBTYPE OF (Model_property_distribution);
+  SELF\Model_property_distribution.domain : Model_product_domain_with_mesh;
+  SELF\Model_property_distribution.range : Specified_general_property;
+END_ENTITY;
+
+(*"Grid_coordinates_with_rind" KAH Comment out to simplify ARM
 INVERSE
   data : SET OF property_distribution_description FOR physical_function;
 WHERE
   wr1 : is_coordinate_property(range);
+*)
+ENTITY Grid_coordinates_with_rind
+SUBTYPE OF (Grid_coordinates);
+  rind_planes : Rind;
 END_ENTITY;
 
-ENTITY grid_coordinates_with_rind
-  SUBTYPE OF (grid_coordinates);
-  rind_planes : rind;
-END_ENTITY;
-
-ENTITY fd_step
-  SUBTYPE OF (mbna_step);
-  SELF\mbna_step.equations : SET OF flow_equation_set;  
-  SELF\mbna_step.zones     : LIST OF fd_zone;
-END_ENTITY;
-
-ENTITY fd_zone
-  SUBTYPE OF (mbna_zone);
-  SELF\mbna_zone.conditions : SET OF fd_zone_bc;
-  SELF\mbna_zone.equations  : SET OF flow_equation_set;
-END_ENTITY;
-
-ENTITY mbna_model
-  SUBTYPE OF (numerical_model);
-  data               : SET OF mbna_integral_data;
-  equations          : SET OF mbna_equation_set;  
-  steps              : LIST OF mbna_step;
+ENTITY Mbna_model;
+  equations : SET [0.0000 : ?] OF Mbna_equation_set;
+  data : SET [0 : ?] OF Mbna_integral_data;
+  steps : LIST [0 : ?] OF Fd_step;
 INVERSE
-  history : SET OF mbna_history for domain;  
+  history : SET [0.0000 : ?] OF Mbna_history FOR domain;
 END_ENTITY;
 
-ENTITY mbna_step
-  SUBTYPE OF (model_action_domain);
-  data               : SET OF mbna_integral_data;
-  equations          : SET OF mbna_equation_set;  
-  families           : SET OF mbna_family;
-  refstate           : SET OF mbna_reference_state;
-  zones              : LIST OF mbna_zone;
-INVERSE
-  history : SET OF mbna_history for domain;  
+ENTITY Mbna_step;
+  data : SET [0.0000 : ?] OF Mbna_integral_data;
+  equations : SET [0.0000 : ?] OF Mbna_equation_set;
+  families : SET [0.0000 : ?] OF Mbna_family;
+  refstate : SET [0.0000 : ?] OF Mbna_reference_state;
+  zones : LIST [0.0000 : ?] OF Mbna_zone;
 END_ENTITY;
 
-ENTITY mbna_structured_zone
-  SUBTYPE OF (mbna_zone);
-  SELF\model_product_domain_with_mesh.model_mesh : structured_mesh;
+ENTITY Mbna_structured_zone
+SUBTYPE OF (Mbna_zone);
+  SELF\Model_product_domain_with_mesh.model_mesh : Structured_mesh;
 END_ENTITY;
 
-ENTITY mbna_unstructured_zone
-  SUBTYPE OF (mbna_zone);
-  SELF\model_product_domain_with_mesh.model_mesh : unstructured_mesh;
+ENTITY Mbna_unstructured_zone
+SUBTYPE OF (Mbna_zone);
+  SELF\Model_product_domain_with_mesh.model_mesh : Unstructured_mesh;
 END_ENTITY;
 
-ENTITY mbna_zone
-  SUBTYPE OF (model_product_domain_with_mesh);
-  cell_dimension     : INTEGER;
-  conditions         : SET OF mbna_zone_bc;
-  equations          : SET OF mbna_equation_set;
-  families           : SET OF mbna_family;
-  global_data        : SET OF mbna_integral_data;
-  grid_connectivity  : OPTIONAL multiple_mesh_block;
-  nindices           : INTEGER;
+ENTITY Mbna_zone
+SUBTYPE OF (Model_product_domain_with_mesh);
+  cell_dimension : INTEGER;
+  conditions : SET [0 : ?] OF Mbna_zone_bc;
+  equations : SET [0.0000 : ?] OF Mbna_equation_set;
+  families : SET [0.0000 : ?] OF Mbna_family;
+  global_data : SET [0.0000 : ?] OF Mbna_integral_data;
+  grid_connectivity : OPTIONAL Multiple_mesh_block;
+  nindices : INTEGER;
   physical_dimension : INTEGER;
-  rstate             : SET OF mbna_reference_state;
-INVERSE
-  coordinates : SET OF grid_coordinates FOR domain;
-  field_data  : SET OF mbna_discrete_data FOR domain;
-  history     : SET OF mbna_history FOR domain;
-  solution    : SET OF mbna_solution FOR domain;
+  rstate : SET [0.0000 : ?] OF Mbna_reference_state;
 END_ENTITY;
 
-SUBTYPE_CONSTRAINT sc1_mbna_zone FOR mbna_zone;
+SUBTYPE_CONSTRAINT sc1_mbna_zone FOR Mbna_zone;
   ABSTRACT SUPERTYPE;
-  ONEOF(mbna_structured_zone,
-        mbna_unstructured_zone);
+  ONEOF(mbna_structured_zone, mbna_unstructured_zone);
 END_SUBTYPE_CONSTRAINT;
 
-FUNCTION is_coordinate_property(arg : specified_general_property) : BOOLEAN;
-  IF ('EXTERNAL_REFERENCE_SCHEMA.EXTERNALLY_DEFINED_ITEM' IN
-      TYPEOF(arg) ) THEN
-    RETURN(TRUE);
-  END_IF;
-  RETURN ('DOMAIN_SCHEMA.COORDINATE_DATA_NAME' IN TYPEOF(arg));
-END_FUNCTION;
+END_SCHEMA;
 
-END_SCHEMA;  -- end of hierarchy_schema

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl 1660 2007-11-12 14:28:33Z GiedriusLiutkus $
+$Id: sect_6_ccs.xsl,v 1.24 2007/11/21 13:55:20 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -1253,18 +1253,20 @@ conformance class')"/>
                 </ul> 
                   </xsl:when>
                   <xsl:otherwise>
+				    <xsl:variable name="terminator">
+				      <xsl:choose>
+				        <xsl:when test="position()=$count_of_modules">.</xsl:when>
+				        <xsl:otherwise>;</xsl:otherwise>
+				      </xsl:choose>
+				    </xsl:variable>
                     <li>
                       <a href="../../../modules/{@name}/sys/cover{$FILE_EXT}">
                         <xsl:call-template name="module_display_name">
                           <xsl:with-param name="module" select="$module_node/@name"/>
                         </xsl:call-template>
                       </a>,
-                      ISO/<xsl:value-of select="$module_node/@status"/> 10303-<xsl:value-of select="$module_node/@part"/>, all MIM elements
+                      ISO/<xsl:value-of select="$module_node/@status"/> 10303-<xsl:value-of select="$module_node/@part"/>, all MIM elements<xsl:value-of select="$terminator"/>
                     </li>            
-                    	<xsl:choose>      
-								<xsl:when test="$count_of_modules != position()">;</xsl:when>
-                  	<xsl:otherwise>.</xsl:otherwise>
-							</xsl:choose>							
                   </xsl:otherwise>
                   </xsl:choose>
               </xsl:otherwise>

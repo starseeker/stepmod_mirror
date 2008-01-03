@@ -1,63 +1,62 @@
 (*
-   $Id: mim.exp 1636 2007-10-09 23:48:11Z TomThurman $
+   $Id: mim.exp,v 1.25 2007/11/15 12:40:43 liutkus Exp $
    ISO TC184/SC4/WG12 N4132 - ISO/TS 10303-1728 Physical unit design view - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3568
 *)
 
 SCHEMA Physical_unit_design_view_mim;
 
-	USE FROM Physical_layout_template_mim;	-- ISO/TS 10303-1722
-	
-	USE FROM Physical_unit_usage_view_mim;	-- ISO/TS 10303-1732
-	
-	USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656	
-	
-	USE FROM application_context_schema(application_context_element);
+USE FROM Component_grouping_mim;	-- ISO/TS 10303-1656
+USE FROM Physical_layout_template_mim;	-- ISO/TS 10303-1722
+USE FROM Physical_unit_usage_view_mim;	-- ISO/TS 10303-1732
+USE FROM Specification_document_mim;	-- ISO/TS 10303-1747
 
-TYPE pudv_groupable_item = SELECT BASED_ON groupable_item WITH 
-   (assembly_component);
-END_TYPE; 
+USE FROM application_context_schema(application_context_element);
+
+  TYPE pudv_groupable_item = SELECT BASED_ON groupable_item WITH 
+    (assembly_component);
+  END_TYPE; 
 	
-TYPE pudv_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
-     (assembly_component_usage,
+  TYPE pudv_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
+    (assembly_component_usage,
      descriptive_representation_item,
      property_definition);
-END_TYPE; 
+  END_TYPE; 
 	
-ENTITY component_definition
-  SUBTYPE OF (product_definition, product_definition_relationship);
-  DERIVE
-    SELF\product_definition_relationship.related_product_definition : component_definition := SELF;
-  WHERE
-    WR1: NOT EXISTS(SELF\product_definition_relationship.description);
-    WR2: NOT EXISTS(SELF\property_definition.description);    
-    WR3: SELF\product_definition_relationship.id = SELF\product_definition.id;
-    WR4: SELF\product_definition_relationship.name = '';
-END_ENTITY;
+  ENTITY component_definition
+    SUBTYPE OF (product_definition, product_definition_relationship);
+    DERIVE
+      SELF\product_definition_relationship.related_product_definition : component_definition := SELF;
+    WHERE
+      WR1: NOT EXISTS(SELF\product_definition_relationship.description);
+      WR2: NOT EXISTS(SELF\property_definition.description);    
+      WR3: SELF\product_definition_relationship.id = SELF\product_definition.id;
+      WR4: SELF\product_definition_relationship.name = '';
+  END_ENTITY;
 
-ENTITY assembly_component
-  SUBTYPE OF (component_definition, product_definition_shape);
-  DERIVE
-    SELF\property_definition.definition : assembly_component := SELF;
-  WHERE
-    WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +'NAME_ATTRIBUTE.NAMED_ITEM')) = 0;
-    WR2: NOT EXISTS(SELF\property_definition.description);
-END_ENTITY;
+  ENTITY assembly_component
+    SUBTYPE OF (component_definition, product_definition_shape);
+    DERIVE
+      SELF\property_definition.definition : assembly_component := SELF;
+    WHERE
+      WR1: SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +'NAME_ATTRIBUTE.NAMED_ITEM')) = 0;
+      WR2: NOT EXISTS(SELF\property_definition.description);
+  END_ENTITY;
 
-ENTITY next_assembly_usage_occurrence_relationship
-  SUBTYPE OF (next_assembly_usage_occurrence,
-    product_definition_occurrence_relationship);
-  DERIVE
-    SELF\product_definition_occurrence_relationship.occurrence_usage : next_assembly_usage_occurrence_relationship := SELF;
-END_ENTITY;
+  ENTITY next_assembly_usage_occurrence_relationship
+    SUBTYPE OF (next_assembly_usage_occurrence,
+      product_definition_occurrence_relationship);
+    DERIVE
+      SELF\product_definition_occurrence_relationship.occurrence_usage : next_assembly_usage_occurrence_relationship := SELF;
+  END_ENTITY;
 
-ENTITY physical_component
-  SUBTYPE OF (assembly_component);
-END_ENTITY;
+  ENTITY physical_component
+    SUBTYPE OF (assembly_component);
+  END_ENTITY;
 
-ENTITY thermal_component
-  SUBTYPE OF (assembly_component);
-END_ENTITY;
+  ENTITY thermal_component
+    SUBTYPE OF (assembly_component);
+  END_ENTITY;
 	
 END_SCHEMA;
 

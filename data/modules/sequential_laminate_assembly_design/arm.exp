@@ -1,13 +1,12 @@
 (*
-   $Id: arm.exp,v 1.33 2007/12/11 18:27:42 thomasrthurman Exp $
+   $Id: arm.exp,v 1.34 2007/12/11 18:28:54 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4170 - ISO/TS 10303-1741 Sequential laminate assembly design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3594
 *)
 
 SCHEMA Sequential_laminate_assembly_design_arm;
 
-	USE FROM Assembly_module_with_interconnect_component_arm;	-- ISO/TS 10303-1643
-	USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
+USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
 
   TYPE slad_groupable_item = SELECT BASED_ON groupable_item WITH 
 	(Group_relationship,
@@ -34,8 +33,8 @@ SCHEMA Sequential_laminate_assembly_design_arm;
   END_TYPE; 
 
   ENTITY Adjacent_stratum_surface_embedded_sequential_laminate_surface_definition
-     SUBTYPE OF(Adjacent_stratum_surface_embedded_physical_component_surface_definition);
-     WHERE
+    SUBTYPE OF(Adjacent_stratum_surface_embedded_physical_component_surface_definition);
+    WHERE
       WR1 : NOT ('COMPONENT_FEATURE_ARM.COMPONENT_FEATURE' IN TYPEOF(precedent_item)) OR 
                 ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(precedent_item.definition));
       WR2 : NOT ('COMPONENT_FEATURE_ARM.COMPONENT_FEATURE' IN TYPEOF(subsequent_item)) OR 
@@ -100,15 +99,12 @@ SCHEMA Sequential_laminate_assembly_design_arm;
   ENTITY Stackup_requirement_to_design_relationship  
     SUBTYPE OF(View_definition_relationship);
       SELF\View_definition_relationship.relating_view : Interconnect_module;
-      SELF\View_definition_relationship.related_view : Sequential_laminate_stackup_definition;
+      SELF\View_definition_relationship.related_view  : Sequential_laminate_stackup_definition;
     WHERE  
       WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);             
   END_ENTITY;
 
-FUNCTION valid_oem_stratum_references(
-    input : Derived_laminate_assignment
-  ) : BOOLEAN;
-
+  FUNCTION valid_oem_stratum_references(input : Derived_laminate_assignment) : BOOLEAN;
     LOCAL
       imsa : SET OF Interconnect_module_stratum_assembly_relationship := input.oem_requirement;
       s1 : SET OF Stratum := [];
@@ -132,21 +128,20 @@ FUNCTION valid_oem_stratum_references(
         END_IF; 
       END_REPEAT;  
       REPEAT i := 1 TO HIINDEX(ss);
-         assd := assd + USEDIN(ss[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ADJACENT_STRATUM_SURFACE_DEFINITION.PRECEDENT_SURFACE');
-         assd := assd + USEDIN(ss[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ADJACENT_STRATUM_SURFACE_DEFINITION.SUBSEQUENT_SURFACE');
+        assd := assd + USEDIN(ss[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ADJACENT_STRATUM_SURFACE_DEFINITION.PRECEDENT_SURFACE');
+        assd := assd + USEDIN(ss[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ADJACENT_STRATUM_SURFACE_DEFINITION.SUBSEQUENT_SURFACE');
       END_REPEAT;
       REPEAT i := 1 TO HIINDEX(assd);
-         ssp := ssp + assd[i].precedent_surface.of_stratum;
-         sss := sss + assd[i].subsequent_surface.of_stratum;
+        ssp := ssp + assd[i].precedent_surface.of_stratum;
+        sss := sss + assd[i].subsequent_surface.of_stratum;
       END_REPEAT;
       IF ((SIZEOF(assd) + 1) = (SIZEOF(ssp) + SIZEOF(sss))) THEN
-       RETURN(TRUE);
+        RETURN(TRUE);
       ELSE
-       RETURN(FALSE);         
+        RETURN(FALSE);         
       END_IF; 
     END_IF;
   END_FUNCTION;
-
 
 END_SCHEMA;
 

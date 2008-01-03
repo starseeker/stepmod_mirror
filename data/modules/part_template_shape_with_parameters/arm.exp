@@ -1,41 +1,40 @@
 (*
-   $Id: arm.exp 1664 2007-11-13 10:10:51Z GiedriusLiutkus $
+   $Id: arm.exp,v 1.26 2007/11/15 12:46:30 liutkus Exp $
    ISO TC184/SC4/WG12 N4107 - ISO/TS 10303-1720 Part template shape with parameters - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3531
 *)
 
 SCHEMA Part_template_shape_with_parameters_arm;
 
-	USE FROM Non_feature_shape_element_arm;	-- ISO/TS 10303-1706
-	USE FROM Physical_layout_template_arm;	-- ISO/TS 10303-1722
-	USE FROM Shape_parameters_arm;	-- ISO/TS 10303-1743
+USE FROM Non_feature_shape_element_arm;	-- ISO/TS 10303-1706
+USE FROM Physical_layout_template_arm;	-- ISO/TS 10303-1722
 
-    REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
-	SUBTYPE_CONSTRAINT shape_element_subtypes FOR Shape_element;
-	  ONEOF (Shape_feature,
-	         Non_feature_shape_element);
-	END_SUBTYPE_CONSTRAINT;
+  SUBTYPE_CONSTRAINT shape_element_subtypes FOR Shape_element;
+    ONEOF (Shape_feature,
+      Non_feature_shape_element);
+  END_SUBTYPE_CONSTRAINT;
 
- 	TYPE ptswp_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Part_template_keepout_shape_model);
-	END_TYPE;
+  TYPE ptswp_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+    (Part_template_keepout_shape_model);
+  END_TYPE;
 
-	TYPE ptswp_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
-	    (Part_template_keepout_shape_model);
-	END_TYPE; 
+  TYPE ptswp_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+    (Part_template_keepout_shape_model);
+  END_TYPE; 
 
-	TYPE ptswp_view_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON view_shape_select WITH 
-	    (Part_template_shape_model);
-	END_TYPE; 
+  TYPE ptswp_view_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON view_shape_select WITH 
+    (Part_template_shape_model);
+  END_TYPE; 
 
   ENTITY Geometric_template
     ABSTRACT SUPERTYPE
     SUBTYPE OF (Template_definition);
-  INVERSE
-    shapes : SET [0:?] OF Part_template_shape_model FOR shape_characterized_definition;
+    INVERSE
+      shapes : SET [0:?] OF Part_template_shape_model FOR shape_characterized_definition;
     WHERE
-     WR1 : SIZEOF(QUERY( gm <* USEDIN(SELF,'')|
+      WR1 : SIZEOF(QUERY( gm <* USEDIN(SELF,'')|
         (('ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(gm)) AND 
         NOT('PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.PART_TEMPLATE_SHAPE_MODEL' IN
         TYPEOF(gm)))

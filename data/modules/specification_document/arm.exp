@@ -1,24 +1,23 @@
 (*
-   $Id: arm.exp 34 2007-03-21 15:24:20Z giedrius $
+   $Id: arm.exp,v 1.37 2007/11/15 12:41:59 liutkus Exp $
    ISO TC184/SC4/WG12 N4188 - ISO/TS 10303-1747 Specification document - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3612
 *)
 
 SCHEMA Specification_document_arm;
 
-	USE FROM Characteristic_arm;	-- ISO/TS 10303-1654
-	USE FROM Configuration_item_arm;	-- ISO/TS 10303-1056
-	USE FROM Tagged_text_representation_arm; -- ISO/TS 10303-1366
-	USE FROM Person_organization_assignment_arm;	-- ISO/TS 10303-1013
+USE FROM Characteristic_arm;	-- ISO/TS 10303-1654
+USE FROM Configuration_item_arm;	-- ISO/TS 10303-1056
+USE FROM Tagged_text_representation_arm; -- ISO/TS 10303-1366
 
-	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
-	TYPE sd_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH (
-		Product_configuration,
-     	Product_view_definition,
-     	Product_version,
-     	Product);
-	END_TYPE;
+  TYPE sd_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH (
+    Product_configuration,
+    Product_view_definition,
+    Product_version,
+    Product);
+  END_TYPE;
 
   ENTITY Design_specification
     SUPERTYPE OF (Interface_specification_document_definition)
@@ -92,26 +91,23 @@ SCHEMA Specification_document_arm;
       WR1 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
   END_ENTITY;
 
-FUNCTION get_document_definition(
-	input : documented_element_select;
-	role : STRING;
-	type_name : STRING
-) : SET OF Document_definition; 
-
-LOCAL
-	dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
-	da : SET[0:?] OF Document_assignment :=[];
-END_LOCAL;
-	da := bag_to_set(QUERY(dr <* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
-	'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
-
-	-- iterate over da
-	REPEAT i := 1 to SIZEOF(da) by 1;
-		IF(type_name IN TYPEOF (da[i].assigned_document))THEN
-			dd := dd + da[i].assigned_document;
-		END_IF;
-	END_REPEAT;
-	RETURN(dd);
-END_FUNCTION;
+  FUNCTION get_document_definition(
+      input : documented_element_select;
+      role : STRING;
+      type_name : STRING) : SET OF Document_definition; 
+    LOCAL
+      dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
+      da : SET[0:?] OF Document_assignment :=[];
+    END_LOCAL;
+    da := bag_to_set(QUERY(dr <* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
+	  'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
+    -- iterate over da
+    REPEAT i := 1 to SIZEOF(da) by 1;
+      IF(type_name IN TYPEOF (da[i].assigned_document))THEN
+        dd := dd + da[i].assigned_document;
+      END_IF;
+    END_REPEAT;
+    RETURN(dd);
+  END_FUNCTION;
 	
 END_SCHEMA;

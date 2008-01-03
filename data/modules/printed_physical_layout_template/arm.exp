@@ -1,24 +1,23 @@
 (*
-   $Id: arm.exp 1302 2007-07-03 09:22:38Z giedrius $
+   $Id: arm.exp,v 1.66 2007/11/15 12:37:29 liutkus Exp $
    ISO TC184/SC4/WG12 N4158 - ISO/TS 10303-1737 Printed physical layout template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3582
 *)
 
 SCHEMA Printed_physical_layout_template_arm;
 
-	USE FROM Extended_geometric_tolerance_arm;	-- ISO/TS 10303-1666
-	USE FROM Functional_usage_view_arm;	-- ISO/TS 10303-1705
-	USE FROM Part_template_2d_shape_arm; -- ISO/TS 10303-1716
-	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+USE FROM Functional_usage_view_arm;	-- ISO/TS 10303-1705
+USE FROM Part_template_2d_shape_arm; -- ISO/TS 10303-1716
+REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
-	TYPE pplt_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
-		(Printed_part_template_terminal);
-	END_TYPE;
+  TYPE pplt_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
+    (Printed_part_template_terminal);
+  END_TYPE;
 
-	SUBTYPE_CONSTRAINT pplt_template_definition_subtypes FOR Template_definition; 
-		ONEOF (Printed_part_template,
-		 Non_conductive_cross_section_template);
-	END_SUBTYPE_CONSTRAINT;
+  SUBTYPE_CONSTRAINT pplt_template_definition_subtypes FOR Template_definition; 
+    ONEOF (Printed_part_template,
+      Non_conductive_cross_section_template);
+  END_SUBTYPE_CONSTRAINT;
 
   TYPE printed_part_template_terminal_class = ENUMERATION OF
     (curve_edge_segment,
@@ -37,8 +36,7 @@ SCHEMA Printed_physical_layout_template_arm;
       physical_usage_view_terminal   : Printed_part_template_terminal;
       functional_usage_view_terminal : Scalar_terminal_definition;
     UNIQUE
-      UR1 : functional_usage_view_terminal,
- physical_usage_view_terminal;
+      UR1 : functional_usage_view_terminal, physical_usage_view_terminal;
   END_ENTITY;
 
   ENTITY Multi_stratum_printed_part_template
@@ -105,10 +103,10 @@ SCHEMA Printed_physical_layout_template_arm;
       material_to_bottom_of_terminal : OPTIONAL Printed_part_template_material_link;
     UNIQUE
       UR1 : associated_definition,
- material_to_left_of_terminal,
- material_to_right_of_terminal,
- material_to_top_of_terminal,
- material_to_bottom_of_terminal;
+        material_to_left_of_terminal,
+        material_to_right_of_terminal,
+        material_to_top_of_terminal,
+        material_to_bottom_of_terminal;
     WHERE
       WR1 : (SELF\Printed_part_template_terminal.connection_zone_category = curve_edge_segment) OR (SELF\Printed_part_template_terminal.connection_zone_category = area_edge_segment);
       WR2 : NOT (EXISTS(material_to_left_of_terminal) AND EXISTS(material_to_right_of_terminal)) OR (material_to_left_of_terminal :<>: material_to_right_of_terminal);
@@ -173,13 +171,13 @@ SCHEMA Printed_physical_layout_template_arm;
       boundary : SET[0:4] OF template_material_cross_section_boundary FOR associated_definition;
     WHERE
       WR1 : SIZEOF(QUERY(temp <* (USEDIN(SELF,
- 'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'top')) <= 1;
+        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'top')) <= 1;
       WR2 : SIZEOF(QUERY(temp <* (USEDIN(SELF,
- 'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'bottom')) <= 1;
+        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'bottom')) <= 1;
       WR3 : SIZEOF(QUERY(temp <* (USEDIN(SELF,
- 'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'left')) <= 1;
+        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'left')) <= 1;
       WR4 : SIZEOF(QUERY(temp <* (USEDIN(SELF,
- 'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'right')) <= 1;
+        'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.TEMPLATE_MATERIAL_CROSS_SECTION_BOUNDARY.' + 'ASSOCIATED_DEFINITION')) | temp\Shape_element.element_name = 'right')) <= 1;
   END_ENTITY;
 
   ENTITY Printed_part_template_material_link;

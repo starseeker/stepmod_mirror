@@ -1,32 +1,32 @@
 (*
-   $Id: arm.exp 34 2007-03-21 15:24:20Z giedrius $
+   $Id: arm.exp,v 1.30 2007/11/15 12:44:19 liutkus Exp $
    ISO TC184/SC4/WG12 N3888 - ISO/TS 10303-1647 Assembly physical interface requirement - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3360
 *)
 
 SCHEMA Assembly_physical_interface_requirement_arm;
 
-	USE FROM Assembly_functional_interface_requirement_arm;	-- ISO/TS 10303-1635
-	USE FROM Layered_3d_shape_arm;	-- ISO/TS 10303-1694
-	USE FROM Printed_physical_layout_template_arm; -- ISO/TS 10303-1737
+USE FROM Assembly_functional_interface_requirement_arm;	-- ISO/TS 10303-1635
+USE FROM Layered_3d_shape_arm;	-- ISO/TS 10303-1694
+USE FROM Printed_physical_layout_template_arm; -- ISO/TS 10303-1737
 
-	REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740	
+REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740	
 
-	TYPE apir_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
-	    (Mating_connector_termination,
-	    Termination_constraint);
-	END_TYPE; 
+  TYPE apir_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+    (Mating_connector_termination,
+     Termination_constraint);
+  END_TYPE; 
 
-	TYPE mating_connector_definition_select = SELECT
-		(Packaged_part_terminal,
-		Printed_part_template_terminal);
-	END_TYPE;
+  TYPE mating_connector_definition_select = SELECT
+    (Packaged_part_terminal,
+     Printed_part_template_terminal);
+  END_TYPE;
 
-	TYPE three_dimensional_shape = SELECT
-		(Advanced_brep_shape_representation,
-		Curve_swept_solid,
-	 	Geometrically_bounded_surface_shape_representation);
-	END_TYPE;
+  TYPE three_dimensional_shape = SELECT
+    (Advanced_brep_shape_representation,
+     Curve_swept_solid,
+     Geometrically_bounded_surface_shape_representation);
+  END_TYPE;
 
   ENTITY Interface_requirement_occurrence
     SUBTYPE OF (Predefined_requirement_view_definition);
@@ -55,18 +55,16 @@ SCHEMA Assembly_physical_interface_requirement_arm;
       definition         : mating_connector_definition_select;
       accessed_connector : Mating_connector_usage;
 	DERIVE
-  		signal_definition: SET[0:?] OF Requirement_view_definition :=
-  		get_rvd(SELF, 'signal definition');
+      signal_definition: SET[0:?] OF Requirement_view_definition := get_rvd(SELF, 'signal definition');
     UNIQUE
-      UR1 : definition,
- accessed_connector;
+      UR1 : definition, accessed_connector;
 	WHERE
-   		WR1 : (SIZEOF(signal_definition) <= 1);
+      WR1 : (SIZEOF(signal_definition) <= 1);
   END_ENTITY;
 
   ENTITY Next_higher_assembly_interface_requirement;
-      shape                           : three_dimensional_shape;
-      version_of_next_higher_assembly : Product_version;
+    shape                           : three_dimensional_shape;
+    version_of_next_higher_assembly : Product_version;
   END_ENTITY;
 
   ENTITY Protocol_requirement_allocation_to_part_terminal

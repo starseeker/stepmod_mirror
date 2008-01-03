@@ -1,34 +1,32 @@
 (*
-   $Id: arm.exp 34 2007-03-21 15:24:20Z giedrius $
+   $Id: arm.exp,v 1.50 2007/11/15 12:37:55 liutkus Exp $
    ISO TC184/SC4/WG12 N3849 - ISO/TS 10303-1634 Assembly component placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3291
 *)
 
 SCHEMA Assembly_component_placement_requirements_arm;
 
-	USE FROM Assembly_module_with_interconnect_component_arm;	-- ISO/TS 10303-1643
-	
-	REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
+USE FROM Assembly_module_with_interconnect_component_arm;	-- ISO/TS 10303-1643
+REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
+REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
-	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
-
-    SUBTYPE_CONSTRAINT acpr_predefined_requirement_view_definition_subtypes FOR Predefined_requirement_view_definition;   
- 	  (ONEOF (Assembly_spacing_requirement_occurrence,
- 	  Assembly_group_spacing_requirement_occurrence,
- 	  Item_restricted_requirement_occurrence));
-    END_SUBTYPE_CONSTRAINT;  
+  SUBTYPE_CONSTRAINT acpr_predefined_requirement_view_definition_subtypes FOR Predefined_requirement_view_definition;   
+    (ONEOF (Assembly_spacing_requirement_occurrence,
+ 	 Assembly_group_spacing_requirement_occurrence,
+ 	 Item_restricted_requirement_occurrence));
+  END_SUBTYPE_CONSTRAINT;  
  
-	TYPE restriction_basis_item = EXTENSIBLE SELECT(
-		Predefined_requirement_view_definition,
-   		Part_feature);
-	END_TYPE;
+  TYPE restriction_basis_item = EXTENSIBLE SELECT(
+    Predefined_requirement_view_definition,
+    Part_feature);
+  END_TYPE;
 
-TYPE acpr_requirement_assignment_item = EXTENSIBLE SELECT BASED_ON requirement_assignment_item WITH 
+  TYPE acpr_requirement_assignment_item = EXTENSIBLE SELECT BASED_ON requirement_assignment_item WITH 
     (restriction_basis_item,
-  	Placement_group_requirement_definition);
-END_TYPE; 
+     Placement_group_requirement_definition);
+  END_TYPE; 
 
-TYPE assembly_product_design_object_category = EXTENSIBLE ENUMERATION OF
+  TYPE assembly_product_design_object_category = EXTENSIBLE ENUMERATION OF
     (assembly_component_category,
      assembly_module_component_category,
      assembly_module_component_terminal_category,
@@ -75,31 +73,31 @@ TYPE assembly_product_design_object_category = EXTENSIBLE ENUMERATION OF
      routed_physical_component_category,
      stratum_feature_category,
      via_category);
-END_TYPE;
+  END_TYPE;
 
-TYPE assembly_product_design_object_category_or_group = SELECT(
-   assembly_product_design_object_category,
-   Group);
-END_TYPE;    
+  TYPE assembly_product_design_object_category_or_group = SELECT(
+    assembly_product_design_object_category,
+    Group);
+  END_TYPE;    
 
-TYPE assembly_component_or_component_feature = SELECT(
-   Assembly_component,
-   Component_feature);
-END_TYPE;    
+  TYPE assembly_component_or_component_feature = SELECT(
+    Assembly_component,
+    Component_feature);
+  END_TYPE;    
 
-TYPE assembly_spacing_type = EXTENSIBLE ENUMERATION OF
+  TYPE assembly_spacing_type = EXTENSIBLE ENUMERATION OF
     (nearest_boundary,
      centroid,
      furthest_boundary);
-END_TYPE;
+  END_TYPE;
 
   ENTITY Assembly_group_spacing_requirement_occurrence
     SUBTYPE OF (Predefined_requirement_view_definition);
-      reference_group : Placement_group_requirement_definition;
-      dependent_group : Placement_group_requirement_definition;
+      dependent_group                                                     : Placement_group_requirement_definition;
+      of_spacing_type                                                     : assembly_spacing_type;
+      reference_group                                                     : Placement_group_requirement_definition;
       SELF\Predefined_requirement_view_definition.required_characteristic : Length_tolerance_characteristic;
-      of_spacing_type : assembly_spacing_type;
-  END_ENTITY;
+   END_ENTITY;
 
   ENTITY Assembly_spacing_requirement_occurrence
     SUBTYPE OF (Predefined_requirement_view_definition);

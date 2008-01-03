@@ -1,8 +1,7 @@
 (*
- $Id: mim.exp,v 1.13 2004/10/27 22:11:15 thendrix Exp $
+ $Id: mim.exp,v 1.14 2004/10/28 16:16:40 darla Exp $
 ISO TC184/SC4/WG12 N2910 - ISO/TS 10303-1012 Approval - EXPRESS MIM
 *) 
-
 
 SCHEMA Approval_mim;
 
@@ -21,28 +20,25 @@ USE FROM basic_attribute_schema   -- ISO 10303-41
 
 USE FROM Date_time_assignment_mim;    -- ISO/TS 10303-1014
 
-USE FROM Date_time_mim;    -- ISO/TS 10303-1010
-
 USE FROM management_resources_schema   -- ISO 10303-41
   (approval_assignment); 
 
 USE FROM Person_organization_mim;    -- ISO/TS 10303-1011
 
+  TYPE approval_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+  END_TYPE; 
 
-TYPE approval_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
+  TYPE date_and_time_item_approval = SELECT BASED_ON date_and_time_item WITH 
+    (approval_person_organization);
+  END_TYPE; 
 
-TYPE date_and_time_item_approval = SELECT BASED_ON date_and_time_item WITH 
-   (approval_person_organization);
-END_TYPE; 
+  TYPE date_item_approval = SELECT BASED_ON date_item WITH 
+    (approval_person_organization);
+  END_TYPE; 
 
-TYPE date_item_approval = SELECT BASED_ON date_item WITH 
-   (approval_person_organization);
-END_TYPE; 
+  ENTITY applied_approval_assignment
+    SUBTYPE OF (approval_assignment);
+      items : SET[1:?] OF approval_item;
+  END_ENTITY;
 
-ENTITY applied_approval_assignment
-  SUBTYPE OF (approval_assignment);
-  items : SET[1:?] OF approval_item;
-END_ENTITY;
-
-END_SCHEMA;  -- Approval_mim
+END_SCHEMA;

@@ -1,34 +1,40 @@
 (*
-   $Id: arm.exp 126 2007-03-27 08:38:49Z giedrius $
+   $Id: arm.exp,v 1.9 2007/11/15 12:39:31 liutkus Exp $
    ISO TC184/SC4/WG12 N3963 - ISO/TS 10303-1672 Fill area style - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3411
 *)
 
 SCHEMA Fill_area_style_arm;
 
-	USE FROM Basic_curve_arm;	-- ISO/TS 10303-1651
-	USE FROM Styled_curve_arm;	-- ISO/TS 10303-1749
-	USE FROM Value_with_unit_extension_arm;	-- ISO/TS 10303-1753
+USE FROM Basic_curve_arm;	-- ISO/TS 10303-1651
+USE FROM Styled_curve_arm;	-- ISO/TS 10303-1749
+USE FROM Value_with_unit_extension_arm;	-- ISO/TS 10303-1753
+USE FROM Extended_basic_geometry_arm; 	-- ISO/TS 10303-1667 
 
-	USE FROM Extended_basic_geometry_arm; 	-- ISO/TS 10303-1667 
+  TYPE fill_area_style_select = EXTENSIBLE GENERIC_ENTITY SELECT
+   (Hatch_style, 
+	Tile_style);
+  END_TYPE; 
 
-	TYPE fill_area_style_select = EXTENSIBLE GENERIC_ENTITY SELECT
-	   (Hatch_style, 
-	    Tile_style);
-	END_TYPE; 
+  ENTITY Externally_defined_hatch_style
+    SUBTYPE OF (Hatch_style); 
+  END_ENTITY;
+
+  ENTITY Externally_defined_tile_style
+    SUBTYPE OF (Tile_style); 
+  END_ENTITY;
 
   ENTITY Hatch_style
     ABSTRACT SUPERTYPE OF (ONEOF(Externally_defined_hatch_style, User_defined_hatch_style))
     SUBTYPE OF (Detailed_geometric_model_element);
---    WHERE
---      WR1: NOT EXISTS (SELF\Representation_item.name);
   END_ENTITY;
 
-  ENTITY Externally_defined_hatch_style -- mapps to Externally_defined_hatch_style 
-    SUBTYPE OF (Hatch_style); 
+  ENTITY Tile_style
+    ABSTRACT SUPERTYPE OF (ONEOF(Externally_defined_tile_style, User_defined_tile_style))
+	SUBTYPE OF (Detailed_geometric_model_element);
   END_ENTITY;
 
-  ENTITY User_defined_hatch_style -- mapps to Fill_area_style_hatching
+  ENTITY User_defined_hatch_style
     SUBTYPE OF (Hatch_style);
       hatch_line_appearance         : Curve_appearance;
       start_of_next_hatch_line      : Vector;
@@ -39,25 +45,11 @@ SCHEMA Fill_area_style_arm;
      WR1 : 'STYLED_CURVE_ARM.SOLID_CURVE_FONT' IN TYPEOF(SELF.hatch_line_appearance.font);
   END_ENTITY;
 
-	ENTITY Tile_style
-	  ABSTRACT SUPERTYPE OF (ONEOF(Externally_defined_tile_style, User_defined_tile_style))
-	  SUBTYPE OF (Detailed_geometric_model_element);
---    WHERE
---      WR1: NOT EXISTS (SELF\Representation_item.name);
-	END_ENTITY;
-
-  ENTITY Externally_defined_tile_style -- mapps to Externally_defined_tile_style
-    SUBTYPE OF (Tile_style); 
-  END_ENTITY;
-
--- This entity specifies the shape of the tile and how it is repeated. Details are defined in part 46.
-  ENTITY User_defined_tile_style -- mapps to Fill_area_style_tiles
+  ENTITY User_defined_tile_style
     SUBTYPE OF (Tile_style);
       first_direction_repeat_factor  : Vector;
       second_direction_repeat_factor : Vector;
---      tile                           : Tile_shape;
-      tiling_scale                   : INTEGER; -- positive_ratio_measure;
+      tiling_scale                   : INTEGER;
   END_ENTITY;
-  (* Similar like Tiling - could be subtype of Tiling *)
 
 END_SCHEMA;

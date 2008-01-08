@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.127 2008/01/03 14:31:00 liutkus Exp $
+   $Id: arm.exp,v 1.128 2008/01/08 08:28:40 liutkus Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -96,6 +96,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
      stiff_laminate);
   END_TYPE;
 
+  TYPE up_or_down = ENUMERATION OF
+    (independent, 
+     precedent, 
+     subsequent);
+  END_TYPE;
+  
   ENTITY Blind_passage_template
     SUBTYPE OF (Unsupported_passage_template);
       bottom_distance_from_datum_reference : Shape_dimension_representation;    
@@ -430,9 +436,10 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence_link;
-      precedent_sto  : Stratum_technology_occurrence;
-      scope          : Stratum_stack_model;    
-      subsequent_sto : Stratum_technology_occurrence;
+      base_stratum_technology_occurrence : OPTIONAL up_or_down;  
+      precedent_sto                      : Stratum_technology_occurrence;
+      scope                              : Stratum_stack_model;    
+      subsequent_sto                     : Stratum_technology_occurrence;
     WHERE
       WR1 : NOT (precedent_sto :=: subsequent_sto) OR (SIZEOF(scope.composing_link) = 1);
       WR2 : NOT(SIZEOF(scope.composing_link) = 1) OR

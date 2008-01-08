@@ -1,22 +1,22 @@
 (*
-   $Id: arm.exp,v 1.126 2007/12/27 14:55:14 liutkus Exp $
+   $Id: arm.exp,v 1.127 2008/01/03 14:31:00 liutkus Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
 
 SCHEMA Fabrication_technology_arm;
-    USE FROM Constructive_solid_geometry_2d_arm; 	-- ISO/TS 10303-1731
-	USE FROM Extended_geometric_tolerance_arm;  -- ISO/TS 10303-1666
-	USE FROM Part_template_shape_with_parameters_arm; -- ISO/TS 10303-1720
+USE FROM Constructive_solid_geometry_2d_arm; 	-- ISO/TS 10303-1731
+USE FROM Extended_geometric_tolerance_arm;  -- ISO/TS 10303-1666
+USE FROM Part_template_shape_with_parameters_arm; -- ISO/TS 10303-1720
 
-	REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
-	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
+REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 	
 
-	TYPE ft_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
-	   (Passage_technology,
-	   Stratum_technology);
-	END_TYPE; 
+  TYPE ft_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
+    (Passage_technology,
+     Stratum_technology);
+  END_TYPE; 
 	
   TYPE ft_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
 	(Filled_via_template,
@@ -29,23 +29,23 @@ SCHEMA Fabrication_technology_arm;
      Passage_technology);
   END_TYPE; 
 
-	TYPE ft_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
-	   (Passage_technology,
-      Stratum_technology,
-      Stratum_technology_occurrence);
-	END_TYPE; 
+  TYPE ft_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+    (Passage_technology,
+     Stratum_technology,
+     Stratum_technology_occurrence);
+  END_TYPE; 
 
-	SUBTYPE_CONSTRAINT ft_shape_feature_subtypes FOR Shape_feature; 
-	    (ONEOF (Via_template_terminal,
-         Component_termination_passage_template_terminal,
-         Land_template_terminal));
-	END_SUBTYPE_CONSTRAINT;
+  SUBTYPE_CONSTRAINT ft_shape_feature_subtypes FOR Shape_feature; 
+    (ONEOF (Via_template_terminal,
+            Component_termination_passage_template_terminal,
+            Land_template_terminal));
+  END_SUBTYPE_CONSTRAINT;
 
-	SUBTYPE_CONSTRAINT ft_template_definition_subtypes FOR Template_definition; 
-	    (ONEOF (Geometric_template,
-	    Single_stratum_template,
-		 Stratum_stack_model));
-	END_SUBTYPE_CONSTRAINT;
+  SUBTYPE_CONSTRAINT ft_template_definition_subtypes FOR Template_definition; 
+    (ONEOF (Geometric_template,
+            Single_stratum_template,
+            Stratum_stack_model));
+  END_SUBTYPE_CONSTRAINT;
 
   TYPE land_template_terminal_class = ENUMERATION OF
     (surface_point_class,
@@ -70,15 +70,15 @@ SCHEMA Fabrication_technology_arm;
      embedded_passive_resistor);
   END_TYPE;
 
- 	TYPE mt_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
-		(Land_physical_template,
-		Design_layer_technology,
-		Documentation_layer_technology);
-	END_TYPE;
+  TYPE mt_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+    (Land_physical_template,
+     Design_layer_technology,
+     Documentation_layer_technology);
+  END_TYPE;
 
-	TYPE mt_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
-		(Land_template_terminal);
-	END_TYPE;
+  TYPE mt_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
+    (Land_template_terminal);
+  END_TYPE;
 
   TYPE predefined_documentation_layer_purpose = ENUMERATION OF
     (soldermask,
@@ -98,10 +98,10 @@ SCHEMA Fabrication_technology_arm;
 
   ENTITY Blind_passage_template
     SUBTYPE OF (Unsupported_passage_template);
-      of_measure_orientation               : measure_orientation;
+      bottom_distance_from_datum_reference : Shape_dimension_representation;    
       datum_reference_layer                : Stratum_technology_occurrence;
       datum_reference_side                 : Stratum_technology_occurrence_link;
-      bottom_distance_from_datum_reference : Shape_dimension_representation;
+      of_measure_orientation               : measure_orientation;
   END_ENTITY;
 
   ENTITY Component_termination_passage_template
@@ -122,21 +122,20 @@ SCHEMA Fabrication_technology_arm;
 
   ENTITY Component_termination_passage_template_terminal
     ABSTRACT SUPERTYPE OF (ONEOF (Component_termination_passage_template_interface_terminal,
- Component_termination_passage_template_join_terminal))
+      Component_termination_passage_template_join_terminal))
     SUBTYPE OF (Shape_feature);
       SELF\Shape_element.containing_shape RENAMED associated_definition : Component_termination_passage_template;
       SELF\Shape_feature.connection_area                                : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;
     UNIQUE
-      UR1 : SELF\Shape_element.element_name,
- associated_definition;
+      UR1 : SELF\Shape_element.element_name, associated_definition;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
   
   ENTITY Continuous_template
     SUBTYPE OF (Geometric_template);
-  WHERE
-    WR1 : SIZEOF(QUERY(s <* SELF\Geometric_template.shapes |
+    WHERE
+      WR1 : SIZEOF(QUERY(s <* SELF\Geometric_template.shapes |
           NOT 
           (SIZEOF(['CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_AREA_CSG_2D_MODEL',
                    'PART_TEMPLATE_EXTENSION_ARM.PLANAR_PATH_SHAPE_MODEL_WITH_PARAMETERS'] * TYPEOF(s))
@@ -180,21 +179,6 @@ SCHEMA Fabrication_technology_arm;
       WR6 : SIZEOF(interface_access_mechanisms) = 1;   
       WR7 : SELF\Shape_element.id = SELF\Item_shape.id;      
   END_ENTITY;
-
-  FUNCTION ft_get_zone_name(input : SET OF Connection_zone_in_layout_template) : SET OF STRING;
-  LOCAL
-    s : SET OF STRING := [];
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   s := s + input[i]\Characterizable_object.name;
-  END_REPEAT;
-  RETURN(s);
-  END_FUNCTION;
-
-
-
-
-
 
   ENTITY Default_component_termination_passage_definition
     SUBTYPE OF (Passage_technology);
@@ -316,15 +300,13 @@ SCHEMA Fabrication_technology_arm;
   END_ENTITY;
 
   ENTITY Land_template_terminal
-    ABSTRACT SUPERTYPE OF (ONEOF (Land_template_join_terminal,
- Land_template_interface_terminal))
+    ABSTRACT SUPERTYPE OF (ONEOF (Land_template_join_terminal, Land_template_interface_terminal))
     SUBTYPE OF (Shape_feature);
       SELF\Shape_element.containing_shape RENAMED associated_definition : Land_physical_template;
       SELF\Shape_feature.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;      
       connection_zone_category           : OPTIONAL SET[1:?] OF land_template_terminal_class;
     UNIQUE
-      UR1 : SELF\Shape_element.element_name,
- associated_definition;
+      UR1 : SELF\Shape_element.element_name, associated_definition;
     WHERE
       WR1 : NOT (EXISTS(SELF\Shape_feature.connection_area)) OR EXISTS(connection_zone_category);
       WR2 : NOT (EXISTS(SELF\Shape_feature.connection_area)) OR (SIZEOF(SELF\Shape_feature.connection_area) = SIZEOF(connection_zone_category));
@@ -341,35 +323,35 @@ SCHEMA Fabrication_technology_arm;
       WR2 : SIZEOF(SELF\Geometric_template.shapes) > 0;
   END_ENTITY;
 
-	ENTITY Passage_technology
-		SUPERTYPE OF (ONEOF (Default_via_definition,
+  ENTITY Passage_technology
+    SUPERTYPE OF (ONEOF (Default_via_definition,
  			Default_component_termination_passage_definition,
  			Default_unsupported_passage_definition))
- 		SUBTYPE OF (Characterizable_object, Item_shape);	
+    SUBTYPE OF (Characterizable_object, Item_shape);	
       as_finished_deposition_thickness  : OPTIONAL Length_tolerance_characteristic;
       as_finished_passage_extent        : OPTIONAL Length_tolerance_characteristic;      
       maximum_aspect_ratio              : OPTIONAL REAL;      
       minimum_finished_size             : OPTIONAL Length_data_element;      
       plated_passage                    : BOOLEAN;
-	 DERIVE
-        SELF\Item_shape.described_element : Passage_technology := SELF;     	 
+    DERIVE
+      SELF\Item_shape.described_element : Passage_technology := SELF;     	 
 		specification: SET[0:1] OF Document_definition :=
   			get_document_definition(SELF, 'specification', 
   			'SPECIFICATION_DOCUMENT_ARM.PROCESS_SPECIFICATION');
-     INVERSE
+    INVERSE
 	   deposition_material               : SET [0:1] OF material_identification FOR items;      
-     UNIQUE
-       UR1 : SELF\Characterizable_object.name;
-	 WHERE
-	  WR1 : NOT (SIZEOF(deposition_material) = 1) OR
+    UNIQUE
+       UR1: SELF\Characterizable_object.name;
+    WHERE
+       WR1: NOT (SIZEOF(deposition_material) = 1) OR
             ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1]));
-      WR2: NOT (plated_passage) OR (SIZEOF(deposition_material) = 1);
-      WR3: NOT EXISTS(as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
-      WR4: NOT (plated_passage) OR
+       WR2: NOT (plated_passage) OR (SIZEOF(deposition_material) = 1);
+       WR3: NOT EXISTS(as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
+       WR4: NOT (plated_passage) OR
            (SIZEOF([deposition_material[1].electrical_conductivity_classification,
                     deposition_material[1].thermal_conductivity_classification] *
                    ['conductive']) >= 1);
-	END_ENTITY;
+  END_ENTITY;
 
   ENTITY Single_stratum_continuous_template
     ABSTRACT SUPERTYPE OF (ONEOF (Stratum_feature_template,
@@ -399,8 +381,7 @@ SCHEMA Fabrication_technology_arm;
   END_ENTITY;
 
   ENTITY Stratum_technology
-    SUPERTYPE OF (ONEOF (Design_layer_technology,
- Documentation_layer_technology))
+    SUPERTYPE OF (ONEOF (Design_layer_technology, Documentation_layer_technology))
     SUBTYPE OF (Characterizable_object, Item_shape);
       layer_position                   : layer_position_type;
       stratum_thickness                : Length_tolerance_characteristic;
@@ -410,14 +391,14 @@ SCHEMA Fabrication_technology_arm;
       maximum_feature_size_requirement : OPTIONAL Length_data_element;
       minimum_aspect_ratio             : OPTIONAL REAL;
 	DERIVE
-	SELF\Item_shape.described_element : Stratum_technology := SELF;
+      SELF\Item_shape.described_element : Stratum_technology := SELF;
 		specification: SET[0:1] OF Document_definition :=
   			get_document_definition(SELF, 'specification', 
   			'SPECIFICATION_DOCUMENT_ARM.PROCESS_SPECIFICATION');
 		surface_specification: SET[0:1] OF Document_definition :=
   			get_document_definition(SELF, 'surface specification', 
   			'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION');
-   INVERSE
+    INVERSE
 	  stratum_material : SET[1:1] OF material_identification FOR items;
 	  surface_technology : SET[0:2] OF Stratum_surface_technology FOR associated_technology;      
     UNIQUE
@@ -432,29 +413,29 @@ SCHEMA Fabrication_technology_arm;
   ENTITY Stratum_surface_technology
     SUBTYPE OF (Shape_element);
     SELF\Shape_element.containing_shape RENAMED associated_technology : Stratum_technology;
-  DERIVE
-    surface_specification: SET[0:1] OF Document_definition :=
-  	    		get_document_definition(SELF, 'surface specification',  	
-                                        'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION');
-  WHERE
-    WR1 : (SIZEOF(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT')) > 0) OR 
-          (SIZEOF(get_document_definition(SELF, 'surface specification', 'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION')) = 1);
+    DERIVE
+      surface_specification: SET[0:1] OF Document_definition :=
+        get_document_definition(SELF, 'surface specification',  	
+                                      'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION');
+    WHERE
+      WR1 : (SIZEOF(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT')) > 0) OR 
+            (SIZEOF(get_document_definition(SELF, 'surface specification', 'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION')) = 1);
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence;
-    name       : STRING; 
-    definition : Stratum_technology;
-  UNIQUE
-    UR1: name;  
+      name       : STRING; 
+      definition : Stratum_technology;
+    UNIQUE
+      UR1: name;  
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence_link;
-    precedent_sto  : Stratum_technology_occurrence;
-    subsequent_sto : Stratum_technology_occurrence;
-    scope          : Stratum_stack_model;
-  WHERE
-   WR1 : NOT (precedent_sto :=: subsequent_sto) OR (SIZEOF(scope.composing_link) = 1);
-   WR2 : NOT(SIZEOF(scope.composing_link) = 1) OR
+      precedent_sto  : Stratum_technology_occurrence;
+      scope          : Stratum_stack_model;    
+      subsequent_sto : Stratum_technology_occurrence;
+    WHERE
+      WR1 : NOT (precedent_sto :=: subsequent_sto) OR (SIZEOF(scope.composing_link) = 1);
+      WR2 : NOT(SIZEOF(scope.composing_link) = 1) OR
            acyclic_stratum_technology_occurrence_link(SELF, [subsequent_sto], 
            'FABRICATION_TECHNOLOGY_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL_LINK');
   END_ENTITY;
@@ -489,24 +470,24 @@ SCHEMA Fabrication_technology_arm;
   END_ENTITY;
 
   ENTITY Stratum_technology_swap_relationship;
-    primary_stratum_technology   : Stratum_technology;
-    secondary_stratum_technology : Stratum_technology;
-   UNIQUE
-    UR1: primary_stratum_technology;
-    UR2: secondary_stratum_technology;
-   WHERE 
-    WR1 : NOT (('FABRICATION_TECHNOLOGY_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(primary_stratum_technology)) AND
+      primary_stratum_technology   : Stratum_technology;
+      secondary_stratum_technology : Stratum_technology;
+    UNIQUE
+      UR1: primary_stratum_technology;
+      UR2: secondary_stratum_technology;
+    WHERE 
+      WR1 : NOT (('FABRICATION_TECHNOLOGY_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(primary_stratum_technology)) AND
               EXISTS(primary_stratum_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose))
           OR
           (primary_stratum_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose =
            secondary_stratum_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose);
-    WR2: TYPEOF(primary_stratum_technology) = TYPEOF(secondary_stratum_technology);
-    WR3: primary_stratum_technology\Stratum_technology.layer_position = layer_position_type.primary;
-    WR4: secondary_stratum_technology\Stratum_technology.layer_position = layer_position_type.secondary;
-    WR5: primary_stratum_technology <> secondary_stratum_technology;
-    WR6: acyclic_stratum_technology_swap_relationship(SELF,
-      [secondary_stratum_technology], 
-     'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_SWAP_RELATIONSHIP');
+      WR2: TYPEOF(primary_stratum_technology) = TYPEOF(secondary_stratum_technology);
+      WR3: primary_stratum_technology\Stratum_technology.layer_position = layer_position_type.primary;
+      WR4: secondary_stratum_technology\Stratum_technology.layer_position = layer_position_type.secondary;
+      WR5: primary_stratum_technology <> secondary_stratum_technology;
+      WR6: acyclic_stratum_technology_swap_relationship(SELF,
+        [secondary_stratum_technology], 
+       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_SWAP_RELATIONSHIP');
   END_ENTITY;
 
   ENTITY Unsupported_passage_template
@@ -530,8 +511,7 @@ SCHEMA Fabrication_technology_arm;
       disallowed_inter_stratum_extent                                   : OPTIONAL SET [1:?] OF Stratum_technology_occurrence_link;
       SELF\Shape_feature.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;      
     UNIQUE
-      UR1 : SELF\Shape_element.element_name,
- associated_definition;
+      UR1 : SELF\Shape_element.element_name, associated_definition;
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
@@ -607,30 +587,39 @@ SCHEMA Fabrication_technology_arm;
     END_REPEAT;
     RETURN (TRUE);
   END_FUNCTION; 
+
+  FUNCTION ft_get_zone_name(input : SET OF Connection_zone_in_layout_template) : SET OF STRING;
+    LOCAL
+      s : SET OF STRING := [];
+    END_LOCAL;
+    REPEAT  i := 1 TO SIZEOF(input) BY 1;
+      s := s + input[i]\Characterizable_object.name;
+    END_REPEAT;
+    RETURN(s);
+  END_FUNCTION;
   
-FUNCTION get_electrical_conductivity
-  (mi : SET[0:?] OF Material_identification) : BOOLEAN;
+  FUNCTION get_electrical_conductivity(mi : SET[0:?] OF Material_identification) : BOOLEAN;
 	REPEAT i := 1 to SIZEOF(mi) by 1;
 	  IF ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' 
 	  	IN TYPEOF (mi[i])) THEN
 		  IF((EXISTS(mi[i].electrical_conductivity_classification)) AND 
-		  (mi[i].electrical_conductivity_classification IN ['conductive', 'semi conductive', 'super conductive'])) THEN
+		    (mi[i].electrical_conductivity_classification IN ['conductive', 'semi conductive', 'super conductive'])) THEN
 	  		RETURN (TRUE);
-	  	END_IF;	
-	  END_IF;
+	  	  END_IF;	
+      END_IF;
 	END_REPEAT;
 	RETURN (FALSE);
-END_FUNCTION;
+  END_FUNCTION;
 
- FUNCTION get_stack(input : SET OF Stratum_technology_occurrence_link) : SET OF Stratum_technology_occurrence;
-  LOCAL
-   sto : SET OF Stratum_technology_occurrence := [];
-    i : INTEGER := 0;
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   sto := sto + input[i].precedent_sto + input[i].subsequent_sto;
-  END_REPEAT;
-  RETURN(sto);
+  FUNCTION get_stack(input : SET OF Stratum_technology_occurrence_link) : SET OF Stratum_technology_occurrence;
+    LOCAL
+      sto : SET OF Stratum_technology_occurrence := [];
+      i : INTEGER := 0;
+    END_LOCAL;
+    REPEAT  i := 1 TO SIZEOF(input) BY 1;
+      sto := sto + input[i].precedent_sto + input[i].subsequent_sto;
+    END_REPEAT;
+    RETURN(sto);
   END_FUNCTION;
 
   FUNCTION less(input1 : Length_tolerance_characteristic;
@@ -638,23 +627,21 @@ END_FUNCTION;
     RETURN(TRUE);
   END_FUNCTION;
 
-RULE unique_land_physical_template FOR (Land_physical_template);
-   LOCAL
-     esi : BAG OF External_source_identification := [];
-     iid : BAG OF String := [];
-     itype : BAG OF String := [];
-   END_LOCAL;
-   REPEAT i := 1 to SIZEOF(Land_physical_template) by 1;
-     esi  := esi + Land_physical_template[i].pre_defined_classification_code[1];
-     iid := iid + Land_physical_template[i].pre_defined_classification_code[1]\External_source_identification.source_id;
-     itype := itype + Land_physical_template[i].pre_defined_classification_code[1]\External_source_identification.source_type;
-   END_REPEAT;  
-  WHERE
-   WR1 : (SIZEOF(esi) = SIZEOF(bag_to_set(esi))) AND
-         (SIZEOF(iid) = SIZEOF(bag_to_set(iid))) AND
-         (1 = SIZEOF(bag_to_set(itype)));
+  RULE unique_land_physical_template FOR (Land_physical_template);
+    LOCAL
+      esi : BAG OF External_source_identification := [];
+      iid : BAG OF String := [];
+      itype : BAG OF String := [];
+    END_LOCAL;
+    REPEAT i := 1 to SIZEOF(Land_physical_template) by 1;
+      esi  := esi + Land_physical_template[i].pre_defined_classification_code[1];
+      iid := iid + Land_physical_template[i].pre_defined_classification_code[1]\External_source_identification.source_id;
+      itype := itype + Land_physical_template[i].pre_defined_classification_code[1]\External_source_identification.source_type;
+    END_REPEAT;  
+    WHERE
+     WR1 : (SIZEOF(esi) = SIZEOF(bag_to_set(esi))) AND
+           (SIZEOF(iid) = SIZEOF(bag_to_set(iid))) AND
+           (1 = SIZEOF(bag_to_set(itype)));
   END_RULE;
-
-
 
 END_SCHEMA;

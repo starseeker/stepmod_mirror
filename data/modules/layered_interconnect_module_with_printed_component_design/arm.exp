@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.47 2007/11/30 19:50:38 liutkus Exp $
+   $Id: arm.exp,v 1.48 2007/12/03 23:33:46 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4047 - ISO/TS 10303-1700 Layered interconnect module with printed component design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3486
 *)
@@ -192,31 +192,12 @@ desc: limdwpcd_get_prs has as input a set of Plated_passage.
 The function returns a set of Stratum where each member of that set is in the vertical extent of the input. 
 *)
 
-FUNCTION limdwpcd_get_stolrs(input : SET OF Stratum_technology_occurrence_link) : SET OF Stratum; 
-LOCAL
-	s : SET OF Stratum := [];  --this gives us access to the information base
-	assd : SET OF Adjacent_stratum_surface_definition := [];  --this gives us access to the information base
-END_LOCAL;
-
-	REPEAT i := 1 to SIZEOF(input) by 1;
-	      assd := assd + bag_to_set(USEDIN(input[i],'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
-                                   'STRATUM_TECHNOLOGY_OCCURRENCE_TO_STRATUM_MAPPING_RELATIONSHIP.' +
-                                    'TECHNOLOGY_OCCURRENCE_LINK'));
-      	END_REPEAT;
-	REPEAT i := 1 to SIZEOF(assd) by 1;
-      	     s := s + assd[i]\Adjacent_stratum_surface_definition.precedent_surface\Stratum_surface.of_stratum +
-      	              assd[i]\Adjacent_stratum_surface_definition.subsequent_surface\Stratum_surface.of_stratum;
-        END_REPEAT;
-
+  FUNCTION limdwpcd_get_stolrs(input : SET OF Stratum_technology_occurrence_link) : SET OF Stratum; 
+    LOCAL
+	  s : SET OF Stratum := [];  --this gives us access to the information base
+    END_LOCAL;
 	RETURN(s);
-END_FUNCTION;
-(*
-desc: limdwpcd_get_stolrs has as input a set of Stratum_technology_occurrence_link. 
-The function returns a set of Stratum where each member of that set is referenced by a member of Adjacent_stratum_surface_definition 
-that corresponsds to a member of the input. 
-NOTE The equivalence mapping of Stratum_technology_occurrence_to_stratum_mapping_relationship is used to map from the Stratum_technology_occurrence_link
-to the Adjacent_stratum_surface_definition.
-*)
+  END_FUNCTION;
     
 FUNCTION get_gpn(
 	input : SET OF printed_component_join_terminal) : SET OF Generic_physical_network; 

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.263 2008/01/03 15:04:07 liutkus Exp $
+   $Id: arm.exp,v 1.264 2008/01/09 12:29:18 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -111,6 +111,11 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   TYPE bare_die_terminal_or_packaged_part_terminal = EXTENSIBLE GENERIC_ENTITY SELECT;
   END_TYPE;
 
+  TYPE component_feature_or_stratum_surface = EXTENSIBLE GENERIC_ENTITY SELECT
+    (Component_feature,
+    Stratum_surface);
+  END_TYPE;
+
   TYPE limd_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
     (Template_definition,
      Part_usage_view,
@@ -170,13 +175,20 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
      Inter_stratum_feature,
      Stratum_feature,
      Stratum,
+     Stratum_surface,
      Structured_layout_component);
+  END_TYPE;
+
+  TYPE stratum_surface_designation = ENUMERATION OF
+    (average_surface,
+     primary_surface,
+     secondary_surface);
   END_TYPE;
 
   ENTITY Adjacent_stratum_surface_embedded_physical_component_surface_definition;
       name            : STRING;
-      precedent_item  : Component_feature;
-      subsequent_item : Component_feature;
+      precedent_item  : component_feature_or_stratum_surface;
+      subsequent_item : component_feature_or_stratum_surface;
     UNIQUE
       UR1 : name;
       UR2 : precedent_item, subsequent_item;
@@ -190,6 +202,10 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
         (SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.BARE_DIE_SURFACE',
                  'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PACKAGE_BODY_SURFACE',
                  'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE'] * TYPEOF(subsequent_item.definition)) = 1);
+      WR4 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(precedent_item)) OR 
+                (precedent_item.name = stratum_surface_designation.secondary_surface);
+      WR5 : NOT ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE' IN TYPEOF(subsequent_item)) OR 
+                (precedent_item.name = stratum_surface_designation.primary_surface);                 
   END_ENTITY;
 
   ENTITY Area_component
@@ -951,6 +967,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       SELF\Product_view_definition.id : STRING;
       definition                      : Stratum_technology_occurrence;
     DERIVE
+      of_average_surface 	: SET[0:1] OF stratum_average_surface := 
+        QUERY(tmp <* of_surface | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE' IN TYPEOF(tmp));
       SELF\Item_shape.described_element : shapeable_item := SELF;
       base_component : SET [0:?] OF Area_component := get_base_component(SELF);                     
       of_product_version : SET [1:?] OF product_version := 
@@ -961,19 +979,33 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
                ));
       of_technology : Stratum_technology := definition\Stratum_technology_occurrence.definition;                     
     INVERSE
+      of_surface         	: SET[1:3] OF stratum_surface FOR of_stratum;
       assembly           	: SET[1:?] OF interconnect_module_stratum_assembly_relationship FOR component;
 	  stratum_usage			: SET[0:1] OF External_source_identification FOR item;      
 	  material_product      : SET [0:1] OF Make_from_relationship FOR related_view;
     WHERE
-      WR1: NOT EXISTS (SELF\Product_view_definition.additional_characterization);
-      WR2: SIZEOF(QUERY(asse <* assembly |
+      WR1: SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) <= 1;
+      WR2: NOT(SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 1) OR
+              (SIZEOF(of_surface) < 3);    
+      WR3: SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) <= 1;
+      WR4: SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) <= 1;
+      WR5: NOT(SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) = 1) OR
+              (SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) = 1);
+      WR6: NOT EXISTS (SELF\Product_view_definition.additional_characterization);
+      WR7: SIZEOF(QUERY(asse <* assembly |
                   NOT(asse.assembly.defined_version.of_product = assembly[1].assembly.defined_version.of_product)
            )) = 0;
-      WR3: SIZEOF(of_product_version) = SIZEOF(assembly);
-      WR4: SELF\Product_view_definition.defined_version IN of_product_version;
-      WR5: NOT ( SIZEOF(material_product)= 1) OR (material_product[1].relating_view IN               
+      WR8: SIZEOF(of_product_version) = SIZEOF(assembly);
+      WR9: SELF\Product_view_definition.defined_version IN of_product_version;
+      WR10: NOT ( SIZEOF(material_product)= 1) OR (material_product[1].relating_view IN               
             of_technology\Stratum_technology.stratum_material[1].items);   
-      WR6: SIZEOF(base_component) < 2;
+      WR11: SIZEOF(base_component) < 2;
+  END_ENTITY;
+
+  ENTITY Stratum_average_surface
+    SUBTYPE OF (Stratum_surface);
+    WHERE
+      WR1 : SELF\Stratum_surface.name = stratum_surface_designation.average_surface;
   END_ENTITY;
 
   ENTITY Stratum_embedded_physical_component_join_relationship
@@ -1029,6 +1061,14 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR1: NOT EXISTS(SELF\Product_view_definition.name);
       WR2: ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_WITH_PRE_DEFINED_TRANSITIONS' IN TYPEOF(SELF)) OR
         NOT('PART_TEMPLATE_EXTENSION_ARM.TRACE_TEMPLATE' IN TYPEOF(derived_from));        
+  END_ENTITY;
+
+  ENTITY Stratum_surface;
+      name       : stratum_surface_designation;  
+      of_stratum : Stratum;
+      of_technology : OPTIONAL Stratum_surface_technology;
+    UNIQUE
+      UR1 : name, of_stratum;
   END_ENTITY;
 
   ENTITY Structured_layout_component

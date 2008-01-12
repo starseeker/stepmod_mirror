@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.264 2008/01/09 12:29:18 liutkus Exp $
+   $Id: arm.exp,v 1.265 2008/01/10 09:23:35 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -527,6 +527,10 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Inter_stratum_join_relationship
     SUBTYPE OF (Routed_join_relationship);
       points_to_be_connected : SET[2:?] OF Layer_connection_point;
+    DERIVE
+      associated_stratum : BAG OF Design_layer_stratum := limd_get_lcp_resident_stratum(points_to_be_connected);
+    WHERE
+      WR1 : SIZEOF(associated_stratum) = SIZEOF(bag_to_set(associated_stratum);      
   END_ENTITY;
 
   ENTITY Interconnect_connection_zone_position_relationship;
@@ -1346,6 +1350,18 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
         END_IF;  
     END_IF;
     RETURN(?); 
+  END_FUNCTION;
+
+  FUNCTION limd_get_lcp_resident_stratum(input: SET OF Layer_connection_point) : BAG OF Design_layer_stratum;
+  LOCAL
+   s : BAG OF Design_layer_stratum := [];
+  END_LOCAL;
+  
+    REPEAT i := 1 to SIZEOF(input) BY 1;
+       s := s + input[i]\Layer_connection_point.resident_design_layer_stratum;
+    END_REPEAT;
+       
+    RETURN(s); 
   END_FUNCTION;
 
 END_SCHEMA;

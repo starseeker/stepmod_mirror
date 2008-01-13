@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.48 2007/12/03 23:33:46 thomasrthurman Exp $
+   $Id: arm.exp,v 1.49 2008/01/09 12:29:23 liutkus Exp $
    ISO TC184/SC4/WG12 N4047 - ISO/TS 10303-1700 Layered interconnect module with printed component design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3486
 *)
@@ -53,7 +53,7 @@ SCHEMA Layered_interconnect_module_with_printed_component_design_arm;
       padstack_component : SET OF Laminate_component := limdwpcd_get_lc(components);
       passage_component : SET OF Plated_passage := QUERY(pc <* padstack_component | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PLATED_PASSAGE' IN TYPEOF(pc)));
       tiebar_resident_stratum : SET OF Stratum := limdwpcd_get_tbrs(tiebar_component);
-      passage_resident_stratum : SET OF Stratum := limdwpcd_get_prs(passage_component);
+      passage_resident_stratum : SET OF Stratum := limdwpcd_get_prs(passage_component, SELF\Assembly_component.assemblies);
       passage_dependent_land_component : SET OF Plated_passage_dependent_land := limdwpcd_get_ppdl(passage_component);  
    INVERSE
     SELF\Assembly_group_component.components  : 
@@ -169,22 +169,23 @@ The function returns a set of Stratum where each Stratum is the associated strat
 NOTE: If more than one member of input reference the same Stratum, only one member of Stratum will be returned.
 *)
 
-FUNCTION limdwpcd_get_prs(input : SET OF Plated_passage) : SET OF Stratum; 
+FUNCTION limdwpcd_get_prs(input1 : SET OF Plated_passage;
+                          input2 : SET OF Product_view_definition) : SET OF Stratum; 
 LOCAL
 	s : SET OF Stratum := [];  --this gives us access to the information base
 	stol : SET OF Stratum_technology_occurrence_link := [];  --this gives us access to the information base
 	ptatsm : SET OF Passage_technology_allocation_to_stack_model := [];  --this gives us access to the information base
 END_LOCAL;
 
-	REPEAT i := 1 to SIZEOF(input) by 1;
-             ptatsm := ptatsm + input[i]\Inter_stratum_feature.vertical_extent;
+	REPEAT i := 1 to SIZEOF(input1) by 1;
+             ptatsm := ptatsm + input1[i]\Inter_stratum_feature.vertical_extent;
 	END_REPEAT;
 
 	REPEAT i := 1 to SIZEOF(ptatsm) by 1;
              stol := stol + ptatsm[i]\Stratum_sub_stack.stratum_technology_sequence;
 	END_REPEAT;
 
-             s := limdwpcd_get_stolrs(stol);
+             s := limdwpcd_get_stolrs(stol, input2);
 	RETURN(s);
 END_FUNCTION;
 (*
@@ -192,13 +193,49 @@ desc: limdwpcd_get_prs has as input a set of Plated_passage.
 The function returns a set of Stratum where each member of that set is in the vertical extent of the input. 
 *)
 
-  FUNCTION limdwpcd_get_stolrs(input : SET OF Stratum_technology_occurrence_link) : SET OF Stratum; 
-    LOCAL
-	  s : SET OF Stratum := [];  --this gives us access to the information base
-    END_LOCAL;
-	RETURN(s);
-  END_FUNCTION;
-    
+FUNCTION limdwpcd_get_stolrs(input1 : SET OF Stratum_technology_occurrence_link;
+                             input2 : SET OF Product_view_definition) : SET OF Stratum; 
+LOCAL
+	s0 : SET OF Stratum := [];  --this gives us access to the information base for stratum that reference sto
+	sto : SET OF Stratum_technology_occurrence := [];  --this gives us access to the information base
+	imsar : SET OF Interconnect_module_stratum_assembly_relationship := [];
+	s1 : SET OF Stratum := [];  --this gives us access to the information base for stratum that are referenced by the assembly relationship to the input2
+	s2 : SET OF Stratum := [];  --this gives us access to the information base for stratum that are related to both input1 and input2
+	i : INTEGER := 0; -- variable representing the member of input2 that is the context for the function
+END_LOCAL;
+(* initial implementation only supports examining the first Product_view_definition as the stratum stack is not expected to change over the design cycle. *)
+(* depends on the unique constraint on stratum.definition in an assembly context *)
+
+REPEAT i := 1 to 1 by 1;
+	REPEAT j := 1 to SIZEOF(input1) by 1;
+	      sto := sto + input1\Stratum_technology_occurrence_link.precedent_sto +
+	                   input1\Stratum_technology_occurrence_link.subsequent_sto;
+	END_REPEAT;
+	
+	REPEAT j := 1 to SIZEOF(sto) by 1;
+      	     s0 := s0 + bag_to_set(USEDIN(sto[j], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM.DEFINITION');
+    END_REPEAT;
+
+    imsar := imsar + bag_to_set(USEDIN(input2[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.ASSEMBLY'));
+
+    REPEAT j := 1 to SIZEOF(imsar) by 1;
+     s1 := s1 + imsar[j]\Interconnect_module_stratum_assembly_relationship.component;
+    END_REPEAT;
+
+    s2 = s0 * s1; -- The intersection of the Stratum that reference the sto and the stratum that are part of the pcb.
+END_REPEAT;
+
+	RETURN(s2);
+END_FUNCTION;
+(*
+desc: limdwpcd_get_stolrs has as input a set of Stratum_technology_occurrence_link. 
+The function returns a set of Stratum where each member of that set is referenced by a member of Interconnect_module_stratum_assembly_relationship 
+that corresponsds to a member of the input. 
+NOTE 1 The uniqueness constraint on Stratum permits a set intersection operation to determine the relevant members of Stratum.
+NOTE 2 This function assumes that the definition of the Design_stack_model does not change during the detailed design of the interconnect; therefore only 
+the first member of input2 establishes the context.
+*)
+
 FUNCTION get_gpn(
 	input : SET OF printed_component_join_terminal) : SET OF Generic_physical_network; 
 LOCAL

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.265 2008/01/10 09:23:35 liutkus Exp $
+   $Id: arm.exp,v 1.266 2008/01/12 21:06:09 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -503,10 +503,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     SUBTYPE OF (Part_definition_relationship);
       SELF\View_definition_relationship.relating_view RENAMED from_stratum : Stratum;
       SELF\View_definition_relationship.related_view RENAMED to_stratum    : Stratum;
-    DERIVE
-      included_stratum : SET [1:?] OF Stratum := get_included_stratum(from_stratum,to_stratum);
+      included_stratum : SET [1:?] OF Stratum;
     WHERE
       WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
+      WR2 : from_stratum IN included_stratum;
+      WR3 : to_stratum IN included_stratum;
+      WR4 : EXISTS(from_stratum\Stratum.assembly[1]\Interconnect_module_stratum_assembly_relationship.assembly\Interconnect_module.used_stack_model);
   END_ENTITY;
 
   ENTITY Inter_stratum_feature
@@ -987,6 +989,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       assembly           	: SET[1:?] OF interconnect_module_stratum_assembly_relationship FOR component;
 	  stratum_usage			: SET[0:1] OF External_source_identification FOR item;      
 	  material_product      : SET [0:1] OF Make_from_relationship FOR related_view;
+	UNIQUE
+	  UR1: assembly[1], definition;
     WHERE
       WR1: SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) <= 1;
       WR2: NOT(SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 1) OR
@@ -1273,14 +1277,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       END_IF;
     END_REPEAT;
     RETURN(ac);
-  END_FUNCTION;
-
-  FUNCTION get_included_stratum(input1 : Stratum; input2 : Stratum) : SET OF Stratum;
-    LOCAL
-      s    : SET OF Stratum := [];
-      test : Stratum;
-    END_LOCAL;
-    RETURN(?);
   END_FUNCTION;
 
   FUNCTION limd_get_sz_cp (

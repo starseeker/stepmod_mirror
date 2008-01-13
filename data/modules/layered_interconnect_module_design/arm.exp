@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.266 2008/01/12 21:06:09 thomasrthurman Exp $
+   $Id: arm.exp,v 1.267 2008/01/13 15:58:03 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -989,8 +989,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       assembly           	: SET[1:?] OF interconnect_module_stratum_assembly_relationship FOR component;
 	  stratum_usage			: SET[0:1] OF External_source_identification FOR item;      
 	  material_product      : SET [0:1] OF Make_from_relationship FOR related_view;
-	UNIQUE
-	  UR1: assembly[1], definition;
     WHERE
       WR1: SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) <= 1;
       WR2: NOT(SIZEOF(QUERY(tmp <* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 1) OR
@@ -1184,6 +1182,39 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     WHERE
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
+
+RULE limd_unique_stratum FOR (Stratum, Interconnect_module, Stratum_technology_occurrence);
+ LOCAL
+      s : BAG OF Stratum := [];
+      imsar : BAG OF Interconnect_module_stratum_assembly_relationship := [];
+      sto : BAG OF Stratum_technology_occurrence := [];
+	  pass : BOOLEAN := TRUE;
+ END_LOCAL;
+ REPEAT i := 1 to SIZEOF(Interconnect_module) by 1;
+    imsar := bag_to_set(USEDIN(Interconnect_module[i], 
+                        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.ASSEMBLY'));
+	REPEAT j := 1 to SIZEOF(imsar) by 1;
+	   s := s + imsar[j].component;
+    END_REPEAT;
+	REPEAT j := 1 to SIZEOF(s) by 1;
+	   sto := sto + s[j].definition;
+    END_REPEAT;
+	
+	IF (SIZEOF(s) <> SIZEOF(sto))
+	THEN
+	  pass := FALSE;
+	  ESCAPE;
+	END_IF;
+	
+ END_REPEAT;
+
+    WHERE
+     WR1 : pass;
+END_RULE;
+  
+(*
+  desc: for each interconnect_module in a data set, no more than one stratum shall reference the same stratum_technology_occurrence as a definition.
+*)
 
   FUNCTION acyclic_area_component
     (relation : Area_component; relatives : SET[1:?] OF 

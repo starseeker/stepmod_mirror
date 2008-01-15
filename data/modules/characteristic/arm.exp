@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.43 2007/11/15 11:07:57 liutkus Exp $
+   $Id: arm.exp,v 1.44 2007/12/29 09:52:11 liutkus Exp $
    ISO TC184/SC4/WG12 N4714 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3909
 *)
@@ -10,6 +10,8 @@ SCHEMA Characteristic_arm;
 	USE FROM Extended_measure_representation_arm;	-- ISO/TS 10303-1106
 	USE FROM Characterizable_object_arm;     -- ISO/TS 10303-xxxx	
 	USE FROM Value_with_unit_extension_arm;	-- ISO/TS 10303-1753
+  
+  REFERENCE FROM Characterizable_object_arm(bag_to_set);     -- ISO/TS 10303-xxxx	
   
   TYPE characteristic = SELECT
     (String_representation_item,
@@ -22,9 +24,6 @@ SCHEMA Characteristic_arm;
     (Property_value_representation);
   END_TYPE; 
   
-  TYPE list_characteristic = LIST[1:?] OF characteristic;
-  END_TYPE; 
-
   TYPE range_class = ENUMERATION OF
     (closed,
      lower_open,
@@ -38,23 +37,40 @@ SCHEMA Characteristic_arm;
   END_TYPE;
 
   ENTITY Characteristic_data_table
-    SUBTYPE OF (Characterizable_object, Measure_item);
-      index_value    : LIST[1:?] OF INTEGER;    
+    SUBTYPE OF (Representation_item);
       property_value : LIST[1:?] OF Characteristic_data_table_row;
-    UNIQUE
-      UR1: SELF\Characterizable_object.name;
     WHERE
-      WR1: SIZEOF(property_value) = SIZEOF(index_value);
-      WR2: SIZEOF(QUERY( pv <* property_value |
-                  NOT (SIZEOF(pv.property_value) = SIZEOF(property_value[1].property_value))
+      WR1: SIZEOF(QUERY( pv <* property_value |
+                  NOT (SIZEOF(pv.cell) = SIZEOF(property_value[1].cell))
                   )) = 0;
-      WR3: SIZEOF(USEDIN
-                 (SELF,'PROPERTY_ASSIGNMENT_ARM.ASSIGNED_PROPERTY.DESCRIBED_ELEMENT')) = 0;
+  END_ENTITY;
+
+  ENTITY Characteristic_data_table_header
+    SUBTYPE OF (Independent_property);
+    DERIVE
+      column : LIST [1:?] OF Independent_property := get_characterized_column_headers(SELF);
+    WHERE
+      WR1: EXISTS(column) AND (SIZEOF(column) > 1);
+  END_ENTITY;
+
+  ENTITY Characteristic_data_table_header_link
+    SUBTYPE OF (Independent_property, Independent_property_relationship);
+      SELF\Independent_property_relationship.relating RENAMED precedent : Independent_property;
+      SELF\Independent_property_relationship.related RENAMED subsequent : Independent_property;
+      table                                                             : Characteristic_data_table;
+    UNIQUE
+      UR1: precedent, table;  
+      UR2: subsequent, table;        
+  END_ENTITY;
+
+  ENTITY Characteristic_data_table_representation
+    SUBTYPE OF (Property_value_representation);
+      SELF\Representation.items : SET[1:1] OF Characteristic_data_table;
   END_ENTITY;
 
   ENTITY Characteristic_data_table_row
-    SUBTYPE OF (Measure_item);
-      property_value : list_characteristic;
+    SUBTYPE OF (Representation_item);
+      cell : LIST [1:?] OF characteristic;
   END_ENTITY;
 
   ENTITY Length_tolerance_characteristic
@@ -171,5 +187,61 @@ SCHEMA Characteristic_arm;
                        input2 : Numerical_item_with_unit) : BOOLEAN;
     RETURN(TRUE);
   END_FUNCTION; 
+
+  FUNCTION get_characterized_column_headers(input : Characteristic_data_table_header): LIST [1:?] OF Independent_property;
+    LOCAL
+      middle : SET [1:?] OF Independent_property;
+      result : LIST [1:?] OF Independent_property;
+      links  : SET [1:?] OF Characteristic_data_table_header_link;
+      temp   : Independent_property;
+      precedent : SET [0:?] OF Characteristic_data_table_header_link;
+      subsequent : SET [0:?] OF Characteristic_data_table_header_link;
+    END_LOCAL;
+    -- Collect all headers
+    links := bag_to_set(USEDIN(input, 'CHARACTERISTIC_ARM' + '.CHARACTERISTIC_DATA_TABLE_HEADER_LINK.TABLE'));
+    -- Collect all Independent_properties
+    REPEAT i := 1 to HIINDEX(links);
+      middle := middle + links[i]\Characteristic_data_table_header_link.precedent;
+      middle := middle + links[i]\Characteristic_data_table_header_link.subsequent;
+    END_REPEAT;
+    result[1] := ?;
+    -- Now need to construct the resulting list
+    REPEAT i := 1 to HIINDEX(middle);
+      precedent := bag_to_set(QUERY (l <* (USEDIN(middle[i], 'CHARACTERISTIC_ARM' + 
+        '.CHARACTERISTIC_DATA_TABLE_HEADER_LINK.PRECEDENT')) | l.table = input));
+      -- illegal chain
+      IF (SIZEOF(precedent) > 1) THEN
+        RETURN(?);
+      END_IF;
+      -- check if this is not last member
+      IF (SIZEOF(precedent) = 1) THEN
+        subsequent := bag_to_set(QUERY (l <* (USEDIN(middle[i], 'CHARACTERISTIC_ARM' + 
+          '.CHARACTERISTIC_DATA_TABLE_HEADER_LINK.SUBSEQUENT')) | l.table = input));
+        -- we found first member
+        IF (SIZEOF(subsequent) = 0) THEN
+          result[1] := middle[i];
+          ESCAPE;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+    -- if there is no first member found yet - chain is broken
+    IF (result[1] = ?) THEN
+      RETURN (?);
+    END_IF;
+    temp := result[1];
+    REPEAT i := 2 to HIINDEX(middle);
+      result[i] := precedent[1]\Characteristic_data_table_header_link.subsequent;
+      precedent := bag_to_set(QUERY (l <* (USEDIN(result[i], 'CHARACTERISTIC_ARM' + 
+        '.CHARACTERISTIC_DATA_TABLE_HEADER_LINK.PRECEDENT')) | l.table = input));
+      IF (HIINDEX(middle) = i) THEN
+        ESCAPE;
+      END_IF;
+      -- illegal chain
+      IF (SIZEOF(precedent) <> 1) THEN
+        RETURN(?);
+      END_IF;
+    END_REPEAT; 
+    RETURN (result);
+  END_FUNCTION;
   
 END_SCHEMA;

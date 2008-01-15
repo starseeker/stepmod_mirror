@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.48 2007/12/11 19:58:53 thomasrthurman Exp $
+   $Id: mim.exp,v 1.49 2008/01/03 14:31:01 liutkus Exp $
    ISO TC184/SC4/WG12 N3958 - ISO/TS 10303-1670 Fabrication technology - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3664
 *)
@@ -61,6 +61,10 @@ END_ENTITY;
 ENTITY countersunk_passage_template
   SUBTYPE OF (unsupported_passage_template);
 END_ENTITY;  
+
+ENTITY copy_stratum_technology_occurrence_relationship
+  SUBTYPE OF (derived_stratum_technology_occurrence_relationship);
+END_ENTITY;
   
 ENTITY default_attachment_size_based_land_physical_template
   SUBTYPE OF (land_physical_template, shape_aspect);
@@ -82,6 +86,13 @@ ENTITY default_unsupported_passage_based_land_physical_template
   SUBTYPE OF (default_passage_based_land_physical_template);
 END_ENTITY;
 
+ENTITY derived_stratum_technology_occurrence_relationship
+  ABSTRACT SUPERTYPE OF (ONEOF (
+    copy_stratum_technology_occurrence_relationship,
+    inverse_copy_stratum_technology_occurrence_relationship))
+  SUBTYPE OF (stratum_technology_occurrence_relationship);
+END_ENTITY;
+
 ENTITY filled_via_template
   SUBTYPE OF (via_template);
 END_ENTITY;
@@ -91,6 +102,10 @@ ENTITY inter_stratum_feature_template
     unsupported_passage_template,
     via_template))
     SUBTYPE OF (geometric_template);
+END_ENTITY;
+
+ENTITY inverse_copy_stratum_technology_occurrence_relationship
+  SUBTYPE OF (derived_stratum_technology_occurrence_relationship);
 END_ENTITY;
   
 ENTITY land_physical_template
@@ -152,7 +167,7 @@ ENTITY stratum_technology_occurrence
 END_ENTITY;
 
 ENTITY stratum_technology_occurrence_link
-  SUBTYPE OF(property_definition, property_definition_relationship);
+  SUBTYPE OF(stratum_technology_occurrence_relationship);
 END_ENTITY;
 
 ENTITY stratum_technology_occurrence_derived_from_relationship
@@ -160,9 +175,10 @@ ENTITY stratum_technology_occurrence_derived_from_relationship
 END_ENTITY;
 
 ENTITY stratum_technology_occurrence_relationship
-  ABSTRACT SUPERTYPE OF
-    (ONEOF(stratum_technology_occurrence_swap_relationship,
-         stratum_technology_occurrence_derived_from_relationship))
+  ABSTRACT SUPERTYPE OF (ONEOF
+    (stratum_technology_occurrence_derived_from_relationship,
+     stratum_technology_occurrence_link,
+     stratum_technology_occurrence_swap_relationship))
   SUBTYPE OF(property_definition, property_definition_relationship);         
 END_ENTITY;
 

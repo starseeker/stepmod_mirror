@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.128 2008/01/08 08:28:40 liutkus Exp $
+   $Id: arm.exp,v 1.129 2008/01/08 09:51:18 liutkus Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -149,6 +149,10 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
           )) = 0;
   END_ENTITY;
 
+  ENTITY Copy_stratum_technology_occurrence_relationship
+    SUBTYPE OF (Derived_stratum_technology_occurrence_relationship);
+  END_ENTITY;
+
   ENTITY Counterbore_passage_template
     SUBTYPE OF (Unsupported_passage_template);
       smaller_passage : Unsupported_passage_template;
@@ -206,11 +210,11 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       minimum_annular_ring          : Length_data_element;
   END_ENTITY;
 
-	ENTITY Default_plated_passage_based_land_physical_template
-	  SUBTYPE OF (Default_passage_based_land_physical_template);
-	 WHERE
-	   WR1 : SELF\Default_passage_based_land_physical_template.of_passage_technology.plated_passage = TRUE;
-	END_ENTITY;
+  ENTITY Default_plated_passage_based_land_physical_template
+	SUBTYPE OF (Default_passage_based_land_physical_template);
+	WHERE
+	  WR1 : SELF\Default_passage_based_land_physical_template.of_passage_technology.plated_passage = TRUE;
+  END_ENTITY;
 
   ENTITY Default_tapered_blind_via_definition
     SUBTYPE OF (Default_via_definition);
@@ -237,6 +241,13 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
     WHERE
       WR1 : 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1]);
+  END_ENTITY;
+
+  ENTITY Derived_stratum_technology_occurrence_relationship
+    ABSTRACT SUPERTYPE OF (ONEOF (
+      Copy_stratum_technology_occurrence_relationship,
+      Inverse_copy_stratum_technology_occurrence_relationship))
+    SUBTYPE OF (Stratum_technology_occurrence_relationship);
   END_ENTITY;
 
   ENTITY Design_layer_technology
@@ -280,6 +291,10 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       of_passage_technology : Passage_technology;
     WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.name);
+  END_ENTITY;
+
+  ENTITY Inverse_copy_stratum_technology_occurrence_relationship
+    SUBTYPE OF (Derived_stratum_technology_occurrence_relationship);
   END_ENTITY;
 
   ENTITY Land_physical_template
@@ -435,44 +450,43 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       UR1: name;  
   END_ENTITY;
 
-  ENTITY Stratum_technology_occurrence_link;
+  ENTITY Stratum_technology_occurrence_link
+    SUBTYPE OF(Stratum_technology_occurrence_relationship);
       base_stratum_technology_occurrence : OPTIONAL up_or_down;  
-      precedent_sto                      : Stratum_technology_occurrence;
-      scope                              : Stratum_stack_model;    
-      subsequent_sto                     : Stratum_technology_occurrence;
     WHERE
-      WR1 : NOT (precedent_sto :=: subsequent_sto) OR (SIZEOF(scope.composing_link) = 1);
+      WR1 : NOT (sto_1 :=: sto_2) OR (SIZEOF(scope.composing_link) = 1);
       WR2 : NOT(SIZEOF(scope.composing_link) = 1) OR
-           acyclic_stratum_technology_occurrence_link(SELF, [subsequent_sto], 
+           acyclic_stratum_technology_occurrence_link(SELF, [sto_2], 
            'FABRICATION_TECHNOLOGY_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL_LINK');
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence_derived_from_relationship
     SUBTYPE OF (Stratum_technology_occurrence_relationship);
     UNIQUE
-      UR1: primary_sto, scope; 
+      UR1: sto_1, scope; 
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence_relationship
-    ABSTRACT SUPERTYPE OF
-    (ONEOF(Stratum_technology_occurrence_swap_relationship,
-         Stratum_technology_occurrence_derived_from_relationship));
-      primary_sto : Stratum_technology_occurrence;
-      secondary_sto : Stratum_technology_occurrence;
+    ABSTRACT SUPERTYPE OF (ONEOF
+      (Stratum_technology_occurrence_derived_from_relationship,
+       Stratum_technology_occurrence_link,
+       Stratum_technology_occurrence_swap_relationship));
+      sto_1 : Stratum_technology_occurrence;
+      sto_2 : Stratum_technology_occurrence;
       scope : Stratum_stack_model;
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence_swap_relationship
     SUBTYPE OF (Stratum_technology_occurrence_relationship);
     UNIQUE
-      UR1 : primary_sto, scope;
-      UR2 : secondary_sto, scope;
+      UR1 : sto_1, scope;
+      UR2 : sto_2, scope;
     WHERE
-      WR1 : primary_sto <> secondary_sto;
-      WR2 : (primary_sto IN scope\Stratum_stack_model.composing_occurrence) AND
-         (secondary_sto IN scope\Stratum_stack_model.composing_occurrence);
+      WR1 : sto_1 <> sto_2;
+      WR2 : (sto_1 IN scope\Stratum_stack_model.composing_occurrence) AND
+         (sto_2 IN scope\Stratum_stack_model.composing_occurrence);
       WR3 : acyclic_stratum_technology_occurrence_swap_relationship(SELF,
-       [secondary_sto], 
+       [sto_2], 
        'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP');
   END_ENTITY;
 
@@ -554,17 +568,17 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   LOCAL
      x : SET OF Stratum_technology_occurrence_swap_relationship := [];
   END_LOCAL;
-    IF relation.primary_sto IN relatives THEN
+    IF relation.sto_2 IN relatives THEN
       RETURN (FALSE);
     END_IF;
-    x := QUERY(pd <* bag_to_set(USEDIN(relation.primary_sto,
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.sto_2,
       'FABRICATION_TECHNOLOGY_ARM.' +
       'STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP.' +
-      'SECONDARY_STO')) | specific_relation IN TYPEOF(pd));
+      'STO_2')) | specific_relation IN TYPEOF(pd));
     REPEAT i := 1 TO HIINDEX(x);
       IF NOT acyclic_stratum_technology_occurrence_swap_relationship(x[i],
         relatives +
-        relation.primary_sto, specific_relation) THEN
+        relation.sto_2, specific_relation) THEN
         RETURN (FALSE);
       END_IF;
     END_REPEAT;

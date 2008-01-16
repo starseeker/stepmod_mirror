@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.44 2007/12/29 09:52:11 liutkus Exp $
+   $Id: arm.exp,v 1.45 2008/01/15 21:53:48 liutkus Exp $
    ISO TC184/SC4/WG12 N4714 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3909
 *)
@@ -198,7 +198,7 @@ SCHEMA Characteristic_arm;
       subsequent : SET [0:?] OF Characteristic_data_table_header_link;
     END_LOCAL;
     -- Collect all headers
-    links := bag_to_set(USEDIN(input, 'CHARACTERISTIC_ARM' + '.CHARACTERISTIC_DATA_TABLE_HEADER_LINK.TABLE'));
+    links := bag_to_set(USEDIN(input, 'CHARACTERISTIC_ARM.' + 'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.TABLE'));
     -- Collect all Independent_properties
     REPEAT i := 1 to HIINDEX(links);
       middle := middle + links[i]\Characteristic_data_table_header_link.precedent;
@@ -207,16 +207,16 @@ SCHEMA Characteristic_arm;
     result[1] := ?;
     -- Now need to construct the resulting list
     REPEAT i := 1 to HIINDEX(middle);
-      precedent := bag_to_set(QUERY (l <* (USEDIN(middle[i], 'CHARACTERISTIC_ARM' + 
-        '.CHARACTERISTIC_DATA_TABLE_HEADER_LINK.PRECEDENT')) | l.table = input));
+      precedent := bag_to_set(QUERY (l <* (USEDIN(middle[i], 'CHARACTERISTIC_ARM.' + 
+        'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.PRECEDENT')) | l.table = input));
       -- illegal chain
       IF (SIZEOF(precedent) > 1) THEN
         RETURN(?);
       END_IF;
       -- check if this is not last member
       IF (SIZEOF(precedent) = 1) THEN
-        subsequent := bag_to_set(QUERY (l <* (USEDIN(middle[i], 'CHARACTERISTIC_ARM' + 
-          '.CHARACTERISTIC_DATA_TABLE_HEADER_LINK.SUBSEQUENT')) | l.table = input));
+        subsequent := bag_to_set(QUERY (l <* (USEDIN(middle[i], 'CHARACTERISTIC_ARM.' + 
+          'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.SUBSEQUENT')) | l.table = input));
         -- we found first member
         IF (SIZEOF(subsequent) = 0) THEN
           result[1] := middle[i];
@@ -231,8 +231,8 @@ SCHEMA Characteristic_arm;
     temp := result[1];
     REPEAT i := 2 to HIINDEX(middle);
       result[i] := precedent[1]\Characteristic_data_table_header_link.subsequent;
-      precedent := bag_to_set(QUERY (l <* (USEDIN(result[i], 'CHARACTERISTIC_ARM' + 
-        '.CHARACTERISTIC_DATA_TABLE_HEADER_LINK.PRECEDENT')) | l.table = input));
+      precedent := bag_to_set(QUERY (l <* (USEDIN(result[i], 'CHARACTERISTIC_ARM.' + 
+        'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.PRECEDENT')) | l.table = input));
       IF (HIINDEX(middle) = i) THEN
         ESCAPE;
       END_IF;

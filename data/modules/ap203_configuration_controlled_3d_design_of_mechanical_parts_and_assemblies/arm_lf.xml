@@ -406,7 +406,7 @@
          <select selectitems="Drawing Drawing_sheet"/>
       </type>
       <type name="effectivity_item">
-         <select selectitems="Assembly_relationship_substitution Configuration Document Document_definition Document_definition_relationship Document_version Part Part_version Part_view_definition Product_version Product_view_definition Replaced_usage_relationship View_definition_relationship"/>
+         <select selectitems="Assembly_relationship_substitution Configuration Document Document_definition Document_definition_relationship Document_version Part Part_definition_relationship Part_version Part_view_definition Product_version Product_view_definition Replaced_usage_relationship View_definition_relationship"/>
       </type>
       <type name="element_with_dimension_select">
          <select selectitems="Shape_element"/>
@@ -787,6 +787,7 @@
             <unique.attribute attribute="scope"/>
          </unique>
       </entity>
+      <entity name="Acceleration_data_element" supertypes="Value_with_unit"/>
       <entity name="Activity">
          <explicit name="id">
             <builtintype type="STRING"/>
@@ -801,7 +802,6 @@
             <typename name="Activity_method"/>
          </explicit>
       </entity>
-      <entity name="Activity_data_element" supertypes="Value_with_unit"/>
       <entity name="Activity_method">
          <explicit name="name">
             <builtintype type="STRING"/>
@@ -1166,17 +1166,17 @@
          </explicit>
       </entity>
       <entity name="Approval" super.expression="ONEOF (Pre_defined_approval, Externally_defined_approval)">
-         <explicit name="status">
-            <typename name="Approval_status"/>
-         </explicit>
-         <explicit name="purpose">
-            <builtintype type="STRING"/>
+         <explicit name="actual_date" optional="YES">
+            <typename name="date_or_date_time_select"/>
          </explicit>
          <explicit name="planned_date" optional="YES">
             <typename name="date_or_date_time_select"/>
          </explicit>
-         <explicit name="actual_date" optional="YES">
-            <typename name="date_or_date_time_select"/>
+         <explicit name="purpose">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="status">
+            <typename name="Approval_status"/>
          </explicit>
       </entity>
       <entity name="Approval_assignment">
@@ -1211,24 +1211,33 @@
          </explicit>
       </entity>
       <entity name="Approving_person_organization">
-         <explicit name="person_organization">
-            <typename name="organization_or_person_in_organization_select"/>
-         </explicit>
          <explicit name="approval_date" optional="YES">
             <typename name="date_or_date_time_select"/>
          </explicit>
          <explicit name="authorized_approval">
             <typename name="Approval"/>
          </explicit>
+         <explicit name="person_organization">
+            <typename name="organization_or_person_in_organization_select"/>
+         </explicit>
          <explicit name="role" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
       </entity>
       <entity name="Area_data_element" supertypes="Value_with_unit"/>
+      <entity name="Assembled_part_association" supertypes="Assembly_component_relationship Part_occurrence_definition_relationship">
+         <explicit name="relating_view">
+            <typename name="Assembly_definition"/>
+            <redeclaration entity-ref="Product_occurrence_definition_relationship"/>
+         </explicit>
+      </entity>
       <entity name="Assembly_component_relationship" abstract.supertype="YES" supertypes="Product_occurrence_definition_relationship" super.expression="ONEOF (Next_assembly_usage, Promissory_usage, Component_upper_level_identification)">
          <explicit name="location_indicator" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
+      </entity>
+      <entity name="Assembly_definition" supertypes="Part_view_definition">
+         <where label="WR1" expression="'assembly' IN types_of_product(SELF\Product_view_definition.defined_version.of_product)"/>
       </entity>
       <entity name="Assembly_relationship_substitution">
          <explicit name="name" optional="YES">
@@ -1332,11 +1341,11 @@
          </unique>
       </entity>
       <entity name="Axis1_placement" supertypes="Detailed_geometric_model_element">
-         <explicit name="position">
-            <typename name="Cartesian_point"/>
-         </explicit>
          <explicit name="axis">
             <typename name="Direction"/>
+         </explicit>
+         <explicit name="position">
+            <typename name="Cartesian_point"/>
          </explicit>
       </entity>
       <entity name="Axis_placement" supertypes="Detailed_geometric_model_element" super.expression="ONEOF (Axis_placement_2d, Axis_placement_3d)">
@@ -1637,13 +1646,13 @@
          </derived>
       </entity>
       <entity name="Characteristic_data_table" supertypes="Characterizable_object Measure_item">
-         <explicit name="property_value">
-            <aggregate type="LIST" lower="1" upper="?"/>
-            <typename name="Characteristic_data_table_row"/>
-         </explicit>
          <explicit name="index_value">
             <aggregate type="LIST" lower="1" upper="?"/>
             <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="property_value">
+            <aggregate type="LIST" lower="1" upper="?"/>
+            <typename name="Characteristic_data_table_row"/>
          </explicit>
          <unique label="UR1">
             <unique.attribute entity-ref="Characterizable_object" attribute="name"/>
@@ -1666,7 +1675,7 @@
          </explicit>
       </entity>
       <entity name="Chemical_compound" supertypes="Substance">
-         <derived name="id_owner" expression="QUERY(temp &lt;* bag_to_set(USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+&#10;         'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS')) |&#10;                         (temp.role = 'id owner') )">
+         <derived name="id_owner" expression="QUERY(temp &lt;* bag_to_set(USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+&#10;        'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS')) |&#10;                         (temp.role = 'id owner') )">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Organization_or_person_in_organization_assignment"/>
          </derived>
@@ -2008,14 +2017,14 @@
          <where label="WR1" expression="consistent_configuration_type(SELF)"/>
       </entity>
       <entity name="Conical_stepped_hole_transition" supertypes="Detailed_geometric_model_element">
-         <explicit name="transition_number">
-            <builtintype type="INTEGER"/>
-         </explicit>
          <explicit name="apex_angle">
             <typename name="plane_angle_measure"/>
          </explicit>
          <explicit name="cone_base_radius">
             <typename name="length_measure"/>
+         </explicit>
+         <explicit name="transition_number">
+            <builtintype type="INTEGER"/>
          </explicit>
          <where label="WR1" expression="transition_number &gt; 0"/>
          <where label="WR2" expression="cone_base_radius  &gt; 0.0"/>
@@ -2380,7 +2389,7 @@
       <entity name="Design_specification" supertypes="Specification_definition" super.expression="Interface_specification_document_definition">
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
       </entity>
-      <entity name="Detailed_geometric_model_element" abstract.supertype="YES" supertypes="Representation_item" super.expression="ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d) ANDOR ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Point_on_curve, Point_on_surface, Surface) ANDOR ONEOF (Planar_box, Styled_element, Styled_model_replication) ANDOR ONEOF (Clipping_operator, Model_image_3d, Light_source, Camera_model_d3) ANDOR ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Geometric_model_element_relationship, Point_on_curve, Point_on_surface, Surface, Vector) ANDOR ONEOF (Camera_model_d2, Camera_image_2d_with_scale) ANDOR ONEOF (Point_and_vector, Point_path) ANDOR ONEOF (Composite_presentable_text, Text_literal)"/>
+      <entity name="Detailed_geometric_model_element" abstract.supertype="YES" supertypes="Representation_item" super.expression="ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d) ANDOR ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Point_on_curve, Point_on_surface, Surface) ANDOR ONEOF (Planar_box, Styled_element, Styled_model_replication) ANDOR ONEOF (Composite_presentable_text, Text_literal) ANDOR ONEOF (Clipping_operator, Model_image_3d, Light_source, Camera_model_d3) ANDOR ONEOF (Cartesian_point, Direction, Axis_placement, Cartesian_transformation_2d, Cartesian_transformation_3d, Curve, Geometric_model_element_relationship, Point_on_curve, Point_on_surface, Surface, Vector) ANDOR ONEOF (Camera_model_d2, Camera_image_2d_with_scale) ANDOR ONEOF (Point_and_vector, Point_path)"/>
       <entity name="Detailed_geometric_model_element_relationship">
          <explicit name="item_1">
             <typename name="Detailed_geometric_model_element"/>
@@ -2613,21 +2622,20 @@
          <explicit name="used_model">
             <typename name="Draughting_model"/>
          </explicit>
-         <where label="WR1" expression="(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DATUM_FEATURE_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	       ('EXTENDED_GEOMETRIC_TOLERANCE_ARM.'+'DATUM_FEATURE' IN TYPEOF(definition)))"/>
-         <where label="WR2" expression="(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DATUM_TARGET_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DATUM_TARGET' IN TYPEOF(definition)))"/>
-         <where label="WR3" expression="(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'GEOMETRIC_TOLERANCE_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'GEOMETRIC_TOLERANCE' IN TYPEOF(definition)))"/>
-         <where label="WR4" expression="(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'SIZE_DIMENSION' IN TYPEOF(definition)) OR&#10;	        (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DIMENSION_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DIMENSION_CURVE_DIRECTED_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'STRUCTURED_DIMENSION_CALLOUT' IN TYPEOF(identified_item))))"/>
+         <where label="WR1" expression="(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DATUM_TARGET_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DATUM_TARGET' IN TYPEOF(definition)))"/>
+         <where label="WR2" expression="(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'GEOMETRIC_TOLERANCE_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'GEOMETRIC_TOLERANCE' IN TYPEOF(definition)))"/>
+         <where label="WR3" expression="(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'SIZE_DIMENSION' IN TYPEOF(definition)) OR&#10;	        (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DIMENSION_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DIMENSION_CURVE_DIRECTED_CALLOUT' IN TYPEOF(identified_item)) OR&#10;	        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'STRUCTURED_DIMENSION_CALLOUT' IN TYPEOF(identified_item))))"/>
       </entity>
       <entity name="Draughting_pre_defined_text_font"/>
       <entity name="Draughting_title">
+         <explicit name="contents">
+            <builtintype type="STRING"/>
+         </explicit>
          <explicit name="items">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="draughting_titled_item"/>
          </explicit>
          <explicit name="language">
-            <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="contents">
             <builtintype type="STRING"/>
          </explicit>
       </entity>
@@ -2691,7 +2699,7 @@
          </explicit>
       </entity>
       <entity name="Edge_based_wireframe_shape_representation" supertypes="Geometric_model"/>
-      <entity name="Edge_curve" supertypes="Edge Detailed_geometric_model_element">
+      <entity name="Edge_curve" supertypes="Detailed_geometric_model_element Edge">
          <explicit name="edge_geometry">
             <typename name="Curve"/>
          </explicit>
@@ -2727,6 +2735,7 @@
             <typename name="effectivity_item"/>
          </explicit>
       </entity>
+      <entity name="Effectivity_controlled_assembly_definition" supertypes="Assembly_definition"/>
       <entity name="Effectivity_relationship">
          <explicit name="relation_type">
             <builtintype type="STRING"/>
@@ -2741,12 +2750,12 @@
             <typename name="Effectivity"/>
          </explicit>
       </entity>
+      <entity name="Electic_potential_data_element" supertypes="Value_with_unit"/>
       <entity name="Electric_charge_data_element" supertypes="Value_with_unit"/>
       <entity name="Electric_current_data_element" supertypes="Value_with_unit">
          <where label="WR1" expression="'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.ELECTRIC_CURRENT_UNIT' IN TYPEOF(SELF\Value_with_unit.Unit)"/>
       </entity>
       <entity name="Electric_current_unit" supertypes="Unit"/>
-      <entity name="Electromotive_force_data_element" supertypes="Value_with_unit"/>
       <entity name="Elementary_brep_shape_representation" supertypes="Geometric_model"/>
       <entity name="Energy_data_element" supertypes="Value_with_unit"/>
       <entity name="Entity_assertion" supertypes="Fact_type"/>
@@ -2969,7 +2978,7 @@
       </entity>
       <entity name="Externally_defined_address_assignment" supertypes="Address_assignment">
          <inverse name="source" entity="External_source_identification" attribute="item"/>
-         <where label="WR1" expression="(EXISTS(SELF\Address_assignment.address_type)) AND&#10;       (NOT (SELF\Address_assignment.address_type IN Pre_defined_address_assignment_types))"/>
+         <where label="WR1" expression="(EXISTS(SELF\Address_assignment.address_type)) AND&#10;        (NOT (SELF\Address_assignment.address_type IN Pre_defined_address_assignment_types))"/>
       </entity>
       <entity name="Externally_defined_approval" supertypes="Approval">
          <inverse name="source" entity="External_source_identification" attribute="item"/>
@@ -3045,11 +3054,11 @@
          <where label="WR1" expression="NOT (SELF\Work_request_status.status IN Pre_defined_work_request_status_types)"/>
       </entity>
       <entity name="Extruded_solid" supertypes="Swept_solid">
-         <explicit name="extruded_direction">
-            <typename name="Direction"/>
-         </explicit>
          <explicit name="depth">
             <typename name="length_measure"/>
+         </explicit>
+         <explicit name="extruded_direction">
+            <typename name="Direction"/>
          </explicit>
       </entity>
       <entity name="Extruded_solid_with_draft_angle" supertypes="Extruded_solid_with_trim_conditions">
@@ -3422,6 +3431,16 @@
          <where label="WR2" expression="property_representation.name IN ['centroid', 'volume', 'surface area']"/>
          <where label="WR3" expression="property_value in property_representation\Representation.items"/>
       </entity>
+      <entity name="Geometrical_relationship" supertypes="Part_definition_relationship">
+         <explicit name="definition_placement">
+            <typename name="Geometric_model_relationship_with_transformation"/>
+         </explicit>
+         <derived name="relation_type" expression="'geometrical relationship'">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </derived>
+      </entity>
+      <entity name="Geometrically_bounded_2d_wireframe_shape_representation" supertypes="Geometric_model"/>
       <entity name="Geometrically_bounded_surface_shape_representation" supertypes="Geometric_model"/>
       <entity name="Geometrically_bounded_wireframe_shape_representation" supertypes="Geometric_model"/>
       <entity name="Global_assignment">
@@ -3470,24 +3489,24 @@
       </entity>
       <entity name="Hardcopy" supertypes="File"/>
       <entity name="Hardness" supertypes="Surface_condition">
-         <explicit name="measuring_method">
+         <explicit name="description" optional="YES">
             <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="depth" optional="YES">
+            <typename name="Measure_item"/>
          </explicit>
          <explicit name="environment_condition">
             <aggregate type="SET" lower="0" upper="?"/>
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="description" optional="YES">
+         <explicit name="hardness_value">
+            <typename name="Measure_item"/>
+         </explicit>
+         <explicit name="measuring_method">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="measuring_position" optional="YES">
             <builtintype type="STRING"/>
-         </explicit>
-         <explicit name="hardness_value">
-            <typename name="Measure_item"/>
-         </explicit>
-         <explicit name="depth" optional="YES">
-            <typename name="Measure_item"/>
          </explicit>
       </entity>
       <entity name="Hatch_style" abstract.supertype="YES" supertypes="Detailed_geometric_model_element" super.expression="ONEOF (Externally_defined_hatch_style, User_defined_hatch_style)"/>
@@ -3964,9 +3983,9 @@
             <typename name="mechanical_design_and_draughting_relationship_select"/>
             <redeclaration entity-ref="Representation_relationship"/>
          </explicit>
-         <where label="WR1" expression="NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_2)) OR &#10;       (SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DRAUGHTING_MODEL', &#10;       'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1)"/>
-         <where label="WR2" expression="NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL' IN TYPEOF(rep_2)) &#10;       OR (SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL', &#10;       'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1)"/>
-         <where label="WR3" expression="NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'MECHANICAL_DESIGN_SHADED_STYLED_MODEL' IN TYPEOF(rep_2)) &#10;       OR (SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'MECHANICAL_DESIGN_SHADED_STYLED_MODEL',&#10;       'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1)"/>
+         <where label="WR1" expression="NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DRAUGHTING_MODEL' IN TYPEOF(rep_2)) OR &#10;        (SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'DRAUGHTING_MODEL', &#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1)"/>
+         <where label="WR2" expression="NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL' IN TYPEOF(rep_2)) &#10;        OR (SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'MECHANICAL_REPRESENTATION_STYLED_MODEL', &#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1)"/>
+         <where label="WR3" expression="NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'MECHANICAL_DESIGN_SHADED_STYLED_MODEL' IN TYPEOF(rep_2)) &#10;        OR (SIZEOF(['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'MECHANICAL_DESIGN_SHADED_STYLED_MODEL',&#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+'GEOMETRIC_MODEL'] * TYPEOF(rep_1)) = 1)"/>
       </entity>
       <entity name="Mechanical_design_presentation_representation_with_draughting" supertypes="Styled_model">
          <explicit name="items">
@@ -4140,6 +4159,16 @@
       </entity>
       <entity name="Part" supertypes="Product">
          <where label="WR1" expression="SIZEOF(['part', 'raw material', 'tool']*types_of_product(SELF))=1"/>
+      </entity>
+      <entity name="Part_definition_relationship" supertypes="View_definition_relationship">
+         <explicit name="relating_view">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Part_view_definition"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
       </entity>
       <entity name="Part_function_association" supertypes="View_definition_relationship">
          <explicit name="relating_view">
@@ -4792,7 +4821,8 @@
          <inverse name="view_definition_contexts" entity="View_definition_relationship" attribute="related_view">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
-         <where label="wr1" expression="SIZEOF(occurrence_contexts) + SIZEOF(view_definition_contexts) &gt;= 1"/>
+         <where label="WR1" expression="SIZEOF(occurrence_contexts) + SIZEOF(view_definition_contexts) &gt;= 1"/>
+         <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
       </entity>
       <entity name="Product_occurrence_definition_relationship" abstract.supertype="YES">
          <explicit name="relating_view">
@@ -5013,6 +5043,7 @@
             <builtintype type="STRING"/>
          </explicit>
       </entity>
+      <entity name="Radioactivity_data_element" supertypes="Value_with_unit"/>
       <entity name="Range_characteristic" supertypes="Property_value_representation">
          <explicit name="items">
             <aggregate type="SET" lower="2" upper="2"/>
@@ -5039,18 +5070,18 @@
          </explicit>
       </entity>
       <entity name="Raw_material_definition_relationship" supertypes="View_definition_usage">
-         <explicit name="related_view">
+         <explicit name="relating_view">
             <typename name="Part_view_definition"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
-         <explicit name="relating_view">
+         <explicit name="related_view">
             <typename name="Substance_view_definition"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
-         <derived name="application" expression="SELF\View_definition_relationship.related_view">
+         <derived name="application" expression="SELF\View_definition_relationship.relating_view">
             <typename name="Part_view_definition"/>
          </derived>
-         <derived name="definition" expression="SELF\View_definition_relationship.relating_view">
+         <derived name="definition" expression="SELF\View_definition_relationship.related_view">
             <typename name="Substance_view_definition"/>
          </derived>
          <where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
@@ -5579,11 +5610,11 @@
          </explicit>
       </entity>
       <entity name="Solid_of_revolution" supertypes="Swept_solid">
-         <explicit name="axis">
-            <typename name="Axis1_placement"/>
-         </explicit>
          <explicit name="angle">
             <typename name="plane_angle_measure"/>
+         </explicit>
+         <explicit name="axis">
+            <typename name="Axis1_placement"/>
          </explicit>
       </entity>
       <entity name="Solid_of_revolution_with_trim_conditions" supertypes="Solid_of_revolution">
@@ -6496,10 +6527,10 @@
          <explicit name="base_face">
             <typename name="Advanced_face"/>
          </explicit>
-         <explicit name="top_thickness">
+         <explicit name="base_thickness">
             <typename name="length_measure"/>
          </explicit>
-         <explicit name="base_thickness">
+         <explicit name="top_thickness">
             <typename name="length_measure"/>
          </explicit>
       </entity>
@@ -6887,7 +6918,7 @@
             <builtintype type="REAL"/>
          </explicit>
       </entity>
-      <entity name="Value_with_unit" super.expression="ONEOF (Absorbed_dose_data_element, Activity_data_element, Amount_of_substance_data_element, Angle_data_element, Area_data_element, Capacitance_data_element, Celsius_temperature_data_element, Conductance_data_element, Dose_equivalent_data_element, Electric_charge_data_element, Electric_current_data_element, Electromotive_force_data_element, Energy_data_element, Force_data_element, Frequency_data_element, Illuminance_data_element, Inductance_data_element, Length_data_element, Luminous_flux_data_element, Luminous_intensity_data_element, Magnetic_flux_data_element, Magnetic_flux_density_data_element, Mass_data_element, Power_data_element, Pressure_data_element, Ratio_data_element, Resistance_data_element, Scattering_parameter_data_element, Solid_angle_data_element, Thermodynamic_temperature_data_element, Volume_data_element)">
+      <entity name="Value_with_unit" super.expression="ONEOF (Acceleration_data_element, Absorbed_dose_data_element, Radioactivity_data_element, Amount_of_substance_data_element, Angle_data_element, Area_data_element, Capacitance_data_element, Celsius_temperature_data_element, Conductance_data_element, Dose_equivalent_data_element, Electric_charge_data_element, Electric_current_data_element, Electic_potential_data_element, Energy_data_element, Force_data_element, Frequency_data_element, Illuminance_data_element, Inductance_data_element, Length_data_element, Luminous_flux_data_element, Luminous_intensity_data_element, Magnetic_flux_data_element, Magnetic_flux_density_data_element, Mass_data_element, Power_data_element, Pressure_data_element, Ratio_data_element, Resistance_data_element, Scattering_parameter_data_element, Solid_angle_data_element, Thermodynamic_temperature_data_element, Velocity_data_element, Volume_data_element)">
          <explicit name="unit">
             <typename name="Unit"/>
          </explicit>
@@ -6909,8 +6940,9 @@
             <typename name="Terminator"/>
          </explicit>
       </entity>
+      <entity name="Velocity_data_element" supertypes="Value_with_unit"/>
       <entity name="Vertex" supertypes="Detailed_topological_model_element"/>
-      <entity name="Vertex_point" supertypes="Vertex Detailed_geometric_model_element">
+      <entity name="Vertex_point" supertypes="Detailed_geometric_model_element Vertex">
          <explicit name="vertex_position">
             <typename name="Cartesian_point"/>
          </explicit>
@@ -7101,13 +7133,22 @@
          <where label="WR1" expression="SIZEOF(QUERY(a &lt;* Address | SIZEOF(USEDIN(a, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF' + '.ADDRESS_ASSIGNMENT.ASSIGNED_ADDRESS')) = 0)) = 0"/>
       </rule>
       <rule name="chemical_element_constraint" appliesto="Product">
-         <where label="WR1" expression="SIZEOF ( QUERY ( p &lt;* Product | &#10;               (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'SUBSTANCE' IN TYPEOF (p) ) AND ((p\Product.name) IN chemical_elements) ) &#10;                OR&#10;               (NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'SUBSTANCE' IN TYPEOF (p) ) AND NOT((p\Product.name) IN chemical_elements) )&#10;       )) =&#10;       SIZEOF ( Product)"/>
+         <where label="WR1" expression="SIZEOF ( QUERY ( p &lt;* Product | &#10;               (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'SUBSTANCE' IN TYPEOF (p) ) AND ((p\Product.name) IN chemical_elements) ) &#10;                OR&#10;               (NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'SUBSTANCE' IN TYPEOF (p) ) AND NOT((p\Product.name) IN chemical_elements) ))) =&#10;        SIZEOF ( Product)"/>
+      </rule>
+      <rule name="definition_replacement_requires_effectivity_assignment" appliesto="Part_definition_relationship">
+         <where label="WR1" expression="SIZEOF( QUERY( pdr &lt;* Part_definition_relationship | &#10;        (pdr\View_definition_relationship.relation_type = 'definition replacement') AND &#10;        (SIZEOF( USEDIN(pdr,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))&#10;	     = 0"/>
       </rule>
       <rule name="document_definition_constraint" appliesto="Product_view_definition">
          <where label="WR1" expression="SIZEOF ( QUERY ( dd &lt;* Product_view_definition | ( NOT ( 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'DOCUMENT_DEFINITION' IN TYPEOF (dd) ) ) AND ( 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'DOCUMENT_VERSION' IN TYPEOF ( dd.defined_version) ) ) ) =0"/>
       </rule>
       <rule name="document_version_constraint" appliesto="Product_version">
          <where label="WR1" expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'DOCUMENT_VERSION' IN TYPEOF ( pv) ) ) AND ( 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'DOCUMENT' IN TYPEOF ( pv.of_product) ) ) ) = 0"/>
+      </rule>
+      <rule name="mandatory_part_occurrence_definition_relationship" appliesto="Assembly_component_relationship">
+         <algorithm>LOCAL
+      assemblies_of_parts: SET OF Assembly_component_relationship := [];
+    END_LOCAL;</algorithm>
+         <where label="WR1" expression="SIZEOF(QUERY(ar &lt;* assemblies_of_parts | &#10;	    NOT ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.ASSEMBLED_PART_ASSOCIATION' IN TYPEOF(ar)) ))= 0"/>
       </rule>
       <rule name="max_one_entity_prefix" appliesto="Enum_reference_prefix">
          <where label="no_label_1" expression="SIZEOF(QUERY(x &lt;* Enum_reference_prefix | TRUE)) &lt;= 1"/>
@@ -7147,7 +7188,7 @@ END_LOCAL;
       <rule name="substance_view_definition_constraint" appliesto="Product_view_definition">
          <where label="WR1" expression="SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'SUBSTANCE_VIEW_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'SUBSTANCE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0"/>
       </rule>
-      <rule name="total_over_Assembly_component_relationship_constraint" appliesto="Assembly_component_relationship">
+      <rule name="total_over_assembly_component_relationship_constraint" appliesto="Assembly_component_relationship">
          <where label="wr1" expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_arm.COMPONENT_UPPER_LEVEL_IDENTIFICATION'] * TYPEOF(p) ) = 0)) = 0"/>
          <where label="wr2" expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_arm.NEXT_ASSEMBLY_USAGE'] * TYPEOF(p) ) = 0)) = 0"/>
          <where label="wr3" expression="SIZEOF(QUERY(p &lt;* ASSEMBLY_COMPONENT_RELATIONSHIP | SIZEOF(['Ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_arm.PROMISSORY_USAGE'] * TYPEOF(p) ) = 0)) = 0"/>
@@ -7288,19 +7329,18 @@ RETURN(FALSE);</algorithm>
          <aggregate type="SET" lower="0" upper="?"/>
          <typename name="Document_definition"/>
          <algorithm>LOCAL
-	dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
-	da : SET[0:?] OF Document_assignment :=[];
-END_LOCAL;
-	da := bag_to_set(QUERY(dr &lt;* USEDIN (input, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+
-	'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
-
-	-- iterate over da
-	REPEAT i := 1 to SIZEOF(da) by 1;
-		IF(type_name IN TYPEOF (da[i].assigned_document))THEN
-			dd := dd + da[i].assigned_document;
-		END_IF;
-	END_REPEAT;
-	RETURN(dd);</algorithm>
+      dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
+      da : SET[0:?] OF Document_assignment :=[];
+    END_LOCAL;
+    da := bag_to_set(QUERY(dr &lt;* USEDIN (input, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+
+	  'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
+    -- iterate over da
+    REPEAT i := 1 to SIZEOF(da) by 1;
+      IF(type_name IN TYPEOF (da[i].assigned_document))THEN
+        dd := dd + da[i].assigned_document;
+      END_IF;
+    END_REPEAT;
+    RETURN(dd);</algorithm>
       </function>
       <function name="get_geometric_model">
          <parameter name="input">

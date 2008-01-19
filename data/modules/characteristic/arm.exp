@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.47 2008/01/16 06:52:46 liutkus Exp $
+   $Id: arm.exp,v 1.48 2008/01/16 18:12:21 liutkus Exp $
    ISO TC184/SC4/WG12 N4714 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3909
 *)
@@ -56,10 +56,14 @@ SCHEMA Characteristic_arm;
     SUBTYPE OF (Independent_property, Independent_property_relationship);
       SELF\Independent_property_relationship.relating RENAMED precedent : Independent_property;
       SELF\Independent_property_relationship.related RENAMED subsequent : Independent_property;
-      table                                                             : Characteristic_data_table;
+    DERIVE
+      SELF\Independent_property_relationship.relation_type : STRING := 'sequence';
+      table : Characteristic_data_table_header := get_table(SELF);            
     UNIQUE
       UR1: precedent, table;  
       UR2: subsequent, table;        
+    WHERE
+      WR1: EXISTS(table);
   END_ENTITY;
 
   ENTITY Characteristic_data_table_representation
@@ -243,9 +247,23 @@ SCHEMA Characteristic_arm;
     RETURN (result);
   END_FUNCTION;
 
+  FUNCTION get_table(input : Characteristic_data_table_header_link): Characteristic_data_table_header;
+    LOCAL
+      middle : BAG [0:?] OF Independent_property_relationship;
+    END_LOCAL;
+      middle := QUERY (ipr <* (USEDIN(input, 'INDEPENDENT_PROPERTY_ARM.' + 
+        'INDEPENDENT_PROPERTY_RELATIONSHIP.RELATED')) | ipr.relation_type = 'decomposition');      
+      REPEAT i := 1 to HIINDEX(middle);       
+        IF('CHARACTERISTIC_ARM.CHARACTERISTIC_DATA_TABLE_HEADER' IN TYPEOF(middle[i].relating))THEN
+          RETURN (middle[i].relating);
+        END_IF;
+      END_REPEAT;
+      RETURN (?);
+  END_FUNCTION;
+
   SUBTYPE_CONSTRAINT c_representation_item_subtypes FOR Representation_item; 
 	(ONEOF (Characteristic_data_table,
 	  Characteristic_data_table_row));
   END_SUBTYPE_CONSTRAINT;
- 
+
 END_SCHEMA;

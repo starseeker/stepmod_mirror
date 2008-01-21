@@ -6,21 +6,20 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_collection_mim schema_instance"/>
    <schema name="Part_collection_mim">
       <interface kind="use" schema="Product_occurrence_mim"/>
-      <interface kind="use" schema="Part_view_definition_mim"/>
       <interface kind="reference" schema="Single_part_representation_mim">
          <interfaced.item name="categories_of_product"/>
       </interface>
       <rule name="restrict_collection_category" appliesto="product_definition">
          <algorithm>LOCAL
-  collection_definitions: SET OF product_definition := [];
-END_LOCAL;
-  collection_definitions :=  QUERY( pd &lt;* product_definition | 
-  SIZEOF( QUERY( pdca &lt;* USEDIN( pd, 'PART_COLLECTION_MIM' + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
-  pdca.frame_of_reference.name= 'collection definition')) &gt; 0 );</algorithm>
-         <where label="WR1" expression="SIZEOF( QUERY( pd &lt;* collection_definitions | &#10;	NOT ('collection' IN categories_of_product(pd.formation.of_product)) ))= 0"/>
+      collection_definitions: SET OF product_definition := [];
+    END_LOCAL;
+      collection_definitions :=  QUERY( pd &lt;* product_definition | 
+        SIZEOF( QUERY( pdca &lt;* USEDIN( pd, 'PART_COLLECTION_MIM' + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') |
+        pdca.frame_of_reference.name= 'collection definition')) &gt; 0 );</algorithm>
+         <where label="WR1" expression="SIZEOF( QUERY( pd &lt;* collection_definitions | &#10;	    NOT ('collection' IN categories_of_product(pd.formation.of_product)) ))= 0"/>
       </rule>
       <rule name="restrict_product_definitions_for_collection" appliesto="product_definition_relationship">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |&#10;     ( pdr. name = 'collection membership' ) AND &#10;	( ( pdr.relating_product_definition.frame_of_reference.name&lt;&gt;'part definition' ) OR &#10;	( pdr.related_product_definition.frame_of_reference.name&lt;&gt;'part occurrence' ) OR &#10;	( SIZEOF ( QUERY ( pdca &lt;* USEDIN (pdr.relating_product_definition ,&#10;     'PART_COLLECTION_MIM' + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') | &#10;	( pdca.role.name = 'part definition type' ) AND &#10;	( pdca.frame_of_reference.name = 'collection definition' ) )) =0 ) ) ) ) =0"/>
+         <where label="WR1" expression="SIZEOF ( QUERY ( pdr &lt;* product_definition_relationship |&#10;       ( pdr. name = 'collection membership' ) AND &#10;       ( ( pdr.relating_product_definition.frame_of_reference.name&lt;&gt;'part definition' ) OR &#10;       ( pdr.related_product_definition.frame_of_reference.name&lt;&gt;'part occurrence' ) OR &#10;       ( SIZEOF ( QUERY ( pdca &lt;* USEDIN (pdr.relating_product_definition ,&#10;       'PART_COLLECTION_MIM' + '.PRODUCT_DEFINITION_CONTEXT_ASSOCIATION.DEFINITION') | &#10;       ( pdca.role.name = 'part definition type' ) AND &#10;       ( pdca.frame_of_reference.name = 'collection definition' ) )) =0 ) ) ) ) =0"/>
       </rule>
    </schema>
 </express>

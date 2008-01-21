@@ -2,23 +2,21 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-09-21 10:15:31 +0300 (Pn, 21 Rgs 2007) $" rcs.revision="$Revision: 1559 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="characteristic_arm schema_instance"/>
    <schema name="Characteristic_arm">
       <interface kind="use" schema="Basic_data_representation_arm"/>
       <interface kind="use" schema="Document_assignment_arm"/>
       <interface kind="use" schema="Extended_measure_representation_arm"/>
-      <interface kind="use" schema="Characterizable_object_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
       <type name="c_documented_element_select">
          <select extensible="YES" basedon="documented_element_select" selectitems="Property_value_representation" genericentity="NO"/>
       </type>
       <type name="characteristic">
          <select selectitems="String_representation_item Numerical_item_with_unit Value_list Value_set" genericentity="NO" extensible="NO"/>
-      </type>
-      <type name="list_characteristic">
-         <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
-         <typename name="characteristic"/>
       </type>
       <type name="range_class">
          <enumeration items="closed lower_open upper_open open" extensible="NO"/>
@@ -26,26 +24,57 @@
       <type name="scalar_or_coordinated_characteristics">
          <select selectitems="Property_value_representation characteristic" genericentity="NO" extensible="NO"/>
       </type>
-      <entity name="Characteristic_data_table" supertypes="Characterizable_object Measure_item" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Characteristic_data_table" supertypes="Representation_item" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="property_value" optional="NO">
             <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Characteristic_data_table_row"/>
          </explicit>
-         <explicit name="index_value" optional="NO">
-            <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
-            <builtintype type="INTEGER" fixed="NO"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Characterizable_object" attribute="name"/>
-         </unique>
-         <where label="WR1" expression="SIZEOF(property_value) = SIZEOF(index_value)"/>
-         <where label="WR2" expression="SIZEOF(QUERY( pv &lt;* property_value |&#10;                  NOT (SIZEOF(pv.property_value) = SIZEOF(property_value[1].property_value))&#10;                  )) = 0"/>
-         <where label="WR3" expression="SIZEOF(USEDIN&#10;                 (SELF,'PROPERTY_ASSIGNMENT_ARM.ASSIGNED_PROPERTY.DESCRIBED_ELEMENT')) = 0"/>
+         <where label="WR1" expression="SIZEOF(QUERY( pv &lt;* property_value |&#10;                  NOT (SIZEOF(pv.cell) = SIZEOF(property_value[1].cell))&#10;                  )) = 0"/>
       </entity>
-      <entity name="Characteristic_data_table_row" supertypes="Measure_item" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="property_value" optional="NO">
+      <entity name="Characteristic_data_table_header" supertypes="Independent_property" abstract.supertype="NO" abstract.entity="NO">
+         <derived name="column" expression="get_characterized_column_headers(SELF)">
             <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="list_characteristic"/>
+            <typename name="Independent_property"/>
+         </derived>
+         <where label="WR1" expression="EXISTS(column) AND (SIZEOF(column) &gt; 1)"/>
+      </entity>
+      <entity name="Characteristic_data_table_header_link" supertypes="Independent_property Independent_property_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="precedent" optional="NO">
+            <typename name="Independent_property"/>
+            <redeclaration entity-ref="Independent_property_relationship" old_name="relating"/>
+         </explicit>
+         <explicit name="subsequent" optional="NO">
+            <typename name="Independent_property"/>
+            <redeclaration entity-ref="Independent_property_relationship" old_name="related"/>
+         </explicit>
+         <derived name="relation_type" expression="'sequence'">
+            <builtintype type="STRING" fixed="NO"/>
+            <redeclaration entity-ref="Independent_property_relationship"/>
+         </derived>
+         <derived name="table" expression="get_table(SELF)">
+            <typename name="Characteristic_data_table_header"/>
+         </derived>
+         <unique label="UR1">
+            <unique.attribute attribute="precedent"/>
+            <unique.attribute attribute="table"/>
+         </unique>
+         <unique label="UR2">
+            <unique.attribute attribute="subsequent"/>
+            <unique.attribute attribute="table"/>
+         </unique>
+         <where label="WR1" expression="EXISTS(table)"/>
+      </entity>
+      <entity name="Characteristic_data_table_representation" supertypes="Property_value_representation" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="items" optional="NO">
+            <aggregate type="SET" lower="1" upper="1" unique="NO" optional="NO"/>
+            <typename name="Characteristic_data_table"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+      </entity>
+      <entity name="Characteristic_data_table_row" supertypes="Representation_item" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="cell" optional="NO">
+            <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="characteristic"/>
          </explicit>
       </entity>
       <entity name="Length_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
@@ -122,6 +151,84 @@
          <where label="WR2" expression="NOT EXISTS(SELF\Representation.name)"/>
       </entity>
       <subtype.constraint name="exclusive_property_value_representation_characteristic" entity="Property_value_representation" super.expression="ONEOF (Range_characteristic, Tolerance_characteristic)" abstract.supertype="NO"/>
+      <subtype.constraint name="c_representation_item_subtypes" entity="Representation_item" super.expression="ONEOF (Characteristic_data_table, Characteristic_data_table_row)" abstract.supertype="NO"/>
+      <function name="get_characterized_column_headers">
+         <parameter name="input">
+            <typename name="Characteristic_data_table_header"/>
+         </parameter>
+         <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
+         <typename name="Independent_property"/>
+         <algorithm>LOCAL
+      middle : SET [1:?] OF Independent_property;
+      result : LIST [1:?] OF Independent_property;
+      links  : SET [1:?] OF Characteristic_data_table_header_link;
+      temp   : Independent_property;
+      precedent : SET [0:?] OF Characteristic_data_table_header_link;
+      subsequent : SET [0:?] OF Characteristic_data_table_header_link;
+    END_LOCAL;
+    -- Collect all headers
+    links := bag_to_set(USEDIN(input, 'CHARACTERISTIC_ARM.' + 'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.TABLE'));
+    -- Collect all Independent_properties
+    REPEAT i := 1 to HIINDEX(links);
+      middle := middle + links[i]\Characteristic_data_table_header_link.precedent;
+      middle := middle + links[i]\Characteristic_data_table_header_link.subsequent;
+    END_REPEAT;
+    result[1] := ?;
+    -- Now need to construct the resulting list
+    REPEAT i := 1 to HIINDEX(middle);
+      precedent := bag_to_set(QUERY (l &lt;* (USEDIN(middle[i], 'CHARACTERISTIC_ARM.' + 
+        'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.PRECEDENT')) | l.table = input));
+      -- illegal chain
+      IF (SIZEOF(precedent) &gt; 1) THEN
+        RETURN(?);
+      END_IF;
+      -- check if this is not last member
+      IF (SIZEOF(precedent) = 1) THEN
+        subsequent := bag_to_set(QUERY (l &lt;* (USEDIN(middle[i], 'CHARACTERISTIC_ARM.' + 
+          'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.SUBSEQUENT')) | l.table = input));
+        -- we found first member
+        IF (SIZEOF(subsequent) = 0) THEN
+          result[1] := middle[i];
+          ESCAPE;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+    -- if there is no first member found yet - chain is broken
+    IF (result[1] = ?) THEN
+      RETURN (?);
+    END_IF;
+    temp := result[1];
+    REPEAT i := 2 to HIINDEX(middle);
+      result[i] := precedent[1]\Characteristic_data_table_header_link.subsequent;
+      precedent := bag_to_set(QUERY (l &lt;* (USEDIN(result[i], 'CHARACTERISTIC_ARM.' + 
+        'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.PRECEDENT')) | l.table = input));
+      IF (HIINDEX(middle) = i) THEN
+        ESCAPE;
+      END_IF;
+      -- illegal chain
+      IF (SIZEOF(precedent) &lt;&gt; 1) THEN
+        RETURN(?);
+      END_IF;
+    END_REPEAT; 
+    RETURN (result);</algorithm>
+      </function>
+      <function name="get_table">
+         <parameter name="input">
+            <typename name="Characteristic_data_table_header_link"/>
+         </parameter>
+         <typename name="Characteristic_data_table_header"/>
+         <algorithm>LOCAL
+      middle : BAG [0:?] OF Independent_property_relationship;
+    END_LOCAL;
+      middle := QUERY (ipr &lt;* (USEDIN(input, 'INDEPENDENT_PROPERTY_ARM.' + 
+        'INDEPENDENT_PROPERTY_RELATIONSHIP.RELATED')) | ipr.relation_type = 'decomposition');      
+      REPEAT i := 1 to HIINDEX(middle);       
+        IF('CHARACTERISTIC_ARM.CHARACTERISTIC_DATA_TABLE_HEADER' IN TYPEOF(middle[i].relating))THEN
+          RETURN (middle[i].relating);
+        END_IF;
+      END_REPEAT;
+      RETURN (?);</algorithm>
+      </function>
       <function name="get_value">
          <parameter name="input1">
             <builtintype type="STRING" fixed="NO"/>
@@ -132,11 +239,11 @@
          </parameter>
          <typename name="Numerical_item_with_unit"/>
          <algorithm>REPEAT i := 1 to SIZEOF(np) by 1;
-  IF input1 = np[i]\Representation_item.name THEN
-       RETURN(np[i]);
-  END_IF;
-END_REPEAT;
-  RETURN(?);</algorithm>
+      IF input1 = np[i]\Representation_item.name THEN
+        RETURN(np[i]);
+      END_IF;
+    END_REPEAT;
+    RETURN(?);</algorithm>
       </function>
       <function name="valid_range">
          <parameter name="input1">

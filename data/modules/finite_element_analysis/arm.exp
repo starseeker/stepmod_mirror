@@ -1,5 +1,5 @@
-(* Genenerated from: ..\ballots\ballots\analysis\check_analysis_20060505\express\arm_20060505v1.exp *)
 
+(*"Finite_element_analysis_arm" Genenerated from: ..\ballots\ballots\analysis\check_analysis_20060505\express\arm_20060505v1.exp *)
 SCHEMA Finite_element_analysis_arm;
 
 USE FROM Analysis_characterized_arm;
@@ -8,175 +8,162 @@ USE FROM Elemental_geometric_shape_arm;
 
 USE FROM Finite_elements_arm;
 
-TYPE fe_analysis_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysis_approval_item WITH
+TYPE Constraint_definition_reference = SELECT 
+  (Detailed_geometric_model_element,
+   Group,
+   Node);
+END_TYPE;
+
+TYPE Definition_reference = SELECT 
+  (Detailed_geometric_model_element,
+   element,
+   Group,
+   Node);
+END_TYPE;
+
+TYPE Fe_analysis_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysis_approval_item WITH
   (Fe_analysis,
    Fe_analysis_results);
 END_TYPE;
 
-TYPE constraint_definition_reference = SELECT
-          (Detailed_geometric_model_element,
-           Group,
-           Node);
-END_TYPE;
-
-TYPE definition_reference = SELECT
-          (Element,
-           Detailed_geometric_model_element,
-           Group,
-           Node);
-END_TYPE;
-
 ENTITY Analysis_message
-  SUBTYPE OF (Fe_analysis_state_definition);
- message_level  : STRING;
- quality        : STRING;
+SUBTYPE OF (Fe_analysis_state_definition);
+  message_level : STRING;
+  quality : STRING;
 END_ENTITY;
 
 ENTITY Analysis_report_representation
-  SUPERTYPE OF (Graphical_representation ANDOR 
-                Tabular_representation);
- control    : OPTIONAL fe_analysis;
- model_ref  : Fea_model;
- result     : OPTIONAL Fe_analysis_results;
+SUPERTYPE OF (Graphical_representation ANDOR Tabular_representation);
+  control : OPTIONAL Fe_analysis;
+  model_ref : Fea_model;
+  result : OPTIONAL Fe_analysis_results;
 END_ENTITY;
 
 ENTITY Calculated_state
-  SUBTYPE OF (fe_analysis_state);
+SUBTYPE OF (Fe_analysis_state);
 END_ENTITY;
 
-ENTITY constraint
-  SUPERTYPE OF (ONEOF (Single_point_constraint,
-                       Linear_constraint_equation,
-                       Nodal_degree_of_freedom_reduction));
- identification  : STRING;
- steps           : SET [1:?] OF fe_analysis_control_step;
+ENTITY Constraint
+SUPERTYPE OF (ONEOF(Single_point_constraint, Linear_constraint_equation, Nodal_degree_of_freedom_reduction));
+  identification : STRING;
+  steps : SET [1 : ?] OF Fe_analysis_control_step;
 END_ENTITY;
 
 ENTITY Element_field_variable_definition
-  SUBTYPE OF (Fe_analysis_state_definition);
+SUBTYPE OF (Fe_analysis_state_definition);
 END_ENTITY;
 
 ENTITY Element_nodal_freedom_actions
-  SUBTYPE OF (Fe_analysis_state_definition);
+SUBTYPE OF (Fe_analysis_state_definition);
 END_ENTITY;
 
-ENTITY fe_analysis;
- approved_by             : OPTIONAL Fe_analysis_approval_item;
- intended_analysis_code  : STRING;   
- model_ref               : Fea_model;
-END_ENTITY; 
+ENTITY Fe_analysis;
+  approved_by : OPTIONAL Fe_analysis_approval_item;
+  intended_analysis_code : STRING;
+  model_ref : Fea_model;
+END_ENTITY;
 
 ENTITY Fe_analysis_control_step
-  SUPERTYPE OF (ONEOF (Modes_and_frequencies_control_step,
-                       Static_control_step));
- analysis             : fe_analysis;
- identification       : STRING;
- initial_input_state  : fe_analysis_state;
- sequence             : INTEGER;
+SUPERTYPE OF (ONEOF(modes_and_frequencies_control_step, Static_control_step));
+  analysis : Fe_analysis;
+  identification : STRING;
+  initial_input_state : Fe_analysis_state;
+  sequence : INTEGER;
 END_ENTITY;
 
 ENTITY Fe_analysis_results;
- approved_by  : OPTIONAL Fe_analysis_approval_item;
+  approved_by : OPTIONAL Fe_analysis_approval_item;
 END_ENTITY;
 
 ENTITY Fe_analysis_results_step
-  SUPERTYPE OF (ONEOF (Modes_and_frequencies_results_step,
-                       Static_results_step));
- control  : Fe_analysis_control_step;
- result   : Fe_analysis_results;
+SUPERTYPE OF (ONEOF(Modes_and_frequencies_results_step, Static_results_step));
+  control : Fe_analysis_control_step;
+  result : Fe_analysis_results;
 END_ENTITY;
 
 ENTITY Fe_analysis_state
-  SUPERTYPE OF (ONEOF (Calculated_state,
-                       Linearly_superimposed_state,
-                       Output_request_state,
-                       Specified_state));
- definitions  : SET [1:?] OF Fe_analysis_state_definition;
+SUPERTYPE OF (ONEOF(Calculated_state, linearly_superimposed_state, Output_request_state, Specified_state));
+  definitions : SET [1 : ?] OF Fe_analysis_state_definition;
 END_ENTITY;
 
-ENTITY fe_analysis_state_definition
-  SUPERTYPE OF (ONEOF (Analysis_message,
-                       Element_field_variable_definition,
-                       Element_nodal_freedom_actions,
-                       Linear_constraint_equation_value,
-                       Nodal_freedom_definitions,
-                       Single_point_constraint_values));
- ref  : Definition_reference;
+ENTITY Fe_analysis_state_definition
+SUPERTYPE OF (ONEOF(Analysis_message, Element_field_variable_definition, Element_nodal_freedom_actions, linear_constraint_equation_value, Nodal_freedom_definitions, Single_point_constraint_values));
+  ref : Definition_reference;
 END_ENTITY;
 
 ENTITY Graphical_representation
-  SUBTYPE OF (Analysis_report_representation);
- graphical_filename  : STRING;
+SUBTYPE OF (Analysis_report_representation);
+  graphical_filename : STRING;
 END_ENTITY;
 
 ENTITY Linear_constraint_equation
-  SUBTYPE OF (Constraint);
- freedoms_and_coefficients_nodes : SET [1:?] OF
-                                   constraint_definition_reference;
+SUBTYPE OF (Constraint);
+  freedoms_and_coefficients_nodes : SET [1 : ?] OF Constraint_definition_reference;
 END_ENTITY;
 
-ENTITY linear_constraint_equation_value
-  SUBTYPE OF (Fe_analysis_state_definition);
- equation  : Linear_constraint_equation;
+ENTITY Linear_constraint_equation_value
+SUBTYPE OF (Fe_analysis_state_definition);
+  equation : Linear_constraint_equation;
 END_ENTITY;
 
-ENTITY linearly_superimposed_state
-  SUBTYPE OF (Fe_analysis_state);
+ENTITY Linearly_superimposed_state
+SUBTYPE OF (Fe_analysis_state);
 END_ENTITY;
 
-ENTITY modes_and_frequencies_control_step
-  SUBTYPE OF (fe_analysis_control_step);
- final_input_state  : Fe_analysis_state;
- frequency_range    : LIST [1:2] OF REAL;
- number_of_modes    : INTEGER;
+ENTITY Modes_and_frequencies_control_step
+SUBTYPE OF (Fe_analysis_control_step);
+  final_input_state : Fe_analysis_state;
+  frequency_range : LIST [1 : 2] OF REAL;
+  number_of_modes : INTEGER;
 END_ENTITY;
 
 ENTITY Modes_and_frequencies_results_step
-  SUBTYPE OF (Fe_analysis_results_step);
- resulting_states  : SET [1:?] OF Calculated_state;
+SUBTYPE OF (Fe_analysis_results_step);
+  resulting_states : SET [1 : ?] OF Calculated_state;
 END_ENTITY;
 
 ENTITY Nodal_degree_of_freedom_reduction
-  SUBTYPE OF (constraint);
- node  : constraint_definition_reference;
+SUBTYPE OF (Constraint);
+  node : Constraint_definition_reference;
 END_ENTITY;
 
 ENTITY Nodal_freedom_definitions
-  SUBTYPE OF (Fe_analysis_state_definition);
+SUBTYPE OF (Fe_analysis_state_definition);
 END_ENTITY;
 
 ENTITY Output_request_state
-  SUBTYPE OF (Fe_analysis_state);
- steps  : SET [1:?] OF Fe_analysis_control_step;
+SUBTYPE OF (Fe_analysis_state);
+  steps : SET [1 : ?] OF Fe_analysis_control_step;
 END_ENTITY;
 
 ENTITY Single_point_constraint
-  SUBTYPE OF (Constraint);
- required_node  : constraint_definition_reference;
+SUBTYPE OF (Constraint);
+  required_node : Constraint_definition_reference;
 END_ENTITY;
 
 ENTITY Single_point_constraint_values
-  SUBTYPE OF (Fe_analysis_state_definition);
- element  : Single_point_constraint;
+SUBTYPE OF (Fe_analysis_state_definition);
+  element : Single_point_constraint;
 END_ENTITY;
 
 ENTITY Specified_state
-  SUBTYPE OF (Fe_analysis_state);
+SUBTYPE OF (Fe_analysis_state);
 END_ENTITY;
 
 ENTITY Static_control_step
-  SUBTYPE OF (Fe_analysis_control_step);
- final_input_state  : Fe_analysis_state;
+SUBTYPE OF (Fe_analysis_control_step);
+  final_input_state : Fe_analysis_state;
 END_ENTITY;
 
 ENTITY Static_results_step
-  SUBTYPE OF (Fe_analysis_results_step);
- resulting_state  : Calculated_state;
+SUBTYPE OF (Fe_analysis_results_step);
+  resulting_state : Calculated_state;
 END_ENTITY;
 
 ENTITY Tabular_representation
-  SUBTYPE OF (Analysis_report_representation);
- tabular_filename  : STRING;
+SUBTYPE OF (Analysis_report_representation);
+  tabular_filename : STRING;
 END_ENTITY;
 
 END_SCHEMA;
+

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.132 2008/01/16 07:35:18 liutkus Exp $
+   $Id: arm.exp,v 1.133 2008/01/19 09:14:47 liutkus Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -398,7 +398,11 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     DERIVE
       composing_occurrence : SET [1:?] OF Stratum_technology_occurrence := get_stack(composing_link);
     INVERSE
-      composing_link : SET[1:?] OF Stratum_technology_occurrence_link FOR scope;
+      composing_link : SET[1:?] OF Stratum_technology_occurrence_relationship FOR scope;
+    WHERE
+      WR1 : SIZEOF(QUERY( cl <* composing_link |
+            NOT('FABRICATION_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK' IN TYPEOF(cl))
+                  )) = 0;  
   END_ENTITY;
 
   ENTITY Stratum_technology
@@ -456,10 +460,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     SUBTYPE OF(Stratum_technology_occurrence_relationship);
       base_stratum_technology_occurrence : OPTIONAL up_or_down;  
     WHERE
-      WR1 : NOT (sto_1 :=: sto_2) OR (SIZEOF(scope.composing_link) = 1);
-      WR2 : NOT(SIZEOF(scope.composing_link) = 1) OR
-           acyclic_stratum_technology_occurrence_link(SELF, [sto_2], 
-           'FABRICATION_TECHNOLOGY_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL_LINK');
+      WR1 : NOT (SELF\Stratum_technology_occurrence_relationship.sto_1 :=: SELF\Stratum_technology_occurrence_relationship.sto_2) OR 
+                (SIZEOF(SELF\Stratum_technology_occurrence_relationship.scope\Stratum_stack_model.composing_link) = 1);
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence_relationship
@@ -470,20 +472,20 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       sto_1 : Stratum_technology_occurrence;
       sto_2 : Stratum_technology_occurrence;
       scope : Stratum_stack_model;
+    WHERE
+      WR1 : acyclic_stratum_technology_occurrence_relationship(SELF, [sto_2], 
+           'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_RELATIONSHIP');
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence_swap_relationship
     SUBTYPE OF (Stratum_technology_occurrence_relationship);
     UNIQUE
-      UR1 : sto_1, scope;
-      UR2 : sto_2, scope;
+      UR1 : SELF\Stratum_technology_occurrence_relationship.sto_1, SELF\Stratum_technology_occurrence_relationship.scope;
+      UR2 : SELF\Stratum_technology_occurrence_relationship.sto_2, SELF\Stratum_technology_occurrence_relationship.scope;
     WHERE
-      WR1 : sto_1 <> sto_2;
-      WR2 : (sto_1 IN scope\Stratum_stack_model.composing_occurrence) AND
-         (sto_2 IN scope\Stratum_stack_model.composing_occurrence);
-      WR3 : acyclic_stratum_technology_occurrence_swap_relationship(SELF,
-       [sto_2], 
-       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP');
+      WR1 : SELF\Stratum_technology_occurrence_relationship.sto_1 <> SELF\Stratum_technology_occurrence_relationship.sto_2;
+      WR2 : (SELF\Stratum_technology_occurrence_relationship.sto_1 IN SELF\Stratum_technology_occurrence_relationship.scope\Stratum_stack_model.composing_occurrence) AND
+         (SELF\Stratum_technology_occurrence_relationship.sto_2 IN SELF\Stratum_technology_occurrence_relationship.scope\Stratum_stack_model.composing_occurrence);
   END_ENTITY;
 
   ENTITY Stratum_technology_swap_relationship;
@@ -534,52 +536,28 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_ENTITY;
 
 
-  FUNCTION acyclic_stratum_technology_occurrence_link
-    (relation : Stratum_technology_occurrence_link; 
+  FUNCTION acyclic_stratum_technology_occurrence_relationship
+    (relation : Stratum_technology_occurrence_relationship; 
     relatives : SET[1:?] OF Stratum_technology_occurrence; 
     specific_relation : STRING) : BOOLEAN; 
   LOCAL
-     x : SET OF Stratum_technology_occurrence_link := [];
+     x : SET OF Stratum_technology_occurrence_relationship := [];
   END_LOCAL;
-    IF relation.precedent_sto IN relatives THEN
+    IF relation.sto_1 IN relatives THEN
       RETURN (FALSE);
     END_IF;
-    x := QUERY(pd <* bag_to_set(USEDIN(relation.precedent_sto,
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.sto_1,
       'FABRICATION_TECHNOLOGY_ARM.' +
-      'STRATUM_TECHNOLOGY_OCCURRENCE_LINK.' +
-      'SUBSEQUENT_STO')) | specific_relation IN TYPEOF(pd));
+      'STRATUM_TECHNOLOGY_OCCURRENCE_RELATIONSHIP.' +
+      'STO_2')) | specific_relation IN TYPEOF(pd));
     REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_Stratum_technology_occurrence_link(x[i], relatives +
-        relation.precedent_sto, specific_relation) THEN
+      IF NOT acyclic_Stratum_technology_occurrence_relationship(x[i], relatives +
+        relation.sto_1, specific_relation) THEN
         RETURN (FALSE);
       END_IF;
     END_REPEAT;
     RETURN (TRUE);
   END_FUNCTION;
-
-  FUNCTION acyclic_stratum_technology_occurrence_swap_relationship
-    (relation : Stratum_technology_occurrence_swap_relationship; 
-    relatives : SET[1:?] OF Stratum_technology_occurrence; 
-    specific_relation : STRING) : BOOLEAN; 
-  LOCAL
-     x : SET OF Stratum_technology_occurrence_swap_relationship := [];
-  END_LOCAL;
-    IF relation.sto_2 IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(pd <* bag_to_set(USEDIN(relation.sto_2,
-      'FABRICATION_TECHNOLOGY_ARM.' +
-      'STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP.' +
-      'STO_2')) | specific_relation IN TYPEOF(pd));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_stratum_technology_occurrence_swap_relationship(x[i],
-        relatives +
-        relation.sto_2, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);
-  END_FUNCTION; 
 
   FUNCTION acyclic_stratum_technology_swap_relationship
     (relation : Stratum_technology_swap_relationship; 
@@ -634,7 +612,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       i : INTEGER := 0;
     END_LOCAL;
     REPEAT  i := 1 TO SIZEOF(input) BY 1;
-      sto := sto + input[i].precedent_sto + input[i].subsequent_sto;
+      sto := sto + input[i]\Stratum_technology_occurrence_relationship.sto_1 + input[i]\Stratum_technology_occurrence_relationship.sto_2;
     END_REPEAT;
     RETURN(sto);
   END_FUNCTION;

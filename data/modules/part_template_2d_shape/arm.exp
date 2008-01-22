@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.136 2007/12/27 14:55:14 liutkus Exp $
+   $Id: arm.exp,v 1.137 2008/01/03 14:31:07 liutkus Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -220,8 +220,9 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
         SELF\Stratum_sub_stack.associated_stackup.composing_occurrence));
       WR2: EXISTS(SELF\Stratum_sub_stack.stratum_technology_sequence) XOR
         EXISTS(single_stratum_passage_location);
-      WR3: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1);
-      WR4: sts_vertex_degree_less_than_three(stratum_technology_sequence);
+      WR3: SIZEOF(get_stack(SELF\Stratum_sub_stack.stratum_technology_sequence)) = 
+                 (SIZEOF(SELF\Stratum_sub_stack.stratum_technology_sequence) + 1);
+      WR4: sts_vertex_degree_less_than_three(SELF\Stratum_sub_stack.stratum_technology_sequence);
   END_ENTITY;
 
   ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;
@@ -367,14 +368,14 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
  END_LOCAL;
   REPEAT i := 1 TO SIZEOF(sto) BY 1;
    REPEAT j := 1 TO SIZEOF(input) BY 1;
-     IF (input[j].precedent_sto :=: sto[i]) THEN 
+     IF (input[j]\Stratum_technology_occurrence_relationship.sto_1 :=: sto[i]) THEN 
       psto[i] := psto[i] + 1;
       IF (psto[i] = 3) THEN
        pass := FALSE; 
        ESCAPE; 
       END_IF;
      END_IF;  
-     IF (input[j].subsequent_sto :=: sto[i]) THEN 
+     IF (input[j]\Stratum_technology_occurrence_relationship.sto_2 :=: sto[i]) THEN 
       ssto[i] := ssto[i] + 1;  
       IF (ssto[i] = 3) THEN 
        pass := FALSE; 

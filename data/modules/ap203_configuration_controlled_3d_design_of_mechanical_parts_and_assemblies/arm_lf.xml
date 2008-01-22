@@ -224,7 +224,7 @@
          <select selectitems="Calendar_date Date_time Event"/>
       </type>
       <type name="date_select">
-         <select selectitems="Calendar_date Calendar_month_year Date Ordinal_date Week_of_year_and_day_date"/>
+         <select selectitems="Calendar_date Year_month Date Ordinal_date Week_of_year_and_day_date"/>
       </type>
       <type name="day_in_month_number">
          <builtintype type="INTEGER"/>
@@ -481,10 +481,6 @@
       </type>
       <type name="limitation_definition_select">
          <select selectitems="Limits_and_fits Plus_minus_bounds"/>
-      </type>
-      <type name="list_characteristic">
-         <aggregate type="LIST" lower="1" upper="?"/>
-         <typename name="characteristic"/>
       </type>
       <type name="material_item_select">
          <select selectitems="Anisotropic_material Braided_assembly Isotropic_material Laminate_table Part_view_definition Substance_view_definition Woven_assembly"/>
@@ -1518,14 +1514,6 @@
             <typename name="day_in_month_number"/>
          </explicit>
       </entity>
-      <entity name="Calendar_month_year">
-         <explicit name="month_component">
-            <typename name="month_in_year_number"/>
-         </explicit>
-         <explicit name="year_component">
-            <typename name="year_number"/>
-         </explicit>
-      </entity>
       <entity name="Camera_image_2d_with_scale" supertypes="Detailed_geometric_model_element">
          <explicit name="is_displaying">
             <typename name="presented_model_select"/>
@@ -1645,25 +1633,47 @@
             <builtintype type="STRING"/>
          </derived>
       </entity>
-      <entity name="Characteristic_data_table" supertypes="Characterizable_object Measure_item">
-         <explicit name="index_value">
-            <aggregate type="LIST" lower="1" upper="?"/>
-            <builtintype type="INTEGER"/>
-         </explicit>
+      <entity name="Characteristic_data_table" supertypes="Representation_item">
          <explicit name="property_value">
             <aggregate type="LIST" lower="1" upper="?"/>
             <typename name="Characteristic_data_table_row"/>
          </explicit>
-         <unique label="UR1">
-            <unique.attribute entity-ref="Characterizable_object" attribute="name"/>
-         </unique>
-         <where label="WR1" expression="SIZEOF(property_value) = SIZEOF(index_value)"/>
-         <where label="WR2" expression="SIZEOF(QUERY( pv &lt;* property_value |&#10;                  NOT (SIZEOF(pv.property_value) = SIZEOF(property_value[1].property_value))&#10;                  )) = 0"/>
-         <where label="WR3" expression="SIZEOF(USEDIN&#10;                 (SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.ASSIGNED_PROPERTY.DESCRIBED_ELEMENT')) = 0"/>
+         <where label="WR1" expression="SIZEOF(QUERY( pv &lt;* property_value |&#10;                  NOT (SIZEOF(pv.cell) = SIZEOF(property_value[1].cell))&#10;                  )) = 0"/>
       </entity>
-      <entity name="Characteristic_data_table_row" supertypes="Measure_item">
-         <explicit name="property_value">
-            <typename name="list_characteristic"/>
+      <entity name="Characteristic_data_table_header" supertypes="Independent_property">
+         <derived name="column" expression="get_characterized_column_headers(SELF)">
+            <aggregate type="LIST" lower="1" upper="?"/>
+            <typename name="Independent_property"/>
+         </derived>
+         <where label="WR1" expression="EXISTS(column) AND (SIZEOF(column) &gt; 1)"/>
+      </entity>
+      <entity name="Characteristic_data_table_header_link" supertypes="Independent_property Independent_property_relationship">
+         <derived name="relation_type" expression="'sequence'">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Independent_property_relationship"/>
+         </derived>
+         <derived name="table" expression="get_table(SELF)">
+            <typename name="Characteristic_data_table_header"/>
+         </derived>
+         <derived name="precedent" expression="SELF\Independent_property_relationship.relating">
+            <typename name="Independent_property"/>
+         </derived>
+         <derived name="subsequent" expression="SELF\Independent_property_relationship.related">
+            <typename name="Independent_property"/>
+         </derived>
+         <where label="WR1" expression="EXISTS(table)"/>
+      </entity>
+      <entity name="Characteristic_data_table_representation" supertypes="Property_value_representation">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="Characteristic_data_table"/>
+            <redeclaration entity-ref="Representation"/>
+         </explicit>
+      </entity>
+      <entity name="Characteristic_data_table_row" supertypes="Representation_item">
+         <explicit name="cell">
+            <aggregate type="LIST" lower="1" upper="?"/>
+            <typename name="characteristic"/>
          </explicit>
       </entity>
       <entity name="Characterizable_object">
@@ -1987,9 +1997,6 @@
             <aggregate type="LIST" lower="2" upper="?"/>
             <typename name="composite_text_element_select"/>
          </explicit>
-      </entity>
-      <entity name="Composite_property" supertypes="Assigned_property">
-         <where label="WR1" expression="SIZEOF ( USEDIN (SELF, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.'+&#10;	  'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') ) =0"/>
       </entity>
       <entity name="Composite_sheet_representation" supertypes="Constituent_shape_representation" super.expression="ONEOF (Face_based_sheet_representation, Geometric_sheet_representation)"/>
       <entity name="Compound_representation_item" abstract.supertype="YES" supertypes="Representation_item" super.expression="ONEOF (Sequence_representation_item, Set_representation_item)"/>
@@ -2750,12 +2757,12 @@
             <typename name="Effectivity"/>
          </explicit>
       </entity>
-      <entity name="Electic_potential_data_element" supertypes="Value_with_unit"/>
       <entity name="Electric_charge_data_element" supertypes="Value_with_unit"/>
       <entity name="Electric_current_data_element" supertypes="Value_with_unit">
          <where label="WR1" expression="'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.ELECTRIC_CURRENT_UNIT' IN TYPEOF(SELF\Value_with_unit.Unit)"/>
       </entity>
       <entity name="Electric_current_unit" supertypes="Unit"/>
+      <entity name="Electric_potential_data_element" supertypes="Value_with_unit"/>
       <entity name="Elementary_brep_shape_representation" supertypes="Geometric_model"/>
       <entity name="Energy_data_element" supertypes="Value_with_unit"/>
       <entity name="Entity_assertion" supertypes="Fact_type"/>
@@ -4978,18 +4985,6 @@
          <where label="WR1" expression="projection_curve IN SELF\Draughting_callout.contents"/>
       </entity>
       <entity name="Promissory_usage" supertypes="Assembly_component_relationship"/>
-      <entity name="Property_composition_relationship">
-         <explicit name="parent">
-            <typename name="Composite_property"/>
-         </explicit>
-         <explicit name="child">
-            <typename name="Assigned_property"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="child"/>
-         </unique>
-         <where label="WR1" expression="parent.described_element = child.described_element"/>
-      </entity>
       <entity name="Property_definition_representation" abstract.supertype="YES">
          <explicit name="description" optional="YES">
             <builtintype type="STRING"/>
@@ -5161,7 +5156,7 @@
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
-      <entity name="Representation_item" abstract.supertype="YES" super.expression="ONEOF (Boolean_representation_item, Compound_representation_item, Date_time_representation_item, Integer_representation_item, Logical_representation_item, Rational_representation_item, Real_representation_item)">
+      <entity name="Representation_item" abstract.supertype="YES" super.expression="ONEOF (Characteristic_data_table, Characteristic_data_table_row) ANDOR ONEOF (Boolean_representation_item, Compound_representation_item, Date_time_representation_item, Integer_representation_item, Logical_representation_item, Rational_representation_item, Real_representation_item)">
          <explicit name="name" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
@@ -6918,7 +6913,7 @@
             <builtintype type="REAL"/>
          </explicit>
       </entity>
-      <entity name="Value_with_unit" super.expression="ONEOF (Acceleration_data_element, Absorbed_dose_data_element, Radioactivity_data_element, Amount_of_substance_data_element, Angle_data_element, Area_data_element, Capacitance_data_element, Celsius_temperature_data_element, Conductance_data_element, Dose_equivalent_data_element, Electric_charge_data_element, Electric_current_data_element, Electic_potential_data_element, Energy_data_element, Force_data_element, Frequency_data_element, Illuminance_data_element, Inductance_data_element, Length_data_element, Luminous_flux_data_element, Luminous_intensity_data_element, Magnetic_flux_data_element, Magnetic_flux_density_data_element, Mass_data_element, Power_data_element, Pressure_data_element, Ratio_data_element, Resistance_data_element, Scattering_parameter_data_element, Solid_angle_data_element, Thermodynamic_temperature_data_element, Velocity_data_element, Volume_data_element)">
+      <entity name="Value_with_unit" super.expression="ONEOF (Acceleration_data_element, Absorbed_dose_data_element, Radioactivity_data_element, Amount_of_substance_data_element, Angle_data_element, Area_data_element, Capacitance_data_element, Celsius_temperature_data_element, Conductance_data_element, Dose_equivalent_data_element, Electric_charge_data_element, Electric_current_data_element, Electric_potential_data_element, Energy_data_element, Force_data_element, Frequency_data_element, Illuminance_data_element, Inductance_data_element, Length_data_element, Luminous_flux_data_element, Luminous_intensity_data_element, Magnetic_flux_data_element, Magnetic_flux_density_data_element, Mass_data_element, Power_data_element, Pressure_data_element, Ratio_data_element, Resistance_data_element, Scattering_parameter_data_element, Solid_angle_data_element, Thermodynamic_temperature_data_element, Velocity_data_element, Volume_data_element)">
          <explicit name="unit">
             <typename name="Unit"/>
          </explicit>
@@ -7114,6 +7109,14 @@
          </explicit>
       </entity>
       <entity name="Woven_assembly" supertypes="Stock_material"/>
+      <entity name="Year_month">
+         <explicit name="month_component">
+            <typename name="month_in_year_number"/>
+         </explicit>
+         <explicit name="year_component">
+            <typename name="year_number"/>
+         </explicit>
+      </entity>
       <entity name="Zone_structural_makeup" supertypes="Laminate_table" super.expression="ONEOF ((Smeared_material AND Thickness_laminate_table), (Smeared_material AND Percentage_laminate_table), Thickness_laminate_table, Percentage_laminate_table, Smeared_material)">
          <explicit name="boundary" optional="YES">
             <typename name="Zone_structural_makeup_shape_representation"/>
@@ -7316,6 +7319,66 @@ RETURN(FALSE);</algorithm>
            END_IF;
   END_IF;</algorithm>
       </function>
+      <function name="get_characterized_column_headers">
+         <parameter name="input">
+            <typename name="Characteristic_data_table_header"/>
+         </parameter>
+         <aggregate type="LIST" lower="1" upper="?"/>
+         <typename name="Independent_property"/>
+         <algorithm>LOCAL
+      middle : SET [1:?] OF Independent_property;
+      result : LIST [1:?] OF Independent_property;
+      links  : SET [1:?] OF Characteristic_data_table_header_link;
+      temp   : Independent_property;
+      precedent : SET [0:?] OF Characteristic_data_table_header_link;
+      subsequent : SET [0:?] OF Characteristic_data_table_header_link;
+    END_LOCAL;
+    -- Collect all headers
+    links := bag_to_set(USEDIN(input, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.TABLE'));
+    -- Collect all Independent_properties
+    REPEAT i := 1 to HIINDEX(links);
+      middle := middle + links[i]\Characteristic_data_table_header_link.precedent;
+      middle := middle + links[i]\Characteristic_data_table_header_link.subsequent;
+    END_REPEAT;
+    result[1] := ?;
+    -- Now need to construct the resulting list
+    REPEAT i := 1 to HIINDEX(middle);
+      precedent := bag_to_set(QUERY (l &lt;* (USEDIN(middle[i], 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 
+        'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.PRECEDENT')) | l.table = input));
+      -- illegal chain
+      IF (SIZEOF(precedent) &gt; 1) THEN
+        RETURN(?);
+      END_IF;
+      -- check if this is not last member
+      IF (SIZEOF(precedent) = 1) THEN
+        subsequent := bag_to_set(QUERY (l &lt;* (USEDIN(middle[i], 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 
+          'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.SUBSEQUENT')) | l.table = input));
+        -- we found first member
+        IF (SIZEOF(subsequent) = 0) THEN
+          result[1] := middle[i];
+          ESCAPE;
+        END_IF;
+      END_IF;
+    END_REPEAT;
+    -- if there is no first member found yet - chain is broken
+    IF (result[1] = ?) THEN
+      RETURN (?);
+    END_IF;
+    temp := result[1];
+    REPEAT i := 2 to HIINDEX(middle);
+      result[i] := precedent[1]\Characteristic_data_table_header_link.subsequent;
+      precedent := bag_to_set(QUERY (l &lt;* (USEDIN(result[i], 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 
+        'CHARACTERISTIC_DATA_TABLE_HEADER_LINK.PRECEDENT')) | l.table = input));
+      IF (HIINDEX(middle) = i) THEN
+        ESCAPE;
+      END_IF;
+      -- illegal chain
+      IF (SIZEOF(precedent) &lt;&gt; 1) THEN
+        RETURN(?);
+      END_IF;
+    END_REPEAT; 
+    RETURN (result);</algorithm>
+      </function>
       <function name="get_document_definition">
          <parameter name="input">
             <typename name="documented_element_select"/>
@@ -7361,6 +7424,23 @@ RETURN(FALSE);</algorithm>
   gm := gm + sda[i].representation;
  END_REPEAT;
  RETURN(gm);</algorithm>
+      </function>
+      <function name="get_table">
+         <parameter name="input">
+            <typename name="Characteristic_data_table_header_link"/>
+         </parameter>
+         <typename name="Characteristic_data_table_header"/>
+         <algorithm>LOCAL
+      middle : BAG [0:?] OF Independent_property_relationship;
+    END_LOCAL;
+      middle := QUERY (ipr &lt;* (USEDIN(input, 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.' + 
+        'INDEPENDENT_PROPERTY_RELATIONSHIP.RELATED')) | ipr.relation_type = 'decomposition');      
+      REPEAT i := 1 to HIINDEX(middle);       
+        IF('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.CHARACTERISTIC_DATA_TABLE_HEADER' IN TYPEOF(middle[i].relating))THEN
+          RETURN (middle[i].relating);
+        END_IF;
+      END_REPEAT;
+      RETURN (?);</algorithm>
       </function>
       <function name="leap_year">
          <parameter name="year">

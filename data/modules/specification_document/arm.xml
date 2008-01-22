@@ -2,13 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-05-14 06:01:23 -0700 (Pr, 14 Geg 2007) $" rcs.revision="$Revision: 829 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="specification_document_arm schema_instance"/>
    <schema name="Specification_document_arm">
       <interface kind="use" schema="Characteristic_arm"/>
       <interface kind="use" schema="Configuration_item_arm"/>
       <interface kind="use" schema="Tagged_text_representation_arm"/>
-      <interface kind="use" schema="Person_organization_assignment_arm"/>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
@@ -68,19 +67,18 @@
          <aggregate type="SET" lower="0" upper="?"/>
          <typename name="Document_definition"/>
          <algorithm>LOCAL
-	dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
-	da : SET[0:?] OF Document_assignment :=[];
-END_LOCAL;
-	da := bag_to_set(QUERY(dr &lt;* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
-	'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
-
-	-- iterate over da
-	REPEAT i := 1 to SIZEOF(da) by 1;
-		IF(type_name IN TYPEOF (da[i].assigned_document))THEN
-			dd := dd + da[i].assigned_document;
-		END_IF;
-	END_REPEAT;
-	RETURN(dd);</algorithm>
+      dd : SET[0:?] OF Document_definition := [];  --this gives us access to the information base
+      da : SET[0:?] OF Document_assignment :=[];
+    END_LOCAL;
+    da := bag_to_set(QUERY(dr &lt;* USEDIN (input, 'DOCUMENT_ASSIGNMENT_ARM.'+
+	  'DOCUMENT_ASSIGNMENT.IS_ASSIGNED_TO') | (dr.role = role)));
+    -- iterate over da
+    REPEAT i := 1 to SIZEOF(da) by 1;
+      IF(type_name IN TYPEOF (da[i].assigned_document))THEN
+        dd := dd + da[i].assigned_document;
+      END_IF;
+    END_REPEAT;
+    RETURN(dd);</algorithm>
       </function>
    </schema>
 </express>

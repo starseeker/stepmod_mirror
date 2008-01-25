@@ -1,303 +1,275 @@
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" 
-  href="../../../xsl/express.xsl"
-?>
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: 2003/07/09 10:22:25 $" rcs.revision="$Revision: 1.8 $" reference="ISO 10303-41" description.file="descriptions.xml">
-	<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.3.14" source="Date_time_schema_v009.vsd"/>
-	<schema name="date_time_schema">
-		<interface kind="reference" schema="basic_attribute_schema">
-			<interfaced.item name="description_attribute"/>
-			<interfaced.item name="get_description_value"/>
-		</interface>
-		<interface kind="reference" schema="measure_schema">
-			<interfaced.item name="time_measure_with_unit"/>
-		</interface>
-		<interface kind="reference" schema="support_resource_schema">
-			<interfaced.item name="bag_to_set"/>
-			<interfaced.item name="identifier"/>
-			<interfaced.item name="label"/>
-			<interfaced.item name="text"/>
-		</interface>
-		<type name="ahead_or_behind">
-			<enumeration items="ahead exact behind"/>
-			<graphic.element page="2" xcoord="518" ycoord="255"/>
-		</type>
-		<type name="date_time_or_event_occurrence">
-			<select selectitems="date_time_select event_occurrence"/>
-			<graphic.element page="3" xcoord="142" ycoord="219"/>
-		</type>
-		<type name="date_time_select">
-			<select selectitems="date date_and_time local_time"/>
-			<graphic.element page="2" xcoord="72" ycoord="559"/>
-		</type>
-		<type name="day_in_month_number">
-			<builtintype type="INTEGER"/>
-			<where label="WR1" expression="{1 &lt;= SELF &lt;= 31}"/>
-			<graphic.element page="2" xcoord="313" ycoord="595"/>
-		</type>
-		<type name="day_in_week_number">
-			<builtintype type="INTEGER"/>
-			<where label="WR1" expression="{ 1 &lt;= SELF &lt;= 7 }"/>
-			<graphic.element page="2" xcoord="518" ycoord="382"/>
-		</type>
-		<type name="day_in_year_number">
-			<builtintype type="INTEGER"/>
-			<where label="WR1" expression="{1 &lt;= SELF &lt;= 366}"/>
-			<graphic.element page="2" xcoord="518" ycoord="453"/>
-		</type>
-		<type name="hour_in_day">
-			<builtintype type="INTEGER"/>
-			<where label="WR1" expression="{ 0 &lt;= SELF &lt; 24 }"/>
-			<graphic.element page="2" xcoord="185" ycoord="42"/>
-		</type>
-		<type name="minute_in_hour">
-			<builtintype type="INTEGER"/>
-			<where label="WR1" expression="{ 0 &lt;= SELF &lt;= 59 }"/>
-			<graphic.element page="2" xcoord="185" ycoord="113"/>
-		</type>
-		<type name="month_in_year_number">
-			<builtintype type="INTEGER"/>
-			<where label="WR1" expression="{ 1 &lt;= SELF &lt;= 12 }"/>
-			<graphic.element page="2" xcoord="518" ycoord="524"/>
-		</type>
-		<type name="second_in_minute">
-			<builtintype type="REAL"/>
-			<where label="WR1" expression="{ 0 &lt;= SELF &lt;= 60.0 }"/>
-			<graphic.element page="2" xcoord="185" ycoord="184"/>
-		</type>
-		<type name="week_in_year_number">
-			<builtintype type="INTEGER"/>
-			<where label="WR1" expression="{ 1 &lt;= SELF &lt;= 53 }"/>
-			<graphic.element page="2" xcoord="313" ycoord="311"/>
-		</type>
-		<type name="year_number">
-			<builtintype type="INTEGER"/>
-			<graphic.element page="2" xcoord="128" ycoord="517"/>
-		</type>
-		<entity name="calendar_date" supertypes="date">
-			<explicit name="day_component">
-				<typename name="day_in_month_number"/>
-			</explicit>
-			<explicit name="month_component">
-				<typename name="month_in_year_number"/>
-			</explicit>
-			<where label="WR1" expression="valid_calendar_date (SELF)"/>
-			<graphic.element page="2" xcoord="313" ycoord="524"/>
-		</entity>
-		<entity name="coordinated_universal_time_offset">
-			<explicit name="hour_offset">
-				<builtintype type="INTEGER"/>
-			</explicit>
-			<explicit name="minute_offset" optional="YES">
-				<builtintype type="INTEGER"/>
-			</explicit>
-			<explicit name="sense">
-				<typename name="ahead_or_behind"/>
-			</explicit>
-			<derived name="actual_minute_offset" expression="NVL(minute_offset,0)">
-				<builtintype type="INTEGER"/>
-			</derived>
-			<where label="WR1" expression="{ 0 &lt;= hour_offset &lt; 24 }"/>
-			<where label="WR2" expression="{ 0 &lt;= actual_minute_offset &lt;= 59 }"/>
-			<where label="WR3" expression="NOT (((hour_offset &lt;&gt; 0) OR (actual_minute_offset &lt;&gt;0)) AND (sense = exact))"/>
-			<graphic.element page="2" xcoord="313" ycoord="255"/>
-		</entity>
-		<entity name="date" super.expression="ONEOF(calendar_date, ordinal_date, week_of_year_and_day_date)">
-			<explicit name="year_component">
-				<typename name="year_number"/>
-			</explicit>
-			<graphic.element page="2" xcoord="128" ycoord="453"/>
-		</entity>
-		<entity name="date_and_time">
-			<explicit name="date_component">
-				<typename name="date"/>
-			</explicit>
-			<explicit name="time_component">
-				<typename name="local_time"/>
-			</explicit>
-			<graphic.element page="2" xcoord="128" ycoord="382"/>
-		</entity>
-		<entity name="date_role">
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<derived name="description" expression="get_description_value (SELF)">
-				<typename name="text"/>
-			</derived>
-			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
-			<graphic.element page="4" xcoord="99" ycoord="397"/>
-		</entity>
-		<entity name="date_time_role">
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<derived name="description" expression="get_description_value (SELF)">
-				<typename name="text"/>
-			</derived>
-			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
-			<graphic.element page="4" xcoord="99" ycoord="255"/>
-		</entity>
-		<entity name="event_occurrence">
-			<explicit name="id">
-				<typename name="identifier"/>
-			</explicit>
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<explicit name="description" optional="YES">
-				<typename name="text"/>
-			</explicit>
-			<graphic.element page="3" xcoord="142" ycoord="510"/>
-		</entity>
-		<entity name="event_occurrence_context_role">
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<explicit name="description" optional="YES">
-				<typename name="text"/>
-			</explicit>
-			<graphic.element page="4" xcoord="376" ycoord="255"/>
-		</entity>
-		<entity name="event_occurrence_relationship">
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<explicit name="description" optional="YES">
-				<typename name="text"/>
-			</explicit>
-			<explicit name="relating_event">
-				<typename name="event_occurrence"/>
-			</explicit>
-			<explicit name="related_event">
-				<typename name="event_occurrence"/>
-			</explicit>
-			<graphic.element page="3" xcoord="142" ycoord="439"/>
-		</entity>
-		<entity name="event_occurrence_role">
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<explicit name="description" optional="YES">
-				<typename name="text"/>
-			</explicit>
-			<graphic.element page="4" xcoord="376" ycoord="113"/>
-		</entity>
-		<entity name="local_time">
-			<explicit name="hour_component">
-				<typename name="hour_in_day"/>
-			</explicit>
-			<explicit name="minute_component" optional="YES">
-				<typename name="minute_in_hour"/>
-			</explicit>
-			<explicit name="second_component" optional="YES">
-				<typename name="second_in_minute"/>
-			</explicit>
-			<explicit name="zone">
-				<typename name="coordinated_universal_time_offset"/>
-			</explicit>
-			<where label="WR1" expression="valid_time (SELF)"/>
-			<graphic.element page="2" xcoord="128" ycoord="255"/>
-		</entity>
-		<entity name="ordinal_date" supertypes="date">
-			<explicit name="day_component">
-				<typename name="day_in_year_number"/>
-			</explicit>
-			<where label="WR1" expression="(NOT leap_year(SELF.year_component) AND { 1 &lt;= day_component &lt;= 365 }) OR (leap_year(SELF.year_component) AND { 1 &lt;= day_component &lt;= 366 })"/>
-			<graphic.element page="2" xcoord="313" ycoord="453"/>
-		</entity>
-		<entity name="relative_event_occurrence" supertypes="event_occurrence">
-			<explicit name="base_event">
-				<typename name="event_occurrence"/>
-			</explicit>
-			<explicit name="offset">
-				<typename name="time_measure_with_unit"/>
-			</explicit>
-			<graphic.element page="3" xcoord="142" ycoord="581"/>
-		</entity>
-		<entity name="time_interval">
-			<explicit name="id">
-				<typename name="identifier"/>
-			</explicit>
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<explicit name="description" optional="YES">
-				<typename name="text"/>
-			</explicit>
-			<graphic.element page="3" xcoord="454" ycoord="283"/>
-		</entity>
-		<entity name="time_interval_relationship">
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<explicit name="description" optional="YES">
-				<typename name="text"/>
-			</explicit>
-			<explicit name="relating_time_interval">
-				<typename name="time_interval"/>
-			</explicit>
-			<explicit name="related_time_interval">
-				<typename name="time_interval"/>
-			</explicit>
-			<graphic.element page="3" xcoord="454" ycoord="113"/>
-		</entity>
-		<entity name="time_interval_role">
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<explicit name="description" optional="YES">
-				<typename name="text"/>
-			</explicit>
-			<graphic.element page="4" xcoord="376" ycoord="397"/>
-		</entity>
-		<entity name="time_interval_with_bounds" supertypes="time_interval">
-			<explicit name="primary_bound" optional="YES">
-				<typename name="date_time_or_event_occurrence"/>
-			</explicit>
-			<explicit name="secondary_bound" optional="YES">
-				<typename name="date_time_or_event_occurrence"/>
-			</explicit>
-			<explicit name="duration" optional="YES">
-				<typename name="time_measure_with_unit"/>
-			</explicit>
-			<where label="WR1" expression="NOT (EXISTS(secondary_bound) AND EXISTS(duration))"/>
-			<where label="WR2" expression="EXISTS(primary_bound) OR EXISTS(secondary_bound)"/>
-			<graphic.element page="3" xcoord="142" ycoord="283"/>
-		</entity>
-		<entity name="time_role">
-			<explicit name="name">
-				<typename name="label"/>
-			</explicit>
-			<derived name="description" expression="get_description_value (SELF)">
-				<typename name="text"/>
-			</derived>
-			<where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
-			<graphic.element page="4" xcoord="99" ycoord="113"/>
-		</entity>
-		<entity name="week_of_year_and_day_date" supertypes="date">
-			<explicit name="week_component">
-				<typename name="week_in_year_number"/>
-			</explicit>
-			<explicit name="day_component" optional="YES">
-				<typename name="day_in_week_number"/>
-			</explicit>
-			<graphic.element page="2" xcoord="313" ycoord="382"/>
-		</entity>
-		<function name="acyclic_event_occurrence_relationship">
-			<parameter name="relation">
-				<typename name="event_occurrence_relationship"/>
-			</parameter>
-			<parameter name="relatives">
-				<aggregate type="SET" lower="1" upper="?"/>
-				<typename name="event_occurrence"/>
-			</parameter>
-			<parameter name="specific_relation">
-				<builtintype type="STRING"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
- LOCAL
+
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-41" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="date_time_schema schema_instance"/>
+   <schema name="date_time_schema">
+      <interface kind="reference" schema="basic_attribute_schema">
+         <interfaced.item name="description_attribute"/>
+         <interfaced.item name="get_description_value"/>
+      </interface>
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="time_measure_with_unit"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="bag_to_set"/>
+         <interfaced.item name="identifier"/>
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+      </interface>
+      <type name="ahead_or_behind">
+         <enumeration items="ahead exact behind"/>
+      </type>
+      <type name="date_time_or_event_occurrence">
+         <select selectitems="date_time_select event_occurrence"/>
+      </type>
+      <type name="date_time_select">
+         <select selectitems="date date_and_time local_time"/>
+      </type>
+      <type name="day_in_month_number">
+         <builtintype type="INTEGER"/>
+         <where label="WR1" expression="{1 &lt;= SELF &lt;= 31}"/>
+      </type>
+      <type name="day_in_week_number">
+         <builtintype type="INTEGER"/>
+         <where label="WR1" expression="{ 1 &lt;= SELF &lt;= 7 }"/>
+      </type>
+      <type name="day_in_year_number">
+         <builtintype type="INTEGER"/>
+         <where label="WR1" expression="{1 &lt;= SELF &lt;= 366}"/>
+      </type>
+      <type name="hour_in_day">
+         <builtintype type="INTEGER"/>
+         <where label="WR1" expression="{ 0 &lt;= SELF &lt; 24 }"/>
+      </type>
+      <type name="minute_in_hour">
+         <builtintype type="INTEGER"/>
+         <where label="WR1" expression="{ 0 &lt;= SELF &lt;= 59 }"/>
+      </type>
+      <type name="month_in_year_number">
+         <builtintype type="INTEGER"/>
+         <where label="WR1" expression="{ 1 &lt;= SELF &lt;= 12 }"/>
+      </type>
+      <type name="second_in_minute">
+         <builtintype type="REAL"/>
+         <where label="WR1" expression="{ 0 &lt;= SELF &lt;= 60.0 }"/>
+      </type>
+      <type name="week_in_year_number">
+         <builtintype type="INTEGER"/>
+         <where label="WR1" expression="{ 1 &lt;= SELF &lt;= 53 }"/>
+      </type>
+      <type name="year_number">
+         <builtintype type="INTEGER"/>
+      </type>
+      <entity name="calendar_date" supertypes="date">
+         <explicit name="day_component">
+            <typename name="day_in_month_number"/>
+         </explicit>
+         <explicit name="month_component">
+            <typename name="month_in_year_number"/>
+         </explicit>
+         <where label="WR1" expression="valid_calendar_date (SELF)"/>
+      </entity>
+      <entity name="coordinated_universal_time_offset">
+         <explicit name="hour_offset">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="minute_offset" optional="YES">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="sense">
+            <typename name="ahead_or_behind"/>
+         </explicit>
+         <derived name="actual_minute_offset" expression="NVL(minute_offset,0)">
+            <builtintype type="INTEGER"/>
+         </derived>
+         <where label="WR1" expression="{ 0 &lt;= hour_offset &lt; 24 }"/>
+         <where label="WR2" expression="{ 0 &lt;= actual_minute_offset &lt;= 59 }"/>
+         <where label="WR3" expression="NOT (((hour_offset &lt;&gt; 0) OR (actual_minute_offset &lt;&gt;0)) AND (sense = exact))"/>
+      </entity>
+      <entity name="date" super.expression="ONEOF (calendar_date, ordinal_date, week_of_year_and_day_date, year_month)">
+         <explicit name="year_component">
+            <typename name="year_number"/>
+         </explicit>
+      </entity>
+      <entity name="date_and_time">
+         <explicit name="date_component">
+            <typename name="date"/>
+         </explicit>
+         <explicit name="time_component">
+            <typename name="local_time"/>
+         </explicit>
+      </entity>
+      <entity name="date_role">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <derived name="description" expression="get_description_value (SELF)">
+            <typename name="text"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
+      </entity>
+      <entity name="date_time_role">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <derived name="description" expression="get_description_value (SELF)">
+            <typename name="text"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
+      </entity>
+      <entity name="event_occurrence">
+         <explicit name="id">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="event_occurrence_context_role">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="event_occurrence_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating_event">
+            <typename name="event_occurrence"/>
+         </explicit>
+         <explicit name="related_event">
+            <typename name="event_occurrence"/>
+         </explicit>
+      </entity>
+      <entity name="event_occurrence_role">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="local_time">
+         <explicit name="hour_component">
+            <typename name="hour_in_day"/>
+         </explicit>
+         <explicit name="minute_component" optional="YES">
+            <typename name="minute_in_hour"/>
+         </explicit>
+         <explicit name="second_component" optional="YES">
+            <typename name="second_in_minute"/>
+         </explicit>
+         <explicit name="zone">
+            <typename name="coordinated_universal_time_offset"/>
+         </explicit>
+         <where label="WR1" expression="valid_time (SELF)"/>
+      </entity>
+      <entity name="ordinal_date" supertypes="date">
+         <explicit name="day_component">
+            <typename name="day_in_year_number"/>
+         </explicit>
+         <where label="WR1" expression="(NOT leap_year(SELF.year_component) AND { 1 &lt;= day_component &lt;= 365 }) OR (leap_year(SELF.year_component) AND { 1 &lt;= day_component &lt;= 366 })"/>
+      </entity>
+      <entity name="relative_event_occurrence" supertypes="event_occurrence">
+         <explicit name="base_event">
+            <typename name="event_occurrence"/>
+         </explicit>
+         <explicit name="offset">
+            <typename name="time_measure_with_unit"/>
+         </explicit>
+      </entity>
+      <entity name="time_interval">
+         <explicit name="id">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="time_interval_relationship">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="relating_time_interval">
+            <typename name="time_interval"/>
+         </explicit>
+         <explicit name="related_time_interval">
+            <typename name="time_interval"/>
+         </explicit>
+      </entity>
+      <entity name="time_interval_role">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description" optional="YES">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="time_interval_with_bounds" supertypes="time_interval">
+         <explicit name="primary_bound" optional="YES">
+            <typename name="date_time_or_event_occurrence"/>
+         </explicit>
+         <explicit name="secondary_bound" optional="YES">
+            <typename name="date_time_or_event_occurrence"/>
+         </explicit>
+         <explicit name="duration" optional="YES">
+            <typename name="time_measure_with_unit"/>
+         </explicit>
+         <where label="WR1" expression="NOT (EXISTS(secondary_bound) AND EXISTS(duration))"/>
+         <where label="WR2" expression="EXISTS(primary_bound) OR EXISTS(secondary_bound)"/>
+      </entity>
+      <entity name="time_role">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <derived name="description" expression="get_description_value (SELF)">
+            <typename name="text"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' + 'DESCRIPTION_ATTRIBUTE.DESCRIBED_ITEM')) &lt;= 1"/>
+      </entity>
+      <entity name="week_of_year_and_day_date" supertypes="date">
+         <explicit name="week_component">
+            <typename name="week_in_year_number"/>
+         </explicit>
+         <explicit name="day_component" optional="YES">
+            <typename name="day_in_week_number"/>
+         </explicit>
+      </entity>
+      <entity name="year_month" supertypes="date">
+         <explicit name="month_component">
+            <typename name="month_in_year_number"/>
+         </explicit>
+      </entity>
+      <function name="acyclic_event_occurrence_relationship">
+         <parameter name="relation">
+            <typename name="event_occurrence_relationship"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="event_occurrence"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
       x : SET OF event_occurrence_relationship;
     END_LOCAL;
 
@@ -310,23 +282,21 @@
         RETURN (FALSE);
       END_IF;
     END_REPEAT;
-    RETURN (TRUE);
-			</algorithm>
-		</function>
-		<function name="acyclic_time_interval_relationship">
-			<parameter name="relation">
-				<typename name="time_interval_relationship"/>
-			</parameter>
-			<parameter name="relatives">
-				<aggregate type="SET" lower="1" upper="?"/>
-				<typename name="time_interval"/>
-			</parameter>
-			<parameter name="specific_relation">
-				<builtintype type="STRING"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
-  LOCAL
+    RETURN (TRUE);</algorithm>
+      </function>
+      <function name="acyclic_time_interval_relationship">
+         <parameter name="relation">
+            <typename name="time_interval_relationship"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="time_interval"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
       x : SET OF time_interval_relationship;
     END_LOCAL;
 
@@ -339,29 +309,25 @@
         RETURN (FALSE);
       END_IF;
     END_REPEAT;
-    RETURN (TRUE);
-			</algorithm>
-		</function>
-		<function name="leap_year">
-			<parameter name="year">
-				<typename name="year_number"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
-  IF ((((year MOD 4) = 0) AND ((year MOD 100) &lt;&gt; 0)) OR ((year MOD 400) = 0)) THEN
+    RETURN (TRUE);</algorithm>
+      </function>
+      <function name="leap_year">
+         <parameter name="year">
+            <typename name="year_number"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF ((((year MOD 4) = 0) AND ((year MOD 100) &lt;&gt; 0)) OR ((year MOD 400) = 0)) THEN
     RETURN (TRUE);
   ELSE
     RETURN (FALSE);
-  END_IF;
-      			</algorithm>
-		</function>
-		<function name="valid_calendar_date">
-			<parameter name="date">
-				<typename name="calendar_date"/>
-			</parameter>
-			<builtintype type="LOGICAL"/>
-			<algorithm>
-  CASE date.month_component OF
+  END_IF;</algorithm>
+      </function>
+      <function name="valid_calendar_date">
+         <parameter name="date">
+            <typename name="calendar_date"/>
+         </parameter>
+         <builtintype type="LOGICAL"/>
+         <algorithm>CASE date.month_component OF
     1  : RETURN({ 1 &lt;= date.day_component &lt;= 31 });
     2  : BEGIN
            IF (leap_year(date.year_component)) THEN
@@ -381,22 +347,18 @@
     11 : RETURN({ 1 &lt;= date.day_component &lt;= 30 });
     12 : RETURN({ 1 &lt;= date.day_component &lt;= 31 });
   END_CASE;
-  RETURN (FALSE);
-      </algorithm>
-		</function>
-		<function name="valid_time">
-			<parameter name="time">
-				<typename name="local_time"/>
-			</parameter>
-			<builtintype type="BOOLEAN"/>
-			<algorithm>
-  IF EXISTS(time.second_component) THEN
+  RETURN (FALSE);</algorithm>
+      </function>
+      <function name="valid_time">
+         <parameter name="time">
+            <typename name="local_time"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>IF EXISTS(time.second_component) THEN
     RETURN (EXISTS(time.minute_component));
   ELSE
     RETURN (TRUE);
-  END_IF;
-      			</algorithm>
-		</function>
-		<graphic.element page="1" xcoord="128" ycoord="149"/>
-	</schema>
+  END_IF;</algorithm>
+      </function>
+   </schema>
 </express>

@@ -1,180 +1,72 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: procedural_model_schema.xml,v 1.6 2006/12/12 08:10:35 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-55"
-  rcs.date="$Date: 2006/05/02 08:10:35 $"
-  rcs.revision="$Revision: 1.6 $">
-  
-  <schema name="procedural_model_schema">
-  
-   
-  <interface
-        kind="reference"
-        schema="support_resource_schema">
-      <interfaced.item
-          name="text"/>
-       </interface>
-      
-      
-       <interface
-        kind="reference"
-        schema="variational_representation_schema">
-        <interfaced.item
-          name="variational_representation"/>
-        </interface>
-        <interface
-        kind="reference"
-        schema="representation_schema">
-        <interfaced.item
-          name="representation"/>
-        <interfaced.item
-          name="representation_item"/>
-          <interfaced.item
-          name="representation_item_relationship"/>
-        <interfaced.item
-          name="representation_relationship"/>
-        <interfaced.item
-          name="using_representations"/>
-         </interface>
-        
-    
- <entity
-      name="explicit_procedural_representation_relationship"
-      supertypes="representation_relationship">
-  <explicit
-	          name="rep_1">	            
-		<typename
-		  name="procedural_representation"/>
-		<redeclaration
-	            entity-ref="representation_relationship"/>
-          </explicit>    
-      <where
-        label="WR1"
-        expression="(NOT ('PROCEDURAL_MODEL_SCHEMA.PROCEDURAL_REPRESENTATION'
-          IN TYPEOF(SELF\representation_relationship.rep_2))) AND
-          (NOT ('VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION'
-          IN TYPEOF(SELF\representation_relationship.rep_2)))">
-      </where>
-      <where
-        label="WR2"
-        expression="SELF\representation_relationship.rep_1.context_of_items :=:
-                 SELF\representation_relationship.rep_2.context_of_items">
-      </where>
-  </entity>
 
-
-<entity
-      name="explicit_procedural_representation_item_relationship"
-      supertypes="">
-  <explicit
-	          name="representation_item_relationship">	            
-		<typename
-		  name="procedural_representation_sequence"/>
-		<redeclaration
-	            entity-ref="representation_item_relationship"/>
-          </explicit>    
-      <where
-        label="WR1"
-        expression="NOT ('PROCEDURAL_MODEL_SCHEMA.PROCEDURAL_REPRESENTATION_SEQUENCE'
-         IN TYPEOF(SELF\representation_item_relationship.related_representation_item))">
-      </where>
-      <where
-        label="WR2"
-        expression="">
-      </where>
-  SIZEOF(QUERY(q &lt;* using_representations(
-          SELF\representation_item_relationship.related_representation_item) |
-         item_in_context(
-           SELF\representation_item_relationship.relating_representation_item,
-            q.context_of_items))) > 0
-</entity>
-
-
-<entity
-      name="procedural_representation"
-      supertypes="representation">
-  <explicit
-	          name="items">	            
-		<aggregate
-                 type="SET"
-                lower="1"
-                 upper="?"/><typename
-		  name="procedural_representation_sequence"/>
-		<redeclaration
-	            entity-ref="representation"/>
-          </explicit>    
-  </entity>
-
-
-<entity
-      name="procedural_representation_sequence"
-      supertypes="representation_item">
-  <explicit
-	          name="elements">	            
-		<aggregate
-		  type="LIST"
-		  lower="1"
-                 upper="?"/>
-		<typename
-		  name="representation_item"/>
-    </explicit>    
-    <explicit
-	          name="suppressed_items" OPTIONAL="YES">	            
-		<aggregate
-		  type="SET"
-                  lower="0"
-                 upper="?"/>
-		<typename
-		  name="representation_item"/>
-    </explicit>   
-    <explicit
-	          name="rationale">	            
-		<typename
-		  name="text"/>
-    </explicit>  
-      
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(q &lt;* suppressed_items | NOT (q IN elements))) = 0">
-      </where>
-  </entity>
-
-	            
-		
-  <entity
-      name="user_selected_elements"
-      supertypes="representation_item">
-  <explicit
-	          name="picked_items">	            
-		aggregate
-		  type="SET"
-		  lower="1"
-                 upper="?"/>
-                 <typename
-		  name="representation_item"/>
-  </explicit>
-  </entity>
-	  
-
-
-<entity
-      name="indirectly_selected_elements"
-      supertypes="user_selected_elements">
-  <explicit
-	          name="indirectly_picked_items">	            
-		aggregate
-		  type="SET"
-		  lower="1"
-                 upper="?"/>
-                 <typename
-		  name="representation_item"/>
-  </explicit>
-  </entity>
-
-
-  </schema>
-  </express>
-
+<express language_version="2" reference="ISO 10303-55" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="procedural_model_schema schema_instance"/>
+   <schema name="procedural_model_schema">
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="text"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="item_in_context"/>
+         <interfaced.item name="representation"/>
+         <interfaced.item name="representation_item"/>
+         <interfaced.item name="representation_item_relationship"/>
+         <interfaced.item name="representation_relationship"/>
+         <interfaced.item name="using_representations"/>
+      </interface>
+      <interface kind="reference" schema="variational_representation_schema">
+         <interfaced.item name="variational_representation"/>
+      </interface>
+      <entity name="explicit_procedural_representation_item_relationship" supertypes="representation_item_relationship">
+         <explicit name="relating_representation_item">
+            <typename name="procedural_representation_sequence"/>
+            <redeclaration entity-ref="representation_item_relationship"/>
+         </explicit>
+         <where label="WR1" expression="NOT ('PROCEDURAL_MODEL_SCHEMA.PROCEDURAL_REPRESENTATION_SEQUENCE'&#10;    IN TYPEOF(&#10;      SELF\representation_item_relationship.related_representation_item))"/>
+         <where label="WR2" expression="SIZEOF(QUERY(q &lt;* using_representations(&#10;    SELF\representation_item_relationship.related_representation_item) |&#10;    item_in_context(&#10;      SELF\representation_item_relationship.relating_representation_item,&#10;      q.context_of_items))) &gt; 0"/>
+      </entity>
+      <entity name="explicit_procedural_representation_relationship" supertypes="representation_relationship">
+         <explicit name="rep_1">
+            <typename name="procedural_representation"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
+         <where label="WR1" expression="(NOT ('PROCEDURAL_MODEL_SCHEMA.PROCEDURAL_REPRESENTATION' &#10;    IN TYPEOF(SELF\representation_relationship.rep_2))) AND &#10;    (NOT ('VARIATIONAL_REPRESENTATION_SCHEMA.VARIATIONAL_REPRESENTATION'&#10;    IN TYPEOF(SELF\representation_relationship.rep_2)))"/>
+         <where label="WR2" expression="SELF\representation_relationship.rep_1.context_of_items :=:&#10;    SELF\representation_relationship.rep_2.context_of_items"/>
+      </entity>
+      <entity name="indirectly_selected_elements" supertypes="user_selected_elements">
+         <explicit name="indirectly_picked_items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="representation_item"/>
+         </explicit>
+      </entity>
+      <entity name="procedural_representation" supertypes="representation">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="procedural_representation_sequence"/>
+            <redeclaration entity-ref="representation"/>
+         </explicit>
+      </entity>
+      <entity name="procedural_representation_sequence" supertypes="representation_item">
+         <explicit name="elements">
+            <aggregate type="LIST" lower="1" upper="?"/>
+            <typename name="representation_item"/>
+         </explicit>
+         <explicit name="suppressed_items">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="representation_item"/>
+         </explicit>
+         <explicit name="rationale">
+            <typename name="text"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(q &lt;* suppressed_items | NOT (q IN elements))) = 0"/>
+      </entity>
+      <entity name="user_selected_elements" supertypes="representation_item">
+         <explicit name="picked_items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="representation_item"/>
+         </explicit>
+      </entity>
+   </schema>
+</express>

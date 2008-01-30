@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.8 2004/02/25 09:15:14 robbod Exp $
+$Id: sect_introduction.xsl,v 1.9 2006/03/11 01:22:50 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -94,7 +94,7 @@ $Id: sect_introduction.xsl,v 1.8 2004/02/25 09:15:14 robbod Exp $
       <xsl:apply-templates select=".." mode="output_clause_issue">
 	<xsl:with-param name="clause" select="'purpose'"/>
       </xsl:apply-templates>
-<!-- output explicit text from the purpose tag -->. 
+<!-- output explicit text from the purpose tag -->
       <xsl:apply-templates/>
 
       <!-- prepare variables to output list of used schemas and parts -->

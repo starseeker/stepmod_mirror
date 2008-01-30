@@ -1,108 +1,112 @@
-(* Genenerated from: ..\ballots\ballots\analysis\check_analysis_20060505\express\arm_20060505v1.exp *)
+(******************************************************************************)
+(*                                                                            *)
+(*         This file was produced by Eurostep GraphicalEXPRESS V1.4.0         *)
+(*                                                                            *)
+(******************************************************************************)
 
+(* Original model: AP209E2_ARM_20061218v3_Rev6d.vsd*)
+(* Title: AP209E2_ARM_20061218v3_Rev4*)
+(* Author: hunteka*)
+(* Comments: *)
+
+(*"Mesh_connectivity_arm" Genenerated from: ..\ballots\ballots\analysis\check_analysis_20060505\express\arm_20060505v1.exp *)
 SCHEMA Mesh_connectivity_arm;
 
-USE FROM mesh_topology_arm;
+USE FROM Mesh_topology_arm;
 
-TYPE mismatched_region_type = EXTENSIBLE ENUMERATION OF
-    (abutting,
-     overset);
+TYPE mismatched_region_type = EXTENSIBLE ENUMERATION OF 
+  (abutting,
+   overset);
 END_TYPE;
 
 ENTITY Listed_real_data;
 END_ENTITY;
 
 ENTITY Matched_mesh_connection
-  SUBTYPE OF (mesh_connectivity);
-  SELF\mesh_connectivity.current : structured_mesh;
-  range       : indices_range;
-  donor       : structured_mesh;
-  donor_range : indices_range;
-  transform   : ARRAY [1:index_count] OF INTEGER;
+SUBTYPE OF (Mesh_connectivity);
+  range : Indices_range;
+  donor : Structured_mesh;
+  donor_range : Indices_range;
+  transform : ARRAY [1 : index_count] OF INTEGER;
+  SELF\Mesh_connectivity.current : Structured_mesh;
 WHERE
-  wr1 : current :<>: donor;
-  wr2 : donor.index_count = index_count;
-  wr3 : range.nindices = index_count;
-  wr4 : donor_range.nindices = index_count;
+    wr1: current :<>: donor;
+    wr2: donor.index_count = index_count;
+    wr3: range.nindices = index_count;
+    wr4: donor_range.nindices = index_count;
 END_ENTITY;
 
 ENTITY Mesh_connectivity;
-  name        : STRING;
+  name : STRING;
   description : STRING;
-  id          : STRING;
-  current     : mesh;
+  id : STRING;
+  current : Mesh;
 DERIVE
   index_count : INTEGER := current.index_count;
 END_ENTITY;
 
-SUBTYPE_CONSTRAINT sc1_mesh_connectivity FOR Mesh_connectivity;
-  ABSTRACT SUPERTYPE;
-  ONEOF(Matched_mesh_connection,
-        Mismatched_mesh_connection);
-END_SUBTYPE_CONSTRAINT;
-
 ENTITY Mesh_overset_hole
-  SUBTYPE OF (Mismatched_mesh_connection);
+SUBTYPE OF (Mismatched_mesh_connection);
 END_ENTITY;
 
 ENTITY Mismatched_donor_mesh;
 INVERSE
-  connect : mismatched_mesh_region FOR donor;
+  connect : Mismatched_mesh_region FOR donor;
 END_ENTITY;
-
-SUBTYPE_CONSTRAINT sc1_mismatched_donor_mesh FOR
-                   Mismatched_donor_mesh;
-  ABSTRACT SUPERTYPE;
-  ONEOF(Structured_donor_mesh,
-        Unstructured_donor_mesh);
-END_SUBTYPE_CONSTRAINT;
 
 ENTITY Mismatched_mesh_connection
-  SUBTYPE OF (Mesh_connectivity);
-  points   : indices_group;
-  gridloc  : Mesh_location;
+SUBTYPE OF (Mesh_connectivity);
+  points : indices_group;
+  gridloc : mesh_location;
 END_ENTITY;
 
-SUBTYPE_CONSTRAINT sc1_mismatched_mesh_connection FOR 
-                   Mismatched_mesh_connection;
-  ABSTRACT SUPERTYPE;
-  ONEOF(Mismatched_mesh_region,
-        Mesh_overset_hole);
-END_SUBTYPE_CONSTRAINT;
-
 ENTITY Mismatched_mesh_region
-  SUBTYPE OF (Mismatched_mesh_connection);
-  donor : mismatched_donor_mesh;
-  kind  : mismatched_region_type;
-WHERE
-  wr1 : donor :<>: SELF\Mesh_connectivity.current;
+SUBTYPE OF (Mismatched_mesh_connection);
+  donor : Mismatched_donor_mesh;
+  kind : mismatched_region_type;
 END_ENTITY;
 
 ENTITY Multiple_mesh_block;
-  name           : STRING; 
-  description    : STRING;
-  id             : STRING;
-  connectivities : LIST OF Mesh_connectivity;
+  name : STRING;
+  description : STRING;
+  id : STRING;
+  connectivities : LIST [0.0000 : ?] OF Mesh_connectivity;
 END_ENTITY;
 
 ENTITY Structured_donor_mesh
-  SUBTYPE OF (Mismatched_donor_mesh);
-  donor  : Structured_mesh;
-  points : listed_real_data;
-  vsize  : INTEGER;
+SUBTYPE OF (Mismatched_donor_mesh);
+  donor : Structured_mesh;
+  points : Listed_real_data;
+  vsize : INTEGER;
 DERIVE
   index_count : INTEGER := donor.index_count;
 END_ENTITY;
 
 ENTITY Unstructured_donor_mesh
-  SUBTYPE OF (mismatched_donor_mesh);
-  donor       : unstructured_mesh;
-  cells       : indices_group;
-  interpolant : property_distribution_description;
-  vsize       : INTEGER;
+SUBTYPE OF (Mismatched_donor_mesh);
+  donor : Unstructured_mesh;
+  cells : indices_group;
+  interpolant : Property_distribution_description;
+  vsize : INTEGER;
 DERIVE
+  cell_dim : INTEGER := donor.cell_count;
   index_count : INTEGER := donor.index_count;
-  cell_dim    : INTEGER := donor.cell_dim;
 END_ENTITY;
 
+SUBTYPE_CONSTRAINT sc1_mesh_connectivity FOR Mesh_connectivity;
+  ABSTRACT SUPERTYPE;
+  ONEOF(Matched_mesh_connection, Mismatched_mesh_connection);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT sc1_mismatched_donor_mesh FOR Mismatched_donor_mesh;
+  ABSTRACT SUPERTYPE;
+  ONEOF(Structured_donor_mesh, Unstructured_donor_mesh);
+END_SUBTYPE_CONSTRAINT;
+
+SUBTYPE_CONSTRAINT sc1_mismatched_mesh_connection FOR Mismatched_mesh_connection;
+  ABSTRACT SUPERTYPE;
+  ONEOF(Mismatched_mesh_region, Mesh_overset_hole);
+END_SUBTYPE_CONSTRAINT;
+
 END_SCHEMA;
+

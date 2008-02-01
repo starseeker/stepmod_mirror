@@ -70,19 +70,29 @@ SCHEMA aic_mechanical_design_geometric_presentation;
     SUBTYPE OF (presentation_area);
       SELF\representation.items : SET[1:?] OF mechanical_design_geometric_presentation_area_items;
     WHERE
-      WR1: SIZEOF(QUERY(it1 <* SELF.items |
+     WR1:  -- only presentation_views or axis2_placements in
+        -- mechanical_design_geometric_presentation_area
+       SIZEOF(QUERY(it1 <* SELF.items |
         NOT ('AIC_MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION.MAPPED_ITEM'
         IN TYPEOF(it1))
         OR
         ('AIC_MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION.PRESENTATION_VIEW'
         IN TYPEOF
         (it1\mapped_item.mapping_source.mapped_representation)))) = 0;
-      WR2: SIZEOF(QUERY(pv <* QUERY(mi1 <* QUERY(it1 <* SELF.items |
+  WR2:  -- only mechanical_design_geometric_presentation_representation
+        -- via camera_image_3d_with_scale or axis2_placements in
+        -- presentation_views
+        SIZEOF(QUERY(pv <* QUERY(mi1 <* QUERY(it1 <* SELF.items |
         'AIC_MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION.MAPPED_ITEM'
         IN TYPEOF(it1)) |
         'AIC_MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION.PRESENTATION_VIEW'
         IN TYPEOF
         (mi1\mapped_item.mapping_source.mapped_representation)) |
+        -- search in all presentation_views for axis2_placements and
+        -- mapped_items and for the subtype of mapped_item
+        -- camera_image_3d_with_scale; the latter shall reference
+        -- a mechanical_design_geometric_presentation_representation;
+        -- the supertype mapped_item shall reference presentation_view.
         NOT (SIZEOF(QUERY(it2 <* pv\mapped_item.mapping_source.
         mapped_representation\representation.items |
         NOT (('AIC_MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION.AXIS2_PLACEMENT'

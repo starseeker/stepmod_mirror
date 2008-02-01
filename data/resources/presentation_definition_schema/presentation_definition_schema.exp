@@ -98,18 +98,6 @@ REFERENCE FROM support_resource_schema
     composite_text); 
   END_TYPE; 
 
-  SUBTYPE_CONSTRAINT pds_geometric_representation_item_subtypes FOR geometric_representation_item;  
-    (ONEOF ( 
-      annotation_fill_area,
-      composite_text,
-      curve,
-      defined_character_glyph,
-      defined_symbol,
-      point,
-      symbol_target,
-      text_literal)); 
-  END_SUBTYPE_CONSTRAINT; 
-
   TYPE presentable_text = STRING;
     WHERE
       WR1: control_characters_free(SELF);
@@ -437,8 +425,8 @@ REFERENCE FROM support_resource_schema
   ENTITY table_text_relationship
     SUBTYPE OF (annotation_occurrence_relationship);
       field : table_record_field_representation;
-      SELF\annotation_occurrence_relationship.relating_annotation_occurrence : annotation_table_occurrence; --LK add
-      SELF\annotation_occurrence_relationship.related_annotation_occurrence : annotation_text_occurrence; --LK add
+      SELF\annotation_occurrence_relationship.relating_annotation_occurrence : annotation_table_occurrence; 
+      SELF\annotation_occurrence_relationship.related_annotation_occurrence : annotation_text_occurrence; 
     WHERE
       WR1: 'PRESENTATION_DEFINITION_SCHEMA.ANNOTATION_TABLE'
          IN TYPEOF (SELF\annotation_occurrence_relationship.
@@ -479,7 +467,7 @@ REFERENCE FROM support_resource_schema
 
   ENTITY text_string_representation
     SUBTYPE OF (representation);
-      SELF\representation.items : SET[1:?] OF text_string_representation_item; --LK add
+      SELF\representation.items : SET[1:?] OF text_string_representation_item; 
     WHERE
       WR1: SIZEOF (
          QUERY (item <* SELF\representation.items |
@@ -508,6 +496,18 @@ REFERENCE FROM support_resource_schema
                (atc\mapped_item.mapping_target :=: a2p))) >= 1)
           ))) = 0;
   END_ENTITY;
+
+  SUBTYPE_CONSTRAINT pds_geometric_representation_item_subtypes FOR geometric_representation_item;  
+    (ONEOF ( 
+      annotation_fill_area,
+      composite_text,
+      curve,
+      defined_character_glyph,
+      defined_symbol,
+      point,
+      symbol_target,
+      text_literal)); 
+  END_SUBTYPE_CONSTRAINT; 
 
   FUNCTION acyclic_composite_text(start_composite : composite_text;
                                 child_text : SET [1:?] OF

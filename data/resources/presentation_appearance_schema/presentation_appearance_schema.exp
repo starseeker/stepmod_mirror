@@ -71,25 +71,6 @@ REFERENCE FROM support_resource_schema
      bag_to_set);
  
 
-SUBTYPE_CONSTRAINT pas_geometric_representation_item_subtypes FOR geometric_representation_item;  
-    (ONEOF ( 
-     curve, 
-     curve_style_curve_pattern, 
-     curve_style_curve_pattern_set ,
-     externally_defined_hatch_style,
-     externally_defined_tile_style,  
-     fill_area_style_hatching,
-     fill_area_style_tile_coloured_region,
-     fill_area_style_tile_curve_with_style, 
-     fill_area_style_tile_symbol_with_style, 
-     fill_area_style_tiles, 
-     one_direction_repeat_factor,
-     point, 
-     pre_defined_hatch_style,  
-     pre_defined_tile_style, 
-     vector)); 
-END_SUBTYPE_CONSTRAINT; 
-
   TYPE approximation_method = ENUMERATION OF
     (chordal_deviation,
      chordal_length);
@@ -820,34 +801,6 @@ END_SUBTYPE_CONSTRAINT;
       second_repeat_factor : vector;
   END_ENTITY;
 
-
-  FUNCTION acyclic_occlusion_precedence
-       ( relation : occlusion_precedence;
-     set_of_lower : SET OF hiding_or_blanking_select ) : BOOLEAN;
-    LOCAL
-      x : SET OF occlusion_precedence;
-      local_set_of_lower : SET OF hiding_or_blanking_select;
-    END_LOCAL;
-    REPEAT i:=1 TO HIINDEX(set_of_lower);
-      IF relation.higher_precedence :=: set_of_lower[i] THEN
-        RETURN(FALSE);
-      END_IF;
-    END_REPEAT;
-    x := bag_to_set (USEDIN ( relation.higher_precedence,
-                   'PRESENTATION_APPEARANCE_SCHEMA.'+
-           'OCCLUSION_PRECEDENCE.LOWER_PRECEDENCE'));
-    local_set_of_lower := set_of_lower + relation.higher_precedence;
-    IF SIZEOF (x) > 0 THEN
-      REPEAT i:=1 TO HIINDEX (x);
-        IF NOT acyclic_occlusion_precedence(x[i] ,
-                                     local_set_of_lower) THEN
-            RETURN (FALSE);
-        END_IF;
-      END_REPEAT;
-    END_IF;
-    RETURN (TRUE);
-  END_FUNCTION;
-
   SUBTYPE_CONSTRAINT founded_item_subtypes FOR founded_item;
     ONEOF (approximation_tolerance,
       approximation_tolerance_deviation,
@@ -875,5 +828,51 @@ END_SUBTYPE_CONSTRAINT;
       symbol_style,
       text_style);
   END_SUBTYPE_CONSTRAINT;
+
+  SUBTYPE_CONSTRAINT pas_geometric_representation_item_subtypes FOR geometric_representation_item;  
+    (ONEOF ( 
+     curve, 
+     curve_style_curve_pattern, 
+     curve_style_curve_pattern_set ,
+     externally_defined_hatch_style,
+     externally_defined_tile_style,  
+     fill_area_style_hatching,
+     fill_area_style_tile_coloured_region,
+     fill_area_style_tile_curve_with_style, 
+     fill_area_style_tile_symbol_with_style, 
+     fill_area_style_tiles, 
+     one_direction_repeat_factor,
+     point, 
+     pre_defined_hatch_style,  
+     pre_defined_tile_style, 
+     vector)); 
+  END_SUBTYPE_CONSTRAINT; 
+
+  FUNCTION acyclic_occlusion_precedence
+       ( relation : occlusion_precedence;
+     set_of_lower : SET OF hiding_or_blanking_select ) : BOOLEAN;
+    LOCAL
+      x : SET OF occlusion_precedence;
+      local_set_of_lower : SET OF hiding_or_blanking_select;
+    END_LOCAL;
+    REPEAT i:=1 TO HIINDEX(set_of_lower);
+      IF relation.higher_precedence :=: set_of_lower[i] THEN
+        RETURN(FALSE);
+      END_IF;
+    END_REPEAT;
+    x := bag_to_set (USEDIN ( relation.higher_precedence,
+                   'PRESENTATION_APPEARANCE_SCHEMA.'+
+           'OCCLUSION_PRECEDENCE.LOWER_PRECEDENCE'));
+    local_set_of_lower := set_of_lower + relation.higher_precedence;
+    IF SIZEOF (x) > 0 THEN
+      REPEAT i:=1 TO HIINDEX (x);
+        IF NOT acyclic_occlusion_precedence(x[i] ,
+                                     local_set_of_lower) THEN
+            RETURN (FALSE);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    RETURN (TRUE);
+  END_FUNCTION;
 
 END_SCHEMA; 

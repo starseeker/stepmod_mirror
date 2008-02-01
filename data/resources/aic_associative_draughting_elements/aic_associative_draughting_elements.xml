@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" reference="ISO 10303-520" rcs.date="$Date: 2007-09-11 11:47:07 +0300 (An, 11 Rgs 2007) $" rcs.revision="$Revision: 1489 $" description.file="descriptions.xml">
+<express language_version="2" reference="ISO 10303-520" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="aic_associative_draughting_elements schema_instance"/>
    <schema name="aic_associative_draughting_elements">
       <interface kind="use" schema="measure_schema">
@@ -89,10 +89,6 @@
          <where label="WR2" expression="SIZEOF (QUERY (smi &lt;* QUERY (si &lt;* QUERY (it &lt;* SELF.items |&#10;        ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.STYLED_ITEM' IN TYPEOF(it))) |&#10;        ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.MAPPED_ITEM' IN&#10;            TYPEOF(si\styled_item.item))) |&#10;        (NOT (('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.SHAPE_REPRESENTATION' IN&#10;                 TYPEOF(smi\styled_item.item\mapped_item.&#10;                        mapping_source.mapped_representation))&#10;            AND&#10;             (SIZEOF (QUERY (sty &lt;* smi\styled_item.styles |&#10;               (NOT (SIZEOF (QUERY (psa &lt;* sty.styles |&#10;                       (NOT ('AIC_ASSOCIATIVE_DRAUGHTING_ELEMENTS.CURVE_STYLE' IN TYPEOF(psa))))) = 1&#10;             )))) = 1)))&#10;        )) = 0"/>
       </entity>
       <entity name="shape_aspect_associativity" supertypes="shape_aspect_relationship">
-         <derived name="callouts" expression="get_callouts_for_shape_aspect(SELF.related_shape_aspect)">
-            <aggregate type="SET" lower="1" upper="?"/>
-            <typename name="draughting_callout"/>
-         </derived>
          <where label="WR1" expression="SELF.relating_shape_aspect.product_definitional"/>
          <where label="WR2" expression="NOT (SELF.related_shape_aspect.product_definitional)"/>
       </entity>
@@ -153,43 +149,6 @@
       END_REPEAT;
     END_REPEAT;
     RETURN(FALSE);</algorithm>
-      </function>
-      <function name="get_callouts_for_shape_aspect">
-         <parameter name="sa">
-            <typename name="shape_aspect"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="draughting_callout"/>
-         <algorithm>LOCAL
-      pd      : SET OF property_definition;
-      sdr     : SET OF shape_definition_representation := [];
-      r       : representation;
-      ri      : representation_item;
-      result  : SET OF draughting_callout := [];
-    END_LOCAL;
-    -- Find shape_aspect &lt;- property_defintiion
-    pd := bag_to_set(USEDIN(sa, 'PRODUCT_PROPERTY_DEFINITION_SCHEMA.' +
-                      'PROPERTY_DEFINITION.DEFINITION'));
-    -- Find property_defininition &lt;- shape_description_representation
-    REPEAT i := 1 TO HIINDEX(pd);
-      sdr := sdr + bag_to_set(QUERY (pdr &lt;* (USEDIN(pd[i], 'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.' +
-        'PROPERTY_DEFINITION_REPRESENTATION.DEFINITION')) | 
-        'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.'+
-        'SHAPE_DEFINITION_REPRESENTATION' IN TYPEOF (pdr)));
-    END_REPEAT;                    
-    -- Find shape_description_representation -&gt; shape_representation -&gt; draughting_callout
-    REPEAT i := 1 TO HIINDEX(sdr);
-      r := sdr[i].used_representation;
-      IF ('PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.SHAPE_REPRESENTATION' IN TYPEOF(r)) THEN
-        REPEAT j := 1 TO HIINDEX(r.items);
-          ri := r.items[j];
-          IF ('DRAUGHTING_ELEMENT_SCHEMA.DRAUGHTING_CALLOUT' IN TYPEOF(ri)) THEN
-            result := result + ri;  
-          END_IF;
-        END_REPEAT;                            
-      END_IF;
-    END_REPEAT;                 
-    RETURN(result);</algorithm>
       </function>
       <function name="representations_mapped_into">
          <parameter name="rep">

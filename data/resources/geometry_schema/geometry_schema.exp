@@ -1,6 +1,12 @@
- (* Document WG12 N1046r date 2003-04-29. EXPRESS listing corresponding to part
- 42  edition IS WG12 N536, as modified by TC1 WG12 N608 and
- by revision 1 (edition 3)  WG12 N1045 *)
+ (* Document WG12 NTBDXXX date 2008-02-01. EXPRESS listing corresponding to part *)
+i(* 42  edition 3  with SEDS applied. *)
+ (* Supersedes document WG12 N1046r date 2003-04-29. EXPRESS listing corresponding to part *)
+ (* 42  edition IS WG12 N536, as modified by TC1 WG12 N608 and *)
+ (* by revision 1 (edition 3)  WG12 N1045 *)
+ (* Incorporated fix from SEDS #1244 *)
+ (* Incorporated minor fixes to aid eep in evaluating attribute qualifiers  *)
+ (* from SEDS #1267                  *)
+ 
  SCHEMA geometry_schema;
    REFERENCE FROM representation_schema
      (definitional_representation,
@@ -1517,9 +1523,13 @@ FUNCTION dimension_of(item : geometric_representation_item) :
   -- the same dimension_count for all values of x.
   -- The SET x is non-empty since this is required by WR1 of
   -- representation_item.
+  IF(SIZEOF(x) > 0) THEN
     y := x[1].context_of_items;
     dim := y\geometric_representation_context.coordinate_space_dimension;
-    RETURN (dim);
+  ELSE
+   ESCAPE;
+  END_IF;
+RETURN (dim);
 
 END_FUNCTION;
 
@@ -1547,7 +1557,7 @@ END_FUNCTION;
          scalar := 0.0;
          REPEAT  i := 1 TO ndim;
            scalar := scalar +
-                       vec1.direction_ratios[i]*vec2.direction_ratios[i];
+               vec1\direction.direction_ratios[i]*vec2\direction.direction_ratios[i];
          END_REPEAT;
        END;
      END_IF;
@@ -1568,8 +1578,8 @@ FUNCTION first_proj_axis(z_axis, arg : direction) : direction;
   ELSE
     z := normalise(z_axis);
     IF NOT EXISTS(arg) THEN
-      IF ((z.direction_ratios <> [1.0,0.0,0.0]) AND
-          (z.direction_ratios <> [-1.0,0.0,0.0]))  THEN
+      IF ((z\direction.direction_ratios <> [1.0,0.0,0.0]) AND
+          (z\direction.direction_ratios <> [-1.0,0.0,0.0]))  THEN
         v :=  dummy_gri || direction([1.0,0.0,0.0]);
       ELSE
         v := dummy_gri || direction([0.0,1.0,0.0]);
@@ -1713,27 +1723,27 @@ END_FUNCTION;
      ndim := arg.dim;
      IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg) THEN
        BEGIN
-             v := dummy_gri || direction(arg.orientation.direction_ratios);
-         IF arg.magnitude = 0.0 THEN
+             v := dummy_gri || direction(arg\vector.orientation\direction.direction_ratios);
+         IF arg\vector.magnitude = 0.0 THEN
            RETURN(?);
          ELSE
           vec := dummy_gri || vector (v, 1.0);
          END_IF;
        END;
      ELSE
-       v := dummy_gri || direction (arg.direction_ratios);
+       v := dummy_gri || direction (arg\direction.direction_ratios);
      END_IF;
      mag := 0.0;
      REPEAT  i := 1 TO ndim;
-       mag := mag + v.direction_ratios[i]*v.direction_ratios[i];
+       mag := mag + v\direction.direction_ratios[i]*v\direction.direction_ratios[i];
      END_REPEAT;
      IF mag > 0.0 THEN
        mag := SQRT(mag);
        REPEAT  i := 1 TO ndim;
-         v.direction_ratios[i] := v.direction_ratios[i]/mag;
+         v\direction.direction_ratios[i] := v\direction.direction_ratios[i]/mag;
        END_REPEAT;
        IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg) THEN
-         vec.orientation := v;
+         vec\vector.orientation := v;
          result := vec;
        ELSE
          result := v;
@@ -1750,11 +1760,11 @@ END_FUNCTION;
      result :  direction ;
    END_LOCAL;
 
-   IF (vec.dim <> 2) OR NOT EXISTS (vec) THEN
+   IF (vec\geometric_representation_item.dim <> 2) OR NOT EXISTS (vec) THEN
      RETURN(?);
    ELSE
-     result := dummy_gri || direction([-vec.direction_ratios[2],
-                                          vec.direction_ratios[1]]);
+     result := dummy_gri || direction([-vec\direction.direction_ratios[2],
+                                          vec\direction.direction_ratios[1]]);
      RETURN(result);
    END_IF;
  END_FUNCTION;
@@ -1794,15 +1804,15 @@ END_FUNCTION;
      RETURN (?) ;
     ELSE
      IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF (vec) THEN
-       v   := dummy_gri || direction(vec.orientation.direction_ratios);
-       mag := scalar * vec.magnitude;
+       v   := dummy_gri || direction(vec\vector.orientation\direction.direction_ratios);
+       mag := scalar * vec\vector.magnitude;
      ELSE
-       v   := dummy_gri || direction(vec.direction_ratios);
+       v   := dummy_gri || direction(vec\direction.direction_ratios);
        mag := scalar;
      END_IF;
      IF (mag < 0.0 ) THEN
-       REPEAT i := 1 TO SIZEOF(v.direction_ratios);
-         v.direction_ratios[i] := -v.direction_ratios[i];
+       REPEAT i := 1 TO SIZEOF(v\direction.direction_ratios);
+         v\direction.direction_ratios[i] := -v\direction.direction_ratios[i];
        END_REPEAT;
        mag := -mag;
      END_IF;
@@ -1862,15 +1872,15 @@ END_FUNCTION;
     ELSE
      BEGIN
        IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg1) THEN
-         mag1 := arg1.magnitude;
-         vec1 := arg1.orientation;
+         mag1 := arg1\vector.magnitude;
+         vec1 := arg1\vector.orientation;
        ELSE
          mag1 := 1.0;
          vec1 := arg1;
        END_IF;
        IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg2) THEN
-         mag2 := arg2.magnitude;
-         vec2 := arg2.orientation;
+         mag2 := arg2\vector.magnitude;
+         vec2 := arg2\vector.orientation;
        ELSE
          mag2 := 1.0;
          vec2 := arg2;
@@ -1910,15 +1920,15 @@ END_FUNCTION;
    ELSE
      BEGIN
        IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg1) THEN
-         mag1 := arg1.magnitude;
-         vec1 := arg1.orientation;
+         mag1 := arg1\vector.magnitude;
+         vec1 := arg1\vector.orientation;
        ELSE
          mag1 := 1.0;
          vec1 := arg1;
        END_IF;
        IF 'GEOMETRY_SCHEMA.VECTOR' IN TYPEOF(arg2) THEN
-         mag2 := arg2.magnitude;
-         vec2 := arg2.orientation;
+         mag2 := arg2\vector.magnitude;
+         vec2 := arg2\vector.orientation;
        ELSE
          mag2 := 1.0;
          vec2 := arg2;

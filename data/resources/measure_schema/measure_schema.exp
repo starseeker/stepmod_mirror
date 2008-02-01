@@ -1,5 +1,5 @@
 (*
-$Id: measure_schema.exp,v 1.13 2008/01/15 16:45:01 thomasrthurman Exp $
+$Id: measure_schema.exp,v 1.14 2008/01/23 16:54:44 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N4923 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
 *) 
 
@@ -295,8 +295,11 @@ END_ENTITY;
     SUBTYPE OF (named_unit);
     name : label;
     conversion_factor : measure_with_unit;
+  WHERE
+    WR1 : SELF\named_unit.dimensions = 
+       derive_dimensional_exponents(conversion_factor\Measure_with_unit.unit_component);
   END_ENTITY;
-
+  
   ENTITY derived_unit
     SUPERTYPE OF (ONEOF(absorbed_dose_unit,
 	acceleration_unit,
@@ -770,13 +773,23 @@ END_ENTITY;
     WR2: NOT EXISTS(SELF\derived_unit.name);
   END_ENTITY;
 
-  ENTITY si_unit
+ENTITY si_unit
     SUBTYPE OF (named_unit);
     prefix : OPTIONAL si_prefix;
     name : si_unit_name;
   DERIVE
     SELF\named_unit.dimensions : dimensional_exponents := dimensions_for_si_unit(name);
-  END_ENTITY;
+  WHERE
+    WR1: NOT(('MEASURE_SCHEMA.MASS_UNIT' IN TYPEOF(SELF)) AND
+             (SIZEOF(USEDIN(SELF,'MEASURE_SCHEMA.DERIVED_UNIT_ELEMENT.UNIT')) > 0)) OR
+            (prefix = si_prefix.kilo);
+    WR2: NOT(NOT('MEASURE_SCHEMA.MASS_UNIT' IN TYPEOF(SELF)) AND
+             (SIZEOF(USEDIN(SELF,'MEASURE_SCHEMA.DERIVED_UNIT_ELEMENT.UNIT')) > 0)) OR
+            NOT EXISTS(prefix);
+    WR3: NOT(('MEASURE_SCHEMA.DERIVED_UNIT' IN TYPEOF(SELF)) AND
+             (SIZEOF(USEDIN(SELF,'MEASURE_SCHEMA.DERIVED_UNIT_ELEMENT.UNIT')) > 0)) OR
+            NOT EXISTS(prefix);
+END_ENTITY;
 
   ENTITY solid_angle_measure_with_unit
     SUBTYPE OF (measure_with_unit);

@@ -1,5 +1,5 @@
 (*
- $Id: mim.exp,v 1.27 2007/11/15 11:07:15 liutkus Exp $
+ $Id: mim.exp,v 1.28 2008/02/02 18:17:19 thomasrthurman Exp $
 ISO TC184/SC4/WG12 N4835 - ISO/CD-TS 10303-1106 Extended measure representation - EXPRESS MIM
 Supersedes ISO TC184/SC4/WG12 N4270
 *) 
@@ -32,18 +32,21 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
   RULE subtype_exclusiveness_representation_item FOR 
       (representation_item);
     WHERE
-      WR1: SIZEOF(QUERY (cri <* representation_item | NOT (type_check_function(cri,['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM','REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM','REPRESENTATION_SCHEMA.COMPOUND_REPRESENTATION_ITEM'] , 3)))) = 0;
+      WR1: SIZEOF(QUERY (cri <* representation_item | 
+      NOT (type_check_function(cri,['QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM',
+                                    'REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM',
+                                    'REPRESENTATION_SCHEMA.COMPOUND_REPRESENTATION_ITEM'] , 3)))) = 0;
   END_RULE; 
 
   FUNCTION value_range_wr1
      (agg : compound_item_definition) : BOOLEAN; 
     BEGIN
-      IF (SIZEOF(agg) = 2) AND ((SIZEOF(QUERY (i1 <* agg | (
+      IF ((SIZEOF(agg) = 2) AND ((SIZEOF(QUERY (i1 <* agg | (
         'QUALIFIED_MEASURE_SCHEMA.MEASURE_REPRESENTATION_ITEM' IN TYPEOF
         (i1)))) = 2) OR
         (SIZEOF(QUERY (i2 <* agg | (
         'REPRESENTATION_SCHEMA.VALUE_REPRESENTATION_ITEM' IN TYPEOF
-        (i2)))) = 2)) 
+        (i2)))) = 2))) 
       THEN
         RETURN(TRUE);
       ELSE
@@ -55,8 +58,8 @@ REFERENCE FROM support_resource_schema   -- ISO 10303-41
   FUNCTION value_range_wr2
       (agg : compound_item_definition) : BOOLEAN; 
     BEGIN
-      IF (SIZEOF(QUERY (i <* agg | (i\representation_item.name = 'upper limit'))) = 1)
-        AND (SIZEOF(QUERY (i <* agg | (i\representation_item.name = 'lower limit'))) = 1)
+      IF ((SIZEOF(QUERY (i <* agg | (i\representation_item.name = 'upper limit'))) = 1)
+        AND (SIZEOF(QUERY (i <* agg | (i\representation_item.name = 'lower limit'))) = 1))
       THEN
         RETURN(TRUE);
       ELSE

@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp 1151 2007-06-05 14:31:43Z giedrius $
+ $Id: arm.exp,v 1.13 2007/11/15 11:04:34 liutkus Exp $
  ISO TC184/SC4/WG12 N4654 - ISO/CD-TS 10303-1001 Appearance assignment - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N4239
 *)
@@ -35,12 +35,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     context_dependent_appearance_assignment_set);
   END_TYPE;
 
-  SUBTYPE_CONSTRAINT aa_detailed_geometric_model_element_subtypes FOR Detailed_geometric_model_element;
-    ONEOF (Planar_box,
-           Styled_element,
-           Styled_model_replication);
-  END_SUBTYPE_CONSTRAINT;
-
   ENTITY Appearance_assignment;
     appearance_components : SET[1:?] OF appearance_select;
   END_ENTITY;
@@ -68,7 +62,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_ENTITY;
 
   ENTITY Styled_element
-    SUBTYPE OF (Detailed_geometric_model_element);
+    SUBTYPE OF (Representation_item);
       appearance : styled_element_appearance;
       element : Detailed_geometric_model_element;
       invisible : BOOLEAN;
@@ -88,10 +82,15 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_ENTITY;
 
   ENTITY Styled_model_replication 
-    SUBTYPE OF (Detailed_geometric_model_element); 
+    SUBTYPE OF (Representation_item); 
       replicated_model : Styled_model; 
       source : Axis_placement; 
       target : geometric_mapping_target; 
   END_ENTITY;
+
+  SUBTYPE_CONSTRAINT aa_representation_item_subtypes FOR Representation_item;
+    ONEOF (Styled_element,
+           Styled_model_replication);
+  END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;  

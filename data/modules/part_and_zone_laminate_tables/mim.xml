@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-05-31 07:33:30 -0700 (Kt, 31 Geg 2007) $" rcs.revision="$Revision: 1097 $" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_and_zone_laminate_tables_mim schema_instance"/>
    <schema name="Part_and_zone_laminate_tables_mim">
       <interface kind="use" schema="Composite_constituent_shape_mim"/>
@@ -44,50 +44,39 @@
       <subtype.constraint name="pos_product_definition_subtypes" entity="product_definition" super.expression="ONEOF (composite_assembly_definition, composite_assembly_sequence_definition, laminate_table, percentage_laminate_definition, percentage_ply_definition, ply_laminate_definition, ply_laminate_sequence_definition, thickness_laminate_definition)"/>
       <rule name="component_class_for_assembly_select" appliesto="composite_assembly_sequence_definition next_assembly_usage_occurrence product_related_product_category">
          <algorithm>LOCAL
-    i,j,k :  INTEGER;
-    dkuhr :  LOGICAL;
-    nnauo :  INTEGER;
-    nprpc :  INTEGER;
-    rp    :  product;
-  END_LOCAL;
-
-    dkuhr := TRUE;
+      i,j,k :  INTEGER :=0;
+      dkuhr :  LOGICAL :=TRUE;
+      nnauo :  INTEGER :=0;
+      nprpc :  INTEGER :=0;
+      rp    :  product;
+    END_LOCAL;
     REPEAT i:= LOINDEX (composite_assembly_sequence_definition) TO
                HIINDEX (composite_assembly_sequence_definition);
-
       nnauo := 0;  
       REPEAT j:= LOINDEX (next_assembly_usage_occurrence) TO
                  HIINDEX (next_assembly_usage_occurrence);
-
         IF (composite_assembly_sequence_definition[i] = 
           next_assembly_usage_occurrence[j].relating_product_definition) THEN
- 
           rp := next_assembly_usage_occurrence[j].related_product_definition.
                 formation.of_product;
           nprpc := 0;
           REPEAT k:= LOINDEX (product_related_product_category) TO
                      HIINDEX (product_related_product_category);
-
             IF ((rp IN product_related_product_category[k].products) AND
                 (product_related_product_category[k].name IN ['ply',
                  'ply laminate', 'filament laminate', 'processed core',
                  'composite assembly'])) THEN
                 nprpc := nprpc + 1;
             END_IF;
-  
           END_REPEAT;
-  
           IF (nprpc = 1) THEN
             nnauo := nnauo + 1;
           ELSE
             dkuhr := FALSE;
             ESCAPE;
           END_IF;
-  
         END_IF;
-  
       END_REPEAT;
-  
       IF (dkuhr = FALSE) THEN
         ESCAPE; 
       END_IF;
@@ -95,54 +84,42 @@
         dkuhr := FALSE;
         ESCAPE;
       END_IF;
-
     END_REPEAT;</algorithm>
          <where label="WR1" expression="dkuhr"/>
       </rule>
       <rule name="ply_reference" appliesto="ply_laminate_sequence_definition next_assembly_usage_occurrence product_related_product_category">
          <algorithm>LOCAL
-    i,j,k :  INTEGER;
-    dkuhr :  LOGICAL;
-    nnauo :  INTEGER;
-    nprpc :  INTEGER;
-    rp    :  product;
-  END_LOCAL;
-
-    dkuhr := TRUE;
+      i,j,k :  INTEGER;
+      dkuhr :  LOGICAL := TRUE;
+      nnauo :  INTEGER;
+      nprpc :  INTEGER := 0;
+      rp    :  product;
+    END_LOCAL;
     REPEAT i:= LOINDEX (ply_laminate_sequence_definition) TO
                HIINDEX (ply_laminate_sequence_definition);
- 
       nnauo := 0;  
       REPEAT j:= LOINDEX (next_assembly_usage_occurrence) TO 
                  HIINDEX (next_assembly_usage_occurrence);
-
         IF (ply_laminate_sequence_definition[i] = 
           next_assembly_usage_occurrence[j].relating_product_definition) THEN
-
           rp := next_assembly_usage_occurrence[j].related_product_definition.
                 formation.of_product;
           nprpc := 0;
           REPEAT k:= LOINDEX (product_related_product_category) TO
                      HIINDEX (product_related_product_category);
-
             IF ((product_related_product_category[k].name = 'ply') AND
                 (rp IN product_related_product_category[k].products)) THEN
                 nprpc := nprpc + 1;
             END_IF;
-
           END_REPEAT;
-
           IF (nprpc = 1) THEN
             nnauo := nnauo + 1;
           ELSE
             dkuhr := FALSE;
             ESCAPE;
           END_IF;
-
         END_IF;
-
       END_REPEAT;
-
       IF (dkuhr = FALSE) THEN
         ESCAPE; 
       END_IF;
@@ -150,56 +127,45 @@
         dkuhr := FALSE;
         ESCAPE;
       END_IF;
-
     END_REPEAT;</algorithm>
          <where label="WR1" expression="dkuhr"/>
       </rule>
       <rule name="stock_material_reference" appliesto="percentage_ply_definition make_from_usage_option product_related_product_category">
          <algorithm>LOCAL
-    i,j,k :  INTEGER;
-    dkuhr :  LOGICAL;
-    nmfuo :  INTEGER;
-    nprpc :  INTEGER;
-    rp     :  product;
-  END_LOCAL;
-
+      i,j,k :  INTEGER;
+      dkuhr :  LOGICAL;
+      nmfuo :  INTEGER;
+      nprpc :  INTEGER;
+      rp     :  product;
+    END_LOCAL;
     dkuhr := TRUE;
     REPEAT i:= LOINDEX (percentage_ply_definition) TO
                HIINDEX (percentage_ply_definition);
-
       nmfuo := 0;  
       REPEAT j:= LOINDEX (make_from_usage_option) TO 
                  HIINDEX (make_from_usage_option);
-
         IF (percentage_ply_definition[i] = 
           make_from_usage_option[j].relating_product_definition) THEN
-
           rp := make_from_usage_option[j].related_product_definition.
                 formation.of_product;
           nprpc := 0;
           REPEAT k:= LOINDEX (product_related_product_category) TO
                      HIINDEX (product_related_product_category);
-
             IF ((rp IN product_related_product_category[k].products) AND
                 (product_related_product_category[k].name IN 
                 ['anisotropic material', 'isotropic material', 'stock core',
                  'filament assembly', 'discontinuous fiber assembly'])) THEN
                 nprpc := nprpc + 1;
             END_IF;
- 
           END_REPEAT;
-
           IF (nprpc = 1) THEN
             nmfuo := nmfuo + 1;
           ELSE
             dkuhr := FALSE;
             ESCAPE;
           END_IF;
-
         END_IF;
-
       END_REPEAT;
-
       IF (dkuhr = FALSE) THEN
         ESCAPE; 
       END_IF;
@@ -207,55 +173,44 @@
         dkuhr := FALSE;
         ESCAPE;
       END_IF;
-
     END_REPEAT;</algorithm>
          <where label="WR1" expression="dkuhr"/>
       </rule>
       <rule name="thickness_laminate_table_component_select" appliesto="thickness_laminate_definition next_assembly_usage_occurrence product_related_product_category">
          <algorithm>LOCAL
-    i,j,k :  INTEGER;
-    dkuhr :  LOGICAL;
-    nnauo :  INTEGER;
-    nprpc :  INTEGER;
-    rp    :  product;
-  END_LOCAL;
- 
+      i,j,k :  INTEGER;
+      dkuhr :  LOGICAL;
+      nnauo :  INTEGER;
+      nprpc :  INTEGER;
+      rp    :  product;
+    END_LOCAL;
     dkuhr := TRUE;
     REPEAT i:= LOINDEX (thickness_laminate_definition) TO
                HIINDEX (thickness_laminate_definition);
-
       nnauo := 0;  
       REPEAT j:= LOINDEX (next_assembly_usage_occurrence) TO 
                  HIINDEX (next_assembly_usage_occurrence);
-
         IF (thickness_laminate_definition[i] = 
           next_assembly_usage_occurrence[j].relating_product_definition) THEN
-
           rp := next_assembly_usage_occurrence[j].related_product_definition.
                 formation.of_product;
           nprpc := 0;
           REPEAT k:= LOINDEX (product_related_product_category) TO
                      HIINDEX (product_related_product_category);
-
             IF ((rp IN product_related_product_category[k].products) AND
                 (product_related_product_category[k].name IN 
                  ['ply', 'filament laminate', 'processed core'])) THEN
                 nprpc := nprpc + 1;
             END_IF;
-
           END_REPEAT;
-
           IF (nprpc = 1) THEN
             nnauo := nnauo + 1;
           ELSE
             dkuhr := FALSE;
             ESCAPE;
           END_IF;
-
         END_IF;
-
       END_REPEAT;
-
       IF (dkuhr = FALSE) THEN
         ESCAPE;
       END_IF;
@@ -263,7 +218,6 @@
         dkuhr := FALSE;
         ESCAPE;
       END_IF;
-
     END_REPEAT;</algorithm>
          <where label="WR1" expression="dkuhr"/>
       </rule>

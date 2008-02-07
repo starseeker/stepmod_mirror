@@ -6,6 +6,7 @@
 (* ISO 10303-111, 'ELEMENTS FOR THE PROCEDURAL MODELLING OF SOLID SHAPES  *)
 (* -- 2007-01-24 -- *)                          
 (* This schema is modified to reference non_negative_length_measure from part41 *)
+(* File modified per seds #1287, #1289 *)
 
 SCHEMA solid_shape_element_schema;
 
@@ -568,24 +569,24 @@ WHERE
          IN TYPEOF(second_trim_condition)));
   WR2: NOT ((('MEASURE_SCHEMA.LENGTH_MEASURE' 
          IN TYPEOF(first_trim_condition)) AND 
-         ((first_trim_intent = offset) 
-         OR (first_trim_intent = up_to_next))) OR  
+         ((first_trim_intent = trim_intent.offset) 
+         OR (first_trim_intent = trim_intent.up_to_next))) OR  
          (('MEASURE_SCHEMA.LENGTH_MEASURE' 
          IN TYPEOF(second_trim_condition)) AND 
-         ((second_trim_intent = offset) 
-         OR (second_trim_intent = up_to_next))));
+         ((second_trim_intent = trim_intent.offset) 
+         OR (second_trim_intent = trim_intent.up_to_next))));
   WR3: NOT (((NOT ('MEASURE_SCHEMA.LENGTH_MEASURE' 
          IN TYPEOF(first_trim_condition))) AND 
-         ((first_trim_intent = blind) 
-         OR (first_trim_intent = through_all))) OR  
+         ((first_trim_intent = trim_intent.blind) 
+         OR (first_trim_intent = trim_intent.through_all))) OR  
          ((NOT('MEASURE_SCHEMA.LENGTH_MEASURE' 
          IN TYPEOF(second_trim_condition))) AND 
-         ((second_trim_intent = blind) 
-         OR (second_trim_intent = through_all))));
-  WR4: (((first_trim_intent = offset) AND (first_offset > 0)) XOR
-         ((first_trim_intent <> offset) AND (first_offset = 0))) AND 
-         (((second_trim_intent = offset) AND (second_offset > 0)) XOR
-         ((second_trim_intent <> offset) AND (second_offset = 0)));
+         ((second_trim_intent = trim_intent.blind) 
+         OR (second_trim_intent = trim_intent.through_all))));
+  WR4: (((first_trim_intent = trim_intent.offset) AND (first_offset > 0)) XOR
+         ((first_trim_intent <> trim_intent.offset) AND (first_offset = 0))) AND 
+         (((second_trim_intent = trim_intent.offset) AND (second_offset > 0)) XOR
+         ((second_trim_intent <> trim_intent.offset) AND (second_offset = 0)));
   WR5: NOT((('MEASURE_SCHEMA.LENGTH_MEASURE' 
          IN TYPEOF(first_trim_condition)) AND
             ('MEASURE_SCHEMA.LENGTH_MEASURE' 
@@ -694,7 +695,7 @@ FUNCTION compute_total_depth (swsrh : solid_with_stepped_round_hole)
 
   LOCAL
     i  : INTEGER;
-    td : positive_length_measure := 0;
+    td : REAL := 0;
   END_LOCAL;
 
   REPEAT i := 1 TO swsrh.segments;

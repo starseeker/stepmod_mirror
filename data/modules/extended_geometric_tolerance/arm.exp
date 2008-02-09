@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.52 2007/11/15 12:38:33 liutkus Exp $
+   $Id: arm.exp,v 1.53 2008/01/03 14:31:10 liutkus Exp $
    ISO TC184/SC4/WG12 N3945 - ISO/TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3399
 *)
@@ -188,9 +188,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Datum_axis
-    SUBTYPE OF (Datum_shape_element);
-    WHERE
-      WR1 : NOT EXISTS(SELF\Shape_element.description);
+    SUBTYPE OF (Datum_defined_by_derived_shape);
   END_ENTITY;
 
   ENTITY Datum_axis_and_tolerance_zone_orienting_relationship;
@@ -218,13 +216,13 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Datum_based_vector_orientation;
-    direction_components : SET[2:2] OF Direction_element;
+    direction_components : SET[2:2] OF Datum_based_direction_element;
   END_ENTITY;
 
   ENTITY Datum_difference
     SUBTYPE OF (Shape_element_relationship);
-      SELF\Shape_element_relationship.relating RENAMED precedent_datum : Datum_shape_element;
-      SELF\Shape_element_relationship.related RENAMED subsequent_datum : Datum_shape_element;
+      SELF\Shape_element_relationship.relating RENAMED precedent_datum : Datum;
+      SELF\Shape_element_relationship.related RENAMED subsequent_datum : Datum;
   END_ENTITY;
 
   ENTITY Datum_difference_based_characteristic
@@ -233,37 +231,21 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Datum_feature
-    SUPERTYPE OF (Datum_target_set)
     SUBTYPE OF (Shape_element);
+  INVERSE
+         referencing_datum : SET [1:?] OF Datum_defined_by_feature FOR defined_by;
   END_ENTITY;
 
   ENTITY Datum_plane
-    SUBTYPE OF (Datum_shape_element);
-    WHERE
-      WR1 : NOT EXISTS(SELF\Shape_element.description);
+    SUBTYPE OF (Datum_defined_by_derived_shape);
   END_ENTITY;
 
   ENTITY Datum_point
-    SUBTYPE OF (Datum_shape_element);
+    SUBTYPE OF (Datum_defined_by_derived_shape);
   END_ENTITY;
 
   ENTITY Datum_shape_element
 	SUBTYPE OF (Datum, Non_feature_shape_element);
-  END_ENTITY;
-
-  ENTITY Datum_target_set
-    SUBTYPE OF (Datum_feature);
-    INVERSE
-      included_datum_targets : SET[1:?] OF datum_target_usage_in_datum_target_set_relationship FOR defined_datum_target_set;
-  END_ENTITY;
-
-  ENTITY Datum_target_usage_in_datum_target_set_relationship;
-      defined_datum_target_set : Datum_target_set;
-      used_datum_target        : Datum_target;
-      datum_target_number      : INTEGER; -- positive_integer;
-    UNIQUE
-      UR1 : used_datum_target, defined_datum_target_set;
-      UR2 : datum_target_number, defined_datum_target_set;
   END_ENTITY;
 
   ENTITY Derived_non_feature_shape_element
@@ -328,7 +310,7 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
-  ENTITY Direction_element;
+  ENTITY Datum_based_direction_element;
       direction                     : Datum_based_direction_vector;
       angle_value                   : Angle_data_element;
       base_datum_plane              : Datum_plane;

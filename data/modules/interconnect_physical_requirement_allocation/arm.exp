@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.48 2008/01/03 14:30:58 liutkus Exp $
+   $Id: arm.exp,v 1.49 2008/02/09 16:26:45 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4014 - ISO/TS 10303-1689 Interconnect physical requirement allocation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3456
 *)
@@ -125,46 +125,4 @@
                    )) = 0);
   END_ENTITY;
 
-FUNCTION get_specific_requirement_view_definition_for_collector(
-	input : Requirement_view_definition;
-	id : STRING
-) : SET OF Predefined_requirement_view_definition; 
-LOCAL
-    rcr : SET[0:?] OF Requirement_collection_relationship := [];--this gives us access to the information base
-    rdp : SET[0:?] OF Predefined_requirement_view_definition :=[];
-END_LOCAL;
-    rcr := bag_to_set(QUERY(rai <* USEDIN (input, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.'+
-	'REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') | 
-          (rai\View_definition_relationship.relation_type = id)));
-
-	-- iterate over rcr 
-    REPEAT i := 1 to SIZEOF(rcr) by 1;
-        -- get rdp 
-      rdp := rdp + rcr[i].member;
-    END_REPEAT;
-
-	RETURN(rdp);
-END_FUNCTION;
-
-FUNCTION get_specific_requirement_type_for_primary_rvd_relationship(
-	input : Requirement_view_definition;
-	id : STRING;
-    reqType : STRING
-) : SET OF Predefined_requirement_view_definition; 
-
-LOCAL
-    rvdr : SET[0:?] OF Requirement_view_definition_relationship := [];
-    rdp : SET[0:?] OF Predefined_requirement_view_definition := [];  --this gives us access to the information base
-END_LOCAL;
-	rvdr := bag_to_set(QUERY(rvdre <* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY')|
-	                           ((rvdre.relation_type = id) AND (reqType IN TYPEOF(rvdre.primary)))
-                       ));
-	-- iterate over rvdr
-	REPEAT i := 1 to SIZEOF(rvdr) by 1;
-      rdp := rdp + rvdr[i].primary;
-	END_REPEAT;
-
-	RETURN(rdp);
-END_FUNCTION;
-  
  END_SCHEMA;

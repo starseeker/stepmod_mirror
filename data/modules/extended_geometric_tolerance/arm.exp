@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.54 2008/02/09 15:11:27 thomasrthurman Exp $
+   $Id: arm.exp,v 1.55 2008/02/09 16:59:02 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3945 - ISO/TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3399
 *)
@@ -13,7 +13,7 @@ USE FROM Non_feature_shape_element_arm;	-- ISO/TS 10303-1706
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 	
   TYPE physical_feature_or_part_template = EXTENSIBLE GENERIC_ENTITY SELECT
-    (Datum_feature);
+    (Shape_element);
   END_TYPE;
 
   TYPE centre_type = ENUMERATION OF
@@ -174,8 +174,12 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   ENTITY Conical_tolerance_zone_boundary_and_surface_relationship;
       sized_tolerance_zone_boundary : Conical_tolerance_zone_boundary;
       terminating_surface           : physical_feature_or_part_template;
+      terminating_surface_datum     : OPTIONAL Datum_defined_by_feature;
     INVERSE
       size_characteristic : conical_tolerance_zone_boundary_diametrical_size_characteristic FOR sized_boundary_at_surface;
+    WHERE
+      WR1: NOT EXISTS(terminating_surface_datum) OR 
+          (terminating_surface :=: terminating_surface_datum\Datum_defined_by_feature.defined_by);
   END_ENTITY;
 
   ENTITY Conical_tolerance_zone_boundary_diametrical_size_characteristic;
@@ -239,12 +243,6 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
       of_datum_difference : Datum_difference;
   END_ENTITY;
 
-  ENTITY Datum_feature
-    SUBTYPE OF (Shape_element);
-  INVERSE
-         referencing_datum : SET [1:?] OF Datum_defined_by_feature FOR defined_by;
-  END_ENTITY;
-
   ENTITY Datum_plane
     SUBTYPE OF (Datum_defined_by_derived_shape);
   END_ENTITY;
@@ -282,8 +280,12 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Dimension_related_positional_boundary
     SUBTYPE OF (Positional_boundary);
-      boundary_members             : SET[1:?] OF Positional_boundary_member;
-      constrained_physical_feature : physical_feature_or_part_template;
+      boundary_members                       : SET[1:?] OF Positional_boundary_member;
+      constrained_physical_feature           : physical_feature_or_part_template;
+      constrained_physical_feature_datum     : OPTIONAL Datum_defined_by_feature;
+    WHERE
+      WR1: NOT EXISTS(constrained_physical_feature_datum) OR 
+          (constrained_physical_feature :=: constrained_physical_feature_datum\Datum_defined_by_feature.defined_by);
   END_ENTITY;
 
   ENTITY Dimension_related_positional_boundary_definition
@@ -452,10 +454,14 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY Projected_zone_and_base_relationship;
-      base_physical_feature : physical_feature_or_part_template;
-      projected_zone        : Tolerance_zone;
+      base_physical_feature           : physical_feature_or_part_template;
+      base_physical_feature_datum     : OPTIONAL Datum_defined_by_feature;
+      projected_zone                  : Tolerance_zone;
     INVERSE
       size_characteristic : projected_zone_height_characteristic FOR defined_height_of;
+    WHERE
+      WR1: NOT EXISTS(base_physical_feature_datum) OR 
+          (base_physical_feature :=: base_physical_feature_datum\Datum_defined_by_feature.defined_by);
   END_ENTITY;
 
   ENTITY Projected_zone_height_characteristic;
@@ -648,8 +654,12 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
   END_ENTITY;
 
   ENTITY True_profile;
-    profiled_surface       : physical_feature_or_part_template;
-    profile_representation : true_profile_representations;
+    profiled_surface           : physical_feature_or_part_template;
+    profiled_surface_datum     : OPTIONAL Datum_defined_by_feature;
+    profile_representation     : true_profile_representations;
+   WHERE
+    WR1: NOT EXISTS(profiled_surface_datum) OR 
+          (profiled_surface :=: profiled_surface_datum\Datum_defined_by_feature.defined_by);
   END_ENTITY;
 
   ENTITY User_defined_dimension_qualifier

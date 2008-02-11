@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.272 2008/01/25 07:42:46 liutkus Exp $
+   $Id: arm.exp,v 1.273 2008/02/09 17:14:19 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -612,6 +612,11 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       stratum_feature_implementation : Stratum_feature;
     INVERSE
       internal_access : internal_stratum_access FOR connected_probe;
+    WHERE
+     WR1 : NOT EXISTS(SELF\Probe_access_area.stratum_feature_material_stackup) 
+             OR
+            (stratum_feature_implementation :=: 
+             SELF\Probe_access_area.stratum_feature_material_stackup\Stratum_feature_based_derived_pattern.reference_stratum_feature);                   
   END_ENTITY;
 
   ENTITY Internal_stratum_access;
@@ -920,14 +925,20 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     	SELF\Definition_based_product_occurrence.derived_from : Stratum_feature_template;
         probed_layout_item                                    : stratum_feature_or_stratum;
         SELF\Shape_feature.connection_area                    : SET[1:1] OF Connection_zone_in_design_view;
-    	stratum_feature_material_stackup                      : OPTIONAL Multi_layer_stratum_feature;
+    	stratum_feature_material_stackup                      : OPTIONAL Stratum_feature_based_derived_pattern;
     DERIVE
       SELF\Shape_element.containing_shape : Probe_access_area := SELF;
       SELF\Shape_feature.element_name : STRING := '';      
     INVERSE
       network : Routed_physical_network FOR probe;
     WHERE
-      WR1 :       SELF\Shape_element.id = SELF\Item_shape.id;      
+      WR1 :       SELF\Shape_element.id = SELF\Item_shape.id;
+      WR2 : NOT (EXISTS(stratum_feature_material_stackup) AND 
+                 NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERNAL_PROBE_ACCESS_AREA' IN TYPEOF(SELF)))
+             OR
+            (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(probed_layout_item))
+             AND
+            (probed_layout_item :=: stratum_feature_material_stackup\Stratum_feature_based_derived_pattern.reference_stratum_feature));             
   END_ENTITY;
 
   ENTITY Region_based_derived_pattern;

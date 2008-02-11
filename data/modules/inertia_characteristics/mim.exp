@@ -1,9 +1,9 @@
 (*
- $Id: checkModuleMain.js,v 1.16 2005/03/09 01:07:43 rocc Exp $
+ $Id: mim.exp,v 1.7 2005/07/04 15:00:42 rocc Exp $
  ISO TC184/SC4/WG12 N2638 - ISO/TS 10303-1350 Inertia characteristics - EXPRESS MIM
  Supersedes ISO TC184/SC4/WG12 N2072
 *)
-
+(* Proposed solution to SEDS #1295 is incorporated in this schema. *)
 
 SCHEMA Inertia_characteristics_mim;
 
@@ -21,10 +21,10 @@ ENTITY moments_of_inertia_representation
 SUBTYPE OF (representation); 
 WHERE 
 WR1: (SIZEOF(SELF.items) = 1) AND 
- (SIZEOF( QUERY( i <* SELF.items | ('INERTIA_CHARACTERISTICS_MIM' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
+ (SIZEOF( QUERY( i <* SELF.items | ('REPRESENTATION_SCHEMA.' + 'COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
   (i.name = 'moments of inertia matrix') )) = 1); 
-WR2: SIZEOF( QUERY( i <* SELF.items | ('INERTIA_CHARACTERISTICS_MIM' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
-  ('INERTIA_CHARACTERISTICS_MIM' + '.LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element)) AND 
+WR2: SIZEOF( QUERY( i <* SELF.items | ('REPRESENTATION_SCHEMA.' + 'COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i)) AND 
+  ('REPRESENTATION_SCHEMA.' + 'LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element)) AND 
   value_range_aggregate_rep_item (i\compound_representation_item.item_element) )) = 1; 
 END_ENTITY; 
 
@@ -35,14 +35,14 @@ WHERE
 	( r.name ='centre of mass' ) AND 
 	( ( SIZEOF ( r.items ) <>1 ) OR 
 	(SIZEOF ( QUERY ( i <* r.items | 
-	( 'INERTIA_CHARACTERISTICS_MIM' + '.POINT' IN TYPEOF ( i ) ) AND 
+	( 'GEOMETRY_SCHEMA.' + 'POINT' IN TYPEOF ( i ) ) AND 
 	( i.name = 'centre point' ) )) <>1 ) ) ) ) 
 	=0;
 END_RULE;
 
 FUNCTION value_range_aggregate_rep_item (agg : AGGREGATE OF representation_item) : BOOLEAN; 
   BEGIN 
-  IF (SIZEOF(QUERY(i1 <* agg | ('INERTIA_CHARACTERISTICS_MIM' + '.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1)) )) = 6) THEN 
+  IF (SIZEOF(QUERY(i1 <* agg | ('QUALIFIED_MEASURE_SCHEMA.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1)) )) = 6) THEN 
 	  RETURN (TRUE); 
    ELSE 
 	RETURN (FALSE); 

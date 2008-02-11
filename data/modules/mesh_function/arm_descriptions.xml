@@ -16,7 +16,13 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Mesh_function_arm.Mesh_function">
-        A <b>Mesh_function</b> is a
+     <p>   A <b>Mesh_function</b> is an application defined function that:  has a domain that consists of a table of real tuple spaces.  The table is a one dimensional array for an unstructured mesh, but can be a rectangular array of any dimension for a structured mesh.  The real tuples can have different dimensions, if the mesh contains cells of different dimensions.  The real tuple spaces can have different bounds, if the mesh contains cells of different shape, such as wedges and hexhedra. has a set of control values, such that the function within each cell is determined by a subset of the control values and basis for that cell.
+</p>
+<p>The assignment of control values to cells is determined by the topology of the mesh. A
+control value is usually, but not necessarily, the value of the function at a position within
+the mesh  interpolates or extrapolates separately within each cell from the control values assigned to that cell.
+</p>
+
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -25,7 +31,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Mesh_function_arm.Mesh_function.mesh">
-</ext_description>
+the mesh for the mesh function</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Mesh_function_arm  Entity: Mesh_function  Attribute: basis 
@@ -33,7 +39,7 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Mesh_function_arm.Mesh_function.basis">
-</ext_description>
+the mesh function basis specifying the methods of interpolation or extraction for use within each cell of the mesh;</ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Mesh_function_arm  Entity: Mesh_function  Attribute: uniform 
@@ -41,6 +47,15 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Mesh_function_arm.Mesh_function.uniform">
+ <p>a flag which indicates whether or not the the mesh function has a uniform basis,
+as follows:</p>
+
+<ul>
+<li>if uniform is true, then each cell of the mesh has the same mesh function basis;</li>
+<li>if uniform is false, then a mesh function basis is specified separately for each cell of the mesh.</li>
+</ul>
+
+
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -49,6 +64,17 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Mesh_function_arm.Mesh_function.vertex_values">
+
+<p>a flag that indicates whether or not the control values are specified for the
+vertices or the cells of the mesh, as follows:</p>
+<ul>
+<li> if vertex values is true, then the control values are specified for the vertices of the
+mesh;</li>
+<li>if vertex values is false, then the control values are specified for a separate pattern of
+discretisation points for each cell of the mesh.
+</li>
+</ul>
+
 </ext_description><!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    Schema: Mesh_function_arm  Entity: Mesh_function_basis  
@@ -57,7 +83,30 @@
   -->
 <ext_description linkend="Mesh_function_arm.Mesh_function_basis">
                
-        A <b>Mesh_function_basis</b> is a
+        <p>A <b>Mesh_function_basis</b> is an application defined function that has:</p>
+<ul>
+<li>a domain that is a real tuple space; and</li>
+<li>a range that is a space of table functions.</li>
+</ul>
+
+<note number="1"><p> A mesh function basis is used such that the domain is a parametric space that identifies points within a cell of a mesh. Hence the dimension of the real tuple space is the same as the topological dimension of the cell.</p></note>
+
+Each table function in the range of a mesh function basis has:
+<ul>
+<li> a domain that is a subscript space; and</li>
+<li>a range that is the reals.</li>
+</ul>
+
+<note number="2"><p>A mesh function basis is used such that:
+</p>
+<ul><li>the domain of each table function in its range is a parametric space that identifies the control values for a cell;</li>
+<li>the range of each table function is a weighting for a control value.</li>
+</ul>
+</note> 
+Each table function specifies the weightings for control values that define the value of a mesh function at a point in a cell.
+
+<note number="3"> An Application Module can define a subtype of mesh function basis and externally - defined item to record a standard instance of a function such as the 'serendipity' function commonly used in finite element analysis.
+</note>
       </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -66,6 +115,8 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Mesh_function_arm.Mesh_function_basis.cell_topological_dimension">
+the dimension of the real tuple space that is the domain of the
+mesh function basis;
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -74,6 +125,8 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Mesh_function_arm.Mesh_function_basis.value_array_dimension">
+the dimension of the subscript space for each table function in the
+range of the mesh function basis;
 </ext_description>
 <!-- 
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -82,5 +135,6 @@
   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
   -->
 <ext_description linkend="Mesh_function_arm.Mesh_function_basis.value_array_order">
+the number of control values less one, for each value array direction;
 </ext_description>
 </ext_descriptions>

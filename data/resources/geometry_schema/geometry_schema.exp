@@ -6,6 +6,7 @@
  (* Incorporated fix from SEDS #1244 *)
  (* Incorporated minor fixes to aid eep in evaluating attribute qualifiers  *)
  (* from SEDS #1267                  *)
+ (* implemented proposed solution in SEDS #1292          *)
  
  SCHEMA geometry_schema;
    REFERENCE FROM representation_schema
@@ -1216,7 +1217,7 @@ END_RULE;
    END_LOCAL;
    
    IF 'GEOMETRY_SCHEMA.PCURVE' IN TYPEOF(arg) THEN
-     surf := arg.basis_surface;
+     surf := arg\pcurve.basis_surface;
    ELSE
      surf := arg;
    END_IF;
@@ -1278,7 +1279,7 @@ END_FUNCTION;
    END_LOCAL;
   d1 := NVL(normalise(axis), dummy_gri || direction([0.0,0.0,1.0]));
   d2 := first_proj_axis(d1, ref_direction);
-  RETURN([d2, normalise(cross_product(d1,d2)).orientation, d1]);
+  RETURN([d2, normalise(cross_product(d1,d2))\vector.orientation, d1]);
  END_FUNCTION;
 
  FUNCTION constraints_composite_curve_on_surface
@@ -1707,10 +1708,10 @@ END_FUNCTION;
 
  FUNCTION normalise (arg : vector_or_direction) : vector_or_direction;
    LOCAL
-     ndim   : INTEGER;
-     v      : direction;
+     ndim   : INTEGER := 1;
+     v      : direction := dummy_gri || direction ([1.0,0.0,0.0]);
      result : vector_or_direction;
-     vec    : vector;
+     vec    : vector := dummy_gri || vector (v, 1.0);
      mag    : REAL;
    END_LOCAL;
    

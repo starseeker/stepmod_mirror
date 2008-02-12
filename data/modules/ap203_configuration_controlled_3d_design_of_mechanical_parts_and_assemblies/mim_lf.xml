@@ -4,7 +4,7 @@
 
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_mim_lf schema_instance"/>
-   <schema name="Ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_mim_LF">
+   <schema name="ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_mim_lf">
       <constant name="deprecated_constructed_data_types" expression="['approved_item',&#10;       'certified_item', &#10;       'change_request_item', &#10;       'contracted_item', &#10;       'cc_classified_item', &#10;       'date_time_item', &#10;       'cc_person_organization_item', &#10;       'cc_specified_item', &#10;       'start_request_item', &#10;       'work_item']">
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="STRING"/>
@@ -2942,7 +2942,7 @@
             <typename name="description_attribute_select"/>
          </explicit>
       </entity>
-      <entity name="descriptive_representation_item" supertypes="representation_item">
+      <entity name="descriptive_representation_item" supertypes="representation_item" super.expression="ONEOF (tagged_text_item, uniform_resource_identifier)">
          <explicit name="description">
             <typename name="text"/>
          </explicit>
@@ -2952,6 +2952,11 @@
       </entity>
       <entity name="design_make_from_relationship" supertypes="product_definition_relationship"/>
       <entity name="diameter_dimension" supertypes="dimension_curve_directed_callout"/>
+      <entity name="dimension_callout" supertypes="draughting_callout">
+         <where label="WR1" expression="('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LEADER_DIRECTED_CALLOUT'&#10;        IN (TYPEOF(SELF)))XOR&#10;      (SIZEOF(QUERY(dce_1 &lt;* SELF\draughting_callout.contents |&#10;      ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LEADER_CURVE'&#10;        IN(TYPEOF(dce_1)))))= 0)"/>
+         <where label="WR2" expression="('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PROJECTION_DIRECTED_CALLOUT'&#10;        IN (TYPEOF(SELF)))XOR&#10;      (SIZEOF(QUERY(dce_1 &lt;* SELF\draughting_callout.contents |&#10;      ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PROJECTION_CURVE'&#10;        IN(TYPEOF(dce_1)))))= 0)"/>
+         <where label="WR3" expression="('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DIMENSION_CURVE_DIRECTED_CALLOUT'&#10;        IN (TYPEOF(SELF)))XOR&#10;      (SIZEOF(QUERY(dce_1 &lt;* SELF\draughting_callout.contents |&#10;      ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DIMENSION_CURVE'&#10;        IN(TYPEOF(dce_1)))))= 0)"/>
+      </entity>
       <entity name="dimension_callout_component_relationship" supertypes="draughting_callout_relationship">
          <where label="WR1" expression="SELF.name IN ['prefix', 'suffix']"/>
          <where label="WR2" expression="'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.STRUCTURED_DIMENSION_CALLOUT'&#10;           IN TYPEOF(SELF.relating_draughting_callout)"/>
@@ -2969,7 +2974,7 @@
       <entity name="dimension_curve" supertypes="annotation_curve_occurrence">
          <where label="WR1" expression="(SIZEOF(&#10;          QUERY(dct &lt;* USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' +&#10;                'TERMINATOR_SYMBOL.ANNOTATED_CURVE')&#10;               |(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;                  'DIMENSION_CURVE_TERMINATOR' IN TYPEOF(dct))&#10;                 ))&#10;        )&lt;= 2)"/>
          <where label="WR2" expression="SIZEOF(&#10;            QUERY(dcdc &lt;* USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' +&#10;                   'DRAUGHTING_CALLOUT.CONTENTS')|&#10;                  ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;                    'DIMENSION_CURVE_DIRECTED_CALLOUT' IN TYPEOF(dcdc)))&#10;         )&gt;= 1"/>
-         <where label="WR3" expression="(SIZEOF(&#10;            QUERY(dct1 &lt;* USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' +&#10;                  'TERMINATOR_SYMBOL.ANNOTATED_CURVE')&#10;               |(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;                  'DIMENSION_CURVE_TERMINATOR' IN  TYPEOF(dct1))&#10;                  AND (dct1.role = origin)))&#10;        )&lt;= 1)&#10;        AND  &#10;       (SIZEOF(&#10;            QUERY(dct2 &lt;* USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;                   'TERMINATOR_SYMBOL.ANNOTATED_CURVE')&#10;                 |(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;                   'DIMENSION_CURVE_TERMINATOR' IN TYPEOF(dct2))&#10;                   AND(dct2.role = target)))&#10;       )&lt;= 1)"/>
+         <where label="WR3" expression="(SIZEOF(&#10;            QUERY(dct1 &lt;* USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' +&#10;                  'TERMINATOR_SYMBOL.ANNOTATED_CURVE')&#10;               |(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;                  'DIMENSION_CURVE_TERMINATOR' IN  TYPEOF(dct1))&#10;                  AND (dct1\dimension_curve_terminator.role = dimension_extent_usage.origin)))&#10;        )&lt;= 1)&#10;        AND  &#10;       (SIZEOF(&#10;            QUERY(dct2 &lt;* USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;                   'TERMINATOR_SYMBOL.ANNOTATED_CURVE')&#10;                 |(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+&#10;                   'DIMENSION_CURVE_TERMINATOR' IN TYPEOF(dct2))&#10;                   AND(dct2\dimension_curve_terminator.role = dimension_extent_usage.target)))&#10;       )&lt;= 1)"/>
       </entity>
       <entity name="dimension_curve_directed_callout" supertypes="draughting_callout">
          <where label="WR1" expression="SIZEOF(QUERY(d_c&lt;*SELF\draughting_callout.contents | &#10;        'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DIMENSION_CURVE' IN(TYPEOF(d_c))))=1"/>
@@ -3294,7 +3299,7 @@
          <where label="WR6" expression="((NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'LINEAR_DIMENSION' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item)))OR&#10;	      (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF\item_identified_representation_usage.definition))AND&#10;	      ((SELF\item_identified_representation_usage.definition.name = 'heigth')OR &#10;	      (SELF\item_identified_representation_usage.definition.name = 'length')OR&#10;	      (SELF\item_identified_representation_usage.definition.name = 'width'))))"/>
          <where label="WR7" expression="((NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'RADIUS_DIMENSION' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item)))OR&#10;	      (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'DIMENSIONAL_SIZE' IN TYPEOF(SELF\item_identified_representation_usage.definition))AND&#10;	      (SELF\item_identified_representation_usage.definition.name = 'radius')))"/>
          <where label="WR8" expression="(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'GEOMETRICAL_TOLERANCE_CALLOUT' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR&#10;	      ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'GEOMETRIC_TOLERANCE' IN TYPEOF(SELF\item_identified_representation_usage.definition)))"/>
-         <where label="WR9" expression="(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'DIMENSIONAL_SIZE' IN  TYPEOF(SELF\item_identified_representation_usage.definition))OR&#10;	       (('DRAUGHTING_DIMENSION_SCHEMA.'+'DIMENSION_CALLOUT' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'DIMENSION_CURVE_DIRECTED_CALLOUT' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'LEADER_DIRECTED_DIMENSION' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'ORDINATE_DIMENSION' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'STRUCTURED_DIMENSION_CALLOUT' IN TYPEOF(SELF\item_identified_representation_usage.identified_item))))"/>
+         <where label="WR9" expression="(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'DIMENSIONAL_SIZE' IN  TYPEOF(SELF\item_identified_representation_usage.definition))OR&#10;	       (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'DIMENSION_CALLOUT' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'DIMENSION_CURVE_DIRECTED_CALLOUT' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'LEADER_DIRECTED_DIMENSION' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'ORDINATE_DIMENSION' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR&#10;	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'STRUCTURED_DIMENSION_CALLOUT' IN TYPEOF(SELF\item_identified_representation_usage.identified_item))))"/>
       </entity>
       <entity name="draughting_pre_defined_colour" supertypes="pre_defined_colour">
          <where label="WR1" expression="SELF.name IN&#10;      ['red',&#10;       'green',&#10;       'blue',&#10;       'yellow',&#10;       'magenta',&#10;       'cyan',&#10;       'black',&#10;       'white']"/>
@@ -3788,9 +3793,9 @@
             <typename name="non_negative_length_measure"/>
          </explicit>
          <where label="WR1" expression="NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PLANE_ANGLE_MEASURE' &#10;         IN  TYPEOF(first_trim_condition))OR&#10;        ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PLANE_ANGLE_MEASURE' &#10;         IN TYPEOF(second_trim_condition)))"/>
-         <where label="WR2" expression="NOT((('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' &#10;         IN  TYPEOF(first_trim_condition))AND  &#10;        ((first_trim_intent = offset)&#10;         OR (first_trim_intent = up_to_next)))OR   &#10;        (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' &#10;         IN TYPEOF(second_trim_condition))AND &#10;        ((second_trim_intent = offset)&#10;         OR(second_trim_intent = up_to_next))))"/>
-         <where label="WR3" expression="NOT(((NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' &#10;         IN  TYPEOF(first_trim_condition)))AND  &#10;        ((first_trim_intent = blind)&#10;         OR (first_trim_intent = through_all)))OR   &#10;        ((NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' &#10;         IN TYPEOF(second_trim_condition)))AND &#10;        ((second_trim_intent = blind)&#10;         OR(second_trim_intent = through_all))))"/>
-         <where label="WR4" expression="(((first_trim_intent = offset)AND (first_offset &gt; 0))XOR&#10;        ((first_trim_intent &lt;&gt; offset)AND (first_offset = 0)))AND  &#10;        (((second_trim_intent = offset)AND (second_offset &gt; 0))XOR&#10;        ((second_trim_intent &lt;&gt; offset)AND(second_offset = 0)))"/>
+         <where label="WR2" expression="NOT((('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' &#10;         IN  TYPEOF(first_trim_condition))AND  &#10;        ((first_trim_intent = trim_intent.offset)&#10;         OR (first_trim_intent = trim_intent.up_to_next)))OR   &#10;        (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' &#10;         IN TYPEOF(second_trim_condition))AND &#10;        ((second_trim_intent = trim_intent.offset)&#10;         OR(second_trim_intent = trim_intent.up_to_next))))"/>
+         <where label="WR3" expression="NOT(((NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' &#10;         IN  TYPEOF(first_trim_condition)))AND  &#10;        ((first_trim_intent = trim_intent.blind)&#10;         OR (first_trim_intent = trim_intent.through_all)))OR   &#10;        ((NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' &#10;         IN TYPEOF(second_trim_condition)))AND &#10;        ((second_trim_intent = trim_intent.blind)&#10;         OR(second_trim_intent = trim_intent.through_all))))"/>
+         <where label="WR4" expression="(((first_trim_intent = trim_intent.offset)AND (first_offset &gt; 0))XOR&#10;        ((first_trim_intent &lt;&gt; trim_intent.offset)AND (first_offset = 0)))AND  &#10;        (((second_trim_intent = trim_intent.offset)AND (second_offset &gt; 0))XOR&#10;        ((second_trim_intent &lt;&gt; trim_intent.offset)AND(second_offset = 0)))"/>
          <where label="WR5" expression="NOT((('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' &#10;         IN  TYPEOF(first_trim_condition))AND&#10;           ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' &#10;         IN TYPEOF(second_trim_condition)))AND&#10;        (first_trim_condition = second_trim_condition))"/>
       </entity>
       <entity name="face" supertypes="topological_representation_item" super.expression="ONEOF (face_surface, subface, oriented_face)">
@@ -4728,8 +4733,8 @@
          </explicit>
       </entity>
       <entity name="moments_of_inertia_representation" supertypes="representation">
-         <where label="WR1" expression="(SIZEOF(SELF.items)= 1)AND  &#10;(SIZEOF(QUERY(i &lt;* SELF.items |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i))AND &#10; (i.name = 'moments of inertia matrix')))= 1)"/>
-         <where label="WR2" expression="SIZEOF(QUERY(i &lt;* SELF.items |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF' + '.COMPOUND_REPRESENTATION_ITEM' IN  TYPEOF(i))AND  &#10; ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF' + '.LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element))AND &#10;  value_range_aggregate_rep_item(i\compound_representation_item.item_element)))= 1"/>
+         <where label="WR1" expression="(SIZEOF(SELF.items)= 1)AND  &#10;(SIZEOF(QUERY(i &lt;* SELF.items |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i))AND &#10; (i.name = 'moments of inertia matrix')))= 1)"/>
+         <where label="WR2" expression="SIZEOF(QUERY(i &lt;* SELF.items |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'COMPOUND_REPRESENTATION_ITEM' IN  TYPEOF(i))AND  &#10; ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element))AND &#10;  value_range_aggregate_rep_item(i\compound_representation_item.item_element)))= 1"/>
       </entity>
       <entity name="multi_language_attribute_assignment" supertypes="attribute_value_assignment">
          <explicit name="items">
@@ -4809,10 +4814,10 @@
       </entity>
       <entity name="numeric_expression" abstract.supertype="YES" supertypes="expression" super.expression="ONEOF (simple_numeric_expression, unary_numeric_expression, binary_numeric_expression, multiple_arity_numeric_expression)">
          <derived name="is_int" expression="is_int_expr(SELF)">
-            <builtintype type="BOOLEAN"/>
+            <builtintype type="LOGICAL"/>
          </derived>
          <derived name="sql_mappable" expression="is_SQL_mappable(SELF)">
-            <builtintype type="BOOLEAN"/>
+            <builtintype type="LOGICAL"/>
          </derived>
       </entity>
       <entity name="object_role">
@@ -5253,7 +5258,7 @@
       </entity>
       <entity name="ply_laminate_table" supertypes="part_laminate_table"/>
       <entity name="point" supertypes="geometric_representation_item" super.expression="ONEOF (cartesian_point, point_on_curve, point_on_surface, point_replica, degenerate_pcurve)"/>
-      <entity name="point_and_vector" supertypes="compound_representation_item">
+      <entity name="point_and_vector" supertypes="compound_representation_item geometric_representation_item">
          <explicit name="item_element">
             <typename name="point_and_vector_members"/>
             <redeclaration entity-ref="compound_representation_item"/>
@@ -5278,7 +5283,7 @@
             <typename name="parameter_value"/>
          </explicit>
       </entity>
-      <entity name="point_path" supertypes="compound_representation_item">
+      <entity name="point_path" supertypes="compound_representation_item geometric_representation_item">
          <explicit name="item_element">
             <typename name="point_path_members"/>
             <redeclaration entity-ref="compound_representation_item"/>
@@ -5341,8 +5346,8 @@
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="auxiliary_geometric_representation_item"/>
          </explicit>
-         <where label="WR1" expression="NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CURVE_BOUNDED_SURFACE' IN &#10;    TYPEOF(sketch_basis))AND NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PLANE' IN&#10;    TYPEOF(sketch_basis.basis_surface)))"/>
-         <where label="WR2" expression="NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.FACE_SURFACE' IN  TYPEOF(sketch_basis))AND&#10;    NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PLANE' IN TYPEOF(sketch_basis.face_geometry)))"/>
+         <where label="WR1" expression="NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CURVE_BOUNDED_SURFACE' IN &#10;    TYPEOF(sketch_basis))AND NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PLANE' IN&#10;    TYPEOF(sketch_basis\curve_bounded_surface.basis_surface)))"/>
+         <where label="WR2" expression="NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.FACE_SURFACE' IN  TYPEOF(sketch_basis))AND&#10;    NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PLANE' IN TYPEOF(sketch_basis\face_surface.face_geometry)))"/>
          <where label="WR3" expression="SIZEOF(QUERY(q &lt;* auxiliary_elements |(SIZEOF(TYPEOF(q)* &#10;    ['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.POINT','AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CURVE'])= 0)))= 0"/>
          <where label="WR4" expression="SIZEOF(QUERY(q &lt;* auxiliary_elements | &#10;    q\geometric_representation_item.dim &lt;&gt; 3))= 0"/>
       </entity>
@@ -5896,7 +5901,9 @@
       <entity name="radius_dimension" supertypes="dimension_curve_directed_callout">
          <where label="WR1" expression="SIZEOF(QUERY(con &lt;* SELF.contents |&#10;       'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PROJECTION_CURVE' IN TYPEOF(con)))&lt;=1"/>
       </entity>
-      <entity name="range_characteristic" supertypes="representation descriptive_representation_item"/>
+      <entity name="range_characteristic" supertypes="representation descriptive_representation_item">
+         <where label="WR1" expression="NOT(SELF\representation.name IN ['tolerance', 'minimum tolerance', 'maximum tolerance', &#10;        'nominal tolerance', 'plus minus tolerance', 'symmetrical tolerance', 'statistical tolerance'])"/>
+      </entity>
       <entity name="ratio_measure_with_unit" supertypes="measure_with_unit">
          <where label="WR1" expression="'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.RATIO_UNIT' IN TYPEOF(SELF\measure_with_unit.unit_component)"/>
       </entity>
@@ -6037,7 +6044,7 @@
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
       </entity>
-      <entity name="representation_item" super.expression="ONEOF (binary_representation_item, compound_representation_item, mapped_item, value_representation_item) ANDOR ONEOF (boolean_representation_item, date_representation_item, date_time_representation_item, integer_representation_item, logical_representation_item, rational_representation_item, real_representation_item)">
+      <entity name="representation_item" super.expression="ONEOF (binary_representation_item, compound_representation_item, mapped_item, value_representation_item) ANDOR ONEOF (boolean_representation_item, date_representation_item, date_time_representation_item, integer_representation_item, logical_representation_item, rational_representation_item, real_representation_item) ANDOR ONEOF (mapped_item, styled_item)">
          <explicit name="name">
             <typename name="label"/>
          </explicit>
@@ -6480,8 +6487,6 @@
             <redeclaration entity-ref="named_unit"/>
          </derived>
          <where label="WR1" expression="NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.MASS_UNIT' IN TYPEOF(SELF))AND&#10;            (SIZEOF(USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DERIVED_UNIT_ELEMENT.UNIT'))&gt; 0))OR&#10;           (prefix = si_prefix.kilo)"/>
-         <where label="WR2" expression="NOT(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.MASS_UNIT' IN TYPEOF(SELF))AND&#10;            (SIZEOF(USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DERIVED_UNIT_ELEMENT.UNIT'))&gt; 0))OR&#10;            NOT EXISTS(prefix)"/>
-         <where label="WR3" expression="NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DERIVED_UNIT' IN TYPEOF(SELF))AND&#10;            (SIZEOF(USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DERIVED_UNIT_ELEMENT.UNIT'))&gt; 0))OR&#10;            NOT EXISTS(prefix)"/>
       </entity>
       <entity name="simple_boolean_expression" abstract.supertype="YES" supertypes="boolean_expression simple_generic_expression"/>
       <entity name="simple_clause" supertypes="compound_representation_item"/>
@@ -7436,7 +7441,13 @@
          <explicit name="upper_bound">
             <typename name="measure_with_unit"/>
          </explicit>
-         <where label="WR1" expression="upper_bound\measure_with_unit.value_component &gt;&#10;        lower_bound\measure_with_unit.value_component"/>
+         <derived name="lbvc" expression="lower_bound\measure_with_unit.value_component">
+            <builtintype type="REAL"/>
+         </derived>
+         <derived name="ubvc" expression="upper_bound\measure_with_unit.value_component">
+            <builtintype type="REAL"/>
+         </derived>
+         <where label="WR1" expression="ubvc &gt; lbvc"/>
          <where label="WR2" expression="upper_bound\measure_with_unit.unit_component =&#10;        lower_bound\measure_with_unit.unit_component"/>
       </entity>
       <entity name="tolerance_zone" supertypes="shape_aspect">
@@ -7767,20 +7778,18 @@
       <rule name="component_class_for_assembly_select" appliesto="composite_assembly_sequence_definition next_assembly_usage_occurrence product_related_product_category">
          <algorithm>LOCAL
 
-      i,j,k :  INTEGER;
+      i,j,k :  INTEGER  :=0;
 
-      dkuhr :  LOGICAL;
+      dkuhr :  LOGICAL :=TRUE;
 
-      nnauo :  INTEGER;
+      nnauo :  INTEGER  :=0;
 
-      nprpc :  INTEGER;
+      nprpc :  INTEGER :=0;
 
       rp    :  product;
 
     END_LOCAL
 ;
-
-    dkuhr := TRUE;
 
     REPEAT  i:= LOINDEX (composite_assembly_sequence_definition)TO
                HIINDEX (composite_assembly_sequence_definition);
@@ -7908,18 +7917,16 @@
 
       i,j,k :  INTEGER;
 
-      dkuhr :  LOGICAL;
+      dkuhr :  LOGICAL := TRUE;
 
       nnauo :  INTEGER;
 
-      nprpc :  INTEGER;
+      nprpc :  INTEGER := 0;
 
       rp    :  product;
 
     END_LOCAL
 ;
-
-    dkuhr := TRUE;
 
     REPEAT  i:= LOINDEX (ply_laminate_sequence_definition)TO
                HIINDEX (ply_laminate_sequence_definition);
@@ -7985,7 +7992,7 @@
 
     nmfuo    :  INTEGER;
 
-    nprpc    :  INTEGER;
+    nprpc    :  INTEGER := 0;
 
     rp       :  product;
 
@@ -8105,7 +8112,7 @@
          <where label="WR1" expression="SIZEOF(QUERY(pd &lt;* assembly_definitions | &#10;          NOT('assembly' IN categories_of_product(pd.formation.of_product))))= 0"/>
       </rule>
       <rule name="restrict_centre_of_mass_representation" appliesto="representation">
-         <where label="WR1" expression="SIZEOF(QUERY(r &lt;* representation | &#10;	(r.name ='centre of mass')AND  &#10;	((SIZEOF(r.items)&lt;&gt;1)OR &#10;	(SIZEOF(QUERY(i &lt;* r.items | &#10;	('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF' + '.POINT' IN TYPEOF(i))AND &#10;	(i.name = 'centre point')))&lt;&gt;1))))&#10;	=0"/>
+         <where label="WR1" expression="SIZEOF(QUERY(r &lt;* representation | &#10;	(r.name ='centre of mass')AND  &#10;	((SIZEOF(r.items)&lt;&gt;1)OR &#10;	(SIZEOF(QUERY(i &lt;* r.items | &#10;	('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'POINT' IN TYPEOF(i))AND &#10;	(i.name = 'centre point')))&lt;&gt;1))))&#10;	=0"/>
       </rule>
       <rule name="restrict_classification_assignments" appliesto="applied_classification_assignment">
          <where label="WR1" expression="SIZEOF(QUERY(aia &lt;* applied_classification_assignment | &#10;		NOT class_assignment_is_valid(aia)))=0"/>
@@ -8306,7 +8313,7 @@
          <where label="WR1" expression="SIZEOF(QUERY(gt &lt;* geometric_tolerance | NOT(type_check_function(gt, ['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.ANGULARITY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CIRCULAR_RUNOUT_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.COAXIALITY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CONCENTRICITY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CYLINDRICITY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.FLATNESS_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LINE_PROFILE_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PARALLELISM_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PERPENDICULARITY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.POSITION_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.ROUNDNESS_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.STRAIGHTNESS_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.SURFACE_PROFILE_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.SYMMETRY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.TOTAL_RUNOUT_TOLERANCE'], 3))))= 0"/>
       </rule>
       <rule name="subtype_exclusiveness_representation_item" appliesto="representation_item">
-         <where label="WR1" expression="SIZEOF(QUERY(cri &lt;* representation_item | NOT(type_check_function(cri,['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.MEASURE_REPRESENTATION_ITEM','AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.VALUE_REPRESENTATION_ITEM','AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.COMPOUND_REPRESENTATION_ITEM'], 3))))= 0"/>
+         <where label="WR1" expression="SIZEOF(QUERY(cri &lt;* representation_item | &#10;      NOT(type_check_function(cri,['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.MEASURE_REPRESENTATION_ITEM',&#10;                                    'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.VALUE_REPRESENTATION_ITEM',&#10;                                    'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.COMPOUND_REPRESENTATION_ITEM'], 3))))= 0"/>
       </rule>
       <rule name="subtype_mandatory_geometric_tolerance" appliesto="geometric_tolerance">
          <where label="WR1" expression="SIZEOF(QUERY(gt &lt;* geometric_tolerance | NOT(type_check_function(gt, ['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.ANGULARITY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CIRCULAR_RUNOUT_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.COAXIALITY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CONCENTRICITY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CYLINDRICITY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.FLATNESS_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LINE_PROFILE_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PARALLELISM_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PERPENDICULARITY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.POSITION_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.ROUNDNESS_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.STRAIGHTNESS_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.SURFACE_PROFILE_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.SYMMETRY_TOLERANCE', 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.TOTAL_RUNOUT_TOLERANCE'], 0))))= 0"/>
@@ -8427,7 +8434,7 @@ END_REPEAT;</algorithm>
          <builtintype type="BOOLEAN"/>
          <algorithm>LOCAL
 
-	result: BOOLEAN;
+	result: BOOLEAN := TRUE;
 
 END_LOCAL
 ;
@@ -8485,7 +8492,9 @@ THEN
 
 	RETURN(result);
 
-END_IF;</algorithm>
+END_IF;
+
+	RETURN(result);</algorithm>
       </function>
       <function name="acyclic_composite_text">
          <parameter name="start_composite">
@@ -8950,7 +8959,7 @@ END_IF;</algorithm>
 
    
    IF 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PCURVE' IN TYPEOF(arg)THEN
-     surf := arg.basis_surface;
+     surf := arg\pcurve.basis_surface;
 
    ELSE
      surf := arg;
@@ -9115,7 +9124,7 @@ END_IF;</algorithm>
 
   d2 := first_proj_axis(d1, ref_direction);
 
-  RETURN([d2, normalise(cross_product(d1,d2)).orientation, d1]);</algorithm>
+  RETURN([d2, normalise(cross_product(d1,d2))\vector.orientation, d1]);</algorithm>
       </function>
       <function name="categories_of_product">
          <parameter name="obj">
@@ -9480,7 +9489,7 @@ RETURN(TRUE);</algorithm>
 
     i  : INTEGER;
 
-    td : positive_length_measure := 0;
+    td : REAL := 0;
 
   END_LOCAL
 ;
@@ -10030,8 +10039,7 @@ IF EXISTS(set_of_input_instances)THEN
         ELSE
           dependently_instantiated_flag := true;
 
-          ESCAPE;
- -- dependently instantiated; take next input instance
+          ESCAPE; -- dependently instantiated; take next input instance
         END_IF;
 
       END_REPEAT;
@@ -10896,7 +10904,7 @@ RETURN(pdr_set);</algorithm>
          <parameter name="arg">
             <typename name="expression"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype type="LOGICAL"/>
          <algorithm>LOCAL
 
 	i: INTEGER;
@@ -11109,10 +11117,10 @@ END_IF;
          <parameter name="arg">
             <typename name="numeric_expression"/>
          </parameter>
-         <builtintype type="BOOLEAN"/>
+         <builtintype type="LOGICAL"/>
          <algorithm>LOCAL
 
-	i: INTEGER;
+	i: INTEGER := 0;
 
 END_LOCAL
 ;
@@ -11928,13 +11936,13 @@ RETURN(FALSE);</algorithm>
          <typename name="vector_or_direction"/>
          <algorithm>LOCAL
 
-     ndim   : INTEGER;
+     ndim   : INTEGER := 1;
 
-     v      : direction;
+     v      : direction := dummy_gri || direction([1.0,0.0,0.0]);
 
      result : vector_or_direction;
 
-     vec    : vector;
+     vec    : vector := dummy_gri || vector(v, 1.0);
 
      mag    : REAL;
 
@@ -12375,7 +12383,9 @@ ELSE
 
   END_CASE;
 
-END_IF;</algorithm>
+END_IF;
+
+RETURN(UNKNOWN);</algorithm>
       </function>
       <function name="using_items">
          <parameter name="item">
@@ -13281,13 +13291,13 @@ QUERY(ccs &lt;* crv\composite_curve.segments| NOT valid_geometrically_bounded_wf
             smaller 
               := cskhole\solid_with_stepped_round_hole.segment_radii[j];
 
+            IF((cskhole.conical_transitions[i].cone_base_radius &gt; larger)
+              OR(cskhole.conical_transitions[i].cone_base_radius &lt; smaller))
+            THEN RETURN(FALSE);
+
+            END_IF;
+
           END;
-
-          IF((cskhole.conical_transitions[i].cone_base_radius &gt; larger)
-            OR(cskhole.conical_transitions[i].cone_base_radius &lt; smaller))
-          THEN RETURN(FALSE);
-
-          END_IF;
 
         END_IF;
 
@@ -13308,7 +13318,7 @@ QUERY(ccs &lt;* crv\composite_curve.segments| NOT valid_geometrically_bounded_wf
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>BEGIN 
-  IF(SIZEOF(QUERY(i1 &lt;* agg |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF' + '.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1))))= 6)THEN 
+  IF(SIZEOF(QUERY(i1 &lt;* agg |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1))))= 6)THEN 
 	  RETURN(TRUE);
  
    ELSE 
@@ -13346,8 +13356,8 @@ QUERY(ccs &lt;* crv\composite_curve.segments| NOT valid_geometrically_bounded_wf
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>BEGIN
-      IF(SIZEOF(QUERY(i &lt;* agg |(i.name = 'upper limit')))= 1)
-        AND(SIZEOF(QUERY(i &lt;* agg |(i.name = 'lower limit')))= 1)
+      IF((SIZEOF(QUERY(i &lt;* agg |(i\representation_item.name = 'upper limit')))= 1)
+        AND(SIZEOF(QUERY(i &lt;* agg |(i\representation_item.name = 'lower limit')))= 1))
       THEN
         RETURN(TRUE);
 

@@ -1,4 +1,4 @@
-SCHEMA Ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_mim_LF;
+SCHEMA ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_mim_lf;
 
 CONSTANT
 	deprecated_constructed_data_types : SET [0:?] OF STRING := ['approved_item',
@@ -4488,6 +4488,7 @@ END_ENTITY; -- description_attribute
 
 
 ENTITY descriptive_representation_item
+	SUPERTYPE OF (ONEOF (tagged_text_item, uniform_resource_identifier))
 	SUBTYPE OF (representation_item);
 	description : text;
 END_ENTITY; -- descriptive_representation_item
@@ -4508,6 +4509,27 @@ END_ENTITY; -- design_make_from_relationship
 ENTITY diameter_dimension
 	SUBTYPE OF (dimension_curve_directed_callout);
 END_ENTITY; -- diameter_dimension
+
+
+ENTITY dimension_callout
+	SUBTYPE OF (draughting_callout);
+WHERE
+	WR1 : ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LEADER_DIRECTED_CALLOUT'
+        IN (TYPEOF(SELF)))XOR
+      (SIZEOF(QUERY(dce_1 <* SELF\draughting_callout.contents |
+      ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LEADER_CURVE'
+        IN(TYPEOF(dce_1)))))= 0);
+	WR2 : ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PROJECTION_DIRECTED_CALLOUT'
+        IN (TYPEOF(SELF)))XOR
+      (SIZEOF(QUERY(dce_1 <* SELF\draughting_callout.contents |
+      ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PROJECTION_CURVE'
+        IN(TYPEOF(dce_1)))))= 0);
+	WR3 : ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DIMENSION_CURVE_DIRECTED_CALLOUT'
+        IN (TYPEOF(SELF)))XOR
+      (SIZEOF(QUERY(dce_1 <* SELF\draughting_callout.contents |
+      ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DIMENSION_CURVE'
+        IN(TYPEOF(dce_1)))))= 0);
+END_ENTITY; -- dimension_callout
 
 
 ENTITY dimension_callout_component_relationship
@@ -4584,7 +4606,7 @@ WHERE
                   'TERMINATOR_SYMBOL.ANNOTATED_CURVE')
                |(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+
                   'DIMENSION_CURVE_TERMINATOR' IN  TYPEOF(dct1))
-                  AND (dct1.role = origin)))
+                  AND (dct1\dimension_curve_terminator.role = dimension_extent_usage.origin)))
         )<= 1)
         AND  
        (SIZEOF(
@@ -4592,7 +4614,7 @@ WHERE
                    'TERMINATOR_SYMBOL.ANNOTATED_CURVE')
                  |(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+
                    'DIMENSION_CURVE_TERMINATOR' IN TYPEOF(dct2))
-                   AND(dct2.role = target)))
+                   AND(dct2\dimension_curve_terminator.role = dimension_extent_usage.target)))
        )<= 1);
 END_ENTITY; -- dimension_curve
 
@@ -5144,7 +5166,7 @@ WHERE
 	WR8 : (NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'GEOMETRICAL_TOLERANCE_CALLOUT' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR
 	      ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'GEOMETRIC_TOLERANCE' IN TYPEOF(SELF\item_identified_representation_usage.definition)));
 	WR9 : (NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'DIMENSIONAL_SIZE' IN  TYPEOF(SELF\item_identified_representation_usage.definition))OR
-	       (('DRAUGHTING_DIMENSION_SCHEMA.'+'DIMENSION_CALLOUT' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR
+	       (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'DIMENSION_CALLOUT' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR
 	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'DIMENSION_CURVE_DIRECTED_CALLOUT' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR
 	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'LEADER_DIRECTED_DIMENSION' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR
 	       ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.'+'ORDINATE_DIMENSION' IN  TYPEOF(SELF\item_identified_representation_usage.identified_item))OR
@@ -5992,24 +6014,24 @@ WHERE
          IN TYPEOF(second_trim_condition)));
 	WR2 : NOT((('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' 
          IN  TYPEOF(first_trim_condition))AND  
-        ((first_trim_intent = offset)
-         OR (first_trim_intent = up_to_next)))OR   
+        ((first_trim_intent = trim_intent.offset)
+         OR (first_trim_intent = trim_intent.up_to_next)))OR   
         (('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' 
          IN TYPEOF(second_trim_condition))AND 
-        ((second_trim_intent = offset)
-         OR(second_trim_intent = up_to_next))));
+        ((second_trim_intent = trim_intent.offset)
+         OR(second_trim_intent = trim_intent.up_to_next))));
 	WR3 : NOT(((NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' 
          IN  TYPEOF(first_trim_condition)))AND  
-        ((first_trim_intent = blind)
-         OR (first_trim_intent = through_all)))OR   
+        ((first_trim_intent = trim_intent.blind)
+         OR (first_trim_intent = trim_intent.through_all)))OR   
         ((NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' 
          IN TYPEOF(second_trim_condition)))AND 
-        ((second_trim_intent = blind)
-         OR(second_trim_intent = through_all))));
-	WR4 : (((first_trim_intent = offset)AND (first_offset > 0))XOR
-        ((first_trim_intent <> offset)AND (first_offset = 0)))AND  
-        (((second_trim_intent = offset)AND (second_offset > 0))XOR
-        ((second_trim_intent <> offset)AND(second_offset = 0)));
+        ((second_trim_intent = trim_intent.blind)
+         OR(second_trim_intent = trim_intent.through_all))));
+	WR4 : (((first_trim_intent = trim_intent.offset)AND (first_offset > 0))XOR
+        ((first_trim_intent <> trim_intent.offset)AND (first_offset = 0)))AND  
+        (((second_trim_intent = trim_intent.offset)AND (second_offset > 0))XOR
+        ((second_trim_intent <> trim_intent.offset)AND(second_offset = 0)));
 	WR5 : NOT((('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' 
          IN  TYPEOF(first_trim_condition))AND
            ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.LENGTH_MEASURE' 
@@ -8372,10 +8394,10 @@ ENTITY moments_of_inertia_representation
 	SUBTYPE OF (representation);
 WHERE
 	WR1 : (SIZEOF(SELF.items)= 1)AND  
-(SIZEOF(QUERY(i <* SELF.items |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF' + '.COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i))AND 
+(SIZEOF(QUERY(i <* SELF.items |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'COMPOUND_REPRESENTATION_ITEM' IN TYPEOF(i))AND 
  (i.name = 'moments of inertia matrix')))= 1);
-	WR2 : SIZEOF(QUERY(i <* SELF.items |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF' + '.COMPOUND_REPRESENTATION_ITEM' IN  TYPEOF(i))AND  
- ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF' + '.LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element))AND 
+	WR2 : SIZEOF(QUERY(i <* SELF.items |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'COMPOUND_REPRESENTATION_ITEM' IN  TYPEOF(i))AND  
+ ('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'LIST_REPRESENTATION_ITEM' IN TYPEOF(i\compound_representation_item.item_element))AND 
   value_range_aggregate_rep_item(i\compound_representation_item.item_element)))= 1;
 END_ENTITY; -- moments_of_inertia_representation
 
@@ -8633,8 +8655,8 @@ ENTITY numeric_expression
 	ABSTRACT SUPERTYPE OF (ONEOF (simple_numeric_expression, unary_numeric_expression, binary_numeric_expression, multiple_arity_numeric_expression))
 	SUBTYPE OF (expression);
 DERIVE
-	is_int : BOOLEAN := is_int_expr(SELF);
-	sql_mappable : BOOLEAN := is_SQL_mappable(SELF);
+	is_int : LOGICAL := is_int_expr(SELF);
+	sql_mappable : LOGICAL := is_SQL_mappable(SELF);
 END_ENTITY; -- numeric_expression
 
 
@@ -9159,7 +9181,7 @@ END_ENTITY; -- point
 
 
 ENTITY point_and_vector
-	SUBTYPE OF (compound_representation_item);
+	SUBTYPE OF (compound_representation_item, geometric_representation_item);
 	SELF\compound_representation_item.item_element : point_and_vector_members;
 END_ENTITY; -- point_and_vector
 
@@ -9180,7 +9202,7 @@ END_ENTITY; -- point_on_surface
 
 
 ENTITY point_path
-	SUBTYPE OF (compound_representation_item);
+	SUBTYPE OF (compound_representation_item, geometric_representation_item);
 	SELF\compound_representation_item.item_element : point_path_members;
 END_ENTITY; -- point_path
 
@@ -9240,9 +9262,9 @@ ENTITY positioned_sketch
 WHERE
 	WR1 : NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CURVE_BOUNDED_SURFACE' IN 
     TYPEOF(sketch_basis))AND NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PLANE' IN
-    TYPEOF(sketch_basis.basis_surface)));
+    TYPEOF(sketch_basis\curve_bounded_surface.basis_surface)));
 	WR2 : NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.FACE_SURFACE' IN  TYPEOF(sketch_basis))AND
-    NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PLANE' IN TYPEOF(sketch_basis.face_geometry)));
+    NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PLANE' IN TYPEOF(sketch_basis\face_surface.face_geometry)));
 	WR3 : SIZEOF(QUERY(q <* auxiliary_elements |(SIZEOF(TYPEOF(q)* 
     ['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.POINT','AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.CURVE'])= 0)))= 0;
 	WR4 : SIZEOF(QUERY(q <* auxiliary_elements | 
@@ -9936,6 +9958,9 @@ END_ENTITY; -- radius_dimension
 
 ENTITY range_characteristic
 	SUBTYPE OF (representation, descriptive_representation_item);
+WHERE
+	WR1 : NOT(SELF\representation.name IN ['tolerance', 'minimum tolerance', 'maximum tolerance', 
+        'nominal tolerance', 'plus minus tolerance', 'symmetrical tolerance', 'statistical tolerance']);
 END_ENTITY; -- range_characteristic
 
 
@@ -10091,7 +10116,7 @@ END_ENTITY; -- representation_context
 
 
 ENTITY representation_item
-	SUPERTYPE OF ((ONEOF (binary_representation_item, compound_representation_item, mapped_item, value_representation_item) ANDOR ONEOF (boolean_representation_item, date_representation_item, date_time_representation_item, integer_representation_item, logical_representation_item, rational_representation_item, real_representation_item)));
+	SUPERTYPE OF ((ONEOF (binary_representation_item, compound_representation_item, mapped_item, value_representation_item) ANDOR ONEOF (boolean_representation_item, date_representation_item, date_time_representation_item, integer_representation_item, logical_representation_item, rational_representation_item, real_representation_item) ANDOR ONEOF (mapped_item, styled_item)));
 	name : label;
 WHERE
 	WR1 : SIZEOF(using_representations(SELF))> 0;
@@ -10750,12 +10775,6 @@ WHERE
 	WR1 : NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.MASS_UNIT' IN TYPEOF(SELF))AND
             (SIZEOF(USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DERIVED_UNIT_ELEMENT.UNIT'))> 0))OR
            (prefix = si_prefix.kilo);
-	WR2 : NOT(NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.MASS_UNIT' IN TYPEOF(SELF))AND
-            (SIZEOF(USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DERIVED_UNIT_ELEMENT.UNIT'))> 0))OR
-            NOT EXISTS(prefix);
-	WR3 : NOT(('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DERIVED_UNIT' IN TYPEOF(SELF))AND
-            (SIZEOF(USEDIN(SELF,'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.DERIVED_UNIT_ELEMENT.UNIT'))> 0))OR
-            NOT EXISTS(prefix);
 END_ENTITY; -- si_unit
 
 
@@ -11940,9 +11959,11 @@ END_ENTITY; -- time_unit
 ENTITY tolerance_value;
 	lower_bound : measure_with_unit;
 	upper_bound : measure_with_unit;
+DERIVE
+	lbvc : REAL := lower_bound\measure_with_unit.value_component;
+	ubvc : REAL := upper_bound\measure_with_unit.value_component;
 WHERE
-	WR1 : upper_bound\measure_with_unit.value_component >
-        lower_bound\measure_with_unit.value_component;
+	WR1 : ubvc > lbvc;
 	WR2 : upper_bound\measure_with_unit.unit_component =
         lower_bound\measure_with_unit.unit_component;
 END_ENTITY; -- tolerance_value
@@ -12419,20 +12440,18 @@ END_RULE; -- compatible_dimension
 
 RULE component_class_for_assembly_select FOR (composite_assembly_sequence_definition, next_assembly_usage_occurrence, product_related_product_category);LOCAL
 
-      i,j,k :  INTEGER;
+      i,j,k :  INTEGER  :=0;
 
-      dkuhr :  LOGICAL;
+      dkuhr :  LOGICAL :=TRUE;
 
-      nnauo :  INTEGER;
+      nnauo :  INTEGER  :=0;
 
-      nprpc :  INTEGER;
+      nprpc :  INTEGER :=0;
 
       rp    :  product;
 
     END_LOCAL
 ;
-
-    dkuhr := TRUE;
 
     REPEAT  i:= LOINDEX (composite_assembly_sequence_definition)TO
                HIINDEX (composite_assembly_sequence_definition);
@@ -12617,18 +12636,16 @@ RULE ply_reference FOR (ply_laminate_sequence_definition, next_assembly_usage_oc
 
       i,j,k :  INTEGER;
 
-      dkuhr :  LOGICAL;
+      dkuhr :  LOGICAL := TRUE;
 
       nnauo :  INTEGER;
 
-      nprpc :  INTEGER;
+      nprpc :  INTEGER := 0;
 
       rp    :  product;
 
     END_LOCAL
 ;
-
-    dkuhr := TRUE;
 
     REPEAT  i:= LOINDEX (ply_laminate_sequence_definition)TO
                HIINDEX (ply_laminate_sequence_definition);
@@ -12696,7 +12713,7 @@ RULE ply_stock_material_select FOR (product_related_product_category, make_from_
 
     nmfuo    :  INTEGER;
 
-    nprpc    :  INTEGER;
+    nprpc    :  INTEGER := 0;
 
     rp       :  product;
 
@@ -12849,7 +12866,7 @@ WHERE
 	(r.name ='centre of mass')AND  
 	((SIZEOF(r.items)<>1)OR 
 	(SIZEOF(QUERY(i <* r.items | 
-	('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF' + '.POINT' IN TYPEOF(i))AND 
+	('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'POINT' IN TYPEOF(i))AND 
 	(i.name = 'centre point')))<>1))))
 	=0;
 END_RULE; -- restrict_centre_of_mass_representation
@@ -13192,7 +13209,10 @@ END_RULE; -- subtype_exclusiveness_geometric_tolerance
 
 RULE subtype_exclusiveness_representation_item FOR (representation_item);
 WHERE
-	WR1 : SIZEOF(QUERY(cri <* representation_item | NOT(type_check_function(cri,['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.MEASURE_REPRESENTATION_ITEM','AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.VALUE_REPRESENTATION_ITEM','AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.COMPOUND_REPRESENTATION_ITEM'], 3))))= 0;
+	WR1 : SIZEOF(QUERY(cri <* representation_item | 
+      NOT(type_check_function(cri,['AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.MEASURE_REPRESENTATION_ITEM',
+                                    'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.VALUE_REPRESENTATION_ITEM',
+                                    'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.COMPOUND_REPRESENTATION_ITEM'], 3))))= 0;
 END_RULE; -- subtype_exclusiveness_representation_item
 
 RULE subtype_mandatory_geometric_tolerance FOR (geometric_tolerance);
@@ -13316,7 +13336,7 @@ FUNCTION acyclic
 	(arg1 : generic_expression; arg2 : SET [0:?] OF generic_expression) : BOOLEAN;
 LOCAL
 
-	result: BOOLEAN;
+	result: BOOLEAN := TRUE;
 
 END_LOCAL
 ;
@@ -13375,6 +13395,8 @@ THEN
 	RETURN(result);
 
 END_IF;
+
+	RETURN(result);
 END_FUNCTION; -- acyclic
 
 FUNCTION acyclic_composite_text
@@ -13774,7 +13796,7 @@ LOCAL
 
    
    IF 'AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.PCURVE' IN TYPEOF(arg)THEN
-     surf := arg.basis_surface;
+     surf := arg\pcurve.basis_surface;
 
    ELSE
      surf := arg;
@@ -13906,7 +13928,7 @@ LOCAL
 
   d2 := first_proj_axis(d1, ref_direction);
 
-  RETURN([d2, normalise(cross_product(d1,d2)).orientation, d1]);
+  RETURN([d2, normalise(cross_product(d1,d2))\vector.orientation, d1]);
 END_FUNCTION; -- build_axes
 
 FUNCTION categories_of_product
@@ -14253,7 +14275,7 @@ LOCAL
 
     i  : INTEGER;
 
-    td : positive_length_measure := 0;
+    td : REAL := 0;
 
   END_LOCAL
 ;
@@ -14746,8 +14768,7 @@ IF EXISTS(set_of_input_instances)THEN
         ELSE
           dependently_instantiated_flag := true;
 
-          ESCAPE;
- -- dependently instantiated; take next input instance
+          ESCAPE; -- dependently instantiated; take next input instance
         END_IF;
 
       END_REPEAT;
@@ -15566,10 +15587,10 @@ RETURN(acyclic(arg, []));
 END_FUNCTION; -- is_acyclic
 
 FUNCTION is_int_expr
-	(arg : numeric_expression) : BOOLEAN;
+	(arg : numeric_expression) : LOGICAL;
 LOCAL
 
-	i: INTEGER;
+	i: INTEGER := 0;
 
 END_LOCAL
 ;
@@ -15726,7 +15747,7 @@ RETURN(FALSE);
 END_FUNCTION; -- is_int_expr
 
 FUNCTION is_SQL_mappable
-	(arg : expression) : BOOLEAN;
+	(arg : expression) : LOGICAL;
 LOCAL
 
 	i: INTEGER;
@@ -16529,13 +16550,13 @@ FUNCTION normalise
 	(arg : vector_or_direction) : vector_or_direction;
 LOCAL
 
-     ndim   : INTEGER;
+     ndim   : INTEGER := 1;
 
-     v      : direction;
+     v      : direction := dummy_gri || direction([1.0,0.0,0.0]);
 
      result : vector_or_direction;
 
-     vec    : vector;
+     vec    : vector := dummy_gri || vector(v, 1.0);
 
      mag    : REAL;
 
@@ -16934,6 +16955,8 @@ ELSE
   END_CASE;
 
 END_IF;
+
+RETURN(UNKNOWN);
 END_FUNCTION; -- type_check_function
 
 FUNCTION using_items
@@ -17805,13 +17828,13 @@ LOCAL
             smaller 
               := cskhole\solid_with_stepped_round_hole.segment_radii[j];
 
+            IF((cskhole.conical_transitions[i].cone_base_radius > larger)
+              OR(cskhole.conical_transitions[i].cone_base_radius < smaller))
+            THEN RETURN(FALSE);
+
+            END_IF;
+
           END;
-
-          IF((cskhole.conical_transitions[i].cone_base_radius > larger)
-            OR(cskhole.conical_transitions[i].cone_base_radius < smaller))
-          THEN RETURN(FALSE);
-
-          END_IF;
 
         END_IF;
 
@@ -17829,7 +17852,7 @@ END_FUNCTION; -- validate_countersink_radii
 FUNCTION value_range_aggregate_rep_item
 	(agg : AGGREGATE OF representation_item) : BOOLEAN;
 BEGIN 
-  IF(SIZEOF(QUERY(i1 <* agg |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF' + '.MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1))))= 6)THEN 
+  IF(SIZEOF(QUERY(i1 <* agg |('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_MIM_LF.' + 'MEASURE_REPRESENTATION_ITEM' IN TYPEOF(i1))))= 6)THEN 
 	  RETURN(TRUE);
  
    ELSE 
@@ -17863,8 +17886,8 @@ END_FUNCTION; -- value_range_wr1
 FUNCTION value_range_wr2
 	(agg : compound_item_definition) : BOOLEAN;
 BEGIN
-      IF(SIZEOF(QUERY(i <* agg |(i.name = 'upper limit')))= 1)
-        AND(SIZEOF(QUERY(i <* agg |(i.name = 'lower limit')))= 1)
+      IF((SIZEOF(QUERY(i <* agg |(i\representation_item.name = 'upper limit')))= 1)
+        AND(SIZEOF(QUERY(i <* agg |(i\representation_item.name = 'lower limit')))= 1))
       THEN
         RETURN(TRUE);
 
@@ -17975,5 +17998,5 @@ LOCAL
    RETURN(result);
 END_FUNCTION; -- vector_difference
 
-END_SCHEMA; --Ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_mim_LF
+END_SCHEMA; --ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_mim_lf
 

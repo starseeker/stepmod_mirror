@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.50 2008/02/09 16:28:47 thomasrthurman Exp $
+   $Id: arm.exp,v 1.51 2008/02/09 18:27:23 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4014 - ISO/TS 10303-1689 Interconnect physical requirement allocation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3456
 *)
@@ -73,13 +73,15 @@
   ENTITY Electrical_isolation_requirement
     SUBTYPE OF (Requirement_view_definition);
     WHERE
-      WR1: (SIZEOF(USEDIN(SELF, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.TRACING_RELATIONSHIP.TRACES_TO')) = 1) AND
-      (SIZEOF(QUERY tr <* USEDIN(SELF,'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.TRACING_RELATIONSHIP.TRACES_TO') |
-                   NOT ('effective voltage withstand capacity requirement' = tr\Product_view_definition.name)
+      WR1: (SIZEOF(USEDIN(SELF, 'REQUIREMENT_DECOMPOSITION_ARM.REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY')) = 1) AND
+      (SIZEOF(QUERY( tr <* USEDIN(SELF,'REQUIREMENT_DECOMPOSITION_ARM.REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.PRIMARY') |
+                   NOT ('effective voltage withstand capacity requirement' = 
+                        tr\Requirement_view_definition_relationship.primary\Product_view_definition.name)
                    )) = 0);
       WR2: (SIZEOF(USEDIN(SELF, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION')) = 1) AND
-      (SIZEOF(QUERY rcr <* USEDIN(SELF,'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') |
-                   NOT (INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(rcr\requirement_collection_relationship.member))
+      (SIZEOF(QUERY( rcr <* USEDIN(SELF,'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') |
+                   NOT ('INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN 
+                          TYPEOF(rcr\requirement_collection_relationship.member))
                    )) = 0);
       WR3: NOT EXISTS(SELF\Product_view_definition.additional_characterization);
   END_ENTITY;
@@ -110,18 +112,19 @@
    WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
       WR2 : NOT(EXISTS(thermal_bar_width) XOR EXISTS(number_of_bars));
-      WR3: (SIZEOF(QUERY tr <* USEDIN(SELF,'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.TRACING_RELATIONSHIP.TRACES_TO') |
-                   ('effective current capacity requirement' = tr\Product_view_definition.name)
-                   )) <= 1);
-      WR4: (SIZEOF(QUERY tr <* USEDIN(SELF,'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.TRACING_RELATIONSHIP.TRACES_TO') |
-                   ('effective thermal impedance requirement' = tr\Product_view_definition.name)
-                   )) <= 1);
-      WR5: (SIZEOF(QUERY tr <* USEDIN(SELF,'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.TRACING_RELATIONSHIP.TRACES_TO') |
-                   ('angular orientation requirement' = tr\Product_view_definition.name)
-                   )) = 1);
+      WR3: SIZEOF(QUERY( tr <* USEDIN(SELF,'REQUIREMENT_DECOMPOSITION_ARM.REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY') |
+                   ('effective current capacity requirement' = tr\Requirement_view_definition_relationship.primary\Product_view_definition.name)
+                   )) <= 1;
+      WR4: SIZEOF(QUERY( tr <* USEDIN(SELF,'REQUIREMENT_DECOMPOSITION_ARM.REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY') |
+                   ('effective thermal impedance requirement' = tr\Requirement_view_definition_relationship.primary\Product_view_definition.name)
+                   )) <= 1;
+      WR5: SIZEOF(QUERY( tr <* USEDIN(SELF,'REQUIREMENT_DECOMPOSITION_ARM.REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY') |
+                   ('angular orientation requirement' = tr\Requirement_view_definition_relationship.primary\Product_view_definition.name)
+                   )) = 1;
       WR6: (SIZEOF(USEDIN(SELF, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION')) = 1) AND
-      (SIZEOF(QUERY rcr <* USEDIN(SELF,'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') |
-                   NOT (INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(rcr\requirement_collection_relationship.member))
+           (SIZEOF(QUERY( rcr <* USEDIN(SELF,'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') |
+                   NOT ('INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN 
+                   TYPEOF(rcr\requirement_collection_relationship.member))
                    )) = 0);
   END_ENTITY;
 

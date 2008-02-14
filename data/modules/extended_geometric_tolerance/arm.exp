@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.58 2008/02/12 20:51:30 thomasrthurman Exp $
+   $Id: arm.exp,v 1.59 2008/02/12 22:06:20 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3945 - ISO/TS 10303-1666 Extended geometric tolerance - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3399
 *)
@@ -454,13 +454,12 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
   ENTITY Projected_zone_and_base_relationship;
       base_physical_feature           : physical_feature_or_part_template;
-      base_physical_feature_datum     : OPTIONAL Datum_defined_by_feature;
       projected_zone                  : Tolerance_zone;
     INVERSE
       size_characteristic : projected_zone_height_characteristic FOR defined_height_of;
     WHERE
-      WR1: NOT EXISTS(base_physical_feature_datum) OR 
-          (base_physical_feature :=: base_physical_feature_datum\Datum_defined_by_feature.defined_by);
+      WR1: NOT('SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT' IN TYPEOF(base_physical_feature)) OR
+       (SIZEOF(USEDIN(base_physical_feature,'GEOMETRIC_TOLERANCE_ARM.DATUM_DEFINED_BY_FEATURE.DEFINED_BY'))> 0); 
   END_ENTITY;
 
   ENTITY Projected_zone_height_characteristic;

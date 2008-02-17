@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.142 2008/02/14 11:37:53 liutkus Exp $
+   $Id: arm.exp,v 1.143 2008/02/17 20:52:50 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -28,6 +28,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   TYPE pt2ds_physical_unit_shape_model_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_shape_model_select WITH 
     (Physical_unit_planar_shape_model);
+  END_TYPE;
+
+  TYPE trace_class = ENUMERATION OF
+    (microstrip,
+     stripline,
+     co_planar_waveguide);
   END_TYPE;
 
   SUBTYPE_CONSTRAINT pt2ds_geometric_template_subtypes FOR Geometric_template; 
@@ -129,6 +135,35 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
                                primary_sto_link\Stratum_technology_occurrence_relationship.sto_2]; 
       WR2 : equivalent_stack\Stratum_sub_stack.associated_stackup :<>: primary_sto_link\Stratum_technology_occurrence_relationship.scope; 
   END_ENTITY;   
+
+  ENTITY Impedance_requirement_occurrence
+    SUBTYPE OF (Predefined_requirement_view_definition);
+      characterized_class       : trace_class;
+      characterized_class_range : Value_range;
+      test_bench                : Impedance_measurement_setup_requirement_occurrence;
+      test_method               : Test_specification;
+      tolerance                 : Tolerance_characteristic;
+   WHERE    
+      WR1: SELF\Product_view_definition.initial_context.life_cycle_stage = 'test'; 
+      WR2: NOT EXISTS(SELF\Product_view_definition.id);
+  END_ENTITY;
+
+  ENTITY Impedance_measurement_setup_requirement_occurrence
+    SUBTYPE OF (Predefined_requirement_view_definition);
+      characterized_stackup     : Stratum_sub_stack;
+      measurement_method        : Process_specification;
+      measurement_stratum       : Stratum_technology_occurrence;
+      reference_stratum         : SET [1:2] OF Stratum_technology_occurrence;
+   DERIVE
+      associated_stratum : SET OF Stratum_technology_occurrence :=
+      reference_stratum + measurement_stratum;
+   WHERE    
+      WR1: SELF\Product_view_definition.initial_context.life_cycle_stage = 'test'; 
+      WR2: NOT EXISTS(SELF\Product_view_definition.id);
+      WR3: SIZEOF([measurement_stratum] * reference_stratum) = 0;
+      WR4: SIZEOF(associated_stratum * characterized_stackup\Stratum_sub_stack.associated_stackup\Stratum_stack_model.composing_occurrence)
+           = SIZEOF(associated_stratum);
+  END_ENTITY;
 
   ENTITY Inter_stratum_feature_template_location
   	SUBTYPE OF (Template_location_in_structured_template);

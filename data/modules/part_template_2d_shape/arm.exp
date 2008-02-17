@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.141 2008/02/14 10:14:15 liutkus Exp $
+   $Id: arm.exp,v 1.142 2008/02/14 11:37:53 liutkus Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -104,6 +104,32 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
            SELF\Stratum_stack_model.composing_occurrence);
   END_ENTITY;
 
+  ENTITY Equivalent_stackup_model_definition
+    SUBTYPE OF (Product_view_definition, View_definition_relationship);
+     SELF\View_definition_relationship.relating_view RENAMED primary_stackup_model   : Stratum_stack_model;
+     SELF\View_definition_relationship.related_view RENAMED equivalent_stackup_model : Stratum_stack_model;
+     equivalent_sub_stacks : SET [1:?] OF Equivalent_sub_stack_definition;
+    WHERE
+      WR1 : primary_stackup_model :<>: equivalent_stackup_model;
+      WR2 : SIZEOF(QUERY( ess <* equivalent_sub_stacks |
+               NOT (ess\Equivalent_sub_stack_definition.equivalent_stack\Stratum_sub_stack.associated_stackup :=: equivalent_stackup_model)
+                  )) = 0;
+      WR3:  acyclic_equivalent_stackup_model_definition(SELF,
+                    [equivalent_stackup_model],
+                    'PART_TEMPLATE_2D_SHAPE_ARM.EQUIVALENT_STACKUP_MODEL_DEFINITION');
+  END_ENTITY;
+   
+  ENTITY Equivalent_sub_stack_definition
+    SUBTYPE OF (Product_view_definition);
+      equivalent_stack : Local_linear_stack;
+      primary_sto : Stratum_technology_occurrence;
+      primary_sto_link : Stratum_technology_occurrence_link;
+    WHERE
+      WR1 : primary_sto IN [primary_sto_link\Stratum_technology_occurrence_relationship.sto_1,
+                               primary_sto_link\Stratum_technology_occurrence_relationship.sto_2]; 
+      WR2 : equivalent_stack\Stratum_sub_stack.associated_stackup :<>: primary_sto_link\Stratum_technology_occurrence_relationship.scope; 
+  END_ENTITY;   
+
   ENTITY Inter_stratum_feature_template_location
   	SUBTYPE OF (Template_location_in_structured_template);
       SELF\Template_location_in_structured_template.assembly : Multi_stratum_structured_template;
@@ -125,7 +151,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       SELF\Stratum_sub_stack.stratum_technology_sequence : SET[1:?] OF Stratum_technology_occurrence_link;
     WHERE
       WR1: SIZEOF(get_stack(stratum_technology_sequence)) = (SIZEOF(stratum_technology_sequence) + 1);
-      WR2: sts_vertex_degree_less_than_three(stratum_technology_sequence);
+      WR2: sts_vertex_degree_check(stratum_technology_sequence, 2);
   END_ENTITY;
 
   ENTITY Material_removal_structured_template
@@ -223,7 +249,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
         EXISTS(single_stratum_passage_location);
       WR3: SIZEOF(get_stack(SELF\Stratum_sub_stack.stratum_technology_sequence)) = 
                  (SIZEOF(SELF\Stratum_sub_stack.stratum_technology_sequence) + 1);
-      WR4: sts_vertex_degree_less_than_three(SELF\Stratum_sub_stack.stratum_technology_sequence);
+      WR4: sts_vertex_degree_check(SELF\Stratum_sub_stack.stratum_technology_sequence, 2);
   END_ENTITY;
 
   ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;
@@ -359,10 +385,33 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR1 : assembly_shape.shape_characterized_definition[1] :=: reference_location.assembly;
   END_ENTITY;
 
- FUNCTION sts_vertex_degree_less_than_three(input : SET OF Stratum_technology_occurrence_link) : BOOLEAN;
+FUNCTION acyclic_equivalent_stackup_model_definition
+  (relation : Equivalent_stackup_model_definition; relatives : SET[1:?] OF
+  Stratum_stack_model; specific_relation : STRING) : BOOLEAN; 
+LOCAL
+    x : SET OF Equivalent_stackup_model_definition := [];
+END_LOCAL;
+
+    IF relation.primary_stackup_model IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+      x := QUERY(pd <* bag_to_set(USEDIN(relation.primary_stackup_model,
+        'PART_TEMPLATE_2D_SHAPE_ARM.' + 'EQUIVALENT_STACKUP_MODEL_DEFINITION.' +
+        'EQUIVALENT_STACKUP_MODEL')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_equivalent_stackup_model_definition(x[i], relatives +
+        relation.primary_stackup_model, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  RETURN (TRUE);
+END_FUNCTION; 
+
+ FUNCTION sts_vertex_degree_check(input : SET OF Stratum_technology_occurrence_link;
+                                       n : INTEGER) : BOOLEAN;
  LOCAL
-   psto : LIST OF INTEGER := [0:1000];
-   ssto : LIST OF INTEGER := [0:1000];
+   psto : INTEGER := 0;
+   ssto : INTEGER := 0;
    sto : SET OF Stratum_technology_occurrence := get_stack(input);
    i : INTEGER := 0;
    j : INTEGER := 0;
@@ -371,15 +420,15 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   REPEAT i := 1 TO SIZEOF(sto) BY 1;
    REPEAT j := 1 TO SIZEOF(input) BY 1;
      IF (input[j]\Stratum_technology_occurrence_relationship.sto_1 :=: sto[i]) THEN 
-      psto[i] := psto[i] + 1;
-      IF (psto[i] = 3) THEN
+      psto := psto + 1;
+      IF (psto = n) THEN
        pass := FALSE; 
        ESCAPE; 
       END_IF;
      END_IF;  
      IF (input[j]\Stratum_technology_occurrence_relationship.sto_2 :=: sto[i]) THEN 
-      ssto[i] := ssto[i] + 1;  
-      IF (ssto[i] = 3) THEN 
+      ssto := ssto + 1;  
+      IF (ssto = n) THEN 
        pass := FALSE; 
        ESCAPE; 
       END_IF;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.6 2005/02/04 18:07:29 budreckytej Exp $
+   $Id: arm.exp,v 1.7 2006/01/20 08:43:42 liutkuviene Exp $
    ISO TC184/SC4/WG12 N4203 - ISO/TS 10303-1752 Thermal network definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3627
 *)
@@ -10,6 +10,18 @@ SCHEMA Thermal_network_definition_arm;
 
   ENTITY Thermal_network_definition
     SUBTYPE OF (Functional_unit_network_definition);
+  END_ENTITY;
+
+  ENTITY Thermal_functional_unit_network_node_definition
+    SUBTYPE OF (Functional_unit_network_node_definition);
+      SELF\Functional_unit_network_node_definition.associated_functional_unit_definition : Thermal_network_definition;
+    location_x : REAL;
+    location_y : REAL;
+    location_z : OPTIONAL REAL;
+    location_unit : length_unit; 
+    WHERE
+      WR1 : SIZEOF(USEDIN(SELF, 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ))
+          + SIZEOF(USEDIN(SELF, 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' )) = 0;
   END_ENTITY;
 
 END_SCHEMA;

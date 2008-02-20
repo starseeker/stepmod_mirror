@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Id: cm-record.xsl,v 1.4 2007/04/14 03:41:19 radack Exp $ -->
+<!-- $Id: cm-record.xsl,v 1.5 2007/06/26 23:24:41 radack Exp $ -->
 
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <xsl:output method="xml" indent="yes" doctype-system="..\..\..\dtd\cm_record.dtd"/>
 
 <xsl:param name="release">*** FILL IN ***</xsl:param>
-<xsl:param name="stepmod_release">*** FILL IN ***</xsl:param>
+<xsl:param name="release_status">*** FILL IN ***</xsl:param>
+<xsl:param name="stepmod_common_release">*** FILL IN ***</xsl:param>
+<xsl:param name="stepmod_framework_release">*** FILL IN ***</xsl:param>
 <xsl:param name="release_sequence">*** FILL IN ***</xsl:param>
 <xsl:param name="edition">*** FILL IN ***</xsl:param>
 <xsl:param name="who">*** FILL IN ***</xsl:param>
 <xsl:param name="when">*** FILL IN ***</xsl:param>
 <xsl:param name="description">*** FILL IN ***</xsl:param>
 <xsl:param name="status">*** FILL IN ***</xsl:param>
-<xsl:param name="record_exists">true</xsl:param>
+<xsl:param name="existing_record_url"/>
 
 <xsl:template match="/">
   <xsl:apply-templates select="module"/>
@@ -35,20 +37,22 @@
     <cm_releases>
        <xsl:call-template name="release-comment"/>
        <!-- If there is an existing cm_record.xml file, copy its cm_release elements. -->
-      <xsl:if test="$record_exists = 'true'">
-        <xsl:apply-templates select="document('cm_record.xml',.)/cm_record/cm_releases/cm_release"/>
+      <xsl:if test="$existing_record_url">
+        <xsl:apply-templates select="document($existing_record_url,.)/cm_record/cm_releases/cm_release"/>
       </xsl:if>
       <!-- Generate a new cm_release element corresponding to the versions of the files
             in the current directory. -->
       <cm_release
           release="{$release}"
-          stepmod_release="{$stepmod_release}"
+          release_status="{$release_status}"
+          stepmod_common_release="{$stepmod_common_release}"
+          stepmod_framework_release="{$stepmod_framework_release}"
           release_sequence="{$release_sequence}"
           edition="{$edition}"
           who="{$who}"
           when="{$when}"
           description="{$description}"
-          status="{$status}">
+          iso_status="{$status}">
         <dependencies>
           <sources>
             *** INSERT DIRECTORY ELEMENTS ***

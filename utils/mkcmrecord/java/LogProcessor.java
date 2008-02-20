@@ -1,5 +1,6 @@
 public class LogProcessor implements CvsOutputProcessor {
     MetadataCollection metadataCollection;
+    StatusPrinter statusPrinter;
     private String cvsRevision;
     private String cvsDate;
     private String repositoryPath;
@@ -7,8 +8,9 @@ public class LogProcessor implements CvsOutputProcessor {
     private Metadata metadata;
     private boolean correctRevision;
 
-    public LogProcessor(MetadataCollection coll) {
-	metadataCollection = coll;
+    public LogProcessor(MetadataCollection metadataCollection, StatusPrinter statusPrinter) {
+	this.metadataCollection = metadataCollection;
+        this.statusPrinter = statusPrinter;
 	init();
     }
 
@@ -30,7 +32,7 @@ public class LogProcessor implements CvsOutputProcessor {
 	    }
 	    metadata = metadataCollection.get(repositoryPath);
 	    if (metadata == null) {
-		System.err.println("Could not find metadata for " + repositoryPath);
+		statusPrinter.printStatusMessage("Could not find metadata for " + repositoryPath);
 	    }
 	}
 	if (line.startsWith("Working file:")) {

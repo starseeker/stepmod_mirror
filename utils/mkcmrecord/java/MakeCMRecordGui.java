@@ -576,7 +576,7 @@ public class MakeCMRecordGui extends javax.swing.JFrame implements StatusPrinter
     public void processStepmod()
             throws java.io.FileNotFoundException, java.text.ParseException,
             javax.xml.transform.TransformerConfigurationException,
-            javax.xml.transform.TransformerException, InvalidModuleDirException,
+            javax.xml.transform.TransformerException,
             ConnectionException, InternalErrorException {
 
         String dateStr = smWhenField.getText();
@@ -587,17 +587,13 @@ public class MakeCMRecordGui extends javax.swing.JFrame implements StatusPrinter
         Date when = new Date();
         String who = smWhoField.getText();
 
-        System.err.println("Generating STEPMod CM record");
-    /*
-    MakeCMRecord makeCMRecord = new MakeCMRecord(config,
-    stepmodRootDir, description, release, tag, who, when);
-    try {
-    makeCMRecord.generateCM();
-    } catch (java.io.IOException e) {
-    throw new InternalErrorException(e);
-    }
-     */
-
+        MakeStepmodCMRecord makeStepmodCMRecord = new MakeStepmodCMRecord(config,
+                stepmodRootDir, description, release, tag, who, when, this);
+        try {
+            makeStepmodCMRecord.generateCM();
+        } catch (java.io.IOException e) {
+            throw new InternalErrorException(e);
+        }
     }
 
     public void printStatusMessage(String msg) {

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- $Id: cm-record.xsl,v 1.5 2007/06/26 23:24:41 radack Exp $ -->
+<!-- $Id: cm-record.xsl,v 1.6 2008/02/20 02:25:37 radack Exp $ -->
 
 <xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <xsl:output method="xml" indent="yes" doctype-system="..\..\..\dtd\cm_record.dtd"/>
 
+<xsl:param name="part_name">*** FILL IN ***</xsl:param>
 <xsl:param name="release">*** FILL IN ***</xsl:param>
 <xsl:param name="release_status">*** FILL IN ***</xsl:param>
 <xsl:param name="stepmod_common_release">*** FILL IN ***</xsl:param>
@@ -18,20 +19,36 @@
 <xsl:param name="existing_record_url"/>
 
 <xsl:template match="/">
-  <xsl:apply-templates select="module"/>
-</xsl:template>
-
-<xsl:template match="module">
   <xsl:comment>
     <xsl:text> </xsl:text>
     <xsl:value-of select="concat('$','Id: $')"/>
     <xsl:text> </xsl:text>
   </xsl:comment>
+  <xsl:apply-templates select="module|express"/>
+</xsl:template>
+
+<xsl:template match="module">
+  <xsl:call-template name="cm-record">
+    <xsl:with-param name="part_number" select="@part"/>
+    <xsl:with-param name="part_type">module</xsl:with-param>
+  </xsl:call-template>
+</xsl:template>
+
+<xsl:template match="express">
+  <xsl:call-template name="cm-record">
+    <xsl:with-param name="part_number" select="@reference"/>
+    <xsl:with-param name="part_type">resource</xsl:with-param>
+  </xsl:call-template>
+</xsl:template>
+
+<xsl:template name="cm-record">
+  <xsl:param name="part_number"/>
+  <xsl:param name="part_type"/>
   <xsl:call-template name="cm-record-comment"/>
   <cm_record
-      part_name="{@name}"
-      part_type="module"
-      part_number="{@part}"
+      part_name="{$part_name}"
+      part_type="{$part_type}"
+      part_number="{$part_number}"
       cvs_revision="{concat('$','Revision: $')}"
       cvs_date="{concat('$','Date: $')}">
     <cm_releases>
@@ -57,26 +74,28 @@
           <sources>
             *** INSERT DIRECTORY ELEMENTS ***
           </sources>
-          <xsl:apply-templates select="document('mim.xml',.)/express"/>
+	  <resource_schemas>
+            <!-- <xsl:apply-templates select="document('mim.xml',.)/express"/> -->
+	  </resource_schemas>
         </dependencies>
       </cm_release>
     </cm_releases>
   </cm_record>
 </xsl:template>
 
+<!--
 <xsl:template match="express">
   <xsl:variable name="resource">
     <xsl:apply-templates select="schema/interface">
       <xsl:with-param name="visited">|</xsl:with-param>
     </xsl:apply-templates>
   </xsl:variable>
-  <resource_schemas>
-    <xsl:for-each select="$resource/resource[not(@name = preceding-sibling::resource/@name)]">
-      <xsl:sort select="@name"/>
-      <xsl:copy-of select="."/>
-    </xsl:for-each>
-  </resource_schemas>
+  <xsl:for-each select="$resource/resource[not(@name = preceding-sibling::resource/@name)]">
+    <xsl:sort select="@name"/>
+    <xsl:copy-of select="."/>
+  </xsl:for-each>
 </xsl:template>
+-->
 
 <xsl:template match="cm_release">
   <xsl:copy-of select="."/>

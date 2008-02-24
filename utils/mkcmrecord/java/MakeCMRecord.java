@@ -130,7 +130,20 @@ public class MakeCMRecord {
         }
 
         System.setProperty("user.dir", partDirCanonicalPath);
-        partXMLFile = new File(partDir, "module.xml");
+        String fileName = "";
+        switch (partType) {
+            case PT_RESOURCE:
+                fileName = partName + ".xml";
+                break;
+            case PT_MODULE:
+                fileName = "module.xml";
+                break;
+        }
+        partXMLFile = new File(partDir, fileName);
+        if (!partXMLFile.exists()) {
+            logger.error("File does not exist.");
+            return; // !!
+        }
         xsltStream = ClassLoader.getSystemResourceAsStream("cm-record.xsl");
         cmRecordFile = new File(partCmDir, CM_FILE_NAME);
 
@@ -195,6 +208,7 @@ public class MakeCMRecord {
         String whenStr = cmrDateFormat.format(when);
 
         Transformer trans = transFact.newTransformer(xsltSource);
+        trans.setParameter("part_name", partName);
         trans.setParameter("release", release);
         trans.setParameter("release_status", releaseStatus);
         trans.setParameter("stepmod_common_release", stepmodCommonRelease);
@@ -258,7 +272,7 @@ public class MakeCMRecord {
             if (child.isDirectory() && !(childName.equals("CVS")) && !(childName.equals("Attic"))) {
                 processDir(child, root, sources);
             }
-            if (child.isFile() && !childName.equals("cm_record.xml")) {
+            if (child.isFile() && !childName.equals(CM_FILE_NAME)) {
                 processFile(child, element);
             }
         }

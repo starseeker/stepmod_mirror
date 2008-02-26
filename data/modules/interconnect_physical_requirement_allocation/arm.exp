@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.53 2008/02/17 20:44:17 thomasrthurman Exp $
+   $Id: arm.exp,v 1.54 2008/02/18 15:12:34 liutkus Exp $
    ISO TC184/SC4/WG12 N4014 - ISO/TS 10303-1689 Interconnect physical requirement allocation - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3456
 *)
@@ -75,7 +75,7 @@
   effective_voltage_withstand_capacity_requirement : OPTIONAL Value_limit;
     DERIVE
   electrical_isolation_spacing_requirement         : SET[1:1] OF Predefined_requirement_view_definition := 
-    get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'electrical isolation spacing requirement', 
+    get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'derived from', 
               'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE');
     WHERE
       WR1 : NOT EXISTS(effective_voltage_withstand_capacity_requirement) OR
@@ -114,7 +114,7 @@
     effective_thermal_resistance_requirement : OPTIONAL Value_limit;
    DERIVE
     thermal_isolation_spacing_requirement    : SET[1:1] OF Predefined_requirement_view_definition := 
-            get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'thermal isolation spacing requirement', 'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE');
+            get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'derived from', 'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE');
    WHERE
       WR1 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
       WR2 : NOT(EXISTS(thermal_bar_width) XOR EXISTS(number_of_bars));
@@ -137,12 +137,12 @@ LOCAL
     rvdr : SET[0:?] OF Requirement_view_definition_relationship := [];
     rdp : SET[0:?] OF Predefined_requirement_view_definition := [];  --this gives us access to the information base
 END_LOCAL;
-	rvdr := bag_to_set(QUERY(rvdre <* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY')|
-	                           ((rvdre.relation_type = id) AND (reqType IN TYPEOF(rvdre.primary)))
+	rvdr := bag_to_set(QUERY(rvdre <* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.PRIMARY')|
+	                           ((rvdre.relation_type = id) AND (reqType IN TYPEOF(rvdre.secondary)))
                        ));
 	-- iterate over rvdr
 	REPEAT i := 1 to SIZEOF(rvdr) by 1;
-      rdp := rdp + rvdr[i].primary;
+      rdp := rdp + rvdr[i].secondary;
 	END_REPEAT;
 
 	RETURN(rdp);

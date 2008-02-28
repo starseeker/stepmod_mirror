@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.143 2008/02/17 20:52:50 thomasrthurman Exp $
+   $Id: arm.exp,v 1.144 2008/02/17 22:05:06 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -274,19 +274,29 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   ENTITY Passage_technology_allocation_to_stack_model
     SUBTYPE OF (Stratum_sub_stack);
-      allocated_technology            : Passage_technology;
-      single_stratum_passage_location : OPTIONAL Stratum_technology_occurrence;
+       allocated_technology            : Passage_technology;
+       single_stratum_passage_location : OPTIONAL Stratum_technology_occurrence;
+	   bonded_stratum_passage_location : OPTIONAL Stratum_technology_occurrence;
+	  removal_stratum_passage_location : OPTIONAL Stratum_technology_occurrence;
     WHERE
       WR1: (NOT EXISTS(single_stratum_passage_location) OR
         (single_stratum_passage_location IN
         SELF\Stratum_sub_stack.associated_stackup.composing_occurrence));
       WR2: EXISTS(SELF\Stratum_sub_stack.stratum_technology_sequence) XOR
-        EXISTS(single_stratum_passage_location);
+           EXISTS(single_stratum_passage_location);
       WR3: SIZEOF(get_stack(SELF\Stratum_sub_stack.stratum_technology_sequence)) = 
                  (SIZEOF(SELF\Stratum_sub_stack.stratum_technology_sequence) + 1);
       WR4: sts_vertex_degree_check(SELF\Stratum_sub_stack.stratum_technology_sequence, 2);
+	  WR5: NOT EXISTS(single_stratum_passage_location) OR NOT EXISTS(bonded_stratum_passage_location)
+	  WR6: NOT((bonded_stratum_passage_location) XOR (removal_stratum_passage_location));
+	  WR7: (NOT EXISTS(bonded_stratum_passage_location) OR
+			  (bonded_stratum_passage_location IN
+			  SELF\Stratum_sub_stack.associated_stackup.composing_occurrence));
+      WR8: (NOT EXISTS(removal_stratum_passage_location) OR
+		      (removal_stratum_passage_location IN
+		      SELF\Stratum_sub_stack.associated_stackup.composing_occurrence));
   END_ENTITY;
-
+  
   ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;
       keepout_shape : Physical_unit_keepout_shape_model;
       stack_model : Library_stack_model;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.134 2008/01/22 05:46:53 thomasrthurman Exp $
+   $Id: arm.exp,v 1.135 2008/02/14 11:28:34 liutkus Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -34,6 +34,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
      Stratum_technology,
      Stratum_technology_occurrence);
   END_TYPE; 
+ 
+  TYPE ft_terminus_condition = EXTENSIBLE ENUMERATION OF
+    (bilateral_bond,
+     bilateral_complete_removal,
+     unilateral_complete_removal);
+  END_TYPE;
 
   SUBTYPE_CONSTRAINT ft_shape_feature_subtypes FOR Shape_feature; 
     (ONEOF (Via_template_terminal,
@@ -362,6 +368,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       maximum_aspect_ratio              : OPTIONAL REAL;      
       minimum_finished_size             : OPTIONAL Length_data_element;      
       plated_passage                    : BOOLEAN;
+      passage_terminus_condition        : OPTIONAL ft_terminus_condition;
     DERIVE
       SELF\Item_shape.described_element : Passage_technology := SELF;     	 
 		specification: SET[0:1] OF Document_definition :=
@@ -374,12 +381,15 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     WHERE
        WR1: NOT (SIZEOF(deposition_material) = 1) OR
             ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1]));
-       WR2: NOT (plated_passage) OR (SIZEOF(deposition_material) = 1);
+       WR2: NOT plated_passage OR (SIZEOF(deposition_material) = 1);
        WR3: NOT EXISTS(as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1);
-       WR4: NOT (plated_passage) OR
+       WR4: NOT plated_passage OR
            (SIZEOF([deposition_material[1].electrical_conductivity_classification,
                     deposition_material[1].thermal_conductivity_classification] *
                    ['conductive']) >= 1);
+       WR5: NOT ((passage_terminus_condition = ft_terminus_condition.bilateral_bond) OR
+                 (passage_terminus_condition = ft_terminus_condition.unilateral_complete_removal)) OR
+            plated_passage;                  
   END_ENTITY;
 
   ENTITY Single_stratum_continuous_template

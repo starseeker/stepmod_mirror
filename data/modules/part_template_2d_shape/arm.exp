@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.145 2008/02/28 02:43:03 thomasrthurman Exp $
+   $Id: arm.exp,v 1.146 2008/02/29 05:06:48 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -69,7 +69,19 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 	 may_be_moved_in_design,
 	 is_unknown);
   END_TYPE;
-  
+
+ENTITY Allocated_passage_minimum_annular_ring
+  connected_minimum_annular_ring : OPTIONAL Length_data_element;
+  unconnected_minimum_annular_ring : OPTIONAL Length_data_element;
+  associated_passage_allocation : Passage_technology_allocation_to_stack_model;
+  associated_stratum_technology_occurrence : Stratum_technology_occurrence;
+WHERE
+ WR1 : EXISTS(connected_minimum_interior_annular_ring) OR
+       EXISTS(unconnected_minimum_interior_annular_ring);
+ WR2 : associated_stratum_technology_occurrence IN associated_passage_allocation\Passage_technology_allocation_to_stack_model.
+                                                             associated_stackup\Stratum_stack_model.composing_occurrence;
+END_ENTITY;
+    
   ENTITY Complex_passage_padstack_definition
     SUBTYPE OF (Stratum_stack_dependent_template, Passage_padstack_definition);
   END_ENTITY;

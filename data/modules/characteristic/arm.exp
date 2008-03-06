@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.48 2008/01/16 18:12:21 liutkus Exp $
+   $Id: arm.exp,v 1.49 2008/01/19 09:07:11 liutkus Exp $
    ISO TC184/SC4/WG12 N4714 - ISO/CD-TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3909
 *)
@@ -8,9 +8,12 @@ SCHEMA Characteristic_arm;
     USE FROM Basic_data_representation_arm;  -- ISO/CD-TS 10303-1773
 	USE FROM Document_assignment_arm;	-- ISO/TS 10303-1122
 	USE FROM Extended_measure_representation_arm;	-- ISO/TS 10303-1106
+	USE FROM External_library_arm; -- ISO/CD-TS 10303-1778
 	USE FROM Value_with_unit_extension_arm;	-- ISO/TS 10303-1753
   
-  REFERENCE FROM Characterizable_object_arm(bag_to_set);     -- ISO/TS 10303-xxxx	
+  REFERENCE FROM Characterizable_object_arm(bag_to_set);     -- ISO/TS 10303-xxxx
+  
+  REFERENCE FROM Qualified_measure_arm(pre_defined_type_qualifiers); -- ISO/CD-TS 10303-1782  	
   
   TYPE characteristic = SELECT
     (String_representation_item,
@@ -74,6 +77,13 @@ SCHEMA Characteristic_arm;
   ENTITY Characteristic_data_table_row
     SUBTYPE OF (Representation_item);
       cell : LIST [1:?] OF characteristic;
+  END_ENTITY;
+
+  ENTITY Externally_defined_type_qualifier
+    SUBTYPE OF (Type_qualifier);
+      external_source : External_source;
+    WHERE
+      WR1: NOT(name IN pre_defined_type_qualifiers);
   END_ENTITY;
 
   ENTITY Length_tolerance_characteristic
@@ -175,6 +185,10 @@ SCHEMA Characteristic_arm;
     ONEOF (Range_characteristic, Tolerance_characteristic);
   END_SUBTYPE_CONSTRAINT;
 
+  SUBTYPE_CONSTRAINT type_qualifier_subtypes FOR Type_qualifier;
+    ONEOF(Externally_defined_type_qualifier, Pre_defined_type_qualifier);
+  END_SUBTYPE_CONSTRAINT;
+  
   FUNCTION get_value (
          input1 : string;
          np : SET OF Representation_item) : Numerical_item_with_unit;

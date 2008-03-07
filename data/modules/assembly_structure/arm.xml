@@ -5,11 +5,16 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_structure_arm schema_instance"/>
    <schema name="Assembly_structure_arm">
-      <interface kind="use" schema="Generic_product_occurrence_arm"/>
+      <interface kind="use" schema="Product_view_definition_arm"/>
+      <interface kind="use" schema="Value_with_unit_arm"/>
       <entity name="Assembly_component_relationship" abstract.supertype="YES" supertypes="Product_occurrence_definition_relationship" super.expression="ONEOF (Next_assembly_usage, Promissory_usage, Component_upper_level_identification)">
          <explicit name="location_indicator" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
+         <explicit name="quantity" optional="YES">
+            <typename name="Value_with_unit"/>
+         </explicit>
+         <where label="WR1" expression="NOT(EXISTS(quantity)) OR ((NOT ('NUMBER' IN&#10;TYPEOF(quantity.value_component))) XOR&#10;(quantity.value_component &gt; 0))"/>
       </entity>
       <entity name="Component_upper_level_identification" supertypes="Assembly_component_relationship">
          <explicit name="upper_assembly_relationship">
@@ -34,9 +39,8 @@
             <typename name="Product_view_definition"/>
          </explicit>
          <explicit name="related_view">
-            <typename name="Product_occurrence"/>
+            <typename name="Product_view_definition"/>
          </explicit>
-         <where label="WR1" expression="NOT ('GENERIC_PRODUCT_OCCURRENCE_ARM.PRODUCT_OCCURRENCE' in TYPEOF(relating_view))"/>
       </entity>
       <entity name="Promissory_usage" supertypes="Assembly_component_relationship"/>
       <subtype.constraint name="assembly_component_relationship_constraint" entity="Assembly_component_relationship" abstract.supertype="YES" totalover="Component_upper_level_identification Next_assembly_usage Promissory_usage"/>

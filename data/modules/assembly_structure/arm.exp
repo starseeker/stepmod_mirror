@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.21 2008/01/03 14:31:07 liutkus Exp $
+ $Id: arm.exp,v 1.22 2008/01/23 19:41:03 liutkuviene Exp $
 ISO TC184/SC4/WG12 N4985 - ISO/CD-TS 10303-1026 Assembly structure - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N3222
 *) 
@@ -7,8 +7,9 @@ Supersedes ISO TC184/SC4/WG12 N3222
 
 SCHEMA Assembly_structure_arm;
 
-USE FROM Generic_product_occurrence_arm;    -- ISO/TS 10303-1762
+USE FROM Product_view_definition_arm; -- ISO/TS 10303-1019
 
+USE FROM Value_with_unit_arm; -- ISO/TS 10303-1054
 
 ENTITY Assembly_component_relationship
   ABSTRACT SUPERTYPE OF (ONEOF (Next_assembly_usage, 
@@ -16,6 +17,11 @@ ENTITY Assembly_component_relationship
                                 Component_upper_level_identification))
   SUBTYPE OF (Product_occurrence_definition_relationship);
     location_indicator : OPTIONAL STRING;
+    quantity : OPTIONAL Value_with_unit;
+ WHERE
+  WR1: NOT(EXISTS(quantity)) OR ((NOT ('NUMBER' IN
+TYPEOF(quantity.value_component))) XOR
+(quantity.value_component > 0));
 END_ENTITY; 
 
 ENTITY Next_assembly_usage
@@ -25,9 +31,7 @@ END_ENTITY;
 ENTITY Product_occurrence_definition_relationship
   ABSTRACT SUPERTYPE; 
     relating_view : Product_view_definition;
-    related_view  : Product_occurrence;
-WHERE
-  WR1: NOT ('GENERIC_PRODUCT_OCCURRENCE_ARM.PRODUCT_OCCURRENCE' in TYPEOF(relating_view));
+    related_view  : Product_view_definition;
 END_ENTITY;
 
 ENTITY Promissory_usage

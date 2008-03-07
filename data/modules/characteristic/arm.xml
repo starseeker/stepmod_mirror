@@ -8,9 +8,13 @@
       <interface kind="use" schema="Basic_data_representation_arm"/>
       <interface kind="use" schema="Document_assignment_arm"/>
       <interface kind="use" schema="Extended_measure_representation_arm"/>
+      <interface kind="use" schema="External_library_arm"/>
       <interface kind="use" schema="Value_with_unit_extension_arm"/>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
+      </interface>
+      <interface kind="reference" schema="Qualified_measure_arm">
+         <interfaced.item name="pre_defined_type_qualifiers"/>
       </interface>
       <type name="c_documented_element_select">
          <select extensible="YES" basedon="documented_element_select" selectitems="Property_value_representation" genericentity="NO"/>
@@ -76,6 +80,12 @@
             <aggregate type="LIST" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="characteristic"/>
          </explicit>
+      </entity>
+      <entity name="Externally_defined_type_qualifier" supertypes="Type_qualifier" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="external_source" optional="NO">
+            <typename name="External_source"/>
+         </explicit>
+         <where label="WR1" expression="NOT(name IN pre_defined_type_qualifiers)"/>
       </entity>
       <entity name="Length_tolerance_characteristic" supertypes="Tolerance_characteristic" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="('CHARACTERISTIC_ARM.STATISTICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;            ('CHARACTERISTIC_ARM.SYMMETRICAL_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;            ('CHARACTERISTIC_ARM.PLUS_MINUS_TOLERANCE_CHARACTERISTIC' IN TYPEOF(SELF)) OR&#10;        (SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;          NOT('VALUE_WITH_UNIT_EXTENSION_ARM.LENGTH_DATA_ELEMENT' IN TYPEOF(it))&#10;         )) = 0)"/>
@@ -151,6 +161,7 @@
          <where label="WR2" expression="NOT EXISTS(SELF\Representation.name)"/>
       </entity>
       <subtype.constraint name="exclusive_property_value_representation_characteristic" entity="Property_value_representation" super.expression="ONEOF (Range_characteristic, Tolerance_characteristic)" abstract.supertype="NO"/>
+      <subtype.constraint name="type_qualifier_subtypes" entity="Type_qualifier" super.expression="ONEOF (Externally_defined_type_qualifier, Pre_defined_type_qualifier)" abstract.supertype="NO"/>
       <subtype.constraint name="c_representation_item_subtypes" entity="Representation_item" super.expression="ONEOF (Characteristic_data_table, Characteristic_data_table_row)" abstract.supertype="NO"/>
       <function name="get_characterized_column_headers">
          <parameter name="input">

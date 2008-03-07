@@ -1232,6 +1232,10 @@
          <explicit name="location_indicator" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
+         <explicit name="quantity" optional="YES">
+            <typename name="Value_with_unit"/>
+         </explicit>
+         <where label="WR1" expression="NOT(EXISTS(quantity)) OR ((NOT ('NUMBER' IN&#10;    TYPEOF(quantity.value_component))) XOR&#10;    (quantity.value_component &gt; 0))"/>
       </entity>
       <entity name="Assembly_definition" supertypes="Part_view_definition">
          <where label="WR1" expression="'assembly' IN types_of_product(SELF\Product_view_definition.defined_version.of_product)"/>
@@ -4831,15 +4835,15 @@
          </inverse>
          <where label="WR1" expression="SIZEOF(occurrence_contexts)+ SIZEOF(view_definition_contexts)&gt;= 1"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+         <where label="WR3" expression="NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(occurrence_contexts)) OR&#10;        NOT EXISTS(occurrence_contexts\Assembly_component_relationship.quantity)"/>
       </entity>
       <entity name="Product_occurrence_definition_relationship" abstract.supertype="YES">
          <explicit name="relating_view">
             <typename name="Product_view_definition"/>
          </explicit>
          <explicit name="related_view">
-            <typename name="Product_occurrence"/>
+            <typename name="Product_view_definition"/>
          </explicit>
-         <where label="WR1" expression="NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.PRODUCT_OCCURRENCE' IN TYPEOF(relating_view))"/>
       </entity>
       <entity name="Product_occurrence_with_quantity" abstract.supertype="YES" supertypes="Product_occurrence" super.expression="ONEOF (Quantified_instance, Selected_instance)">
          <explicit name="occurrence_quantity" optional="YES">

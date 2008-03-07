@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp 1151 2007-06-05 14:31:43Z giedrius $
+   $Id: arm.exp,v 1.2 2007/11/15 11:06:24 liutkus Exp $
    ISO TC184/SC4/WG12 N4738 - ISO/CD-TS 10303-1778 External library - EXPRESS ARM
 *)
 
@@ -7,17 +7,13 @@ SCHEMA External_library_arm;
 
 USE FROM External_properties_arm;  -- ISO/CD-TS 10303-1129
 
+USE FROM External_source_arm;  -- ISO/CD-TS 10303-1331
+
 USE FROM Plib_class_reference_arm; -- ISO/CD-TS 10303-1291
 
   TYPE el_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
     (User_defined_library_or_dictionary);
   END_TYPE;
-
-  ENTITY External_source 
-    SUPERTYPE OF (ONEOF(Known_source, User_defined_library_or_dictionary));
-      id          : STRING;
-      description : OPTIONAL STRING;
-  END_ENTITY;
 
   ENTITY Iso15926_4_rdl
     SUBTYPE OF (Known_source); 
@@ -53,5 +49,10 @@ USE FROM Plib_class_reference_arm; -- ISO/CD-TS 10303-1291
     INVERSE
       source : External_source_identification FOR item;
   END_ENTITY;
+
+  SUBTYPE_CONSTRAINT external_source_subtypes FOR External_source; 
+	(ONEOF (Known_source,
+	  User_defined_library_or_dictionary));
+  END_SUBTYPE_CONSTRAINT;
   
 END_SCHEMA;

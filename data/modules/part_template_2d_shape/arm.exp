@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.146 2008/02/29 05:06:48 thomasrthurman Exp $
+   $Id: arm.exp,v 1.147 2008/03/03 19:08:29 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
@@ -70,15 +70,15 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 	 is_unknown);
   END_TYPE;
 
-ENTITY Allocated_passage_minimum_annular_ring
-  connected_minimum_annular_ring : OPTIONAL Length_data_element;
-  unconnected_minimum_annular_ring : OPTIONAL Length_data_element;
-  associated_passage_allocation : Passage_technology_allocation_to_stack_model;
+ENTITY Allocated_passage_minimum_annular_ring;
+  connected_minimum_annular_ring           : OPTIONAL Length_data_element;
+  unconnected_minimum_annular_ring         : OPTIONAL Length_data_element;
+  associated_passage_allocation            : Passage_technology_allocation_to_stack_model;
   associated_stratum_technology_occurrence : Stratum_technology_occurrence;
 WHERE
- WR1 : EXISTS(connected_minimum_interior_annular_ring) OR
-       EXISTS(unconnected_minimum_interior_annular_ring);
- WR2 : associated_stratum_technology_occurrence IN associated_passage_allocation\Passage_technology_allocation_to_stack_model.
+ WR1 : EXISTS(connected_minimum_annular_ring) OR
+       EXISTS(unconnected_minimum_annular_ring);
+ WR2 : associated_stratum_technology_occurrence IN associated_passage_allocation\Stratum_sub_stack.
                                                              associated_stackup\Stratum_stack_model.composing_occurrence;
 END_ENTITY;
     
@@ -300,7 +300,7 @@ END_ENTITY;
       WR3: SIZEOF(get_stack(SELF\Stratum_sub_stack.stratum_technology_sequence)) = 
                  (SIZEOF(SELF\Stratum_sub_stack.stratum_technology_sequence) + 1);
       WR4: sts_vertex_degree_check(SELF\Stratum_sub_stack.stratum_technology_sequence, 2);
-	  WR5: NOT EXISTS(single_stratum_passage_location) OR NOT EXISTS(target_stratum)
+	  WR5: NOT EXISTS(single_stratum_passage_location) OR NOT EXISTS(target_stratum);
 	  WR6: NOT EXISTS(target_stratum) OR
 			  ((target_stratum IN SELF\Stratum_sub_stack.associated_stackup.composing_occurrence) AND
 	           (target_stratum IN terminus_stratum));
@@ -494,21 +494,21 @@ END_FUNCTION;
  
 FUNCTION pt2ds_get_terminus(input : SET OF Stratum_technology_occurrence_link) : SET OF Stratum_technology_occurrence;
 LOCAL
-  psto : INTEGER := 0;
-  ssto : INTEGER := 0;
   sto : SET OF Stratum_technology_occurrence := get_stack(input);
   i : INTEGER := 0;
   j : INTEGER := 0;
-  pstoo : SET OF Stratum_technology_occurrence := sto;
-  sstoo : SET OF Stratum_technology_occurrence := sto;
+  pstoo : SET OF Stratum_technology_occurrence := [];
+  sstoo : SET OF Stratum_technology_occurrence := [];
 END_LOCAL;
+  pstoo := sto;
+  sstoo := sto;
  REPEAT i := 1 TO SIZEOF(sto) BY 1;
   REPEAT j := 1 TO SIZEOF(input) BY 1;
 	IF (input[j]\Stratum_technology_occurrence_relationship.sto_1 :=: sto[i]) THEN 
-	  pstoo = pstoo - sto[i];
+	  pstoo := pstoo - sto[i];
 	END_IF;  
 	IF (input[j]\Stratum_technology_occurrence_relationship.sto_2 :=: sto[i]) THEN 
-	  sstoo = sstoo - sto[i];
+	  sstoo := sstoo - sto[i];
 	END_IF;  
   END_REPEAT;                                     
  END_REPEAT;                                     

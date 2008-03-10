@@ -4835,7 +4835,7 @@
          </inverse>
          <where label="WR1" expression="SIZEOF(occurrence_contexts)+ SIZEOF(view_definition_contexts)&gt;= 1"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
-         <where label="WR3" expression="NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(occurrence_contexts)) OR&#10;        NOT EXISTS(occurrence_contexts\Assembly_component_relationship.quantity)"/>
+         <where label="WR3" expression="SIZEOF(QUERY( oc &lt;* occurrence_contexts |&#10;            NOT( NOT('AP203_CONFIGURATION_CONTROLLED_3D_DESIGN_OF_MECHANICAL_PARTS_AND_ASSEMBLIES_ARM_LF.ASSEMBLY_COMPONENT_RELATIONSHIP' IN TYPEOF(oc)) OR&#10;                 NOT EXISTS(oc\Assembly_component_relationship.quantity))&#10;               )) = 0"/>
       </entity>
       <entity name="Product_occurrence_definition_relationship" abstract.supertype="YES">
          <explicit name="relating_view">
@@ -7281,24 +7281,15 @@ END_LOCAL
          <aggregate type="SET" lower="0" upper="?"/>
          <builtintype type="GENERIC"/>
          <algorithm>LOCAL
-
       the_set : SET OF GENERIC : intype := [];
-
       i       : INTEGER;
+    END_LOCAL;
 
-    END_LOCAL
-;
-
-
-    IF SIZEOF(the_bag)&gt; 0 THEN
+    IF SIZEOF(the_bag) &gt; 0 THEN
       REPEAT i := 1 TO HIINDEX(the_bag);
-
         the_set := the_set + the_bag[i];
-
       END_REPEAT;
-
     END_IF;
-
     RETURN(the_set);</algorithm>
       </function>
       <function name="calculate_depth">

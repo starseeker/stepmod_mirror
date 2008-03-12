@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.143 2008/03/12 12:44:34 liutkus Exp $
+   $Id: arm.exp,v 1.144 2008/03/12 14:01:23 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -19,8 +19,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_TYPE; 
 	
   TYPE ft_material_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON material_item_select WITH
-	(Filled_via_template,
-	Passage_technology,
+	(Passage_technology,
 	Stratum_technology);
   END_TYPE;
 
@@ -203,7 +202,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       SELF\Passage_technology.as_finished_deposition_thickness : Length_tolerance_characteristic;
       SELF\Passage_technology.as_finished_passage_extent       : Length_tolerance_characteristic;
     INVERSE
-      SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
+      SELF\Passage_technology.deposition_material : SET [1:1] OF Passage_deposition_material_identification FOR items;
     WHERE
       WR1 : 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1]);
   END_ENTITY;
@@ -243,7 +242,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       SELF\Passage_technology.as_finished_deposition_thickness : Length_tolerance_characteristic;
       SELF\Passage_technology.as_finished_passage_extent       : Length_tolerance_characteristic;
     INVERSE
-      SELF\Passage_technology.deposition_material : SET [1:1] OF material_identification FOR items;
+      SELF\Passage_technology.deposition_material : SET [1:1] OF Passage_deposition_material_identification FOR items;
     WHERE
       WR1 : 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1]);
   END_ENTITY;
@@ -286,14 +285,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       fill_material : SET[1:1] OF Material_identification FOR items;
     WHERE
       WR1: 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF(fill_material[1]);
-  END_ENTITY;
-
-  ENTITY Filled_via_template
-    SUBTYPE OF (Via_template);
-    INVERSE
-      fill_material : SET[1:1] OF Material_identification FOR items;
-    WHERE
-      WR1: 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (fill_material[1]);
   END_ENTITY;
 
   ENTITY Inter_stratum_feature_template
@@ -357,6 +348,16 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR2 : SIZEOF(SELF\Geometric_template.shapes) > 0;
   END_ENTITY;
 
+  ENTITY Passage_deposition_material_identification
+    SUBTYPE OF (Material_identification);
+    SELF\Material_identification.items : SET [1:?] OF Passage_technology;
+  END_ENTITY;
+
+  ENTITY Passage_filling_material_identification
+    SUBTYPE OF (Material_identification);
+    SELF\Material_identification.items : SET [1:?] OF Passage_technology;
+  END_ENTITY;
+  
   ENTITY Passage_technology
     SUPERTYPE OF (ONEOF (Default_via_definition,
  			Default_component_termination_passage_definition,
@@ -375,7 +376,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   			get_document_definition(SELF, 'specification', 
   			'SPECIFICATION_DOCUMENT_ARM.PROCESS_SPECIFICATION');
     INVERSE
-	   deposition_material               : SET [0:1] OF material_identification FOR items;      
+      deposition_material : SET [0:1] OF Passage_deposition_material_identification FOR items;
+      fill_material : SET [0:1] OF Passage_filling_material_identification FOR items;
     UNIQUE
        UR1: SELF\Characterizable_object.name;
     WHERE

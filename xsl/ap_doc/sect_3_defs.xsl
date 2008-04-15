@@ -87,7 +87,7 @@ $Id: sect_3_defs.xsl,v 1.17 2004/11/09 12:06:45 robbod Exp $
     <!-- RBN Changed due to request from ISO
     For the purposes of this part of ISO 10303, -->
     For the purposes of this document, 
-    the following definitions apply:
+    the following terms and definitions apply:
   </xsl:if>
 
   <!-- increment the section number depending on whether a definition
@@ -284,6 +284,7 @@ $module_ok,' Check the normatives references')"/>
     <xsl:value-of select="concat($section,' Terms defined in',$stdnumber)"/>
     -->
 </h2>
+
   </xsl:template>
 
 

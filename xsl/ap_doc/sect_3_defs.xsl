@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.16 2004/11/03 10:48:30 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.17 2004/11/09 12:06:45 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -470,7 +470,7 @@ $module_ok,' Check the normatives references')"/>
   <xsl:param name="section"/>
   <h2>
     <a name="abbrv">
-      <xsl:value-of select="concat('3.',$section)"/> Abbreviations
+      <xsl:value-of select="concat('3.',$section)"/> Abbreviated terms
     </a>
   </h2>
 
@@ -484,7 +484,7 @@ $module_ok,' Check the normatives references')"/>
     <!-- RBN Changed due to request from ISO 
          For the purposes of this part of ISO 10303, -->
     For the purposes of this document,
-    the following abbreviations apply:
+    the following abbreviated terms apply:
   </p>
   <!-- get the default abbreviations out of the abbreviations_default.xml
        database -->

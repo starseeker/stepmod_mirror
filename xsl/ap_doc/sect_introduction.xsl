@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.18 2005/03/29 20:57:54 thendrix Exp $
+     $Id: sect_introduction.xsl,v 1.19 2005/11/09 23:23:40 thendrix Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -209,7 +209,7 @@
     <p>
       Clause 
       <a href="6_ccs{$FILE_EXT}">6</a>
-      specifies subsets of the AP against which conformance may be
+      specifies subsets of the AP against which conformance can be
       claimed.
     </p>
     <p>

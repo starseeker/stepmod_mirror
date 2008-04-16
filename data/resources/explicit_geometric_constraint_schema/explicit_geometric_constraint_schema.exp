@@ -4,123 +4,449 @@ THIS IS DOCUMENT ISO TC184/SC4/WG12 N4852, CONTAINING REVISED EXPRESS FOR *)
 (* PRODUCT MODELS' TO TAKE INTO ACCOUNT TC1 FOR THAT DOCUMENT -- 2007-09-30  *)                                          
 
 
-SCHEMA explicit_constraint_schema;
+SCHEMA explicit_geometric_constraint_schema;
 
-REFERENCE FROM support_resource_schema             -- ISO 10303-41
-  (text);
+REFERENCE FROM measure_schema             -- ISO 10303-41
+  (length_measure,
+   non_negative_length_measure,
+   plane_angle_measure,
+   positive_length_measure);
 
-REFERENCE FROM representation_schema               -- ISO 10303-43
-  (item_in_context,
-   representation_item,
-   using_representations);
+REFERENCE FROM geometry_schema;           -- ISO 10303-42
 
-REFERENCE FROM mathematical_functions_schema       -- ISO 10303-50
-  (compatible_spaces,
-   maths_variable,
-   values_space_of);
+REFERENCE FROM geometric_model_schema     -- ISO 10303-42
+  (extruded_area_solid,
+   extruded_face_solid,
+   revolved_area_solid,
+   revolved_face_solid,
+   right_circular_cone,
+   right_circular_cylinder,
+   sphere,
+   swept_area_solid,
+   swept_face_solid,
+   torus);
 
-REFERENCE FROM parameterization_schema             -- ISO 10303-108
-  (bound_variational_parameter,
-   variational_parameter,
-   unbound_variational_parameter);
+REFERENCE FROM representation_schema      -- ISO 10303-43
+  (representation_item_relationship);
 
-REFERENCE FROM variational_representation_schema   -- ISO 10303-108
-  (variational_representation_item);
+REFERENCE FROM explicit_constraint_schema -- ISO 10303-108
+  (defined_constraint,
+   explicit_constraint);
 
-REFERENCE FROM ISO13584_generic_expressions_schema -- ISO 13584-20
-  (used_variables);
-
-REFERENCE FROM ISO13584_expressions_schema         -- ISO 13584-20
-  (boolean_expression,
-   expression);
-
-TYPE constraint_group_member = SELECT
-  (explicit_constraint,
-   simultaneous_constraint_group);
+TYPE geometric_constraint_element = SELECT
+  (point,
+   curve,
+   surface,
+   vector,
+   direction);
 END_TYPE;
 
-ENTITY explicit_constraint
-  ABSTRACT SUPERTYPE OF (ONEOF(defined_constraint,
-                               free_form_constraint))
-  SUBTYPE OF (variational_representation_item); 
-  description : OPTIONAL text;
-  constrained_elements : SET[1:?] OF representation_item;
-  reference_elements   : SET[0:?] OF representation_item;
-WHERE
-  WR1: SIZEOF(constrained_elements * reference_elements) = 0;
+TYPE point_curve_or_surface_constraint_element = SELECT
+  (point,
+   curve,
+   surface);
+END_TYPE;
+
+TYPE curve_or_surface_constraint_element = SELECT
+  (curve,
+   surface);
+END_TYPE;
+
+TYPE linear_geometry_constraint_element = SELECT
+  (line,
+   plane,
+   direction,
+   vector);
+END_TYPE;
+
+TYPE radial_geometry_constraint_element = SELECT
+  (circle,
+   cylindrical_surface,
+   conical_surface,
+   spherical_surface,
+   right_circular_cylinder,
+   right_circular_cone,
+   sphere);
+END_TYPE;
+
+TYPE axial_geometry_constraint_element = SELECT
+  (point,
+   line,
+   circle,
+   plane,
+   cylindrical_surface,
+   conical_surface,
+   spherical_surface,
+   toroidal_surface,
+   surface_of_revolution,
+   sphere,
+   right_circular_cone,
+   right_circular_cylinder,
+   torus,
+   revolved_face_solid,
+   revolved_area_solid);
+END_TYPE;
+
+TYPE swept_surface_or_solid = SELECT
+  (swept_surface,
+   swept_face_solid,
+   swept_area_solid);
+END_TYPE;
+
+TYPE tangent_contact_type = ENUMERATION OF
+  (point_contact,
+   curve_contact,
+   surface_contact);
+END_TYPE;
+
+TYPE parallel_offset_type = ENUMERATION OF
+  (curve_2d_offset,
+   curve_3d_offset,
+   surface_offset);
+END_TYPE;
+
+ENTITY explicit_geometric_constraint
+  ABSTRACT SUPERTYPE OF (ONEOF
+    (fixed_element_geometric_constraint,
+     parallel_geometric_constraint,
+     point_distance_geometric_constraint,
+     skew_line_distance_geometric_constraint,
+     curve_distance_geometric_constraint,
+     surface_distance_geometric_constraint,
+     radius_geometric_constraint,
+     curve_length_geometric_constraint,
+     parallel_offset_geometric_constraint,
+     angle_geometric_constraint,
+     perpendicular_geometric_constraint,
+     incidence_geometric_constraint,
+     coaxial_geometric_constraint,
+     tangent_geometric_constraint,
+     symmetry_geometric_constraint,
+     swept_point_curve_geometric_constraint,
+     swept_curve_surface_geometric_constraint,
+     curve_smoothness_geometric_constraint,
+     surface_smoothness_geometric_constraint))
+  SUBTYPE OF (defined_constraint, geometric_representation_item);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:?] OF geometric_representation_item;
+  SELF\explicit_constraint.reference_elements   : 
+    SET[0:?] OF geometric_representation_item;
 END_ENTITY;
 
-ENTITY defined_constraint 
-  ABSTRACT SUPERTYPE OF (equal_parameter_constraint)
-  SUBTYPE OF (explicit_constraint);
+ENTITY fixed_element_geometric_constraint 
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:?] OF geometric_constraint_element;
+WHERE
+  WR1: SIZEOF(SELF\explicit_constraint.reference_elements) = 0;
 END_ENTITY; 
 
-ENTITY equal_parameter_constraint
-  SUBTYPE OF (defined_constraint);
+ENTITY parallel_geometric_constraint 
+  SUBTYPE OF (explicit_geometric_constraint);
   SELF\explicit_constraint.constrained_elements : 
-    SET[1:?] OF variational_parameter;
+    SET[1:?] OF linear_geometry_constraint_element; 
   SELF\explicit_constraint.reference_elements   : 
-    SET[0:1] OF variational_parameter;
+    SET[0:1] OF linear_geometry_constraint_element;
+END_ENTITY; 
+
+ENTITY pgc_with_dimension
+  SUBTYPE OF (parallel_geometric_constraint);
+  distance_value : non_negative_length_measure;
+  negative_direction : BOOLEAN;
+WHERE
+  WR1: (SIZEOF(SELF\explicit_constraint.reference_elements) = 1)
+    OR (SIZEOF(SELF\explicit_constraint.constrained_elements) = 2);
+  WR2: SIZEOF(QUERY(q <* (SELF\explicit_constraint.reference_elements +
+    SELF\explicit_constraint.constrained_elements) | SIZEOF(TYPEOF(q) *
+    ['GEOMETRY_SCHEMA.DIRECTION', 'GEOMETRY_SCHEMA.VECTOR']) > 0)) = 0;
+END_ENTITY; 
+
+ENTITY point_distance_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : SET[1:?] OF point;
+  SELF\explicit_constraint.reference_elements   : 
+    SET[0:4] OF point_curve_or_surface_constraint_element;
+WHERE
+  WR1: (SIZEOF(SELF\explicit_constraint.reference_elements) > 0) OR
+    (('EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.PDGC_WITH_DIMENSION' 
+    IN TYPEOF(SELF)) AND 
+    (SIZEOF(SELF\explicit_constraint.constrained_elements) = 2));
+END_ENTITY;
+
+ENTITY pdgc_with_dimension
+  SUBTYPE OF (point_distance_geometric_constraint);
+  distance_value : non_negative_length_measure;
+END_ENTITY;
+
+ENTITY skew_line_distance_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : SET[1:2] OF line;
+  SELF\explicit_constraint.reference_elements   : SET[0:1] OF line;
+  distance_value : non_negative_length_measure;
 WHERE
   WR1: SIZEOF(SELF\explicit_constraint.constrained_elements +
-    SELF\explicit_constraint.reference_elements) >= 2;
+    SELF\explicit_constraint.reference_elements) = 2;
 END_ENTITY;
 
-ENTITY free_form_constraint 
-  ABSTRACT SUPERTYPE OF (ONEOF(free_form_assignment, free_form_relation))
-  SUBTYPE OF (explicit_constraint);
-  SELF\explicit_constraint.constrained_elements : 
-    SET[1:?] OF variational_parameter;
+ENTITY near_point_relationship
+  SUBTYPE OF (representation_item_relationship);
+  SELF\representation_item_relationship.relating_representation_item :
+    curve_or_surface_constraint_element;
+  SELF\representation_item_relationship.related_representation_item : 
+    point;
+END_ENTITY;
+
+ENTITY curve_distance_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : SET[1:2] OF curve;
   SELF\explicit_constraint.reference_elements   : 
-    SET[0:?] OF variational_parameter;
-  constraining_expression : expression;
-END_ENTITY; 
-
-ENTITY free_form_assignment 
-  SUBTYPE OF (free_form_constraint);
+    SET[0:4] OF point_curve_or_surface_constraint_element;
+  near_points : SET[0:4] OF near_point_relationship;
 WHERE
-  WR1: SIZEOF(QUERY(q <* SELF\free_form_constraint.constrained_elements | 
-    q IN used_variables
-    (SELF\free_form_constraint.constraining_expression))) = 0; 
-  WR2: SIZEOF(QUERY(q <* SELF\free_form_constraint.reference_elements | 
-    NOT (q IN used_variables(
-    SELF\free_form_constraint.constraining_expression)))) = 0; 
-  WR3: SIZEOF(SELF\free_form_constraint.reference_elements) >= 1;
-  WR4: SIZEOF(QUERY(q <* SELF\free_form_constraint.constrained_elements |
-    NOT (compatible_spaces(values_space_of(
-    SELF\free_form_constraint.constraining_expression),
-    q\maths_variable.values_space)))) = 0;
-END_ENTITY; 
-
-ENTITY free_form_relation 
-  SUBTYPE OF (free_form_constraint);
-WHERE 
-  WR1: 'ISO13584_EXPRESSIONS_SCHEMA.BOOLEAN_EXPRESSION' IN TYPEOF
-    (SELF\free_form_constraint.constraining_expression); 
-  WR2: SIZEOF(QUERY(q <* (SELF\free_form_constraint.constrained_elements + 
-    SELF\free_form_constraint.reference_elements) | 
-    NOT (q IN used_variables
-    (SELF\free_form_constraint.constraining_expression)))) = 0; 
-END_ENTITY; 
-
-ENTITY simultaneous_constraint_group
-  SUBTYPE OF (variational_representation_item);
-  constraint_group : SET[2:?] OF constraint_group_member;
-WHERE
-  WR1: SIZEOF(QUERY(q <* using_representations(SELF) |
-    SIZEOF(QUERY(r <* q.items | 
-    ('EXPLICIT_CONSTRAINT_SCHEMA.SIMULTANEOUS_CONSTRAINT_GROUP'
-    IN TYPEOF(r)) AND (SIZEOF(QUERY(s <* constraint_group | 
-    (s IN r.constraint_group) AND NOT (r :=: SELF))) > 0))) > 0)) = 0;
-  WR2: SIZEOF(QUERY(q <* using_representations(constraint_group[1]) | 
-    (SIZEOF(QUERY(r <* constraint_group | 
-    item_in_context(r,q.context_of_items)))
-    = SIZEOF(constraint_group)))) > 0;
-  WR3: SIZEOF(QUERY(q <* constraint_group |
-    (('EXPLICIT_CONSTRAINT_SCHEMA.EXPLICIT_CONSTRAINT' IN TYPEOF(q)) 
-    AND (SIZEOF(QUERY(r <* q.constrained_elements |
-    SIZEOF(QUERY(s <* constraint_group | 
-    r IN s.reference_elements)) > 0)) > 0)))) = 0;
+  WR1: (SIZEOF(SELF\explicit_constraint.reference_elements) > 0) OR
+    (('EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.CDGC_WITH_DIMENSION'
+    IN TYPEOF(SELF)) 
+    AND (SIZEOF(SELF\explicit_constraint.constrained_elements) = 2));
+  WR2: SIZEOF(near_points) <= 
+    SIZEOF(SELF\explicit_constraint.reference_elements);
+  WR3: SIZEOF(QUERY(q <* near_points | NOT
+    (q\representation_item_relationship.relating_representation_item
+    IN SELF\explicit_constraint.reference_elements))) = 0;
 END_ENTITY;
 
-END_SCHEMA; -- explicit_constraint_schema
+ENTITY cdgc_with_dimension
+  SUBTYPE OF (curve_distance_geometric_constraint);
+  distance_value : non_negative_length_measure;
+END_ENTITY;
+
+ENTITY surface_distance_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : SET[1:2] OF surface;
+  SELF\explicit_constraint.reference_elements   : 
+    SET[0:4] OF point_curve_or_surface_constraint_element;
+  near_points : SET[0:4] OF near_point_relationship;
+WHERE
+  WR1: (SIZEOF(SELF\explicit_constraint.reference_elements) > 0) OR 
+    (('EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.SDGC_WITH_DIMENSION' 
+    IN TYPEOF(SELF)) 
+    AND (SIZEOF(SELF\explicit_constraint.constrained_elements) = 2));
+  WR2: SIZEOF(near_points) <= 
+    SIZEOF(SELF\explicit_constraint.reference_elements);
+  WR3: SIZEOF(QUERY(q <* near_points | NOT
+    (q\representation_item_relationship.relating_representation_item
+    IN SELF\explicit_constraint.reference_elements))) = 0;
+END_ENTITY;
+
+ENTITY sdgc_with_dimension
+  SUBTYPE OF (surface_distance_geometric_constraint);
+  distance_value : non_negative_length_measure;
+END_ENTITY;
+
+ENTITY radius_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:?] OF radial_geometry_constraint_element;
+WHERE
+  WR1: SIZEOF(SELF\explicit_constraint.reference_elements) = 0;
+END_ENTITY;
+
+ENTITY rgc_with_dimension
+  SUBTYPE OF (radius_geometric_constraint);
+  radius_value : positive_length_measure;
+END_ENTITY;
+
+ENTITY curve_length_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:?] OF bounded_curve;
+WHERE
+  WR1: SIZEOF(SELF\explicit_constraint.reference_elements) = 0;
+END_ENTITY;
+
+ENTITY clgc_with_dimension
+  SUBTYPE OF (curve_length_geometric_constraint);
+  length_value : positive_length_measure;
+END_ENTITY;
+
+ENTITY parallel_offset_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:?] OF curve_or_surface_constraint_element;
+  SELF\explicit_constraint.reference_elements   : 
+    SET[0:1] OF curve_or_surface_constraint_element;
+  offset_type : parallel_offset_type;   
+WHERE
+  WR1: NOT(((offset_type = curve_2d_offset) 
+    OR (offset_type = curve_3d_offset)) AND 
+    (SIZEOF(QUERY( q <* (SELF\explicit_constraint.constrained_elements 
+    + SELF\explicit_constraint.reference_elements) |
+    'GEOMETRY_SCHEMA.SURFACE' IN TYPEOF(q))) > 0));
+  WR2: NOT((offset_type = surface_offset) AND (SIZEOF(QUERY( q <* 
+    (SELF\explicit_constraint.constrained_elements +
+    SELF\explicit_constraint.reference_elements) | 
+    'GEOMETRY_SCHEMA.CURVE' IN TYPEOF(q))) > 0));
+END_ENTITY;
+
+ENTITY pogc_with_dimension 
+  SUBTYPE OF (parallel_offset_geometric_constraint); 
+  offset_value : positive_length_measure; 
+  offset_direction_constrained : BOOLEAN; 
+WHERE
+  WR1: (SIZEOF(SELF\explicit_constraint.reference_elements) = 1)
+    OR (SIZEOF(SELF\explicit_constraint.constrained_elements) = 2);
+  WR2: (NOT (offset_direction_constrained = TRUE)
+    AND ((offset_type = curve_2d_offset) 
+    OR (offset_type = surface_offset))); 
+END_ENTITY; 
+
+ENTITY angle_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:?] OF linear_geometry_constraint_element;
+  SELF\explicit_constraint.reference_elements   : 
+    SET[0:1] OF linear_geometry_constraint_element;
+WHERE
+  WR1: (SIZEOF(SELF\explicit_constraint.reference_elements) = 1) OR
+    (('EXPLICIT_GEOMETRIC_CONSTRAINT_SCHEMA.AGC_WITH_DIMENSION' 
+    IN TYPEOF(SELF)) AND 
+    (SIZEOF(SELF\explicit_constraint.constrained_elements) = 2));
+END_ENTITY;
+
+ENTITY agc_with_dimension
+  SUBTYPE OF (angle_geometric_constraint);
+  angle_value : plane_angle_measure;
+END_ENTITY;
+
+ENTITY perpendicular_geometric_constraint 
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:?] OF linear_geometry_constraint_element;
+  SELF\explicit_constraint.reference_elements   : 
+    SET[0:2] OF linear_geometry_constraint_element;
+WHERE   
+  WR1: NOT ((SIZEOF(SELF\explicit_constraint.reference_elements) = 2) AND 
+    NOT ((SIZEOF(QUERY(q <* SELF\explicit_constraint.constrained_elements + 
+    SELF\explicit_constraint.reference_elements | 
+    'GEOMETRY_SCHEMA.LINE' IN TYPEOF(q))) =
+    SIZEOF(SELF\explicit_constraint.reference_elements + 
+    SELF\explicit_constraint.constrained_elements)) XOR 
+    (SIZEOF(QUERY(q <* SELF\explicit_constraint.constrained_elements + 
+    SELF\explicit_constraint.reference_elements | 
+    'GEOMETRY_SCHEMA.PLANE' IN TYPEOF(q))) =
+    SIZEOF(SELF\explicit_constraint.reference_elements + 
+    SELF\explicit_constraint.constrained_elements))));
+  WR2: (SIZEOF(SELF\explicit_constraint.reference_elements) > 0) OR
+    (SIZEOF(SELF\explicit_constraint.constrained_elements) IN [2,3]);
+  WR3: NOT ((SIZEOF(SELF\explicit_constraint.reference_elements) = 0) AND 
+    (SIZEOF(SELF\explicit_constraint.constrained_elements) = 3)) AND NOT  
+    ((SIZEOF(QUERY(q <* SELF\explicit_constraint.constrained_elements | 
+    'GEOMETRY_SCHEMA.LINE' IN TYPEOF(q))) = 3) XOR
+    (SIZEOF(QUERY(q <* SELF\explicit_constraint.constrained_elements | 
+    'GEOMETRY_SCHEMA.PLANE' IN TYPEOF(q))) = 3));
+END_ENTITY; 
+
+ENTITY incidence_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:?] OF geometric_constraint_element;
+  SELF\explicit_constraint.reference_elements   : 
+    SET [0:?] OF geometric_constraint_element;
+  near_points : SET[0:?] OF near_point_relationship;
+WHERE
+  WR1: (SIZEOF(SELF\explicit_constraint.reference_elements) > 0)
+    OR (SIZEOF(SELF\explicit_constraint.constrained_elements) = 2);
+  WR2: SIZEOF(near_points) <= 
+    SIZEOF(SELF\explicit_constraint.reference_elements); 
+  WR3: SIZEOF(QUERY(q <* near_points | NOT
+    (q\representation_item_relationship.relating_representation_item
+    IN SELF\explicit_constraint.reference_elements))) = 0;
+END_ENTITY;
+
+ENTITY coaxial_geometric_constraint 
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:?] OF axial_geometry_constraint_element;
+  SELF\explicit_constraint.reference_elements   : 
+    SET[0:1] OF axial_geometry_constraint_element;
+WHERE
+  WR1: SIZEOF(QUERY(q <* SELF\explicit_constraint.reference_elements | 
+    SIZEOF(TYPEOF(q) * ['GEOMETRY_SCHEMA.POINT','GEOMETRY_SCHEMA.PLANE',
+    'GEOMETRY_SCHEMA.SPHERICAL_SURFACE','GEOMETRY_SCHEMA.SPHERE']) 
+    > 0)) = 0;
+END_ENTITY; 
+
+ENTITY tangent_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:?] OF curve_or_surface_constraint_element;
+  SELF\explicit_constraint.reference_elements   : 
+    SET[0:?] OF curve_or_surface_constraint_element;
+  near_points         : SET[0:?] OF near_point_relationship;
+  tangent_contact     : tangent_contact_type;
+WHERE
+  WR1: (SIZEOF(SELF\explicit_constraint.reference_elements) > 0) OR 
+    (SIZEOF(SELF\explicit_constraint.constrained_elements) = 2);
+  WR2: NOT ((SELF\geometric_representation_item.dim = 2)
+    AND (tangent_contact = surface_contact));
+  WR3: SIZEOF(QUERY(q <* near_points | NOT
+    (q\representation_item_relationship.relating_representation_item
+    IN SELF\explicit_constraint.reference_elements))) = 0;
+END_ENTITY;
+
+ENTITY symmetry_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[2:2] OF geometric_representation_item;
+  mirror_element : linear_geometry_constraint_element;
+WHERE
+  WR1: SIZEOF(SELF\explicit_constraint.reference_elements) = 0;
+  WR2: SIZEOF(TYPEOF(mirror_element) * 
+    ['GEOMETRY_SCHEMA.DIRECTION','GEOMETRY_SCHEMA.VECTOR']) = 0;
+  WR3: NOT ((SELF\geometric_representation_item.dim = 2) AND 
+    ('GEOMETRY_SCHEMA.PLANE' IN TYPEOF(mirror_element)));
+END_ENTITY;
+
+ENTITY swept_point_curve_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : SET[1:?] OF curve;
+  SELF\explicit_constraint.reference_elements   : 
+    SET[1:1] OF swept_face_solid;
+END_ENTITY;
+
+ENTITY swept_curve_surface_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : SET[1:?] OF surface;
+  SELF\explicit_constraint.reference_elements   : 
+    SET[1:1] OF swept_surface_or_solid;
+END_ENTITY;
+
+ENTITY curve_segment_set
+  SUBTYPE OF (geometric_representation_item);
+  segments : SET[1:?] OF composite_curve_segment;
+END_ENTITY;
+
+ENTITY curve_smoothness_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET[1:1] OF curve_segment_set;
+  smoothness : transition_code;
+WHERE
+  WR1: SIZEOF(SELF\explicit_constraint.reference_elements) = 0;
+END_ENTITY;
+
+ENTITY surface_patch_set
+  SUBTYPE OF (geometric_representation_item);
+  patches : SET[1:?] OF surface_patch;
+END_ENTITY;
+
+ENTITY surface_smoothness_geometric_constraint
+  SUBTYPE OF (explicit_geometric_constraint);
+  SELF\explicit_constraint.constrained_elements : 
+    SET [1:1] OF surface_patch_set;
+  u_smoothness : transition_code;
+  v_smoothness : transition_code;
+WHERE
+  WR1: SIZEOF(SELF\explicit_constraint.reference_elements) = 0;
+END_ENTITY;
+
+END_SCHEMA; -- explicit_geometric_constraint_schema

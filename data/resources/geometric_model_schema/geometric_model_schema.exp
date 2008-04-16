@@ -1,18 +1,20 @@
- (* Document WG12 N1046r date 2003-04-29. EXPRESS listing corresponding to part
- 42  edition IS WG12 N536, as modified by TC1 WG12 N608 and
- by revision 1 (edition 3)  WG12 N1045 *)
+$Id: group_schema.exp,v 1.6 2008/04/15 21:53:03 darla Exp $ (* 
+Document WG12 N4855 date 2007-05-08. EXPRESS listing corresponding to part
+ 42  edition 3 IS as modified by TC1  - WG12 N4854*)
+
 
  SCHEMA geometric_model_schema;
-   REFERENCE FROM geometry_schema;
-   REFERENCE FROM topology_schema;
-   REFERENCE FROM measure_schema(length_measure,
-                                 parameter_value,
-                                 plane_angle_measure,
-                                 plane_angle_unit,
-                                 positive_length_measure,
-                                 positive_plane_angle_measure);
-   REFERENCE FROM representation_schema(founded_item);
-
+    REFERENCE FROM geometry_schema;
+    REFERENCE FROM topology_schema;
+    REFERENCE FROM measure_schema(length_measure,
+                                  parameter_value,
+                                  plane_angle_measure,
+                                  plane_angle_unit,
+                                  positive_length_measure,
+                                  positive_plane_angle_measure);
+    REFERENCE FROM representation_schema(founded_item,
+                                        representation_item);
+ 
  TYPE boolean_operand = SELECT
    (solid_model, 
     half_space_solid,
@@ -596,15 +598,19 @@ ENTITY revolved_face_solid
    RETURN(result);
  END_FUNCTION;
 
- FUNCTION msb_shells (brep: manifold_solid_brep) :
-                          SET [1:?] OF  closed_shell;
- 
-     IF SIZEOF (QUERY (msbtype <* TYPEOF (brep) |
-       msbtype LIKE '*BREP_WITH_VOIDS')) >= 1 THEN
-       RETURN (brep\brep_with_voids.voids + brep.outer);
-     ELSE
-       RETURN([brep.outer]);
-     END_IF;
- END_FUNCTION;
+ FUNCTION msb_shells(brep : manifold_solid_brep)    
+               : SET[1:?] OF closed_shell;   
+    LOCAL   
+      return_set: SET[1:?] OF closed_shell := [brep.outer];   
+    END_LOCAL;   
 
+    IF SIZEOF(QUERY(msbtype <* TYPEOF(brep) |   
+                 msbtype LIKE '*BREP_WITH_VOIDS'))  >= 1    
+          THEN   
+       return_set := return_set + brep\brep_with_voids.voids;   
+    END_IF;   
+   RETURN(return_set);   
+ END_FUNCTION; 
+ 
+ 
  END_SCHEMA; -- end GEOMETRIC MODEL schema

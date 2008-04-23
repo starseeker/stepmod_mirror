@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.166 2006/07/03 12:48:55 robbod Exp $
+$Id: common.xsl,v 1.167 2006/11/13 21:45:31 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2769,6 +2769,43 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     <xsl:value-of 
       select="concat($orgname,'/',$status,' 10303-',$part,':',$pub_year)"/>
 			
+</xsl:template>
+
+<xsl:template name="get_module_stdnumber_undated">
+  <xsl:param name="module"/>
+  <xsl:variable name="part">
+    <xsl:choose>
+      <xsl:when test="string-length($module/@part)>0">
+        <xsl:value-of select="$module/@part"/>
+      </xsl:when>
+        <xsl:otherwise>
+          &lt;part&gt;
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+   <xsl:variable name="status">
+    <xsl:choose>
+      <xsl:when test="string-length($module/@status)>0">
+        <xsl:choose>
+          <xsl:when test="starts-with(string($module/@status),'CD-TS')">
+            TS
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="string($module/@status)"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        &lt;status&gt;
+      </xsl:otherwise>
+    </xsl:choose>
+   </xsl:variable>
+
+    <xsl:variable name="orgname" select="'ISO'"/>
+
+    <xsl:value-of 
+      select="concat($orgname,'/',$status,' 10303-',$part)"/>		
 </xsl:template>
 
 

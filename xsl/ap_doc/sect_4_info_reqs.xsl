@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.22 2004/02/25 09:15:14 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.23 2004/11/01 14:02:19 robbod Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -86,7 +86,8 @@ $Id: sect_4_info_reqs.xsl,v 1.22 2004/02/25 09:15:14 robbod Exp $
      <h2><a name="42">4.2&#160;Information requirements model</a></h2>
      <xsl:variable name="module_clause4" select="concat('../../../modules/',$module,'/sys/4_info_reqs',$FILE_EXT)"/>
      The detailed information requirements for this AP are defined in
-     Clause <a href="{$module_clause4}">4</a> of the AP module 
+<!--     Clause <a href="{$module_clause4}">4</a> of  --> 
+     the AP module 
      (<a href="{$module_href}"><xsl:value-of select="$module_partno"/>)</a>.
      <p class="note">
        <small>
@@ -95,7 +96,8 @@ $Id: sect_4_info_reqs.xsl,v 1.22 2004/02/25 09:15:14 robbod Exp $
          <a href="index_arm_express{$FILE_EXT}" target="index">index</a>
          contains a complete list of all
          ARM objects identified in the information requirements in
-         Clause <a href="{$module_clause4}">4</a> of the AP module 
+<!--         Clause <a href="{$module_clause4}">4</a> of  --> 
+         the AP module 
          (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>).
        </small>
      </p>

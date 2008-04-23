@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.199 2006/05/19 10:39:45 dmprice Exp $
+$Id: module.xsl,v 1.200 2006/06/29 19:44:40 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -3303,7 +3303,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
     </xsl:variable>
 
     <xsl:variable name="isonumber"
-      select="concat('ISO/',@status,' 10303-',@part,':',$pub_year)"/>
+      select="concat('ISO/',@status,' 10303-',@part)"/> <!-- ,':',$pub_year)"/> -->
     
     <xsl:variable name="stdtitle"
       select="concat('Industrial automation systems and integration ',
@@ -3343,7 +3343,7 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 <xsl:template match="normref">
   <xsl:param name="current_module"/>
   <xsl:variable name="stdnumber">
-    <xsl:choose>
+<!--     <xsl:choose>
       <xsl:when test="stdref/pubdate">
         <xsl:value-of 
           select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':',stdref/pubdate)"/> 
@@ -3352,7 +3352,9 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
         <xsl:value-of 
           select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':&#8212;&#160;')"/>
       </xsl:otherwise>
-    </xsl:choose>
+    </xsl:choose> -->
+	  <xsl:value-of 
+	    select="concat(stdref/orgname,'&#160;',stdref/stdnumber)"/>
   </xsl:variable>
 
   <p>

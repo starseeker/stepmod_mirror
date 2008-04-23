@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.58 2006/03/21 20:47:51 darla Exp $
+$Id: resource.xsl,v 1.59 2008/02/07 14:05:16 darla Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -2486,16 +2486,18 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
     <xsl:param name="current_resource"/>
 
     <xsl:variable name="stdnumber">
-      <xsl:choose>
+<!--      <xsl:choose>
 	<xsl:when test="stdref/pubdate">
 	  <xsl:value-of 
 	      select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':',stdref/pubdate)"/> 
 	</xsl:when>
 	<xsl:otherwise>
 	  <xsl:value-of 
-	      select="concat(stdref/orgname,'&#160;',stdref/stdnumber)"/> <!-- ,':&#8212;&#160;')"/> -->
-	</xsl:otherwise>
-      </xsl:choose>
+	      select="concat(stdref/orgname,'&#160;',stdref/stdnumber)"/>     ,':&#8212;&#160;')"/> 
+	</xsl:otherwise> -->
+	  <xsl:value-of 
+	    select="concat(stdref/orgname,'&#160;',stdref/stdnumber)"/>
+<!--      </xsl:choose> -->
     </xsl:variable>
 
     <p>

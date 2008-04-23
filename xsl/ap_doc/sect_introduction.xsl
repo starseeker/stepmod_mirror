@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-     $Id: sect_introduction.xsl,v 1.19 2005/11/09 23:23:40 thendrix Exp $
+     $Id: sect_introduction.xsl,v 1.20 2008/04/15 13:33:07 darla Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="application_protocol.xsl"/>
@@ -260,7 +260,7 @@
 
   <xsl:template match="change_summary" mode="introduction">
     <a name="changes"/>
-    <xsl:variable name="this_edition">
+<!--     <xsl:variable name="this_edition">
       <xsl:apply-templates select="/application_protocol" mode="this_edition"/>
     </xsl:variable>
     
@@ -277,7 +277,7 @@
       This <xsl:value-of select="$this_edition"/> edition of <xsl:value-of select="$part_no"/> 
       contains the following significant changes from the <xsl:value-of select="$prev_edition"/> 
       edition:
-    </p>
+    </p> -->
     <xsl:apply-templates select="."/> 
 
    <xsl:variable name="annex_list">

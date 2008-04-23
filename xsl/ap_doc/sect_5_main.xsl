@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_5_main.xsl,v 1.10 2003/07/31 08:57:57 robbod Exp $
+$Id: sect_5_main.xsl,v 1.11 2003/08/11 16:48:03 robbod Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -50,16 +50,17 @@ $Id: sect_5_main.xsl,v 1.10 2003/07/31 08:57:57 robbod Exp $
     </xsl:call-template>
     <p>
       The module interpreted model for this AP is the module interpreted
-      model (MIM) specified in Clause 
-      <a href="{$module_clause5}">5</a> of the AP module, 
+      model (MIM) specified in 
+<!--     Clause <a href="{$module_clause5}">5</a> of  --> 
+      the AP module, 
       <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>,
       which consists of the mapping specification and the EXPRESS short form.
     </p>
 
     <p>
-      The mapping specification found in Clause
-      <a href="{$module_clause51}">5.1</a>
-      of the AP module, 
+      The mapping specification found in 
+<!--     Clause <a href="{$module_clause51}">5.1</a> of  --> 
+      the AP module, 
       <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>,
       shows (through inclusion or reference) how each application object maps
       to one or more MIM constructs. 
@@ -81,9 +82,9 @@ $Id: sect_5_main.xsl,v 1.10 2003/07/31 08:57:57 robbod Exp $
       The EXPRESS schema that uses elements from the integrated resources and
       other application modules and contains the types, entity
       specializations, rules and functions that are specific to this part of
-      ISO 10303 are specified in Clause 
-      <a href="{$module_clause52}">5.2</a>
-      of the AP module,  
+      ISO 10303 are specified in 
+<!--     Clause <a href="{$module_clause52}">5.2</a> of  --> 
+      the AP module,  
       <a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>.
     </p>
 
@@ -93,7 +94,9 @@ $Id: sect_5_main.xsl,v 1.10 2003/07/31 08:57:57 robbod Exp $
         The MIM EXPRESS
         <a href="index_mim_express{$FILE_EXT}" target="index">index</a>
         contains a complete list of MIM
-        objects identified in Clause <a href="{$module_clause5}">5.2</a> of the AP module 
+        objects identified in 
+<!--        Clause <a href="{$module_clause5}">5.2</a> of  --> 
+        the AP module 
          (<a href="{$module_href}"><xsl:value-of select="$module_partno"/></a>).
       </small>
     </p>

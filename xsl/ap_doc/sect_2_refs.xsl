@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.18 2004/10/23 10:46:25 robbod Exp $
+$Id: sect_2_refs.xsl,v 1.20 2007/12/03 16:29:36 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -735,14 +735,16 @@ version="1.0">
 
 <xsl:template match="normref">
   <xsl:variable name="stdnumber">
-    <xsl:choose>
+<!--    <xsl:choose>
       <xsl:when test="stdref/pubdate">
         <xsl:value-of select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':',stdref/pubdate)"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':&#8212;&#160;')"/>
       </xsl:otherwise>
-    </xsl:choose>
+    </xsl:choose> -->
+	  <xsl:value-of 
+	    select="concat(stdref/orgname,'&#160;',stdref/stdnumber)"/>
   </xsl:variable>
   <p>
     <xsl:value-of select="$stdnumber"/>
@@ -789,7 +791,7 @@ version="1.0">
     </xsl:variable>
 
     <xsl:variable name="stdnumber">
-      <xsl:call-template name="get_module_stdnumber">
+      <xsl:call-template name="get_module_stdnumber_undated">
         <xsl:with-param name="module" select="."/>
       </xsl:call-template>
     </xsl:variable>
@@ -810,18 +812,14 @@ version="1.0">
     
     <!-- Printing of standard line starts here -->
     <xsl:value-of select="$stdnumber"/>
-
-    <xsl:choose>
-      <!-- if the module is a TS or IS module and is referring to a 
-           CD or CD-TS module -->
+    <xsl:choose><!-- if the module is a TS or IS module and is referring to a CD or CD-TS module -->
       <xsl:when 
         test="( string(./@status)='TS' or 
               string(./@status)='IS') and
               ( string(./@status)='CD' or string(./@status)='CD-TS')">
         &#160;<sup><a href="#derogation">2</a>)</sup>
       </xsl:when>
-      <xsl:when test="@published='n'">
-        &#160;<sup><a href="#tobepub">1</a>)</sup>
+      <xsl:when test="@published='n'">&#160;<sup><a href="#tobepub">1</a>)</sup>
       </xsl:when>
     </xsl:choose>,&#160;
     <i>

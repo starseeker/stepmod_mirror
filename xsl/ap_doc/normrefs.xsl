@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-	$Id: normrefs.xsl,v 1.3 2003/07/28 17:10:55 robbod Exp $
+	$Id: normrefs.xsl,v 1.4 2003/08/13 08:08:33 robbod Exp $
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<xsl:output method="html" doctype-system="http://www.w3.org/TR/html4/loose.dtd" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" indent="yes"/>
@@ -19,14 +19,16 @@
 	
 	<xsl:template match="normref">
 		<xsl:variable name="stdnumber">
-			<xsl:choose>
+<!-- 			<xsl:choose>
 				<xsl:when test="stdref/pubdate">
 					<xsl:value-of select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':',stdref/pubdate)"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:value-of select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':&#8212;&#160;')"/>
 				</xsl:otherwise>
-			</xsl:choose>
+			</xsl:choose> -->
+	  		<xsl:value-of 
+	    		select="concat(stdref/orgname,'&#160;xx',stdref/stdnumber)"/>
 		</xsl:variable>
 		<p>
 			<xsl:value-of select="$stdnumber"/>

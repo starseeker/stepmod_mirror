@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: normrefs.xsl,v 1.1 2002/05/30 15:19:51 robbod Exp $
+$Id: normrefs.xsl,v 1.2 2003/07/28 17:09:23 robbod Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep
   Purpose: To display a file of  normative references for test purposes.
@@ -35,7 +35,7 @@ $Id: normrefs.xsl,v 1.1 2002/05/30 15:19:51 robbod Exp $
 
 <xsl:template match="normref">
   <xsl:variable name="stdnumber">
-    <xsl:choose>
+<!--     <xsl:choose>
       <xsl:when test="stdref/pubdate">
         <xsl:value-of 
           select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':',stdref/pubdate)"/> 
@@ -44,7 +44,9 @@ $Id: normrefs.xsl,v 1.1 2002/05/30 15:19:51 robbod Exp $
         <xsl:value-of 
           select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':&#8212;&#160;')"/>
       </xsl:otherwise>
-    </xsl:choose>
+    </xsl:choose> -->
+	  <xsl:value-of 
+	    select="concat(stdref/orgname,'&#160;',stdref/stdnumber)"/>
   </xsl:variable>
 
   <p>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_3_defs.xsl,v 1.17 2004/11/09 12:06:45 robbod Exp $
+$Id: sect_3_defs.xsl,v 1.19 2008/04/15 17:38:38 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -102,17 +102,68 @@ $Id: sect_3_defs.xsl,v 1.17 2004/11/09 12:06:45 robbod Exp $
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
+<!--  definitions originally defined in 1001 and 1017 -->
+  <xsl:variable name="definitions_common">
+    <xsl:element name="definition">
+      <xsl:element name="term">
+        <xsl:attribute name="id">module_interpreted_model</xsl:attribute>
+        module interpreted model
+      </xsl:element>
+      <xsl:element name="def">
+        information model that uses the common resources necessary to satisfy the information requirements and constraints of an application reference model, within an application module
+      </xsl:element>
+    </xsl:element>
 
-  <xsl:apply-templates select="/application_protocol/definition">
-    <xsl:with-param name="section" select="concat('3.',$def_section1)"/>
-    <xsl:sort select="term"/>
-  </xsl:apply-templates>
+    <xsl:element name="definition">
+      <xsl:element name="term">
+        <xsl:attribute name="id">application_module</xsl:attribute>
+        application module
+      </xsl:element>
+      <xsl:element name="def">
+        reusable collection of a scope statement, information requirements, mappings and module interpreted model that supports a specific usage of product data across multiple application contexts
+      </xsl:element>
+    </xsl:element>
+
+    <xsl:element name="definition">
+      <xsl:element name="term">
+        <xsl:attribute name="id">common_resources</xsl:attribute>
+        common resources
+      </xsl:element>
+      <xsl:element name="def">
+        a collection of information models, specified in EXPRESS language, that can be reused to specify application specific information models within the domain of industrial data
+		<xsl:element name="note">
+		  <xsl:attribute name="number">1</xsl:attribute>
+		  The resource constructs defined by application modules are those defined in their MIM schema.
+		</xsl:element>        
+      </xsl:element>
+    </xsl:element>
+    
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="function-available('msxsl:node-set')">
+      <xsl:variable name="definitions_common_node_set" select="msxsl:node-set($definitions_common)"/> 
+      <xsl:variable name="temp" select="/application_protocol|$definitions_common_node_set"/>
+	  <xsl:apply-templates select="$temp/definition" >
+	    <xsl:with-param name="section" select="concat('3.',$def_section1)"/>
+	    <xsl:sort select="term"/>
+	  </xsl:apply-templates>
+    </xsl:when>
+    <xsl:when test="function-available('exslt:node-set')">
+      <xsl:variable name="definitions_common_node_set" select="exslt:node-set($definitions_common)"/>
+      <xsl:variable name="temp" select="/application_protocol|$definitions_common_node_set"/>
+	  <xsl:apply-templates select="$temp/definition" >
+	    <xsl:with-param name="section" select="concat('3.',$def_section1)"/>
+	    <xsl:sort select="term"/>
+	  </xsl:apply-templates>
+    </xsl:when>
+  </xsl:choose>  
 
   <xsl:call-template name="output_abbreviations">
     <xsl:with-param name="section" select="$def_section1+1"/>
+    
   </xsl:call-template>
 </xsl:template>
-
 
 <!-- Given a list of normative references, output any terms from them -->
 <xsl:template name="output_normrefs_terms_rec">

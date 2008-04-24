@@ -2788,9 +2788,7 @@ or name()='screen' or name()='ul' or name()='example' or name()='note' or name()
     <xsl:choose>
       <xsl:when test="string-length($module/@status)>0">
         <xsl:choose>
-          <xsl:when test="starts-with(string($module/@status),'CD-TS')">
-            TS
-          </xsl:when>
+          <xsl:when test="starts-with(string($module/@status),'CD-TS')">TS</xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="string($module/@status)"/>
           </xsl:otherwise>

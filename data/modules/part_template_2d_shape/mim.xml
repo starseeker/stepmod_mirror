@@ -7,15 +7,29 @@
    <schema name="Part_template_2d_shape_mim">
       <interface kind="use" schema="Part_template_extension_mim"/>
       <interface kind="use" schema="Physical_unit_2d_shape_mim"/>
-      <interface kind="use" schema="Requirement_decomposition_mim"/>
       <interface kind="use" schema="product_property_definition_schema">
          <interfaced.item name="characterized_definition"/>
       </interface>
       <type name="pt2ds_requirement_assigned_item">
          <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="assembly_component_usage structured_template"/>
       </type>
+      <entity name="allocated_passage_minimum_annular_ring" supertypes="characterized_object"/>
       <entity name="complex_passage_padstack_definition" supertypes="stratum_stack_dependent_template passage_padstack_definition"/>
       <entity name="design_stack_model" supertypes="stratum_stack_model"/>
+      <entity name="equivalent_stackup_model_definition" supertypes="product_definition product_definition_relationship">
+         <explicit name="primary_stackup_model">
+            <typename name="stratum_stack_model"/>
+            <redeclaration entity-ref="product_definition_relationship" old_name="relating_product_definition"/>
+         </explicit>
+         <explicit name="equivalent_stackup_model">
+            <typename name="stratum_stack_model"/>
+            <redeclaration entity-ref="product_definition_relationship" old_name="related_product_definition"/>
+         </explicit>
+         <where label="WR1" expression="primary_stackup_model :&lt;&gt;: equivalent_stackup_model"/>
+      </entity>
+      <entity name="equivalent_sub_stack_definition" supertypes="product_definition"/>
+      <entity name="impedance_measurement_setup_requirement_occurrence" supertypes="predefined_requirement_view_definition"/>
+      <entity name="impedance_requirement_occurrence" supertypes="predefined_requirement_view_definition"/>
       <entity name="library_stack_model" supertypes="stratum_stack_model"/>
       <entity name="local_linear_stack" supertypes="stratum_sub_stack"/>
       <entity name="material_removal_structured_template" supertypes="single_stratum_structured_template"/>
@@ -36,7 +50,7 @@
       <entity name="special_symbol_template" abstract.supertype="YES" supertypes="part_template_definition" super.expression="ONEOF (single_stratum_special_symbol_template, multi_stratum_special_symbol_template)"/>
       <entity name="stratum_specific_template_location" supertypes="assembly_component_usage property_definition"/>
       <entity name="stratum_stack_dependent_template" supertypes="multi_stratum_structured_template"/>
-      <entity name="stratum_sub_stack" abstract.supertype="YES" supertypes="property_definition" super.expression="ONEOF (local_linear_stack, passage_technology_allocation_to_stack_model)"/>
+      <entity name="stratum_sub_stack" abstract.supertype="YES" supertypes="part_template_definition" super.expression="ONEOF (local_linear_stack, passage_technology_allocation_to_stack_model)"/>
       <entity name="structured_inter_stratum_feature_template" supertypes="inter_stratum_feature_template stratum_stack_dependent_template"/>
       <entity name="structured_template" abstract.supertype="YES" supertypes="geometric_template" super.expression="ONEOF (single_stratum_structured_template, multi_stratum_structured_template)"/>
    </schema>

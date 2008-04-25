@@ -5,7 +5,6 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_physical_requirement_allocation_arm schema_instance"/>
    <schema name="Interconnect_physical_requirement_allocation_arm">
-      <interface kind="use" schema="Fabrication_technology_arm"/>
       <interface kind="use" schema="Requirement_view_definition_relationship_arm"/>
       <interface kind="use" schema="Integral_shield_arm"/>
       <interface kind="reference" schema="Requirement_decomposition_arm">
@@ -39,16 +38,16 @@
          <where label="WR3" expression="SIZEOF(QUERY(s &lt;* SELF\Geometric_template.shapes |&#10;        NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(s)))) = 0"/>
       </entity>
       <entity name="Electrical_isolation_requirement" supertypes="Requirement_view_definition">
-         <derived name="effective_voltage_withstand_capacity_requirement" expression="get_specific_requirement_view_definition_for_collector(SELF, 'effective voltage withstand capacity requirement')">
+         <explicit name="effective_voltage_withstand_capacity_requirement" optional="YES">
+            <typename name="Value_limit"/>
+         </explicit>
+         <derived name="electrical_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'electrical isolation spacing requirement', &#10;              'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="Predefined_requirement_view_definition"/>
          </derived>
-         <derived name="electrical_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'electrical isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
-            <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="Predefined_requirement_view_definition"/>
-         </derived>
-         <where label="WR1" expression="'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(electrical_isolation_spacing_requirement[1])"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+         <where label="WR1" expression="NOT EXISTS(effective_voltage_withstand_capacity_requirement) OR&#10;             ((effective_voltage_withstand_capacity_requirement\Qualified_representation_item.qualifiers[1]\Type_qualifier.name in ['minimum'])&#10;              AND&#10;             ('VALUE_WITH_UNIT_EXTENSION_ARM.ELECTRIC_POTENTIAL_DATA_ELEMENT' IN TYPEOF(effective_voltage_withstand_capacity_requirement)))"/>
+         <where label="WR2" expression="'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(electrical_isolation_spacing_requirement[1])"/>
+         <where label="WR3" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
       </entity>
       <entity name="Interconnect_shield_allocation" supertypes="Requirement_assignment">
          <explicit name="assigned_to">
@@ -63,7 +62,7 @@
       </entity>
       <entity name="Thermal_isolation_removal_template" supertypes="Material_removal_structured_template">
          <derived name="thermal_isolation_spacing_requirement" expression="get_rvd(SELF, 'thermal requirement')">
-            <aggregate type="SET" lower="1" upper="1"/>
+            <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Requirement_view_definition"/>
          </derived>
          <where label="WR1" expression="SIZEOF(QUERY(tisr &lt;* THERMAL_ISOLATION_SPACING_REQUIREMENT |&#10;       NOT('INTERCONNECT_PHYSICAL_REQUIREMENT_ALLOCATION_ARM.THERMAL_ISOLATION_REQUIREMENT' IN TYPEOF(tisr))&#10;       )) =0"/>
@@ -75,21 +74,25 @@
          <explicit name="number_of_bars" optional="YES">
             <builtintype type="INTEGER"/>
          </explicit>
-         <derived name="effective_current_capacity_requirement" expression="get_specific_requirement_view_definition_for_collector(SELF, 'effective current capacity requirement')">
-            <aggregate type="SET" lower="0" upper="1"/>
-            <typename name="Predefined_requirement_view_definition"/>
-         </derived>
-         <derived name="angular_orientation_requirement" expression="get_specific_requirement_view_definition_for_collector(SELF, 'angular orientation requirement')">
+         <explicit name="effective_current_capacity_requirement" optional="YES">
+            <typename name="Value_limit"/>
+         </explicit>
+         <explicit name="angular_orientation_requirement" optional="YES">
+            <typename name="Value_range"/>
+         </explicit>
+         <explicit name="effective_thermal_resistance_requirement" optional="YES">
+            <typename name="Value_limit"/>
+         </explicit>
+         <derived name="thermal_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'thermal isolation spacing requirement', 'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="Predefined_requirement_view_definition"/>
          </derived>
-         <derived name="thermal_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'thermal isolation spacing requirement', 'LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
-            <aggregate type="SET" lower="1" upper="1"/>
-            <typename name="Predefined_requirement_view_definition"/>
-         </derived>
-         <where label="WR1" expression="'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(thermal_isolation_spacing_requirement[1])"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
-         <where label="WR3" expression="NOT(EXISTS(thermal_bar_width) XOR EXISTS(number_of_bars))"/>
+         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+         <where label="WR2" expression="NOT(EXISTS(thermal_bar_width) XOR EXISTS(number_of_bars))"/>
+         <where label="WR3" expression="'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(thermal_isolation_spacing_requirement[1])"/>
+         <where label="WR4" expression="NOT EXISTS(effective_current_capacity_requirement) OR&#10;              ((effective_current_capacity_requirement\Qualified_representation_item.qualifiers[1]\Type_qualifier.name in ['minimum'])&#10;              AND&#10;              ('VALUE_WITH_UNIT_EXTENSION_ARM.ELECTRIC_CURRENT_DATA_ELEMENT' IN TYPEOF(effective_current_capacity_requirement)))"/>
+         <where label="WR5" expression="NOT EXISTS(angular_orientation_requirement) OR&#10;              ('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(angular_orientation_requirement))"/>
+         <where label="WR6" expression="NOT EXISTS(effective_thermal_resistance_requirement) OR&#10;              ((effective_thermal_resistance_requirement\Qualified_representation_item.qualifiers[1]\Type_qualifier.name in ['minimum'])&#10;              AND&#10;              ('VALUE_WITH_UNIT_EXTENSION_ARM.THERMAL_RESISTANCE_DATA_ELEMENT' IN TYPEOF(effective_thermal_resistance_requirement)))"/>
       </entity>
       <function name="get_specific_requirement_type_for_primary_rvd_relationship">
          <parameter name="input">
@@ -114,31 +117,6 @@ END_LOCAL;
 	REPEAT i := 1 to SIZEOF(rvdr) by 1;
       rdp := rdp + rvdr[i].primary;
 	END_REPEAT;
-
-	RETURN(rdp);</algorithm>
-      </function>
-      <function name="get_specific_requirement_view_definition_for_collector">
-         <parameter name="input">
-            <typename name="Requirement_view_definition"/>
-         </parameter>
-         <parameter name="id">
-            <builtintype type="STRING"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
-         <typename name="Predefined_requirement_view_definition"/>
-         <algorithm>LOCAL
-    rcr : SET[0:?] OF Requirement_collection_relationship := [];--this gives us access to the information base
-    rdp : SET[0:?] OF Predefined_requirement_view_definition :=[];
-END_LOCAL;
-    rcr := bag_to_set(QUERY(rai &lt;* USEDIN (input, 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP_ARM.'+
-	'REQUIREMENT_COLLECTION_RELATIONSHIP.COLLECTION') | 
-          (rai\View_definition_relationship.relation_type = id)));
-
-	-- iterate over rcr 
-    REPEAT i := 1 to SIZEOF(rcr) by 1;
-        -- get rdp 
-      rdp := rdp + rcr[i].member;
-    END_REPEAT;
 
 	RETURN(rdp);</algorithm>
       </function>

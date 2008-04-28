@@ -2,12 +2,11 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-05-08 08:34:58 -0700 (An, 08 Geg 2007) $" rcs.revision="$Revision: 730 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="extended_geometric_tolerance_arm schema_instance"/>
    <schema name="Extended_geometric_tolerance_arm">
       <interface kind="use" schema="Requirement_decomposition_arm"/>
       <interface kind="use" schema="Default_tolerance_arm"/>
-      <interface kind="use" schema="Dimension_tolerance_arm"/>
       <interface kind="use" schema="Geometric_tolerance_arm"/>
       <interface kind="use" schema="Non_feature_shape_element_arm"/>
       <interface kind="reference" schema="Requirement_decomposition_arm">
@@ -53,7 +52,7 @@
          <select selectitems="Datum_axis_related_orientation Viewing_plane_based_orientation Datum_based_vector_orientation" genericentity="NO" extensible="NO"/>
       </type>
       <type name="physical_feature_or_part_template">
-         <select extensible="YES" genericentity="YES" selectitems="Datum_feature"/>
+         <select extensible="YES" genericentity="YES" selectitems="Shape_element"/>
       </type>
       <type name="restrained_item_select">
          <select selectitems="Single_datum physical_feature_or_part_template" genericentity="NO" extensible="NO"/>
@@ -111,7 +110,11 @@
          <explicit name="terminating_surface" optional="NO">
             <typename name="physical_feature_or_part_template"/>
          </explicit>
+         <explicit name="terminating_surface_datum" optional="YES">
+            <typename name="Datum_defined_by_feature"/>
+         </explicit>
          <inverse name="size_characteristic" entity="Conical_tolerance_zone_boundary_diametrical_size_characteristic" attribute="sized_boundary_at_surface"/>
+         <where label="WR1" expression="NOT EXISTS(terminating_surface_datum) OR &#10;          (terminating_surface :=: terminating_surface_datum\Datum_defined_by_feature.defined_by)"/>
       </entity>
       <entity name="Conical_tolerance_zone_boundary_diametrical_size_characteristic" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="sized_boundary_at_surface" optional="NO">
@@ -122,9 +125,7 @@
          </explicit>
       </entity>
       <entity name="Conical_tolerance_zone_definition" supertypes="Tolerance_zone_definition" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Datum_axis" supertypes="Datum_shape_element" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
-      </entity>
+      <entity name="Datum_axis" supertypes="Datum_defined_by_derived_shape" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Datum_axis_and_tolerance_zone_orienting_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="oriented_tolerance_zone" optional="NO">
             <typename name="Tolerance_zone"/>
@@ -141,6 +142,23 @@
          <explicit name="orientation_type" optional="NO">
             <typename name="centre_type"/>
          </explicit>
+      </entity>
+      <entity name="Datum_based_direction_element" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="direction" optional="NO">
+            <typename name="Datum_based_direction_vector"/>
+         </explicit>
+         <explicit name="angle_value" optional="NO">
+            <typename name="Angle_data_element"/>
+         </explicit>
+         <explicit name="base_datum_plane" optional="NO">
+            <typename name="Datum_plane"/>
+         </explicit>
+         <explicit name="direction_of_half_datum_plane" optional="NO">
+            <typename name="Datum_based_direction_vector"/>
+         </explicit>
+         <inverse name="elements_of" entity="Datum_based_vector_orientation" attribute="direction_components">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
       </entity>
       <entity name="Datum_based_direction_vector" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="direction_vector_representation" optional="NO">
@@ -167,17 +185,15 @@
       <entity name="Datum_based_vector_orientation" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="direction_components" optional="NO">
             <aggregate type="SET" lower="2" upper="2" unique="NO" optional="NO"/>
-            <typename name="Direction_element"/>
+            <typename name="Datum_based_direction_element"/>
          </explicit>
       </entity>
-      <entity name="Datum_difference" supertypes="Shape_element_relationship" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Datum_difference" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="precedent_datum" optional="NO">
-            <typename name="Datum_shape_element"/>
-            <redeclaration entity-ref="Shape_element_relationship" old_name="relating"/>
+            <typename name="Datum"/>
          </explicit>
          <explicit name="subsequent_datum" optional="NO">
-            <typename name="Datum_shape_element"/>
-            <redeclaration entity-ref="Shape_element_relationship" old_name="related"/>
+            <typename name="Datum"/>
          </explicit>
       </entity>
       <entity name="Datum_difference_based_characteristic" supertypes="Representation_item" abstract.supertype="NO" abstract.entity="NO">
@@ -185,36 +201,9 @@
             <typename name="Datum_difference"/>
          </explicit>
       </entity>
-      <entity name="Datum_feature" supertypes="Shape_element" super.expression="Datum_target_set" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Datum_plane" supertypes="Datum_shape_element" abstract.supertype="NO" abstract.entity="NO">
-         <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
-      </entity>
-      <entity name="Datum_point" supertypes="Datum_shape_element" abstract.supertype="NO" abstract.entity="NO"/>
+      <entity name="Datum_plane" supertypes="Single_datum" abstract.supertype="NO" abstract.entity="NO"/>
+      <entity name="Datum_point" supertypes="Datum_defined_by_derived_shape" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Datum_shape_element" supertypes="Datum Non_feature_shape_element" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Datum_target_set" supertypes="Datum_feature" abstract.supertype="NO" abstract.entity="NO">
-         <inverse name="included_datum_targets" entity="Datum_target_usage_in_datum_target_set_relationship" attribute="defined_datum_target_set">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
-         </inverse>
-      </entity>
-      <entity name="Datum_target_usage_in_datum_target_set_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="defined_datum_target_set" optional="NO">
-            <typename name="Datum_target_set"/>
-         </explicit>
-         <explicit name="used_datum_target" optional="NO">
-            <typename name="Datum_target"/>
-         </explicit>
-         <explicit name="datum_target_number" optional="NO">
-            <builtintype type="INTEGER" fixed="NO"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="used_datum_target"/>
-            <unique.attribute attribute="defined_datum_target_set"/>
-         </unique>
-         <unique label="UR2">
-            <unique.attribute attribute="datum_target_number"/>
-            <unique.attribute attribute="defined_datum_target_set"/>
-         </unique>
-      </entity>
       <entity name="Derived_non_feature_shape_element" abstract.supertype="YES" supertypes="Non_feature_shape_element" super.expression="ONEOF (Apex, Centre_of_symmetry, Linear_extension, Geometric_intersection, Geometric_alignment, Tangent_shape_element)" abstract.entity="NO">
          <inverse name="deriving_relationships" entity="Shape_element_deriving_relationship" attribute="relating">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
@@ -239,6 +228,10 @@
          <explicit name="constrained_physical_feature" optional="NO">
             <typename name="physical_feature_or_part_template"/>
          </explicit>
+         <explicit name="constrained_physical_feature_datum" optional="YES">
+            <typename name="Datum_defined_by_feature"/>
+         </explicit>
+         <where label="WR1" expression="NOT EXISTS(constrained_physical_feature_datum) OR &#10;          (constrained_physical_feature :=: constrained_physical_feature_datum\Datum_defined_by_feature.defined_by)"/>
       </entity>
       <entity name="Dimension_related_positional_boundary_definition" supertypes="Positional_boundary_definition" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="defined_positional_boundary" optional="NO">
@@ -293,23 +286,6 @@
          </unique>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       <where label="IP1"/>
-      </entity>
-      <entity name="Direction_element" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="direction" optional="NO">
-            <typename name="Datum_based_direction_vector"/>
-         </explicit>
-         <explicit name="angle_value" optional="NO">
-            <typename name="Angle_data_element"/>
-         </explicit>
-         <explicit name="base_datum_plane" optional="NO">
-            <typename name="Datum_plane"/>
-         </explicit>
-         <explicit name="direction_of_half_datum_plane" optional="NO">
-            <typename name="Datum_based_direction_vector"/>
-         </explicit>
-         <inverse name="elements_of" entity="Datum_based_vector_orientation" attribute="direction_components">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
-         </inverse>
       </entity>
       <entity name="Edge_segment_vertex" supertypes="Datum_point" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Externally_defined_dimension_representation" supertypes="Shape_dimension_representation" abstract.supertype="NO" abstract.entity="NO">
@@ -434,6 +410,7 @@
             <typename name="Tolerance_zone"/>
          </explicit>
          <inverse name="size_characteristic" entity="Projected_zone_height_characteristic" attribute="defined_height_of"/>
+         <where label="WR1" expression="NOT('SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT' IN TYPEOF(base_physical_feature)) OR&#10;       (SIZEOF(USEDIN(base_physical_feature,'GEOMETRIC_TOLERANCE_ARM.DATUM_DEFINED_BY_FEATURE.DEFINED_BY'))&gt; 0)"/>
       <where label="IP1"/>
       </entity>
       <entity name="Projected_zone_height_characteristic" abstract.supertype="NO" abstract.entity="NO">
@@ -621,9 +598,13 @@
          <explicit name="profiled_surface" optional="NO">
             <typename name="physical_feature_or_part_template"/>
          </explicit>
+         <explicit name="profiled_surface_datum" optional="YES">
+            <typename name="Datum_defined_by_feature"/>
+         </explicit>
          <explicit name="profile_representation" optional="NO">
             <typename name="true_profile_representations"/>
          </explicit>
+         <where label="WR1" expression="NOT EXISTS(profiled_surface_datum) OR &#10;          (profiled_surface :=: profiled_surface_datum\Datum_defined_by_feature.defined_by)"/>
       </entity>
       <entity name="User_defined_dimension_qualifier" supertypes="Dimension_qualifier" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="name" optional="NO">

@@ -6,12 +6,8 @@
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
    <schema name="Fabrication_technology_arm">
       <interface kind="use" schema="Constructive_solid_geometry_2d_arm"/>
-      <interface kind="use" schema="Part_feature_location_arm"/>
-      <interface kind="use" schema="Physical_layout_template_arm"/>
-      <interface kind="use" schema="Requirement_decomposition_arm"/>
       <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
       <interface kind="use" schema="Part_template_shape_with_parameters_arm"/>
-      <interface kind="use" schema="Surface_conditions_arm"/>
       <interface kind="reference" schema="Specification_document_arm">
          <interfaced.item name="get_document_definition"/>
       </interface>
@@ -22,13 +18,16 @@
          <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Passage_technology Stratum_technology"/>
       </type>
       <type name="ft_material_item_select">
-         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Filled_via_template Passage_technology Stratum_technology"/>
+         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Passage_technology Stratum_technology"/>
       </type>
       <type name="ft_property_assignment_select">
          <select basedon="property_assignment_select" selectitems="Stratum_technology Passage_technology" genericentity="NO" extensible="NO"/>
       </type>
       <type name="ft_requirement_assignment_item">
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Passage_technology Stratum_technology Stratum_technology_occurrence"/>
+      </type>
+      <type name="ft_terminus_condition">
+         <enumeration extensible="YES" items="bilateral_bond bilateral_complete_removal unilateral_bond"/>
       </type>
       <type name="land_template_terminal_class">
          <enumeration items="surface_point_class edge_curve_class edge_point_class surface_area_class" extensible="NO"/>
@@ -46,14 +45,17 @@
          <enumeration items="other_signal lands_only power_or_ground embedded_passive_capacitor_dielectric embedded_passive_resistor" extensible="NO"/>
       </type>
       <type name="predefined_documentation_layer_purpose">
-         <enumeration items="soldermask solderpaste silkscreen generic_layer glue gluemask pastemask" extensible="NO"/>
+         <enumeration items="soldermask solderpaste silkscreen generic_layer glue gluemask pastemask finish_coating" extensible="NO"/>
       </type>
       <type name="stiffness_class">
-         <enumeration items="fluid_like stiff_laminate" extensible="NO"/>
+         <enumeration items="fluid_like_with_constant_thickness fluid_like_with_varying_thickness stiff_laminate" extensible="NO"/>
+      </type>
+      <type name="up_or_down">
+         <enumeration items="independent precedent subsequent" extensible="NO"/>
       </type>
       <entity name="Blind_passage_template" supertypes="Unsupported_passage_template" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="of_measure_orientation" optional="NO">
-            <typename name="measure_orientation"/>
+         <explicit name="bottom_distance_from_datum_reference" optional="NO">
+            <typename name="Shape_dimension_representation"/>
          </explicit>
          <explicit name="datum_reference_layer" optional="NO">
             <typename name="Stratum_technology_occurrence"/>
@@ -61,8 +63,8 @@
          <explicit name="datum_reference_side" optional="NO">
             <typename name="Stratum_technology_occurrence_link"/>
          </explicit>
-         <explicit name="bottom_distance_from_datum_reference" optional="NO">
-            <typename name="Shape_dimension_representation"/>
+         <explicit name="of_measure_orientation" optional="NO">
+            <typename name="measure_orientation"/>
          </explicit>
       </entity>
       <entity name="Component_termination_passage_template" supertypes="Continuous_template Inter_stratum_feature_template" abstract.supertype="NO" abstract.entity="NO">
@@ -100,6 +102,7 @@
       <entity name="Continuous_template" supertypes="Geometric_template" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="SIZEOF(QUERY(s &lt;* SELF\Geometric_template.shapes |&#10;          NOT &#10;          (SIZEOF(['CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_AREA_CSG_2D_MODEL',&#10;                   'PART_TEMPLATE_EXTENSION_ARM.PLANAR_PATH_SHAPE_MODEL_WITH_PARAMETERS'] * TYPEOF(s))&#10;           = 1)&#10;          )) = 0"/>
       </entity>
+      <entity name="Copy_stratum_technology_occurrence_relationship" supertypes="Derived_stratum_technology_occurrence_relationship" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Counterbore_passage_template" supertypes="Unsupported_passage_template" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="smaller_passage" optional="NO">
             <typename name="Unsupported_passage_template"/>
@@ -148,21 +151,15 @@
             <typename name="Length_tolerance_characteristic"/>
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
-         <inverse name="deposition_material" entity="Material_identification" attribute="items">
+         <inverse name="deposition_material" entity="Passage_deposition_material_identification" attribute="items">
             <inverse.aggregate type="SET" lower="1" upper="1"/>
             <redeclaration entity-ref="Passage_technology"/>
          </inverse>
          <where label="WR1" expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1])"/>
       </entity>
       <entity name="Default_passage_based_land_physical_template" abstract.supertype="YES" supertypes="Land_physical_template" super.expression="ONEOF (Default_plated_passage_based_land_physical_template, Default_unsupported_passage_based_land_physical_template)" abstract.entity="NO">
-         <explicit name="minimum_fabrication_allowance" optional="NO">
-            <typename name="Length_data_element"/>
-         </explicit>
          <explicit name="of_passage_technology" optional="NO">
             <typename name="Passage_technology"/>
-         </explicit>
-         <explicit name="minimum_annular_ring" optional="NO">
-            <typename name="Length_data_element"/>
          </explicit>
       </entity>
       <entity name="Default_plated_passage_based_land_physical_template" supertypes="Default_passage_based_land_physical_template" abstract.supertype="NO" abstract.entity="NO">
@@ -195,12 +192,13 @@
             <typename name="Length_tolerance_characteristic"/>
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
-         <inverse name="deposition_material" entity="Material_identification" attribute="items">
+         <inverse name="deposition_material" entity="Passage_deposition_material_identification" attribute="items">
             <inverse.aggregate type="SET" lower="1" upper="1"/>
             <redeclaration entity-ref="Passage_technology"/>
          </inverse>
          <where label="WR1" expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1])"/>
       </entity>
+      <entity name="Derived_stratum_technology_occurrence_relationship" abstract.supertype="YES" supertypes="Stratum_technology_occurrence_relationship" super.expression="ONEOF (Copy_stratum_technology_occurrence_relationship, Inverse_copy_stratum_technology_occurrence_relationship)" abstract.entity="NO"/>
       <entity name="Design_layer_technology" supertypes="Stratum_technology" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="design_layer_purpose" optional="YES">
             <typename name="predefined_design_layer_purpose"/>
@@ -228,11 +226,11 @@
          </inverse>
          <where label="WR1" expression="(EXISTS (pre_defined_documentation_layer_purpose)) XOR ((SIZEOF(externally_defined_documentation_layer_purpose)) = 1)"/>
       </entity>
-      <entity name="Filled_via_template" supertypes="Via_template" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Filled_unsupported_passage_template" supertypes="Unsupported_passage_template" abstract.supertype="NO" abstract.entity="NO">
          <inverse name="fill_material" entity="Material_identification" attribute="items">
             <inverse.aggregate type="SET" lower="1" upper="1"/>
          </inverse>
-         <where label="WR1" expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (fill_material[1])"/>
+         <where label="WR1" expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF(fill_material[1])"/>
       </entity>
       <entity name="Inter_stratum_feature_template" supertypes="Geometric_template" super.expression="ONEOF (Component_termination_passage_template, Unsupported_passage_template, Via_template)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="of_passage_technology" optional="NO">
@@ -240,6 +238,7 @@
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
+      <entity name="Inverse_copy_stratum_technology_occurrence_relationship" supertypes="Derived_stratum_technology_occurrence_relationship" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Land_physical_template" supertypes="Stratum_feature_template" super.expression="ONEOF (Default_passage_based_land_physical_template, Default_attachment_size_based_land_physical_template)" abstract.supertype="NO" abstract.entity="NO">
          <inverse name="access_mechanisms" entity="Land_template_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
@@ -286,6 +285,20 @@
          <where label="WR2" expression="SIZEOF(SELF\Geometric_template.shapes) &gt; 0"/>
       <where label="IP1"/>
       </entity>
+      <entity name="Passage_deposition_material_identification" supertypes="Material_identification" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="items" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="Passage_technology"/>
+            <redeclaration entity-ref="Material_identification"/>
+         </explicit>
+      </entity>
+      <entity name="Passage_filling_material_identification" supertypes="Material_identification" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="items" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="Passage_technology"/>
+            <redeclaration entity-ref="Material_identification"/>
+         </explicit>
+      </entity>
       <entity name="Passage_technology" supertypes="Characterizable_object Item_shape" super.expression="ONEOF (Default_via_definition, Default_component_termination_passage_definition, Default_unsupported_passage_definition)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="as_finished_deposition_thickness" optional="YES">
             <typename name="Length_tolerance_characteristic"/>
@@ -302,6 +315,12 @@
          <explicit name="plated_passage" optional="NO">
             <builtintype type="BOOLEAN" fixed="NO"/>
          </explicit>
+         <explicit name="passage_terminus_condition" optional="YES">
+            <typename name="ft_terminus_condition"/>
+         </explicit>
+         <explicit name="minimum_fabrication_allowance" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
          <derived name="described_element" expression="SELF">
             <typename name="Passage_technology"/>
             <redeclaration entity-ref="Item_shape"/>
@@ -310,16 +329,20 @@
             <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
             <typename name="Document_definition"/>
          </derived>
-         <inverse name="deposition_material" entity="Material_identification" attribute="items">
+         <inverse name="deposition_material" entity="Passage_deposition_material_identification" attribute="items">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
+         <inverse name="fill_material" entity="Passage_filling_material_identification" attribute="items">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <unique label="UR1">
             <unique.attribute entity-ref="Characterizable_object" attribute="name"/>
          </unique>
          <where label="WR1" expression="NOT (SIZEOF(deposition_material) = 1) OR&#10;            ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (deposition_material[1]))"/>
-         <where label="WR2" expression="NOT (plated_passage) OR (SIZEOF(deposition_material) = 1)"/>
+         <where label="WR2" expression="NOT plated_passage OR (SIZEOF(deposition_material) = 1)"/>
          <where label="WR3" expression="NOT EXISTS(as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1)"/>
-         <where label="WR4" expression="NOT (plated_passage) OR&#10;           (SIZEOF([deposition_material[1].electrical_conductivity_classification,&#10;                    deposition_material[1].thermal_conductivity_classification] *&#10;                   ['conductive']) &gt;= 1)"/>
+         <where label="WR4" expression="NOT plated_passage OR&#10;            (SIZEOF([deposition_material[1].electrical_conductivity_classification,&#10;                    deposition_material[1].thermal_conductivity_classification] *&#10;                   ['conductive']) &gt;= 1)"/>
+         <where label="WR5" expression="NOT ((passage_terminus_condition = ft_terminus_condition.bilateral_bond) OR&#10;                 (passage_terminus_condition = ft_terminus_condition.unilateral_bond)) OR&#10;            plated_passage"/>
       </entity>
       <entity name="Single_stratum_continuous_template" abstract.supertype="YES" supertypes="Continuous_template Single_stratum_template" super.expression="ONEOF (Stratum_feature_template, Material_removal_feature_template)" abstract.entity="NO"/>
       <entity name="Single_stratum_template" abstract.supertype="YES" supertypes="Template_definition" super.expression="Single_stratum_continuous_template" abstract.entity="NO"/>
@@ -331,20 +354,21 @@
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Stratum_technology_occurrence"/>
          </derived>
-         <inverse name="composing_link" entity="Stratum_technology_occurrence_link" attribute="scope">
+         <inverse name="composing_link" entity="Stratum_technology_occurrence_relationship" attribute="scope">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
+         <where label="WR1" expression="SIZEOF(QUERY( cl &lt;* composing_link |&#10;            NOT('FABRICATION_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_LINK' IN TYPEOF(cl))&#10;                  )) = 0"/>
       </entity>
       <entity name="Stratum_surface_technology" supertypes="Shape_element" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="associated_technology" optional="NO">
             <typename name="Stratum_technology"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
-         <derived name="surface_specification" expression="get_document_definition(SELF, 'surface specification',   &#10;                                        'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION')">
+         <derived name="surface_specification" expression="get_document_definition(SELF, 'surface specification',   &#10;                                      'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION')">
             <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
             <typename name="Document_definition"/>
          </derived>
-         <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT')) &gt; 0) OR &#10;          (SIZEOF(get_document_definition(SELF, 'surface specification', 'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION')) = 1)"/>
+         <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT')) &gt; 0) OR &#10;            (SIZEOF(get_document_definition(SELF, 'surface specification', 'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION')) = 1)"/>
       </entity>
       <entity name="Stratum_technology" supertypes="Characterizable_object Item_shape" super.expression="ONEOF (Design_layer_technology, Documentation_layer_technology)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="layer_position" optional="NO">
@@ -401,52 +425,57 @@
          <explicit name="definition" optional="NO">
             <typename name="Stratum_technology"/>
          </explicit>
+         <explicit name="primary" optional="YES">
+            <typename name="Stratum_surface_technology"/>
+         </explicit>
+         <explicit name="rotation" optional="YES">
+            <typename name="Angle_data_element"/>
+         </explicit>
          <unique label="UR1">
             <unique.attribute attribute="name"/>
          </unique>
       </entity>
-      <entity name="Stratum_technology_occurrence_derived_from_relationship" supertypes="Stratum_technology_occurrence_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <unique label="UR1">
-            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="primary_sto"/>
-            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="scope"/>
-         </unique>
+      <entity name="Stratum_technology_occurrence_feature_constraint" supertypes="Stratum_technology_occurrence_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="difference_distance" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="intersection_distance" optional="YES">
+            <typename name="length_measure"/>
+         </explicit>
+         <explicit name="distance_unit" optional="YES">
+            <typename name="Length_unit"/>
+         </explicit>
+         <where label="WR1" expression="NOT (EXISTS (difference_distance) OR EXISTS(intersection_distance)) XOR&#10;           EXISTS(distance_unit)"/>
       </entity>
-      <entity name="Stratum_technology_occurrence_link" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="precedent_sto" optional="NO">
+      <entity name="Stratum_technology_occurrence_link" supertypes="Stratum_technology_occurrence_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="base_stratum_technology_occurrence" optional="YES">
+            <typename name="up_or_down"/>
+         </explicit>
+         <where label="WR1" expression="NOT (SELF\Stratum_technology_occurrence_relationship.sto_1 :=: SELF\Stratum_technology_occurrence_relationship.sto_2) OR &#10;                (SIZEOF(SELF\Stratum_technology_occurrence_relationship.scope\Stratum_stack_model.composing_link) = 1)"/>
+      </entity>
+      <entity name="Stratum_technology_occurrence_relationship" abstract.supertype="YES" super.expression="ONEOF (Derived_stratum_technology_occurrence_relationship, Stratum_technology_occurrence_link, Stratum_technology_occurrence_swap_relationship, Stratum_technology_occurrence_feature_constraint)" abstract.entity="NO">
+         <explicit name="sto_1" optional="NO">
             <typename name="Stratum_technology_occurrence"/>
          </explicit>
-         <explicit name="subsequent_sto" optional="NO">
+         <explicit name="sto_2" optional="NO">
             <typename name="Stratum_technology_occurrence"/>
          </explicit>
          <explicit name="scope" optional="NO">
             <typename name="Stratum_stack_model"/>
          </explicit>
-         <where label="WR1" expression="NOT (precedent_sto :=: subsequent_sto) OR (SIZEOF(scope.composing_link) = 1)"/>
-         <where label="WR2" expression="acyclic_stratum_technology_occurrence_link(SELF, [subsequent_sto], &#10;     'FABRICATION_TECHNOLOGY_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL_LINK')"/>
-      </entity>
-      <entity name="Stratum_technology_occurrence_relationship" abstract.supertype="YES" super.expression="ONEOF (Stratum_technology_occurrence_swap_relationship, Stratum_technology_occurrence_derived_from_relationship)" abstract.entity="NO">
-         <explicit name="primary_sto" optional="NO">
-            <typename name="Stratum_technology_occurrence"/>
-         </explicit>
-         <explicit name="secondary_sto" optional="NO">
-            <typename name="Stratum_technology_occurrence"/>
-         </explicit>
-         <explicit name="scope" optional="NO">
-            <typename name="Stratum_stack_model"/>
-         </explicit>
+         <where label="WR1" expression="acyclic_stratum_technology_occurrence_relationship(SELF, [sto_2], &#10;           'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_RELATIONSHIP')"/>
       </entity>
       <entity name="Stratum_technology_occurrence_swap_relationship" supertypes="Stratum_technology_occurrence_relationship" abstract.supertype="NO" abstract.entity="NO">
          <unique label="UR1">
-            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="primary_sto"/>
+            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="sto_1"/>
             <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="scope"/>
          </unique>
          <unique label="UR2">
-            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="secondary_sto"/>
+            <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="sto_2"/>
             <unique.attribute entity-ref="Stratum_technology_occurrence_relationship" attribute="scope"/>
          </unique>
-         <where label="WR1" expression="primary_sto &lt;&gt; secondary_sto"/>
-         <where label="WR2" expression="(primary_sto IN scope\Stratum_stack_model.composing_occurrence) AND&#10;         (secondary_sto IN scope\Stratum_stack_model.composing_occurrence)"/>
-         <where label="WR3" expression="acyclic_stratum_technology_occurrence_swap_relationship(SELF,&#10;       [secondary_sto], &#10;       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP')"/>
+         <where label="WR1" expression="SELF\Stratum_technology_occurrence_relationship.sto_1 &lt;&gt; SELF\Stratum_technology_occurrence_relationship.sto_2"/>
+         <where label="WR2" expression="(SELF\Stratum_technology_occurrence_relationship.sto_1 IN SELF\Stratum_technology_occurrence_relationship.scope\Stratum_stack_model.composing_occurrence) AND&#10;         (SELF\Stratum_technology_occurrence_relationship.sto_2 IN SELF\Stratum_technology_occurrence_relationship.scope\Stratum_stack_model.composing_occurrence)"/>
       </entity>
       <entity name="Stratum_technology_swap_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="primary_stratum_technology" optional="NO">
@@ -466,7 +495,7 @@
          <where label="WR3" expression="primary_stratum_technology\Stratum_technology.layer_position = layer_position_type.primary"/>
          <where label="WR4" expression="secondary_stratum_technology\Stratum_technology.layer_position = layer_position_type.secondary"/>
          <where label="WR5" expression="primary_stratum_technology &lt;&gt; secondary_stratum_technology"/>
-         <where label="WR6" expression="acyclic_stratum_technology_swap_relationship(SELF,&#10;      [secondary_stratum_technology], &#10;     'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_SWAP_RELATIONSHIP')"/>
+         <where label="WR6" expression="acyclic_stratum_technology_swap_relationship(SELF,&#10;        [secondary_stratum_technology], &#10;       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_SWAP_RELATIONSHIP')"/>
       </entity>
       <entity name="Unsupported_passage_template" supertypes="Continuous_template Inter_stratum_feature_template" super.expression="ONEOF (Counterbore_passage_template, Countersunk_passage_template, Blind_passage_template)" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="of_passage_technology" optional="NO">
@@ -507,20 +536,20 @@
       <subtype.constraint name="ft_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Geometric_template, Single_stratum_template, Stratum_stack_model)" abstract.supertype="NO"/>
       <rule name="unique_land_physical_template" appliesto="Land_physical_template">
          <algorithm>LOCAL
-     esi : BAG OF External_source_identification := [];
-     iid : BAG OF String := [];
-     itype : BAG OF String := [];
-   END_LOCAL;
-   REPEAT i := 1 to SIZEOF(Land_physical_template) by 1;
-     esi  := esi + Land_physical_template[i].pre_defined_classification_code[1];
-     iid := iid + Land_physical_template[i].pre_defined_classification_code[1]\External_source_identification.source_id;
-     itype := itype + Land_physical_template[i].pre_defined_classification_code[1]\External_source_identification.source_type;
-   END_REPEAT;</algorithm>
-         <where label="WR1" expression="(SIZEOF(esi) = SIZEOF(bag_to_set(esi))) AND&#10;         (SIZEOF(iid) = SIZEOF(bag_to_set(iid))) AND&#10;         (1 = SIZEOF(bag_to_set(itype)))"/>
+      esi : BAG OF External_source_identification := [];
+      iid : BAG OF String := [];
+      itype : BAG OF String := [];
+    END_LOCAL;
+    REPEAT i := 1 to SIZEOF(Land_physical_template) by 1;
+      esi  := esi + Land_physical_template[i].pre_defined_classification_code[1];
+      iid := iid + Land_physical_template[i].pre_defined_classification_code[1]\External_source_identification.source_id;
+      itype := itype + Land_physical_template[i].pre_defined_classification_code[1]\External_source_identification.source_type;
+    END_REPEAT;</algorithm>
+         <where label="WR1" expression="(SIZEOF(esi) = SIZEOF(bag_to_set(esi))) AND&#10;           (SIZEOF(iid) = SIZEOF(bag_to_set(iid))) AND&#10;           (1 = SIZEOF(bag_to_set(itype)))"/>
       </rule>
-      <function name="acyclic_stratum_technology_occurrence_link">
+      <function name="acyclic_stratum_technology_occurrence_relationship">
          <parameter name="relation">
-            <typename name="Stratum_technology_occurrence_link"/>
+            <typename name="Stratum_technology_occurrence_relationship"/>
          </parameter>
          <parameter name="relatives">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
@@ -531,49 +560,18 @@
          </parameter>
          <builtintype type="BOOLEAN" fixed="NO"/>
          <algorithm>LOCAL
-     x : SET OF Stratum_technology_occurrence_link := [];
+     x : SET OF Stratum_technology_occurrence_relationship := [];
   END_LOCAL;
-    IF relation.precedent_sto IN relatives THEN
+    IF relation.sto_1 IN relatives THEN
       RETURN (FALSE);
     END_IF;
-    x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.precedent_sto,
+    x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.sto_1,
       'FABRICATION_TECHNOLOGY_ARM.' +
-      'STRATUM_TECHNOLOGY_OCCURRENCE_LINK.' +
-      'SUBSEQUENT_STO')) | specific_relation IN TYPEOF(pd));
+      'STRATUM_TECHNOLOGY_OCCURRENCE_RELATIONSHIP.' +
+      'STO_2')) | specific_relation IN TYPEOF(pd));
     REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_Stratum_technology_occurrence_link(x[i], relatives +
-        relation.precedent_sto, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);</algorithm>
-      </function>
-      <function name="acyclic_stratum_technology_occurrence_swap_relationship">
-         <parameter name="relation">
-            <typename name="Stratum_technology_occurrence_swap_relationship"/>
-         </parameter>
-         <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="Stratum_technology_occurrence"/>
-         </parameter>
-         <parameter name="specific_relation">
-            <builtintype type="STRING" fixed="NO"/>
-         </parameter>
-         <builtintype type="BOOLEAN" fixed="NO"/>
-         <algorithm>LOCAL
-     x : SET OF Stratum_technology_occurrence_swap_relationship := [];
-  END_LOCAL;
-    IF relation.primary_sto IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.primary_sto,
-      'FABRICATION_TECHNOLOGY_ARM.' +
-      'STRATUM_TECHNOLOGY_OCCURRENCE_SWAP_RELATIONSHIP.' +
-      'SECONDARY_STO')) | specific_relation IN TYPEOF(pd));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_stratum_technology_occurrence_swap_relationship(x[i],
-        relatives +
-        relation.primary_sto, specific_relation) THEN
+      IF NOT acyclic_Stratum_technology_occurrence_relationship(x[i], relatives +
+        relation.sto_1, specific_relation) THEN
         RETURN (FALSE);
       END_IF;
     END_REPEAT;
@@ -618,12 +616,12 @@
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <builtintype type="STRING" fixed="NO"/>
          <algorithm>LOCAL
-    s : SET OF STRING := [];
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   s := s + input[i]\Characterizable_object.name;
-  END_REPEAT;
-  RETURN(s);</algorithm>
+      s : SET OF STRING := [];
+    END_LOCAL;
+    REPEAT  i := 1 TO SIZEOF(input) BY 1;
+      s := s + input[i]\Characterizable_object.name;
+    END_REPEAT;
+    RETURN(s);</algorithm>
       </function>
       <function name="get_electrical_conductivity">
          <parameter name="mi">
@@ -635,10 +633,10 @@
 	  IF ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' 
 	  	IN TYPEOF (mi[i])) THEN
 		  IF((EXISTS(mi[i].electrical_conductivity_classification)) AND 
-		  (mi[i].electrical_conductivity_classification IN ['conductive', 'semi conductive', 'super conductive'])) THEN
+		    (mi[i].electrical_conductivity_classification IN ['conductive', 'semi conductive', 'super conductive'])) THEN
 	  		RETURN (TRUE);
-	  	END_IF;	
-	  END_IF;
+	  	  END_IF;	
+      END_IF;
 	END_REPEAT;
 	RETURN (FALSE);</algorithm>
       </function>
@@ -650,13 +648,13 @@
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Stratum_technology_occurrence"/>
          <algorithm>LOCAL
-   sto : SET OF Stratum_technology_occurrence := [];
-    i : INTEGER := 0;
-  END_LOCAL;
-  REPEAT  i := 1 TO SIZEOF(input) BY 1;
-   sto := sto + input[i].precedent_sto + input[i].subsequent_sto;
-  END_REPEAT;
-  RETURN(sto);</algorithm>
+      sto : SET OF Stratum_technology_occurrence := [];
+      i : INTEGER := 0;
+    END_LOCAL;
+    REPEAT  i := 1 TO SIZEOF(input) BY 1;
+      sto := sto + input[i]\Stratum_technology_occurrence_relationship.sto_1 + input[i]\Stratum_technology_occurrence_relationship.sto_2;
+    END_REPEAT;
+    RETURN(sto);</algorithm>
       </function>
       <function name="less">
          <parameter name="input1">

@@ -7,11 +7,9 @@
    <schema name="Layered_interconnect_module_design_arm">
       <interface kind="use" schema="Component_grouping_arm"/>
       <interface kind="use" schema="Edge_shape_feature_arm"/>
-      <interface kind="use" schema="Interconnect_module_usage_view_arm"/>
       <interface kind="use" schema="Interconnect_physical_requirement_allocation_arm"/>
       <interface kind="use" schema="Footprint_definition_arm"/>
       <interface kind="use" schema="Physical_connectivity_definition_arm"/>
-      <interface kind="use" schema="Part_template_extension_arm"/>
       <interface kind="use" schema="Interconnect_module_connection_routing_arm"/>
       <interface kind="use" schema="Assembly_component_placement_requirements_arm"/>
       <interface kind="reference" schema="Characterizable_object_arm">
@@ -48,7 +46,7 @@
          <select basedon="groupable_item" selectitems="Generic_physical_network Stratum" genericentity="NO" extensible="NO"/>
       </type>
       <type name="limd_physical_feature_or_part_template">
-         <select extensible="YES" genericentity="YES" basedon="physical_feature_or_part_template" selectitems="Part_feature Physical_component_feature Laminate_component Template_definition Stratum_feature"/>
+         <select extensible="YES" genericentity="YES" basedon="physical_feature_or_part_template" selectitems="Part_feature Physical_component_feature Laminate_component"/>
       </type>
       <type name="limd_requirement_assignment_item">
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Stratum_feature_conductive_join Dielectric_crossover_area Interconnect_module"/>
@@ -93,31 +91,6 @@
          </explicit>
          <where label="WR1" expression="SIZEOF(QUERY(sf &lt;* stratum_feature_implementation | sf.resident_stratum :&lt;&gt;: stratum_feature_implementation[1].resident_stratum)) = 0"/>
       </entity>
-      <entity name="Adjacent_stratum_surface_definition" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="name" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
-         </explicit>
-         <explicit name="precedent_surface" optional="NO">
-            <typename name="Stratum_surface"/>
-         </explicit>
-         <explicit name="subsequent_surface" optional="NO">
-            <typename name="Stratum_surface"/>
-         </explicit>
-         <derived name="of_product" expression="precedent_surface.of_stratum\Product_view_definition.defined_version.of_product">
-            <typename name="Product"/>
-         </derived>
-         <unique label="UR1">
-            <unique.attribute attribute="name"/>
-         </unique>
-         <unique label="UR2">
-            <unique.attribute attribute="precedent_surface"/>
-            <unique.attribute attribute="subsequent_surface"/>
-         </unique>
-         <where label="WR1" expression="precedent_surface.name = stratum_surface_designation.secondary_surface"/>
-         <where label="WR2" expression="subsequent_surface.name = stratum_surface_designation.primary_surface"/>
-         <where label="WR3" expression="of_product :=: subsequent_surface.of_stratum\Product_view_definition.defined_version.of_product"/>
-         <where label="WR4" expression="acyclic_adjacent_stratum_surface_definition(SELF, [subsequent_surface], &#10;        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ADJACENT_STRATUM_SURFACE_DEFINITION')"/>
-      </entity>
       <entity name="Adjacent_stratum_surface_embedded_physical_component_surface_definition" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="name" optional="NO">
             <builtintype type="STRING" fixed="NO"/>
@@ -131,7 +104,6 @@
          <unique label="UR1">
             <unique.attribute attribute="name"/>
          </unique>
-
          <unique label="UR2">
             <unique.attribute attribute="precedent_item"/>
             <unique.attribute attribute="subsequent_item"/>
@@ -363,14 +335,11 @@
          <explicit name="primary_design_layer_stratum" optional="NO">
             <builtintype type="BOOLEAN" fixed="NO"/>
          </explicit>
-         <explicit name="of_technology" optional="NO">
-            <typename name="Design_layer_technology"/>
-            <redeclaration entity-ref="Stratum"/>
-         </explicit>
          <inverse name="existence_dependence" entity="Layer_connection_point" attribute="resident_design_layer_stratum">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <where label="WR1" expression="(NOT (primary_design_layer_stratum) AND (SIZEOF(QUERY(imps &lt;* USEDIN(SELF,&#10; 'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 0)) OR ((primary_design_layer_stratum) AND (SIZEOF(QUERY(imps &lt;* USEDIN(SELF,&#10; 'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 1))"/>
+         <where label="WR1" expression="(NOT (primary_design_layer_stratum) AND (SIZEOF(QUERY(imps &lt;* USEDIN(SELF,&#10;        'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 0)) OR ((primary_design_layer_stratum) AND (SIZEOF(QUERY(imps &lt;* USEDIN(SELF,&#10;        'DESIGN_SPECIFIC_ASSIGNMENT_TO_INTERCONNECT_USAGE_VIEW_ARM.STRATUM_CONCEPT_TO_PHYSICAL_USAGE_VIEW_ASSIGNMENT.' + 'ASSIGNED_DESIGN_OBJECT') | ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(imps.defined_part_feature)))) = 1))"/>
+         <where label="WR2" expression="'FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF\Stratum.of_technology)"/>
       <where label="IP1"/>
       </entity>
       <entity name="Dielectric_material_passage" supertypes="Inter_stratum_feature" abstract.supertype="NO" abstract.entity="NO">
@@ -384,10 +353,7 @@
       <where label="IP1"/>
       </entity>
       <entity name="Documentation_layer_stratum" supertypes="Stratum" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="of_technology" optional="NO">
-            <typename name="Documentation_layer_technology"/>
-            <redeclaration entity-ref="Stratum"/>
-         </explicit>
+         <where label="WR1" expression="'FABRICATION_TECHNOLOGY_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(SELF\Stratum.of_technology)"/>
       </entity>
       <entity name="Electrical_isolation_laminate_component" supertypes="Material_removal_laminate_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
@@ -408,12 +374,6 @@
       </entity>
       <entity name="Fiducial" supertypes="Laminate_component" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Fiducial_stratum_feature" supertypes="Stratum_feature" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Filled_via" supertypes="Via" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="derived_from" optional="NO">
-            <typename name="Filled_via_template"/>
-            <redeclaration entity-ref="Definition_based_product_occurrence"/>
-         </explicit>
-      </entity>
       <entity name="Footprint_occurrence" supertypes="Structured_layout_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
             <typename name="Generic_footprint_definition"/>
@@ -494,11 +454,14 @@
             <typename name="Stratum"/>
             <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
          </explicit>
-         <derived name="included_stratum" expression="get_included_stratum(from_stratum,to_stratum)">
+         <explicit name="included_stratum" optional="NO">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Stratum"/>
-         </derived>
+         </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
+         <where label="WR2" expression="from_stratum IN included_stratum"/>
+         <where label="WR3" expression="to_stratum IN included_stratum"/>
+         <where label="WR4" expression="EXISTS(from_stratum\Stratum.assembly[1]\Interconnect_module_stratum_assembly_relationship.assembly\Interconnect_module.used_stack_model)"/>
       </entity>
       <entity name="Inter_stratum_feature" abstract.supertype="YES" supertypes="Laminate_component" super.expression="ONEOF (Unsupported_passage, Plated_inter_stratum_feature)" abstract.entity="NO">
          <explicit name="feature_of_size" optional="NO">
@@ -511,13 +474,18 @@
             <typename name="Inter_stratum_feature_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(vertical_extent) OR (SIZEOF(QUERY(pvd &lt;* get_assemblies(SELF) |&#10;         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(pvd)) AND             &#10;              (vertical_extent\Stratum_sub_stack.associated_stackup =&#10;                   pvd\Interconnect_module.stackup_model[1]\Stratum_stack_model_to_interconnect_assignment.concept))&#10;                   )) = 0)"/>
+         <where label="WR1" expression="NOT EXISTS(vertical_extent) OR (SIZEOF(QUERY(pvd &lt;* get_assemblies(SELF) |&#10;         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(pvd)) AND             &#10;              (vertical_extent\Stratum_sub_stack.associated_stackup =&#10;                   pvd\Interconnect_module.used_stack_model))&#10;                   )) = 0)"/>
       </entity>
       <entity name="Inter_stratum_join_relationship" supertypes="Routed_join_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="points_to_be_connected" optional="NO">
             <aggregate type="SET" lower="2" upper="?" unique="NO" optional="NO"/>
             <typename name="Layer_connection_point"/>
          </explicit>
+         <derived name="associated_stratum" expression="limd_get_lcp_resident_stratum(points_to_be_connected)">
+            <aggregate type="BAG" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Design_layer_stratum"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(associated_stratum) = SIZEOF(bag_to_set(associated_stratum))"/>
       </entity>
       <entity name="Interconnect_connection_zone_position_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="associating_design_view_shape" optional="NO">
@@ -537,11 +505,11 @@
          </explicit>
       </entity>
       <entity name="Interconnect_module" supertypes="Assembly_definition Part_design_view" super.expression="Pcb" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="used_stack_model" optional="YES">
+            <typename name="Design_stack_model"/>
+         </explicit>
          <inverse name="requirements" entity="Requirement_assignment" attribute="assigned_to">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
-         </inverse>
-         <inverse name="stackup_model" entity="Stratum_stack_model_to_interconnect_assignment" attribute="design">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression="(SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY')) = 0)&#10;      OR&#10;      (SIZEOF(QUERY(imsar &lt;* USEDIN(SELF, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.' + 'ASSEMBLY') | &#10;              (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DESIGN_LAYER_STRATUM' IN TYPEOF(imsar.component)) AND &#10;               (imsar.component\Design_layer_stratum.primary_design_layer_stratum = TRUE)))) = 1)"/>
          <where label="WR2" expression="NOT EXISTS (SELF\Product_view_definition.additional_characterization)"/>
@@ -569,7 +537,7 @@
       </entity>
       <entity name="Interconnect_module_macro_terminal" supertypes="Interconnect_module_terminal" abstract.supertype="NO" abstract.entity="NO">
          <inverse name="defining_terminal" entity="Component_feature_to_physical_usage_view_assignment" attribute="defined_part_feature"/>
-         <where label="WR1" expression="SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.VIA_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT_JOIN_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL',&#10; 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL'] * TYPEOF(defining_terminal.assigned_design_object)) = 1"/>
+         <where label="WR1" expression="SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.COMPONENT_TERMINATION_PASSAGE_JOIN_TERMINAL',&#10;        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.VIA_TERMINAL',&#10;        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PRINTED_COMPONENT_JOIN_TERMINAL',&#10;        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_TERMINAL',&#10;        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAND_JOIN_TERMINAL'] * TYPEOF(defining_terminal.assigned_design_object)) = 1"/>
       </entity>
       <entity name="Interconnect_module_stratum_assembly_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="assembly" optional="NO">
@@ -601,6 +569,7 @@
             <typename name="Stratum_feature"/>
          </explicit>
          <inverse name="internal_access" entity="Internal_stratum_access" attribute="connected_probe"/>
+         <where label="WR1" expression="NOT EXISTS(SELF\Probe_access_area.stratum_feature_material_stackup) &#10;             OR&#10;            (stratum_feature_implementation :=: &#10;             SELF\Probe_access_area.stratum_feature_material_stackup\Stratum_feature_based_derived_pattern.reference_stratum_feature)"/>
       </entity>
       <entity name="Internal_stratum_access" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="connected_probe" optional="NO">
@@ -725,6 +694,17 @@
          <where label="WR5" expression="NOT EXISTS (SELF\Shape_element.description)"/>
          <where label="WR6" expression="SIZEOF(QUERY(ijp &lt;* intra_join_path | NOT(resident_design_layer_stratum :=: ijp.associated_stratum)&#10;                  )) = 0"/>
       </entity>
+      <entity name="Layer_stack_region" supertypes="Instanced_feature" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="applied_stack" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="Local_linear_stack"/>
+         </explicit>
+         <explicit name="containing_shape" optional="NO">
+            <typename name="Interconnect_module"/>
+            <redeclaration entity-ref="Shape_element"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(SELF\Shape_feature_definition.feature_model) = 1"/>
+      </entity>
       <entity name="Layout_junction" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="name" optional="NO">
             <builtintype type="STRING" fixed="NO"/>
@@ -787,12 +767,6 @@
             <typename name="Stratum_feature_based_derived_pattern"/>
          </explicit>
       </entity>
-      <entity name="Multi_layer_stratum_feature" supertypes="Stratum_feature" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="derived_layer_geometry" optional="NO">
-            <typename name="Stratum_feature_based_derived_pattern"/>
-         </explicit>
-         <where label="WR1" expression="SELF\Stratum_feature.resident_stratum = derived_layer_geometry.reference_stratum_feature.resident_stratum"/>
-      </entity>
       <entity name="Multi_layer_stratum_feature_template_component" supertypes="Stratum_feature_template_component" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="derived_layer_geometry" optional="NO">
             <typename name="Stratum_feature_based_derived_pattern"/>
@@ -835,14 +809,14 @@
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
       <entity name="Pcb" supertypes="Interconnect_module" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="used_stack_model" optional="NO">
+            <typename name="Design_stack_model"/>
+            <redeclaration entity-ref="Interconnect_module"/>
+         </explicit>
          <explicit name="usage_view" optional="YES">
             <typename name="Pcb_usage_view"/>
             <redeclaration entity-ref="Part_design_view"/>
          </explicit>
-         <inverse name="stackup_model" entity="Stratum_stack_model_to_interconnect_assignment" attribute="design">
-            <inverse.aggregate type="SET" lower="1" upper="1"/>
-            <redeclaration entity-ref="Interconnect_module"/>
-         </inverse>
       </entity>
       <entity name="Physical_connectivity_interrupting_cutout" supertypes="Cutout" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="interrupted_connectivity_element" optional="NO">
@@ -870,6 +844,10 @@
          </explicit>
       </entity>
       <entity name="Plated_passage" supertypes="Plated_inter_stratum_feature" super.expression="ONEOF (Component_termination_passage, Via)" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="vertical_extent" optional="NO">
+            <typename name="Passage_technology_allocation_to_stack_model"/>
+            <redeclaration entity-ref="Inter_stratum_feature"/>
+         </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
       <entity name="Primary_stratum_indicator_symbol" supertypes="Single_stratum_special_symbol_component" abstract.supertype="NO" abstract.entity="NO"/>
@@ -887,7 +865,7 @@
             <redeclaration entity-ref="Shape_feature"/>
          </explicit>
          <explicit name="stratum_feature_material_stackup" optional="YES">
-            <typename name="Multi_layer_stratum_feature"/>
+            <typename name="Stratum_feature_based_derived_pattern"/>
          </explicit>
          <derived name="containing_shape" expression="SELF">
             <typename name="Probe_access_area"/>
@@ -899,6 +877,18 @@
          </derived>
          <inverse name="network" entity="Routed_physical_network" attribute="probe"/>
          <where label="WR1" expression="SELF\Shape_element.id = SELF\Item_shape.id"/>
+         <where label="WR2" expression="NOT (EXISTS(stratum_feature_material_stackup) AND &#10;                 NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERNAL_PROBE_ACCESS_AREA' IN TYPEOF(SELF)))&#10;             OR&#10;            (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(probed_layout_item))&#10;             AND&#10;            (probed_layout_item :=: stratum_feature_material_stackup\Stratum_feature_based_derived_pattern.reference_stratum_feature))"/>
+      </entity>
+      <entity name="Region_based_derived_pattern" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="extent" optional="NO">
+            <typename name="Inter_stratum_extent"/>
+         </explicit>
+         <explicit name="reference_stratum" optional="NO">
+            <typename name="design_or_documentation_stratum"/>
+         </explicit>
+         <explicit name="region" optional="NO">
+            <typename name="Csg_2d_model"/>
+         </explicit>
       </entity>
       <entity name="Routed_join_relationship" abstract.supertype="YES" supertypes="Join_relationship" super.expression="ONEOF (Inter_stratum_join_relationship, Intra_stratum_join_relationship, Stratum_embedded_physical_component_join_relationship)" abstract.entity="NO">
          <inverse name="network_topology" entity="Routed_physical_network" attribute="routed_connectivity_requirement_element"/>
@@ -936,8 +926,8 @@
             <builtintype type="STRING" fixed="NO"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </explicit>
-         <explicit name="of_technology" optional="NO">
-            <typename name="Stratum_technology"/>
+         <explicit name="definition" optional="NO">
+            <typename name="Stratum_technology_occurrence"/>
          </explicit>
          <derived name="of_average_surface" expression="QUERY(tmp &lt;* of_surface | 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE' IN TYPEOF(tmp))">
             <aggregate type="SET" lower="0" upper="1" unique="NO" optional="NO"/>
@@ -947,16 +937,19 @@
             <typename name="shapeable_item"/>
             <redeclaration entity-ref="Item_shape"/>
          </derived>
-         <derived name="of_product_version" expression="bag_to_set(QUERY(pv &lt;* USEDIN(assembly[1].assembly.defined_version.of_product, 'PRODUCT_VERSION_ARM.PRODUCT_VERSION.OF_PRODUCT') | &#10;                (SIZEOF(QUERY( pd &lt;* USEDIN(pv, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.DEFINED_VERSION') |&#10;                     (SIZEOF(QUERY(nauo &lt;* USEDIN(pd, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.ASSEMBLY') | (SELF = nauo.component))) = 1)&#10;                     )) = 1)&#10;               ))">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="Product_version"/>
-         </derived>
          <derived name="base_component" expression="get_base_component(SELF)">
             <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
             <typename name="Area_component"/>
          </derived>
+         <derived name="of_product_version" expression="bag_to_set(QUERY(pv &lt;* USEDIN(assembly[1].assembly.defined_version.of_product, 'PRODUCT_VERSION_ARM.PRODUCT_VERSION.OF_PRODUCT') | &#10;                (SIZEOF(QUERY( pd &lt;* USEDIN(pv, 'PRODUCT_VIEW_DEFINITION_ARM.PRODUCT_VIEW_DEFINITION.DEFINED_VERSION') |&#10;                     (SIZEOF(QUERY(nauo &lt;* USEDIN(pd, 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.ASSEMBLY') | (SELF = nauo.component))) = 1)&#10;                     )) = 1)&#10;               ))">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="Product_version"/>
+         </derived>
+         <derived name="of_technology" expression="definition\Stratum_technology_occurrence.definition">
+            <typename name="Stratum_technology"/>
+         </derived>
          <inverse name="of_surface" entity="Stratum_surface" attribute="of_stratum">
-            <inverse.aggregate type="SET" lower="1" upper="3"/>
+            <inverse.aggregate type="SET" lower="0" upper="3"/>
          </inverse>
          <inverse name="assembly" entity="Interconnect_module_stratum_assembly_relationship" attribute="component">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
@@ -968,15 +961,15 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) &lt;= 1"/>
-         <where label="WR2" expression="NOT(SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 1) OR&#10;            (SIZEOF(of_surface) &lt; 3)"/>
+         <where label="WR2" expression="NOT(SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.average_surface)) = 1) OR&#10;              (SIZEOF(of_surface) = 3)"/>
          <where label="WR3" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) &lt;= 1"/>
          <where label="WR4" expression="SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) &lt;= 1"/>
-         <where label="WR5" expression="NOT(SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) = 1) OR&#10;            (SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) = 1)"/>
+         <where label="WR5" expression="NOT(SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.secondary_surface)) = 1) OR&#10;              (SIZEOF(QUERY(tmp &lt;* of_surface | tmp\Stratum_surface.name = stratum_surface_designation.primary_surface)) = 1)"/>
          <where label="WR6" expression="NOT EXISTS (SELF\Product_view_definition.additional_characterization)"/>
-         <where label="WR7" expression="SIZEOF(QUERY(asse &lt;* assembly |&#10;                NOT(asse.assembly.defined_version.of_product = assembly[1].assembly.defined_version.of_product)&#10;         )) = 0"/>
+         <where label="WR7" expression="SIZEOF(QUERY(asse &lt;* assembly |&#10;                  NOT(asse.assembly.defined_version.of_product = assembly[1].assembly.defined_version.of_product)&#10;           )) = 0"/>
          <where label="WR8" expression="SIZEOF(of_product_version) = SIZEOF(assembly)"/>
          <where label="WR9" expression="SELF\Product_view_definition.defined_version IN of_product_version"/>
-         <where label="WR10" expression="NOT ( SIZEOF(material_product)= 1) OR (material_product[1].relating_view IN               &#10;          of_technology\Stratum_technology.stratum_material[1].items)"/>
+         <where label="WR10" expression="NOT ( SIZEOF(material_product)= 1) OR (material_product[1].relating_view IN               &#10;            of_technology\Stratum_technology.stratum_material[1].items)"/>
          <where label="WR11" expression="SIZEOF(base_component) &lt; 2"/>
       </entity>
       <entity name="Stratum_average_surface" supertypes="Stratum_surface" abstract.supertype="NO" abstract.entity="NO">
@@ -998,7 +991,7 @@
       </entity>
       <entity name="Stratum_feature" supertypes="Shape_element" super.expression="ONEOF (Conductor, Conductive_filled_area) ANDOR Fiducial_stratum_feature" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="resident_stratum" optional="NO">
-            <typename name="Stratum"/>
+            <typename name="design_or_documentation_stratum"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
          <explicit name="element_name" optional="NO">
@@ -1045,17 +1038,6 @@
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
          <where label="WR2" expression="('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_WITH_PRE_DEFINED_TRANSITIONS' IN TYPEOF(SELF)) OR&#10;        NOT('PART_TEMPLATE_EXTENSION_ARM.TRACE_TEMPLATE' IN TYPEOF(derived_from))"/>
       </entity>
-      <entity name="Stratum_stack_model_to_interconnect_assignment" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="concept" optional="NO">
-            <typename name="Design_stack_model"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
-         </explicit>
-         <explicit name="design" optional="NO">
-            <typename name="Interconnect_module"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
-         </explicit>
-         <where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
-      </entity>
       <entity name="Stratum_surface" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="name" optional="NO">
             <typename name="stratum_surface_designation"/>
@@ -1070,23 +1052,6 @@
             <unique.attribute attribute="name"/>
             <unique.attribute attribute="of_stratum"/>
          </unique>
-      </entity>
-      <entity name="Stratum_technology_occurrence_to_stratum_mapping_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="technology_occurrence_link" optional="NO">
-            <typename name="Stratum_technology_occurrence_link"/>
-         </explicit>
-         <explicit name="stratum_link" optional="NO">
-            <typename name="Adjacent_stratum_surface_definition"/>
-         </explicit>
-         <explicit name="mapping_context" optional="NO">
-            <typename name="Stratum_stack_model_to_interconnect_assignment"/>
-         </explicit>
-         <unique label="UR1">
-            <unique.attribute attribute="mapping_context"/>
-            <unique.attribute attribute="technology_occurrence_link"/>
-         </unique>
-         <where label="WR1" expression="technology_occurrence_link.precedent_sto.definition :=:&#10;         stratum_link.precedent_surface.of_stratum.of_technology"/>
-         <where label="WR2" expression="technology_occurrence_link.subsequent_sto.definition :=:&#10;         stratum_link.subsequent_surface.of_stratum.of_technology"/>
       </entity>
       <entity name="Structured_layout_component" abstract.supertype="YES" supertypes="Assembly_group_component" super.expression="ONEOF (Footprint_occurrence, Material_removal_structured_component, Multi_stratum_special_symbol_component, Padstack_occurrence, Single_stratum_special_symbol_component)" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
@@ -1130,14 +1095,14 @@
             <unique.attribute attribute="related_view"/>
          </unique>
          <where label="WR1" expression="NOT EXISTS(SELF\Assembly_component_relationship.location_indicator)"/>
-         <where label="WR2" expression="first_location_overridden OR &#10;          (SELF\Product_occurrence_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly)"/>
+         <where label="WR2" expression="first_location_overridden OR &#10;           (SELF\Product_occurrence_definition_relationship.relating_view\Assembly_component.derived_from :=: first_location.assembly)"/>
          <where label="WR3" expression="first_location :&lt;&gt;: second_location"/>
          <where label="WR4" expression="NOT first_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PADSTACK_OCCURRENCE' IN TYPEOF(relating_view))"/>
          <where label="WR5" expression="NOT second_location_overridden OR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.FOOTPRINT_OCCURRENCE' IN TYPEOF(relating_view))"/>
          <where label="WR6" expression="NOT (first_location_overridden AND second_location_overridden)"/>
          <where label="WR7" expression="NOT (EXISTS(overriding_shape) XOR (first_location_overridden OR second_location_overridden))"/>
          <where label="WR8" expression="NOT EXISTS(overriding_shape) OR (related_view.derived_from IN overriding_shape.shape_characterized_definition)"/>
-         <where label="WR9" expression="NOT ((first_location\Template_location_in_structured_template.placement_status = template_location_placement_status.is_fixed) AND &#10;                design_specific_placement)"/>
+         <where label="WR9" expression="NOT ((first_location\Template_location_in_structured_template.placement_status = template_location_placement_status.is_fixed) AND &#10;                 design_specific_placement)"/>
       </entity>
       <entity name="Unplated_cutout_edge_segment" supertypes="Cutout_edge_segment" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_cutout" optional="NO">
@@ -1189,10 +1154,14 @@
             <typename name="Unsupported_passage_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
+         <explicit name="vertical_extent" optional="NO">
+            <typename name="Passage_technology_allocation_to_stack_model"/>
+            <redeclaration entity-ref="Inter_stratum_feature"/>
+         </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       <where label="IP1"/>
       </entity>
-      <entity name="Via" abstract.supertype="YES" supertypes="Plated_passage" super.expression="Filled_via" abstract.entity="NO">
+      <entity name="Via" abstract.supertype="YES" supertypes="Plated_passage" abstract.entity="NO">
          <explicit name="derived_from" optional="NO">
             <typename name="Via_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
@@ -1216,38 +1185,33 @@
       <subtype.constraint name="inter_stratum_feature_subtypes" entity="Inter_stratum_feature" super.expression="ONEOF (Cutout, Interconnect_module_edge)" abstract.supertype="NO"/>
       <subtype.constraint name="interconnect_module_terminal_subtypes" entity="Interconnect_module_terminal" super.expression="ONEOF (Interconnect_module_interface_terminal, Interconnect_module_macro_terminal)" abstract.supertype="NO"/>
       <subtype.constraint name="limd_part_view_definition_subtypes" entity="Part_view_definition" super.expression="ONEOF (Part_usage_view, Part_design_view, Stratum)" abstract.supertype="NO"/>
-      <subtype.constraint name="limd_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF ((ONEOF (Printed_part_template, Special_symbol_template) ANDOR Geometric_template), Non_conductive_cross_section_template, Part_string_template, Parametric_template, Part_text_template, Stratum_stack_model)" abstract.supertype="NO"/>
-      <function name="acyclic_adjacent_stratum_surface_definition">
-         <parameter name="relation">
-            <typename name="Adjacent_stratum_surface_definition"/>
-         </parameter>
-         <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
-            <typename name="Stratum_surface"/>
-         </parameter>
-         <parameter name="specific_relation">
-            <builtintype type="STRING" fixed="NO"/>
-         </parameter>
-         <builtintype type="BOOLEAN" fixed="NO"/>
+      <subtype.constraint name="limd_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF ((ONEOF (Printed_part_template, Special_symbol_template) ANDOR Geometric_template), Non_conductive_cross_section_template, Part_string_template, Parametric_template, Part_text_template, Stratum_stack_model, Stratum_sub_stack)" abstract.supertype="NO"/>
+      <rule name="limd_unique_stratum" appliesto="Stratum Interconnect_module Stratum_technology_occurrence">
          <algorithm>LOCAL
-     x : SET OF Adjacent_stratum_surface_definition := [];
-  END_LOCAL;
-
-    IF relation.precedent_surface IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.precedent_surface,
-      'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
-      'ADJACENT_STRATUM_SURFACE_DEFINITION.' +
-      'SUBSEQUENT_SURFACE')) | specific_relation IN TYPEOF(pd));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_adjacent_stratum_surface_definition(x[i], relatives +
-        relation.precedent_surface, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
+      s : BAG OF Stratum := [];
+      imsar : BAG OF Interconnect_module_stratum_assembly_relationship := [];
+      sto : BAG OF Stratum_technology_occurrence := [];
+	  pass : BOOLEAN := TRUE;
+ END_LOCAL;
+ REPEAT i := 1 to SIZEOF(Interconnect_module) by 1;
+    imsar := bag_to_set(USEDIN(Interconnect_module[i], 
+                        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.ASSEMBLY'));
+	REPEAT j := 1 to SIZEOF(imsar) by 1;
+	   s := s + imsar[j].component;
     END_REPEAT;
-    RETURN (TRUE);</algorithm>
-      </function>
+	REPEAT j := 1 to SIZEOF(s) by 1;
+	   sto := sto + s[j].definition;
+    END_REPEAT;
+	
+	IF (SIZEOF(sto) &lt; SIZEOF(s))
+	THEN
+	  pass := FALSE;
+	  ESCAPE;
+	END_IF;
+	
+ END_REPEAT;</algorithm>
+         <where label="WR1" expression="pass"/>
+      </rule>
       <function name="acyclic_area_component">
          <parameter name="relation">
             <typename name="Area_component"/>
@@ -1344,22 +1308,22 @@
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Product_view_definition"/>
          <algorithm>LOCAL
-  acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
-  pvd : SET OF Product_view_definition := [];
-END_LOCAL;
+      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
 
-REPEAT i := 1 TO HIINDEX(acr) BY 1;
-  IF NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
-'STRUCTURED_LAYOUT_COMPONENT' IN
-TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
-  THEN
-  pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
-  ELSE
-  pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
-  END_IF;
-END_REPEAT;
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
+        'STRUCTURED_LAYOUT_COMPONENT' IN
+        TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      ELSE
+        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
+      END_IF;
+    END_REPEAT;
 
-RETURN (pvd);</algorithm>
+    RETURN (pvd);</algorithm>
       </function>
       <function name="get_base_component">
          <parameter name="input">
@@ -1368,26 +1332,26 @@ RETURN (pvd);</algorithm>
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Area_component"/>
          <algorithm>LOCAL
-   sf : SET OF Stratum_feature := bag_to_set(USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE.RESIDENT_STRATUM'));
-   sftc : SET OF Stratum_feature_template_component := bag_to_set(
-            USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM'));
-   i : INTEGER := 0;
-   ac: SET OF Area_component;
-END_LOCAL;
-   REPEAT i := 1 TO HIINDEX(sf) BY 1;
-   ac := bag_to_set(QUERY(temp &lt;* USEDIN(sf[i],
-                   'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM') | 
-                    (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(temp)) AND
-                     (temp.is_base = TRUE))));
-   END_REPEAT;
-   REPEAT i := 1 to HIINDEX(sftc) BY 1;
+      sf : SET OF Stratum_feature := bag_to_set(USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE.RESIDENT_STRATUM'));
+      sftc : SET OF Stratum_feature_template_component := bag_to_set(
+             USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM'));
+      i : INTEGER := 0;
+      ac: SET OF Area_component;
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(sf) BY 1;
+      ac := bag_to_set(QUERY(temp &lt;* USEDIN(sf[i],
+                     'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM') | 
+                      (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(temp)) AND
+                       (temp.is_base = TRUE))));
+    END_REPEAT;
+    REPEAT i := 1 to HIINDEX(sftc) BY 1;
       IF(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(sftc[i])) AND
          (sftc[i].is_base = TRUE))
       THEN
        ac := ac + sftc[i];
       END_IF;
-   END_REPEAT;
-  RETURN(ac);</algorithm>
+    END_REPEAT;
+    RETURN(ac);</algorithm>
       </function>
       <function name="get_ims">
          <parameter name="input">
@@ -1396,25 +1360,13 @@ END_LOCAL;
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Product_view_definition"/>
          <algorithm>LOCAL
-  imsar : SET OF Interconnect_module_stratum_assembly_relationship := input.assembly;
-  pvd : SET OF Product_view_definition := [];
-END_LOCAL;
-REPEAT i := 1 TO HIINDEX(imsar) BY 1;
-  pvd := pvd + imsar[i].assembly; 
-END_REPEAT;
-
-RETURN (pvd);</algorithm>
-      </function>
-      <function name="get_included_stratum">
-         <parameter name="input1">
-            <typename name="Stratum"/>
-         </parameter>
-         <parameter name="input2">
-            <typename name="Stratum"/>
-         </parameter>
-         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
-         <typename name="Stratum"/>
-         <algorithm>RETURN (?);</algorithm>
+      imsar : SET OF Interconnect_module_stratum_assembly_relationship := input.assembly;
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(imsar) BY 1;
+      pvd := pvd + imsar[i].assembly; 
+    END_REPEAT;
+    RETURN (pvd);</algorithm>
       </function>
       <function name="get_resident_stratum">
          <parameter name="input">
@@ -1422,13 +1374,30 @@ RETURN (pvd);</algorithm>
          </parameter>
          <typename name="Stratum"/>
          <algorithm>IF 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(input.implementation_or_resident_stratum)
-     THEN RETURN(input.implementation_or_resident_stratum.resident_stratum);
-   ELSE 
-     IF 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(input.implementation_or_resident_stratum)
-       THEN RETURN(input.implementation_or_resident_stratum);
-     END_IF;  
-   END_IF;
-   RETURN(?);</algorithm>
+      THEN RETURN(input.implementation_or_resident_stratum.resident_stratum);
+      ELSE 
+        IF 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM' IN TYPEOF(input.implementation_or_resident_stratum)
+          THEN RETURN(input.implementation_or_resident_stratum);
+        END_IF;  
+    END_IF;
+    RETURN(?);</algorithm>
+      </function>
+      <function name="limd_get_lcp_resident_stratum">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Layer_connection_point"/>
+         </parameter>
+         <aggregate type="BAG" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Design_layer_stratum"/>
+         <algorithm>LOCAL
+   s : BAG OF Design_layer_stratum := [];
+  END_LOCAL;
+  
+    REPEAT i := 1 to SIZEOF(input) BY 1;
+       s := s + input[i]\Layer_connection_point.resident_design_layer_stratum;
+    END_REPEAT;
+       
+    RETURN(s);</algorithm>
       </function>
       <function name="limd_get_sz_cp">
          <parameter name="input">

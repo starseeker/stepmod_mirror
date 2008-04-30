@@ -136,7 +136,7 @@
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Stratum"/>
          </derived>
-         <derived name="passage_resident_stratum" expression="limdwpcd_get_prs(passage_component)">
+         <derived name="passage_resident_stratum" expression="limdwpcd_get_prs(passage_component, SELF\Assembly_component.assemblies)">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Stratum"/>
          </derived>
@@ -243,9 +243,13 @@ END_LOCAL;
 	RETURN(sspc);</algorithm>
       </function>
       <function name="limdwpcd_get_prs">
-         <parameter name="input">
+         <parameter name="input1">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Plated_passage"/>
+         </parameter>
+         <parameter name="input2">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Product_view_definition"/>
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
          <typename name="Stratum"/>
@@ -255,15 +259,15 @@ END_LOCAL;
 	ptatsm : SET OF Passage_technology_allocation_to_stack_model := [];  --this gives us access to the information base
 END_LOCAL;
 
-	REPEAT i := 1 to SIZEOF(input) by 1;
-             ptatsm := ptatsm + input[i]\Inter_stratum_feature.vertical_extent;
+	REPEAT i := 1 to SIZEOF(input1) by 1;
+             ptatsm := ptatsm + input1[i]\Inter_stratum_feature.vertical_extent;
 	END_REPEAT;
 
 	REPEAT i := 1 to SIZEOF(ptatsm) by 1;
              stol := stol + ptatsm[i]\Stratum_sub_stack.stratum_technology_sequence;
 	END_REPEAT;
 
-             s := limdwpcd_get_stolrs(stol);
+             s := limdwpcd_get_stolrs(stol, input2);
 	RETURN(s);</algorithm>
       </function>
       <function name="limdwpcd_get_s">
@@ -300,28 +304,47 @@ END_LOCAL;
 	RETURN(sspc);</algorithm>
       </function>
       <function name="limdwpcd_get_stolrs">
-         <parameter name="input">
+         <parameter name="input1">
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Stratum_technology_occurrence_link"/>
+         </parameter>
+         <parameter name="input2">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Product_view_definition"/>
          </parameter>
          <aggregate type="SET" lower="0" upper="?"/>
          <typename name="Stratum"/>
          <algorithm>LOCAL
-	s : SET OF Stratum := [];  --this gives us access to the information base
-	assd : SET OF Adjacent_stratum_surface_definition := [];  --this gives us access to the information base
+	s0 : SET OF Stratum := [];  --this gives us access to the information base for stratum that reference sto
+	sto : SET OF Stratum_technology_occurrence := [];  --this gives us access to the information base
+	imsar : SET OF Interconnect_module_stratum_assembly_relationship := [];
+	s1 : SET OF Stratum := [];  --this gives us access to the information base for stratum that are referenced by the assembly relationship to the input2
+	s2 : SET OF Stratum := [];  --this gives us access to the information base for stratum that are related to both input1 and input2
+	i : INTEGER := 0; -- variable representing the member of input2 that is the context for the function
 END_LOCAL;
+(* initial implementation only supports examining the first Product_view_definition as the stratum stack is not expected to change over the design cycle. *)
+(* depends on the unique constraint on stratum.definition in an assembly context *)
 
-	REPEAT i := 1 to SIZEOF(input) by 1;
-	      assd := assd + bag_to_set(USEDIN(input[i],'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
-                                   'STRATUM_TECHNOLOGY_OCCURRENCE_TO_STRATUM_MAPPING_RELATIONSHIP.' +
-                                    'TECHNOLOGY_OCCURRENCE_LINK'));
-      	END_REPEAT;
-	REPEAT i := 1 to SIZEOF(assd) by 1;
-      	     s := s + assd[i]\Adjacent_stratum_surface_definition.precedent_surface\Stratum_surface.of_stratum +
-      	              assd[i]\Adjacent_stratum_surface_definition.subsequent_surface\Stratum_surface.of_stratum;
-        END_REPEAT;
+REPEAT i := 1 to 1 by 1;
+	REPEAT j := 1 to SIZEOF(input1) by 1;
+	      sto := sto + input1\Stratum_technology_occurrence_relationship.sto_1 +
+	                   input1\Stratum_technology_occurrence_relationship.sto_2;
+	END_REPEAT;
+	
+	REPEAT j := 1 to SIZEOF(sto) by 1;
+      	     s0 := s0 + bag_to_set(USEDIN(sto[j], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM.DEFINITION'));
+    END_REPEAT;
 
-	RETURN(s);</algorithm>
+    imsar := imsar + bag_to_set(USEDIN(input2[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.ASSEMBLY'));
+
+    REPEAT j := 1 to SIZEOF(imsar) by 1;
+     s1 := s1 + imsar[j]\Interconnect_module_stratum_assembly_relationship.component;
+    END_REPEAT;
+
+    s2 := s0 * s1; -- The intersection of the Stratum that reference the sto and the stratum that are part of the pcb.
+END_REPEAT;
+
+	RETURN(s2);</algorithm>
       </function>
       <function name="limdwpcd_get_tbrs">
          <parameter name="input">

@@ -5,7 +5,6 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="sequential_laminate_assembly_design_arm schema_instance"/>
    <schema name="Sequential_laminate_assembly_design_arm">
-      <interface kind="use" schema="Assembly_module_with_interconnect_component_arm"/>
       <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
       <type name="slad_groupable_item">
          <select basedon="groupable_item" selectitems="Group_relationship Interconnect_module_stratum_assembly_relationship"/>
@@ -82,47 +81,5 @@
          </explicit>
          <where label="WR1" expression="NOT EXISTS(SELF\View_definition_relationship.relation_type)"/>
       </entity>
-      <function name="valid_oem_stratum_references">
-         <parameter name="input">
-            <typename name="Derived_laminate_assignment"/>
-         </parameter>
-         <builtintype type="BOOLEAN"/>
-         <algorithm>LOCAL
-      imsa : SET OF Interconnect_module_stratum_assembly_relationship := input.oem_requirement;
-      s1 : SET OF Stratum := [];
-      ss : SET OF Stratum_surface := [];
-      ssp : SET OF Stratum := [];
-      sss : SET OF Stratum := [];
-      assd : SET OF Adjacent_stratum_surface_definition := [];
-      i       : INTEGER := 0;
-    END_LOCAL;
-
-    IF SIZEOF(imsa) &gt; 0 THEN
-      REPEAT i := 1 TO HIINDEX(imsa);
-        s1 := s1 + imsa[i].component;
-      END_REPEAT;
-      REPEAT i := 1 TO HIINDEX(s1);
-        ss := ss + USEDIN(s1[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_SURFACE.OF_STRATUM');
-      END_REPEAT;
-      REPEAT i := 1 TO HIINDEX(ss);
-        IF ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_AVERAGE_SURFACE' IN TYPEOF(ss[i]))
-          THEN ss := ss - ss[i];
-        END_IF; 
-      END_REPEAT;  
-      REPEAT i := 1 TO HIINDEX(ss);
-         assd := assd + USEDIN(ss[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ADJACENT_STRATUM_SURFACE_DEFINITION.PRECEDENT_SURFACE');
-         assd := assd + USEDIN(ss[i], 'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.ADJACENT_STRATUM_SURFACE_DEFINITION.SUBSEQUENT_SURFACE');
-      END_REPEAT;
-      REPEAT i := 1 TO HIINDEX(assd);
-         ssp := ssp + assd[i].precedent_surface.of_stratum;
-         sss := sss + assd[i].subsequent_surface.of_stratum;
-      END_REPEAT;
-      IF ((SIZEOF(assd) + 1) = (SIZEOF(ssp) + SIZEOF(sss))) THEN
-       RETURN(TRUE);
-      ELSE
-       RETURN(FALSE);         
-      END_IF; 
-    END_IF;</algorithm>
-      </function>
    </schema>
 </express>

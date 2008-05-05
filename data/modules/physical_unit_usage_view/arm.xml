@@ -11,7 +11,6 @@
       <interface kind="use" schema="Part_feature_location_arm"/>
       <interface kind="use" schema="Requirement_assignment_arm"/>
       <interface kind="use" schema="Shape_composition_arm"/>
-      <interface kind="use" schema="Derived_shape_element_arm"/>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
@@ -165,8 +164,8 @@
          </parameter>
          <builtintype type="BOOLEAN" fixed="NO"/>
          <algorithm>LOCAL
-    x : SET OF Part_feature;
-END_LOCAL;
+      x : SET OF Part_feature;
+    END_LOCAL;
 
     IF relation.precedent_feature IN relatives THEN
       RETURN (FALSE);
@@ -180,7 +179,7 @@ END_LOCAL;
         RETURN (FALSE);
       END_IF;
     END_REPEAT;
-  RETURN (TRUE);</algorithm>
+    RETURN (TRUE);</algorithm>
       </function>
       <function name="get_derived_shape_element">
          <parameter name="input">
@@ -189,14 +188,13 @@ END_LOCAL;
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Derived_shape_element"/>
          <algorithm>LOCAL
- is : SET OF Item_shape := bag_to_set(USEDIN(input, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE.DESCRIBED_ELEMENT'));
- se : SET OF Shape_element := [];
-END_LOCAL; 
-REPEAT i := 1 to SIZEOF(is) by 1;
-   se  := se + bag_to_set(USEDIN(is[i], 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE'));
-END_REPEAT;  
-
-RETURN(QUERY(dse &lt;* se | 'DERIVED_SHAPE_ELEMENT_ARM.DERIVED_SHAPE_ELEMENT' IN TYPEOF(se)));</algorithm>
+      is : SET OF Item_shape := bag_to_set(USEDIN(input, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE.DESCRIBED_ELEMENT'));
+      se : SET OF Shape_element := [];
+    END_LOCAL; 
+    REPEAT i := 1 to SIZEOF(is) by 1;
+      se  := se + bag_to_set(USEDIN(is[i], 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE'));
+    END_REPEAT;  
+    RETURN(QUERY(dse &lt;* se | 'DERIVED_SHAPE_ELEMENT_ARM.DERIVED_SHAPE_ELEMENT' IN TYPEOF(se)));</algorithm>
       </function>
    </schema>
 </express>

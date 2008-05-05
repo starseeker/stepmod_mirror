@@ -2,13 +2,11 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-03-21 00:52:35 -0700 (Tr, 21 Kov 2007) $" rcs.revision="$Revision: 15 $" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="analytical_model_mim schema_instance"/>
    <schema name="Analytical_model_mim">
       <interface kind="use" schema="Model_parameter_mim"/>
-      <interface kind="use" schema="Product_identification_mim"/>
       <interface kind="use" schema="Software_mim"/>
-      <interface kind="use" schema="Specification_document_mim"/>
       <interface kind="use" schema="Document_structure_mim"/>
       <interface kind="use" schema="Product_view_definition_relationship_mim"/>
       <interface kind="use" schema="date_time_schema">
@@ -46,7 +44,20 @@
       </entity>
       <entity name="analytical_model_parameter" supertypes="model_parameter"/>
       <entity name="analytical_model_port" supertypes="representation" super.expression="analytical_model_vector_port ANDOR ONEOF (analog_analytical_model_port, digital_analytical_model_port)"/>
-      <entity name="analytical_model_port_assignment" supertypes="property_definition_representation representation_relationship"/>
+      <entity name="analytical_model_port_assignment" supertypes="property_definition_representation representation_relationship">
+         <explicit name="used_representation">
+            <typename name="analytical_model_port"/>
+            <redeclaration entity-ref="property_definition_representation"/>
+         </explicit>
+         <explicit name="rep_1">
+            <typename name="analytical_representation"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
+         <derived name="rep_2" expression="SELF\property_definition_representation.used_representation">
+            <typename name="analytical_model_port"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </derived>
+      </entity>
       <entity name="analytical_model_scalar_port" supertypes="analytical_model_vector_port"/>
       <entity name="analytical_model_vector_port" supertypes="analytical_model_port compound_representation_item"/>
       <entity name="analytical_representation" supertypes="representation">

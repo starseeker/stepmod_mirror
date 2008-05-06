@@ -5,9 +5,10 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_arm schema_instance"/>
    <schema name="Physical_unit_design_view_arm">
+      <interface kind="use" schema="Component_grouping_arm"/>
       <interface kind="use" schema="Physical_layout_template_arm"/>
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
-      <interface kind="use" schema="Component_grouping_arm"/>
+      <interface kind="use" schema="Specification_document_arm"/>
       <interface kind="reference" schema="Layered_interconnect_module_design_arm">
          <interfaced.item name="get_assemblies"/>
       </interface>
@@ -15,22 +16,25 @@
          <interfaced.item name="bag_to_set"/>
       </interface>
       <type name="assembly_component_or_item_number">
-         <select selectitems="Assembly_item_number Assembly_component_relationship Next_assembly_usage" genericentity="NO" extensible="NO"/>
+         <select selectitems="Assembly_item_number Assembly_component_relationship" genericentity="NO" extensible="NO"/>
       </type>
       <type name="assembly_item_number_or_process_specification">
          <select selectitems="Assembly_item_number Process_specification" genericentity="NO" extensible="NO"/>
+      </type>
+      <type name="bonding_or_coating">
+         <enumeration items="bonding coating" extensible="NO"/>
       </type>
       <type name="pudv_extended_value_with_unit">
          <select extensible="YES" basedon="extended_value_with_unit" selectitems="textual_quantity_specification" genericentity="NO"/>
       </type>
       <type name="pudv_groupable_item">
-         <select basedon="groupable_item" selectitems="Assembly_component" genericentity="NO" extensible="NO"/>
+         <select basedon="groupable_item" selectitems="Assembly_component_relationship" genericentity="NO" extensible="NO"/>
       </type>
       <type name="pudv_physical_unit">
          <select extensible="YES" genericentity="YES" basedon="physical_unit" selectitems="Part_design_view"/>
       </type>
       <type name="pudv_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Assembly_item_number Assembly_component_relationship Component_bonding_relationship"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Assembly_item_number Assembly_component_relationship Component_material_relationship"/>
       </type>
       <type name="textual_quantity_specification">
          <builtintype type="STRING" fixed="NO"/>
@@ -97,34 +101,6 @@
          <where label="WR1" expression="SIZEOF(QUERY(au &lt;* assembly_usage | NOT (au.relating_view\Definition_based_product_occurrence.derived_from\Product_view_definition.defined_version.of_product = Part))) = 0"/>
          <where label="WR2" expression="SIZEOF(QUERY(au &lt;* assembly_usage | NOT (au.relating_view = assembly))) = 0"/>
       </entity>
-      <entity name="Component_bonding_relationship" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="associated_design" optional="NO">
-            <typename name="Part_design_view"/>
-         </explicit>
-         <explicit name="component_1" optional="NO">
-            <typename name="assembly_component_or_item_number"/>
-         </explicit>
-         <explicit name="component_2" optional="NO">
-            <typename name="assembly_component_or_item_number"/>
-         </explicit>
-         <explicit name="bond_material" optional="NO">
-            <typename name="assembly_component_or_item_number"/>
-         </explicit>
-         <explicit name="specification" optional="NO">
-            <typename name="assembly_item_number_or_process_specification"/>
-         </explicit>
-         <where label="WR1" expression="component_1 &lt;&gt; component_2"/>
-         <where label="WR2" expression="component_1 &lt;&gt; bond_material"/>
-         <where label="WR3" expression="component_1 &lt;&gt; specification"/>
-         <where label="WR4" expression="component_2 &lt;&gt; bond_material"/>
-         <where label="WR5" expression="component_2 &lt;&gt; specification"/>
-         <where label="WR6" expression="bond_material &lt;&gt; specification"/>
-         <where label="WR7" expression="valid_assembly_context_for_bond(associated_design, component_1)"/>
-         <where label="WR8" expression="valid_assembly_context_for_bond(associated_design, component_2)"/>
-         <where label="WR9" expression="valid_assembly_context_for_bond(associated_design, bond_material)"/>
-         <where label="WR10" expression="valid_assembly_context_for_bond(associated_design, specification)"/>
-      <where label="IP1"/>
-      </entity>
       <entity name="Component_make_from_relationship" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="reusable_component" optional="NO">
             <typename name="Assembly_component"/>
@@ -135,6 +111,37 @@
             <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
          </explicit>
          <where label="WR1" expression="resultant_component &lt;&gt; reusable_component"/>
+      </entity>
+      <entity name="Component_material_relationship" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="associated_design" optional="NO">
+            <typename name="Part_design_view"/>
+         </explicit>
+         <explicit name="component_1" optional="NO">
+            <typename name="assembly_component_or_item_number"/>
+         </explicit>
+         <explicit name="component_2" optional="YES">
+            <typename name="assembly_component_or_item_number"/>
+         </explicit>
+         <explicit name="material" optional="YES">
+            <typename name="assembly_component_or_item_number"/>
+         </explicit>
+         <explicit name="role" optional="NO">
+            <typename name="bonding_or_coating"/>
+         </explicit>
+         <explicit name="specification" optional="YES">
+            <typename name="assembly_item_number_or_process_specification"/>
+         </explicit>
+         <where label="WR1" expression="component_1 &lt;&gt; component_2"/>
+         <where label="WR2" expression="component_1 &lt;&gt; material"/>
+         <where label="WR3" expression="component_1 &lt;&gt; specification"/>
+         <where label="WR4" expression="component_2 &lt;&gt; material"/>
+         <where label="WR5" expression="component_2 &lt;&gt; specification"/>
+         <where label="WR6" expression="material &lt;&gt; specification"/>
+         <where label="WR7" expression="valid_assembly_context_for_bond(associated_design, component_1)"/>
+         <where label="WR8" expression="valid_assembly_context_for_bond(associated_design, component_2)"/>
+         <where label="WR9" expression="valid_assembly_context_for_bond(associated_design, material)"/>
+         <where label="WR10" expression="valid_assembly_context_for_bond(associated_design, specification)"/>
+      <where label="IP1"/>
       </entity>
       <entity name="Component_to_physical_usage_view_assignment" supertypes="View_definition_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="design_view_component" optional="NO">
@@ -177,11 +184,11 @@
       <subtype.constraint name="pudv_part_view_definition_subtypes" entity="Part_view_definition" super.expression="ONEOF (Part_usage_view, Part_design_view)" abstract.supertype="NO"/>
       <rule name="unique_assembly_item_number" appliesto="Assembly_item_number">
          <algorithm>LOCAL
-     acr : BAG OF Assembly_component_relationship := [];
-   END_LOCAL;
-   REPEAT i := 1 to SIZEOF(Assembly_item_number) by 1;
-     acr  := acr + Assembly_item_number[i].assembly_usage;
-   END_REPEAT;</algorithm>
+      acr : BAG OF Assembly_component_relationship := [];
+    END_LOCAL;
+    REPEAT i := 1 to SIZEOF(Assembly_item_number) by 1;
+      acr  := acr + Assembly_item_number[i].assembly_usage;
+    END_REPEAT;</algorithm>
          <where label="WR1" expression="SIZEOF(acr) = SIZEOF(bag_to_set(acr))"/>
       </rule>
       <function name="pudv_get_assemblies">
@@ -191,18 +198,18 @@
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Product_view_definition"/>
          <algorithm>LOCAL
-  acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
-  pvd : SET OF Product_view_definition := [];
-END_LOCAL;
-REPEAT i := 1 TO HIINDEX(acr) BY 1;
-  IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
-  THEN
-  pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
-  ELSE
-  pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
-  END_IF;
-END_REPEAT;
-RETURN (pvd);</algorithm>
+      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      ELSE
+        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
+      END_IF;
+    END_REPEAT;
+    RETURN (pvd);</algorithm>
       </function>
       <function name="pudv_get_group_assemblies">
          <parameter name="input">
@@ -212,23 +219,21 @@ RETURN (pvd);</algorithm>
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Product_view_definition"/>
          <algorithm>LOCAL
-  acr : SET OF Assembly_component_relationship := [];
-  pvd : SET OF Product_view_definition := [];
-END_LOCAL;
-
-REPEAT i := 1 TO HIINDEX(input) BY 1;
-  acr := input[i]\Assembly_component.occurrence_contexts;
-END_REPEAT;
-
-REPEAT i := 1 TO HIINDEX(acr) BY 1;
-  IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
-  THEN
-  pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
-  ELSE
-  pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
-  END_IF;
-END_REPEAT;
-RETURN (pvd);</algorithm>
+      acr : SET OF Assembly_component_relationship := [];
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input) BY 1;
+      acr := input[i]\Assembly_component.occurrence_contexts;
+    END_REPEAT;
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF NOT('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      ELSE
+        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
+      END_IF;
+    END_REPEAT;
+    RETURN (pvd);</algorithm>
       </function>
       <function name="pudv_get_groups">
          <parameter name="input">
@@ -237,16 +242,16 @@ RETURN (pvd);</algorithm>
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Assembly_group_component"/>
          <algorithm>LOCAL
-  acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
-  agc : SET OF Assembly_group_component := [];
-END_LOCAL;
-REPEAT i := 1 TO HIINDEX(acr) BY 1;
-  IF ('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
-  THEN
-  agc := agc + acr[i]\Product_occurrence_definition_relationship.relating_view; 
-  END_IF;
-END_REPEAT;
-RETURN (agc);</algorithm>
+      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+      agc : SET OF Assembly_group_component := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF ('COMPONENT_GROUPING_ARM.' + 'ASSEMBLY_GROUP_COMPONENT' IN TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        agc := agc + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      END_IF;
+    END_REPEAT;
+    RETURN (agc);</algorithm>
       </function>
       <function name="pudv_get_products">
          <parameter name="input">
@@ -256,13 +261,12 @@ RETURN (agc);</algorithm>
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Product"/>
          <algorithm>LOCAL
-  p : SET OF Product := [];
-END_LOCAL;
-
-REPEAT i := 1 TO HIINDEX(input) BY 1;
-  p := p + input[i]\Product_version.of_product; 
-END_REPEAT;
-RETURN (p);</algorithm>
+      p : SET OF Product := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input) BY 1;
+      p := p + input[i]\Product_version.of_product; 
+    END_REPEAT;
+    RETURN (p);</algorithm>
       </function>
       <function name="pudv_get_versions">
          <parameter name="input">
@@ -272,13 +276,12 @@ RETURN (p);</algorithm>
          <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
          <typename name="Product_version"/>
          <algorithm>LOCAL
-  pv : SET OF Product_version := [];
-END_LOCAL;
-
-REPEAT i := 1 TO HIINDEX(input) BY 1;
-  pv := pv + input[i]\Product_view_definition.defined_version; 
-END_REPEAT;
-RETURN (pv);</algorithm>
+      pv : SET OF Product_version := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input) BY 1;
+      pv := pv + input[i]\Product_view_definition.defined_version; 
+    END_REPEAT;
+    RETURN (pv);</algorithm>
       </function>
       <function name="valid_assembly_context_for_bond">
          <parameter name="input1">

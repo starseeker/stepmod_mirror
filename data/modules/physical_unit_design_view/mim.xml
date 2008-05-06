@@ -5,17 +5,21 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_unit_design_view_mim schema_instance"/>
    <schema name="Physical_unit_design_view_mim">
+      <interface kind="use" schema="Component_grouping_mim"/>
       <interface kind="use" schema="Physical_layout_template_mim"/>
       <interface kind="use" schema="Physical_unit_usage_view_mim"/>
-      <interface kind="use" schema="Component_grouping_mim"/>
+      <interface kind="use" schema="Specification_document_mim"/>
       <interface kind="use" schema="application_context_schema">
          <interfaced.item name="application_context_element"/>
       </interface>
+      <type name="component_material_relationship_assignment_item">
+         <select selectitems="assembly_item_number assembly_component_usage specification_definition"/>
+      </type>
       <type name="pudv_groupable_item">
-         <select basedon="groupable_item" selectitems="assembly_component"/>
+         <select basedon="groupable_item" selectitems="assembly_component_usage"/>
       </type>
       <type name="pudv_requirement_assigned_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="assembly_component_usage descriptive_representation_item property_definition"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="assembly_component_usage assembly_item_number component_material_relationship"/>
       </type>
       <entity name="assembly_component" supertypes="component_definition product_definition_shape">
          <derived name="definition" expression="SELF">
@@ -24,6 +28,17 @@
          </derived>
          <where label="WR1" expression="SIZEOF (USEDIN (SELF, 'BASIC_ATTRIBUTE_SCHEMA.' +'NAME_ATTRIBUTE.NAMED_ITEM')) = 0"/>
          <where label="WR2" expression="NOT EXISTS(SELF\property_definition.description)"/>
+      </entity>
+      <entity name="assembly_item_number" supertypes="group applied_group_assignment">
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="assembly_component_usage"/>
+            <redeclaration entity-ref="applied_group_assignment"/>
+         </explicit>
+         <derived name="assigned_group" expression="SELF">
+            <typename name="group"/>
+            <redeclaration entity-ref="group_assignment"/>
+         </derived>
       </entity>
       <entity name="component_definition" supertypes="product_definition product_definition_relationship">
          <derived name="related_product_definition" expression="SELF">
@@ -34,6 +49,26 @@
          <where label="WR2" expression="NOT EXISTS(SELF\property_definition.description)"/>
          <where label="WR3" expression="SELF\product_definition_relationship.id = SELF\product_definition.id"/>
          <where label="WR4" expression="SELF\product_definition_relationship.name = ''"/>
+      </entity>
+      <entity name="component_material_relationship" supertypes="group property_definition">
+         <explicit name="definition">
+            <typename name="physical_unit"/>
+            <redeclaration entity-ref="property_definition"/>
+         </explicit>
+      </entity>
+      <entity name="component_material_relationship_assignment" supertypes="group_assignment role_association">
+         <explicit name="assigned_group">
+            <typename name="component_material_relationship"/>
+            <redeclaration entity-ref="group_assignment"/>
+         </explicit>
+         <explicit name="items">
+            <aggregate type="SET" lower="1" upper="1"/>
+            <typename name="component_material_relationship_assignment_item"/>
+         </explicit>
+         <derived name="item_with_role" expression="SELF">
+            <typename name="component_material_relationship_assignment"/>
+            <redeclaration entity-ref="role_association"/>
+         </derived>
       </entity>
       <entity name="next_assembly_usage_occurrence_relationship" supertypes="next_assembly_usage_occurrence product_definition_occurrence_relationship">
          <derived name="occurrence_usage" expression="SELF">

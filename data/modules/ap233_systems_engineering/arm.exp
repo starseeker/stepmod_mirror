@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.15 2007/11/06 13:53:17 abhpf Exp $
+   $Id: arm.exp,v 1.3 2008/04/18 19:04:49 abhpf Exp $
    ISO TC184/SC4/WG3 N2270 - ISO/CD-TS 10303-433 Ap233 systems engineering - EXPRESS ARM 
 *)
 
@@ -9,273 +9,15 @@ USE FROM Program_management_arm;
 
 USE FROM System_modelling_arm;
 
-(*		Post Asheville Offsite meeting work
 
-	1. - Function based behaviour (Fixed pushdown problems that lead to empty long fomr type select lists)
-		Fixed both arm.exp and mim.exp
-		a- Added  fbb_ss_characterized_resource_select
-		b- Added  fbb_sbb_property_assignment_select
-		c- Added  fbb_sbb_ap233_property_assignment_select
-			
-	2  - Project management (Fixed pushdown problems that lead to empty long fomr type select lists)
-		Fixed both arm.exp and mim.exp
-		a - Added  prjm_ap233_event_item
-		b - Added  ap233_resource_as_realized_item
+TYPE syse_affected_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON affected_item_select WITH
+	(Group);
+END_TYPE;
 
-	3  - Issue management (Added Decomposition & Fixed pushdown problems that lead to empty long fomr type select lists)
-		Fixed both arm.exp and mim.exp
-		a - Inserted Phil's new Decomposition & Issue management
-		b - Added im_ap233_event_item
-		c - Added im_ap233_issue_reference_item
-		d - Added im_ap233_observed_context
-		
-	4  - Alias_identification_arm needs to be replaced in long form source files
-	5  - Incomplete_data_reference_mechanism_arm needs to be replaced in long form source files
-	6  - Update record
-		a-Function_based_behaviour
-			Pushdown extends added
-			Done -  arm.exp, arm.xml, arm_lf.exp, arm_lf.xml
-		b-State_based_behaviour
-			Done - arm_lf.exp, arm_lf.xml (arm.exp unchanged)
-			Updated Alias_identification
-		c-System_behaviour
-			Done - arm_lf.exp, arm_lf.xml (arm.exp unchanged)
-			Updated Alias_identification
-		d-System_structure
-			Done - arm_lf.exp, arm_lf.xml (arm.exp unchanged)
-			Updated Alias_identification & Incomplete_data_reference_mechanism
-		e-Decision_support
-			Done - arm_lf.exp, arm_lf.xml (arm.exp unchanged)
-			Updated Alias_identification	
-		f-System_modelling
-			Done - arm_lf.exp, arm_lf.xml (arm.exp unchanged)
-			Updated Function_based_behaviour & Alias_identification & Incomplete_data_reference_mechanism
-		g-Project_management
-			Pushdown extends added
-			Done - arm.exp, arm.xml, arm_lf.exp, arm_lf.xml 
-			Updated Alias_identification 
-		h-Issue_management
-			Pushdown extends added
-			Done - arm.exp, arm.xml, arm_lf.exp, arm_lf.xml 
-			Able to keep Phil's Express-G working by cutting <graphics line
-			into arm.xml
-			Updated Alias_identification 
-		i-Risk_management
-			Done - arm_lf.exp, arm_lf.xml (arm.exp unchanged)
-			Minor error in Risk_arm (GENERIC_ENTITY SELECT) long form not updated
-			TYPE ERROR: at line 482 "risk_resource_assignment_item" based on a generic entity select, but does not specify generic entity itself
-			To proceed fix 
-			TYPE risk_resource_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_assignment_item WITH 
-			added to form form source code
-		j-Program_management
-			Done - arm_lf.exp, arm_lf.xml (arm.exp unchanged)
-			Need to update Alias_identification & Issue_management & Disposition & Risk(ap233-fixed)
-			Minor error in Risk_arm (GENERIC_ENTITY SELECT) long form not updated
-			TYPE ERROR: at line 482 "risk_resource_assignment_item" based on a generic entity select, but does not specify generic entity itself.
-		k-Ap233_top
-			Done - arm_lf.exp, arm_lf.xml (arm.exp change involves only comments, arm.xml no change)
-			Need to update Function_based_behaviour & Alias_identification & Incomplete_data_reference_mechanism & Issue_management & Disposition & Risk(ap233-fixed)
-			Minor error in Risk_arm (GENERIC_ENTITY SELECT) long form not updated		
-			TYPE ERROR: at line 482 "risk_resource_assignment_item" based on a generic entity select, but does not specify generic entity itself.
-	7. Note all of the Ap233 USE FROM/Type extend modules contain multiple extend lists the have the sam BASED_ON extensible type.
-		These have not been collected.  Reason: These format has embedded human error recovery information.  Redundancy
-		will be removed during the CD ballot comment resolution process. It is necessary to maintain this 
-		error recovery information into the CD review and issue resolution process.
-	
-			
-*)
-
--- Extend list from CD version fully pushed down 
-(*  TYPE syse_activity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_item WITH
-	(Assigned_document_property,
-	Descriptive_document_property,
-	Numerical_document_property,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Behaviour_description_association,
-	Requirement_source,
-	Task_io,
-	Task_io_hierarchy,
-	Verification,
-	Location,
-	Location_representation,
-	Position,
-	Position_group,
-	Product_group,
-	Applied_state_assignment,
-	Managed_resource,
-	Resource_as_realized,
-	Resource_event,
-	Scheme,
-	Scheme_entry,
-	Scheme_entry_assignment,
-	State,
-	State_relationship,
-	Task_method,
-	Task_method_version,
-	Risk,
-	Work_output);
-END_TYPE; *)
-
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_activity_method_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_method_item WITH
-	(Assigned_document_property,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Part,
-	Part_version,
-	Part_view_definition,
-	Analysis_assignment,
-	Behaviour_description_association,
-	In_zone,
-	Requirement_assignment,
-	Task_io,
-	Task_io_hierarchy,
-	Verification,
-	Location,
-	Product_based_location_identification,
-	Organization_type,
-	Position,
-	Position_group,
-	Position_type,
-	Type_of_person,
-	Type_of_person_definition,
-	Product_group,
-	Managed_resource,
-	Resource_as_realized,
-	Resource_event,
-	Scheme_entry,
-	State_relationship,
-	Task_method,
-	Task_method_version,
-	Applied_risk_impact_assignment,
-	Observation,
-	Risk,
-	Task_objective);
-END_TYPE;*)
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_activity_realization_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON activity_realization_select WITH
-	(Scheme,
-	Scheme_version,
-	Task_method,
-	Task_method_version,
-	Activity,
-	Activity_method,
-	Product,
-	Product_version,
-	Product_view_definition,
-	Task_element);
-END_TYPE;*)
-
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_affected_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON affected_item_select WITH
-	(Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Analysis_assignment,
-	Behaviour_description_association,
-	Verification,
-	Product_group,
-	Risk);
-END_TYPE;*)
-
-
--- Extend list from CD version is difficult to check via long from data
-(*TYPE syse_alias_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON alias_identification_item WITH
-	(Interface_connection,
-	Interface_connector,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_connector_version,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Interface_specification,
-	Interface_specification_definition,
-	Interface_specification_version,
-	Item_shape,
-	Part,
-	Part_version,
-	Part_view_definition,
-	Shape_element_relationship,
-	Product_relationship);
-END_TYPE;*)
-
-
--- Extend list from CD version
-(*TYPE syse_analysed_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysed_item WITH
-	(Activity,
-	Activity_method,
-	Activity_method_realization_relationship,
-	Activity_method_relationship,
-	Activity_property,
-	Activity_relationship,
-	Alternate_product_relationship,
-	Assembly_relationship_substitution,
-	Assigned_property,
-	Behaviour_description_association,
-	behaviour_item,
-	Behaviour_model,
-	Condition,
-	Condition_relationship,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Lessons_learned,
-	Managed_resource_relationship,
-	Observation,
-	Observation_consequence,
-	Observation_item,
-	Observation_relationship,
-	Organization,
-	Organization_relationship,
-	Product,
-	Product_concept,
-	Product_design_to_individual,
-	Product_design_version_to_individual,
-	Product_group_relationship,
-	Product_planned_to_realized,
-	Product_relationship,
-	Product_version_relationship,
-	Product_view_definition,
-	Project_relationship,
-	Requirement_assignment,
-	Resource_event_relationship,
-	Resource_item_relationship,
-	Resource_property,
-	Risk_analysis,
-	Risk_assessment,
-	Risk_consequence,
-	Risk_control,
-	Risk_criteria,
-	Risk_estimation,
-	Risk_evaluation,
-	Risk_perception_relationship,
-	Risk_reduction,
-	Risk_relationship,
-	Risk_treatment,
-	State,
-	State_assessment,
-	State_definition,
-	State_role,
-	Task_io,
-	Task_method,
-	Verification,
-	Verification_evidence,
-	Verification_relationship,
-	View_definition_context,
-	View_definition_relationship,
-	Work_output_assignment,
-	Work_output_relationship);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_analysed_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysed_item WITH
-		(Activity_method_realization_relationship,
+TYPE syse_analysed_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analysed_item WITH
+		(Activity_method_relationship,
+		Activity_method_realization_relationship,
+		Issue,
 		Lessons_learned,
 		Managed_resource_relationship,
 		Observation,
@@ -285,6 +27,7 @@ TYPE syse_NewPushUp_analysed_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON an
 		Product_group_relationship,
 		Product_relationship,
 		Resource_event_relationship,
+		Risk,
 		Risk_analysis,
 		Risk_assessment,
 		Risk_consequence,
@@ -305,117 +48,7 @@ TYPE syse_NewPushUp_analysed_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON an
 		Work_output_relationship);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_approval_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON approval_item WITH
-	(Group,
-	Group_relationship,
-	Supplied_part_relationship,
-	Alternate_part_relationship,
-	Alternate_product_relationship,
-	Assembly_component_relationship,
-	Assembly_relationship_substitution,
-	In_zone,
-	Interface_connection,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Interface_specification,
-	Interface_specification_definition,
-	Interface_specification_version,
-	Part,
-	Part_version,
-	Part_view_definition,
-	Verification,
-	Verification_evidence,
-	Verification_relationship,
-	Experience_gained,
-	Experience_type,
-	Organization_organization_type_relationship,
-	Person_or_organization_or_person_in_organization_in_position,
-	Person_or_organization_or_person_in_organization_in_position_relationship,
-	Position_assignment,
-	Position_group_assignment,
-	Position_position_type_assignment,
-	Position_type,
-	Position_type_assignment,
-	Qualification_assignment,
-	Qualification_type,
-	Type_of_person,
-	Type_of_person_assignment,
-	Product_group,
-	Product_group_membership,
-	Product_group_relationship,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Applied_state_assignment,
-	Condition_evaluation,
-	Condition_evaluation_assignment,
-	Managed_resource,
-	Managed_resource_relationship,
-	Resource_as_realized,
-	Resource_as_realized_assignment,
-	Resource_event,
-	Task_element_state_relationship,
-	Task_method,
-	Task_method_assignment,
-	Task_method_relationship,
-	Task_method_state_relationship,
-	Task_method_version,
-	Task_method_version_assignment,
-	Task_method_version_relationship,
-	Task_objective,
-	Task_objective_state_relationship,
-	State_assessment,
-	State_relationship,
-	Work_output_assignment);
-END_TYPE;*)
 
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_assigned_name_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON assigned_name_select WITH
-	(Group,
-	Group_relationship,
-	Analysis,
-	Observation,
-	Risk);
-END_TYPE;*)
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certification_item WITH
-	(Alternate_product_relationship,
-	Interface_connection,
-	Interface_connector_version,
-	Interface_definition_connection,
-	Interface_specification_version,
-	Part,
-	Part_version,
-	Assembly_relationship_substitution,
-	Behaviour_model,
-	Task_io,
-	Verification_evidence,
-	Product_group,
-	Product_group_relationship,
-	Task_method,
-	Task_method_version,
-	Task_objective,
-	Lessons_learned);
-END_TYPE;*)
-
-
--- Extend list from CD version
-(*TYPE syse_characterized_activity_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON characterized_activity_definition WITH
-	(Analysis,
-	Task_io,
-	Verification,
-	Condition_evaluation,
-	Resource_as_realized_assignment,
-	Resource_event,
-	Task_objective,
-	Risk);
-END_TYPE;*)
-
--- Extend list from CD version
 TYPE syse_characterized_activity_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON characterized_activity_definition WITH
 		(Condition_evaluation,
 		Resource_as_realized_assignment,
@@ -423,1159 +56,141 @@ TYPE syse_characterized_activity_definition = EXTENSIBLE GENERIC_ENTITY SELECT B
 		Risk);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
-	(Characterizable_object,
-	Item_usage_effectivity,
-	Alternate_part_relationship,
-	In_zone,
-	Interface_connector_version,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Interface_specification_definition,
-	Interface_specification_version,
-	Item_shape,
-	Part,
-	Part_version,
-	Location_assignment,
-	Location_representation,
-	Organizational_location_identification,
-	Product_relationship,
-	Regional_coordinate,
-	Selected_item,
-	Selected_item_assignment,
-	Experience_gained,
-	Experience_instance,
-	Organization_type,
-	Person_or_organization_or_person_in_organization_in_position,
-	Position_assignment,
-	Position_group_assignment,
-	Position_type_assignment,
-	Qualification_assignment,
-	Qualification_type_relationship,
-	Defined_state_relationship,
-	State_assertion,
-	State_assessment);
-END_TYPE;*)
 
-
--- Extend list from CD version
-(*TYPE syse_classified_attribute_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classified_attribute_select WITH
-	(Descriptive_document_property,
-	Document_property_representation,
-	Group,
-	Group_relationship,
-	Independent_property_representation,
-	Alternate_part_relationship,
-	Alternate_product_relationship,
-	Interface_connection,
-	Interface_connector_definition,
-	Interface_definition_connection,
-	Interface_specification_definition,
-	Part_view_definition,
-	Approval,
-	Approval_assignment,
-	Approval_relationship,
-	Approval_status,
-	Approving_person_organization,
-	Certification,
-	Certification_assignment,
-	Condition,
-	Condition_parameter,
-	Condition_relationship,
-	Context_dependent_unit,
-	Contract,
-	Date_or_date_time_assignment,
-	Digital_file,
-	Document_assignment,
-	Document_definition_relationship,
-	Document_location_identification,
-	Effectivity,
-	Effectivity_assignment,
-	External_item_identification,
-	External_source_identification,
-	File_location_identification,
-	File_relationship,
-	Global_location_representation,
-	Hardcopy,
-	Identification_assignment,
-	Independent_property,
-	Independent_property_relationship,
-	Justification,
-	Justification_assignment,
-	Justification_support_assignment,
-	Language,
-	Location,
-	Location_relationship,
-	Market,
-	Organization_or_person_in_organization_assignment,
-	Organizational_location_identification,
-	Partial_document_assignment,
-	Product,
-	Product_based_location_identification,
-	Product_category,
-	Product_concept,
-	Product_relationship,
-	Product_version,
-	Product_version_relationship,
-	Product_view_definition,
-	Project_assignment,
-	Project_relationship,
-	Regional_coordinate,
-	Regional_grid_location_representation,
-	Representation,
-	Representation_context,
-	Representation_item,
-	Security_classification,
-	Time_interval_relationship,
-	Uncertainty_with_unit,
-	Unit,
-	Value_with_unit,
-	View_definition_context,
-	View_definition_relationship,
-	Address_assignment,
-	Organization_relationship,
-	Person_in_organization,
-	Breakdown_context,
-	Breakdown_element_realization,
-	Breakdown_element_usage,
-	Activity,
-	Activity_method,
-	Activity_property,
-	Activity_property_representation,
-	Activity_relationship,
-	Applied_activity_assignment,
-	Assigned_property,
-	Condition_evaluation,
-	Condition_evaluation_parameter,
-	Event_assignment,
-	Event_relationship,
-	Managed_resource,
-	Managed_resource_relationship,
-	Property_representation,
-	Related_condition_parameter,
-	Required_resource,
-	Required_resource_relationship,
-	Resource_as_realized,
-	Resource_as_realized_relationship,
-	Resource_event,
-	Resource_event_correspondence_relationship,
-	Resource_event_relationship,
-	Resource_item,
-	Resource_item_assignment,
-	Resource_item_relationship,
-	Resource_property,
-	Resource_property_representation,
-	Description_text);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_classified_attribute_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classified_attribute_select WITH
-		(Alternate_part_relationship,
-		Alternate_product_relationship,
-		Description_text,
-		Descriptive_document_property,
-		Document_property_representation,
-		Group,
-		Group_relationship,
-		Independent_property_representation,
-		Interface_connection,
-		Interface_connector_definition,
-		Interface_definition_connection,
-		Interface_specification_definition,
-		Part_view_definition);      
+TYPE syse_classified_attribute_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classified_attribute_select WITH
+			(Alternate_part_relationship,
+			Alternate_product_relationship,
+			Description_text,
+			Descriptive_document_property,
+			Document_property_representation,
+			Group,
+			Group_relationship,
+			Independent_property_representation,
+			Interface_connection,
+			Interface_connector_definition,
+			Interface_definition_connection,
+			Interface_specification_definition,
+			Numerical_document_property,
+			Part_view_definition,
+			Requirement_version_relationship,
+			Requirement_view_definition);      
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_condition_evaluation_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_evaluation_item WITH
-	(Hierarchical_interface_connection,
-	Interface_connection,
-	Interface_definition_connection,
-	Analysis_assignment,
-	Behaviour_description_association,
-	Task_io,
-	Verification,
-	Approval,
-	Approval_assignment,
-	Document_assignment,
-	View_definition_relationship,
-	Product_definition_element_relationship,
-	Assigned_property,
-	Activity_method,
-	Activity_property,
-	Applied_risk_impact_assignment,
-	Justification,
-	Required_resource,
-	Resource_event,
-	Risk_analysis,
-	State_definition);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_condition_evaluation_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_evaluation_item WITH
-		(Analysis_assignment,
-		Behaviour_description_association,
-		Hierarchical_interface_connection,
-		Interface_connection,
-		Interface_definition_connection,Task_io,
-		Verification);
+TYPE syse_condition_evaluation_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_evaluation_item WITH
+			(Analysis_assignment,
+			Behaviour_description_association,
+			Hierarchical_interface_connection,
+			Interface_connection,
+			Interface_definition_connection,
+			Task_io,
+			Verification);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_condition_evaluation_parameter_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_evaluation_parameter_item WITH
-	(Independent_property_representation,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Requirement_source,
-	Task_io,
-	Approval,
-	Approval_assignment,
-	Calendar_date,                                       
-	Certification_assignment,
-	Classification_assignment,
-	Contract_assignment,                          
-	Date_or_date_time_assignment,
-	Date_time,
-	Document_assignment,
-	Identification_assignment,
-	Organization_or_person_in_organization_assignment,
-	Product,
-	Product_category_assignment,
-	Product_concept,
-	Product_version,
-	Product_view_definition,
-	Representation,
-	View_definition_relationship,
-	Product_as_individual,
-	Product_definition_element_relationship,
-	Assigned_property,
-	Property_representation,
-	State,
-	State_definition,
-	Activity,
-	Activity_property,
-	Work_output);    
-END_TYPE;*)
 
-TYPE syse_NewPushUp_condition_evaluation_parameter_itemx = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_evaluation_parameter_item WITH
-		(Independent_property_representation,
-		Interface_connection,
-		Interface_connector_occurrence,
-		Interface_definition_connection,
-		Requirement_source,
-		Task_io);
+TYPE syse_condition_evaluation_parameter_itemx = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_evaluation_parameter_item WITH
+			(Hierarchical_interface_connection,
+			Independent_property_representation,
+			Interface_connection,
+			Interface_connector_occurrence,
+			Interface_definition_connection,
+			Requirement_source,
+			Task_io);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_condition_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_item WITH
-	(Hierarchical_interface_connection,
-	Interface_connection,
-	Interface_definition_connection,
-	Analysis_assignment,
-	Requirement_assignment,
-	Verification_evidence,
-	Product_group,
-	Product_group_membership,
-	Product_group_relationship,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Managed_resource,
-	Managed_resource_relationship,
-	Resource_event,
-	Resource_event_relationship,
-	Task_method_assignment,
-	Task_method_relationship,
-	Task_method_version_assignment,
-	Task_method_version_relationship,
-	Location_assignment,
-	Qualification_assignment,
-	Risk_treatment);
-END_TYPE;*)
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_condition_parameter_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_parameter_item WITH
-	(Independent_property_representation,
-	Hierarchical_interface_connection,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Analysis,
-	Managed_resource,
-	Resource_as_realized,
-	Resource_as_realized_relationship,
-	Resource_event,
-	State,
-	State_assessment,
-	Risk_analysis);
-END_TYPE;*)
-
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_contract_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON contract_item WITH
-	(Interface_connector_version,
-	Interface_specification_version,
-	Part,
-	Part_version,
-	Task_io,
-	Verification,
-	Product_group,
-	Product_group_relationship,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Managed_resource,
-	Resource_event,
-	Task_method,
-	Task_method_assignment,
-	Task_method_relationship,
-	Task_method_version,
-	Task_method_version_assignment,
-	Task_method_version_relationship,
-	Task_objective,
-	Issue,
-	Risk_analysis,
-	Risk_control,
-	Risk_treatment);
-END_TYPE;*)
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_date_or_date_time_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON date_or_date_time_item WITH
-	(Independent_property_representation,
-	Alternate_part_relationship,
-	Assembly_component_relationship,
-	Assembly_relationship_substitution,
-	Interface_connection,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_connector_version,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Interface_specification_definition,
-	Interface_specification_version,
-	Part,
-	Part_version,
-	Part_view_definition,
-	Alternate_product_relationship,
-	Analysis_assignment,
-	Task_io,
-	Location_assignment,
-	Location_representation,
-	Product_relationship,
-	Selected_item,
-	Organization_organization_type_relationship,
-	Person_or_organization_or_person_in_organization_in_position,
-	Person_or_organization_or_person_in_organization_in_position_relationship,
-	Position_group_assignment,
-	Position_position_type_assignment,
-	Position_type_assignment,
-	Type_of_person_assignment,Product_group,
-	Product_group_membership,
-	Product_group_relationship,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Condition_evaluation,
-	Condition_evaluation_assignment,
-	Managed_resource,
-	Managed_resource_relationship,
-	Resource_as_realized,
-	Resource_as_realized_assignment,
-	Resource_event,
-	Task_element_state_relationship,
-	Task_method,
-	Task_method_assignment,
-	Task_method_relationship,
-	Task_method_state_relationship,
-	Task_method_version,
-	Task_method_version_assignment,
-	Task_method_version_relationship,
-	Task_objective,
-	Task_objective_state_relationship);
-END_TYPE;*)
-
-
--- Extend list from CD version
-(*TYPE syse_defined_activities = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON defined_activities WITH
-	(Behaviour_description_association,
-	Event_assignment,
-	Lessons_learned,
-	Observation_consequence,
-	Product,
-	Project,
-	Risk_analysis,
-	Work_output);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_defined_activities = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON defined_activities WITH
+TYPE syse_defined_activities = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON defined_activities WITH
 	(Behaviour_description_association);    
 END_TYPE;
                           
--- Extend list from CD version fully pushed down 
-(*TYPE syse_defined_attributes = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON defined_attributes WITH
-	(Position_group,
-	Position_group_role,
-	Position_role,
-	Position_type_role,
-	Risk_stakeholder,                                                              
-	Type_of_person_assignment,
-	Work_output_assignment);
-END_TYPE;*)
 
-
--- Extend list from CD version
-(*TYPE syse_defined_methods = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON defined_methods WITH
+TYPE syse_defined_methods = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON defined_methods WITH
 	(Analysis_assignment,
-	Behaviour_model,
-	Event,
-	Issue,
-	Lessons_learned,                                          
-	Observation_consequence,
-	Product,
-	Product_group,
-	Risk_analysis,
-	Risk_assessment,
-	Work_output_assignment);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_defined_methods = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON defined_methods WITH
-	(Analysis_assignment,
-	Behaviour_model);
+	behaviour_model);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_description_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON description_item WITH
-	(analysed_item,
-	Analysis,
-	Behaviour_model,
-	Event,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Managed_resource,
-	Observation,
-	Risk_analysis,
-	Risk_treatment,
-	Task_io);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_description_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON description_item WITH
-	(Managed_resource,
-	Observation,
-	Risk_analysis,
-	Risk_treatment);
+TYPE syse_description_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON description_item WITH
+			(Issue,
+			Lessons_learned,
+			Managed_resource,
+			Observation,
+			Risk,
+			Risk_analysis,
+			Risk_treatment);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH
-	(Group,
-	Group_relationship,
-	Independent_property_representation,
-	Alternate_part_relationship,
-	Assembly_component_relationship,
-	Assembly_relationship_substitution,
-	Behaviour_version,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Alternate_product_relationship,
-	Analysis,
-	Task_io,
-	Location,
-	Location_assignment,
-	Location_relationship,
-	Organizational_location_identification,
-	Product_relationship,
-	Regional_grid_location_representation,
-	Selected_item,
-	Experience_instance,
-	Experience_type,
-	Organization_type,
-	Person_or_organization_or_person_in_organization_in_position,
-	Person_or_organization_or_person_in_organization_in_position_relationship,
-	Position,
-	Position_group,
-	Position_type,
-	Position_type_assignment,
-	Position_type_role,
-	Qualification_type,
-	Type_of_person,
-	Type_of_person_definition,
-	Product_group,
-	Product_group_membership,
-	Product_group_relationship,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Condition_evaluation,
-	Managed_resource,
-	Resource_as_realized,
-	Resource_event,
-	State,
-	State_assertion,
-	State_assessment,
-	Task_element_state_relationship,
-	Task_method,
-	Task_method_assignment,
-	Task_method_relationship,
-	Task_method_state_relationship,
-	Task_method_version,
-	Task_method_version_assignment,
-	Task_method_version_relationship,
-	Task_objective,
-	Task_objective_state_relationship,
-	Risk_analysis,
-	Risk_treatment);
-END_TYPE;*)
 
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivity_item WITH
-	(Alternate_part_relationship,
-	Assembly_component_relationship,
-	Assembly_relationship_substitution,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_for,
-	Part,
-	Part_version,
-	Part_view_definition,
-	Alternate_product_relationship,
-	Analysis_assignment,
-	Constrained_general_parameter_relationship,
-	Location_assignment,
-	Product_relationship,
-	Selected_item_assignment,
-	Person_or_organization_or_person_in_organization_in_position_relationship,
-	Position_assignment,
-	Position_group_assignment,
-	Position_position_type_assignment,
-	Position_type_assignment,
-	Type_of_person_assignment,
-	Managed_resource_relationship,
-	Applied_state_assignment,
-	Issue_consequence,
-	Risk_treatment);
-END_TYPE;*)
-
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_event_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON event_item WITH
-	(Verification,
-	Observation,
-	Risk);
-END_TYPE;*)
-
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH
-	(Risk_stakeholder,
-	Work_output);
-END_TYPE;*)
-
-
--- Extend list from CD version
-(*TYPE syse_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH
-	(Group_relationship,
-	Activity,
-	Activity_method,
-	Approval,
-	Breakdown_of,
-	Certification,
-	Condition,
-	Contract,
-	Effectivity,
-	Event,
-	Experience_type,
-	File,
-	Interface_connection,
-	Interface_definition_for,
-	Justification,
-	Location,
-	Managed_resource,
-	Observation,
-	Product,
-	Project,
-	Required_resource,
-	Resource_item,
-	Risk,
-	Task_io,
-	Verification,
-	Work_order,
-	Work_output,
-	Work_request);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH
-	(Experience_type,
-	Location,
-	Managed_resource,
-	Observation,
-	Risk,Work_output);
+TYPE syse_effectivity_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON effectivity_item WITH
+			(Make_from_relationship,
+			Independent_property_representation);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH
-	(Group,
-	Group_relationship,
-	Numerical_document_property,
-	Interface_connection,
-	Interface_connector,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Interface_specification,
-	Interface_specification_definition,
-	Interface_specification_version,
-	Item_shape,
-	Assembly_relationship_substitution,
-	Task_io,
-	Location,
-	Location_representation,
-	Organizational_location_identification,
-	Product_relationship,
-	Experience_type,
-	Organization_type,
-	Person_or_organization_or_person_in_organization_in_position,
-	Person_or_organization_or_person_in_organization_in_position_relationship,
-	Position_assignment,
-	Position_group,
-	Position_role,
-	Qualification_assignment,
-	Qualification_type,
-	Type_of_person,
-	Product_group,
-	Product_group_membership,
-	Product_group_relationship,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Condition_evaluation,
-	Managed_resource,
-	Resource_as_realized,
-	Resource_event,
-	Task_element_state_relationship,
-	Task_method,
-	Task_method_assignment,
-	Task_method_relationship,
-	Task_method_state_relationship,
-	Task_method_version,
-	Task_method_version_assignment,
-	Task_method_version_relationship,
-	Task_objective,
-	Task_objective_state_relationship,
-	Applied_probability_assignment,
-	Applied_risk_impact_assignment,
-	Applied_risk_source_assignment,
-	Risk,
-	Risk_analysis,
-	Risk_identification,
-	Risk_impact,
-	Risk_stakeholder,
-	Risk_treatment);
-END_TYPE;*)
 
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_information_usage_right_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON information_usage_right_item WITH
-	(Alternate_part_relationship,
-	Assembly_component_relationship,
-	Assembly_relationship_substitution,	
-	Interface_connection,
-	Interface_connector,
-	Interface_connector_occurrence,
-	Interface_connector_version,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Interface_specification,
-	Interface_specification_definition,
-	Interface_specification_version,
-	Part,
-	Part_version,
-	Part_view_definition,
-	Alternate_product_relationship,
-	In_zone,
-	Task_io,
-	Verification_evidence,
-	Task_method,
-	Task_method_version,
-	Task_objective,
-	Managed_resource,
-	Risk_treatment,
-	Work_output);
-END_TYPE;*)
-
-
--- Extend list from CD version
-(*TYPE syse_issue_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON issue_reference_item WITH
-	(Alternate_product_relationship,
-	Analysis_assignment,
-	Assembly_relationship_substitution,
-	Behaviour_description_association,
-	Characterizable_object,
-	Decision_path,
-	Description_text,
-	Description_text_assignment,
-	Expression_assignment,
-	Generic_expression,
-	Group,
-	Group_relationship,
-	In_zone,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Item_shape,
-	Item_usage_effectivity,
-	Requirement_assignment,
-	Requirement_source,
-	Shape_element_relationship,
-	Task_io_hierarchy,
-	Verification,
-	Verification_evidence,
-	Verification_relationship,
-	Activity,
-	Activity_method,
-	Activity_method_assignment,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Activity_method_relationship,
-	Activity_property,
-	Activity_property_representation,
-	Activity_relationship,
-	Activity_status,
-	Address,
-	Address_assignment,
-	Affected_items_assignment,
-	Applied_activity_assignment,
-	Applied_activity_method_assignment,
-	Applied_information_usage_right,
-	Applied_probability_assignment,
-	Applied_risk_impact_assignment,
-	Applied_risk_source_assignment,
-	Applied_risk_status_assignment,
-	Applied_state_assignment,
-	Applied_state_definition_assignment,
-	Approval,
-	Approval_assignment,
-	Approval_relationship,
-	Approval_status,
-	Approving_person_organization,
-	Assigned_property,
-	Attribute_classification,
-	Attribute_translation_assignment,
-	Breakdown_context,
-	Breakdown_of,
-	Calendar_date,
-	Certification,
-	Certification_assignment,
-	Class,
-	Classification_assignment,
-	Condition,
-	Condition_assignment,
-	Condition_evaluation,
-	Condition_evaluation_assignment,
-	Condition_evaluation_parameter,
-	Condition_parameter,
-	Condition_relationship,
-	Contract,
-	Contract_assignment,
-	Date_or_date_time_assignment,
-	Date_time,
-	Document_assignment,
-	Document_definition_relationship,
-	Effectivity,
-	Effectivity_assignment,
-	Effectivity_relationship,
-	Event,
-	Event_assignment,
-	Event_relationship,
-	Experience_gained,
-	Experience_instance,
-	Experience_type,
-	Experience_type_relationship,
-	External_class_library,
-	External_source_identification,
-	File,
-	File_relationship,
-	Identification_assignment,
-	Independent_property,
-	Independent_property_relationship,
-	Information_right,
-	Information_usage_right,
-	Information_usage_right_relationship,
-	Item_design_association,
-	Justification,
-	Justification_assignment,
-	Justification_relationship,
-	Justification_support_assignment,
-	Language,
-	Language_indication,
-	Local_time,
-	Location,
-	Location_assignment,
-	Location_relationship,
-	Location_representation,
-	Managed_resource,
-	Managed_resource_relationship,
-	Market,
-	Name_assignment,
-	Observation,
-	Observation_consequence,
-	Observation_relationship,
-	Organization,
-	Organization_or_person_in_organization_assignment,
-	Organization_organization_type_relationship,
-	Organization_relationship,
-	Organization_type,
-	Organizational_location_identification,
-	Person,
-	Person_in_organization,
-	Person_or_organization_or_person_in_organization_in_position,
-	Person_or_organization_or_person_in_organization_in_position_relationship,
-	Position,
-	Position_assignment,
-	Position_group,
-	Position_group_assignment,
-	Position_group_relationship,
-	Position_group_role,
-	Position_position_type_assignment,
-	Position_relationship,
-	Position_role,
-	Position_type,
-	Position_type_assignment,
-	Position_type_role,
-	Probability,
-	Product,
-	Product_category,
-	Product_category_assignment,
-	Product_category_hierarchy,
-	Product_concept,
-	Product_configuration,
-	Product_definition_element_relationship,
-	Product_design_to_individual,
-	Product_design_version_to_individual,
-	Product_group,
-	Product_group_membership,
-	Product_group_relationship,
-	Product_planned_to_realized,
-	Product_relationship,
-	Product_version,
-	Product_version_relationship,
-	Product_view_definition,
-	Project,
-	Project_assignment,
-	Project_relationship,
-	Property_definition_representation,
-	Qualification_assignment,
-	Qualification_type,
-	Qualification_type_relationship,
-	Regional_coordinate,
-	Related_condition_parameter,
-	Representation,
-	Representation_context,
-	Representation_item,
-	Required_resource,
-	Required_resource_assignment,
-	Required_resource_relationship,
-	Resource_as_realized,
-	Resource_as_realized_assignment,
-	Resource_as_realized_relationship,
-	Resource_event,
-	Resource_event_correspondence_relationship,
-	Resource_event_relationship,
-	Resource_item,
-	Resource_item_assignment,
-	Resource_item_relationship,
-	Resource_property,
-	Resource_property_representation,
-	Risk,
-	Risk_analysis,
-	Risk_assessment,
-	Risk_attitude,
-	Risk_communication,
-	Risk_consequence,
-	Risk_context,
-	Risk_control,
-	Risk_estimation,
-	Risk_evaluation,
-	Risk_identification,
-	Risk_owner_assignment,
-	Risk_perception,
-	Risk_perception_formation,
-	Risk_perception_relationship,
-	Risk_reduction,
-	Risk_relationship,
-	Risk_stakeholder,
-	Risk_status,
-	Risk_treatment,
-	Security_classification,
-	Security_classification_assignment,
-	Selected_item_assignment,
-	State,
-	State_assertion,
-	State_assessment,
-	State_definition,
-	State_definition_relationship,
-	State_definition_role,
-	State_relationship,
-	State_role,
-	Task_element_state_relationship,
-	Task_method_state_relationship,
-	Task_objective,
-	Task_objective_state_relationship,
-	Time_interval,
-	Time_interval_assignment,
-	Time_interval_relationship,
-	Time_interval_role,
-	Time_offset,
-	Type_of_person,
-	Type_of_person_assignment,
-	Type_of_person_definition,
-	Type_of_person_definition_relationship,
-	Type_of_person_definition_required_attributes_relationship,
-	Unit,
-	Value_with_unit,
-	View_definition_context,
-	View_definition_relationship,
-	Work_order,
-	Work_output,
-	Work_output_assignment,
-	Work_output_relationship,
-	Work_request,
-	Work_request_status);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_issue_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON issue_reference_item WITH
-		(Alternate_product_relationship,
-		Analysis_assignment,
-		Assembly_relationship_substitution,
-		Assigned_property,
-		Behaviour_description_association,
-		Characterizable_object,
-		Decision_path,
-		Description_text,
-		Description_text_assignment,
-		Expression_assignment,
-		Generic_expression,
-		Group,
-		Group_relationship,
-		In_zone,
-		Interface_connection,
-		Interface_connector_occurrence,
-		Interface_definition_connection,
-		Interface_definition_for,
-		Item_shape,
-		Item_usage_effectivity,
-		Requirement_assignment,
-		Requirement_source,
-		Shape_element_relationship,
-		Task_io_hierarchy,
-		Verification,
-		Verification_evidence,
-		Verification_relationship);
+TYPE syse_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH
+			(Experience_type,
+			Issue,
+			Location,
+			Managed_resource,
+			Observation,
+			Risk,
+			Work_output);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_in_zone_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON in_zone_item WITH
-(Hierarchical_interface_connection,
-Interface_connection,
-Interface_connector_occurrence,
-Interface_definition_connection);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_in_zone_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON in_zone_item WITH
-			(Interface_connection,
+TYPE syse_information_usage_right_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON information_usage_right_item WITH
+			(Characterizable_object, 
+			Group,
+			Group_relationship,
+			Interface_connector_definition);
+END_TYPE;
+
+
+TYPE syse_issue_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON issue_reference_item WITH
+			(Alternate_product_relationship,
+			Analysis_assignment,
+			Assembly_relationship_substitution,
+			Behaviour_description_association,
+			Characterizable_object,
+			Decision_path,
+			Description_text,
+			Description_text_assignment,
+			Expression_assignment,
+			Generic_expression,
+			Group,
+			Group_relationship,
+			In_zone,
+			Interface_connection,
+			Interface_connector_occurrence,
+			Interface_definition_connection,
+			Interface_definition_for,
+			Item_shape,
+			Item_usage_effectivity,
+			Requirement_assignment,
+			Requirement_source,
+			Shape_element_relationship,
+			Task_io_hierarchy,
+			Verification,
+			Verification_evidence,
+			Verification_relationship);
+END_TYPE;
+
+
+TYPE syse_in_zone_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON in_zone_item WITH
+			(Activity_method, 
+			Applied_activity_method_assignment);
+END_TYPE;
+
+
+TYPE syse_location_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON location_assignment_select WITH
+			(Analysis_assignment,
+			Interface_connection,
 			Interface_connector_occurrence,
 			Interface_definition_connection);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_justification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_item WITH
-	(Descriptive_document_property,
-	Numerical_document_property,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Task_io,
-	Task_io_hierarchy,
-	Analysis_assignment,
-	Assembly_relationship_substitution,
-	Behaviour_description_association,
-	Description_text,
-	Requirement_assignment,
-	Location_assignment,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Managed_resource_relationship,
-	Resource_as_realized,
-	Resource_event,
-	State_assertion,
-	State_assessment,
-	Task_element_state_relationship,
-	Task_method,
-	Task_method_assignment,
-	Task_method_relationship,
-	Task_method_state_relationship,
-	Task_method_version,
-	Task_method_version_assignment,
-	Task_method_version_relationship,
-	Task_objective,
-	Task_objective_state_relationship,
-	Issue,
-	Qualification_type,
-	Risk);
-END_TYPE;*)
 
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_justification_support_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON justification_support_item WITH
-	(Descriptive_document_property,
-	Numerical_document_property,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Analysis_assignment,
-	Location,
-	Location_assignment,
-	Applied_state_assignment,
-	State,
-	State_relationship,
-	Risk_analysis,
-	Risk_consequence,
-	Risk_stakeholder);
-END_TYPE;*)
-
-
--- Extend list from CD version
-(*TYPE syse_location_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON location_assignment_select WITH
-	(Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Analysis_assignment,
-	Document,
-	Document_definition,
-	Document_version,
-	File,
-	Product,
-	Product_version,
-	Product_view_definition,
-	Project,
-	Organization,
-	Organization_type,
-	Person,
-	Person_in_organization,
-	Position,
-	Position_type,
-	Type_of_person,
-	Product_group,
-	Activity,
-	Applied_activity_assignment,
-	Applied_activity_method_assignment,
-	Required_resource,
-	Required_resource_assignment,
-	Resource_item,
-	Resource_item_assignment,
-	Task_element,
-	Task_method,
-	Task_method_assignment,
-	Task_method_version,
-	Task_method_version_assignment,
-	Event,
-	Risk_treatment);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_location_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON location_assignment_select WITH
-	(Analysis_assignment,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection);
-END_TYPE;
-
--- Extend list from CD version
-(*TYPE syse_observed_context = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON observed_context WITH
-	(Alternate_product_relationship,
-	Analysis_assignment,
-	Assembly_relationship_substitution,
-	Behaviour_description_association,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Requirement_assignment,
-	Verification,
-	Verification_evidence,
-	Activity,
-	Activity_method,
-	Activity_property,
-	Applied_activity_assignment,
-	Applied_activity_method_assignment,
-	Applied_risk_impact_assignment,
-	Applied_risk_source_assignment,
-	Applied_state_assignment,
-	Applied_state_definition_assignment,
-	Approval_assignment,
-	Assigned_property,
-	Certification_assignment,
-	Condition_assignment,
-	Condition_evaluation_assignment,
-	Contract_assignment,
-	Document_assignment,
-	Effectivity_assignment,
-	Event_assignment,
-	Issue,
-	Justification_assignment,
-	Managed_resource,
-	Observation_consequence,
-	Product,
-	Product_concept,
-	Product_configuration,
-	Product_design_to_individual,
-	Product_group,
-	Product_planned_to_realized,
-	Product_version,
-	Product_version_relationship,
-	Product_view_definition,
-	Project,
-	Project_assignment,
-	Property_representation,
-	Related_condition_parameter,
-	Representation,
-	Representation_item,
-	Required_resource,
-	Required_resource_assignment,
-	Resource_as_realized,
-	Resource_as_realized_assignment,
-	Resource_event,
-	Resource_item,
-	Resource_item_assignment,
-	Resource_property,
-	Risk,
-	Risk_analysis,
-	Risk_assessment,
-	Risk_attitude,
-	Risk_consequence,
-	Risk_control,
-	Risk_estimation,
-	Risk_evaluation,
-	Risk_objective,
-	Risk_perception,
-	Risk_reduction,
-	Risk_status,
-	Risk_treatment,
-	Scheme,
-	Scheme_entry,
-	Scheme_version,
-	Security_classification_assignment,
-	State,
-	State_assertion,
-	State_assessment,
-	State_definition,
-	State_definition_relationship,
-	State_relationship,
-	State_role,
-	Task_method,
-	Task_method_version,
-	Task_objective,
-	View_definition_relationship);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_observed_context = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON observed_context WITH
+TYPE syse_observed_context = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON observed_context WITH
 		(Alternate_product_relationship,
 		Analysis_assignment,
 		Assembly_relationship_substitution,
@@ -1589,249 +204,38 @@ TYPE syse_NewPushUp_observed_context = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON
 		Verification_evidence);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_observation_recorder = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON observation_recorder WITH
-	(Person,
-	Person_in_organization,
-	Type_of_person_assignment);
-END_TYPE;*)
 
-
--- Extend list from CD version
-(*TYPE syse_organization_or_person_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_or_person_in_organization_item WITH
-	(Independent_property_representation,
-	Alternate_part_relationship,
-	Assembly_component_relationship,
-	Assembly_relationship_substitution,
-	Behaviour_version,
-	Interface_connection,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_connector_version,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Interface_specification,
-	Interface_specification_definition,
-	Interface_specification_version,
-	Alternate_product_relationship,
-	Task_io,
-	Location_assignment,
-	Product_relationship,
-	Selected_item,
-	Selected_item_assignment,
-	Position_assignment,
-	Position_group_assignment,
-	Position_position_type_assignment,
-	Position_type,
-	Position_type_assignment,
-	Type_of_person_assignment,
-	Product_group,
-	Product_group_membership,
-	Product_group_relationship,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Condition_evaluation,
-	Condition_evaluation_assignment,
-	Managed_resource,
-	Managed_resource_relationship,
-	Resource_as_realized,
-	Resource_as_realized_assignment,
-	Resource_event,
-	Task_element_state_relationship,
-	Task_method_assignment,
-	Task_method_relationship,
-	Task_method_state_relationship,
-	Task_method_version,
-	Task_method_version_assignment,
-	Task_method_version_relationship,
-	Task_objective,
-	Task_objective_state_relationship,
-	Issue_consequence,
-	Risk_analysis,
-	Risk_assessment,
-	Risk_communication,
-	Risk_control,
-	Risk_estimation,
-	Risk_identification,
-	Risk_owner_assignment,
-	Task_method);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_organization_or_person_in_organization_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON organization_or_person_in_organization_item WITH
-		(Task_io);
+TYPE syse_parameter_value_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON parameter_value_select WITH
+			(Risk_analysis,
+			State_relationship);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_parameter_value_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON parameter_value_select WITH
-	(Representation,
-	Representation_item,
-	Risk_analysis,
-	State_definition,
-	State_relationship);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_parameter_value_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON parameter_value_select WITH
-		(Risk_analysis,
-		State_relationship);
-END_TYPE;
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_person_or_organization_or_person_in_organization_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON person_or_organization_or_person_in_organization_select WITH
-	(Organization_or_person_in_organization_assignment,
-	Person_or_organization_or_person_in_organization_in_position,
-	Person_or_organization_or_person_in_organization_in_position_relationship,
-	Risk_stakeholder,
-	Type_of_person,
-	Type_of_person_definition_relationship);
-END_TYPE;*)
-
-
--- Extend list from CD version
-(*TYPE syse_position_group_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_group_item WITH
-	(Interface_definition_connection,
-	Verification,
-	Verification_evidence,
-	Approving_person_organization,
-	Document_definition,
-	Organization_or_person_in_organization_assignment,
-	Product,
-	Product_version,
-	Product_view_definition,
-	Activity,
-	Activity_method,
-	Event,
-	Location,
-	Product_category,
-	Product_concept,
-	Product_configuration,
-	Product_group,
-	Project,
-	Required_resource,
-	Resource_event,
-	State,
-	Work_order,
-	Work_output_assignment,
-	Work_request);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_position_group_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_group_item WITH
-		(Interface_definition_connection,
+TYPE syse_position_group_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_group_item WITH
+		(Analysis_discipline_definition,
+		Interface_definition_connection,
 		Verification,
 		Verification_evidence);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_position_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_item WITH
-	(Interface_definition_connection,
-	Verification,
-	Verification_evidence,
-	Approving_person_organization,
-	Document_definition,
-	Organization_or_person_in_organization_assignment,
-	Product,
-	Product_version,
-	Product_view_definition,
-	Activity,
-	Activity_method,
-	Event,
-	Location,
-	Product_category,
-	Product_concept,
-	Product_configuration,
-	Product_group,
-	Project,
-	Required_resource,
-	Resource_event,
-	State,
-	Work_order,
-	Work_output_assignment,
-	Work_request);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_position_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_item WITH
-		(Interface_definition_connection,
+TYPE syse_position_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_item WITH
+		(Analysis_discipline_definition,
+		Interface_definition_connection,
 		Verification,
 		Verification_evidence);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_position_type_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_type_item WITH
-	(Interface_definition_connection,
-	Verification,
-	Verification_evidence,
-	Approving_person_organization,
-	Document_definition,
-	Organization_or_person_in_organization_assignment,
-	Product,
-	Product_version,
-	Product_view_definition,
-	Activity,
-	Activity_method,
-	Event,
-	Location,
-	Product_category,
-	Product_concept,
-	Product_configuration,
-	Product_group,
-	Project,
-	Required_resource,
-	Resource_event,
-	State,
-	Work_order,
-	Work_output_assignment,
-	Work_request);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_position_type_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_type_item WITH
-		(Interface_definition_connection,
+TYPE syse_position_type_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON position_type_item WITH
+		(Analysis_discipline_definition,
+		Interface_definition_connection,
 		Verification,
 		Verification_evidence);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_probable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON probable_item WITH
-	(Alternate_product_relationship,
-	Assembly_relationship_substitution,
-	Verification,
-	Verification_evidence,
-	Verification_relationship,
-	View_definition_relationship,
-	Activity,
-	Activity_method,
-	Activity_method_relationship,
-	Activity_property,
-	Activity_relationship,
-	Applied_activity_method_assignment,
-	Applied_state_assignment,
-	Condition,
-	Condition_evaluation_parameter,
-	Contract,
-	Contract_assignment,
-	Independent_property,
-	Independent_property_relationship,
-	Managed_resource,
-	Market,
-	Product,
-	Product_version,
-	Product_view_definition,
-	Project,
-	Project_assignment,
-	Representation,
-	Representation_item,
-	Required_resource,
-	Required_resource_assignment,
-	Resource_event,
-	Resource_property,
-	State,
-	State_definition,
-	State_definition_relationship,
-	State_relationship,
-	Task_method_state_relationship,
-	Task_objective,
-	Task_objective_state_relationship);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_probable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON probable_item WITH
+TYPE syse_probable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON probable_item WITH
 		(Alternate_product_relationship,
 		Assembly_relationship_substitution,
 		Verification,
@@ -1839,54 +243,8 @@ TYPE syse_NewPushUp_probable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON pr
 		Verification_relationship);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_product_based_location_representation = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON product_based_location_representation WITH
-	(Alternate_product_relationship,
-	Assembly_relationship_substitution,
-	Constrained_general_parameter_relationship,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Task_io,
-	Verification,
-	Verification_evidence,
-	Activity,
-	Activity_method,
-	Breakdown_of,
-	Condition_evaluation_parameter,
-	Event,
-	Justification,
-	Language_indication,
-	Lessons_learned,
-	Managed_resource,
-	Market,
-	Observation,
-	Organization_stakeholder,
-	Organization_type,
-	Product_concept,
-	Project,
-	Representation,
-	Required_resource,
-	Resource_event,
-	Resource_item,
-	Resource_property,
-	Risk,
-	Risk_assessment,
-	Risk_attitude,
-	Risk_consequence,
-	Risk_estimation,
-	Risk_reduction,
-	Risk_stakeholder,
-	Risk_treatment,
-	State,
-	State_definition,
-	State_relationship,
-	View_definition_relationship,
-	Work_output,
-	Work_request);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_product_based_location_representation = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON product_based_location_representation WITH
+TYPE syse_product_based_location_representation = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON product_based_location_representation WITH
 		(Alternate_product_relationship,
 		Assembly_relationship_substitution,
 		Constrained_general_parameter_relationship,
@@ -1898,174 +256,18 @@ TYPE syse_NewPushUp_product_based_location_representation = EXTENSIBLE GENERIC_E
 		Verification_evidence);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_product_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON product_item WITH
-	(Interface_connector_occurrence,
-	Product_group);
-END_TYPE;*)
 
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_project_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON project_item WITH
-	(Alternate_product_relationship,
-	Assembly_relationship_substitution,
-	Interface_connection,
-	Interface_definition_connection,
-	Task_io,
-	Product_group,
-	Product_group_membership,
-	Product_group_relationship,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Task_method,
-	Task_method_assignment,
-	Task_method_version,
-	Task_method_version_assignment,
-	Task_objective,
-	Applied_risk_impact_assignment,
-	Applied_risk_source_assignment,
-	Lessons_learned,
-	Person_in_organization_stakeholder,
-	Risk_analysis,
-	Risk_communication,
-	Risk_control,
-	Risk_evaluation,
-	Risk_identification,
-	Risk_objective,
-	Risk_reduction,
-	Risk_relationship,
-	Risk_stakeholder);
-END_TYPE;*)
-
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_property_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH
-	(Hierarchical_interface_connection,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Alternate_product_relationship,
-	Analysis_assignment,
-	Generic_expression,
-	In_zone,
-	Requirement_source,
-	Task_io_hierarchy,
-	Verification,
-	Verification_evidence,
-	Verification_relationship,
-	Location_assignment,
-	Task_method_state_relationship,
-	Task_objective_state_relationship,
-	Applied_probability_assignment,
-	Applied_risk_impact_assignment,
-	Applied_risk_source_assignment,
-	Condition_evaluation,
-	Condition_evaluation_parameter,
-	Observation,
-	Observation_consequence,
-	Product_group,
-	Related_condition_parameter,
-	Resource_as_realized,
-	Resource_event,
-	Risk_analysis,
-	Risk_assessment,
-	Risk_consequence,
-	Risk_control,
-	Risk_estimation,
-	Risk_evaluation,
-	Risk_objective,
-	Risk_perception,
-	Risk_reduction,
-	Risk_treatment,
-	State_assertion,
-	State_assessment,
-	Task_objective);
-END_TYPE;*)
-
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_required_resource_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON required_resource_item WITH
-	(Analysis_assignment,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Verification,
-	Position,
-	Position_type,
-	Type_of_person,
-	Scheme,
-	Scheme_entry,
-	Scheme_version,
-	Task_method,
-	Task_method_assignment,
-	Task_method_version,
-	Task_method_version_assignment,
-	Condition_evaluation_assignment,
-	Managed_resource,
-	Risk_analysis,
-	Risk_treatment);
-END_TYPE;*)
-
-
--- Extend list from CD version
-(*TYPE syse_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH
-	(View_definition_relationship,
-	Alternate_part_relationship,
-	Assembly_relationship_substitution,
-	Interface_connector_occurrence,
-	Interface_specification,
-	Part_version,
-	Applied_activity_method_assignment,
-	Applied_state_assignment,
-	Applied_state_definition_assignment,
-	State,
-	State_definition,
-	Activity_property,
-	Alternate_product_relationship,
-	In_zone,
-	Interface_definition_for,
-	Work_output);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH
+TYPE syse_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH
 		(Applied_state_assignment,
 		State,
 		Work_output);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_requirement_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_source_item WITH
-	(Characterizable_object,
-	View_definition_relationship,
-	Interface_connector_occurrence,
-	Part_version,
-	Shape_element,
-	Applied_activity_method_assignment,
-	Applied_state_assignment,
-	Applied_state_definition_assignment,
-	State,
-	State_definition,
-	Alternate_product_relationship,
-	Approval_assignment,
-	Approving_person_organization,
-	Certification_assignment,
-	Contract_assignment,
-	Directed_activity,
-	In_zone,
-	Interface_definition_for,
-	Observation,
-	Organization_or_person_in_organization_assignment,
-	Product_concept,
-	Project_assignment,
-	Resource_event,
-	Risk_analysis,
-	Risk_stakeholder,
-	Risk_treatment);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_requirement_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_source_item WITH
+TYPE syse_requirement_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_source_item WITH
 		(Applied_state_assignment,
+		Issue,
+		Lessons_learned,
 		Observation,
 		Resource_event,
 		Risk_analysis,
@@ -2074,89 +276,8 @@ TYPE syse_NewPushUp_requirement_source_item = EXTENSIBLE GENERIC_ENTITY SELECT B
 		State);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_resource_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_assignment_item WITH
-	(Part,
-	Part_version,
-	Part_view_definition,
-	Analysis_assignment,
-	Interface_connector_occurrence,
-	Verification_evidence,
-	Location,
-	Product_group,
-	Managed_resource,
-	Position_group_assignment);
-END_TYPE;*)
 
-
--- Extend list from CD version
-(*TYPE syse_resource_as_realized_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_as_realized_item WITH
-	(Analysis_assignment,
-	Behaviour_description_association,
-	Interface_connection,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Requirement_assignment,
-	Task_io_hierarchy,
-	Verification,
-	Verification_evidence,
-	Activity_actual,
-	Activity_method,
-	Activity_method_assignment,
-	Activity_method_realization,
-	Activity_method_relationship,
-	Affected_items_assignment,
-	Applied_activity_assignment,
-	Applied_activity_method_assignment,
-	Applied_risk_impact_assignment,
-	Certification,
-	Certification_assignment,
-	Composition_of_state_definition,
-	Condition_evaluation_assignment,
-	Contract,
-	Contract_assignment,
-	Directed_activity,
-	Event,
-	Event_assignment,
-	Lessons_learned,
-	Observation,
-	Observation_consequence,
-	Observation_item,
-	Product,
-	Product_version,
-	Product_version_relationship,
-	Product_view_definition,
-	Project,
-	Project_assignment,
-	Representation,
-	Representation_item,
-	Resource_event,
-	Resource_event_correspondence_relationship,
-	Resource_event_relationship,
-	Risk,
-	Risk_analysis,
-	Risk_assessment,
-	Risk_communication,
-	Risk_control,
-	Risk_estimation,
-	Risk_evaluation,
-	Risk_impact,
-	Risk_objective,
-	Risk_perception,
-	Risk_reduction,
-	Risk_treatment,
-	Security_classification_assignment,
-	State,
-	State_assessment,
-	State_definition,
-	State_definition_relationship,
-	State_relationship,
-	State_role,
-	Task_objective,
-	Work_output_assignment);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_resource_as_realized_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_as_realized_item WITH
+TYPE syse_resource_as_realized_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_as_realized_item WITH
 		(Analysis_assignment,
 		Behaviour_description_association,
 		Interface_connection,
@@ -2168,84 +289,8 @@ TYPE syse_NewPushUp_resource_as_realized_item = EXTENSIBLE GENERIC_ENTITY SELECT
 		Verification_evidence);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_resource_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON resource_item_select WITH
-	(Part,
-	Part_version,
-	Part_view_definition,
-	Location,
-	Organization_type,
-	Position,
-	Position_type,
-	Type_of_person,
-	Product_group);
-END_TYPE;*)
 
-
--- Extend list from CD version
-(*TYPE syse_risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_impact_item WITH
-	(Alternate_product_relationship,
-	Assembly_relationship_substitution,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Requirement_assignment,
-	Requirement_source,
-	Verification,
-	Verification_evidence,
-	Verification_relationship,
-	Activity,
-	Activity_method,
-	Activity_method_realization_relationship,
-	Activity_property,
-	Activity_relationship,
-	Applied_activity_assignment,
-	Applied_state_assignment,
-	Approval,
-	Breakdown_context,
-	Breakdown_of,
-	Condition,
-	Defined_state_relationship,
-	Event,
-	Event_relationship,
-	Independent_property,
-	Independent_property_relationship,
-	Issue,
-	Issue_consequence,
-	Managed_resource,
-	Managed_resource_relationship,
-	Market,
-	Organization,
-	Organization_or_person_in_organization_assignment,
-	Person,
-	Person_in_organization,
-	Product,
-	Product_version,
-	Product_version_relationship,
-	Product_view_definition,
-	Project,
-	Project_assignment,
-	Representation,
-	Representation_item,
-	Required_resource,
-	Required_resource_assignment,
-	Resource_event,
-	Resource_item,
-	Resource_item_assignment,
-	Resource_item_relationship,
-	Resource_property,
-	State,
-	State_assertion,
-	State_assessment,
-	State_definition_relationship,
-	State_relationship,
-	Task_method_state_relationship,
-	Task_objective,
-	Task_objective_state_relationship,
-	View_definition_relationship);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_impact_item WITH
+TYPE syse_risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_impact_item WITH
 		(Alternate_product_relationship,
 		Assembly_relationship_substitution,
 		Interface_connection,
@@ -2258,121 +303,8 @@ TYPE syse_NewPushUp_risk_impact_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON
 		Verification_relationship);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_risk_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_source_item WITH
-	(Alternate_product_relationship,
-	Assembly_relationship_substitution,
-	Expression_assignment,
-	Generic_expression,
-	Interface_connection,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Requirement_assignment,
-	Requirement_source,
-	Verification,
-	Verification_evidence,
-	Verification_relationship,
-	Activity_property,
-	Activity_relationship,
-	Applied_state_assignment,
-	Approval,
-	Approving_person_organization,
-	Assigned_property,
-	Breakdown_context,
-	Breakdown_of,
-	Certification_assignment,
-	Condition,
-	Condition_evaluation_parameter,
-	Contract,
-	Contract_assignment,
-	Defined_state_relationship,
-	Document_assignment,
-	Effectivity_assignment,
-	Event,
-	Event_assignment,
-	Event_relationship,
-	Experience_gained,
-	Experience_instance,
-	File,
-	Independent_property,
-	Independent_property_relationship,
-	Information_right,
-	Information_usage_right,
-	Justification,
-	Justification_assignment,
-	Justification_relationship,
-	Justification_support_assignment,
-	Managed_resource,
-	Managed_resource_relationship,
-	Market,
-	Observation,
-	Observation_consequence,
-	Observation_relationship,
-	Organization,
-	Organization_or_person_in_organization_assignment,
-	Person,
-	Person_in_organization,
-	Person_or_organization_or_person_in_organization_in_position,
-	Person_or_organization_or_person_in_organization_in_position_relationship,
-	Position,
-	Position_assignment,
-	Position_group,
-	Position_group_assignment,
-	Position_group_relationship,
-	Position_position_type_assignment,
-	Position_relationship,
-	Position_role,
-	Position_type,
-	Position_type_assignment,
-	Position_type_role,
-	Product_concept,
-	Product_design_to_individual,
-	Product_design_version_to_individual,
-	Product_group,
-	Product_group_relationship,
-	Product_planned_to_realized,
-	Product_version,
-	Product_version_relationship,
-	Product_view_definition,
-	Project,
-	Project_assignment,
-	Project_relationship,
-	Qualification_assignment,
-	Qualification_type,
-	Representation,
-	Representation_item,
-	Required_resource,
-	Required_resource_assignment,
-	Resource_as_realized,
-	Resource_event,
-	Resource_item,
-	Resource_item_assignment,
-	Resource_item_relationship,
-	Resource_property,
-	Selected_item,
-	Selected_item_assignment,
-	State,
-	State_assertion,
-	State_assessment,
-	State_definition,
-	State_definition_relationship,
-	State_relationship,
-	Task_method_state_relationship,
-	Task_objective,
-	Task_objective_state_relationship,
-	Type_of_person,
-	Type_of_person_assignment,
-	Type_of_person_definition,
-	Type_of_person_definition_relationship,
-	Type_of_person_definition_required_attributes_relationship,
-	View_definition_relationship,
-	Work_order,
-	Work_output,
-	Work_output_assignment);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_risk_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_source_item WITH
+TYPE syse_risk_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON risk_source_item WITH
 		(Activity_property,
 		Alternate_product_relationship,
 		Applied_state_assignment,
@@ -2458,215 +390,22 @@ TYPE syse_NewPushUp_risk_source_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON
 		Work_output_assignment);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_security_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON security_classification_item WITH
-	(Alternate_part_relationship,
-	Alternate_product_relationship,
-	Assembly_relationship_substitution,
-	Interface_connection,
-	Interface_connector,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Interface_specification_definition,
-	Interface_specification_version,
-	Part,
-	Part_version,
-	Part_view_definition,
-	Promissory_usage,
-	In_zone,
-	Product_relationship,
-	Product_group,
-	Product_group_membership,
-	Product_group_relationship,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Task_element_state_relationship,
-	Task_method,
-	Task_method_assignment,
-	Task_method_relationship,
-	Task_method_version,
-	Task_method_version_assignment,
-	Task_method_version_relationship,
-	Task_objective,
-	Task_objective_state_relationship,
-	Managed_resource,
-	Risk_communication,
-	Risk_impact,
-	Risk_treatment);
-END_TYPE;*)
 
-
--- Extend list from CD version fully pushed down 
-(*TYPE syse_selected_item_context_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON selected_item_context_items WITH
+TYPE syse_selected_item_context_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON selected_item_context_items WITH
 	(Part,
-	Part_version,
-	Contract,
-	Product_concept,
-	Product_configuration,
-	Project,
-	Breakdown,
-	Product_as_individual,
-	Product_as_individual_version);
-END_TYPE;*)
+	Part_version);
+END_TYPE;
 
 
--- Extend list from CD version
-(*TYPE syse_selected_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON selected_item_select WITH
-	(Interface_connection,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Product,
-	Product_version);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_selected_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON selected_item_select WITH
+TYPE syse_selected_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON selected_item_select WITH
 		(Interface_connection,
 		Interface_connector_definition,
 		Interface_connector_occurrence,
 		Interface_definition_connection);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_state_definition_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_definition_of_item WITH
-	(Alternate_part_relationship,
-	Assembly_component_relationship,
-	Assembly_relationship_substitution,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_connector_version,
-	Interface_definition_connection,
-	Interface_specification,
-	Interface_specification_definition,
-	Interface_specification_version,
-	Part,
-	Part_version,
-	Part_view_definition,
-	Alternate_product_relationship,
-	Analysis_assignment,
-	Behaviour_description_association,
-	Task_io_hierarchy,
-	Verification,
-	Location,
-	Product_group,
-	Managed_resource,
-	Resource_as_realized_assignment,
-	Resource_as_realized_relationship,
-	Resource_as_realized_resource_item,
-	Resource_event,
-	Resource_event_correspondence_relationship,
-	Resource_event_relationship,
-	Scheme,
-	Scheme_version,
-	Applied_risk_impact_assignment,
-	Issue_reference,
-	Lessons_learned,
-	Observation_consequence,
-	Risk,
-	Risk_attitude,
-	Risk_control,
-	Risk_impact,
-	Risk_objective,
-	Risk_treatment,
-	State);
-END_TYPE;*)
 
-
--- Extend list from CD version
-(*TYPE syse_state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_of_item WITH
-	(Alternate_part_relationship,
-	Assembly_component_relationship,
-	Assembly_relationship_substitution,
-	Interface_connection,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_connector_version,
-	Interface_definition_connection,
-	Interface_specification,
-	Interface_specification_definition,
-	Interface_specification_version,
-	Part,
-	Part_version,
-	Part_view_definition,
-	Alternate_product_relationship,
-	Analysis_assignment,
-	Behaviour_description_association,
-	Verification,
-	Verification_evidence,
-	Certification,
-	Contract,
-	Digital_file,
-	Location,
-	Product_concept,
-	Product_configuration,
-	Security_classification,
-	View_definition_relationship,
-	Organization,
-	Person_in_organization,
-	Breakdown,
-	Breakdown_element,
-	Breakdown_element_definition,
-	Breakdown_element_realization,
-	Breakdown_element_usage,
-	Breakdown_element_version,
-	Product_as_individual,
-	Product_as_individual_view,
-	Product_as_planned,
-	Product_as_realized,
-	Product_group,
-	Activity,
-	Activity_method,
-	Applied_activity_assignment,
-	Managed_resource,
-	Resource_as_realized,
-	Resource_as_realized_assignment,
-	Resource_as_realized_relationship,
-	Resource_as_realized_resource_item,
-	Resource_event,
-	Resource_event_correspondence_relationship,
-	Resource_event_relationship,
-	Resource_group_relationship,
-	Resource_item,
-	Resource_item_assignment,
-	Resource_item_relationship,
-	Scheme,
-	Scheme_version,
-	Task_method_version,
-	Task_objective,
-	Applied_risk_impact_assignment,
-	Applied_state_definition_assignment,
-	Breakdown_version,
-	Digital_document_definition,
-	Document,
-	Document_version,
-	Event,
-	File,
-	File_location_identification,
-	Observation,
-	Observation_consequence,
-	Physical_document_definition,
-	Product,
-	Product_version,
-	Risk_analysis,
-	Risk_attitude,
-	Risk_communication,
-	Risk_control,
-	Risk_evaluation,
-	Risk_impact,
-	Risk_perception,
-	Risk_treatment,
-	State,
-	State_assessment,
-	State_definition,
-	State_definition_relationship,
-	State_relationship,
-	State_role,
-	Type_of_person);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_of_item WITH
+TYPE syse_state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON state_of_item WITH
 		(Alternate_part_relationship,
 		Alternate_product_relationship,
 		Analysis_assignment,
@@ -2688,276 +427,60 @@ TYPE syse_NewPushUp_state_of_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON st
 		Verification_evidence);
 END_TYPE;
 
--- Extend list from CD version fully pushed down 
-(*TYPE syse_string_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON string_select WITH
-	(Alternate_part_relationship,
-	Assembly_relationship_substitution,
-	Interface_connection,
-	Interface_connector,
-	Interface_connector_definition,
-	Interface_connector_occurrence,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Global_location_representation,
-	Location,
-	Location_assignment,
-	Location_relationship,
-	Organizational_location_identification,
-	Product_based_location_identification,
-	Product_relationship,
-	Regional_coordinate,
-	Regional_grid_location_representation,
-	Experience_gained,
-	Experience_type,
-	Organization_type,
-	Position,
-	Position_group,
-	Position_relationship,
-	Position_role,
-	Position_type,
-	Qualification_type,
-	Type_of_person,
-	Type_of_person_assignment,
-	Type_of_person_definition,
-	Type_of_person_definition_relationship,
-	Product_group,
-	Product_group_relationship,
-	Activity_method_realization,
-	Activity_method_realization_relationship,
-	Condition_evaluation,
-	Managed_resource,
-	Managed_resource_relationship,
-	Related_condition_parameter,
-	Resource_as_realized,
-	Resource_as_realized_relationship,
-	Resource_event,
-	Resource_event_correspondence_relationship,
-	Resource_event_relationship,
-	Task_method,
-	Task_method_assignment,
-	Task_method_relationship,
-	Task_method_version,
-	Task_method_version_assignment,
-	Task_method_version_relationship,
-	Task_objective);
-END_TYPE;*)
 
-
--- Extend list from CD version
-(*TYPE syse_type_of_person_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON type_of_person_item_select WITH
-	(Analysis_assignment,
-	Behaviour_description_association,
-	Behaviour_model,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Verification,
-	Verification_evidence,
-	Person_in_organization,
-	Position,
-	Position_group,
-	Position_type,
-	Activity,
-	Activity_method,
-	Activity_method_assignment,
-	Applied_risk_impact_assignment,
-	Document_assignment,
-	Experience_gained,
-	Experience_instance,
-	Experience_type,
-	Observation_consequence,
-	Product,
-	Product_version,
-	Project,
-	Project_assignment,
-	Required_resource_assignment,
-	Resource_item_assignment,
-	Risk_analysis,
-	Risk_treatment,
-	View_definition_relationship,
-	Work_order,
-	Work_output_assignment,
-	Work_request);
-END_TYPE;*)
-
-TYPE syse_NewPushUp_type_of_person_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON type_of_person_item_select WITH
+TYPE syse_type_of_person_item_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON type_of_person_item_select WITH
 		(Analysis_assignment,
 		Behaviour_description_association,
-		Behaviour_model,
+		behaviour_model,
 		Interface_definition_connection,
 		Interface_definition_for,
 		Verification,
 		Verification_evidence);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_verification_evidence_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON verification_evidence_item WITH
-	(Activity_actual,
-	Activity_method_assignment,
-	Activity_method_relationship,
-	Activity_relationship,
-	Activity_status,
-	Affected_items_assignment,
-	Alternate_product_relationship,
-	Analysis_assignment,
-	Applied_activity_method_assignment,
-	Applied_information_usage_right,
-	Applied_state_assignment,
-	Approval_assignment,
-	Assembly_relationship_substitution,
-	Assigned_property,
-	Behaviour_description_association,
-	Behaviour_model,
-	Breakdown_of,
-	Condition_assignment,
-	Condition_evaluation_assignment,
-	Condition_evaluation_parameter,
-	Contract_assignment,
-	Date_or_date_time_assignment,
-	Defined_state_relationship,
-	Description_text_assignment,
-	Directed_activity,
-	Effectivity_assignment,
-	Event_assignment,
-	Expression_assignment,
-	Interface_connector_definition,
-	Interface_definition_connection,
-	Interface_definition_for,
-	Justification_assignment,
-	Justification_relationship,
-	Justification_support_assignment,
-	Location_assignment,
-	Observation,
-	Observation_consequence,
-	Observation_relationship,
-	Organization_or_person_in_organization_assignment,
-	Person,
-	Person_in_organization,
-	Person_or_organization_or_person_in_organization_in_position,
-	Product,
-	Product_design_to_individual,
-	Product_version,
-	Product_version_relationship,
-	Product_view_definition,
-	Project_assignment,
-	Representation,
-	Representation_context,
-	Representation_item,
-	Required_resource_assignment,
-	Resource_as_realized_assignment,
-	Resource_as_realized_relationship,
-	Resource_event_correspondence_relationship,
-	Resource_event_relationship,
-	Resource_item_assignment,
-	Risk_analysis,
-	Risk_communication,
-	Risk_consequence,
-	Risk_criteria,
-	Risk_estimation,
-	Risk_evaluation,
-	Risk_treatment,
-	State,
-	State_assertion,
-	State_assessment,
-	State_relationship,
-	Task_io_hierarchy,
-	Task_objective_state_relationship,
-	Time_interval_assignment,
-	Type_of_person_assignment,
-	View_definition_context,
-	View_definition_relationship,
-	Work_order,
-	Work_output_assignment,
-	Work_request);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_verification_evidence_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON verification_evidence_item WITH
-		(Applied_state_assignment,
-		Condition_evaluation_assignment,
-		Condition_evaluation_parameter,
-		Defined_state_relationship,
-		Location_assignment,
-		Observation,
-		Observation_consequence,
-		Observation_relationship,
-		Person_or_organization_or_person_in_organization_in_position,
-		Resource_as_realized_assignment,
-		Resource_as_realized_relationship,
-		Resource_event_correspondence_relationship,
-		Resource_event_relationship,
-		Task_objective_state_relationship,
-		Type_of_person_assignment,
-		Work_output_assignment);
+TYPE syse_verification_evidence_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON verification_evidence_item WITH
+			(Applied_risk_impact_assignment,
+			Applied_risk_source_assignment,
+			Applied_state_assignment,
+			Condition_evaluation_assignment,
+			Condition_evaluation_parameter,
+			Defined_state_relationship,
+			Issue_consequence,
+			Lessons_learned,
+			Location_assignment,
+			Observation,
+			Observation_consequence,
+			Observation_relationship,
+			Person_or_organization_or_person_in_organization_in_position,
+			Resource_as_realized_assignment,
+			Resource_as_realized_relationship,
+			Resource_event_correspondence_relationship,
+			Resource_event_relationship,
+			Risk_analysis,
+			Risk_communication,
+			Risk_consequence,
+			Risk_criteria,
+			Risk_estimation,
+			Risk_evaluation,
+			Risk_treatment,
+			State,
+			State_assertion,
+			State_assessment,
+			State_relationship,
+			Task_objective_state_relationship,
+			Type_of_person_assignment,
+			Work_output_assignment);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_work_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_item WITH
-	(Analysis_assignment,
-	Verification,
-	Activity,
-	Activity_method,
-	Applied_activity_assignment,
-	Applied_activity_method_assignment,
-	Event,
-	Scheme,
-	Scheme_entry,
-	Scheme_version,
-	Task_element,
-	Task_method,
-	Task_method_version,
-	Project);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_work_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_item WITH
-		(Analysis_assignment,
-		Verification);
+TYPE syse_work_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_item WITH
+			(Analysis_assignment,
+			Verification);
 END_TYPE;
 
--- Extend list from CD version
-(*TYPE syse_work_output_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_output_item WITH
-	(Part,
-	Part_version,
-	Part_view_definition,
-	Analysis_assignment,
-	Behaviour_description_association,
-	Task_io,
-	Verification_evidence,
-	Contract,
-	Document,
-	Document_definition,
-	Document_version,
-	File,
-	Location,
-	Product,
-	Product_version,
-	Product_view_definition,
-	Project_assignment,
-	Organization,
-	Organization_type,
-	Person,
-	Person_in_organization,
-	Position,
-	Position_type,
-	Type_of_person,
-	Breakdown,
-	Breakdown_version,
-	Product_as_individual,
-	Product_as_individual_version,
-	Product_as_individual_view,
-	Product_group,
-	Managed_resource,
-	Required_resource,
-	Resource_as_realized,
-	Resource_item,
-	State_definition,
-	Activity_method,
-	Risk_analysis,
-	Risk_assessment,
-	Risk_evaluation,
-	Risk_reduction,
-	Risk_treatment);
-END_TYPE;*)
 
-TYPE syse_NewPushUp_work_output_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_output_item WITH
+TYPE syse_work_output_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON work_output_item WITH
 		(Analysis_assignment,
 		Behaviour_description_association,
 		Part,
@@ -2969,3 +492,4 @@ END_TYPE;
 
 
 END_SCHEMA;
+

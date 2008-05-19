@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.200 2006/06/29 19:44:40 darla Exp $
+$Id: module.xsl,v 1.201 2008/04/23 20:50:56 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1416,6 +1416,9 @@ o=isocs; s=central<br/>
   
   <xsl:variable name="parts_url"
     select="'http://www.tc184-sc4.org/EXPRESS/'"/>
+	
+	 <xsl:variable name="refdata_url"
+    select="'http://www.tc184-sc4.org/Reference_Data/'"/>
   <!-- it has been decided that for WG3 modules, a place for additional rules will be
 provided  that links throught SC4ONLINE to a new repository --> 
 
@@ -1423,6 +1426,7 @@ provided  that links throught SC4ONLINE to a new repository -->
   select="'http://www.tc184-sc4.org/implementation_information/'"/> -->
   <xsl:variable name="information_url"
        select="concat('http://www.tc184-sc4.org/implementation_information/10303/',format-number(@part, '00000'))"/>
+  <xsl:if test = "not(./refdata)" > 	   
   <p>
     This annex references a listing of the EXPRESS entity names and
     corresponding short names as specified or referenced in this part of ISO
@@ -1431,6 +1435,21 @@ provided  that links throught SC4ONLINE to a new repository -->
     listings are available in computer-interpretable form in Table E.1 and can
     be found at the following URLs:
   </p>
+  </xsl:if>
+  <xsl:if test="./refdata" >
+  <p>
+    This annex references a listing of the EXPRESS entity names and
+    corresponding short names as specified or referenced in this part of ISO
+    10303. It provides a listing of each EXPRESS schema specified in this
+    part of ISO 10303 without comments nor other explanatory text. 
+	
+	It also provides a listing of the Reference Data specified in this part of ISO 10303.
+	
+	These
+    listings are available in computer-interpretable form in Table E.1 and can
+    be found at the following URLs:
+  </p>
+  </xsl:if>  
   <table>
     <tr>
       <td>&#160;&#160;</td>
@@ -1442,6 +1461,13 @@ provided  that links throught SC4ONLINE to a new repository -->
     <td>EXPRESS:</td>
      <td><a href="{$parts_url}" target="_blank" ><xsl:value-of select="$parts_url"/></a></td>
    </tr>
+  <xsl:if test="./refdata" >
+     <tr>
+    <td>&#160;&#160;</td>
+    <td>Reference Data:</td>
+     <td><a href="{$refdata_url}" target="_blank" ><xsl:value-of select="$refdata_url"/></a></td>
+   </tr>
+   </xsl:if>   
   </table>
 
   <xsl:if test="@sc4.working_group='3' and string-length(@wg.number.mim_lf) > 0" >
@@ -1464,9 +1490,15 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
         <xsl:choose>
           <xsl:when test="./mim_lf or ./arm_lf">
             Table <xsl:value-of select="$annex_no"/>.1 &#8212; ARM and MIM EXPRESS short and long form listings
+			<xsl:if test="./refdata" >
+			and Reference Data OWL
+			</xsl:if>
           </xsl:when>
           <xsl:otherwise>
             Table <xsl:value-of select="$annex_no"/>.1 &#8212; ARM and MIM EXPRESS listings
+			<xsl:if test="./refdata" >
+			and Reference Data OWL
+			</xsl:if>
           </xsl:otherwise>
         </xsl:choose>
       </b>
@@ -1555,7 +1587,28 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
         </xsl:call-template>        
       </tr>
       <xsl:apply-templates select="mim_lf" mode="annexe"/>
-
+	<xsl:if test="./refdata" >
+      <!-- OWL HTML row -->
+      <tr>
+        <xsl:choose>
+          <xsl:when test="$FILE_EXT='.xml'">
+            <td>Reference data OWL</td>
+          </xsl:when>
+          <xsl:otherwise>
+            <td>Reference data OWL</td>
+          </xsl:otherwise>
+        </xsl:choose>
+        <td>
+         --
+        </td>
+        <xsl:call-template name="output_refdata_links">
+          <xsl:with-param name="module" select="/module/@name"/>
+          <xsl:with-param name="wgnumber" 
+            select="./@wg.number.rd"/>
+          <xsl:with-param name="file" select="'rd_owl.txt'"/>
+        </xsl:call-template>        
+      </tr>
+   </xsl:if>  
     </table>
   </div>
   <p>
@@ -1573,6 +1626,52 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
   </p>
 </xsl:template>
 
+<xsl:template name="output_refdata_links">
+  <xsl:param name="wgnumber"/>
+  <xsl:param name="module"/>
+  <xsl:param name="file"/>
+
+  <td>
+    <a href="../../../modules/{$module}/{$file}">
+      OWL
+      <!--  <xsl:value-of select="$file"/> -->
+    </a>
+  </td>
+  <td align="left">
+    <xsl:variable name="test_wg_number">
+      <xsl:call-template name="test_wg_number">
+        <xsl:with-param name="wgnumber" select="$wgnumber"/>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="type">
+      <xsl:choose>
+        <xsl:when test="$file='rd_owl.txt'">
+          owl
+        </xsl:when>
+        <xsl:otherwise>
+          owl
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="contains($test_wg_number,'Error')">
+        <xsl:call-template name="error_message">
+          <xsl:with-param name="message">
+            <xsl:value-of select="concat('(Error in
+                                  module.xml/module/@wg.number.',$type,' - ',
+                                  $test_wg_number)"/>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="wg_group">
+          <xsl:call-template name="get_module_wg_group"/>
+        </xsl:variable>
+        <xsl:value-of select="concat('ISO TC184/SC4/WG',$wg_group,' N',$wgnumber)"/>
+      </xsl:otherwise>
+    </xsl:choose>    
+  </td>
+</xsl:template>
 
 <xsl:template name="output_express_links">
   <xsl:param name="wgnumber"/>

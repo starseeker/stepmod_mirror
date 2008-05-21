@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_annex_exp_lf.xsl,v 1.6 2004/09/24 15:01:40 robbod Exp $
+$Id: sect_annex_exp_lf.xsl,v 1.7 2008/04/23 20:52:04 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose:     
@@ -49,7 +49,14 @@ $Id: sect_annex_exp_lf.xsl,v 1.6 2004/09/24 15:01:40 robbod Exp $
       <xsl:if test="$module_ok='true'">
 
         <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
-        <xsl:value-of select="concat('ISO 10303-',$module_xml/module/@part)"/>
+	     <xsl:choose>
+	       <xsl:when test="$module_xml/module/@status='TS'">
+	         <xsl:value-of select="concat('ISO/',$module_xml/module/@status,' 10303-',$module_xml/module/@part)"/>
+	       </xsl:when>
+	       <xsl:otherwise>
+	         <xsl:value-of select="concat('ISO 10303-',$module_xml/module/@part)"/>
+	       </xsl:otherwise>
+	     </xsl:choose>
       </xsl:if>
     </xsl:variable>
 

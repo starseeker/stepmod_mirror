@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_4_info_reqs.xsl,v 1.23 2004/11/01 14:02:19 robbod Exp $
+$Id: sect_4_info_reqs.xsl,v 1.24 2008/04/23 20:52:04 darla Exp $
   Author:  Rob Bodington, Mike Ward, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -44,7 +44,16 @@ $Id: sect_4_info_reqs.xsl,v 1.23 2004/11/01 14:02:19 robbod Exp $
     </xsl:variable>
 
     <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
-    <xsl:variable name="module_partno" select="concat('ISO 10303-',$module_xml/module/@part)"/>
+    <xsl:variable name="module_partno">
+     <xsl:choose>
+       <xsl:when test="$module_xml/module/@status='TS'">
+         <xsl:value-of select="concat('ISO/',$module_xml/module/@status,' 10303-',$module_xml/module/@part)"/>
+       </xsl:when>
+       <xsl:otherwise>
+         <xsl:value-of select="concat('ISO 10303-',$module_xml/module/@part)"/>
+       </xsl:otherwise>
+     </xsl:choose>
+    </xsl:variable>
     <xsl:variable name="module_href" select="concat('../../../modules/',$module,'/sys/cover',$FILE_EXT)"/>
 
     <xsl:if test="string-length(normalize-space(@purpose))=0">
@@ -218,7 +227,16 @@ $Id: sect_4_info_reqs.xsl,v 1.23 2004/11/01 14:02:19 robbod Exp $
         
         <xsl:variable name="href" select="concat('../../../modules/',$module1,'/sys/introduction',$FILE_EXT)"/>
         <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
-        <xsl:variable name="module_partno" select="concat('ISO 10303-',$module_xml/module/@part)"/>
+	    <xsl:variable name="module_partno">
+	     <xsl:choose>
+	       <xsl:when test="$module_xml/module/@status='TS'">
+	         <xsl:value-of select="concat('ISO/',$module_xml/module/@status,' 10303-',$module_xml/module/@part)"/>
+	       </xsl:when>
+	       <xsl:otherwise>
+	         <xsl:value-of select="concat('ISO 10303-',$module_xml/module/@part)"/>
+	       </xsl:otherwise>
+	     </xsl:choose>
+	    </xsl:variable>
                 
         <xsl:variable name="clause_aname" select="concat('42',$module_name)"/>
         <xsl:variable name="clause_hdr"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_5_main.xsl,v 1.11 2003/08/11 16:48:03 robbod Exp $
+$Id: sect_5_main.xsl,v 1.12 2008/04/23 20:52:04 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -37,7 +37,16 @@ $Id: sect_5_main.xsl,v 1.11 2003/08/11 16:48:03 robbod Exp $
     </xsl:variable>
 
     <xsl:variable name="module_xml" select="document(concat($module_dir,'/module.xml'))"/>
-    <xsl:variable name="module_partno" select="concat('ISO 10303-',$module_xml/module/@part)"/>
+    <xsl:variable name="module_partno">
+     <xsl:choose>
+       <xsl:when test="$module_xml/module/@status='TS'">
+         <xsl:value-of select="concat('ISO/',$module_xml/module/@status,' 10303-',$module_xml/module/@part)"/>
+       </xsl:when>
+       <xsl:otherwise>
+         <xsl:value-of select="concat('ISO 10303-',$module_xml/module/@part)"/>
+       </xsl:otherwise>
+     </xsl:choose>
+    </xsl:variable>
     <xsl:variable name="module_href" select="concat('../../../modules/',$module,'/sys/cover',$FILE_EXT)"/>
     <xsl:variable name="module_clause5" select="concat('../../../modules/',$module,'/sys/5_main',$FILE_EXT)"/>
     <xsl:variable name="module_clause51" 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: common.xsl,v 1.31 2006/03/11 01:22:50 thendrix Exp $
+$Id: common.xsl,v 1.32 2006/03/21 23:12:57 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -1241,6 +1241,22 @@ $Id: common.xsl,v 1.31 2006/03/11 01:22:50 thendrix Exp $
     <xsl:value-of select="$stdnumber"/>
 </xsl:template>
 
+<xsl:template name="get_resdoc_iso_number_without_status">
+  <xsl:param name="resdoc"/>
+  <xsl:variable name="resdoc_dir">
+    <xsl:call-template name="resdoc_directory">
+      <xsl:with-param name="resdoc" select="$resdoc"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="part">
+    <xsl:value-of
+      select="document(concat($resdoc_dir,'/resource.xml'))/resource/@part"/>
+  </xsl:variable>
+
+    <xsl:variable name="orgname" select="'ISO'"/>
+
+    <xsl:value-of select="concat($orgname,' 10303-',$part)"/>
+</xsl:template>
 
 
 

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_introduction.xsl,v 1.9 2006/03/11 01:22:50 thendrix Exp $
+$Id: sect_introduction.xsl,v 1.10 2008/01/30 21:39:41 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output introduction as a web page
@@ -99,7 +99,8 @@ $Id: sect_introduction.xsl,v 1.9 2006/03/11 01:22:50 thendrix Exp $
 
       <!-- prepare variables to output list of used schemas and parts -->
       
-      <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of this International Standard are illustrated in Figure 1 using the EXPRESS-G notation. EXPRESS-G is defined in Annex D of ISO 10303-11. 
+      <p>The relationships of the schemas in this part of ISO 10303 to other schemas that define the integrated resources of ISO 10303 are illustrated in Figure 1 using the EXPRESS-G notation. 
+      EXPRESS-G is defined in ISO 10303-11.  
       </p>
       <xsl:variable name="used" >
 	<xsl:apply-templates select="../schema_diag" mode="use_reference_list" />
@@ -170,14 +171,14 @@ $Id: sect_introduction.xsl,v 1.9 2006/03/11 01:22:50 thendrix Exp $
 
 		<xsl:when test="$used-count > 1" >
 			<p>
-			The following schemas not found in this part of ISO 10303 are shown in Figure 1:
+			The following schemas shown in Figure 1 are not found in this part of ISO 10303, but are found in ISO 10303-41:
 			</p>
 			<ul>
 			  <xsl:for-each select="used-schema[not(.=preceding-sibling::used-schema)]">
 			  	<xsl:sort />
 				<li>
-				<xsl:value-of select="." /> is found in
-				<xsl:apply-templates select="." mode="reference" />
+				<xsl:value-of select="." /> <!-- is found in
+				<xsl:apply-templates select="." mode="reference" /> -->
                                   <xsl:choose>
                                     <xsl:when test="position()!=last()">
                                       <xsl:value-of select="';'"/>

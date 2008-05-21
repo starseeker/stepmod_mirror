@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.59 2008/02/07 14:05:16 darla Exp $
+$Id: resource.xsl,v 1.60 2008/04/23 20:52:58 darla Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -204,9 +204,22 @@ Purpose:
 	<xsl:with-param name="resdoc" select="."/>
       </xsl:call-template>
     </xsl:variable>
+    <xsl:variable name="part_no">
+      <xsl:call-template name="get_resdoc_iso_number_without_status">
+	    <xsl:with-param name="resdoc" select="./@name"/>
+      </xsl:call-template>
+    </xsl:variable>
+    
     <h4>
       <xsl:value-of select="$stdnumber"/><br/>
-      Product data representation and exchange:  Integrated generic resource: 
+      <xsl:choose>
+	    <xsl:when test="string-length($part_no) &lt; 13"> <!-- if it is 100 series, it is 1 number longer and should have a different name -->
+          Product data representation and exchange:  Integrated generic resource:
+        </xsl:when>
+        <xsl:otherwise>
+          Product data representation and exchange:  Integrated application resource:
+        </xsl:otherwise>
+      </xsl:choose>
       <xsl:value-of select="$resdoc_name"/>
     </h4>
 
@@ -712,8 +725,8 @@ Purpose:
   <xsl:template match="resource" mode="foreword">
     <xsl:variable name="status" select="string(@status)"/>
     <xsl:variable name="part_no">
-      <xsl:call-template name="get_resdoc_iso_number">
-	<xsl:with-param name="resdoc" select="./@name"/>
+      <xsl:call-template name="get_resdoc_iso_number_without_status">
+	    <xsl:with-param name="resdoc" select="./@name"/>
       </xsl:call-template>
     </xsl:variable>
 
@@ -890,7 +903,7 @@ Purpose:
 
 	<xsl:otherwise>
 	  <!-- cancelled -->
-	  This <xsl:value-of select="$this_edition"/> edition of 
+	  This <xsl:value-of select="$this_edition"/> edition 
 	  cancels and replaces the
 	  <xsl:value-of select="$prev_edition"/> edition
 	  (<xsl:value-of
@@ -923,19 +936,25 @@ Purpose:
 
     <p>
       ISO 10303 is organized as a series of parts, each
-      published separately.  The structure of this International Standard is
+      published separately.  The structure of ISO 10303 is
       described in ISO 10303-1.
       <sup><a href="#future">1</a>)</sup>
     </p>
     <p>
-      Each part of this International Standard is a
+      Each part of ISO 10303 is a
       member of one of the following series: description methods, implementation
       methods, conformance testing methodology and framework, integrated generic
       resources, integrated application resources, application protocols,
       abstract test suites, application interpreted constructs, and application
-      modules. This part is a member of the 
-
-      integrated generic
+      modules. This part of ISO 10303 is a member of the 
+      <xsl:choose>
+	    <xsl:when test="string-length($part_no) &lt; 13"> <!-- if it is 100 series, it is 1 number longer and should have a different name -->
+          integrated generic
+        </xsl:when>
+        <xsl:otherwise>
+          integrated application
+        </xsl:otherwise>
+      </xsl:choose>
       resources series. The integrated generic resources and the integrated application resources specify a single conceptual product data model. 
     </p>
     <p>
@@ -972,9 +991,11 @@ Purpose:
 	<xsl:with-param name="res" select="../@name"/>
       </xsl:call-template>           
     </xsl:variable>
+    <xsl:variable name="lcletters">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="ucletters">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>    
     <p>
       This part of ISO 10303 specifies the integrated resource constructs for 
-      <xsl:value-of select="$resdoc_name"/>.
+      <xsl:value-of select="translate($resdoc_name,$ucletters,$lcletters)"/>.
       <a name="inscope"/>
       The following are within the scope of this part of ISO 10303: 
     </p>
@@ -1200,7 +1221,7 @@ Purpose:
     <p>
       The diagrams in this annex correspond to the EXPRESS schemas specified in this part of ISO 10303.
       The diagrams use the EXPRESS-G graphical notation for the EXPRESS language. EXPRESS-G is
-      defined in Annex D of ISO 10303-11.
+      defined in ISO 10303-11.
     </p>
 
     <ul>
@@ -2546,7 +2567,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
     <xsl:param name="section"/>
     <h2>
       <a name="abbrv">
-	<xsl:value-of select="concat('3.',$section)"/> Abbreviations
+	<xsl:value-of select="concat('3.',$section)"/> Abbreviated terms
       </a>
     </h2>
 
@@ -2560,7 +2581,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
       <!-- RBN Changed due to request from ISO
 	   For the purposes of this part of ISO 10303, -->              
       For the purposes of this document,
-      the following abbreviations apply:
+      the following abbreviated terms apply:
     </p>
     <table width="80%">
       <!-- get the default abbreviations out of the abbreviations_resdoc_defaultxml
@@ -2704,7 +2725,7 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
       <!-- RBN Changed due to request from ISO
 	   For the purposes of this part of ISO 10303, -->              
       For the purposes of this document,
-      the following definitions apply:
+      the following terms and definitions apply:
     </xsl:if>
 
     <!-- increment the section number depending on whether a definition
@@ -3507,6 +3528,4 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
     <xsl:if test="string-length(./add_scope) > 10">A</xsl:if>
   </xsl:template>
 </xsl:stylesheet>
-
-
 

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp 901 2007-05-23 11:36:59Z giedrius $
+   $Id: arm.exp,v 1.64 2007/11/15 12:46:15 liutkus Exp $
    ISO TC184/SC4/WG12 N4101 - ISO/TS 10303-1718 Part template extension - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3525
 *)
@@ -41,6 +41,12 @@ SCHEMA Part_template_extension_arm;
  	Part_string_template,
     Part_text_template));
  END_SUBTYPE_CONSTRAINT;  
+
+  ENTITY Closed_path_area_with_parameters
+    SUBTYPE OF (Path_area_with_parameters);
+    SELF\Path_area_with_parameters.centreline : Closed_curve;
+    SELF\Path_area_with_parameters.parameters : Closed_curve_style_parameters;
+  END_ENTITY;
 
   ENTITY Curve_style_parameters
   	ABSTRACT SUPERTYPE OF(ONEOF(Closed_curve_style_parameters, Curve_style_parameters_with_ends));
@@ -109,28 +115,10 @@ SCHEMA Part_template_extension_arm;
       of_character                            : Character_glyph_symbol;    
   END_ENTITY;
 
-  ENTITY Planar_path_shape_model_with_parameters
-    SUBTYPE OF (Single_area_csg_2d_model);
-      centreline : Curve;
-      parameters : Curve_style_parameters;
-    WHERE
-      WR1: SIZEOF(QUERY(it <* SELF\Representation.items |
-      ('EXTENDED_BASIC_GEOMETRY_ARM.AXIS_PLACEMENT_2D' IN TYPEOF(it))
-                )) = 1;
-      WR2: SIZEOF(QUERY(it <* SELF\Representation.items |   
-      ('EXTENDED_BASIC_GEOMETRY_ARM.AXIS_PLACEMENT_2D' IN TYPEOF(it)) AND
-      NOT
-      ((it\Axis_placement.origin\Cartesian_point.coordinates[1] = 0.0) AND
-      (it\Axis_placement.origin\Cartesian_point.coordinates[2] = 0.0) AND
-      (it\Axis_placement.x_axis\Direction.coordinates[1] = 1.0) AND
-      (it\Axis_placement.x_axis\Direction.coordinates[2] = 0.0))
-                )) = 0;                
-  END_ENTITY;
-
-  ENTITY Planar_closed_path_shape_model_with_parameters
-    SUBTYPE OF (Planar_path_shape_model_with_parameters);
-      SELF\Planar_path_shape_model_with_parameters.centreline : Closed_curve;
-      SELF\Planar_path_shape_model_with_parameters.parameters : Closed_curve_style_parameters;
+  ENTITY Path_area_with_parameters
+    SUBTYPE OF (Detailed_geometric_model_element);
+    centreline : Curve;
+    parameters : Curve_style_parameters;
   END_ENTITY;
 
   ENTITY Solid_character_glyph_2d_symbol

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mim_lf.xml,v 1.8 2007/09/19 20:08:36 abhpf Exp $ -->
+<!-- $Id: mim_lf.xml,v 1.9 2008/04/07 00:19:40 abhpf Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 
 <express
   language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2008/04/07 00:19:40 $"
+  rcs.revision="$Revision: 1.9 $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
@@ -17,7 +17,7 @@ href="../../../xsl/express.xsl" ?>
     source="mim_lf.exp"/>
 
   <schema name="Function_based_behaviour_mim_LF">
-    <type name="area_measure">
+    <type name="celsius_temperature_measure">
       <builtintype type="REAL"
       />
     </type>
@@ -58,7 +58,7 @@ href="../../../xsl/express.xsl" ?>
 
     <type name="id_attribute_select">
       <select
-        selectitems="action application_context group product_category property_definition representation"
+        selectitems="action product_category property_definition application_context group representation"
       />
     </type>
 
@@ -175,7 +175,7 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <type name="celsius_temperature_measure">
+    <type name="area_measure">
       <builtintype type="REAL"
       />
     </type>
@@ -447,45 +447,28 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <entity name="action_method_relationship"
+    <entity name="action_resource_requirement"
     >
       <explicit
         name="name">
         <typename name="label"/>
       </explicit>
       <explicit
-        name="description"
-        optional="YES">
+        name="description">
         <typename name="text"/>
       </explicit>
       <explicit
-        name="relating_method">
-        <typename name="action_method"/>
+        name="kind">
+        <typename name="resource_requirement_type"/>
       </explicit>
       <explicit
-        name="related_method">
-        <typename name="action_method"/>
+        name="operations">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="characterized_action_definition"/>
       </explicit>
-    </entity>
-
-    <entity name="fbb_characterized_action_resource"
-      supertypes="action_resource characterized_object"
-    >
-    </entity>
-
-    <entity name="fbb_characterized_action_resource_relationship"
-      supertypes="action_resource_relationship characterized_object"
-    >
-    </entity>
-
-    <entity name="fbb_characterized_action_resource_requirement"
-      supertypes="action_resource_requirement characterized_object"
-    >
-    </entity>
-
-    <entity name="fbb_characterized_applied_action_method_assignment"
-      supertypes="characterized_object applied_action_method_assignment"
-    >
     </entity>
 
     <entity name="fbb_characterized_generic_expression"
@@ -1103,6 +1086,7 @@ href="../../../xsl/express.xsl" ?>
     </entity>
 
     <entity name="expression_assignment"
+      abstract.supertype="YES"
     >
       <explicit
         name="assigned_expression">
@@ -1114,8 +1098,7 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
       <explicit
         name="role">
-        <builtintype type="STRING"
-        />
+        <typename name="expression_role"/>
       </explicit>
     </entity>
 
@@ -1934,9 +1917,25 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="fbb_characterized_action_method"
-      supertypes="action_method characterized_object"
+    <entity name="action_method_relationship"
     >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="relating_method">
+        <typename name="action_method"/>
+      </explicit>
+      <explicit
+        name="related_method">
+        <typename name="action_method"/>
+      </explicit>
     </entity>
 
     <entity name="action_method_assignment"
@@ -1965,28 +1964,9 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="action_resource_requirement"
+    <entity name="fbb_characterized_applied_action_method_assignment"
+      supertypes="characterized_object applied_action_method_assignment"
     >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="kind">
-        <typename name="resource_requirement_type"/>
-      </explicit>
-      <explicit
-        name="operations">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="characterized_action_definition"/>
-      </explicit>
     </entity>
 
     <entity name="action_resource_requirement_relationship"
@@ -2677,10 +2657,13 @@ href="../../../xsl/express.xsl" ?>
         name="conversion_factor">
         <typename name="measure_with_unit"/>
       </explicit>
-      <where
-        label="WR1"
-        expression="SELF\named_unit.dimensions = derive_dimensional_exponents(conversion_factor\measure_with_unit.unit_component)">
-      </where>
+      <derived
+        name="dimensions"
+        expression="derive_dimensional_exponents(conversion_factor\measure_with_unit.unit_component)">
+        <typename name="dimensional_exponents"/>
+        <redeclaration
+          entity-ref="named_unit"/>
+      </derived>
     </entity>
 
     <entity name="derived_unit"
@@ -3608,6 +3591,19 @@ href="../../../xsl/express.xsl" ?>
         label="WR1"
         expression="SIZEOF(QUERY(rep &lt;* using_representations(SELF) | NOT (&apos;FUNCTION_BASED_BEHAVIOUR_MIM_LF.GLOBAL_UNIT_ASSIGNED_CONTEXT&apos; IN TYPEOF(rep.context_of_items)))) = 0">
       </where>
+    </entity>
+
+    <entity name="expression_role"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
     </entity>
 
     <entity name="document_type"
@@ -4660,7 +4656,7 @@ href="../../../xsl/express.xsl" ?>
     </function>
 
     <rule name="validate_dependently_instantiable_entity_data_types"
-      appliesto="action action_relationship application_context application_context_element classification_role document_type document_usage_constraint effectivity mapped_item product_context product_definition_context_role">
+      appliesto="action action_relationship application_context application_context_element classification_role document_type document_usage_constraint effectivity expression_role mapped_item product_context product_definition_context_role">
       <algorithm>
   LOCAL
     number_of_input_instances : INTEGER;

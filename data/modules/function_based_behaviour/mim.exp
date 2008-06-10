@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.10 2007/11/06 14:02:59 abhpf Exp $ 
+   $Id: mim.exp,v 1.11 2008/04/06 19:47:17 abhpf Exp $ 
    ISO TC184/SC4/WG3 N2288 - ISO/CD-TS 10303-1453 Function based behaviour - EXPRESS MIM
 *)
 
@@ -35,16 +35,14 @@ USE FROM Task_element_mim
   task_element_relationship,
   task_step); 
 
-TYPE functional_groupable_item = SELECT BASED_ON groupable_item WITH
-  (functional_model);
-END_TYPE;
-
-  
 TYPE fbb_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH
 	(action_method,
+	action_method_relationship,			-- joined from fbb_condition_action_method_items
 	action_method_assignment_relationship,
 	action_resource,
+	action_resource_relationship,			-- joined from fbb_condition_action_method_items
 	action_resource_requirement,
+	action_resource_requirement_relationship,	-- joined from fbb_condition_action_method_items
 	applied_action_method_assignment,
 	applied_classification_assignment,
 	applied_identification_assignment,
@@ -63,9 +61,28 @@ TYPE fbb_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_
 	resource_property,
 	resource_property_representation,
 	task_element,
+	task_element_relationship,			-- joined from fbb_condition_action_method_items
 	task_step);
 END_TYPE;
 
+(* joined with "BASED_ON action_method_items"
+TYPE fbb_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH
+	(action_method,
+	action_method_relationship,
+	action_resource,
+	action_resource_relationship,
+	action_resource_requirement,
+	action_resource_requirement_relationship,
+	applied_action_method_assignment,
+	property_definition,
+	resource_property,
+	task_element_relationship);
+END_TYPE;
+*)
+
+TYPE fbb_assignment_target_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON assignment_target_select WITH
+	(condition);
+END_TYPE;
 
 TYPE fbb_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
 	(action_method,
@@ -101,23 +118,6 @@ TYPE fbb_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classif
 	uncertainty_measure_with_unit);
 END_TYPE;
 
-TYPE fbb_condition_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON condition_action_method_items WITH
-	(action_method,
-	action_method_relationship,
-	action_resource,
-	action_resource_relationship,
-	action_resource_requirement,
-	action_resource_requirement_relationship,
-	applied_action_method_assignment,
-	property_definition,
-	resource_property,
-	task_element_relationship);
-END_TYPE;
-
-TYPE fbb_assignment_target_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON assignment_target_select WITH
-	(condition);
-END_TYPE;
-
 TYPE fbb_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identification_item WITH
 	(action_method,
 	action_method_relationship,
@@ -142,15 +142,34 @@ TYPE fbb_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON identif
 	task_step);
 END_TYPE;
 
-
+--??
 (*TYPE fbb_characterized_resource_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON characterized_resource_select WITH
 	(action_resource_requirement,
 	action_resource,
-	action_method,
+	action_method,			-- Error, not in in the characterized_resource_definition list of process_property_schema
 	action_resource_relationship);
 END_TYPE;
 
 is captured by:*)
+
+(* HPF - It appears that these ENITIY's are not needed.  Mapping should be totally in mapping table. 
+	For template example see the 3 resource_xxxx_characterized modules.
+	Also see SCHEMA process_property_schema;
+		TYPE characterized_resource_definition = SELECT
+		   (action_resource,
+		    action_resource_relationship,
+		    action_resource_requirement,
+		    action_resource_requirement_relationship);
+		END_TYPE;
+		
+		ENTITY resource_property;
+		  name : label;
+		  description : text;
+		  resource : characterized_resource_definition;
+		END_ENTITY;
+	All but Resource_item_assignment which maps to action_method can be covered in mappng table.
+	Since characterized_object not in characterized_resource_definition list 
+	ENTITY fbb_characterized_action_method is not a valid.usage of characterized_object.
 
 ENTITY fbb_characterized_action_method
   SUBTYPE OF (action_method, characterized_object);
@@ -167,7 +186,7 @@ END_ENTITY;
 ENTITY fbb_characterized_action_resource_requirement
   SUBTYPE OF (action_resource_requirement, characterized_object);
 END_ENTITY;
-
+*)
 
 (*TYPE fbb_ap233_property_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH
 	(applied_action_method_assignment,
@@ -239,5 +258,10 @@ ENTITY fbb_characterized_representation_item
   SUBTYPE OF (characterized_object, representation_item);
 END_ENTITY;
 
+TYPE functional_groupable_item = SELECT BASED_ON groupable_item WITH
+  (functional_model);
+END_TYPE;
+
+  
 END_SCHEMA;
 

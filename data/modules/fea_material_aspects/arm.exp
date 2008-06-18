@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.5 2006/05/18 21:07:12 darla Exp $
+   $Id: arm.exp,v 1.5 2006/05/18 21:59:46 darla Exp $
    ISO TC184/SC4/WG12 N4394 - ISO/TS 10303-1769 FEA material aspects - EXPRESS ARM
    *)
 
@@ -7,22 +7,34 @@ SCHEMA Fea_material_aspects_arm;
 
 USE FROM Finite_elements_arm;
 
+USE FROM Generic_material_aspects_arm;
+
+USE FROM Part_and_zone_laminate_tables_arm;
+
 USE FROM Stock_material_arm;
 
+TYPE composite_structure_select = EXTENSIBLE SELECT 
+  (Composite_assembly_sequence_definition,
+   Laminate_table,
+   Ply_laminate_sequence_definition);
+END_TYPE;
+
 ENTITY Fea_material_definition;
- description              : STRING;
- elements                 : SET [0:?] OF definition_element;
- material_identification  : STRING;
+  description : STRING;
+  elements : SET [0 : ?] OF definition_element;
+  material_identification : STRING;
 END_ENTITY;
 
 ENTITY Fea_material_property
-  SUBTYPE OF (Material_property_value_representation);
- property_use  : Fea_material_definition;
+SUBTYPE OF (Material_property_value_representation);
+  property_use : Fea_material_definition;
+  composite_structure : OPTIONAL composite_structure_select;
 END_ENTITY;
 
 ENTITY Fea_material_specification
-  SUBTYPE OF (Document_definition);
- specification_use  : Fea_material_definition;
+SUBTYPE OF (Document_definition);
+  specification_use : Fea_material_definition;
 END_ENTITY;
 
 END_SCHEMA;
+

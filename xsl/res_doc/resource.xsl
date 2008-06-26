@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.60 2008/04/23 20:52:58 darla Exp $
+$Id: resource.xsl,v 1.61 2008/05/21 20:50:25 abf Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -801,9 +801,11 @@ Purpose:
     <p>  
       <xsl:value-of select="$part_no"/>
       was prepared by Technical Committee ISO/TC 184, 
-      <i>Industrial automation systems and integration,</i>
+      <i>Automation systems and integration,</i>
       Subcommittee SC4, <i>Industrial data.</i>
     </p>
+  <xsl:choose>
+    <xsl:when test="not(./foreword)">
     <xsl:if test="@version!='1'">
       <xsl:variable name="this_edition">
 	<xsl:choose>
@@ -933,7 +935,11 @@ Purpose:
 	</xsl:otherwise>
       </xsl:choose>
     </xsl:if>
-
+   </xsl:when>
+   <xsl:otherwise>
+     <xsl:value-of select="./foreword"/>
+   </xsl:otherwise>
+   </xsl:choose>
     <p>
       ISO 10303 is organized as a series of parts, each
       published separately.  The structure of ISO 10303 is

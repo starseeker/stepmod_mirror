@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.201 2008/04/23 20:50:56 darla Exp $
+$Id: module.xsl,v 1.203 2008/05/21 20:50:25 abf Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -789,7 +789,7 @@ o=isocs; s=central<br/>
   <p>
     <xsl:value-of select="$part_no"/>
     was prepared by Technical Committee ISO/TC 184, 
-    <i>Industrial automation systems and integration,</i>
+    <i>Automation systems and integration,</i>
     Subcommittee SC4, <i>Industrial data.</i>
   </p>
 
@@ -1032,7 +1032,7 @@ o=isocs; s=central<br/>
   <p>  
     <xsl:value-of select="$part_no"/>
     was prepared by Technical Committee ISO/TC 184, 
-    <i>Industrial automation systems and integration,</i>
+    <i>Automation systems and integration,</i>
     Subcommittee SC4, <i>Industrial data.</i>
   </p>
 

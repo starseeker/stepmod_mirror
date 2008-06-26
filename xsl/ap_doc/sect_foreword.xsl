@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.20 2005/03/17 22:19:10 thendrix Exp $
+$Id: sect_foreword.xsl,v 1.21 2005/11/09 23:23:32 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -113,7 +113,7 @@ $Id: sect_foreword.xsl,v 1.20 2005/03/17 22:19:10 thendrix Exp $
         </xsl:otherwise>
       </xsl:choose>
       was prepared by Technical Committee ISO/TC 184, 
-      <i>Industrial automation systems and integration</i>,
+      <i>Automation systems and integration</i>,
       Subcommittee SC4, <i>Industrial data</i>.
     </p>
 
@@ -412,7 +412,7 @@ $Id: sect_foreword.xsl,v 1.20 2005/03/17 22:19:10 thendrix Exp $
 	</xsl:otherwise>
       </xsl:choose>
       was prepared by Technical Committee ISO/TC 184, 
-      <i>Industrial automation systems and integration</i>,
+      <i>Automation systems and integration</i>,
       Subcommittee SC4, <i>Industrial data</i>.
     </p>
     <xsl:choose>

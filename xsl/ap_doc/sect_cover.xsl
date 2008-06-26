@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_cover.xsl,v 1.13 2004/08/31 13:15:12 robbod Exp $
+$Id: sect_cover.xsl,v 1.14 2005/02/04 00:43:07 thendrix Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -247,7 +247,16 @@ $Id: sect_cover.xsl,v 1.13 2004/08/31 13:15:12 robbod Exp $
           </xsl:when>
 
           <xsl:when test="$status='IS'">
-            International Standard
+All rights reserved. Unless otherwise specified, no part of this publication may be reproduced or utilized in any form or by any means, electronic or mechanical, including photocopying and microfilm, without permission in writing from either ISO at the address below or ISO's member body in the country of the requester.
+            <div align="center">
+              ISO copyright office<br/>
+              Case postale 56. CH-1211 Geneva 20<br/>
+              Tel. + 41 22 749 01 11<br/>
+              Fax + 41 22 749 09 47<br/>
+              E-mail copyright@iso.ch<br/>
+              Web  www.iso.org<br/>
+              Published in Switzerland<br/>                
+            </div>
           </xsl:when>
 
           <xsl:when test="$status='CD-TS'">

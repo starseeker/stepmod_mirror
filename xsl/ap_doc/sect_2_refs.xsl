@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.20 2007/12/03 16:29:36 darla Exp $
+$Id: sect_2_refs.xsl,v 1.21 2008/04/23 20:52:04 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-  xmlns:msxsl="urn:schemas-microsoft-com:xslt"
-  xmlns:saxon="http://icl.com/saxon"   
-  xmlns:exslt="http://exslt.org/common"
-  exclude-result-prefixes="msxsl exslt"
-version="1.0">
+		xmlns:msxsl="urn:schemas-microsoft-com:xslt"
+		xmlns:exslt="http://exslt.org/common"
+                exclude-result-prefixes="msxsl exslt"
+                version="1.0">
+
+
   <!--  <xsl:import href="../sect_2_refs.xsl"/> -->
   <xsl:import href="application_protocol.xsl"/>
   <xsl:import href="application_protocol_clause.xsl"/>
@@ -69,15 +70,19 @@ version="1.0">
       <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
         <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
         <xsl:sort select='part'/>
-        <xsl:copy-of select="string"/>
+        <xsl:for-each select="string/*">
+         <xsl:copy-of select="."/>
+        </xsl:for-each>
       </xsl:for-each>
     </xsl:when>
-    <xsl:when test="function-available('saxon:node-set')">    
-      <xsl:variable name="normrefs_to_be_sorted_set" select="saxon:node-set($normrefs_to_be_sorted)"/>
+    <xsl:when test="function-available('exslt:node-set')">    
+      <xsl:variable name="normrefs_to_be_sorted_set" select="exslt:node-set($normrefs_to_be_sorted)"/>
       <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
         <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
         <xsl:sort select='part'/>
-        <xsl:copy-of select="string"/>
+        <xsl:for-each select="string/*">
+         <xsl:copy-of select="."/>
+        </xsl:for-each>
       </xsl:for-each>
     </xsl:when>
   </xsl:choose>

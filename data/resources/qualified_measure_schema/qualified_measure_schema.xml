@@ -1,244 +1,116 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="c:\stepmod9\stepmod\data\resources\qualified_measure_schema\qualified_measure_schema.exp"/>
-
-  <schema name="qualified_measure_schema">
-
-    <interface
-      kind="reference"
-      schema="mathematical_functions_schema">
-      <interfaced.item
-        name="maths_value"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="measure_schema">
-      <interfaced.item
-        name="measure_with_unit"/>
-      <interfaced.item
-        name="unit"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="representation_schema">
-      <interfaced.item
-        name="representation_item"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-      <interfaced.item
-        name="bag_to_set"/>
-    </interface>
-    <type name="value_qualifier">
-      <select
-        selectitems="precision_qualifier type_qualifier uncertainty_qualifier">
-      </select>
-    </type>
-
-    <entity
-      name="descriptive_representation_item"
-      supertypes="representation_item">
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="expanded_uncertainty"
-      supertypes="standard_uncertainty">
-      <explicit
-        name="coverage_factor">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="maths_value_qualification">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="qualified_maths_value">
-        <typename
-          name="maths_value_with_unit"/>
-      </explicit>
-      <explicit
-        name="qualifiers">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="value_qualifier"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(temp &lt;* qualifiers |'QUALIFIED_MEASURE_SCHEMA.PRECISION_QUALIFIER' IN TYPEOF(temp))) &lt; 2">
-      </where>
-      <where
-        label="WR2"
-        expression="NOT ('REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(SELF\maths_value_qualification.qualified_maths_value))">
-      </where>
-    </entity>
-
-    <entity
-      name="maths_value_representation_item"
-      supertypes="representation_item maths_value_with_unit">
-    </entity>
-
-    <entity
-      name="maths_value_with_unit">
-      <explicit
-        name="value_component">
-        <typename
-          name="maths_value"/>
-      </explicit>
-      <explicit
-        name="unit_component">
-        <typename
-          name="unit"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="measure_qualification">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="qualified_measure">
-        <typename
-          name="measure_with_unit"/>
-      </explicit>
-      <explicit
-        name="qualifiers">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="value_qualifier"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(temp &lt;* qualifiers |'QUALIFIED_MEASURE_SCHEMA.PRECISION_QUALIFIER' IN TYPEOF(temp))) &lt; 2">
-      </where>
-      <where
-        label="WR2"
-        expression="NOT ('REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(SELF\measure_qualification.qualified_measure))">
-      </where>
-    </entity>
-
-    <entity
-      name="measure_representation_item"
-      supertypes="representation_item measure_with_unit">
-    </entity>
-
-    <entity
-      name="precision_qualifier">
-      <explicit
-        name="precision_value">
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="qualified_representation_item"
-      supertypes="representation_item">
-      <explicit
-        name="qualifiers">
-        <aggregate
-          type="SET"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="value_qualifier"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="SIZEOF(QUERY(temp &lt;* qualifiers |'QUALIFIED_MEASURE_SCHEMA.PRECISION_QUALIFIER' IN TYPEOF(temp))) &lt; 2">
-      </where>
-    </entity>
-
-    <entity
-      name="qualitative_uncertainty"
-      supertypes="uncertainty_qualifier">
-      <explicit
-        name="uncertainty_value">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="standard_uncertainty"
-      super.expression="(expanded_uncertainty)"
-      supertypes="uncertainty_qualifier">
-      <explicit
-        name="uncertainty_value">
-        <builtintype
-          type="REAL"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="type_qualifier">
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="uncertainty_qualifier"
-      super.expression="(ONEOF (standard_uncertainty, qualitative_uncertainty))">
-      <explicit
-        name="measure_name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-    </entity>
-
-  </schema>
+<express language_version="2" reference="ISO 10303-45" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="qualified_measure_schema schema_instance"/>
+   <schema name="qualified_measure_schema">
+      <interface kind="reference" schema="mathematical_functions_schema">
+         <interfaced.item name="maths_value"/>
+      </interface>
+      <interface kind="reference" schema="measure_schema">
+         <interfaced.item name="measure_with_unit"/>
+         <interfaced.item name="unit"/>
+      </interface>
+      <interface kind="reference" schema="representation_schema">
+         <interfaced.item name="representation_item"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <type name="value_qualifier">
+         <select selectitems="precision_qualifier type_qualifier uncertainty_qualifier"/>
+      </type>
+      <entity name="descriptive_representation_item" supertypes="representation_item">
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="expanded_uncertainty" supertypes="standard_uncertainty">
+         <explicit name="coverage_factor">
+            <builtintype type="REAL"/>
+         </explicit>
+      </entity>
+      <entity name="maths_value_qualification">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="qualified_maths_value">
+            <typename name="maths_value_with_unit"/>
+         </explicit>
+         <explicit name="qualifiers">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="value_qualifier"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(temp &lt;* qualifiers |&#10;             'QUALIFIED_MEASURE_SCHEMA.PRECISION_QUALIFIER'&#10;             IN TYPEOF(temp))) &lt; 2"/>
+         <where label="WR2" expression="NOT ('REPRESENTATION_SCHEMA.REPRESENTATION_ITEM'&#10;           IN TYPEOF(SELF\maths_value_qualification.qualified_maths_value))"/>
+      </entity>
+      <entity name="maths_value_representation_item" supertypes="representation_item maths_value_with_unit"/>
+      <entity name="maths_value_with_unit">
+         <explicit name="value_component">
+            <typename name="maths_value"/>
+         </explicit>
+         <explicit name="unit_component">
+            <typename name="unit"/>
+         </explicit>
+      </entity>
+      <entity name="measure_qualification">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="qualified_measure">
+            <typename name="measure_with_unit"/>
+         </explicit>
+         <explicit name="qualifiers">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="value_qualifier"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(temp &lt;* qualifiers |&#10;             'QUALIFIED_MEASURE_SCHEMA.PRECISION_QUALIFIER'&#10;             IN TYPEOF(temp))) &lt; 2"/>
+         <where label="WR2" expression="NOT ('REPRESENTATION_SCHEMA.REPRESENTATION_ITEM'&#10;           IN TYPEOF(SELF\measure_qualification.qualified_measure))"/>
+      </entity>
+      <entity name="measure_representation_item" supertypes="representation_item measure_with_unit"/>
+      <entity name="precision_qualifier">
+         <explicit name="precision_value">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="qualified_representation_item" supertypes="representation_item">
+         <explicit name="qualifiers">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="value_qualifier"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(QUERY(temp &lt;* qualifiers |&#10;             'QUALIFIED_MEASURE_SCHEMA.PRECISION_QUALIFIER'&#10;             IN TYPEOF(temp))) &lt; 2"/>
+      </entity>
+      <entity name="qualitative_uncertainty" supertypes="uncertainty_qualifier">
+         <explicit name="uncertainty_value">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+      <entity name="standard_uncertainty" supertypes="uncertainty_qualifier" super.expression="expanded_uncertainty">
+         <explicit name="uncertainty_value">
+            <builtintype type="REAL"/>
+         </explicit>
+      </entity>
+      <entity name="type_qualifier">
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+      </entity>
+      <entity name="uncertainty_qualifier" super.expression="ONEOF (standard_uncertainty, qualitative_uncertainty)">
+         <explicit name="measure_name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+      </entity>
+   </schema>
 </express>

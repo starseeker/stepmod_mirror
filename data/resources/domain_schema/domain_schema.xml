@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- $Id: express2xml.js,v 1.38 2004/08/24 16:58:55 thendrix Exp $ -->
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express
+  language_version="2"
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
+
+  <application
+    name="express2xml2.js"
+    owner="Eurostep Limited"
+    url="http://www.eurostep.com"
+    version="1.38"
+    source="domain_schema.exp"/>
+
+  <schema name="domain_schema">
+
+    <interface
+      kind="reference"
+      schema="analysis_schema">
+      <interfaced.item
+        name="model_product_domain_with_mesh"/>
+      <interfaced.item
+        name="model_property_distribution"/>
+    </interface>
+    <interface
+      kind="reference"
+      schema="basis_schema">
+      <interfaced.item
+        name="specified_general_property"/>
+    </interface>
+    <interface
+      kind="reference"
+      schema="mathematical_description_of_distribution_schema">
+      <interfaced.item
+        name="property_distribution_description"/>
+    </interface>
+    <interface
+      kind="reference"
+      schema="mesh_topology_schema">
+      <interfaced.item
+        name="rind"/>
+    </interface>
+    <type name="coordinate_data_name">
+      <enumeration
+        extensible="YES"
+        items="coordinate_x coordinate_y coordinate_z coordinate_r coordinate_theta coordinate_phi coordinate_normal coordinate_tangential coordinate_xi coordinate_eta coordinate_zeta coordinate_transform">
+      </enumeration>
+    </type>
+
+    <entity
+      name="grid_coordinates"
+      supertypes="model_property_distribution">
+      <explicit
+        name="domain">
+        <typename
+          name="model_product_domain_with_mesh"/>
+        <redeclaration
+          entity-ref="model_property_distribution"/>
+        </explicit>
+        <explicit
+          name="range">
+          <typename
+            name="specified_general_property"/>
+          <redeclaration
+            entity-ref="model_property_distribution"/>
+          </explicit>
+          <inverse
+            name="data"
+            entity="property_distribution_description"
+            attribute="physical_function">
+            <inverse.aggregate
+              type="SET"
+              lower="0"
+              upper="?"/>
+          </inverse>
+          <where
+            label="wr1"
+            expression="is_coordinate_property(range)">
+          </where>
+        </entity>
+
+        <entity
+          name="grid_coordinates_with_rind"
+          supertypes="grid_coordinates">
+          <explicit
+            name="rind_planes">
+            <typename
+              name="rind"/>
+          </explicit>
+        </entity>
+
+        <function
+          name="is_coordinate_property">
+          <parameter
+            name="arg">
+            <typename
+              name="specified_general_property"/>
+          </parameter>
+          <builtintype
+            type="BOOLEAN"/>
+          <algorithm>
+IF ('EXTERNAL_REFERENCE_SCHEMA.EXTERNALLY_DEFINED_ITEM' IN
+TYPEOF(arg)) THEN
+RETURN(TRUE);
+END_IF;
+RETURN ('DOMAIN_SCHEMA.COORDINATE_DATA_NAME' IN TYPEOF(arg));
+          </algorithm>
+        </function>
+
+      </schema>
+    </express>

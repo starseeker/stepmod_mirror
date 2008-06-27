@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.8 2008/06/14 17:02:39 abhpf Exp $
+   $Id: mim.exp,v 1.9 2008/06/17 00:01:10 abhpf Exp $
    ISO TC184/SC4/WG3 N2352 - ISO/CD-TS 10303-1450 System structure - EXPRESS MIM
 *)
 
@@ -15,17 +15,11 @@ SCHEMA System_structure_mim;
   USE FROM product_property_definition_schema   -- ISO 10303-41
   (characterized_object);
   USE FROM action_schema;   -- ISP 10303-41
-
--- New required additions post-CD for Ap233 DIS version
   USE FROM systems_engineering_representation_schema
 	  (assignment_target_select);  
   USE FROM date_time_schema   
 	  (local_time); 
 
--- In need of more work:
---	syss_characterized_activity_definition
---	syss_classification_item
-  
 
 TYPE syss_action_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_items WITH
 		(action_directive,
@@ -214,9 +208,7 @@ TYPE syss_certification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON certifi
 		property_definition);
 END_TYPE;
 
-(* Arm extend list for characterized_activity_definition does not have mim.exp mapping; see 
- resource_management_characterized clause 5.1.13.  
---?? 
+(* captured by mapping table 
 	TYPE syss_characterized_activity_definition = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON characterized_activity_definition WITH
 			(action_method,			Ok
 			breakdown_of,			Error
@@ -793,7 +785,7 @@ END_TYPE;
 		--breakdown_element_group_assignment,
 		--breakdown_element_usage,
 		--configuration_item,
---??		--document_file,
+		--document_file,
 		--executed_action,
 		--general_property,
 		--general_property_relationship,
@@ -822,18 +814,6 @@ END_TYPE;
 		--versioned_action_request);
 --END_TYPE;
 
--- Using Assigned_property a property can be assigned to the entities in syss_property_assignment_select.
--- 	An Assigned_property is a property that is assigned to "product" data.
-
-(*
-    Note: assignment of properties to activity related data types is represented with the resource entity action_property  
-    	  which is found in the application module Process property assignment;
-    Note: data types that are subtypes of entity data types Representation and Representation_item shall not be added in 
-    	  any extension of this SELECT data type, as they provide elements of representation of a property and are not 
-	  expected to have properties.
-	  
-		IMPORTANT!!!!  Systems engineering violates this later assumption
-*)
 		
 		ENTITY syss_characterizable_action_directive
 		  SUBTYPE OF (action_directive, characterized_object);
@@ -885,17 +865,11 @@ END_TYPE;
 		
 		ENTITY syss_characterizable_configuration_item
 		  SUBTYPE OF (configuration_item, characterized_object);
-		END_ENTITY;
-		
+		END_ENTITY;		
+(*
 		ENTITY syss_characterizable_document_file
 		  SUBTYPE OF (document_file, characterized_object);
 		END_ENTITY;
---??
-(*
-WARNING: Line 14990: C3002:Supertype is both a direct supertype and an indirect supertype.
-         Entity: SYSS_CHARACTERIZABLE_DOCUMENT_FILE
-         Supertype: DOCUMENT_FILE
-         Indirect supertype: CHARACTERIZED_OBJECT in line: 25355
 *)		
 		ENTITY syss_characterizable_executed_action
 		  SUBTYPE OF (executed_action, characterized_object);

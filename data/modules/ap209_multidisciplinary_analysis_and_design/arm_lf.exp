@@ -1,6 +1,444 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
-   N - ISO/CD-TS - 10303- ap209_multidisciplinary_analysis_and_design - EXPRESS ARM_LF*)
-(* UNDER DEVELOPMENT *)
-SCHEMA Ap209_multidisciplinary_analysis_and_design_arm_lf;
+   $Id: arm.exp,v 1.2 2008/06/25 18:33:46 darla Exp $
+   N - ISO/CD-TS - 10303- ap209_multidisciplinary_analysis_and_design - EXPRESS ARM*)
+
+
+SCHEMA Ap209_multidisciplinary_analysis_and_design_arm_LF;
+
+
+
+TYPE text_string_representation_item_select = SELECT (
+   Annotation_text);
+END_TYPE;
+
+
+(* Pruned unused type: appearance_context_203e2  *)
+
+
+(* Pruned unused type: approval_item_203e2  *)
+
+
+(* Pruned unused type: contract_item_203e2  *)
+
+
+(* Pruned unused type: documented_element_select_203e2  *)
+
+
+(* Pruned unused type: effectivity_item_203e2  *)
+
+
+(* Pruned unused type: groupable_item_203e2  *)
+
+
+(* Pruned unused type: identification_item_203e2  *)
+
+
+(* Pruned unused type: organization_or_person_in_organization_item_203e2  *)
+
+
+(* Pruned unused type: presentation_association_select_203e2  *)
+
+
+(* Pruned unused type: presented_model_select_203e2  *)
+
+
+(* Pruned unused type: security_classification_item_203e2  *)
+
+
+(* Pruned unused type: string_select_203e2  *)
+
+
+(* Pruned unused type: time_interval_item_203e2  *)
+
+
+(* Pruned unused type: text_or_composite_text_203e2  *)
+
+
+(* Pruned unused type: text_string_representation_item_select_203e2  *)
+
+
+TYPE text_or_composite_text = SELECT (
+   Annotation_text,
+   Defined_character_glyph);
+END_TYPE;
+
+
+(* Pruned unused type: alias_identification_item_203e2  *)
+
+
+(* NOTE: Empty SELECT set! *)
+(* TYPE analysed_item = SELECT (); END_TYPE; *) 
+
+
+(* Pruned unused type: analysis_identification_item  *)
+
+
+(* Pruned unused type: analysis_approval_item  *)
+
+
+(* Pruned unused type: analysis_classification_item  *)
+
+
+(* Pruned unused type: analysis_contract_item  *)
+
+
+(* Pruned unused type: analysis_date_or_date_time_item  *)
+
+
+(* Pruned unused type: analysis_organization_or_person_in_organization_item  *)
+
+
+(* Pruned unused type: analysis_security_classification_item  *)
+
+
+TYPE approval_item = SELECT (
+   Analysis_discipline_definition,
+   Analysis_version);
+END_TYPE;
+
+
+(* Pruned unused type: cross_section_shape_select  *)
+
+
+(* NOTE: Empty SELECT set! *)
+(* TYPE appearance_context = SELECT (); END_TYPE; *) 
+
+
+(* NOTE: Empty SELECT set! *)
+(* TYPE appearance_select = SELECT (); END_TYPE; *) 
+
+
+  TYPE context_dependent_appearance_assignment_set = SET [2:?] OF Context_dependent_appearance_assignment; 
+  END_TYPE;
+
+TYPE overriding_style_context = SELECT (
+   Styled_model);
+END_TYPE;
+
+
+(* Pruned unused type: presented_model_select  *)
+
+
+  TYPE styled_element_appearance = SELECT (
+    Appearance_assignment, 
+    context_dependent_appearance_assignment_set);
+  END_TYPE;
+
+  ENTITY Approval_status;
+    status_name : STRING;
+  END_ENTITY;
+
+  ENTITY Annotation_element 
+    SUPERTYPE OF (ONEOF (
+              TEXT,
+              ANNOTATION_CURVE))
+  SUBTYPE OF (Detailed_geometric_model_element, Styled_element);
+  END_ENTITY;
+
+  ENTITY Annotation_text
+    SUBTYPE OF (Detailed_geometric_model_element);
+      replicated_model : Text_string_representation;
+      source           : Axis_placement;
+      target           : Axis_placement;
+  END_ENTITY;
+
+  ENTITY Defined_character_glyph
+    SUBTYPE OF (Detailed_geometric_model_element);
+      placement : Axis_placement;
+  END_ENTITY;
+
+  ENTITY Dimension_text
+    SUBTYPE OF (Text);
+    WHERE
+      WR1: name IN ['dimension value', 'tolerance value', 'unit text', 'prefix text', 'suffix text'];
+  END_ENTITY;
+
+  ENTITY Text 
+    SUBTYPE OF (Annotation_element);
+      SELF\Styled_element.element : text_or_composite_text;   -- text : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, an attribute with the new name is in the DERIVE clause
+    DERIVE
+      text : TEXT_OR_COMPOSITE_TEXT := SELF\Styled_element.element;  -- ELEMENT : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
+
+  END_ENTITY;
+
+  ENTITY Text_string_representation
+    SUBTYPE OF (Styled_model);
+    SELF\Representation.items : SET [1:1] OF text_string_representation_item_select;
+  END_ENTITY; 
+
+  ENTITY Advanced_brep_shape_representation
+ SUBTYPE OF (Geometric_model);
+  END_ENTITY;
+
+  ENTITY Boolean_representation_item
+    SUBTYPE OF (Representation_item);
+      the_value : BOOLEAN;
+  END_ENTITY;
+
+  ENTITY Compound_representation_item 
+     ABSTRACT SUPERTYPE OF (ONEOF (
+                        SEQUENCE_REPRESENTATION_ITEM,
+                        SET_REPRESENTATION_ITEM)); 
+  END_ENTITY; 
+
+  ENTITY Date_time_representation_item
+    SUBTYPE OF (Representation_item);
+      the_value : extended_date_time_select;
+  END_ENTITY; 
+
+  ENTITY Integer_representation_item
+    SUBTYPE OF (Representation_item);
+      the_value : INTEGER;
+  END_ENTITY;
+
+  ENTITY Logical_representation_item
+    SUBTYPE OF (Representation_item);
+      the_value : LOGICAL;
+  END_ENTITY;
+
+  ENTITY Rational_representation_item
+    SUBTYPE OF (Representation_item);
+      numerator   : INTEGER;
+      denominator : INTEGER;
+  END_ENTITY;
+
+  ENTITY Real_representation_item
+    SUBTYPE OF (Representation_item);
+      the_value   : REAL;
+  END_ENTITY;
+
+  ENTITY Sequence_representation_item
+    SUBTYPE OF (Compound_representation_item);
+      the_value   : LIST OF Representation_item;
+  END_ENTITY;
+
+  ENTITY Set_representation_item
+    SUBTYPE OF (Compound_representation_item);
+      the_value   : SET OF Representation_item;
+  END_ENTITY;
+
+ENTITY Analysis_assignment;
+  analysis : Analysis_version;
+  applied_to : analysed_item;
+END_ENTITY;
+
+ENTITY Analysis_design_version_relationship
+SUBTYPE OF (Analysis_assignment);
+  SELF\Analysis_assignment.applied_to : Product_version;
+END_ENTITY;
+
+ENTITY Analysis
+SUBTYPE OF (Product);
+END_ENTITY;
+
+ENTITY Analysis_discipline_definition
+SUBTYPE OF (Product_view_definition);
+  SELF\Product_view_definition.defined_version : Analysis_version;
+END_ENTITY;
+
+ENTITY Analysis_version
+SUBTYPE OF (Product_version);
+  SELF\Product_version.of_product : Analysis;
+END_ENTITY;
+
+ENTITY Analysis_version_sequence
+SUBTYPE OF (Product_version_relationship);
+  SELF\Product_version_relationship.relating_version : Analysis_version;  -- predecessor : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, an attribute with the new name is in the DERIVE clause
+  SELF\Product_version_relationship.related_version : Analysis_version;  -- successor : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, an attribute with the new name is in the DERIVE clause
+    DERIVE
+      predecessor : ANALYSIS_VERSION := SELF\Product_version_relationship.relating_version;  -- RELATING_VERSION : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
+      successor : ANALYSIS_VERSION := SELF\Product_version_relationship.related_version;  -- RELATED_VERSION : This ATTRIBUTE was RENAMED in the EXPRESS E2 source, this is the new name implemented as DERIVE
+
+END_ENTITY;
+
+  ENTITY Approval;
+    actual_date  : OPTIONAL date_or_date_time_select;
+    planned_date : OPTIONAL date_or_date_time_select;
+    purpose      : STRING;
+    status       : Approval_status;
+  END_ENTITY;
+
+  ENTITY Approval_assignment;
+    assigned_approval : Approval;
+    items             : SET[1:?] OF approval_item;
+    role              : OPTIONAL STRING;
+  END_ENTITY;
+
+  ENTITY Approval_relationship;
+    relation_type     : STRING;
+    description       : OPTIONAL STRING;
+    relating_approval : Approval;
+    related_approval  : Approval;
+  END_ENTITY;
+
+  ENTITY Annotation_curve
+     ABSTRACT SUPERTYPE
+  SUBTYPE OF (Annotation_element);
+      annotation_curve_type       : OPTIONAL STRING;
+      SELF\Styled_element.element : Curve;
+  END_ENTITY;
+
+  ENTITY Approving_person_organization;
+    approval_date       : OPTIONAL date_or_date_time_select;
+    authorized_approval : Approval;
+    person_organization : organization_or_person_in_organization_select;
+    role                : OPTIONAL STRING;
+  END_ENTITY;
+
+ENTITY Idealisation_relationship;
+  id : STRING;
+  name : STRING;
+  description : STRING;
+  idealised : Product_view_definition;
+  idealisation : Temporal_spatial_domain;
+END_ENTITY;
+
+ENTITY View_relationship;
+  id : STRING;
+  name : STRING;
+  description : STRING;
+  viewed : Temporal_spatial_domain;
+  view : Numerical_model;
+END_ENTITY;
+
+ENTITY Behavioural_decomposition_of_numerical_model;
+  parts : SET [2 : ?] OF Numerical_model;
+  whole : Numerical_model;
+END_ENTITY;
+
+ENTITY Model_action_domain
+SUBTYPE OF (Numerical_model);
+  initial : Model_state_domain;
+  final : Model_state_domain;
+END_ENTITY;
+
+ENTITY Model_product_domain
+SUBTYPE OF (Numerical_model);
+  temporal_parts : SET [0 : ?] OF Model_action_domain;
+END_ENTITY;
+
+ENTITY Model_product_domain_with_mesh
+SUBTYPE OF (Model_product_domain);
+  model_mesh : Mesh;
+END_ENTITY;
+
+ENTITY Model_property_distribution;
+  creating_software : STRING;
+  domain : Numerical_model;
+  range : Independent_property;
+END_ENTITY;
+
+ENTITY Model_state_domain
+SUBTYPE OF (Numerical_model);
+END_ENTITY;
+
+ENTITY Numerical_model;
+  id : STRING;
+  name : STRING;
+  description : STRING;
+  creating_software : STRING;
+  intended_analysis_code : SET [1 : ?] OF STRING;
+  analysis_type : STRING;
+END_ENTITY;
+
+ENTITY Simulation_run;
+  id : STRING;
+  name : STRING;
+  description : STRING;
+  simulated : Numerical_model;
+  results : SET [0.: ?] OF Model_property_distribution;
+END_ENTITY;
+
+ENTITY Spatial_decomposition_of_numerical_model;
+  parts : SET [2 : ?] OF Numerical_model;
+  whole : Numerical_model;
+END_ENTITY;
+
+ENTITY Temporal_decomposition_of_model_action;
+  parts : LIST [2 : ?] OF Model_action_domain;
+  whole : Model_action_domain;
+END_ENTITY;
+
+ENTITY Analysis_model
+SUBTYPE OF (Representation);
+  SELF\Representation.context_of_items : Analysis_representation_context;
+  SELF\Representation.items : SET [1 : ?] OF Analysis_representation_item;
+END_ENTITY;
+
+ENTITY Analysis_representation_context
+SUBTYPE OF (Representation_context);
+END_ENTITY;
+
+ENTITY Analysis_representation_item  ABSTRACT SUPERTYPE;
+END_ENTITY;
+
+ENTITY Idealized_analysis_shape
+SUBTYPE OF (Shape_description_association);
+  analysis_view : Analysis_discipline_definition;
+  basis : Nominal_design_shape;
+  defining_shape : shape_model;
+END_ENTITY;
+
+ENTITY Nominal_design_shape
+SUBTYPE OF (Shape_description_association);
+  defining_shape : shape_model;
+  design_view : Product_view_definition;
+END_ENTITY;
+
+  ENTITY Appearance_assignment;
+    appearance_components : SET[1:?] OF appearance_select;
+  END_ENTITY;
+
+  ENTITY Context_dependent_appearance_assignment
+    SUBTYPE OF (Appearance_assignment);
+      context_definition : appearance_context;
+  END_ENTITY;
+
+  ENTITY Context_dependent_over_riding_styled_element
+    SUBTYPE OF (Over_riding_styled_element);
+      context_definition : LIST [1:?] OF overriding_style_context;
+  END_ENTITY;
+
+  ENTITY Over_riding_styled_element
+    SUBTYPE OF (Styled_element);
+      over_ridden_element : Styled_element;
+  END_ENTITY;
+
+  ENTITY Planar_box
+    SUBTYPE OF (Detailed_geometric_model_element);
+      size_in_x : length_measure;
+      size_in_y : length_measure;
+      placement : Axis_placement; 
+  END_ENTITY;
+
+  ENTITY Styled_element
+    SUBTYPE OF (Representation_item);
+      appearance : styled_element_appearance;
+      element : Detailed_geometric_model_element;
+      invisible : BOOLEAN;
+  END_ENTITY;
+
+  ENTITY Styled_model
+     ABSTRACT SUPERTYPE;
+      version_id : OPTIONAL STRING;
+      SELF\Representation.context_of_items : Geometric_coordinate_space;
+    DERIVE
+      styled_geometry : SET[0:?] OF Geometric_model := 
+      bag_to_set(QUERY (r <* (USEDIN(SELF\Representation.context_of_items,
+   'FOUNDATION_REPRESENTATION_ARM.' + 
+   'REPRESENTATION.' + 'CONTEXT_OF_ITEMS')) | 
+   'ELEMENTAL_GEOMETRIC_SHAPE_ARM.GEOMETRIC_MODEL' IN TYPEOF(r)));
+  END_ENTITY;
+
+  ENTITY Styled_model_replication 
+    SUBTYPE OF (Representation_item); 
+      replicated_model : Styled_model; 
+      source : Axis_placement; 
+      target : geometric_mapping_target; 
+  END_ENTITY;
+
+
+
+
 END_SCHEMA;
+

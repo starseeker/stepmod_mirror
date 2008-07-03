@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.64 2007/11/15 12:46:15 liutkus Exp $
+   $Id: arm.exp,v 1.65 2008/05/29 06:40:51 liutkus Exp $
    ISO TC184/SC4/WG12 N4101 - ISO/TS 10303-1718 Part template extension - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3525
 *)
@@ -119,6 +119,25 @@ SCHEMA Part_template_extension_arm;
     SUBTYPE OF (Detailed_geometric_model_element);
     centreline : Curve;
     parameters : Curve_style_parameters;
+  END_ENTITY;
+
+ ENTITY Planar_path_shape_model_with_parameters
+    SUBTYPE OF (Single_area_csg_2d_model);
+    WHERE
+      WR1: SIZEOF(QUERY(it <* SELF\Representation.items |
+      ('EXTENDED_BASIC_GEOMETRY_ARM.AXIS_PLACEMENT_2D' IN TYPEOF(it))
+                )) = 1;
+      WR2: SIZEOF(QUERY(it <* SELF\Representation.items |   
+      ('PART_TEMPLATE_EXTENSION_ARM.PATH_AREA_WITH_PARAMETERS' IN TYPEOF(it))
+                )) = 1;
+      WR2: SIZEOF(SELF\Representation.items) = 2;                      
+  END_ENTITY;
+
+  ENTITY Planar_closed_path_shape_model_with_parameters
+    SUBTYPE OF (Planar_path_shape_model_with_parameters);
+      WR1: SIZEOF(QUERY(it <* SELF\Representation.items |   
+      ('PART_TEMPLATE_EXTENSION_ARM.CLOSED_PATH_AREA_WITH_PARAMETERS' IN TYPEOF(it))
+                )) = 1;
   END_ENTITY;
 
   ENTITY Solid_character_glyph_2d_symbol

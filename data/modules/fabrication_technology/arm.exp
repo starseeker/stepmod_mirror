@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.149 2008/07/05 16:08:51 thomasrthurman Exp $
+   $Id: arm.exp,v 1.150 2008/07/05 16:48:40 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -280,6 +280,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 	  WR1: (EXISTS (pre_defined_documentation_layer_purpose)) XOR ((SIZEOF(externally_defined_documentation_layer_purpose)) = 1);
   END_ENTITY;
 
+  ENTITY Footprint_library_stratum_technology
+    SUBTYPE OF (Stratum_technology);
+	WHERE
+	  WR1: NOT EXISTS(stratum_thickness);
+  END_ENTITY;
+
   ENTITY Inter_stratum_feature_template
     SUPERTYPE OF (ONEOF(Component_termination_passage_template,
       Unsupported_passage_template,
@@ -417,6 +423,18 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
                   )) = 0;  
   END_ENTITY;
 
+  ENTITY Stratum_surface_technology
+    SUBTYPE OF (Shape_element);
+    SELF\Shape_element.containing_shape RENAMED associated_technology : Stratum_technology;
+    DERIVE
+      surface_specification: SET[0:1] OF Document_definition :=
+        get_document_definition(SELF, 'surface specification',  	
+                                      'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION');
+    WHERE
+      WR1 : (SIZEOF(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT')) > 0) OR 
+            (SIZEOF(get_document_definition(SELF, 'surface specification', 'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION')) = 1);
+  END_ENTITY;
+
   ENTITY Stratum_technology
     SUPERTYPE OF (ONEOF (Design_layer_technology, Documentation_layer_technology))
     SUBTYPE OF (Characterizable_object, Item_shape);
@@ -445,18 +463,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR2 : NOT (layer_position = layer_position_type.secondary) OR ('FABRICATION_TECHNOLOGY_ARM.DESIGN_LAYER_TECHNOLOGY' IN TYPEOF(SELF));
 	  WR3 : 'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (stratum_material);
 	  WR4 : NOT((SIZEOF(surface_technology) > 0 ) AND (SIZEOF(surface_specification) = 1));
-  END_ENTITY;
-
-  ENTITY Stratum_surface_technology
-    SUBTYPE OF (Shape_element);
-    SELF\Shape_element.containing_shape RENAMED associated_technology : Stratum_technology;
-    DERIVE
-      surface_specification: SET[0:1] OF Document_definition :=
-        get_document_definition(SELF, 'surface specification',  	
-                                      'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION');
-    WHERE
-      WR1 : (SIZEOF(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT')) > 0) OR 
-            (SIZEOF(get_document_definition(SELF, 'surface specification', 'SPECIFICATION_DOCUMENT_ARM.SURFACE_FINISH_SPECIFICATION')) = 1);
   END_ENTITY;
 
   ENTITY Stratum_technology_occurrence;
@@ -511,6 +517,16 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
            EXISTS(distance_unit);
   END_ENTITY;
   
+  ENTITY Stratum_technology_mapping_relationship;
+      source_stratum_technology   : Footprint_library_stratum_technology;
+      target_stratum_technology   : Stratum_technology;
+    WHERE 
+      WR1 : NOT (('FABRICATION_TECHNOLOGY_ARM.FOOTPRINT_LIBRARY_STRATUM_TECHNOLOGY' IN TYPEOF(target_stratum_technology));
+      WR2 : acyclic_stratum_technology_mapping_relationship(SELF,
+        [target_stratum_technology], 
+       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_MAPPING_RELATIONSHIP');
+  END_ENTITY;
+
   ENTITY Stratum_technology_swap_relationship;
       primary_stratum_technology   : Stratum_technology;
       secondary_stratum_technology : Stratum_technology;
@@ -600,6 +616,30 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     REPEAT i := 1 TO HIINDEX(x);
       IF NOT acyclic_stratum_technology_swap_relationship(x[i], relatives +
         relation.primary_stratum_technology, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION; 
+
+  FUNCTION acyclic_stratum_technology_mapping_relationship
+    (relation : Stratum_technology_mapping_relationship; 
+    relatives : SET[1:?] OF Stratum_technology; 
+    specific_relation : STRING) : BOOLEAN; 
+  LOCAL
+     x : SET OF Stratum_technology_mapping_relationship := [];
+  END_LOCAL;
+
+    IF relation.source_stratum_technology IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.source_stratum_technology,
+      'FABRICATION_TECHNOLOGY_ARM.' +
+      'STRATUM_TECHNOLOGY_MAPPING_RELATIONSHIP.' +
+      'TARGET_STRATUM_TECHNOLOGY')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_stratum_technology_mapping_relationship(x[i], relatives +
+        relation.source_stratum_technology, specific_relation) THEN
         RETURN (FALSE);
       END_IF;
     END_REPEAT;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.147 2008/03/20 20:59:15 thomasrthurman Exp $
+   $Id: arm.exp,v 1.148 2008/07/03 13:40:26 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -318,14 +318,13 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     SUBTYPE OF (Shape_feature);
       SELF\Shape_element.containing_shape RENAMED associated_definition : Land_physical_template;
       SELF\Shape_feature.connection_area : OPTIONAL SET[1:?] OF Connection_zone_in_layout_template;      
-      connection_zone_category           : OPTIONAL SET[1:?] OF land_template_terminal_class;
+      terminal_category                  : OPTIONAL land_template_terminal_class;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, associated_definition;
     WHERE
-      WR1 : NOT (EXISTS(SELF\Shape_feature.connection_area)) OR EXISTS(connection_zone_category);
-      WR2 : NOT (EXISTS(SELF\Shape_feature.connection_area)) OR (SIZEOF(SELF\Shape_feature.connection_area) = SIZEOF(connection_zone_category));
-      WR3 : NOT EXISTS(SELF\Shape_element.description);
-      WR4 : SIZEOF(QUERY(ca <* connection_area |
+      WR1 : NOT (EXISTS(SELF\Shape_feature.connection_area)) OR NOT EXISTS(terminal_category);
+      WR2 : NOT EXISTS(SELF\Shape_element.description);
+      WR3 : SIZEOF(QUERY(ca <* connection_area |
             NOT(associated_definition = ca\Connection_zone_in_layout_template.containing_shape)
             )) = 0;
   END_ENTITY;

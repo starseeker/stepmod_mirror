@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp 805 2007-05-13 05:32:06Z thomasrthurman $
+   $Id: arm.exp,v 1.16 2007/11/15 12:38:41 liutkus Exp $
    ISO TC184/SC4/WG12 N3885 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
 *)
 
@@ -73,18 +73,23 @@ SCHEMA Footprint_definition_arm;
     ABSTRACT SUPERTYPE OF (ONEOF (Footprint_definition, Breakout_footprint_definition))
     SUBTYPE OF (Multi_stratum_structured_template);
     DERIVE 
-      SELF\Multi_stratum_structured_template.location : template_arrangement := get_template_arrangement(padstacks);
+      padstack_based_location : template_arrangement := get_template_arrangement(padstacks);
       padstacks : SET[1:?] OF Template_location_in_structured_template := bag_to_set(QUERY(tlict <* SELF\Structured_template.templates |
          ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(tlict.template))));
+      single_stratum_components : SET[0:?] OF Single_stratum_template := bag_to_set(QUERY(tlict <* SELF\Structured_template.templates |
+         ('PART_TEMPLATE_2D_SHAPE_ARM.Single_stratum_template' IN TYPEOF(tlict.template))));   
     WHERE
-      WR1 : SIZEOF(QUERY(ps <* templates | (ps.template\Multi_stratum_structured_template.location <> location)
+      WR1 : SIZEOF(QUERY(ps <* templates | (ps.template\Multi_stratum_structured_template.location <> SELF\Multi_stratum_structured_template.location)
               AND (ps.template\Multi_stratum_structured_template.location <> template_arrangement.symmetrical))) = 0;
-      WR2 : ((location = template_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR 
-            (NOT (location = template_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'));
-      WR3 : ((location = template_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR 
-            (NOT (location = template_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'));
-      WR4 : ((location = template_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR 
-            (NOT (location = template_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'));
+      WR2 : ((SELF\Multi_stratum_structured_template.location = template_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR 
+            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'));
+      WR3 : ((SELF\Multi_stratum_structured_template.location = template_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR 
+            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'));
+      WR4 : ((SELF\Multi_stratum_structured_template.location = template_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR 
+            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'));
+      WR5 : ((SELF\Multi_stratum_structured_template.location = template_arrangement.swappable) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'swappable')) OR 
+            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.swappable) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'swappable'));
+      WR6 : NOT (SIZEOF(single_stratum_components) = 0) OR (SELF\Multi_stratum_structured_template.location = padstack_based_location);      
   END_ENTITY;
 
   ENTITY Part_feature_based_template_location
@@ -118,11 +123,12 @@ SCHEMA Footprint_definition_arm;
   ) : template_arrangement;
 
     LOCAL
-      tlist : SET OF Template_location_in_structured_template := 
+      tlist          : SET OF Template_location_in_structured_template := 
         (QUERY(inx <* input | ('PART_TEMPLATE_2D_SHAPE_ARM.MULTI_STRATUM_STRUCTURED_TEMPLATE' IN TYPEOF(inx.template))));
-      pabt : BAG OF STRING := [];
-      pabb : BAG OF STRING := [];
-      pabs : BAG OF STRING := [];
+      pabt           : BAG OF STRING := [];
+      pabb           : BAG OF STRING := [];
+      pabsymmetrical : BAG OF STRING := [];
+      pabswappable   : BAG OF STRING := [];
     END_LOCAL;
 
     REPEAT i := 1 TO SIZEOF(tlist) BY 1;
@@ -133,7 +139,10 @@ SCHEMA Footprint_definition_arm;
         pabb := pabb + 'bottom';
       END_IF;
       IF (tlist[i].template\Multi_stratum_structured_template.location = template_arrangement.symmetrical) THEN
-        pabs := pabs + 'symmetrical';
+        pabsymmetrical := pabsymmetrical + 'symmetrical';
+      END_IF;
+      IF (tlist[i].template\Multi_stratum_structured_template.location = template_arrangement.swappable) THEN
+        pabswappable := pabswappable + 'swappable';
       END_IF;
     END_REPEAT;
     IF ((SIZEOF(pabt) > 0) AND (SIZEOF(pabb) = 0)) THEN
@@ -142,8 +151,11 @@ SCHEMA Footprint_definition_arm;
     IF ((SIZEOF(pabb) > 0) AND (SIZEOF(pabt) = 0)) THEN
       RETURN(template_arrangement.bottom);
     END_IF;
-    IF ((SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabs) > 0)) THEN
+    IF ((SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabsymmetrical) > 0)) THEN
       RETURN(template_arrangement.symmetrical);
+    END_IF;
+    IF ((SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabsymmetrical) = 0) AND (SIZEOF(pabswappable) > 0)) THEN
+      RETURN(template_arrangement.pabswappable);
     END_IF;
     RETURN(?);
   END_FUNCTION;

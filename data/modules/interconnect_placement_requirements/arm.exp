@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.42 2008/02/11 17:53:57 thomasrthurman Exp $
+   $Id: arm.exp,v 1.43 2008/03/20 21:08:00 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4017 - ISO/TS 10303-1690 Interconnect placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3459
 *)
@@ -195,6 +195,20 @@ USE FROM Land_arm;	-- ISO/TS 10303-1692
   ENTITY Layer_qualified_layout_spacing_requirement_occurrence
     SUBTYPE OF (Layout_spacing_requirement_occurrence);
       layer_context : SET[1:?] OF Inter_stratum_extent;
+  END_ENTITY;
+
+  ENTITY Area_qualified_layout_spacing_requirement_occurrence
+    SUBTYPE OF (Layout_spacing_requirement_occurrence);
+      area_context : SET [1:?] OF Layout_spacing_contextual_area;
+  END_ENTITY;
+
+  ENTITY Layout_spacing_contextual_area
+    SUBTYPE OF (Non_feature_shape_element);
+      reference_surface : Interconnect_module_component_surface_feature;
+      SELF\Non_feature_shape_element.scope : Assembly_module;
+    WHERE
+      WR1: (SIZEOF(SELF\Non_feature_shape_element.element_shape) = 0) OR 
+      (SIZEOF(QUERY(es <* SELF\Non_feature_shape_element.element_shape | NOT ('CONSTRUCTION_GEOMETRY_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(es)) )) = 0);
   END_ENTITY;
 
   ENTITY Layout_spacing_requirement_occurrence

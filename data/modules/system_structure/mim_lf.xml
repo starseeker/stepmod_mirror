@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mim_lf.xml,v 1.8 2007/09/19 20:04:09 abhpf Exp $ -->
+<!-- $Id: mim_lf.xml,v 1.9 2008/06/14 17:02:38 abhpf Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 
 <express
   language_version="2"
-  rcs.date="$Date: 2007/09/19 20:04:09 $"
-  rcs.revision="$Revision: 1.8 $">
+  rcs.date="$Date: 2008/06/14 17:02:38 $"
+  rcs.revision="$Revision: 1.9 $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
@@ -655,12 +655,16 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <entity name="electric_potential_measure_with_unit"
-      supertypes="measure_with_unit"
+    <entity name="si_electric_potential_unit"
+      supertypes="electric_potential_unit si_unit"
     >
       <where
         label="WR1"
-        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.ELECTRIC_POTENTIAL_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
+        expression="SELF\si_unit.name = volt">
+      </where>
+      <where
+        label="WR2"
+        expression="NOT EXISTS(SELF\derived_unit.name)">
       </where>
     </entity>
 
@@ -721,11 +725,6 @@ href="../../../xsl/express.xsl" ?>
 
     <entity name="syss_characterizable_configuration_item"
       supertypes="configuration_item characterized_object"
-    >
-    </entity>
-
-    <entity name="syss_characterizable_document_file"
-      supertypes="document_file characterized_object"
     >
     </entity>
 
@@ -3120,22 +3119,18 @@ href="../../../xsl/express.xsl" ?>
       </where>
     </entity>
 
-    <entity name="syss_characterizable_action_directive"
-      supertypes="action_directive characterized_object"
-    >
-    </entity>
-
-    <entity name="si_electric_potential_unit"
-      supertypes="electric_potential_unit si_unit"
+    <entity name="electric_potential_measure_with_unit"
+      supertypes="measure_with_unit"
     >
       <where
         label="WR1"
-        expression="SELF\si_unit.name = volt">
+        expression="&apos;SYSTEM_STRUCTURE_MIM_LF.ELECTRIC_POTENTIAL_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
-      <where
-        label="WR2"
-        expression="NOT EXISTS(SELF\derived_unit.name)">
-      </where>
+    </entity>
+
+    <entity name="syss_characterizable_action_directive"
+      supertypes="action_directive characterized_object"
+    >
     </entity>
 
     <entity name="energy_unit"
@@ -5908,6 +5903,10 @@ href="../../../xsl/express.xsl" ?>
       <where
         label="WR1"
         expression="SIZEOF(QUERY(temp &lt;* qualifiers | &apos;SYSTEM_STRUCTURE_MIM_LF.PRECISION_QUALIFIER&apos; IN TYPEOF(temp))) &lt; 2">
+      </where>
+      <where
+        label="WR2"
+        expression="NOT (&apos;SYSTEM_STRUCTURE_MIM_LF.REPRESENTATION_ITEM&apos; IN TYPEOF(SELF\measure_qualification.qualified_measure))">
       </where>
     </entity>
 

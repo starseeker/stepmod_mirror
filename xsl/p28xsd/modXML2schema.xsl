@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="urn:iso10303-28:ex">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:exp="urn:iso:std:iso:10303:28:ed-2:2005:schema:common">
 	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
 	
 	
@@ -34,19 +34,19 @@
 		<xsl:text>&#xa;</xsl:text>
 		
 		<xsl:element name="xs:schema">
-			<xsl:copy-of select="document('../../dtd/part28/ex_namespace.xml')/*/namespace::ex"/>
+			<xsl:copy-of select="document('../../dtd/part28/exp_namespace.xml')/*/namespace::exp"/>
 			<xsl:copy-of select="document(concat($directory_path, '/stepmod_namespace.xml'))/*/namespace::*"/>
 			<xsl:attribute name="targetNamespace"><xsl:value-of select="concat('urn:iso10303-28:xs/', $schema_name)"/></xsl:attribute>
 			<xsl:text>&#xa;</xsl:text>
 			
-			<xs:import namespace="urn:iso10303-28:ex" schemaLocation="../../../dtd/part28/ex.xsd"/>
+			<xs:import namespace="urn:iso:std:iso:10303:28:ed-2:2005:schema:common" schemaLocation="../../../dtd/part28/exp.xsd"/>
 			
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
 			
 			<xs:complexType name="uos">
 				<xs:complexContent>
-					<xs:restriction base="ex:uos">
+					<xs:restriction base="exp:uos">
 						<xs:choice maxOccurs="unbounded" minOccurs="0">
 						<xsl:for-each select="//entity">
 							<xsl:variable name="raw_entity_name" select="./@name"/>
@@ -76,7 +76,7 @@
 
 			<xsl:apply-templates select="type"/>
 			<xsl:apply-templates select="entity" mode="elements_and_types"/>
-			<xs:element substitutionGroup="ex:uos" type="{$namespace_prefix}uos" name="uos" >
+			<xs:element substitutionGroup="exp:uos" type="{$namespace_prefix}uos" name="uos" >
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:text>&#xa;</xsl:text>
 				<xsl:apply-templates select="entity" mode="keys"/>
@@ -86,16 +86,16 @@
 			</xs:element>
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
-			<!-- ex:configuration id="{$namespace_prefix}{$schema_name}" xmlns:ex="urn:iso10303-28:ex">
+			<!-- exp:configuration id="{$namespace_prefix}{$schema_name}" xmlns:exp="urn:iso10303-28:exp">
 				<xsl:apply-templates select="entity" mode="and_ors"/>
-			</ex:configuration -->
+			</exp:configuration -->
 			<xsl:text>&#xa;</xsl:text>
 			<xsl:text>&#xa;</xsl:text>
 			
 			<!-- SYNTHETIC ENTITIES -->
 			<xsl:variable name="configuration" select="document(concat($directory_path, '/p28_config.xml'))"/>
 			
-			<xsl:for-each select="$configuration//ex:entity">
+			<xsl:for-each select="$configuration//exp:entity">
 				<xsl:variable name="synthetic_entity_name" select="./@name"/>
 				<xsl:variable name="supertypes" select="./@select"/>
 				
@@ -130,13 +130,13 @@
 							<xsl:with-param name="raw_item_name_param" select="$raw_subtype_name"/>
 						</xsl:call-template>
 					</xsl:variable>
-					<ex:entity select="{$corrected_entity_name} {$corrected_subtype_name}" name="{$corrected_entity_name}-{$corrected_subtype_name}"/>
+					<exp:entity select="{$corrected_entity_name} {$corrected_subtype_name}" name="{$corrected_entity_name}-{$corrected_subtype_name}"/>
 				</xsl:if>
 			</xsl:for-each>
 		</xsl:variable>
 		
 		<xsl:if test="string-length($subtypes_list)!=0">
-			<ex:entity select="{$corrected_entity_name} External_class" name="{$corrected_entity_name}-External_class"/>
+			<exp:entity select="{$corrected_entity_name} External_class" name="{$corrected_entity_name}-External_class"/>
 		</xsl:if>
 	</xsl:template -->
 	
@@ -348,7 +348,7 @@
 								<xs:complexType>
 									<xs:complexContent>
 										<xs:extension base="{$namespace_prefix}{$corrected_type_name}">
-											<xs:attributeGroup ref="ex:instanceAttributes"/>
+											<xs:attributeGroup ref="exp:instanceAttributes"/>
 										</xs:extension>
 									</xs:complexContent>
 								</xs:complexType>
@@ -382,18 +382,18 @@
 								<xs:attribute name="ref" type="xs:IDREF" use="optional"/>
 								<xsl:choose>
 									<xsl:when test="$current_aggregate_type='array'">
-										<xs:attribute ref="ex:arraySize" fixed="{$upper_bound}"/>
+										<xs:attribute ref="exp:arraySize" fixed="{$upper_bound}"/>
 									</xsl:when>
 									<xsl:when test="$current_aggregate_type='array'">
-										<xs:attribute ref="ex:arraySize" use="required"/>
+										<xs:attribute ref="exp:arraySize" use="required"/>
 									</xsl:when>
 									<xsl:otherwise>
-										<xs:attribute ref="ex:arraySize" use="optional"/>
+										<xs:attribute ref="exp:arraySize" use="optional"/>
 									</xsl:otherwise>
 								</xsl:choose>
 								
-								<xs:attribute ref="ex:itemType" fixed="{$base_datatype}"/>
-								<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
+								<xs:attribute ref="exp:itemType" fixed="{$base_datatype}"/>
+								<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
 														
 							</xs:complexType>							
 							<xsl:text>&#xa;</xsl:text>
@@ -411,9 +411,9 @@
 										maxOccurs="{$upper_bound}"
 									/>
 								</xs:sequence>
-								<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-								<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-								<xs:attribute ref="ex:arraySize" use="{$optionality}"/>
+								<xs:attribute ref="exp:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
+								<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+								<xs:attribute ref="exp:arraySize" use="{$optionality}"/>
 							</xs:complexType>
 							<xsl:text>&#xa;</xsl:text>
 							<xsl:text>&#xa;</xsl:text>
@@ -430,9 +430,9 @@
 											maxOccurs="{$upper_bound}"
 										/>
 									</xs:sequence>
-									<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-									<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-									<xs:attribute ref="ex:arraySize" use="{$optionality}"/>													</xs:complexType>
+									<xs:attribute ref="exp:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
+									<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+									<xs:attribute ref="exp:arraySize" use="{$optionality}"/>													</xs:complexType>
 						
 							
 							<xsl:text>&#xa;</xsl:text>
@@ -451,9 +451,9 @@
 											maxOccurs="{$upper_bound}"
 										/>
 									</xs:sequence>
-									<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-									<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-									<xs:attribute ref="ex:arraySize" use="{$optionality}"/>
+									<xs:attribute ref="exp:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
+									<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+									<xs:attribute ref="exp:arraySize" use="{$optionality}"/>
 								</xs:complexType>
 			
 							<xsl:text>&#xa;</xsl:text>
@@ -478,7 +478,7 @@
 					<xs:complexType>
 						<xs:complexContent>
 							<xs:extension base="{$namespace_prefix}{$corrected_type_name}">
-								<xs:attributeGroup ref="ex:instanceAttributes"/>
+								<xs:attributeGroup ref="exp:instanceAttributes"/>
 							</xs:extension>
 						</xs:complexContent>
 					</xs:complexType>
@@ -505,7 +505,7 @@
 					<xs:complexType>
 						<xs:simpleContent>
 							<xs:extension base="{$namespace_prefix}{$corrected_type_name}">
-								<xs:attributeGroup ref="ex:instanceAttributes"/>
+								<xs:attributeGroup ref="exp:instanceAttributes"/>
 							</xs:extension>
 						</xs:simpleContent>
 					</xs:complexType>
@@ -608,7 +608,7 @@
 					<xsl:value-of select="concat($namespace_prefix, $corrected_supertype_name)"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="string('ex:Entity')"/>
+					<xsl:value-of select="string('exp:Entity')"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
@@ -629,7 +629,7 @@
 				<xsl:comment>EXPRESS ENTITY DATATYPE USING INHERITANCE-FREE MAPPING TYPE DECLARATION FOR: <xsl:value-of select="$corrected_entity_name_param"/></xsl:comment>
 				<xs:complexType name="{$corrected_entity_name_param}" abstract="{$abstractness_param}">
 			<xs:complexContent>
-				<xs:extension base="ex:Entity">
+				<xs:extension base="exp:Entity">
 					<xsl:if test="./explicit">
 						<xs:all>
 							<xsl:apply-templates select="explicit"/>
@@ -684,7 +684,7 @@
 					<xsl:value-of select="concat($namespace_prefix, $corrected_supertype_name)"/>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="string('ex:Entity')"/>
+					<xsl:value-of select="string('exp:Entity')"/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>
@@ -845,9 +845,9 @@
 									maxOccurs="{$upper_bound}"
 								/>
 							</xs:sequence>
-							<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-							<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-							<xs:attribute ref="ex:arraySize" use="{$aggregate_optionality}"/>
+							<xs:attribute ref="exp:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
+							<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+							<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
 						</xs:complexType>
 					<xsl:text>&#xa;</xsl:text>
 					<xsl:text>&#xa;</xsl:text>
@@ -863,9 +863,9 @@
 									maxOccurs="{$upper_bound}"
 								/>
 							</xs:sequence>
-							<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-							<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-							<xs:attribute ref="ex:arraySize" use="{$aggregate_optionality}"/>
+							<xs:attribute ref="exp:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
+							<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+							<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
 						</xs:complexType>
 					
 					<xsl:text>&#xa;</xsl:text>
@@ -974,9 +974,9 @@
 												</xsl:otherwise>
 											</xsl:choose>
 										</xs:sequence>
-										<xs:attribute ref="ex:itemType" fixed="{$base_datatype}"/>
-										<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-										<xs:attribute ref="ex:arraySize" use="{$aggregate_optionality}"/>
+										<xs:attribute ref="exp:itemType" fixed="{$base_datatype}"/>
+										<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+										<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>
 									</xs:complexType>	
 								</xs:element>
 								<xsl:text>&#xa;</xsl:text>
@@ -991,9 +991,9 @@
 										<xs:sequence>
 											<xs:element ref="ap239:{$seq_prefix}{$base_datatype}" minOccurs="{$lower_bound}" maxOccurs="{$upper_bound}"/>
 										</xs:sequence>
-										<xs:attribute ref="ex:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
-										<xs:attribute ref="ex:cType" fixed="{$current_aggregate_type}"/>
-										<xs:attribute ref="ex:arraySize" use="{$aggregate_optionality}"/>												</xs:complexType>
+										<xs:attribute ref="exp:itemType" fixed="ap239:{$seq_prefix}{$base_datatype}"/>
+										<xs:attribute ref="exp:cType" fixed="{$current_aggregate_type}"/>
+										<xs:attribute ref="exp:arraySize" use="{$aggregate_optionality}"/>												</xs:complexType>
 								</xs:element -->
 								
 							</xsl:when>
@@ -1234,7 +1234,7 @@
 		
 		<xsl:choose>
 			<xsl:when test="$type_param/builtintype[@type='BINARY' and not(@width)]">
-				<xs:element type="ex:hexBinary" name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
+				<xs:element type="exp:hexBinary" name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
 			</xsl:when>
 			
 			<xsl:when test="$type_param/builtintype[@type='BINARY' and @width]">
@@ -1254,7 +1254,7 @@
 						<xs:element name="{$attribute_name_param}" minOccurs="{$optionality_param}">
 							<xs:complexType>
 								<xs:simpleContent>
-									<xs:restriction base="ex:hexBinary">
+									<xs:restriction base="exp:hexBinary">
 										<xs:maxLength value="{$schema_length}"/>
 										<xs:minLength value="{$schema_length}"/>
 										<xs:attribute use="optional" type="xs:integer" name="extrabits"/>
@@ -1267,7 +1267,7 @@
 						<xs:element name="{$attribute_name_param}" minOccurs="{$optionality_param}">
 							<xs:complexType>
 								<xs:simpleContent>
-									<xs:restriction base="ex:hexBinary">
+									<xs:restriction base="exp:hexBinary">
 										<xs:maxLength value="{$schema_length}"/>
 										<xs:attribute use="optional" type="xs:integer" name="extrabits"/>
 									</xs:restriction>
@@ -1283,7 +1283,7 @@
 			</xsl:when>
 			
 			<xsl:when test="$type_param/builtintype[@type='LOGICAL']">
-				<xs:element type="ex:logical"   name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
+				<xs:element type="exp:logical"   name="{$attribute_name_param}" minOccurs="{$optionality_param}"/>
 			</xsl:when>
 			
 			<xsl:when test="$type_param/builtintype[@type='INTEGER']">
@@ -1415,7 +1415,7 @@
 			</xsl:when>
 				
 			<xsl:when test="$type/builtintype[@type='BINARY' and not(@width)]">
-				<xs:restriction base="ex:hexBinary"/>
+				<xs:restriction base="exp:hexBinary"/>
 			</xsl:when>
 				
 			<xsl:when test="$type/builtintype[@type='BINARY' and @width]">
@@ -1432,14 +1432,14 @@
 				</xsl:variable>
 				<xsl:choose>
 					<xsl:when test="$type/builtintype[@type='BINARY' and @fixed='YES']">
-						<xs:restriction base="ex:hexBinary">
+						<xs:restriction base="exp:hexBinary">
 							<xs:maxLength value="{$schema_length}"/>
 							<xs:minLength value="{$schema_length}"/>
 							<xs:attribute use="optional" type="xs:integer" name="extrabits"/>
 						</xs:restriction>
 					</xsl:when>
 					<xsl:when test="$type/builtintype[@type='BINARY' and not(@fixed='YES')]">
-						<xs:restriction base="ex:hexBinary">
+						<xs:restriction base="exp:hexBinary">
 							<xs:maxLength value="{$schema_length}"/>
 							<xs:attribute use="optional" type="xs:integer" name="extrabits"/>
 						</xs:restriction>
@@ -1452,7 +1452,7 @@
 			</xsl:when>
 				
 			<xsl:when test="$type/builtintype[@type='LOGICAL']">
-				<xs:restriction base = "ex:logical"/>
+				<xs:restriction base = "exp:logical"/>
 			</xsl:when>
 				
 			<xsl:when test="$type/builtintype[@type='NUMBER']">
@@ -1505,31 +1505,31 @@
 		<xsl:param name="type"/>
 		<xsl:choose>
 			<xsl:when test="$type/builtintype[@type='STRING']">
-				<xsl:value-of select="string('ex:string-wrapper')"/>
+				<xsl:value-of select="string('exp:string-wrapper')"/>
 			</xsl:when>
 				
 			<xsl:when test="$type/builtintype[@type='BINARY']">
-				<xsl:value-of select="string('ex:hexBinary-wrapper')"/>
+				<xsl:value-of select="string('exp:hexBinary-wrapper')"/>
 			</xsl:when>
 			
 			<xsl:when test="$type/builtintype[@type='BOOLEAN']">
-				<xsl:value-of select="string('ex:boolean-wrapper')"/>
+				<xsl:value-of select="string('exp:boolean-wrapper')"/>
 			</xsl:when>
 				
 			<xsl:when test="$type/builtintype[@type='LOGICAL']">
-				<xsl:value-of select="string('ex:logical-wrapper')"/>
+				<xsl:value-of select="string('exp:logical-wrapper')"/>
 			</xsl:when>
 				
 			<xsl:when test="$type/builtintype[@type='NUMBER']">
-				<xsl:value-of select="string('ex:decimal-wrapper')"/>
+				<xsl:value-of select="string('exp:decimal-wrapper')"/>
 			</xsl:when>
 			
 			<xsl:when test="$type/builtintype[@type='INTEGER']">
-				<xsl:value-of select="string('ex:long-wrapper')"/>
+				<xsl:value-of select="string('exp:long-wrapper')"/>
 			</xsl:when>
 					
 			<xsl:when test="$type/builtintype[@type='REAL']">
-				<xsl:value-of select="string('ex:double-wrapper')"/>
+				<xsl:value-of select="string('exp:double-wrapper')"/>
 			</xsl:when>
 			
 			<xsl:when test="$type/typename">

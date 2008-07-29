@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: p28xsd.xsl,v 1.10 2004/11/09 14:38:49 mikeward Exp $
+$Id: p28xsd.xsl,v 1.7 2004/04/22 20:41:23 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf
@@ -15,12 +15,14 @@ $Id: p28xsd.xsl,v 1.10 2004/11/09 14:38:49 mikeward Exp $
                 version="1.0">
 
 
+
   <xsl:import href="modXML2schema.xsl"/>
   <xsl:import href="../common.xsl"/>
 
   <xsl:output method="html"/>
 
   <xsl:template match="/" >
+  	
     <xsl:apply-templates select="./module_clause" />
   </xsl:template>
 
@@ -38,7 +40,7 @@ $Id: p28xsd.xsl,v 1.10 2004/11/09 14:38:49 mikeward Exp $
         <xsl:apply-templates select="$module_xml/module" mode="meta_data"/>
 
         <TITLE>
-          <!-- output the module page title -->
+        
           <xsl:apply-templates 
             select="$module_xml/module"
             mode="title"/>
@@ -50,14 +52,7 @@ $Id: p28xsd.xsl,v 1.10 2004/11/09 14:38:49 mikeward Exp $
           <a href="./sys/introduction{$FILE_EXT}"><xsl:value-of select="@directory"/></a>
         </h3>
         <p>
-          <b>WARNING:</b>
-        </p>
-        <p>
-          <b>
-            This xml schema is based on the 2004 CD draft of ISO 10303-28 Edition 2. It
-            is subject to further change and is awaiting resolution of technical
-            issues. Do not use.
-          </b>
+          <b>WARNING THIS IS UNDER DEVELOPMENT</b>
         </p>
         <xsl:choose>
           <xsl:when test="$module_xml/module/arm_lf">
@@ -76,11 +71,11 @@ $Id: p28xsd.xsl,v 1.10 2004/11/09 14:38:49 mikeward Exp $
               </xsl:when>
             </xsl:choose>
           </xsl:when>
-          <xsl:otherwise><xsl:value-of select="string(concat('../../data/modules/',@directory,'/arm_lf.xml'))"/>
+          <xsl:otherwise>
             <xsl:call-template name="error_message">
               <xsl:with-param 
                 name="message" 
-                select="concat('Error IMPL1: The module ',@directory,' must have a long form')"/>
+                select="concat('Error IMPL1: The module ',../@directory,' must have a long form')"/>
             </xsl:call-template>
           </xsl:otherwise>
         </xsl:choose>
@@ -177,7 +172,7 @@ $Id: p28xsd.xsl,v 1.10 2004/11/09 14:38:49 mikeward Exp $
 		</xsl:variable>
 		<xsl:variable name="comment" select="comment()"/>
 		<xsl:if test="string-length($comment) > 0">
-			<xsl:value-of select="concat($indent, '&lt;!-- ', $comment, ' --&gt;')"/><br/>
+			<xsl:value-of select="concat($indent, '&lt;!- ', $comment, ' -&gt;')"/><br/>
 		</xsl:if>
 		<xsl:variable name="element_name" select="name()"/>
 		<xsl:value-of select="$indent"/>&lt;<xsl:value-of select="$element_name"/>

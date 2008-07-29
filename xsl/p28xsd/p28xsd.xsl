@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ?>
 <!--
-$Id: p28xsd.xsl,v 1.7 2004/04/22 20:41:23 mikeward Exp $
+$Id: p28xsd.xsl,v 1.12 2008/07/29 18:57:07 mikeward Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to UK MOD under contract.
   Purpose: To apply the XSL that generates the XSD from the arm_lf
@@ -172,7 +172,7 @@ $Id: p28xsd.xsl,v 1.7 2004/04/22 20:41:23 mikeward Exp $
 		</xsl:variable>
 		<xsl:variable name="comment" select="comment()"/>
 		<xsl:if test="string-length($comment) > 0">
-			<xsl:value-of select="concat($indent, '&lt;!- ', $comment, ' -&gt;')"/><br/>
+			<xsl:value-of select="concat($indent, '&lt;!-- ', $comment, ' --&gt;')"/><br/>
 		</xsl:if>
 		<xsl:variable name="element_name" select="name()"/>
 		<xsl:value-of select="$indent"/>&lt;<xsl:value-of select="$element_name"/>

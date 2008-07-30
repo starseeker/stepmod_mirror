@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ? -->
 <!--
-	$Id: modXML2schema.xsl,v 1.64 2008/07/30 11:40:52 mikeward Exp $
+	$Id: modXML2schema.xsl,v 1.65 2008/07/30 11:45:46 mikeward Exp $
 	Author:  Mike Ward, Eurostep Limited
 	Owner:   Developed by Eurostep.
 	Purpose:     generation of p28 XSD from expressXML
@@ -25,7 +25,7 @@
 	<xsl:variable name="directory_path" select="concat('../../data/modules/', $module_directory_name)"/>
 	
 	<!--MWD-->
-        <xsl:variable name="base_schema_location" select="'../../dtd/part28/exp.xsd'"/>
+        <xsl:variable name="base_schema_location" select="'../../../dtd/part28/exp.xsd'"/>
         
 
         <!--<xsl:param name="namespaceXml"/>

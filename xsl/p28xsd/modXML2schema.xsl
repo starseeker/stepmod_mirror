@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ?xml-stylesheet type="text/xsl" href="../document_xsl.xsl" ? -->
 <!--
-	$Id: modXML2schema.xsl,v 1.65 2008/07/30 11:45:46 mikeward Exp $
+	$Id: modXML2schema.xsl,v 1.66 2008/07/30 11:50:40 mikeward Exp $
 	Author:  Mike Ward, Eurostep Limited
 	Owner:   Developed by Eurostep.
 	Purpose:     generation of p28 XSD from expressXML
@@ -2159,10 +2159,12 @@
 					<xsl:when test="//entity[@name=$first]">
 						<xs:element ref="{$namespace_prefix}{$corrected_select_item_name}"/>
 					</xsl:when>
-					<xsl:when test="//type[@name=$first]">
+					<xsl:when test="//type[@name=$first]/builtintype">
 						<xs:element ref="{$namespace_prefix}{$corrected_select_item_name}-wrapper"/>
 					</xsl:when>
-					<xsl:otherwise></xsl:otherwise>
+					<xsl:otherwise>
+						<xs:element ref="{$namespace_prefix}{$corrected_select_item_name}"/>
+					</xsl:otherwise>
 				</xsl:choose>
 				
 				<xsl:call-template name="construct_select_elements">

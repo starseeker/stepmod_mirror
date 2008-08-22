@@ -3,7 +3,7 @@
   type="text/xsl" 
   href="../../../xsl/descriptions.xsl"?>
 <!DOCTYPE ext_descriptions SYSTEM "../../../dtd/description.dtd">
-<ext_descriptions module_directory="fabrication_technology" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2008/04/30 13:33:36 $" rcs.revision="$Revision: 1.94 $">
+<ext_descriptions module_directory="fabrication_technology" schema_file="arm.xml" describe.selects="YES" describe.subtype_constraints="YES" rcs.date="$Date: 2008/07/05 16:08:51 $" rcs.revision="$Revision: 1.95 $">
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Schema: Fabrication_technology_arm
    <express_ref linkend="fabrication_technology:arm:Fabrication_technology_arm"/>
@@ -144,7 +144,8 @@ specifies that documentation layer is gluemask;
 
 <!-- +++++++++++ TYPE stiffness_class +++++++++++ -->
 <ext_description linkend="Fabrication_technology_arm.stiffness_class">
-A <b>stiffness_class</b> lists the predined types of stiffness.
+A <b>stiffness_class</b> specifies that the material is able to flow during the manufacturing process. The finished state is a solid.
+
 	<note>
 		These predefined types apply to properties of materials used in PCB/PWB and PWA/PWB domain.
 		They are primarily used to distinguish between stages of materials that exist during the fabrication and assembly
@@ -182,7 +183,7 @@ specifies that the type is B-stage or equivalent in rigidity and fluid flow prop
 </ext_description>  -->
 
 <ext_description linkend="Fabrication_technology_arm.stiffness_class.stiff_laminate">
-specifies that the type is C-stage laminate or equivalent in rigidity;
+	specifies that the laminate type is solid.
 </ext_description>
 
 <!-- +++++++++++ ft_terminus_condition +++++++++++ -->
@@ -1553,20 +1554,23 @@ A <b>Land_template_join_terminal</b> is a type of <express_ref linkend="Fabricat
 
 <!-- maximum_feature_size_requirement -->
 <ext_description linkend="Fabrication_technology_arm.Stratum_technology.maximum_feature_size_requirement">
-	specifies the maximum 
-	<express_ref linkend="Value_with_unit_extension:arm:Value_with_unit_extension_arm.Length_data_element"/> 
-	of any feature of the 
+	specifies the maximum size of any feature of the 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum"/>. 
+	It is defined by the diameter of the largest circle that will fit within the 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/>. 
 	The value of this attribute need not be specified.
 </ext_description>
 
 <!-- minimum_finished_feature_spacing -->
 <ext_description linkend="Fabrication_technology_arm.Stratum_technology.minimum_finished_feature_spacing">
-	specifies a role of the 
-	<express_ref linkend="Value_with_unit_extension:arm:Value_with_unit_extension_arm.Length_data_element"/> 
-	of any feature of the 
+	specifies the minimum spacing within or between 
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature">Stratum_features</express_ref> 
+	of the 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum"/>. 
-	The value of this attribute need not be specified.
+	The value of this attribute need not be specified. 
+	Two facing arbitrary points, each of which is on the boundary of a
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+	shall be no closer than this value.
 </ext_description>
 
 <!-- minimum_aspect_ratio -->
@@ -1603,6 +1607,12 @@ A <b>Land_template_join_terminal</b> is a type of <express_ref linkend="Fabricat
 	<express_ref linkend="Value_with_unit_extension:arm:Value_with_unit_extension_arm.Length_data_element"/> 
 	of any feature of the 
 	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum"/>. 
+	It shall be possible to completely fill each
+	<express_ref linkend="Layered_interconnect_module_design:arm:Layered_interconnect_module_design_arm.Stratum_feature"/> 
+	with either a square whose side length is equal to the 	<b>minimum_finished_feature_size</b> or a circle whose diameter is equal to the
+	<b>minimum_finished_feature_size</b>. 
+	The <b>minimum_finished_feature_size</b> applies to the minimum material condition of the interconnect module as delivered to the customer. 
+	The measurement point shall be nominally at the mid point of the stratum in its vertical extent. 
 	The value of this attribute need not be specified.
 </ext_description>
 
@@ -1610,7 +1620,7 @@ A <b>Land_template_join_terminal</b> is a type of <express_ref linkend="Fabricat
 <ext_description linkend="Fabrication_technology_arm.Stratum_technology.stratum_thickness">
 	specifies the 
 	<express_ref linkend="Characteristic:arm:Characteristic_arm.Length_tolerance_characteristic"/> 
-	for the thickness of the <b>Stratum_technology</b>.
+	for the thickness of the <b>Stratum_technology</b> after manufacturing.
 </ext_description>
 
 <!-- stratum_material -->
@@ -2005,16 +2015,32 @@ A <b>Land_template_join_terminal</b> is a type of <express_ref linkend="Fabricat
 
 <!-- as_finished_deposition_thickness -->
 <ext_description linkend="Fabrication_technology_arm.Passage_technology.as_finished_deposition_thickness">
-	specifies a role of the
-	<express_ref linkend="Characteristic:arm:Characteristic_arm.Length_tolerance_characteristic"/>
-	for the <b>Passage_technology</b>. The value of this attribute need not be specified.
+<p>
+	specifies the thickness of the plating in the final product. 
+	The value of this attribute need not be specified.
+</p>
+	<note>
+		The finished passage extent is a function of the drill parameter which is represented by the shape of the 
+		<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Via_template"/> 
+		and the <b>as_finished_deposition_thickness</b>.
+	</note>
 </ext_description>
 
 <!-- as_finished_passage_extent -->
 <ext_description linkend="Fabrication_technology_arm.Passage_technology.as_finished_passage_extent">
-	specifies a role of the
-	<express_ref linkend="Characteristic:arm:Characteristic_arm.Length_tolerance_characteristic"/>
-	for the <b>Passage_technology</b>. The value of this attribute need not be specified.
+<p>
+	specifies the diametrical extent of the passage in the finished product. 
+	The value of this attribute need not be specified.
+</p>
+	<note>
+		It is industrial practise that the diameter of the drill is represented by the shape of the 
+		<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Via_template"/> 
+		and not by the <b>as_finished_passage_extent</b>. 
+		Due to material processing differences the 
+		<express_ref linkend="Fabrication_technology:arm:Fabrication_technology_arm.Via_template"/> shape 
+		is considered reference information by the fabricator whereas <b>as_finished_passage_extent</b> is a product
+		requirement that is measurable.	
+	</note>
 </ext_description>
 
 <!-- maximum_aspect_ratio -->
@@ -2035,9 +2061,8 @@ A <b>Land_template_join_terminal</b> is a type of <express_ref linkend="Fabricat
 
 <!-- minimum_finished_size -->
 <ext_description linkend="Fabrication_technology_arm.Passage_technology.minimum_finished_size">
-	specifies a role of the
-	<express_ref linkend="Value_with_unit_extension:arm:Value_with_unit_extension_arm.Length_data_element"/>
-	for the <b>Passage_technology</b>. The value of this attribute need not be specified.
+	specifies the minimum diametrical extent being able to realize for this <b>Passage_technology</b>.
+	The value of this attribute need not be specified.
 </ext_description>
 
 <!-- plated_passage -->

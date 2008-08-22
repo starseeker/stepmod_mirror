@@ -1,6 +1,6 @@
 
 (*
-$Id: aic_manifold_subsurface.exp,v 1.5 2008/08/21 12:51:44 liutkuviene Exp $ 
+$Id: aic_manifold_subsurface.exp,v 1.6 2008/08/21 13:08:47 liutkuviene Exp $ 
 ISO TC184/SC4/WG12 N5258 - ISO/IS 10303-521 Manifold subsurface - EXPRESS
 *)
 
@@ -147,6 +147,9 @@ ISO TC184/SC4/WG12 N5258 - ISO/IS 10303-521 Manifold subsurface - EXPRESS
  END_ENTITY;
 
 FUNCTION advanced_face_properties (testface : face) : BOOLEAN;
+   LOCAL
+     a_subface : subface;
+   END_LOCAL;
 (* return TRUE if testface is of type advanced_face *)
 IF 'AIC_MANIFOLD_SUBSURFACE.ADVANCED_FACE' IN TYPEOF(testface) THEN
     RETURN (TRUE);
@@ -154,7 +157,8 @@ END_IF;
 (* if testface is a subface recursively test the parent_face,
 return FALSE for all other types of face *)
 IF  ('AIC_MANIFOLD_SUBSURFACE.SUBFACE' IN TYPEOF(testface)) THEN
-     RETURN(advanced_face_properties(testface\subface.parent_face));
+     a_subface := testface;
+     RETURN(advanced_face_properties(a_subface.parent_face));
    ELSE RETURN (FALSE);
 END_IF;
 END_FUNCTION;

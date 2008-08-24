@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.12 2008/03/23 14:50:31 thomasrthurman Exp $
+   $Id: arm.exp,v 1.13 2008/08/24 00:53:57 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3969 - ISO/TS 10303-1674 Functional assignment to part - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3669
 *)
@@ -8,6 +8,7 @@ SCHEMA Functional_assignment_to_part_arm;
 
 	USE FROM Functional_usage_view_arm;	-- ISO/TS 10303-1705
 	USE FROM Physical_unit_usage_view_arm;	-- ISO/TS 10303-1732
+	USE FROM Physical_connectivity_definition_arm;	-- ISO/TS 10303-1755
 
 	TYPE fatp_groupable_item = SELECT BASED_ON groupable_item WITH 
 	   (Part_connected_terminals_definition);
@@ -61,9 +62,9 @@ SCHEMA Functional_assignment_to_part_arm;
    structural_element : SET[1:?] OF Part_connected_terminals_element FOR connectivity_context;
  WHERE
    WR1 : SIZEOF(QUERY(stn <* structural_terminal_nodes |
-				NOT(stn IN SELF\Part_connected_terminals_definition.associated_terminals)
+				NOT(stn IN SELF\Part_connected_terminals_definition.connected_terminals)
 				)) = 0;
-   WR2 : SIZEOF(structural_terminal_nodes) = SIZEOF(SELFPart_connected_terminals_definition.associated_terminals);
+   WR2 : SIZEOF(structural_terminal_nodes) = SIZEOF(SELF\Part_connected_terminals_definition.connected_terminals);
 END_ENTITY;
 
 ENTITY Part_connected_terminals_topological_junction;
@@ -97,7 +98,7 @@ END_ENTITY;
   RETURN(pct);
   END_FUNCTION;
 
-  FUNCTION fatp_get_tj(input : SET OF Physical_connectivity_element) : SET OF Part_connected_terminals_topological_junction;
+  FUNCTION fatp_get_tj(input : SET OF Part_connected_terminals_element) : SET OF Part_connected_terminals_topological_junction;
   LOCAL
    tj : SET OF Part_connected_terminals_topological_junction := [];
 	i : INTEGER := 0;

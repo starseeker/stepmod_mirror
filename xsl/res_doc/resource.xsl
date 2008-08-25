@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.61 2008/05/21 20:50:25 abf Exp $
+$Id: resource.xsl,v 1.64 2008/06/30 13:54:47 abf Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -2827,17 +2827,22 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
 	      apply:
 	      <ul>
 		<!-- now output the terms -->
+	    <xsl:variable 
+		name="moreNormRefs" 
+		select="string-length(/resource/normrefs/normref.inc[@normref=$ref]/term.ref)+string-length(/resource/normrefs/normref.inc)"/>
 		<xsl:choose>
 		  <xsl:when test="not($doctype='aic')">
 		    <xsl:apply-templates 
 			select="document('../../data/basic/normrefs_resdoc_default.xml')/normrefs/normref.inc[@normref=$ref]/term.ref" mode="normref">
 		      <xsl:with-param name="current_resource" select="$current_resource"/>
+		      <xsl:with-param name="moreNormRefs" select="$moreNormRefs"/>
 		    </xsl:apply-templates>
 		  </xsl:when>
 		  <xsl:when test="$doctype='aic'">
 		    <xsl:apply-templates 
 			select="document('../../data/basic/normrefs_aic_default.xml')/normrefs/normref.inc[@normref=$ref]/term.ref" mode="normref">
 		      <xsl:with-param name="current_resource" select="$current_resource"/>
+		      <xsl:with-param name="moreNormRefs" select="$moreNormRefs"/>
 		    </xsl:apply-templates>
 		  </xsl:when>
 		</xsl:choose>
@@ -3242,6 +3247,8 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
   </xsl:template>
 
   <xsl:template match="term.ref"  mode="normref">
+    <xsl:param name="current_resource"/>
+	<xsl:param name="moreNormRefs"/>    
     <xsl:variable 
 	name="ref"
 	select="@linkend"/>
@@ -3252,7 +3259,14 @@ test="document('../../data/basic/normrefs.xml')/normref.list/normref[@id=$normre
       <xsl:when test="$term">
 	<xsl:choose>
 	  <xsl:when test="position()=last()">
-	    <li><xsl:apply-templates select="$term"/>.</li>
+	    <xsl:choose>
+	      <xsl:when test="$moreNormRefs > 0">
+	    	<li><xsl:apply-templates select="$term"/>;</li>
+	      </xsl:when>
+	      <xsl:otherwise>
+	        <li><xsl:apply-templates select="$term"/>.</li>
+	      </xsl:otherwise>
+	    </xsl:choose>
 	  </xsl:when>
 	  <xsl:otherwise>
 	    <li><xsl:apply-templates select="$term"/>;</li>

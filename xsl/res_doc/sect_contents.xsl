@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
+$Id: sect_contents.xsl,v 1.25 2005/03/11 00:12:17 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the refs section as a web page
@@ -25,7 +25,6 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
 
 
    <xsl:output method="html"/>
-
  <!-- overwrites the template declared in resource.xsl -->
  <xsl:template match="resource">
    <xsl:apply-templates select="../resource" mode="contents"/>
@@ -36,14 +35,14 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
   <br/><br/>
   <p>&#169; ISO <xsl:value-of select="@publication.year"/> &#8212; All rights reserved</p>
  </xsl:template>
- <xsl:template match="resource" mode="contents">
+ 
+  <xsl:template match="resource" mode="contents">
 
    <xsl:variable name="resdoc_dir">
      <xsl:call-template name="resdoc_directory">
        <xsl:with-param name="resdoc" select="@name"/>
      </xsl:call-template>
    </xsl:variable>
-
 
    <xsl:variable name="resdoc_root">
      <xsl:choose>
@@ -59,7 +58,6 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
    <xsl:variable name="annex_list">
      <xsl:apply-templates select="." mode="annex_list" />
    </xsl:variable>
-
    <!--
    <xsl:message >
      resdoc_dir :<xsl:value-of select="$resdoc_dir"/>
@@ -68,7 +66,6 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
    <h2>Contents</h2>
    <A HREF="./1_scope{$FILE_EXT}">1 Scope</A><br/>
    <A HREF="./2_refs{$FILE_EXT}">2 Normative references</A><br/>
-
    <xsl:choose>
      <xsl:when test="./definition/term">
        <!-- use #defns to link direct -->
@@ -85,7 +82,6 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
        <br/>
      </xsl:otherwise>
    </xsl:choose>
-
    <xsl:if test="count(schema)>0" >
      <xsl:for-each select="./schema">          
        <xsl:call-template name="toc_schema_section">
@@ -94,7 +90,6 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
        </xsl:call-template>
      </xsl:for-each>
    </xsl:if>
-
    <!-- use #annexa to link direct -->
      <A HREF="./a_short_names{$FILE_EXT}">A Short names of entities</A>
    <br/>
@@ -104,11 +99,9 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
      <br/>
      &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b1">B.1 Document identification</A><br/>
      &#160;&#160;&#160;<A HREF="./b_obj_reg{$FILE_EXT}#b2">B.2 Schema identification</A><br/>
-
    <!-- use #annexc to link direct -->
      <A HREF="./c_exp{$FILE_EXT}">C Computer interpretable listings</A>
      <br/>
-
    <!-- use #annexd to link direct -->
      <A HREF="./d_expg{$FILE_EXT}">D EXPRESS-G diagrams</A>
      <br/>
@@ -193,7 +186,6 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
        <xsl:with-param name="section2" select="@name"/>
      </xsl:call-template>
    </xsl:variable>    
-
    <xsl:variable name="xref">
      <xsl:value-of select="concat('./',$clause_no,'_schema',$FILE_EXT,'#',$aname)"/>
    </xsl:variable>
@@ -431,7 +423,12 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
 
-   <xsl:variable name="express_xml" select="document(concat($resource_dir,'/',$resource_name,'_schema.xml'))" />
+    <xsl:variable name="doctype">
+      <xsl:apply-templates select="./ancestor::resource" mode="doctype"/>
+    </xsl:variable>
+
+   <xsl:variable name="express_xml_aic" select="document(concat($resource_dir,'/aic_',$resource_name,'.xml'))"/>
+   <xsl:variable name="express_xml_ir" select="document(concat($resource_dir,'/',$resource_name,'_schema.xml'))"/>
 
    <xsl:variable name="schema_name" select="@name"/>
 
@@ -486,8 +483,18 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$constant_clause != 0">
+           <xsl:variable name="constant_count">
+		 	<xsl:choose>
+		      <xsl:when test="not($doctype='aic')">
+		        <xsl:value-of select="count($express_xml_ir/express/schema/constant)"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="count($express_xml_aic/express/schema/constant)"/>
+              </xsl:otherwise>
+            </xsl:choose> 
+           </xsl:variable> 
 	 <xsl:choose>
-	   <xsl:when test="count($express_xml/express/schema/constant)>1">
+	   <xsl:when test="$constant_count>1">
  &#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#constants">
          <xsl:value-of select="concat($clause_no,$constant_clause,' ', $resource_display_name,
                                ' constant definitions')"/>
@@ -501,11 +508,20 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
       </xsl:otherwise>
     </xsl:choose>
      <br/>
+  <xsl:choose>
+    <xsl:when test="not($doctype='aic')">
      <xsl:apply-templates 
-       select="$express_xml/express/schema/constant" mode="contents">
+       select="$express_xml_ir/express/schema/constant" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
-
+    </xsl:when>
+    <xsl:otherwise>
+     <xsl:apply-templates 
+       select="$express_xml_aic/express/schema/constant" mode="contents">
+       <xsl:with-param name="clause_no" select="$clause_no" />
+     </xsl:apply-templates>
+    </xsl:otherwise>
+   </xsl:choose>
    </xsl:if>
 
    <!-- only output if there are imported constants defined and 
@@ -539,8 +555,18 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
    </xsl:variable>
 
    <xsl:if test="$type_clause != 0">
+           <xsl:variable name="type_count">
+		 	<xsl:choose>
+		      <xsl:when test="not($doctype='aic')">
+		        <xsl:value-of select="count($express_xml_ir/express/schema/type)"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="count($express_xml_aic/express/schema/constant)"/>
+              </xsl:otherwise>
+            </xsl:choose> 
+           </xsl:variable> 
 	 <xsl:choose>
-	   <xsl:when test="count($express_xml/express/schema/type)>1">
+	   <xsl:when test="$type_count>1">
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#types">
          <xsl:value-of select="concat($clause_no,$type_clause,' ', $resource_display_name,
                                ' type definitions')"/>
@@ -554,10 +580,20 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
       </xsl:otherwise>
     </xsl:choose>
      <br/>    
+  <xsl:choose>
+    <xsl:when test="not($doctype='aic')">
      <xsl:apply-templates 
-       select="$express_xml/express/schema/type" mode="contents">
+       select="$express_xml_ir/express/schema/type" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
-     </xsl:apply-templates> 
+     </xsl:apply-templates>
+    </xsl:when>
+    <xsl:otherwise>
+     <xsl:apply-templates 
+       select="$express_xml_aic/express/schema/type" mode="contents">
+       <xsl:with-param name="clause_no" select="$clause_no" />
+     </xsl:apply-templates>
+    </xsl:otherwise>
+   </xsl:choose>  
    </xsl:if>
 
    <!-- only output if there are imported types defined and 
@@ -590,8 +626,18 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$entity_clause != 0">
+           <xsl:variable name="entity_count">
+		 	<xsl:choose>
+		      <xsl:when test="not($doctype='aic')">
+		        <xsl:value-of select="count($express_xml_ir/express/schema/entity)"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="count($express_xml_aic/express/schema/entity)"/>
+              </xsl:otherwise>
+            </xsl:choose> 
+           </xsl:variable> 
 	 <xsl:choose>
-	   <xsl:when test="count($express_xml/express/schema/entity)>1">
+	   <xsl:when test="$entity_count>1">
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#entities">
          <xsl:value-of select="concat($clause_no,$entity_clause,' ', $resource_display_name,
                                ' entity definitions')"/>
@@ -605,12 +651,20 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
       </xsl:otherwise>
     </xsl:choose>
        <br/>
-
-    <xsl:apply-templates 
-       select="$express_xml/express/schema/entity" mode="contents">
+  <xsl:choose>
+    <xsl:when test="not($doctype='aic')">
+     <xsl:apply-templates 
+       select="$express_xml_ir/express/schema/entity" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
-
+    </xsl:when>
+    <xsl:otherwise>
+     <xsl:apply-templates 
+       select="$express_xml_aic/express/schema/entity" mode="contents">
+       <xsl:with-param name="clause_no" select="$clause_no" />
+     </xsl:apply-templates>
+    </xsl:otherwise>
+   </xsl:choose> 
    </xsl:if>
 
    <!-- only output if there are imported entitys defined and 
@@ -643,8 +697,18 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$subtype_constraint_clause != 0">
+           <xsl:variable name="subtype_constraint_count">
+		 	<xsl:choose>
+		      <xsl:when test="not($doctype='aic')">
+		        <xsl:value-of select="count($express_xml_ir/express/schema/subtype.constraint)"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="count($express_xml_aic/express/schema/subtype.constraint)"/>
+              </xsl:otherwise>
+            </xsl:choose> 
+           </xsl:variable> 
 	 <xsl:choose>
-	   <xsl:when test="count($express_xml/express/schema/subtype.constraint)>1">
+	   <xsl:when test="$subtype_constraint_count>1">
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#subtype_constraints">
          <xsl:value-of select="concat($clause_no,$subtype_constraint_clause,' ', $resource_display_name,
                                ' subtype constraint definitions')"/>
@@ -658,10 +722,20 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
       </xsl:otherwise>
     </xsl:choose>
        <br/>
-    <xsl:apply-templates 
-       select="$express_xml/express/schema/subtype.constraint" mode="contents">
+  <xsl:choose>
+    <xsl:when test="not($doctype='aic')">
+     <xsl:apply-templates 
+       select="$express_xml_ir/express/schema/subtype.constraint" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
+    </xsl:when>
+    <xsl:otherwise>
+     <xsl:apply-templates 
+       select="$express_xml_aic/express/schema/subtype.constraint" mode="contents">
+       <xsl:with-param name="clause_no" select="$clause_no" />
+     </xsl:apply-templates>
+    </xsl:otherwise>
+   </xsl:choose> 
    </xsl:if>
 
 
@@ -676,8 +750,18 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$function_clause !=0">
+       <xsl:variable name="function_count">
+	 	<xsl:choose>
+	      <xsl:when test="not($doctype='aic')">
+	        <xsl:value-of select="count($express_xml_ir/express/schema/function)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="count($express_xml_aic/express/schema/function)"/>
+          </xsl:otherwise>
+        </xsl:choose> 
+       </xsl:variable> 
 	 <xsl:choose>
-	   <xsl:when test="count($express_xml/express/schema/function)>1">
+	   <xsl:when test="$function_count>1">
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#functions">
          <xsl:value-of select="concat($clause_no,$function_clause,' ', $resource_display_name,
                                ' function definitions')"/>
@@ -691,11 +775,20 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
       </xsl:otherwise>
     </xsl:choose>
      <br/>
+  <xsl:choose>
+    <xsl:when test="not($doctype='aic')">
      <xsl:apply-templates 
-       select="$express_xml/express/schema/function" mode="contents">
+       select="$express_xml_ir/express/schema/function" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
-
+    </xsl:when>
+    <xsl:otherwise>
+     <xsl:apply-templates 
+       select="$express_xml_aic/express/schema/function" mode="contents">
+       <xsl:with-param name="clause_no" select="$clause_no" />
+     </xsl:apply-templates>
+    </xsl:otherwise>
+   </xsl:choose>
    </xsl:if>
    <!-- only output if there are imported functions defined and 
         therefore a section -->
@@ -726,8 +819,18 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$rule_clause !=0">
+       <xsl:variable name="rule_count">
+	 	<xsl:choose>
+	      <xsl:when test="not($doctype='aic')">
+	        <xsl:value-of select="count($express_xml_ir/express/schema/rule)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="count($express_xml_aic/express/schema/rule)"/>
+          </xsl:otherwise>
+        </xsl:choose> 
+       </xsl:variable> 
 	 <xsl:choose>
-	   <xsl:when test="count($express_xml/express/schema/rule)>1">
+	   <xsl:when test="$rule_count>1">
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#rules">
          <xsl:value-of select="concat($clause_no,$rule_clause,' ', $resource_display_name,
                                ' rule definitions')"/>
@@ -741,10 +844,20 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
       </xsl:otherwise>
     </xsl:choose>
        <br/>
-    <xsl:apply-templates 
-       select="$express_xml/express/schema/rule" mode="contents">
+  <xsl:choose>
+    <xsl:when test="not($doctype='aic')">
+     <xsl:apply-templates 
+       select="$express_xml_ir/express/schema/rule" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
+    </xsl:when>
+    <xsl:otherwise>
+     <xsl:apply-templates 
+       select="$express_xml_aic/express/schema/rule" mode="contents">
+       <xsl:with-param name="clause_no" select="$clause_no" />
+     </xsl:apply-templates>
+    </xsl:otherwise>
+   </xsl:choose>
    </xsl:if>
    <!-- only output if there are imported rules defined and 
         therefore a section -->
@@ -775,8 +888,18 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
      </xsl:call-template>
    </xsl:variable>
    <xsl:if test="$procedure_clause != 0">
+       <xsl:variable name="procedure_count">
+	 	<xsl:choose>
+	      <xsl:when test="not($doctype='aic')">
+	        <xsl:value-of select="count($express_xml_ir/express/schema/procedure)"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="count($express_xml_aic/express/schema/procedure)"/>
+          </xsl:otherwise>
+        </xsl:choose> 
+       </xsl:variable> 
 	 <xsl:choose>
-	   <xsl:when test="count($express_xml/express/schema/procedure)>1">
+	   <xsl:when test="$procedure_count>1">
  &#160;&#160;&#160;&#160;&#160;<A HREF="./{$clause_no}_schema{$FILE_EXT}#procedures">
          <xsl:value-of select="concat($clause_no,$procedure_clause,' ', $resource_display_name,
                                ' procedure definitions')"/>
@@ -790,10 +913,20 @@ $Id: sect_contents.xsl,v 1.24 2004/11/05 01:00:58 thendrix Exp $
       </xsl:otherwise>
     </xsl:choose>
      <br/>
+  <xsl:choose>
+    <xsl:when test="not($doctype='aic')">
      <xsl:apply-templates 
-       select="$express_xml/express/schema/procedure" mode="contents">
+       select="$express_xml_ir/express/schema/procedure" mode="contents">
        <xsl:with-param name="clause_no" select="$clause_no" />
      </xsl:apply-templates>
+    </xsl:when>
+    <xsl:otherwise>
+     <xsl:apply-templates 
+       select="$express_xml_aic/express/schema/procedure" mode="contents">
+       <xsl:with-param name="clause_no" select="$clause_no" />
+     </xsl:apply-templates>
+    </xsl:otherwise>
+   </xsl:choose>
    </xsl:if>
    <!-- only output if there are imported procedures defined and 
         therefore a section -->

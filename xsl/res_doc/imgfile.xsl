@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: imgfile.xsl,v 1.14 2004/01/29 23:55:26 thendrix Exp $
+$Id: imgfile.xsl,v 1.15 2004/02/11 22:36:43 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: To display an imgfile as an imagemap
@@ -166,7 +166,10 @@ $Id: imgfile.xsl,v 1.14 2004/01/29 23:55:26 thendrix Exp $
     <xsl:when test="contains(@href,'/sys/')">
       <xsl:value-of select="@href"/>
     </xsl:when>
-    <xsl:otherwise>
+    <xsl:when test="contains(@href,'expg')">
+      <xsl:value-of select="@href"/>
+    </xsl:when>
+    <xsl:when test="contains(@href,'#')">
     <xsl:variable name="frag" select="substring-after(@href,'#')" />
     <xsl:variable name="this-schema">
       <xsl:choose> 
@@ -197,6 +200,9 @@ $Id: imgfile.xsl,v 1.14 2004/01/29 23:55:26 thendrix Exp $
             <xsl:value-of select="concat('../../resources/',$this-schema,'/',$this-schema,$FILE_EXT,$hash,$frag)"/>
           </xsl:otherwise>
         </xsl:choose>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@href"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -417,23 +423,23 @@ separated by spaces -->
 </xsl:template>
 
 <xsl:template name="annex_position" >
-	<xsl:param name="annex_name" />
-	<xsl:param name="annex_list" />
+  <xsl:param name="annex_name" />
+  <xsl:param name="annex_list" />
 <!-- returns integer count of position of named annex in list of annexes -->
-	<xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
-	<xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
+  <xsl:variable name="UPPER" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+  <xsl:variable name="LOWER" select="'abcdefghijklmnopqrstuvwxyz'"/>
 
-	<xsl:variable name="annex" select="concat(translate($annex_name,' ',''),' ')" />
+  <xsl:variable name="annex" select="concat(translate($annex_name,' ',''),' ')" />
 
-	<xsl:value-of select="string-length(
-					translate(
-						substring-before(
-							concat(' ',normalize-space($annex_list),' '),
-							$annex
-							     ),
-						concat($UPPER,$LOWER),
-						'')
-						)" />
+  <xsl:value-of select="string-length(
+          translate(
+            substring-before(
+              concat(' ',normalize-space($annex_list),' '),
+              $annex
+                   ),
+            concat($UPPER,$LOWER),
+            '')
+            )" />
 </xsl:template>
 
 

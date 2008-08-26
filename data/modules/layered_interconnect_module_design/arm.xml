@@ -240,7 +240,7 @@
       </entity>
       <entity name="Conductive_interconnect_element_with_pre_defined_transitions" supertypes="Conductive_interconnect_element" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="centreline_shape" optional="NO">
-            <typename name="Planar_path_shape_model_with_parameters"/>
+            <typename name="Path_area_with_parameters"/>
          </explicit>
          <explicit name="derived_from" optional="NO">
             <typename name="Trace_template"/>
@@ -704,6 +704,7 @@
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
          <where label="WR1" expression="SIZEOF(SELF\Shape_feature_definition.feature_model) = 1"/>
+         <where label="WR2" expression="'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF (SELF\Shape_feature_definition.feature_model[1])"/>
       </entity>
       <entity name="Layout_junction" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="name" optional="NO">
@@ -1038,6 +1039,12 @@
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
          <where label="WR2" expression="('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_INTERCONNECT_ELEMENT_WITH_PRE_DEFINED_TRANSITIONS' IN TYPEOF(SELF)) OR&#10;        NOT('PART_TEMPLATE_EXTENSION_ARM.TRACE_TEMPLATE' IN TYPEOF(derived_from))"/>
       </entity>
+      <entity name="Stratum_feature_template_component_with_stratum_feature" supertypes="Stratum_feature_template_component Stratum_feature" abstract.supertype="NO" abstract.entity="NO">
+         <derived name="implementation_or_resident_stratum" expression="SELF">
+            <typename name="Stratum_feature"/>
+            <redeclaration entity-ref="Stratum_feature_template_component"/>
+         </derived>
+      </entity>
       <entity name="Stratum_surface" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="name" optional="NO">
             <typename name="stratum_surface_designation"/>
@@ -1103,6 +1110,12 @@
          <where label="WR7" expression="NOT (EXISTS(overriding_shape) XOR (first_location_overridden OR second_location_overridden))"/>
          <where label="WR8" expression="NOT EXISTS(overriding_shape) OR (related_view.derived_from IN overriding_shape.shape_characterized_definition)"/>
          <where label="WR9" expression="NOT ((first_location\Template_location_in_structured_template.placement_status = template_location_placement_status.is_fixed) AND &#10;                 design_specific_placement)"/>
+      </entity>
+      <entity name="Structured_layout_component_sub_assembly_relationship_with_component" supertypes="Structured_layout_component_sub_assembly_relationship Assembly_component" abstract.supertype="NO" abstract.entity="NO">
+         <derived name="related_view" expression="SELF">
+            <typename name="Assembly_component"/>
+            <redeclaration entity-ref="Structured_layout_component_sub_assembly_relationship"/>
+         </derived>
       </entity>
       <entity name="Unplated_cutout_edge_segment" supertypes="Cutout_edge_segment" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="composed_cutout" optional="NO">

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-09-06 11:03:27 +0300 (Kt, 06 Rgs 2007) $" rcs.revision="$Revision: 1427 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="footprint_definition_arm schema_instance"/>
    <schema name="Footprint_definition_arm">
       <interface kind="use" schema="Part_template_2d_shape_arm"/>
@@ -55,18 +55,23 @@
          <where label="WR4" expression="NOT EXISTS(SELF\Representation.description)"/>
       </entity>
       <entity name="Generic_footprint_definition" abstract.supertype="YES" supertypes="Multi_stratum_structured_template" super.expression="ONEOF (Footprint_definition, Breakout_footprint_definition)" abstract.entity="NO">
-         <derived name="location" expression="get_template_arrangement(padstacks)">
+         <derived name="padstack_based_location" expression="get_template_arrangement(padstacks)">
             <typename name="template_arrangement"/>
-            <redeclaration entity-ref="Multi_stratum_structured_template"/>
          </derived>
          <derived name="padstacks" expression="bag_to_set(QUERY(tlict &lt;* SELF\Structured_template.templates |&#10;         ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(tlict.template))))">
             <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
             <typename name="Template_location_in_structured_template"/>
          </derived>
-         <where label="WR1" expression="SIZEOF(QUERY(ps &lt;* templates | (ps.template\Multi_stratum_structured_template.location &lt;&gt; location)&#10;              AND (ps.template\Multi_stratum_structured_template.location &lt;&gt; template_arrangement.symmetrical))) = 0"/>
-         <where label="WR2" expression="((location = template_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR &#10;            (NOT (location = template_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'))"/>
-         <where label="WR3" expression="((location = template_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR &#10;            (NOT (location = template_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'))"/>
-         <where label="WR4" expression="((location = template_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR &#10;            (NOT (location = template_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'))"/>
+         <derived name="single_stratum_components" expression="bag_to_set(QUERY(tlict &lt;* SELF\Structured_template.templates |&#10;         ('PART_TEMPLATE_EXTENSION_ARM.Single_stratum_template' IN TYPEOF(tlict.template))))">
+            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+            <typename name="Single_stratum_template"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(QUERY(ps &lt;* templates | (ps.template\Multi_stratum_structured_template.location &lt;&gt; SELF\Multi_stratum_structured_template.location)&#10;              AND (ps.template\Multi_stratum_structured_template.location &lt;&gt; template_arrangement.symmetrical))) = 0"/>
+         <where label="WR2" expression="((SELF\Multi_stratum_structured_template.location = template_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR &#10;            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'))"/>
+         <where label="WR3" expression="((SELF\Multi_stratum_structured_template.location = template_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR &#10;            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'))"/>
+         <where label="WR4" expression="((SELF\Multi_stratum_structured_template.location = template_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR &#10;            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'))"/>
+         <where label="WR5" expression="((SELF\Multi_stratum_structured_template.location = template_arrangement.swappable) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'swappable')) OR &#10;            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.swappable) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'swappable'))"/>
+         <where label="WR6" expression="NOT (SIZEOF(single_stratum_components) = 0) OR (SELF\Multi_stratum_structured_template.location = padstack_based_location)"/>
       </entity>
       <entity name="Part_feature_based_template_location" supertypes="Template_location_in_structured_template" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="reference_feature" optional="NO">
@@ -109,11 +114,12 @@
          </parameter>
          <typename name="template_arrangement"/>
          <algorithm>LOCAL
-      tlist : SET OF Template_location_in_structured_template := 
+      tlist          : SET OF Template_location_in_structured_template := 
         (QUERY(inx &lt;* input | ('PART_TEMPLATE_2D_SHAPE_ARM.MULTI_STRATUM_STRUCTURED_TEMPLATE' IN TYPEOF(inx.template))));
-      pabt : BAG OF STRING := [];
-      pabb : BAG OF STRING := [];
-      pabs : BAG OF STRING := [];
+      pabt           : BAG OF STRING := [];
+      pabb           : BAG OF STRING := [];
+      pabsymmetrical : BAG OF STRING := [];
+      pabswappable   : BAG OF STRING := [];
     END_LOCAL;
 
     REPEAT i := 1 TO SIZEOF(tlist) BY 1;
@@ -124,7 +130,10 @@
         pabb := pabb + 'bottom';
       END_IF;
       IF (tlist[i].template\Multi_stratum_structured_template.location = template_arrangement.symmetrical) THEN
-        pabs := pabs + 'symmetrical';
+        pabsymmetrical := pabsymmetrical + 'symmetrical';
+      END_IF;
+      IF (tlist[i].template\Multi_stratum_structured_template.location = template_arrangement.swappable) THEN
+        pabswappable := pabswappable + 'swappable';
       END_IF;
     END_REPEAT;
     IF ((SIZEOF(pabt) &gt; 0) AND (SIZEOF(pabb) = 0)) THEN
@@ -133,8 +142,11 @@
     IF ((SIZEOF(pabb) &gt; 0) AND (SIZEOF(pabt) = 0)) THEN
       RETURN(template_arrangement.bottom);
     END_IF;
-    IF ((SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabs) &gt; 0)) THEN
+    IF ((SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabsymmetrical) &gt; 0)) THEN
       RETURN(template_arrangement.symmetrical);
+    END_IF;
+    IF ((SIZEOF(pabb) = 0) AND (SIZEOF(pabt) = 0) AND (SIZEOF(pabsymmetrical) = 0) AND (SIZEOF(pabswappable) &gt; 0)) THEN
+      RETURN(template_arrangement.swappable);
     END_IF;
     RETURN(?);</algorithm>
       </function>

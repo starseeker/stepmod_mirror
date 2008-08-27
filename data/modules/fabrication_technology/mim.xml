@@ -7,7 +7,8 @@
    <schema name="Fabrication_technology_mim">
       <interface kind="use" schema="Constructive_solid_geometry_2d_mim"/>
       <interface kind="use" schema="Extended_geometric_tolerance_mim"/>
-      <interface kind="use" schema="Part_template_shape_with_parameters_mim"/>
+      <interface kind="use" schema="Physical_layout_template_mim"/>
+      <interface kind="use" schema="Part_template_2d_shape_mim"/>
       <type name="ft_document_reference_item">
          <select extensible="YES" genericentity="YES" basedon="document_reference_item" selectitems="passage_technology stratum_technology"/>
       </type>
@@ -15,31 +16,30 @@
          <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="land_physical_template stratum_technology"/>
       </type>
       <type name="ft_requirement_assigned_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="passage_technology stratum_technology stratum_technology_occurrence"/>
+         <select extensible="YES" genericentity="YES" basedon="requirement_assigned_item" selectitems="passage_technology stratum_technology stratum_technology_occurrence stratum_technology_occurrence_relationship"/>
       </type>
-      <entity name="blind_passage_template" supertypes="unsupported_passage_template"/>
-      <entity name="component_termination_passage_template" supertypes="continuous_template inter_stratum_feature_template"/>
-      <entity name="continuous_template" supertypes="geometric_template"/>
+      <entity name="allocated_passage_minimum_annular_ring" supertypes="characterized_object"/>
       <entity name="copy_stratum_technology_occurrence_relationship" supertypes="derived_stratum_technology_occurrence_relationship"/>
-      <entity name="counterbore_passage_template" supertypes="unsupported_passage_template"/>
-      <entity name="countersunk_passage_template" supertypes="unsupported_passage_template"/>
-      <entity name="default_attachment_size_based_land_physical_template" supertypes="land_physical_template shape_aspect">
-         <derived name="of_shape" expression="SELF">
-            <typename name="default_attachment_size_based_land_physical_template"/>
-            <redeclaration entity-ref="shape_aspect"/>
-         </derived>
-      </entity>
-      <entity name="default_passage_based_land_physical_template" abstract.supertype="YES" supertypes="land_physical_template" super.expression="ONEOF (default_plated_passage_based_land_physical_template, default_unsupported_passage_based_land_physical_template)"/>
-      <entity name="default_plated_passage_based_land_physical_template" supertypes="default_passage_based_land_physical_template"/>
-      <entity name="default_unsupported_passage_based_land_physical_template" supertypes="default_passage_based_land_physical_template"/>
       <entity name="derived_stratum_technology_occurrence_relationship" abstract.supertype="YES" supertypes="stratum_technology_occurrence_relationship" super.expression="ONEOF (copy_stratum_technology_occurrence_relationship, inverse_copy_stratum_technology_occurrence_relationship)"/>
-      <entity name="filled_unsupported_passage_template" supertypes="unsupported_passage_template"/>
+      <entity name="design_stack_model" supertypes="stratum_stack_model"/>
+      <entity name="equivalent_stackup_model_definition" supertypes="product_definition product_definition_relationship">
+         <explicit name="primary_stackup_model">
+            <typename name="stratum_stack_model"/>
+            <redeclaration entity-ref="product_definition_relationship" old_name="relating_product_definition"/>
+         </explicit>
+         <explicit name="equivalent_stackup_model">
+            <typename name="stratum_stack_model"/>
+            <redeclaration entity-ref="product_definition_relationship" old_name="related_product_definition"/>
+         </explicit>
+         <where label="WR1" expression="primary_stackup_model :&lt;&gt;: equivalent_stackup_model"/>
+      </entity>
+      <entity name="equivalent_sub_stack_definition" supertypes="product_definition"/>
       <entity name="filled_via_template" supertypes="via_template"/>
-      <entity name="inter_stratum_feature_template" supertypes="geometric_template" super.expression="ONEOF (component_termination_passage_template, unsupported_passage_template, via_template)"/>
+      <entity name="footprint_library_stratum_technology" supertypes="stratum_technology"/>
+      <entity name="impedance_measurement_setup_requirement" supertypes="predefined_requirement_view_definition"/>
+      <entity name="impedance_requirement" supertypes="predefined_requirement_view_definition"/>
       <entity name="inverse_copy_stratum_technology_occurrence_relationship" supertypes="derived_stratum_technology_occurrence_relationship"/>
-      <entity name="land_physical_template" supertypes="stratum_feature_template" super.expression="ONEOF (default_passage_based_land_physical_template, default_attachment_size_based_land_physical_template)"/>
-      <entity name="land_template_terminal" supertypes="shape_aspect"/>
-      <entity name="material_removal_feature_template" supertypes="single_stratum_continuous_template"/>
+      <entity name="local_linear_stack" supertypes="stratum_sub_stack"/>
       <entity name="passage_deposition_material_identification" supertypes="material_designation">
          <explicit name="definitions">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -63,10 +63,9 @@
             <unique.attribute entity-ref="characterized_object" attribute="name"/>
          </unique>
       </entity>
-      <entity name="single_stratum_continuous_template" abstract.supertype="YES" supertypes="continuous_template single_stratum_template" super.expression="ONEOF (stratum_feature_template, material_removal_feature_template)"/>
-      <entity name="single_stratum_template" abstract.supertype="YES" supertypes="part_template_definition" super.expression="single_stratum_continuous_template"/>
-      <entity name="stratum_feature_template" supertypes="single_stratum_continuous_template"/>
+      <entity name="passage_technology_allocation_to_stack_model" supertypes="stratum_sub_stack"/>
       <entity name="stratum_stack_model" abstract.supertype="YES" supertypes="part_template_definition"/>
+      <entity name="stratum_sub_stack" abstract.supertype="YES" supertypes="part_template_definition" super.expression="ONEOF (local_linear_stack, passage_technology_allocation_to_stack_model)"/>
       <entity name="stratum_surface_technology" supertypes="shape_aspect">
          <explicit name="associated_technology">
             <typename name="stratum_technology"/>
@@ -82,14 +81,13 @@
             <unique.attribute entity-ref="characterized_object" attribute="name"/>
          </unique>
       </entity>
+      <entity name="stratum_technology_mapping_relationship" supertypes="property_definition_relationship"/>
       <entity name="stratum_technology_occurrence" supertypes="property_definition"/>
       <entity name="stratum_technology_occurrence_feature_constraint" supertypes="stratum_technology_occurrence_relationship"/>
       <entity name="stratum_technology_occurrence_link" supertypes="stratum_technology_occurrence_relationship"/>
       <entity name="stratum_technology_occurrence_relationship" abstract.supertype="YES" supertypes="property_definition property_definition_relationship" super.expression="ONEOF (derived_stratum_technology_occurrence_relationship, stratum_technology_occurrence_link, stratum_technology_occurrence_feature_constraint, stratum_technology_occurrence_swap_relationship)"/>
       <entity name="stratum_technology_occurrence_swap_relationship" supertypes="stratum_technology_occurrence_relationship"/>
       <entity name="stratum_technology_swap_relationship" supertypes="property_definition_relationship"/>
-      <entity name="unsupported_passage_template" supertypes="continuous_template inter_stratum_feature_template" super.expression="ONEOF (counterbore_passage_template, countersunk_passage_template, blind_passage_template)"/>
-      <entity name="via_template" supertypes="continuous_template inter_stratum_feature_template"/>
       <subtype.constraint name="ft_part_template_definition_subtypes" entity="part_template_definition" super.expression="ONEOF (geometric_template, stratum_stack_model)"/>
       <subtype.constraint name="ft_property_definition_subtypes" entity="property_definition" super.expression="ONEOF (stratum_technology_occurrence_relationship, stratum_technology_occurrence)"/>
       <subtype.constraint name="ft_property_definition_relationship_subtypes" entity="property_definition_relationship" super.expression="ONEOF (stratum_technology_occurrence_relationship, stratum_technology_swap_relationship)"/>

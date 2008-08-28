@@ -41,12 +41,12 @@
          <explicit name="effective_voltage_withstand_capacity_requirement" optional="YES">
             <typename name="Value_limit"/>
          </explicit>
-         <derived name="electrical_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'electrical isolation spacing requirement', &#10;              'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
+         <derived name="electrical_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'derived from', &#10;              'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT')">
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="Predefined_requirement_view_definition"/>
          </derived>
          <where label="WR1" expression="NOT EXISTS(effective_voltage_withstand_capacity_requirement) OR&#10;             ((effective_voltage_withstand_capacity_requirement\Qualified_representation_item.qualifiers[1]\Type_qualifier.name in ['minimum'])&#10;              AND&#10;             ('VALUE_WITH_UNIT_EXTENSION_ARM.ELECTRIC_POTENTIAL_DATA_ELEMENT' IN TYPEOF(effective_voltage_withstand_capacity_requirement)))"/>
-         <where label="WR2" expression="'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(electrical_isolation_spacing_requirement[1])"/>
+         <where label="WR2" expression="'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT' IN TYPEOF(electrical_isolation_spacing_requirement[1])"/>
          <where label="WR3" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
       </entity>
       <entity name="Interconnect_shield_allocation" supertypes="Requirement_assignment">
@@ -83,13 +83,13 @@
          <explicit name="effective_thermal_resistance_requirement" optional="YES">
             <typename name="Value_limit"/>
          </explicit>
-         <derived name="thermal_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'thermal isolation spacing requirement', 'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE')">
+         <derived name="thermal_isolation_spacing_requirement" expression="get_specific_requirement_type_for_primary_rvd_relationship(SELF, 'derived from', 'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT')">
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="Predefined_requirement_view_definition"/>
          </derived>
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
          <where label="WR2" expression="NOT(EXISTS(thermal_bar_width) XOR EXISTS(number_of_bars))"/>
-         <where label="WR3" expression="'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT_OCCURRENCE' IN TYPEOF(thermal_isolation_spacing_requirement[1])"/>
+         <where label="WR3" expression="'INTERCONNECT_PLACEMENT_REQUIREMENTS_ARM.LAYOUT_SPACING_REQUIREMENT' IN TYPEOF(thermal_isolation_spacing_requirement[1])"/>
          <where label="WR4" expression="NOT EXISTS(effective_current_capacity_requirement) OR&#10;              ((effective_current_capacity_requirement\Qualified_representation_item.qualifiers[1]\Type_qualifier.name in ['minimum'])&#10;              AND&#10;              ('VALUE_WITH_UNIT_EXTENSION_ARM.ELECTRIC_CURRENT_DATA_ELEMENT' IN TYPEOF(effective_current_capacity_requirement)))"/>
          <where label="WR5" expression="NOT EXISTS(angular_orientation_requirement) OR&#10;              ('VALUE_WITH_UNIT_EXTENSION_ARM.ANGLE_DATA_ELEMENT' IN TYPEOF(angular_orientation_requirement))"/>
          <where label="WR6" expression="NOT EXISTS(effective_thermal_resistance_requirement) OR&#10;              ((effective_thermal_resistance_requirement\Qualified_representation_item.qualifiers[1]\Type_qualifier.name in ['minimum'])&#10;              AND&#10;              ('VALUE_WITH_UNIT_EXTENSION_ARM.THERMAL_RESISTANCE_DATA_ELEMENT' IN TYPEOF(effective_thermal_resistance_requirement)))"/>
@@ -110,12 +110,12 @@
     rvdr : SET[0:?] OF Requirement_view_definition_relationship := [];
     rdp : SET[0:?] OF Predefined_requirement_view_definition := [];  --this gives us access to the information base
 END_LOCAL;
-	rvdr := bag_to_set(QUERY(rvdre &lt;* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.SECONDARY')|
-	                           ((rvdre.relation_type = id) AND (reqType IN TYPEOF(rvdre.primary)))
+	rvdr := bag_to_set(QUERY(rvdre &lt;* USEDIN (input, 'REQUIREMENT_DECOMPOSITION_ARM.'+ 'REQUIREMENT_VIEW_DEFINITION_RELATIONSHIP.PRIMARY')|
+	                           ((rvdre.relation_type = id) AND (reqType IN TYPEOF(rvdre.secondary)))
                        ));
 	-- iterate over rvdr
 	REPEAT i := 1 to SIZEOF(rvdr) by 1;
-      rdp := rdp + rvdr[i].primary;
+      rdp := rdp + rvdr[i].secondary;
 	END_REPEAT;
 
 	RETURN(rdp);</algorithm>

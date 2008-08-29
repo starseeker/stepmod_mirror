@@ -2,13 +2,20 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-03-21 03:48:09 -0700 (Tr, 21 Kov 2007) $" rcs.revision="$Revision: 23 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_assignment_to_part_arm schema_instance"/>
    <schema name="Functional_assignment_to_part_arm">
       <interface kind="use" schema="Functional_usage_view_arm"/>
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
+      <interface kind="use" schema="Physical_connectivity_definition_arm"/>
       <type name="fatp_groupable_item">
          <select basedon="groupable_item" selectitems="Part_connected_terminals_definition"/>
+      </type>
+      <type name="fatp_requirement_assignment_item">
+         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Part_connected_terminals_element Part_connected_terminals_definition"/>
+      </type>
+      <type name="fatp_termination_or_junction">
+         <select extensible="YES" genericentity="YES" selectitems="Part_terminal Part_connected_terminals_topological_junction"/>
       </type>
       <entity name="Functional_usage_view_to_part_terminal_assignment">
          <explicit name="physical_usage_view_terminal">
@@ -39,6 +46,55 @@
          </unique>
          <where label="WR1" expression="SIZEOF(QUERY(ct &lt;* connected_terminals | NOT (associated_definition = ct\Shape_element.containing_shape))) = 0"/>
       </entity>
+      <entity name="Part_connected_terminals_element">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="start_terminus">
+            <typename name="fatp_termination_or_junction"/>
+         </explicit>
+         <explicit name="end_terminus">
+            <typename name="fatp_termination_or_junction"/>
+         </explicit>
+         <explicit name="connectivity_context">
+            <typename name="Part_connected_terminals_definition"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="name"/>
+            <unique.attribute attribute="connectivity_context"/>
+         </unique>
+         <where label="WR1" expression="start_terminus &lt;&gt; end_terminus"/>
+      </entity>
+      <entity name="Part_connected_terminals_structure_definition" supertypes="Part_connected_terminals_definition">
+         <derived name="structural_terminal_nodes" expression="fatp_get_pt(structural_element)">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Part_terminal"/>
+         </derived>
+         <derived name="structural_junction_nodes" expression="fatp_get_tj(structural_element)">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Part_connected_terminals_topological_junction"/>
+         </derived>
+         <derived name="tree_structure" expression="((SIZEOF(structural_terminal_nodes) + SIZEOF(structural_junction_nodes)) = (SIZEOF(structural_element) + 1))">
+            <builtintype type="LOGICAL"/>
+         </derived>
+         <inverse name="structural_element" entity="Part_connected_terminals_element" attribute="connectivity_context">
+            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         </inverse>
+         <where label="WR1" expression="SIZEOF(QUERY(stn &lt;* structural_terminal_nodes |&#10;				NOT(stn IN SELF\Part_connected_terminals_definition.connected_terminals)&#10;				)) = 0"/>
+         <where label="WR2" expression="SIZEOF(structural_terminal_nodes) = SIZEOF(SELF\Part_connected_terminals_definition.connected_terminals)"/>
+      </entity>
+      <entity name="Part_connected_terminals_topological_junction">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="scope">
+            <typename name="Part_connected_terminals_structure_definition"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="name"/>
+            <unique.attribute attribute="scope"/>
+         </unique>
+      </entity>
       <entity name="Part_terminal" abstract.supertype="YES" supertypes="Part_feature">
          <inverse name="connection_requirement" entity="Part_connected_terminals_definition" attribute="connected_terminals">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
@@ -47,5 +103,47 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
       </entity>
+      <function name="fatp_get_pt">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Part_connected_terminals_element"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Part_terminal"/>
+         <algorithm>LOCAL
+   pct : SET OF Part_terminal := [];
+	i : INTEGER := 0;
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   IF ('FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_TERMINAL' IN TYPEOF(input[i].start_terminus)) THEN
+   pct := pct + input[i].start_terminus;
+   END_IF;
+   IF ('FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_TERMINAL' IN TYPEOF(input[i].end_terminus)) THEN
+   pct := pct + input[i].end_terminus;
+   END_IF;
+  END_REPEAT;
+  RETURN(pct);</algorithm>
+      </function>
+      <function name="fatp_get_tj">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Part_connected_terminals_element"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Part_connected_terminals_topological_junction"/>
+         <algorithm>LOCAL
+   tj : SET OF Part_connected_terminals_topological_junction := [];
+	i : INTEGER := 0;
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   IF ('FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_CONNECTED_TERMINALS_TOPOLOGICAL_JUNCTION' IN TYPEOF(input[i].start_terminus)) THEN
+   tj := tj + input[i].start_terminus;
+   END_IF;
+   IF ('FUNCTIONAL_ASSIGNMENT_TO_PART_ARM.PART_CONNECTED_TERMINALS_TOPOLOGICAL_JUNCTION' IN TYPEOF(input[i].end_terminus)) THEN
+   tj := tj + input[i].end_terminus;
+   END_IF;
+  END_REPEAT;
+  RETURN(tj);</algorithm>
+      </function>
    </schema>
 </express>

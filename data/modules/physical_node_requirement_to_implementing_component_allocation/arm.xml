@@ -2,12 +2,58 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-03-21 03:48:09 -0700 (Tr, 21 Kov 2007) $" rcs.revision="$Revision: 23 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_node_requirement_to_implementing_component_allocation_arm schema_instance"/>
    <schema name="Physical_node_requirement_to_implementing_component_allocation_arm">
       <interface kind="use" schema="Assembly_module_with_packaged_connector_component_arm"/>
       <interface kind="use" schema="Assembly_technology_arm"/>
       <interface kind="use" schema="Physical_connectivity_definition_arm"/>
+      <entity name="Assembly_to_part_connectivity_structure_allocation">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="assembly_element">
+            <typename name="Physical_connectivity_element"/>
+         </explicit>
+         <explicit name="part_element">
+            <typename name="Part_connected_terminals_element"/>
+         </explicit>
+         <explicit name="assembly_context">
+            <typename name="Physical_connectivity_definition"/>
+         </explicit>
+         
+         <unique label="UR1">
+            <unique.attribute attribute="name"/>
+            <unique.attribute attribute="assembly_context"/>
+         </unique>
+      </entity>
+      <entity name="Physical_node_branch_requirement_to_implementing_component_allocation">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="physical_node_branch_requirement">
+            <typename name="Physical_connectivity_element"/>
+         </explicit>
+         <explicit name="implementation_component">
+            <typename name="Assembly_component"/>
+         </explicit>
+         <explicit name="part_element">
+            <typename name="Part_connected_terminals_element"/>
+         </explicit>
+         
+         <explicit name="implementation_interface_joint_set" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Interface_mounted_join"/>
+         </explicit>
+         <explicit name="implementation_joint_set" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Assembly_joint"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="name"/>
+            <unique.attribute attribute="implementation_component"/>
+         </unique>
+      </entity>
       <entity name="Physical_node_requirement_to_implementing_component_allocation">
          <explicit name="physical_node_requirement">
             <typename name="Physical_connectivity_definition"/>
@@ -32,7 +78,7 @@
             <typename name="Packaged_connector_terminal_relationship"/>
          </derived>
          <where label="WR1" expression="EXISTS(implementation_interface_joint_set) XOR EXISTS(implementation_joint_set)"/>
-         <where label="WR2" expression="(SIZEOF(implementation_connection_definition_1) + SIZEOF(implementation_connection_definition_2) = 1) OR (('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.INTERFACE_COMPONENT' IN TYPEOF(implementation_component)) AND ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PHYSICAL_COMPONENT_INTERFACE_TERMINAL' IN TYPEOF(get_cit(implementation_component,&#10; implementation_joint_set)))) OR ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.ROUTED_INTERCONNECT_COMPONENT' IN TYPEOF(implementation_component))"/>
+         <where label="WR2" expression="(SIZEOF(implementation_connection_definition_1) + SIZEOF(implementation_connection_definition_2) = 1) OR &#10;            (('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.INTERFACE_COMPONENT' IN TYPEOF(implementation_component)) AND &#10;             ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.PHYSICAL_COMPONENT_INTERFACE_TERMINAL' IN TYPEOF(get_cit(implementation_component,implementation_joint_set)))) OR &#10;            ('PHYSICAL_NODE_REQUIREMENT_TO_IMPLEMENTING_COMPONENT_ALLOCATION_ARM.ROUTED_INTERCONNECT_COMPONENT' IN TYPEOF(implementation_component))"/>
          <where label="WR3" expression="SIZEOF(QUERY(pct &lt;* physical_node_requirement.associated_terminals | pct\Component_feature.associated_component = implementation_component)) = 0"/>
       </entity>
       <function name="get_cit">

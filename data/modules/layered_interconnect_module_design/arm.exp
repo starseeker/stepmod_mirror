@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.278 2008/08/20 10:44:45 liutkus Exp $
+   $Id: arm.exp,v 1.279 2008/08/20 12:04:29 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -146,7 +146,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   TYPE limd_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
     (Stratum_feature_conductive_join,
      Dielectric_crossover_area,
-     Interconnect_module);
+     Layered_interconnect_module);
   END_TYPE; 
 
   TYPE limd_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
@@ -476,8 +476,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Generic_physical_network
     ABSTRACT SUPERTYPE OF (ONEOF(Unrouted_physical_network, Routed_physical_network));
       name                                         : STRING;
-      current_associated_definition                : Interconnect_module;
-      prior_associated_definition                  : OPTIONAL SET[1:?] OF Interconnect_module;      
+      current_associated_definition                : Layered_interconnect_module;
+      prior_associated_definition                  : OPTIONAL SET[1:?] OF Layered_interconnect_module;      
       connectivity_requirement_element             : SET[1:?] OF Laminate_component_join_terminal;
       reference_connected_terminals                : OPTIONAL Part_connected_terminals_definition;    
       unrouted_connectivity_requirement_element    : OPTIONAL SET[1:?] OF Unrouted_join_relationship;
@@ -501,7 +501,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
       WR2 : from_stratum IN included_stratum;
       WR3 : to_stratum IN included_stratum;
-      WR4 : EXISTS(from_stratum\Stratum.assembly[1]\Interconnect_module_stratum_assembly_relationship.assembly\Interconnect_module.used_stack_model);
+      WR4 : EXISTS(from_stratum\Stratum.assembly[1]\Interconnect_module_stratum_assembly_relationship.assembly\Layered_interconnect_module.used_stack_model);
   END_ENTITY;
 
   ENTITY Inter_stratum_feature
@@ -513,9 +513,9 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       SELF\Definition_based_product_occurrence.derived_from : Inter_stratum_feature_template;
     WHERE
       WR1: NOT EXISTS(vertical_extent) OR (SIZEOF(QUERY(pvd <* get_assemblies(SELF) |
-         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(pvd)) AND             
+         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAYERED_INTERCONNECT_MODULE' IN TYPEOF(pvd)) AND             
               (vertical_extent\Stratum_sub_stack.associated_stackup =
-                   pvd\Interconnect_module.used_stack_model))
+                   pvd\Layered_interconnect_module.used_stack_model))
                    )) = 0);
   END_ENTITY;
 
@@ -533,13 +533,13 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       associated_usage                            : Connection_zone_in_design_view;
       associated_connection_zone_shape_definition : Geometric_model;
       associated_usage_placement                  : Axis_placement;
-      associating_design_view                     : Interconnect_module;
+      associating_design_view                     : Layered_interconnect_module;
   END_ENTITY;
 
-  ENTITY Interconnect_module
+  ENTITY Layered_interconnect_module
   	SUPERTYPE OF (Pcb)
-    SUBTYPE OF (Assembly_definition, Part_design_view);
-      used_stack_model : OPTIONAL Design_stack_model;
+    SUBTYPE OF (Interconnect_module);
+      used_stack_model : Design_stack_model;
     INVERSE
       requirements : SET[0:?] OF Requirement_assignment FOR assigned_to;
     WHERE
@@ -554,6 +554,11 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
               ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_EDGE' IN TYPEOF(vdr.related_view)))
                   )) = 1;
   END_ENTITY;
+
+  ENTITY Interconnect_module
+    SUPERTYPE OF (Layered_interconnect_module)
+    SUBTYPE OF (Assembly_definition, Part_design_view);
+  END_ENTITY; 
 
   ENTITY Interconnect_module_edge
     SUPERTYPE OF (ONEOF (Partially_plated_interconnect_module_edge,
@@ -590,7 +595,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_ENTITY;
 
   ENTITY Interconnect_module_stratum_assembly_relationship;
-      assembly              : Interconnect_module;
+      assembly              : Layered_interconnect_module;
       component             : Stratum;
       reference_designation : STRING; 
     UNIQUE
@@ -639,7 +644,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Join_relationship
     ABSTRACT SUPERTYPE OF (ONEOF (Routed_join_relationship,
 	 	Unrouted_join_relationship));
-      associated_layout : Interconnect_module;
+      associated_layout : Layered_interconnect_module;
   END_ENTITY;
 
   ENTITY Laminate_component
@@ -654,7 +659,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     INVERSE
 	  cad_layer						: SET[0:1] OF External_source_identification FOR item;      	  
     WHERE
-      WR1:('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\Product_occurrence_definition_relationship.relating_view))
+      WR1:('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAYERED_INTERCONNECT_MODULE' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\Product_occurrence_definition_relationship.relating_view))
          OR
         ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]));
   END_ENTITY;
@@ -694,7 +699,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Layer_stack_region
     SUBTYPE OF (Instanced_feature);
       applied_stack                       : SET [1:?] OF Local_linear_stack;
-      SELF\Shape_element.containing_shape : Interconnect_module;
+      SELF\Shape_element.containing_shape : Layered_interconnect_module;
     WHERE
       WR1: SIZEOF(SELF\Shape_feature_definition.feature_model) = 1;
       WR2: 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF (SELF\Shape_feature_definition.feature_model[1]);
@@ -755,7 +760,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   ENTITY Layout_junction;
       name                  : STRING;  
-      associated_definition : Interconnect_module;
+      associated_definition : Layered_interconnect_module;
       net                   : Generic_physical_network;
       location              : Cartesian_point;
     UNIQUE
@@ -848,8 +853,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_ENTITY;
 
   ENTITY Pcb
-    SUBTYPE OF (Interconnect_module);
-      SELF\Interconnect_module.used_stack_model : Design_stack_model;    
+    SUBTYPE OF (Layered_interconnect_module);
       SELF\Part_design_view.usage_view          : OPTIONAL Pcb_usage_view;
   END_ENTITY;
 
@@ -1199,15 +1203,15 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
-RULE limd_unique_stratum FOR (Stratum, Interconnect_module, Stratum_technology_occurrence);
+RULE limd_unique_stratum FOR (Stratum, Layered_interconnect_module, Stratum_technology_occurrence);
  LOCAL
       s : BAG OF Stratum := [];
       imsar : BAG OF Interconnect_module_stratum_assembly_relationship := [];
       sto : BAG OF Stratum_technology_occurrence := [];
 	  pass : BOOLEAN := TRUE;
  END_LOCAL;
- REPEAT i := 1 to SIZEOF(Interconnect_module) by 1;
-    imsar := bag_to_set(USEDIN(Interconnect_module[i], 
+ REPEAT i := 1 to SIZEOF(Layered_interconnect_module) by 1;
+    imsar := bag_to_set(USEDIN(Layered_interconnect_module[i], 
                         'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.ASSEMBLY'));
 	REPEAT j := 1 to SIZEOF(imsar) by 1;
 	   s := s + imsar[j].component;

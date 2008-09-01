@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp 1490 2007-09-12 02:07:43Z TomThurman $
+   $Id: arm.exp,v 1.33 2007/11/15 12:40:52 liutkus Exp $
    ISO TC184/SC4/WG12 N4005 - ISO/TS 10303-1686 Interconnect module usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3447
 *)
@@ -98,13 +98,13 @@ SCHEMA Interconnect_module_usage_view_arm;
  Interconnect_module_edge_surface,
  Interconnect_module_edge_segment_surface))
     SUBTYPE OF (Part_feature);
-      SELF\Part_feature.associated_definition : Interconnect_module_usage_view;
+      SELF\Part_feature.associated_definition : Layered_interconnect_module_usage_view;
   END_ENTITY;
 
   ENTITY Interconnect_module_terminal
     SUBTYPE OF (Part_terminal);
       SELF\Shape_feature.connection_area      : OPTIONAL SET[1:?] OF Connection_zone_in_usage_view;            
-      SELF\Part_feature.associated_definition : Interconnect_module_usage_view;
+      SELF\Part_feature.associated_definition : Layered_interconnect_module_usage_view;
   END_ENTITY;
 
   ENTITY Interconnect_module_terminal_surface_constituent_relationship
@@ -113,7 +113,7 @@ SCHEMA Interconnect_module_usage_view_arm;
       SELF\Shape_element_relationship.related  : Interconnect_module_terminal;
   END_ENTITY;
 
-  ENTITY Interconnect_module_usage_view
+  ENTITY Layered_interconnect_module_usage_view
     SUPERTYPE OF (Pcb_usage_view)
     SUBTYPE OF (Part_usage_view);
       thickness_over_dielectric_requirement : OPTIONAL Length_tolerance_characteristic;
@@ -135,14 +135,14 @@ SCHEMA Interconnect_module_usage_view_arm;
       reference_location    : Axis_placement;
       thickness_requirement : Length_tolerance_characteristic;
     INVERSE
-      design : SET[1:?] OF interconnect_module_usage_view FOR located_thickness_requirement;
+      design : SET[1:?] OF Layered_interconnect_module_usage_view FOR located_thickness_requirement;
     UNIQUE
       UR1 : design,
  reference_location;
   END_ENTITY;
 
   ENTITY Pcb_usage_view
-    SUBTYPE OF (Interconnect_module_usage_view);
+    SUBTYPE OF (Layered_interconnect_module_usage_view);
     WHERE
       WR1 : EXISTS(thickness_over_metal_requirement) OR EXISTS(thickness_over_dielectric_requirement);
   END_ENTITY;

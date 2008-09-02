@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.154 2008/08/25 10:32:04 liutkus Exp $
+   $Id: arm.exp,v 1.155 2008/08/27 14:36:37 liutkus Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -175,14 +175,21 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     WR2 : (EXISTS (design_layer_purpose)) XOR ((SIZEOF(externally_defined_design_layer_purpose)) = 1);       
   END_ENTITY;
 
+  ENTITY Design_specific_stratum_technology_mapping_relationship
+      SUBTYPE OF(Stratum_technology_mapping_relationship);
+      scope : Library_to_design_stack_model_mapping;
+  END_ENTITY;
+
   ENTITY Design_stack_model
     SUBTYPE OF(Stratum_stack_model);
       model_thickness : OPTIONAL Length_tolerance_characteristic;
-      reference_model : OPTIONAL Library_stack_model; 
+   DERIVE
+      reference_model : Library_stack_model := reference_model_relationship[1]\Library_to_design_stack_model_mapping.relating_view; 
     INVERSE
+      reference_model_relationship : SET [0:1] OF Library_to_design_stack_model_mapping for related_view; 
       sub_stack: SET [1:?] OF Stratum_sub_stack for associated_stackup;
     WHERE
-      WR1: NOT EXISTS(reference_model) OR 
+      WR1: NOT EXISTS(reference_model_relationship[1]) OR 
           ((SELF\Stratum_stack_model.composing_occurrence * reference_model\Stratum_stack_model.composing_occurrence) = 
            SELF\Stratum_stack_model.composing_occurrence);
   END_ENTITY;
@@ -259,6 +266,15 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   ENTITY Inverse_copy_stratum_technology_occurrence_relationship
     SUBTYPE OF (Derived_stratum_technology_occurrence_relationship);
+  END_ENTITY;
+
+ ENTITY Library_to_design_stack_model_mapping 
+    SUBTYPE OF (view_definition_relationship);
+    SELF\View_definition_relationship.related_view : Design_stack_model;
+    SELF\View_definition_relationship.relating_view : Library_stack_model;
+   WHERE
+      WR1 : acyclic_library_to_design_stack_model_mapping(SELF, [related_view], 
+           'FABRICATION_TECHNOLOGY_ARM.LIBRARY_TO_DESIGN_STACK_MODEL_MAPPING');
   END_ENTITY;
 
   ENTITY Local_linear_stack
@@ -510,6 +526,31 @@ END_LOCAL;
     END_REPEAT;
   RETURN (TRUE);
 END_FUNCTION; 
+
+
+FUNCTION acyclic_library_to_design_stack_model_mapping
+  (relation : Library_to_design_stack_model_mapping; relatives : SET[1:?] OF
+  Design_stack_model; specific_relation : STRING) : BOOLEAN; 
+LOCAL
+    x : SET OF Library_to_design_stack_model_mapping := [];
+END_LOCAL;
+
+    IF relation. relating_view IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+      x := QUERY(pd <* bag_to_set(USEDIN(relation. relating_view,
+        'FABRICATION_TECHNOLOGY_ARM.' + 'LIBRARY_TO_DESIGN_STACK_MODEL_MAPPING.' +
+        'RELATED_VIEW')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_library_to_design_stack_model_mapping(x[i], relatives +
+        relation. relating_view, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+  RETURN (TRUE);
+END_FUNCTION; 
+
+
 
   FUNCTION acyclic_stratum_technology_occurrence_relationship
     (relation : Stratum_technology_occurrence_relationship; 

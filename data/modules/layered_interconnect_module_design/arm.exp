@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.279 2008/08/20 12:04:29 liutkus Exp $
+   $Id: arm.exp,v 1.280 2008/09/01 13:30:59 liutkus Exp $
    ISO TC184/SC4/WG12 N4041 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3483
 *)
@@ -15,6 +15,19 @@ USE FROM Interconnect_module_connection_routing_arm;
 USE FROM Assembly_component_placement_requirements_arm;	-- ISO/TS 10303-1634	
 
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+
+ CONSTANT
+   Pre_defined_physical_network_group_types : SET OF STRING := [
+      'differential pair',
+      'balanced length',
+      'coaxial group',
+      'multi line bus'];
+
+   Pre_defined_physical_network_group_relation_types : SET OF STRING := [
+      'group to higher order group',
+      'element to ordered multiple line bus'];
+
+ END_CONSTANT;
 
   TYPE area_component_templates = SELECT (
     Stratum_feature_template, -- when area_component comes from library
@@ -862,6 +875,53 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       interrupted_connectivity_element : SET[1:?] OF Conductive_interconnect_element;
   END_ENTITY;
 
+ ENTITY Physical_network_group
+   ABSTRACT SUPERTYPE OF (ONEOF (Pre_defined_physical_network_group,
+                                 Externally_defined_physical_network_group))
+   SUBTYPE OF (Group);
+    SELF\Group.groupable_item : SET [1:?] OF Generic_physical_network;
+ END_ENTITY;
+
+ ENTITY Pre_defined_physical_network_group
+   SUBTYPE OF (Physical_network_group);
+ WHERE
+   WR1: SELF\Group.membership_meaning IN Pre_defined_physical_network_group_types;
+ END_ENTITY;
+
+ ENTITY Externally_defined_physical_network_group
+   SUBTYPE OF (Physical_network_group);
+ INVERSE
+          source : External_source_identification FOR item;
+ WHERE
+   WR1: NOT (SELF\Group.membership_meaning IN Pre_defined_physical_network_group_types);
+ END_ENTITY; 
+
+ ENTITY Physical_network_group_element_relationship
+   ABSTRACT SUPERTYPE OF (ONEOF (Pre_defined_physical_network_group_element_relationship,
+                                 Externally_defined_physical_network_group_element_relationship))
+   SUBTYPE OF (Group_relationship);
+    SELF\Group_relationship.relating_group : Physical_network_group;
+    SELF\Group_relationship.related_group : Physical_network_group;
+   WHERE
+    WR1 : acyclic_physical_network_group_element_relationship(SELF,
+        [related_group], 
+        'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.PHYSICAL_NETWORK_GROUP_ELEMENT_RELATIONSHIP');
+ END_ENTITY;
+
+ ENTITY Pre_defined_physical_network_group_element_relationship
+   SUBTYPE OF (Physical_network_group_element_relationship);
+ WHERE
+   WR1: SELF\Group_relationship.relation_type IN Pre_defined_physical_network_group_relation_types;
+ END_ENTITY;
+
+ ENTITY Externally_defined_physical_network_group_element_relationship
+   SUBTYPE OF (Physical_network_group_element_relationship);
+ INVERSE
+          source : External_source_identification FOR item;
+ WHERE
+   WR1: NOT (SELF\Group_relationship.relation_type IN Pre_defined_physical_network_group_relation_types);
+ END_ENTITY; 
+
   ENTITY Plated_cutout
     SUBTYPE OF (Cutout, Plated_inter_stratum_feature);
   END_ENTITY;
@@ -1277,6 +1337,30 @@ END_RULE;
     REPEAT i := 1 TO HIINDEX(x);
       IF NOT acyclic_conductive_interconnect_element_terminal_link(x[i], relatives +
         relation.precedent_point, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);
+  END_FUNCTION; 
+  
+  FUNCTION acyclic_physical_network_group_element_relationship
+    (relation : Physical_network_group_element_relationship; 
+    relatives : SET[1:?] OF Physical_network_group; 
+    specific_relation : STRING) : BOOLEAN; 
+  LOCAL
+     x : SET OF Physical_network_group_element_relationship := [];
+  END_LOCAL;
+
+    IF relation.relating_group IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd <* bag_to_set(USEDIN(relation.relating_group,
+      'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
+      'PHYSICAL_NETWORK_GROUP_ELEMENT_RELATIONSHIP.' +
+      'RELATED_GROUP')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_physical_network_group_element_relationship(x[i], relatives +
+        relation.relating_group, specific_relation) THEN
         RETURN (FALSE);
       END_IF;
     END_REPEAT;

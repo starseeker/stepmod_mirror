@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-05-30 06:38:11 -0700 (Tr, 30 Geg 2007) $" rcs.revision="$Revision: 1067 $" description.file="mim_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="construction_geometry_mim schema_instance"/>
    <schema name="Construction_geometry_mim">
       <interface kind="use" schema="Basic_curve_mim"/>
@@ -55,6 +55,9 @@
          <interfaced.item name="face_surface"/>
          <interfaced.item name="vertex_point"/>
       </interface>
+      <type name="constructive_geometry_representation_or_shape_represenation">
+         <select selectitems="constructive_geometry_representation shape_representation"/>
+      </type>
       <entity name="constructive_geometry_representation" supertypes="representation">
          <where label="WR1" expression="('CONSTRUCTION_GEOMETRY_MIM.GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF(SELF.context_of_items)) AND ({2 &lt;= SELF.context_of_items\geometric_representation_context. coordinate_space_dimension &lt;= 3})"/>
          <where label="WR2" expression="SIZEOF( QUERY( cgr_i &lt;* SELF.items | SIZEOF(['CONSTRUCTION_GEOMETRY_MIM.PLACEMENT', 'CONSTRUCTION_GEOMETRY_MIM.CURVE', 'CONSTRUCTION_GEOMETRY_MIM.EDGE', 'CONSTRUCTION_GEOMETRY_MIM.FACE', 'CONSTRUCTION_GEOMETRY_MIM.POINT', 'CONSTRUCTION_GEOMETRY_MIM.SURFACE', 'CONSTRUCTION_GEOMETRY_MIM.FACE_SURFACE', 'CONSTRUCTION_GEOMETRY_MIM.VERTEX_POINT'] * TYPEOF(cgr_i)) &lt;&gt; 1 )) = 0"/>
@@ -62,10 +65,16 @@
          <where label="WR4" expression="SIZEOF( USEDIN( SELF, 'REPRESENTATION_SCHEMA.' + 'REPRESENTATION_MAP.MAPPED_REPRESENTATION') ) = 0"/>
       </entity>
       <entity name="constructive_geometry_representation_relationship" supertypes="representation_relationship">
+         <explicit name="rep_1">
+            <typename name="constructive_geometry_representation_or_shape_represenation"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
+         <explicit name="rep_2">
+            <typename name="constructive_geometry_representation"/>
+            <redeclaration entity-ref="representation_relationship"/>
+         </explicit>
          <where label="WR1" expression="(SELF.rep_1.context_of_items :=: SELF.rep_2.context_of_items) AND ('CONSTRUCTION_GEOMETRY_MIM.GEOMETRIC_REPRESENTATION_CONTEXT' IN TYPEOF(SELF.rep_1.context_of_items))"/>
-         <where label="WR2" expression="'CONSTRUCTION_GEOMETRY_MIM.CONSTRUCTIVE_GEOMETRY_REPRESENTATION' IN TYPEOF(SELF.rep_2)"/>
-         <where label="WR3" expression="SIZEOF(['CONSTRUCTION_GEOMETRY_MIM.SHAPE_REPRESENTATION', 'CONSTRUCTION_GEOMETRY_MIM.CONSTRUCTIVE_GEOMETRY_REPRESENTATION'] * TYPEOF(SELF.rep_1)) = 1"/>
-         <where label="WR4" expression="NOT('CONSTRUCTION_GEOMETRY_MIM.' + 'REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION' IN TYPEOF(SELF))"/>
+         <where label="WR2" expression="NOT('CONSTRUCTION_GEOMETRY_MIM.' + 'REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION' IN TYPEOF(SELF))"/>
       </entity>
    </schema>
 </express>

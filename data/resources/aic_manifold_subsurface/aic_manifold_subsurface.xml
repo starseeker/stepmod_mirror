@@ -2,10 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express 
-   language_version="2" 
-   reference="ISO 10303-521"
-   rcs.date="$Date: 2006/05/17 08:02:51 $" rcs.revision="$Revision: 1.4 $" description.file="descriptions.xml">
+<express language_version="2" reference="ISO 10303-521" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="aic_manifold_subsurface schema_instance"/>
    <schema name="aic_manifold_subsurface">
       <interface kind="use" schema="aic_topologically_bounded_surface"/>
@@ -32,7 +29,7 @@
          <where label="WR2" expression="SIZEOF (QUERY (it &lt;* SELF.items |&#10;         SIZEOF(['AIC_MANIFOLD_SUBSURFACE.CONNECTED_FACE_SUB_SET',&#10;         'AIC_MANIFOLD_SUBSURFACE.MAPPED_ITEM'] * TYPEOF(it)) =1 )) &gt; 0"/>
          <where label="WR3" expression="SIZEOF (QUERY (mi &lt;*  QUERY (it &lt;* items |&#10;                 'AIC_MANIFOLD_SUBSURFACE.MAPPED_ITEM' IN TYPEOF(it)) |&#10;   NOT ('AIC_MANIFOLD_SUBSURFACE.MANIFOLD_SUBSURFACE_SHAPE_REPRESENTATION' IN&#10;             TYPEOF(mi\mapped_item.mapping_source.&#10;                           mapped_representation)))) = 0"/>
          <where label="WR4" expression="SIZEOF (QUERY (cfss &lt;* QUERY (it &lt;* SELF.items |&#10;           'AIC_MANIFOLD_SUBSURFACE.CONNECTED_FACE_SUB_SET' IN TYPEOF(it)) |&#10;          NOT('AIC_MANIFOLD_SUBSURFACE.OPEN_SHELL' IN TYPEOF(cfss)))) = 0"/>
-         <where label="WR5" expression="SIZEOF (QUERY (cfss &lt;* QUERY (it &lt;* SELF.items |&#10;           'AIC_MANIFOLD_SUBSURFACE.CONNECTED_FACE_SUB_SET' IN TYPEOF(it)) |&#10;          NOT( (('AIC_MANIFOLD_SUBSURFACE.CONNECTED_FACE_SUB_SET' IN&#10;                   TYPEOF(cfss.parent_face_set)) AND&#10;            (SIZEOF (QUERY (fac &lt;* cfss.parent_face_set.cfs_faces | NOT&#10;                 advanced_face_properties(fac))) = 0)) OR&#10;             (SIZEOF (QUERY (fac &lt;* cfss.parent_face_set.cfs_faces | NOT&#10;              ('AIC_MANIFOLD_SUBSURFACE.ADVANCED_FACE' IN TYPEOF(fac)))) = 0)&#10;                    ))) = 0"/>
+         <where label="WR5" expression="SIZEOF (QUERY (cfss &lt;* QUERY (it &lt;* SELF.items |&#10;           'AIC_MANIFOLD_SUBSURFACE.CONNECTED_FACE_SUB_SET' IN TYPEOF(it)) |&#10;          NOT( (('AIC_MANIFOLD_SUBSURFACE.CONNECTED_FACE_SUB_SET' IN&#10;                   TYPEOF(cfss\connected_face_sub_set.parent_face_set))AND&#10;           (SIZEOF(QUERY(fac &lt;* cfss\connected_face_sub_set.parent_face_set\connected_face_set.cfs_faces | NOT&#10;                 advanced_face_properties(fac))) = 0)) OR&#10;            (SIZEOF(QUERY(fac &lt;* cfss\connected_face_sub_set.parent_face_set\connected_face_set.cfs_faces | NOT&#10;              ('AIC_MANIFOLD_SUBSURFACE.ADVANCED_FACE' IN TYPEOF(fac)))) = 0)&#10;                    ))) = 0"/>
          <where label="WR6" expression="SIZEOF (QUERY (cfss &lt;* QUERY (it &lt;* SELF.items |&#10;           'AIC_MANIFOLD_SUBSURFACE.CONNECTED_FACE_SUB_SET' IN TYPEOF(it)) |&#10;          ( SIZEOF (QUERY (fac &lt;* cfss\connected_face_set.cfs_faces  | NOT&#10;              advanced_face_properties(fac))) = 0))) = 0"/>
          <where label="WR7" expression="SIZEOF (QUERY (cfss &lt;* QUERY (it &lt;* SELF.items |&#10;          'AIC_MANIFOLD_SUBSURFACE.CONNECTED_FACE_SUB_SET' IN TYPEOF(it)) |&#10;             NOT (SIZEOF (QUERY(fcs &lt;* cfss\connected_face_set.cfs_faces |&#10;               ('AIC_MANIFOLD_SUBSURFACE.SUBFACE' IN TYPEOF(fcs)) AND&#10;            NOT (SIZEOF(QUERY (elp_fbnds &lt;* QUERY (bnds &lt;* fcs.bounds |&#10;         'AIC_MANIFOLD_SUBSURFACE.EDGE_LOOP' IN TYPEOF(bnds.bound)) |&#10;                NOT (SIZEOF (QUERY (oe &lt;* elp_fbnds.bound\path.edge_list |&#10;                  NOT(('AIC_MANIFOLD_SUBSURFACE.EDGE_CURVE' IN&#10;            TYPEOF(oe.edge_element)) OR&#10;           ('AIC_MANIFOLD_SUBSURFACE.SUBEDGE' IN&#10;            TYPEOF(oe.edge_element)) ))) = 0&#10;                   ))) = 0&#10;                 ))) = 0&#10;             ))) = 0"/>
          <where label="WR8" expression="SIZEOF (QUERY (cfss &lt;* QUERY (it &lt;* SELF.items |&#10;           'AIC_MANIFOLD_SUBSURFACE.CONNECTED_FACE_SUB_SET' IN TYPEOF(it)) |&#10;             NOT (SIZEOF (QUERY(fcs &lt;* cfss\connected_face_set.cfs_faces |&#10;           ('AIC_MANIFOLD_SUBSURFACE.SUBFACE' IN TYPEOF(fcs)) AND&#10;               NOT (SIZEOF(QUERY (elp_fbnds &lt;* QUERY (bnds &lt;* fcs.bounds |&#10;         'AIC_MANIFOLD_SUBSURFACE.EDGE_LOOP' IN TYPEOF(bnds.bound)) |&#10;                 NOT (SIZEOF (QUERY (oe &lt;* elp_fbnds.bound\path.edge_list |&#10;          NOT(('AIC_MANIFOLD_SUBSURFACE.VERTEX_POINT' IN TYPEOF(oe.edge_start))&#10;                AND ('AIC_MANIFOLD_SUBSURFACE.VERTEX_POINT' IN&#10;                 TYPEOF(oe.edge_end))&#10;            ))) = 0&#10;              ))) = 0&#10;               ))) = 0&#10;                   ))) = 0"/>
@@ -46,14 +43,19 @@
             <typename name="face"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
-         <algorithm>IF 'AIC_MANIFOLD_SUBSURFACE.ADVANCED_FACE' IN TYPEOF(testface) THEN
+         <algorithm>LOCAL
+     a_subface : subface;
+   END_LOCAL;
+(* return TRUE if testface is of type advanced_face *)
+IF 'AIC_MANIFOLD_SUBSURFACE.ADVANCED_FACE' IN TYPEOF(testface) THEN
     RETURN (TRUE);
 END_IF;
 (* if testface is a subface recursively test the parent_face,
 return FALSE for all other types of face *)
 IF  ('AIC_MANIFOLD_SUBSURFACE.SUBFACE' IN TYPEOF(testface)) THEN
-   RETURN(advanced_face_properties(testface.parent_face));
-   ELSE  RETURN (FALSE);
+     a_subface := testface;
+     RETURN(advanced_face_properties(a_subface.parent_face));
+   ELSE RETURN (FALSE);
 END_IF;</algorithm>
       </function>
    </schema>

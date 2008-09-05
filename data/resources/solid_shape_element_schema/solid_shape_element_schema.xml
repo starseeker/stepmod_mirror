@@ -2,9 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" 
-	reference="ISO 10303-111"
-	rcs.date="$Date: 2007/01/31 13:13:51 $" rcs.revision="$Revision: 1.4 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="solid_shape_element_schema schema_instance"/>
    <schema name="solid_shape_element_schema">
       <interface kind="reference" schema="support_resource_schema">
@@ -12,6 +10,7 @@
       </interface>
       <interface kind="reference" schema="measure_schema">
          <interfaced.item name="length_measure"/>
+         <interfaced.item name="non_negative_length_measure"/>
          <interfaced.item name="plane_angle_measure"/>
          <interfaced.item name="positive_length_measure"/>
          <interfaced.item name="positive_plane_angle_measure"/>
@@ -49,9 +48,6 @@
       </interface>
       <interface kind="reference" schema="mathematical_functions_schema">
          <interfaced.item name="positive_integer"/>
-      </interface>
-      <interface kind="reference" schema="explicit_geometric_constraint_schema">
-         <interfaced.item name="non_negative_length_measure"/>
       </interface>
       <interface kind="reference" schema="sketch_schema">
          <interfaced.item name="positioned_sketch"/>
@@ -162,9 +158,9 @@
             <typename name="non_negative_length_measure"/>
          </explicit>
          <where label="WR1" expression="NOT(('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE' &#10;         IN TYPEOF(first_trim_condition)) OR&#10;         ('MEASURE_SCHEMA.PLANE_ANGLE_MEASURE' &#10;         IN TYPEOF(second_trim_condition)))"/>
-         <where label="WR2" expression="NOT ((('MEASURE_SCHEMA.LENGTH_MEASURE' &#10;         IN TYPEOF(first_trim_condition)) AND &#10;         ((first_trim_intent = offset) &#10;         OR (first_trim_intent = up_to_next))) OR  &#10;         (('MEASURE_SCHEMA.LENGTH_MEASURE' &#10;         IN TYPEOF(second_trim_condition)) AND &#10;         ((second_trim_intent = offset) &#10;         OR (second_trim_intent = up_to_next))))"/>
-         <where label="WR3" expression="NOT (((NOT ('MEASURE_SCHEMA.LENGTH_MEASURE' &#10;         IN TYPEOF(first_trim_condition))) AND &#10;         ((first_trim_intent = blind) &#10;         OR (first_trim_intent = through_all))) OR  &#10;         ((NOT('MEASURE_SCHEMA.LENGTH_MEASURE' &#10;         IN TYPEOF(second_trim_condition))) AND &#10;         ((second_trim_intent = blind) &#10;         OR (second_trim_intent = through_all))))"/>
-         <where label="WR4" expression="(((first_trim_intent = offset) AND (first_offset &gt; 0)) XOR&#10;         ((first_trim_intent &lt;&gt; offset) AND (first_offset = 0))) AND &#10;         (((second_trim_intent = offset) AND (second_offset &gt; 0)) XOR&#10;         ((second_trim_intent &lt;&gt; offset) AND (second_offset = 0)))"/>
+         <where label="WR2" expression="NOT ((('MEASURE_SCHEMA.LENGTH_MEASURE' &#10;         IN TYPEOF(first_trim_condition)) AND &#10;         ((first_trim_intent = trim_intent.offset) &#10;         OR (first_trim_intent = trim_intent.up_to_next))) OR  &#10;         (('MEASURE_SCHEMA.LENGTH_MEASURE' &#10;         IN TYPEOF(second_trim_condition)) AND &#10;         ((second_trim_intent = trim_intent.offset) &#10;         OR (second_trim_intent = trim_intent.up_to_next))))"/>
+         <where label="WR3" expression="NOT (((NOT ('MEASURE_SCHEMA.LENGTH_MEASURE' &#10;         IN TYPEOF(first_trim_condition))) AND &#10;         ((first_trim_intent = trim_intent.blind) &#10;         OR (first_trim_intent = trim_intent.through_all))) OR  &#10;         ((NOT('MEASURE_SCHEMA.LENGTH_MEASURE' &#10;         IN TYPEOF(second_trim_condition))) AND &#10;         ((second_trim_intent = trim_intent.blind) &#10;         OR (second_trim_intent = trim_intent.through_all))))"/>
+         <where label="WR4" expression="(((first_trim_intent = trim_intent.offset) AND (first_offset &gt; 0)) XOR&#10;         ((first_trim_intent &lt;&gt; trim_intent.offset) AND (first_offset = 0))) AND &#10;         (((second_trim_intent = trim_intent.offset) AND (second_offset &gt; 0)) XOR&#10;         ((second_trim_intent &lt;&gt; trim_intent.offset) AND (second_offset = 0)))"/>
          <where label="WR5" expression="NOT((('MEASURE_SCHEMA.LENGTH_MEASURE' &#10;         IN TYPEOF(first_trim_condition)) AND&#10;            ('MEASURE_SCHEMA.LENGTH_MEASURE' &#10;         IN TYPEOF(second_trim_condition))) AND&#10;         (first_trim_condition = second_trim_condition))"/>
       </entity>
       <entity name="modified_solid" abstract.supertype="YES" supertypes="solid_model" super.expression="ONEOF (edge_blended_solid, sculptured_solid, shelled_solid, offset_face_solid, modified_solid_with_placed_configuration)">
@@ -255,7 +251,13 @@
          <explicit name="pocket_radius">
             <typename name="positive_length_measure"/>
          </explicit>
-         <where label="WR1" expression="SELF\solid_with_pocket.floor_blend_radius &lt;= pocket_radius"/>
+         <derived name="fbr" expression="SELF\solid_with_pocket.floor_blend_radius">
+            <builtintype type="REAL"/>
+         </derived>
+         <derived name="pr" expression="pocket_radius">
+            <builtintype type="REAL"/>
+         </derived>
+         <where label="WR1" expression="fbr &lt;= pr"/>
       </entity>
       <entity name="solid_with_circular_protrusion" supertypes="solid_with_protrusion">
          <explicit name="protrusion_radius">
@@ -269,7 +271,13 @@
          <explicit name="tip_radius">
             <typename name="non_negative_length_measure"/>
          </explicit>
-         <where label="WR1" expression="tip_radius &lt; &#10;          SELF\solid_with_stepped_round_hole.segment_radii[segments]"/>
+         <derived name="tr" expression="tip_radius">
+            <builtintype type="REAL"/>
+         </derived>
+         <derived name="sr" expression="SELF\solid_with_stepped_round_hole.segment_radii[segments]">
+            <builtintype type="REAL"/>
+         </derived>
+         <where label="WR1" expression="tr &lt; sr"/>
       </entity>
       <entity name="solid_with_constant_radius_edge_blend" supertypes="edge_blended_solid">
          <explicit name="radius">
@@ -298,7 +306,13 @@
          <explicit name="fillet_radius">
             <typename name="non_negative_length_measure"/>
          </explicit>
-         <where label="WR1" expression="fillet_radius &lt; &#10;          SELF\solid_with_stepped_round_hole.segment_radii[segments]"/>
+         <derived name="fr" expression="fillet_radius">
+            <builtintype type="REAL"/>
+         </derived>
+         <derived name="sr" expression="SELF\solid_with_stepped_round_hole.segment_radii[segments]">
+            <builtintype type="REAL"/>
+         </derived>
+         <where label="WR1" expression="fr &lt; sr"/>
       </entity>
       <entity name="solid_with_general_pocket" supertypes="solid_with_pocket">
          <explicit name="profile">
@@ -398,7 +412,16 @@
          <explicit name="corner_radius">
             <typename name="non_negative_length_measure"/>
          </explicit>
-         <where label="WR1" expression="(corner_radius &lt; pocket_width/2) &#10;         AND (corner_radius &lt; pocket_length/2)"/>
+         <derived name="cr" expression="corner_radius">
+            <builtintype type="REAL"/>
+         </derived>
+         <derived name="pw" expression="pocket_width">
+            <builtintype type="REAL"/>
+         </derived>
+         <derived name="pl" expression="pocket_length">
+            <builtintype type="REAL"/>
+         </derived>
+         <where label="WR1" expression="(cr &lt; pw/2) AND (cr &lt; pl/2)"/>
       </entity>
       <entity name="solid_with_rectangular_protrusion" supertypes="solid_with_protrusion">
          <explicit name="protrusion_length">
@@ -442,7 +465,13 @@
          <explicit name="sphere_radius">
             <typename name="positive_length_measure"/>
          </explicit>
-         <where label="WR1" expression="sphere_radius &gt;= &#10;          SELF\solid_with_stepped_round_hole.segment_radii[segments]"/>
+         <derived name="sphr" expression="sphere_radius">
+            <builtintype type="REAL"/>
+         </derived>
+         <derived name="sr" expression="SELF\solid_with_stepped_round_hole.segment_radii[segments]">
+            <builtintype type="REAL"/>
+         </derived>
+         <where label="WR1" expression="sphr &gt;= sr"/>
       </entity>
       <entity name="solid_with_stepped_round_hole" supertypes="solid_with_hole" super.expression="solid_with_stepped_round_hole_and_conical_transitions ANDOR ONEOF (solid_with_flat_bottom_round_hole, solid_with_conical_bottom_round_hole, solid_with_spherical_bottom_round_hole)">
          <explicit name="segments">
@@ -501,7 +530,7 @@
             <typename name="non_negative_length_measure"/>
          </explicit>
       </entity>
-      <entity name="solid_with_variable_radius_edge_blend" supertypes="edge_blended_solid track_blended_solid">
+      <entity name="solid_with_variable_radius_edge_blend" supertypes="track_blended_solid">
          <explicit name="point_list">
             <aggregate type="LIST" lower="2" upper="?"/>
             <typename name="point"/>
@@ -607,7 +636,7 @@
          <typename name="positive_length_measure"/>
          <algorithm>LOCAL
     i  : INTEGER;
-    td : positive_length_measure := 0;
+    td : REAL := 0;
   END_LOCAL;
 
   REPEAT i := 1 TO swsrh.segments;
@@ -669,11 +698,11 @@
               := cskhole\solid_with_stepped_round_hole.segment_radii[j-1];
             smaller 
               := cskhole\solid_with_stepped_round_hole.segment_radii[j];
+            IF ((cskhole.conical_transitions[i].cone_base_radius &gt; larger)
+              OR (cskhole.conical_transitions[i].cone_base_radius &lt; smaller))
+            THEN RETURN(FALSE);
+            END_IF;
           END;
-          IF ((cskhole.conical_transitions[i].cone_base_radius &gt; larger)
-            OR (cskhole.conical_transitions[i].cone_base_radius &lt; smaller))
-          THEN RETURN(FALSE);
-          END_IF;
         END_IF;
       END;
     END_IF;

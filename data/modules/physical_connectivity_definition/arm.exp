@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp 656 2007-05-06 21:06:21Z thomasrthurman $
+   $Id: arm.exp,v 1.28 2007/11/15 12:42:02 liutkus Exp $
    ISO TC184/SC4/WG12 N4212 - ISO/TS 10303-1755 Physical connectivity definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3666
 *)
@@ -27,7 +27,14 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 		(Physical_connectivity_element,
 		 Physical_connectivity_definition);
 	END_TYPE;
-
+        
+	TYPE physical_connectivity_definition_domain_enumeration = EXTENSIBLE ENUMERATION OF
+		(electrical,
+		 thermal,
+		 optical,
+		 magnetic)
+    END_TYPE;
+     
 	TYPE termination_or_junction = EXTENSIBLE GENERIC_ENTITY SELECT
     	(Component_terminal,
     	 Topological_junction);
@@ -39,10 +46,17 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       associated_terminals  : SET[2:?] OF Physical_component_terminal;
       SELF\Shape_element.element_name : STRING;
       SELF\Shape_element.containing_shape RENAMED associated_definition : Physical_unit_network_definition;
+    INVERSE
+      domain : SET [O:1] OF Physical_connectivity_definition_domain for associated_definition;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, associated_definition;
   END_ENTITY;
 
+  Physical_connectivity_definition_domain
+      domain_type : physical_connectivity_definition_domain_enumeration;
+      associated_definition : Physical_connectivity_definition;
+  END_ENTITY;
+  
   ENTITY Physical_connectivity_definition_relationship;
       first_definition  : Physical_connectivity_definition;
       second_definition : Physical_connectivity_definition;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.28 2007/11/15 12:42:02 liutkus Exp $
+   $Id: arm.exp,v 1.29 2008/09/06 04:49:37 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4212 - ISO/TS 10303-1755 Physical connectivity definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3666
 *)
@@ -13,8 +13,9 @@ SCHEMA Physical_connectivity_definition_arm;
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740		
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
-	TYPE pcd_groupable_item = SELECT BASED_ON groupable_item WITH 
-	   (Physical_connectivity_definition);
+	TYPE pcd_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item WITH 
+	   (Physical_connectivity_definition,
+	    Group_relationship);
 	END_TYPE; 
 
 	TYPE pcd_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
@@ -32,7 +33,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 		(electrical,
 		 thermal,
 		 optical,
-		 magnetic)
+		 magnetic);
     END_TYPE;
      
 	TYPE termination_or_junction = EXTENSIBLE GENERIC_ENTITY SELECT
@@ -47,12 +48,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       SELF\Shape_element.element_name : STRING;
       SELF\Shape_element.containing_shape RENAMED associated_definition : Physical_unit_network_definition;
     INVERSE
-      domain : SET [O:1] OF Physical_connectivity_definition_domain for associated_definition;
+      domain : SET [0:1] OF Physical_connectivity_definition_domain for associated_definition;
     UNIQUE
       UR1 : SELF\Shape_element.element_name, associated_definition;
   END_ENTITY;
 
-  Physical_connectivity_definition_domain
+  ENTITY Physical_connectivity_definition_domain;
       domain_type : physical_connectivity_definition_domain_enumeration;
       associated_definition : Physical_connectivity_definition;
   END_ENTITY;
@@ -74,6 +75,22 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       UR1 : name, connectivity_context;
     WHERE
       WR1 : start_terminus <> end_terminus;
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_layout_topology_requirement
+    SUBTYPE OF(Predefined_requirement_view_definition, Group);
+      SELF\Group.elements : SET [1:?] OF Group_relationship;
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_layout_topology_node
+    SUBTYPE OF(Group);
+      SELF\Group.name RENAMED terminal_type : STRING;
+  END_ENTITY;
+
+  ENTITY Physical_connectivity_layout_topology_requirement_assignment
+    SUBTYPE OF(Requirement_assignment);
+      SELF\Requirement_assignment.assigned_requirement : Physical_connectivity_layout_topology_requirement;
+      SELF\Requirement_assignment.assigned_to          : Physical_connectivity_definition;
   END_ENTITY;
 
   ENTITY Physical_connectivity_make_from_relationship;

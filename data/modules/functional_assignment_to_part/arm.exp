@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.13 2008/08/24 00:53:57 thomasrthurman Exp $
+   $Id: arm.exp,v 1.14 2008/08/24 01:50:57 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3969 - ISO/TS 10303-1674 Functional assignment to part - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3669
 *)
@@ -41,6 +41,12 @@ SCHEMA Functional_assignment_to_part_arm;
       WR1 : SIZEOF(QUERY(ct <* connected_terminals | NOT (associated_definition = ct\Shape_element.containing_shape))) = 0;
   END_ENTITY;
 
+  ENTITY Part_connected_terminals_layout_topology_requirement_assignment
+    SUBTYPE OF(Requirement_assignment);
+      SELF\Requirement_assignment.assigned_requirement : Physical_connectivity_layout_topology_requirement;
+      SELF\Requirement_assignment.assigned_to          : Part_connected_terminals_definition;
+  END_ENTITY;
+
   ENTITY Part_connected_terminals_element;
     name                 : STRING; 
     start_terminus       : fatp_termination_or_junction;
@@ -77,6 +83,7 @@ END_ENTITY;
   ENTITY Part_terminal
     ABSTRACT SUPERTYPE
     SUBTYPE OF (Part_feature);
+      SELF\shape_element.description RENAMED terminal_type : OPTIONAL STRING;
     INVERSE
       connection_requirement         : SET[0:1] OF Part_connected_terminals_definition FOR connected_terminals;
       functional_usage_view_terminal : SET[0:1] OF Functional_usage_view_to_part_terminal_assignment FOR physical_usage_view_terminal;

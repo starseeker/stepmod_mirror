@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.69 2008/08/25 20:39:16 liutkus Exp $
+   $Id: arm.exp,v 1.70 2008/08/27 14:36:37 liutkus Exp $
    ISO TC184/SC4/WG12 N4101 - ISO/TS 10303-1718 Part template extension - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3525
 *)
@@ -13,6 +13,13 @@ SCHEMA Part_template_extension_arm;
 	USE FROM Part_template_shape_with_parameters_arm;	-- ISO/TS 10303-1720
 
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+
+  TYPE land_connection_zone_class = ENUMERATION OF
+    (surface_point_class,
+     edge_curve_class,
+     edge_point_class,
+     surface_area_class);
+  END_TYPE;
 
   TYPE extend_or_chord_2_extend_or_truncate_or_round = ENUMERATION OF
     (truncate,
@@ -74,6 +81,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     SELF\Path_area_with_parameters.parameters : Closed_curve_style_parameters;
   END_ENTITY;
 
+  ENTITY Connection_zone_in_layout_template
+  	SUBTYPE OF (Connection_zone, Instanced_feature);
+  	  SELF\Shape_element.containing_shape : Template_definition;
+      connection_zone_category            : OPTIONAL SET[1:?] OF land_connection_zone_class;
+  END_ENTITY; 
+  
   ENTITY Curve_style_parameters
   	ABSTRACT SUPERTYPE OF(ONEOF(Closed_curve_style_parameters, Curve_style_parameters_with_ends));
       name              : STRING;

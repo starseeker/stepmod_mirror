@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.57 2008/08/20 08:50:42 liutkus Exp $
+   $Id: mim.exp,v 1.58 2008/08/25 10:32:04 liutkus Exp $
    ISO TC184/SC4/WG12 N3958 - ISO/TS 10303-1670 Fabrication technology - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3664
 *)
@@ -10,6 +10,10 @@ SCHEMA Fabrication_technology_mim;
 	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
 	USE FROM Physical_layout_template_mim; -- ISO/TS 10303-1722
 	USE FROM Part_template_2d_shape_mim; -- ISO/TS 10303-1716
+
+TYPE ft_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH (
+	stratum_technology_occurrence_relationship);
+END_TYPE;
 
 TYPE ft_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
    (land_physical_template,
@@ -58,6 +62,11 @@ ENTITY derived_stratum_technology_occurrence_relationship
   SUBTYPE OF (stratum_technology_occurrence_relationship);
 END_ENTITY;
 
+ENTITY design_specific_stratum_technology_mapping_relationship
+  SUBTYPE OF(stratum_technology_mapping_relationship, property_definition);
+    SELF\property_definition.definition RENAMED scope : library_to_design_stack_model_mapping;
+END_ENTITY;
+
 ENTITY design_stack_model
   SUBTYPE OF(stratum_stack_model);
 END_ENTITY;
@@ -92,6 +101,10 @@ END_ENTITY;
   
 ENTITY inverse_copy_stratum_technology_occurrence_relationship
   SUBTYPE OF (derived_stratum_technology_occurrence_relationship);
+END_ENTITY;
+
+ENTITY library_to_design_stack_model_mapping
+  SUBTYPE OF (product_definition_relationship);
 END_ENTITY;
   
 ENTITY local_linear_stack

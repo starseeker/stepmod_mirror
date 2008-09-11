@@ -15,6 +15,9 @@
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
+      <type name="ft_classification_item">
+         <select extensible="YES" genericentity="YES" basedon="classification_item" selectitems="Stratum_technology_occurrence_relationship"/>
+      </type>
       <type name="ft_documented_element_select">
          <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Passage_technology Stratum_technology"/>
       </type>
@@ -127,17 +130,25 @@
          <where label="WR1" expression="(SIZEOF([SELF\Stratum_technology.stratum_material[1]\Material_identification_with_conductivity_classification.electrical_conductivity_classification,&#10;           SELF\Stratum_technology.stratum_material[1]\Material_identification_with_conductivity_classification.thermal_conductivity_classification] *&#10;           ['conductive']) &gt;= 1) OR&#10;       (SELF\Stratum_technology.stratum_material[1]\Material_identification_with_conductivity_classification.magnetic_permeability_classification IN ['highly permeable']) OR&#10;       (SELF\Stratum_technology.stratum_material[1]\Material_identification_with_conductivity_classification.optical_insertion_loss_classification IN ['vacuum', 'very low loss', 'low loss'])"/>
          <where label="WR2" expression="(EXISTS (design_layer_purpose)) XOR ((SIZEOF(externally_defined_design_layer_purpose)) = 1)"/>
       </entity>
+      <entity name="Design_specific_stratum_technology_mapping_relationship" supertypes="Stratum_technology_mapping_relationship">
+         <explicit name="scope">
+            <typename name="Library_to_design_stack_model_mapping"/>
+         </explicit>
+      </entity>
       <entity name="Design_stack_model" supertypes="Stratum_stack_model">
          <explicit name="model_thickness" optional="YES">
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
-         <explicit name="reference_model" optional="YES">
+         <derived name="reference_model" expression="reference_model_relationship[1]\Library_to_design_stack_model_mapping.relating_view">
             <typename name="Library_stack_model"/>
-         </explicit>
+         </derived>
+         <inverse name="reference_model_relationship" entity="Library_to_design_stack_model_mapping" attribute="related_view">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
          <inverse name="sub_stack" entity="Stratum_sub_stack" attribute="associated_stackup">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <where label="WR1" expression="NOT EXISTS(reference_model) OR &#10;          ((SELF\Stratum_stack_model.composing_occurrence * reference_model\Stratum_stack_model.composing_occurrence) = &#10;           SELF\Stratum_stack_model.composing_occurrence)"/>
+         <where label="WR1" expression="NOT EXISTS(reference_model_relationship[1]) OR &#10;          ((SELF\Stratum_stack_model.composing_occurrence * reference_model\Stratum_stack_model.composing_occurrence) = &#10;           SELF\Stratum_stack_model.composing_occurrence)"/>
       </entity>
       <entity name="Documentation_layer_technology" supertypes="Stratum_technology">
          <explicit name="pre_defined_documentation_layer_purpose" optional="YES">
@@ -224,6 +235,17 @@
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.id)"/>
       </entity>
       <entity name="Inverse_copy_stratum_technology_occurrence_relationship" supertypes="Derived_stratum_technology_occurrence_relationship"/>
+      <entity name="Library_to_design_stack_model_mapping" supertypes="View_definition_relationship">
+         
+         <explicit name="relating_view">
+            <typename name="Library_stack_model"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+         <explicit name="related_view">
+            <typename name="Design_stack_model"/>
+            <redeclaration entity-ref="View_definition_relationship"/>
+         </explicit>
+      </entity>
       <entity name="Local_linear_stack" supertypes="Stratum_sub_stack">
          <explicit name="stratum_technology_sequence">
             <aggregate type="SET" lower="1" upper="?"/>

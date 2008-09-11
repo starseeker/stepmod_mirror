@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.157 2008/09/02 22:12:13 thomasrthurman Exp $
+   $Id: arm.exp,v 1.158 2008/09/06 20:13:57 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -40,11 +40,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
      Stratum_technology_occurrence_relationship);
   END_TYPE; 
  
-  SUBTYPE_CONSTRAINT ft_stratum_stack_model_subtypes FOR Stratum_stack_model;
-    (ONEOF (Design_stack_model,
-            Library_stack_model));
-  END_SUBTYPE_CONSTRAINT;
- 
   TYPE ft_terminus_condition = EXTENSIBLE ENUMERATION OF
     (bilateral_bond,
      bilateral_complete_removal,
@@ -55,13 +50,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     (microstrip,
      stripline,
      co_planar_waveguide);
-  END_TYPE;
-
-  TYPE land_template_terminal_class = ENUMERATION OF
-    (surface_point_class,
-     edge_curve_class,
-     edge_point_class,
-     surface_area_class);
   END_TYPE;
 
   TYPE layer_position_type = ENUMERATION OF
@@ -357,7 +345,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_ENTITY;
 
   ENTITY Stratum_stack_model
-    ABSTRACT SUPERTYPE
+    ABSTRACT SUPERTYPE OF (ONEOF (Design_stack_model, Library_stack_model))
     SUBTYPE OF(Template_definition);
     DERIVE
       composing_occurrence : SET [1:?] OF Stratum_technology_occurrence := get_stack(composing_link);

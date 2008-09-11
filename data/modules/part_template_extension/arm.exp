@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.70 2008/08/27 14:36:37 liutkus Exp $
+   $Id: arm.exp,v 1.71 2008/09/07 20:26:22 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4101 - ISO/TS 10303-1718 Part template extension - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3525
 *)
@@ -33,13 +33,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
      extend);
   END_TYPE;
 
-	SUBTYPE_CONSTRAINT inter_stratum_feature_template_subtypes FOR Inter_stratum_feature_template;         
-	    (ONEOF (Component_termination_passage_template,
-		 Via_template,
-		 Unsupported_passage_template,
-		 Inter_stratum_feature_edge_segment_template,
-		 Inter_stratum_feature_edge_template));
-	END_SUBTYPE_CONSTRAINT;        
+  TYPE land_template_terminal_class = ENUMERATION OF
+    (surface_point_class,
+     edge_curve_class,
+     edge_point_class,
+     surface_area_class);
+  END_TYPE;
 
   TYPE pte_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
     (Land_physical_template);
@@ -243,9 +242,11 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_ENTITY;
 
   ENTITY Inter_stratum_feature_template
-    SUPERTYPE OF (ONEOF(Component_termination_passage_template,
-      Unsupported_passage_template,
-      Via_template))
+    SUPERTYPE OF (ONEOF (Component_termination_passage_template,
+		 Via_template,
+		 Unsupported_passage_template,
+		 Inter_stratum_feature_edge_segment_template,
+		 Inter_stratum_feature_edge_template))
     SUBTYPE OF (Geometric_template);
       of_passage_technology : Passage_technology;
     WHERE

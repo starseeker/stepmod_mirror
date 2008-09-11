@@ -36,9 +36,6 @@
       <type name="ft_terminus_condition">
          <enumeration extensible="YES" items="bilateral_bond bilateral_complete_removal unilateral_bond"/>
       </type>
-      <type name="land_template_terminal_class">
-         <enumeration items="surface_point_class edge_curve_class edge_point_class surface_area_class"/>
-      </type>
       <type name="layer_position_type">
          <enumeration items="secondary all external primary internal"/>
       </type>
@@ -236,7 +233,6 @@
       </entity>
       <entity name="Inverse_copy_stratum_technology_occurrence_relationship" supertypes="Derived_stratum_technology_occurrence_relationship"/>
       <entity name="Library_to_design_stack_model_mapping" supertypes="View_definition_relationship">
-         
          <explicit name="relating_view">
             <typename name="Library_stack_model"/>
             <redeclaration entity-ref="View_definition_relationship"/>
@@ -341,7 +337,7 @@
          <where label="WR5" expression="NOT EXISTS(single_stratum_passage_location) OR NOT EXISTS(target_stratum)"/>
          <where label="WR6" expression="NOT EXISTS(target_stratum) OR&#10;			  ((target_stratum IN SELF\Stratum_sub_stack.associated_stackup.composing_occurrence) AND&#10;	           (target_stratum IN terminus_stratum))"/>
       </entity>
-      <entity name="Stratum_stack_model" abstract.supertype="YES" supertypes="Template_definition">
+      <entity name="Stratum_stack_model" abstract.supertype="YES" supertypes="Template_definition" super.expression="ONEOF (Design_stack_model, Library_stack_model)">
          <derived name="composing_occurrence" expression="get_stack(composing_link)">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Stratum_technology_occurrence"/>
@@ -512,7 +508,6 @@
          <where label="WR5" expression="primary_stratum_technology &lt;&gt; secondary_stratum_technology"/>
          <where label="WR6" expression="acyclic_stratum_technology_swap_relationship(SELF,&#10;        [secondary_stratum_technology], &#10;       'FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_SWAP_RELATIONSHIP')"/>
       </entity>
-      <subtype.constraint name="ft_stratum_stack_model_subtypes" entity="Stratum_stack_model" super.expression="ONEOF (Design_stack_model, Library_stack_model)"/>
       <function name="acyclic_equivalent_stackup_model_definition">
          <parameter name="relation">
             <typename name="Equivalent_stackup_model_definition"/>

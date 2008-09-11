@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.99 2008/08/20 10:44:44 liutkus Exp $
+   $Id: mim.exp,v 1.100 2008/09/06 19:15:46 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N4042 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3484
 *)
@@ -69,6 +69,8 @@ USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
 
   TYPE limd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
     (assembly_component,
+     externally_defined_physical_network_group,
+     externally_defined_physical_network_group_element_relationship,			
      stratum_feature_based_derived_pattern,
      stratum);
   END_TYPE; 
@@ -339,6 +341,34 @@ USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
   ENTITY physical_network
     SUBTYPE OF (shape_aspect);
   END_ENTITY;
+
+  ENTITY physical_network_group
+    ABSTRACT SUPERTYPE OF (ONEOF (pre_defined_physical_network_group,
+                                 externally_defined_physical_network_group))
+    SUBTYPE OF (group);
+  END_ENTITY;
+
+  ENTITY pre_defined_physical_network_group
+    SUBTYPE OF (physical_network_group);
+  END_ENTITY;
+
+  ENTITY externally_defined_physical_network_group
+    SUBTYPE OF (physical_network_group);
+  END_ENTITY; 
+
+  ENTITY physical_network_group_element_relationship
+    ABSTRACT SUPERTYPE OF (ONEOF (pre_defined_physical_network_group_element_relationship,
+                                 externally_defined_physical_network_group_element_relationship))
+    SUBTYPE OF (group_relationship);
+  END_ENTITY;
+
+  ENTITY pre_defined_physical_network_group_element_relationship
+    SUBTYPE OF (physical_network_group_element_relationship);
+  END_ENTITY;
+
+  ENTITY externally_defined_physical_network_group_element_relationship
+    SUBTYPE OF (physical_network_group_element_relationship);
+  END_ENTITY; 
 
   ENTITY plated_cutout
     SUBTYPE OF (cutout, plated_inter_stratum_feature);

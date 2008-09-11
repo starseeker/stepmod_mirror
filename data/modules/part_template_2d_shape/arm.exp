@@ -1,12 +1,12 @@
 (*
-   $Id: arm.exp,v 1.153 2008/08/25 10:32:03 liutkus Exp $
+   $Id: arm.exp,v 1.154 2008/08/27 14:36:37 liutkus Exp $
    ISO TC184/SC4/WG12 N4095 - ISO/TS 10303-1716 Part template 2d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3519
 *)
 
-SCHEMA Part_template_2d_shape_arm;
+SCHEMA Layered_interconnect_complex_template_arm;
 
-USE FROM Part_template_extension_arm;	-- ISO/TS 10303-1718
+USE FROM Layered_interconnect_simple_template_arm;	-- ISO/TS 10303-1718
 USE FROM Physical_unit_2d_shape_arm; -- ISO/TS 10303-1726
 
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
@@ -92,23 +92,23 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       SELF\Template_location_in_structured_template.assembly : Multi_stratum_structured_template;
       SELF\Template_location_in_structured_template.template : Inter_stratum_feature_template;
     WHERE
-      WR1: SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE',
-                   'PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_EDGE_TEMPLATE'] * TYPEOF(template)) = 0;
+      WR1: SIZEOF(['LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.INTER_STRATUM_FEATURE_EDGE_SEGMENT_TEMPLATE',
+                   'LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.INTER_STRATUM_FEATURE_EDGE_TEMPLATE'] * TYPEOF(template)) = 0;
   END_ENTITY;
 
   ENTITY Library_stack_model 
     SUBTYPE OF (Stratum_stack_model);
     DERIVE
       padstacks : SET[0:?] OF Padstack_definition := bag_to_set(QUERY(p <* USEDIN(SELF,
-        'PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE.STACK') | ('PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION' IN TYPEOF(p))));
+        'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE.STACK') | ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.PADSTACK_DEFINITION' IN TYPEOF(p))));
   END_ENTITY;
 
   ENTITY Material_removal_structured_template
     SUBTYPE OF (Single_stratum_structured_template);
     WHERE
       WR1 : SIZEOF(QUERY(tlict <* SELF\Structured_template.templates |
-        SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE',
-        'PART_TEMPLATE_2D_SHAPE_ARM.MATERIAL_REMOVAL_STRUCTURED_TEMPLATE'] * TYPEOF(tlict.template)) = 0)) = 0;
+        SIZEOF(['LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE',
+        'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.MATERIAL_REMOVAL_STRUCTURED_TEMPLATE'] * TYPEOF(tlict.template)) = 0)) = 0;
   END_ENTITY;
 
   ENTITY Multi_stratum_special_symbol_template
@@ -128,12 +128,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     WHERE
       WR1 : SIZEOF(QUERY(prpc <* USEDIN(SELF\Product_view_definition.defined_version.of_product,
         'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'template model'))) > 0;
-      WR2: NOT('PART_TEMPLATE_2D_SHAPE_ARM.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)) XOR 
+      WR2: NOT('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)) XOR 
           (SIZEOF(QUERY(tlict <* SELF\Structured_template.templates |
-         ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict)))) > 0);
+         ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict)))) > 0);
       WR3: SIZEOF(QUERY(tlict <* SELF\Structured_template.templates |
-         (NOT ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))) AND
-          (NOT ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(tlict))))) = 0;
+         (NOT ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(tlict))) AND
+          (NOT ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(tlict))))) = 0;
   END_ENTITY;
 
   ENTITY Part_template_keepout_shape_allocation_to_stratum_stack;
@@ -154,7 +154,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
        keepout_product_design_object_category.interconnect_module_cutout,
        keepout_product_design_object_category.interconnect_module_fill_area,
        keepout_product_design_object_category.interconnect_module_stratum_feature];
-     WR2 : 'PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(keepout_shape.shape_characterized_definition);
+     WR2 : 'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(keepout_shape.shape_characterized_definition);
      WR3 :  kept_out_layers = kept_out_layers * stack_model\Stratum_stack_model.composing_occurrence;
   END_ENTITY;  
 
@@ -182,8 +182,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     INVERSE
       reference_isft : Inter_stratum_feature_template_location FOR assembly;    
     WHERE
-      WR1: NOT(('PART_TEMPLATE_2D_SHAPE_ARM.STRUCTURED_INTER_STRATUM_FEATURE_TEMPLATE' IN TYPEOF(reference_isft.template)) XOR
-               ('PART_TEMPLATE_2D_SHAPE_ARM.COMPLEX_PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)));      
+      WR1: NOT(('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRUCTURED_INTER_STRATUM_FEATURE_TEMPLATE' IN TYPEOF(reference_isft.template)) XOR
+               ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.COMPLEX_PASSAGE_PADSTACK_DEFINITION' IN TYPEOF(SELF)));      
   END_ENTITY;
 
   ENTITY Physical_unit_keepout_shape_allocation_to_stratum_stack;
@@ -223,7 +223,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     SUBTYPE OF (Structured_template, Single_stratum_template);
   WHERE
     WR1: SIZEOF (QUERY(tp <* SELF\Structured_template.templates |
-               NOT ('PART_TEMPLATE_EXTENSION_ARM.SINGLE_STRATUM_TEMPLATE' IN TYPEOF(tp.template))
+               NOT ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.SINGLE_STRATUM_TEMPLATE' IN TYPEOF(tp.template))
               )) = 0;
   END_ENTITY;
 
@@ -240,15 +240,15 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR1: NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(bound_stratum)) OR
            (NOT EXISTS(bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose) OR
            (NOT (bound_stratum\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
-          ('PART_TEMPLATE_EXTENSION_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
+          ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
       WR2: 
           NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(bound_stratum)) AND
              ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(bound_stratum\Stratum_technology_occurrence.definition))) OR
            (NOT EXISTS(bound_stratum\Stratum_technology_occurrence.definition\Documentation_layer_technology.pre_defined_documentation_layer_purpose) OR
            (NOT (bound_stratum\Stratum_technology_occurrence.definition\Documentation_layer_technology.pre_defined_documentation_layer_purpose = predefined_documentation_layer_purpose.soldermask) OR
-          ('PART_TEMPLATE_EXTENSION_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
+          ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.MATERIAL_REMOVAL_FEATURE_TEMPLATE' IN TYPEOF(template))));
       WR3 : NOT ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(bound_stratum)) OR
-             ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(SELF\Template_location_in_structured_template.assembly));
+             ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRATUM_STACK_DEPENDENT_TEMPLATE' IN TYPEOF(SELF\Template_location_in_structured_template.assembly));
   END_ENTITY;
 
   ENTITY Stratum_stack_dependent_template
@@ -257,13 +257,13 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       stack : library_stack_model;
     WHERE
       WR1 : SIZEOF(QUERY(temp <* SELF\Structured_template.templates | 
-            ('PART_TEMPLATE_2D_SHAPE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(temp))
+            ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRATUM_SPECIFIC_TEMPLATE_LOCATION' IN TYPEOF(temp))
             AND (NOT ('FABRICATION_TECHNOLOGY_ARM.STRATUM_TECHNOLOGY_OCCURRENCE' IN TYPEOF(temp\Stratum_specific_template_location.bound_stratum))
                   OR
                NOT (temp\Stratum_specific_template_location.bound_stratum IN stack\Stratum_stack_model.composing_occurrence)
         ))) = 0;
-      WR2 : SIZEOF(['PART_TEMPLATE_2D_SHAPE_ARM.PADSTACK_DEFINITION',
-           'PART_TEMPLATE_2D_SHAPE_ARM.MULTI_STRATUM_SPECIAL_SYMBOL_TEMPLATE'] 
+      WR2 : SIZEOF(['LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.PADSTACK_DEFINITION',
+           'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.MULTI_STRATUM_SPECIAL_SYMBOL_TEMPLATE'] 
           * TYPEOF(SELF)) > 0;          
   END_ENTITY;
 
@@ -299,10 +299,10 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     UNIQUE
       UR1: assembly, reference_designation;
     WHERE
-      WR1 : (SIZEOF(transform) > 0) XOR ('PART_TEMPLATE_EXTENSION_ARM.TEARDROP_TEMPLATE' IN TYPEOF(template));
-      WR2 : NOT ('PART_TEMPLATE_EXTENSION_ARM.INTER_STRATUM_FEATURE_TEMPLATE' IN TYPEOF(template)) OR
-             ('PART_TEMPLATE_2D_SHAPE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(SELF));
-      WR3 : SIZEOF(['PART_TEMPLATE_EXTENSION_ARM.TEARDROP_TEMPLATE',
+      WR1 : (SIZEOF(transform) > 0) XOR ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.TEARDROP_TEMPLATE' IN TYPEOF(template));
+      WR2 : NOT ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.INTER_STRATUM_FEATURE_TEMPLATE' IN TYPEOF(template)) OR
+             ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.INTER_STRATUM_FEATURE_TEMPLATE_LOCATION' IN TYPEOF(SELF));
+      WR3 : SIZEOF(['LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.TEARDROP_TEMPLATE',
                     'PART_TEMPLATE_SHAPE_WITH_PARAMETERS_ARM.GEOMETRIC_TEMPLATE'] *
                    TYPEOF(template)) > 0;
   END_ENTITY;

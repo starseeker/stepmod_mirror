@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-05-07 04:10:01 -0700 (Pr, 07 Geg 2007) $" rcs.revision="$Revision: 674 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="physical_connectivity_definition_arm schema_instance"/>
    <schema name="Physical_connectivity_definition_arm">
       <interface kind="use" schema="Part_external_reference_arm"/>
@@ -18,10 +18,13 @@
          <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Physical_connectivity_element Physical_connectivity_definition"/>
       </type>
       <type name="pcd_groupable_item">
-         <select basedon="groupable_item" selectitems="Physical_connectivity_definition"/>
+         <select extensible="YES" genericentity="YES" basedon="groupable_item" selectitems="Physical_connectivity_definition Group_relationship"/>
       </type>
       <type name="pcd_requirement_assignment_item">
          <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Physical_connectivity_element Physical_connectivity_definition Physical_connectivity_definition_relationship"/>
+      </type>
+      <type name="physical_connectivity_definition_domain_enumeration">
+         <enumeration extensible="YES" items="electrical thermal optical magnetic"/>
       </type>
       <type name="termination_or_junction">
          <select extensible="YES" genericentity="YES" selectitems="Component_terminal Topological_junction"/>
@@ -39,10 +42,21 @@
             <typename name="Physical_unit_network_definition"/>
             <redeclaration entity-ref="Shape_element" old_name="containing_shape"/>
          </explicit>
+         <inverse name="domain" entity="Physical_connectivity_definition_domain" attribute="associated_definition">
+            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         </inverse>
          <unique label="UR1">
             <unique.attribute attribute="element_name"/>
             <unique.attribute attribute="associated_definition"/>
          </unique>
+      </entity>
+      <entity name="Physical_connectivity_definition_domain">
+         <explicit name="domain_type">
+            <typename name="physical_connectivity_definition_domain_enumeration"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <typename name="Physical_connectivity_definition"/>
+         </explicit>
       </entity>
       <entity name="Physical_connectivity_definition_relationship">
          <explicit name="first_definition">
@@ -76,6 +90,53 @@
             <unique.attribute attribute="connectivity_context"/>
          </unique>
          <where label="WR1" expression="start_terminus &lt;&gt; end_terminus"/>
+      </entity>
+      <entity name="Physical_connectivity_layout_topology_link" supertypes="Group_relationship">
+         <explicit name="subsequent_node">
+            <typename name="Physical_connectivity_layout_topology_node"/>
+            <redeclaration entity-ref="Group_relationship" old_name="related_group"/>
+         </explicit>
+         <explicit name="precedent_node">
+            <typename name="Physical_connectivity_layout_topology_node"/>
+            <redeclaration entity-ref="Group_relationship" old_name="relating_group"/>
+         </explicit>
+         <derived name="relation_type" expression="''">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Group_relationship"/>
+         </derived>
+         <where label="WR1" expression="acyclic_physical_connectivity_layout_topology_link(SELF, [subsequent_node], &#10;        'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK')"/>
+      </entity>
+      <entity name="Physical_connectivity_layout_topology_node" supertypes="Group">
+         <explicit name="terminal_type">
+            <builtintype type="STRING"/>
+            <redeclaration entity-ref="Group" old_name="name"/>
+         </explicit>
+         <where label="WR1" expression="(SIZEOF(SELF\Group.elements) = 0)"/>
+      </entity>
+      <entity name="Physical_connectivity_layout_topology_requirement" supertypes="Predefined_requirement_view_definition Group">
+         <explicit name="elements">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Physical_connectivity_layout_topology_link"/>
+            <redeclaration entity-ref="Group"/>
+         </explicit>
+         <derived name="nodes" expression="pcd_get_pcltn(elements)">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Physical_connectivity_layout_topology_node"/>
+         </derived>
+         <derived name="tree_structure" expression="(SIZEOF(nodes) = (SIZEOF(elements) + 1))">
+            <builtintype type="LOGICAL"/>
+         </derived>
+         <where label="WR1" expression="(tree_structure = TRUE)"/>
+      </entity>
+      <entity name="Physical_connectivity_layout_topology_requirement_assignment" supertypes="Requirement_assignment">
+         <explicit name="assigned_requirement">
+            <typename name="Physical_connectivity_layout_topology_requirement"/>
+            <redeclaration entity-ref="Requirement_assignment"/>
+         </explicit>
+         <explicit name="assigned_to">
+            <typename name="Physical_connectivity_definition"/>
+            <redeclaration entity-ref="Requirement_assignment"/>
+         </explicit>
       </entity>
       <entity name="Physical_connectivity_make_from_relationship">
          <explicit name="reusable_definition">
@@ -122,6 +183,36 @@
             <unique.attribute attribute="scope"/>
          </unique>
       </entity>
+      <function name="acyclic_physical_connectivity_layout_topology_link">
+         <parameter name="relation">
+            <typename name="Physical_connectivity_layout_topology_link"/>
+         </parameter>
+         <parameter name="relatives">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="Physical_connectivity_layout_topology_node"/>
+         </parameter>
+         <parameter name="specific_relation">
+            <builtintype type="STRING"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+      x : SET OF Physical_connectivity_layout_topology_link := [];
+    END_LOCAL;
+    IF relation.precedent_node IN relatives THEN
+      RETURN (FALSE);
+    END_IF;
+    x := QUERY(pd &lt;* bag_to_set(USEDIN(relation.precedent_node,
+      'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' +
+      'PHYSICAL_CONNECTIVITY_LAYOUT_TOPOLOGY_LINK.' +
+      'SUBSEQUENT_NODE')) | specific_relation IN TYPEOF(pd));
+    REPEAT i := 1 TO HIINDEX(x);
+      IF NOT acyclic_physical_connectivity_layout_topology_link(x[i], relatives +
+        relation.precedent_node, specific_relation) THEN
+        RETURN (FALSE);
+      END_IF;
+    END_REPEAT;
+    RETURN (TRUE);</algorithm>
+      </function>
       <function name="get_pct">
          <parameter name="input">
             <aggregate type="SET" lower="0" upper="?"/>
@@ -179,6 +270,22 @@
    END_IF;
   END_REPEAT;
   RETURN(tj);</algorithm>
+      </function>
+      <function name="pcd_get_pcltn">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Physical_connectivity_layout_topology_link"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Physical_connectivity_layout_topology_node"/>
+         <algorithm>LOCAL
+   pcltn : SET OF Physical_connectivity_layout_topology_node := [];
+    i : INTEGER := 0;
+  END_LOCAL;
+  REPEAT  i := 1 TO SIZEOF(input) BY 1;
+   pcltn := pcltn + input[i].precedent_node + input[i].subsequent_node;
+  END_REPEAT;
+  RETURN(pcltn);</algorithm>
       </function>
    </schema>
 </express>

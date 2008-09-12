@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.64 2008/06/30 13:54:47 abf Exp $
+$Id: resource.xsl,v 1.65 2008/08/25 20:14:26 abf Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -876,15 +876,11 @@ All rights reserved. Unless otherwise specified, no part of this publication may
       <xsl:choose>
 	<xsl:when test="@previous.revision.cancelled='NO'">
 	  This <xsl:value-of select="$this_edition"/> edition 
-	  constitutes a technical revision of the
+	  cancels and replaces the
 	  <xsl:value-of select="$prev_edition"/> edition  
 	  (<xsl:value-of
 	  select="concat($part_no,':',@previous.revision.year)"/>),
-	  which is provisionally retained in order to support continued use
-	  and maintenance of implementations based on the
-	  <xsl:value-of select="$prev_edition"/> 
-	  edition and to satisfy the normative references of other parts of
-	  ISO 10303. 
+	  of which it constitutes a technical revision. 
 
 
 	  <xsl:choose>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.203 2008/05/21 20:50:25 abf Exp $
+$Id: module.xsl,v 1.204 2008/06/26 14:31:58 abf Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -855,15 +855,11 @@ o=isocs; s=central<br/>
       <xsl:when test="@previous.revision.cancelled='NO'">
         This <xsl:value-of select="$this_edition"/> edition of  
         <xsl:value-of select="$part_no"/> 
-        constitutes a technical revision of the
+        cancels and replaces the
         <xsl:value-of select="$prev_edition"/> edition  
         (<xsl:value-of
           select="concat($part_no,':',@previous.revision.year)"/>),
-        which is provisionally retained in order to support continued use
-        and maintenance of implementations based on the
-        <xsl:value-of select="$prev_edition"/> 
-        edition and to satisfy the normative references of other parts of
-        ISO 10303. 
+        of which it constitutes a technical revision. 
 
 
         <xsl:choose>
@@ -1098,15 +1094,11 @@ o=isocs; s=central<br/>
       <xsl:when test="@previous.revision.cancelled='NO'">
         This <xsl:value-of select="$this_edition"/> edition of  
         <xsl:value-of select="$part_no"/> 
-        constitutes a technical revision of the
+        cancels and replaces the
         <xsl:value-of select="$prev_edition"/> edition  
         (<xsl:value-of
           select="concat($part_no,':',@previous.revision.year)"/>),
-        which is provisionally retained in order to support continued use
-        and maintenance of implementations based on the
-        <xsl:value-of select="$prev_edition"/> 
-        edition and to satisfy the normative references of other parts of
-        ISO 10303. 
+        of which it constitutes a technical revision. 
 
 
         <xsl:choose>

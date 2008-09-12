@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.52 2008/09/11 16:14:43 liutkus Exp $
+   $Id: arm.exp,v 1.53 2008/09/12 11:11:20 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5311 - ISO/TS 10303-1654 Characteristic - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4714
 *)
@@ -71,6 +71,12 @@ SCHEMA Characteristic_arm;
       table_header_usage : Characteristic_data_table_header_decomposition FOR related;  
   END_ENTITY;
 
+  ENTITY Characteristic_data_table_header 
+    SUBTYPE OF (Independent_property);
+    INVERSE
+      column : SET [2:?] OF Characteristic_data_table_header_decomposition FOR relating;    
+  END_ENTITY;
+
   ENTITY Characteristic_data_column_header_link
     SUBTYPE OF (Independent_property_relationship);
       SELF\Independent_property_relationship.relating RENAMED precedent : Characteristic_data_column_header;
@@ -85,7 +91,7 @@ SCHEMA Characteristic_arm;
 
   ENTITY Characteristic_data_table_header_decomposition
     SUBTYPE OF (Independent_property_relationship);
-      SELF\Independent_property_relationship.relating : Characteristic_data_column_header;
+      SELF\Independent_property_relationship.relating : Characteristic_data_table_header;
       SELF\Independent_property_relationship.related : Characteristic_data_column_header;
     DERIVE
       SELF\Independent_property_relationship.relation_type : STRING := 'decomposition';
@@ -197,6 +203,11 @@ SCHEMA Characteristic_arm;
       WR2 : NOT EXISTS(SELF\Representation.name);
   END_ENTITY;
 
+  FUNCTION valid_range(input1 : Numerical_item_with_unit;
+                       input2 : Numerical_item_with_unit) : BOOLEAN;
+    RETURN(TRUE);
+  END_FUNCTION; 
+
   SUBTYPE_CONSTRAINT exclusive_property_value_representation_characteristic FOR Property_value_representation;
     ONEOF (Range_characteristic, Tolerance_characteristic);
   END_SUBTYPE_CONSTRAINT;
@@ -205,22 +216,10 @@ SCHEMA Characteristic_arm;
     ONEOF(Externally_defined_type_qualifier, Pre_defined_type_qualifier);
   END_SUBTYPE_CONSTRAINT;
   
-  FUNCTION get_value (
-         input1 : string;
-         np : SET OF Representation_item) : Numerical_item_with_unit;
-    REPEAT i := 1 to SIZEOF(np) by 1;
-      IF input1 = np[i]\Representation_item.name THEN
-        RETURN(np[i]);
-      END_IF;
-    END_REPEAT;
-    RETURN(?);
-  END_FUNCTION;
-
-  FUNCTION valid_range(input1 : Numerical_item_with_unit;
-                       input2 : Numerical_item_with_unit) : BOOLEAN;
-    RETURN(TRUE);
-  END_FUNCTION; 
-
+  SUBTYPE_CONSTRAINT independent_property_subtypes FOR Independent_property;
+    ONEOF (Characteristic_data_table_header, Characteristic_data_column_header);
+  END_SUBTYPE_CONSTRAINT;
+  
   SUBTYPE_CONSTRAINT c_representation_item_subtypes FOR Representation_item; 
 	(ONEOF (Characteristic_data_table,
 	  Characteristic_data_table_row));

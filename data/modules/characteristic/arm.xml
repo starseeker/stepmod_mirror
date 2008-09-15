@@ -33,7 +33,7 @@
       </type>
       <entity name="Characteristic_data_column_header" supertypes="Independent_property" abstract.supertype="NO" abstract.entity="NO">
          <inverse name="table_header_usage" entity="Characteristic_data_table_header_decomposition" attribute="related"/>
-         <where label="IP1"/>
+      <where label="IP1"/>
       </entity>
       <entity name="Characteristic_data_column_header_link" supertypes="Independent_property_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="precedent" optional="NO">
@@ -61,9 +61,14 @@
          </explicit>
          <where label="WR1" expression="SIZEOF(QUERY( pv &lt;* property_value |&#10;                  NOT (SIZEOF(pv.cell) = SIZEOF(property_value[1].cell))&#10;                  )) = 0"/>
       </entity>
+      <entity name="Characteristic_data_table_header" supertypes="Independent_property" abstract.supertype="NO" abstract.entity="NO">
+         <inverse name="column" entity="Characteristic_data_table_header_decomposition" attribute="relating">
+            <inverse.aggregate type="SET" lower="2" upper="?"/>
+         </inverse>
+      </entity>
       <entity name="Characteristic_data_table_header_decomposition" supertypes="Independent_property_relationship" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="relating" optional="NO">
-            <typename name="Characteristic_data_column_header"/>
+            <typename name="Characteristic_data_table_header"/>
             <redeclaration entity-ref="Independent_property_relationship"/>
          </explicit>
          <explicit name="related" optional="NO">
@@ -170,23 +175,8 @@
       </entity>
       <subtype.constraint name="exclusive_property_value_representation_characteristic" entity="Property_value_representation" super.expression="ONEOF (Range_characteristic, Tolerance_characteristic)" abstract.supertype="NO"/>
       <subtype.constraint name="type_qualifier_subtypes" entity="Type_qualifier" super.expression="ONEOF (Externally_defined_type_qualifier, Pre_defined_type_qualifier)" abstract.supertype="NO"/>
+      <subtype.constraint name="independent_property_subtypes" entity="Independent_property" super.expression="ONEOF (Characteristic_data_table_header, Characteristic_data_column_header)" abstract.supertype="NO"/>
       <subtype.constraint name="c_representation_item_subtypes" entity="Representation_item" super.expression="ONEOF (Characteristic_data_table, Characteristic_data_table_row)" abstract.supertype="NO"/>
-      <function name="get_value">
-         <parameter name="input1">
-            <builtintype type="STRING" fixed="NO"/>
-         </parameter>
-         <parameter name="np">
-            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
-            <typename name="Representation_item"/>
-         </parameter>
-         <typename name="Numerical_item_with_unit"/>
-         <algorithm>REPEAT i := 1 to SIZEOF(np) by 1;
-      IF input1 = np[i]\Representation_item.name THEN
-        RETURN(np[i]);
-      END_IF;
-    END_REPEAT;
-    RETURN(?);</algorithm>
-      </function>
       <function name="valid_range">
          <parameter name="input1">
             <typename name="Numerical_item_with_unit"/>

@@ -86,6 +86,9 @@
       <type name="organization_or_person_in_organization_item_203e2">
          <select basedon="organization_or_person_in_organization_item" selectitems="Alternate_part_relationship Applied_independent_property Assembly_relationship_substitution Certification Document Document_definition Document_version File Geometric_model Independent_property Part Part_version Part_view_definition Product_version_relationship Project"/>
       </type>
+      <type name="ply_laminate_shape_203e2">
+         <select basedon="ply_laminate_shape" selectitems="Advanced_brep_shape_representation Csg_model Curve_swept_solid Elementary_brep_shape_representation Faceted_brep_shape_representation"/>
+      </type>
       <type name="presentation_association_select_203e2">
          <select basedon="presentation_association_select" selectitems="Activity Activity_method Activity_relationship Design_constraint_definition Product_concept Specification Specification_category Product_view_definition Product_version View_definition_relationship"/>
       </type>
@@ -108,14 +111,14 @@
          <select basedon="time_interval_item" selectitems="Time_interval_effectivity"/>
       </type>
       <subtype.constraint name="exclusive_product_versions_203e2" entity="Product_version" super.expression="ONEOF (Document_version, Part_version)"/>
-      <rule name="Person_requires_person_and_organization" appliesto="Person">
-         <where label="WR1" expression="SIZEOF(QUERY(p &lt;* Person | SIZEOF(USEDIN(p, 'PERSON_ORGANIZATION_ARM' + '.PERSON_IN_ORGANIZATION.CONCERNED_PERSON')) = 0)) = 0"/>
-      </rule>
-      <rule name="Shape_requires_product_view" appliesto="Item_shape">
-         <where label="WR1" expression="SIZEOF(QUERY(is &lt;* Item_shape | NOT ('PRODUCT_VIEW_DEFINITION_ARM' + '.PRODUCT_VIEW_DEFINITION' IN TYPEOF(is.described_element)))) = 0"/>
-      </rule>
       <rule name="addresses_are_assigned" appliesto="Address">
          <where label="WR1" expression="SIZEOF(QUERY(a &lt;* Address | SIZEOF(USEDIN(a, 'PERSON_ORGANIZATION_ARM' + '.ADDRESS_ASSIGNMENT.ASSIGNED_ADDRESS')) = 0)) = 0"/>
+      </rule>
+      <rule name="person_requires_person_and_organization" appliesto="Person">
+         <where label="WR1" expression="SIZEOF(QUERY(p &lt;* Person | SIZEOF(USEDIN(p, 'PERSON_ORGANIZATION_ARM' + '.PERSON_IN_ORGANIZATION.CONCERNED_PERSON')) = 0)) = 0"/>
+      </rule>
+      <rule name="shape_requires_product_view" appliesto="Item_shape">
+         <where label="WR1" expression="SIZEOF(QUERY(is &lt;* Item_shape | NOT ('PRODUCT_VIEW_DEFINITION_ARM' + '.PRODUCT_VIEW_DEFINITION' IN TYPEOF(is.described_element)))) = 0"/>
       </rule>
    </schema>
 </express>

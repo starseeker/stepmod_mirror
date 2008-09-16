@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.60 2008/09/11 07:00:22 liutkus Exp $
+   $Id: mim.exp,v 1.61 2008/09/11 09:49:19 liutkus Exp $
    ISO TC184/SC4/WG12 N3958 - ISO/TS 10303-1670 Fabrication technology - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N3664
 *)
@@ -9,15 +9,13 @@ SCHEMA Fabrication_technology_mim;
     USE FROM Constructive_solid_geometry_2d_mim; 	-- ISO/TS 10303-1731
 	USE FROM Extended_geometric_tolerance_mim;	-- ISO/TS 10303-1666
 	USE FROM Physical_layout_template_mim; -- ISO/TS 10303-1722
-	USE FROM Layered_interconnect_complex_template_mim; -- ISO/TS 10303-1716
 
 TYPE ft_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH (
 	stratum_technology_occurrence_relationship);
 END_TYPE;
 
 TYPE ft_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
-   (land_physical_template,
-   stratum_technology);
+   (stratum_technology);
 END_TYPE; 
 	
 TYPE ft_document_reference_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON document_reference_item WITH 
@@ -31,11 +29,6 @@ TYPE ft_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON re
      stratum_technology_occurrence,
      stratum_technology_occurrence_relationship);
 END_TYPE; 
-
-SUBTYPE_CONSTRAINT ft_part_template_definition_subtypes FOR part_template_definition; 
-    (ONEOF (geometric_template,
-	 stratum_stack_model));
-END_SUBTYPE_CONSTRAINT;
 
 SUBTYPE_CONSTRAINT ft_property_definition_subtypes FOR property_definition; 
     (ONEOF (stratum_technology_occurrence_relationship,
@@ -60,11 +53,6 @@ ENTITY derived_stratum_technology_occurrence_relationship
     copy_stratum_technology_occurrence_relationship,
     inverse_copy_stratum_technology_occurrence_relationship))
   SUBTYPE OF (stratum_technology_occurrence_relationship);
-END_ENTITY;
-
-ENTITY design_specific_stratum_technology_mapping_relationship
-  SUBTYPE OF(stratum_technology_mapping_relationship, property_definition);
-    SELF\property_definition.definition RENAMED scope : library_to_design_stack_model_mapping;
 END_ENTITY;
 
 ENTITY design_stack_model
@@ -99,10 +87,6 @@ ENTITY inverse_copy_stratum_technology_occurrence_relationship
   SUBTYPE OF (derived_stratum_technology_occurrence_relationship);
 END_ENTITY;
 
-ENTITY library_to_design_stack_model_mapping
-  SUBTYPE OF (product_definition_relationship);
-END_ENTITY;
-  
 ENTITY local_linear_stack
   SUBTYPE OF (stratum_sub_stack);
 END_ENTITY;

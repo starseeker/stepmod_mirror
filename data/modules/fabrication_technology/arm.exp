@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.160 2008/09/11 09:49:19 liutkus Exp $
+   $Id: arm.exp,v 1.161 2008/09/11 12:43:37 liutkus Exp $
    ISO TC184/SC4/WG12 N3957 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3663
 *)
@@ -8,7 +8,6 @@ SCHEMA Fabrication_technology_arm;
 USE FROM Constructive_solid_geometry_2d_arm; 	-- ISO/TS 10303-1731
 USE FROM Extended_geometric_tolerance_arm;  -- ISO/TS 10303-1666
 USE FROM Physical_layout_template_arm; -- ISO/TS 10303-1722
-USE FROM Layered_interconnect_complex_template_arm; -- ISO/TS 10303-1716
 
 REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10303-1747
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
@@ -167,23 +166,11 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     WR2 : (EXISTS (design_layer_purpose)) XOR ((SIZEOF(externally_defined_design_layer_purpose)) = 1);       
   END_ENTITY;
 
-  ENTITY Design_specific_stratum_technology_mapping_relationship
-      SUBTYPE OF(Stratum_technology_mapping_relationship);
-      scope : Library_to_design_stack_model_mapping;
-  END_ENTITY;
-
   ENTITY Design_stack_model
     SUBTYPE OF(Stratum_stack_model);
       model_thickness : OPTIONAL Length_tolerance_characteristic;
-   DERIVE
-      reference_model : Library_stack_model := reference_model_relationship[1]\Library_to_design_stack_model_mapping.relating_view; 
     INVERSE
-      reference_model_relationship : SET [0:1] OF Library_to_design_stack_model_mapping for related_view; 
       sub_stack: SET [1:?] OF Stratum_sub_stack for associated_stackup;
-    WHERE
-      WR1: NOT EXISTS(reference_model_relationship[1]) OR 
-          ((SELF\Stratum_stack_model.composing_occurrence * reference_model\Stratum_stack_model.composing_occurrence) = 
-           SELF\Stratum_stack_model.composing_occurrence);
   END_ENTITY;
 
   ENTITY Documentation_layer_technology
@@ -258,12 +245,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   ENTITY Inverse_copy_stratum_technology_occurrence_relationship
     SUBTYPE OF (Derived_stratum_technology_occurrence_relationship);
-  END_ENTITY;
-
- ENTITY Library_to_design_stack_model_mapping 
-    SUBTYPE OF (view_definition_relationship);
-    SELF\View_definition_relationship.relating_view : Library_stack_model;
-    SELF\View_definition_relationship.related_view : Design_stack_model;
   END_ENTITY;
 
   ENTITY Local_linear_stack
@@ -345,7 +326,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_ENTITY;
 
   ENTITY Stratum_stack_model
-    ABSTRACT SUPERTYPE OF (ONEOF (Design_stack_model, Library_stack_model))
+    ABSTRACT SUPERTYPE OF (Design_stack_model)
     SUBTYPE OF(Template_definition);
     DERIVE
       composing_occurrence : SET [1:?] OF Stratum_technology_occurrence := get_stack(composing_link);

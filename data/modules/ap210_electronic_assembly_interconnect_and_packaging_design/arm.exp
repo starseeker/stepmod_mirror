@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.80 2008/09/01 13:30:59 liutkus Exp $
+   $Id: arm.exp,v 1.81 2008/09/12 11:12:38 lothartklein Exp $
    ISO TC184/SC4/WG3 N1995 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG3 N1638
 *)
@@ -8,31 +8,21 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_arm;
 
 	USE FROM Ap203_configuration_controlled_3d_design_of_mechanical_parts_and_assemblies_arm; 	-- ISO/TS 10303-403
 		
-	USE FROM Altered_part_arm;	-- ISO/TS 10303-1602
-	USE FROM Analytical_model_arm;	-- ISO/TS 10303-1603
 	USE FROM Assembly_2d_shape_arm;	-- ISO/TS 10303-1632
 	USE FROM Assembly_3d_shape_arm;	-- ISO/TS 10303-1633
-	USE FROM Assembly_functional_interface_requirement_arm;	-- ISO/TS 10303-1635
-	USE FROM Assembly_module_usage_view_arm;	-- ISO/TS 10303-1642
 	USE FROM Assembly_module_with_cable_component_2d_arm;	-- ISO/TS 10303-1638
 	USE FROM Assembly_module_with_cable_component_3d_arm;	-- ISO/TS 10303-1639
 	USE FROM Assembly_module_with_macro_component_arm;	-- ISO/TS 10303-1640
 	USE FROM Assembly_physical_requirement_allocation_arm;	-- ISO/TS 10303-1648
-	USE FROM Chemical_substance_arm;	-- ISO/TS 10303-1655
 	USE FROM Connectivity_allocation_to_physical_network_arm;	-- ISO/TS 10303-1658
 	USE FROM Datum_difference_based_model_arm;	-- ISO/TS 10303-1660
-	USE FROM Design_product_data_management_arm;	-- ISO/TS 10303-1628
 	USE FROM Design_specific_assignment_to_assembly_usage_view_arm;	-- ISO/TS 10303-1662
 	USE FROM Design_specific_assignment_to_interconnect_usage_view_arm;	-- ISO/TS 10303-1663
 	USE FROM Device_marking_arm;	-- ISO/TS 10303-1664
 	USE FROM Electrical_network_definition_arm;	-- ISO/TS 10303-1665
 	USE FROM Fabrication_requirement_arm;	-- ISO/TS 10303-1669
-	USE FROM Fabrication_technology_arm;	-- ISO/TS 10303-1670
-    USE FROM Feature_and_connection_zone_arm; -- ISO/TS 10303-1671
 	USE FROM Functional_decomposition_to_assembly_design_arm;	-- ISO/TS 10303-1675
 	USE FROM Functional_decomposition_to_interconnect_design_arm;	-- ISO/TS 10303-1677
-	USE FROM Functional_decomposition_with_nodal_representation_to_packaged_mapping_arm;	-- ISO/TS 10303-1678
-	USE FROM Functional_specification_arm;	-- ISO/TS 10303-1679
 	USE FROM Functional_unit_requirement_allocation_arm;	-- ISO/TS 10303-1680
 	USE FROM Interconnect_2d_shape_arm;	-- ISO/TS 10303-1682
 	USE FROM Interconnect_module_to_assembly_module_relationship_arm;	-- ISO/TS 10303-1685
@@ -41,31 +31,21 @@ SCHEMA Ap210_electronic_assembly_interconnect_and_packaging_design_arm;
 	USE FROM Layered_interconnect_module_2d_design_arm;	-- ISO/TS 10303-1695
 	USE FROM Layered_interconnect_module_3d_design_arm;	-- ISO/TS 10303-1696
 	USE FROM Layout_macro_definition_arm;	-- ISO/TS 10303-1701
-	USE FROM Package_arm;	-- ISO/TS 10303-1707
-	USE FROM Packaged_part_black_box_model_arm;	-- ISO/TS 10303-1710
 	USE FROM Packaged_part_white_box_model_arm;	-- ISO/TS 10303-1709
 	USE FROM Part_feature_grouping_arm;	-- ISO/TS 10303-1713
-	USE FROM Physical_layout_template_arm;	-- ISO/TS 10303-1722
 	USE FROM Physical_node_requirement_to_implementing_component_allocation_arm;	-- ISO/TS 10303-1723
-	USE FROM Physical_unit_2d_shape_arm;	-- ISO/TS 10303-1726
-	USE FROM Physical_unit_3d_shape_arm;	-- ISO/TS 10303-1727
 	USE FROM Physical_unit_interconnect_definition_arm;	-- ISO/TS 10303-1729
-	USE FROM Planned_characteristic_arm;	-- ISO/TS 10303-1733
 	USE FROM Pre_defined_datum_symbol_arm;	-- ISO/TS 10303-1734
-	USE FROM Printed_physical_layout_template_arm; -- ISO/TS 10303-1737
-	USE FROM Production_rule_arm;	-- ISO/TS 10303-1739
 	USE FROM Sequential_laminate_assembly_design_arm;	-- ISO/TS 10303-1741
-	USE FROM Specification_document_arm;	-- ISO/TS 10303-1747
 	USE FROM Test_requirement_allocation_arm;	-- ISO/TS 10303-1751
 	USE FROM Thermal_network_definition_arm;	-- ISO/TS 10303-1752
 	USE FROM Via_component_arm;	-- ISO/TS 10303-1754
-
 
 	REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
 TYPE ap210_analytical_model_port_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON analytical_model_port_assignment_select WITH  
 	(Connection_zone,
-	(Part_feature);
+	Part_feature);
 END_TYPE;
 
 	TYPE ap210_assembly_module_or_assembly_group_component = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON assembly_module_or_assembly_group_component WITH (
@@ -354,6 +334,12 @@ END_TYPE;
      Template_definition);
   END_SUBTYPE_CONSTRAINT;
 
+  SUBTYPE_CONSTRAINT ap210_eaiapd_restrict_shape_element_subtypes FOR Shape_element;
+    ONEOF (Shape_feature,
+      Non_feature_shape_element,
+      Part_terminal_external_reference);
+  END_SUBTYPE_CONSTRAINT;
+
   SUBTYPE_CONSTRAINT ap210_eaiapd_restrict_information_product_subtypes FOR Information_product;
     ONEOF (Software, Analytical_model);
   END_SUBTYPE_CONSTRAINT;
@@ -397,7 +383,7 @@ END_SUBTYPE_CONSTRAINT;
 (** It most likely should be in TOP AP210 schema *)
 SUBTYPE_CONSTRAINT part_design_view_subtypes FOR Part_design_view;  
     ONEOF (Assembly_module,
- Layered_interconnect_module);
+ Interconnect_module);
 END_SUBTYPE_CONSTRAINT;
 
 (** Assembly_module_with_packaged_connector_component_arm and 

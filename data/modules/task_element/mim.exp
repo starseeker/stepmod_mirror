@@ -4,10 +4,23 @@ USE FROM Activity_method_assignment_mim;
 
 USE FROM Condition_mim;
 
+USE FROM measure_schema
+  (count_measure);
+
 USE FROM method_definition_schema;
+
+USE FROM support_resource_schema
+  (text);
 
 ENTITY concurrent_task_element
 SUBTYPE OF (task_element);
+END_ENTITY;
+
+ENTITY decision_point
+SUBTYPE OF (action_method_to_select_from, task_element);
+DERIVE
+  SELF\action_method_to_select_from.number_of_elements : count_measure := 1;
+  SELF\action_method.purpose : text := 'decision';
 END_ENTITY;
 
 ENTITY end_task
@@ -43,7 +56,7 @@ SUBTYPE OF (task_element);
 END_ENTITY;
 
 SUBTYPE_CONSTRAINT restrict_task_method_subtypes FOR task_element;
-  ONEOF(concurrent_task_element, end_task, exit_loop, looping_element, start_task, task_element_sequence, task_step);
+  ONEOF(concurrent_task_element, end_task, exit_loop, looping_element, task_element_sequence, task_step);
 END_SUBTYPE_CONSTRAINT;
 
 END_SCHEMA;

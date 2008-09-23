@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.69 2008/09/11 09:49:20 liutkus Exp $
+   $Id: arm.exp,v 1.70 2008/09/17 08:56:26 liutkus Exp $
    ISO TC184/SC4/WG12 N4131 - ISO/TS 10303-1728 Physical unit design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3567
 *)
@@ -10,7 +10,6 @@ USE FROM Physical_layout_template_arm; -- ISO/TS 10303-1722
 USE FROM Physical_unit_usage_view_arm;	-- ISO/TS 10303-1732
 USE FROM Specification_document_arm;	-- ISO/TS 10303-1747
 	
-REFERENCE FROM Layered_interconnect_module_design_arm(get_assemblies); -- ISO/TS 10303-1698
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   SUBTYPE_CONSTRAINT pudv_connection_zone_subtypes FOR Connection_zone;     
@@ -258,6 +257,26 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
                                            input2 : GENERIC_ENTITY) : BOOLEAN;
     RETURN(TRUE);
   END_FUNCTION;                                         
+
+  FUNCTION get_assemblies(input : Assembly_component) : SET OF Product_view_definition;
+    LOCAL
+      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+
+    REPEAT i := 1 TO HIINDEX(acr) BY 1;
+      IF NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
+        'STRUCTURED_LAYOUT_COMPONENT' IN
+        TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
+      THEN
+        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
+      ELSE
+        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
+      END_IF;
+    END_REPEAT;
+
+    RETURN (pvd);
+  END_FUNCTION;
 
 END_SCHEMA;
 

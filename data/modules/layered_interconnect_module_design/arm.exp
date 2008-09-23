@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.285 2008/09/16 12:39:33 liutkus Exp $
+   $Id: arm.exp,v 1.286 2008/09/18 12:47:27 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5701 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4041
 *)
@@ -14,6 +14,7 @@ USE FROM Physical_connectivity_definition_arm;	-- ISO/TS 10303-1755
 USE FROM Interconnect_module_connection_routing_arm;
 USE FROM Assembly_component_placement_requirements_arm;	-- ISO/TS 10303-1634	
 
+REFERENCE FROM Physical_unit_design_view_arm(get_assemblies);  -- ISO/TS 10303-1765
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
  CONSTANT
@@ -1444,26 +1445,6 @@ END_RULE;
 
     v1 := v1 + input2 + input3 + input4;
     RETURN(v1);
-  END_FUNCTION;
-
-  FUNCTION get_assemblies(input : Assembly_component) : SET OF Product_view_definition;
-    LOCAL
-      acr : SET OF Assembly_component_relationship := input\Assembly_component.occurrence_contexts;
-      pvd : SET OF Product_view_definition := [];
-    END_LOCAL;
-
-    REPEAT i := 1 TO HIINDEX(acr) BY 1;
-      IF NOT('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.' +
-        'STRUCTURED_LAYOUT_COMPONENT' IN
-        TYPEOF(acr[i]\Product_occurrence_definition_relationship.relating_view))
-      THEN
-        pvd := pvd + acr[i]\Product_occurrence_definition_relationship.relating_view; 
-      ELSE
-        pvd := pvd + get_assemblies(acr[i]\Product_occurrence_definition_relationship.relating_view);
-      END_IF;
-    END_REPEAT;
-
-    RETURN (pvd);
   END_FUNCTION;
 
   FUNCTION get_ims(input : Stratum) : SET OF Product_view_definition;

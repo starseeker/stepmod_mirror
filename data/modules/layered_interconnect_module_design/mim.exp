@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.101 2008/09/11 09:49:19 liutkus Exp $
+   $Id: mim.exp,v 1.102 2008/09/18 12:47:27 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5702 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4042
 *)
@@ -64,7 +64,7 @@ USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
   TYPE limd_requirement_assigned_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assigned_item WITH 
     (stratum_feature_conductive_join,
      dielectric_crossover_area,
-     physical_unit);
+     layered_interconnect_module);
   END_TYPE; 
 
   TYPE limd_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH 
@@ -192,6 +192,11 @@ USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
     SUBTYPE OF (laminate_component);
   END_ENTITY;
 
+  ENTITY interconnect_module
+    SUPERTYPE OF (layered_interconnect_module)
+    SUBTYPE OF (physical_unit);
+  END_ENTITY; 
+
   ENTITY interconnect_module_edge
     SUPERTYPE OF (ONEOF (partially_plated_interconnect_module_edge, plated_interconnect_module_edge))
     SUBTYPE OF (inter_stratum_feature);
@@ -287,6 +292,15 @@ USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
     SUBTYPE OF (instanced_feature);
   END_ENTITY;
 
+  ENTITY layered_interconnect_module
+  	SUPERTYPE OF (ONEOF(layered_interconnect_panel, pcb))
+    SUBTYPE OF (interconnect_module);
+  END_ENTITY;
+  
+  ENTITY layered_interconnect_panel
+    SUBTYPE OF (layered_interconnect_module);
+  END_ENTITY;
+
   ENTITY material_removal_laminate_component
     SUBTYPE OF (laminate_component);
   END_ENTITY;
@@ -332,6 +346,10 @@ USE FROM Assembly_component_placement_requirements_mim;	-- ISO/TS 10303-1634
 
   ENTITY partially_plated_interconnect_module_edge
     SUBTYPE OF (interconnect_module_edge);
+  END_ENTITY;
+
+  ENTITY pcb
+    SUBTYPE OF (layered_interconnect_module);
   END_ENTITY;
 
   ENTITY physical_connectivity_interrupting_cutout

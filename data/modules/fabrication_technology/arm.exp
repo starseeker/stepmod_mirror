@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.162 2008/09/16 10:41:14 liutkus Exp $
+   $Id: arm.exp,v 1.163 2008/09/18 12:47:31 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5647 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3957
 *)
@@ -43,6 +43,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     (bilateral_bond,
      bilateral_complete_removal,
      unilateral_bond);
+  END_TYPE;
+
+  TYPE ft_value_select = SELECT (
+    Value_limit,
+    Value_range,
+    Numerical_item_with_unit);
   END_TYPE;
 
   TYPE trace_class = ENUMERATION OF
@@ -271,12 +277,14 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
  			Default_unsupported_passage_definition))
     SUBTYPE OF (Characterizable_object, Item_shape);	
       as_finished_deposition_thickness  : OPTIONAL Length_tolerance_characteristic;
-      as_finished_passage_extent        : OPTIONAL Length_tolerance_characteristic;      
+      as_finished_passage_extent        : OPTIONAL ft_value_select;      
       maximum_aspect_ratio              : OPTIONAL REAL;      
       minimum_finished_size             : OPTIONAL Length_data_element;      
       plated_passage                    : BOOLEAN;
       passage_terminus_condition        : OPTIONAL ft_terminus_condition;
-      minimum_fabrication_allowance     : OPTIONAL Length_data_element;
+      minimum_fabrication_allowance     : OPTIONAL Length_data_element;      
+      minimum_finished_feature_size     : OPTIONAL Length_data_element;
+      size_tolerance                    : OPTIONAL Length_tolerance_characteristic;      
     DERIVE
       SELF\Item_shape.described_element : Passage_technology := SELF;     	 
 		specification: SET[0:1] OF Document_definition :=
@@ -298,7 +306,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
                    ['conductive']) >= 1);
        WR5: NOT ((passage_terminus_condition = ft_terminus_condition.bilateral_bond) OR
                  (passage_terminus_condition = ft_terminus_condition.unilateral_bond)) OR
-            plated_passage;                  
+            plated_passage;
+       WR6: NOT (EXISTS(as_finished_passage_extent) AND EXISTS(minimum_finished_feature_size));                  
   END_ENTITY;
 
   ENTITY Passage_technology_allocation_to_stack_model

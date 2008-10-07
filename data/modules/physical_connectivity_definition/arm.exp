@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.32 2008/09/07 13:32:54 thomasrthurman Exp $
+   $Id: arm.exp,v 1.33 2008/09/18 12:47:35 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5824 - ISO/TS 10303-1755 Physical connectivity definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4212
 *)
@@ -137,10 +137,15 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     DERIVE
       terminals : SET [0:?] OF Component_terminal := 
       get_terminals(bag_to_set(USEDIN(SELF,'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_DEFINITION')));
+       assembly : SET[0:?] of Product_view_definition := pcd_get_assemblies(terminals);
     WHERE
       WR1 : NOT (SIZEOF(terminals) > 1) OR
            (SIZEOF(QUERY(t <* terminals | NOT(SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + 
                           'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1))) = 0);
+      WR2: SIZEOF(QUERY( ass <* assembly |
+      (ass\Part_xxx.of_version = SELF\Part_xxx.of_version)
+           )) > 0;
+                          
   END_ENTITY;
 
   ENTITY Topological_junction;
@@ -173,6 +178,20 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     RETURN (TRUE);
   END_FUNCTION;    
 
+  FUNCTION pcd_get_assemblies(input : SET OF Component_terminal) : SET OF Product_view_definition;
+    LOCAL
+      ac : SET OF Assembly_component := [];
+     pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+   REPEAT i := 1 TO HIINDEX(input) BY 1;
+      ac := ac + input[i]\Component_feature.associated_component;
+   END_REPEAT;
+   REPEAT i := 1 to HIINDEX(ac) BY 1;
+     pvd  := pvd + ac\Assembly_component.assemblies
+   END_REPEAT;
+   RETURN(pvd);
+  END_FUNCTION; 
+   
   FUNCTION get_terminals(input : SET OF Physical_connectivity_definition) : SET OF Component_terminal;
   LOCAL
    ct : SET OF Component_terminal := [];

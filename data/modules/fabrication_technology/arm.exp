@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.164 2008/10/06 03:59:36 thomasrthurman Exp $
+   $Id: arm.exp,v 1.165 2008/10/08 06:24:01 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5647 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3957
 *)
@@ -103,15 +103,36 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   ENTITY Allocated_passage_minimum_annular_ring
     SUBTYPE OF (Characterizable_object);
-      connected_minimum_annular_ring           : OPTIONAL Length_data_element;
-      unconnected_minimum_annular_ring         : OPTIONAL Length_data_element;
-      associated_passage_allocation            : Passage_technology_allocation_to_stack_model;
-      associated_stratum_technology_occurrence : Stratum_technology_occurrence;
+      supported_external_minimum_annular_ring   : OPTIONAL Length_data_element;
+      supported_external_minimum_annular_ring   : OPTIONAL Length_data_element;
+      unsupported_minimum_annular_ring          : OPTIONAL Length_data_element;
+      minimum_fabrication_allowance             : OPTIONAL Length_data_element;	   
+      associated_passage_allocation             : SET [1:?] OF Passage_technology_allocation_to_stack_model;
+      associated_stratum_technology_occurrence  : OPTIONAL Stratum_technology_occurrence;
+    DERIVE
+      associated_model : Stratum_stack_model := associated_passage_allocation[1]\Stratum_sub_stack.associated_stackup;
     WHERE
-      WR1 : EXISTS(connected_minimum_annular_ring) OR
-        EXISTS(unconnected_minimum_annular_ring);
-      WR2 : associated_stratum_technology_occurrence IN associated_passage_allocation\Stratum_sub_stack.
-                                                        associated_stackup\Stratum_stack_model.composing_occurrence;
+      WR1 : EXISTS(supported_external_minimum_annular_ring) OR
+            EXISTS(supported_internal_minimum_annular_ring) OR
+            EXISTS(unsupported_minimum_annular_ring) OR
+            EXISTS(minimum_fabrication_allowance);
+      WR2 : NOT EXISTS(associated_stratum_technology_occurrence) OR
+             associated_stratum_technology_occurrence IN associated_model\Stratum_stack_model.composing_occurrence;
+      WR3 : NOT EXISTS(supported_external_minimum_annular_ring) OR
+             (SIZEOF(QUERY(ptatsm <* associated_passage_allocation |
+             NOT(ptasm\Passage_technology_allocation_to_stack_model.allocated_technology\Passage_technology.plated_passage)
+                   )) = 0);
+      WR4 : NOT EXISTS(supported_internal_minimum_annular_ring) OR
+             (SIZEOF(QUERY(ptatsm <* associated_passage_allocation |
+             NOT(ptasm\Passage_technology_allocation_to_stack_model.allocated_technology\Passage_technology.plated_passage)
+                   )) = 0);
+      WR5 : NOT (EXISTS(supported_internal_minimum_annular_ring) AND
+             (SIZEOF(QUERY(ptatsm <* associated_passage_allocation |
+             NOT(ptasm\Passage_technology_allocation_to_stack_model.allocated_technology\Passage_technology.plated_passage)
+                   )) = 0));
+      WR6 : SIZEOF(QUERY(ptatsm <* associated_passage_allocation |
+             NOT(associated_model = ptatsm\Stratum_sub_stack.associated_stackup)
+             )) =0;                   
   END_ENTITY;
   
   ENTITY Copy_stratum_technology_occurrence_relationship
@@ -307,11 +328,9 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   ENTITY Passage_technology_allocation_to_stack_model
     SUBTYPE OF (Stratum_sub_stack);
-       allocated_technology             : Passage_technology;
-       single_stratum_passage_location  : OPTIONAL Stratum_technology_occurrence;
-	   target_stratum                   : OPTIONAL Stratum_technology_occurrence;
-       connected_minimum_annular_ring   : OPTIONAL Length_data_element;
-       unconnected_minimum_annular_ring : OPTIONAL Length_data_element;	   
+       allocated_technology                      : Passage_technology;
+       single_stratum_passage_location           : OPTIONAL Stratum_technology_occurrence;
+	   target_stratum                            : OPTIONAL Stratum_technology_occurrence;
 	DERIVE
 	   terminus_stratum                : SET OF Stratum_technology_occurrence := ft_get_terminus(SELF\Stratum_sub_stack.stratum_technology_sequence);
     WHERE

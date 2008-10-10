@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.168 2008/10/09 05:20:39 thomasrthurman Exp $
+   $Id: arm.exp,v 1.169 2008/10/10 08:03:38 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5647 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3957
 *)
@@ -98,7 +98,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Allocated_passage_minimum_annular_ring
     SUBTYPE OF (Characterizable_object);
       supported_external_minimum_annular_ring   : OPTIONAL Length_data_element;
-      supported_external_minimum_annular_ring   : OPTIONAL Length_data_element;
+      supported_internal_minimum_annular_ring   : OPTIONAL Length_data_element;
       unsupported_minimum_annular_ring          : OPTIONAL Length_data_element;
       minimum_fabrication_allowance             : OPTIONAL Length_data_element;	   
       associated_passage_allocation             : SET [1:?] OF Passage_technology_allocation_to_stack_model;
@@ -120,7 +120,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
              (SIZEOF(QUERY(ptatsm <* associated_passage_allocation |
              NOT(ptasm\Passage_technology_allocation_to_stack_model.allocated_technology\Passage_technology.plated_passage)
                    )) = 0);
-      WR5 : NOT (EXISTS(supported_internal_minimum_annular_ring) AND
+      WR5 : NOT (EXISTS(unsupported_minimum_annular_ring) AND
              (SIZEOF(QUERY(ptatsm <* associated_passage_allocation |
              NOT(ptasm\Passage_technology_allocation_to_stack_model.allocated_technology\Passage_technology.plated_passage)
                    )) = 0));
@@ -238,12 +238,13 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Impedance_measurement_setup_requirement
     SUBTYPE OF (Predefined_requirement_view_definition);
       characterized_stackup     : Stratum_sub_stack;
-      measurement_stratum       : Stratum_technology_occurrence;
+      measurement_stratum_1       : Stratum_technology_occurrence;
+      measurement_stratum_2       : Stratum_technology_occurrence;
       reference_stratum         : SET [1:2] OF Stratum_technology_occurrence;
    WHERE    
       WR1: SELF\Product_view_definition.initial_context.life_cycle_stage = 'test'; 
       WR2: NOT EXISTS(SELF\Product_view_definition.id);
-      WR3: SIZEOF([measurement_stratum] * reference_stratum) = 0;
+      WR3: SIZEOF([measurement_stratum_1, measurement_stratum_2] * reference_stratum) = 0;
   END_ENTITY;
 
   ENTITY Impedance_requirement
@@ -293,6 +294,9 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       minimum_fabrication_allowance     : OPTIONAL Length_data_element;      
       minimum_finished_feature_size     : OPTIONAL Length_data_element;
       size_tolerance                    : OPTIONAL Length_tolerance_characteristic;      
+      supported_external_minimum_annular_ring   : OPTIONAL Length_data_element;
+      supported_internal_minimum_annular_ring   : OPTIONAL Length_data_element;
+      unsupported_minimum_annular_ring          : OPTIONAL Length_data_element;
     DERIVE
       SELF\Item_shape.described_element : Passage_technology := SELF;     	 
 		specification: SET[0:1] OF Document_definition :=
@@ -316,6 +320,9 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
                  (passage_terminus_condition = ft_terminus_condition.unilateral_bond)) OR
             plated_passage;
        WR6: NOT (EXISTS(as_finished_passage_extent) AND EXISTS(minimum_finished_feature_size));                  
+       WR7: NOT EXISTS(supported_external_minimum_annular_ring) OR plated_passage;
+       WR8: NOT EXISTS(supported_internal_minimum_annular_ring) OR plated_passage;
+       WR9: NOT EXISTS(unsupported_minimum_annular_ring) AND plated_passage;
   END_ENTITY;
 
   ENTITY Passage_technology_allocation_to_stack_model

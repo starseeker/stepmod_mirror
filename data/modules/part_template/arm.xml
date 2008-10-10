@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="part_template_arm schema_instance"/>
+   <schema name="Part_template_arm">
+      <interface kind="use" schema="Analytical_model_arm"/>
+      <interface kind="use" schema="Feature_and_connection_zone_arm"/>
+      <interface kind="reference" schema="Product_identification_arm">
+         <interfaced.item name="types_of_product"/>
+      </interface>
+      <type name="correlated_or_independent">
+         <select selectitems="Property_value_representation characteristic"/>
+      </type>
+      <type name="physical_unit_or_part_template">
+         <select selectitems="Part_view_definition Template_definition"/>
+      </type>
+      <type name="plp_material_item_select">
+         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Template_definition"/>
+      </type>
+      <entity name="Reference_part_template_for_analytical_model">
+         <explicit name="template">
+            <typename name="Template_definition"/>
+         </explicit>
+         <explicit name="analytical_representation">
+            <typename name="Analytical_model_definition"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="template"/>
+         </unique>
+      </entity>
+      <entity name="Template" supertypes="Product">
+         <unique label="UR1">
+            <unique.attribute entity-ref="Product" attribute="id"/>
+         </unique>
+         <where label="WR1" expression="SIZEOF([ 'template model' ] * types_of_product(SELF))= 1"/>
+      </entity>
+      <entity name="Template_definition" supertypes="Item_shape Product_view_definition">
+         <explicit name="defined_version">
+            <typename name="Template_version"/>
+            <redeclaration entity-ref="Product_view_definition"/>
+         </explicit>
+         <explicit name="physical_characteristic" optional="YES">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="correlated_or_independent"/>
+         </explicit>
+         <derived name="described_element" expression="SELF">
+            <typename name="Template_definition"/>
+            <redeclaration entity-ref="Item_shape"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(QUERY(prpc &lt;* USEDIN(SELF\Product_view_definition.defined_version.of_product,&#10;        'PRODUCT_IDENTIFICATION_ARM.PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS') | (prpc.category\Product_category.name = 'template model'))) &gt; 0"/>
+      </entity>
+      <entity name="Template_version" supertypes="Product_version">
+         <explicit name="of_product">
+            <typename name="Template"/>
+            <redeclaration entity-ref="Product_version"/>
+         </explicit>
+      </entity>
+      <rule name="template_definition_constraint" appliesto="Product_view_definition">
+         <where label="WR1" expression="SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0"/>
+      </rule>
+      <rule name="template_version_constraint" appliesto="Product_version">
+         <where label="WR1" expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'TEMPLATE' IN TYPEOF ( pv.of_product) ) ) ) =0"/>
+      </rule>
+   </schema>
+</express>

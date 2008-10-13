@@ -2,13 +2,12 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2008/10/08 06:13:23 $" rcs.revision="$Revision: 1.94 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
    <schema name="Fabrication_technology_arm">
       <interface kind="use" schema="Constructive_solid_geometry_2d_arm"/>
       <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
       <interface kind="use" schema="Part_template_arm"/>
-      <interface kind="use" schema="Layered_interconnect_complex_template_arm"/>
       <interface kind="reference" schema="Specification_document_arm">
          <interfaced.item name="get_document_definition"/>
       </interface>
@@ -127,25 +126,13 @@
          <where label="WR1" expression="(SIZEOF([SELF\Stratum_technology.stratum_material[1]\Material_identification_with_conductivity_classification.electrical_conductivity_classification,&#10;           SELF\Stratum_technology.stratum_material[1]\Material_identification_with_conductivity_classification.thermal_conductivity_classification] *&#10;           ['conductive']) &gt;= 1) OR&#10;       (SELF\Stratum_technology.stratum_material[1]\Material_identification_with_conductivity_classification.magnetic_permeability_classification IN ['highly permeable']) OR&#10;       (SELF\Stratum_technology.stratum_material[1]\Material_identification_with_conductivity_classification.optical_insertion_loss_classification IN ['vacuum', 'very low loss', 'low loss'])"/>
          <where label="WR2" expression="(EXISTS (design_layer_purpose)) XOR ((SIZEOF(externally_defined_design_layer_purpose)) = 1)"/>
       </entity>
-      <entity name="Design_specific_stratum_technology_mapping_relationship" supertypes="Stratum_technology_mapping_relationship">
-         <explicit name="scope">
-            <typename name="Library_to_design_stack_model_mapping"/>
-         </explicit>
-      </entity>
       <entity name="Design_stack_model" supertypes="Stratum_stack_model">
          <explicit name="model_thickness" optional="YES">
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
-         <derived name="reference_model" expression="reference_model_relationship[1]\Library_to_design_stack_model_mapping.relating_view">
-            <typename name="Library_stack_model"/>
-         </derived>
-         <inverse name="reference_model_relationship" entity="Library_to_design_stack_model_mapping" attribute="related_view">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
-         </inverse>
          <inverse name="sub_stack" entity="Stratum_sub_stack" attribute="associated_stackup">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <where label="WR1" expression="NOT EXISTS(reference_model_relationship[1]) OR &#10;          ((SELF\Stratum_stack_model.composing_occurrence * reference_model\Stratum_stack_model.composing_occurrence) = &#10;           SELF\Stratum_stack_model.composing_occurrence)"/>
       </entity>
       <entity name="Documentation_layer_technology" supertypes="Stratum_technology">
          <explicit name="pre_defined_documentation_layer_purpose" optional="YES">
@@ -232,16 +219,6 @@
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.id)"/>
       </entity>
       <entity name="Inverse_copy_stratum_technology_occurrence_relationship" supertypes="Derived_stratum_technology_occurrence_relationship"/>
-      <entity name="Library_to_design_stack_model_mapping" supertypes="View_definition_relationship">
-         <explicit name="relating_view">
-            <typename name="Library_stack_model"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
-         </explicit>
-         <explicit name="related_view">
-            <typename name="Design_stack_model"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
-         </explicit>
-      </entity>
       <entity name="Local_linear_stack" supertypes="Stratum_sub_stack">
          <explicit name="stratum_technology_sequence">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -337,7 +314,7 @@
          <where label="WR5" expression="NOT EXISTS(single_stratum_passage_location) OR NOT EXISTS(target_stratum)"/>
          <where label="WR6" expression="NOT EXISTS(target_stratum) OR&#10;			  ((target_stratum IN SELF\Stratum_sub_stack.associated_stackup.composing_occurrence) AND&#10;	           (target_stratum IN terminus_stratum))"/>
       </entity>
-      <entity name="Stratum_stack_model" abstract.supertype="YES" supertypes="Template_definition" super.expression="ONEOF (Design_stack_model, Library_stack_model)">
+      <entity name="Stratum_stack_model" abstract.supertype="YES" supertypes="Template_definition" super.expression="Design_stack_model">
          <derived name="composing_occurrence" expression="get_stack(composing_link)">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Stratum_technology_occurrence"/>

@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mim_lf.xml,v 1.10 2008/06/10 20:57:48 abhpf Exp $ -->
+<!-- $Id: mim_lf.xml,v 1.11 2008/07/15 14:02:39 abhpf Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 
 <express
   language_version="2"
-  rcs.date="$Date: 2008/06/10 20:57:48 $"
-  rcs.revision="$Revision: 1.10 $">
+  rcs.date="$Date: $"
+  rcs.revision="$Revision: $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
     owner="Eurostep Limited"
     url="www.eurostep.com"
-    version="1, 3, 30, 37"
-    source="mim_lf.exp"/>
+    version="1, 3, 34, 40"
+    source="fbb_lf.exp"/>
 
   <schema name="Function_based_behaviour_mim_LF">
-    <type name="celsius_temperature_measure">
+    <type name="amount_of_substance_measure">
       <builtintype type="REAL"
       />
     </type>
@@ -38,7 +38,7 @@ href="../../../xsl/express.xsl" ?>
       </where>
     </type>
 
-    <type name="assignment_target_select">
+    <type name="expression_assignment_item">
       <select
         selectitems="condition"
       />
@@ -143,6 +143,11 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
+    <type name="count_measure">
+      <builtintype type="NUMBER"
+      />
+    </type>
+
     <type name="relationship_with_condition">
       <select
         selectitems="action_method_relationship action_relationship context_dependent_action_method_relationship context_dependent_action_relationship"
@@ -152,6 +157,11 @@ href="../../../xsl/express.xsl" ?>
     <type name="process_or_process_relationship">
       <select
         selectitems="relationship_with_condition"
+      />
+    </type>
+
+    <type name="text">
+      <builtintype type="STRING"
       />
     </type>
 
@@ -170,23 +180,18 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <type name="amount_of_substance_measure">
+    <type name="area_measure">
       <builtintype type="REAL"
       />
     </type>
 
-    <type name="area_measure">
+    <type name="celsius_temperature_measure">
       <builtintype type="REAL"
       />
     </type>
 
     <type name="context_dependent_measure">
       <builtintype type="REAL"
-      />
-    </type>
-
-    <type name="count_measure">
-      <builtintype type="NUMBER"
       />
     </type>
 
@@ -418,11 +423,6 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <type name="text">
-      <builtintype type="STRING"
-      />
-    </type>
-
     <type name="characterized_definition">
       <select
         selectitems="characterized_object"
@@ -447,27 +447,16 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <entity name="action_resource_requirement"
+    <entity name="action_method_assignment"
+      abstract.supertype="YES"
     >
       <explicit
-        name="name">
-        <typename name="label"/>
+        name="assigned_action_method">
+        <typename name="action_method"/>
       </explicit>
       <explicit
-        name="description">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="kind">
-        <typename name="resource_requirement_type"/>
-      </explicit>
-      <explicit
-        name="operations">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="characterized_action_definition"/>
+        name="role">
+        <typename name="action_method_role"/>
       </explicit>
     </entity>
 
@@ -566,6 +555,19 @@ href="../../../xsl/express.xsl" ?>
           upper="?"
         />
         <typename name="groupable_item"/>
+      </explicit>
+    </entity>
+
+    <entity name="applied_expression_assignment"
+      supertypes="expression_assignment"
+    >
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="expression_assignment_item"/>
       </explicit>
     </entity>
 
@@ -1093,10 +1095,6 @@ href="../../../xsl/express.xsl" ?>
         <typename name="expression"/>
       </explicit>
       <explicit
-        name="assigned_to_object">
-        <typename name="assignment_target_select"/>
-      </explicit>
-      <explicit
         name="role">
         <typename name="expression_role"/>
       </explicit>
@@ -1530,6 +1528,25 @@ href="../../../xsl/express.xsl" ?>
     >
     </entity>
 
+    <entity name="decision_point"
+      supertypes="action_method_to_select_from task_element"
+    >
+      <derived
+        name="number_of_elements"
+        expression="1">
+        <typename name="count_measure"/>
+        <redeclaration
+          entity-ref="action_method_to_select_from"/>
+      </derived>
+      <derived
+        name="purpose"
+        expression="&apos;decision&apos;">
+        <typename name="text"/>
+        <redeclaration
+          entity-ref="action_method"/>
+      </derived>
+    </entity>
+
     <entity name="end_task"
       supertypes="task_element"
     >
@@ -1541,6 +1558,11 @@ href="../../../xsl/express.xsl" ?>
     </entity>
 
     <entity name="looping_element"
+      supertypes="task_element"
+    >
+    </entity>
+
+    <entity name="start_task"
       supertypes="task_element"
     >
     </entity>
@@ -1938,17 +1960,9 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="action_method_assignment"
-      abstract.supertype="YES"
+    <entity name="fbb_characterized_applied_action_method_assignment"
+      supertypes="characterized_object applied_action_method_assignment"
     >
-      <explicit
-        name="assigned_action_method">
-        <typename name="action_method"/>
-      </explicit>
-      <explicit
-        name="role">
-        <typename name="action_method_role"/>
-      </explicit>
     </entity>
 
     <entity name="action_method_role"
@@ -1964,9 +1978,28 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="fbb_characterized_applied_action_method_assignment"
-      supertypes="characterized_object applied_action_method_assignment"
+    <entity name="action_resource_requirement"
     >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="kind">
+        <typename name="resource_requirement_type"/>
+      </explicit>
+      <explicit
+        name="operations">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="characterized_action_definition"/>
+      </explicit>
     </entity>
 
     <entity name="action_resource_requirement_relationship"
@@ -4009,7 +4042,7 @@ href="../../../xsl/express.xsl" ?>
       />
       <algorithm>
   LOCAL
-    result : BOOLEAN;
+    result : BOOLEAN := TRUE;
   END_LOCAL;
 
   IF (&apos;FUNCTION_BASED_BEHAVIOUR_MIM_LF.SIMPLE_GENERIC_EXPRESSION&apos; IN TYPEOF(arg1)) THEN
@@ -4031,6 +4064,7 @@ href="../../../xsl/express.xsl" ?>
     END_REPEAT;
     RETURN (result);
   END_IF;
+  RETURN (result);
       </algorithm>
     </function>
 

@@ -1,5 +1,5 @@
 (*
-$Id:$ 
+$Id: solid_shape_element_schema.exp,v 1.14 2008/09/24 14:46:35 darla Exp $ 
 ISO TC184/SC4/WG12 N5267 - ISO/IS 10303-111 solid_shape_element_schema - EXPRESS
 ISO 10303-111, 'ELEMENTS FOR THE PROCEDURAL MODELLING OF SOLID SHAPES'
 UPDATED ACCORDING TO TC1  -- 2008-07-31 -- *)                          
@@ -672,22 +672,25 @@ FUNCTION check_continuous_edges (edges : LIST OF UNIQUE edge_curve)
 
 END_FUNCTION;
 
-FUNCTION compute_total_depth (swsrh : solid_with_stepped_round_hole) 
+FUNCTION compute_total_depth (swsrh : solid_with_stepped_round_hole)
                                     : positive_length_measure;
 
-  LOCAL
-    i  : INTEGER;
-    td : positive_length_measure := swsrh.segment_depths[1];
-  END_LOCAL;
+LOCAL
+i  : positive_integer;
+n  : positive_integer := swsrh.segments;
+td : positive_length_measure := swsrh.segment_depths[1];
+END_LOCAL;
 
-  REPEAT i := 2 TO swsrh.segments;
+IF n = 1 
+THEN RETURN(td);
+ELSE
+  REPEAT i := 2 TO n;
     td := td + swsrh.segment_depths[i];
   END_REPEAT;
-  RETURN(td); 
+ENDIF;
+RETURN(td);
 
 END_FUNCTION;
-
-
 
 FUNCTION validate_countersink_radii 
   (cskhole : solid_with_stepped_round_hole_and_conical_transitions) 

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.71 2008/09/18 12:47:23 liutkuviene Exp $
+   $Id: arm.exp,v 1.72 2008/09/27 03:46:43 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5722 - ISO/TS 10303-1707 Package - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4068
 *)
@@ -71,13 +71,10 @@ SCHEMA Package_arm;
 
   ENTITY Connection_zone_package_interface_plane_relationship;
       interface_plane          : interface_plane_or_seating_plane;
-      mating_zone              : Connection_zone_in_part_feature_template_definition;
       derived_zone             : Connection_zone_in_part_feature_template_definition;
       derived_zone_shape_class : STRING;
     INVERSE
       associated_package_terminal  : SET[0:1] OF package_terminal_template_definition FOR seating_plane_zone;
-    UNIQUE
-      UR1 : interface_plane, mating_zone;
     WHERE
       WR1 : derived_zone_shape_class IN ['area','edge'];
   END_ENTITY;
@@ -236,14 +233,13 @@ INVERSE
 	  external_lead_form                      : SET[0:1] OF External_source_identification FOR item;            
     WHERE
       WR1 : NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.derived_zone = cz))) = 1);
-      WR2 : NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz <* external_connection_zone | (seating_plane_zone.mating_zone = cz))) = 1);
-      WR3 : NOT EXISTS(seating_plane_zone) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection));
-      WR4 : NOT ((seating_plane_intersection = does_not_intersect) AND (EXISTS(seating_plane_zone)));
-      WR5 : NOT (SIZEOF(terminal_core_material) = 1) OR
+      WR2 : NOT EXISTS(seating_plane_zone) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection));
+      WR3 : NOT ((seating_plane_intersection = does_not_intersect) AND (EXISTS(seating_plane_zone)));
+      WR4 : NOT (SIZEOF(terminal_core_material) = 1) OR
                 ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_core_material[1]));
-      WR6: (SIZEOF(terminal_surface_material) = 1) AND
+      WR5: (SIZEOF(terminal_surface_material) = 1) AND
                 ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_surface_material[1]));
-	  WR7: (EXISTS (lead_form)) XOR ((SIZEOF(external_lead_form)) = 1);
+	  WR6: (EXISTS (lead_form)) XOR ((SIZEOF(external_lead_form)) = 1);
   END_ENTITY;
 
   ENTITY Package_terminal_surface_constituent_relationship

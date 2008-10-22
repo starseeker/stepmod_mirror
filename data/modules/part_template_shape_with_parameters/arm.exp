@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.31 2008/10/06 03:59:00 thomasrthurman Exp $
+   $Id: arm.exp,v 1.32 2008/10/10 08:03:36 liutkuviene Exp $
    ISO TC184/SC4/WG12 N5758 - ISO/TS 10303-1720 Part template shape with parameters - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4107
 *)
@@ -16,11 +16,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       Non_feature_shape_element);
   END_SUBTYPE_CONSTRAINT;
 
-  TYPE ptswp_ptsm_definition = SELECT OF
-       (via_template,
-        component_termination_passage_template);
-  END_TYPE;
-
   TYPE ptswp_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
     (Part_template_keepout_shape_model);
   END_TYPE;
@@ -32,12 +27,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   TYPE ptswp_view_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON view_shape_select WITH 
     (Part_template_shape_model);
   END_TYPE; 
-
-  TYPE ptswp_template_shape_model_context = ENUMERATION OF 
-     (drilled_passage_context,
-      finished_passage_context,
-      unknown_context);
-  END_TYPE;
 
   ENTITY Geometric_template
     ABSTRACT SUPERTYPE
@@ -88,22 +77,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     WHERE
       WR1 : SIZEOF(principal_part_shape) < 2;
       WR2: SIZEOF(USEDIN(SELF, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION'))=0;      
-  END_ENTITY;
-
-  ENTITY plated_passage_template_shape_model
-    SUBTYPE OF (part_template_shape_model);
-       SELF\Part_template_shape_model.shape_characterized_definition : SET [1:?] OF
-         ptswp_ptsm_definition;
-       data_qualification : ptswp_template_shape_model_context;
-    DERIVE
-       template : Geometric_template := shape_characterized_definition[1];  
-    WHERE
-      WR1 : SIZEOF(QUERY(scd <* shape_characterized_definition |  
-              NOT(scd\Inter_stratum_feature_template.of_passage_technology\Passage_technology.plated_passage)
-              )) = 0;
-      WR2 : SIZEOF(QUERY(scd <* shape_characterized_definition |
-              NOT(TYPEOF(scd) = TYPEOF(template))
-              )) = 0;       
   END_ENTITY;
 
   RULE unique_part_template_shape_model_for_geometric_template FOR

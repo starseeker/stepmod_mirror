@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.84 2008/10/04 12:41:47 thomasrthurman Exp $
+   $Id: arm.exp,v 1.85 2008/10/22 21:31:54 thomasrthurman Exp $
    ISO TC184/SC4/WG3 N1995 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG3 N1638
 *)
@@ -382,8 +382,8 @@ END_SUBTYPE_CONSTRAINT;
 
 (** It most likely should be in TOP AP210 schema *)
 SUBTYPE_CONSTRAINT part_design_view_subtypes FOR Part_design_view;  
-    ONEOF (Assembly_module,
- Interconnect_module);
+    ONEOF (Assembly_module_design_view,
+ Interconnect_module_design_view);
 END_SUBTYPE_CONSTRAINT;
 
 (** Assembly_module_with_packaged_connector_component_arm and 
@@ -393,7 +393,7 @@ Assembly_module_with_interconnect_component_arm  - most likely in some Assembly 
 		 Interconnect_component_interface_terminal));
 	END_SUBTYPE_CONSTRAINT;
 
-(** most likely some Assembly_module CC *)
+(** most likely some Assembly_module_design_view CC *)
 	SUBTYPE_CONSTRAINT packaged_part_subtypes FOR Packaged_part; 
 	    (ONEOF (Minimally_defined_connector, -- Assembly_functional_interface_requirement_arm
 	 	Packaged_connector) ANDOR -- Packaged_connector_model_arm
@@ -407,7 +407,7 @@ Assembly_module_with_interconnect_component_arm  - most likely in some Assembly 
 		Physical_unit_interconnect_definition));
 	END_SUBTYPE_CONSTRAINT; 
 	
-	(** It most likely should be in Assembly_module CC *)
+	(** It most likely should be in Assembly_module_design_view CC *)
 	SUBTYPE_CONSTRAINT ap210_physical_component_subtypes FOR Physical_component;  
 		(ONEOF (Assembly_module_component, --Assembly_module_with_subassembly_arm
 		Bare_die_component, -- Assembly_module_design_arm
@@ -418,7 +418,7 @@ Assembly_module_with_interconnect_component_arm  - most likely in some Assembly 
 		Routed_physical_component)); -- Assembly_module_design_arm 
 	END_SUBTYPE_CONSTRAINT;
 	
-	(** It most likely should be in Assembly_module CC *)
+	(** It most likely should be in Assembly_module_design_view CC *)
 	SUBTYPE_CONSTRAINT ap210_part_usage_view_subtypes FOR Part_usage_view;  
 	    ONEOF (Package,
 		 Bare_die,
@@ -515,7 +515,7 @@ RULE Physical_unit_network_definition_constraint FOR
 (Physical_unit_network_definition);
 WHERE
   WR1: SIZEOF ( QUERY ( fund <* Physical_unit_network_definition | 
-('ASSEMBLY_MODULE_DESIGN_ARM.' + 'ASSEMBLY_MODULE' IN TYPEOF (fund)) OR
+('ASSEMBLY_MODULE_DESIGN_ARM.' + 'ASSEMBLY_MODULE_DESIGN_VIEW' IN TYPEOF (fund)) OR
   (SIZEOF(USEDIN(fund,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.' + 
 'PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION')) = 0)
     )) = SIZEOF(Physical_unit_network_definition);

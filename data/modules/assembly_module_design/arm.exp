@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.50 2008/09/25 09:53:43 liutkus Exp $
+   $Id: arm.exp,v 1.51 2008/10/04 12:13:18 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5575 - ISO/TS 10303-1636 Assembly module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3855
 *)
@@ -33,7 +33,7 @@ SCHEMA Assembly_module_design_arm;
 
 	TYPE assembly_module_or_assembly_group_component = 
 		EXTENSIBLE GENERIC_ENTITY SELECT 
-		(Assembly_module);
+		(Assembly_module_design_view);
 	END_TYPE;
 
   ENTITY Assembly_connection_zone_position_relationship;
@@ -41,11 +41,11 @@ SCHEMA Assembly_module_design_arm;
       associated_usage                            : Connection_zone_in_design_view;
       associated_connection_zone_shape_definition : Geometric_model;
       associated_usage_placement                  : Axis_placement;
-      associating_design_view                     : Assembly_module;
+      associating_design_view                     : Assembly_module_design_view;
   END_ENTITY;
 
-  ENTITY Assembly_module
-    SUPERTYPE OF (ONEOF (Layered_assembly_panel, Layered_assembly_module))
+  ENTITY Assembly_module_design_view
+    SUPERTYPE OF (ONEOF (Layered_assembly_panel, Layered_assembly_module_design_view))
     SUBTYPE OF (Assembly_definition, Part_design_view);
   WHERE
     WR1 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
@@ -98,8 +98,8 @@ SCHEMA Assembly_module_design_arm;
       added_clearance             : Length_tolerance_characteristic;
   END_ENTITY;
 
-  ENTITY Layered_assembly_panel
-    SUBTYPE OF (Assembly_module);
+  ENTITY Layered_assembly_panel_design_view
+    SUBTYPE OF (Assembly_module_design_view);
   END_ENTITY;
 
   ENTITY Minimally_defined_component_terminal
@@ -133,8 +133,8 @@ SCHEMA Assembly_module_design_arm;
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
-  ENTITY Layered_assembly_module
-    SUBTYPE OF (Assembly_module);
+  ENTITY Layered_assembly_module_design_view
+    SUBTYPE OF (Assembly_module_design_view);
       SELF\Part_design_view.usage_view : Layered_assembly_module_usage_view;
   END_ENTITY;
 

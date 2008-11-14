@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: module.xsl,v 1.204 2008/06/26 14:31:58 abf Exp $
+$Id: module.xsl,v 1.205 2008/09/12 15:49:06 abf Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -2862,12 +2862,35 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
     </xsl:call-template>  
   </xsl:variable>
 
-  <xsl:call-template name="output_normrefs_rec">
-    <xsl:with-param name="normrefs" select="$pruned_normrefs"/>
-    <xsl:with-param name="module_number" select="$module_number"/>
-    <xsl:with-param name="current_module" select="$current_module"/>
-  </xsl:call-template>  
+  <xsl:variable name="normrefs_to_be_sorted"> 
+    <xsl:call-template name="output_normrefs_rec">
+      <xsl:with-param name="normrefs" select="$pruned_normrefs"/>
+      <xsl:with-param name="module_number" select="$module_number"/>
+    </xsl:call-template>  
+  </xsl:variable>
 
+  <xsl:choose>
+    <xsl:when test="function-available('msxsl:node-set')">
+      <xsl:variable name="normrefs_to_be_sorted_set" select="msxsl:node-set($normrefs_to_be_sorted)"/>
+      <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
+        <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
+        <xsl:sort select='part'/>
+        <xsl:for-each select="string/*">
+         <xsl:copy-of select="."/>
+        </xsl:for-each>
+      </xsl:for-each>
+    </xsl:when>
+    <xsl:when test="function-available('exslt:node-set')">    
+      <xsl:variable name="normrefs_to_be_sorted_set" select="exslt:node-set($normrefs_to_be_sorted)"/>
+      <xsl:for-each select="$normrefs_to_be_sorted_set/normref">
+        <!-- sorting basis is special normalized string, consisting of organization, series and part number all of equal lengths per each element -->
+        <xsl:sort select='part'/>
+        <xsl:for-each select="string/*">
+         <xsl:copy-of select="."/>
+        </xsl:for-each>
+      </xsl:for-each>
+    </xsl:when>
+  </xsl:choose>
 
   <!-- output a footnote to say that the normative reference has not been
        published -->
@@ -2886,7 +2909,6 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
 
 <xsl:template name="output_normrefs_rec">
   <xsl:param name="module_number"/>
-  <xsl:param name="current_module"/>
   <xsl:param name="normrefs"/>
   <xsl:choose>
     <xsl:when test="$normrefs">
@@ -2915,14 +2937,68 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
                1107, so remove the 10303- -->
           <xsl:variable name="part_no" 
             select="substring-after($normref_node/stdref/stdnumber,'-')"/>
-            <xsl:if test="$module_number!=$part_no">
-              
-              <xsl:apply-templates 
-                select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]">
-
-                <xsl:with-param name="current_module" select="$current_module"/>
-              </xsl:apply-templates>
-            </xsl:if>
+            <xsl:element name="normref">
+               <xsl:element name="string">
+                <xsl:if test="$module_number!=$part_no">
+                  <!-- OOUTPUT from normative references -->
+                    <xsl:apply-templates 
+                      select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]"/>
+                </xsl:if>
+              </xsl:element>
+              <xsl:variable name="part">
+                <xsl:value-of select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/stdref/stdnumber"/>
+              </xsl:variable>
+              <xsl:variable name="orgname">
+				<xsl:value-of select="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/stdref/orgname"/>
+              </xsl:variable>
+              <!-- eliminate status info like TS, CD-TS, etc -->
+              <xsl:variable name="orgname_cleaned">
+                <xsl:choose>
+                  <xsl:when test="contains($orgname,'ISO')">ISO</xsl:when>
+                  <!--  Add 'Z', so that it is placed at the of the list while sorting -->
+                  <xsl:otherwise>Z<xsl:value-of select="$orgname"/></xsl:otherwise>
+                </xsl:choose>  
+              </xsl:variable>
+                <!-- Try to 'normalize' part and subpart numbers -->
+                <xsl:variable name="series" select="substring-before($part,'-')"/>
+                <!-- normalize with longest possible series (10303) -->                    
+                <xsl:variable name="series_norm">
+                <xsl:choose>
+                  <xsl:when test="string-length($series)=1">0000<xsl:value-of select="$series"/></xsl:when>
+                  <xsl:when test="string-length($series)=2">000<xsl:value-of select="$series"/></xsl:when>
+                  <xsl:when test="string-length($series)=3">00<xsl:value-of select="$series"/></xsl:when>
+                  <xsl:when test="string-length($series)=4">0<xsl:value-of select="$series"/></xsl:when>
+                  <xsl:when test="string-length($series)=5"><xsl:value-of select="$series"/></xsl:when>
+                  <xsl:otherwise>
+                    <xsl:call-template name="error_message">
+                      <xsl:with-param name="message">
+                        <xsl:value-of select="concat('Unsupported length of series number: ', $series, 'length: ', string-length($series))"/>
+                      </xsl:with-param>
+                    </xsl:call-template>
+                  </xsl:otherwise>
+                </xsl:choose>
+                </xsl:variable>
+                <!-- normalize with longest possible part (4 digits) -->                    
+                <xsl:variable name="part_norm">
+                <xsl:choose>
+                  <xsl:when test="string-length($part_no)=1">-000<xsl:value-of select="$part_no"/></xsl:when>
+                  <xsl:when test="string-length($part_no)=2">-00<xsl:value-of select="$part_no"/></xsl:when>
+                  <xsl:when test="string-length($part_no)=3">-0<xsl:value-of select="$part_no"/></xsl:when>
+                  <xsl:when test="string-length($part_no)=4">-<xsl:value-of select="$part_no"/></xsl:when>
+                  <xsl:otherwise>
+                    <xsl:call-template name="error_message">
+                      <xsl:with-param name="message">
+                        <xsl:value-of select="concat('Unsupported length of part number: ', $part_no, 'length: ', string-length($part_no))"/>
+                      </xsl:with-param>
+                    </xsl:call-template>
+                  </xsl:otherwise>
+                </xsl:choose>
+                </xsl:variable>
+                <xsl:element name="part">
+                <!-- Organization name -->
+                  <xsl:value-of select="$orgname_cleaned"/>-<xsl:value-of select="$series_norm"/><xsl:value-of select="$part_norm"/>
+                </xsl:element>
+            </xsl:element>
           </xsl:when>
           <xsl:otherwise>
             <xsl:call-template name="error_message">
@@ -2948,11 +3024,12 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
         <xsl:variable name="module_xml" 
           select="concat($module_dir,'/module.xml')"/>
         
-        <!-- output the normative reference derived from the module -->
-        <xsl:apply-templates 
-          select="document($module_xml)/module" mode="normref">
-          <xsl:with-param name="current_module" select="$current_module"/>
-        </xsl:apply-templates>
+        <!-- OUTPUT the normative reference derived from the module -->
+        <xsl:element name="normref">
+            <xsl:apply-templates 
+              select="document($module_xml)/module" mode="normref">
+            </xsl:apply-templates>
+        </xsl:element>
         
       </xsl:when>
       
@@ -2969,7 +3046,6 @@ this part of ISO 10303,  may be provided to support implementations.  If the inf
     <xsl:call-template name="output_normrefs_rec">
       <xsl:with-param name="normrefs" select="$rest"/>
       <xsl:with-param name="module_number" select="$module_number"/>
-      <xsl:with-param name="current_module" select="$current_module"/>
     </xsl:call-template>
     
   </xsl:when>
@@ -3262,9 +3338,8 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
 </xsl:template>
 
 <xsl:template match="module" mode="normref">
-  <xsl:param name="current_module"/>
+  <xsl:element name="string">
   <p>
-
     <xsl:variable name="part">
       <xsl:choose>
         <xsl:when test="string-length(@part)>0">
@@ -3276,26 +3351,12 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
       </xsl:choose>
     </xsl:variable>
 
-
-    <!-- 
-         Note, if the standard has a status of CD or CD-TS it has not been
-         published - so overide what ever is the @publication.year 
-         -->
-    <xsl:variable name="pub_year">
-      <xsl:choose>
-        <xsl:when test="@status='CD' or @status='CD-TS'">&#8212;</xsl:when>
-        <xsl:when test="@published='n'">&#8212;</xsl:when>
-        <xsl:when test="string-length(@publication.year)">
-          <xsl:value-of select="@publication.year"/>
-        </xsl:when>
-        <xsl:otherwise>
-          &lt;publication.year&gt;
-        </xsl:otherwise>
-      </xsl:choose>
+    <xsl:variable name="stdnumber">
+      <xsl:call-template name="get_module_stdnumber_undated">
+        <xsl:with-param name="module" select="."/>
+      </xsl:call-template>
     </xsl:variable>
 
-    <xsl:variable name="isonumber"
-      select="concat('ISO/',@status,' 10303-',@part)"/> <!-- ,':',$pub_year)"/> -->
     
     <xsl:variable name="stdtitle"
       select="concat('Industrial automation systems and integration ',
@@ -3310,73 +3371,68 @@ test="document('../data/basic/normrefs.xml')/normref.list/normref[@id=$normref]/
     <xsl:variable name="subtitle"
       select="concat('&#8212; Part ',$part,': Application module: ', $module_name,'.')"/>
     
-    <xsl:value-of select="$isonumber"/>
-
-    <xsl:choose>
-      <!-- if the module is a TS or IS module and is referring to a 
-           CD or CD-TS module -->
+    <!-- Printing of standard line starts here -->
+    <xsl:value-of select="$stdnumber"/>
+    <xsl:choose><!-- if the module is a TS or IS module and is referring to a CD or CD-TS module -->
       <xsl:when 
-        test="( string($current_module/@status)='TS' or 
-                string($current_module/@status)='IS') and
+        test="( string(./@status)='TS' or 
+              string(./@status)='IS') and
               ( string(./@status)='CD' or string(./@status)='CD-TS')">
         &#160;<sup><a href="#derogation">2</a>)</sup>
       </xsl:when>
-      <xsl:when test="@published='n'">
-        &#160;<sup><a href="#tobepub">1</a>)</sup>
+      <xsl:when test="@published='n'">&#160;<sup><a href="#tobepub">1</a>)</sup>
       </xsl:when>
     </xsl:choose>,&#160;
     <i>
-      <xsl:value-of select="$stdtitle"/><xsl:value-of select="$subtitle"/>
+      <xsl:value-of select="$stdtitle"/>
+      <xsl:value-of select="$subtitle"/>
     </i>
   </p>
+  </xsl:element>    
+  <xsl:element name="part">
+  <!-- Need to 'normalize' the length so that we can easier sort it -->
+    <xsl:choose>
+      <xsl:when test="string-length(@part)=0">ISO-10303-0000<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=1">ISO-10303-000<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=2">ISO-10303-00<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=3">ISO-10303-0<xsl:value-of select="@part"/></xsl:when>
+      <xsl:when test="string-length(@part)=4">ISO-10303-<xsl:value-of select="@part"/></xsl:when>      
+      <xsl:otherwise>
+            <xsl:call-template name="error_message">
+              <xsl:with-param name="message">
+                <xsl:value-of select="concat('Unsupported length of part number: ', @part, 'length: ', string-length(@part))"/>
+              </xsl:with-param>
+            </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:element>
 </xsl:template>
 
 <!-- Output the normative reference -->
 <xsl:template match="normref">
-  <xsl:param name="current_module"/>
   <xsl:variable name="stdnumber">
-<!--     <xsl:choose>
+<!--    <xsl:choose>
       <xsl:when test="stdref/pubdate">
-        <xsl:value-of 
-          select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':',stdref/pubdate)"/> 
+        <xsl:value-of select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':',stdref/pubdate)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of 
-          select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':&#8212;&#160;')"/>
+        <xsl:value-of select="concat(stdref/orgname,'&#160;',stdref/stdnumber,':&#8212;&#160;')"/>
       </xsl:otherwise>
     </xsl:choose> -->
 	  <xsl:value-of 
 	    select="concat(stdref/orgname,'&#160;',stdref/stdnumber)"/>
   </xsl:variable>
-
   <p>
-    <!-- <xsl:value-of select="concat(stdref/orgname,' ',stdref/stdnumber)"/> -->
     <xsl:value-of select="$stdnumber"/>
-    <xsl:choose>
-      <!-- if the module is a TS or IS module and is referring to a 
-           CD or CD-TS module -->
-      <xsl:when 
-        test="( string($current_module/@status)='TS' or 
-                string($current_module/@status)='IS') and
-              ( string(./@status)='CD' or string(./@status)='CD-TS')">
-        <sup><a href="#derogation">2)</a></sup>
-      </xsl:when>
-      <xsl:when test="stdref[@published='n']">
-        <sup><a href="#tobepub">1</a>)</sup>
-      </xsl:when>
-    </xsl:choose>,&#160;
+    <xsl:if test="stdref[@published='n']">
+      <sup><a href="#tobepub">1</a>)</sup>
+    </xsl:if>,&#160;
     <i>
-      <xsl:value-of select="normalize-space(stdref/stdtitle)"/>
-      <!-- make sure that the title ends with a . -->
-      <xsl:variable 
-        name="subtitle"
-        select="normalize-space(stdref/subtitle)"/>
+      <xsl:value-of select="stdref/stdtitle"/>
+      <xsl:variable name="subtitle" select="normalize-space(stdref/subtitle)"/>
       <xsl:choose>
-        <xsl:when test="substring($subtitle, string-length($subtitle)) != '.' and string-length($subtitle) &gt; 4">
-          <xsl:value-of select="concat('&#160;',$subtitle,'.')"/>
-        </xsl:when>
-        <xsl:when test="substring($subtitle, string-length($subtitle)) != '.' and string-length($subtitle) &lt;= 4">
-          <xsl:value-of select="'.'"/>
+        <xsl:when test="substring($subtitle, string-length($subtitle)) != '.'">
+          <xsl:value-of select="concat($subtitle,'.')"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$subtitle"/>

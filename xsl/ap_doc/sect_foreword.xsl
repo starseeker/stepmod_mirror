@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_foreword.xsl,v 1.21 2005/11/09 23:23:32 thendrix Exp $
+$Id: sect_foreword.xsl,v 1.22 2008/06/26 14:36:30 abf Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -130,24 +130,17 @@ $Id: sect_foreword.xsl,v 1.21 2005/11/09 23:23:32 thendrix Exp $
         <xsl:when test="@previous.revision.cancelled='NO'">
           This <xsl:value-of select="$this_edition"/> edition of  
         <xsl:value-of select="$part_no"/> 
-        constitutes a technical revision of the
+        cancels and replaces the
         <xsl:value-of select="$prev_edition"/> edition  
         (<xsl:value-of
         select="@previous.revision.number"/>),
-        which is provisionally retained in order to support continued use
-        and maintenance of implementations based on the
-        <xsl:value-of select="$prev_edition"/> 
-        edition and to satisfy the normative references of other parts of
-        ISO 10303. 
-        <xsl:choose>
-          <!-- only changed a section of the document -->
+        of which it constitutes a technical revision. 
+<!--    <xsl:choose>
           <xsl:when test="@revision.complete='NO'">
             <xsl:value-of select="@revision.scope"/>
             of the <xsl:value-of select="$prev_edition"/> 
             edition  
             <xsl:choose>
-              <!-- will be Clauses/Figures/ etc so if contains 'es' 
-                   then must be plural-->
               <xsl:when test="contains(@revision.scope,'es')">
                 have
               </xsl:when>
@@ -158,9 +151,8 @@ $Id: sect_foreword.xsl,v 1.21 2005/11/09 23:23:32 thendrix Exp $
             been technically revised.
           </xsl:when>
           <xsl:otherwise>
-            <!-- complete revision so no extra text -->
-          </xsl:otherwise>
-        </xsl:choose>
+          </xsl:otherwise> 
+        </xsl:choose> -->
       </xsl:when>
 
       <xsl:otherwise>
@@ -430,24 +422,17 @@ $Id: sect_foreword.xsl,v 1.21 2005/11/09 23:23:32 thendrix Exp $
 	    <xsl:when test="@previous.revision.cancelled='NO'">
 	      This <xsl:value-of select="$this_edition"/> edition of  
 	      <xsl:value-of select="$part_no"/> 
-	      constitutes a technical revision of the
+	      cancels and replaces the
 	      <xsl:value-of select="$prev_edition"/> edition  
 	      (<xsl:value-of
 	      select="@previous.revision.number"/>),
-	      which is provisionally retained in order to support continued use
-	      and maintenance of implementations based on the
-	      <xsl:value-of select="$prev_edition"/> 
-	      edition and to satisfy the normative references of other parts of
-	      ISO 10303. 
-	      <xsl:choose>
-		<!-- only changed a section of the document -->
+	      of which it constitutes a technical revision. 
+<!--       <xsl:choose>
 		<xsl:when test="@revision.complete='NO'">
 		  <xsl:value-of select="@revision.scope"/>
 		  of the <xsl:value-of select="$prev_edition"/> 
 		  edition  
 		  <xsl:choose>
-		    <!-- will be Clauses/Figures/ etc so if contains 'es' 
-			 then must be plural-->
 		    <xsl:when test="contains(@revision.scope,'es')">
 		      have
 		    </xsl:when>
@@ -458,9 +443,8 @@ $Id: sect_foreword.xsl,v 1.21 2005/11/09 23:23:32 thendrix Exp $
 		  been technically revised.
 		</xsl:when>
 		<xsl:otherwise>
-		  <!-- complete revision so no extra text -->
 		</xsl:otherwise>
-	      </xsl:choose>
+	      </xsl:choose> -->
 	    </xsl:when>
 
 	    <xsl:otherwise>

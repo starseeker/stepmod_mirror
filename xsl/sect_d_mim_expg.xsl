@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_d_mim_expg.xsl,v 1.13 2005/03/03 09:53:18 robbod Exp $
+$Id: sect_d_mim_expg.xsl,v 1.14 2006/10/13 21:18:18 darla Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose:
@@ -97,7 +97,7 @@ $Id: sect_d_mim_expg.xsl,v 1.13 2005/03/03 09:53:18 robbod Exp $
   </xsl:choose>
 
   <p>
-    The EXPRESS-G graphical notation is defined in ISO 10303-11:2004 Annex D.
+    The EXPRESS-G graphical notation is defined in ISO 10303-11.
   </p>
   <a name="mimexpg"/>
   <xsl:apply-templates select="mim/express-g"/>

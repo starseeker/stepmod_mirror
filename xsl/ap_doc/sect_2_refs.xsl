@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_2_refs.xsl,v 1.21 2008/04/23 20:52:04 darla Exp $
+$Id: sect_2_refs.xsl,v 1.22 2008/06/26 14:36:30 abf Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -270,7 +270,8 @@ $Id: sect_2_refs.xsl,v 1.21 2008/04/23 20:52:04 darla Exp $
               <xsl:variable name="orgname_cleaned">
                 <xsl:choose>
                   <xsl:when test="contains($orgname,'ISO')">ISO</xsl:when>
-                  <xsl:otherwise><xsl:value-of select="$orgname"/></xsl:otherwise>
+				  <!--  Add 'Z', so that it is placed at the of the list while sorting -->                  
+                  <xsl:otherwise>Z<xsl:value-of select="$orgname"/></xsl:otherwise>
                 </xsl:choose>  
               </xsl:variable>
                 <!-- Try to 'normalize' part and subpart numbers -->

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.22 2008/09/18 12:47:36 liutkuviene Exp $
+   $Id: arm.exp,v 1.23 2008/11/13 09:30:54 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5605 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3885
 *)
@@ -95,64 +95,25 @@ SCHEMA Footprint_definition_arm;
 
   ENTITY Package_footprint_relationship_definition
     SUBTYPE OF (Product_view_definition);
-(*desc: A Package_footprint_relationship_definition is a type of Product_view_definition provided to explicitly
-define the geometric relationship between a planar shape of a Footprint_definitin and a planar shape of a Package.
-The Package_footprint_relationship_definition allows an application to archive and exchange many to many relationships
-between Package and Footprint_definition models. *)
-
     DERIVE
       associated_model : SET [1:1] OF Geometric_model := fd_get_amodel(SELF);
-(*desc: The associated_model specifies a Geometric_model that is establishing a common context in which the Package
-model and the Footprint_definition model are related.  Each of the two models is independently transformed into the
-associated_model, with the role of the transforms being to establish the formal relationship. *)
-      
       related_models : SET [2:2] OF Geometric_model := fd_get_rmodels(related_elements);
-(*desc: The related_models specifies two Geometric_models, one of which is a planar model for a Package, and the other
-is a planar model for a Footprint_definition.  The models are individually associated to the Package and Footprint_definition related
-to the Package_footprint_relationship_definition by related_elements through a Shape_description_association. *)
-      
       related_transforms : SET [2:2] OF Geometric_model_relationship_with_transformation := 
                            fd_get_transforms(associated_model, related_models);      
-(*desc: The related_transforms specifies two Geometric_model_relationship_with_transformation that individually
-specify the transformation matrix that locates a Package model or a Footprint_definition model in the associated_model.
-NOTE: Taken together, the related_transforms specifies the geometric relationship between geometric elements in a Package model
-to geometric elements in a Footprint_definition model. *)
-                           
     INVERSE
       related_elements : SET [2:2] OF View_definition_relationship for related_view;
-(*desc: The related_elements is an inverse attribute that specifies that the  Package_footprint_relationship_definition is existence
-dependent on two members of View_definition_relationship.  One member of View_definition_relationship references a
-Package. The other member references a Footprint_definition.
-NOTE: The direction of the related and relating attributes differs from an assembly relationship
-since a Package_footprint_relationship_definition is not an assembly. *)
-
     WHERE
       WR1: 'PACKAGE_ARM.PACKAGE' IN fd_get_components(related_elements);
-(*desc: At least one member of Package shall be included in related_elements. *)      
       WR2: 'FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' in fd_get_components(related_elements);
-(*desc: At least one member of Footprint_definition shall be included in related_elements.
-NOTE: WR1 with WR2 and the population constraint on related_elements ensure that there is one Package and one
-Footprint_definition related to a member of Package_footprint_relationship_definition. *)
-      
       WR3: SIZEOF(related_models) = 2;
-(*desc: There shall be exactly two models related to the Package_footprint_relationship_definition model. *)
-      
       WR4: SIZEOF(associated_model) = 1;
-(*desc: There shall be exactly one associated_model. *)
-      
       WR5: SIZEOF(QUERY(rm <* related_models |
                   ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF(rm))
               )) = 1;
-(*desc: One of the related_models shall be a Physical_unit_planar_shape_model. *)
-              
       WR6: SIZEOF(QUERY(rm <* related_models |
                   ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(rm))
               )) = 1;
-(*desc: One of the related_models shall be a Footprint_definition_shape_model.
-NOTE: WR3, WR5, WR6 together ensure that there are the correct type of models in related_models. *)
-
       WR7: 'LAYERED_2D_SHAPE_ARM.PLANAR_SHAPE_MODEL' IN TYPEOF(associated_model[1]);
-(* The associated_model shall have a dimensionality of 2. *)
   END_ENTITY;
 
   ENTITY Part_feature_based_template_location
@@ -182,8 +143,6 @@ NOTE: WR3, WR5, WR6 together ensure that there are the correct type of models in
   END_ENTITY;
 
   FUNCTION fd_get_components(input : SET[2:2] OF View_definition_relationship) : SET OF Product_view_definition;
-(*desc:  fd_get_components returns the set of Product_view_definitions that are referenced by the relating_view attribute 
-of the input. *) 
     LOCAL
       pvd : SET OF Product_view_definition := [];
     END_LOCAL;
@@ -194,8 +153,6 @@ of the input. *)
   END_FUNCTION; 
 
   FUNCTION fd_get_amodel (input : Product_view_definition) : SET OF Geometric_model;
-(*desc: The fd_get_amodel returns the set of Geometric_model that are related to the input by a Shape_description_association through
-Item_shape. *)  
     LOCAL
       gm : SET OF Geometric_model := [];
       is : SET OF Item_shape := [];
@@ -219,8 +176,6 @@ Item_shape. *)
   END_FUNCTION; 
 
   FUNCTION fd_get_rmodels (input : SET[2:2] OF View_definition_relationship) : SET OF Geometric_model;
-(*desc: The fd_get_rmodels returns the set of Geometric_models that are related to the Product_view_definitions 
-that are related by the input set. *)  
     LOCAL
       gm : SET OF Geometric_model := [];
       pvd : SET OF Product_view_definition := [];
@@ -280,8 +235,6 @@ that are related by the input set. *)
   FUNCTION fd_get_transforms(input1 : SET[1:1] OF Geometric_model;
                              input2 : SET[2:2] OF Geometric_model) 
                              : SET OF Geometric_model_relationship_with_transformation;
-(*desc: fd_get_transforms returns the set of Geometric_model_relationship_with_transformation that transform
-the elements of input2 to the domain of input1. *)                          
     LOCAL
       gmrwt : SET OF Geometric_model_relationship_with_transformation := [];
     END_LOCAL;
@@ -297,7 +250,7 @@ the elements of input2 to the domain of input1. *)
       END_IF;
       RETURN(gmrwt);
       END_REPEAT;
-    RETURN (pvd);
+    RETURN (?);
   END_FUNCTION; 
 
 END_SCHEMA;

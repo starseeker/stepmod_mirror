@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.25 2008/11/18 18:03:00 thomasrthurman Exp $
+   $Id: arm.exp,v 1.26 2008/11/18 18:10:40 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5605 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3885
 *)
@@ -52,22 +52,34 @@ SCHEMA Footprint_definition_arm;
     SUBTYPE OF (Structured_template_planar_shape_model);
       SELF\Structured_template_planar_shape_model.shape_characterized_definition : SET[1:1] OF Footprint_definition;
       reference_shape : OPTIONAL physical_unit_shape_model_select;
+      reference_seating_plane_placement : OPTIONAL Usage_concept_usage_relationship;
     WHERE
       WR1 : NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',
                          'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
             NOT ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_USAGE_VIEW' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_definition)) OR
             NOT ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(shape_characterized_definition[1])) OR      
-                 (shape_characterized_definition[1]\Footprint_definition.reference_package :=: 
-                  reference_shape\Physical_unit_shape_model.shape_characterized_definition);
+                 (shape_characterized_definition[1]\Footprint_definition.reference_package :=: reference_shape\Physical_unit_shape_model.shape_characterized_definition);
 
       WR2 : NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',
                          'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
                 ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_USAGE_VIEW' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_definition));
-
-      WR3 : NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
-                ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' 
-                   IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_definition));
-      WR4 : NOT EXISTS(SELF\Representation.description);
+      WR3 : NOT EXISTS(SELF\Representation.description);
+      WR4 : NOT EXISTS(reference_shape) OR EXISTS(shape_characterized_definition[1]\Footprint_definition.reference_package);
+      WR5 : NOT EXISTS(reference_seating_plane_placement) OR EXISTS(reference_shape);
+      WR6 : NOT EXISTS(reference_seating_plane_placement) OR ('PACKAGE_ARM.PACKAGE' IN TYPEOF(shape_characterized_definition[1]\Footprint_definition.reference_package));
+      WR7 : NOT EXISTS(reference_seating_plane_placement) OR ('NON_FEATURE_SHAPE_ELEMENT_ARM.SEATING_PLANE' IN 
+                TYPEOF(reference_seating_plane_placement\Usage_concept_usage_relationship.associated_usage));
+      WR8 : NOT EXISTS(reference_seating_plane_placement) OR 
+                ((reference_seating_plane_placement\Usage_concept_usage_relationship.associating_usage_shape\Usage_view_level_non_feature_shape_model.model_shape) =
+                reference_shape);
+      WR9 : NOT EXISTS(reference_seating_plane_placement) OR 
+                ((reference_seating_plane_placement\Usage_concept_usage_relationship.associated_usage\Non_feature_shape_element.scope) =
+                SELF\Footprint_definition.reference_package);
+     WR10 : NOT EXISTS(reference_seating_plane_placement) OR ('PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL' IN 
+                TYPEOF(reference_seating_plane_placement\Usage_concept_usage_relationship.associating_usage_shape\Usage_view_level_non_feature_shape_model.model_shape);
+     WR11 : NOT (EXISTS(reference_seating_plane_placement) AND ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_2D_SHAPE_MODEL' IN TYPEOF(reference_shape)));
+     WR12 : NOT ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_2D_SHAPE_MODEL' IN TYPEOF(reference_shape)) OR
+                 (SELF\Geometric_model.context_of_items = reference_shape\Geometric_model.context_of_items);                           
   END_ENTITY;
 
   ENTITY Generic_footprint_definition

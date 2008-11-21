@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.2 2008/10/10 14:31:52 thomasrthurman Exp $
+   $Id: arm.exp,v 1.3 2008/10/22 19:16:31 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5752 - ISO/TS 10303-1718 Layered interconnect simple template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4101
 *)
@@ -42,11 +42,11 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
      surface_area_class);
   END_TYPE;
 
-  TYPE pte_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+  TYPE list_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
     (Land_physical_template);
   END_TYPE;
 
-  TYPE pte_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
+  TYPE list_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
     (Land_template_terminal);
   END_TYPE;
 
@@ -66,7 +66,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
      round);
   END_TYPE;
 
-  SUBTYPE_CONSTRAINT pte_template_definition_subtypes FOR Template_definition; 
+  SUBTYPE_CONSTRAINT list_template_definition_subtypes FOR Template_definition; 
     (ONEOF (Geometric_template,
 			Parametric_template,
  			Part_string_template,
@@ -175,16 +175,16 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     WHERE
       WR1 : NOT (SIZEOF(interface_access_mechanisms[1].connection_area) > 0) OR 
                  ('minimum attachment region size' IN 
-                  pte_get_zone_name(interface_access_mechanisms[1].connection_area));
+                  list_get_zone_name(interface_access_mechanisms[1].connection_area));
       WR2 : NOT (SIZEOF(interface_access_mechanisms[1].connection_area) > 1) OR 
                  (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * 
-                  pte_get_zone_name(interface_access_mechanisms[1].connection_area)) = 1);
+                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 1);
       WR3 : NOT (SIZEOF(interface_access_mechanisms[1].connection_area) > 2) OR 
                  (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * 
-                  pte_get_zone_name(interface_access_mechanisms[1].connection_area)) = 2);
+                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 2);
       WR4 : NOT (SIZEOF(interface_access_mechanisms[1].connection_area) > 3) OR 
                  (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * 
-                  pte_get_zone_name(interface_access_mechanisms[1].connection_area)) = 3);
+                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 3);
       WR5 : NOT EXISTS(SELF\Shape_feature.connection_area);
       WR6 : SIZEOF(interface_access_mechanisms) = 1;   
       WR7 : SELF\Shape_element.id = SELF\Item_shape.id;      
@@ -478,13 +478,13 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
-  SUBTYPE_CONSTRAINT pte_shape_feature_subtypes FOR Shape_feature; 
+  SUBTYPE_CONSTRAINT list_shape_feature_subtypes FOR Shape_feature; 
     (ONEOF (Via_template_terminal,
             Component_termination_passage_template_terminal,
             Land_template_terminal));
   END_SUBTYPE_CONSTRAINT;
 
-  FUNCTION pte_get_zone_name(input : SET OF Connection_zone_in_layout_template) : SET OF STRING;
+  FUNCTION list_get_zone_name(input : SET OF Connection_zone_in_layout_template) : SET OF STRING;
     LOCAL
       s : SET OF STRING := [];
     END_LOCAL;

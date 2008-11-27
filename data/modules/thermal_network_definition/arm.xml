@@ -5,7 +5,110 @@
 <express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="thermal_network_definition_arm schema_instance"/>
    <schema name="Thermal_network_definition_arm">
+      <interface kind="use" schema="Component_feature_arm"/>
       <interface kind="use" schema="Network_functional_design_view_arm"/>
+      <interface kind="use" schema="Non_feature_shape_element_arm"/>
+      <interface kind="reference" schema="Characterizable_object_arm">
+         <interfaced.item name="bag_to_set"/>
+      </interface>
+      <type name="tnd_location_select">
+         <select extensible="YES" genericentity="YES" selectitems="Cartesian_point Part_feature Non_feature_shape_element Component_feature"/>
+      </type>
+      <entity name="Thermal_functional_unit_network_node_definition" supertypes="Functional_unit_network_node_definition">
+         <explicit name="associated_functional_unit_definition">
+            <typename name="Thermal_network_definition"/>
+            <redeclaration entity-ref="Functional_unit_network_node_definition"/>
+         </explicit>
+         <explicit name="location" optional="YES">
+            <typename name="tnd_location_select"/>
+         </explicit>
+         <explicit name="used_model" optional="YES">
+            <typename name="shape_model"/>
+         </explicit>
+         <where label="WR1" expression="SIZEOF(USEDIN(SELF, 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.PRECEDENT_ELEMENT' ))&#10;          + SIZEOF(USEDIN(SELF, 'NETWORK_FUNCTIONAL_DESIGN_VIEW_ARM.BUS_ELEMENT_LINK.SUBSEQUENT_ELEMENT' )) = 0"/>
+         <where label="WR2" expression="NOT('ELEMENTAL_GEOMETRIC_SHAPE_ARM.CARTESIAN_POINT' IN TYPEOF(location)) OR &#10;              (used_model IN using_representations(location))"/>
+         <where label="WR3" expression="NOT('ELEMENTAL_GEOMETRIC_SHAPE_ARM.CARTESIAN_POINT' IN TYPEOF(location)) OR &#10;              (SIZEOF(QUERY(sda &lt;* USEDIN(used_model, 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTATION') |&#10;               sda\Shape_description_association.represented_characteristic = SELF\Functional_unit_network_node_definition.associated_functional_unit_definition)) = 1)"/>
+         <where label="WR4" expression="NOT(('ELEMENTAL_GEOMETRIC_SHAPE_ARM.CARTESIAN_POINT' IN TYPEOF(location)) XOR&#10;               EXISTS(used_model))"/>
+      </entity>
       <entity name="Thermal_network_definition" supertypes="Functional_unit_network_definition"/>
+      <function name="using_items">
+         <parameter name="item">
+            <typename name="Representation_item"/>
+         </parameter>
+         <parameter name="checked_items">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Representation_item"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Representation_item"/>
+         <algorithm>LOCAL
+      new_check_items    : SET OF Representation_item;
+      result_items       : SET OF Representation_item;
+      next_items         : SET OF Representation_item;
+    END_LOCAL;
+    result_items := [];
+    new_check_items := checked_items + item;
+    -- Find the set of representation_items or founded_items
+    -- in which item is used directly.
+    next_items := QUERY(z &lt;* bag_to_set( USEDIN(item , '')) |
+      ('FOUNDATION_REPRESENTATION_ARM.REPRESENTATION_ITEM' IN TYPEOF(z)));
+    -- If the set of next_items is not empty;
+    IF SIZEOF(next_items) &gt; 0 THEN
+      -- For each element in the set, find the using_items recursively
+      REPEAT i := 1 TO HIINDEX(next_items);
+        -- Check for loop in data model, i.e. one of the next_items
+        -- occurred earlier in the set of check_items;
+        IF NOT(next_items[i] IN new_check_items) THEN
+          result_items := result_items + next_items[i] +
+                          using_items(next_items[i],new_check_items);
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    -- return the set of representation_items or founded_items
+    -- in which the input item is used directly and indirectly.
+    RETURN (result_items);</algorithm>
+      </function>
+      <function name="using_representations">
+         <parameter name="item">
+            <typename name="Representation_item"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Representation"/>
+         <algorithm>LOCAL
+      results            : SET OF Representation;
+      result_bag         : BAG OF Representation;
+      intermediate_items : SET OF Representation_item;
+    END_LOCAL;
+    -- Find the representations in which the item is used and add to the
+    -- results set.
+    results := [];
+    result_bag := USEDIN(item,'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS');
+    IF SIZEOF(result_bag) &gt; 0 THEN
+      REPEAT i := 1 TO HIINDEX(result_bag);
+        results := results + result_bag[i];
+      END_REPEAT;
+    END_IF;
+    -- Find all representation_items or founded_items
+    -- by which item is referenced directly or indirectly.
+    intermediate_items := using_items(item,[]);
+    -- If the set of intermediate items is not empty;
+    IF SIZEOF(intermediate_items) &gt; 0 THEN
+      -- For each element in the set, add the
+      -- representations of that element.
+      REPEAT i := 1 TO HIINDEX(intermediate_items);
+        result_bag := USEDIN(intermediate_items[i],
+                      'FOUNDATION_REPRESENTATION_ARM.REPRESENTATION.ITEMS');
+        IF SIZEOF(result_bag) &gt; 0 THEN
+          REPEAT j := 1 TO HIINDEX(result_bag);
+            results := results + result_bag[j];
+          END_REPEAT;
+        END_IF;
+      END_REPEAT;
+    END_IF;
+    -- Return the set of representation in which the input item is
+    -- used directly and indirectly (through intervening
+    -- representation_items or founded items).
+    RETURN (results);</algorithm>
+      </function>
    </schema>
 </express>

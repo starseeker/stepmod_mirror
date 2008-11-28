@@ -20,16 +20,22 @@
          <enumeration items="truncate extend" extensible="NO"/>
       </type>
       <type name="land_connection_zone_class">
-         <enumeration items="surface_point_class edge_curve_class edge_point_class surface_area_class" extensible="NO"/>
+         <enumeration items="surface_point_class edge_area_class edge_curve_class edge_point_class surface_area_class" extensible="NO"/>
       </type>
       <type name="land_template_terminal_class">
-         <enumeration items="surface_point_class edge_curve_class edge_point_class surface_area_class" extensible="NO"/>
+         <enumeration items="surface_point_class edge_area_class edge_curve_class edge_point_class surface_area_class" extensible="NO"/>
       </type>
-      <type name="pte_external_identification_item">
+      <type name="list_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Land_physical_template"/>
       </type>
-      <type name="pte_usage_concept">
+      <type name="list_usage_concept">
          <select extensible="YES" genericentity="YES" basedon="usage_concept" selectitems="Land_template_terminal"/>
+      </type>
+      <type name="ptswp_ptsm_definition">
+         <select selectitems="Via_template Component_termination_passage_template" genericentity="NO" extensible="NO"/>
+      </type>
+      <type name="ptswp_template_shape_model_context">
+         <enumeration items="drilled_passage_context finished_passage_context unknown_context" extensible="NO"/>
       </type>
       <type name="square_or_round">
          <enumeration items="square round" extensible="NO"/>
@@ -138,6 +144,7 @@
          </unique>
       </entity>
       <entity name="Curve_style_parameters_with_ends" supertypes="Curve_style_parameters" abstract.supertype="NO" abstract.entity="NO">
+
          <explicit name="end_extension" optional="NO">
             <typename name="extend_or_truncate"/>
          </explicit>
@@ -157,10 +164,10 @@
          <inverse name="interface_access_mechanisms" entity="Land_template_interface_terminal" attribute="associated_definition">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
-         <where label="WR1" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 0) OR &#10;                 ('minimum attachment region size' IN &#10;                  pte_get_zone_name(interface_access_mechanisms[1].connection_area))"/>
-         <where label="WR2" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 1) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  pte_get_zone_name(interface_access_mechanisms[1].connection_area)) = 1)"/>
-         <where label="WR3" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 2) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  pte_get_zone_name(interface_access_mechanisms[1].connection_area)) = 2)"/>
-         <where label="WR4" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 3) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  pte_get_zone_name(interface_access_mechanisms[1].connection_area)) = 3)"/>
+         <where label="WR1" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 0) OR &#10;                 ('minimum attachment region size' IN &#10;                  list_get_zone_name(interface_access_mechanisms[1].connection_area))"/>
+         <where label="WR2" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 1) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 1)"/>
+         <where label="WR3" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 2) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 2)"/>
+         <where label="WR4" expression="NOT (SIZEOF(interface_access_mechanisms[1].connection_area) &gt; 3) OR &#10;                 (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * &#10;                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 3)"/>
          <where label="WR5" expression="NOT EXISTS(SELF\Shape_feature.connection_area)"/>
          <where label="WR6" expression="SIZEOF(interface_access_mechanisms) = 1"/>
          <where label="WR7" expression="SELF\Shape_element.id = SELF\Item_shape.id"/>
@@ -295,6 +302,7 @@
          <explicit name="of_character" optional="NO">
             <typename name="Character_glyph_symbol"/>
          </explicit>
+         <where label="WR1" expression="SIZEOF(['CONSTRUCTIVE_SOLID_GEOMETRY_3D_ARM.CSG_MODEL', 'LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.SOLID_CHARACTER_GLYPH_2D_SYMBOL'] *&#10;           TYPEOF(of_character)) = 1"/>
       </entity>
       <entity name="Path_area_with_parameters" supertypes="Detailed_geometric_model_element" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="centreline" optional="NO">
@@ -311,6 +319,21 @@
          <where label="WR1" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |&#10;      ('EXTENDED_BASIC_GEOMETRY_ARM.AXIS_PLACEMENT_2D' IN TYPEOF(it))&#10;                )) = 1"/>
          <where label="WR2" expression="SIZEOF(QUERY(it &lt;* SELF\Representation.items |   &#10;      ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.PATH_AREA_WITH_PARAMETERS' IN TYPEOF(it))&#10;                )) = 1"/>
          <where label="WR3" expression="SIZEOF(SELF\Representation.items) = 2"/>
+      </entity>
+      <entity name="Plated_passage_template_shape_model" supertypes="Part_template_shape_model" abstract.supertype="NO" abstract.entity="NO">
+         <explicit name="shape_characterized_definition" optional="NO">
+            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <typename name="ptswp_ptsm_definition"/>
+            <redeclaration entity-ref="Part_template_shape_model"/>
+         </explicit>
+         <explicit name="data_qualification" optional="NO">
+            <typename name="ptswp_template_shape_model_context"/>
+         </explicit>
+         <derived name="template" expression="shape_characterized_definition[1]">
+            <typename name="Geometric_template"/>
+         </derived>
+         <where label="WR1" expression="SIZEOF(QUERY(scd &lt;* shape_characterized_definition |  &#10;              NOT(scd\Inter_stratum_feature_template.of_passage_technology\Passage_technology.plated_passage)&#10;              )) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(scd &lt;* shape_characterized_definition |&#10;              NOT(TYPEOF(scd) = TYPEOF(template))&#10;              )) = 0"/>
       </entity>
       <entity name="Single_stratum_continuous_template" abstract.supertype="YES" supertypes="Continuous_template Single_stratum_template" super.expression="ONEOF (Stratum_feature_template, Material_removal_feature_template)" abstract.entity="NO"/>
       <entity name="Single_stratum_template" abstract.supertype="YES" supertypes="Template_definition" abstract.entity="NO"/>
@@ -419,8 +442,8 @@
          </unique>
          <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
       </entity>
-      <subtype.constraint name="pte_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Geometric_template, Parametric_template, Part_string_template, Part_text_template, Single_stratum_template, Stratum_stack_model)" abstract.supertype="NO"/>
-      <subtype.constraint name="pte_shape_feature_subtypes" entity="Shape_feature" super.expression="ONEOF (Via_template_terminal, Component_termination_passage_template_terminal, Land_template_terminal)" abstract.supertype="NO"/>
+      <subtype.constraint name="list_template_definition_subtypes" entity="Template_definition" super.expression="ONEOF (Geometric_template, Parametric_template, Part_string_template, Part_text_template, Single_stratum_template, Stratum_stack_model)" abstract.supertype="NO"/>
+      <subtype.constraint name="list_shape_feature_subtypes" entity="Shape_feature" super.expression="ONEOF (Via_template_terminal, Component_termination_passage_template_terminal, Land_template_terminal)" abstract.supertype="NO"/>
       <rule name="unique_land_physical_template" appliesto="Land_physical_template">
          <algorithm>LOCAL
       esi : BAG OF External_source_identification := [];
@@ -451,7 +474,7 @@
 	END_REPEAT;
 	RETURN (FALSE);</algorithm>
       </function>
-      <function name="pte_get_zone_name">
+      <function name="list_get_zone_name">
          <parameter name="input">
             <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
             <typename name="Connection_zone_in_layout_template"/>

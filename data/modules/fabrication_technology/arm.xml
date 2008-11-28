@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2008/10/15 01:34:58 $" rcs.revision="$Revision: 1.97 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="fabrication_technology_arm schema_instance"/>
    <schema name="Fabrication_technology_arm">
       <interface kind="use" schema="Constructive_solid_geometry_2d_arm"/>
@@ -35,6 +35,9 @@
       <type name="ft_terminus_condition">
          <enumeration extensible="YES" items="bilateral_bond bilateral_complete_removal unilateral_bond"/>
       </type>
+      <type name="ft_value_select">
+         <select selectitems="Value_limit Value_range Numerical_item_with_unit"/>
+      </type>
       <type name="layer_position_type">
          <enumeration items="secondary all external primary internal"/>
       </type>
@@ -47,27 +50,38 @@
       <type name="stiffness_class">
          <enumeration items="fluid_like_with_constant_thickness fluid_like_with_varying_thickness stiff_laminate"/>
       </type>
-      <type name="trace_class">
-         <enumeration items="microstrip stripline co_planar_waveguide"/>
-      </type>
       <type name="up_or_down">
          <enumeration items="independent precedent subsequent"/>
       </type>
       <entity name="Allocated_passage_minimum_annular_ring" supertypes="Characterizable_object">
-         <explicit name="connected_minimum_annular_ring" optional="YES">
+         <explicit name="supported_external_minimum_annular_ring" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
-         <explicit name="unconnected_minimum_annular_ring" optional="YES">
+         <explicit name="supported_internal_minimum_annular_ring" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="unsupported_minimum_annular_ring" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="minimum_fabrication_allowance" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
          <explicit name="associated_passage_allocation">
+            <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Passage_technology_allocation_to_stack_model"/>
          </explicit>
-         <explicit name="associated_stratum_technology_occurrence">
+         <explicit name="associated_stratum_technology_occurrence" optional="YES">
             <typename name="Stratum_technology_occurrence"/>
          </explicit>
-         <where label="WR1" expression="EXISTS(connected_minimum_annular_ring) OR&#10;        EXISTS(unconnected_minimum_annular_ring)"/>
-         <where label="WR2" expression="associated_stratum_technology_occurrence IN associated_passage_allocation\Stratum_sub_stack.&#10;                                                        associated_stackup\Stratum_stack_model.composing_occurrence"/>
+         <derived name="associated_model" expression="associated_passage_allocation[1]\Stratum_sub_stack.associated_stackup">
+            <typename name="Stratum_stack_model"/>
+         </derived>
+         <where label="WR1" expression="EXISTS(supported_external_minimum_annular_ring) OR&#10;            EXISTS(supported_internal_minimum_annular_ring) OR&#10;            EXISTS(unsupported_minimum_annular_ring) OR&#10;            EXISTS(minimum_fabrication_allowance)"/>
+         <where label="WR2" expression="NOT EXISTS(associated_stratum_technology_occurrence) OR&#10;             (associated_stratum_technology_occurrence IN associated_model\Stratum_stack_model.composing_occurrence)"/>
+         <where label="WR3" expression="NOT EXISTS(supported_external_minimum_annular_ring) OR&#10;             (SIZEOF(QUERY(ptatsm &lt;* associated_passage_allocation |&#10;             NOT(ptatsm\Passage_technology_allocation_to_stack_model.allocated_technology\Passage_technology.plated_passage)&#10;                   )) = 0)"/>
+         <where label="WR4" expression="NOT EXISTS(supported_internal_minimum_annular_ring) OR&#10;             (SIZEOF(QUERY(ptatsm &lt;* associated_passage_allocation |&#10;             NOT(ptatsm\Passage_technology_allocation_to_stack_model.allocated_technology\Passage_technology.plated_passage)&#10;                   )) = 0)"/>
+         <where label="WR5" expression="NOT (EXISTS(unsupported_minimum_annular_ring) AND&#10;             (SIZEOF(QUERY(ptatsm &lt;* associated_passage_allocation |&#10;             NOT(ptatsm\Passage_technology_allocation_to_stack_model.allocated_technology\Passage_technology.plated_passage)&#10;                   )) = 0))"/>
+         <where label="WR6" expression="SIZEOF(QUERY(ptatsm &lt;* associated_passage_allocation |&#10;             NOT(associated_model = ptatsm\Stratum_sub_stack.associated_stackup)&#10;             )) =0"/>
       </entity>
       <entity name="Copy_stratum_technology_occurrence_relationship" supertypes="Derived_stratum_technology_occurrence_relationship"/>
       <entity name="Default_component_termination_passage_definition" supertypes="Passage_technology">
@@ -79,7 +93,7 @@
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
          <explicit name="as_finished_passage_extent">
-            <typename name="Length_tolerance_characteristic"/>
+            <typename name="ft_value_select"/>
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
          <inverse name="deposition_material" entity="Passage_deposition_material_identification" attribute="items">
@@ -96,7 +110,7 @@
       </entity>
       <entity name="Default_unsupported_passage_definition" supertypes="Passage_technology">
          <explicit name="as_finished_passage_extent">
-            <typename name="Length_tolerance_characteristic"/>
+            <typename name="ft_value_select"/>
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
       </entity>
@@ -106,7 +120,7 @@
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
          <explicit name="as_finished_passage_extent">
-            <typename name="Length_tolerance_characteristic"/>
+            <typename name="ft_value_select"/>
             <redeclaration entity-ref="Passage_technology"/>
          </explicit>
          <inverse name="deposition_material" entity="Passage_deposition_material_identification" attribute="items">
@@ -180,40 +194,32 @@
          <explicit name="characterized_stackup">
             <typename name="Stratum_sub_stack"/>
          </explicit>
-         <explicit name="measurement_method">
-            <typename name="Process_specification"/>
+         <explicit name="measurement_stratum_1">
+            <typename name="Stratum_technology_occurrence"/>
          </explicit>
-         <explicit name="measurement_stratum">
+         <explicit name="measurement_stratum_2">
             <typename name="Stratum_technology_occurrence"/>
          </explicit>
          <explicit name="reference_stratum">
             <aggregate type="SET" lower="1" upper="2"/>
             <typename name="Stratum_technology_occurrence"/>
          </explicit>
-         <derived name="associated_stratum" expression="reference_stratum + measurement_stratum">
-            <aggregate type="SET" lower="0" upper="?"/>
-            <typename name="Stratum_technology_occurrence"/>
-         </derived>
          <where label="WR1" expression="SELF\Product_view_definition.initial_context.life_cycle_stage = 'test'"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.id)"/>
-         <where label="WR3" expression="SIZEOF([measurement_stratum] * reference_stratum) = 0"/>
-         <where label="WR4" expression="SIZEOF(associated_stratum * characterized_stackup\Stratum_sub_stack.associated_stackup\Stratum_stack_model.composing_occurrence)&#10;           = SIZEOF(associated_stratum)"/>
+         <where label="WR3" expression="SIZEOF([measurement_stratum_1, measurement_stratum_2] * reference_stratum) = 0"/>
       </entity>
       <entity name="Impedance_requirement" supertypes="Predefined_requirement_view_definition">
-         <explicit name="characterized_class">
-            <typename name="trace_class"/>
-         </explicit>
-         <explicit name="characterized_class_range">
+         <explicit name="frequency_range">
             <typename name="Value_range"/>
+         </explicit>
+         <explicit name="impedance_value">
+            <typename name="Tolerance_characteristic"/>
          </explicit>
          <explicit name="test_bench">
             <typename name="Impedance_measurement_setup_requirement"/>
          </explicit>
          <explicit name="test_method">
             <typename name="Test_specification"/>
-         </explicit>
-         <explicit name="tolerance">
-            <typename name="Tolerance_characteristic"/>
          </explicit>
          <where label="WR1" expression="SELF\Product_view_definition.initial_context.life_cycle_stage = 'test'"/>
          <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.id)"/>
@@ -247,7 +253,7 @@
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
          <explicit name="as_finished_passage_extent" optional="YES">
-            <typename name="Length_tolerance_characteristic"/>
+            <typename name="ft_value_select"/>
          </explicit>
          <explicit name="maximum_aspect_ratio" optional="YES">
             <builtintype type="REAL"/>
@@ -262,6 +268,18 @@
             <typename name="ft_terminus_condition"/>
          </explicit>
          <explicit name="minimum_fabrication_allowance" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="minimum_finished_feature_size" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="supported_external_minimum_annular_ring" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="supported_internal_minimum_annular_ring" optional="YES">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="unsupported_minimum_annular_ring" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
          <derived name="described_element" expression="SELF">
@@ -286,6 +304,10 @@
          <where label="WR3" expression="NOT EXISTS(as_finished_deposition_thickness) OR (SIZEOF(deposition_material) = 1)"/>
          <where label="WR4" expression="NOT plated_passage OR&#10;            (SIZEOF([deposition_material[1]\Material_identification_with_conductivity_classification.electrical_conductivity_classification,&#10;                    deposition_material[1]\Material_identification_with_conductivity_classification.thermal_conductivity_classification] *&#10;                   ['conductive']) &gt;= 1)"/>
          <where label="WR5" expression="NOT ((passage_terminus_condition = ft_terminus_condition.bilateral_bond) OR&#10;                 (passage_terminus_condition = ft_terminus_condition.unilateral_bond)) OR&#10;            plated_passage"/>
+         <where label="WR6" expression="NOT (EXISTS(as_finished_passage_extent) AND EXISTS(minimum_finished_feature_size))"/>
+         <where label="WR7" expression="NOT EXISTS(supported_external_minimum_annular_ring) OR plated_passage"/>
+         <where label="WR8" expression="NOT EXISTS(supported_internal_minimum_annular_ring) OR plated_passage"/>
+         <where label="WR9" expression="NOT EXISTS(unsupported_minimum_annular_ring) AND plated_passage"/>
       </entity>
       <entity name="Passage_technology_allocation_to_stack_model" supertypes="Stratum_sub_stack">
          <explicit name="allocated_technology">
@@ -296,12 +318,6 @@
          </explicit>
          <explicit name="target_stratum" optional="YES">
             <typename name="Stratum_technology_occurrence"/>
-         </explicit>
-         <explicit name="connected_minimum_annular_ring" optional="YES">
-            <typename name="Length_data_element"/>
-         </explicit>
-         <explicit name="unconnected_minimum_annular_ring" optional="YES">
-            <typename name="Length_data_element"/>
          </explicit>
          <derived name="terminus_stratum" expression="ft_get_terminus(SELF\Stratum_sub_stack.stratum_technology_sequence)">
             <aggregate type="SET" lower="0" upper="?"/>
@@ -656,7 +672,7 @@ RETURN(pstoo + sstoo);</algorithm>
             <typename name="Length_tolerance_characteristic"/>
          </parameter>
          <parameter name="input2">
-            <typename name="Length_tolerance_characteristic"/>
+            <typename name="ft_value_select"/>
          </parameter>
          <builtintype type="BOOLEAN"/>
          <algorithm>RETURN(TRUE);</algorithm>

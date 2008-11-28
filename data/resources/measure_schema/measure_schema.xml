@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" reference="ISO 10303-41" description.file="descriptions.xml">
+<express language_version="2" reference="ISO 10303-41" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="measure_schema schema_instance"/>
    <schema name="measure_schema">
       <interface kind="reference" schema="basic_attribute_schema">
@@ -206,6 +206,10 @@
          <explicit name="conversion_factor">
             <typename name="measure_with_unit"/>
          </explicit>
+         <derived name="dimensions" expression="derive_dimensional_exponents(conversion_factor\measure_with_unit.unit_component)">
+            <typename name="dimensional_exponents"/>
+            <redeclaration entity-ref="named_unit"/>
+         </derived>
       </entity>
       <entity name="derived_unit" super.expression="ONEOF (absorbed_dose_unit, acceleration_unit, radioactivity_unit, area_unit, capacitance_unit, dose_equivalent_unit, electric_charge_unit, conductance_unit, electric_potential_unit, energy_unit, magnetic_flux_density_unit, force_unit, frequency_unit, illuminance_unit, inductance_unit, magnetic_flux_unit, power_unit, pressure_unit, resistance_unit, velocity_unit, volume_unit)">
          <explicit name="elements">
@@ -474,6 +478,7 @@
             <typename name="dimensional_exponents"/>
             <redeclaration entity-ref="named_unit"/>
          </derived>
+         <where label="WR1" expression="NOT(('MEASURE_SCHEMA.MASS_UNIT' IN TYPEOF(SELF)) AND&#10;             (SIZEOF(USEDIN(SELF,'MEASURE_SCHEMA.DERIVED_UNIT_ELEMENT.UNIT')) &gt; 0)) OR&#10;            (prefix = si_prefix.kilo)"/>
       </entity>
       <entity name="solid_angle_measure_with_unit" supertypes="measure_with_unit">
          <where label="WR1" expression="'MEASURE_SCHEMA.SOLID_ANGLE_UNIT' IN TYPEOF(SELF\measure_with_unit.unit_component)"/>

@@ -68,6 +68,7 @@
          <where label="WR1" expression="SIZEOF(users) &gt; 0"/>
          <where label="WR2" expression="NOT(SELF IN users)"/>
       <where label="IP1"/>
+      
       </entity>
       <entity name="functionally_defined_transformation" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="name" optional="NO">
@@ -108,6 +109,7 @@
       </entity>
       <entity name="parametric_representation_context" supertypes="representation_context" abstract.supertype="NO" abstract.entity="NO">
          <where label="IP1"/>
+      
       </entity>
       <entity name="representation" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="name" optional="NO">
@@ -213,6 +215,7 @@
          </explicit>
          <where label="WR1" expression="SIZEOF (QUERY (rep &lt;* using_representations (SELF) |&#10;        NOT ('MEASURE_SCHEMA.GLOBAL_UNIT_ASSIGNED_CONTEXT'&#10;        IN TYPEOF (rep.context_of_items)&#10;        ))) = 0"/>
       <where label="IP1"/>
+      
       </entity>
       <function name="acyclic_mapped_representation">
          <parameter name="parent_set">
@@ -225,7 +228,7 @@
          </parameter>
          <builtintype type="BOOLEAN" fixed="NO"/>
          <algorithm>LOCAL
-      x,y : SET OF representation_item;
+      x,y,u : SET OF representation_item := [];
     END_LOCAL;
     -- Determine the subset of children_set that are mapped_items
     x := QUERY(z &lt;* children_set | 'REPRESENTATION_SCHEMA.MAPPED_ITEM'
@@ -251,14 +254,14 @@
     END_IF;
     -- Determine the subset of children_set that are not
     -- mapped_items
-    x := children_set - x;
+    u := children_set - x;
     -- Determine that the subset has elements
-    IF SIZEOF(x) &gt; 0 THEN
+    IF SIZEOF(u) &gt; 0 THEN
       -- For each element of the set:
-      REPEAT i := 1 TO HIINDEX(x);
+      REPEAT i := 1 TO HIINDEX(u);
         -- Determine the set of representation_items referenced
-        y := QUERY(z &lt;* bag_to_set( USEDIN(x[i], '')) |
-             'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(z));
+        y := QUERY(z &lt;* bag_to_set( USEDIN(u[i], '')) |
+             'REPRESENTATION_SCHEMA.REPRESENTATION_ITEM' IN TYPEOF(z));     
         -- Recursively check for an offending mapped_item
         -- Return false for any errors encountered
         IF NOT acyclic_mapped_representation(parent_set, y) THEN

@@ -1,778 +1,409 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: mesh_topology_schema.xml,v 1.1 2005/12/21 23:55:30 thendrix Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 10303-52"
-  rcs.date="$Date: 2005/12/21 23:55:30 $"
-  rcs.revision="$Revision: 1.1 $">
 
-  <application
-    name="express2xml2.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.38"
-    source="../data/resources/mesh_topology_schema/mesh_topology_schema.exp"/>
-
-  <schema name="mesh_topology_schema">
-
-    <interface
-      kind="reference"
-      schema="mathematical_description_of_distribution_schema">
-      <interfaced.item
-        name="property_distribution_description"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="mathematical_functions_schema">
-      <interfaced.item
-        name="maths_space"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="structural_response_representation_schema">
-      <interfaced.item
-        name="element_order"/>
-      <interfaced.item
-        name="element_representation"/>
-      <interfaced.item
-        name="fea_model"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="support_resource_schema">
-      <interfaced.item
-        name="identifier"/>
-      <interfaced.item
-        name="label"/>
-      <interfaced.item
-        name="text"/>
-    </interface>
-    <interface
-      kind="reference"
-      schema="topology_schema">
-      <interfaced.item
-        name="topological_representation_item"/>
-      <interfaced.item
-        name="vertex"/>
-    </interface>
-    <type name="cell_shape">
-      <select
-        extensible="YES"
-        selectitems="cell_shape_0D cell_shape_1D cell_shape_2D cell_shape_3D">
-      </select>
-    </type>
-
-    <type name="cell_shape_0D">
-      <enumeration
-        extensible="YES"
-        items="single">
-      </enumeration>
-    </type>
-
-    <type name="cell_shape_1D">
-      <enumeration
-        extensible="YES"
-        items="line">
-      </enumeration>
-    </type>
-
-    <type name="cell_shape_2D">
-      <enumeration
-        extensible="YES"
-        items="quadrilateral triangle polygon">
-      </enumeration>
-    </type>
-
-    <type name="cell_shape_3D">
-      <enumeration
-        extensible="YES"
-        items="hexahedron wedge tetrahedron pyramid">
-      </enumeration>
-    </type>
-
-    <type name="indices_group">
-      <select
-        selectitems="indices_list indices_range">
-      </select>
-    </type>
-
-    <type name="mesh_location">
-      <enumeration
-        extensible="YES"
-        items="unspecified application_defined vertices cell_center face_center iface_center jface_center kface_center edge_center">
-      </enumeration>
-    </type>
-
-    <type name="mesh_maths_space_type">
-      <enumeration
-        extensible="YES"
-        items="cells vertices">
-      </enumeration>
-    </type>
-
-    <type name="structured_mesh_type">
-      <enumeration
-        extensible="YES"
-        items="rectangular pentahedral pyramidal tetrahedral">
-      </enumeration>
-    </type>
-
-    <entity
-      name="array_based_unstructured_mesh"
-      supertypes="unstructured_mesh">
-      <explicit
-        name="cells">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="cell_count"/>
-        <typename
-          name="vertex_defined_cell"/>
-      </explicit>
-      <where
-        label="wr1"
-        expression="SELF\mesh.index_count = 1">
-      </where>
-    </entity>
-
-    <entity
-      name="array_based_unstructured_mesh_and_vertices"
-      supertypes="array_based_unstructured_mesh">
-      <explicit
-        name="vertex_count">
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-      <explicit
-        name="vertices">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="vertex_count"
-          unique="YES"/>
-        <typename
-          name="vertex"/>
-      </explicit>
-      <where
-        label="wr1"
-        expression="all_mesh_vertices(SELF)">
-      </where>
-    </entity>
-
-    <entity
-      name="cell_of_structured_mesh"
-      supertypes="topological_region">
-      <explicit
-        name="the_mesh">
-        <typename
-          name="structured_mesh"/>
-      </explicit>
-      <explicit
-        name="cell_identifier">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="index_count"/>
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-      <derived
-        name="index_count"
-        expression="the_mesh\mesh.index_count">
-        <builtintype
-          type="INTEGER"/>
-      </derived>
-    </entity>
-
-    <entity
-      name="composition_of_structured_mesh">
-      <explicit
-        name="part">
-        <typename
-          name="structured_mesh"/>
-      </explicit>
-      <explicit
-        name="whole">
-        <typename
-          name="structured_mesh"/>
-      </explicit>
-      <explicit
-        name="lower_vertex">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="whole_indices"/>
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-      <explicit
-        name="lower_face">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="whole_indices"
-          optional="YES"/>
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-      <explicit
-        name="used_indices">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="part_indices"/>
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-      <explicit
-        name="used_senses">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="part_indices"/>
-        <builtintype
-          type="BOOLEAN"/>
-      </explicit>
-      <derived
-        name="whole_indices"
-        expression="whole\mesh.index_count">
-        <builtintype
-          type="INTEGER"/>
-      </derived>
-      <derived
-        name="part_indices"
-        expression="part\mesh.index_count">
-        <builtintype
-          type="INTEGER"/>
-      </derived>
-    </entity>
-
-    <entity
-      name="explicit_unstructured_mesh"
-      supertypes="unstructured_mesh">
-      <explicit
-        name="explicit_model">
-        <typename
-          name="fea_model"/>
-      </explicit>
-      <explicit
-        name="cells">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="cell_count"
-          unique="YES"/>
-        <typename
-          name="element_representation"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="explicitly_defined_cell_patch"
-      supertypes="patch">
-      <explicit
-        name="cells">
-        <aggregate
-          type="LIST"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="vertex_defined_cell"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="explicitly_defined_vertex_patch"
-      supertypes="patch">
-      <explicit
-        name="vertices">
-        <aggregate
-          type="LIST"
-          lower="1"
-          upper="?"/>
-        <typename
-          name="vertex"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="indices_list">
-      <explicit
-        name="nindices">
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-      <explicit
-        name="indices">
-        <aggregate
-          type="LIST"
-          lower="1"
-          upper="?"/>
-        <builtintype
-          type="INTEGER"
-          typelabel="nindices ] OF INTEGER"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="indices_range">
-      <explicit
-        name="nindices">
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-      <explicit
-        name="start">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="nindices"/>
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-      <explicit
-        name="finish">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="nindices"/>
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="mesh"
-      supertypes="topological_representation_item">
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="index_count">
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-    </entity>
-
-    <subtype.constraint name="sc1_mesh"
-      entity="mesh"
-      abstract.supertype="YES"
-      super.expression="ONEOF(patch, structured_mesh, unstructured_mesh)">
-    </subtype.constraint>
-    <entity
-      name="mesh_derived_maths_space"
-      supertypes="maths_space">
-      <explicit
-        name="description">
-        <typename
-          name="text"/>
-      </explicit>
-      <explicit
-        name="name">
-        <typename
-          name="label"/>
-      </explicit>
-      <explicit
-        name="id">
-        <typename
-          name="identifier"/>
-      </explicit>
-      <explicit
-        name="the_mesh">
-        <typename
-          name="mesh"/>
-      </explicit>
-      <explicit
-        name="kind">
-        <typename
-          name="mesh_maths_space_type"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="patch"
-      supertypes="mesh">
-    </entity>
-
-    <subtype.constraint name="sc1_patch"
-      entity="patch"
-      abstract.supertype="YES">
-    </subtype.constraint>
-    <entity
-      name="product_of_mesh">
-      <explicit
-        name="operands">
-        <aggregate
-          type="LIST"
-          lower="2"
-          upper="2"/>
-        <typename
-          name="mesh"/>
-      </explicit>
-      <explicit
-        name="product">
-        <typename
-          name="mesh"/>
-      </explicit>
-      <where
-        label="wr1"
-        expression="(this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[1])) AND(this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[2])) AND(this_schema+'.STRUCTURED_MESH' IN TYPEOF(product))">
-      </where>
-      <where
-        label="wr2"
-        expression="operands[1].index_count = 1">
-      </where>
-      <where
-        label="wr3"
-        expression="operands[1].index_count + operands[2].index_count= product.index_count">
-      </where>
-    </entity>
-
-    <entity
-      name="rind">
-      <explicit
-        name="index_count">
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-      <explicit
-        name="planes">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="2*index_count"/>
-        <builtintype
-          type="INTEGER"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="structured_mesh"
-      supertypes="mesh">
-      <explicit
-        name="index_count] OF INTEGER;">
-        <aggregate
-          type="ARRAY"
-          lower="1"
-          upper="SELF\mesh.index_count"/>
-        <builtintype
-          type="INTEGER"/>
-        <redeclaration
-          entity-ref="vertex_counts : ARRAY [1:SELF\mesh"/>
-        </explicit>
-        <explicit
-          name="index_count] OF INTEGER;">
-          <aggregate
-            type="ARRAY"
-            lower="1"
-            upper="SELF\mesh.index_count"/>
-          <builtintype
-            type="INTEGER"/>
-          <redeclaration
-            entity-ref="cell_counts   : ARRAY [1:SELF\mesh"/>
-          </explicit>
-          <explicit
-            name="kind">
-            <typename
-              name="structured_mesh_type"/>
-          </explicit>
-        </entity>
-
-        <entity
-          name="structured_mesh_with_rind"
-          supertypes="structured_mesh">
-          <explicit
-            name="rind_planes">
-            <typename
-              name="rind"/>
-          </explicit>
-        </entity>
-
-        <entity
-          name="topological_region"
-          supertypes="topological_representation_item">
-          <explicit
-            name="description">
-            <typename
-              name="text"/>
-          </explicit>
-          <explicit
-            name="dimension">
-            <builtintype
-              type="INTEGER"/>
-          </explicit>
-        </entity>
-
-        <subtype.constraint name="sc1_topological_region"
-          entity="topological_region"
-          super.expression="ONEOF(cell_of_structured_mesh, vertex_defined_cell)">
-        </subtype.constraint>
-        <entity
-          name="topological_region_with_boundary"
-          supertypes="topological_region">
-          <explicit
-            name="boundary">
-            <aggregate
-              type="SET"
-              lower="1"
-              upper="?"/>
-            <typename
-              name="topological_representation_item"/>
-          </explicit>
-        </entity>
-
-        <entity
-          name="unstructured_mesh"
-          supertypes="mesh">
-          <explicit
-            name="cell_count">
-            <builtintype
-              type="INTEGER"/>
-          </explicit>
-        </entity>
-
-        <subtype.constraint name="sc1_unstructured_mesh"
-          entity="unstructured_mesh"
-          abstract.supertype="YES"
-          super.expression="ONEOF(array_based_unstructured_mesh, explicit_unstructured_mesh)">
-        </subtype.constraint>
-        <entity
-          name="vertex_defined_cell"
-          supertypes="topological_region">
-          <explicit
-            name="shape">
-            <typename
-              name="cell_shape"/>
-          </explicit>
-          <explicit
-            name="order">
-            <typename
-              name="element_order"/>
-          </explicit>
-          <explicit
-            name="vertices">
-            <aggregate
-              type="ARRAY"
-              lower="1"
-              upper="vn_count"
-              optional="YES"/>
-            <typename
-              name="vertex"/>
-          </explicit>
-          <derived
-            name="bound_count"
-            expression="cell_counts(SELF)[1]">
-            <builtintype
-              type="INTEGER"/>
-          </derived>
-          <derived
-            name="edge_node_count"
-            expression="cell_counts(SELF)[2]">
-            <builtintype
-              type="INTEGER"/>
-          </derived>
-          <derived
-            name="opt_node_count"
-            expression="cell_counts(SELF)[3]">
-            <builtintype
-              type="INTEGER"/>
-          </derived>
-          <derived
-            name="required_count"
-            expression="bound_count + edge_node_count">
-            <builtintype
-              type="INTEGER"/>
-          </derived>
-          <derived
-            name="vn_count"
-            expression="required_count + opt_node_count">
-            <builtintype
-              type="INTEGER"/>
-          </derived>
-          <derived
-            name="required_vertices"
-            expression="vertices[1:required_count]">
-            <aggregate
-              type="ARRAY"
-              lower="1"
-              upper="required_count"/>
-            <typename
-              name="vertex"/>
-          </derived>
-        </entity>
-
-        <entity
-          name="vertex_range_defined_patch"
-          supertypes="patch">
-          <explicit
-            name="base_mesh">
-            <typename
-              name="structured_mesh"/>
-          </explicit>
-          <explicit
-            name="range">
-            <typename
-              name="indices_range"/>
-          </explicit>
-        </entity>
-
-        <function
-          name="all_mesh_vertices">
-          <parameter
-            name="arg">
-            <typename
-              name="array_based_unstructured_mesh_and_vertices"/>
-          </parameter>
-          <builtintype
-            type="BOOLEAN"/>
-          <algorithm>
-LOCAL
-vertex_set : SET OF vertex := [];
-cell : vertex_defined_cell;
+<express language_version="2" reference="ISO 10303-52" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="mesh_topology_schema schema_instance"/>
+   <schema name="mesh_topology_schema">
+      <interface kind="reference" schema="mathematical_description_of_distribution_schema">
+         <interfaced.item name="property_distribution_description"/>
+      </interface>
+      <interface kind="reference" schema="mathematical_functions_schema">
+         <interfaced.item name="maths_space"/>
+      </interface>
+      <interface kind="reference" schema="structural_response_representation_schema">
+         <interfaced.item name="element_order"/>
+         <interfaced.item name="element_representation"/>
+         <interfaced.item name="fea_model"/>
+      </interface>
+      <interface kind="reference" schema="support_resource_schema">
+         <interfaced.item name="identifier"/>
+         <interfaced.item name="label"/>
+         <interfaced.item name="text"/>
+      </interface>
+      <interface kind="reference" schema="topology_schema">
+         <interfaced.item name="topological_representation_item"/>
+         <interfaced.item name="vertex"/>
+      </interface>
+      <type name="cell_shape">
+         <select extensible="YES" selectitems="cell_shape_0D cell_shape_1D cell_shape_2D cell_shape_3D"/>
+      </type>
+      <type name="cell_shape_0D">
+         <enumeration extensible="YES" items="single"/>
+      </type>
+      <type name="cell_shape_1D">
+         <enumeration extensible="YES" items="line"/>
+      </type>
+      <type name="cell_shape_2D">
+         <enumeration extensible="YES" items="quadrilateral triangle polygon"/>
+      </type>
+      <type name="cell_shape_3D">
+         <enumeration extensible="YES" items="hexahedron wedge tetrahedron pyramid"/>
+      </type>
+      <type name="indices_group">
+         <select selectitems="indices_list indices_range"/>
+      </type>
+      <type name="mesh_location">
+         <enumeration extensible="YES" items="unspecified application_defined vertices cell_center face_center iface_center jface_center kface_center edge_center"/>
+      </type>
+      <type name="mesh_maths_space_type">
+         <enumeration extensible="YES" items="cells vertices"/>
+      </type>
+      <type name="structured_mesh_type">
+         <enumeration extensible="YES" items="rectangular pentahedral pyramidal tetrahedral"/>
+      </type>
+      <entity name="array_based_unstructured_mesh" supertypes="unstructured_mesh">
+         <explicit name="cells">
+            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <typename name="vertex_defined_cell"/>
+         </explicit>
+         <where label="wr1" expression="SELF\mesh.index_count = 1"/>
+      </entity>
+      <entity name="array_based_unstructured_mesh_and_vertices" supertypes="array_based_unstructured_mesh">
+         <explicit name="vertex_count">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="vertices">
+            <aggregate type="ARRAY" unique="YES" lower="1" upper="0"/>
+            <typename name="vertex"/>
+         </explicit>
+         <where label="wr1" expression="all_mesh_vertices(SELF)"/>
+      </entity>
+      <entity name="cell_of_structured_mesh" supertypes="topological_region">
+         <explicit name="the_mesh">
+            <typename name="structured_mesh"/>
+         </explicit>
+         <explicit name="cell_identifier">
+            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <derived name="index_count" expression="the_mesh\mesh.index_count">
+            <builtintype type="INTEGER"/>
+         </derived>
+      </entity>
+      <entity name="composition_of_structured_mesh">
+         <explicit name="part">
+            <typename name="structured_mesh"/>
+         </explicit>
+         <explicit name="whole">
+            <typename name="structured_mesh"/>
+         </explicit>
+         <explicit name="lower_vertex">
+            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="lower_face">
+            <aggregate type="ARRAY" optional="YES" lower="1" upper="0"/>
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <explicit name="used_indices">
+            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="used_senses">
+            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <builtintype type="BOOLEAN"/>
+         </explicit>
+         <derived name="whole_indices" expression="whole\mesh.index_count">
+            <builtintype type="INTEGER"/>
+         </derived>
+         <derived name="part_indices" expression="part\mesh.index_count">
+            <builtintype type="INTEGER"/>
+         </derived>
+      </entity>
+      <entity name="explicit_unstructured_mesh" supertypes="unstructured_mesh">
+         <explicit name="explicit_model">
+            <typename name="fea_model"/>
+         </explicit>
+         <explicit name="cells">
+            <aggregate type="ARRAY" unique="YES" lower="1" upper="0"/>
+            <typename name="element_representation"/>
+         </explicit>
+      </entity>
+      <entity name="explicitly_defined_cell_patch" supertypes="patch">
+         <explicit name="cells">
+            <aggregate type="LIST" lower="1" upper="?"/>
+            <typename name="vertex_defined_cell"/>
+         </explicit>
+      </entity>
+      <entity name="explicitly_defined_vertex_patch" supertypes="patch">
+         <explicit name="vertices">
+            <aggregate type="LIST" lower="1" upper="?"/>
+            <typename name="vertex"/>
+         </explicit>
+      </entity>
+      <entity name="indices_list">
+         <explicit name="nindices">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="indices">
+            <aggregate type="LIST" lower="1" upper="?"/>
+            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="indices_range">
+         <explicit name="nindices">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="start">
+            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="finish">
+            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="mesh" supertypes="topological_representation_item">
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="index_count">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="mesh_derived_maths_space" supertypes="maths_space">
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="name">
+            <typename name="label"/>
+         </explicit>
+         <explicit name="id">
+            <typename name="identifier"/>
+         </explicit>
+         <explicit name="the_mesh">
+            <typename name="mesh"/>
+         </explicit>
+         <explicit name="kind">
+            <typename name="mesh_maths_space_type"/>
+         </explicit>
+      </entity>
+      <entity name="patch" supertypes="mesh"/>
+      <entity name="product_of_mesh">
+         <explicit name="operands">
+            <aggregate type="LIST" lower="2" upper="2"/>
+            <typename name="mesh"/>
+         </explicit>
+         <explicit name="product">
+            <typename name="mesh"/>
+         </explicit>
+         <where label="wr1" expression="(this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[1])) AND&#10;        (this_schema+'.STRUCTURED_MESH' IN TYPEOF(operands[2])) AND&#10;        (this_schema+'.STRUCTURED_MESH' IN TYPEOF(product))"/>
+         <where label="wr2" expression="operands[1].index_count = 1"/>
+         <where label="wr3" expression="operands[1].index_count + operands[2].index_count&#10;        = product.index_count"/>
+      </entity>
+      <entity name="rind">
+         <explicit name="index_count">
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="planes">
+            <aggregate type="ARRAY" lower="1" upper="2"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="structured_mesh" supertypes="mesh">
+         <explicit name="vertex_counts">
+            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="cell_counts">
+            <aggregate type="ARRAY" lower="1" upper="0"/>
+            <builtintype type="INTEGER"/>
+         </explicit>
+         <explicit name="kind">
+            <typename name="structured_mesh_type"/>
+         </explicit>
+      </entity>
+      <entity name="structured_mesh_with_rind" supertypes="structured_mesh">
+         <explicit name="rind_planes">
+            <typename name="rind"/>
+         </explicit>
+      </entity>
+      <entity name="topological_region" supertypes="topological_representation_item">
+         <explicit name="description">
+            <typename name="text"/>
+         </explicit>
+         <explicit name="dimension">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="topological_region_with_boundary" supertypes="topological_region">
+         <explicit name="boundary">
+            <aggregate type="SET" lower="1" upper="?"/>
+            <typename name="topological_representation_item"/>
+         </explicit>
+      </entity>
+      <entity name="unstructured_mesh" supertypes="mesh">
+         <explicit name="cell_count">
+            <builtintype type="INTEGER"/>
+         </explicit>
+      </entity>
+      <entity name="vertex_defined_cell" supertypes="topological_region">
+         <explicit name="shape">
+            <typename name="cell_shape"/>
+         </explicit>
+         <explicit name="order">
+            <typename name="element_order"/>
+         </explicit>
+         <explicit name="vertices">
+            <aggregate type="ARRAY" optional="YES" lower="1" upper="0"/>
+            <typename name="vertex"/>
+         </explicit>
+         <derived name="bound_count" expression="cell_counts(SELF)[1]">
+            <builtintype type="INTEGER"/>
+         </derived>
+         <derived name="edge_node_count" expression="cell_counts(SELF)[2]">
+            <builtintype type="INTEGER"/>
+         </derived>
+         <derived name="opt_node_count" expression="cell_counts(SELF)[3]">
+            <builtintype type="INTEGER"/>
+         </derived>
+         <derived name="required_count" expression="bound_count + edge_node_count">
+            <builtintype type="INTEGER"/>
+         </derived>
+         <derived name="vn_count" expression="required_count + opt_node_count">
+            <builtintype type="INTEGER"/>
+         </derived>
+      </entity>
+      <entity name="vertex_range_defined_patch" supertypes="patch">
+         <explicit name="base_mesh">
+            <typename name="structured_mesh"/>
+         </explicit>
+         <explicit name="range">
+            <typename name="indices_range"/>
+         </explicit>
+      </entity>
+      <subtype.constraint name="sc1_mesh" entity="mesh" abstract.supertype="YES" super.expression="ONEOF (patch, structured_mesh, unstructured_mesh)"/>
+      <subtype.constraint name="sc1_patch" entity="patch" abstract.supertype="YES"/>
+      <subtype.constraint name="sc1_topological_region" entity="topological_region" super.expression="ONEOF (cell_of_structured_mesh, vertex_defined_cell)"/>
+      <subtype.constraint name="sc1_unstructured_mesh" entity="unstructured_mesh" abstract.supertype="YES" super.expression="ONEOF (array_based_unstructured_mesh, explicit_unstructured_mesh)"/>
+      <function name="all_mesh_vertices">
+         <parameter name="arg">
+            <typename name="array_based_unstructured_mesh_and_vertices"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+  vertex_set : SET OF vertex := [];
+  cell : vertex_defined_cell;
 END_LOCAL;
-REPEAT i := 1 TO arg.cell_count;
-cell := arg.cells[i];
-REPEAT j := 1 TO cell.vn_count;
-vertex_set := vertex_set + cell.vertices[j];
-END_REPEAT;
-END_REPEAT;
-IF (SIZEOF(vertex_set) &lt;&gt; arg.index_count) THEN
-RETURN(FALSE);
-END_IF;
-REPEAT i := 1 TO arg.index_count;
-IF (NOT (arg.vertices[i] IN vertex_set)) THEN
-RETURN(FALSE);
-END_IF;
-END_REPEAT;
-RETURN(TRUE);
-          </algorithm>
-        </function>
-
-        <function
-          name="cell_counts">
-          <parameter
-            name="arg">
-            <typename
-              name="vertex_defined_cell"/>
-          </parameter>
-          <aggregate
-            type="ARRAY"
-            lower="1"
-            upper="3"/>
-          <builtintype
-            type="INTEGER"/>
-          <algorithm>
-LOCAL
-om1 : INTEGER := 0;
-om1sq : INTEGER := om1**2;
-vts : INTEGER;
-eds : INTEGER;
-qf : INTEGER := 0;
-tf : INTEGER := 0;
-result : ARRAY [1:3] OF INTEGER := [0,0,0];
+  REPEAT i := 1 TO arg.cell_count;
+    cell := arg.cells[i];
+    REPEAT j := 1 TO cell.vn_count;
+      vertex_set := vertex_set + cell.vertices[j];
+    END_REPEAT;
+  END_REPEAT;
+  IF (SIZEOF(vertex_set) &lt;&gt; arg.index_count) THEN
+    RETURN(FALSE);
+  END_IF;
+  REPEAT i := 1 TO arg.index_count;
+    IF (NOT (arg.vertices[i] IN vertex_set) ) THEN
+      RETURN(FALSE);
+    END_IF;
+  END_REPEAT;
+  RETURN(TRUE);</algorithm>
+      </function>
+      <function name="cell_counts">
+         <parameter name="arg">
+            <typename name="vertex_defined_cell"/>
+         </parameter>
+         <aggregate type="ARRAY" lower="1" upper="3"/>
+         <builtintype type="INTEGER"/>
+         <algorithm>LOCAL
+  om1    : INTEGER := 0;      -- (order - 1)
+  om1sq  : INTEGER := om1**2; -- (order - 1) squared
+  vts    : INTEGER;           -- number of bounding vertices
+  eds    : INTEGER;           -- number of edges
+  qf     : INTEGER := 0;      -- number of quadrilateral faces
+  tf     : INTEGER := 0;      -- number of triangular faces
+  result : ARRAY [1:3] OF INTEGER := [0,0,0];
 END_LOCAL;
-CASE arg.order OF
-linear : om1 := 0;
-quadratic : om1 := 1;
-cubic : om1 := 2;
-OTHERWISE : RETURN(result);
-END_CASE;
-om1sq := om1**2;
-CASE arg.shape OF
-single :
-BEGIN
-vts := 1; eds := 0; qf := 0; tf := 0;
-result[1] := vts;
-result[2] := om1*eds;
-result[3] := 0;
-END;
-line :
-BEGIN
-vts := 2; eds := 1; qf := 0; tf := 0;
-result[1] := vts;
-result[2] := om1*eds;
-result[3] := 0;
-END;
-quadrilateral :
-BEGIN
-vts := 4; eds := 4; qf := 1; tf := 0;
-result[1] := vts;
-result[2] := om1*eds;
-result[3] := om1sq*qf;
-END;
-triangle :
-BEGIN
-vts := 3; eds := 3; qf := 0; tf := 1;
-result[1] := vts;
-result[2] := om1*eds;
-result[3] := (om1-1)*tf;
-CASE arg.order OF
-linear : result[3] := 0;
-END_CASE;
-END;
-polygon :
-BEGIN
-vts := arg.vn_count; eds := arg.vn_count;
-result[1] := vts;
-result[2] := 0;
-result[3] := 0;
-END;
-hexahedron :
-BEGIN
-vts := 8; eds := 12; qf := 6; tf := 0;
-result[1] := vts;
-result[2] := om1*eds;
-result[3] := om1sq*(qf+om1);
-END;
-wedge :
-BEGIN
-vts := 6; eds := 9; qf := 3; tf := 2;
-result[1] := vts;
-result[2] := om1*eds;
-result[3] := om1sq*qf + om1*tf;
-END;
-tetrahedron :
-BEGIN
-vts := 4; eds := 6; qf := 0; tf := 4;
-result[1] := vts;
-result[2] := om1*eds;
-result[3] := (om1-1)*tf;
-CASE arg.order OF
-linear : result[3] := 0;
-END_CASE;
-END;
-pyramid :
-BEGIN
-vts := 5; eds := 8; qf := 1; tf := 4;
-result[1] := vts;
-result[2] := om1*eds;
-result[3] := om1sq*qf + (om1-1)*tf;
-CASE arg.order OF
-linear : result[3] := 0;
-END_CASE;
-END;
-END_CASE;
-RETURN(result);
-          </algorithm>
-        </function>
-
-        <function
-          name="this_schema">
-          <parameter
-            name="'MESH_TOPOLOGY_SCHEMA'">
-            <typename
-              name="'MESH_TOPOLOGY_SCHEMA'"/>
-          </parameter>
-          <typename
-            name=""/>
-          <algorithm>
-
-          </algorithm>
-        </function>
-
-      </schema>
-    </express>
+  CASE arg.order OF
+    linear    : om1 := 0;
+    quadratic : om1 := 1;
+    cubic     : om1 := 2;
+    OTHERWISE : RETURN(result);
+  END_CASE;
+  om1sq := om1**2;
+  CASE arg.shape OF
+    single : 
+        BEGIN
+          vts := 1; eds := 0; qf := 0; tf := 0;
+          result[1] := vts;
+          result[2] := om1*eds;                   -- 0, 0, 0
+          result[3] := 0;                         -- 0, 0, 0
+        END;
+    line :
+        BEGIN
+          vts := 2; eds := 1; qf := 0; tf := 0;
+          result[1] := vts;
+          result[2] := om1*eds;                   -- 0, 1, 2
+          result[3] := 0;                         -- 0, 0, 0
+        END;
+    quadrilateral : 
+        BEGIN
+          vts := 4; eds := 4; qf := 1; tf := 0;
+          result[1] := vts;
+          result[2] := om1*eds;                   -- 0, 4, 8
+          result[3] := om1sq*qf;                  -- 0, 1, 4
+        END;
+    triangle : 
+        BEGIN
+          vts := 3; eds := 3; qf := 0; tf := 1;
+          result[1] := vts;
+          result[2] := om1*eds;                   -- 0, 3, 6
+          result[3] := (om1-1)*tf;                --    0, 1
+          CASE arg.order OF
+            linear : result[3] := 0;              -- 0
+          END_CASE;
+        END;
+    polygon :
+        BEGIN
+          vts := arg.vn_count; eds := arg.vn_count; 
+          result[1] := vts;
+          result[2] := 0;
+          result[3] := 0;
+        END;
+    hexahedron :
+        BEGIN
+          vts := 8; eds := 12; qf := 6; tf := 0;
+          result[1] := vts;
+          result[2] := om1*eds;                   -- 0, 12, 24
+          result[3] := om1sq*(qf+om1);            -- 0, 7, 32
+        END;
+    wedge :
+        BEGIN
+          vts := 6; eds := 9; qf := 3; tf := 2;
+          result[1] := vts;
+          result[2] := om1*eds;                   -- 0, 9,  18
+          result[3] := om1sq*qf + om1*tf;         -- 0, 3, 16
+        END;
+    tetrahedron : 
+        BEGIN
+          vts := 4; eds := 6; qf := 0; tf := 4;
+          result[1] := vts;
+          result[2] := om1*eds;                   -- 0, 6, 12
+          result[3] := (om1-1)*tf;                --    0, 4
+          CASE arg.order OF
+            linear : result[3] := 0;              -- 0
+          END_CASE;
+        END;
+    pyramid : 
+        BEGIN
+          vts := 5; eds := 8; qf := 1; tf := 4;
+          result[1] := vts;
+          result[2] := om1*eds;                   -- 0, 8, 16
+          result[3] := om1sq*qf + (om1-1)*tf;     --    1, 9
+          CASE arg.order OF
+            linear : result[3] := 0;              -- 0
+          END_CASE;
+        END;
+  END_CASE;
+RETURN(result);</algorithm>
+      </function>
+      <function name="this_schema">
+         <builtintype type="STRING"/>
+         <algorithm>RETURN('MESH_TOPOLOGY_SCHEMA');</algorithm>
+      </function>
+   </schema>
+</express>

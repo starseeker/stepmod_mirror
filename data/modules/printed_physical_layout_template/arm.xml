@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2008/08/27 18:13:05 $" rcs.revision="$Revision: 1.70 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="printed_physical_layout_template_arm schema_instance"/>
    <schema name="Printed_physical_layout_template_arm">
       <interface kind="use" schema="Functional_usage_view_arm"/>
@@ -260,7 +260,7 @@
          <where label="WR1" expression="SIZEOF(['PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_CONNECTOR_TEMPLATE',&#10;                     'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.NON_CONDUCTIVE_CROSS_SECTION_TEMPLATE',&#10;                     'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_CROSS_SECTION_TEMPLATE'] * TYPEOF(SELF)) = 0"/>
          <where label="WR2" expression="SIZEOF(QUERY(am &lt;* SELF\Printed_part_template.access_mechanisms |&#10;             NOT('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(am))&#10;              )) = 0"/>
          <where label="WR3" expression="(SIZEOF(passage_component_location) = 0) OR&#10;          (SIZEOF(QUERY(pcl &lt;* passage_component_location |&#10;          (SIZEOF(QUERY(tsm &lt;* tiebar_shape_model |&#10;          (ap2d_geometrically_in_tiebar(pcl,tsm)))) &gt; 0)&#10;          )) = SIZEOF(passage_component_location))"/>
-         <where label="WR4" expression="SIZEOF(QUERY(t &lt;* SELF\Structured_template.templates | 'PART_TEMPLATE_EXTENSION_ARM.STRATUM_FEATURE_TEMPLATE' IN TYPEOF(t\Template_location_in_structured_template.template))) &gt; 0"/>
+         <where label="WR4" expression="SIZEOF(QUERY(t &lt;* SELF\Structured_template.templates | 'LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.STRATUM_FEATURE_TEMPLATE' IN TYPEOF(t\Template_location_in_structured_template.template))) &gt; 0"/>
          <where label="WR5" expression="SIZEOF(QUERY(spptt &lt;* SELF\Printed_part_template.access_mechanisms | &#10;          NOT(SIZEOF(USEDIN(spptt,'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION.CONNECTED_TERMINALS')) = 1)&#10;          )) = 0"/>
          <where label="WR6" expression="SIZEOF(QUERY(spptt1 &lt;* SELF\Printed_part_template.access_mechanisms |&#10;          NOT(SIZEOF(QUERY(spptt2 &lt;* SELF\Printed_part_template.access_mechanisms | &#10;          (bag_to_set(USEDIN(spptt1,'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION.CONNECTED_TERMINALS')) =&#10;          bag_to_set(USEDIN(spptt2,'PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.' + 'PRINTED_PART_TEMPLATE_CONNECTED_TERMINALS_DEFINITION.CONNECTED_TERMINALS'))))) &#10;          = SIZEOF(SELF\Printed_part_template.access_mechanisms)))) = 0"/>
          <where label="WR7" expression="SIZEOF(QUERY(tl &lt;* terminal_location |&#10;          (SIZEOF(QUERY(pcl &lt;* passage_component_location |&#10;          ((tl :=: pcl) OR &#10;          (SIZEOF(QUERY(tsm &lt;* tiebar_shape_model |&#10;          (ap2d_geometrically_in_tiebar(tl,tsm)))) &gt; 0)))) &gt; 0)&#10;          )) = SIZEOF(terminal_location)"/>
@@ -268,7 +268,7 @@
       <entity name="Single_stratum_printed_part_template" supertypes="Structured_printed_part_template Single_stratum_structured_template" abstract.supertype="NO" abstract.entity="NO"/>
       <entity name="Structured_printed_part_template" abstract.supertype="YES" supertypes="Printed_part_template Structured_template" super.expression="ONEOF (Single_stratum_printed_part_template, Multi_stratum_printed_part_template)" abstract.entity="NO">
          <where label="WR1" expression="SIZEOF(QUERY(t &lt;* access_mechanisms |&#10;            NOT ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.STRUCTURED_PRINTED_PART_TEMPLATE_TERMINAL'&#10;                  IN TYPEOF(t)))) = 0"/>
-         <where label="WR2" expression="SIZEOF(QUERY(t &lt;* SELF\Structured_template.templates |&#10;            'PART_TEMPLATE_2D_SHAPE_ARM.STRUCTURED_TEMPLATE' IN TYPEOF(t.template))) = 0"/>
+         <where label="WR2" expression="SIZEOF(QUERY(t &lt;* SELF\Structured_template.templates |&#10;            'LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.STRUCTURED_TEMPLATE' IN TYPEOF(t.template))) = 0"/>
       </entity>
       <entity name="Structured_printed_part_template_terminal" supertypes="Printed_part_template_terminal" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="associated_definition" optional="NO">
@@ -278,7 +278,7 @@
          <explicit name="associated_composition_relationship" optional="NO">
             <typename name="Template_location_in_structured_template"/>
          </explicit>
-         <where label="WR1" expression="associated_composition_relationship.assembly :=: associated_definition"/>
+         <where label="WR1" expression="associated_composition_relationship\Template_location_in_structured_template.assembly :=: associated_definition"/>
          <where label="WR2" expression="TYPEOF(SELF) &lt;&gt; TYPEOF(SELF\Structured_printed_part_template_terminal)"/>
       </entity>
       <entity name="Template_material_cross_section_boundary" supertypes="Non_feature_shape_element" abstract.supertype="NO" abstract.entity="NO">

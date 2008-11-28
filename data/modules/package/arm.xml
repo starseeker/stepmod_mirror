@@ -44,9 +44,6 @@
          <explicit name="interface_plane">
             <typename name="interface_plane_or_seating_plane"/>
          </explicit>
-         <explicit name="mating_zone">
-            <typename name="Connection_zone_in_part_feature_template_definition"/>
-         </explicit>
          <explicit name="derived_zone">
             <typename name="Connection_zone_in_part_feature_template_definition"/>
          </explicit>
@@ -56,10 +53,6 @@
          <inverse name="associated_package_terminal" entity="Package_terminal_template_definition" attribute="seating_plane_zone">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <unique label="UR1">
-            <unique.attribute attribute="interface_plane"/>
-            <unique.attribute attribute="mating_zone"/>
-         </unique>
          <where label="WR1" expression="derived_zone_shape_class IN ['area','edge']"/>
       </entity>
       <entity name="Guided_wave_terminal" supertypes="Package_terminal"/>
@@ -94,13 +87,13 @@
          <explicit name="least_lead_length_below_seating_plane" optional="YES">
             <typename name="Length_data_element"/>
          </explicit>
-         <derived name="maximum_package_total_vertical_extent" expression="max_data_element(add_data_element(maximum_body_height_above_seating_plane,&#10; maximum_body_height_below_seating_plane),&#10; add_data_element(maximum_body_height_above_seating_plane,&#10; maximum_lead_length_below_seating_plane))">
+         <derived name="maximum_package_total_vertical_extent" expression="max_data_element(&#10;      											add_data_element(maximum_body_height_above_seating_plane,maximum_body_height_below_seating_plane),&#10;											    add_data_element(maximum_body_height_above_seating_plane,maximum_lead_length_below_seating_plane))">
             <typename name="Length_data_element"/>
          </derived>
          <derived name="cutout_required" expression="(maximum_body_height_below_seating_plane\Value_with_unit.value_component &gt; 0.0)">
             <builtintype type="LOGICAL"/>
          </derived>
-         <derived name="maximum_installed_height" expression="add_data_element(maximum_body_height_above_seating_plane,&#10; maximum_seating_plane_installation_offset)">
+         <derived name="maximum_installed_height" expression="add_data_element(maximum_body_height_above_seating_plane,maximum_seating_plane_installation_offset)">
             <typename name="Length_data_element"/>
          </derived>
          <derived name="one_orientation_feature" expression="(SIZEOF(orientation_feature) = 1)">
@@ -135,7 +128,7 @@
          <where label="WR1" expression="NOT (mounting_technology = surface_mount) OR (NOT (EXISTS(maximum_lead_length_below_seating_plane) OR EXISTS(least_lead_length_below_seating_plane)))"/>
          <where label="WR2" expression="NOT (EXISTS(maximum_lead_length_below_seating_plane)) OR (maximum_lead_length_below_seating_plane\Value_with_unit.value_component &gt; 0.0)"/>
          <where label="WR3" expression="NOT (EXISTS(least_lead_length_below_seating_plane)) OR (least_lead_length_below_seating_plane\Value_with_unit.value_component &gt; 0.0)"/>
-         <where label="WR4" expression="SIZEOF(package_seating_plane) = 1"/>
+         <where label="WR4" expression="NOT EXISTS(mounting_technology) OR (SIZEOF(package_seating_plane) = 1)"/>
          <where label="WR5" expression="'package' IN types_of_product(SELF\Product_view_definition.defined_version.of_product)"/>
          <where label="WR6" expression="SIZEOF(QUERY(pa &lt;* package_accesses | 'PACKAGE_ARM.PRIMARY_REFERENCE_TERMINAL' IN TYPEOF(pa))) = 1"/>
          <where label="WR7" expression="SIZEOF(QUERY(nt &lt;* package_accesses |&#10;	                      EXISTS(nt\Part_feature.precedent_feature)&#10;	               )) = (SIZEOF(package_accesses) - 1)"/>
@@ -197,6 +190,7 @@
          </explicit>
          <inverse name="feature_shape" entity="Usage_concept_usage_relationship" attribute="associated_usage">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
+            <redeclaration entity-ref="Part_feature"/>
          </inverse>
          <where label="WR1" expression="SIZEOF(SELF\Shape_feature.surface_conditions) = 0"/>
       </entity>
@@ -214,6 +208,7 @@
          <explicit name="external_connection_zone" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Connection_zone_in_part_feature_template_definition"/>
+            <redeclaration entity-ref="Feature_definition_with_connection_area" old_name="connection_area"/>
          </explicit>
          <explicit name="internal_connection_zone" optional="YES">
             <aggregate type="SET" lower="1" upper="?"/>
@@ -250,12 +245,11 @@
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
          <where label="WR1" expression="NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz &lt;* external_connection_zone | (seating_plane_zone.derived_zone = cz))) = 1)"/>
-         <where label="WR2" expression="NOT EXISTS(seating_plane_zone) OR (SIZEOF(QUERY(cz &lt;* external_connection_zone | (seating_plane_zone.mating_zone = cz))) = 1)"/>
-         <where label="WR3" expression="NOT EXISTS(seating_plane_zone) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection))"/>
-         <where label="WR4" expression="NOT ((seating_plane_intersection = does_not_intersect) AND (EXISTS(seating_plane_zone)))"/>
-         <where label="WR5" expression="NOT (SIZEOF(terminal_core_material) = 1) OR&#10;                ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_core_material[1]))"/>
-         <where label="WR6" expression="(SIZEOF(terminal_surface_material) = 1) AND&#10;                ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_surface_material[1]))"/>
-         <where label="WR7" expression="(EXISTS (lead_form)) XOR ((SIZEOF(external_lead_form)) = 1)"/>
+         <where label="WR2" expression="NOT EXISTS(seating_plane_zone) OR ((seating_plane_intersection = surface_intersection) OR (seating_plane_intersection = through_intersection))"/>
+         <where label="WR3" expression="NOT ((seating_plane_intersection = does_not_intersect) AND (EXISTS(seating_plane_zone)))"/>
+         <where label="WR4" expression="NOT (SIZEOF(terminal_core_material) = 1) OR&#10;                ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_core_material[1]))"/>
+         <where label="WR5" expression="(SIZEOF(terminal_surface_material) = 1) AND&#10;                ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (terminal_surface_material[1]))"/>
+         <where label="WR6" expression="(EXISTS (lead_form)) XOR ((SIZEOF(external_lead_form)) = 1)"/>
       </entity>
       <entity name="Polarity_indication_feature" supertypes="Part_feature">
          <explicit name="associated_body_vertical_extent" optional="YES">

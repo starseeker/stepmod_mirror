@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-03-21 03:48:09 -0700 (Tr, 21 Kov 2007) $" rcs.revision="$Revision: 23 $" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_specification_arm schema_instance"/>
    <schema name="Functional_specification_arm">
       <interface kind="use" schema="Signal_arm"/>
@@ -16,17 +16,22 @@
       <type name="fs_external_identification_item">
          <select extensible="YES" genericentity="YES" basedon="external_identification_item" selectitems="Functional_specification"/>
       </type>
+      <type name="fs_node_or_terminal">
+         <select selectitems="Functional_unit_network_node_definition Functional_unit_terminal"/>
+      </type>
       <entity name="Functional_specification">
          <explicit name="associated_definition">
             <typename name="Functional_specification_definition"/>
          </explicit>
          <explicit name="reference_signal">
+            <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Signal_specification"/>
          </explicit>
          <explicit name="characterizing_functional_unit">
             <typename name="Functional_unit"/>
          </explicit>
          <explicit name="characterizing_signal">
+            <aggregate type="SET" lower="1" upper="?"/>
             <typename name="Signal_specification"/>
          </explicit>
          <inverse name="characteristic_category" entity="External_source_identification" attribute="item"/>
@@ -38,25 +43,29 @@
          </inverse>
       </entity>
       <entity name="Signal_specification">
-         <explicit name="measurement_access_mechanism">
-            <typename name="Functional_unit_terminal"/>
+         <explicit name="signal_access_mechanism">
+            <typename name="fs_node_or_terminal"/>
          </explicit>
          <explicit name="reference_access_mechanism" optional="YES">
-            <typename name="Functional_unit_terminal"/>
+            <typename name="fs_node_or_terminal"/>
          </explicit>
-         <explicit name="minimum_characteristic">
+         <explicit name="minimum_characteristic" optional="YES">
             <typename name="Signal_property"/>
          </explicit>
-         <explicit name="maximum_characteristic">
+         <explicit name="maximum_characteristic" optional="YES">
             <typename name="Signal_property"/>
          </explicit>
          <explicit name="characterization_network">
             <typename name="Functional_unit_network_definition"/>
          </explicit>
+         <explicit name="nominal_characteristic" optional="YES">
+            <typename name="Signal_property"/>
+         </explicit>
          <derived name="measurement_condition" expression="get_document_definition(SELF, 'measurement condition', &#10;  			'SPECIFICATION_DOCUMENT_ARM.TEST_SPECIFICATION')">
             <aggregate type="SET" lower="1" upper="1"/>
             <typename name="Document_definition"/>
          </derived>
+         <where label="WR1" expression="EXISTS (minimum_characteristic) OR&#10;          EXISTS (maximum_characteristic) OR&#10;          EXISTS (nominal_characteristic)"/>
       </entity>
    </schema>
 </express>

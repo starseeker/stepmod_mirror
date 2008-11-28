@@ -169,7 +169,12 @@
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Component_terminal"/>
          </derived>
+         <derived name="assembly" expression="pcd_get_assemblies(terminals)">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Product_view_definition"/>
+         </derived>
          <where label="WR1" expression="NOT (SIZEOF(terminals) &gt; 1) OR&#10;           (SIZEOF(QUERY(t &lt;* terminals | NOT(SIZEOF(USEDIN(t, 'PHYSICAL_CONNECTIVITY_DEFINITION_ARM.' + &#10;                          'PHYSICAL_CONNECTIVITY_DEFINITION.ASSOCIATED_TERMINALS')) = 1))) = 0)"/>
+         <where label="WR2" expression="SIZEOF(QUERY( ass &lt;* assembly |&#10;      (ass\Product_view_definition.defined_version = SELF\Product_view_definition.defined_version)&#10;           )) &gt; 0"/>
       </entity>
       <entity name="Topological_junction">
          <explicit name="name">
@@ -270,6 +275,25 @@
    END_IF;
   END_REPEAT;
   RETURN(tj);</algorithm>
+      </function>
+      <function name="pcd_get_assemblies">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Component_terminal"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="Product_view_definition"/>
+         <algorithm>LOCAL
+      ac : SET OF Assembly_component := [];
+     pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+   REPEAT i := 1 TO HIINDEX(input) BY 1;
+      ac := ac + input[i]\Component_feature.associated_component;
+   END_REPEAT;
+   REPEAT i := 1 to HIINDEX(ac) BY 1;
+     pvd  := pvd + ac[i]\Assembly_component.assemblies;
+   END_REPEAT;
+   RETURN(pvd);</algorithm>
       </function>
       <function name="pcd_get_pcltn">
          <parameter name="input">

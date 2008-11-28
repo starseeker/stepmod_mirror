@@ -1,150 +1,55 @@
-<?xml version="1.0"?>
-<!-- $Id: iso13584_generic_expressions_schema.xml,v 1.6 2003/07/21 15:44:22 robbod Exp $ -->
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  reference="ISO 13584-20"
-  rcs.date="$Date: 2003/07/21 15:44:22 $"
-  rcs.revision="$Revision: 1.6 $">
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.9"
-    source="iso13584_generic_expressions_schema.exp"/>
-
-  <schema name="ISO13584_generic_expressions_schema">
-    <entity
-      name="generic_expression"
-      abstract.supertype="YES"
-      super.expression="(ONEOF(simple_generic_expression,								unary_generic_expression,								binary_generic_expression,								multiple_arity_generic_expression))">
-      <where
-        label="WR1"
-        expression="is_acyclic(SELF)">
-      </where>
-    </entity>
-
-    <entity
-      name="simple_generic_expression"
-      abstract.supertype="YES"
-      super.expression="(ONEOF(generic_literal, generic_variable))"
-      supertypes="generic_expression">
-    </entity>
-
-    <entity
-      name="generic_literal"
-      abstract.supertype="YES"
-      supertypes="simple_generic_expression">
-    </entity>
-
-    <entity
-      name="generic_variable"
-      abstract.supertype="YES"
-      supertypes="simple_generic_expression">
-      <inverse
-        name="interpretation"
-        entity="environment"
-        attribute="syntactic_representation">
-      </inverse>
-    </entity>
-
-    <entity
-      name="variable_semantics"
-      abstract.supertype="YES">
-    </entity>
-
-    <entity
-      name="environment">
-      <explicit
-        name="syntactic_representation">
-        <typename
-          name="generic_variable"/>
-      </explicit>
-      <explicit
-        name="semantics">
-        <typename
-          name="variable_semantics"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="unary_generic_expression"
-      abstract.supertype="YES"
-      supertypes="generic_expression">
-      <explicit
-        name="operand">
-        <typename
-          name="generic_expression"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="binary_generic_expression"
-      abstract.supertype="YES"
-      supertypes="generic_expression">
-      <explicit
-        name="operands">
-        <aggregate
-          type="LIST"
-          lower="2"
-          upper="2"/>
-        <typename
-          name="generic_expression"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="multiple_arity_generic_expression"
-      abstract.supertype="YES"
-      supertypes="generic_expression">
-      <explicit
-        name="operands">
-        <aggregate
-          type="LIST"
-          lower="2"
-          upper="?"/>
-        <typename
-          name="generic_expression"/>
-      </explicit>
-    </entity>
-
-    <function
-      name="is_acyclic">
-      <parameter
-        name="arg">
-        <typename
-          name="generic_expression"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-RETURN (acyclic (arg, []));
-      </algorithm>
-
-    </function>
-
-    <function
-      name="acyclic">
-      <parameter
-        name="arg1">
-        <typename
-          name="generic_expression"/>
-      </parameter>
-      <parameter
-        name="arg2">
-        <aggregate
-          type="SET"/>
-        <typename
-          name="generic_expression"/>
-      </parameter>
-      <builtintype
-        type="BOOLEAN"/>
-      <algorithm>
-
-LOCAL
-	result: BOOLEAN;
+<express language_version="2" reference="ISO 13584-20" rcs.date="$Date$" rcs.revision="$Revision$" description.file="descriptions.xml">
+   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="iso13584_generic_expressions_schema schema_instance"/>
+   <schema name="ISO13584_generic_expressions_schema">
+      <entity name="binary_generic_expression" abstract.supertype="YES" supertypes="generic_expression">
+         <explicit name="operands">
+            <aggregate type="LIST" lower="2" upper="2"/>
+            <typename name="generic_expression"/>
+         </explicit>
+      </entity>
+      <entity name="environment">
+         <explicit name="syntactic_representation">
+            <typename name="generic_variable"/>
+         </explicit>
+         <explicit name="semantics">
+            <typename name="variable_semantics"/>
+         </explicit>
+      </entity>
+      <entity name="generic_expression" abstract.supertype="YES" super.expression="ONEOF (simple_generic_expression, unary_generic_expression, binary_generic_expression, multiple_arity_generic_expression)">
+         <where label="WR1" expression="is_acyclic(SELF)"/>
+      </entity>
+      <entity name="generic_literal" abstract.supertype="YES" supertypes="simple_generic_expression"/>
+      <entity name="generic_variable" abstract.supertype="YES" supertypes="simple_generic_expression">
+         <inverse name="interpretation" entity="environment" attribute="syntactic_representation"/>
+      </entity>
+      <entity name="multiple_arity_generic_expression" abstract.supertype="YES" supertypes="generic_expression">
+         <explicit name="operands">
+            <aggregate type="LIST" lower="2" upper="?"/>
+            <typename name="generic_expression"/>
+         </explicit>
+      </entity>
+      <entity name="simple_generic_expression" abstract.supertype="YES" supertypes="generic_expression" super.expression="ONEOF (generic_literal, generic_variable)"/>
+      <entity name="unary_generic_expression" abstract.supertype="YES" supertypes="generic_expression">
+         <explicit name="operand">
+            <typename name="generic_expression"/>
+         </explicit>
+      </entity>
+      <entity name="variable_semantics" abstract.supertype="YES"/>
+      <function name="acyclic">
+         <parameter name="arg1">
+            <typename name="generic_expression"/>
+         </parameter>
+         <parameter name="arg2">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="generic_expression"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>LOCAL
+	result: BOOLEAN := TRUE;
 END_LOCAL;
 
 IF ('ISO13584_GENERIC_EXPRESSIONS_SCHEMA.SIMPLE_GENERIC_EXPRESSION'
@@ -187,25 +92,22 @@ THEN
 
 	RETURN (result);
 END_IF;
-
-      </algorithm>
-
-    </function>
-
-    <function
-      name="used_variables">
-      <parameter
-        name="arg">
-        <typename
-          name="generic_expression"/>
-      </parameter>
-      <aggregate
-        type="SET"/>
-      <typename
-        name="generic_variable"/>
-      <algorithm>
-
-LOCAL
+	RETURN (result);</algorithm>
+      </function>
+      <function name="is_acyclic">
+         <parameter name="arg">
+            <typename name="generic_expression"/>
+         </parameter>
+         <builtintype type="BOOLEAN"/>
+         <algorithm>RETURN (acyclic (arg, []));</algorithm>
+      </function>
+      <function name="used_variables">
+         <parameter name="arg">
+            <typename name="generic_expression"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?"/>
+         <typename name="generic_variable"/>
+         <algorithm>LOCAL
 	result : SET OF generic_variable := [];
 END_LOCAL;
 
@@ -240,12 +142,7 @@ THEN
 	
 	RETURN (result);
 END_IF;
-RETURN ([ ]);      -- in this case the subtype shall not contain
-			            -- any variable (see IP1 in generic_expression)
-      </algorithm>
-
-    </function>
-
-  </schema>
-
+RETURN ([ ]);</algorithm>
+      </function>
+   </schema>
 </express>

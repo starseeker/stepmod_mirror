@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mim_lf.xml,v 1.10 2008/07/15 14:19:39 abhpf Exp $ -->
+<!-- $Id: mim_lf.xml,v 1.11 2008/10/15 00:52:57 abhpf Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 
 <express
   language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2008/10/15 00:52:57 $"
+  rcs.revision="$Revision: 1.11 $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
@@ -51,21 +51,21 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
+    <type name="action_method_items">
+      <select
+        selectitems="action_method action_method_assignment_relationship action_method_relationship action_resource action_resource_relationship action_resource_requirement action_resource_requirement_relationship applied_action_method_assignment applied_classification_assignment applied_identification_assignment condition document_file expression expression_assignment group parameter_value_select product product_definition product_definition_formation product_definition_formation_relationship product_related_product_category property_definition property_definition_representation representation resource_property resource_property_representation state_type state_type_relationship task_element task_element_relationship task_step"
+      />
+    </type>
+
     <type name="identification_item">
       <select
-        selectitems="action_method action_method_relationship action_resource action_resource_requirement action_resource_requirement_relationship applied_action_method_assignment applied_description_text_assignment applied_external_identification_assignment condition document_file external_class_library general_model_parameter general_property general_property_relationship product product_category product_definition product_definition_context product_definition_formation property_definition representation resource_property state_based_behaviour_model state_type state_type_assignment state_type_relationship task_element task_element_relationship task_step"
+        selectitems="action_method action_method_relationship action_resource action_resource_requirement action_resource_requirement_relationship applied_action_method_assignment applied_description_text_assignment applied_external_identification_assignment condition document_file external_class_library general_model_parameter general_property general_property_relationship product product_category product_definition product_definition_context product_definition_formation property_definition representation representation_item resource_property state_based_behaviour_model state_type state_type_assignment state_type_relationship task_element task_element_relationship task_step"
       />
     </type>
 
     <type name="classification_item">
       <select
-        selectitems="action_method action_method_relationship action_resource action_resource_relationship action_resource_requirement action_resource_requirement_relationship applied_action_method_assignment applied_description_text_assignment applied_external_identification_assignment applied_identification_assignment class condition constrained_general_parameter_relationship context_dependent_unit conversion_based_unit derived_unit description_text descriptive_representation_item document_file external_class_library general_model_parameter general_property general_property_relationship measure_with_unit named_unit parameter_value_representation_item product product_category product_definition product_definition_context product_definition_formation product_definition_formation_relationship property_definition property_definition_representation representation representation_context representation_item resource_property resource_property_representation state_based_behaviour_model state_type state_type_assignment state_type_relationship text_based_representation uncertainty_measure_with_unit"
-      />
-    </type>
-
-    <type name="action_method_items">
-      <select
-        selectitems="action_method action_method_assignment_relationship action_method_relationship action_resource action_resource_relationship action_resource_requirement action_resource_requirement_relationship applied_action_method_assignment applied_classification_assignment applied_identification_assignment condition document_file group parameter_value_select product product_definition product_definition_formation product_definition_formation_relationship product_related_product_category property_definition property_definition_representation representation resource_property resource_property_representation state_type state_type_relationship task_element task_element_relationship task_step"
+        selectitems="action_method action_method_relationship action_resource action_resource_relationship action_resource_requirement action_resource_requirement_relationship applied_action_method_assignment applied_description_text_assignment applied_expression_assignment applied_external_identification_assignment applied_identification_assignment class condition constrained_general_parameter_relationship context_dependent_unit conversion_based_unit derived_unit description_text descriptive_representation_item document_file expression external_class_library general_model_parameter general_property general_property_relationship measure_with_unit named_unit parameter_value_representation_item product product_category product_definition product_definition_context product_definition_formation product_definition_formation_relationship property_definition property_definition_representation representation representation_context representation_item resource_property resource_property_representation state_based_behaviour_model state_type state_type_assignment state_type_relationship text_based_representation uncertainty_measure_with_unit"
       />
     </type>
 
@@ -77,7 +77,7 @@ href="../../../xsl/express.xsl" ?>
 
     <type name="description_item">
       <select
-        selectitems="action_method applied_action_method_assignment condition general_model_parameter groupable_item product product_definition product_definition_formation representation state_based_behaviour_model state_type state_type_relationship"
+        selectitems="action_method applied_action_method_assignment applied_expression_assignment class condition derived_unit document_file expression external_source general_model_parameter groupable_item measure_with_unit named_unit product product_category product_definition product_definition_formation property_definition property_definition_representation representation representation_item state_based_behaviour_model state_type state_type_relationship"
       />
     </type>
 
@@ -1394,6 +1394,53 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
+    <entity name="applied_action_method_assignment"
+      supertypes="action_method_assignment"
+    >
+      <explicit
+        name="items">
+        <aggregate type="SET"
+          lower="1"
+          upper="?"
+        />
+        <typename name="action_method_items"/>
+      </explicit>
+    </entity>
+
+    <entity name="action_method_relationship"
+    >
+      <explicit
+        name="name">
+        <typename name="label"/>
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <typename name="text"/>
+      </explicit>
+      <explicit
+        name="relating_method">
+        <typename name="action_method"/>
+      </explicit>
+      <explicit
+        name="related_method">
+        <typename name="action_method"/>
+      </explicit>
+    </entity>
+
+    <entity name="action_method_assignment"
+      abstract.supertype="YES"
+    >
+      <explicit
+        name="assigned_action_method">
+        <typename name="action_method"/>
+      </explicit>
+      <explicit
+        name="role">
+        <typename name="action_method_role"/>
+      </explicit>
+    </entity>
+
     <entity name="applied_identification_assignment"
       supertypes="identification_assignment"
     >
@@ -1479,53 +1526,6 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="role">
         <typename name="classification_role"/>
-      </explicit>
-    </entity>
-
-    <entity name="action_method_relationship"
-    >
-      <explicit
-        name="name">
-        <typename name="label"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <typename name="text"/>
-      </explicit>
-      <explicit
-        name="relating_method">
-        <typename name="action_method"/>
-      </explicit>
-      <explicit
-        name="related_method">
-        <typename name="action_method"/>
-      </explicit>
-    </entity>
-
-    <entity name="applied_action_method_assignment"
-      supertypes="action_method_assignment"
-    >
-      <explicit
-        name="items">
-        <aggregate type="SET"
-          lower="1"
-          upper="?"
-        />
-        <typename name="action_method_items"/>
-      </explicit>
-    </entity>
-
-    <entity name="action_method_assignment"
-      abstract.supertype="YES"
-    >
-      <explicit
-        name="assigned_action_method">
-        <typename name="action_method"/>
-      </explicit>
-      <explicit
-        name="role">
-        <typename name="action_method_role"/>
       </explicit>
     </entity>
 

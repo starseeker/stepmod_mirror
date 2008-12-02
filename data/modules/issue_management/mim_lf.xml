@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: mim_lf.xml,v 1.10 2008/06/19 15:15:10 abhpf Exp $ -->
+<!-- $Id: mim_lf.xml,v 1.11 2008/10/15 00:42:10 abhpf Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 
 <express
   language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2008/10/15 00:42:10 $"
+  rcs.revision="$Revision: 1.11 $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
@@ -451,6 +451,12 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
+    <type name="ahead_or_behind">
+      <enumeration
+        items="ahead exact behind"
+      />
+    </type>
+
     <type name="hour_in_day">
       <builtintype type="INTEGER"
       />
@@ -478,12 +484,6 @@ href="../../../xsl/express.xsl" ?>
       </where>
     </type>
 
-    <type name="ahead_or_behind">
-      <enumeration
-        items="ahead exact behind"
-      />
-    </type>
-
     <type name="founded_item_select">
       <select
         selectitems="representation_item"
@@ -496,12 +496,12 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <entity name="dose_equivalent_unit"
-      supertypes="derived_unit"
+    <entity name="dose_equivalent_measure_with_unit"
+      supertypes="measure_with_unit"
     >
       <where
         label="WR1"
-        expression="derive_dimensional_exponents(SELF) = dimensions_for_si_unit(sievert)">
+        expression="&apos;ISSUE_MANAGEMENT_MIM_LF.DOSE_EQUIVALENT_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
       </where>
     </entity>
 
@@ -1687,6 +1687,32 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
+    <entity name="local_time"
+    >
+      <explicit
+        name="hour_component">
+        <typename name="hour_in_day"/>
+      </explicit>
+      <explicit
+        name="minute_component"
+        optional="YES">
+        <typename name="minute_in_hour"/>
+      </explicit>
+      <explicit
+        name="second_component"
+        optional="YES">
+        <typename name="second_in_minute"/>
+      </explicit>
+      <explicit
+        name="zone">
+        <typename name="coordinated_universal_time_offset"/>
+      </explicit>
+      <where
+        label="WR1"
+        expression="valid_time(SELF)">
+      </where>
+    </entity>
+
     <entity name="name_attribute"
     >
       <explicit
@@ -2194,18 +2220,18 @@ href="../../../xsl/express.xsl" ?>
       </where>
     </entity>
 
-    <entity name="dose_equivalent_measure_with_unit"
-      supertypes="measure_with_unit"
-    >
-      <where
-        label="WR1"
-        expression="&apos;ISSUE_MANAGEMENT_MIM_LF.DOSE_EQUIVALENT_UNIT&apos; IN TYPEOF(SELF\measure_with_unit.unit_component)">
-      </where>
-    </entity>
-
     <entity name="action_actual"
       supertypes="executed_action"
     >
+    </entity>
+
+    <entity name="dose_equivalent_unit"
+      supertypes="derived_unit"
+    >
+      <where
+        label="WR1"
+        expression="derive_dimensional_exponents(SELF) = dimensions_for_si_unit(sievert)">
+      </where>
     </entity>
 
     <entity name="si_dose_equivalent_unit"
@@ -3497,32 +3523,6 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="local_time"
-    >
-      <explicit
-        name="hour_component">
-        <typename name="hour_in_day"/>
-      </explicit>
-      <explicit
-        name="minute_component"
-        optional="YES">
-        <typename name="minute_in_hour"/>
-      </explicit>
-      <explicit
-        name="second_component"
-        optional="YES">
-        <typename name="second_in_minute"/>
-      </explicit>
-      <explicit
-        name="zone">
-        <typename name="coordinated_universal_time_offset"/>
-      </explicit>
-      <where
-        label="WR1"
-        expression="valid_time(SELF)">
-      </where>
-    </entity>
-
     <entity name="description_text_assignment"
       abstract.supertype="YES"
     >
@@ -4296,7 +4296,7 @@ href="../../../xsl/express.xsl" ?>
     </rule>
 
     <rule name="validate_dependently_instantiable_entity_data_types"
-      appliesto="action_method_role application_context application_context_element attribute_value_role classification_role contract_type description_attribute description_text description_text_assignment event_occurrence_role local_time product_context product_definition_context_role">
+      appliesto="action_method_role application_context application_context_element attribute_value_role classification_role contract_type description_attribute description_text description_text_assignment event_occurrence_role product_context product_definition_context_role">
       <algorithm>
   LOCAL
     number_of_input_instances : INTEGER;

@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- $Id: arm_lf.xml,v 1.9 2008/06/16 11:22:17 abhpf Exp $ -->
+<!-- $Id: arm_lf.xml,v 1.10 2008/10/14 21:57:49 abhpf Exp $ -->
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <express
   language_version="2"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+  rcs.date="$Date: 2008/10/14 21:57:49 $"
+  rcs.revision="$Revision: 1.10 $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
@@ -72,12 +72,6 @@
     <type name="justification_support_item">
       <select
         selectitems="Activity Activity_method Analysis_assignment Applied_activity_assignment Approval Assigned_property Certification Contract Descriptive_document_property Document Document_definition Document_version Effectivity Event Independent_property Independent_property_relationship Numerical_document_property Product Product_version Product_version_relationship Product_view_definition Project Verification Verification_evidence View_definition_context View_definition_relationship"
-      />
-    </type>
-
-    <type name="maximize_or_minimize">
-      <enumeration
-        items="maximize minimize"
       />
     </type>
 
@@ -545,27 +539,17 @@
       />
     </type>
 
-    <entity name="Document_definition"
-      supertypes="Product_view_definition"
-      super.expression="ONEOF(Digital_document_definition, Physical_document_definition)"
+    <entity name="Physical_document_definition"
+      supertypes="Document_definition"
     >
       <explicit
-        name="defined_version">
-        <typename name="Document_version"/>
-        <redeclaration
-          entity-ref="Product_view_definition"/>
-      </explicit>
-      <derived
-        name="associated_document_version"
-        expression="SELF\Product_view_definition.defined_version">
-        <typename name="Document_version"/>
-      </derived>
-      <derived
-        name="description"
-        expression="SELF\Product_view_definition.name">
-        <builtintype type="STRING"
+        name="components">
+        <aggregate type="SET"
+          lower="0"
+          upper="?"
         />
-      </derived>
+        <typename name="Hardcopy"/>
+      </explicit>
     </entity>
 
     <entity name="Activity_happening"
@@ -715,6 +699,12 @@
     <entity name="Analysis_design_version_relationship"
       supertypes="Analysis_assignment"
     >
+      <explicit
+        name="analysis">
+        <typename name="Analysis_version"/>
+        <redeclaration
+          entity-ref="Analysis_assignment"/>
+      </explicit>
       <explicit
         name="applied_to">
         <typename name="Product_version"/>
@@ -1108,15 +1098,6 @@
         name="role">
         <builtintype type="STRING"
         />
-      </explicit>
-    </entity>
-
-    <entity name="Measure_of_effectiveness"
-      supertypes="Requirement_view_definition"
-    >
-      <explicit
-        name="optimization_direction">
-        <typename name="maximize_or_minimize"/>
       </explicit>
     </entity>
 
@@ -1849,17 +1830,6 @@
       </where>
     </entity>
 
-    <entity name="Requirement_view_definition"
-      supertypes="Product_view_definition"
-    >
-      <explicit
-        name="defined_version">
-        <typename name="Requirement_version"/>
-        <redeclaration
-          entity-ref="Product_view_definition"/>
-      </explicit>
-    </entity>
-
     <entity name="Document_assignment"
     >
       <explicit
@@ -1972,9 +1942,27 @@
       </explicit>
     </entity>
 
-    <entity name="Activity_actual"
-      supertypes="Activity"
+    <entity name="Document_definition"
+      supertypes="Product_view_definition"
+      super.expression="ONEOF(Digital_document_definition, Physical_document_definition)"
     >
+      <explicit
+        name="defined_version">
+        <typename name="Document_version"/>
+        <redeclaration
+          entity-ref="Product_view_definition"/>
+      </explicit>
+      <derived
+        name="associated_document_version"
+        expression="SELF\Product_view_definition.defined_version">
+        <typename name="Document_version"/>
+      </derived>
+      <derived
+        name="description"
+        expression="SELF\Product_view_definition.name">
+        <builtintype type="STRING"
+        />
+      </derived>
     </entity>
 
     <entity name="Document_location_identification"
@@ -1986,17 +1974,9 @@
       </where>
     </entity>
 
-    <entity name="Physical_document_definition"
-      supertypes="Document_definition"
+    <entity name="Activity_actual"
+      supertypes="Activity"
     >
-      <explicit
-        name="components">
-        <aggregate type="SET"
-          lower="0"
-          upper="?"
-        />
-        <typename name="Hardcopy"/>
-      </explicit>
     </entity>
 
     <entity name="Assigned_document_property"
@@ -2564,6 +2544,17 @@
       </explicit>
     </entity>
 
+    <entity name="Requirement_view_definition"
+      supertypes="Product_view_definition"
+    >
+      <explicit
+        name="defined_version">
+        <typename name="Requirement_version"/>
+        <redeclaration
+          entity-ref="Product_view_definition"/>
+      </explicit>
+    </entity>
+
     <entity name="Requirement_collection_relationship"
       supertypes="View_definition_relationship"
     >
@@ -2766,49 +2757,6 @@
         name="value_component">
         <typename name="measure_value"/>
       </explicit>
-    </entity>
-
-    <entity name="Requirement"
-      supertypes="Product"
-    >
-    </entity>
-
-    <entity name="Requirement_version"
-      supertypes="Product_version"
-    >
-      <explicit
-        name="of_product">
-        <typename name="Requirement"/>
-        <redeclaration
-          entity-ref="Product_version"/>
-      </explicit>
-    </entity>
-
-    <entity name="Requirement_version_relationship"
-      supertypes="Product_version_relationship"
-    >
-      <explicit
-        name="relating_version">
-        <typename name="Requirement_version"/>
-        <redeclaration
-          entity-ref="Product_version_relationship"/>
-      </explicit>
-      <explicit
-        name="related_version">
-        <typename name="Requirement_version"/>
-        <redeclaration
-          entity-ref="Product_version_relationship"/>
-      </explicit>
-      <derived
-        name="predecessor"
-        expression="SELF\Product_version_relationship.relating_version">
-        <typename name="Requirement_version"/>
-      </derived>
-      <derived
-        name="successor"
-        expression="SELF\Product_version_relationship.related_version">
-        <typename name="Requirement_version"/>
-      </derived>
     </entity>
 
     <entity name="Independent_property"
@@ -3146,6 +3094,49 @@
         name="related_project">
         <typename name="Project"/>
       </explicit>
+    </entity>
+
+    <entity name="Requirement"
+      supertypes="Product"
+    >
+    </entity>
+
+    <entity name="Requirement_version"
+      supertypes="Product_version"
+    >
+      <explicit
+        name="of_product">
+        <typename name="Requirement"/>
+        <redeclaration
+          entity-ref="Product_version"/>
+      </explicit>
+    </entity>
+
+    <entity name="Requirement_version_relationship"
+      supertypes="Product_version_relationship"
+    >
+      <explicit
+        name="relating_version">
+        <typename name="Requirement_version"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+      <explicit
+        name="related_version">
+        <typename name="Requirement_version"/>
+        <redeclaration
+          entity-ref="Product_version_relationship"/>
+      </explicit>
+      <derived
+        name="predecessor"
+        expression="SELF\Product_version_relationship.relating_version">
+        <typename name="Requirement_version"/>
+      </derived>
+      <derived
+        name="successor"
+        expression="SELF\Product_version_relationship.related_version">
+        <typename name="Requirement_version"/>
+      </derived>
     </entity>
 
     <entity name="Event"

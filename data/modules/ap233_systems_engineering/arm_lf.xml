@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: arm_lf.xml,v 1.6 2008/10/14 21:55:41 abhpf Exp $ -->
+<!-- $Id: arm_lf.xml,v 1.7 2008/12/06 22:51:20 abhpf Exp $ -->
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 <?xml-stylesheet type="text/xsl"
 href="../../../xsl/express.xsl" ?>
 <express
   language_version="2"
-  rcs.date="$Date: 2008/10/14 21:55:41 $"
-  rcs.revision="$Revision: 1.6 $">
+  rcs.date="$Date: 2008/12/06 22:51:20 $"
+  rcs.revision="$Revision: 1.7 $">
 
   <application
     name=" Eurostep EXPRESS Parser (Eep!)"
@@ -24,6 +24,12 @@ href="../../../xsl/express.xsl" ?>
       <builtintype type="STRING"
       />
     </constant>
+    <type name="represented_definition">
+      <select
+        selectitems="Assigned_property Independent_property"
+      />
+    </type>
+
     <type name="activity_method_item">
       <select
         selectitems="Activity Activity_method Activity_property Analysis_assignment Applied_activity_assignment Approval_assignment Assigned_document_property Assigned_property Behaviour_description_association Breakdown_element Breakdown_element_definition Breakdown_element_usage Breakdown_element_version Certification Condition Contract Date_or_date_time_assignment Document Document_version Event File In_zone Interface_connection Interface_connector_occurrence Interface_definition_connection Justification Location Managed_resource Observation Observation_consequence Organization Organization_type Part Part_version Part_view_definition Person Person_in_organization Position Position_group Position_type Product Product_as_individual Product_as_individual_version Product_as_individual_view Product_based_location_identification Product_concept Product_configuration Product_group Product_version Product_version_relationship Product_view_definition Project Required_resource Required_resource_assignment Requirement_assignment Resource_as_realized Resource_event Resource_item Resource_property Risk Risk_impact_assignment Risk_treatment Scheme_entry Security_classification State_definition State_relationship Task_io Task_io_hierarchy Task_method Task_method_version Task_objective Type_of_person Type_of_person_definition Verification View_definition_relationship Work_output Work_output_assignment"
@@ -149,6 +155,18 @@ href="../../../xsl/express.xsl" ?>
     <type name="verification_evidence_item">
       <select
         selectitems="Activity_actual Activity_method Activity_method_assignment Activity_method_relationship Activity_relationship Activity_status Affected_items_assignment Alternate_product_relationship Analysis_assignment Analysis_version Applied_activity_assignment Applied_activity_method_assignment Applied_independent_property Applied_information_usage_right Applied_state_assignment Approval_assignment Assembly_relationship_substitution Assigned_property Behaviour_description_association behaviour_model Breakdown_of Certification_assignment Classification_assignment Condition_assignment Condition_evaluation_assignment Condition_evaluation_parameter Contract_assignment Date_or_date_time_assignment Defined_state_relationship Description_text_assignment Directed_activity Effectivity_assignment Event_assignment Expression_assignment Interface_connector_definition Interface_definition_connection Interface_definition_for Issue_consequence Justification_assignment Justification_relationship Justification_support_assignment Lessons_learned Location_assignment Observation Observation_consequence Observation_relationship Organization_or_person_in_organization_assignment Person Person_in_organization Person_or_organization_or_person_in_organization_in_position Product Product_design_to_individual Product_version Product_version_relationship Product_view_definition Project_assignment Representation Representation_context Representation_item Required_resource_assignment Resource_as_realized_assignment Resource_as_realized_relationship Resource_event_correspondence_relationship Resource_event_relationship Resource_item_assignment Risk_analysis Risk_communication Risk_consequence Risk_estimation Risk_evaluation Risk_impact_assignment Risk_perception Risk_perception_source_assignment Risk_treatment Security_classification_assignment State State_assertion State_assessment State_relationship Task_io_hierarchy Task_objective_state_relationship Time_interval_assignment Type_of_person_assignment View_definition_context View_definition_relationship Work_order Work_output_assignment Work_request"
+      />
+    </type>
+
+    <type name="breakdown_item">
+      <select
+        selectitems="Breakdown_element_definition Breakdown_element_usage"
+      />
+    </type>
+
+    <type name="product_item">
+      <select
+        selectitems="Interface_connector_occurrence Product_group Product_view_definition View_definition_usage"
       />
     </type>
 
@@ -718,12 +736,6 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <type name="represented_definition">
-      <select
-        selectitems="Assigned_property Independent_property"
-      />
-    </type>
-
     <type name="date_or_date_time_select">
       <select
         selectitems="Calendar_date Date_time"
@@ -855,18 +867,6 @@ href="../../../xsl/express.xsl" ?>
     <type name="type_of_person_item_select">
       <select
         selectitems="Activity Activity_method Activity_method_assignment Analysis_assignment Behaviour_description_association behaviour_model Document_assignment Experience_gained Experience_instance Experience_type Interface_definition_connection Interface_definition_for Observation_consequence Person Person_in_organization Position Position_group Position_type Product Product_version Project Project_assignment Required_resource_assignment Resource_item_assignment Risk_analysis Risk_impact_assignment Risk_treatment Verification Verification_evidence View_definition_relationship Work_order Work_output_assignment Work_request"
-      />
-    </type>
-
-    <type name="breakdown_item">
-      <select
-        selectitems="Breakdown_element_definition Breakdown_element_usage"
-      />
-    </type>
-
-    <type name="product_item">
-      <select
-        selectitems="Interface_connector_occurrence Product_group Product_view_definition View_definition_usage"
       />
     </type>
 
@@ -3842,7 +3842,7 @@ href="../../../xsl/express.xsl" ?>
       />
     </type>
 
-    <entity name="Risk_communication"
+    <entity name="Risk_analysis"
       supertypes="Activity"
     >
     </entity>
@@ -5409,6 +5409,257 @@ href="../../../xsl/express.xsl" ?>
       <explicit
         name="related">
         <typename name="Verification"/>
+      </explicit>
+    </entity>
+
+    <entity name="Functional_breakdown"
+      supertypes="Breakdown"
+    >
+    </entity>
+
+    <entity name="Functional_breakdown_context"
+      supertypes="Breakdown_context"
+    >
+      <explicit
+        name="breakdown">
+        <typename name="Functional_breakdown_version"/>
+        <redeclaration
+          entity-ref="Breakdown_context"/>
+      </explicit>
+      <explicit
+        name="breakdown_element">
+        <typename name="Functional_element_definition"/>
+        <redeclaration
+          entity-ref="Breakdown_context"/>
+      </explicit>
+    </entity>
+
+    <entity name="Functional_breakdown_version"
+      supertypes="Breakdown_version"
+    >
+      <explicit
+        name="of_product">
+        <typename name="Functional_breakdown"/>
+        <redeclaration
+          entity-ref="Breakdown_version"/>
+      </explicit>
+    </entity>
+
+    <entity name="Functional_element"
+      supertypes="Breakdown_element"
+    >
+    </entity>
+
+    <entity name="Functional_element_definition"
+      supertypes="Breakdown_element_definition"
+    >
+      <explicit
+        name="defined_version">
+        <typename name="Functional_element_version"/>
+        <redeclaration
+          entity-ref="Breakdown_element_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Functional_element_usage"
+      supertypes="Breakdown_element_usage"
+    >
+      <explicit
+        name="relating_view">
+        <typename name="Functional_element_definition"/>
+        <redeclaration
+          entity-ref="View_definition_relationship"/>
+      </explicit>
+      <explicit
+        name="related_view">
+        <typename name="Functional_element_definition"/>
+        <redeclaration
+          entity-ref="View_definition_relationship"/>
+      </explicit>
+    </entity>
+
+    <entity name="Functional_element_version"
+      supertypes="Breakdown_element_version"
+    >
+      <explicit
+        name="of_product">
+        <typename name="Functional_element"/>
+        <redeclaration
+          entity-ref="Breakdown_element_version"/>
+      </explicit>
+    </entity>
+
+    <entity name="Breakdown"
+      supertypes="Product"
+    >
+    </entity>
+
+    <entity name="Breakdown_context"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="breakdown">
+        <typename name="Breakdown_version"/>
+      </explicit>
+      <explicit
+        name="breakdown_element">
+        <typename name="Breakdown_element_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Breakdown_element"
+      supertypes="Product"
+    >
+    </entity>
+
+    <entity name="Breakdown_element_definition"
+      supertypes="Product_view_definition"
+    >
+      <explicit
+        name="defined_version">
+        <typename name="Breakdown_element_version"/>
+        <redeclaration
+          entity-ref="Product_view_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Breakdown_element_realization"
+      supertypes="Product_definition_element_relationship"
+    >
+    </entity>
+
+    <entity name="Breakdown_element_usage"
+      supertypes="View_definition_usage"
+    >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_view">
+        <typename name="Breakdown_element_definition"/>
+        <redeclaration
+          entity-ref="View_definition_relationship"/>
+      </explicit>
+      <explicit
+        name="related_view">
+        <typename name="Breakdown_element_definition"/>
+        <redeclaration
+          entity-ref="View_definition_relationship"/>
+      </explicit>
+      <derived
+        name="child_element"
+        expression="SELF\View_definition_relationship.related_view">
+        <typename name="Breakdown_element_definition"/>
+      </derived>
+      <derived
+        name="parent_element"
+        expression="SELF\View_definition_relationship.relating_view">
+        <typename name="Breakdown_element_definition"/>
+      </derived>
+    </entity>
+
+    <entity name="Breakdown_element_version"
+      supertypes="Product_version"
+    >
+      <explicit
+        name="of_product">
+        <typename name="Breakdown_element"/>
+        <redeclaration
+          entity-ref="Product_version"/>
+      </explicit>
+    </entity>
+
+    <entity name="Breakdown_of"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="breakdown">
+        <typename name="Breakdown_version"/>
+      </explicit>
+      <explicit
+        name="of_view">
+        <typename name="Product_view_definition"/>
+      </explicit>
+    </entity>
+
+    <entity name="Breakdown_version"
+      supertypes="Product_version"
+    >
+      <explicit
+        name="of_product">
+        <typename name="Breakdown"/>
+        <redeclaration
+          entity-ref="Product_version"/>
+      </explicit>
+      <inverse
+        name="breakdown_of"
+        entity="Breakdown_of"
+        attribute="breakdown">
+        <inverse.aggregate
+          type="SET"
+          lower="1"
+          upper="?"
+        />
+      </inverse>
+    </entity>
+
+    <entity name="Product_definition_element_relationship"
+    >
+      <explicit
+        name="id">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="breakdown">
+        <typename name="breakdown_item"/>
+      </explicit>
+      <explicit
+        name="product">
+        <typename name="product_item"/>
       </explicit>
     </entity>
 
@@ -7798,180 +8049,6 @@ href="../../../xsl/express.xsl" ?>
       </explicit>
     </entity>
 
-    <entity name="Breakdown"
-      supertypes="Product"
-    >
-    </entity>
-
-    <entity name="Breakdown_context"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="breakdown">
-        <typename name="Breakdown_version"/>
-      </explicit>
-      <explicit
-        name="breakdown_element">
-        <typename name="Breakdown_element_definition"/>
-      </explicit>
-    </entity>
-
-    <entity name="Breakdown_element"
-      supertypes="Product"
-    >
-    </entity>
-
-    <entity name="Breakdown_element_definition"
-      supertypes="Product_view_definition"
-    >
-      <explicit
-        name="defined_version">
-        <typename name="Breakdown_element_version"/>
-        <redeclaration
-          entity-ref="Product_view_definition"/>
-      </explicit>
-    </entity>
-
-    <entity name="Breakdown_element_realization"
-      supertypes="Product_definition_element_relationship"
-    >
-    </entity>
-
-    <entity name="Breakdown_element_usage"
-      supertypes="View_definition_usage"
-    >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="relating_view">
-        <typename name="Breakdown_element_definition"/>
-        <redeclaration
-          entity-ref="View_definition_relationship"/>
-      </explicit>
-      <explicit
-        name="related_view">
-        <typename name="Breakdown_element_definition"/>
-        <redeclaration
-          entity-ref="View_definition_relationship"/>
-      </explicit>
-      <derived
-        name="child_element"
-        expression="SELF\View_definition_relationship.related_view">
-        <typename name="Breakdown_element_definition"/>
-      </derived>
-      <derived
-        name="parent_element"
-        expression="SELF\View_definition_relationship.relating_view">
-        <typename name="Breakdown_element_definition"/>
-      </derived>
-    </entity>
-
-    <entity name="Breakdown_element_version"
-      supertypes="Product_version"
-    >
-      <explicit
-        name="of_product">
-        <typename name="Breakdown_element"/>
-        <redeclaration
-          entity-ref="Product_version"/>
-      </explicit>
-    </entity>
-
-    <entity name="Breakdown_of"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="breakdown">
-        <typename name="Breakdown_version"/>
-      </explicit>
-      <explicit
-        name="of_view">
-        <typename name="Product_view_definition"/>
-      </explicit>
-    </entity>
-
-    <entity name="Breakdown_version"
-      supertypes="Product_version"
-    >
-      <explicit
-        name="of_product">
-        <typename name="Breakdown"/>
-        <redeclaration
-          entity-ref="Product_version"/>
-      </explicit>
-      <inverse
-        name="breakdown_of"
-        entity="Breakdown_of"
-        attribute="breakdown">
-        <inverse.aggregate
-          type="SET"
-          lower="1"
-          upper="?"
-        />
-      </inverse>
-    </entity>
-
-    <entity name="Product_definition_element_relationship"
-    >
-      <explicit
-        name="id">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="breakdown">
-        <typename name="breakdown_item"/>
-      </explicit>
-      <explicit
-        name="product">
-        <typename name="product_item"/>
-      </explicit>
-    </entity>
-
     <entity name="View_definition_relationship"
     >
       <explicit
@@ -8624,6 +8701,7 @@ href="../../../xsl/express.xsl" ?>
     </entity>
 
     <entity name="Risk_activity_structure"
+      abstract.supertype="YES"
       supertypes="Activity_relationship"
     >
       <explicit
@@ -8650,9 +8728,28 @@ href="../../../xsl/express.xsl" ?>
       </derived>
     </entity>
 
-    <entity name="Risk_analysis"
-      supertypes="Activity"
+    <entity name="Activity_method_relationship"
+      super.expression="ONEOF(Task_element_relationship, Task_method_relationship, Task_method_version_relationship)"
     >
+      <explicit
+        name="name">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="description"
+        optional="YES">
+        <builtintype type="STRING"
+        />
+      </explicit>
+      <explicit
+        name="relating_method">
+        <typename name="Activity_method"/>
+      </explicit>
+      <explicit
+        name="related_method">
+        <typename name="Activity_method"/>
+      </explicit>
     </entity>
 
     <entity name="Risk_assessment"
@@ -8675,6 +8772,11 @@ href="../../../xsl/express.xsl" ?>
         <redeclaration
           entity-ref="Property_definition_representation"/>
       </explicit>
+      <derived
+        name="criticality_factor"
+        expression="SELF\Property_definition_representation.rep">
+        <typename name="Property_value_representation"/>
+      </derived>
     </entity>
 
     <entity name="Risk_communicated_items"
@@ -8706,28 +8808,9 @@ href="../../../xsl/express.xsl" ?>
       </derived>
     </entity>
 
-    <entity name="Activity_method_relationship"
-      super.expression="ONEOF(Task_element_relationship, Task_method_relationship, Task_method_version_relationship)"
+    <entity name="Risk_communication"
+      supertypes="Activity"
     >
-      <explicit
-        name="name">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype type="STRING"
-        />
-      </explicit>
-      <explicit
-        name="relating_method">
-        <typename name="Activity_method"/>
-      </explicit>
-      <explicit
-        name="related_method">
-        <typename name="Activity_method"/>
-      </explicit>
     </entity>
 
     <entity name="Risk_consequence"
@@ -8899,7 +8982,7 @@ href="../../../xsl/express.xsl" ?>
     >
     </entity>
 
-    <entity name="Risk_identifiction_inputs"
+    <entity name="Risk_identification_inputs"
       supertypes="Applied_activity_assignment"
     >
       <explicit

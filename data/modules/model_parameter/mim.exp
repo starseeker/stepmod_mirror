@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.31 2008/11/08 02:18:54 thomasrthurman Exp $
+   $Id: mim.exp,v 1.32 2008/12/12 13:42:03 liutkus Exp $
    ISO TC184/SC4/WG12 N5711 - ISO/TS 10303-1703 Model parameter - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG12 N4057
 *)
@@ -11,9 +11,7 @@ USE FROM Classification_with_attributes_mim;	-- ISO/TS 10303-1111
 USE FROM Independent_property_representation_mim;	-- ISO/TS 10303-1038
 USE FROM Group_mim;	-- ISO/TS 10303-1113	
 
-USE FROM product_property_definition_schema( -- ISO 10303-41
-  characterized_definition,
-  characterized_object_relationship);  
+USE FROM product_property_definition_schema(characterized_definition);  -- ISO 10303-41
 
   TYPE mp_action_method_items = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON action_method_items WITH 
     (test_method_based_parameter_assignment);
@@ -46,21 +44,18 @@ USE FROM product_property_definition_schema( -- ISO 10303-41
   END_ENTITY;
 
   ENTITY parameter_assignment_override
-    SUBTYPE OF (characterized_object, characterized_object_relationship, property_definition);
-      SELF\characterized_object_relationship.relating_object : parameter_assignment;
-      SELF\characterized_object_relationship.related_object : parameter_assignment;
-    DERIVE  
-      SELF\property_definition.definition : parameter_assignment_override := SELF;
+    SUBTYPE OF (representation, representation_relationship);
+      SELF\representation_relationship.rep_1 : parameter_assignment;
+      SELF\representation_relationship.rep_2 : parameter_assignment;
     UNIQUE
-      UR1: relating_object, related_object;
+      UR1: SELF\representation_relationship.rep_1, SELF\representation_relationship.rep_2;
     WHERE
-      WR1: SELF\characterized_object_relationship.relating_object <> SELF\characterized_object_relationship.related_object;
+      WR1: SELF\representation_relationship.rep_1 <> 
+        SELF\representation_relationship.rep_2;
   END_ENTITY;
 
   ENTITY parameter_assignment
-    SUBTYPE OF (property_definition, property_definition_representation, characterized_object);
-    DERIVE
-      SELF\property_definition.definition : parameter_assignment := SELF;    
+    SUBTYPE OF (property_definition_representation, representation);
   END_ENTITY; 
 
   ENTITY product_specific_parameter_value_assignment

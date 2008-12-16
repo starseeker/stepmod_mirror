@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-$Id: sect_1_scope.xsl,v 1.4 2005/07/11 19:51:35 thendrix Exp $
+$Id: sect_1_scope.xsl,v 1.5 2006/02/28 01:06:30 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST under contract.
   Purpose: Output the Scope section as a web page
@@ -33,9 +33,27 @@ $Id: sect_1_scope.xsl,v 1.4 2005/07/11 19:51:35 thendrix Exp $
       <xsl:with-param name="res" select="@name"/>
     </xsl:call-template>
   </h1>
+  <xsl:apply-templates select="." mode="scope_header"/>
+  <xsl:apply-templates select="./scope"/>
   <xsl:apply-templates select="./inscope"/>
   <xsl:apply-templates select="./outscope"/>
 </xsl:template>
+
+  <xsl:template match="resource" mode="scope_header">
+    <xsl:call-template name="clause_header">
+      <xsl:with-param name="heading" select="'1 Scope'"/>
+      <xsl:with-param name="aname" select="'scope'"/>
+    </xsl:call-template>
+    <xsl:variable name="resdoc_name">
+      <xsl:call-template name="res_display_name">
+	    <xsl:with-param name="res" select="@name"/>
+      </xsl:call-template>           
+    </xsl:variable>
+    <xsl:variable name="lcletters">abcdefghijklmnopqrstuvwxyz</xsl:variable>
+    <xsl:variable name="ucletters">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>    
+      This part of ISO 10303 specifies the integrated resource constructs for 
+      <xsl:value-of select="translate($resdoc_name,$ucletters,$lcletters)"/>.
+  </xsl:template>
 
 <xsl:template match="resource" mode="special_header">
   <xsl:variable name="right">

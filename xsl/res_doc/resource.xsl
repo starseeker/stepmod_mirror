@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: resource.xsl,v 1.66 2008/09/12 15:49:08 abf Exp $
+$Id: resource.xsl,v 1.67 2008/11/14 13:45:48 darla Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep and supplied to NIST under contract.
 Purpose:
@@ -993,26 +993,9 @@ All rights reserved. Unless otherwise specified, no part of this publication may
     <xsl:apply-templates select="express-g"/>  
   </xsl:template>
 
-
-
   <xsl:template match="inscope">
-    <xsl:call-template name="clause_header">
-      <xsl:with-param name="heading" select="'1 Scope'"/>
-      <xsl:with-param name="aname" select="'scope'"/>
-    </xsl:call-template>
-    <xsl:variable name="resdoc_name">
-      <xsl:call-template name="res_display_name">
-	<xsl:with-param name="res" select="../@name"/>
-      </xsl:call-template>           
-    </xsl:variable>
-    <xsl:variable name="lcletters">abcdefghijklmnopqrstuvwxyz</xsl:variable>
-    <xsl:variable name="ucletters">ABCDEFGHIJKLMNOPQRSTUVWXYZ</xsl:variable>    
-    <p>
-      This part of ISO 10303 specifies the integrated resource constructs for 
-      <xsl:value-of select="translate($resdoc_name,$ucletters,$lcletters)"/>.
       <a name="inscope"/>
       The following are within the scope of this part of ISO 10303: 
-    </p>
     <!--  output any issues -->
     <xsl:apply-templates select=".." mode="output_clause_issue">
       <xsl:with-param name="clause" select="'inscope'"/>

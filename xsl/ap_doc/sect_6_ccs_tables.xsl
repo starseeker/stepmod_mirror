@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 <!--
-$Id: sect_6_ccs.xsl,v 1.25 2008/01/02 13:36:33 darla Exp $
+$Id: sect_6_ccs_tables.xsl,v 1.1 2008/11/14 15:16:30 darla Exp $
   Author:  Mike Ward, Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep and supplied to NIST, PDES Inc under contract.
   Purpose: Display the main set of frames for an AP document.     
@@ -21,7 +21,7 @@ $Id: sect_6_ccs.xsl,v 1.25 2008/01/02 13:36:33 darla Exp $
     <xsl:variable name="href" select="concat('cc_',@id)"/>
     <td>
       <b>
-        <a href="6_ccs.xml/#{$href}">
+        <a href="6_ccs{$FILE_EXT}/#{$href}">
           <xsl:value-of select="@id"/>
         </a>
       </b>
@@ -32,7 +32,7 @@ $Id: sect_6_ccs.xsl,v 1.25 2008/01/02 13:36:33 darla Exp $
     <xsl:variable name="href" select="concat('co_',translate(@name,'&#x9;&#xA;&#x20;&#xD;',''))"/> <!-- position())"/> -->
     <td>
       <b>
-        <a href="6_ccs.xml/#{$href}">
+        <a href="6_ccs{$FILE_EXT}/#{$href}">
           co<xsl:value-of select="position()"/>
         </a>
       </b>

@@ -38,7 +38,7 @@
             <builtintype type="STRING" fixed="NO"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
-         <derived name="surface_conditions" expression="bag_to_set(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'))">
+         <derived name="surface_conditions" expression="facz_get_sc(SELF)">
             <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
             <typename name="Surface_condition"/>
          </derived>
@@ -47,5 +47,21 @@
             <unique.attribute entity-ref="Shape_element" attribute="containing_shape"/>
          </unique>
       </entity>
+      <function name="facz_get_sc">
+         <parameter name="input">
+            <typename name="Shape_feature"/>
+         </parameter>
+         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <typename name="Surface_condition"/>
+         <algorithm>LOCAL
+    sca : SET OF Surface_condition_association := 
+	         bag_to_set(USEDIN(input,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'));
+	sc  : SET OF Surface_condition := [];       
+  END_LOCAL;
+   REPEAT i := 1 TO HIINDEX(sca);
+     sc := sc + sca[i]\Surface_condition_association.describing_surface_condition;
+   END_REPEAT;
+   RETURN (sc);</algorithm>
+      </function>
    </schema>
 </express>

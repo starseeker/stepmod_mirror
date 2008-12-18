@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.27 2008/11/20 10:27:24 thomasrthurman Exp $
+   $Id: arm.exp,v 1.28 2008/11/21 09:08:06 liutkus Exp $
    ISO TC184/SC4/WG12 N5605 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3885
 *)
@@ -74,7 +74,7 @@ SCHEMA Footprint_definition_arm;
                 reference_shape);
       WR9 : NOT EXISTS(reference_seating_plane_placement) OR 
                 ((reference_seating_plane_placement\Usage_concept_usage_relationship.associated_usage\Non_feature_shape_element.scope) =
-                SELF\Footprint_definition.reference_package);
+                shape_characterized_definition[1]\Footprint_definition.reference_package);
      WR10 : NOT EXISTS(reference_seating_plane_placement) OR ('PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL' IN 
                 TYPEOF(reference_seating_plane_placement\Usage_concept_usage_relationship.associating_usage_shape\Usage_view_level_non_feature_shape_model.model_shape));
      WR11 : NOT (EXISTS(reference_seating_plane_placement) AND ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_2D_SHAPE_MODEL' IN TYPEOF(reference_shape)));
@@ -115,8 +115,12 @@ SCHEMA Footprint_definition_arm;
     INVERSE
       related_elements : SET [2:2] OF View_definition_relationship for related_view;
     WHERE
-      WR1: 'PACKAGE_ARM.PACKAGE' IN fd_get_components(related_elements);
-      WR2: 'FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' in fd_get_components(related_elements);
+      WR1: SIZEOF(QUERY(re <* related_elements | 
+            ('PACKAGE_ARM.PACKAGE' IN TYPEOF(re\View_definition_relationship.relating_view))
+            )) = 1;
+      WR2: SIZEOF(QUERY(re <* related_elements | 
+            ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(re\View_definition_relationship.relating_view))
+            )) = 1;
       WR3: SIZEOF(related_models) = 2;
       WR4: SIZEOF(associated_model) = 1;
       WR5: SIZEOF(QUERY(rm <* related_models |

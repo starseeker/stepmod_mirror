@@ -82,6 +82,7 @@
          <where label="WR4" expression="NOT EXISTS(supported_internal_minimum_annular_ring) OR&#10;             (SIZEOF(QUERY(ptatsm &lt;* associated_passage_allocation |&#10;             NOT(ptatsm\Passage_technology_allocation_to_stack_model.allocated_technology\Passage_technology.plated_passage)&#10;                   )) = 0)"/>
          <where label="WR5" expression="NOT (EXISTS(unsupported_minimum_annular_ring) AND&#10;             (SIZEOF(QUERY(ptatsm &lt;* associated_passage_allocation |&#10;             NOT(ptatsm\Passage_technology_allocation_to_stack_model.allocated_technology\Passage_technology.plated_passage)&#10;                   )) = 0))"/>
          <where label="WR6" expression="SIZEOF(QUERY(ptatsm &lt;* associated_passage_allocation |&#10;             NOT(associated_model = ptatsm\Stratum_sub_stack.associated_stackup)&#10;             )) =0"/>
+         <where label="WR7" expression="NOT (EXISTS(associated_stratum_technology_occurrence) AND&#10;                 EXISTS(supported_internal_minimum_annular_ring))"/>
       </entity>
       <entity name="Copy_stratum_technology_occurrence_relationship" supertypes="Derived_stratum_technology_occurrence_relationship"/>
       <entity name="Default_component_termination_passage_definition" supertypes="Passage_technology">
@@ -323,12 +324,16 @@
             <aggregate type="SET" lower="0" upper="?"/>
             <typename name="Stratum_technology_occurrence"/>
          </derived>
+         <inverse name="minimum_annular_ring" entity="Allocated_passage_minimum_annular_ring" attribute="associated_passage_allocation">
+            <inverse.aggregate type="SET" lower="0" upper="?"/>
+         </inverse>
          <where label="WR1" expression="(NOT EXISTS(single_stratum_passage_location) OR&#10;        (single_stratum_passage_location IN&#10;        SELF\Stratum_sub_stack.associated_stackup.composing_occurrence))"/>
          <where label="WR2" expression="EXISTS(SELF\Stratum_sub_stack.stratum_technology_sequence) XOR&#10;           EXISTS(single_stratum_passage_location)"/>
          <where label="WR3" expression="SIZEOF(get_stack(SELF\Stratum_sub_stack.stratum_technology_sequence)) = &#10;                 (SIZEOF(SELF\Stratum_sub_stack.stratum_technology_sequence) + 1)"/>
          <where label="WR4" expression="sts_vertex_degree_check(SELF\Stratum_sub_stack.stratum_technology_sequence, 2)"/>
          <where label="WR5" expression="NOT EXISTS(single_stratum_passage_location) OR NOT EXISTS(target_stratum)"/>
          <where label="WR6" expression="NOT EXISTS(target_stratum) OR&#10;			  ((target_stratum IN SELF\Stratum_sub_stack.associated_stackup.composing_occurrence) AND&#10;	           (target_stratum IN terminus_stratum))"/>
+         <where label="WR7" expression="SIZEOF(ft_get_unspecified_asto(minimum_annular_ring) &lt; 2)"/>
       </entity>
       <entity name="Stratum_stack_model" abstract.supertype="YES" supertypes="Template_definition" super.expression="Design_stack_model">
          <derived name="composing_occurrence" expression="get_stack(composing_link)">
@@ -650,6 +655,22 @@ END_LOCAL;
   END_REPEAT;                                     
  END_REPEAT;                                     
 RETURN(pstoo + sstoo);</algorithm>
+      </function>
+      <function name="ft_get_unspecified_asto">
+         <parameter name="input">
+            <aggregate type="SET" lower="0" upper="?"/>
+            <typename name="Allocated_passage_minimum_annular_ring"/>
+         </parameter>
+         <builtintype type="INTEGER"/>
+         <algorithm>LOCAL
+     count : INTEGER := 0;
+    END_LOCAL;
+    REPEAT i := 1 to SIZEOF(input) BY 1;
+     IF NOT EXISTS(input[i]\Allocated_passage_minimum_annular_ring.associated_stratum_technology_occurrence) THEN
+       count := count + 1;
+     END_IF;
+    END_REPEAT;
+    RETURN(count);</algorithm>
       </function>
       <function name="get_stack">
          <parameter name="input">

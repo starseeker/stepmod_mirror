@@ -179,6 +179,7 @@
       </entity>
       <entity name="Default_plated_passage_based_land_physical_template" supertypes="Default_passage_based_land_physical_template" abstract.supertype="NO" abstract.entity="NO">
          <where label="WR1" expression="SELF\Default_passage_based_land_physical_template.of_passage_technology.plated_passage = TRUE"/>
+         <where label="WR2" expression="NOT('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.VIA_TEMPLATE' IN TYPEOF(SELF\Default_passage_based_land_physical_template.of_passage_technology)) OR&#10;         (SIZEOF(QUERY(ltjt &lt;* SELF\Land_physical_template.access_mechanisms | NOT('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt)))) = 0)"/>
       </entity>
       <entity name="Default_trace_template" supertypes="Trace_template" abstract.supertype="NO" abstract.entity="NO">
          <explicit name="of_stratum_technology" optional="NO">
@@ -247,13 +248,13 @@
          <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
       </entity>
       <entity name="Land_physical_template" supertypes="Stratum_feature_template" super.expression="ONEOF (Default_passage_based_land_physical_template, Default_attachment_size_based_land_physical_template)" abstract.supertype="NO" abstract.entity="NO">
-         <inverse name="access_mechanisms" entity="Land_template_terminal" attribute="associated_definition">
+         <inverse name="access_mechanisms" entity="Land_template_terminal" attribute="containing_shape">
             <inverse.aggregate type="SET" lower="1" upper="?"/>
          </inverse>
          <inverse name="pre_defined_classification_code" entity="External_source_identification" attribute="item">
             <inverse.aggregate type="SET" lower="0" upper="1"/>
          </inverse>
-         <where label="WR1" expression="SIZEOF(QUERY(ltjt &lt;* access_mechanisms | NOT ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt)))) = 0"/>
+         <where label="WR1" expression="SIZEOF(QUERY(ltjt &lt;* access_mechanisms | ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt)))) &gt; 0"/>
          <where label="WR2" expression="SIZEOF(QUERY(s &lt;* SELF\Geometric_template.shapes |&#10;             NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_AREA_CSG_2D_MODEL' IN TYPEOF(s)))) = 0"/>
          <where label="WR3" expression="SIZEOF(SELF\Geometric_template.shapes) &gt; 0"/>
       </entity>
@@ -418,7 +419,7 @@
             <typename name="Default_via_definition"/>
             <redeclaration entity-ref="Inter_stratum_feature_template"/>
          </explicit>
-         <inverse name="access_mechanisms" entity="Via_template_terminal" attribute="associated_definition">
+         <inverse name="access_mechanisms" entity="Via_template_terminal" attribute="containing_shape">
             <inverse.aggregate type="SET" lower="0" upper="?"/>
          </inverse>
       </entity>

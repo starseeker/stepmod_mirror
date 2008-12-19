@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--  $Id: build.xsl,v 1.28 2006/02/27 20:47:23 thendrix Exp $
+<!--  $Id: build.xsl,v 1.29 2006/09/06 14:06:41 darla Exp $
 Author:  Rob Bodington, Eurostep Limited
 Owner:   Developed by Eurostep Limited http://www.eurostep.com and supplied to NIST under contract.
 Purpose: To build the initial ANT publication file. 
@@ -771,6 +771,16 @@ Purpose: To build the initial ANT publication file.
 	<xsl:element name="property">
 	  <xsl:attribute name="name">APDOCCCSXML</xsl:attribute>
 	  <xsl:attribute name="value">${APDIR}/sys/6_ccs.xml</xsl:attribute>
+	</xsl:element>
+
+	<xsl:element name="property">
+	  <xsl:attribute name="name">APDOCCCSARMTABLEXML</xsl:attribute>
+	  <xsl:attribute name="value">${APDIR}/sys/6_ccs_arm_table.xml</xsl:attribute>
+	</xsl:element>
+
+	<xsl:element name="property">
+	  <xsl:attribute name="name">APDOCCCSMIMTABLEXML</xsl:attribute>
+	  <xsl:attribute name="value">${APDIR}/sys/6_ccs_mim_table.xml</xsl:attribute>
 	</xsl:element>
 
 	<xsl:element name="property">
@@ -3589,6 +3599,30 @@ Purpose: To build the initial ANT publication file.
 		 </xsl:attribute>
 		 <xsl:attribute name="style">
 		   <xsl:value-of select="'${APXSL}/sect_6_ccs.xsl'"/>
+		 </xsl:attribute>
+		 <xsl:apply-templates select="." mode="apdocs_target_style_attributes">
+		   <xsl:with-param name="menu" select="$menu"/>
+		 </xsl:apply-templates>
+	   </xsl:element>
+
+	   <xsl:element name="style">
+		 <xsl:attribute name="includes">
+		   <xsl:value-of select="'${APDOCCCSARMTABLEXML}'"/>
+		 </xsl:attribute>
+		 <xsl:attribute name="style">
+		   <xsl:value-of select="'${APXSL}/sect_6_ccs_arm_table.xsl'"/>
+		 </xsl:attribute>
+		 <xsl:apply-templates select="." mode="apdocs_target_style_attributes">
+		   <xsl:with-param name="menu" select="$menu"/>
+		 </xsl:apply-templates>
+	   </xsl:element>
+
+	   <xsl:element name="style">
+		 <xsl:attribute name="includes">
+		   <xsl:value-of select="'${APDOCCCSMIMTABLEXML}'"/>
+		 </xsl:attribute>
+		 <xsl:attribute name="style">
+		   <xsl:value-of select="'${APXSL}/sect_6_ccs_mim_table.xsl'"/>
 		 </xsl:attribute>
 		 <xsl:apply-templates select="." mode="apdocs_target_style_attributes">
 		   <xsl:with-param name="menu" select="$menu"/>

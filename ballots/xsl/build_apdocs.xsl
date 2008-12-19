@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.41 2005/07/28 22:01:12 thendrix Exp $
+$Id: build_apdocs.xsl,v 1.42 2006/07/13 17:52:48 hz0wyg Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 
@@ -881,6 +881,16 @@ $Id: build_apdocs.xsl,v 1.41 2005/07/28 22:01:12 thendrix Exp $
     <xsl:element name="property">
       <xsl:attribute name="name">APDOCCCSXML</xsl:attribute>
       <xsl:attribute name="value">${APDIR}/sys/6_ccs.xml</xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCCCSARMTABLEXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/6_ccs_arm_table.xml</xsl:attribute>
+    </xsl:element>
+
+    <xsl:element name="property">
+      <xsl:attribute name="name">APDOCCCSMIMTABLEXML</xsl:attribute>
+      <xsl:attribute name="value">${APDIR}/sys/6_ccs_mim_table.xml</xsl:attribute>
     </xsl:element>
     
     <xsl:element name="property">
@@ -4228,6 +4238,150 @@ $Id: build_apdocs.xsl,v 1.41 2005/07/28 22:01:12 thendrix Exp $
         </xsl:attribute>
         <xsl:attribute name="style">
           <xsl:value-of select="'${APXSL}/sect_6_ccs.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCCCSARMTABLEXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_6_ccs_arm_table.xsl'"/>
+        </xsl:attribute>
+        <param name="output_type" expression="HTM"/>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'INLINE_ERRORS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCS_INLINE_ERRORS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_rcs'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_RCS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'output_issues'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${OUTPUT_ISSUES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'menubar_file'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${APDOCMENU}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_MODULES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_MODULES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_RESOURCES'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_RESOURCES}'"/>
+          </xsl:attribute>
+        </xsl:element>
+        <xsl:element name="param">
+          <xsl:attribute name="name">
+            <xsl:value-of select="'STEPMOD_DATA_APS'"/>
+          </xsl:attribute>
+          <xsl:attribute name="expression">
+            <xsl:value-of select="'${STEPMOD_DATA_APS}'"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:element>
+
+      <xsl:element name="style">
+        <xsl:attribute name="includes">
+          <xsl:value-of select="'${APDOCCCSMIMTABLEXML}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="destdir">
+          <xsl:value-of select="'${ISODIR}'"/>
+        </xsl:attribute>
+        <xsl:attribute name="extension">
+          <xsl:value-of select="'.htm'"/>
+        </xsl:attribute>
+        <xsl:attribute name="style">
+          <xsl:value-of select="'${APXSL}/sect_6_ccs_mim_table.xsl'"/>
         </xsl:attribute>
         <param name="output_type" expression="HTM"/>
         <xsl:element name="param">

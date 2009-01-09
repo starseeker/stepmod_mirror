@@ -1,5 +1,5 @@
 (*
-$Id: document_schema.exp,v 1.7 2008/04/15 21:44:23 darla Exp $
+$Id: document_schema.exp,v 1.8 2008/04/21 20:42:59 darla Exp $
 
 2008-02-07
 ISO TC184/SC4/WG12 N4883 - ISO/IS 10303-41 Fundamentals of product description and support - EXPRESS
@@ -10,70 +10,80 @@ changes to date_time schema and to measure_schema as per TC1 - WG12 N4884.
 *)
 
 
-SCHEMA document_schema;
-  REFERENCE FROM product_definition_schema (product, product_definition, product_definition_formation);
-  REFERENCE FROM support_resource_schema (bag_to_set, identifier, label, text);
-  TYPE product_or_formation_or_definition = SELECT (product, product_definition_formation, product_definition);
-  END_TYPE;
 
-  ENTITY document;
-    id : identifier;
-    name : label;
-    description : OPTIONAL text;
-    kind : document_type;
+SCHEMA hierarchy_schema;
+  REFERENCE FROM analysis_schema                    -- ISO 10303-53
+                 (model_action_domain,
+                  model_product_domain,
+                  model_product_domain_with_mesh,
+                  model_state_domain,
+                  numerical_model);
+  REFERENCE FROM conditions_schema                  -- ISO 10303-110
+                 (fd_zone_bc,
+                  mbna_reference_state,
+                  mbna_zone_bc);
+  REFERENCE FROM domain_schema                      -- ISO 10303-110
+                 (grid_coordinates);
+  REFERENCE FROM equations_schema                   -- ISO 10303-110
+                 (flow_equation_set,
+                  mbna_equation_set);
+  REFERENCE FROM mesh_connectivity_schema           -- ISO 10303-52
+                 (multiple_mesh_block);
+  REFERENCE FROM mesh_topology_schema               -- ISO 10303-52
+                 (structured_mesh,
+                  unstructured_mesh);
+  REFERENCE FROM results_schema                     -- ISO 10303-110
+                 (mbna_discrete_data,
+                  mbna_history,
+                  mbna_solution);
+ 
+
+ENTITY fd_step
+  SUBTYPE OF (mbna_step);
+  SELF\mbna_step.equations : SET OF flow_equation_set;  
+  SELF\mbna_step.zones     : LIST OF fd_zone;
+END_ENTITY;
+
+ENTITY fd_zone
+  SUBTYPE OF (mbna_zone);
+  SELF\mbna_zone.conditions : SET OF fd_zone_bc;
+  SELF\mbna_zone.equations  : SET OF flow_equation_set;
+END_ENTITY;
+
+ENTITY mbna_model
+  SUBTYPE OF (model_product_domain);
+  SELF\model_product_domain.temporal_parts : LIST OF mbna_step;
+  equations : SET OF mbna_equation_set;  
   INVERSE
-    representation_types : SET [0:?] OF document_representation_type FOR represented_document;
-  END_ENTITY;
+  history : SET OF mbna_history for domain;  
+END_ENTITY;
 
-  ENTITY document_product_association;
-    name : label;
-    description : OPTIONAL text;
-    relating_document : document;
-    related_product : product_or_formation_or_definition;
-  END_ENTITY;
+ENTITY mbna_state
+  SUBTYPE OF (model_state_domain);
+END_ENTITY;  
 
-  ENTITY document_relationship;
-    name : label;
-    description : OPTIONAL text;
-    relating_document : document;
-    related_document : document;
-  END_ENTITY;
+ENTITY mbna_step
+  SUBTYPE OF (model_action_domain);
+  
+  SELF\model_action_domain.final : mbna_state;
+  equations          : SET OF mbna_equation_set;  
+  refstate           : SET OF mbna_reference_state;
+  zones              : LIST OF mbna_zone;
+INVERSE
+  history : SET OF mbna_history for domain;  
+END_ENTITY;
 
-  ENTITY document_representation_type;
-    name : label;
-    represented_document : document;
-  END_ENTITY;
+ENTITY mbna_zone
+  SUBTYPE OF (model_product_domain_with_mesh);
+  conditions         : SET OF mbna_zone_bc;
+  equations          : SET OF mbna_equation_set;
+  grid_connectivity  : OPTIONAL multiple_mesh_block;
+  rstate             : SET OF mbna_reference_state;
+INVERSE
+  coordinates : SET OF grid_coordinates FOR domain;
+  field_data  : SET OF mbna_discrete_data FOR domain;
+  history     : SET OF mbna_history FOR domain;
+  solution    : SET OF mbna_solution FOR domain;
+END_ENTITY;
 
-  ENTITY document_type;
-    product_data_type : label;
-  END_ENTITY;
-
-  ENTITY document_usage_constraint;
-    source : document;
-    subject_element : label;
-    subject_element_value : text;
-  END_ENTITY;
-
-  ENTITY document_with_class
-    SUBTYPE OF (document);
-    class : identifier;
-  END_ENTITY;
-
-  FUNCTION acyclic_document_relationship (relation : document_relationship; relatives : SET [1:?] OF document; specific_relation : STRING):BOOLEAN;
-    LOCAL
-      x : SET OF document_relationship;
-    END_LOCAL;
-
-    IF relation.relating_document IN relatives THEN
-      RETURN (FALSE);
-    END_IF;
-    x := QUERY(doc <* bag_to_set(USEDIN(relation.relating_document, 'DOCUMENT_SCHEMA.' + 'DOCUMENT_RELATIONSHIP.' + 'RELATED_DOCUMENT')) | specific_relation IN TYPEOF(doc));
-    REPEAT i := 1 TO HIINDEX(x);
-      IF NOT acyclic_document_relationship(x[i], relatives + relation.relating_document, specific_relation) THEN
-        RETURN (FALSE);
-      END_IF;
-    END_REPEAT;
-    RETURN (TRUE);
-  END_FUNCTION;
-
-END_SCHEMA;
+END_SCHEMA;  -- end of hierarchy_schema

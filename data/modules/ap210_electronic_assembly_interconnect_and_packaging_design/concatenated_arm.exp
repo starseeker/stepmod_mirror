@@ -263,7 +263,7 @@ USE FROM Physical_breakdown_arm;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.56 2008/09/18 12:46:16 liutkuviene Exp $
+   $Id: arm.exp,v 1.57 2008/12/15 14:44:54 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5557 - ISO/TS 10303-1603 Analytical model - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3831
 *)
@@ -342,7 +342,7 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
 
   ENTITY Analytical_model_application
     SUBTYPE OF (Representation);  
-      model_parameter_assignment     : SET[1:?] OF Parameter_assignment;
+      model_parameter_assignment     : OPTIONAL SET[1:?] OF Parameter_assignment;
       model_representation           : Analytical_model_definition;
     UNIQUE
       UR1 : SELF\Representation.name;
@@ -763,7 +763,7 @@ USE FROM Stock_material_arm;  -- ISO/CD-TS 10303-1771
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.85 2008/10/22 21:31:54 thomasrthurman Exp $
+   $Id: arm.exp,v 1.88 2008/12/16 17:14:10 liutkus Exp $
    ISO TC184/SC4/WG3 N1995 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG3 N1638
 *)
@@ -1146,8 +1146,8 @@ END_SUBTYPE_CONSTRAINT;
 
 (** It most likely should be in TOP AP210 schema *)
 SUBTYPE_CONSTRAINT part_design_view_subtypes FOR Part_design_view;  
-    ONEOF (Assembly_module,
- Interconnect_module);
+    ONEOF (Assembly_module_design_view,
+ Interconnect_module_design_view);
 END_SUBTYPE_CONSTRAINT;
 
 (** Assembly_module_with_packaged_connector_component_arm and 
@@ -1157,7 +1157,7 @@ Assembly_module_with_interconnect_component_arm  - most likely in some Assembly 
 		 Interconnect_component_interface_terminal));
 	END_SUBTYPE_CONSTRAINT;
 
-(** most likely some Assembly_module CC *)
+(** most likely some Assembly_module_design_view CC *)
 	SUBTYPE_CONSTRAINT packaged_part_subtypes FOR Packaged_part; 
 	    (ONEOF (Minimally_defined_connector, -- Assembly_functional_interface_requirement_arm
 	 	Packaged_connector) ANDOR -- Packaged_connector_model_arm
@@ -1171,7 +1171,7 @@ Assembly_module_with_interconnect_component_arm  - most likely in some Assembly 
 		Physical_unit_interconnect_definition));
 	END_SUBTYPE_CONSTRAINT; 
 	
-	(** It most likely should be in Assembly_module CC *)
+	(** It most likely should be in Assembly_module_design_view CC *)
 	SUBTYPE_CONSTRAINT ap210_physical_component_subtypes FOR Physical_component;  
 		(ONEOF (Assembly_module_component, --Assembly_module_with_subassembly_arm
 		Bare_die_component, -- Assembly_module_design_arm
@@ -1182,7 +1182,7 @@ Assembly_module_with_interconnect_component_arm  - most likely in some Assembly 
 		Routed_physical_component)); -- Assembly_module_design_arm 
 	END_SUBTYPE_CONSTRAINT;
 	
-	(** It most likely should be in Assembly_module CC *)
+	(** It most likely should be in Assembly_module_design_view CC *)
 	SUBTYPE_CONSTRAINT ap210_part_usage_view_subtypes FOR Part_usage_view;  
 	    ONEOF (Package,
 		 Bare_die,
@@ -1192,14 +1192,14 @@ Assembly_module_with_interconnect_component_arm  - most likely in some Assembly 
 		 Interconnect_module_usage_view);
 	END_SUBTYPE_CONSTRAINT;
 
-(** Most likely it is in CC Interconnect_module *)    
+(** Most likely it is in CC Interconnect_module_design_view *)    
 	SUBTYPE_CONSTRAINT laminate_component_interface_terminal_subtypes FOR Laminate_component_interface_terminal; 
 		 (ONEOF (Printed_connector_component_interface_terminal,
 		 Component_termination_passage_interface_terminal,
 		 Land_interface_terminal));
 	END_SUBTYPE_CONSTRAINT;
 
-(** Most likely it is in CC Interconnect_module *)    
+(** Most likely it is in CC Interconnect_module_design_view *)    
 	SUBTYPE_CONSTRAINT laminate_component_join_terminal_subtypes FOR Laminate_component_join_terminal; 
 		 (ONEOF (Component_termination_passage_join_terminal,
 		 Land_join_terminal,
@@ -1207,7 +1207,7 @@ Assembly_module_with_interconnect_component_arm  - most likely in some Assembly 
 		 Printed_component_join_terminal));
 	END_SUBTYPE_CONSTRAINT;
    
-(** It most likely should be in Interconnect_module CC *)
+(** It most likely should be in Interconnect_module_design_view CC *)
 SUBTYPE_CONSTRAINT planar_projected_shape_model_subtypes FOR Planar_projected_shape_model;  
 	(ONEOF ((Assembly_component_2d_shape_model ANDOR
 	 (ONEOF (Part_template_planar_shape_model,
@@ -1216,7 +1216,7 @@ SUBTYPE_CONSTRAINT planar_projected_shape_model_subtypes FOR Planar_projected_sh
 END_SUBTYPE_CONSTRAINT; 
 
 (** Pre_defined_datum_symbol_arm and Layered_interconnect_module_3d_shape_arm are not linked in any way.
-Most likely it should be defined in Interconnect_module CC *)
+Most likely it should be defined in Interconnect_module_design_view CC *)
  SUBTYPE_CONSTRAINT shape_definition_3d_intersection_subtypes FOR Shape_definition_3d_intersection;  
 	 (ONEOF (Edge_segment_cross_section,
 	 Pre_defined_perpendicular_datum_plane_symbol_3d_2d_relationship,
@@ -1267,19 +1267,11 @@ WHERE
   WR1:  SIZEOF(Template_material_cross_section_boundary) = 0;
 END_RULE;
 
-RULE printed_part_template_terminal_class_population_constraint FOR
-    (Printed_part_template_terminal);
-WHERE
-  WR1:  SIZEOF( QUERY( pptt <* Printed_part_template_terminal |
-NOT(pptt.connection_zone_category = printed_part_template_terminal_class.surface_point)
-              )) = 0;
-END_RULE;
-
 RULE Physical_unit_network_definition_constraint FOR 
 (Physical_unit_network_definition);
 WHERE
   WR1: SIZEOF ( QUERY ( fund <* Physical_unit_network_definition | 
-('ASSEMBLY_MODULE_DESIGN_ARM.' + 'ASSEMBLY_MODULE' IN TYPEOF (fund)) OR
+('ASSEMBLY_MODULE_DESIGN_ARM.' + 'ASSEMBLY_MODULE_DESIGN_VIEW' IN TYPEOF (fund)) OR
   (SIZEOF(USEDIN(fund,'PHYSICAL_UNIT_SHAPE_WITH_PARAMETERS_ARM.' + 
 'PHYSICAL_UNIT_SHAPE_MODEL.SHAPE_CHARACTERIZED_DEFINITION')) = 0)
     )) = SIZEOF(Physical_unit_network_definition);
@@ -1565,7 +1557,7 @@ SCHEMA Assembly_3d_shape_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.53 2008/09/18 12:46:17 liutkuviene Exp $
+   $Id: arm.exp,v 1.54 2008/11/07 22:35:57 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5569 - ISO/TS 10303-1634 Assembly component placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3849
 *)
@@ -1700,7 +1692,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Mounting_restriction_area
     SUBTYPE OF (Non_feature_shape_element);
       mounting_surface                     : Interconnect_module_component_surface_feature;
-      SELF\Non_feature_shape_element.scope : Assembly_module;
+      SELF\Non_feature_shape_element.scope : Assembly_module_design_view;
     WHERE
       WR1 : (SIZEOF(SELF\Non_feature_shape_element.element_shape) = 0) OR
             (SIZEOF(QUERY(es <* SELF\Non_feature_shape_element.element_shape | 
@@ -1711,7 +1703,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Mounting_restriction_volume
     SUBTYPE OF (Non_feature_shape_element);
       mounting_surface                     : Interconnect_module_component_surface_feature;
-      SELF\Non_feature_shape_element.scope : Assembly_module;
+      SELF\Non_feature_shape_element.scope : Assembly_module_design_view;
     INVERSE
       volume : non_feature_shape_model FOR associated_element;
   END_ENTITY;
@@ -1796,7 +1788,7 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.51 2008/10/04 12:13:18 thomasrthurman Exp $
+   $Id: arm.exp,v 1.53 2008/11/08 01:34:19 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5575 - ISO/TS 10303-1636 Assembly module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3855
 *)
@@ -1830,7 +1822,7 @@ SCHEMA Assembly_module_design_arm;
 
 	TYPE assembly_module_or_assembly_group_component = 
 		EXTENSIBLE GENERIC_ENTITY SELECT 
-		(Assembly_module);
+		(Assembly_module_design_view);
 	END_TYPE;
 
   ENTITY Assembly_connection_zone_position_relationship;
@@ -1838,11 +1830,11 @@ SCHEMA Assembly_module_design_arm;
       associated_usage                            : Connection_zone_in_design_view;
       associated_connection_zone_shape_definition : Geometric_model;
       associated_usage_placement                  : Axis_placement;
-      associating_design_view                     : Assembly_module;
+      associating_design_view                     : Assembly_module_design_view;
   END_ENTITY;
 
-  ENTITY Assembly_module
-    SUPERTYPE OF (ONEOF (Layered_assembly_panel, Layered_assembly_module))
+  ENTITY Assembly_module_design_view
+    SUPERTYPE OF (ONEOF (Layered_assembly_panel_design_view, Layered_assembly_module_design_view))
     SUBTYPE OF (Assembly_definition, Part_design_view);
   WHERE
     WR1 : NOT EXISTS(SELF\Product_view_definition.additional_characterization);
@@ -1895,8 +1887,8 @@ SCHEMA Assembly_module_design_arm;
       added_clearance             : Length_tolerance_characteristic;
   END_ENTITY;
 
-  ENTITY Layered_assembly_panel
-    SUBTYPE OF (Assembly_module);
+  ENTITY Layered_assembly_panel_design_view
+    SUBTYPE OF (Assembly_module_design_view);
   END_ENTITY;
 
   ENTITY Minimally_defined_component_terminal
@@ -1930,8 +1922,8 @@ SCHEMA Assembly_module_design_arm;
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
-  ENTITY Layered_assembly_module
-    SUBTYPE OF (Assembly_module);
+  ENTITY Layered_assembly_module_design_view
+    SUBTYPE OF (Assembly_module_design_view);
       SELF\Part_design_view.usage_view : Layered_assembly_module_usage_view;
   END_ENTITY;
 
@@ -2195,7 +2187,7 @@ SCHEMA Assembly_module_with_interconnect_component_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.17 2008/09/18 12:47:34 liutkuviene Exp $
+   $Id: arm.exp,v 1.18 2008/11/07 22:35:57 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5587 - ISO/TS 10303-1640 Assembly module with macro component - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3867
 *)
@@ -2206,7 +2198,7 @@ SCHEMA Assembly_module_with_macro_component_arm;
 
   ENTITY Assembly_module_macro_component
     SUBTYPE OF (Physical_component, Single_instance);
-      SELF\Definition_based_product_occurrence.derived_from : Assembly_module;
+      SELF\Definition_based_product_occurrence.derived_from : Assembly_module_design_view;
     INVERSE
       join_access_mechanisms : SET[1:?] OF assembly_module_macro_component_join_terminal FOR associated_component;
     WHERE
@@ -8178,7 +8170,7 @@ USE FROM Value_with_unit_arm; -- ISO/TS 10303-1054
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.23 2008/09/18 12:47:33 liutkuviene Exp $
+   $Id: arm.exp,v 1.24 2008/11/07 23:38:09 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5641 - ISO/TS 10303-1668 Fabrication joint - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3951
 *)
@@ -8211,7 +8203,7 @@ SCHEMA Fabrication_joint_arm;
       SELF\Component_feature_joint.feature_1 RENAMED fabrication_feature_1                      : fabricated_feature_select;
       SELF\Component_feature_joint.feature_2 RENAMED fabrication_feature_2                      : fabricated_feature_select;
       auxiliary_joint_material                                                                  : OPTIONAL Stratum_feature_template_component;
-      SELF\Component_feature_joint.associated_definition RENAMED associated_interconnect_module : Layered_interconnect_module;      
+      SELF\Component_feature_joint.associated_definition RENAMED associated_interconnect_module : Layered_interconnect_module_design_view;      
     WHERE
       WR1 : fabrication_feature_1 <> fabrication_feature_2;
       WR2 : TYPEOF(fabrication_feature_1) <> TYPEOF(auxiliary_joint_material);
@@ -8328,7 +8320,7 @@ SCHEMA Fabrication_requirement_arm;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.174 2008/10/22 20:22:05 thomasrthurman Exp $
+   $Id: arm.exp,v 1.178 2008/12/18 15:30:14 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5647 - ISO/TS 10303-1670 Fabrication technology - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3957
 *)
@@ -8456,6 +8448,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR6 : SIZEOF(QUERY(ptatsm <* associated_passage_allocation |
              NOT(associated_model = ptatsm\Stratum_sub_stack.associated_stackup)
              )) =0;                   
+      WR7 : NOT (EXISTS(associated_stratum_technology_occurrence) AND
+                 EXISTS(supported_internal_minimum_annular_ring));
   END_ENTITY;
   
   ENTITY Copy_stratum_technology_occurrence_relationship
@@ -8660,7 +8654,9 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 	   target_stratum                            : OPTIONAL Stratum_technology_occurrence;
 	DERIVE
 	   terminus_stratum                : SET OF Stratum_technology_occurrence := ft_get_terminus(SELF\Stratum_sub_stack.stratum_technology_sequence);
-    WHERE
+    INVERSE
+      minimum_annular_ring             : SET [0:?] OF Allocated_passage_minimum_annular_ring FOR associated_passage_allocation;
+          WHERE
       WR1: (NOT EXISTS(single_stratum_passage_location) OR
         (single_stratum_passage_location IN
         SELF\Stratum_sub_stack.associated_stackup.composing_occurrence));
@@ -8673,6 +8669,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 	  WR6: NOT EXISTS(target_stratum) OR
 			  ((target_stratum IN SELF\Stratum_sub_stack.associated_stackup.composing_occurrence) AND
 	           (target_stratum IN terminus_stratum));
+      WR7: ft_count_unspecified_asto(minimum_annular_ring) < 2;	           
   END_ENTITY;
 
   ENTITY Stratum_stack_model
@@ -8953,6 +8950,18 @@ END_FUNCTION;
     RETURN(sto);
   END_FUNCTION;
 
+  FUNCTION ft_count_unspecified_asto(input : SET OF Allocated_passage_minimum_annular_ring) : INTEGER;
+    LOCAL
+     count : INTEGER := 0;
+    END_LOCAL;
+    REPEAT i := 1 to SIZEOF(input) BY 1;
+     IF NOT EXISTS(input[i]\Allocated_passage_minimum_annular_ring.associated_stratum_technology_occurrence) THEN
+       count := count + 1;
+     END_IF;
+    END_REPEAT;
+    RETURN(count);
+  END_FUNCTION;
+  
   FUNCTION less(input1 : Length_tolerance_characteristic;
               input2 : ft_value_select) : BOOLEAN;
     RETURN(TRUE);
@@ -9006,7 +9015,7 @@ END_ENTITY;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.27 2008/10/23 22:29:16 thomasrthurman Exp $
+   $Id: arm.exp,v 1.28 2008/12/16 19:27:39 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5650 - ISO/TS 10303-1671 Feature and connection zone - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3960
 *)
@@ -9046,12 +9055,24 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
    		connection_area : OPTIONAL SET[1:?] OF Connection_zone;
    		SELF\Shape_element.element_name : STRING;
    DERIVE
-      surface_conditions : SET OF Surface_condition := 
-	         bag_to_set(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'));		
+      surface_conditions : SET OF Surface_condition := facz_get_sc(SELF);		
     UNIQUE
       UR1 : SELF\Shape_element.element_name, 
       SELF\shape_element.containing_shape;
   END_ENTITY;
+
+FUNCTION facz_get_sc (input : Shape_feature) : SET OF Surface_condition;
+  LOCAL
+    sca : SET OF Surface_condition_association := 
+	         bag_to_set(USEDIN(input,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'));
+	sc  : SET OF Surface_condition := [];       
+  END_LOCAL;
+   REPEAT i := 1 TO HIINDEX(sca);
+     sc := sc + sca[i]\Surface_condition_association.describing_surface_condition;
+   END_REPEAT;
+   RETURN (sc);
+END_FUNCTION;
+
 
 END_SCHEMA;
 (*
@@ -9145,7 +9166,7 @@ USE FROM Extended_basic_geometry_arm; 	-- ISO/TS 10303-1667
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.22 2008/09/18 12:47:36 liutkuviene Exp $
+   $Id: arm.exp,v 1.29 2008/12/18 15:23:40 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5605 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3885
 *)
@@ -9198,22 +9219,34 @@ SCHEMA Footprint_definition_arm;
     SUBTYPE OF (Structured_template_planar_shape_model);
       SELF\Structured_template_planar_shape_model.shape_characterized_definition : SET[1:1] OF Footprint_definition;
       reference_shape : OPTIONAL physical_unit_shape_model_select;
+      reference_seating_plane_placement : OPTIONAL Usage_concept_usage_relationship;
     WHERE
       WR1 : NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',
                          'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
             NOT ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_USAGE_VIEW' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_definition)) OR
             NOT ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(shape_characterized_definition[1])) OR      
-                 (shape_characterized_definition[1]\Footprint_definition.reference_package :=: 
-                  reference_shape\Physical_unit_shape_model.shape_characterized_definition);
+                 (shape_characterized_definition[1]\Footprint_definition.reference_package :=: reference_shape\Physical_unit_shape_model.shape_characterized_definition);
 
       WR2 : NOT (SIZEOF(['PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',
                          'PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
                 ('PHYSICAL_UNIT_USAGE_VIEW_ARM.PART_USAGE_VIEW' IN TYPEOF(reference_shape\Physical_unit_shape_model.shape_characterized_definition));
-
-      WR3 : NOT (SIZEOF(['PART_TEMPLATE_3D_SHAPE_ARM.PART_TEMPLATE_3D_SHAPE_MODEL'] * TYPEOF(reference_shape)) = 1) OR 
-                ('PRINTED_PHYSICAL_LAYOUT_TEMPLATE_ARM.PRINTED_PART_TEMPLATE' 
-                   IN TYPEOF(reference_shape\Part_template_shape_model.shape_characterized_definition));
-      WR4 : NOT EXISTS(SELF\Representation.description);
+      WR3 : NOT EXISTS(SELF\Representation.description);
+      WR4 : NOT EXISTS(reference_shape) OR EXISTS(shape_characterized_definition[1]\Footprint_definition.reference_package);
+      WR5 : NOT EXISTS(reference_seating_plane_placement) OR EXISTS(reference_shape);
+      WR6 : NOT EXISTS(reference_seating_plane_placement) OR ('PACKAGE_ARM.PACKAGE' IN TYPEOF(shape_characterized_definition[1]\Footprint_definition.reference_package));
+      WR7 : NOT EXISTS(reference_seating_plane_placement) OR ('NON_FEATURE_SHAPE_ELEMENT_ARM.SEATING_PLANE' IN 
+                TYPEOF(reference_seating_plane_placement\Usage_concept_usage_relationship.associated_usage));
+      WR8 : NOT EXISTS(reference_seating_plane_placement) OR 
+                ((reference_seating_plane_placement\Usage_concept_usage_relationship.associating_usage_shape\Usage_view_level_non_feature_shape_model.model_shape) =
+                reference_shape);
+      WR9 : NOT EXISTS(reference_seating_plane_placement) OR 
+                ((reference_seating_plane_placement\Usage_concept_usage_relationship.associated_usage\Non_feature_shape_element.scope) =
+                shape_characterized_definition[1]\Footprint_definition.reference_package);
+     WR10 : NOT EXISTS(reference_seating_plane_placement) OR ('PHYSICAL_UNIT_3D_SHAPE_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL' IN 
+                TYPEOF(reference_seating_plane_placement\Usage_concept_usage_relationship.associating_usage_shape\Usage_view_level_non_feature_shape_model.model_shape));
+     WR11 : NOT (EXISTS(reference_seating_plane_placement) AND ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_2D_SHAPE_MODEL' IN TYPEOF(reference_shape)));
+     WR12 : NOT ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_2D_SHAPE_MODEL' IN TYPEOF(reference_shape)) OR
+                 (SELF\Geometric_model.context_of_items = reference_shape\Geometric_model.context_of_items);                           
   END_ENTITY;
 
   ENTITY Generic_footprint_definition
@@ -9237,6 +9270,34 @@ SCHEMA Footprint_definition_arm;
       WR5 : ((SELF\Multi_stratum_structured_template.location = template_arrangement.swappable) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'swappable')) OR 
             (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.swappable) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'swappable'));
       WR6 : NOT (SIZEOF(single_stratum_components) = 0) OR (SELF\Multi_stratum_structured_template.location = padstack_based_location);      
+  END_ENTITY;
+
+  ENTITY Package_footprint_relationship_definition
+    SUBTYPE OF (Product_view_definition);
+    DERIVE
+      associated_model : SET [1:1] OF Geometric_model := fd_get_amodel(SELF);
+      related_models : SET [2:2] OF Geometric_model := fd_get_rmodels(related_elements);
+      related_transforms : SET [2:2] OF Geometric_model_relationship_with_transformation := 
+                           fd_get_transforms(associated_model, related_models);      
+    INVERSE
+      related_elements : SET [2:2] OF View_definition_relationship for related_view;
+    WHERE
+      WR1: SIZEOF(QUERY(re <* related_elements | 
+            ('PACKAGE_ARM.PACKAGE' IN TYPEOF(re\View_definition_relationship.relating_view))
+            )) = 1;
+      WR2: SIZEOF(QUERY(re <* related_elements | 
+            ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION' IN TYPEOF(re\View_definition_relationship.relating_view))
+            )) = 1;
+      WR3: SIZEOF(related_models) = 2;
+      WR4: SIZEOF(associated_model) = 1;
+      WR5: SIZEOF(QUERY(rm <* related_models |
+                  ('PHYSICAL_UNIT_2D_SHAPE_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL' IN TYPEOF(rm))
+              )) = 1;
+      WR6: SIZEOF(QUERY(rm <* related_models |
+                  ('FOOTPRINT_DEFINITION_ARM.FOOTPRINT_DEFINITION_SHAPE_MODEL' IN TYPEOF(rm))
+              )) = 1;
+      WR7: 'LAYERED_2D_SHAPE_ARM.PLANAR_SHAPE_MODEL' IN TYPEOF(associated_model[1]);
+      WR8: SIZEOF(related_transforms) = 2;
   END_ENTITY;
 
   ENTITY Part_feature_based_template_location
@@ -9264,6 +9325,54 @@ SCHEMA Footprint_definition_arm;
     -- breakout_padstack must belong to Breakout_footprint_definition
       WR2: breakout_padstack.assembly :=: assembly;
   END_ENTITY;
+
+  FUNCTION fd_get_components(input : SET[2:2] OF View_definition_relationship) : SET OF Product_view_definition;
+    LOCAL
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input);
+      pvd := pvd + input[i]\View_definition_relationship.relating_view;
+    END_REPEAT;
+    RETURN (pvd);
+  END_FUNCTION; 
+
+  FUNCTION fd_get_amodel (input : Product_view_definition) : SET OF Geometric_model;
+    LOCAL
+      gm : SET OF Geometric_model := [];
+      is : SET OF Item_shape := [];
+      sda : SET OF Shape_description_association := [];      
+    END_LOCAL;
+    
+    is := bag_to_set(USEDIN(input,'SHAPE_PROPERTY_ASSIGNMENT_ARM.ITEM_SHAPE.DESCRIBED_ELEMENT'));
+
+    IF (SIZEOF(is) >= 0) THEN
+      REPEAT i := 1 TO HIINDEX(is);
+      sda := sda + bag_to_set(USEDIN(input,'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_DESCRIPTION_ASSOCIATION.REPRESENTED_CHARACTERISTIC'));
+      END_REPEAT;
+     IF (SIZEOF(sda) >= 0) THEN
+       REPEAT i := 1 TO HIINDEX(sda);
+       gm := gm + sda[i]\Shape_description_association.representation;
+       END_REPEAT;    
+       RETURN (gm);
+     END_IF;
+    END_IF;
+    RETURN(?);  
+  END_FUNCTION; 
+
+  FUNCTION fd_get_rmodels (input : SET[2:2] OF View_definition_relationship) : SET OF Geometric_model;
+    LOCAL
+      gm : SET OF Geometric_model := [];
+      pvd : SET OF Product_view_definition := [];
+    END_LOCAL;
+      pvd := fd_get_components(input);
+    IF (SIZEOF(pvd) >= 0) THEN      
+      REPEAT i := 1 TO HIINDEX(pvd);
+        gm := gm + fd_get_amodel(pvd[i]);
+      END_REPEAT;
+      RETURN (gm);
+    END_IF;
+    RETURN(?);
+  END_FUNCTION; 
 
   FUNCTION get_template_arrangement(
     input : SET OF Template_location_in_structured_template
@@ -9306,6 +9415,25 @@ SCHEMA Footprint_definition_arm;
     END_IF;
     RETURN(?);
   END_FUNCTION;
+
+  FUNCTION fd_get_transforms(input1 : SET[1:1] OF Geometric_model;
+                             input2 : SET[2:2] OF Geometric_model) 
+                             : SET OF Geometric_model_relationship_with_transformation;
+    LOCAL
+      gmrwt : SET OF Geometric_model_relationship_with_transformation := [];
+    END_LOCAL;
+    gmrwt := bag_to_set(USEDIN(input1[1],'EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP.REP_1'));
+    REPEAT i := 1 TO HIINDEX(gmrwt);
+      IF NOT
+        ((gmrwt[i]\Geometric_model_relationship.rep_2 IN input2)
+         AND
+        ('EXTENDED_BASIC_GEOMETRY_ARM.GEOMETRIC_MODEL_RELATIONSHIP_WITH_TRANSFORMATION' IN TYPEOF(gmrwt[i])))
+      THEN
+       RETURN(?);
+      END_IF;
+    END_REPEAT;
+    RETURN(gmrwt);
+  END_FUNCTION; 
 
 END_SCHEMA;
 (*
@@ -11023,7 +11151,7 @@ SCHEMA Interconnect_module_connection_routing_arm;
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.27 2008/09/18 12:47:31 liutkuviene Exp $
+   $Id: arm.exp,v 1.29 2008/11/07 23:38:10 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5665 - ISO/TS 10303-1685 Interconnect module to assembly module relationship - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4002
 *)
@@ -11068,8 +11196,8 @@ USE FROM Interconnect_module_connection_routing_arm;	-- ISO/TS 10303-1684
 
   ENTITY Assembly_requirement_for_interconnect_relationship 
     SUBTYPE OF (Part_definition_relationship);
-      SELF\View_definition_relationship.relating_view	: Assembly_module; 		
-      SELF\View_definition_relationship.related_view	: Layered_interconnect_module;
+      SELF\View_definition_relationship.relating_view	: Assembly_module_design_view; 		
+      SELF\View_definition_relationship.related_view	: Layered_interconnect_module_design_view;
   END_ENTITY;
    
   ENTITY Component_based_annotation_symbol_placement_relationship
@@ -11094,7 +11222,7 @@ USE FROM Interconnect_module_connection_routing_arm;	-- ISO/TS 10303-1684
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.38 2008/10/04 11:51:56 thomasrthurman Exp $
+   $Id: arm.exp,v 1.39 2008/12/16 18:09:48 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5668 - ISO/TS 10303-1686 Interconnect module usage view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4005
 *)
@@ -11118,7 +11246,7 @@ SCHEMA Interconnect_module_usage_view_arm;
       WR2 : SIZEOF(QUERY(ucur <* USEDIN(SELF,
             'PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP.' +
             'ASSOCIATED_USAGE') | NOT
-            ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.PLANAR_CLOSED_PATH_SHAPE_MODEL_WITH_PARAMETERS' IN TYPEOF(ucur.associated_shape_definition))
+            ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(ucur.associated_shape_definition))
             )) = 0;  
   END_ENTITY;
 
@@ -11129,12 +11257,6 @@ SCHEMA Interconnect_module_usage_view_arm;
       end_vertex       : Edge_segment_vertex;
     WHERE
       WR1 : start_vertex :<>: end_vertex;
-      WR2 : SIZEOF(QUERY(ucur <* USEDIN(SELF,
-            'PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP.' +
-            'ASSOCIATED_USAGE') | NOT
-            (('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.PLANAR_PATH_SHAPE_MODEL_WITH_PARAMETERS' IN TYPEOF(ucur.associated_shape_definition)) AND NOT
-            ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.PLANAR_CLOSED_PATH_SHAPE_MODEL_WITH_PARAMETERS' IN TYPEOF(ucur.associated_shape_definition)))            
-            )) = 0;  
   END_ENTITY;
 
   ENTITY Interconnect_module_cutout_surface
@@ -11143,7 +11265,7 @@ SCHEMA Interconnect_module_usage_view_arm;
     WR1: SIZEOF(QUERY(ucur <* USEDIN(SELF,
          'PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP.' +
          'ASSOCIATED_USAGE') | NOT
-         ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.PLANAR_CLOSED_PATH_SHAPE_MODEL_WITH_PARAMETERS' IN
+         ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN
          TYPEOF(ucur.associated_shape_definition)))) = 0;  
   END_ENTITY;
 
@@ -11154,12 +11276,6 @@ SCHEMA Interconnect_module_usage_view_arm;
       end_vertex       : Edge_segment_vertex;
     WHERE
       WR1 : start_vertex :<>: end_vertex;
-      WR2 : SIZEOF(QUERY(ucur <* USEDIN(SELF,
-            'PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP.' +
-            'ASSOCIATED_USAGE') | NOT
-            (('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.PLANAR_PATH_SHAPE_MODEL_WITH_PARAMETERS' IN TYPEOF(ucur.associated_shape_definition)) AND NOT
-            ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.PLANAR_CLOSED_PATH_SHAPE_MODEL_WITH_PARAMETERS' IN TYPEOF(ucur.associated_shape_definition)))            
-            )) = 0;  
   END_ENTITY;
 
   ENTITY Interconnect_module_edge_surface
@@ -11243,7 +11359,7 @@ SCHEMA Interconnect_module_usage_view_arm;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.19 2008/09/18 12:47:29 liutkuviene Exp $
+   $Id: arm.exp,v 1.20 2008/11/07 23:38:10 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5671 - ISO/TS 10303-1687 Interconnect module with macros - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4008
 *)
@@ -11254,7 +11370,7 @@ USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
 
   ENTITY Interconnect_module_macro_component
     SUBTYPE OF (Physical_component, Single_instance);
-      SELF\Definition_based_product_occurrence.derived_from : Layered_interconnect_module;
+      SELF\Definition_based_product_occurrence.derived_from : Layered_interconnect_module_design_view;
     INVERSE
       join_access_mechanisms : SET[1:?] OF interconnect_module_macro_component_join_terminal FOR associated_component;
     WHERE
@@ -11449,7 +11565,7 @@ END_FUNCTION;
 	
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.48 2008/10/04 12:35:14 thomasrthurman Exp $
+   $Id: arm.exp,v 1.50 2008/11/07 23:38:09 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5680 - ISO/TS 10303-1690 Interconnect placement requirements - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4017
 *)
@@ -11629,7 +11745,7 @@ USE FROM Land_arm;	-- ISO/TS 10303-1692
     SUBTYPE OF (Non_feature_shape_element);
       keepout                                          : BOOLEAN;
       non_conformant_interconnect_module_design_object : OPTIONAL SET[1:?] OF interconnect_module_design_object_select;
-      SELF\Non_feature_shape_element.scope             : Layered_interconnect_module;
+      SELF\Non_feature_shape_element.scope             : Layered_interconnect_module_design_view;
       design_specific_purpose                          : STRING; 
       associated_stratum_extent                        : SET[1:?] OF Inter_stratum_extent;
       constrained_design_object_category               : interconnect_module_design_object_category_or_group;
@@ -11655,7 +11771,7 @@ USE FROM Land_arm;	-- ISO/TS 10303-1692
   ENTITY Layout_spacing_contextual_area
     SUBTYPE OF (Non_feature_shape_element);
       reference_surface : Interconnect_module_component_surface_feature;
-      SELF\Non_feature_shape_element.scope : Assembly_module;
+      SELF\Non_feature_shape_element.scope : Assembly_module_design_view;
     WHERE
       WR1: (SIZEOF(SELF\Non_feature_shape_element.element_shape) = 0) OR 
       (SIZEOF(QUERY(es <* SELF\Non_feature_shape_element.element_shape | NOT ('CONSTRUCTION_GEOMETRY_ARM.CONSTRUCTIVE_GEOMETRY' IN TYPEOF(es)) )) = 0);
@@ -11687,7 +11803,7 @@ USE FROM Land_arm;	-- ISO/TS 10303-1692
       design_specific_purpose                          : STRING;       
       keepout                                          : BOOLEAN;
       non_conformant_stratum                           : OPTIONAL SET[1:?] OF Stratum;
-      SELF\Non_feature_shape_element.scope             : Layered_interconnect_module;
+      SELF\Non_feature_shape_element.scope             : Layered_interconnect_module_design_view;
     INVERSE
       precedent_version_constraint_region : SET[0:1] OF non_feature_shape_element_relationship FOR related;
       requirement : SET[1:1] OF requirement_assignment FOR assigned_to;
@@ -11698,7 +11814,7 @@ USE FROM Land_arm;	-- ISO/TS 10303-1692
   END_ENTITY;
 
   FUNCTION valid_non_conformant_design_object_context(input1 : SET OF interconnect_module_design_object_select;
-                  input2 : Layered_interconnect_module) : BOOLEAN;
+                  input2 : Layered_interconnect_module_design_view) : BOOLEAN;
   LOCAL
     vdr : SET OF Assembly_component_relationship := [];
     valid : BOOLEAN := TRUE;
@@ -11723,7 +11839,7 @@ USE FROM Land_arm;	-- ISO/TS 10303-1692
   END_FUNCTION;
 
   FUNCTION valid_non_conformant_stratum_context(input1 : SET OF Stratum;
-                  input2 : Layered_interconnect_module) : BOOLEAN;
+                  input2 : Layered_interconnect_module_design_view) : BOOLEAN;
   LOCAL
     imsar : SET OF Interconnect_module_stratum_assembly_relationship := [];
     valid : BOOLEAN := TRUE;
@@ -12054,7 +12170,7 @@ USE FROM Geometrically_bounded_surface_arm;	-- ISO/TS 10303-1507
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.1 2008/10/08 06:13:23 liutkuviene Exp $
+   $Id: arm.exp,v 1.2 2008/11/27 21:27:13 liutkus Exp $
    ISO TC184/SC4/WG12 N5746 - ISO/TS 10303-1716 Layered interconnect complex template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4095
 *)
@@ -12068,24 +12184,24 @@ REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 REFERENCE FROM Fabrication_technology_arm(get_stack);	-- ISO/TS 10303-1670
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
-  TYPE pt2ds_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
+  TYPE lict_ee_product_definition_with_annotation_elements = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON ee_product_definition_with_annotation_elements WITH 
     (Structured_template);
   END_TYPE; 
 
-  TYPE pt2ds_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
+  TYPE lict_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
     (Structured_template,
     Template_location_in_structured_template);
   END_TYPE; 
 
-  TYPE pt2ds_part_template_or_physical_unit_2d_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_2d_shape_select WITH 
+  TYPE lict_part_template_or_physical_unit_2d_shape_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_2d_shape_select WITH 
     (Part_template_planar_shape_model);
   END_TYPE;
 
-  TYPE pt2ds_physical_unit_shape_model_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_shape_model_select WITH 
+  TYPE lict_physical_unit_shape_model_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_shape_model_select WITH 
     (Physical_unit_planar_shape_model);
   END_TYPE;
 
-  SUBTYPE_CONSTRAINT pt2ds_geometric_template_subtypes FOR Geometric_template; 
+  SUBTYPE_CONSTRAINT lict_geometric_template_subtypes FOR Geometric_template; 
     (ONEOF (Continuous_template,
             Structured_template));
   END_SUBTYPE_CONSTRAINT;
@@ -12557,7 +12673,7 @@ END_FUNCTION;
 END_SCHEMA;
 
 (*
-   $Id: arm.exp,v 1.289 2008/10/04 11:38:12 thomasrthurman Exp $
+   $Id: arm.exp,v 1.290 2008/11/07 23:38:09 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5701 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4041
 *)
@@ -12719,7 +12835,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   TYPE limd_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
     (Stratum_feature_conductive_join,
      Dielectric_crossover_area,
-     Layered_interconnect_module);
+     Layered_interconnect_module_design_view);
   END_TYPE; 
 
   TYPE limd_documented_element_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON documented_element_select WITH 
@@ -13049,8 +13165,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Generic_physical_network
     ABSTRACT SUPERTYPE OF (ONEOF(Unrouted_physical_network, Routed_physical_network));
       name                                         : STRING;
-      current_associated_definition                : Layered_interconnect_module;
-      prior_associated_definition                  : OPTIONAL SET[1:?] OF Layered_interconnect_module;      
+      current_associated_definition                : Layered_interconnect_module_design_view;
+      prior_associated_definition                  : OPTIONAL SET[1:?] OF Layered_interconnect_module_design_view;      
       connectivity_requirement_element             : SET[1:?] OF Laminate_component_join_terminal;
       reference_connected_terminals                : OPTIONAL Part_connected_terminals_definition;    
       unrouted_connectivity_requirement_element    : OPTIONAL SET[1:?] OF Unrouted_join_relationship;
@@ -13074,7 +13190,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);
       WR2 : from_stratum IN included_stratum;
       WR3 : to_stratum IN included_stratum;
-      WR4 : EXISTS(from_stratum\Stratum.assembly[1]\Interconnect_module_stratum_assembly_relationship.assembly\Layered_interconnect_module.used_stack_model);
+      WR4 : EXISTS(from_stratum\Stratum.assembly[1]\Interconnect_module_stratum_assembly_relationship.assembly\Layered_interconnect_module_design_view.used_stack_model);
   END_ENTITY;
 
   ENTITY Inter_stratum_feature
@@ -13086,9 +13202,9 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       SELF\Definition_based_product_occurrence.derived_from : Inter_stratum_feature_template;
     WHERE
       WR1: NOT EXISTS(vertical_extent) OR (SIZEOF(QUERY(pvd <* get_assemblies(SELF) |
-         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAYERED_INTERCONNECT_MODULE' IN TYPEOF(pvd)) AND             
+         NOT(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAYERED_INTERCONNECT_MODULE_DESIGN_VIEW' IN TYPEOF(pvd)) AND             
               (vertical_extent\Stratum_sub_stack.associated_stackup =
-                   pvd\Layered_interconnect_module.used_stack_model))
+                   pvd\Layered_interconnect_module_design_view.used_stack_model))
                    )) = 0);
   END_ENTITY;
 
@@ -13106,12 +13222,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       associated_usage                            : Connection_zone_in_design_view;
       associated_connection_zone_shape_definition : Geometric_model;
       associated_usage_placement                  : Axis_placement;
-      associating_design_view                     : Layered_interconnect_module;
+      associating_design_view                     : Layered_interconnect_module_design_view;
   END_ENTITY;
 
-  ENTITY Layered_interconnect_module
-  	SUPERTYPE OF (Layered_interconnect_panel)
-    SUBTYPE OF (Interconnect_module);
+  ENTITY Layered_interconnect_module_design_view
+  	SUPERTYPE OF (Layered_interconnect_panel_design_view)
+    SUBTYPE OF (Interconnect_module_design_view);
       used_stack_model : Design_stack_model;
     INVERSE
       requirements : SET[0:?] OF Requirement_assignment FOR assigned_to;
@@ -13128,12 +13244,12 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
                   )) = 1;
   END_ENTITY;
 
-  ENTITY Layered_interconnect_panel
-    SUBTYPE OF (Layered_interconnect_module);
+  ENTITY Layered_interconnect_panel_design_view
+    SUBTYPE OF (Layered_interconnect_module_design_view);
   END_ENTITY;
 
-  ENTITY Interconnect_module
-    SUPERTYPE OF (Layered_interconnect_module)
+  ENTITY Interconnect_module_design_view
+    SUPERTYPE OF (Layered_interconnect_module_design_view)
     SUBTYPE OF (Assembly_definition, Part_design_view);
   END_ENTITY; 
 
@@ -13172,7 +13288,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   END_ENTITY;
 
   ENTITY Interconnect_module_stratum_assembly_relationship;
-      assembly              : Layered_interconnect_module;
+      assembly              : Layered_interconnect_module_design_view;
       component             : Stratum;
       reference_designation : STRING; 
     UNIQUE
@@ -13221,7 +13337,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Join_relationship
     ABSTRACT SUPERTYPE OF (ONEOF (Routed_join_relationship,
 	 	Unrouted_join_relationship));
-      associated_layout : Layered_interconnect_module;
+      associated_layout : Layered_interconnect_module_design_view;
   END_ENTITY;
 
   ENTITY Laminate_component
@@ -13236,7 +13352,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     INVERSE
 	  cad_layer						: SET[0:1] OF External_source_identification FOR item;      	  
     WHERE
-      WR1:('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAYERED_INTERCONNECT_MODULE' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\Product_occurrence_definition_relationship.relating_view))
+      WR1:('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.LAYERED_INTERCONNECT_MODULE_DESIGN_VIEW' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]\Product_occurrence_definition_relationship.relating_view))
          OR
         ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRUCTURED_LAYOUT_COMPONENT_SUB_ASSEMBLY_RELATIONSHIP' IN TYPEOF(SELF\Assembly_component.occurrence_contexts[1]));
   END_ENTITY;
@@ -13276,7 +13392,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
   ENTITY Layer_stack_region
     SUBTYPE OF (Instanced_feature);
       applied_stack                       : SET [1:?] OF Local_linear_stack;
-      SELF\Shape_element.containing_shape : Layered_interconnect_module;
+      SELF\Shape_element.containing_shape : Layered_interconnect_module_design_view;
     WHERE
       WR1: SIZEOF(SELF\Shape_feature_definition.feature_model) = 1;
       WR2: 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF (SELF\Shape_feature_definition.feature_model[1]);
@@ -13337,7 +13453,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 
   ENTITY Layout_junction;
       name                  : STRING;  
-      associated_definition : Layered_interconnect_module;
+      associated_definition : Layered_interconnect_module_design_view;
       net                   : Generic_physical_network;
       location              : Cartesian_point;
     UNIQUE
@@ -13822,15 +13938,15 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
-RULE limd_unique_stratum FOR (Stratum, Layered_interconnect_module, Stratum_technology_occurrence);
+RULE limd_unique_stratum FOR (Stratum, Layered_interconnect_module_design_view, Stratum_technology_occurrence);
  LOCAL
       s : BAG OF Stratum := [];
       imsar : BAG OF Interconnect_module_stratum_assembly_relationship := [];
       sto : BAG OF Stratum_technology_occurrence := [];
 	  pass : BOOLEAN := TRUE;
  END_LOCAL;
- REPEAT i := 1 to SIZEOF(Layered_interconnect_module) by 1;
-    imsar := bag_to_set(USEDIN(Layered_interconnect_module[i], 
+ REPEAT i := 1 to SIZEOF(Layered_interconnect_module_design_view) by 1;
+    imsar := bag_to_set(USEDIN(Layered_interconnect_module_design_view[i], 
                         'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.INTERCONNECT_MODULE_STRATUM_ASSEMBLY_RELATIONSHIP.ASSEMBLY'));
 	REPEAT j := 1 to SIZEOF(imsar) by 1;
 	   s := s + imsar[j].component;
@@ -13852,7 +13968,7 @@ RULE limd_unique_stratum FOR (Stratum, Layered_interconnect_module, Stratum_tech
 END_RULE;
   
 (*
-  desc: for each interconnect_module in a data set, no more than one stratum shall reference the same stratum_technology_occurrence as a definition.
+  desc: for each interconnect_module_design_view in a data set, no more than one stratum shall reference the same stratum_technology_occurrence as a definition.
 *)
 
   FUNCTION acyclic_area_component
@@ -14377,7 +14493,7 @@ END_FUNCTION;
 
 END_SCHEMA; 
 (*
-   $Id: arm.exp,v 1.3 2008/10/22 19:16:31 thomasrthurman Exp $
+   $Id: arm.exp,v 1.5 2008/12/15 14:23:32 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5752 - ISO/TS 10303-1718 Layered interconnect simple template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4101
 *)
@@ -14420,11 +14536,11 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
      surface_area_class);
   END_TYPE;
 
-  TYPE pte_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
+  TYPE list_external_identification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON external_identification_item WITH  
     (Land_physical_template);
   END_TYPE;
 
-  TYPE pte_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
+  TYPE list_usage_concept = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON usage_concept WITH 
     (Land_template_terminal);
   END_TYPE;
 
@@ -14444,7 +14560,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
      round);
   END_TYPE;
 
-  SUBTYPE_CONSTRAINT pte_template_definition_subtypes FOR Template_definition; 
+  SUBTYPE_CONSTRAINT list_template_definition_subtypes FOR Template_definition; 
     (ONEOF (Geometric_template,
 			Parametric_template,
  			Part_string_template,
@@ -14553,16 +14669,16 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     WHERE
       WR1 : NOT (SIZEOF(interface_access_mechanisms[1].connection_area) > 0) OR 
                  ('minimum attachment region size' IN 
-                  pte_get_zone_name(interface_access_mechanisms[1].connection_area));
+                  list_get_zone_name(interface_access_mechanisms[1].connection_area));
       WR2 : NOT (SIZEOF(interface_access_mechanisms[1].connection_area) > 1) OR 
                  (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * 
-                  pte_get_zone_name(interface_access_mechanisms[1].connection_area)) = 1);
+                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 1);
       WR3 : NOT (SIZEOF(interface_access_mechanisms[1].connection_area) > 2) OR 
                  (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * 
-                  pte_get_zone_name(interface_access_mechanisms[1].connection_area)) = 2);
+                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 2);
       WR4 : NOT (SIZEOF(interface_access_mechanisms[1].connection_area) > 3) OR 
                  (SIZEOF(['maximum attachment region size','heel area', 'toe area'] * 
-                  pte_get_zone_name(interface_access_mechanisms[1].connection_area)) = 3);
+                  list_get_zone_name(interface_access_mechanisms[1].connection_area)) = 3);
       WR5 : NOT EXISTS(SELF\Shape_feature.connection_area);
       WR6 : SIZEOF(interface_access_mechanisms) = 1;   
       WR7 : SELF\Shape_element.id = SELF\Item_shape.id;      
@@ -14579,6 +14695,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 	SUBTYPE OF (Default_passage_based_land_physical_template);
 	WHERE
 	  WR1 : SELF\Default_passage_based_land_physical_template.of_passage_technology.plated_passage = TRUE;
+	  WR2 : NOT('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.VIA_TEMPLATE' IN TYPEOF(SELF\Default_passage_based_land_physical_template.of_passage_technology)) OR
+	        (SIZEOF(QUERY(ltjt <* SELF\Land_physical_template.access_mechanisms | NOT('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt)))) = 0);	  
   END_ENTITY;
  
   ENTITY Default_unsupported_passage_based_land_physical_template
@@ -14648,7 +14766,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       access_mechanisms                                   : SET[1:?] OF land_template_terminal FOR containing_shape;
       pre_defined_classification_code                     : SET[0:1] OF External_source_identification FOR item;      
     WHERE
-      WR1 : SIZEOF(QUERY(ltjt <* access_mechanisms | NOT ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt)))) = 0;
+      WR1 : SIZEOF(QUERY(ltjt <* access_mechanisms | ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.LAND_TEMPLATE_JOIN_TERMINAL' IN TYPEOF(ltjt)))) > 0;
       WR2 : SIZEOF(QUERY(s <* SELF\Geometric_template.shapes |
              NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_AREA_CSG_2D_MODEL' IN TYPEOF(s)))) = 0;
       WR3 : SIZEOF(SELF\Geometric_template.shapes) > 0;
@@ -14856,13 +14974,13 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       WR1 : NOT EXISTS(SELF\Shape_element.description);
   END_ENTITY;
 
-  SUBTYPE_CONSTRAINT pte_shape_feature_subtypes FOR Shape_feature; 
+  SUBTYPE_CONSTRAINT list_shape_feature_subtypes FOR Shape_feature; 
     (ONEOF (Via_template_terminal,
             Component_termination_passage_template_terminal,
             Land_template_terminal));
   END_SUBTYPE_CONSTRAINT;
 
-  FUNCTION pte_get_zone_name(input : SET OF Connection_zone_in_layout_template) : SET OF STRING;
+  FUNCTION list_get_zone_name(input : SET OF Connection_zone_in_layout_template) : SET OF STRING;
     LOCAL
       s : SET OF STRING := [];
     END_LOCAL;
@@ -14905,7 +15023,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
 END_SCHEMA;
    
 (*
-   $Id: arm.exp,v 1.24 2008/09/18 12:47:27 liutkuviene Exp $
+   $Id: arm.exp,v 1.25 2008/11/07 23:38:09 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5707 - ISO/TS 10303-1701 Layout macro definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4050
 *)
@@ -14933,7 +15051,7 @@ SCHEMA Layout_macro_definition_arm;
   END_ENTITY;
 
   ENTITY Layout_macro_definition
-    SUBTYPE OF (Layered_interconnect_module);
+    SUBTYPE OF (Layered_interconnect_module_design_view);
       floor_layout_view : Layout_macro_floor_plan_template;
     WHERE
       WR1 : NOT (EXISTS(SELF\Part_design_view.usage_view));
@@ -15233,7 +15351,7 @@ USE FROM Shape_appearance_layers_arm; -- ISO/CD-TS 10303-1009
 
 END_SCHEMA;
 (*
-   $Id: arm.exp,v 1.31 2008/09/18 12:47:33 liutkuviene Exp $
+   $Id: arm.exp,v 1.33 2008/11/08 17:46:52 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5710 - ISO/TS 10303-1703 Model parameter - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4056
 *)
@@ -15280,6 +15398,12 @@ REFERENCE FROM Specification_document_arm(get_document_definition);	-- ISO/TS 10
         'DOCUMENT_DEFINITION_ARM.DOCUMENT_DEFINITION');
 	WHERE
       WR1 : EXISTS (reference_document) AND (SIZEOF(reference_document) = 1);
+  END_ENTITY;
+
+  ENTITY Model_parameter_with_unit 
+    SUBTYPE OF (Independent_property_with_unit,Model_parameter);
+     WHERE
+      WR1: NOT('MODEL_PARAMETER_ARM.SCHEMA_BASED_MODEL_PARAMETER' IN TYPEOF(SELF));
   END_ENTITY;
 
   ENTITY Parameter_assignment
@@ -15432,7 +15556,7 @@ END_SCHEMA;  -- Name_assignment_arm
 
 
 (*
-   $Id: arm.exp,v 1.41 2008/09/18 12:47:30 liutkuviene Exp $
+   $Id: arm.exp,v 1.43 2008/11/19 07:14:58 liutkus Exp $
    ISO TC184/SC4/WG12 N5713 - ISO/TS 10303-1704 Network functional design view - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4059
 *)
@@ -15453,6 +15577,11 @@ SCHEMA Network_functional_design_view_arm;
     (Functional_unit_network_node_definition,
      Bus_structural_definition);
   END_TYPE;
+
+TYPE nfdv_pa_or_parameter_assignment_override = SELECT
+  (Parameter_assignment,
+   Parameter_assignment_override);
+END_TYPE;
 
 TYPE nfdw_requirement_assignment_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON requirement_assignment_item WITH 
     (Functional_unit);
@@ -15483,7 +15612,7 @@ END_TYPE;
   	SUBTYPE OF(Definition_based_product_occurrence);
       SELF\Definition_based_product_occurrence.derived_from RENAMED definition   : Functional_unit_definition;
       SELF\Product_view_definition.id RENAMED reference_designation : STRING; 
-      functional_property   : OPTIONAL SET[1:?] OF Parameter_assignment_override;
+      functional_property   : OPTIONAL SET[1:?] OF nfdv_pa_or_parameter_assignment_override;
     DERIVE  
 		composed_network    : Functional_unit_network_definition := SELF\Product_occurrence.occurrence_contexts[1].relating_view;    
 		SELF\Product_view_definition.defined_version : Product_version := SELF\Definition_based_product_occurrence.derived_from.defined_version;
@@ -16872,7 +17001,7 @@ END_SCHEMA;
 
 
 (*
-   $Id: arm.exp,v 1.36 2008/09/18 12:47:29 liutkuviene Exp $
+   $Id: arm.exp,v 1.37 2008/11/20 10:28:07 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5749 - ISO/TS 10303-1717 Part template 3d shape - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4098
 *)
@@ -16884,10 +17013,6 @@ SCHEMA Part_template_3d_shape_arm;
 
 REFERENCE FROM Requirement_decomposition_arm(get_rvd);	-- ISO/TS 10303-1740
 
-
-	TYPE pt3ds_physical_unit_shape_model_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON physical_unit_shape_model_select WITH 
-	    (Part_template_3d_shape_model);
-  	END_TYPE; 
 
  	  TYPE pt3ds_part_template_or_physical_unit_3d_shape_model_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON part_template_or_physical_unit_3d_shape_model_select WITH
 	    (Part_template_3d_shape_model);
@@ -21562,7 +21687,7 @@ END_ENTITY;
 
 END_SCHEMA;  -- Security_classification_arm
 (*
-   $Id: arm.exp,v 1.39 2008/09/18 12:47:31 liutkuviene Exp $
+   $Id: arm.exp,v 1.40 2008/11/07 23:38:10 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5809 - ISO/TS 10303-1741 Sequential laminate assembly design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4170
 *)
@@ -21661,7 +21786,7 @@ USE FROM Layered_interconnect_module_design_arm;	-- ISO/TS 10303-1698
 
   ENTITY Stackup_requirement_to_design_relationship  
     SUBTYPE OF(View_definition_relationship);
-      SELF\View_definition_relationship.relating_view : Layered_interconnect_module;
+      SELF\View_definition_relationship.relating_view : Layered_interconnect_module_design_view;
       SELF\View_definition_relationship.related_view  : Sequential_laminate_stackup_definition;
     WHERE  
       WR1 : NOT EXISTS(SELF\View_definition_relationship.relation_type);             

@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="./document_xsl.xsl" ?>
 
 <!--
-     $Id: parameters.xsl,v 1.17 2004/10/12 00:03:29 thendrix Exp $
+     $Id: parameters.xsl,v 1.18 2005/02/04 00:43:00 thendrix Exp $
 
   Author: Rob Bodington, Eurostep Limited
   Owner:  Developed by Eurostep and supplied to NIST under contract.
@@ -65,7 +65,7 @@
 
   <!-- when YES issues will be read from the issues.xml file stored in the
        module directory -->
-  <xsl:param name="output_issues" select="'YES'"/>
+  <xsl:param name="output_issues" select="'NO'"/>
 
 
   <!-- when YES modules will have a background image  -->

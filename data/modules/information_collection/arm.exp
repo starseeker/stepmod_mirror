@@ -1,10 +1,8 @@
-(*
-   $Id: mim.exp,v 1.1 2009/01/28 13:43:59 robbod Exp $
-   N - ISO/CD-TS - 10303- information_collection - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
 SCHEMA Information_collection_arm;
 
 USE FROM Identification_assignment_arm;
+
+USE FROM Product_relationship_arm;
 
 USE FROM Product_version_relationship_arm;
 
@@ -31,9 +29,9 @@ ENTITY Information_collection_membership;
 END_ENTITY;
 
 ENTITY Information_collection_relationship
-SUBTYPE OF (Product_version_relationship);
-  related_information_collection : Information_collection_version;
-  relating_information_collection : Information_collection_version;
+SUBTYPE OF (Product_relationship);
+  SELF\Product_relationship.related_product RENAMED related_collection : Information_collection;
+  SELF\Product_relationship.relating_product RENAMED relating_collection : Information_collection;
 END_ENTITY;
 
 ENTITY Information_collection_version
@@ -43,6 +41,12 @@ END_ENTITY;
 
 ENTITY Information_collection_version_relationship
 SUBTYPE OF (Product_version_relationship);
+  SELF\Product_version_relationship.related_version : Information_collection_version;
+  SELF\Product_version_relationship.relating_version : Information_collection_version;
+END_ENTITY;
+
+ENTITY Information_collection_version_sequence_relationship
+SUBTYPE OF (Information_collection_version_relationship);
   SELF\Product_version_relationship.relating_version RENAMED predecessor : Information_collection_version;
   SELF\Product_version_relationship.related_version RENAMED successor : Information_collection_version;
 END_ENTITY;

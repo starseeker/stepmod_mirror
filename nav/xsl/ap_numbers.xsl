@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="../../xsl/document_xsl.xsl" ?>
 <!--
-$Id: ap_numbers.xsl,v 1.1 2005/03/31 22:29:29 thendrix Exp $
+$Id: ap_numbers.xsl,v 1.2 2005/07/12 16:50:41 thendrix Exp $
   Author:  Rob Bodington, Eurostep Limited
   Owner:   Developed by Eurostep Limited
   Purpose: Display an alphabetical list of application_protocols.
@@ -39,7 +39,7 @@ $Id: ap_numbers.xsl,v 1.1 2005/03/31 22:29:29 thendrix Exp $
         select="msxsl:node-set($application_protocol_nodes)"/>
       <xsl:for-each select="$application_protocols-node-set/application_protocols/application_protocol">
 	<xsl:sort select="@part" data-type="number"/>
-        <xsl:variable name="letter" 
+<!--        <xsl:variable name="letter" 
           select="translate(substring(@name,1,1), $lower, $upper)"/>
         
         <xsl:if test="not($letter = 
@@ -51,6 +51,7 @@ $Id: ap_numbers.xsl,v 1.1 2005/03/31 22:29:29 thendrix Exp $
             </A>
           </p>
         </xsl:if>
+-->
         <xsl:apply-templates select=".">
 	  <xsl:with-param name="part_no" select="'yes'"/>
 	</xsl:apply-templates>

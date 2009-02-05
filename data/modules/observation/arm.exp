@@ -1,7 +1,7 @@
 (*
- $Id: arm.exp,v 1.9 2003/10/13 13:47:24 robbod Exp $
- ISO TC184/SC4/WG12 N3088 - ISO/TS 10303-1258 Observation - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2396
+ $Id: arm.exp,v 1.10 2009/02/05 21:37:37 mikeward Exp $
+ ISO TC184/SC4/WG12 N???? - ISO/TS 10303-1258 Observation - EXPRESS ARM
+ Supersedes ISO TC184/SC4/WG12 N3088
 *) 
 
 
@@ -31,6 +31,9 @@ TYPE observation_date_time = SELECT BASED_ON mri_date_or_date_time_item WITH
    (Observation);
 END_TYPE; 
 
+TYPE observation_item = EXTENSIBLE GENERIC_ENTITY SELECT;
+END_TYPE; 
+
 TYPE observation_recorder = EXTENSIBLE SELECT
    (Product_as_realized);
 END_TYPE; 
@@ -46,25 +49,23 @@ ENTITY Observation;
   id : STRING;
   name : STRING;
   description : STRING;
-  applies_to : SET[0:?] OF Observation_item;
   in_context : SET[0:?] OF observed_context;
   observed_by : SET[0:?] OF observation_recorder;
   observed_during : OPTIONAL Activity_actual;
-  related_records : SET[0:?] OF Observation_item;
+END_ENTITY;
+
+ENTITY Observation_assignment;
+  assigned_observation : Observation;
+  item : observation_item;
+  role : STRING;
 END_ENTITY;
 
 ENTITY Observation_consequence;
   id : STRING;
   name : STRING;
-  infered_from : Observation;
+  inferred_from : Observation;
   requests : Work_request;
   role : STRING;
-END_ENTITY;
-
-ENTITY Observation_item;
-  access_comment : STRING;
-  item_identifier : STRING;
-  item_type : STRING;
 END_ENTITY;
 
 ENTITY Observation_relationship;
@@ -74,4 +75,3 @@ ENTITY Observation_relationship;
 END_ENTITY;
 
 END_SCHEMA;  -- Observation_arm
-

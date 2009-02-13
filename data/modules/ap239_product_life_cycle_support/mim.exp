@@ -1,24 +1,99 @@
-(*
- $Id: mim.exp,v 1.8 2005/01/20 16:53:23 robbod Exp $
- ISO TC184/SC4/WG3 N1561 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS MIM
- Supersedes ISO TC184/SC4/WG3 N1401
-*) 
-
 SCHEMA Ap239_product_life_cycle_support_mim;
 
-USE FROM Ap239_activity_recording_mim;    -- ISO/TS 10303-1287
+USE FROM Ap239_activity_recording_mim;
 
-USE FROM Ap239_product_status_recording_mim;    -- ISO/TS 10303-1304
+USE FROM Ap239_product_status_recording_mim;
 
-USE FROM application_context_schema   -- ISO 10303-41
+USE FROM application_context_schema
   (application_context,
-   application_protocol_definition); 
+   application_protocol_definition);
+
+TYPE plcs_action_items = SELECT BASED_ON action_items WITH
+  (product_group_membership);
+END_TYPE;
+
+TYPE plcs_action_request_item = SELECT BASED_ON action_request_item WITH
+  (state_observed,
+   state_type);
+END_TYPE;
+
+TYPE plcs_classification_item = SELECT BASED_ON classification_item WITH
+  (product_group_membership,
+   representation_relationship);
+END_TYPE;
+
+TYPE plcs_condition_action_method_items = SELECT BASED_ON condition_action_method_items WITH
+  (action_method,
+   configuration_item,
+   effectivity,
+   general_property,
+   organization,
+   organization_type,
+   versioned_action_request);
+END_TYPE;
+
+TYPE plcs_date_and_time_item = SELECT BASED_ON date_and_time_item WITH
+  (approval_person_organization);
+END_TYPE;
+
+TYPE plcs_date_item = SELECT BASED_ON date_item WITH
+  (approval_person_organization);
+END_TYPE;
+
+TYPE plcs_document_reference_item = SELECT BASED_ON document_reference_item WITH
+  (applied_action_method_assignment,
+   applied_document_reference,
+   class,
+   product);
+END_TYPE;
+
+TYPE plcs_effectivity_item = SELECT BASED_ON effectivity_item WITH
+  (action_property_representation,
+   applied_action_method_assignment,
+   applied_classification_assignment,
+   applied_qualification_type_assignment,
+   product_definition_usage,
+   property_definition_representation,
+   resource_property_representation);
+END_TYPE;
+
+TYPE plcs_identification_item = SELECT BASED_ON identification_item WITH
+  (applied_external_identification_assignment,
+   class,
+   person_type_definition);
+END_TYPE;
+
+TYPE plcs_in_zone_groupable_item = SELECT BASED_ON in_zone_groupable_item WITH
+  (action_method,
+   applied_action_method_assignment);
+END_TYPE;
+
+TYPE plcs_justification_item = SELECT BASED_ON justification_item WITH
+  (applied_action_method_assignment,
+   representation,
+   state_type_assignment);
+END_TYPE;
+
+TYPE plcs_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH
+  (versioned_action_request);
+END_TYPE;
+
+TYPE plcs_state_observed_of_item = SELECT BASED_ON state_observed_of_item WITH
+  (approval);
+END_TYPE;
+
+ENTITY characterized_versioned_action_request
+SUBTYPE OF (characterized_object, versioned_action_request);
+END_ENTITY;
+
+  RULE application_protocol_definition_required FOR (application_context);
+
+  WHERE
+  WR1: SIZEOF(QUERY(ac <* application_context | (SIZEOF(QUERY(apd <* USEDIN(ac, 'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') | apd.application_interpreted_model_schema_name = 'product_life_cycle_support')) > 0))) > 0;
+
+  END_RULE;
 
 
-RULE application_protocol_definition_required FOR 
-(application_context);
-WHERE
-  WR1: SIZEOF( QUERY( ac <* application_context | (SIZEOF (QUERY (apd <* USEDIN(ac,'AP239_PRODUCT_LIFE_CYCLE_SUPPORT_MIM_LF.APPLICATION_PROTOCOL_DEFINITION.APPLICATION') | apd.application_interpreted_model_schema_name = 'product_life_cycle_support' )) > 0) )) > 0;
-END_RULE; 
 
-END_SCHEMA;  -- Ap239_product_life_cycle_support_mim
+END_SCHEMA;
+

@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.10 2004/11/04 14:00:26 leifgyllstrom Exp $
+ $Id: arm.exp,v 1.11 2004/11/19 21:37:40 robbod Exp $
  ISO TC184/SC4/WG12 N3139 - ISO/TS 10303-1269 Resource as realized - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2420
 *) 
@@ -7,30 +7,29 @@
 
 SCHEMA Resource_as_realized_arm;
 
-USE FROM Classification_assignment_arm;    -- ISO/TS 10303-1114
+USE FROM Classification_assignment_arm;
 
-USE FROM Required_resource_arm;    -- ISO/TS 10303-1267
+USE FROM Required_resource_arm;
 
-USE FROM Resource_item_arm;    -- ISO/TS 10303-1268
+USE FROM Resource_item_arm;
 
-USE FROM Resource_management_arm;    -- ISO/TS 10303-1266
+USE FROM Resource_management_arm;
 
-USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
+USE FROM Value_with_unit_arm;
 
+TYPE resource_as_realized_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+  (Resource_as_realized,
+   Resource_as_realized_assignment,
+   Resource_as_realized_relationship);
+END_TYPE;
 
-TYPE resource_as_realized_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
-   (Resource_as_realized, 
-    Resource_as_realized_assignment, 
-    Resource_as_realized_relationship);
-END_TYPE; 
+TYPE resource_as_realized_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
 
-TYPE resource_as_realized_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
-
-TYPE resource_as_realized_relationship_select = SELECT
-   (Required_resource, 
-    Resource_event);
-END_TYPE; 
+TYPE resource_as_realized_relationship_select = SELECT 
+  (Required_resource,
+   Resource_event);
+END_TYPE;
 
 ENTITY Resource_as_realized;
   name : STRING;
@@ -43,6 +42,11 @@ ENTITY Resource_as_realized_assignment;
   item : resource_as_realized_item;
 END_ENTITY;
 
+ENTITY Resource_as_realized_by_reference
+SUBTYPE OF (Resource_as_realized);
+  item : resource_item_select;
+END_ENTITY;
+
 ENTITY Resource_as_realized_relationship;
   name : STRING;
   description : OPTIONAL STRING;
@@ -51,9 +55,9 @@ ENTITY Resource_as_realized_relationship;
 END_ENTITY;
 
 ENTITY Resource_as_realized_resource_item
-  SUBTYPE OF (Resource_as_realized);
+SUBTYPE OF (Resource_as_realized);
   resource_item : Resource_item;
 END_ENTITY;
 
-END_SCHEMA;  -- Resource_as_realized_arm
+END_SCHEMA;
 

@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.13 2004/11/04 12:48:33 leifgyllstrom Exp $
+ $Id: arm.exp,v 1.14 2004/11/19 21:37:38 robbod Exp $
  ISO TC184/SC4/WG12 N3118 - ISO/TS 10303-1267 Required resource - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2414
 *) 
@@ -7,25 +7,26 @@
 
 SCHEMA Required_resource_arm;
 
-USE FROM Classification_assignment_arm;    -- ISO/TS 10303-1114
+USE FROM Classification_assignment_arm;
 
-USE FROM Resource_item_arm;    -- ISO/TS 10303-1268
+USE FROM Resource_item_arm;
 
-USE FROM Value_with_unit_arm;    -- ISO/TS 10303-1054
+USE FROM Value_with_unit_arm;
 
+TYPE required_resource_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+  (Required_resource,
+   Required_resource_assignment,
+   Required_resource_relationship);
+END_TYPE;
 
-TYPE required_resource_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH 
-   (Required_resource, 
-    Required_resource_assignment, 
-    Required_resource_relationship);
-END_TYPE; 
+TYPE required_resource_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
 
-TYPE required_resource_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
+TYPE resource_specifcation = EXTENSIBLE SELECT ;
+END_TYPE;
 
 ENTITY Required_resource
-  ABSTRACT SUPERTYPE OF (ONEOF (Required_resource_by_resource_item,
-                                Required_resource_by_specification));
+ABSTRACT SUPERTYPE OF (ONEOF(Required_resource_by_reference, Required_resource_by_resource_item, Required_resource_by_specification));
   name : STRING;
   description : OPTIONAL STRING;
   required_quantity : OPTIONAL Value_with_unit;
@@ -36,13 +37,18 @@ ENTITY Required_resource_assignment;
   item : required_resource_item;
 END_ENTITY;
 
+ENTITY Required_resource_by_reference
+SUBTYPE OF (Required_resource);
+  item : resource_item_select;
+END_ENTITY;
+
 ENTITY Required_resource_by_resource_item
-  SUBTYPE OF (Required_resource);
+SUBTYPE OF (Required_resource);
   resource_item : Resource_item;
 END_ENTITY;
 
 ENTITY Required_resource_by_specification
-  SUBTYPE OF (Required_resource);
+SUBTYPE OF (Required_resource);
 END_ENTITY;
 
 ENTITY Required_resource_relationship;
@@ -52,6 +58,10 @@ ENTITY Required_resource_relationship;
   related : Required_resource;
 END_ENTITY;
 
-END_SCHEMA;  -- Required_resource_arm
+ENTITY Required_resource_requirement;
+  item : resource_specifcation;
+  resource_requirement : Required_resource_by_specification;
+END_ENTITY;
 
+END_SCHEMA;
 

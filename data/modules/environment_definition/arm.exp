@@ -1,0 +1,46 @@
+(*
+   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   N - ISO/CD-TS - 10303- environment_definition - EXPRESS ARM* )
+
+SCHEMA Environment_definition_arm;
+
+USE FROM Classification_assignment_arm;
+
+USE FROM Foundation_state_definition_arm;
+
+USE FROM Identification_assignment_arm;
+
+USE FROM Property_assignment_arm;
+
+TYPE env_dfn_classification_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON classification_item WITH
+  (Environment_definition);
+END_TYPE;
+
+TYPE env_dfn_identifcation_assignment = EXTENSIBLE SELECT BASED_ON identification_item WITH
+  (Environment_definition);
+END_TYPE;
+
+TYPE environment_property_assignment_select = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON property_assignment_select WITH
+  (Environment_definition);
+END_TYPE;
+
+ENTITY Defined_state_of_environment
+SUBTYPE OF (Applied_state_definition_assignment);
+  SELF\Applied_state_definition_assignment.assigned_to : Environment_definition;
+  SELF\Applied_state_definition_assignment.described_state_definition : Environment_state_definition;
+END_ENTITY;
+
+ENTITY Environment_definition;
+END_ENTITY;
+
+ENTITY Environment_property
+SUBTYPE OF (Assigned_property);
+  SELF\Assigned_property.described_element : environment_property_assignment_select;
+END_ENTITY;
+
+ENTITY Environment_state_definition
+SUBTYPE OF (State_definition);
+END_ENTITY;
+
+END_SCHEMA;
+

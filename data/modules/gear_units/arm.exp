@@ -1,0 +1,301 @@
+(*
+   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
+   N - ISO/CD-TS - 10303- gear_units - EXPRESS ARM*)
+(* UNDER DEVELOPMENT *)
+SCHEMA Gear_units_arm;
+
+USE FROM Item_definition_structure_arm;
+USE FROM Property_assignment_arm ;
+
+(* === page 1 =================== *)
+
+TYPE Part_definition_select = SELECT (Part_view_definition, Definition_based_part_occurrence); END_TYPE;
+
+ENTITY Single_part_definition
+  SUBTYPE OF (Part_view_definition);
+END_ENTITY;
+
+
+(* === page 2 =================== *)
+
+ENTITY Gear_unit
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Planetary_gear_unit
+  SUBTYPE OF (Gear_unit);
+END_ENTITY;
+
+ENTITY Sealing
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Tool
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Belt_or_chain
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Coupling
+  SUPERTYPE OF (ONEOF (Fit_of_key_assembly, Interference_fit_assembly))
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Fit_of_key_assembly
+  SUBTYPE OF (Coupling);
+END_ENTITY;
+
+ENTITY Interference_fit_assembly
+  SUBTYPE OF (Coupling);
+END_ENTITY;
+
+ENTITY Basic_material
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Lubricant
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY User_defined_part
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Baseplate
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Housing
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Bearing
+  SUPERTYPE OF (ONEOF (Plain_bearing, Rolling_element_bearing))
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Plain_bearing
+  SUBTYPE OF (Bearing);
+END_ENTITY;
+
+ENTITY Rolling_element_bearing
+  SUBTYPE OF (Bearing);
+END_ENTITY;
+
+ENTITY Shaft
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Pinion_shaft
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Fitting_key
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Clutch_or_brake
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Wheel
+  SUBTYPE OF (Part);
+END_ENTITY;
+
+ENTITY Gear
+  SUPERTYPE OF (ONEOF (Crossed_helical_gear, Worm, Cylindrical_gear, Bevel_or_hypoid_gear, Worm_wheel))
+  SUBTYPE OF (Wheel);
+END_ENTITY;
+
+ENTITY Crossed_helical_gear
+  SUBTYPE OF (Gear);
+END_ENTITY;
+
+ENTITY Cylindrical_gear
+  SUBTYPE OF (Gear);
+END_ENTITY;
+
+ENTITY Bevel_or_hypoid_gear
+  SUBTYPE OF (Gear);
+END_ENTITY;
+
+ENTITY Worm_wheel
+  SUBTYPE OF (Gear);
+END_ENTITY;
+
+ENTITY Worm
+  SUBTYPE OF (Gear);
+END_ENTITY;
+
+SUBTYPE_CONSTRAINT gear_unit_part_subtypes FOR Part;  
+    ABSTRACT SUPERTYPE;
+    ONEOF (
+      Gear_unit,
+      Sealing,
+      Tool,
+      Belt_or_chain,
+      Coupling,
+      Basic_material,
+      Lubricant,
+      User_defined_part,
+      Baseplate,
+      Housing,
+      Bearing,
+      Shaft,
+      Pinion_shaft,
+      Fitting_key,
+      Clutch_or_brake,
+      Wheel);
+END_SUBTYPE_CONSTRAINT;
+
+(* === page 3 =================== *)
+(* Issue: Move AO Part_definition_relationship from AM Item_definition_relationship to AM Part_definition_relationship ??? *)
+
+ENTITY Lubricant_part 
+  SUBTYPE OF (Part_definition_relationship);
+END_ENTITY;
+
+ENTITY User_defined_relationship
+  SUBTYPE OF (Part_definition_relationship);
+  relation_type : STRING;
+END_ENTITY;
+
+ENTITY Material_part (* Issue: should this be make-from relationshipp ??*)
+  SUBTYPE OF (Part_definition_relationship);
+END_ENTITY;
+
+ENTITY Functional_relationship
+  ABSTRACT SUPERTYPE OF (ONEOF (
+    Shaft_shaft,
+    Shaft_bearing,
+    Shaft_sealing,
+    Shaft_wheel,
+    Shaft_collar,
+    Wheel_belt_or_chain,
+    Wheel_wheel,
+    Housing_plate,
+    Housing_bearing,
+    Housing_sealing,
+    Housing_coupling,
+    Housing_clutch_or_brake,
+    Shaft_clutch_or_brake,
+    Wheel_bearing,
+    Bearing_bearing
+    ))
+  SUBTYPE OF (Part_definition_relationship);
+END_ENTITY;
+
+ENTITY Shaft_shaft
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Shaft_bearing
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Shaft_sealing
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Shaft_wheel
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Shaft_collar
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Wheel_belt_or_chain
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Wheel_wheel
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Housing_plate
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Housing_bearing
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Housing_sealing
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Housing_coupling
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Housing_clutch_or_brake
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Shaft_clutch_or_brake
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Wheel_bearing
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Bearing_bearing
+  SUBTYPE OF (Functional_relationship);
+END_ENTITY;
+
+ENTITY Gear_pair
+  ABSTRACT SUPERTYPE OF (ONEOF (
+    Cylindircal_gear_pair, 
+    Worm_gearing, 
+    Bevel_or_hypoid_gear_pair, 
+    Crossed_helical_gear_pair, 
+    General_gear_pair) )
+  SUBTYPE OF (Wheel_wheel);
+END_ENTITY;
+
+ENTITY Cylindircal_gear_pair
+  SUBTYPE OF (Gear_pair);
+END_ENTITY;
+
+ENTITY Worm_gearing
+  SUBTYPE OF (Gear_pair);
+END_ENTITY;
+
+ENTITY Bevel_or_hypoid_gear_pair
+  SUBTYPE OF (Gear_pair);
+END_ENTITY;
+
+ENTITY Bevel_or_hypoid_gear_pair
+  SUBTYPE OF (Gear_pair);
+END_ENTITY;
+
+ENTITY General_gear_pair
+  SUBTYPE OF (Gear_pair);
+  gearpair_type : STRING;
+END_ENTITY;
+
+SUBTYPE_CONSTRAINT gear_unit_Part_definition_relationship_subtypes FOR Part_definition_relationship;  
+    ABSTRACT SUPERTYPE;
+    ONEOF (
+      Lubricant_part,
+      User_defined_relationship,
+      Material_part,
+      Functional_relationship);
+END_SUBTYPE_CONSTRAINT;
+
+(* === page 4 =================== *)
+(* complete covered by Property_assignment_arm *)
+
+(* === page 5 =================== *)
+(* === page 6 =================== *)
+(* === page 7 =================== *)
+(* === page 8 =================== *)
+(* === page 9 =================== *)
+(* === page 10 =================== *)
+(* === page 11 =================== *)
+
+END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.14 2004/11/19 21:37:38 robbod Exp $
+ $Id: arm.exp,v 1.15 2009/02/16 07:10:16 robbod Exp $
  ISO TC184/SC4/WG12 N3118 - ISO/TS 10303-1267 Required resource - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2414
 *) 
@@ -8,6 +8,8 @@
 SCHEMA Required_resource_arm;
 
 USE FROM Classification_assignment_arm;
+
+USE FROM Requirement_identification_and_version_arm;
 
 USE FROM Resource_item_arm;
 
@@ -22,11 +24,12 @@ END_TYPE;
 TYPE required_resource_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
 END_TYPE;
 
-TYPE resource_specifcation = EXTENSIBLE SELECT ;
+TYPE resource_requirement_select = EXTENSIBLE SELECT 
+  (Requirement_version);
 END_TYPE;
 
 ENTITY Required_resource
-ABSTRACT SUPERTYPE OF (ONEOF(Required_resource_by_reference, Required_resource_by_resource_item, Required_resource_by_specification));
+ABSTRACT SUPERTYPE OF (ONEOF(Required_resource_by_reference, Required_resource_by_requirement, Required_resource_by_resource_item));
   name : STRING;
   description : OPTIONAL STRING;
   required_quantity : OPTIONAL Value_with_unit;
@@ -42,13 +45,13 @@ SUBTYPE OF (Required_resource);
   item : resource_item_select;
 END_ENTITY;
 
+ENTITY Required_resource_by_requirement
+SUBTYPE OF (Required_resource);
+END_ENTITY;
+
 ENTITY Required_resource_by_resource_item
 SUBTYPE OF (Required_resource);
   resource_item : Resource_item;
-END_ENTITY;
-
-ENTITY Required_resource_by_specification
-SUBTYPE OF (Required_resource);
 END_ENTITY;
 
 ENTITY Required_resource_relationship;
@@ -59,8 +62,8 @@ ENTITY Required_resource_relationship;
 END_ENTITY;
 
 ENTITY Required_resource_requirement;
-  item : resource_specifcation;
-  resource_requirement : Required_resource_by_specification;
+  item : resource_requirement_select;
+  resource_requirement : Required_resource_by_requirement;
 END_ENTITY;
 
 END_SCHEMA;

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.87 2008/11/07 23:38:10 thomasrthurman Exp $
+   $Id: arm.exp,v 1.88 2008/12/16 17:14:10 liutkus Exp $
    ISO TC184/SC4/WG3 N1995 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG3 N1638
 *)
@@ -459,6 +459,24 @@ Most likely it should be defined in Interconnect_module_design_view CC *)
 	 Pre_defined_perpendicular_datum_axis_symbol_3d_2d_relationship,
 	 Pre_defined_parallel_datum_axis_symbol_3d_2d_relationship));
  END_SUBTYPE_CONSTRAINT;  
+
+RULE area_component_shape_constraint FOR
+    (Area_component);
+WHERE
+  WR1:  SIZEOF( QUERY( ac <* Area_component |
+            NOT(SIZEOF (QUERY (ac2ds <*
+USEDIN(ac,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT') |
+              NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_AREA_CSG_2D_MODEL' IN TYPEOF(ac2ds))
+                )) = 0)
+              )) = 0;
+  WR2:  SIZEOF( QUERY( ac <* Area_component |
+          NOT(ac\Area_component.is_base) OR
+            (NOT(SIZEOF (QUERY (ac2ds <*
+USEDIN(ac,'PHYSICAL_UNIT_2D_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT_2D_SHAPE_MODEL.SHAPE_CHARACTERIZED_COMPONENT') |
+              NOT ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(ac2ds)))
+                )) = 0)
+              )) = 0;              
+END_RULE;
 
 
 RULE non_conductive_cross_section_template_population_constraint FOR

@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.88 2008/10/04 12:41:47 thomasrthurman Exp $
+   $Id: mim.exp,v 1.89 2008/11/07 23:12:28 thomasrthurman Exp $
    ISO TC184/SC4/WG3 N1997 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG3 N1639
 *)
@@ -334,6 +334,33 @@ USEDIN(ac,'APPLICATION_CONTEXT_SCHEMA.APPLICATION_PROTOCOL_DEFINITION.APPLICATIO
                 )) > 0)
               )) > 0;
 END_RULE;
+
+RULE area_component_shape_constraint FOR
+    (area_component);
+WHERE
+  WR1:  SIZEOF( QUERY( ac <* area_component |
+            NOT(SIZEOF (QUERY (pdr <*
+                        USEDIN(ac,'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+              NOT (NOT(pdr\property_definition_representation.representation.id = 'ac2dsm') OR ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.SINGLE_AREA_CSG_2D_SHAPE_REPRESENTATION' IN TYPEOF(pdr\property_definition_representation.representation)))
+                )) = 0)
+              )) = 0;
+  WR2:  SIZEOF( QUERY( ac <* area_component |
+          NOT(apeaid_is_base(ac)) OR
+            NOT(SIZEOF (QUERY (pdr <*
+                        USEDIN(ac,'PRODUCT_PROPERTY_REPRESENTATION_SCHEMA.PROPERTY_DEFINITION_REPRESENTATION.DEFINITION') |
+              NOT (NOT(pdr\property_definition_representation.representation.id = 'ac2dsm') OR ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_MIM.SINGLE_AREA_CSG_2D_SHAPE_REPRESENTATION' IN TYPEOF(pdr\property_definition_representation.representation)))
+                )) = 0)
+              )) = 0;              
+END_RULE;
+
+FUNCTION apeaid_is_base(input : area_component) : LOGICAL;
+LOCAL
+ pd : SET OF property_definition := bag_to_set(QUERY(pd <* USEDIN(input,'product_property_definition_schema.property_definition.definition') |
+              pd\property_definition.name = 'is base';
+END_LOCAL;
+ RETURN(pd[1].description = 'true');
+END_FUNTION;
+
 
 RULE cartesian_coordinate_system_constraint FOR
      (global_unit_assigned_context,

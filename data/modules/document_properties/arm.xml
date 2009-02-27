@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
+<express language_version="2" rcs.date="$Date: 2006/04/06 11:49:55 $" rcs.revision="$Revision: 1.21 $" description.file="arm_descriptions.xml">
    <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="document_properties_arm schema_instance"/>
    <schema name="Document_properties_arm">
       <interface kind="use" schema="Document_definition_arm"/>
@@ -25,9 +25,6 @@
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Assigned_property"/>
          </derived>
-         <unique label="UR1">
-            <unique.attribute attribute="described_element"/>
-         </unique>
          <where label="WR1" expression="SIZEOF(['DOCUMENT_PROPERTIES_ARM.DOCUMENT_DEFINITION', 'DOCUMENT_PROPERTIES_ARM.FILE']*TYPEOF(SELF\Assigned_property.described_element)) = 1"/>
       </entity>
       <entity name="Descriptive_document_property" supertypes="String_representation_item">
@@ -43,64 +40,13 @@
          </explicit>
          <where label="WR1" expression="SIZEOF(QUERY( pr &lt;* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.REP') | 'DOCUMENT_PROPERTIES_ARM.ASSIGNED_PROPERTY' IN TYPEOF (pr\Property_representation.property)))&gt; 0"/>
          <where label="WR2" expression="SELF\Representation.context_of_items.kind = 'document parameters'"/>
-         <where label="WR3" expression="valid_document_property_representation(SELF)"/>
-         <where label="WR4" expression="SIZEOF(QUERY(it1 &lt;* SELF\Representation.items | SIZEOF(QUERY(it2 &lt;* SELF\Representation.items | it1.name = it2.name)) &gt; 1 ))= 0"/>
+         <where label="WR3" expression="SIZEOF(QUERY(it1 &lt;* SELF\Representation.items | SIZEOF(QUERY(it2 &lt;* SELF\Representation.items | it1.name = it2.name)) &gt; 1 ))= 0"/>
       </entity>
       <entity name="Numerical_document_property" supertypes="Numerical_item_with_unit">
          <inverse name="valued_characteristic" entity="Document_property_representation" attribute="items">
             <inverse.aggregate type="SET" lower="1" upper="1"/>
          </inverse>
       </entity>
-      <function name="valid_document_property_representation">
-         <parameter name="rep">
-            <typename name="Document_property_representation"/>
-         </parameter>
-         <builtintype type="LOGICAL"/>
-         <algorithm>CASE rep.name OF
-'document content': 
-   BEGIN
-RETURN (
-  SIZEOF(QUERY( items &lt;* rep\Representation.items | 
-  NOT (items.name IN ['detail level', 'geometry type', 'real world scale'])))= 0
- );
-   END;
-
-'document creation': 
-   BEGIN
-IF NOT (SIZEOF(QUERY( items &lt;* rep\Representation.items | 
-  NOT (items.name IN ['creating interface', 'creating system', 'operating system'])))= 0
- ) THEN
-  RETURN(FALSE);
-END_IF;
-IF NOT (SIZEOF(QUERY( items &lt;* rep\Representation.items | 
-  NOT (items.name IN ['creating system'])))= 1
- ) THEN
-  RETURN(FALSE);
-ELSE
-  RETURN(TRUE);
-END_IF;
-
-   END;
-
-'document format': 
-   BEGIN
-RETURN (
-  SIZEOF(QUERY( items &lt;* rep\Representation.items | 
-  NOT (items.name IN ['character code', 'data format', 'size format', 'size format standard'])))= 0
- );
-   END;
-
-'document size': 
-   BEGIN
-RETURN (
-  SIZEOF(QUERY( items &lt;* rep\Representation.items | 
-  NOT (items.name IN ['file size', 'page count'])))= 0
- );
-   END;
-
-OTHERWISE:
-  RETURN(UNKNOWN);
-END_CASE;</algorithm>
-      </function>
+      
    </schema>
 </express>

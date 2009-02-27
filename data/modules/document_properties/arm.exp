@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.17 2004/11/15 21:22:46 thendrix Exp $
+ $Id: arm.exp,v 1.18 2006/04/06 07:29:17 liutkus Exp $
 ISO TC184/SC4/WG12 N3226 - ISO/TS 10303-1126 Document properties - EXPRESS ARM
 Supersedes ISO TC184/SC4/WG12 N1201
 *) 
@@ -33,8 +33,6 @@ ENTITY Assigned_document_property
   SELF\Assigned_property.described_element : document_property_item;
 DERIVE
   SELF\Assigned_property.name : STRING := 'document property';
-UNIQUE
-  UR1: SELF\Assigned_property.described_element;
 WHERE
   WR1: SIZEOF(['DOCUMENT_PROPERTIES_ARM.DOCUMENT_DEFINITION', 'DOCUMENT_PROPERTIES_ARM.FILE']*TYPEOF(SELF\Assigned_property.described_element)) = 1;
 END_ENTITY;
@@ -51,8 +49,7 @@ ENTITY Document_property_representation
 WHERE
   WR1: SIZEOF(QUERY( pr <* USEDIN(SELF, 'PROPERTY_ASSIGNMENT_ARM.PROPERTY_DEFINITION_REPRESENTATION.REP') | 'DOCUMENT_PROPERTIES_ARM.ASSIGNED_PROPERTY' IN TYPEOF (pr\Property_representation.property)))> 0;
   WR2: SELF\Representation.context_of_items.kind = 'document parameters';
-  WR3: valid_document_property_representation(SELF);
-  WR4: SIZEOF(QUERY(it1 <* SELF\Representation.items | SIZEOF(QUERY(it2 <* SELF\Representation.items | it1.name = it2.name)) > 1 ))= 0;
+  WR3: SIZEOF(QUERY(it1 <* SELF\Representation.items | SIZEOF(QUERY(it2 <* SELF\Representation.items | it1.name = it2.name)) > 1 ))= 0;
 END_ENTITY;
 
 ENTITY Numerical_document_property
@@ -61,54 +58,5 @@ INVERSE
   valued_characteristic : SET[1:1] OF Document_property_representation FOR items;
 END_ENTITY;
 
-FUNCTION valid_document_property_representation
- (rep : Document_property_representation) : LOGICAL; 
-
-CASE rep.name OF
-'document content': 
-   BEGIN
-RETURN (
-  SIZEOF(QUERY( items <* rep\Representation.items | 
-  NOT (items.name IN ['detail level', 'geometry type', 'real world scale'])))= 0
- );
-   END;
-
-'document creation': 
-   BEGIN
-IF NOT (SIZEOF(QUERY( items <* rep\Representation.items | 
-  NOT (items.name IN ['creating interface', 'creating system', 'operating system'])))= 0
- ) THEN
-  RETURN(FALSE);
-END_IF;
-IF NOT (SIZEOF(QUERY( items <* rep\Representation.items | 
-  NOT (items.name IN ['creating system'])))= 1
- ) THEN
-  RETURN(FALSE);
-ELSE
-  RETURN(TRUE);
-END_IF;
-
-   END;
-
-'document format': 
-   BEGIN
-RETURN (
-  SIZEOF(QUERY( items <* rep\Representation.items | 
-  NOT (items.name IN ['character code', 'data format', 'size format', 'size format standard'])))= 0
- );
-   END;
-
-'document size': 
-   BEGIN
-RETURN (
-  SIZEOF(QUERY( items <* rep\Representation.items | 
-  NOT (items.name IN ['file size', 'page count'])))= 0
- );
-   END;
-
-OTHERWISE:
-  RETURN(UNKNOWN);
-END_CASE;
-        END_FUNCTION; 
 
 END_SCHEMA;  -- Document_properties_arm

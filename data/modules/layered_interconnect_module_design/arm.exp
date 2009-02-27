@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.289 2008/10/04 11:38:12 thomasrthurman Exp $
+   $Id: arm.exp,v 1.290 2008/11/07 23:38:09 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5701 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4041
 *)
@@ -16,6 +16,8 @@ USE FROM Assembly_component_placement_requirements_arm;	-- ISO/TS 10303-1634
 
 REFERENCE FROM Physical_unit_design_view_arm(get_assemblies);  -- ISO/TS 10303-1765
 REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
+REFERENCE FROM Physical_unit__2d_design_view_arm(pu2dv_has_shape);  -- ISO/TS 10303-1724
+REFERENCE FROM Physical_unit__2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303-1724
 
  CONSTANT
    Pre_defined_physical_network_group_types : SET OF STRING := [
@@ -233,9 +235,8 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
     INVERSE
       replaced_by : SET [0:?] OF Area_component FOR replaced_component;
     WHERE
-      WR1: NOT(is_final XOR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum)));
-      WR2: is_final OR (SIZEOF(QUERY(rp <* replaced_by | SELF\Stratum_feature_template_component.resident_stratum :<>: 
-        get_resident_stratum(rp))) = 0);      
+      WR1: NOT((is_final AND pu2dv_has_shape(SELF)) XOR ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE' IN TYPEOF(implementation_or_resident_stratum))); 
+      WR2: is_final OR (SIZEOF(QUERY(rp <* replaced_by | SELF\Stratum_feature_template_component.resident_stratum :<>: get_resident_stratum(rp))) = 0);      
       WR3: NOT(SELF IN replaced_by);
       WR4: NOT(replaced_component IN replaced_by);
       WR5: is_final XOR (SIZEOF(USEDIN(SELF,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')) > 0);
@@ -246,6 +247,9 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
               = (SIZEOF(replaced_by))
              )
             );
+     WR7: pu2dv_has_shape(SELF) OR ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM' IN TYPEOF(implementation_or_resident_stratum)); 
+     WR8: NOT(SIZEOF(replaced_by) > 0) OR ('LAYERED_INTERCONNECT_MODULE_ARM.STRATUM' IN TYPEOF(implementation_or_resident_stratum));
+     WR9: VALUE_IN(pu2dv_typeof(SELF), 'CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL');
   END_ENTITY;
 
   ENTITY Breakout_occurrence

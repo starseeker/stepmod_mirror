@@ -1,19 +1,44 @@
 (*
- $Id: checkModuleMain.js,v 1.11 2004/10/20 08:33:34 robbod Exp $
+ $Id: arm.exp,v 1.10 2004/10/22 14:42:52 darla Exp $
  ISO TC184/SC4/WG12 N1099 - ISO/TS 10303-1016 Product categorization - EXPRESS ARM
 *)
 
-SCHEMA Product_categorization_arm;   
+SCHEMA Product_categorization_arm;
 
-ENTITY Product_category;  
-  id		: OPTIONAL STRING;
-  name	: STRING;
-  description : OPTIONAL STRING;  
-END_ENTITY;   
+USE FROM Product_identification_arm;    -- ISO/TS 10303-1017
 
-ENTITY Product_category_hierarchy;  
-  super_category : Product_category;  
-  sub_category   : Product_category;
-END_ENTITY;   
 
-END_SCHEMA;
+ENTITY Product_category;
+  id : OPTIONAL STRING;
+  name : STRING;
+  description : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Product_category_assignment;
+  category : Product_category;
+  products : SET[1:?] OF Product;
+END_ENTITY;
+
+ENTITY Product_category_hierarchy;
+  super_category : Product_category;
+  sub_category : Product_category;
+END_ENTITY;
+
+FUNCTION types_of_product
+ (obj : Product) : SET OF STRING; 
+ LOCAL
+ 	category_assignments: BAG OF Product_category_assignment;
+ 	categories: SET OF STRING:=[];
+ 	i: INTEGER;
+ END_LOCAL;
+ 
+ category_assignments := USEDIN(obj,'PRODUCT_CATEGORIZATION_ARM.' + 'PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS');
+    
+ REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+       categories := categories + category_assignments[i].category.name;
+ END_REPEAT;
+ 
+ RETURN(categories);
+END_FUNCTION; 
+
+END_SCHEMA;  -- Product_categorization_arm

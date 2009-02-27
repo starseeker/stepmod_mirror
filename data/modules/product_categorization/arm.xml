@@ -1,56 +1,66 @@
 <?xml version="1.0"?>
-<!-- $Id: express2xml.js,v 1.15 2002/06/18 11:51:06 robbod Exp $ -->
-<?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
-<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express
-  language_version="2"
-  description.file="arm_descriptions.xml"
-  rcs.date="$Date: $"
-  rcs.revision="$Revision: $">
+<?xml-stylesheet 
+  type="text/xsl" 
+  href="../../../xsl/express.xsl"
+?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: 2007/08/02 17:35:11 $" rcs.revision="$Revision: 1.16 $" description.file="arm_descriptions.xml">
+<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.4.0" source="product_categorization_arm_v001.vsd" />
+<schema name="Product_categorization_arm">
+<interface kind="use" schema="Product_identification_arm">
+</interface>
+<entity name="Product_category">
+<explicit name="id" optional="YES">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="name">
+<builtintype type="STRING" />
+</explicit>
+<explicit name="description" optional="YES">
+<builtintype type="STRING" />
+</explicit>
+<graphic.element page="2" xcoord="99" ycoord="651" />
+</entity>
+<entity name="Product_category_assignment">
+<explicit name="category">
+<typename name="Product_category" />
+</explicit>
+<explicit name="products">
+<aggregate type="SET" lower="1" upper="?" />
+<typename name="Product" />
+</explicit>
+<graphic.element page="2" xcoord="286" ycoord="744" />
+</entity>
+<entity name="Product_category_hierarchy">
+<explicit name="super_category">
+<typename name="Product_category" />
+</explicit>
+<explicit name="sub_category">
+<typename name="Product_category" />
+</explicit>
+<graphic.element page="2" xcoord="102" ycoord="744" />
+</entity>
+<graphic.element page="1" xcoord="106" ycoord="729" />
+    <function name="types_of_product">
+      <parameter name="obj">
+        <typename name="Product"/>
+      </parameter>
+      <aggregate type="SET"
+      />
+      <builtintype type="STRING"
+      />
+      <algorithm>
+  LOCAL
+    category_assignments : BAG OF Product_category_assignment;
+    categories : SET OF STRING := [];
+    i : INTEGER;
+  END_LOCAL;
 
-  <application
-    name="express2xml.js"
-    owner="Eurostep Limited"
-    url="http://www.eurostep.com"
-    version="1.15"
-    source="../data/modules/product_categorization/arm.exp"/>
-
-  <schema name="Product_categorization_arm">
-    <entity
-      name="Product_category">
-      <explicit
-        name="id"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="name">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-      <explicit
-        name="description"
-        optional="YES">
-        <builtintype
-          type="STRING"/>
-      </explicit>
-    </entity>
-
-    <entity
-      name="Product_category_hierarchy">
-      <explicit
-        name="super_category">
-        <typename
-          name="Product_category"/>
-      </explicit>
-      <explicit
-        name="sub_category">
-        <typename
-          name="Product_category"/>
-      </explicit>
-    </entity>
-
-  </schema>
-
+  category_assignments := USEDIN(obj, &apos;PRODUCT_CATEGORIZATION_ARM.&apos; + &apos;PRODUCT_CATEGORY_ASSIGNMENT.PRODUCTS&apos;);
+  REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+    categories := categories + category_assignments[i].category.name;
+  END_REPEAT;
+  RETURN (categories);
+      </algorithm>
+    </function>
+</schema>
 </express>

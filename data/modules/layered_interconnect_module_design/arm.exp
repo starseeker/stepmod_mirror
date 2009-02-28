@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.292 2009/02/27 07:16:39 thomasrthurman Exp $
+   $Id: arm.exp,v 1.293 2009/02/27 07:33:51 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5701 - ISO/TS 10303-1698 Layered interconnect module design - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4041
 *)
@@ -449,6 +449,9 @@ REFERENCE FROM Physical_unit__2d_design_view_arm(pu2dv_typeof);  -- ISO/TS 10303
     SUBTYPE OF (Stratum);
     WHERE
       WR1: 'FABRICATION_TECHNOLOGY_ARM.DOCUMENTATION_LAYER_TECHNOLOGY' IN TYPEOF(SELF\Stratum.of_technology);
+      WR2: NOT(SIZEOF(SELF\Stratum.base_component) = 1) OR 
+           (NOT(input1\Documentation_layer_stratum.of_technology\Documentation_layer_technology.pre_defined_documentation_layer_purpose = 
+                predefined_documentation_layer_purpose.soldermask) OR (SIZEOF(get_mrlc_not_for_base) = 0));
   END_ENTITY;
 
   ENTITY Electrical_isolation_laminate_component
@@ -1396,29 +1399,57 @@ END_RULE;
     RETURN(pass);
   END_FUNCTION;
 
-  FUNCTION get_base_component(input : Stratum): SET OF Area_component;
-    LOCAL
-      sf : SET OF Stratum_feature := bag_to_set(USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE.RESIDENT_STRATUM'));
-      sftc : SET OF Stratum_feature_template_component := bag_to_set(
-             USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM'));
+FUNCTION get_base_component (input : Stratum) : SET OF Area_component;
+LOCAL
+      ac: SET OF Area_component := [];
       i : INTEGER := 0;
-      ac: SET OF Area_component;
+     sf : SET OF Stratum_feature := bag_to_set(USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE.RESIDENT_STRATUM'));
+ sftc_s : SET OF Stratum_feature_template_component := bag_to_set(
+             USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM'));
+sftc_sf : SET OF Stratum_feature_template_compnent := [];
+ sftc_t : SET OF Stratum_feature_template_component := [];
     END_LOCAL;
     REPEAT i := 1 TO HIINDEX(sf) BY 1;
-      ac := bag_to_set(QUERY(temp <* USEDIN(sf[i],
-                     'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM') | 
-                      (('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(temp)) AND
-                       (temp.is_base = TRUE))));
+      sftc_sf := sftc_sf + bag_to_set(USEDIN(sf[i],'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM'));
     END_REPEAT;
-    REPEAT i := 1 to HIINDEX(sftc) BY 1;
-      IF(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(sftc[i])) AND
-         (sftc[i].is_base = TRUE))
+       sftc_t := sftc_s + sftc_sf;
+    REPEAT i := 1 to HIINDEX(sftc_t) BY 1;
+      IF(('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.AREA_COMPONENT' IN TYPEOF(sftc_t[i])) AND
+         (sftc_t[i]\Area_component.is_base = TRUE))
       THEN
-       ac := ac + sftc[i];
+       ac := ac + sftc_t[i];
       END_IF;
     END_REPEAT;
     RETURN(ac);
-  END_FUNCTION;
+END_FUNCTION; 
+
+FUNCTION get_mrlc_not_for_base (input1         : Documentation_layer_stratum;
+                                base_component : SET OF Area_component) : SET OF Material_removal_laminate_component;
+LOCAL
+      ac: SET OF Area_component := [];
+      i : INTEGER := 0;
+   mrlc : SET OF Material_removal_laminate_component := [];
+ mrlc_b : SET OF Material_removal_laminate_component := [];
+     sf : SET OF Stratum_feature := bag_to_set(USEDIN(input,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE.RESIDENT_STRATUM'));
+ sftc_s : SET OF Stratum_feature_template_component  := bag_to_set(
+             USEDIN(input1,'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM'));
+sftc_sf : SET OF Stratum_feature_template_compnent   := [];
+ sftc_t : SET OF Stratum_feature_template_component  := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(sf) BY 1;
+      sftc_sf := sftc_sf + bag_to_set(USEDIN(sf[i],'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.STRATUM_FEATURE_TEMPLATE_COMPONENT.IMPLEMENTATION_OR_RESIDENT_STRATUM'));
+    END_REPEAT;
+       sftc_t := sftc_s + sftc_sf;
+    REPEAT i := 1 to HIINDEX(sftc_t) BY 1;
+        mrlc := mrlc + bag_to_set(USEDIN(sftc_t[i],'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')); 
+    END_REPEAT;
+    REPEAT i := 1 to HIINDEX(base_component) BY 1;
+        mrlc_b := mrlc + bag_to_set(USEDIN(base_component[i],'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.MATERIAL_REMOVAL_LAMINATE_COMPONENT.DESIGN_INTENT')); 
+    END_REPEAT;
+    RETURN(mrlc - mrlc_b);
+END_FUNCTION; 
+
+
 
   FUNCTION limd_get_sz_cp (
     input : SET[1:?] OF Conductive_interconnect_element_terminal_link) : INTEGER;

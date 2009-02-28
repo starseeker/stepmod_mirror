@@ -1,27 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_usage_view_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="functional_usage_view_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Functional_usage_view_arm">
       <interface kind="use" schema="Analytical_model_arm"/>
       <interface kind="use" schema="Shape_property_assignment_arm"/>
-      <interface kind="reference" schema="Product_identification_arm">
-         <interfaced.item name="types_of_product"/>
-      </interface>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
       <type name="fuuv_am_port_assignment_select">
-         <select extensible="YES" genericentity="YES" basedon="analytical_model_port_assignment_select" selectitems="Functional_unit_usage_view_terminal_definition"/>
+         <select basedon="analytical_model_port_assignment_select" extensible="YES" genericentity="YES" selectitems="Functional_unit_usage_view_terminal_definition"/>
       </type>
       <entity name="Equivalent_functional_terminals_assignment">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="equivalent_terminals">
-            <aggregate type="SET" lower="2" upper="?"/>
+            <aggregate lower="2" type="SET" upper="?"/>
             <typename name="Functional_unit_usage_view_terminal_definition"/>
          </explicit>
       </entity>
@@ -30,15 +27,14 @@
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="equivalent_functional_unit_definitions">
-            <aggregate type="SET" lower="2" upper="?"/>
+            <aggregate lower="2" type="SET" upper="?"/>
             <typename name="Functional_unit_definition"/>
          </explicit>
       </entity>
       <entity name="Functional_product" supertypes="Information_product">
          <unique label="UR1">
-            <unique.attribute entity-ref="Product" attribute="id"/>
+            <unique.attribute attribute="id" entity-ref="Product"/>
          </unique>
-         <where label="WR1" expression="SIZEOF([ 'functional' ] * types_of_product(SELF))= 1"/>
       </entity>
       <entity name="Functional_terminal_group">
          <explicit name="name">
@@ -62,12 +58,12 @@
             <typename name="Scalar_terminal_definition"/>
          </explicit>
       </entity>
-      <entity name="Functional_unit_definition" abstract.supertype="YES" supertypes="Information_definition Item_shape">
+      <entity abstract.supertype="YES" name="Functional_unit_definition" supertypes="Information_definition Item_shape">
          <explicit name="defined_version">
             <typename name="Functional_version"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </explicit>
-         <derived name="described_element" expression="SELF">
+         <derived expression="SELF" name="described_element">
             <typename name="shapeable_item"/>
             <redeclaration entity-ref="Item_shape"/>
          </derived>
@@ -81,18 +77,18 @@
             <typename name="Functional_unit_usage_view"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
-         <where label="WR1" expression="acyclic_functional_unit_make_from_relationship (SELF, [related_view], &#10;            'FUNCTIONAL_USAGE_VIEW_ARM.FUNCTIONAL_UNIT_MAKE_FROM_RELATIONSHIP')"/>
+         <where expression="acyclic_functional_unit_make_from_relationship (SELF, [related_view], &#10;            'FUNCTIONAL_USAGE_VIEW_ARM.FUNCTIONAL_UNIT_MAKE_FROM_RELATIONSHIP')" label="WR1"/>
       </entity>
       <entity name="Functional_unit_usage_view" supertypes="Functional_unit_definition">
-         <derived name="analytical_model_application_reference" expression="get_ama(access_mechanism[1])">
-            <aggregate type="SET" lower="0" upper="?"/>
+         <derived expression="get_ama(access_mechanism[1])" name="analytical_model_application_reference">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Analytical_model_application"/>
          </derived>
-         <inverse name="access_mechanism" entity="Functional_unit_usage_view_terminal_definition" attribute="associated_functional_unit_definition">
-            <inverse.aggregate type="SET" lower="0" upper="?"/>
+         <inverse attribute="associated_functional_unit_definition" entity="Functional_unit_usage_view_terminal_definition" name="access_mechanism">
+            <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
-         <where label="WR1" expression="SIZEOF(analytical_model_application_reference) &lt;= 1"/>
-         <where label="WR2" expression="NOT(SIZEOF(analytical_model_application_reference) = 1) OR&#10;        (SIZEOF(QUERY( am &lt;* access_mechanism |&#10;           NOT((SIZEOF(USEDIN(am,'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM')) = 0) OR&#10;              (SIZEOF(QUERY( ampa &lt;* USEDIN(am, 'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM') |&#10;                 NOT(analytical_model_application_reference[1] :=: ampa.associated_analytical_model_application) &#10;                 )) = 0))&#10;        )) = 0)"/>
+         <where expression="SIZEOF(analytical_model_application_reference) &lt;= 1" label="WR1"/>
+         <where expression="NOT(SIZEOF(analytical_model_application_reference) = 1) OR&#10;        (SIZEOF(QUERY( am &lt;* access_mechanism |&#10;           NOT((SIZEOF(USEDIN(am,'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM')) = 0) OR&#10;              (SIZEOF(QUERY( ampa &lt;* USEDIN(am, 'ANALYTICAL_MODEL_ARM.ANALYTICAL_MODEL_PORT_ASSIGNMENT.ASSIGNED_ITEM') |&#10;                 NOT(analytical_model_application_reference[1] :=: ampa.associated_analytical_model_application) &#10;                 )) = 0))&#10;        )) = 0)" label="WR2"/>
       </entity>
       <entity name="Functional_unit_usage_view_terminal_definition" super.expression="Scalar_terminal_definition">
          <explicit name="associated_functional_unit_definition">
@@ -120,11 +116,11 @@
             <unique.attribute attribute="reusable_feature"/>
             <unique.attribute attribute="resultant_feature"/>
          </unique>
-         <where label="WR1" expression="reusable_feature :&lt;&gt;: resultant_feature"/>
-         <where label="WR2" expression="reusable_feature.associated_functional_unit_definition :&lt;&gt;: resultant_feature.associated_functional_unit_definition"/>
-         <where label="WR3" expression="reusable_feature.associated_functional_unit_definition :=: &#10;      		associated_make_from\Functional_unit_make_from_relationship.relating_view"/>
-         <where label="WR4" expression="resultant_feature.associated_functional_unit_definition :=: &#10;      		associated_make_from\Functional_unit_make_from_relationship.related_view"/>
-         <where label="WR5" expression="acyclic_functional_unit_usage_view_terminal_definition_make_from_relationship&#10;        (SELF, [resultant_feature], &#10;        'FUNCTIONAL_USAGE_VIEW_ARM.FUNCTIONAL_UNIT_USAGE_VIEW_TERMINAL_DEFINITION_MAKE_FROM_RELATIONSHIP')"/>
+         <where expression="reusable_feature :&lt;&gt;: resultant_feature" label="WR1"/>
+         <where expression="reusable_feature.associated_functional_unit_definition :&lt;&gt;: resultant_feature.associated_functional_unit_definition" label="WR2"/>
+         <where expression="reusable_feature.associated_functional_unit_definition :=: &#10;      &#9;&#9;associated_make_from\Functional_unit_make_from_relationship.relating_view" label="WR3"/>
+         <where expression="resultant_feature.associated_functional_unit_definition :=: &#10;      &#9;&#9;associated_make_from\Functional_unit_make_from_relationship.related_view" label="WR4"/>
+         <where expression="acyclic_functional_unit_usage_view_terminal_definition_make_from_relationship&#10;        (SELF, [resultant_feature], &#10;        'FUNCTIONAL_USAGE_VIEW_ARM.FUNCTIONAL_UNIT_USAGE_VIEW_TERMINAL_DEFINITION_MAKE_FROM_RELATIONSHIP')" label="WR5"/>
       </entity>
       <entity name="Functional_version" supertypes="Information_version">
          <explicit name="of_product">
@@ -144,15 +140,15 @@
             <unique.attribute attribute="precedent_terminal_definition"/>
             <unique.attribute attribute="subsequent_terminal_definition"/>
          </unique>
-         <where label="WR1" expression="precedent_terminal_definition :&lt;&gt;: subsequent_terminal_definition"/>
-         <where label="WR2" expression="acyclic_scalar_terminal_definition_link (SELF,&#10;        [subsequent_terminal_definition],&#10;        'FUNCTIONAL_USAGE_VIEW_ARM.SCALAR_TERMINAL_DEFINITION_LINK')"/>
+         <where expression="precedent_terminal_definition :&lt;&gt;: subsequent_terminal_definition" label="WR1"/>
+         <where expression="acyclic_scalar_terminal_definition_link (SELF,&#10;        [subsequent_terminal_definition],&#10;        'FUNCTIONAL_USAGE_VIEW_ARM.SCALAR_TERMINAL_DEFINITION_LINK')" label="WR2"/>
       </entity>
       <function name="acyclic_functional_unit_make_from_relationship">
          <parameter name="relation">
             <typename name="Functional_unit_make_from_relationship"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Functional_unit_usage_view"/>
          </parameter>
          <parameter name="specific_relation">
@@ -182,7 +178,7 @@
             <typename name="Functional_unit_usage_view_terminal_definition_make_from_relationship"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Functional_unit_usage_view_terminal_definition"/>
          </parameter>
          <parameter name="specific_relation">
@@ -214,7 +210,7 @@
             <typename name="Scalar_terminal_definition_link"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Scalar_terminal_definition"/>
          </parameter>
          <parameter name="specific_relation">
@@ -243,7 +239,7 @@
          <parameter name="input">
             <typename name="analytical_model_port_assignment_select"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Analytical_model_application"/>
          <algorithm>LOCAL
 	ama : SET[0:?] OF Analytical_model_application := [];  --this gives us access to the information base

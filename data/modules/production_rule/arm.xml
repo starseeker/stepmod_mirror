@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="production_rule_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="production_rule_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Production_rule_arm">
       <interface kind="use" schema="Specification_document_arm"/>
       <interface kind="use" schema="Software_arm"/>
@@ -11,9 +11,6 @@
       <interface kind="use" schema="Activity_arm"/>
       <interface kind="use" schema="Identification_assignment_arm"/>
       <interface kind="use" schema="Product_identification_arm"/>
-      <interface kind="reference" schema="Product_identification_arm">
-         <interfaced.item name="types_of_product"/>
-      </interface>
       <interface kind="reference" schema="Specification_document_arm">
          <interfaced.item name="get_document_definition"/>
       </interface>
@@ -36,7 +33,7 @@
          <select selectitems="any_string_value built_in_functions"/>
       </type>
       <type name="pr_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Rule_set"/>
+         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="Rule_set"/>
       </type>
       <type name="pr_identification_item">
          <select basedon="identification_item" selectitems="Rule_set"/>
@@ -53,7 +50,7 @@
       <type name="term_select">
          <select selectitems="Symbol constants Func Scalar_variable Row_value Row_variable"/>
       </type>
-      <entity name="Abstract_variable" abstract.supertype="YES" super.expression="ONEOF (Scalar_variable, Row_variable)">
+      <entity abstract.supertype="YES" name="Abstract_variable" super.expression="ONEOF (Scalar_variable, Row_variable)">
          <explicit name="name">
             <builtintype type="STRING"/>
          </explicit>
@@ -65,12 +62,12 @@
             <unique.attribute attribute="scope"/>
          </unique>
       </entity>
-      <entity name="Atomic_formula" abstract.supertype="YES" super.expression="ONEOF (Rule_condition, Ground_fact)">
+      <entity abstract.supertype="YES" name="Atomic_formula" super.expression="ONEOF (Rule_condition, Ground_fact)">
          <explicit name="predicate_symbol">
             <typename name="predicate_symbol"/>
          </explicit>
          <explicit name="terms">
-            <aggregate type="LIST" lower="0" upper="?"/>
+            <aggregate lower="0" type="LIST" upper="?"/>
             <typename name="term_select"/>
          </explicit>
       </entity>
@@ -87,15 +84,15 @@
             <typename name="Rule_condition"/>
          </explicit>
          <explicit name="body">
-            <aggregate type="LIST" lower="0" upper="?"/>
+            <aggregate lower="0" type="LIST" upper="?"/>
             <typename name="Rule_condition"/>
          </explicit>
-         <where label="WR1" expression="SELF.head.positive = TRUE"/>
-         <where label="WR2" expression="local_vars_of(SELF.head) &lt;= local_vars_of(SELF.body)"/>
+         <where expression="SELF.head.positive = TRUE" label="WR1"/>
+         <where expression="local_vars_of(SELF.head) &lt;= local_vars_of(SELF.body)" label="WR2"/>
       </entity>
-      <entity name="Complex_clause" abstract.supertype="YES" super.expression="ONEOF (Complex_conjunctive_clause, Complex_disjunctive_clause)">
+      <entity abstract.supertype="YES" name="Complex_clause" super.expression="ONEOF (Complex_conjunctive_clause, Complex_disjunctive_clause)">
          <explicit name="clauses">
-            <aggregate type="LIST" lower="2" upper="?"/>
+            <aggregate lower="2" type="LIST" upper="?"/>
             <typename name="clause_select"/>
          </explicit>
       </entity>
@@ -108,10 +105,10 @@
          </explicit>
       </entity>
       <entity name="Extent">
-         <explicit name="variable_id" optional="YES">
+         <explicit name="source">
             <builtintype type="STRING"/>
          </explicit>
-         <explicit name="source">
+         <explicit name="variable_id" optional="YES">
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="query_expression">
@@ -121,7 +118,7 @@
             <typename name="expression_syntax"/>
          </explicit>
       </entity>
-      <entity name="Fact_type" abstract.supertype="YES" super.expression="ONEOF (Entity_assertion, Attribute_assertion)">
+      <entity abstract.supertype="YES" name="Fact_type" super.expression="ONEOF (Entity_assertion, Attribute_assertion)">
          <explicit name="source">
             <typename name="Extent"/>
          </explicit>
@@ -136,14 +133,14 @@
          <explicit name="conclusion">
             <typename name="Literal_conjunction"/>
          </explicit>
-         <where label="WR1" expression="local_vars_of(SELF.conclusion) &lt;= local_vars_of(SELF.premise)"/>
+         <where expression="local_vars_of(SELF.conclusion) &lt;= local_vars_of(SELF.premise)" label="WR1"/>
       </entity>
       <entity name="Func">
          <explicit name="func_sym">
             <typename name="function_symbol"/>
          </explicit>
          <explicit name="terms">
-            <aggregate type="LIST" lower="0" upper="?"/>
+            <aggregate lower="0" type="LIST" upper="?"/>
             <typename name="term_select"/>
          </explicit>
       </entity>
@@ -154,35 +151,35 @@
          <explicit name="val">
             <typename name="term_select"/>
          </explicit>
-         <where label="WR1" expression="NOT(contains_variable(SELF.val))"/>
+         <where expression="NOT(contains_variable(SELF.val))" label="WR1"/>
       </entity>
       <entity name="Ground_fact" supertypes="Atomic_formula">
-         <where label="WR1" expression="SIZEOF(QUERY(r &lt;* SELF\Atomic_formula.terms | contains_variable(r))) = 0"/>
+         <where expression="SIZEOF(QUERY(r &lt;* SELF\Atomic_formula.terms | contains_variable(r))) = 0" label="WR1"/>
       </entity>
       <entity name="Literal_conjunction" supertypes="Simple_clause"/>
       <entity name="Literal_disjunction" supertypes="Simple_clause"/>
       <entity name="Row_value">
          <explicit name="values">
-            <aggregate type="LIST" lower="0" upper="?"/>
+            <aggregate lower="0" type="LIST" upper="?"/>
             <typename name="term_select"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(v &lt;* SELF.values | contains_variable(v))) = 0"/>
-         <where label="WR2" expression="SIZEOF(QUERY(v &lt;* SELF.values | 'PRODUCTION_RULE_ARM.ROW_VALUE' IN TYPEOF(v))) = 0"/>
+         <where expression="SIZEOF(QUERY(v &lt;* SELF.values | contains_variable(v))) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(v &lt;* SELF.values | 'PRODUCTION_RULE_ARM.ROW_VALUE' IN TYPEOF(v))) = 0" label="WR2"/>
       </entity>
       <entity name="Row_variable" supertypes="Abstract_variable"/>
-      <entity name="Rule_action" abstract.supertype="YES" super.expression="ONEOF (Rule_submission, Rule_adoption, Rule_rejection, Rule_supersedence, Rule_creation, Rule_expiration, Rule_change_request, Rule_request, Rule_modification)">
+      <entity abstract.supertype="YES" name="Rule_action" super.expression="ONEOF (Rule_submission, Rule_adoption, Rule_rejection, Rule_supersedence, Rule_creation, Rule_expiration, Rule_change_request, Rule_request, Rule_modification)">
          <explicit name="subject_rule">
             <typename name="Rule_version"/>
          </explicit>
-         <derived name="subject_action_assignment" expression="bag_to_set(QUERY(temp &lt;* USEDIN ( SELF , 'PERSON_ORGANIZATION_ASSIGNMENT_ARM.' + &#10;                                       'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS' ) &#10;                    | ( temp.role = 'subject action assignment')))">
-            <aggregate type="SET" lower="0" upper="?"/>
+         <derived expression="bag_to_set(QUERY(temp &lt;* USEDIN ( SELF , 'PERSON_ORGANIZATION_ASSIGNMENT_ARM.' + &#10;                                       'ORGANIZATION_OR_PERSON_IN_ORGANIZATION_ASSIGNMENT.ITEMS' ) &#10;                    | ( temp.role = 'subject action assignment')))" name="subject_action_assignment">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Organization_or_person_in_organization_assignment"/>
          </derived>
          <unique label="UR1">
             <unique.attribute attribute="subject_rule"/>
             <unique.attribute attribute="subject_action_assignment"/>
          </unique>
-         <where label="WR1" expression="EXISTS (subject_action_assignment) AND (SIZEOF(subject_action_assignment) = 1 )"/>
+         <where expression="EXISTS (subject_action_assignment) AND (SIZEOF(subject_action_assignment) = 1 )" label="WR1"/>
       </entity>
       <entity name="Rule_adoption" supertypes="Rule_action"/>
       <entity name="Rule_change_request" supertypes="Rule_action">
@@ -196,7 +193,7 @@
          </explicit>
       </entity>
       <entity name="Rule_creation" supertypes="Rule_action"/>
-      <entity name="Rule_definition" abstract.supertype="YES" supertypes="Rule_software_definition" super.expression="ONEOF (Forward_chaining_rule, Back_chaining_rule)"/>
+      <entity abstract.supertype="YES" name="Rule_definition" super.expression="ONEOF (Forward_chaining_rule, Back_chaining_rule)" supertypes="Rule_software_definition"/>
       <entity name="Rule_expiration" supertypes="Rule_action">
          <explicit name="expiration_rationale">
             <builtintype type="STRING"/>
@@ -209,7 +206,7 @@
          <explicit name="justification_rationale">
             <builtintype type="STRING"/>
          </explicit>
-         <where label="WR1" expression="SELF &lt;&gt; justified_action"/>
+         <where expression="SELF &lt;&gt; justified_action" label="WR1"/>
       </entity>
       <entity name="Rule_modification" supertypes="Rule_action">
          <explicit name="modification_rationale">
@@ -223,11 +220,9 @@
          <explicit name="prioritized_rule">
             <typename name="Rule_definition"/>
          </explicit>
-         <where label="WR1" expression="priority &gt;= 0"/>
+         <where expression="priority &gt;= 0" label="WR1"/>
       </entity>
-      <entity name="Rule_product" supertypes="Software">
-         <where label="WR1" expression="SIZEOF ( [ 'rule' ] * types_of_product ( SELF ) ) = 1"/>
-      </entity>
+      <entity name="Rule_product" supertypes="Software"/>
       <entity name="Rule_rejection" supertypes="Rule_action">
          <explicit name="rejection_reason">
             <builtintype type="STRING"/>
@@ -239,23 +234,23 @@
             <builtintype type="STRING"/>
          </explicit>
          <explicit name="rule_member">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Rule_priority"/>
          </explicit>
-         <derived name="engine" expression="get_document_definition(SELF, 'engine', &#10;		'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL')">
-            <aggregate type="SET" lower="1" upper="1"/>
+         <derived expression="get_document_definition(SELF, 'engine', &#10;&#9;&#9;'SPECIFICATION_DOCUMENT_ARM.LANGUAGE_REFERENCE_MANUAL')" name="engine">
+            <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Document_definition"/>
          </derived>
-         <inverse name="purpose" entity="Identification_assignment" attribute="items"/>
-         <where label="WR1" expression="purpose.role = 'purpose'"/>
+         <inverse attribute="items" entity="Identification_assignment" name="purpose"/>
+         <where expression="purpose.role = 'purpose'" label="WR1"/>
       </entity>
       <entity name="Rule_set_group" supertypes="Rule_software_definition">
          <explicit name="elements">
-            <aggregate type="SET" lower="2" upper="?"/>
+            <aggregate lower="2" type="SET" upper="?"/>
             <typename name="Rule_set"/>
          </explicit>
       </entity>
-      <entity name="Rule_software_definition" supertypes="Software_definition" super.expression="ONEOF (Rule_definition, Rule_set_group, Rule_set)">
+      <entity name="Rule_software_definition" super.expression="ONEOF (Rule_definition, Rule_set_group, Rule_set)" supertypes="Software_definition">
          <explicit name="defined_version">
             <typename name="Rule_version"/>
             <redeclaration entity-ref="Product_view_definition"/>
@@ -276,33 +271,33 @@
             <typename name="Rule_product"/>
             <redeclaration entity-ref="Product_version"/>
          </explicit>
-         <inverse name="management_action" entity="Rule_action" attribute="subject_rule">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse attribute="subject_rule" entity="Rule_action" name="management_action">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
-         <inverse name="product_definition" entity="Rule_software_definition" attribute="defined_version">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse attribute="defined_version" entity="Rule_software_definition" name="product_definition">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
       </entity>
       <entity name="Scalar_variable" supertypes="Abstract_variable"/>
-      <entity name="Simple_clause" abstract.supertype="YES" super.expression="ONEOF (Literal_conjunction, Literal_disjunction)">
+      <entity abstract.supertype="YES" name="Simple_clause" super.expression="ONEOF (Literal_conjunction, Literal_disjunction)">
          <explicit name="formulas">
-            <aggregate type="LIST" lower="1" upper="?"/>
+            <aggregate lower="1" type="LIST" upper="?"/>
             <typename name="Rule_condition"/>
          </explicit>
       </entity>
       <entity name="Symbol" supertypes="Representation_item">
          <unique label="UR1">
-            <unique.attribute entity-ref="Representation_item" attribute="name"/>
+            <unique.attribute attribute="name" entity-ref="Representation_item"/>
          </unique>
       </entity>
-      <rule name="max_one_entity_prefix" appliesto="Enum_reference_prefix">
-         <where label="WR1" expression="SIZEOF(QUERY(x &lt;* Enum_reference_prefix | TRUE)) &lt;= 1"/>
+      <rule appliesto="Enum_reference_prefix" name="max_one_entity_prefix">
+         <where expression="SIZEOF(QUERY(x &lt;* Enum_reference_prefix | TRUE)) &lt;= 1" label="no_label_1"/>
       </rule>
-      <rule name="rule_software_definition_constraint" appliesto="Product_view_definition">
-         <where label="WR1" expression="SIZEOF (QUERY ( pvd &lt;* Product_view_definition | ( NOT('PRODUCTION_RULE_ARM.' + 'RULE_SOFTWARE_DEFINITION' &#10;                       IN TYPEOF(pvd))) &#10;                       AND ('PRODUCTION_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF (pvd . defined_version)))) = 0"/>
+      <rule appliesto="Product_view_definition" name="rule_software_definition_constraint">
+         <where expression="SIZEOF (QUERY ( pvd &lt;* Product_view_definition | ( NOT('PRODUCTION_RULE_ARM.' + 'RULE_SOFTWARE_DEFINITION' &#10;                       IN TYPEOF(pvd))) &#10;                       AND ('PRODUCTION_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF (pvd . defined_version)))) = 0" label="WR1"/>
       </rule>
-      <rule name="rule_version_constraint" appliesto="Product_version">
-         <where label="WR1" expression="SIZEOF (QUERY(pv &lt;* Product_version | (NOT('PRODUCTION_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF(pv))) &#10;                      AND ( 'PRODUCTION_RULE_ARM.' + 'RULE_PRODUCT' IN TYPEOF(pv.of_product)))) = 0"/>
+      <rule appliesto="Product_version" name="rule_version_constraint">
+         <where expression="SIZEOF (QUERY(pv &lt;* Product_version | (NOT('PRODUCTION_RULE_ARM.' + 'RULE_VERSION' IN TYPEOF(pv))) &#10;                      AND ( 'PRODUCTION_RULE_ARM.' + 'RULE_PRODUCT' IN TYPEOF(pv.of_product)))) = 0" label="WR1"/>
       </rule>
       <function name="contains_variable">
          <parameter name="x">
@@ -322,10 +317,10 @@
             <builtintype type="GENERIC"/>
          </parameter>
          <parameter name="accum">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Scalar_variable"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Scalar_variable"/>
          <algorithm>LOCAL i,j,k : INTEGER; END_LOCAL;
   IF (('PRODUCTION_RULE_ARM.ABSTRACT_VARIABLE' IN TYPEOF(thing)) AND 
@@ -353,7 +348,7 @@
          <parameter name="thing">
             <builtintype type="GENERIC"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Scalar_variable"/>
          <algorithm>LOCAL
     accum : SET [0:?] OF Scalar_variable := [];

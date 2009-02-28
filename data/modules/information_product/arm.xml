@@ -1,32 +1,27 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="information_product_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="information_product_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Information_product_arm">
       <interface kind="use" schema="Product_view_definition_arm"/>
       <interface kind="use" schema="File_identification_arm"/>
-      <interface kind="reference" schema="Product_identification_arm">
-         <interfaced.item name="types_of_product"/>
-      </interface>
       <entity name="Information_definition" supertypes="Product_view_definition">
          <explicit name="defined_version">
             <typename name="Information_version"/>
             <redeclaration entity-ref="Product_view_definition"/>
          </explicit>
       </entity>
-      <entity name="Information_product" abstract.supertype="YES" supertypes="Product">
-         <where label="WR1" expression="SIZEOF(['document', 'information'] * types_of_product(SELF)) = 0"/>
-      </entity>
+      <entity abstract.supertype="YES" name="Information_product" supertypes="Product"/>
       <entity name="Information_version" supertypes="Product_version">
          <explicit name="of_product">
             <typename name="Information_product"/>
             <redeclaration entity-ref="Product_version"/>
          </explicit>
       </entity>
-      <rule name="Information_product_version_constraint" appliesto="Product_version">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT (&#10;  'INFORMATION_PRODUCT_ARM.' + 'INFORMATION_VERSION' IN TYPEOF&#10;  ( pv) ) ) AND ( 'INFORMATION_PRODUCT_ARM.' + 'INFORMATION_PRODUCT' IN TYPEOF (&#10;pv.of_product) ) ) ) =0"/>
+      <rule appliesto="Product_version" name="Information_product_version_constraint">
+         <where expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT (&#10;  'INFORMATION_PRODUCT_ARM.' + 'INFORMATION_VERSION' IN TYPEOF&#10;  ( pv) ) ) AND ( 'INFORMATION_PRODUCT_ARM.' + 'INFORMATION_PRODUCT' IN TYPEOF (&#10;pv.of_product) ) ) ) =0" label="WR1"/>
       </rule>
    </schema>
 </express>

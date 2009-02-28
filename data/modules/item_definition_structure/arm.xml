@@ -1,16 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="item_definition_structure_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="item_definition_structure_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Item_definition_structure_arm">
       <interface kind="use" schema="Effectivity_application_arm"/>
       <interface kind="use" schema="Part_occurrence_arm"/>
       <interface kind="use" schema="Product_structure_arm"/>
-      <interface kind="reference" schema="Product_identification_arm">
-         <interfaced.item name="types_of_product"/>
-      </interface>
       <type name="effectivity_item_for_replacement">
          <select basedon="effectivity_item" selectitems="Part_definition_relationship"/>
       </type>
@@ -20,15 +17,13 @@
             <redeclaration entity-ref="Product_occurrence_definition_relationship"/>
          </explicit>
       </entity>
-      <entity name="Assembly_definition" supertypes="Part_view_definition">
-         <where label="WR1" expression="'assembly' IN types_of_product(SELF\Product_view_definition.defined_version.of_product)"/>
-      </entity>
+      <entity name="Assembly_definition" supertypes="Part_view_definition"/>
       <entity name="Effectivity_controlled_assembly_definition" supertypes="Assembly_definition"/>
       <entity name="Geometrical_relationship" supertypes="Part_definition_relationship">
          <explicit name="definition_placement">
             <typename name="Geometric_model_relationship_with_transformation"/>
          </explicit>
-         <derived name="relation_type" expression="'geometrical relationship'">
+         <derived expression="'geometrical relationship'" name="relation_type">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="View_definition_relationship"/>
          </derived>
@@ -43,14 +38,14 @@
             <redeclaration entity-ref="View_definition_relationship"/>
          </explicit>
       </entity>
-      <rule name="definition_replacement_requires_effectivity_assignment" appliesto="Part_definition_relationship">
-         <where label="WR1" expression="SIZEOF( QUERY( pdr &lt;* Part_definition_relationship | &#10;        (pdr\View_definition_relationship.relation_type = 'definition replacement') AND &#10;        (SIZEOF( USEDIN(pdr,'ITEM_DEFINITION_STRUCTURE_ARM.EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))&#10;	     = 0"/>
+      <rule appliesto="Part_definition_relationship" name="definition_replacement_requires_effectivity_assignment">
+         <where expression="SIZEOF( QUERY( pdr &lt;* Part_definition_relationship | &#10;        (pdr\View_definition_relationship.relation_type = 'definition replacement') AND &#10;        (SIZEOF( USEDIN(pdr,'ITEM_DEFINITION_STRUCTURE_ARM.EFFECTIVITY_ASSIGNMENT.ITEMS') ) = 0) ))&#10;&#9;     = 0" label="WR1"/>
       </rule>
-      <rule name="mandatory_part_occurrence_definition_relationship" appliesto="Assembly_component_relationship">
+      <rule appliesto="Assembly_component_relationship" name="mandatory_part_occurrence_definition_relationship">
          <algorithm>LOCAL
       assemblies_of_parts: SET OF Assembly_component_relationship := [];
     END_LOCAL;</algorithm>
-         <where label="WR1" expression="SIZEOF(QUERY(ar &lt;* assemblies_of_parts | &#10;	    NOT ('ITEM_DEFINITION_STRUCTURE_ARM.ASSEMBLED_PART_ASSOCIATION' IN TYPEOF(ar)) ))= 0"/>
+         <where expression="SIZEOF(QUERY(ar &lt;* assemblies_of_parts | &#10;&#9;    NOT ('ITEM_DEFINITION_STRUCTURE_ARM.ASSEMBLED_PART_ASSOCIATION' IN TYPEOF(ar)) ))= 0" label="WR1"/>
       </rule>
    </schema>
 </express>

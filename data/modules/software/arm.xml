@@ -1,20 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="software_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="software_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Software_arm">
       <interface kind="use" schema="Document_definition_arm"/>
       <interface kind="use" schema="Information_product_arm"/>
-      <interface kind="reference" schema="Product_identification_arm">
-         <interfaced.item name="types_of_product"/>
-      </interface>
       <entity name="Software" supertypes="Information_product">
          <unique label="UR1">
-            <unique.attribute entity-ref="Product" attribute="id"/>
+            <unique.attribute attribute="id" entity-ref="Product"/>
          </unique>
-         <where label="WR1" expression="SIZEOF(['software', 'information'] * types_of_product(SELF)) = 2"/>
       </entity>
       <entity name="Software_definition" supertypes="Information_definition">
          <explicit name="defined_version">
@@ -28,11 +24,11 @@
             <redeclaration entity-ref="Product_version"/>
          </explicit>
       </entity>
-      <rule name="software_definition_constraint" appliesto="Product_view_definition">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'SOFTWARE_ARM.' + 'SOFTWARE_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'SOFTWARE_ARM.' + 'SOFTWARE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0"/>
+      <rule appliesto="Product_view_definition" name="software_definition_constraint">
+         <where expression="SIZEOF ( QUERY ( pvd &lt;* Product_view_definition | ( NOT ( 'SOFTWARE_ARM.' + 'SOFTWARE_DEFINITION' IN TYPEOF (pvd) ) ) AND ( 'SOFTWARE_ARM.' + 'SOFTWARE_VERSION' IN TYPEOF ( pvd.defined_version) ) ) ) =0" label="WR1"/>
       </rule>
-      <rule name="software_version_constraint" appliesto="Product_version">
-         <where label="WR1" expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'SOFTWARE_ARM.' + 'SOFTWARE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'SOFTWARE_ARM.' + 'SOFTWARE' IN TYPEOF ( pv.of_product) ) ) ) =0"/>
+      <rule appliesto="Product_version" name="software_version_constraint">
+         <where expression="SIZEOF ( QUERY ( pv &lt;* Product_version | ( NOT ( 'SOFTWARE_ARM.' + 'SOFTWARE_VERSION' IN TYPEOF ( pv) ) ) AND ( 'SOFTWARE_ARM.' + 'SOFTWARE' IN TYPEOF ( pv.of_product) ) ) ) =0" label="WR1"/>
       </rule>
    </schema>
 </express>

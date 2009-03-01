@@ -1,5 +1,5 @@
 (*
-   $Id: mim.exp,v 1.90 2009/02/25 06:50:43 thomasrthurman Exp $
+   $Id: mim.exp,v 1.91 2009/02/25 06:56:00 thomasrthurman Exp $
    ISO TC184/SC4/WG3 N1997 - ISO/TS 10303-410 AP210 electronic assembly interconnect and packaging design - EXPRESS MIM
    Supersedes ISO TC184/SC4/WG3 N1639
 *)
@@ -301,6 +301,14 @@ FUNCTION valid_2d_wireframe_edge_curve
 END_FUNCTION;
 
 
+FUNCTION apeaid_is_base(input : area_component) : LOGICAL;
+LOCAL
+ pd : SET OF property_definition := bag_to_set(QUERY(pd <* USEDIN(input,'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION') |
+              pd\property_definition.name = 'is base'));
+END_LOCAL;
+ RETURN(pd[1].description = 'true');
+END_FUNCTION;
+
 -- from SCHEMA Ap210_assembly_physical_design_mim;
 
 	SUBTYPE_CONSTRAINT packaged_part_subtypes FOR packaged_part; 
@@ -352,14 +360,6 @@ WHERE
                 )) = 0)
               )) = 0;              
 END_RULE;
-
-FUNCTION apeaid_is_base(input : area_component) : LOGICAL;
-LOCAL
- pd : SET OF property_definition := bag_to_set(QUERY(pd <* USEDIN(input,'PRODUCT_PROPERTY_DEFINITION_SCHEMA.PROPERTY_DEFINITION.DEFINITION') |
-              pd\property_definition.name = 'is base';
-END_LOCAL;
- RETURN(pd[1].description = 'true');
-END_FUNTION;
 
 
 RULE cartesian_coordinate_system_constraint FOR

@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.9 2003/10/09 09:15:07 robbod Exp $
+ $Id: arm.exp,v 1.10 2004/11/19 21:37:36 robbod Exp $
  ISO TC184/SC4/WG12 N3067 - ISO/TS 10303-1263 Justification - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG12 N2384
 *) 
@@ -7,12 +7,40 @@
 
 SCHEMA Justification_arm;
 
+TYPE assumption_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+END_TYPE;
 
-TYPE justification_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
+TYPE justification_item = EXTENSIBLE GENERIC_ENTITY SELECT 
+  (Assumption,
+   Assumption_assignment,
+   Assumption_relationship);
+END_TYPE;
 
-TYPE justification_support_item = EXTENSIBLE GENERIC_ENTITY SELECT;
-END_TYPE; 
+TYPE justification_support_item = EXTENSIBLE GENERIC_ENTITY SELECT 
+  (Assumption,
+   Assumption_assignment,
+   Assumption_relationship);
+END_TYPE;
+
+ENTITY Assumption;
+  id : STRING;
+  name : OPTIONAL STRING;
+  description : OPTIONAL STRING;
+END_ENTITY;
+
+ENTITY Assumption_assignment;
+  assumption : Assumption;
+  description : OPTIONAL STRING;
+  item : assumption_item;
+  role : STRING;
+END_ENTITY;
+
+ENTITY Assumption_relationship;
+  description : OPTIONAL STRING;
+  role : STRING;
+  relating_assumption : Assumption;
+  related_assumption : Assumption;
+END_ENTITY;
 
 ENTITY Justification;
   id : STRING;
@@ -42,5 +70,10 @@ ENTITY Justification_support_assignment;
   role : STRING;
 END_ENTITY;
 
-END_SCHEMA;  -- Justification_arm
+ENTITY Validated_assumption
+SUBTYPE OF (Assumption);
+  validity : BOOLEAN;
+END_ENTITY;
+
+END_SCHEMA;
 

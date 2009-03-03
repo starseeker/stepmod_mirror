@@ -8,28 +8,60 @@ USE FROM application_context_schema
   (application_context,
    application_protocol_definition);
 
+USE FROM Conditional_effectivity_mim;  -- ISO/TS 10303-??
+
+USE FROM Description_assignment_mim;  -- ISO/TS 10303-1473
+
+USE FROM Decision_support_mim;  -- ISO/TS 10303-1486
+
+USE FROM Extended_task_element_mim;   -- ISO/TS 10303-1479
+
+USE FROM Environment_observed_mim;   -- ISO/TS 10303-1479
+
+USE FROM Information_collection_mim;  -- ISO/TS 10303-??
+
+USE FROM Risk_management_mim;   -- ISO/TS 10303-1467
+
+USE FROM System_view_definition_mim;   -- ISO/TS 10303-1485
+
 TYPE plcs_action_items = SELECT BASED_ON action_items WITH
-  (product_group_membership);
+  (assembly_component_usage,
+   product_group_membership);
+END_TYPE;
+
+TYPE plcs_action_method_items = SELECT BASED_ON action_method_items WITH
+  (assembly_component_usage);
 END_TYPE;
 
 TYPE plcs_action_request_item = SELECT BASED_ON action_request_item WITH
-  (state_observed,
+  (assembly_component_usage,
+   state_observed,
    state_type);
 END_TYPE;
 
+TYPE plcs_certification_item = SELECT BASED_ON certification_item WITH
+  (assembly_component_usage);
+END_TYPE;
+
 TYPE plcs_classification_item = SELECT BASED_ON classification_item WITH
-  (product_group_membership,
+  (assembly_component_usage,
+   product_group_membership,
    representation_relationship);
 END_TYPE;
 
 TYPE plcs_condition_action_method_items = SELECT BASED_ON condition_action_method_items WITH
   (action_method,
+   assembly_component_usage,
    configuration_item,
    effectivity,
    general_property,
    organization,
    organization_type,
    versioned_action_request);
+END_TYPE;
+
+TYPE plcs_condition_evaluation_action_items = SELECT BASED_ON condition_evaluation_action_items WITH
+  (assembly_component_usage);
 END_TYPE;
 
 TYPE plcs_date_and_time_item = SELECT BASED_ON date_and_time_item WITH
@@ -59,6 +91,7 @@ END_TYPE;
 
 TYPE plcs_identification_item = SELECT BASED_ON identification_item WITH
   (applied_external_identification_assignment,
+   assembly_component_usage,
    class,
    person_type_definition);
 END_TYPE;
@@ -70,8 +103,25 @@ END_TYPE;
 
 TYPE plcs_justification_item = SELECT BASED_ON justification_item WITH
   (applied_action_method_assignment,
+   assembly_component_usage,
    representation,
    state_type_assignment);
+END_TYPE;
+
+TYPE plcs_justification_support_item = SELECT BASED_ON justification_support_item WITH
+  (assembly_component_usage);
+END_TYPE;
+
+TYPE plcs_location_item = SELECT BASED_ON location_item WITH
+  (assembly_component_usage);
+END_TYPE;
+
+TYPE plcs_observed_context_item = SELECT BASED_ON observed_context_item WITH
+  (assembly_component_usage);
+END_TYPE;
+
+TYPE plcs_product_definition_or_product_definition_relationship = SELECT BASED_ON product_definition_or_product_definition_relationship WITH
+  (assembly_component_usage);
 END_TYPE;
 
 TYPE plcs_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item WITH
@@ -79,12 +129,18 @@ TYPE plcs_requirement_assigned_item = SELECT BASED_ON requirement_assigned_item 
 END_TYPE;
 
 TYPE plcs_state_observed_of_item = SELECT BASED_ON state_observed_of_item WITH
-  (approval, applied_action_method_assignment);
+  (approval,
+   applied_action_method_assignment);
 END_TYPE;
 
 TYPE plcs_state_type_of_item = SELECT BASED_ON state_type_of_item WITH
-  (approval, structured_message);
+  (approval,
+   structured_message);
 END_TYPE;
+
+ENTITY characterized_assembly_component_usage
+SUBTYPE OF (assembly_component_usage, characterized_object);
+END_ENTITY;
 
 ENTITY characterized_versioned_action_request
 SUBTYPE OF (characterized_object, versioned_action_request);

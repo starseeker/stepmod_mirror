@@ -1,44 +1,38 @@
-(*
- $Id: arm.exp,v 1.13 2004/11/16 08:46:21 robbod Exp $
- ISO TC184/SC4/WG12 N3061 - ISO/TS 10303-1251 Interface - EXPRESS ARM
- Supersedes ISO TC184/SC4/WG12 N2273
-*) 
-
-
 SCHEMA Interface_arm;
 
-USE FROM Product_identification_arm;    -- ISO/TS 10303-1017
+USE FROM Assembly_structure_arm;
 
-USE FROM Product_version_arm;    -- ISO/TS 10303-1018
+USE FROM Product_identification_arm;
 
-USE FROM Product_view_definition_arm;    -- ISO/TS 10303-1019
+USE FROM Product_version_arm;
 
-USE FROM Product_view_definition_relationship_arm;    -- ISO/TS 10303-1041
+USE FROM Product_view_definition_relationship_arm;
 
+TYPE connection_definition_items = SELECT 
+  (Interface_connector_definition,
+   Product_view_definition);
+END_TYPE;
 
-TYPE connection_definition_items = SELECT
-   (Interface_connector_definition, 
-    Product_view_definition);
-END_TYPE; 
+TYPE connection_items = SELECT 
+  (Assembly_component_relationship,
+   connection_definition_items,
+   Interface_connector_occurrence,
+   View_definition_relationship);
+END_TYPE;
 
-TYPE connection_items = SELECT
-   (connection_definition_items, 
-    Interface_connector_occurrence, 
-    View_definition_relationship);
-END_TYPE; 
+TYPE connector_on_item = EXTENSIBLE SELECT 
+  (Assembly_component_relationship,
+   Product_view_definition,
+   View_definition_relationship);
+END_TYPE;
 
-TYPE connector_on_item = EXTENSIBLE SELECT
-   (Product_view_definition, 
-    View_definition_relationship);
-END_TYPE; 
-
-TYPE interface_definition_item = SELECT
-   (Interface_connector_occurrence, 
-    Product_view_definition);
-END_TYPE; 
+TYPE interface_definition_item = SELECT 
+  (Interface_connector_occurrence,
+   Product_view_definition);
+END_TYPE;
 
 ENTITY Hierarchical_interface_connection
-  SUBTYPE OF (Interface_connection);
+SUBTYPE OF (Interface_connection);
 END_ENTITY;
 
 ENTITY Interface_connection;
@@ -50,11 +44,11 @@ ENTITY Interface_connection;
 END_ENTITY;
 
 ENTITY Interface_connector
-  SUBTYPE OF (Product);
+SUBTYPE OF (Product);
 END_ENTITY;
 
 ENTITY Interface_connector_definition
-  SUBTYPE OF (Product_view_definition);
+SUBTYPE OF (Product_view_definition);
   connector_on : Product_view_definition;
   SELF\Product_view_definition.defined_version : Interface_connector_version;
 END_ENTITY;
@@ -68,7 +62,7 @@ ENTITY Interface_connector_occurrence;
 END_ENTITY;
 
 ENTITY Interface_connector_version
-  SUBTYPE OF (Product_version);
+SUBTYPE OF (Product_version);
   SELF\Product_version.of_product : Interface_connector;
 END_ENTITY;
 
@@ -89,18 +83,18 @@ ENTITY Interface_definition_for;
 END_ENTITY;
 
 ENTITY Interface_specification
-  SUBTYPE OF (Product);
+SUBTYPE OF (Product);
 END_ENTITY;
 
 ENTITY Interface_specification_definition
-  SUBTYPE OF (Product_view_definition);
+SUBTYPE OF (Product_view_definition);
   SELF\Product_view_definition.defined_version : Interface_specification_version;
 END_ENTITY;
 
 ENTITY Interface_specification_version
-  SUBTYPE OF (Product_version);
+SUBTYPE OF (Product_version);
   SELF\Product_version.of_product : Interface_specification;
 END_ENTITY;
 
-END_SCHEMA;  -- Interface_arm
+END_SCHEMA;
 

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.29 2008/12/18 15:23:40 thomasrthurman Exp $
+   $Id: arm.exp,v 1.30 2009/02/27 23:08:33 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5605 - ISO/TS 10303-1646 Footprint definition - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N3885
 *)
@@ -89,11 +89,10 @@ SCHEMA Footprint_definition_arm;
       padstack_based_location : template_arrangement := get_template_arrangement(padstacks);
       padstacks : SET[1:?] OF Template_location_in_structured_template := QUERY(tlict <* SELF\Structured_template.templates |
          ('LAYERED_INTERCONNECT_COMPLEX_TEMPLATE_ARM.PADSTACK_DEFINITION' IN TYPEOF(tlict.template)));
-      single_stratum_components : SET[0:?] OF Single_stratum_template := QUERY(tlict <* SELF\Structured_template.templates |
-         ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.SINGLE_STRATUM_TEMPLATE' IN TYPEOF(tlict.template)));   
+      single_stratum_components : SET[0:?] OF Single_stratum_template := fd_get_single_stratum_components(SELF\Structured_template.templates);   
     WHERE
-      WR1 : SIZEOF(QUERY(ps <* templates | (ps.template\Multi_stratum_structured_template.location <> SELF\Multi_stratum_structured_template.location)
-              AND (ps.template\Multi_stratum_structured_template.location <> template_arrangement.symmetrical))) = 0;
+      WR1 : SIZEOF(QUERY(ps <* SELF\Structured_template.templates | (ps\Template_location_in_structured_template.template\Multi_stratum_structured_template.location <> SELF\Multi_stratum_structured_template.location)
+              AND (ps\Template_location_in_structured_template.template\Multi_stratum_structured_template.location <> template_arrangement.symmetrical))) = 0;
       WR2 : ((SELF\Multi_stratum_structured_template.location = template_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR 
             (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'));
       WR3 : ((SELF\Multi_stratum_structured_template.location = template_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR 
@@ -206,6 +205,20 @@ SCHEMA Footprint_definition_arm;
     END_IF;
     RETURN(?);
   END_FUNCTION; 
+  
+  FUNCTION fd_get_single_stratum_components(input : SET OF Template_location_in_structured_template) : SET OF Single_stratum_template;
+    LOCAL
+      sst : SET OF Single_stratum_template := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input);
+      IF ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.SINGLE_STRATUM_TEMPLATE' IN TYPEOF(input[i]\Template_location_in_structured_template.template))
+      THEN      
+        sst := sst + input[i]\Template_location_in_structured_template.template;
+      END_IF;
+    END_REPEAT;
+    RETURN (sst);
+  END_FUNCTION;   
+  
 
   FUNCTION get_template_arrangement(
     input : SET OF Template_location_in_structured_template

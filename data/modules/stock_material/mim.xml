@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="mim_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="stock_material_mim schema_instance"/>
+<express description.file="mim_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="stock_material_mim schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Stock_material_mim">
       <interface kind="use" schema="Approval_mim"/>
       <interface kind="use" schema="Elemental_geometric_shape_mim"/>
@@ -13,10 +13,13 @@
       <interface kind="use" schema="product_structure_schema">
          <interfaced.item name="make_from_usage_option"/>
       </interface>
+      <interface kind="use" schema="product_definition_schema">
+         <interfaced.item name="product_related_product_category"/>
+      </interface>
       <type name="sm_approval_item">
-         <select extensible="YES" genericentity="YES" basedon="approval_item" selectitems="product_definition"/>
+         <select basedon="approval_item" extensible="YES" genericentity="YES" selectitems="product_definition"/>
       </type>
-      <rule name="ply_stock_material_select" appliesto="product_related_product_category make_from_usage_option">
+      <rule appliesto="product_related_product_category make_from_usage_option" name="ply_stock_material_select">
          <algorithm>LOCAL
     i,j,k,kp :  INTEGER;
     dkuhr    :  LOGICAL;
@@ -37,12 +40,11 @@
       REPEAT j:= LOINDEX (make_from_usage_option) TO 
                  HIINDEX (make_from_usage_option);
 
-        IF (product_related_product_category[kp].products[i] = 
-          make_from_usage_option[j].relating_product_definition.
-          formation.of_product) THEN
-
           rp := make_from_usage_option[j].related_product_definition.
                 formation.of_product;
+
+        IF (product_related_product_category[kp].products[i] = rp) THEN
+
           REPEAT k:= LOINDEX (product_related_product_category) TO
                      HIINDEX (product_related_product_category);
 
@@ -78,7 +80,7 @@
     END_IF;
 
   END_REPEAT;</algorithm>
-         <where label="WR1" expression="dkuhr"/>
+         <where expression="dkuhr" label="WR1"/>
       </rule>
    </schema>
 </express>

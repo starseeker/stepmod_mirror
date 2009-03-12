@@ -2,21 +2,40 @@
 <?xml-stylesheet 
   type="text/xsl" 
   href="../../../xsl/express.xsl"
-?> <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
-<express language_version="2" rcs.date="$Date: 2007/08/02 17:35:11 $" rcs.revision="$Revision: 1.16 $" description.file="mim_descriptions.xml">
-<application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.4.0" source="product_categorization_mim_v001.vsd" />
-<schema name="Product_categorization_mim">
-<interface kind="use" schema="basic_attribute_schema">
-<interfaced.item name="id_attribute" />
-<interfaced.item name="id_attribute_select" />
+?>
+<!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
+<express language_version="2" rcs.date="$Date: 2009/02/27 11:12:42 $" rcs.revision="$Revision: 1.6 $" description.file="mim_descriptions.xml">
+   <application name="GraphicalEXPRESS" owner="Eurostep" url="www.eurostep.com" version="1.4.0" source="product_categorization_mim_v001.vsd"/>
+   <schema name="Product_categorization_mim">
+      <interface kind="use" schema="basic_attribute_schema">
+         <interfaced.item name="id_attribute"/>
+         <interfaced.item name="id_attribute_select"/>
+      </interface>
+      <interface kind="use" schema="product_definition_schema">
+         <interfaced.item name="product_category"/>
+         <interfaced.item name="product_category_relationship"/>
+         <interfaced.item name="product_related_product_category"/>
+      </interface>
+      <interface kind="use" schema="Product_identification_mim">
 </interface>
-<interface kind="use" schema="product_definition_schema">
-<interfaced.item name="product_category" />
-<interfaced.item name="product_category_relationship" />
-<interfaced.item name="product_related_product_category" />
-</interface>
-<interface kind="use" schema="Product_identification_mim">
-</interface>
-<graphic.element page="1" xcoord="120" ycoord="715" />
-</schema>
+      <graphic.element page="1" xcoord="120" ycoord="715"/>
+      <function name="categories_of_product">
+         <parameter name="obj">
+            <typename name="product"/>
+         </parameter>
+         <aggregate type="SET"/>
+         <builtintype type="STRING"/>
+         <algorithm>
+LOCAL
+  category_assignments: BAG OF product_category;
+  categories: SET OF STRING:=[];
+END_LOCAL;
+category_assignments := USEDIN(obj, 'PRODUCT_DEFINITION_SCHEMA' + '.PRODUCT_RELATED_PRODUCT_CATEGORY.PRODUCTS');
+REPEAT i := LOINDEX(category_assignments) TO HIINDEX(category_assignments) BY 1;
+  categories := categories + category_assignments[i].name;
+END_REPEAT;
+RETURN(categories);
+      </algorithm>
+      </function>
+   </schema>
 </express>

@@ -1,5 +1,5 @@
 (*
-   $Id: arm.exp,v 1.4 2008/11/21 14:37:11 liutkus Exp $
+   $Id: arm.exp,v 1.5 2008/12/15 14:23:32 thomasrthurman Exp $
    ISO TC184/SC4/WG12 N5752 - ISO/TS 10303-1718 Layered interconnect simple template - EXPRESS ARM
    Supersedes ISO TC184/SC4/WG12 N4101
 *)
@@ -22,14 +22,7 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
      surface_area_class);
   END_TYPE;
 
-  TYPE extend_or_chord_2_extend_or_truncate_or_round = ENUMERATION OF
-    (truncate,
-     chord_2_extend,
-     round,
-     extend);
-  END_TYPE;
-
-  TYPE extend_or_truncate = ENUMERATION OF
+ TYPE extend_or_truncate = ENUMERATION OF
     (truncate,
      extend);
   END_TYPE;
@@ -95,16 +88,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
       connection_zone_category            : OPTIONAL SET[1:?] OF land_connection_zone_class;
   END_ENTITY; 
   
-  ENTITY Curve_style_parameters
-  	ABSTRACT SUPERTYPE OF(ONEOF(Closed_curve_style_parameters, Curve_style_parameters_with_ends));
-      name              : STRING;
-      corner_style      : extend_or_chord_2_extend_or_truncate_or_round;
-      curve_width       : Length_data_element;
-      width_uncertainty : Length_data_element;
-    UNIQUE
-      UR1 : name;
-  END_ENTITY;
-
   ENTITY Closed_curve_style_parameters
     SUBTYPE OF (Curve_style_parameters);
   END_ENTITY;
@@ -330,12 +313,6 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
            TYPEOF(of_character)) = 1;  
   END_ENTITY;
 
-  ENTITY Path_area_with_parameters
-    SUBTYPE OF (Detailed_geometric_model_element);
-    centreline : Curve;
-    parameters : Curve_style_parameters;
-  END_ENTITY;
-
  ENTITY Planar_path_shape_model_with_parameters
     SUBTYPE OF (Single_area_csg_2d_model);
     WHERE
@@ -486,6 +463,10 @@ REFERENCE FROM Characterizable_object_arm(bag_to_set);  -- ISO/TS 10303-1765
             Land_template_terminal));
   END_SUBTYPE_CONSTRAINT;
 
+  SUBTYPE_CONSTRAINT list_curve_style_parameters_subtypes FOR Curve_style_parameters; 
+   (ONEOF(Closed_curve_style_parameters, Curve_style_parameters_with_ends));
+  END_SUBTYPE_CONSTRAINT;
+  
   FUNCTION list_get_zone_name(input : SET OF Connection_zone_in_layout_template) : SET OF STRING;
     LOCAL
       s : SET OF STRING := [];

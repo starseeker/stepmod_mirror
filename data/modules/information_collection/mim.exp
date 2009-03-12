@@ -1,6 +1,90 @@
 (*
-   $Id: mkmodule.js,v 1.45 2006/05/18 17:01:14 dmprice Exp $
-   N - ISO/CD-TS - 10303- information_collection - EXPRESS MIM*)
-(* UNDER DEVELOPMENT *)
+$Id: mim.exp,v 1.1 2009/01/28 13:43:59 robbod Exp $
+ISO TC184/SC4/WG12 N - ISO/WD 10303-xxxx Information collection - EXPRESS MIM
+*) 
+
+
 SCHEMA Information_collection_mim;
-END_SCHEMA;
+
+USE FROM group_mim;    -- ISO/TS 10303-1113
+
+USE FROM group_schema   -- ISO 10303-41
+  (groupable_item); 
+
+USE FROM Identification_assignment_mim;    -- ISO/TS 10303-1021
+
+USE FROM product_definition_schema   -- ISO 10303-41
+  (product,
+   product_definition,
+   product_definition_formation,
+   product_definition_formation_relationship,
+   product_relationship); 
+
+USE FROM Product_relationship_mim;    -- ISO/TS 10303-1024
+
+USE FROM Product_version_relationship_mim;    -- ISO/TS 10303-1020
+
+USE FROM Product_view_definition_mim;    -- ISO/TS 10303-1019
+
+
+TYPE information_collection_assignment_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item;
+END_TYPE; 
+
+TYPE information_collection_membership_groupable_item = EXTENSIBLE GENERIC_ENTITY SELECT BASED_ON groupable_item;
+END_TYPE; 
+
+ENTITY baseline
+  SUBTYPE OF (information_collection);
+END_ENTITY;
+
+ENTITY baseline_version
+  SUBTYPE OF (information_collection_version);
+  SELF\information_collection_version.of_information_collection RENAMED of_baseline : baseline;
+END_ENTITY;
+
+ENTITY baseline_view_definition
+  SUBTYPE OF (information_collection_view_definition);
+  SELF\information_collection_view_definition.defined_version : baseline_version;
+END_ENTITY;
+
+ENTITY information_collection
+  SUBTYPE OF (product);
+END_ENTITY;
+
+ENTITY information_collection_assignment
+  SUBTYPE OF (applied_group_assignment);
+END_ENTITY;
+
+ENTITY information_collection_membership
+  SUBTYPE OF (applied_group_assignment);
+END_ENTITY;
+
+ENTITY information_collection_relationship
+  SUBTYPE OF (product_relationship);
+  SELF\product_relationship.relating_product RENAMED relating_collection : information_collection;
+  SELF\product_relationship.related_product RENAMED related_collection : information_collection;
+END_ENTITY;
+
+ENTITY information_collection_version
+  SUBTYPE OF (product_definition_formation);
+  SELF\product_definition_formation.of_product RENAMED of_information_collection : information_collection;
+END_ENTITY;
+
+ENTITY information_collection_version_relationship
+  SUBTYPE OF (product_definition_formation_relationship);
+  SELF\product_definition_formation_relationship.relating_product_definition_formation RENAMED relating_version : information_collection_version;
+  SELF\product_definition_formation_relationship.related_product_definition_formation RENAMED related_version : information_collection_version;
+END_ENTITY;
+
+ENTITY information_collection_version_sequence_relationship
+  SUBTYPE OF (product_definition_formation_relationship);
+  SELF\product_definition_formation_relationship.relating_product_definition_formation RENAMED predecessor : information_collection_version;
+  SELF\product_definition_formation_relationship.related_product_definition_formation RENAMED successor : information_collection_version;
+END_ENTITY;
+
+ENTITY information_collection_view_definition
+  SUBTYPE OF (product_definition);
+  SELF\product_definition.formation RENAMED defined_version : information_collection_version;
+END_ENTITY;
+
+END_SCHEMA;  -- Information_collection_mim

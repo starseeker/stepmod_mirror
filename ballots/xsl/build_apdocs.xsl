@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-$Id: build_apdocs.xsl,v 1.42 2006/07/13 17:52:48 hz0wyg Exp $
+$Id: build_apdocs.xsl,v 1.43 2008/12/19 16:39:21 thomasrthurman Exp $
    Author:  Rob Bodington, Eurostep Limited
    Owner:   Developed by Eurostep Limited http://www.eurostep.com
    Purpose: To build the initial ANT build package. 

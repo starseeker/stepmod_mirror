@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_module_usage_view_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="assembly_module_usage_view_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Assembly_module_usage_view_arm">
       <interface kind="use" schema="Functional_usage_view_arm"/>
       <interface kind="use" schema="Packaged_connector_model_arm"/>
-      <entity name="Assembly_module_interface_terminal" supertypes="Assembly_module_terminal" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Assembly_module_terminal" supertypes="Part_terminal" super.expression="Assembly_module_interface_terminal ANDOR Layered_assembly_module_terminal" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="associated_definition" optional="NO">
+      <entity name="Assembly_module_interface_terminal" supertypes="Assembly_module_terminal"/>
+      <entity name="Assembly_module_terminal" super.expression="Assembly_module_interface_terminal ANDOR Layered_assembly_module_terminal" supertypes="Part_terminal">
+         <explicit name="associated_definition">
             <typename name="Assembly_module_usage_view"/>
             <redeclaration entity-ref="Part_feature"/>
          </explicit>
@@ -20,33 +20,30 @@
             <typename name="Next_assembly_usage"/>
          </explicit>
          <explicit name="connection_area" optional="YES">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Connection_zone_in_usage_view"/>
             <redeclaration entity-ref="Shape_feature"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(related_connector) OR &#10;            (SELF\Shape_element.containing_shape.described_element = &#10;             related_connector\Product_occurrence_definition_relationship.related_view)"/>
-         <where label="WR2" expression="NOT EXISTS(related_connector) OR EXISTS(related_connector.location_indicator)"/>
-         <where label="WR3" expression="EXISTS(related_connector) OR &#10;            (SELF\Shape_element.containing_shape.described_element = &#10;             SELF\Part_feature.associated_definition)"/>
-      <where label="IP1"/>
-         <where label="IP2"/>
+         <where expression="NOT EXISTS(related_connector) OR &#10;            (SELF\Shape_element.containing_shape.described_element = &#10;             related_connector\Product_occurrence_definition_relationship.related_view)" label="WR1"/>
+         <where expression="NOT EXISTS(related_connector) OR EXISTS(related_connector.location_indicator)" label="WR2"/>
+         <where expression="EXISTS(related_connector) OR &#10;            (SELF\Shape_element.containing_shape.described_element = &#10;             SELF\Part_feature.associated_definition)" label="WR3"/>
       </entity>
-      <entity name="Assembly_module_usage_view" supertypes="Part_usage_view" super.expression="Layered_assembly_module_usage_view" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Assembly_module_usage_view" super.expression="Layered_assembly_module_usage_view" supertypes="Part_usage_view">
          <explicit name="implemented_function" optional="YES">
             <typename name="Functional_unit_usage_view"/>
          </explicit>
-         <inverse name="access_mechanisms" entity="Assembly_module_terminal" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="0" upper="?"/>
+         <inverse attribute="associated_definition" entity="Assembly_module_terminal" name="access_mechanisms">
+            <inverse.aggregate lower="0" type="SET" upper="?"/>
          </inverse>
-         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
-      <where label="IP1"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)" label="WR1"/>
       </entity>
-      <entity name="Layered_assembly_module_terminal" supertypes="Assembly_module_terminal" abstract.supertype="NO" abstract.entity="NO">
-         <explicit name="associated_definition" optional="NO">
+      <entity name="Layered_assembly_module_terminal" supertypes="Assembly_module_terminal">
+         <explicit name="associated_definition">
             <typename name="Layered_assembly_module_usage_view"/>
             <redeclaration entity-ref="Part_feature"/>
          </explicit>
       </entity>
-      <entity name="Layered_assembly_module_usage_view" supertypes="Assembly_module_usage_view" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Layered_assembly_module_usage_view" supertypes="Assembly_module_usage_view">
          <explicit name="maximum_negative_component_height" optional="YES">
             <typename name="Datum_based_length_measure"/>
          </explicit>

@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="assembly_module_design_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="assembly_module_design_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Assembly_module_design_arm">
       <interface kind="use" schema="Altered_package_arm"/>
       <interface kind="use" schema="Assembly_module_usage_view_arm"/>
@@ -33,15 +33,15 @@
             <typename name="Assembly_module_design_view"/>
          </explicit>
       </entity>
-      <entity name="Assembly_module_design_view" supertypes="Assembly_definition Part_design_view" super.expression="ONEOF (Layered_assembly_panel_design_view, Layered_assembly_module_design_view)">
-         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+      <entity name="Assembly_module_design_view" super.expression="ONEOF (Layered_assembly_panel_design_view, Layered_assembly_module_design_view)" supertypes="Assembly_definition Part_design_view">
+         <where expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)" label="WR1"/>
       </entity>
       <entity name="Bare_die_component" supertypes="Physical_component Single_instance">
          <explicit name="derived_from">
             <typename name="Bare_die"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.name)" label="WR1"/>
       </entity>
       <entity name="Bare_die_component_terminal" supertypes="Physical_component_terminal">
          <explicit name="definition">
@@ -52,7 +52,7 @@
             <typename name="Bare_die_component"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
       <entity name="Component_external_reference">
          <explicit name="design_owner">
@@ -120,13 +120,13 @@
             <typename name="Part_terminal_external_reference"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
       <entity name="Movable_packaged_component_join_terminal" supertypes="Packaged_component_join_terminal">
          <explicit name="wire_terminal_length">
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(pt &lt;* SELF\Component_feature.definition\Packaged_part_terminal.terminal_of_package | &#10;            NOT('PACKAGE_ARM.WIRE_TERMINAL' IN TYPEOF (pt)))) = 0"/>
+         <where expression="SIZEOF(QUERY(pt &lt;* SELF\Component_feature.definition\Packaged_part_terminal.terminal_of_package | &#10;            NOT('PACKAGE_ARM.WIRE_TERMINAL' IN TYPEOF (pt)))) = 0" label="WR1"/>
       </entity>
       <entity name="Packaged_component" supertypes="Physical_component Single_instance">
          <explicit name="derived_from">
@@ -136,8 +136,8 @@
          <explicit name="selected_package_alternate" optional="YES">
             <typename name="Altered_package"/>
          </explicit>
-         <inverse name="access_mechanism" entity="Packaged_component_join_terminal" attribute="associated_component">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse attribute="associated_component" entity="Packaged_component_join_terminal" name="access_mechanism">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
       </entity>
       <entity name="Packaged_component_join_terminal" supertypes="Physical_component_terminal">
@@ -149,20 +149,20 @@
             <typename name="Packaged_component"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
       <entity name="Routed_interconnect_component" supertypes="Physical_component">
          <explicit name="routed_centreline_shape">
             <typename name="Path_area_with_parameters"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.name)" label="WR1"/>
       </entity>
       <entity name="Routed_physical_component" supertypes="Physical_component">
          <explicit name="routed_centreline_shape">
             <typename name="Path_area_with_parameters"/>
          </explicit>
       </entity>
-      <subtype.constraint name="physical_component_subtypes" entity="Physical_component" super.expression="ONEOF (Bare_die_component, Packaged_component, Routed_interconnect_component, Routed_physical_component)"/>
-      <subtype.constraint name="amd_physical_component_terminal_subtypes" entity="Physical_component_terminal" super.expression="ONEOF (Bare_die_component_terminal, Minimally_defined_component_terminal, Packaged_component_join_terminal)"/>
+      <subtype.constraint entity="Physical_component" name="physical_component_subtypes" super.expression="ONEOF (Bare_die_component, Packaged_component, Routed_interconnect_component, Routed_physical_component)"/>
+      <subtype.constraint entity="Physical_component_terminal" name="amd_physical_component_terminal_subtypes" super.expression="ONEOF (Bare_die_component_terminal, Minimally_defined_component_terminal, Packaged_component_join_terminal)"/>
    </schema>
 </express>

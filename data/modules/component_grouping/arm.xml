@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="component_grouping_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="component_grouping_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Component_grouping_arm">
       <interface kind="use" schema="Interface_component_arm"/>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <entity name="Array_placement_group" abstract.supertype="YES" supertypes="Assembly_group_component" super.expression="ONEOF (Linear_array_placement_group_component, Rectangular_array_placement_group_component)"/>
+      <entity abstract.supertype="YES" name="Array_placement_group" super.expression="ONEOF (Linear_array_placement_group_component, Rectangular_array_placement_group_component)" supertypes="Assembly_group_component"/>
       <entity name="Assembly_component_placement_link">
          <explicit name="precedent_element">
             <typename name="Assembly_component"/>
@@ -17,24 +17,24 @@
          <explicit name="subsequent_element">
             <typename name="Assembly_component"/>
          </explicit>
-         <inverse name="referenced_by" entity="Linear_array_placement_group_component" attribute="element"/>
-         <where label="WR1" expression="acyclic_assembly_component_placement_link(SELF,&#10;         [subsequent_element],&#10;         'COMPONENT_GROUPING_ARM.ASSEMBLY_COMPONENT_PLACEMENT_LINK')"/>
+         <inverse attribute="element" entity="Linear_array_placement_group_component" name="referenced_by"/>
+         <where expression="acyclic_assembly_component_placement_link(SELF,&#10;         [subsequent_element],&#10;         'COMPONENT_GROUPING_ARM.ASSEMBLY_COMPONENT_PLACEMENT_LINK')" label="WR1"/>
       </entity>
       <entity name="Assembly_group_component" supertypes="Assembly_component Single_instance">
-         <inverse name="components" entity="Next_assembly_usage" attribute="relating_view">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse attribute="relating_view" entity="Next_assembly_usage" name="components">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
-         <where label="WR1" expression="SIZEOF(QUERY(co &lt;* components | NOT(('PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT') IN TYPEOF(co\Product_occurrence_definition_relationship.related_view)))) = 0"/>
+         <where expression="SIZEOF(QUERY(co &lt;* components | NOT(('PHYSICAL_UNIT_DESIGN_VIEW_ARM.ASSEMBLY_COMPONENT') IN TYPEOF(co\Product_occurrence_definition_relationship.related_view)))) = 0" label="WR1"/>
       </entity>
       <entity name="Interfaced_group_component" supertypes="Assembly_group_component">
          <explicit name="group_interface_component">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Interface_component"/>
          </explicit>
       </entity>
       <entity name="Linear_array_placement_group_component" supertypes="Array_placement_group">
          <explicit name="element">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Assembly_component_placement_link"/>
          </explicit>
          <explicit name="initial_node_positive_x_displacement">
@@ -46,7 +46,7 @@
          <explicit name="location_uncertainty">
             <typename name="Length_data_element"/>
          </explicit>
-         <where label="WR1" expression="(1 + SIZEOF(element)) = cg_get_sz_ac(element)"/>
+         <where expression="(1 + SIZEOF(element)) = cg_get_sz_ac(element)" label="WR1"/>
       </entity>
       <entity name="Linear_array_placement_group_component_link">
          <explicit name="precedent_element">
@@ -55,12 +55,12 @@
          <explicit name="subsequent_element">
             <typename name="Linear_array_placement_group_component"/>
          </explicit>
-         <inverse name="referenced_by" entity="Rectangular_array_placement_group_component" attribute="element"/>
-         <where label="WR1" expression="acyclic_linear_array_placement_group_component_link(SELF,&#10;         [subsequent_element],&#10;         'COMPONENT_GROUPING_ARM.LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_LINK')"/>
+         <inverse attribute="element" entity="Rectangular_array_placement_group_component" name="referenced_by"/>
+         <where expression="acyclic_linear_array_placement_group_component_link(SELF,&#10;         [subsequent_element],&#10;         'COMPONENT_GROUPING_ARM.LINEAR_ARRAY_PLACEMENT_GROUP_COMPONENT_LINK')" label="WR1"/>
       </entity>
       <entity name="Rectangular_array_placement_group_component" supertypes="Array_placement_group">
          <explicit name="element">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Linear_array_placement_group_component_link"/>
          </explicit>
          <explicit name="initial_row_positive_y_displacement">
@@ -72,14 +72,14 @@
          <explicit name="location_uncertainty">
             <typename name="Length_data_element"/>
          </explicit>
-         <where label="WR1" expression="(1 + SIZEOF(element)) = cg_get_sz_lapgc(element)"/>
+         <where expression="(1 + SIZEOF(element)) = cg_get_sz_lapgc(element)" label="WR1"/>
       </entity>
       <function name="acyclic_assembly_component_placement_link">
          <parameter name="relation">
             <typename name="Assembly_component_placement_link"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Assembly_component"/>
          </parameter>
          <parameter name="specific_relation">
@@ -109,7 +109,7 @@ END_LOCAL;
             <typename name="Linear_array_placement_group_component_link"/>
          </parameter>
          <parameter name="relatives">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Linear_array_placement_group_component"/>
          </parameter>
          <parameter name="specific_relation">
@@ -137,7 +137,7 @@ END_LOCAL;
       </function>
       <function name="cg_get_sz_ac">
          <parameter name="input">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Assembly_component_placement_link"/>
          </parameter>
          <builtintype type="INTEGER"/>
@@ -152,7 +152,7 @@ END_LOCAL;
       </function>
       <function name="cg_get_sz_lapgc">
          <parameter name="input">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Linear_array_placement_group_component_link"/>
          </parameter>
          <builtintype type="INTEGER"/>

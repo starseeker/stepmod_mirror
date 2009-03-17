@@ -1,19 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date: 2007-03-21 02:48:33 -0700 (Tr, 21 Kov 2007) $" rcs.revision="$Revision: 22 $" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="bare_die_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="bare_die_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Bare_die_arm">
       <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
       <interface kind="use" schema="Functional_assignment_to_part_arm"/>
       <interface kind="use" schema="Part_feature_function_arm"/>
       <interface kind="use" schema="Functional_usage_view_arm"/>
       <type name="bd_ee_product_definition_with_annotation_elements">
-         <select extensible="YES" genericentity="YES" basedon="ee_product_definition_with_annotation_elements" selectitems="Bare_die"/>
+         <select basedon="ee_product_definition_with_annotation_elements" extensible="YES" genericentity="YES" selectitems="Bare_die"/>
       </type>
       <type name="bd_material_item_select">
-         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Bare_die_terminal Bare_die_template_terminal"/>
+         <select basedon="material_item_select" extensible="YES" genericentity="YES" selectitems="Bare_die_terminal Bare_die_template_terminal"/>
       </type>
       <type name="derived_zone_shape_class">
          <enumeration items="area edge"/>
@@ -31,14 +31,14 @@
          <explicit name="implemented_function">
             <typename name="Functional_unit_usage_view"/>
          </explicit>
-         <inverse name="access_mechanisms" entity="Minimally_defined_bare_die_terminal" attribute="associated_definition">
-            <inverse.aggregate type="SET" lower="2" upper="?"/>
+         <inverse attribute="associated_definition" entity="Minimally_defined_bare_die_terminal" name="access_mechanisms">
+            <inverse.aggregate lower="2" type="SET" upper="?"/>
          </inverse>
-         <inverse name="die_seating_plane" entity="Non_feature_shape_element" attribute="scope"/>
-         <where label="WR1" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE') | ('BARE_DIE_ARM.' + 'BARE_DIE_TOP_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
-         <where label="WR2" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE') | ('BARE_DIE_ARM.' + 'BARE_DIE_BOTTOM_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
-         <where label="WR3" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE') | ('BARE_DIE_ARM.' + 'BARE_DIE_EDGE_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
-         <where label="WR4" expression="'NON_FEATURE_SHAPE_ELEMENT_ARM.SEATING_PLANE' IN TYPEOF(die_seating_plane)"/>
+         <inverse attribute="scope" entity="Non_feature_shape_element" name="die_seating_plane"/>
+         <where expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE') | ('BARE_DIE_ARM.' + 'BARE_DIE_TOP_SURFACE' IN TYPEOF(pf)))) &lt;= 1" label="WR1"/>
+         <where expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE') | ('BARE_DIE_ARM.' + 'BARE_DIE_BOTTOM_SURFACE' IN TYPEOF(pf)))) &lt;= 1" label="WR2"/>
+         <where expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'SHAPE_PROPERTY_ASSIGNMENT_ARM.SHAPE_ELEMENT.CONTAINING_SHAPE') | ('BARE_DIE_ARM.' + 'BARE_DIE_EDGE_SURFACE' IN TYPEOF(pf)))) &lt;= 1" label="WR3"/>
+         <where expression="'NON_FEATURE_SHAPE_ELEMENT_ARM.SEATING_PLANE' IN TYPEOF(die_seating_plane)" label="WR4"/>
       </entity>
       <entity name="Bare_die_bottom_surface" supertypes="Bare_die_surface"/>
       <entity name="Bare_die_edge_segment_surface" supertypes="Bare_die_surface">
@@ -51,11 +51,11 @@
          <explicit name="end_vertex">
             <typename name="Edge_segment_vertex"/>
          </explicit>
-         <where label="WR1" expression="start_vertex :&lt;&gt;: end_vertex"/>
-         <where label="WR2" expression="SELF\Shape_element.containing_shape :=: composed_surface\Shape_element.containing_shape"/>
+         <where expression="start_vertex :&lt;&gt;: end_vertex" label="WR1"/>
+         <where expression="SELF\Shape_element.containing_shape :=: composed_surface\Shape_element.containing_shape" label="WR2"/>
       </entity>
       <entity name="Bare_die_edge_surface" supertypes="Bare_die_surface"/>
-      <entity name="Bare_die_surface" abstract.supertype="YES" supertypes="Part_mounting_feature" super.expression="ONEOF (Bare_die_top_surface, Bare_die_bottom_surface, Bare_die_edge_segment_surface, Bare_die_edge_surface)">
+      <entity abstract.supertype="YES" name="Bare_die_surface" super.expression="ONEOF (Bare_die_top_surface, Bare_die_bottom_surface, Bare_die_edge_segment_surface, Bare_die_edge_surface)" supertypes="Part_mounting_feature">
          <explicit name="associated_definition">
             <typename name="Bare_die"/>
             <redeclaration entity-ref="Part_feature"/>
@@ -63,15 +63,15 @@
       </entity>
       <entity name="Bare_die_template_terminal" supertypes="Part_feature_template_definition Shape_feature">
          <explicit name="connection_area" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Connection_zone_in_usage_view"/>
             <redeclaration entity-ref="Shape_feature"/>
          </explicit>
          <explicit name="seating_plane_zone" optional="YES">
             <typename name="Connection_zone_bare_die_interface_plane_relationship"/>
          </explicit>
-         <inverse name="material" entity="Material_identification" attribute="items"/>
-         <where label="WR1" expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (material)"/>
+         <inverse attribute="items" entity="Material_identification" name="material"/>
+         <where expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (material)" label="WR1"/>
       </entity>
       <entity name="Bare_die_terminal" supertypes="Minimally_defined_bare_die_terminal Placed_feature">
          <explicit name="definition">
@@ -103,8 +103,8 @@
          <explicit name="derived_zone_shape_class">
             <typename name="derived_zone_shape_class"/>
          </explicit>
-         <inverse name="associated_bare_die_terminal" entity="Bare_die_template_terminal" attribute="seating_plane_zone">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         <inverse attribute="seating_plane_zone" entity="Bare_die_template_terminal" name="associated_bare_die_terminal">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
          <unique label="UR1">
             <unique.attribute attribute="interface_plane"/>
@@ -112,7 +112,7 @@
          </unique>
       </entity>
       <entity name="Guided_wave_bare_die_terminal" supertypes="Minimally_defined_bare_die_terminal"/>
-      <entity name="Minimally_defined_bare_die_terminal" supertypes="Part_terminal" super.expression="Guided_wave_bare_die_terminal ANDOR Bare_die_terminal">
+      <entity name="Minimally_defined_bare_die_terminal" super.expression="Guided_wave_bare_die_terminal ANDOR Bare_die_terminal" supertypes="Part_terminal">
          <explicit name="associated_definition">
             <typename name="Bare_die"/>
             <redeclaration entity-ref="Part_feature"/>

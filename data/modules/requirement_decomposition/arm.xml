@@ -1,14 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="requirement_decomposition_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="requirement_decomposition_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Requirement_decomposition_arm">
       <interface kind="use" schema="Conductivity_material_aspects_arm"/>
       <interface kind="use" schema="Elemental_geometric_shape_arm"/>
       <interface kind="use" schema="Functional_specification_arm"/>
       <interface kind="use" schema="Production_rule_arm"/>
+      <interface kind="use" schema="Requirement_view_definition_relationship_arm"/>
       <interface kind="reference" schema="Specification_document_arm">
          <interfaced.item name="get_document_definition"/>
       </interface>
@@ -22,26 +23,26 @@
          <enumeration items="conductive resistive semi_conductive non_conductive"/>
       </type>
       <type name="rd_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Predefined_requirement_view_definition"/>
+         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="Predefined_requirement_view_definition"/>
       </type>
       <type name="rd_material_item_select">
-         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Predefined_requirement_view_definition"/>
+         <select basedon="material_item_select" extensible="YES" genericentity="YES" selectitems="Predefined_requirement_view_definition"/>
       </type>
       <type name="rd_property_assignment_select">
-         <select extensible="YES" genericentity="YES" basedon="property_assignment_select" selectitems="Requirement_view_definition"/>
+         <select basedon="property_assignment_select" extensible="YES" genericentity="YES" selectitems="Requirement_view_definition"/>
       </type>
       <type name="rd_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Group Group_relationship"/>
+         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Group Group_relationship"/>
       </type>
       <type name="relationship_operation">
          <enumeration items="and_operation or_operation"/>
       </type>
-      <entity name="Constraint_occurrence" supertypes="Predefined_requirement_view_definition" super.expression="View_based_constraint_occurrence">
+      <entity name="Constraint_occurrence" super.expression="View_based_constraint_occurrence" supertypes="Predefined_requirement_view_definition">
          <explicit name="logical_relation" optional="YES">
             <typename name="Complex_clause"/>
          </explicit>
-         <where label="WR1" expression="(('REQUIREMENT_DECOMPOSITION_ARM.' + 'VIEW_BASED_CONSTRAINT_OCCURRENCE') IN TYPEOF(SELF)) OR EXISTS(logical_relation)"/>
-         <where label="WR2" expression="NOT EXISTS(SELF\Product_view_definition.id)"/>
+         <where expression="(('REQUIREMENT_DECOMPOSITION_ARM.' + 'VIEW_BASED_CONSTRAINT_OCCURRENCE') IN TYPEOF(SELF)) OR EXISTS(logical_relation)" label="WR1"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.id)" label="WR2"/>
       </entity>
       <entity name="Design_characteristic_occurrence" supertypes="Predefined_requirement_view_definition"/>
       <entity name="Material_electrical_conductivity_requirement" supertypes="Predefined_requirement_view_definition">
@@ -65,60 +66,44 @@
          <explicit name="relationship_type">
             <typename name="relationship_operation"/>
          </explicit>
-         <where label="WR1" expression="operand_1 :&lt;&gt;: operand_2"/>
+         <where expression="operand_1 :&lt;&gt;: operand_2" label="WR1"/>
       </entity>
-      <entity name="Predefined_requirement_view_definition" supertypes="Requirement_view_definition" super.expression="ONEOF (Constraint_occurrence, Design_characteristic_occurrence)">
+      <entity name="Predefined_requirement_view_definition" super.expression="ONEOF (Constraint_occurrence, Design_characteristic_occurrence)" supertypes="Requirement_view_definition">
          <explicit name="required_analytical_representation" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Analytical_model_application"/>
          </explicit>
          <explicit name="required_functional_specification" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Functional_specification"/>
          </explicit>
          <explicit name="required_characteristic" optional="YES">
             <typename name="characteristic_select"/>
          </explicit>
-         <derived name="requirement_specification" expression="get_document_definition(SELF, 'requirement specification', &#10;  			'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION')">
-            <aggregate type="SET" lower="1" upper="?"/>
+         <derived expression="get_document_definition(SELF, 'requirement specification', &#10;  &#9;&#9;&#9;'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION')" name="requirement_specification">
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Document_definition"/>
          </derived>
-         <derived name="reference_clause" expression="get_document_definition(SELF, 'reference clause', &#10;  			'SPECIFICATION_DOCUMENT_ARM.DOCUMENT_DEFINITION')">
-            <aggregate type="SET" lower="0" upper="1"/>
+         <derived expression="get_document_definition(SELF, 'reference clause', &#10;  &#9;&#9;&#9;'SPECIFICATION_DOCUMENT_ARM.DOCUMENT_DEFINITION')" name="reference_clause">
+            <aggregate lower="0" type="SET" upper="1"/>
             <typename name="Document_definition"/>
          </derived>
-         <inverse name="required_material" entity="Material_identification" attribute="items">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         <inverse attribute="items" entity="Material_identification" name="required_material">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
-         <where label="WR1" expression="NOT (SIZEOF(required_material) = 1) OR&#10;            ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (required_material))"/>
-         <where label="WR2" expression="SELF\Product_view_definition.initial_context.application_domain IN &#10;          ['mechanical', 'thermal', 'electromechancial', 'electromagnetic compatibility', 'electrical']"/>
-         <where label="WR3" expression="SELF\Product_view_definition.initial_context.life_cycle_stage in ['design', 'qualify', 'inspect', 'test']"/>
-         <where label="WR4" expression="NOT EXISTS(SELF\Product_view_definition.name)"/>
-      </entity>
-      <entity name="Requirement_view_definition_relationship" supertypes="View_definition_relationship">
-         <explicit name="primary">
-            <typename name="Requirement_view_definition"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="relating_view"/>
-         </explicit>
-         <explicit name="secondary">
-            <typename name="Requirement_view_definition"/>
-            <redeclaration entity-ref="View_definition_relationship" old_name="related_view"/>
-         </explicit>
-         <explicit name="relation_type">
-            <builtintype type="STRING"/>
-            <redeclaration entity-ref="View_definition_relationship"/>
-         </explicit>
-         <where label="WR1" expression="primary :&lt;&gt;: secondary"/>
-         <where label="WR2" expression="SELF\View_definition_relationship.relation_type IN ['derived from', 'precedence', 'reference to', 'supplemental']"/>
+         <where expression="NOT (SIZEOF(required_material) = 1) OR&#10;            ('CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (required_material))" label="WR1"/>
+         <where expression="SELF\Product_view_definition.initial_context.application_domain IN &#10;          ['mechanical', 'thermal', 'electromechancial', 'electromagnetic compatibility', 'electrical']" label="WR2"/>
+         <where expression="SELF\Product_view_definition.initial_context.life_cycle_stage in ['design', 'qualify', 'inspect', 'test']" label="WR3"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.name)" label="WR4"/>
       </entity>
       <entity name="Shape_and_view_based_constraint_occurrence" supertypes="View_based_constraint_occurrence">
          <explicit name="constraining_shape">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Geometric_model"/>
          </explicit>
-         <where label="WR1" expression="valid_constraining_shape(constraining_shape,&#10; SELF\View_based_constraint_occurrence.constraining_part)"/>
+         <where expression="valid_constraining_shape(constraining_shape,&#10; SELF\View_based_constraint_occurrence.constraining_part)" label="WR1"/>
       </entity>
-      <entity name="View_based_constraint_occurrence" supertypes="Constraint_occurrence" super.expression="Shape_and_view_based_constraint_occurrence">
+      <entity name="View_based_constraint_occurrence" super.expression="Shape_and_view_based_constraint_occurrence" supertypes="Constraint_occurrence">
          <explicit name="constraining_part">
             <typename name="Product_view_definition"/>
          </explicit>
@@ -130,7 +115,7 @@
          <parameter name="id">
             <builtintype type="STRING"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Requirement_view_definition"/>
          <algorithm>LOCAL
 	rvd : SET[0:?] OF Requirement_view_definition := [];  --this gives us access to the information base
@@ -148,7 +133,7 @@ END_LOCAL;
       </function>
       <function name="valid_constraining_shape">
          <parameter name="sd">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Geometric_model"/>
          </parameter>
          <parameter name="eepd">

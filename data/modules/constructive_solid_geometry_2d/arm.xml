@@ -1,11 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="constructive_solid_geometry_2d_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="constructive_solid_geometry_2d_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Constructive_solid_geometry_2d_arm">
       <interface kind="use" schema="Area_2d_arm"/>
+      <interface kind="use" schema="Basic_curve_arm"/>
+      <type name="extend_or_chord_2_extend_or_truncate_or_round">
+         <enumeration items="truncate chord_2_extend round extend"/>
+      </type>
       <type name="primitive_or_boolean_result_2d">
          <select selectitems="Primitive_2d Boolean_result_2d"/>
       </type>
@@ -13,15 +17,40 @@
       <entity name="Boolean_result_2d" supertypes="Detailed_geometric_model_element"/>
       <entity name="Csg_2d_model" supertypes="Geometric_model">
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="primitive_or_boolean_result_2d"/>
             <redeclaration entity-ref="Representation"/>
+         </explicit>
+      </entity>
+      <entity abstract.supertype="YES" name="Curve_style_parameters">
+         <explicit name="name">
+            <builtintype type="STRING"/>
+         </explicit>
+         <explicit name="corner_style">
+            <typename name="extend_or_chord_2_extend_or_truncate_or_round"/>
+         </explicit>
+         <explicit name="curve_width">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <explicit name="width_uncertainty">
+            <typename name="Length_data_element"/>
+         </explicit>
+         <unique label="UR1">
+            <unique.attribute attribute="name"/>
+         </unique>
+      </entity>
+      <entity name="Path_area_with_parameters" supertypes="Detailed_geometric_model_element">
+         <explicit name="centreline">
+            <typename name="Curve"/>
+         </explicit>
+         <explicit name="parameters">
+            <typename name="Curve_style_parameters"/>
          </explicit>
       </entity>
       <entity name="Primitive_2d_with_inner_boundary" supertypes="Primitive_2d"/>
       <entity name="Single_area_csg_2d_model" supertypes="Csg_2d_model">
          <explicit name="items">
-            <aggregate type="SET" lower="1" upper="1"/>
+            <aggregate lower="1" type="SET" upper="1"/>
             <typename name="Primitive_2d"/>
             <redeclaration entity-ref="Representation"/>
          </explicit>

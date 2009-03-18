@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="device_marking_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="device_marking_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Device_marking_arm">
       <interface kind="use" schema="Approval_arm"/>
       <interface kind="use" schema="Layered_interconnect_complex_template_arm"/>
@@ -12,10 +12,10 @@
          <interfaced.item name="get_document_definition"/>
       </interface>
       <type name="dm_documented_element_select">
-         <select extensible="YES" genericentity="YES" basedon="documented_element_select" selectitems="Marking"/>
+         <select basedon="documented_element_select" extensible="YES" genericentity="YES" selectitems="Marking"/>
       </type>
       <type name="dm_material_item_select">
-         <select extensible="YES" genericentity="YES" basedon="material_item_select" selectitems="Marking"/>
+         <select basedon="material_item_select" extensible="YES" genericentity="YES" selectitems="Marking"/>
       </type>
       <type name="marked_message_select">
          <select selectitems="Configuration_controlled_message Text_representation_item"/>
@@ -56,16 +56,16 @@
          <explicit name="message_representation_text">
             <typename name="Text_literal_with_extent"/>
          </explicit>
-         <derived name="marking_specification" expression="get_document_definition(SELF, 'marking specification', &#10;  			'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION')">
-            <aggregate type="SET" lower="0" upper="?"/>
+         <derived expression="get_document_definition(SELF, 'marking specification', &#10;  &#9;&#9;&#9;'SPECIFICATION_DOCUMENT_ARM.SPECIFICATION_DEFINITION')" name="marking_specification">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Document_definition"/>
          </derived>
-         <inverse name="marking_material" entity="Material_identification" attribute="items"/>
-         <where label="WR1" expression="SIZEOF(QUERY(st &lt;* message_representation\Geometric_model.items | (st = message_representation_text))) = 1"/>
-         <where label="WR2" expression="SIZEOF(QUERY(ap &lt;* marked_device_shape\Geometric_model.items | (ap = placement))) = 1"/>
-         <where label="WR3" expression="SIZEOF(TYPEOF(marked_device_shape) * ['DEVICE_MARKING_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',&#10;        'DEVICE_MARKING_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL']) = 1"/>
-         <where label="WR4" expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (marking_material)"/>
-         <where label="WR5" expression="EXISTS (marking_specification) AND (SIZEOF(marking_specification) = 1)"/>
+         <inverse attribute="items" entity="Material_identification" name="marking_material"/>
+         <where expression="SIZEOF(QUERY(st &lt;* message_representation\Geometric_model.items | (st = message_representation_text))) = 1" label="WR1"/>
+         <where expression="SIZEOF(QUERY(ap &lt;* marked_device_shape\Geometric_model.items | (ap = placement))) = 1" label="WR2"/>
+         <where expression="SIZEOF(TYPEOF(marked_device_shape) * ['DEVICE_MARKING_ARM.PHYSICAL_UNIT_3D_SHAPE_MODEL',&#10;        'DEVICE_MARKING_ARM.PHYSICAL_UNIT_PLANAR_SHAPE_MODEL']) = 1" label="WR3"/>
+         <where expression="'CONDUCTIVITY_MATERIAL_ASPECTS_ARM.'+ 'MATERIAL_IDENTIFICATION_WITH_CONDUCTIVITY_CLASSIFICATION' IN TYPEOF (marking_material)" label="WR4"/>
+         <where expression="EXISTS (marking_specification) AND (SIZEOF(marking_specification) = 1)" label="WR5"/>
       </entity>
    </schema>
 </express>

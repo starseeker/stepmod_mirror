@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="land_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="land_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Land_arm">
       <interface kind="use" schema="Layered_interconnect_module_design_arm"/>
       <entity name="Contact_size_dependent_land" supertypes="Land">
@@ -11,17 +11,17 @@
             <typename name="Default_attachment_size_based_land_physical_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <inverse name="external_access_mechanism" entity="Land_interface_terminal" attribute="associated_component">
-            <inverse.aggregate type="SET" lower="1" upper="2"/>
+         <inverse attribute="associated_component" entity="Land_interface_terminal" name="external_access_mechanism">
+            <inverse.aggregate lower="1" type="SET" upper="2"/>
          </inverse>
       </entity>
-      <entity name="Inter_stratum_feature_dependent_land" abstract.supertype="YES" supertypes="Land" super.expression="ONEOF (Plated_passage_dependent_land, Unsupported_passage_dependent_land)">
+      <entity abstract.supertype="YES" name="Inter_stratum_feature_dependent_land" super.expression="ONEOF (Plated_passage_dependent_land, Unsupported_passage_dependent_land)" supertypes="Land">
          <explicit name="derived_from">
             <typename name="Default_passage_based_land_physical_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
       </entity>
-      <entity name="Land" supertypes="Stratum_feature_template_component" super.expression="ONEOF (Contact_size_dependent_land, Inter_stratum_feature_dependent_land)">
+      <entity name="Land" super.expression="ONEOF (Contact_size_dependent_land, Inter_stratum_feature_dependent_land)" supertypes="Stratum_feature_template_component">
          <explicit name="alternate_land_definition" optional="YES">
             <typename name="Land_physical_template"/>
          </explicit>
@@ -29,13 +29,13 @@
             <typename name="Land_physical_template"/>
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
-         <derived name="functional" expression="(SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR',&#10;           'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONNECTED_FILLED_AREA'] *&#10;           TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum)) = 1)">
+         <derived expression="(SIZEOF(['LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR',&#10;           'LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONNECTED_FILLED_AREA'] *&#10;           TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum)) = 1)" name="functional">
             <builtintype type="BOOLEAN"/>
          </derived>
-         <inverse name="access_mechanism" entity="Land_join_terminal" attribute="associated_component">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse attribute="associated_component" entity="Land_join_terminal" name="access_mechanism">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
-         <where label="WR1" expression="('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR' IN &#10;           TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum)) OR&#10;           ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_FILLED_AREA' IN &#10;           TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum))"/>
+         <where expression="('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTOR' IN &#10;           TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum)) OR&#10;           ('LAYERED_INTERCONNECT_MODULE_DESIGN_ARM.CONDUCTIVE_FILLED_AREA' IN &#10;           TYPEOF(SELF\Stratum_feature_template_component.implementation_or_resident_stratum))" label="WR1"/>
       </entity>
       <entity name="Land_interface_terminal" supertypes="Laminate_component_interface_terminal">
          <explicit name="definition">
@@ -46,7 +46,7 @@
             <typename name="Contact_size_dependent_land"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
       <entity name="Land_join_terminal" supertypes="Laminate_component_join_terminal">
          <explicit name="definition">
@@ -57,10 +57,10 @@
             <typename name="Land"/>
             <redeclaration entity-ref="Component_feature"/>
          </explicit>
-         <where label="WR1" expression="NOT EXISTS(SELF\Shape_element.description)"/>
+         <where expression="NOT EXISTS(SELF\Shape_element.description)" label="WR1"/>
       </entity>
       <entity name="Land_with_join_terminal" supertypes="Land Land_join_terminal">
-         <derived name="associated_component" expression="SELF">
+         <derived expression="SELF" name="associated_component">
             <typename name="Land_with_join_terminal"/>
             <redeclaration entity-ref="Component_feature"/>
          </derived>
@@ -83,8 +83,8 @@
             <redeclaration entity-ref="Definition_based_product_occurrence"/>
          </explicit>
       </entity>
-      <subtype.constraint name="l_laminate_component_interface_terminal_subtypes" entity="Laminate_component_interface_terminal" super.expression="ONEOF (Component_termination_passage_interface_terminal, Land_interface_terminal)"/>
-      <subtype.constraint name="l_laminate_component_join_terminal_subtypes" entity="Laminate_component_join_terminal" super.expression="ONEOF (Component_termination_passage_join_terminal, Land_join_terminal, Embedded_physical_component_terminal)"/>
-      <subtype.constraint name="stratum_feature_template_component_subtypes" entity="Stratum_feature_template_component" super.expression="ONEOF (Area_component, Land)"/>
+      <subtype.constraint entity="Laminate_component_interface_terminal" name="l_laminate_component_interface_terminal_subtypes" super.expression="ONEOF (Component_termination_passage_interface_terminal, Land_interface_terminal)"/>
+      <subtype.constraint entity="Laminate_component_join_terminal" name="l_laminate_component_join_terminal_subtypes" super.expression="ONEOF (Component_termination_passage_join_terminal, Land_join_terminal, Embedded_physical_component_terminal)"/>
+      <subtype.constraint entity="Stratum_feature_template_component" name="stratum_feature_template_component_subtypes" super.expression="ONEOF (Area_component, Land)"/>
    </schema>
 </express>

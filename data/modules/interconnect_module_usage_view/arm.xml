@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="interconnect_module_usage_view_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="interconnect_module_usage_view_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Interconnect_module_usage_view_arm">
       <interface kind="use" schema="Extended_geometric_tolerance_arm"/>
       <interface kind="use" schema="Functional_assignment_to_part_arm"/>
@@ -15,8 +15,8 @@
          <explicit name="reference_surface">
             <typename name="cavity_reference_select"/>
          </explicit>
-         <where label="WR1" expression="SELF :&lt;&gt;: reference_surface"/>
-         <where label="WR2" expression="SIZEOF(QUERY(ucur &lt;* USEDIN(SELF,&#10;            'PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP.' +&#10;            'ASSOCIATED_USAGE') | NOT&#10;            ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(ucur.associated_shape_definition))&#10;            )) = 0"/>
+         <where expression="SELF :&lt;&gt;: reference_surface" label="WR1"/>
+         <where expression="SIZEOF(QUERY(ucur &lt;* USEDIN(SELF,&#10;            'PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP.' +&#10;            'ASSOCIATED_USAGE') | NOT&#10;            ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN TYPEOF(ucur.associated_shape_definition))&#10;            )) = 0" label="WR2"/>
       </entity>
       <entity name="Interconnect_module_cutout_segment_surface" supertypes="Interconnect_module_surface_feature">
          <explicit name="composed_surface">
@@ -28,10 +28,10 @@
          <explicit name="end_vertex">
             <typename name="Edge_segment_vertex"/>
          </explicit>
-         <where label="WR1" expression="start_vertex :&lt;&gt;: end_vertex"/>
+         <where expression="start_vertex :&lt;&gt;: end_vertex" label="WR1"/>
       </entity>
       <entity name="Interconnect_module_cutout_surface" supertypes="Interconnect_module_surface_feature">
-         <where label="WR1" expression="SIZEOF(QUERY(ucur &lt;* USEDIN(SELF,&#10;         'PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP.' +&#10;         'ASSOCIATED_USAGE') | NOT&#10;         ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN&#10;         TYPEOF(ucur.associated_shape_definition)))) = 0"/>
+         <where expression="SIZEOF(QUERY(ucur &lt;* USEDIN(SELF,&#10;         'PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP.' +&#10;         'ASSOCIATED_USAGE') | NOT&#10;         ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN&#10;         TYPEOF(ucur.associated_shape_definition)))) = 0" label="WR1"/>
       </entity>
       <entity name="Interconnect_module_edge_segment_surface" supertypes="Interconnect_module_surface_feature">
          <explicit name="composed_surface">
@@ -43,15 +43,15 @@
          <explicit name="end_vertex">
             <typename name="Edge_segment_vertex"/>
          </explicit>
-         <where label="WR1" expression="start_vertex :&lt;&gt;: end_vertex"/>
+         <where expression="start_vertex :&lt;&gt;: end_vertex" label="WR1"/>
       </entity>
       <entity name="Interconnect_module_edge_surface" supertypes="Interconnect_module_surface_feature">
-         <where label="WR1" expression="SIZEOF(QUERY(ucur &lt;* USEDIN(SELF,&#10;         'PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP.' +&#10;         'ASSOCIATED_USAGE') | NOT&#10;         ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN&#10;         TYPEOF(ucur.associated_shape_definition)))) = 0"/>
+         <where expression="SIZEOF(QUERY(ucur &lt;* USEDIN(SELF,&#10;         'PART_FEATURE_LOCATION_ARM.USAGE_CONCEPT_USAGE_RELATIONSHIP.' +&#10;         'ASSOCIATED_USAGE') | NOT&#10;         ('CONSTRUCTIVE_SOLID_GEOMETRY_2D_ARM.SINGLE_BOUNDARY_CSG_2D_MODEL' IN&#10;         TYPEOF(ucur.associated_shape_definition)))) = 0" label="WR1"/>
       </entity>
       <entity name="Interconnect_module_interface_terminal" supertypes="Interconnect_module_terminal"/>
       <entity name="Interconnect_module_primary_surface" supertypes="Interconnect_module_surface_feature"/>
       <entity name="Interconnect_module_secondary_surface" supertypes="Interconnect_module_surface_feature"/>
-      <entity name="Interconnect_module_surface_feature" abstract.supertype="YES" supertypes="Part_feature" super.expression="ONEOF (Interconnect_module_cavity_surface, Interconnect_module_cutout_segment_surface, Interconnect_module_cutout_surface, Interconnect_module_secondary_surface, Interconnect_module_primary_surface, Interconnect_module_edge_surface, Interconnect_module_edge_segment_surface)">
+      <entity abstract.supertype="YES" name="Interconnect_module_surface_feature" super.expression="ONEOF (Interconnect_module_cavity_surface, Interconnect_module_cutout_segment_surface, Interconnect_module_cutout_surface, Interconnect_module_secondary_surface, Interconnect_module_primary_surface, Interconnect_module_edge_surface, Interconnect_module_edge_segment_surface)" supertypes="Part_feature">
          <explicit name="associated_definition">
             <typename name="Layered_interconnect_module_usage_view"/>
             <redeclaration entity-ref="Part_feature"/>
@@ -59,7 +59,7 @@
       </entity>
       <entity name="Interconnect_module_terminal" supertypes="Part_terminal">
          <explicit name="connection_area" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Connection_zone_in_usage_view"/>
             <redeclaration entity-ref="Shape_feature"/>
          </explicit>
@@ -78,7 +78,7 @@
             <redeclaration entity-ref="Shape_element_relationship"/>
          </explicit>
       </entity>
-      <entity name="Interconnect_module_usage_view" supertypes="Part_usage_view" super.expression="Layered_interconnect_module_usage_view"/>
+      <entity name="Interconnect_module_usage_view" super.expression="Layered_interconnect_module_usage_view" supertypes="Part_usage_view"/>
       <entity name="Layered_interconnect_module_usage_view" supertypes="Interconnect_module_usage_view">
          <explicit name="thickness_over_dielectric_requirement" optional="YES">
             <typename name="Length_tolerance_characteristic"/>
@@ -90,16 +90,16 @@
             <typename name="Restraint_condition"/>
          </explicit>
          <explicit name="located_thickness_requirement" optional="YES">
-            <aggregate type="SET" lower="1" upper="?"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Located_interconnect_module_thickness_requirement"/>
          </explicit>
          <explicit name="implemented_function" optional="YES">
             <typename name="Functional_unit_usage_view"/>
          </explicit>
-         <where label="WR1" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
-         <where label="WR2" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
-         <where label="WR3" expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_EDGE_SURFACE' IN TYPEOF(pf)))) &lt;= 1"/>
-         <where label="WR4" expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)"/>
+         <where expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_PRIMARY_SURFACE' IN TYPEOF(pf)))) &lt;= 1" label="WR1"/>
+         <where expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_SECONDARY_SURFACE' IN TYPEOF(pf)))) &lt;= 1" label="WR2"/>
+         <where expression="SIZEOF(QUERY(pf &lt;* USEDIN(SELF,&#10; 'INTERCONNECT_MODULE_USAGE_VIEW_ARM.INTERCONNECT_MODULE_SURFACE_FEATURE.ASSOCIATED_DEFINITION') | ('INTERCONNECT_MODULE_USAGE_VIEW_ARM.' + 'INTERCONNECT_MODULE_EDGE_SURFACE' IN TYPEOF(pf)))) &lt;= 1" label="WR3"/>
+         <where expression="NOT EXISTS(SELF\Product_view_definition.additional_characterization)" label="WR4"/>
       </entity>
       <entity name="Located_interconnect_module_thickness_requirement">
          <explicit name="reference_location">
@@ -108,8 +108,8 @@
          <explicit name="thickness_requirement">
             <typename name="Length_tolerance_characteristic"/>
          </explicit>
-         <inverse name="design" entity="Layered_interconnect_module_usage_view" attribute="located_thickness_requirement">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse attribute="located_thickness_requirement" entity="Layered_interconnect_module_usage_view" name="design">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
          <unique label="UR1">
             <unique.attribute attribute="design"/>

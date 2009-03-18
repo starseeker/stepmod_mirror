@@ -1,5 +1,5 @@
 (*
- $Id: arm.exp,v 1.28 2009/03/06 00:38:49 dmprice Exp $
+ $Id: arm.exp,v 1.29 2009/03/06 15:44:39 dmprice Exp $
  ISO TC184/SC4/WG3 N1553 - ISO/TS 10303-439 AP239 product life cycle support - EXPRESS ARM
  Supersedes ISO TC184/SC4/WG3 N1399
 *) 
@@ -12,10 +12,12 @@ USE FROM Specification_based_configuration_arm;
 USE FROM Group_arm;
 *)
 
+(* AP233 ???
+*)
 USE FROM Analysis_assignment_arm;    -- ISO/TS 10303-1474
-
+ 
 USE FROM Analysis_characterized_arm;    -- ISO/TS 10303-1475
-
+ 
 USE FROM Analysis_identification_arm;    -- ISO/TS 10303-1476
 
 USE FROM Analysis_representation_arm;    -- ISO/TS 10303-1785
@@ -23,6 +25,8 @@ USE FROM Analysis_representation_arm;    -- ISO/TS 10303-1785
 USE FROM Ap239_activity_recording_arm;    -- ISO/TS 10303-1287
 
 USE FROM Ap239_product_status_recording_arm;    -- ISO/TS 10303-1304
+
+USE FROM Collection_identification_and_version_arm;  -- ISO/TS 10303-??
 
 USE FROM Conditional_effectivity_arm;  -- ISO/TS 10303-??
 
@@ -34,12 +38,6 @@ USE FROM Extended_task_element_arm;   -- ISO/TS 10303-1479
 
 USE FROM External_analysis_representation_arm;    -- ISO/TS 10303-1784
 
-USE FROM Environment_definition_arm;   -- ISO/TS 10303-??
-
-USE FROM Environment_observed_arm;   -- ISO/TS 10303-??
-
-USE FROM Information_collection_arm;  -- ISO/TS 10303-??
-
 USE FROM Identification_relationship_arm;  -- ISO/TS 10303-??
 
 USE FROM Product_environment_definition_arm;  -- ISO/TS 10303-??
@@ -47,6 +45,8 @@ USE FROM Product_environment_definition_arm;  -- ISO/TS 10303-??
 USE FROM Product_environment_observed_arm;  -- ISO/TS 10303-??
 
 USE FROM Risk_management_arm;   -- ISO/TS 10303-1467
+
+USE FROM Same_as_external_item_arm;  -- ISO/TS 10303-??
 
 USE FROM System_view_definition_arm;   -- ISO/TS 10303-1485
 
@@ -94,7 +94,6 @@ TYPE plcs_analysed_item = SELECT BASED_ON analysed_item WITH
    Product_concept, 
    Product_design_to_individual, 
    Product_design_version_to_individual, 
-   Product_environment,
    Product_group_relationship, 
    Product_planned_to_realized, 
    Product_relationship, 
@@ -183,16 +182,41 @@ TYPE plcs_assumption_item = SELECT  BASED_ON assumption_item WITH
 END_TYPE;
 
 TYPE plcs_certification_item = SELECT BASED_ON certification_item WITH
-  (Analysis_assignment, Assembly_component_relationship);
+  (Analysis_assignment, 
+   Assembly_component_relationship);
+END_TYPE;
+
+(* TODO: Need to add all entities here *)
+TYPE plcs_collection_member_select = SELECT BASED_ON collection_member_select WITH
+  (Activity, 
+   Activity_method, 
+   Product, 
+   Product_version,
+   Product_view_definition);
+END_TYPE;
+
+TYPE plcs_collection_assignment_select  = SELECT BASED_ON collection_assignment_select WITH
+  (Activity, 
+   Activity_method, 
+   Contract,
+   Organization,
+   Product, 
+   Product_concept,
+   Product_configuration,
+   Product_version, 
+   Product_view_definition,
+   Project,
+   Work_order,
+   Work_request);
 END_TYPE;
 
 TYPE plcs_classification_item = SELECT BASED_ON classification_item WITH
   (Analysis_assignment,
    Assembly_component_relationship,
-   Assumed_assignment,
    Assumption,
    Assumption_assignment,
    Assumption_relationship,
+   Item_assumed,
    Identification_relationship,
    Product_group_membership,
    Representation_relationship);
@@ -225,16 +249,16 @@ END_TYPE;
 TYPE plcs_date_or_date_time_item = SELECT BASED_ON date_or_date_time_item WITH
   (Analysis_assignment,
    Approving_person_organization,
-   Assumed_assignment,
    Assumption,
    Assumption_assignment,
    Assumption_relationship,
-   Identification_relationship);
+   Identification_relationship,
+   Item_assumed);
 END_TYPE;
 
+(* TODO: Check that this is complete. Are all enities that can be assigned a document here *)
 TYPE plcs_description_item = SELECT BASED_ON description_item WITH
-  (Assumed_assignment,
-   Activity,
+  (Activity,
    Activity_method,
    Activity_method_realization,
    Activity_method_realization_relationship,
@@ -243,7 +267,9 @@ TYPE plcs_description_item = SELECT BASED_ON description_item WITH
    Activity_property_representation,
    Activity_relationship,
    Alternate_product_relationship,
+   Analysis_assignment, 
    Approval_relationship,
+   Assembly_component_relationship,
    Assembly_relationship_substitution,
    Assigned_property,
    Assumption,
@@ -259,6 +285,7 @@ TYPE plcs_description_item = SELECT BASED_ON description_item WITH
    Characterizable_object,
    Class,
    Condition,
+   Condition_assignment,
    Condition_evaluation,
    Condition_evaluation_parameter,
    Condition_parameter,
@@ -291,6 +318,7 @@ TYPE plcs_description_item = SELECT BASED_ON description_item WITH
    Interface_definition_connection,
    Interface_definition_for,
    Intersection,
+   Item_assumed,   
    Item_shape,
    Justification,
    Justification_assignment,
@@ -387,7 +415,6 @@ END_TYPE;
 TYPE plcs_effectivity_item = SELECT BASED_ON effectivity_item WITH
   (Activity_property_representation,
    Analysis_assignment,
-   Assumed_assignment,
    Assumption,
    Assumption_assignment,
    Assumption_relationship,
@@ -395,6 +422,7 @@ TYPE plcs_effectivity_item = SELECT BASED_ON effectivity_item WITH
    Condition_assignment,
    Identification_relationship,
    Independent_property_representation,
+   Item_assumed,
    Qualification_assignment,
    Resource_property_representation,
    View_definition_usage);
@@ -416,27 +444,6 @@ TYPE plcs_in_zone_item = SELECT BASED_ON in_zone_item WITH
    Applied_activity_method_assignment);
 END_TYPE;
 
-TYPE plcs_information_collection_assignment_select = SELECT BASED_ON information_collection_assignment_select WITH
-  (Activity,
-   Activity_method,
-   Contract,
-   Market,
-   Product,
-   Product_concept,
-   Product_configuration,
-   Product_version);
-END_TYPE;
-
-TYPE plcs_information_collection_member_select = SELECT BASED_ON information_collection_member_select WITH
-  (Activity,
-   Activity_method,
-   Contract,
-   Market,
-   Product,
-   Product_concept,
-   Product_configuration,
-   Product_version);
-END_TYPE;
 
 TYPE plcs_item_usage_relationship_item = SELECT BASED_ON item_usage_relationship_item WITH
   (Breakdown_element_realization);
@@ -464,10 +471,31 @@ TYPE plcs_observed_context = SELECT BASED_ON observed_context WITH
    Assembly_component_relationship);
 END_TYPE;
 
+TYPE plcs_observation_item = SELECT BASED_ON observed_context WITH
+  (Activity, 
+   Activity_property, 
+   Activity_property_representation,
+   Assigned_property,
+   Certification,
+   Certification_assignment,
+   Contract,
+   Contract_assignment,
+   Date_or_date_time_assignment,
+   Effectivity,
+   Effectivity_assignment,
+   Effectivity_relationship,
+   Product, 
+   Product_version, 
+   Product_view_definition,
+   Resource_property,
+   Resource_property_representation,
+   State);
+END_TYPE;
+
 TYPE plcs_organization_or_person_in_organization_item  = SELECT BASED_ON organization_or_person_in_organization_item WITH
-  (Assumed_assignment,
-   Assumption, 
+  (Assumption, 
    Assumption_assignment,
+   Item_assumed,   
    Identification_relationship
    );
 END_TYPE;

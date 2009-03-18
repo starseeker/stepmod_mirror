@@ -1,57 +1,54 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="feature_and_connection_zone_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="feature_and_connection_zone_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Feature_and_connection_zone_arm">
       <interface kind="use" schema="Shape_feature_arm"/>
       <interface kind="use" schema="Surface_conditions_arm"/>
       <interface kind="reference" schema="Characterizable_object_arm">
          <interfaced.item name="bag_to_set"/>
       </interface>
-      <entity name="Connection_zone" abstract.supertype="YES" supertypes="Shape_feature_occurrence" abstract.entity="NO">
-         <derived name="surface_conditions" expression="bag_to_set(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'))">
-            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+      <entity abstract.supertype="YES" name="Connection_zone" supertypes="Shape_feature_occurrence">
+         <derived expression="bag_to_set(USEDIN(SELF,'SURFACE_CONDITIONS_ARM.SURFACE_CONDITION_ASSOCIATION.DESCRIBED_ELEMENT'))" name="surface_conditions">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Surface_condition"/>
          </derived>
-         <where label="WR1" expression="(SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA')) +&#10;             SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.SHAPE_FEATURE.CONNECTION_AREA')))&#10;            = 1"/>
-         <where label="WR2" expression="NOT EXISTS (SELF\Shape_element.description)"/>
-         <where label="WR3" expression="NOT EXISTS (SELF\Shape_element.element_name)"/>
-      <where label="IP1"/>
-         <where label="IP2"/>
-         <where label="IP3"/>
+         <where expression="(SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.FEATURE_DEFINITION_WITH_CONNECTION_AREA.CONNECTION_AREA')) +&#10;             SIZEOF(USEDIN(SELF, 'FEATURE_AND_CONNECTION_ZONE_ARM.SHAPE_FEATURE.CONNECTION_AREA')))&#10;            = 1" label="WR1"/>
+         <where expression="NOT EXISTS (SELF\Shape_element.description)" label="WR2"/>
+         <where expression="NOT EXISTS (SELF\Shape_element.element_name)" label="WR3"/>
       </entity>
-      <entity name="Feature_definition_with_connection_area" supertypes="Shape_feature_definition" abstract.supertype="NO" abstract.entity="NO">
+      <entity name="Feature_definition_with_connection_area" supertypes="Shape_feature_definition">
          <explicit name="connection_area" optional="YES">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Connection_zone"/>
          </explicit>
       </entity>
-      <entity name="Location_shape_model" supertypes="Geometric_model" abstract.supertype="NO" abstract.entity="NO"/>
-      <entity name="Shape_feature" abstract.supertype="YES" supertypes="Shape_element" abstract.entity="NO">
+      <entity name="Location_shape_model" supertypes="Geometric_model"/>
+      <entity abstract.supertype="YES" name="Shape_feature" supertypes="Shape_element">
          <explicit name="connection_area" optional="YES">
-            <aggregate type="SET" lower="1" upper="?" unique="NO" optional="NO"/>
+            <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Connection_zone"/>
          </explicit>
-         <explicit name="element_name" optional="NO">
-            <builtintype type="STRING" fixed="NO"/>
+         <explicit name="element_name">
+            <builtintype type="STRING"/>
             <redeclaration entity-ref="Shape_element"/>
          </explicit>
-         <derived name="surface_conditions" expression="facz_get_sc(SELF)">
-            <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <derived expression="facz_get_sc(SELF)" name="surface_conditions">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Surface_condition"/>
          </derived>
          <unique label="UR1">
             <unique.attribute attribute="element_name"/>
-            <unique.attribute entity-ref="Shape_element" attribute="containing_shape"/>
+            <unique.attribute attribute="containing_shape" entity-ref="Shape_element"/>
          </unique>
       </entity>
       <function name="facz_get_sc">
          <parameter name="input">
             <typename name="Shape_feature"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?" unique="NO" optional="NO"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Surface_condition"/>
          <algorithm>LOCAL
     sca : SET OF Surface_condition_association := 

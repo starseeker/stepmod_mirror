@@ -70,11 +70,11 @@
             <aggregate lower="1" type="SET" upper="?"/>
             <typename name="Template_location_in_structured_template"/>
          </derived>
-         <derived expression="QUERY(tlict &lt;* SELF\Structured_template.templates |&#10;         ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.SINGLE_STRATUM_TEMPLATE' IN TYPEOF(tlict.template)))" name="single_stratum_components">
+         <derived expression="fd_get_single_stratum_components(SELF\Structured_template.templates)" name="single_stratum_components">
             <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Single_stratum_template"/>
          </derived>
-         <where expression="SIZEOF(QUERY(ps &lt;* templates | (ps.template\Multi_stratum_structured_template.location &lt;&gt; SELF\Multi_stratum_structured_template.location)&#10;              AND (ps.template\Multi_stratum_structured_template.location &lt;&gt; template_arrangement.symmetrical))) = 0" label="WR1"/>
+         <where expression="SIZEOF(QUERY(ps &lt;* SELF\Structured_template.templates | (ps\Template_location_in_structured_template.template\Multi_stratum_structured_template.location &lt;&gt; SELF\Multi_stratum_structured_template.location)&#10;              AND (ps\Template_location_in_structured_template.template\Multi_stratum_structured_template.location &lt;&gt; template_arrangement.symmetrical))) = 0" label="WR1"/>
          <where expression="((SELF\Multi_stratum_structured_template.location = template_arrangement.top) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top')) OR &#10;            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.top) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'top'))" label="WR2"/>
          <where expression="((SELF\Multi_stratum_structured_template.location = template_arrangement.bottom) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom')) OR &#10;            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.bottom) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'bottom'))" label="WR3"/>
          <where expression="((SELF\Multi_stratum_structured_template.location = template_arrangement.symmetrical) AND (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical')) OR &#10;            (NOT (SELF\Multi_stratum_structured_template.location = template_arrangement.symmetrical) AND NOT (SELF\Product_view_definition.initial_context\View_definition_context.description = 'symmetrical'))" label="WR4"/>
@@ -201,6 +201,24 @@
       RETURN (gm);
     END_IF;
     RETURN(?);</algorithm>
+      </function>
+      <function name="fd_get_single_stratum_components">
+         <parameter name="input">
+            <aggregate lower="0" type="SET" upper="?"/>
+            <typename name="Template_location_in_structured_template"/>
+         </parameter>
+         <aggregate lower="0" type="SET" upper="?"/>
+         <typename name="Single_stratum_template"/>
+         <algorithm>LOCAL
+      sst : SET OF Single_stratum_template := [];
+    END_LOCAL;
+    REPEAT i := 1 TO HIINDEX(input);
+      IF ('LAYERED_INTERCONNECT_SIMPLE_TEMPLATE_ARM.SINGLE_STRATUM_TEMPLATE' IN TYPEOF(input[i]\Template_location_in_structured_template.template))
+      THEN      
+        sst := sst + input[i]\Template_location_in_structured_template.template;
+      END_IF;
+    END_REPEAT;
+    RETURN (sst);</algorithm>
       </function>
       <function name="fd_get_transforms">
          <parameter name="input1">

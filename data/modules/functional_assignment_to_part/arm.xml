@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?xml-stylesheet type="text/xsl" href="../../../xsl/express.xsl"?>
 <!DOCTYPE express SYSTEM "../../../dtd/express.dtd">
 
-<express language_version="2" rcs.date="$Date$" rcs.revision="$Revision$" description.file="arm_descriptions.xml">
-   <application name="JSDAI" owner="LKSoft" url="www.lksoft.com" version="4.0 beta" source="functional_assignment_to_part_arm schema_instance"/>
+<express description.file="arm_descriptions.xml" language_version="2" rcs.date="$Date$" rcs.revision="$Revision$">
+   <application name="JSDAI" owner="LKSoft" source="functional_assignment_to_part_arm schema_instance" url="www.lksoft.com" version="4.0 beta"/>
    <schema name="Functional_assignment_to_part_arm">
       <interface kind="use" schema="Functional_usage_view_arm"/>
       <interface kind="use" schema="Physical_unit_usage_view_arm"/>
@@ -11,8 +11,11 @@
       <type name="fatp_groupable_item">
          <select basedon="groupable_item" selectitems="Part_connected_terminals_definition"/>
       </type>
+      <type name="fatp_part_connected_terminals_definition_domain_enumeration">
+         <enumeration extensible="YES" items="electrical thermal optical magnetic"/>
+      </type>
       <type name="fatp_requirement_assignment_item">
-         <select extensible="YES" genericentity="YES" basedon="requirement_assignment_item" selectitems="Part_connected_terminals_element Part_connected_terminals_definition"/>
+         <select basedon="requirement_assignment_item" extensible="YES" genericentity="YES" selectitems="Part_connected_terminals_element Part_connected_terminals_definition"/>
       </type>
       <type name="fatp_termination_or_junction">
          <select extensible="YES" genericentity="YES" selectitems="Part_terminal Part_connected_terminals_topological_junction"/>
@@ -37,14 +40,25 @@
             <typename name="Part_usage_view"/>
          </explicit>
          <explicit name="connected_terminals">
-            <aggregate type="SET" lower="2" upper="?"/>
+            <aggregate lower="2" type="SET" upper="?"/>
             <typename name="Part_terminal"/>
          </explicit>
+         <inverse attribute="associated_definition" entity="Part_connected_terminals_definition_domain" name="domain">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
+         </inverse>
          <unique label="UR1">
             <unique.attribute attribute="name"/>
             <unique.attribute attribute="associated_definition"/>
          </unique>
-         <where label="WR1" expression="SIZEOF(QUERY(ct &lt;* connected_terminals | NOT (associated_definition = ct\Shape_element.containing_shape))) = 0"/>
+         <where expression="SIZEOF(QUERY(ct &lt;* connected_terminals | NOT (associated_definition = ct\Shape_element.containing_shape))) = 0" label="WR1"/>
+      </entity>
+      <entity name="Part_connected_terminals_definition_domain">
+         <explicit name="domain_type">
+            <typename name="fatp_part_connected_terminals_definition_domain_enumeration"/>
+         </explicit>
+         <explicit name="associated_definition">
+            <typename name="Part_connected_terminals_definition"/>
+         </explicit>
       </entity>
       <entity name="Part_connected_terminals_element">
          <explicit name="name">
@@ -63,7 +77,7 @@
             <unique.attribute attribute="name"/>
             <unique.attribute attribute="connectivity_context"/>
          </unique>
-         <where label="WR1" expression="start_terminus &lt;&gt; end_terminus"/>
+         <where expression="start_terminus &lt;&gt; end_terminus" label="WR1"/>
       </entity>
       <entity name="Part_connected_terminals_layout_topology_requirement_assignment" supertypes="Requirement_assignment">
          <explicit name="assigned_requirement">
@@ -76,22 +90,22 @@
          </explicit>
       </entity>
       <entity name="Part_connected_terminals_structure_definition" supertypes="Part_connected_terminals_definition">
-         <derived name="structural_terminal_nodes" expression="fatp_get_pt(structural_element)">
-            <aggregate type="SET" lower="0" upper="?"/>
+         <derived expression="fatp_get_pt(structural_element)" name="structural_terminal_nodes">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Part_terminal"/>
          </derived>
-         <derived name="structural_junction_nodes" expression="fatp_get_tj(structural_element)">
-            <aggregate type="SET" lower="0" upper="?"/>
+         <derived expression="fatp_get_tj(structural_element)" name="structural_junction_nodes">
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Part_connected_terminals_topological_junction"/>
          </derived>
-         <derived name="tree_structure" expression="((SIZEOF(structural_terminal_nodes) + SIZEOF(structural_junction_nodes)) = (SIZEOF(structural_element) + 1))">
+         <derived expression="((SIZEOF(structural_terminal_nodes) + SIZEOF(structural_junction_nodes)) = (SIZEOF(structural_element) + 1))" name="tree_structure">
             <builtintype type="LOGICAL"/>
          </derived>
-         <inverse name="structural_element" entity="Part_connected_terminals_element" attribute="connectivity_context">
-            <inverse.aggregate type="SET" lower="1" upper="?"/>
+         <inverse attribute="connectivity_context" entity="Part_connected_terminals_element" name="structural_element">
+            <inverse.aggregate lower="1" type="SET" upper="?"/>
          </inverse>
-         <where label="WR1" expression="SIZEOF(QUERY(stn &lt;* structural_terminal_nodes |&#10;				NOT(stn IN SELF\Part_connected_terminals_definition.connected_terminals)&#10;				)) = 0"/>
-         <where label="WR2" expression="SIZEOF(structural_terminal_nodes) = SIZEOF(SELF\Part_connected_terminals_definition.connected_terminals)"/>
+         <where expression="SIZEOF(QUERY(stn &lt;* structural_terminal_nodes |&#10;&#9;&#9;&#9;&#9;NOT(stn IN SELF\Part_connected_terminals_definition.connected_terminals)&#10;&#9;&#9;&#9;&#9;)) = 0" label="WR1"/>
+         <where expression="SIZEOF(structural_terminal_nodes) = SIZEOF(SELF\Part_connected_terminals_definition.connected_terminals)" label="WR2"/>
       </entity>
       <entity name="Part_connected_terminals_topological_junction">
          <explicit name="name">
@@ -105,24 +119,24 @@
             <unique.attribute attribute="scope"/>
          </unique>
       </entity>
-      <entity name="Part_terminal" abstract.supertype="YES" supertypes="Part_feature">
+      <entity abstract.supertype="YES" name="Part_terminal" supertypes="Part_feature">
          <explicit name="terminal_type" optional="YES">
             <builtintype type="STRING"/>
             <redeclaration entity-ref="Shape_element" old_name="description"/>
          </explicit>
-         <inverse name="connection_requirement" entity="Part_connected_terminals_definition" attribute="connected_terminals">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         <inverse attribute="connected_terminals" entity="Part_connected_terminals_definition" name="connection_requirement">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
-         <inverse name="functional_usage_view_terminal" entity="Functional_usage_view_to_part_terminal_assignment" attribute="physical_usage_view_terminal">
-            <inverse.aggregate type="SET" lower="0" upper="1"/>
+         <inverse attribute="physical_usage_view_terminal" entity="Functional_usage_view_to_part_terminal_assignment" name="functional_usage_view_terminal">
+            <inverse.aggregate lower="0" type="SET" upper="1"/>
          </inverse>
       </entity>
       <function name="fatp_get_pt">
          <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Part_connected_terminals_element"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Part_terminal"/>
          <algorithm>LOCAL
    pct : SET OF Part_terminal := [];
@@ -140,10 +154,10 @@
       </function>
       <function name="fatp_get_tj">
          <parameter name="input">
-            <aggregate type="SET" lower="0" upper="?"/>
+            <aggregate lower="0" type="SET" upper="?"/>
             <typename name="Part_connected_terminals_element"/>
          </parameter>
-         <aggregate type="SET" lower="0" upper="?"/>
+         <aggregate lower="0" type="SET" upper="?"/>
          <typename name="Part_connected_terminals_topological_junction"/>
          <algorithm>LOCAL
    tj : SET OF Part_connected_terminals_topological_junction := [];

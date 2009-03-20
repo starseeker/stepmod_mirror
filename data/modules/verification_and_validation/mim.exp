@@ -1,27 +1,27 @@
-(*
-   $Id: mim.exp,v 1.10 2008/09/03 20:06:01 abf Exp $
-   ISO TC184/SC4/WG12 N5939- ISO/TS 10303-1488 Verification and validation - EXPRESS MIM
-   Supersedes ISO TC184/SC4/WG12 N4632
-*) 
-
 SCHEMA Verification_and_validation_mim;
 
 USE FROM group_schema
-  (group_relationship);
+  (group,
+   group_relationship);
 
 USE FROM Requirement_assignment_mim;
 
-TYPE verification_evidence_item = EXTENSIBLE GENERIC_ENTITY SELECT ;
+TYPE evidence_item = EXTENSIBLE GENERIC_ENTITY SELECT 
+  (validation,
+   verification);
 END_TYPE;
 
-ENTITY verification
+ENTITY evidence
+SUBTYPE OF (group_assignment);
+  items : SET [1 : ?] OF evidence_item;
+END_ENTITY;
+
+ENTITY validation
 SUBTYPE OF (group);
 END_ENTITY;
 
-ENTITY verification_evidence
-SUBTYPE OF (group_assignment);
-  SELF\group_assignment.assigned_group : verification;
-  items : SET [1 : ?] OF verification_evidence_item;
+ENTITY verification
+SUBTYPE OF (group);
 END_ENTITY;
 
 ENTITY verification_relationship
